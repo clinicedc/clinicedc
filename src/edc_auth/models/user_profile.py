@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.sites.models import Site
 from django.core.validators import RegexValidator
 from django.db import models
@@ -7,7 +7,10 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from edc_notification.model_mixins import NotificationUserProfileModelMixin
 
+from ..constants import CUSTOM_ROLE
+from ..group_names import EVERYONE
 from .role import Role
+from edc_auth.constants import STAFF_ROLE
 
 
 class UserProfile(NotificationUserProfileModelMixin, models.Model):
@@ -61,3 +64,49 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
 
     def __str__(self):
         return self.user.username
+
+    def add_groups_for_roles(self):
+        """Add groups to this user for the selected roles.
+
+        Called by m2m signal.
+        """
+        if CUSTOM_ROLE not in [obj.name for obj in self.roles.all()]:
+            group_names = [group.name for group in self.user.groups.all()]
+            add_group_names = []
+            for role in self.roles.all():
+                for group in role.groups.all():
+                    if group.name not in group_names:
+                        add_group_names.append(group.name)
+            add_group_names = list(set(add_group_names))
+            for name in add_group_names:
+                self.user.groups.add(Group.objects.get(name=name))
+
+    def remove_groups_for_roles(self, pk_set):
+        """Remove groups from this user for the removed roles.
+
+        Called by m2m signal.
+        """
+        if CUSTOM_ROLE in [obj.name for obj in Role.objects.filter(pk__in=pk_set)]:
+            self.user.groups.clear()
+            self.user.userprofile.roles.clear()
+            self.user.userprofile.roles.add(Role.objects.get(name=STAFF_ROLE))
+        else:
+            remove_group_names = []
+            current_group_names = []
+            for role in self.roles.all():
+                current_group_names.extend([group.name for group in role.groups.all()])
+            for role in Role.objects.filter(pk__in=pk_set):
+                remove_group_names.extend(
+                    [
+                        group.name
+                        for group in role.groups.all()
+                        if group.name not in current_group_names
+                    ]
+                )
+            for name in remove_group_names:
+                self.user.groups.remove(Group.objects.get(name=name))
+
+    def ensure_basic_groups_included(self):
+        user_group_names = [g.name for g in self.user.groups.all()]
+        if EVERYONE not in user_group_names:
+            self.user.groups.add(Group.objects.get(name=EVERYONE))

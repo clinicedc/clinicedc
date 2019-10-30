@@ -24,7 +24,7 @@ def post_migrate_user_roles(sender=None, **kwargs):
         sys.stdout.write(f" * updating groups for {role_names.get(role_name)}.\n")
         try:
             role = Role.objects.get(name=role_name)
-        except ObjectDoesNotExist as e:
+        except ObjectDoesNotExist:
             role = Role.objects.create(
                 name=role_name,
                 display_name=role_names.get(role_name),

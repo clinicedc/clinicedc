@@ -25,6 +25,14 @@ class UserAdmin(BaseUserAdmin):
         "userprofile__roles__name",
     )
 
+    list_filter = (
+        "is_staff",
+        "is_superuser",
+        "is_active",
+        "userprofile__roles",
+        "groups",
+    )
+
     def role(self, obj=None):
         roles = []
         role_group_names = []
