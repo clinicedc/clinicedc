@@ -4,6 +4,11 @@ from django.contrib import messages
 from django.contrib.admin import sites
 from django.core.exceptions import ObjectDoesNotExist
 from edc_auth import EXPORT
+from edc_randomization.blinding import is_blinded_user
+from edc_randomization.models import (
+    get_randomizationlist_model,
+    get_historicalrandomizationlist_model,
+)
 
 from .model_options import ModelOptions
 
@@ -37,6 +42,12 @@ class Exportables(OrderedDict):
                 historical_models = []
                 list_models = []
                 for model in app_config.get_models():
+                    if (
+                        model == get_randomizationlist_model()
+                        or model == get_historicalrandomizationlist_model()
+                    ):
+                        if is_blinded_user(user.username):
+                            continue
                     model_opts = ModelOptions(model=model._meta.label_lower)
                     if model_opts.is_historical:
                         historical_models.append(model_opts)
