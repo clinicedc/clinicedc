@@ -2,11 +2,14 @@
 
 from django.db import migrations
 
-from edc_notification import site_notifications
+# from edc_notification import site_notifications
 
 
 class Migration(migrations.Migration):
 
     dependencies = [("edc_notification", "0002_update_notifications")]
 
-    operations = [migrations.RunPython(site_notifications.update_notification_list)]
+    # this is now run as in post migrate
+    # operations = [migrations.RunPython(site_notifications.update_notification_list)]
+
+    operations = []
