@@ -5,7 +5,6 @@ import sys
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
-from edc_constants.constants import YES
 from pprint import pprint
 from tqdm import tqdm
 from uuid import uuid4
@@ -31,20 +30,20 @@ class RandomizationListImporter:
         ...
     """
 
+    default_fieldnames = ["sid", "assignment", "site_name"]
+
     def __init__(
         self,
         randomizers=None,
         verbose=None,
         overwrite=None,
         add=None,
-        fieldnames=None,
         dryrun=None,
         user=None,
         revision=None,
     ):
         verbose = True if verbose is None else verbose
-        self.fieldnames = fieldnames or ["sid", "assignment", "site_name"]
-        self.dryrun = True if dryrun and dryrun == YES else False
+        self.dryrun = True if dryrun and dryrun.lower() == "yes" else False
         self.revision = revision
         self.user = user
         if self.dryrun:
@@ -76,7 +75,6 @@ class RandomizationListImporter:
         path = os.path.expanduser(randomizer.get_randomization_list_path())
 
         self.inspect_header(path, randomizer)
-
         if not self.dryrun:
             if overwrite:
                 randomizer.model_cls().objects.all().delete()
@@ -84,7 +82,6 @@ class RandomizationListImporter:
                 raise RandomizationListImportError(
                     f"Not importing CSV. {randomizer.model} model is not empty!"
                 )
-
         with open(path, "r") as csvfile:
             reader = csv.DictReader(csvfile)
             sids = [row["sid"] for row in reader]
@@ -145,13 +142,14 @@ class RandomizationListImporter:
 
     def inspect_header(self, path, randomizer):
         with open(path, "r") as csvfile:
-            reader = csv.DictReader(csvfile, fieldnames=self.fieldnames)
+            reader = csv.DictReader(csvfile)
             for index, row in enumerate(reader):
                 if index == 0:
-                    for fieldname in self.fieldnames:
+                    for fieldname in self.default_fieldnames:
                         if fieldname not in row:
                             raise RandomizationListImportError(
-                                f"Invalid header. Missing column `{fieldname}`. Got {row}"
+                                f"Invalid header. Missing column "
+                                f"`{fieldname}`. Got {row}"
                             )
                 elif index == 1:
                     if self.dryrun:

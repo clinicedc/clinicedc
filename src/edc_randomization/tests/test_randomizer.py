@@ -429,17 +429,17 @@ class TestRandomizer(TestCase):
             InvalidAssignment, RandomizationListImporter, randomizers=[MyRandomizer]
         )
 
-    @tag("1")
     @override_settings(SITE_ID=40)
     def test_invalid_sid(self):
-        # change to a different starting SID
         RandomizationListImporter()
+        # change to a different starting SID
         obj = RandomizationList.objects.all().order_by("sid").first()
-        obj.sid = 100
+        obj.sid = 99999
         obj.save()
+
         with self.assertRaises(RandomizationListError) as cm:
             RandomizationListVerifier(randomizer=Randomizer)
-        self.assertIn("Randomization list is invalid", str(cm.exception))
+        self.assertIn("Randomization list has invalid SIDs", str(cm.exception))
 
     @override_settings(SITE_ID=40)
     def test_invalid_count(self):
