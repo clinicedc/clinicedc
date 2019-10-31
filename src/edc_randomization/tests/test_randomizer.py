@@ -55,6 +55,10 @@ class TestRandomizer(TestCase):
         RandomizationListImporter(randomizers=randomizers, overwrite=True)
 
     @override_settings(SITE_ID=40)
+    def test_(self):
+        RandomizationListImporter(randomizers=[Randomizer])
+
+    @override_settings(SITE_ID=40)
     def test_with_consent_insufficient_data(self):
         RandomizationListImporter(randomizers=[Randomizer])
         subject_consent = SubjectConsent.objects.create(
@@ -425,6 +429,7 @@ class TestRandomizer(TestCase):
             InvalidAssignment, RandomizationListImporter, randomizers=[MyRandomizer]
         )
 
+    @tag("1")
     @override_settings(SITE_ID=40)
     def test_invalid_sid(self):
         # change to a different starting SID

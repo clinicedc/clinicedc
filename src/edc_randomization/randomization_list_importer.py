@@ -5,10 +5,11 @@ import sys
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
+from edc_constants.constants import YES
+from pprint import pprint
 from tqdm import tqdm
 from uuid import uuid4
 
-# from .models import RandomizationList
 from .site_randomizers import site_randomizers
 
 style = color_style()
@@ -30,8 +31,26 @@ class RandomizationListImporter:
         ...
     """
 
-    def __init__(self, randomizers=None, verbose=None, overwrite=None, add=None):
+    def __init__(
+        self,
+        randomizers=None,
+        verbose=None,
+        overwrite=None,
+        add=None,
+        fieldnames=None,
+        dryrun=None,
+        user=None,
+        revision=None,
+    ):
         verbose = True if verbose is None else verbose
+        self.fieldnames = fieldnames or ["sid", "assignment", "site_name"]
+        self.dryrun = True if dryrun and dryrun == YES else False
+        self.revision = revision
+        self.user = user
+        if self.dryrun:
+            sys.stdout.write(
+                style.MIGRATE_HEADING("\n ->> Dry run. No changes will be made.\n")
+            )
         randomizers = randomizers or site_randomizers.registry.values()
         if not randomizers:
             raise RandomizationListImportError(
@@ -55,12 +74,17 @@ class RandomizationListImporter:
 
     def import_list(self, randomizer=None, verbose=None, overwrite=None, add=None):
         path = os.path.expanduser(randomizer.get_randomization_list_path())
-        if overwrite:
-            randomizer.model_cls().objects.all().delete()
-        if randomizer.model_cls().objects.all().count() > 0 and not add:
-            raise RandomizationListImportError(
-                f"Not importing CSV. {randomizer.model} model is not empty!"
-            )
+
+        self.inspect_header(path, randomizer)
+
+        if not self.dryrun:
+            if overwrite:
+                randomizer.model_cls().objects.all().delete()
+            if randomizer.model_cls().objects.all().count() > 0 and not add:
+                raise RandomizationListImportError(
+                    f"Not importing CSV. {randomizer.model} model is not empty!"
+                )
+
         with open(path, "r") as csvfile:
             reader = csv.DictReader(csvfile)
             sids = [row["sid"] for row in reader]
@@ -79,16 +103,28 @@ class RandomizationListImporter:
                 except ObjectDoesNotExist:
                     assignment = randomizer.get_assignment(row)
                     allocation = randomizer.get_allocation(row)
-                    obj = randomizer.model_cls()(
+                    opts = dict(
                         id=uuid4(),
                         sid=row["sid"],
                         assignment=assignment,
                         site_name=self.get_site_name(row),
                         allocation=str(allocation),
                     )
+                    if self.user:
+                        opts.update(user_created=self.user)
+                    if self.revision:
+                        opts.update(revision=self.revision)
+                    obj = randomizer.model_cls()(**opts)
                     objs.append(obj)
-            randomizer.model_cls().objects.bulk_create(objs)
-            assert self.sid_count == randomizer.model_cls().objects.all().count()
+            if not self.dryrun:
+                randomizer.model_cls().objects.bulk_create(objs)
+                assert self.sid_count == randomizer.model_cls().objects.all().count()
+            else:
+                sys.stdout.write(
+                    style.MIGRATE_HEADING(
+                        "\n ->> this is a dry run. No changes were saved. **\n"
+                    )
+                )
 
         if verbose:
             count = randomizer.model_cls().objects.all().count()
@@ -106,3 +142,40 @@ class RandomizationListImporter:
                 f"Expected one of {self.site_names.keys()}"
             )
         return site_name
+
+    def inspect_header(self, path, randomizer):
+        with open(path, "r") as csvfile:
+            reader = csv.DictReader(csvfile, fieldnames=self.fieldnames)
+            for index, row in enumerate(reader):
+                if index == 0:
+                    for fieldname in self.fieldnames:
+                        if fieldname not in row:
+                            raise RandomizationListImportError(
+                                f"Invalid header. Missing column `{fieldname}`. Got {row}"
+                            )
+                elif index == 1:
+                    if self.dryrun:
+                        row_as_dict = {k: v for k, v in row.items()}
+                        print(f" -->  First row:")
+                        print(f" -->  {list(row_as_dict.keys())}")
+                        print(f" -->  {list(row_as_dict.values())}")
+                        assignment = randomizer.get_assignment(row)
+                        allocation = randomizer.get_allocation(row)
+                        obj = randomizer.model_cls()(
+                            id=uuid4(),
+                            sid=row["sid"],
+                            assignment=assignment,
+                            site_name=self.get_site_name(row),
+                            allocation=str(allocation),
+                        )
+                        pprint(obj.__dict__)
+                    try:
+                        Site.objects.get(name=row["site_name"])
+                    except ObjectDoesNotExist:
+                        site_names = [obj.name for obj in Site.objects.all()]
+                        raise ObjectDoesNotExist(
+                            f"Invalid site name. Expected on of {site_names}. "
+                            f"Got {row['site_name']}"
+                        )
+                else:
+                    break
