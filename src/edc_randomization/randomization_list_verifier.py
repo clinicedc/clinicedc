@@ -60,22 +60,19 @@ class RandomizationListVerifier:
         message = None
 
         with open(self.randomizer.get_randomization_list_path(), "r") as f:
-            reader = csv.DictReader(f, fieldnames=self.fieldnames)
+            reader = csv.DictReader(f)
             for index, row in enumerate(reader):
-                row = {k: v.strip() for k, v in row.items()}
+                row = {k: v.strip() for k, v in row.items() if k}
                 if index == 0:
                     continue
                 message = self.inspect_row(index, row)
                 if message:
                     break
         if not message:
-            with open(self.randomizer.get_randomization_list_path(), "r") as f:
-                reader = csv.DictReader(f, fieldnames=self.fieldnames)
-                lines = sum(1 for row in reader)
-            if self.count != lines - 1:
+            if self.count != index + 1:
                 message = (
                     f"Randomization list count is off. Expected {self.count}. "
-                    f"Got {lines - 1}. See file "
+                    f"Got {index + 1}. See file "
                     f"{self.randomizer.get_randomization_list_path()}. "
                     f"Resolve this issue before using the system."
                 )
@@ -83,30 +80,29 @@ class RandomizationListVerifier:
 
     def inspect_row(self, index, row):
         message = None
+        obj1 = self.randomizer.model_cls().objects.all().order_by("sid")[index]
         try:
-            obj = self.randomizer.model_cls().objects.get(sid=row["sid"])
+            obj2 = self.randomizer.model_cls().objects.get(sid=row["sid"])
         except ObjectDoesNotExist:
-            try:
-                obj = self.randomizer.model_cls().objects.all()[index]
-            except IndexError:
-                pass
-            else:
+            message = f"Randomization file has an invalid SID. Got {row['sid']}"
+        else:
+            if obj1.sid != obj2.sid:
                 message = (
-                    f"Randomization list is invalid. List has invalid SIDs. "
+                    f"Randomization list has invalid SIDs. List has invalid SIDs. "
                     f"File data does not match model data. See file "
                     f"{self.randomizer.get_randomization_list_path()}. "
                     f"Resolve this issue before using the system. "
                     f"Problem started on line {index + 1}. "
-                    f'Got {row["sid"]} != {obj.sid}.'
+                    f'Got {row["sid"]} != {obj1.sid}.'
                 )
-        else:
-            assignment = self.randomizer.get_assignment(row)
-            if obj.assignment != assignment or obj.site_name != row["site_name"]:
-                message = (
-                    f"Randomization list is invalid. File data "
-                    f"does not match model data. See file "
-                    f"{self.randomizer.get_randomization_list_path()}. "
-                    f"Resolve this issue before using the system. "
-                    f"Got {assignment} != '{obj.assignment}'."
-                )
+            if not message:
+                assignment = self.randomizer.get_assignment(row)
+                if obj2.assignment != assignment or obj2.site_name != row["site_name"]:
+                    message = (
+                        f"Randomization list does not match model. File data "
+                        f"does not match model data. See file "
+                        f"{self.randomizer.get_randomization_list_path()}. "
+                        f"Resolve this issue before using the system. "
+                        f"Got {assignment} != '{obj2.assignment}'."
+                    )
         return message

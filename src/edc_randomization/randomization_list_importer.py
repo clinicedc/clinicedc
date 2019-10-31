@@ -31,6 +31,8 @@ class RandomizationListImporter:
         ...
     """
 
+    default_fieldnames = ["sid", "assignment", "site_name"]
+
     def __init__(
         self,
         randomizers=None,
@@ -145,13 +147,14 @@ class RandomizationListImporter:
 
     def inspect_header(self, path, randomizer):
         with open(path, "r") as csvfile:
-            reader = csv.DictReader(csvfile, fieldnames=self.fieldnames)
+            reader = csv.DictReader(csvfile)
             for index, row in enumerate(reader):
                 if index == 0:
-                    for fieldname in self.fieldnames:
+                    for fieldname in self.default_fieldnames:
                         if fieldname not in row:
                             raise RandomizationListImportError(
-                                f"Invalid header. Missing column `{fieldname}`. Got {row}"
+                                f"Invalid header. Missing column "
+                                f"`{fieldname}`. Got {row}"
                             )
                 elif index == 1:
                     if self.dryrun:
