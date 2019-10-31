@@ -1,11 +1,7 @@
-import os
-
-from django.apps import apps as django_apps
 from django.core.management.base import BaseCommand, CommandError
 
 from ...randomization_list_importer import RandomizationListImportError
 from ...randomization_list_importer import RandomizationListImporter
-import pdb
 
 
 class Command(BaseCommand):
@@ -42,32 +38,14 @@ class Command(BaseCommand):
             "--revision", dest="revision", default=None, help=("revision")
         )
 
-        parser.add_argument(
-            "--header",
-            dest="header",
-            default=None,
-            help=("Header row. Fieldnames delimited by comma"),
-        )
-
     def handle(self, *args, **options):
-        #         app_config = django_apps.get_app_config("edc_randomization")
-        #         path = options["path"] or app_config.randomization_list_path
-        #         if not os.path.exists(path or ""):
-        #             raise CommandError(f"Invalid path. Got {path}")
         add = options["add"] if options["add"] == "YES" else None
         dryrun = options["dryrun"]
-        fieldnames = options["header"]
         user = options["user"]
         revision = options["revision"]
-        if fieldnames:
-            fieldnames = [x for x in fieldnames.split(",")]
         try:
             RandomizationListImporter(
-                add=add,
-                dryrun=dryrun,
-                fieldnames=fieldnames,
-                user=user,
-                revision=revision,
+                add=add, dryrun=dryrun, user=user, revision=revision
             )
         except (RandomizationListImportError, FileNotFoundError) as e:
             raise CommandError(e)
