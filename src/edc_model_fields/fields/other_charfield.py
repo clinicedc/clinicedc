@@ -14,7 +14,7 @@ class OtherCharField(CharField):
         kwargs.update(blank=True)
         kwargs.update(null=True)
         kwargs.setdefault("max_length", self.DEFAULT_MAX_LENGTH)
-        kwargs.setdefault("verbose_name", _("If Other, specify ..."))
+        kwargs.setdefault("verbose_name", _("If other, please specify ..."))
         self.max_length = kwargs["max_length"]
         self.verbose_name = kwargs["verbose_name"]
         super().__init__(*args, **kwargs)
