@@ -63,6 +63,21 @@ class ManyToManyFieldValidator(BaseFormValidator):
             raise ValidationError(message, code=code)
         return False
 
+    def m2m_not_required(self, m2m_field=None):
+        """Raises an exception or returns False.
+
+        m2m_field is not required.
+        """
+        message = None
+        if self.cleaned_data.get(m2m_field):
+            message = {m2m_field: "This field is not required"}
+            code = REQUIRED_ERROR
+        if message:
+            self._errors.update(message)
+            self._error_codes.append(code)
+            raise ValidationError(message, code=code)
+        return False
+
     def m2m_required_if(self, response=None, field=None, m2m_field=None):
         """Raises an exception or returns False.
 
