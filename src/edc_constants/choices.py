@@ -393,6 +393,8 @@ URINALYSIS = (
 
 YES_NO = ((YES, _(YES)), (NO, _(NO)))
 
+YESDEFAULT_NO = ((YES, _("Yes (default)")), (NO, _(NO)))
+
 YES_NO_DECLINED = ((YES, YES), (NO, NO), (DECLINED, "Yes, but subject declined copy"))
 
 YES_NO_OPTIONAL = ((YES, YES), (NO, NO), ("Optional", "Optional"))
