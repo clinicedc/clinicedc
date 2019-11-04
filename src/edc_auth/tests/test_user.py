@@ -45,7 +45,7 @@ class TestUser(TestCase):
             for _ in range(0, self.user_count):
                 first_name = fake.first_name()
                 last_name = fake.last_name()
-                username = (first_name[0] + last_name).lower()
+                username = f"{first_name[0]}{''.join(last_name.split(' '))}".lower()
                 writer.writerow(
                     {
                         "username": username,
@@ -101,26 +101,13 @@ class TestUser(TestCase):
             mail.outbox[0].subject, "Your example.com user account is ready."
         )
 
-    def test_import_users2(self):
-        import_users(
-            self.filename,
-            resource_name=None,
-            send_email_to_user=True,
-            export_to_file=True,
-        )
-        self.assertTrue(os.path.exists(self.filename + "new.csv"))
-        with open(self.filename + "new.csv") as f:
-            reader = csv.DictReader(f, delimiter="|")
-            for row in reader:
-                print(row)
-
     def test_bad_username(self):
         self.assertRaises(
             UserImporterError,
             UserImporter,
             username=None,
             first_name=fake.first_name(),
-            last_name=fake.last_name(),
+            last_name=None,
             email=fake.email(),
             site_names=[],
             group_names=[],
