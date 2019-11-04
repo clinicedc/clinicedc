@@ -7,7 +7,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
 from mempass import PasswordGenerator
 from string import Template
-import pdb
 
 
 class UserImporterError(Exception):
@@ -71,6 +70,7 @@ def import_users(
                 send_email_to_user=send_email_to_user,
                 verbose=verbose,
                 resend_as_newly_created=resend_as_newly_created,
+                **opts,
                 **kwargs,
             )
             users.append(
@@ -158,6 +158,8 @@ class UserImporter:
         self.resend_as_newly_created = resend_as_new
         self.test_email_address = test_email_address
         self.username = username
+        if not self.username:
+            self.username = self.get_username()
         if created_email_template:
             self.created_email_template = created_email_template
         if updated_email_template:
@@ -253,3 +255,9 @@ class UserImporter:
             from_email="noreply@clinicedc.org",
             to=(self.test_email_address or self.user.email,),
         )
+
+    def get_username(self):
+        if self.first_name and self.last_name:
+            last_name = "".join(self.last_name.split(" ")).lower()
+            return f"{self.first_name.lower()[0]}{last_name}"
+        return None
