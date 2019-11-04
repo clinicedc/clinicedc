@@ -1,4 +1,5 @@
 import os
+import sys
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -6,7 +7,6 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 
 from .constants import ACTIVE, PLACEBO
 from .randomization_list_verifier import RandomizationListVerifier
-import sys
 
 
 RANDOMIZED = "RANDOMIZED"

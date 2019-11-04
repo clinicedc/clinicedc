@@ -17,7 +17,8 @@ def randomization_list_check(app_configs, **kwargs):
     error = error_configs.get("randomization_list_check")
     for randomizer in site_randomizers.registry.values():
         if (
-            "test" not in sys.argv
+            "tox" not in sys.argv
+            and "test" not in sys.argv
             and "runtests.py" not in sys.argv
             and "makemigrations" not in sys.argv
             and "migrate" not in sys.argv
