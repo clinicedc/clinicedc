@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
@@ -6,14 +7,29 @@ from edc_dashboard import select_edc_template
 
 from ..forms import UserChangeForm
 from .user_profile_admin import UserProfileInline
+from ..send_new_credentials_to_user import send_new_credentials_to_user
 
 
 admin.site.unregister(User)
 
 
+def send_new_credentials_to_user_action(modeladmin, request, queryset):
+    if request.user.has_perms(["auth.change_user"]):
+        for obj in queryset:
+            send_new_credentials_to_user(user=obj, request=request)
+    else:
+        messages.error(request, "You do not have permissions to run this action.")
+
+
+send_new_credentials_to_user_action.short_description = (
+    "Reset password and email to user"
+)
+
+
 class UserAdmin(BaseUserAdmin):
     inlines = (UserProfileInline,)
     form = UserChangeForm
+    actions = [send_new_credentials_to_user_action]
 
     list_display = ("username", "email", "first_name", "last_name", "role", "is_staff")
 
