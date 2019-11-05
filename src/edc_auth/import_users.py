@@ -1,16 +1,39 @@
 import csv
 import re
 
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
 from mempass import PasswordGenerator
 from string import Template
+from edc_auth.models.role import Role
 
 
 class UserImporterError(Exception):
     pass
+
+
+add_user_template = Template(
+    "Hi $first_name, \n\n"
+    "Your $resource_name user account has been created.\n\n"
+    "Your username is $username.\n\n"
+    "Your password is:\n\n$password\n\n"
+    "(Yes, that is your password)\n\n"
+    "You are authorized to log into the following sites:\n\n$site_names.\n\n"
+    "As a $job_title, you have been assigned to the following roles:\n\n$role_names\n\n"
+    "Thanks.\n\n"
+)
+
+change_user_template = Template(
+    f"Hi $first_name, \n\n"
+    f"Your `$resource_name` user account has been updated.\n\n"
+    f"Your username is `$username`.\n\n"
+    "Your new password is:\n\n$password\n\n"
+    f"You are authorized to log into the following sites:\n\n$site_names.\n\n"
+    f"As a $job_title, you have been assigned to the following roles:\n\n$role_names\n\n"
+    f"Thanks.\n\n"
+)
 
 
 fieldnames = [
@@ -23,7 +46,7 @@ fieldnames = [
     "alternate_email",
     "mobile",
     "sites",
-    "groups",
+    "roles",
 ]
 
 
@@ -45,7 +68,7 @@ def import_users(
         alternate_email
         mobile
         sites: a comma-separated list of sites
-        groups: a comma-separated list of groups
+        roles: a comma-separated list of roles
     """
     users = []
     with open(path) as f:
@@ -56,9 +79,9 @@ def import_users(
             opts.update(site_names="")
             if user_data.get("sites"):
                 opts.update(site_names=user_data.get("sites").lower().split(","))
-            opts.update(group_names="")
-            if user_data.get("groups"):
-                opts.update(group_names=user_data.get("groups").lower().split(","))
+            opts.update(role_names="")
+            if user_data.get("roles"):
+                opts.update(role_names=user_data.get("roles").lower().split(","))
             opts.update(first_name=user_data.get("first_name"))
             opts.update(last_name=user_data.get("last_name"))
             opts.update(mobile=user_data.get("mobile"))
@@ -82,8 +105,8 @@ def import_users(
                     "job_title": o.user.userprofile.job_title,
                     "email": o.user.email,
                     "alternate_email": o.user.userprofile.alternate_email,
-                    "sites": o.site_names,
-                    "groups": o.group_names,
+                    "site_names": o.site_names or "None",
+                    "role_names": o.role_names or "None",
                 }
             )
     if export_to_file:
@@ -97,25 +120,8 @@ def import_users(
 class UserImporter:
     resource_name = "example.com"
     password_nwords = 4
-    created_email_template = Template(
-        "Hi $first_name, \n\n"
-        "Your $resource_name user account has been created.\n\n"
-        "Your username is $username.\n\n"
-        "Your password is:\n\n$password\n\n"
-        "(Yes, that is your password)\n\n"
-        "You are authorized to log into the following sites:\n\n$site_names.\n\n"
-        "As a $job_title, you have been added to the following groups:\n\n$group_names\n\n"
-        "Thanks.\n\n"
-    )
-    updated_email_template = Template(
-        f"Hi $first_name, \n\n"
-        f"Your $resource_name user account has been updated.\n\n"
-        f"Your username is $username.\n\n"
-        "Your new password is:\n\n$password\n\n"
-        f"You are authorized to log into the following sites:\n\n$site_names.\n\n"
-        f"As a $job_title, you have been added to the following groups:\n\n$group_names\n\n"
-        f"Thanks.\n\n"
-    )
+    created_email_template = add_user_template
+    updated_email_template = change_user_template
 
     def __init__(
         self,
@@ -127,7 +133,7 @@ class UserImporter:
         alternate_email=None,
         mobile=None,
         site_names=None,
-        group_names=None,
+        role_names=None,
         resource_name=None,
         created_email_template=None,
         updated_email_template=None,
@@ -147,7 +153,7 @@ class UserImporter:
             self.alternate_email = alternate_email
         self.first_name = first_name
         self.job_title = job_title
-        self.group_names = group_names
+        self.role_names = role_names
         self.last_name = last_name
         self.mobile = mobile
         self.password_generator = PasswordGenerator(
@@ -168,7 +174,7 @@ class UserImporter:
         self.validate_username()
 
         self.update_user_sites()
-        self.update_user_groups()
+        self.update_user_roles()
 
         self.user.save()
         self.user.userprofile.job_title = self.job_title
@@ -177,7 +183,9 @@ class UserImporter:
         self.user.userprofile.save()
 
         self.site_names = "\n".join([s.name for s in self.user.userprofile.sites.all()])
-        self.group_names = "\n".join([g.name for g in self.user.groups.all()])
+        self.role_names = "\n".join(
+            [g.display_name for g in self.user.userprofile.roles.all()]
+        )
         if send_email_to_user:
             try:
                 self.email_message.send(fail_silently=False)
@@ -231,17 +239,17 @@ class UserImporter:
             else:
                 self.user.userprofile.sites.add(site)
 
-    def update_user_groups(self):
-        self.user.groups.clear()
-        for group_name in self.group_names:
+    def update_user_roles(self):
+        self.user.userprofile.roles.clear()
+        for role_name in self.role_names:
             try:
-                group = Group.objects.get(name__iexact=group_name)
+                role = Role.objects.get(name__iexact=role_name)
             except ObjectDoesNotExist:
                 raise UserImporterError(
-                    f"Unknown group for user. Got {self.user.username}, {group_name}"
+                    f"Unknown role for user. Got {self.user.username}, {role_name}"
                 )
             else:
-                self.user.groups.add(group)
+                self.user.userprofile.roles.add(role)
 
     @property
     def email_message(self):
