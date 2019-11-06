@@ -36,8 +36,16 @@ class TestGrading(TestCase):
         self.assertTrue(repr(g2))
 
         new_opts = copy(opts)
-        new_opts.update(grade="0")
+        new_opts.update(grade="-1")
         self.assertRaises(GradeError, GradeReference, **new_opts)
+
+        for grade in range(0, 6):
+            new_opts = copy(opts)
+            new_opts.update(grade=str(grade))
+            try:
+                GradeReference(**new_opts)
+            except GradeError:
+                self.fail("GradeError unexpectedly raised")
 
         new_opts = copy(opts)
         new_opts.update(grade=3, lower=20, lower_inclusive=True, upper=30)
