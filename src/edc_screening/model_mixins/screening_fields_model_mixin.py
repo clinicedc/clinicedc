@@ -10,6 +10,9 @@ from uuid import uuid4
 
 
 class ScreeningManager(SearchSlugManager, models.Manager):
+
+    use_in_migrations = True
+
     def get_by_natural_key(self, screening_identifier):
         return self.get(screening_identifier=screening_identifier)
 
