@@ -16,13 +16,20 @@ class ModelAdminFormAutoNumberMixin:
     By default, auto_number it True.
     """
 
+    skip_auto_numbering = []  # a list of fieldnames
+
     def auto_number(self, form):
         """Returns the form instance after inserting into the label
         question numbers and DB field names.
         """
         WIDGET = 1
         start = getattr(form, "AUTO_NUMBER_START", 1)
-        for index, fld in enumerate(form.base_fields.items(), start=start):
+        base_fields = {
+            k: v
+            for k, v in form.base_fields.items()
+            if k not in self.skip_auto_numbering
+        }
+        for index, fld in enumerate(base_fields.items(), start=start):
             label = str(fld[WIDGET].label)
             if not re.match(r"^\d+\.", label) and not re.match(
                 r"\<a\ title\=\"", label
