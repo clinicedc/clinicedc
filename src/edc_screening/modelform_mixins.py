@@ -22,7 +22,7 @@ class AlreadyConsentedFormMixin:
                 kwargs={"subject_identifier": self.instance.subject_identifier},
             )
             msg = mark_safe(
-                "Modifications not allowed. Subject has already consented. "
+                "Not allowed. Subject has already consented. "
                 f'See subject <A href="{url}">{self.instance.subject_identifier}</A>'
             )
             raise forms.ValidationError(msg)
