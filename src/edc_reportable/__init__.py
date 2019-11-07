@@ -1,5 +1,6 @@
 from .adult_age_options import adult_age_options
 from .age_evaluator import AgeEvaluator
+from .calculators import BMI, eGFR, CalculatorError
 from .constants import (
     ALREADY_REPORTED,
     GRADE0,
@@ -29,7 +30,7 @@ from .parsers import parse, unparse, ParserError
 from .reference_collection import ReferenceCollection, AlreadyRegistered
 from .reportables_evaluator import ReportablesEvaluator
 from .site_reportables import site_reportables
-from .unit_converters import convert_units, ConversionNotHandled
+from .convert_units import convert_units, ConversionNotHandled
 from .units import (
     CELLS_PER_MILLIMETER_CUBED,
     COPIES_PER_MILLILITER,
