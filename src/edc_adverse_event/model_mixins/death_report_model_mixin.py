@@ -18,6 +18,7 @@ from edc_utils import get_utcnow
 
 from ..constants import DEATH_REPORT_ACTION
 from ..models import CauseOfDeath
+from edc_model_fields.fields.other_charfield import OtherCharField
 
 
 class DeathReportModelMixin(
@@ -62,12 +63,7 @@ class DeathReportModelMixin(
         blank=False,
     )
 
-    cause_of_death_other = models.CharField(
-        max_length=100,
-        blank=True,
-        null=True,
-        verbose_name='If "Other" above, please specify',
-    )
+    cause_of_death_other = OtherCharField(max_length=100, blank=True, null=True)
 
     narrative = models.TextField(verbose_name="Narrative")
 
