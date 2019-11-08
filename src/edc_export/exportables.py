@@ -5,7 +5,7 @@ from django.contrib.admin import sites
 from django.core.exceptions import ObjectDoesNotExist
 from edc_auth import EXPORT
 from edc_randomization.blinding import is_blinded_user
-from edc_randomization.models import (
+from edc_randomization.utils import (
     get_randomizationlist_model,
     get_historicalrandomizationlist_model,
 )
