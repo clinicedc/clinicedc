@@ -76,6 +76,8 @@ class ScreeningFieldsModeMixin(SiteModelMixin, models.Model):
 
     consented = models.BooleanField(default=False, editable=False)
 
+    refused = models.BooleanField(default=False, editable=False)
+
     on_site = CurrentSiteManager()
 
     objects = ScreeningManager()
