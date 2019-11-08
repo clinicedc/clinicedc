@@ -49,9 +49,9 @@ class TestExport(TestCase):
         model = "edc_export.crf"
         m = ModelToDataframe(model=model)
         df = m.dataframe
-        df.sort_values(["subject_identifier"], inplace=True)
+        df.sort_values(by=["subject_identifier", "visit_code"], inplace=True)
         for i, appointment in enumerate(
-            Appointment.objects.all().order_by("visit_code")
+            Appointment.objects.all().order_by("subject_identifier", "visit_code")
         ):
             self.assertEqual(
                 df.subject_identifier.iloc[i], appointment.subject_identifier
@@ -121,6 +121,8 @@ class TestExport(TestCase):
             Appointment.objects.all().order_by("subject_identifier", "visit_code")
         ):
             self.assertEqual(
-                rows[i][1].get("subject_identifier"), appointment.subject_identifier
+                rows[i][1].get(
+                    "subject_identifier"), appointment.subject_identifier
             )
-            self.assertEqual(rows[i][1].get("visit_code"), appointment.visit_code)
+            self.assertEqual(rows[i][1].get(
+                "visit_code"), appointment.visit_code)
