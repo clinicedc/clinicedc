@@ -5,6 +5,7 @@ import sys
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
+from pprint import pprint
 from tqdm import tqdm
 from uuid import uuid4
 
@@ -72,8 +73,66 @@ class RandomizationListImporter:
 
     def import_list(self, randomizer=None, verbose=None, overwrite=None, add=None):
         path = os.path.expanduser(randomizer.get_randomization_list_path())
+        self.raise_on_invalid_header(path, randomizer)
+        self.raise_on_already_imported(randomizer, add, overwrite)
+        self.raise_on_duplicates(path)
+        self._import_to_model(path, randomizer)
+        if verbose:
+            count = randomizer.model_cls().objects.all().count()
+            sys.stdout.write(style.SUCCESS(f"(*) Imported {count} SIDs from {path}.\n"))
+        return path
 
-        self.inspect_header(path, randomizer)
+    def get_site_name(self, row):
+        """Returns the site name or raises.
+        """
+        try:
+            site_name = self.site_names[row["site_name"]]
+        except KeyError:
+            raise RandomizationListImportError(
+                f'Invalid site. Got {row["site_name"]}. '
+                f"Expected one of {self.site_names.keys()}"
+            )
+        return site_name
+
+    def raise_on_invalid_header(self, path, randomizer):
+        with open(path, "r") as csvfile:
+            reader = csv.DictReader(csvfile)
+            for index, row in enumerate(reader):
+                if index == 0:
+                    for fieldname in self.default_fieldnames:
+                        if fieldname not in row:
+                            raise RandomizationListImportError(
+                                f"Invalid header. Missing column "
+                                f"`{fieldname}`. Got {row}"
+                            )
+                elif index == 1:
+                    if self.dryrun:
+                        row_as_dict = {k: v for k, v in row.items()}
+                        print(f" -->  First row:")
+                        print(f" -->  {list(row_as_dict.keys())}")
+                        print(f" -->  {list(row_as_dict.values())}")
+                        assignment = randomizer.get_assignment(row)
+                        allocation = randomizer.get_allocation(row)
+                        obj = randomizer.model_cls()(
+                            id=uuid4(),
+                            sid=row["sid"],
+                            assignment=assignment,
+                            site_name=self.get_site_name(row),
+                            allocation=str(allocation),
+                        )
+                        pprint(obj.__dict__)
+                    try:
+                        Site.objects.get(name=row["site_name"])
+                    except ObjectDoesNotExist:
+                        site_names = [obj.name for obj in Site.objects.all()]
+                        raise ObjectDoesNotExist(
+                            f"Invalid site name. Expected on of {site_names}. "
+                            f"Got {row['site_name']}"
+                        )
+                else:
+                    break
+
+    def raise_on_already_imported(self, randomizer, add, overwrite):
         if not self.dryrun:
             if overwrite:
                 randomizer.model_cls().objects.all().delete()
@@ -81,6 +140,8 @@ class RandomizationListImporter:
                 raise RandomizationListImportError(
                     f"Not importing CSV. {randomizer.model} model is not empty!"
                 )
+
+    def raise_on_duplicates(self, path):
         with open(path, "r") as csvfile:
             reader = csv.DictReader(csvfile)
             sids = [row["sid"] for row in reader]
@@ -88,6 +149,7 @@ class RandomizationListImporter:
             raise RandomizationListImportError("Invalid file. Detected duplicate SIDs")
         self.sid_count = len(sids)
 
+    def _import_to_model(self, path, randomizer):
         objs = []
         with open(path, "r") as csvfile:
             reader = csv.DictReader(csvfile)
@@ -121,58 +183,3 @@ class RandomizationListImporter:
                         "\n ->> this is a dry run. No changes were saved. **\n"
                     )
                 )
-
-        if verbose:
-            count = randomizer.model_cls().objects.all().count()
-            sys.stdout.write(style.SUCCESS(f"(*) Imported {count} SIDs from {path}.\n"))
-        return path
-
-    def get_site_name(self, row):
-        """Returns the site name or raises.
-        """
-        try:
-            site_name = self.site_names[row["site_name"]]
-        except KeyError:
-            raise RandomizationListImportError(
-                f'Invalid site. Got {row["site_name"]}. '
-                f"Expected one of {self.site_names.keys()}"
-            )
-        return site_name
-
-    def inspect_header(self, path, randomizer):
-        with open(path, "r") as csvfile:
-            reader = csv.DictReader(csvfile)
-            for index, row in enumerate(reader):
-                if index == 0:
-                    for fieldname in self.default_fieldnames:
-                        if fieldname not in row:
-                            raise RandomizationListImportError(
-                                f"Invalid header. Missing column "
-                                f"`{fieldname}`. Got {row}"
-                            )
-                elif index == 1:
-                    if self.dryrun:
-                        row_as_dict = {k: v for k, v in row.items()}
-                        print(f" -->  First row:")
-                        print(f" -->  {list(row_as_dict.keys())}")
-                        print(f" -->  {list(row_as_dict.values())}")
-                        assignment = randomizer.get_assignment(row)
-                        allocation = randomizer.get_allocation(row)
-                        obj = randomizer.model_cls()(
-                            id=uuid4(),
-                            sid=row["sid"],
-                            assignment=assignment,
-                            site_name=self.get_site_name(row),
-                            allocation=str(allocation),
-                        )
-                        # pprint(obj.__dict__)
-                    try:
-                        Site.objects.get(name=row["site_name"])
-                    except ObjectDoesNotExist:
-                        site_names = [obj.name for obj in Site.objects.all()]
-                        raise ObjectDoesNotExist(
-                            f"Invalid site name. Expected on of {site_names}. "
-                            f"Got {row['site_name']}"
-                        )
-                else:
-                    break
