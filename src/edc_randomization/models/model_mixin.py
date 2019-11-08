@@ -54,7 +54,9 @@ class RandomizationListModelMixin(models.Model):
 
     allocated_user = models.CharField(max_length=50, null=True)
 
-    allocated_site = models.ForeignKey(Site, null=True, on_delete=models.PROTECT)
+    allocated_site = models.ForeignKey(
+        Site, null=True, on_delete=models.PROTECT, related_name="+"
+    )
 
     verified = models.BooleanField(default=False)
 

@@ -1,17 +1,17 @@
 from django import forms
 
-from .models import RandomizationList
+from .utils import get_randomizationlist_model
 
 
 class RandomizationListForm(forms.ModelForm):
     class Meta:
-        model = RandomizationList
+        model = get_randomizationlist_model()
         fields = "__all__"
 
 
 class LimitedRandomizationListForm(forms.ModelForm):
     class Meta:
-        model = RandomizationList
+        model = get_randomizationlist_model()
         fields = [
             "subject_identifier",
             "sid",
