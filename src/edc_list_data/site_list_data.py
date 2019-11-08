@@ -20,7 +20,11 @@ class SiteListData:
     """
 
     def autodiscover(self, module_name=None, verbose=True):
-        if "migrate" not in sys.argv and "makemigrations" not in sys.argv:
+        if (
+            "migrate" not in sys.argv
+            and "makemigrations" not in sys.argv
+            and "showmigrations" not in sys.argv
+        ):
             module_name = module_name or "list_data"
             writer = sys.stdout.write if verbose else lambda x: x
             style = color_style()
