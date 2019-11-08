@@ -5,7 +5,6 @@ import sys
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
-from pprint import pprint
 from tqdm import tqdm
 from uuid import uuid4
 
@@ -166,7 +165,7 @@ class RandomizationListImporter:
                             site_name=self.get_site_name(row),
                             allocation=str(allocation),
                         )
-                        pprint(obj.__dict__)
+                        # pprint(obj.__dict__)
                     try:
                         Site.objects.get(name=row["site_name"])
                     except ObjectDoesNotExist:

@@ -4,6 +4,8 @@ import sys
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from edc_randomization.utils import get_randomizationlist_model_name
+from edc_registration.utils import get_registered_subject_model_name
 
 from .constants import ACTIVE, PLACEBO
 from .randomization_list_verifier import RandomizationListVerifier
@@ -44,8 +46,8 @@ class Randomizer:
     """
 
     name = "default"
-    model = "edc_randomization.randomizationlist"
-    registered_subject_model = "edc_registration.registeredsubject"
+    model = get_randomizationlist_model_name()
+    registered_subject_model = get_registered_subject_model_name()
     randomization_list_filename = "randomization_list.csv"
     assignment_map = {ACTIVE: 1, PLACEBO: 2}
 

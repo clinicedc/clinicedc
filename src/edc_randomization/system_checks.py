@@ -20,6 +20,7 @@ def randomization_list_check(app_configs, **kwargs):
             "tox" not in sys.argv
             and "test" not in sys.argv
             and "runtests.py" not in sys.argv
+            and "showmigrations" not in sys.argv
             and "makemigrations" not in sys.argv
             and "migrate" not in sys.argv
             and "shell" not in sys.argv

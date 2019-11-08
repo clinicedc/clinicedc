@@ -5,11 +5,12 @@ from django.views.generic.base import ContextMixin
 from edc_identifier.utils import is_subject_identifier_or_raise
 
 from .randomization_list_verifier import RandomizationListError
+from .utils import get_randomizationlist_model_name
 
 
 class RandomizationListViewMixin(ContextMixin):
 
-    randomization_list_model = "edc_randomization.randomizationlist"
+    randomization_list_model = get_randomizationlist_model_name()
 
     @property
     def assignment_description(self):

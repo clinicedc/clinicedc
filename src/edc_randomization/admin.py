@@ -5,15 +5,15 @@ from edc_model_admin.model_admin_audit_fields_mixin import (
     audit_fieldset_tuple,
     audit_fields,
 )
-from edc_randomization.blinding import is_blinded_user
-
 from .admin_site import edc_randomization_admin
-from .models import RandomizationList
+from .blinding import is_blinded_user
+from .utils import get_randomizationlist_model
+
 
 admin.site.disable_action("delete_selected")
 
 
-@admin.register(RandomizationList, site=edc_randomization_admin)
+@admin.register(get_randomizationlist_model(), site=edc_randomization_admin)
 class RandomizationListModelAdmin(admin.ModelAdmin):
 
     list_per_page = 15
