@@ -1,14 +1,10 @@
-import os
-import sys
-
 from django.apps import apps as django_apps
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from edc_randomization.utils import get_randomizationlist_model_name
 from edc_registration.utils import get_registered_subject_model_name
 
 from .constants import ACTIVE, PLACEBO
 from .randomization_list_verifier import RandomizationListVerifier
+from .utils import get_randomizationlist_model_name, get_randomization_list_path
 
 
 RANDOMIZED = "RANDOMIZED"
@@ -229,12 +225,4 @@ class Randomizer:
 
     @classmethod
     def get_randomization_list_path(cls):
-        if settings.DEBUG or "test" in sys.argv:
-            randomization_list_path = os.path.join(
-                settings.TEST_DIR, cls.randomization_list_filename
-            )
-        else:
-            randomization_list_path = os.path.join(
-                settings.ETC_DIR, cls.randomization_list_filename
-            )
-        return randomization_list_path
+        return get_randomization_list_path()
