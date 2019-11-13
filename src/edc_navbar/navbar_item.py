@@ -4,14 +4,14 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.urls.base import reverse
+from edc_constants.constants import WARN, IGNORE
 from edc_dashboard.url_names import url_names, InvalidUrlName
 from django.urls.exceptions import NoReverseMatch
 from django.core.management.color import color_style
-import pdb
 
 style = color_style()
 
-EDC_NAVBAR_WARN_ONLY = getattr(settings, "EDC_NAVBAR_WARN_ONLY", False)
+EDC_NAVBAR_VERIFY_ON_LOAD = getattr(settings, "EDC_NAVBAR_VERIFY_ON_LOAD", None)
 
 
 class NavbarItemError(Exception):
@@ -148,7 +148,9 @@ class NavbarItem:
                 reversed_url = reverse(self.url_name)
             except NoReverseMatch as e:
                 msg = f"{e}. See {repr(self)}."
-                if EDC_NAVBAR_WARN_ONLY:
+                if EDC_NAVBAR_VERIFY_ON_LOAD == IGNORE:
+                    pass
+                elif EDC_NAVBAR_VERIFY_ON_LOAD == WARN:
                     print(style.ERROR(msg))
                 else:
                     raise NoReverseMatch(f"{e}. See {repr(self)}.")
