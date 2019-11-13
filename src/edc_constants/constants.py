@@ -1,8 +1,5 @@
 import re
 
-from .date_constants import EDC_DATE_FORMAT, EDC_DATETIME_FORMAT
-from .date_constants import EDC_SHORT_DATE_FORMAT, EDC_SHORT_DATETIME_FORMAT
-
 ABNORMAL = "ABNORMAL"
 ABSENT = "absent"
 ADDITIONAL = True
@@ -32,6 +29,7 @@ FEMALE = "F"
 HIDE_FORM = "NOT_REQUIRED"
 HIGH = "high"
 HIGH_PRIORITY = "high"
+IGNORE = "ignore"
 INCOMPLETE = "INCOMPLETE"
 IND = "IND"
 INSERT = "INSERT"
@@ -87,6 +85,7 @@ UUID_PATTERN = re.compile(
     "[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}"
 )
 VIEW = "VIEW"
+WARN = "warn"
 WEEKDAYS = "weekdays"
 WEEKENDS = "weekends"
 YES = "Yes"
