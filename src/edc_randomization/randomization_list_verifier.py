@@ -40,7 +40,7 @@ class RandomizationListVerifier:
                     self.messages.append(
                         f"Randomization list file does not exist but SIDs "
                         f"have been loaded. Expected file "
-                        f"{self.randomization_list_path}. "
+                        f"{self.randomizer.get_randomization_list_path()}. "
                         f"Resolve this issue before using the system."
                     )
                 else:
@@ -93,16 +93,24 @@ class RandomizationListVerifier:
                     f"{self.randomizer.get_randomization_list_path()}. "
                     f"Resolve this issue before using the system. "
                     f"Problem started on line {index + 1}. "
-                    f'Got {row["sid"]} != {obj1.sid}.'
+                    f'Got \'{row["sid"]}\' != \'{obj1.sid}\'.'
                 )
             if not message:
                 assignment = self.randomizer.get_assignment(row)
-                if obj2.assignment != assignment or obj2.site_name != row["site_name"]:
+                if obj2.assignment != assignment:
                     message = (
                         f"Randomization list does not match model. File data "
                         f"does not match model data. See file "
                         f"{self.randomizer.get_randomization_list_path()}. "
                         f"Resolve this issue before using the system. "
-                        f"Got {assignment} != '{obj2.assignment}'."
+                        f"Got '{assignment}' != '{obj2.assignment}' for sid={obj2.sid}."
+                    )
+                elif obj2.site_name != row["site_name"]:
+                    message = (
+                        f"Randomization list does not match model. File data "
+                        f"does not match model data. See file "
+                        f"{self.randomizer.get_randomization_list_path()}. "
+                        f"Resolve this issue before using the system. "
+                        f'Got \'{obj2.site_name}\' != \'{row["site_name"]}\' for sid={obj2.sid}.'
                     )
         return message
