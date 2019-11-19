@@ -48,6 +48,7 @@ class GroupPermissionsUpdater:
         codenames_by_group=None,
         extra_pii_models=None,
         excluded_app_labels=None,
+        create_codename_tuples=None,
         apps=None,
         verbose=None,
     ):
@@ -56,6 +57,7 @@ class GroupPermissionsUpdater:
         self.excluded_app_labels = excluded_app_labels
         self.codenames_by_group = codenames_by_group
         self.extra_pii_models = extra_pii_models or []
+        self.create_codename_tuples = create_codename_tuples
         self.update_group_permissions()
 
     def update_group_permissions(self):
@@ -65,11 +67,18 @@ class GroupPermissionsUpdater:
             )
 
         self.create_or_update_groups()
-        self.create_permissions_from_tuples("edc_dashboard.dashboard", dashboard_tuples)
-        self.create_permissions_from_tuples("edc_navbar.navbar", navbar_tuples)
+        self.create_permissions_from_tuples(
+            "edc_dashboard.dashboard", self.dashboard_tuples
+        )
+        self.create_permissions_from_tuples("edc_navbar.navbar", self.navbar_tuples)
+
+        for model, codename_tuples in (self.create_codename_tuples or {}).items():
+            self.create_permissions_from_tuples(model, codename_tuples)
+
         self.create_permissions_from_tuples(
             get_randomizationlist_model_name(), self.rando_tuples
         )
+        self.create_permissions_from_tuples("edc_navbar.navbar", self.navbar_tuples)
         self.remove_permissions_to_dummy_models()
         self.make_randomizationlist_view_only()
 
@@ -95,8 +104,19 @@ class GroupPermissionsUpdater:
             self.remove_historical_group_permissions(group)
 
     @property
+    def dashboard_tuples(self):
+        return dashboard_tuples
+
+    @property
+    def navbar_tuples(self):
+        return navbar_tuples
+
+    @property
     def rando_tuples(self):
         return get_rando_tuples()
+
+    def create_permissions_from_tuples(self):
+        return None
 
     @property
     def group_model_cls(self):
