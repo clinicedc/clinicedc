@@ -1,3 +1,4 @@
+from django.apps import apps as django_apps
 from data_manager_app.lab_profiles import lab_profile
 from data_manager_app.reference_model_configs import register_to_site_reference_configs
 from data_manager_app.visit_schedules import visit_schedule
@@ -7,7 +8,7 @@ from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_action_item.models.action_item import ActionItem
 from edc_auth import EVERYONE, DATA_MANAGER, CLINIC
-from edc_auth.update import update_group_permissions
+from edc_auth.group_permissions_updater import GroupPermissionsUpdater
 from edc_data_manager.models import CrfDataDictionary
 from edc_data_manager.models.user import DataManagerUser
 from edc_lab.site_labs import site_labs
@@ -29,8 +30,10 @@ class AdminSiteTest(WebTest):
             is_staff=True,
         )
 
-        update_group_permissions(
-            excluded_app_labels=["django_celery_beat", "django_celery_results"]
+        GroupPermissionsUpdater(
+            excluded_app_labels=[
+                "django_celery_beat", "django_celery_results"],
+            apps=django_apps,
         )
         site_labs._registry = {}
         site_labs.loaded = False
@@ -41,7 +44,6 @@ class AdminSiteTest(WebTest):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
 
-    @tag("1")
     def test_default_rule_handler_names(self):
         """Assert default rule handler names on queryrule ADD form
         """
@@ -52,7 +54,8 @@ class AdminSiteTest(WebTest):
             redirect_url="admin:index",
         )
 
-        self.app.get(reverse(f"data_manager_app:home_url"), user=self.user, status=200)
+        self.app.get(reverse(f"data_manager_app:home_url"),
+                     user=self.user, status=200)
 
         response = self.app.get(
             "/admin/edc_data_manager/queryrule/add/", user=self.user, status=200
@@ -118,6 +121,7 @@ class AdminSiteTest(WebTest):
         res = form.submit()
         self.assertIn("Invalid. Select questions from one CRF only", res)
 
+    @tag("1")
     def test_data_query(self):
         subject_identifier = "092-123456789"
         login(
