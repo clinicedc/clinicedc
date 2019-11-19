@@ -70,7 +70,8 @@ class GroupPermissionsUpdater:
         self.create_permissions_from_tuples(
             "edc_dashboard.dashboard", self.dashboard_tuples
         )
-        self.create_permissions_from_tuples("edc_navbar.navbar", self.navbar_tuples)
+        self.create_permissions_from_tuples(
+            "edc_navbar.navbar", self.navbar_tuples)
 
         for model, codename_tuples in (self.create_codename_tuples or {}).items():
             self.create_permissions_from_tuples(model, codename_tuples)
@@ -78,7 +79,8 @@ class GroupPermissionsUpdater:
         self.create_permissions_from_tuples(
             get_randomizationlist_model_name(), self.rando_tuples
         )
-        self.create_permissions_from_tuples("edc_navbar.navbar", self.navbar_tuples)
+        self.create_permissions_from_tuples(
+            "edc_navbar.navbar", self.navbar_tuples)
         self.remove_permissions_to_dummy_models()
         self.make_randomizationlist_view_only()
 
@@ -114,9 +116,6 @@ class GroupPermissionsUpdater:
     @property
     def rando_tuples(self):
         return get_rando_tuples()
-
-    def create_permissions_from_tuples(self):
-        return None
 
     @property
     def group_model_cls(self):
@@ -198,7 +197,8 @@ class GroupPermissionsUpdater:
                 self.group_model_cls.objects.get(name=name)
             except ObjectDoesNotExist:
                 self.group_model_cls.objects.create(name=name)
-        self.group_model_cls.objects.exclude(name__in=self.group_names).delete()
+        self.group_model_cls.objects.exclude(
+            name__in=self.group_names).delete()
 
     def make_randomizationlist_view_only(self):
         app_label, model = get_randomizationlist_model(
@@ -277,7 +277,8 @@ class GroupPermissionsUpdater:
         permissions = []
         for dotted_codename in codenames:
             try:
-                app_label, codename = self.get_from_dotted_codename(dotted_codename)
+                app_label, codename = self.get_from_dotted_codename(
+                    dotted_codename)
             except PermissionsCodenameError as e:
                 warn(str(e))
             else:
@@ -299,7 +300,8 @@ class GroupPermissionsUpdater:
         Validates given codename.
         """
         if not codename:
-            raise PermissionsCodenameError(f"Invalid codename. May not be None.")
+            raise PermissionsCodenameError(
+                f"Invalid codename. May not be None.")
         try:
             app_label, _codename = codename.split(".")
         except ValueError as e:
@@ -367,7 +369,8 @@ class GroupPermissionsUpdater:
         except LookupError as e:
             warn(f"{e}. Got {model}")
         else:
-            content_type = self.content_type_model_cls.objects.get_for_model(model_cls)
+            content_type = self.content_type_model_cls.objects.get_for_model(
+                model_cls)
             for permission in self.permission_model_cls.objects.filter(
                 content_type=content_type
             ):
