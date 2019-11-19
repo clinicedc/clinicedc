@@ -1,4 +1,4 @@
-from .default_codenames_by_group import default_codenames_by_group
+from .get_default_codenames_by_group import get_default_codenames_by_group
 from .group_names import (
     ACCOUNT_MANAGER,
     ADMINISTRATION,
@@ -25,7 +25,7 @@ from .group_names import (
     UNBLINDING_REQUESTORS,
 )
 
-codenames_by_group = {k: v for k, v in default_codenames_by_group.items()}
+codenames_by_group = {k: v for k, v in get_default_codenames_by_group().items()}
 
 
 def slugify_user(user):

@@ -3,7 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 
-from .models import UserProfile, Role
+from .user_profile import UserProfile
 
 
 @receiver(
@@ -32,4 +32,3 @@ def update_user_groups_on_role_m2m_changed(sender, action, instance, pk_set, **k
                 instance.add_groups_for_roles()
             elif action == "post_remove":
                 instance.remove_groups_for_roles(pk_set)
-            instance.ensure_basic_groups_included()

@@ -12,6 +12,7 @@ from tempfile import mkdtemp
 
 from ..import_users import import_users, fieldnames, UserImporter, UserImporterError
 from ..password_setter import PasswordSetter
+from ..role_names import CLINICIAN_ROLE, LAB_TECHNICIAN_ROLE
 
 fake = Faker()
 
@@ -24,6 +25,7 @@ class TestUser(TestCase):
         Group.objects.create(name="CLINIC")
         Group.objects.create(name="LAB")
         Group.objects.create(name="ACCOUNT_MANAGER")
+
         Site.objects.all().delete()
         for site_name in site_names:
             Site.objects.create(name=site_name, domain=f"{site_name}.example.com")
@@ -51,10 +53,11 @@ class TestUser(TestCase):
                         "username": username,
                         "first_name": first_name,
                         "last_name": last_name,
-                        "email": fake.email(),
-                        "sites": choice(site_names),
-                        "groups": "CLINIC,LAB",
                         "job_title": "Research Assistant",
+                        "email": fake.email(),
+                        "mobile": fake.phone_number(),
+                        "sites": choice(site_names),
+                        "roles": f"{CLINICIAN_ROLE},{LAB_TECHNICIAN_ROLE}",
                     }
                 )
 
@@ -77,6 +80,7 @@ class TestUser(TestCase):
             user.userprofile.job_title = "Research Assistant"
             site = Site.objects.get(name=site_name or choice(site_names))
             user.userprofile.sites.add(site)
+            user.userprofile.save()
             group = Group.objects.get(
                 name__iexact=group_name or choice(["CLINIC", "LAB"])
             )
@@ -110,7 +114,7 @@ class TestUser(TestCase):
             last_name=None,
             email=fake.email(),
             site_names=[],
-            group_names=[],
+            role_names=[],
             send_email_to_user=True,
         )
 
@@ -122,7 +126,7 @@ class TestUser(TestCase):
             last_name=fake.last_name(),
             email=fake.email(),
             site_names=[],
-            group_names=[],
+            role_names=[],
             send_email_to_user=True,
         )
 
@@ -135,11 +139,11 @@ class TestUser(TestCase):
             last_name=fake.last_name(),
             email=fake.email(),
             site_names=["blah"],
-            group_names=["CLINIC"],
+            role_names=["CLINICIAN_ROLE"],
             send_email_to_user=True,
         )
 
-    def test_unknown_group(self):
+    def test_unknown_role(self):
         self.assertRaises(
             UserImporterError,
             UserImporter,
@@ -148,10 +152,11 @@ class TestUser(TestCase):
             last_name=fake.last_name(),
             email=fake.email(),
             site_names=["harare"],
-            group_names=["blah"],
+            role_names=["blah"],
             send_email_to_user=True,
         )
 
+    @tag("1")
     def test_with_custom_templates(self):
         created_email_template = Template("Hi $first_name, \n\nStay Classy")
         updated_email_template = Template(
@@ -164,7 +169,7 @@ class TestUser(TestCase):
             last_name=fake.last_name(),
             email=fake.email(),
             site_names=["harare"],
-            group_names=["CLINIC"],
+            role_names=[CLINICIAN_ROLE],
             send_email_to_user=True,
             created_email_template=created_email_template,
             updated_email_template=updated_email_template,
@@ -179,7 +184,7 @@ class TestUser(TestCase):
             last_name=fake.last_name(),
             email=fake.email(),
             site_names=["harare"],
-            group_names=["CLINIC"],
+            role_names=[CLINICIAN_ROLE],
             send_email_to_user=True,
             created_email_template=created_email_template,
             updated_email_template=updated_email_template,
