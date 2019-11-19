@@ -1,0 +1,80 @@
+from .codenames import (
+    account_manager,
+    administration,
+    ae,
+    ae_review,
+    auditor,
+    celery_manager,
+    clinic,
+    data_manager,
+    data_query,
+    dispensing,
+    everyone,
+    export,
+    lab,
+    lab_view,
+    pharmacy,
+    pii,
+    pii_view,
+    get_rando,
+    review,
+    site_data_manager,
+    tmg,
+)
+from .group_names import (
+    AE,
+    AE_REVIEW,
+    ACCOUNT_MANAGER,
+    ADMINISTRATION,
+    AUDITOR,
+    CELERY_MANAGER,
+    CLINIC,
+    DATA_MANAGER,
+    DATA_QUERY,
+    DISPENSING,
+    EVERYONE,
+    EXPORT,
+    LAB,
+    LAB_VIEW,
+    PHARMACY,
+    PII,
+    PII_VIEW,
+    RANDO,
+    REVIEW,
+    SITE_DATA_MANAGER,
+    TMG,
+)
+
+
+def get_default_codenames_by_group():
+    codenames_by_group = {
+        AE: ae,
+        AE_REVIEW: ae_review,
+        ACCOUNT_MANAGER: account_manager,
+        ADMINISTRATION: administration,
+        AUDITOR: auditor,
+        CELERY_MANAGER: celery_manager,
+        CLINIC: clinic,
+        DATA_MANAGER: data_manager,
+        DATA_QUERY: data_query,
+        DISPENSING: dispensing,
+        EVERYONE: everyone,
+        EXPORT: export,
+        LAB: lab,
+        LAB_VIEW: lab_view,
+        PHARMACY: pharmacy,
+        PII: pii,
+        PII_VIEW: pii_view,
+        RANDO: get_rando,
+        REVIEW: review,
+        SITE_DATA_MANAGER: site_data_manager,
+        TMG: tmg,
+    }
+
+    dct = {}
+    for k, v in codenames_by_group.items():
+        try:
+            dct.update({k: v()})
+        except TypeError:
+            dct.update({k: v})
+    return dct

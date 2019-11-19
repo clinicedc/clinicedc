@@ -61,6 +61,8 @@ role_names = {
     TMG_ROLE: "TMG (External Review",
 }
 
+required_role_names = {STAFF_ROLE: "Staff"}
+
 groups_by_role_name = {
     ACCOUNT_MANAGER_ROLE: [ACCOUNT_MANAGER, ADMINISTRATION, EVERYONE],
     AUDITOR_ROLE: [

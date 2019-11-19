@@ -11,6 +11,7 @@ from ..constants import CUSTOM_ROLE
 from ..group_names import EVERYONE
 from .role import Role
 from edc_auth.constants import STAFF_ROLE
+import pdb
 
 
 class UserProfile(NotificationUserProfileModelMixin, models.Model):
@@ -80,6 +81,7 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
             add_group_names = list(set(add_group_names))
             for name in add_group_names:
                 self.user.groups.add(Group.objects.get(name=name))
+                self.user.save()
 
     def remove_groups_for_roles(self, pk_set):
         """Remove groups from this user for the removed roles.
@@ -105,8 +107,3 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
                 )
             for name in remove_group_names:
                 self.user.groups.remove(Group.objects.get(name=name))
-
-    def ensure_basic_groups_included(self):
-        user_group_names = [g.name for g in self.user.groups.all()]
-        if EVERYONE not in user_group_names:
-            self.user.groups.add(Group.objects.get(name=EVERYONE))

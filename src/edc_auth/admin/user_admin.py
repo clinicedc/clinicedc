@@ -6,8 +6,8 @@ from django.template.loader import render_to_string
 from edc_dashboard import select_edc_template
 
 from ..forms import UserChangeForm
-from .user_profile_admin import UserProfileInline
 from ..send_new_credentials_to_user import send_new_credentials_to_user
+from .user_profile_admin import UserProfileInline
 
 
 admin.site.unregister(User)

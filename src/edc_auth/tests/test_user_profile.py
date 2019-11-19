@@ -1,3 +1,4 @@
+from django.apps import apps as django_apps
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.test import TestCase, tag
@@ -5,13 +6,19 @@ from django.test.client import RequestFactory
 from django.test.utils import override_settings
 
 from ..backends import ModelBackendWithSite
-from ..models import UserProfile
+from ..constants import CLINICIAN_ROLE
+from ..models.role import Role
+from ..group_permissions_updater import GroupPermissionsUpdater
 
 
 class TestUserProfile(TestCase):
-    def tearDown(self):
-        UserProfile.objects.all().delete()
-        User.objects.all().delete()
+    #     def tearDown(self):
+    #         UserProfile.objects.all().delete()
+    #         User.objects.all().delete()
+
+    def setUp(self):
+
+        GroupPermissionsUpdater(verbose=True, apps=django_apps)
 
     def test_default_user_profile_created_by_signal(self):
         """Assert creates userprofile instance.
@@ -67,3 +74,14 @@ class TestUserProfile(TestCase):
         self.assertIsNone(
             backend.authenticate(request, username="erik", password="password")
         )
+
+    @tag("2")
+    def test_add_groups_for_role(self):
+        user = User.objects.create(
+            username="erik", is_superuser=False, is_active=True, is_staff=True
+        )
+        role = Role.objects.get(name=CLINICIAN_ROLE)
+        user.userprofile.roles.add(role)
+        user.userprofile.save()
+        user.userprofile.add_groups_for_roles()
+        user.refresh_from_db()

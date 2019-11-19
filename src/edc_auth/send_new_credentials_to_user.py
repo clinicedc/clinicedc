@@ -37,4 +37,4 @@ def send_new_credentials_to_user(user, request=None, nwords=None):
         body=body.safe_substitute(opts),
         from_email="noreply@clinicedc.org",
         to=(user.email,),
-    )
+    ).send(fail_silently=True)

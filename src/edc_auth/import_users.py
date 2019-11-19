@@ -7,7 +7,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
 from mempass import PasswordGenerator
 from string import Template
-from edc_auth.models.role import Role
+
+from .models import Role
+from .role_names import required_role_names
 
 
 class UserImporterError(Exception):
@@ -153,14 +155,12 @@ class UserImporter:
             self.alternate_email = alternate_email
         self.first_name = first_name
         self.job_title = job_title
-        self.role_names = role_names
         self.last_name = last_name
         self.mobile = mobile
         self.password_generator = PasswordGenerator(
             nwords=nwords or self.password_nwords, **kwargs
         )
         self.resource_name = resource_name or self.resource_name
-        self.site_names = site_names
         self.resend_as_newly_created = resend_as_new
         self.test_email_address = test_email_address
         self.username = username
@@ -173,8 +173,8 @@ class UserImporter:
 
         self.validate_username()
 
-        self.update_user_sites()
-        self.update_user_roles()
+        self.update_user_sites(site_names)
+        self.update_user_roles(role_names)
 
         self.user.save()
         self.user.userprofile.job_title = self.job_title
@@ -225,9 +225,9 @@ class UserImporter:
                 self._user.save()
         return self._user
 
-    def update_user_sites(self):
+    def update_user_sites(self, site_names):
         self.user.userprofile.sites.clear()
-        for site_name in self.site_names:
+        for site_name in site_names:
             try:
                 site = Site.objects.get(name=site_name)
             except ObjectDoesNotExist:
@@ -239,14 +239,16 @@ class UserImporter:
             else:
                 self.user.userprofile.sites.add(site)
 
-    def update_user_roles(self):
+    def update_user_roles(self, role_names):
         self.user.userprofile.roles.clear()
-        for role_name in self.role_names:
+        role_names.extend(required_role_names)
+        for role_name in role_names:
             try:
                 role = Role.objects.get(name__iexact=role_name)
             except ObjectDoesNotExist:
                 raise UserImporterError(
-                    f"Unknown role for user. Got {self.user.username}, {role_name}"
+                    f"Unknown role for user. Got role `{role_name}` "
+                    f"for user `{self.user.username}`"
                 )
             else:
                 self.user.userprofile.roles.add(role)
