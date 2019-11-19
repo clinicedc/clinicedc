@@ -1,6 +1,7 @@
 import arrow
 
 from datetime import datetime
+from django.apps import apps as django_apps
 from django.contrib.auth.models import User, Group
 from django.contrib.sites.models import Site
 from django.test import TestCase, tag
@@ -8,8 +9,6 @@ from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
 from edc_auth import CLINIC
 from edc_auth import codenames_by_group
-from edc_auth.update import create_edc_dashboard_permissions
-from edc_auth.update import update_group_permissions
 from edc_dashboard.url_names import url_names
 from edc_model_wrapper import ModelWrapper
 from edc_utils import get_utcnow
@@ -19,6 +18,7 @@ from ..view_mixins import ListboardFilterViewMixin
 from ..view_mixins.listboard.querystring_view_mixin import QueryStringViewMixin
 from ..views import ListboardView
 from .models import SubjectVisit
+from edc_auth.group_permissions_updater import GroupPermissionsUpdater
 
 
 codenames_by_group[CLINIC].append("edc_dashboard.view_my_listboard")
@@ -28,12 +28,15 @@ class TestViewMixins(TestCase):
     @classmethod
     def setUpClass(cls):
         url_names.register("dashboard_url", "dashboard_url", "edc_dashboard")
-        create_edc_dashboard_permissions(
-            extra_codename_tpls=[
-                ("edc_dashboard.view_my_listboard", "View my listboard")
-            ]
+        GroupPermissionsUpdater(
+            verbose=True,
+            apps=django_apps,
+            create_codename_tuples={
+                "edc_dashboard.dashboard": [
+                    ("edc_dashboard.view_my_listboard", "View my listboard")
+                ]
+            },
         )
-        update_group_permissions(codenames_by_group=codenames_by_group, verbose=True)
         return super(TestViewMixins, cls).setUpClass()
 
     def setUp(self):
