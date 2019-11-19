@@ -1,9 +1,10 @@
 import re
 
 from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.base import ContextMixin
-from edc_registration.models import RegisteredSubject
 from edc_registration.exceptions import RegisteredSubjectError
+from edc_registration.models import RegisteredSubject
 
 
 class RegisteredSubjectViewMixin(ContextMixin):
@@ -29,9 +30,14 @@ class RegisteredSubjectViewMixin(ContextMixin):
                     f"See AppConfig in `edc_identifier.subject_identifier_pattern`. "
                     f"Got `{self.subject_identifier}`."
                 )
-            obj = RegisteredSubject.objects.get(
-                subject_identifier=self.subject_identifier
-            )
+            try:
+                obj = RegisteredSubject.objects.get(
+                    subject_identifier=self.subject_identifier
+                )
+            except ObjectDoesNotExist:
+                raise RegisteredSubjectError(
+                    f"Unknown subject identifier. " f"Got `{self.subject_identifier}`."
+                )
             context.update(
                 subject_identifier=obj.subject_identifier,
                 gender=obj.gender,
