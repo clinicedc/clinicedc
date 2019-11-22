@@ -34,7 +34,7 @@ class RandomizationListImporter:
 
     def __init__(
         self,
-        randomizers=None,
+        name=None,
         verbose=None,
         overwrite=None,
         add=None,
@@ -46,30 +46,30 @@ class RandomizationListImporter:
         self.dryrun = True if dryrun and dryrun.lower() == "yes" else False
         self.revision = revision
         self.user = user
+
         if self.dryrun:
             sys.stdout.write(
                 style.MIGRATE_HEADING("\n ->> Dry run. No changes will be made.\n")
             )
-        randomizers = randomizers or site_randomizers.registry.values()
-        if not randomizers:
+        randomizer = site_randomizers.get(name)
+        if not randomizer:
+            names = "`, `".join(list(site_randomizers.registry.keys()))
             raise RandomizationListImportError(
-                "No randomizers defined. See `site_randomizers`."
+                f"Randomizer not registered or invalid name. Got `{name}`. "
+                f"Expected one of `{names}`",
+                f"See `site_randomizers`.",
             )
+
         self.site_names = {obj.name: obj.name for obj in Site.objects.all()}
         if not self.site_names:
             raise RandomizationListImportError(
                 "No sites have been imported. See sites module and ."
                 'method "add_or_update_django_sites".'
             )
-        paths = []
-        for randomizer in randomizers:
-            paths.append(
-                self.import_list(
-                    randomizer=randomizer, verbose=verbose, overwrite=overwrite, add=add
-                )
-            )
-        if not paths:
-            raise RandomizationListImportError("No randomization lists imported!")
+
+        self.import_list(
+            randomizer=randomizer, verbose=verbose, overwrite=overwrite, add=add
+        )
 
     def import_list(self, randomizer=None, verbose=None, overwrite=None, add=None):
         path = os.path.expanduser(randomizer.get_randomization_list_path())
@@ -80,6 +80,8 @@ class RandomizationListImporter:
         if verbose:
             count = randomizer.model_cls().objects.all().count()
             sys.stdout.write(style.SUCCESS(f"(*) Imported {count} SIDs from {path}.\n"))
+        if not path:
+            raise RandomizationListImportError("No randomization list to imported!")
         return path
 
     def get_site_name(self, row):

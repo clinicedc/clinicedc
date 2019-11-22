@@ -19,6 +19,10 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
+            "--name", dest="name", default="default", help=("name of randomizer")
+        )
+
+        parser.add_argument(
             "--force-add",
             dest="add",
             default="NO",
@@ -41,11 +45,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         add = options["add"] if options["add"] == "YES" else None
         dryrun = options["dryrun"]
+        name = options["name"]
         user = options["user"]
         revision = options["revision"]
         try:
             RandomizationListImporter(
-                add=add, dryrun=dryrun, user=user, revision=revision
+                name=name, add=add, dryrun=dryrun, user=user, revision=revision
             )
         except (RandomizationListImportError, FileNotFoundError) as e:
             raise CommandError(e)
