@@ -298,7 +298,7 @@ class TestRandomizer(TestCase):
         class MyRandomizer(Randomizer):
             @classmethod
             def get_randomization_list_path(cls):
-                return os.path.join(tmpdir, cls.randomization_list_filename)
+                return os.path.join(tmpdir, "randomization_list.csv")
 
         RandomizationList.objects.all().delete()
         self.populate_list(
@@ -374,7 +374,7 @@ class TestRandomizer(TestCase):
         class MyRandomizer(Randomizer):
             @classmethod
             def get_randomization_list_path(cls):
-                return os.path.join(tmpdir, cls.randomization_list_filename)
+                return os.path.join(tmpdir, "randomization_list.csv")
 
         make_test_list(
             full_path=MyRandomizer.get_randomization_list_path(),
@@ -393,7 +393,7 @@ class TestRandomizer(TestCase):
         class MyRandomizer(Randomizer):
             @classmethod
             def get_randomization_list_path(cls):
-                return os.path.join(tmpdir, cls.randomization_list_filename)
+                return os.path.join(tmpdir, "randomization_list.csv")
 
         make_test_list(
             full_path=MyRandomizer.get_randomization_list_path(),
@@ -415,7 +415,7 @@ class TestRandomizer(TestCase):
         class MyRandomizer(Randomizer):
             @classmethod
             def get_randomization_list_path(cls):
-                return os.path.join(tmpdir, cls.randomization_list_filename)
+                return os.path.join(tmpdir, "randomization_list.csv")
 
         MyRandomizer.get_randomization_list_path()
         make_test_list(

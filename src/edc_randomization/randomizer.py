@@ -1,10 +1,12 @@
-from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from edc_registration.utils import get_registered_subject_model_name
+from edc_registration.utils import get_registered_subject_model
 
-from .constants import ACTIVE, PLACEBO
 from .randomization_list_verifier import RandomizationListVerifier
-from .utils import get_randomizationlist_model_name, get_randomization_list_path
+from .utils import (
+    get_randomizationlist_model,
+    get_randomization_list_path,
+    get_assignment_map,
+)
 
 
 RANDOMIZED = "RANDOMIZED"
@@ -42,10 +44,7 @@ class Randomizer:
     """
 
     name = "default"
-    model = get_randomizationlist_model_name()
-    registered_subject_model = get_registered_subject_model_name()
-    randomization_list_filename = "randomization_list.csv"
-    assignment_map = {ACTIVE: 1, PLACEBO: 2}
+    assignment_map = get_assignment_map()
 
     def __init__(
         self, subject_identifier=None, report_datetime=None, site=None, user=None
@@ -63,12 +62,22 @@ class Randomizer:
         self.randomize()
 
     def __repr__(self):
-        return (
-            f"{self.__class__.__name__}({self.name},{self.randomization_list_filename})"
-        )
+        return f"{self.__class__.__name__}({self.name},{self.get_randomization_list_path()})"
 
     def __str__(self):
-        return f"<{self.name} for file {self.randomization_list_filename}>"
+        return f"<{self.name} for file {self.get_randomization_list_path()}>"
+
+    @classmethod
+    def model_cls(cls):
+        return get_randomizationlist_model()
+
+    @property
+    def model(self):
+        return self.model_cls()._meta.label_lower
+
+    @classmethod
+    def get_randomization_list_path(cls):
+        return get_randomization_list_path()
 
     @classmethod
     def get_assignment(cls, row):
@@ -79,6 +88,7 @@ class Randomizer:
             raise InvalidAssignment(
                 f"Invalid assignment. Expected one of {cls.assignment_map}. "
                 f'Got \'{row["assignment"]}\'. '
+                f"See randomizer {repr(cls)}. "
             )
         return assignment
 
@@ -89,10 +99,6 @@ class Randomizer:
         """
         assignment = cls.get_assignment(row)
         return cls.assignment_map.get(assignment)
-
-    @classmethod
-    def model_cls(cls):
-        return django_apps.get_model(cls.model)
 
     @property
     def sid(self):
@@ -136,8 +142,8 @@ class Randomizer:
                     f"Subject already randomized. "
                     f"Got {obj.subject_identifier} SID={obj.sid}. "
                     f"Something is wrong. Are registered_subject and "
-                    f"{self.model} out of sync?.",
-                    code=self.model,
+                    f"{self.model_cls()._meta.label_lower} out of sync?.",
+                    code=self.model_cls()._meta.label_lower,
                 )
         return self._model_obj
 
@@ -181,15 +187,9 @@ class Randomizer:
         )
         self.registered_subject.save()
         # requery
-        self._registered_subject = self.registered_subject_model_cls.objects.get(
+        self._registered_subject = get_registered_subject_model().objects.get(
             subject_identifier=self.subject_identifier, sid=self.model_obj.sid
         )
-
-    @property
-    def registered_subject_model_cls(self):
-        """Returns the registered subject model class.
-        """
-        return django_apps.get_model(self.registered_subject_model)
 
     @property
     def registered_subject(self):
@@ -197,12 +197,12 @@ class Randomizer:
         """
         if not self._registered_subject:
             try:
-                self._registered_subject = self.registered_subject_model_cls.objects.get(
+                self._registered_subject = get_registered_subject_model().objects.get(
                     subject_identifier=self.subject_identifier, sid__isnull=True
                 )
             except ObjectDoesNotExist:
                 try:
-                    obj = self.registered_subject_model_cls.objects.get(
+                    obj = get_registered_subject_model().objects.get(
                         subject_identifier=self.subject_identifier
                     )
                 except ObjectDoesNotExist:
@@ -214,7 +214,7 @@ class Randomizer:
                         f"Subject already randomized. See RegisteredSubject. "
                         f"Got {obj.subject_identifier} "
                         f"SID={obj.sid}",
-                        code=self.registered_subject_model,
+                        code=get_registered_subject_model()._meta.label_lower,
                     )
         return self._registered_subject
 

@@ -5,6 +5,8 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.management.color import color_style
 
+from .constants import ACTIVE, PLACEBO
+
 style = color_style()
 
 
@@ -33,3 +35,9 @@ def get_randomization_list_path():
         )
         path = (os.path.join(settings.ETC_DIR, "randomization_list.csv"),)
     return path
+
+
+def get_assignment_map():
+    return getattr(
+        settings, "EDC_RANDOMIZATION_ASSIGNMENT_MAP", {ACTIVE: 1, PLACEBO: 2}
+    )
