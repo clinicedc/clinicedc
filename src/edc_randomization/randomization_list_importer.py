@@ -140,7 +140,8 @@ class RandomizationListImporter:
                 randomizer.model_cls().objects.all().delete()
             if randomizer.model_cls().objects.all().count() > 0 and not add:
                 raise RandomizationListImportError(
-                    f"Not importing CSV. {randomizer.model} model is not empty!"
+                    f"Not importing CSV. "
+                    f"{randomizer.model_cls()._meta.label_lower} model is not empty!"
                 )
 
     def raise_on_duplicates(self, path):

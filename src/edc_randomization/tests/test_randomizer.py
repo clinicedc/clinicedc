@@ -373,7 +373,7 @@ class TestRandomizer(TestCase):
     @override_settings(SITE_ID=40)
     def test_not_loaded(self):
         try:
-            RandomizationListVerifier(randomizer=Randomizer)
+            RandomizationListVerifier(randomizer_name=Randomizer.name)
         except RandomizationListError as e:
             self.assertIn("Randomization list has not been loaded", str(e))
         else:
@@ -468,7 +468,7 @@ class TestRandomizer(TestCase):
         obj.save()
 
         with self.assertRaises(RandomizationListError) as cm:
-            RandomizationListVerifier(randomizer=Randomizer)
+            RandomizationListVerifier(randomizer_name=Randomizer.name)
         self.assertIn("Randomization list has invalid SIDs", str(cm.exception))
 
     @override_settings(SITE_ID=40)
@@ -481,5 +481,5 @@ class TestRandomizer(TestCase):
         )
         self.assertEqual(RandomizationList.objects.all().count(), 51)
         with self.assertRaises(RandomizationListError) as cm:
-            RandomizationListVerifier(randomizer=Randomizer).message
+            RandomizationListVerifier(randomizer_name=Randomizer.name).message
         self.assertIn("Randomization list count is off", str(cm.exception))

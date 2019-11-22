@@ -220,5 +220,7 @@ class Randomizer:
 
     @classmethod
     def verify_list(cls, path=None):
-        randomization_list_verifier = RandomizationListVerifier(randomizer=cls)
+        randomization_list_verifier = RandomizationListVerifier(
+            randomizer_name=cls.name
+        )
         return randomization_list_verifier.messages
