@@ -44,7 +44,7 @@ class Randomizer:
     """
 
     name = "default"
-    assignment_map = get_assignment_map()
+    assignment_map = get_assignment_map()  # {ACTIVE: 1, PLACEBO: 2}
 
     def __init__(
         self, subject_identifier=None, report_datetime=None, site=None, user=None
