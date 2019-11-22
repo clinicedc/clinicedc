@@ -111,6 +111,7 @@ class RandomizationListVerifier:
                         f"does not match model data. See file "
                         f"{self.randomizer.get_randomization_list_path()}. "
                         f"Resolve this issue before using the system. "
-                        f'Got \'{obj2.site_name}\' != \'{row["site_name"]}\' for sid={obj2.sid}.'
+                        f'Got \'{obj2.site_name}\' != \'{row["site_name"]}\' '
+                        f"for sid={obj2.sid}."
                     )
         return message
