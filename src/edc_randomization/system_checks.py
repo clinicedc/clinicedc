@@ -15,6 +15,7 @@ error_configs = dict(randomization_list_check=err("edc_randomization.W001", Warn
 def randomization_list_check(app_configs, **kwargs):
     errors = []
     error = error_configs.get("randomization_list_check")
+
     for randomizer in site_randomizers.registry.values():
         if (
             "tox" not in sys.argv
