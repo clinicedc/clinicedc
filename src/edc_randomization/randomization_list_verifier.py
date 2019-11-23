@@ -41,7 +41,9 @@ class RandomizationListVerifier:
                 )
 
             else:
-                if not os.path.exists(self.randomizer.get_randomization_list_path()):
+                if not self.randomizer.get_randomization_list_path() or not os.path.exists(
+                    self.randomizer.get_randomization_list_path()
+                ):
                     self.messages.append(
                         f"Randomization list file does not exist but SIDs "
                         f"have been loaded. Expected file "

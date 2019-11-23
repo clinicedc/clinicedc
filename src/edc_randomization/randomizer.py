@@ -86,9 +86,9 @@ class Randomizer:
         assignment = row["assignment"]
         if assignment not in cls.assignment_map:
             raise InvalidAssignment(
-                f"Invalid assignment. Expected one of {cls.assignment_map}. "
-                f'Got \'{row["assignment"]}\'. '
-                f"See randomizer {repr(cls)}. "
+                f"Invalid assignment. Expected one of {list(cls.assignment_map.keys())}. "
+                f"Got `{assignment}`. "
+                f"See randomizer `{cls.name}` {repr(cls)}. "
             )
         return assignment
 

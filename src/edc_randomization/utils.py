@@ -25,16 +25,7 @@ def get_historicalrandomizationlist_model(apps=None):
 
 
 def get_randomization_list_path():
-    try:
-        path = settings.EDC_RANDOMIZATION_LIST_FILE
-    except AttributeError:
-        sys.stdout.write(
-            style.ERROR(
-                "settings.EDC_RANDOMIZATION_LIST_FILE attribute not set, using default."
-            )
-        )
-        path = (os.path.join(settings.ETC_DIR, "randomization_list.csv"),)
-    return path
+    return settings.EDC_RANDOMIZATION_LIST_FILE
 
 
 def get_assignment_map():
