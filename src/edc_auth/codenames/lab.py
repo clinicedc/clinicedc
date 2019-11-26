@@ -1,16 +1,8 @@
-from django.conf import settings
+from edc_lab.utils import get_requisition_model_name
 
-view_subjectrequisition = ".view_".join(settings.SUBJECT_REQUISITION_MODEL.split("."))
-view_historicalsubjectrequisition = ".view_historical".join(
-    settings.SUBJECT_REQUISITION_MODEL.split(".")
-)
-add_subjectrequisition = ".add_".join(settings.SUBJECT_REQUISITION_MODEL.split("."))
-change_subjectrequisition = ".change_".join(
-    settings.SUBJECT_REQUISITION_MODEL.split(".")
-)
-delete_subjectrequisition = ".delete_".join(
-    settings.SUBJECT_REQUISITION_MODEL.split(".")
-)
+lab_requisition = []
+for action in ["view_", "add_", "change_", "delete_", "view_historical"]:
+    lab_requisition.append(f".{action}".join(get_requisition_model_name().split(".")))
 
 
 lab_dashboard = [
@@ -38,11 +30,6 @@ lab_navbar = [
 ]
 
 lab = [
-    view_subjectrequisition,
-    view_historicalsubjectrequisition,
-    add_subjectrequisition,
-    change_subjectrequisition,
-    delete_subjectrequisition,
     "edc_lab.add_aliquot",
     "edc_lab.add_box",
     "edc_lab.add_boxitem",
@@ -109,5 +96,6 @@ lab = [
     "edc_navbar.nav_lab_section",
 ]
 
+lab.extend(lab_requisition)
 lab.extend(lab_dashboard)
 lab.extend(lab_navbar)
