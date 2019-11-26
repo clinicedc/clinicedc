@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
-from edc_lab.models import get_panel_model_cls
+from edc_lab.utils import get_panel_model
 
 from ..rule import RuleRunner
 from .data_query import DataQuery
@@ -53,7 +53,7 @@ def update_query_on_crf(sender, instance, raw, **kwargs):
                         rule_generated=True,
                         subject_identifier=subject_identifier,
                         visit_schedule=visit_schedule,
-                        requisition_panel=get_panel_model_cls().objects.get(
+                        requisition_panel=get_panel_model().objects.get(
                             name=instance.panel.name
                         ),
                     )
