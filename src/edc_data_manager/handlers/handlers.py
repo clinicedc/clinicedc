@@ -3,7 +3,7 @@ import arrow
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from edc_constants.constants import RESOLVED, OPEN, NO
-from edc_lab.models import get_requisition_model
+from edc_lab.utils import get_requisition_model
 from edc_metadata.constants import REQUIRED, KEYED
 from edc_metadata.models import RequisitionMetadata, CrfMetadata
 from edc_visit_tracking.models import get_visit_tracking_model
