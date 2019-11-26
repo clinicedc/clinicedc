@@ -47,7 +47,7 @@ from .group_names import (
 
 
 def get_default_codenames_by_group():
-    codenames_by_group = {
+    dct = {
         AE: ae,
         AE_REVIEW: ae_review,
         ACCOUNT_MANAGER: account_manager,
@@ -71,10 +71,10 @@ def get_default_codenames_by_group():
         TMG: tmg,
     }
 
-    dct = {}
-    for k, v in codenames_by_group.items():
+    codenames_by_group = {}
+    for k, v in dct.items():
         try:
-            dct.update({k: v()})
+            codenames_by_group.update({k: v()})
         except TypeError:
-            dct.update({k: v})
-    return dct
+            codenames_by_group.update({k: v})
+    return codenames_by_group

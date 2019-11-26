@@ -1,20 +1,11 @@
-from django.conf import settings
+from edc_consent.utils import get_consent_model_name, get_reconsent_model_name
 
-view_subjectconsent = ".view_".join(settings.SUBJECT_CONSENT_MODEL.split("."))
-add_subjectconsent = ".add_".join(settings.SUBJECT_CONSENT_MODEL.split("."))
-change_subjectconsent = ".change_".join(settings.SUBJECT_CONSENT_MODEL.split("."))
-delete_subjectconsent = ".delete_".join(settings.SUBJECT_CONSENT_MODEL.split("."))
-view_historicalsubjectconsent = ".view_historical".join(
-    settings.SUBJECT_CONSENT_MODEL.split(".")
-)
-
+consent_codenames = []
+for model in [get_reconsent_model_name(), get_consent_model_name()]:
+    for action in ["view_", "add_", "change_", "delete_", "view_historical"]:
+        consent_codenames.append(f".{action}".join(model.split(".")))
 
 pii = [
-    view_subjectconsent,
-    add_subjectconsent,
-    change_subjectconsent,
-    delete_subjectconsent,
-    view_historicalsubjectconsent,
     "edc_locator.add_subjectlocator",
     "edc_locator.change_subjectlocator",
     "edc_locator.delete_subjectlocator",
@@ -28,3 +19,4 @@ pii = [
     "edc_registration.view_historicalregisteredsubject",
     "edc_registration.view_registeredsubject",
 ]
+pii.extend(consent_codenames)

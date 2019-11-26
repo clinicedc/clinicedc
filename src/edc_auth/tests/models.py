@@ -34,6 +34,13 @@ class SubjectConsent(models.Model):
     history = HistoricalRecords()
 
 
+class SubjectReconsent(models.Model):
+
+    name = models.CharField(max_length=50, null=True)
+
+    history = HistoricalRecords()
+
+
 class CustomRandomizationList(RandomizationListModelMixin, BaseUuidModel):
 
     pass
