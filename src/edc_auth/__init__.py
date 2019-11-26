@@ -8,6 +8,8 @@ from .group_names import (
     CELERY_MANAGER,
     CLINIC,
     DATA_MANAGER,
+    DISPENSING,
+    SITE_DATA_MANAGER,
     DATA_QUERY,
     EVERYONE,
     EXPORT,
@@ -19,10 +21,9 @@ from .group_names import (
     RANDO,
     REVIEW,
     SCREENING,
-    SITE_DATA_MANAGER,
     TMG,
-    UNBLINDING_REVIEWERS,
     UNBLINDING_REQUESTORS,
+    UNBLINDING_REVIEWERS,
 )
 
 codenames_by_group = {k: v for k, v in get_default_codenames_by_group().items()}
