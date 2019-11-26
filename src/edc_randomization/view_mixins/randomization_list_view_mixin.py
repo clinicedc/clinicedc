@@ -11,7 +11,7 @@ class RandomizationListViewMixin(ContextMixin):
     randomizer_name = "default"
 
     @property
-    def treatment_description(self):
+    def assignment_description(self):
         Randomizer = site_randomizers.get(self.randomizer_name)
         subject_identifier = is_subject_identifier_or_raise(
             self.kwargs.get("subject_identifier")
@@ -36,9 +36,9 @@ class RandomizationListViewMixin(ContextMixin):
                 f"Subject {subject_identifier}. "
                 f"Found {available}/{total} available records for {current_site}. Got {e}"
             )
-        return obj.treatment_description
+        return obj.assignment_description
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(treatment_description=self.treatment_description)
+        context.update(assignment_description=self.assignment_description)
         return context
