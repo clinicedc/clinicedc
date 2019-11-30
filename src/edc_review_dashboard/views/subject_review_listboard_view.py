@@ -82,7 +82,7 @@ class SubjectReviewListboardView(
             return (
                 qs.values("subject_identifier")
                 .annotate(visit_count=Count("subject_identifier"))
-                .order_by("subject_identifier")
+                .order_by("-subject_identifier")
             )
         return qs
 
@@ -111,7 +111,8 @@ class SubjectReviewListboardView(
     def get_queryset_filter_options(self, request, *args, **kwargs):
         options = super().get_queryset_filter_options(request, *args, **kwargs)
         if kwargs.get("subject_identifier"):
-            options.update({"subject_identifier": kwargs.get("subject_identifier")})
+            options.update(
+                {"subject_identifier": kwargs.get("subject_identifier")})
         return options
 
     def extra_search_options(self, search_term):

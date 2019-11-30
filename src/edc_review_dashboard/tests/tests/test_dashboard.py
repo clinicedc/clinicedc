@@ -32,7 +32,8 @@ class TestDashboard(WebTest):
         return ret
 
     def setUp(self):
-        self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
+        self.user = User.objects.create_superuser(
+            "user_login", "u@example.com", "pass")
 
         site_labs._registry = {}
         site_labs.loaded = False
@@ -48,41 +49,42 @@ class TestDashboard(WebTest):
             }
         )
 
-        self.subject_identifier = "092-40990029-4"
-        identity = "123456789"
-        subject_consent = SubjectConsent.objects.create(
-            subject_identifier=self.subject_identifier,
-            consent_datetime=get_utcnow(),
-            identity=identity,
-            confirm_identity=identity,
-            dob=get_utcnow() - relativedelta(years=25),
-        )
+        self.subject_identifiers = ["092-40990028-3", "092-40990029-4"]
 
-        for schedule in visit_schedule.schedules.values():
-            for visit in schedule.visits.values():
-                appointment = Appointment.objects.create(
-                    appt_datetime=get_utcnow(),
-                    subject_identifier=self.subject_identifier,
-                    visit_schedule_name="visit_schedule",
-                    schedule_name="schedule",
-                    timepoint=visit.timepoint,
-                    visit_code=visit.code,
-                    user_created="user_login",
-                )
-                SubjectVisit.objects.create(
-                    appointment=appointment,
-                    subject_identifier=self.subject_identifier,
-                    reason=SCHEDULED,
-                    user_created="user_login",
-                )
-        # put subject on schedule
-        _, schedule = site_visit_schedules.get_by_onschedule_model(
-            "review_dashboard_app.onschedule"
-        )
-        schedule.put_on_schedule(
-            subject_identifier=subject_consent.subject_identifier,
-            onschedule_datetime=subject_consent.consent_datetime,
-        )
+        for subject_identifier in self.subject_identifiers:
+            subject_consent = SubjectConsent.objects.create(
+                subject_identifier=subject_identifier,
+                consent_datetime=get_utcnow(),
+                identity=subject_identifier,
+                confirm_identity=subject_identifier,
+                dob=get_utcnow() - relativedelta(years=25),
+            )
+
+            for schedule in visit_schedule.schedules.values():
+                for visit in schedule.visits.values():
+                    appointment = Appointment.objects.create(
+                        appt_datetime=get_utcnow(),
+                        subject_identifier=subject_identifier,
+                        visit_schedule_name="visit_schedule",
+                        schedule_name="schedule",
+                        timepoint=visit.timepoint,
+                        visit_code=visit.code,
+                        user_created="user_login",
+                    )
+                    SubjectVisit.objects.create(
+                        appointment=appointment,
+                        subject_identifier=subject_identifier,
+                        reason=SCHEDULED,
+                        user_created="user_login",
+                    )
+            # put subject on schedule
+            _, schedule = site_visit_schedules.get_by_onschedule_model(
+                "review_dashboard_app.onschedule"
+            )
+            schedule.put_on_schedule(
+                subject_identifier=subject_consent.subject_identifier,
+                onschedule_datetime=subject_consent.consent_datetime,
+            )
 
     def login(self):
         form = self.app.get(reverse("admin:index")).maybe_follow().form
@@ -100,17 +102,21 @@ class TestDashboard(WebTest):
             status=200,
         )
 
-        n = SubjectVisit.objects.all().count()
+        n = SubjectVisit.objects.filter(
+            subject_identifier=self.subject_identifiers[1]).count()
         self.assertIn("Subjects", response.html.get_text())
 
         # shows something like 1. 12345 3 visits
-        self.assertIn(f"{self.subject_identifier} {n} visits", response.html.get_text())
-        self.assertIn("click to list reported visits for this subject", response)
+        self.assertIn(f"{self.subject_identifiers[1]} {n} visits",
+                      response.html.get_text())
+        self.assertIn(
+            "click to list reported visits for this subject", response)
 
         # follow to schedule for this subject
-        response = response.click(linkid="id-reported-visit-list")
+        response = response.click(
+            linkid=f"id-reported-visit-list-{self.subject_identifiers[1]}")
         self.assertIn(
-            f"Subject Review: Reported visits for {self.subject_identifier}",
+            f"Subject Review: Reported visits for {self.subject_identifiers[1]}",
             response.html.get_text(),
         )
         self.assertIn("1000.0", response.html.get_text())
@@ -118,43 +124,46 @@ class TestDashboard(WebTest):
         self.assertIn("3000.0", response.html.get_text())
 
         response = response.click(
-            linkid=f"id-reported-visits-{self.subject_identifier}-1000-0"
+            linkid=f"id-reported-visits-{self.subject_identifiers[1]}-1000-0"
         )
 
         # print(response.html.get_text())
         # follow to dashoard for this visit
         # response = response.click(linkid="id-reported-visit-list")
 
+    @tag("1")
     def test_url_response_for_subject_identifier(self):
         self.login()
 
         response = self.app.get(
             reverse(
                 f"review_dashboard_app:subject_review_listboard_url",
-                kwargs={"subject_identifier": self.subject_identifier},
+                kwargs={"subject_identifier": self.subject_identifiers[1]},
             ),
             user=self.user,
         )
 
-        # print(response.html.get_text())
+        self.assertIn(
+            f"id-reported-visit-list-{self.subject_identifiers[1]}", response)
 
-        self.assertIn("id-reported-visit-list", response)
-        self.assertIn(self.subject_identifier, response)
+        self.assertIn(self.subject_identifiers[1], response)
 
-        response = response.click(linkid="id-reported-visit-list")
+        response = response.click(
+            linkid=f"id-reported-visit-list-{self.subject_identifiers[1]}"
+        )
 
-    #         for link in response.html.find_all('a'):
-    #             print(link.get('href'))
-    #         print(response.html.get_text())
-
-    def test_url_response_for_subject_identifier_to_dashboard(self):
+    @tag("1")
+    def test_ordering(self):
         self.login()
 
         response = self.app.get(
             reverse(
                 f"review_dashboard_app:subject_review_listboard_url",
-                kwargs={"subject_identifier": self.subject_identifier},
             ),
             user=self.user,
         )
-        response = response.click(linkid="id-reported-visit-list")
+        # response = response.click(linkid="id-reported-visit-list")
+        self.assertIn(
+            f"1. {self.subject_identifiers[1]}", response.html.get_text())
+        self.assertIn(
+            f"2. {self.subject_identifiers[0]}", response.html.get_text())
