@@ -4,7 +4,7 @@ from django.contrib.admin.decorators import register
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django_audit_fields.admin import audit_fieldset_tuple
-from edc_action_item.fieldsets import action_fieldset_tuple
+from edc_action_item.fieldsets import action_fieldset_tuple, action_fields
 from edc_appointment.models import Appointment
 from edc_auth import DATA_MANAGER
 from edc_constants.constants import (
@@ -289,7 +289,7 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         fields = super().get_readonly_fields(request, obj=obj)
-        extra_fields = ["rule_generated", "rule_reference"]
+        extra_fields = ["rule_generated", "rule_reference", *action_fields]
         if not request.user.groups.filter(name=DATA_MANAGER):
             extra_fields = [
                 "registered_subject",

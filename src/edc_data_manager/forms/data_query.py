@@ -59,7 +59,10 @@ class DataQueryFormValidator(FormValidator):
             CLOSED, CLOSED_WITH_ACTION, field="status", field_required="dm_user"
         )
         self.required_if(
-            CLOSED_WITH_ACTION, field="status", field_required="plan_of_action"
+            CLOSED_WITH_ACTION,
+            field="status",
+            field_required="plan_of_action",
+            inverse=False,
         )
 
 
