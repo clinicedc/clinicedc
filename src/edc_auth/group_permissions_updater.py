@@ -47,7 +47,7 @@ class GroupPermissionsUpdater:
         self,
         codenames_by_group=None,
         extra_pii_models=None,
-        # excluded_app_labels=None,
+        excluded_app_labels=None,
         create_codename_tuples=None,
         apps=None,
         verbose=None,
@@ -55,7 +55,7 @@ class GroupPermissionsUpdater:
         self.apps = apps or django_apps
         self.verbose = verbose
         self.codenames_by_group = codenames_by_group or get_default_codenames_by_group()
-        # self._exclude_app_labels(excluded_app_labels)
+        self._exclude_app_labels(excluded_app_labels)
 
         self.extra_pii_models = extra_pii_models or []
         self.create_codename_tuples = create_codename_tuples
@@ -132,50 +132,19 @@ class GroupPermissionsUpdater:
     def permission_model_cls(self):
         return self.apps.get_model("auth.permission")
 
-    #     def _exclude_app_labels(self, excluded_app_labels=None):
-    #         """
-    #         Removes codenames that refer to app_labels that are not
-    #         installed.
-    #
-    #         excluded_app_labels: Explicitly list the app_labels to remove
-    #         """
-    #
-    #         if not excluded_app_labels:
-    #             app_labels = []
-    #             for codenames in self.codenames_by_group.values():
-    #                 for codename in codenames:
-    #                     app_label, _ = codename.split(".")
-    #                     app_labels.append(app_label)
-    #
-    #             installed_app_labels = list(
-    #                 [get_app_label(a) for a in settings.INSTALLED_APPS]
-    #             )
-    #             excluded_app_labels = list(
-    #                 set(
-    #                     [
-    #                         app_label
-    #                         for app_label in app_labels
-    #                         if app_label not in installed_app_labels
-    #                     ]
-    #                 )
-    #             )
-    #         pdb.set_trace()
-    #
-    #         for app_label in ["auth", "sites", "admin"]:
-    #             if app_label in excluded_app_labels:
-    #                 raise PermissionsCodenameError(
-    #                     f"app_label '{app_label}' not installed but required."
-    #                 )
-    #         if excluded_app_labels:
-    #             print(excluded_app_labels)
-    #             dct_copy = deepcopy(self.codenames_by_group)
-    #             for group_name, codenames in dct_copy.items():
-    #                 original_codenames = copy(codenames)
-    #                 for codename in original_codenames:
-    #                     for app_label in excluded_app_labels:
-    #                         if app_label == codename.split(".")[0]:
-    #                             codenames.remove(codename)
-    #                 self.codenames_by_group[group_name] = codenames
+    def _exclude_app_labels(self, excluded_app_labels=None):
+        """
+        Removes codenames that refer to excluded app_labels. (for tests)
+        """
+        if excluded_app_labels:
+            dct_copy = deepcopy(self.codenames_by_group)
+            for group_name, codenames in dct_copy.items():
+                original_codenames = copy(codenames)
+                for codename in original_codenames:
+                    for app_label in excluded_app_labels:
+                        if app_label == codename.split(".")[0]:
+                            codenames.remove(codename)
+                self.codenames_by_group[group_name] = codenames
 
     def create_or_update_groups(self):
         """Add/Deletes group model instances to match the
