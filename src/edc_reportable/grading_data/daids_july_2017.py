@@ -262,7 +262,7 @@ chemistries = {
             **adult_age_options,
         ),
         p(
-            "6.5<=x<=7.0",
+            "6.5<=x<7.0",
             grade=GRADE3,
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
@@ -276,7 +276,7 @@ chemistries = {
             **adult_age_options,
         ),
         p(
-            "7.0<x",
+            "7.0<=x",
             grade=GRADE4,
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
