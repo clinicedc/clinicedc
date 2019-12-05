@@ -92,9 +92,13 @@ class MailingListManager:
             },
         )
         if verbose:
+            email = response.json()["member"]["address"]
+            message = response.json()["message"]
+            subscribed = response.json()["member"]["subscribed"]
             sys.stdout.write(
-                f"Subscribing {user.email} to {self.address}. "
-                f"Got response={response.status_code}.\n"
+                f"Subscribing {email} from {self.address}. "
+                f"Got response={response.status_code}. {message} "
+                f"subscribed={subscribed}.\n"
             )
         return response
 
@@ -112,9 +116,13 @@ class MailingListManager:
             data={"subscribed": False},
         )
         if verbose:
+            email = response.json()["member"]["address"]
+            message = response.json()["message"]
+            subscribed = response.json()["member"]["subscribed"]
             sys.stdout.write(
-                f"Unsubscribing {user.email} from {self.address}. "
-                f"Got response={response.status_code}.\n"
+                f"Unsubscribing {email} from {self.address}. "
+                f"Got response={response.status_code}. {message} "
+                f"subscribed={subscribed}.\n"
             )
         return response
 
