@@ -19,6 +19,7 @@ from ..site_notifications import site_notifications, AlreadyRegistered
 from ..site_notifications import RegistryNotLoaded, NotificationNotRegistered
 from ..models import Notification as NotificationModel
 from .models import AE, Death, Condition, AnyModel
+import os
 
 style = color_style()
 
@@ -435,38 +436,6 @@ class TestNotification(TestCase):
             name=DeathNotification2.name,
             enabled=True,
         )
-
-    def test_sms(self):
-
-        if settings.ENVFILE != ".env":
-            sys.stdout.write(
-                style.NOTICE(
-                    "skipping test_sms. Credentials not in ENV\n"
-                    "See comment in settings file.\n"
-                )
-            )
-        else:
-            user = User.objects.create(username="erikvw")
-            user.userprofile.mobile = settings.TWILIO_TEST_RECIPIENT
-            user.userprofile.save()
-
-            site_notifications._registry = {}
-            site_notifications.update_notification_list()
-
-            @register()
-            class DeathNotification(NewModelNotification):
-                name = "death"
-                model = "edc_notification.death"
-
-            site_notifications.update_notification_list()
-
-            user.userprofile.sms_notifications.add(
-                NotificationModel.objects.get(name=DeathNotification.name)
-            )
-
-            Death.objects.create(
-                subject_identifier="1", cause="A", user_created="erikvw"
-            )
 
     def test_graded_event_grade3_as_test_email_message(self):
 
