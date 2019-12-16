@@ -92,14 +92,7 @@ class MailingListManager:
             },
         )
         if verbose:
-            email = response.json()["member"]["address"]
-            message = response.json()["message"]
-            subscribed = response.json()["member"]["subscribed"]
-            sys.stdout.write(
-                f"Subscribing {email} from {self.address}. "
-                f"Got response={response.status_code}. {message} "
-                f"subscribed={subscribed}.\n"
-            )
+            self._output_response_message("subscribe", response)
         return response
 
     def unsubscribe(self, user, verbose=None):
@@ -116,15 +109,25 @@ class MailingListManager:
             data={"subscribed": False},
         )
         if verbose:
+            self._output_response_message("unsubscribe", response)
+        return response
+
+    def _output_response_message(self, action, response):
+        try:
             email = response.json()["member"]["address"]
             message = response.json()["message"]
             subscribed = response.json()["member"]["subscribed"]
+        except KeyError:
             sys.stdout.write(
-                f"Unsubscribing {email} from {self.address}. "
+                f"{action.title()} failed. Got response={response.status_code} "
+                f"{str(response.json())}"
+            )
+        else:
+            sys.stdout.write(
+                f"{action.title()} for {email} from {self.address} successful. "
                 f"Got response={response.status_code}. {message} "
                 f"subscribed={subscribed}.\n"
             )
-        return response
 
     def create(self, verbose=None):
         """Returns a response after attempting to create the list.

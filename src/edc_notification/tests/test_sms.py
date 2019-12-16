@@ -30,6 +30,7 @@ class TwillioTestClientMessages:
 class TestTwilio(TestCase):
     @override_settings(TWILIO_ENABLED=True, TWILIO_SENDER="5555555555")
     def test_(self):
+
         user = User.objects.create(username="erikvw", is_active=True, is_staff=True)
 
         site_notifications._registry = {}
