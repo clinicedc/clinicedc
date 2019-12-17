@@ -21,16 +21,14 @@ class TestUser(EdcAuthTestCase):
 
     def test_import_users(self):
         # import new users
-        import_users(self.filename, resource_name=None,
-                     send_email_to_user=True)
+        import_users(self.filename, resource_name=None, send_email_to_user=True)
         self.assertEqual(len(mail.outbox), User.objects.all().count())  # noqa
         self.assertEqual(
             mail.outbox[0].subject, "Your example.com user account is ready."
         )
 
         # update existing users
-        import_users(self.filename, resource_name=None,
-                     send_email_to_user=True)
+        import_users(self.filename, resource_name=None, send_email_to_user=True)
         user_count = User.objects.all().count()
         self.assertEqual(len(mail.outbox), user_count * 2)  # noqa
         self.assertEqual(

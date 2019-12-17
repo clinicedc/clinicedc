@@ -25,8 +25,7 @@ def update_roles(groups_by_role_name=None, role_names=None, verbose=None):
     index = 0
     for role_name, groups in groups_by_role_name.items():
         if verbose:
-            sys.stdout.write(
-                f" * updating groups for {role_names.get(role_name)}.\n")
+            sys.stdout.write(f" * updating groups for {role_names.get(role_name)}.\n")
         try:
             role = Role.objects.get(name=role_name)
         except ObjectDoesNotExist:

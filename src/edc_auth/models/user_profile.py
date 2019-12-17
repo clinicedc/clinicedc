@@ -93,8 +93,7 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
             remove_group_names = []
             current_group_names = []
             for role in self.roles.all():
-                current_group_names.extend(
-                    [group.name for group in role.groups.all()])
+                current_group_names.extend([group.name for group in role.groups.all()])
             for role in Role.objects.filter(pk__in=pk_set):
                 remove_group_names.extend(
                     [
