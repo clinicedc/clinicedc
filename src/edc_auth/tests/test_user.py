@@ -1,106 +1,38 @@
-import csv
-import os
-
-from django.contrib.auth.models import Group, User
-from django.contrib.sites.models import Site
+from django.contrib.auth.models import User
 from django.core import mail
-from django.test import TestCase, tag
+from django.test import tag
 from faker import Faker
-from secrets import choice
 from string import Template
-from tempfile import mkdtemp
 
-from ..import_users import import_users, fieldnames, UserImporter, UserImporterError
+from ..group_names import CLINIC
+from ..import_users import import_users, UserImporter, UserImporterError
 from ..password_setter import PasswordSetter
-from ..role_names import CLINICIAN_ROLE, LAB_TECHNICIAN_ROLE
+from ..role_names import CLINICIAN_ROLE
+from .utils import create_users, create_user_csv_file, EdcAuthTestCase
 
 fake = Faker()
 
 site_names = ["harare", "gaborone", "kampala"]
 
 
-class TestUser(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        Group.objects.create(name="CLINIC")
-        Group.objects.create(name="LAB")
-        Group.objects.create(name="ACCOUNT_MANAGER")
-
-        Site.objects.all().delete()
-        for site_name in site_names:
-            Site.objects.create(name=site_name, domain=f"{site_name}.example.com")
-        return super().setUpClass()
-
-    @classmethod
-    def tearDownClass(cls):
-        Site.objects.all().delete()
-        Group.objects.all().delete()
-        super().tearDownClass()
-
+class TestUser(EdcAuthTestCase):
     def setUp(self):
-        self.user_count = 2
-        folder = mkdtemp()
-        self.filename = os.path.join(folder, "users.csv")
-        with open(self.filename, "w") as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter="|")
-            writer.writeheader()
-            for _ in range(0, self.user_count):
-                first_name = fake.first_name()
-                last_name = fake.last_name()
-                username = f"{first_name[0]}{''.join(last_name.split(' '))}".lower()
-                writer.writerow(
-                    {
-                        "username": username,
-                        "first_name": first_name,
-                        "last_name": last_name,
-                        "job_title": "Research Assistant",
-                        "email": fake.email(),
-                        "mobile": fake.phone_number(),
-                        "sites": choice(site_names),
-                        "roles": f"{CLINICIAN_ROLE},{LAB_TECHNICIAN_ROLE}",
-                    }
-                )
-
-    def create_users(self, count, group_name=None, site_name=None):
-        usernames = []
-        for _ in range(0, count):
-            first_name = fake.first_name()
-            last_name = fake.last_name()
-            username = (first_name[0] + last_name).lower()
-            user_data = {
-                "username": username,
-                "first_name": first_name,
-                "last_name": last_name,
-                "email": fake.email(),
-                "is_active": True,
-                "is_staff": True,
-                "is_superuser": False,
-            }
-            user = User.objects.create(**user_data)
-            user.userprofile.job_title = "Research Assistant"
-            site = Site.objects.get(name=site_name or choice(site_names))
-            user.userprofile.sites.add(site)
-            user.userprofile.save()
-            group = Group.objects.get(
-                name__iexact=group_name or choice(["CLINIC", "LAB"])
-            )
-            user.groups.add(group)
-            user.save()
-            usernames.append(user.username)
-        self.user_count = User.objects.all().count()
-        return usernames
+        self.filename = create_user_csv_file(user_count=2)
 
     def test_import_users(self):
         # import new users
-        import_users(self.filename, resource_name=None, send_email_to_user=True)
-        self.assertEqual(len(mail.outbox), self.user_count)  # noqa
+        import_users(self.filename, resource_name=None,
+                     send_email_to_user=True)
+        self.assertEqual(len(mail.outbox), User.objects.all().count())  # noqa
         self.assertEqual(
             mail.outbox[0].subject, "Your example.com user account is ready."
         )
 
         # update existing users
-        import_users(self.filename, resource_name=None, send_email_to_user=True)
-        self.assertEqual(len(mail.outbox), self.user_count * 2)  # noqa
+        import_users(self.filename, resource_name=None,
+                     send_email_to_user=True)
+        user_count = User.objects.all().count()
+        self.assertEqual(len(mail.outbox), user_count * 2)  # noqa
         self.assertEqual(
             mail.outbox[0].subject, "Your example.com user account is ready."
         )
@@ -156,7 +88,6 @@ class TestUser(TestCase):
             send_email_to_user=True,
         )
 
-    @tag("1")
     def test_with_custom_templates(self):
         created_email_template = Template("Hi $first_name, \n\nStay Classy")
         updated_email_template = Template(
@@ -195,27 +126,27 @@ class TestUser(TestCase):
         )
 
     def test_password_setter_all(self):
-        self.create_users(5)
+        create_users(5)
         pwsetter = PasswordSetter()
         pwsetter.reset_all()
-        self.assertEqual(len(mail.outbox), self.user_count)  # noqa
+        self.assertEqual(len(mail.outbox), User.objects.all().count())  # noqa
 
     def test_password_setter_groups(self):
-        count = User.objects.filter(groups__name="CLINIC").count()
-        self.create_users(5, group_name="CLINIC")
+        count = User.objects.filter(groups__name=CLINIC).count()
+        create_users(5, group_name=CLINIC)
         pwsetter = PasswordSetter()
-        pwsetter.reset_by_groups(["CLINIC"])
-        self.assertEqual(len(mail.outbox), self.user_count + count)  # noqa
+        pwsetter.reset_by_groups([CLINIC])
+        self.assertEqual(len(mail.outbox), User.objects.all().count() + count)  # noqa
 
     def test_password_setter_sites(self):
         count = User.objects.filter(userprofile__sites__name="harare").count()
-        self.create_users(5, site_name="harare")
+        create_users(5, site_name="harare")
         pwsetter = PasswordSetter()
         pwsetter.reset_by_sites(["harare"])
-        self.assertEqual(len(mail.outbox), self.user_count + count)  # noqa
+        self.assertEqual(len(mail.outbox), User.objects.all().count() + count)  # noqa
 
     def test_password_setter_user(self):
-        usernames = self.create_users(5)
+        usernames = create_users(5)
         pwsetter = PasswordSetter()
         pwsetter.reset_users(usernames)
         self.assertEqual(len(mail.outbox), 5)  # noqa
