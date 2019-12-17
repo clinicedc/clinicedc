@@ -80,8 +80,8 @@ class TestUserProfile(TestCase):
         user = User.objects.create(
             username="erik", is_superuser=False, is_active=True, is_staff=True
         )
+        self.assertEqual(user.groups.all().count(), 0)
         role = Role.objects.get(name=CLINICIAN_ROLE)
         user.userprofile.roles.add(role)
-        user.userprofile.save()
-        user.userprofile.add_groups_for_roles()
         user.refresh_from_db()
+        self.assertGreater(user.groups.all().count(), 0)

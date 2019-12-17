@@ -29,6 +29,6 @@ def update_user_groups_on_role_m2m_changed(sender, action, instance, pk_set, **k
     else:
         if action in ["post_add", "post_remove"]:
             if action == "post_add":
-                instance.add_groups_for_roles()
+                instance.add_groups_for_roles(pk_set)
             elif action == "post_remove":
                 instance.remove_groups_for_roles(pk_set)

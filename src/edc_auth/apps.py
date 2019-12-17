@@ -1,19 +1,27 @@
 import sys
 
-from django.apps import AppConfig as DjangoAppConfig
+from django.apps import AppConfig as DjangoAppConfig, apps as django_apps
 from django.core.checks.registry import register
 from django.core.management.color import color_style
 from django.db.models.signals import post_migrate
 
-from .update_roles import update_roles
+from .role_names import groups_by_role_name, role_names
 from .system_checks import edc_check
+from .update_roles import update_roles
+from .group_permissions_updater import GroupPermissionsUpdater
 
 
 style = color_style()
 
 
 def post_migrate_user_roles(sender=None, **kwargs):
-    update_roles(verbose=True)
+    """Update Role model with EDC defaults.
+
+    To add custom roles, register this in your main
+    app with additional role_names and groups_by_role_name.
+    """
+    update_roles(groups_by_role_name=groups_by_role_name,
+                 role_names=role_names, verbose=True)
 
 
 class AppConfig(DjangoAppConfig):

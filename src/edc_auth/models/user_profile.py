@@ -7,11 +7,8 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from edc_notification.model_mixins import NotificationUserProfileModelMixin
 
-from ..constants import CUSTOM_ROLE
-from ..group_names import EVERYONE
+from ..constants import CUSTOM_ROLE, STAFF_ROLE
 from .role import Role
-from edc_auth.constants import STAFF_ROLE
-import pdb
 
 
 class UserProfile(NotificationUserProfileModelMixin, models.Model):
@@ -66,7 +63,7 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
     def __str__(self):
         return self.user.username
 
-    def add_groups_for_roles(self):
+    def add_groups_for_roles(self, pk_set):
         """Add groups to this user for the selected roles.
 
         Called by m2m signal.
@@ -96,7 +93,8 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
             remove_group_names = []
             current_group_names = []
             for role in self.roles.all():
-                current_group_names.extend([group.name for group in role.groups.all()])
+                current_group_names.extend(
+                    [group.name for group in role.groups.all()])
             for role in Role.objects.filter(pk__in=pk_set):
                 remove_group_names.extend(
                     [

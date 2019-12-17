@@ -25,7 +25,3 @@ from .group_names import (
     UNBLINDING_REQUESTORS,
     UNBLINDING_REVIEWERS,
 )
-
-
-def slugify_user(user):
-    return f"{user.first_name}-{user.last_name}-{user.username}-{user.email}"
