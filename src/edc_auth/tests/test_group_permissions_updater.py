@@ -23,8 +23,7 @@ class GroupPermissionUpdater(TestCase):
         )
 
         self.assertNotIn(
-            "edc_action_blah.view_mymodel", obj.codenames_by_group.get(
-                "ACTION_GROUP")
+            "edc_action_blah.view_mymodel", obj.codenames_by_group.get("ACTION_GROUP")
         )
         self.assertIn(
             "edc_action_item.view_actionitem",
@@ -36,14 +35,10 @@ class GroupPermissionUpdater(TestCase):
         qs = Permission.objects.filter(content_type__app_label="edc_dashboard")
         for group in Group.objects.all():
             qs = group.permissions.all()
-            self.assertNotIn("add_dashboard", "|".join(
-                [o.codename for o in qs]))
-            self.assertNotIn("change_dashboard",
-                             "|".join([o.codename for o in qs]))
-            self.assertNotIn("view_dashboard", "|".join(
-                [o.codename for o in qs]))
-            self.assertNotIn("delete_dashboard",
-                             "|".join([o.codename for o in qs]))
+            self.assertNotIn("add_dashboard", "|".join([o.codename for o in qs]))
+            self.assertNotIn("change_dashboard", "|".join([o.codename for o in qs]))
+            self.assertNotIn("view_dashboard", "|".join([o.codename for o in qs]))
+            self.assertNotIn("delete_dashboard", "|".join([o.codename for o in qs]))
 
     def test_edc_dashboard_perms_before_update(self):
         qs = Permission.objects.filter(
@@ -57,8 +52,7 @@ class GroupPermissionUpdater(TestCase):
     def test_removes_randomization_list_model_perms(self):
         GroupPermissionsUpdater()
 
-        qs = Permission.objects.filter(
-            content_type__app_label="edc_randomization")
+        qs = Permission.objects.filter(content_type__app_label="edc_randomization")
         for group in Group.objects.all():
             qs = group.permissions.all()
             self.assertNotIn(
@@ -73,8 +67,7 @@ class GroupPermissionUpdater(TestCase):
 
         group = Group.objects.get(name=RANDO)
         qs = group.permissions.all()
-        self.assertIn("view_randomizationlist",
-                      "|".join([o.codename for o in qs]))
+        self.assertIn("view_randomizationlist", "|".join([o.codename for o in qs]))
 
     @override_settings(EDC_RANDOMIZATION_LIST_MODEL="edc_auth.customrandomizationlist")
     def test_removes_randomization_list_model_perms2(self):

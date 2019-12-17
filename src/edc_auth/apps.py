@@ -20,8 +20,9 @@ def post_migrate_user_roles(sender=None, **kwargs):
     To add custom roles, register this in your main
     app with additional role_names and groups_by_role_name.
     """
-    update_roles(groups_by_role_name=groups_by_role_name,
-                 role_names=role_names, verbose=True)
+    update_roles(
+        groups_by_role_name=groups_by_role_name, role_names=role_names, verbose=True
+    )
 
 
 class AppConfig(DjangoAppConfig):
