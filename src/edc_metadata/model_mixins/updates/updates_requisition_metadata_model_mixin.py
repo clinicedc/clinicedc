@@ -16,7 +16,7 @@ class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
         """Returns an instance of RequisitionMetadataUpdater.
         """
         opts = dict(
-            visit=self.visit,
+            visit_model_instance=self.visit,
             target_model=self._meta.label_lower,
             target_panel=self.panel,
         )

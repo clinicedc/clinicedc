@@ -54,51 +54,47 @@ class TestHandlers(TestCase):
         )
 
     def test_requisition_handler_invalid_target_panel(self):
-        visit_obj = SubjectVisit.objects.create(
+        visit_model_instance = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED
         )
         self.assertRaises(
             InvalidTargetPanel,
             RequisitionTargetHandler,
             model="edc_metadata.subjectrequisition",
-            visit=visit_obj,
+            visit_model_instance=visit_model_instance,
             target_panel=self.panel_blah,
-            metadata_category=REQUISITION,
         )
 
     def test_requisition_handler_target_panel_not_for_visit(self):
-        visit_obj = SubjectVisit.objects.create(
+        visit_model_instance = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED
         )
         self.assertRaises(
             TargetPanelNotScheduledForVisit,
             RequisitionTargetHandler,
             model="edc_metadata.subjectrequisition",
-            visit=visit_obj,
+            visit_model_instance=visit_model_instance,
             target_panel=self.panel_seven,
-            metadata_category=REQUISITION,
         )
 
     def test_crf_handler_invalid_target_model(self):
-        visit_obj = SubjectVisit.objects.create(
+        visit_model_instance = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED
         )
         self.assertRaises(
             TargetModelLookupError,
             TargetHandler,
             model="edc_metadata.crfblah",
-            visit=visit_obj,
-            metadata_category=CRF,
+            visit_model_instance=visit_model_instance,
         )
 
     def test_crf_handler_target_model_not_for_visit(self):
-        visit_obj = SubjectVisit.objects.create(
+        visit_model_instance = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED
         )
         self.assertRaises(
             TargetModelNotScheduledForVisit,
             TargetHandler,
             model="edc_metadata.crfseven",
-            visit=visit_obj,
-            metadata_category=CRF,
+            visit_model_instance=visit_model_instance,
         )

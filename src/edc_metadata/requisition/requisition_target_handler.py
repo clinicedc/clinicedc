@@ -19,6 +19,7 @@ class RequisitionTargetHandler(TargetHandler):
 
     metadata_handler_cls = RequisitionMetadataHandler
     metadata_category = REQUISITION
+    metadata_model = "edc_metadata.requisitionmetadata"
 
     def __init__(self, target_panel=None, **kwargs):
         self.target_panel = target_panel
@@ -33,20 +34,24 @@ class RequisitionTargetHandler(TargetHandler):
     @property
     def object(self):
         return self.reference_model_cls.objects.get_requisition_for_visit(
-            visit=self.visit, name=f"{self.model}.{self.target_panel.name}"
+            visit=self.visit_model_instance,
+            name=f"{self.model}.{self.target_panel.name}",
         )
 
     @property
     def target_panel_names(self):
         """Returns a list of panels for this visit.
         """
-        if self.visit.visit_code_sequence != 0:
+        if self.visit_model_instance.visit_code_sequence != 0:
             forms = (
-                self.visit.visit.requisitions_unscheduled
-                + self.visit.visit.requisitions_prn
+                self.visit_model_instance.visit.requisitions_unscheduled
+                + self.visit_model_instance.visit.requisitions_prn
             )
         else:
-            forms = self.visit.visit.requisitions + self.visit.visit.requisitions_prn
+            forms = (
+                self.visit_model_instance.visit.requisitions
+                + self.visit_model_instance.visit.requisitions_prn
+            )
         return list(set([form.panel.name for form in forms]))
 
     def raise_on_not_scheduled_for_visit(self):
@@ -57,7 +62,7 @@ class RequisitionTargetHandler(TargetHandler):
         if self.target_panel.name not in self.target_panel_names:
             raise TargetPanelNotScheduledForVisit(
                 f"Target panel {self.target_panel.name} is not scheduled "
-                f"for visit '{self.visit.visit_code}'."
+                f"for visit '{self.visit_model_instance.visit_code}'."
             )
 
     @property
@@ -66,9 +71,9 @@ class RequisitionTargetHandler(TargetHandler):
         for this visit.
         """
         visit_schedule = site_visit_schedules.get_visit_schedule(
-            self.visit.visit_schedule_name
+            self.visit_model_instance.visit_schedule_name
         )
-        return visit_schedule.schedules.get(self.visit.schedule_name)
+        return visit_schedule.schedules.get(self.visit_model_instance.schedule_name)
 
     def raise_on_invalid_panel(self):
         """Raises an exception if target_panel is not found in any visit
@@ -88,6 +93,6 @@ class RequisitionTargetHandler(TargetHandler):
         return self.metadata_handler_cls(
             metadata_model=self.metadata_model,
             model=self.model,
-            visit=self.visit,
+            visit_model_instance=self.visit_model_instance,
             panel=self.target_panel,
         )

@@ -12,6 +12,7 @@ from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED, MISSED_VISIT
 from ..constants import KEYED, REQUIRED
 from ..metadata import CreatesMetadataError
 from ..metadata import DeleteMetadataError
+from ..metadata_inspector import MetaDataInspector
 from ..models import CrfMetadata, RequisitionMetadata
 from .models import (
     SubjectVisit,
@@ -23,14 +24,13 @@ from .models import (
 )
 from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
-from edc_metadata.metadata_inspector import MetaDataInspector
 
 
 class TestCreatesDeletesMetadata(TestCase):
     @classmethod
     def setUpClass(cls):
         import_holidays()
-        return super(TestCreatesDeletesMetadata, cls).setUpClass()
+        return super().setUpClass()
 
     def setUp(self):
         register_to_site_reference_configs()
@@ -326,25 +326,28 @@ class TestUpdatesMetadata(TestCase):
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED
         )
-        a = []
+        metadata_a = []
         for metadata in subject_visit.metadata.values():
             for md in metadata:
-                a.append(md.model)
-        a.sort()
-        b = [
+                try:
+                    metadata_a.append(f"{md.model}.{md.panel_name}")
+                except AttributeError:
+                    metadata_a.append(md.model)
+        metadata_a.sort()
+        metadata_b = [
             crf.model
             for crf in subject_visit.schedule.visits.get(subject_visit.visit_code).crfs
         ]
-        b.extend(
+        metadata_b.extend(
             [
-                requisition.model
+                f"{requisition.model}.{requisition.name}"
                 for requisition in subject_visit.schedule.visits.get(
                     subject_visit.visit_code
                 ).requisitions
             ]
         )
-        b.sort()
-        self.assertEqual(a, b)
+        metadata_b.sort()
+        self.assertEqual(metadata_a, metadata_b)
 
     def test_metadata_inspector(self):
         subject_visit = SubjectVisit.objects.create(

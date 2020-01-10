@@ -21,6 +21,8 @@ class RequisitionMetadataUpdater(MetadataUpdater):
     @property
     def target(self):
         target = self.target_handler(
-            model=self.target_model, visit=self.visit, target_panel=self.target_panel
+            model=self.target_model,
+            visit_model_instance=self.visit_model_instance,
+            target_panel=self.target_panel,
         )
         return target

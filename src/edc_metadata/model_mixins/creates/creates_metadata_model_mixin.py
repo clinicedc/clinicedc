@@ -18,7 +18,7 @@ class CreatesMetadataModelMixin(models.Model):
     def metadata_create(self):
         """Creates metadata, called by post_save signal.
         """
-        metadata = self.metadata_cls(visit=self, update_keyed=True)
+        metadata = self.metadata_cls(visit_model_instance=self, update_keyed=True)
         metadata.prepare()
 
     def run_metadata_rules(self):
@@ -28,7 +28,9 @@ class CreatesMetadataModelMixin(models.Model):
 
         Also called by post_save signal after metadata is updated.
         """
-        metadata_rule_evaluator = self.metadata_rule_evaluator_cls(visit=self)
+        metadata_rule_evaluator = self.metadata_rule_evaluator_cls(
+            visit_model_instance=self
+        )
         metadata_rule_evaluator.evaluate_rules()
 
     @property
@@ -52,12 +54,10 @@ class CreatesMetadataModelMixin(models.Model):
         metadata category (CRF or REQUISITION).
         """
         metadata = {}
-        for name, getter_cls in [
-            (CRF, CrfMetadataGetter),
-            (REQUISITION, RequisitionMetadataGetter),
-        ]:
-            getter = getter_cls(appointment=self.appointment)
-            metadata[name] = getter.metadata_objects
+        getter = CrfMetadataGetter(appointment=self.appointment)
+        metadata[CRF] = getter.metadata_objects
+        getter = RequisitionMetadataGetter(appointment=self.appointment)
+        metadata[REQUISITION] = getter.metadata_objects
         return metadata
 
     def metadata_delete_for_visit(self):
@@ -71,7 +71,7 @@ class CreatesMetadataModelMixin(models.Model):
                     f"Metadata cannot be deleted. {key}s have been "
                     f"keyed. Got {repr(self)}."
                 )
-        destroyer = self.metadata_destroyer_cls(visit=self)
+        destroyer = self.metadata_destroyer_cls(visit_model_instance=self)
         destroyer.delete()
 
     class Meta:

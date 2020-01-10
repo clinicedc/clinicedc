@@ -9,19 +9,20 @@ class MetadataUpdaterError(Exception):
 class MetadataUpdater:
 
     """A class to update a subject's metadata given
-    the visit, target model name and desired entry status.
+    the visit_model_instance, target model name and desired entry status.
     """
 
     target_handler = TargetHandler
 
-    def __init__(self, visit=None, target_model=None):
+    def __init__(self, visit_model_instance=None, target_model=None):
         self._metadata_obj = None
-        self.visit = visit
+        self.visit_model_instance = visit_model_instance
         self.target_model = target_model
 
     def __repr__(self):
         return (
-            f"{self.__class__.__name__}(visit={self.visit}, "
+            f"{self.__class__.__name__}"
+            f"(visit_model_instance={self.visit_model_instance}, "
             f"target_model={self.target_model})"
         )
 
@@ -37,4 +38,6 @@ class MetadataUpdater:
 
     @property
     def target(self):
-        return self.target_handler(model=self.target_model, visit=self.visit)
+        return self.target_handler(
+            model=self.target_model, visit_model_instance=self.visit_model_instance
+        )

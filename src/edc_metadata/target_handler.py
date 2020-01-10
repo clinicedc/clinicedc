@@ -32,19 +32,20 @@ class TargetHandler:
 
     metadata_handler_cls = MetadataHandler
     metadata_category = CRF
+    metadata_model = "edc_metadata.crfmetadata"
 
-    def __init__(self, model=None, visit=None, **kwargs):
+    def __init__(self, model=None, visit_model_instance=None):
 
         self.model = model
-        self.visit = visit  # visit model instance
-        self.metadata_model = django_apps.get_app_config(
-            "edc_metadata"
-        ).get_metadata_model(self.metadata_category)
+        self.visit_model_instance = visit_model_instance  # visit model instance
+        self.metadata_model_cls = django_apps.get_model(
+            self.metadata_model
+        )  # .get_metadata_model(self.metadata_category)
 
-        if self.model == self.visit._meta.label_lower:
+        if self.model == self.visit_model_instance._meta.label_lower:
             raise TargetModelConflict(
                 f"Target model and visit model are the same! "
-                f"Got {self.model}=={self.visit._meta.label_lower}"
+                f"Got {self.model}=={self.visit_model_instance._meta.label_lower}"
             )
 
         try:
@@ -60,8 +61,8 @@ class TargetHandler:
 
     def __repr__(self):
         return (
-            f"<{self.__class__.__name__}({self.model}, {self.visit}), "
-            f"{self.metadata_model._meta.label_lower}>"
+            f"<{self.__class__.__name__}({self.model}, {self.visit_model_instance}), "
+            f"{self.metadata_model_cls._meta.label_lower}>"
         )
 
     @property
@@ -77,23 +78,31 @@ class TargetHandler:
         represented by a model instance from edc_reference.
         """
         return self.reference_model_cls.objects.filter_crf_for_visit(
-            name=self.model, visit=self.visit
+            name=self.model, visit=self.visit_model_instance
         )
 
     @property
     def metadata_handler(self):
         return self.metadata_handler_cls(
-            metadata_model=self.metadata_model, model=self.model, visit=self.visit
+            metadata_model=self.metadata_model,
+            model=self.model,
+            visit_model_instance=self.visit_model_instance,
         )
 
     @property
     def models(self):
         """Returns a list of models for this visit.
         """
-        if self.visit.visit_code_sequence != 0:
-            forms = self.visit.visit.unscheduled_forms + self.visit.visit.prn_forms
+        if self.visit_model_instance.visit_code_sequence != 0:
+            forms = (
+                self.visit_model_instance.visit.unscheduled_forms
+                + self.visit_model_instance.visit.prn_forms
+            )
         else:
-            forms = self.visit.visit.forms + self.visit.visit.prn_forms
+            forms = (
+                self.visit_model_instance.visit.forms
+                + self.visit_model_instance.visit.prn_forms
+            )
         return list(set([form.model for form in forms]))
 
     def raise_on_not_scheduled_for_visit(self):
@@ -106,5 +115,5 @@ class TargetHandler:
         if self.model not in self.models:
             raise TargetModelNotScheduledForVisit(
                 f"Target model `{self.model}` is not scheduled "
-                f"(nor a PRN) for visit '{self.visit.visit_code}'."
+                f"(nor a PRN) for visit '{self.visit_model_instance.visit_code}'."
             )

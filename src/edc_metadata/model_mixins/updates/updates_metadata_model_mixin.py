@@ -2,7 +2,7 @@ from django.apps import apps as django_apps
 from django.db import models
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from ...constants import REQUIRED, NOT_REQUIRED
+from ...constants import REQUIRED, NOT_REQUIRED, REQUISITION, CRF
 
 
 class MetadataError(Exception):
@@ -28,7 +28,9 @@ class UpdatesMetadataModelMixin(models.Model):
     def metadata_updater(self):
         """Returns an instance of MetadataUpdater.
         """
-        return self.updater_cls(visit=self.visit, target_model=self._meta.label_lower)
+        return self.updater_cls(
+            visit_model_instance=self.visit, target_model=self._meta.label_lower
+        )
 
     def metadata_reset_on_delete(self):
         """Sets the metadata instance to its original state.
@@ -82,8 +84,15 @@ class UpdatesMetadataModelMixin(models.Model):
     def metadata_model(self):
         """Returns the metadata model associated with self.
         """
-        app_config = django_apps.get_app_config("edc_metadata")
-        return app_config.get_metadata_model(self.metadata_category)
+        if self.metadata_category == CRF:
+            metadata_model = "edc_metadata.crfmetadata"
+        elif self.metadata_category == REQUISITION:
+            metadata_model = "edc_metadata.requisitionmetadata"
+        else:
+            raise MetadataError(
+                f"Unknown metadata catergory. Got {self.metadata_category}"
+            )
+        return django_apps.get_model(metadata_model)
 
     class Meta:
         abstract = True

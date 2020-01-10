@@ -3,6 +3,10 @@ from ..models import CrfMetadata, RequisitionMetadata
 
 
 class MetaDataFormValidatorMixin:
+
+    """Always assumes instance exists.
+    """
+
     @property
     def crf_metadata_exists(self):
         """Returns True if CRF metadata exists for this visit code.

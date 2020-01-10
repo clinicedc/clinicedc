@@ -1,12 +1,9 @@
 import sys
 
 from django.apps.config import AppConfig as DjangoAppConfig
-from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.management.color import color_style
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED, MISSED_VISIT
-
-from .constants import REQUISITION, CRF
 
 
 style = color_style()
@@ -19,8 +16,6 @@ subject_visit_model = getattr(
 class AppConfig(DjangoAppConfig):
     name = "edc_metadata"
     verbose_name = "Edc Metadata"
-    crf_model = "edc_metadata.crfmetadata"
-    metadata_requisition_model = "edc_metadata.requisitionmetadata"
     has_exportable_data = True
     reason_field = {subject_visit_model: "reason"}
     create_on_reasons = [SCHEDULED, UNSCHEDULED]
@@ -35,40 +30,7 @@ class AppConfig(DjangoAppConfig):
         )
 
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
-        sys.stdout.write(f" * using crf metadata model '{self.crf_model}'\n")
-        sys.stdout.write(
-            f" * using requisition metadata model '{self.metadata_requisition_model}'\n"
-        )
         sys.stdout.write(f" Done loading {self.verbose_name}.\n")
-
-    @property
-    def crf_model_cls(self):
-        """Returns the meta data model used by Crfs.
-        """
-        return django_apps.get_model(self.crf_model)
-
-    @property
-    def metadata_requisition_model_cls(self):
-        """Returns the meta data model used by Requisitions.
-        """
-        return django_apps.get_model(self.metadata_requisition_model)
-
-    def get_metadata_model(self, category):
-        if category == CRF:
-            return self.crf_model_cls
-        elif category == REQUISITION:
-            return self.metadata_requisition_model_cls
-        return None
-
-    def get_metadata(self, subject_identifier, **options):
-        return {
-            CRF: self.crf_model_cls.objects.filter(
-                subject_identifier=subject_identifier, **options
-            ),
-            REQUISITION: self.metadata_requisition_model_cls.objects.filter(
-                subject_identifier=subject_identifier, **options
-            ),
-        }
 
 
 if settings.APP_NAME == "edc_metadata":
