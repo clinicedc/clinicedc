@@ -23,6 +23,27 @@ class RandomizationListImporter:
     """Imports upon instantiation a formatted randomization CSV file
     into model RandomizationList.
 
+    default CSV file is the projects randomization_list.csv
+
+    name: name of randomizer, e.g. "default"
+
+    To import SIDS from CSV for the first time:
+
+        from edc_randomization.randomization_list_importer import RandomizationListImporter
+
+        RandomizationListImporter(name='default', add=False, dryrun=False)
+
+        # note: if this is not the first time you will get:
+        # RandomizationListImportError: Not importing CSV.
+        # edc_randomization.randomizationlist model is not empty!
+
+    To add additional sids from CSV without touching existing model instances:
+
+        from edc_randomization.randomization_list_importer import RandomizationListImporter
+
+        RandomizationListImporter(name='default', add=True, dryrun=False)
+
+
     Format:
         sid,assignment,site_name, orig_site, orig_allocation, orig_desc
         1,single_dose,gaborone
@@ -66,6 +87,13 @@ class RandomizationListImporter:
                 "No sites have been imported. See sites module and ."
                 'method "add_or_update_django_sites".'
             )
+        if verbose and add:
+            count = randomizer.model_cls().objects.all().count()
+            sys.stdout.write(
+                style.SUCCESS(
+                    f"(*) Randolist model has {count} SIDs (count before import).\n"
+                )
+            )
 
         self.import_list(
             randomizer=randomizer, verbose=verbose, overwrite=overwrite, add=add
@@ -79,7 +107,11 @@ class RandomizationListImporter:
         self._import_to_model(path, randomizer)
         if verbose:
             count = randomizer.model_cls().objects.all().count()
-            sys.stdout.write(style.SUCCESS(f"(*) Imported {count} SIDs from {path}.\n"))
+            sys.stdout.write(
+                style.SUCCESS(
+                    f"(*) Imported {count} SIDs from {path} (count after import).\n"
+                )
+            )
         if not path:
             raise RandomizationListImportError("No randomization list to imported!")
         return path
