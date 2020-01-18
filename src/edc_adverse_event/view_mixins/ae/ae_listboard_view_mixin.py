@@ -8,6 +8,7 @@ from edc_action_item.model_wrappers import (
     ActionItemModelWrapper as BaseActionItemModelWrapper,
 )
 from edc_adverse_event.get_ae_model import get_ae_model
+from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_dashboard.view_mixins import (
     EdcViewMixin,
     ListboardFilterViewMixin,
@@ -132,7 +133,9 @@ class AeListboardViewMixin(
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
         options = super().get_queryset_filter_options(request, *args, **kwargs)
-        options.update(action_type__name__in=self.action_type_names)
+        options.update(
+            action_type__name__in=self.action_type_names, status__in=[NEW, OPEN, CLOSED]
+        )
         if kwargs.get("subject_identifier"):
             options.update({"subject_identifier": kwargs.get("subject_identifier")})
         return options
