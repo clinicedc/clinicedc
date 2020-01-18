@@ -56,7 +56,15 @@
 					  	{% include "edc_subject_dashboard/bootstrap3/dashboard/requisitions.html" %}
 					{% endblock requisitions %}
 			</div>
-				{% subject_schedule_footer_row subject_identifier current_visit_schedule current_schedule subject_dashboard_url %}
+                {% subject_schedule_footer_row subject_identifier current_visit_schedule current_schedule subject_dashboard_url %}
+                <div id="subject_dashboard_data_queries_for_{{ subject_identifier }}"
+                    class="panel-collapse collapse in">
+                        {% block data_queries %}
+                            {% if open_data_queries %}
+                                {% include "edc_subject_dashboard/bootstrap3/dashboard/data_queries.html" %}
+                            {% endif %}
+                        {% endblock data_queries %}
+                </div>
 	     	</div>
         {% else %}
 		    {% for visit_schedule in visit_schedules.values %}
@@ -89,6 +97,14 @@
 
 					</div>
 						{% subject_schedule_footer_row subject_identifier visit_schedule schedule subject_dashboard_url %}
+
+                        <div id="subject_dashboard_data_queries_for_{{ subject_identifier }}"
+                            class="panel-collapse collapse in">
+                            {% if open_data_queries %}
+                                {% include "edc_subject_dashboard/bootstrap3/dashboard/data_queries.html" %}
+                            {% endif %}
+                        </div>
+
 			     	</div>
 			    {% endfor %}
 		    {% endfor %}

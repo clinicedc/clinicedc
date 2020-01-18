@@ -5,6 +5,7 @@ from edc_appointment.view_mixins import AppointmentViewMixin
 from edc_consent.view_mixins import ConsentViewMixin
 from edc_dashboard.views import DashboardView
 from edc_dashboard.view_mixins import EdcViewMixin
+from edc_data_manager.view_mixins import DataManagerViewMixin
 from edc_locator.view_mixins import SubjectLocatorViewMixin
 from edc_metadata.view_mixins import MetaDataViewMixin
 from edc_navbar.view_mixin import NavbarViewMixin
@@ -35,6 +36,7 @@ class SubjectDashboardView(
     SubjectLocatorViewMixin,
     AppointmentViewMixin,
     ActionItemViewMixin,
+    DataManagerViewMixin,
     SubjectVisitViewMixin,
     VisitScheduleViewMixin,
     RegisteredSubjectViewMixin,

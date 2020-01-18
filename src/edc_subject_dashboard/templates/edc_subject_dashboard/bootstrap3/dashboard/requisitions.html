@@ -30,7 +30,7 @@
                                 	{{ requisition.object.panel_display_name }}
 	                                </span>
                                 {% else %}
-                                	<span class="text text-default">{{ requisition.object.panel_display_name }}</span>
+                                	<span class="text text-default">{{ requisition.object.panel_display_name }} {{requisition.object.panel.name}}</span>
                                     {% if requisition.object.user_created and requisition.object.is_drawn%}
                                         <p class="text text-default small">
                                             {{ requisition.object.user_created }} on {{ requisition.object.object.created|date:"SHORT_DATETIME_FORMAT" }}

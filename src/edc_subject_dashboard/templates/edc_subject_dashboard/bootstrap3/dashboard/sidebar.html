@@ -64,15 +64,12 @@
 
 {% block data_queries %}
 
-	{% if open_action_items %}
+	{% if open_data_queries %}
 
-	    <div class="list-group list-group-default">
-	        {% for action_item in open_action_items %}
-				{% if action_item.reference_model == "edc_data_manager.dataquery" %}
-					{% action_item_with_popover action_item forloop.counter %}
-				{% endif %}
-	       {% endfor %}
-	    </div>
+    <a class="list-group-item list-group-item-warning" href="#subject_dashboard_data_queries_for_{{ subject_identifier }}"
+      title="Click to view list">
+        <small>You have open data queries <i class="fas fa-share"></i></small>
+    </a>
 
 	{% endif %}
 
