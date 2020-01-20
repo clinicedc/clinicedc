@@ -56,7 +56,7 @@ class ReportablesEvaluator:
         for each field mentioned in the reference_list.
         """
         for field, value in self.cleaned_data.items():
-            if value and self.reference_list.get(field):
+            if value is not None and self.reference_list.get(field):
                 self._evaluate_reportable(field, value)
 
     def validate_results_abnormal_field(

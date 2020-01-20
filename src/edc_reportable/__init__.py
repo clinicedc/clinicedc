@@ -15,6 +15,7 @@ from .constants import (
     SEVERE,
     SEVERITY_INCREASED_FROM_G3,
 )
+from .convert_units import convert_units, ConversionNotHandled
 from .evaluator import (
     Evaluator,
     InvalidCombination,
@@ -30,7 +31,6 @@ from .parsers import parse, unparse, ParserError
 from .reference_collection import ReferenceCollection, AlreadyRegistered
 from .reportables_evaluator import ReportablesEvaluator
 from .site_reportables import site_reportables
-from .convert_units import convert_units, ConversionNotHandled
 from .units import (
     CELLS_PER_MICROLITER,
     CELLS_PER_MILLIMETER_CUBED,
