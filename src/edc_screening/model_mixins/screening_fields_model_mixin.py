@@ -1,7 +1,7 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-from edc_constants.choices import GENDER, YES_NO
-from edc_constants.constants import NO
+from edc_constants.choices import GENDER, YES_NO, YES_NO_NA
+from edc_constants.constants import NO, NOT_APPLICABLE
 from edc_model.models.historical_records import HistoricalRecords
 from edc_search.model_mixins import SearchSlugManager
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
@@ -61,7 +61,20 @@ class ScreeningFieldsModeMixin(SiteModelMixin, models.Model):
     )
 
     reasons_unsuitable = models.TextField(
-        verbose_name="Reason not eligible", max_length=150, null=True, blank=True
+        verbose_name="Reason not suitable for the study",
+        max_length=150,
+        null=True,
+        blank=True,
+    )
+
+    unsuitable_agreed = models.CharField(
+        verbose_name=(
+            "Does the study coordinator agree that the patient "
+            "is not suitable for the study?"
+        ),
+        max_length=5,
+        choices=YES_NO_NA,
+        default=NOT_APPLICABLE,
     )
 
     eligible = models.BooleanField(default=False, editable=False)
