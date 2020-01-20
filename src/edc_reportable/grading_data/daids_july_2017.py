@@ -9,6 +9,7 @@ from edc_reportable import (
     GRADE3,
     GRADE4,
     GRAMS_PER_DECILITER,
+    GRAMS_PER_LITER,
     IU_LITER,
     MICROMOLES_PER_LITER,
     MILLIGRAMS_PER_DECILITER,
@@ -19,7 +20,6 @@ from edc_reportable import (
 )
 
 from ..adult_age_options import adult_age_options
-from edc_reportable.units import GRAMS_PER_LITER
 
 dummies = {
     "hba1c": [
@@ -36,6 +36,15 @@ dummies = {
             "x<0",
             grade=GRADE0,
             units=PERCENT,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        )
+    ],
+    "hdl": [
+        p(
+            "x<0",
+            grade=GRADE0,
+            units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         )
@@ -223,6 +232,16 @@ chemistries = {
             fasting=False,
         ),
     ],
+    "ldl": [
+        p(
+            "4.90<=x",
+            grade=GRADE3,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+            fasting=True,
+        ),
+    ],
     "magnesium": [
         p(
             "0.3<=x<=0.44",
@@ -311,6 +330,24 @@ chemistries = {
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
+        ),
+    ],
+    "trig": [
+        p(
+            "5.7<=x<=11.4",
+            grade=GRADE3,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+            fasting=True,
+        ),
+        p(
+            "11.4<x",
+            grade=GRADE3,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+            fasting=True,
         ),
     ],
     "uric_acid": [
