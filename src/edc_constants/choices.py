@@ -27,6 +27,8 @@ from .constants import (
     OTHER,
     POS,
     PRESENT,
+    PURPOSIVELY_SELECTED,
+    RANDOM_SAMPLING,
     REFUSED,
     TBD,
     UNKNOWN,
@@ -358,6 +360,11 @@ PRESENT_ABSENT_NA = (
 )
 
 REFUSAL_STATUS = ((REFUSED, "Refused"), ("NOT_REFUSED", "No longer refusing"))
+
+SELECTION_METHOD = (
+    (RANDOM_SAMPLING, "Random sampling"),
+    (PURPOSIVELY_SELECTED, "Purposively selected"),
+)
 
 SEVERITY_LEVEL = (("mild", "Mild"), ("moderate", "Moderate"), ("severe", "Severe"))
 
