@@ -1,8 +1,4 @@
-from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
-from edc_model_admin.model_admin_simple_history import SimpleHistoryAdmin
-
-
-class CrfMetadataAdminMixin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
+class CrfMetadataAdminMixin:
     def seq(self, obj=None):
         return obj.visit_code_sequence
 

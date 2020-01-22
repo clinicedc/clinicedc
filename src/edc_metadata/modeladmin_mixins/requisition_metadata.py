@@ -1,10 +1,4 @@
-from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
-from edc_model_admin.model_admin_simple_history import SimpleHistoryAdmin
-
-
-class RequisitionMetadataAdminMixin(
-    ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin
-):
+class RequisitionMetadataAdminMixin:
     def seq(self, obj=None):
         return obj.visit_code_sequence
 
