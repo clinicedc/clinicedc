@@ -1,17 +1,17 @@
-from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db import models
 
 
-class WeightField(models.DecimalField):
+class WaistCircumferenceField(models.DecimalField):
 
-    description = "Weight in Kg"
+    description = "Waist circumference"
 
     def __init__(self, *args, **kwargs):
-        kwargs["verbose_name"] = "Weight:"
-        kwargs["max_digits"] = 8
-        kwargs["decimal_places"] = 2
-        kwargs["validators"] = [MinValueValidator(15), MaxValueValidator(200)]
-        kwargs["help_text"] = "in kg"
+        kwargs["verbose_name"] = "Waist circumference:"
+        kwargs["max_digits"] = 5
+        kwargs["decimal_places"] = 1
+        kwargs["validators"] = [MinValueValidator(50.0), MaxValueValidator(175.0)]
+        kwargs["help_text"] = "in centimeters"
         super().__init__(*args, **kwargs)
 
     def deconstruct(self):
