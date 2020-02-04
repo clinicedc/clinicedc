@@ -19,8 +19,7 @@ class SubjectConsentFormValidatorMixin:
         self.dob = self.cleaned_data.get("dob")
         self.gender = self.cleaned_data.get("gender")
         self.guardian_name = self.cleaned_data.get("guardian_name")
-        self.screening_identifier = self.cleaned_data.get(
-            "screening_identifier")
+        self.screening_identifier = self.cleaned_data.get("screening_identifier")
         self.tz = timezone(settings.TIME_ZONE)
 
     def clean(self):
@@ -104,8 +103,7 @@ class SubjectConsentFormValidatorMixin:
         if (
             self.consent_datetime - self.subject_screening.eligibility_datetime
         ).total_seconds() < 0:
-            local_dt = self.subject_screening.eligibility_datetime.astimezone(
-                self.tz)
+            local_dt = self.subject_screening.eligibility_datetime.astimezone(self.tz)
             formatted = local_dt.strftime(
                 convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
             )

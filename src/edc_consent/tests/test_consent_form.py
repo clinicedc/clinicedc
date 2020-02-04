@@ -9,8 +9,8 @@ from model_mommy import mommy
 from ..consent import Consent
 from ..modelform_mixins import ConsentModelFormMixin
 from ..site_consents import site_consents
-from .models import SubjectConsent
 from .dates_test_mixin import DatesTestMixin
+from .models import SubjectConsent
 
 
 fake = Faker()
@@ -66,6 +66,8 @@ class TestConsentForm(DatesTestMixin, TestCase):
             "edc_consent.subjectconsent",
             dob=self.dob,
             consent_datetime=self.study_open_datetime,
+            first_name="ERIK",
+            last_name="THEPLEEB",
         )
         subject_consent.initials = (
             subject_consent.first_name[0] + subject_consent.last_name[0]
@@ -73,11 +75,14 @@ class TestConsentForm(DatesTestMixin, TestCase):
         consent_form = SubjectConsentForm(data=subject_consent.__dict__)
         self.assertTrue(consent_form.is_valid())
 
+    @tag("1")
     def test_base_form_catches_consent_datetime_before_study_open(self):
         subject_consent = mommy.prepare_recipe(
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime + relativedelta(days=1),
             dob=self.dob,
+            first_name="ERIK",
+            last_name="THEPLEEB",
         )
         subject_consent.initials = (
             subject_consent.first_name[0] + subject_consent.last_name[0]
@@ -100,6 +105,8 @@ class TestConsentForm(DatesTestMixin, TestCase):
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
+            first_name="ERIK",
+            last_name="THEPLEEB",
         )
         subject_consent.confirm_identity = "1"
         subject_consent.initials = (
@@ -115,6 +122,8 @@ class TestConsentForm(DatesTestMixin, TestCase):
             dob=self.dob,
             identity="123156788",
             confirm_identity="123156788",
+            first_name="ERIK",
+            last_name="THEPLEEB",
         )
         consent2 = mommy.prepare_recipe(
             "edc_consent.subjectconsent",
@@ -133,6 +142,8 @@ class TestConsentForm(DatesTestMixin, TestCase):
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
+            first_name="ERIK",
+            last_name="THEPLEEB",
         )
         subject_consent.guardian_name = None
         subject_consent.initials = (
@@ -155,6 +166,8 @@ class TestConsentForm(DatesTestMixin, TestCase):
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
+            first_name="ERIK",
+            last_name="THEPLEEB",
         )
         subject_consent.initials = (
             subject_consent.first_name[0] + subject_consent.last_name[0]
@@ -177,6 +190,8 @@ class TestConsentForm(DatesTestMixin, TestCase):
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
+            first_name="ERIK",
+            last_name="THEPLEEB",
         )
         subject_consent.initials = (
             subject_consent.first_name[0] + subject_consent.last_name[0]
@@ -199,6 +214,8 @@ class TestConsentForm(DatesTestMixin, TestCase):
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
+            first_name="ERIK",
+            last_name="THEPLEEB",
         )
         subject_consent.initials = (
             subject_consent.first_name[0] + subject_consent.last_name[0]
@@ -219,6 +236,8 @@ class TestConsentForm(DatesTestMixin, TestCase):
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.dob + relativedelta(years=25),
+            first_name="ERIK",
+            last_name="THEPLEEB",
         )
         subject_consent.initials = (
             subject_consent.first_name[0] + subject_consent.last_name[0]
@@ -231,6 +250,8 @@ class TestConsentForm(DatesTestMixin, TestCase):
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.dob - relativedelta(years=100),
+            first_name="ERIK",
+            last_name="THEPLEEB",
         )
         subject_consent.initials = (
             subject_consent.first_name[0] + subject_consent.last_name[0]
@@ -238,6 +259,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
         consent_form = SubjectConsentForm(subject_consent.__dict__)
         self.assertFalse(consent_form.is_valid())
 
+    @tag("1")
     def test_base_form_catches_gender_of_consent(self):
         site_consents.registry = {}
         self.consent_factory(
@@ -245,12 +267,16 @@ class TestConsentForm(DatesTestMixin, TestCase):
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
             gender=[MALE],
+            first_name="ERIK",
+            last_name="THEPLEEB",
         )
         subject_consent = mommy.prepare_recipe(
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
             gender=MALE,
+            first_name="ERIK",
+            last_name="THEPLEEB",
         )
         form = SubjectConsentForm(subject_consent.__dict__)
         subject_consent.initials = (
@@ -276,6 +302,8 @@ class TestConsentForm(DatesTestMixin, TestCase):
             dob=self.dob,
             is_literate=NO,
             witness_name="",
+            first_name="ERIK",
+            last_name="THEPLEEB",
         )
         subject_consent.initials = (
             subject_consent.first_name[0] + subject_consent.last_name[0]
@@ -288,6 +316,8 @@ class TestConsentForm(DatesTestMixin, TestCase):
             dob=self.dob,
             is_literate=NO,
             witness_name="BOND, JAMES",
+            first_name="ERIK",
+            last_name="THEPLEEB",
         )
         subject_consent.initials = (
             subject_consent.first_name[0] + subject_consent.last_name[0]
