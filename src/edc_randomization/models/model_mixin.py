@@ -5,9 +5,8 @@ from django_crypto_fields.fields import EncryptedCharField
 from edc_model.models import HistoricalRecords
 from edc_sites.models import CurrentSiteManager
 
-from ..choices import ASSIGNMENT_CHOICES
-from ..constants import ACTIVE, PLACEBO, ACTIVE_NAME, PLACEBO_NAME
 from ..randomizer import Randomizer, RandomizationError
+from ..utils import get_assignment_map
 
 
 class RandomizationListModelError(Exception):
@@ -34,7 +33,7 @@ class RandomizationListModelMixin(models.Model):
     randomizer_cls = Randomizer
 
     # customize if approriate
-    assignment = EncryptedCharField(choices=ASSIGNMENT_CHOICES)
+    assignment = EncryptedCharField()
 
     subject_identifier = models.CharField(
         verbose_name="Subject Identifier", max_length=50, null=True, unique=True
@@ -97,16 +96,13 @@ class RandomizationListModelMixin(models.Model):
     def assignment_description(self):
         """May be overridden.
         """
-        if self.assignment == PLACEBO:
-            assignment_description = PLACEBO_NAME
-        elif self.assignment == ACTIVE:
-            assignment_description = ACTIVE_NAME
-        else:
+        assignment_map = get_assignment_map()
+        if self.assignment not in assignment_map:
             raise RandomizationError(
-                f"Invalid assignment. Expected one of [{PLACEBO}, {ACTIVE}]. "
+                f"Invalid assignment. Expected one of {list(assignment_map.keys())}. "
                 f"Got `{self.assignment}`"
             )
-        return assignment_description
+        return assignment_map.get(self.assignment)
 
     def natural_key(self):
         return (self.sid,)

@@ -8,9 +8,7 @@ def is_blinded_trial():
 
 
 def is_blinded_user(username):
-    if not is_blinded_trial():
-        is_blinded_user = False
-    else:
+    if is_blinded_trial():
         is_blinded_user = True
         unblinded_users = getattr(settings, "EDC_RANDOMIZATION_UNBLINDED_USERS", [])
         User = django_apps.get_model("auth.user")
@@ -21,4 +19,6 @@ def is_blinded_user(username):
         else:
             if user.username in unblinded_users:
                 is_blinded_user = False
+    else:
+        is_blinded_user = False
     return is_blinded_user
