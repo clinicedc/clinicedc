@@ -1,4 +1,4 @@
-from edc_constants.constants import YES, NO, OTHER
+from edc_constants.constants import YES, NO, OTHER, MOBILE_NUMBER
 
 from .constants import HOSPITAL_NUMBER
 
@@ -8,6 +8,7 @@ IDENTITY_TYPE = (
     ("passport", "Passport"),
     (HOSPITAL_NUMBER, "Hospital number"),
     ("country_id_rcpt", "Country ID receipt"),
+    (MOBILE_NUMBER, "Mobile number"),
     (OTHER, "Other"),
 )
 
