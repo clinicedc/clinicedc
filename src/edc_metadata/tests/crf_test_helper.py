@@ -1,4 +1,4 @@
-from model_mommy import mommy
+from model_bakery import baker
 
 from ..models import CrfMetadata, RequisitionMetadata
 from ..constants import REQUIRED, NOT_REQUIRED
@@ -10,9 +10,9 @@ class CrfTestHelper:
     metadata.
     """
 
-    def mommy_options(self, report_datetime):
+    def baker_options(self, report_datetime):
         """Override the default recipe options for your
-        'mommy recipe {label_lower: {key: value}, ...}.
+        'baker recipe {label_lower: {key: value}, ...}.
         """
         return {}
 
@@ -75,11 +75,11 @@ class CrfTestHelper:
                 entry_status=entry_status,
                 subject_identifier=subject_identifier,
             ):
-                options = self.mommy_options(visit.report_datetime).get(crf.model, {})
+                options = self.baker_options(visit.report_datetime).get(crf.model, {})
                 options.update(
                     {visit_attr: visit, "report_datetime": visit.report_datetime}
                 )
-                completed_crfs.append(mommy.make_recipe(crf.model, **options))
+                completed_crfs.append(baker.make_recipe(crf.model, **options))
             if not self.get_crfs_by_entry_status(
                 visit_code=visit_code,
                 entry_status=entry_status,
