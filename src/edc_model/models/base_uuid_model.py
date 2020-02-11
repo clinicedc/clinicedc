@@ -5,7 +5,6 @@ from .url_model_mixin import UrlModelMixin
 
 
 class BaseUuidModel(UrlModelMixin, AuditUuidModelMixin, models.Model):
-
     objects = models.Manager()
 
     class Meta(AuditUuidModelMixin.Meta):
