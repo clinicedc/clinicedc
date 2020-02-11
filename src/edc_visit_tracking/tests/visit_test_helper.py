@@ -1,4 +1,4 @@
-from model_mommy import mommy
+from model_bakery import baker
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -47,7 +47,7 @@ class VisitTestHelper:
                 )
             except model.DoesNotExist:
                 # create visit for the first time
-                visit = mommy.make_recipe(
+                visit = baker.make_recipe(
                     model_label,
                     appointment=appointment,
                     report_datetime=appointment.appt_datetime,
