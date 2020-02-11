@@ -15,7 +15,7 @@ from edc_lab.site_labs import site_labs
 from edc_registration.models import RegisteredSubject
 from edc_test_utils.webtest import login
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from model_mommy import mommy
+from model_bakery import baker
 
 User = get_user_model()
 
@@ -70,7 +70,7 @@ class AdminSiteTest(WebTest):
             redirect_url="admin:index",
         )
 
-        query_rule = mommy.make_recipe(
+        query_rule = baker.make_recipe(
             "edc_data_manager.queryrule",
             sender=DataManagerUser.objects.get(username=self.user.username),
         )
@@ -100,7 +100,7 @@ class AdminSiteTest(WebTest):
             subject_identifier="092-123456789"
         )
 
-        data_query = mommy.make_recipe(
+        data_query = baker.make_recipe(
             "edc_data_manager.dataquery",
             registered_subject=registered_subject,
             sender=DataManagerUser.objects.get(username=self.user.username),
@@ -133,7 +133,7 @@ class AdminSiteTest(WebTest):
             subject_identifier=subject_identifier
         )
 
-        data_query = mommy.make_recipe(
+        data_query = baker.make_recipe(
             "edc_data_manager.dataquery",
             registered_subject=registered_subject,
             sender=DataManagerUser.objects.get(username=self.user.username),
@@ -163,7 +163,7 @@ class AdminSiteTest(WebTest):
             subject_identifier=subject_identifier
         )
 
-        data_query = mommy.make_recipe(
+        data_query = baker.make_recipe(
             "edc_data_manager.dataquery",
             registered_subject=registered_subject,
             sender=DataManagerUser.objects.get(username=self.user.username),
