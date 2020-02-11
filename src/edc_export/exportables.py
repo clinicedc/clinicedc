@@ -5,16 +5,12 @@ from django.contrib.admin import sites
 from django.core.exceptions import ObjectDoesNotExist
 from edc_auth import EXPORT
 from edc_randomization.blinding import is_blinded_user
-from edc_randomization.utils import (
-    get_randomizationlist_model,
-    get_historicalrandomizationlist_model,
-)
+from edc_randomization.site_randomizers import site_randomizers
 
 from .model_options import ModelOptions
 
 
 class Exportables(OrderedDict):
-
     """A dictionary-like object that creates a "list" of
     models that may be exported.
 
@@ -42,12 +38,8 @@ class Exportables(OrderedDict):
                 historical_models = []
                 list_models = []
                 for model in app_config.get_models():
-                    if (
-                        model == get_randomizationlist_model()
-                        or model == get_historicalrandomizationlist_model()
-                    ):
-                        if is_blinded_user(user.username):
-                            continue
+                    if self.is_randomization_list_model(model=model, user=user):
+                        continue
                     model_opts = ModelOptions(model=model._meta.label_lower)
                     if model_opts.is_historical:
                         historical_models.append(model_opts)
@@ -66,6 +58,19 @@ class Exportables(OrderedDict):
                     "lists": list_models,
                 }
                 self.update({app_config: exportable})
+
+    def is_randomization_list_model(self, model=None, user=None):
+        is_randomization_list_model = False
+        for randomizer in site_randomizers._registry.values():
+            if (
+                model._meta.label_lower == randomizer.model
+                or model._meta.label_lower
+                == randomizer.model_cls().history.model._meta.label_lower
+            ):
+                if is_blinded_user(user.username):
+                    is_randomization_list_model = True
+                    break
+        return is_randomization_list_model
 
     @property
     def inlines(self):
