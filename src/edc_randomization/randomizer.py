@@ -1,13 +1,12 @@
+import os
+
+from django.apps import apps as django_apps
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from edc_registration.utils import get_registered_subject_model
 
+from .constants import DEFAULT_ASSIGNMENT_MAP
 from .randomization_list_verifier import RandomizationListVerifier
-from .utils import (
-    get_randomizationlist_model,
-    get_randomization_list_path,
-    get_assignment_map,
-)
-
 
 RANDOMIZED = "RANDOMIZED"
 
@@ -37,14 +36,28 @@ class InvalidAssignment(Exception):
 
 
 class Randomizer:
-
     """Selects and uses the next available slot in model
        RandomizationList (cls.model) for this site. A slot is used
        when the subject identifier is not None.
+
+       To override the "assignment_map" for the default randomizer
+       without declaring a new class,
+       set `settings.EDC_RANDOMIZATION_ASSIGNMENT_MAP` to
+       {"default": my_assignment_map}. See also constant
+       DEFAULT_ASSIGNMENT_MAP. This is the recommended approach
+       if there is only one randomizer.
+
+       This is the default randomizer class and is registered with
+       `site_randomizer` by default. To prevent registration set
+       settings.EDC_RANDOMIZATION_REGISTER_DEFAULT_RANDOMIZER=False.
     """
 
     name = "default"
-    assignment_map = get_assignment_map()  # {ACTIVE: 1, PLACEBO: 2}
+    model = "edc_randomization.randomizationlist"
+
+    assignment_map = DEFAULT_ASSIGNMENT_MAP
+    file_name = "randomization_list.csv"
+    is_blinded_trial = True
 
     def __init__(
         self, subject_identifier=None, report_datetime=None, site=None, user=None
@@ -68,16 +81,12 @@ class Randomizer:
         return f"<{self.name} for file {self.get_randomization_list_path()}>"
 
     @classmethod
-    def model_cls(cls):
-        return get_randomizationlist_model()
-
-    @property
-    def model(self):
-        return self.model_cls()._meta.label_lower
+    def model_cls(cls, apps=None):
+        return (apps or django_apps).get_model(cls.model)
 
     @classmethod
     def get_randomization_list_path(cls):
-        return get_randomization_list_path()
+        return os.path.join(settings.EDC_RANDOMIZATION_LIST_PATH, cls.file_name)
 
     @classmethod
     def get_assignment(cls, row):
@@ -219,7 +228,7 @@ class Randomizer:
         return self._registered_subject
 
     @classmethod
-    def verify_list(cls, path=None):
+    def verify_list(cls):
         randomization_list_verifier = RandomizationListVerifier(
             randomizer_name=cls.name
         )

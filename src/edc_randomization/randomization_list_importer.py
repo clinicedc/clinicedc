@@ -19,7 +19,6 @@ class RandomizationListImportError(Exception):
 
 
 class RandomizationListImporter:
-
     """Imports upon instantiation a formatted randomization CSV file
     into model RandomizationList.
 
@@ -109,7 +108,9 @@ class RandomizationListImporter:
             count = randomizer.model_cls().objects.all().count()
             sys.stdout.write(
                 style.SUCCESS(
-                    f"(*) Imported {count} SIDs from {path} (count after import).\n"
+                    f"(*) Imported {count} SIDs for randomizer `{randomizer.name}` into model "
+                    f"`{randomizer.model_cls()._meta.label_lower}` \n"
+                    f"    from {path} (count after import).\n"
                 )
             )
         if not path:

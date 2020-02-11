@@ -1,3 +1,5 @@
+import pdb
+
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.contrib import admin
@@ -7,15 +9,12 @@ from edc_model_admin.model_admin_audit_fields_mixin import (
 )
 from .admin_site import edc_randomization_admin
 from .blinding import is_blinded_user
-from .utils import get_randomizationlist_model
-
+from .site_randomizers import site_randomizers
 
 admin.site.disable_action("delete_selected")
 
 
-@admin.register(get_randomizationlist_model(), site=edc_randomization_admin)
 class RandomizationListModelAdmin(admin.ModelAdmin):
-
     list_per_page = 15
 
     view_on_site = False
@@ -81,3 +80,13 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
             audit_fieldset_tuple,
         )
         return fieldsets
+
+
+site_randomizers.autodiscover()
+
+for Randomizer in site_randomizers._registry.values():
+    model = Randomizer.model_cls()
+    NewModelAdminClass = type(
+        f"{model.__name__}ModelAdmin", (RandomizationListModelAdmin,), {}
+    )
+    edc_randomization_admin.register(model, NewModelAdminClass)

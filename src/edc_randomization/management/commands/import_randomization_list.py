@@ -5,7 +5,6 @@ from ...randomization_list_importer import RandomizationListImporter
 
 
 class Command(BaseCommand):
-
     help = "Import randomization list"
 
     def add_arguments(self, parser):
@@ -19,27 +18,27 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
-            "--name", dest="name", default="default", help=("name of randomizer")
+            "--name", dest="name", default="default", help="name of randomizer"
         )
 
         parser.add_argument(
             "--force-add",
             dest="add",
             default="NO",
-            help=("overwrite existing data. CANNOT BE UNDONE!!"),
+            help="overwrite existing data. CANNOT BE UNDONE!!",
         )
 
         parser.add_argument(
             "--dryrun",
             dest="dryrun",
             default="NO",
-            help=("Dry run. No changes will be made"),
+            help="Dry run. No changes will be made",
         )
 
-        parser.add_argument("--user", dest="user", default=None, help=("user"))
+        parser.add_argument("--user", dest="user", default=None, help="user")
 
         parser.add_argument(
-            "--revision", dest="revision", default=None, help=("revision")
+            "--revision", dest="revision", default=None, help="revision"
         )
 
     def handle(self, *args, **options):
