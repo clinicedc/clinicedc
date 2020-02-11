@@ -8,6 +8,7 @@ from edc_sites import add_or_update_django_sites
 from random import shuffle
 from tempfile import mkdtemp
 
+from .randomizers import MyRandomizer
 from ..constants import ACTIVE
 from ..models import RandomizationList
 from ..randomization_list_importer import (
@@ -25,10 +26,9 @@ from ..randomizer import (
     Randomizer,
     AlreadyRandomized,
 )
-from ..site_randomizers import site_randomizers
+from ..site_randomizers import site_randomizers, NotRegistered
 from .make_test_list import make_test_list
-from .models import SubjectConsent
-
+from .models import SubjectConsent, MyRandomizationList
 
 my_sites = (
     (10, "site_one", "One"),
@@ -40,7 +40,6 @@ my_sites = (
 
 
 class TestRandomizer(TestCase):
-
     import_randomization_list = False
     site_names = [x[1] for x in my_sites]
 
@@ -299,24 +298,14 @@ class TestRandomizer(TestCase):
         """Assert that allocates by site correctly.
         """
 
-        tmpdir = mkdtemp()
-
-        class MyRandomizer(Randomizer):
-
-            name = "my_randomizer"
-
-            @classmethod
-            def get_randomization_list_path(cls):
-                return os.path.join(tmpdir, "randomization_list.csv")
-
         site_randomizers._registry = {}
         site_randomizers.register(MyRandomizer)
 
-        RandomizationList.objects.all().delete()
+        MyRandomizationList.objects.all().delete()
         self.populate_list(
-            randomizer_name="my_randomizer", site_names=self.site_names, per_site=5
+            randomizer_name=MyRandomizer.name, site_names=self.site_names, per_site=5
         )
-        site_names = [obj.site_name for obj in RandomizationList.objects.all()]
+        site_names = [obj.site_name for obj in MyRandomizationList.objects.all()]
         shuffle(site_names)
         self.assertEqual(len(site_names), len(self.site_names * 5))
         # consent and randomize 5 for each site
@@ -336,7 +325,7 @@ class TestRandomizer(TestCase):
         for site_name in site_names:
             randomized_subjects = [
                 (obj.subject_identifier, str(obj.sid))
-                for obj in RandomizationList.objects.filter(
+                for obj in MyRandomizationList.objects.filter(
                     allocated_site__name=site_name, subject_identifier__isnull=False
                 ).order_by("sid")
             ]
@@ -352,7 +341,7 @@ class TestRandomizer(TestCase):
                 self.assertEqual(rs.sid, randomized_subjects[index][1])
 
         # clear out any unallocated
-        RandomizationList.objects.filter(subject_identifier__isnull=True).delete()
+        MyRandomizationList.objects.filter(subject_identifier__isnull=True).delete()
 
         # assert raises on next attempt to randomize
         subject_consent = SubjectConsent.objects.create(
@@ -363,7 +352,7 @@ class TestRandomizer(TestCase):
         )
         self.assertRaises(
             AllocationError,
-            Randomizer,
+            MyRandomizer,
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
             site=subject_consent.site,
@@ -384,7 +373,6 @@ class TestRandomizer(TestCase):
         tmpdir = mkdtemp()
 
         class MyRandomizer(Randomizer):
-
             name = "my_randomizer"
 
             @classmethod
@@ -402,7 +390,7 @@ class TestRandomizer(TestCase):
 
         RandomizationListImporter(name=MyRandomizer.name)
 
-        self.assertRaises(RandomizationListImportError, RandomizationListImporter)
+        self.assertRaises(NotRegistered, RandomizationListImporter)
 
     @override_settings(SITE_ID=40)
     def test_can_overwrite_explicit(self):
@@ -411,6 +399,7 @@ class TestRandomizer(TestCase):
         class MyRandomizer(Randomizer):
 
             name = "my_randomizer"
+            use_default_assignment_map = True
 
             @classmethod
             def get_randomization_list_path(cls):
@@ -437,7 +426,6 @@ class TestRandomizer(TestCase):
         tmpdir = mkdtemp()
 
         class MyRandomizer(Randomizer):
-
             name = "my_randomizer"
 
             @classmethod
@@ -481,5 +469,11 @@ class TestRandomizer(TestCase):
         )
         self.assertEqual(RandomizationList.objects.all().count(), 51)
         with self.assertRaises(RandomizationListError) as cm:
-            RandomizationListVerifier(randomizer_name=Randomizer.name).message
+            RandomizationListVerifier(randomizer_name=Randomizer.name)
         self.assertIn("Randomization list count is off", str(cm.exception))
+
+    @override_settings(SITE_ID=40)
+    def test_invalid_key(self):
+        Site.objects.get_current()
+        # change number of SIDs in DB
+        self.assertRaises(NotRegistered, RandomizationListImporter, name="blah")

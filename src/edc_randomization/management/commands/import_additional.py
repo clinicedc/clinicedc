@@ -5,7 +5,6 @@ import uuid
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.sites.models import Site
-from edc_randomization.utils import get_randomizationlist_model_name
 
 
 class AllocationError(Exception):
@@ -51,7 +50,6 @@ def import_allocations(
     rows = new_rows(
         allocations=allocations, site_name=site_name, allocation_map=allocation_map
     )
-    model = model or get_randomizationlist_model_name()
     randomizationlist_model_cls = django_apps.get_model(model)
     last_sid = randomizationlist_model_cls.objects.all().order_by("sid").last().sid
     objs = []
@@ -79,7 +77,6 @@ def import_additional_sids_from_file(
 ):
     objs = []
     filename = filename or "~/rando_additional.txt"
-    model = model or get_randomizationlist_model_name()
     randomizationlist_model_cls = django_apps.get_model(model)
     last_sid = randomizationlist_model_cls.objects.all().order_by("sid").last().sid
 

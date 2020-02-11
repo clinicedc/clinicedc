@@ -9,6 +9,10 @@ class RegistryNotLoaded(Exception):
     pass
 
 
+class NotRegistered(Exception):
+    pass
+
+
 class AlreadyRegisteredVisitSchedule(Exception):
     pass
 
@@ -18,7 +22,6 @@ class SiteRandomizerError(Exception):
 
 
 class SiteRandomizers:
-
     """ Main controller of :class:`SiteRandomizers` objects.
     """
 
@@ -47,7 +50,14 @@ class SiteRandomizers:
         self._all_post_consent_models = None
 
     def get(self, name):
-        return self._registry.get(name)
+        try:
+            return self._registry[name]
+        except KeyError:
+            raise NotRegistered(
+                f"A Randomizer class by this name is not registered. "
+                f"Expected one of {list(self._registry.keys())}. "
+                f"Got '{name}'. See site_randomizer."
+            )
 
     def randomize(
         self,

@@ -5,8 +5,7 @@ from django_crypto_fields.fields import EncryptedCharField
 from edc_model.models import HistoricalRecords
 from edc_sites.models import CurrentSiteManager
 
-from ..randomizer import Randomizer, RandomizationError
-from ..utils import get_assignment_map
+from ..randomizer import RandomizationError, Randomizer
 
 
 class RandomizationListModelError(Exception):
@@ -19,7 +18,6 @@ class RandomizationListManager(models.Manager):
 
 
 class RandomizationListModelMixin(models.Model):
-
     """
     A model mixin for the randomization list.
 
@@ -34,6 +32,8 @@ class RandomizationListModelMixin(models.Model):
 
     # customize if approriate
     assignment = EncryptedCharField()
+
+    randomizer_name = models.CharField(max_length=50)
 
     subject_identifier = models.CharField(
         verbose_name="Subject Identifier", max_length=50, null=True, unique=True
@@ -73,6 +73,7 @@ class RandomizationListModelMixin(models.Model):
         return f"{self.site_name}.{self.sid} subject={self.subject_identifier}"
 
     def save(self, *args, **kwargs):
+        self.randomizer_name = self.randomizer_cls.name
         try:
             self.assignment_description
         except RandomizationError as e:
@@ -96,13 +97,13 @@ class RandomizationListModelMixin(models.Model):
     def assignment_description(self):
         """May be overridden.
         """
-        assignment_map = get_assignment_map()
-        if self.assignment not in assignment_map:
+        if self.assignment not in self.randomizer_cls.assignment_map:
             raise RandomizationError(
-                f"Invalid assignment. Expected one of {list(assignment_map.keys())}. "
-                f"Got `{self.assignment}`"
+                f"Invalid assignment. Expected one of "
+                f"{list(self.randomizer_cls.assignment_map.keys())}. "
+                f"Got `{self.assignment}`. See "
             )
-        return assignment_map.get(self.assignment)
+        return self.randomizer_cls.assignment_map.get(self.assignment)
 
     def natural_key(self):
         return (self.sid,)
