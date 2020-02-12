@@ -62,13 +62,13 @@ class SiteRandomizers:
             )
 
     def randomize(
-            self,
-            name,
-            subject_identifier=None,
-            report_datetime=None,
-            site=None,
-            user=None,
-            **kwargs,
+        self,
+        name,
+        subject_identifier=None,
+        report_datetime=None,
+        site=None,
+        user=None,
+        **kwargs,
     ):
         randomizer_cls = self.get(name)
         return randomizer_cls(
