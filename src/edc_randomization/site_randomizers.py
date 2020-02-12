@@ -13,7 +13,7 @@ class NotRegistered(Exception):
     pass
 
 
-class AlreadyRegisteredVisitSchedule(Exception):
+class AlreadyRegistered(Exception):
     pass
 
 
@@ -44,8 +44,10 @@ class SiteRandomizers:
         if randomizer_cls.name not in self.registry:
             self.registry.update({randomizer_cls.name: randomizer_cls})
         else:
-            raise AlreadyRegisteredVisitSchedule(
-                f"Randomizer class for '{randomizer_cls}' is already registered."
+            raise AlreadyRegistered(
+                f"Randomizer class for `{randomizer_cls}` is already registered. "
+                f"Got name=`{randomizer_cls.name}`. See also `settings` attribute "
+                "`EDC_RANDOMIZATION_REGISTER_DEFAULT_RANDOMIZER`."
             )
         self._all_post_consent_models = None
 
@@ -60,13 +62,13 @@ class SiteRandomizers:
             )
 
     def randomize(
-        self,
-        name,
-        subject_identifier=None,
-        report_datetime=None,
-        site=None,
-        user=None,
-        **kwargs,
+            self,
+            name,
+            subject_identifier=None,
+            report_datetime=None,
+            site=None,
+            user=None,
+            **kwargs,
     ):
         randomizer_cls = self.get(name)
         return randomizer_cls(

@@ -53,14 +53,14 @@ class RandomizationListImporter:
     default_fieldnames = ["sid", "assignment", "site_name"]
 
     def __init__(
-        self,
-        name=None,
-        verbose=None,
-        overwrite=None,
-        add=None,
-        dryrun=None,
-        user=None,
-        revision=None,
+            self,
+            name=None,
+            verbose=None,
+            overwrite=None,
+            add=None,
+            dryrun=None,
+            user=None,
+            revision=None,
     ):
         verbose = True if verbose is None else verbose
         self.dryrun = True if dryrun and dryrun.lower() == "yes" else False
@@ -148,12 +148,17 @@ class RandomizationListImporter:
                         print(f" -->  {list(row_as_dict.values())}")
                         assignment = randomizer.get_assignment(row)
                         allocation = randomizer.get_allocation(row)
+                        try:
+                            randomizer_name = row["randomizer_name"]
+                        except KeyError:
+                            randomizer_name = "default"
                         obj = randomizer.model_cls()(
                             id=uuid4(),
                             sid=row["sid"],
                             assignment=assignment,
                             site_name=self.get_site_name(row),
                             allocation=str(allocation),
+                            randomizer_name=randomizer_name,
                         )
                         pprint(obj.__dict__)
                     try:
@@ -197,12 +202,17 @@ class RandomizationListImporter:
                 except ObjectDoesNotExist:
                     assignment = randomizer.get_assignment(row)
                     allocation = randomizer.get_allocation(row)
+                    try:
+                        randomizer_name = row["randomizer_name"]
+                    except KeyError:
+                        randomizer_name = "default"
                     opts = dict(
                         id=uuid4(),
                         sid=row["sid"],
                         assignment=assignment,
                         site_name=self.get_site_name(row),
                         allocation=str(allocation),
+                        randomizer_name=randomizer_name,
                     )
                     if self.user:
                         opts.update(user_created=self.user)
