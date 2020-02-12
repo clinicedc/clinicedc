@@ -17,7 +17,7 @@ from edc_registration.models import RegisteredSubject
 from edc_reportable import GRADE5
 from edc_utils import get_utcnow
 from edc_visit_schedule.utils import OnScheduleError
-from model_mommy import mommy
+from model_bakery import baker
 from unittest.mock import patch, PropertyMock
 
 from ...constants import RECOVERING, RECOVERED, CONTINUING_UPDATE
@@ -41,13 +41,13 @@ class TestAeAndActions(TestCase):
         RegisteredSubject.objects.all().delete()
 
     def test_subject_identifier(self):
-        mommy.make_recipe(
+        baker.make_recipe(
             "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
         )
 
         self.assertRaises(
             SubjectDoesNotExist,
-            mommy.make_recipe,
+            baker.make_recipe,
             "adverse_event_app.aeinitial",
             subject_identifier="blahblah",
         )
@@ -56,28 +56,28 @@ class TestAeAndActions(TestCase):
         for index in range(0, 5):
             subject_identifier = f"ABCDEF-{index}"
             RegisteredSubject.objects.create(subject_identifier=subject_identifier)
-            ae_initial = mommy.make_recipe(
+            ae_initial = baker.make_recipe(
                 "adverse_event_app.aeinitial", subject_identifier=subject_identifier
             )
-            mommy.make_recipe(
+            baker.make_recipe(
                 "adverse_event_app.aefollowup",
                 ae_initial=ae_initial,
                 subject_identifier=subject_identifier,
                 outcome=RECOVERING,
             )
-            mommy.make_recipe(
+            baker.make_recipe(
                 "adverse_event_app.aefollowup",
                 ae_initial=ae_initial,
                 subject_identifier=subject_identifier,
                 outcome=RECOVERING,
             )
-            mommy.make_recipe(
+            baker.make_recipe(
                 "adverse_event_app.aefollowup",
                 ae_initial=ae_initial,
                 subject_identifier=subject_identifier,
                 outcome=RECOVERING,
             )
-            mommy.make_recipe(
+            baker.make_recipe(
                 "adverse_event_app.aefollowup",
                 ae_initial=ae_initial,
                 subject_identifier=subject_identifier,
@@ -87,28 +87,28 @@ class TestAeAndActions(TestCase):
 
     def test_fk1(self):
 
-        ae_initial = mommy.make_recipe(
+        ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
         )
-        mommy.make_recipe(
+        baker.make_recipe(
             "adverse_event_app.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
         )
-        mommy.make_recipe(
+        baker.make_recipe(
             "adverse_event_app.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
         )
-        mommy.make_recipe(
+        baker.make_recipe(
             "adverse_event_app.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
         )
-        mommy.make_recipe(
+        baker.make_recipe(
             "adverse_event_app.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
@@ -116,22 +116,22 @@ class TestAeAndActions(TestCase):
         )
 
     def test_fk2(self):
-        ae_initial = mommy.make_recipe(
+        ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
         )
-        mommy.make_recipe(
+        baker.make_recipe(
             "adverse_event_app.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
         )
-        mommy.make_recipe(
+        baker.make_recipe(
             "adverse_event_app.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
         )
-        mommy.make_recipe(
+        baker.make_recipe(
             "adverse_event_app.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
@@ -149,7 +149,7 @@ class TestAeAndActions(TestCase):
             subject_identifier=self.subject_identifier, action_type=action_type
         )
         # create ae initial
-        ae_initial = mommy.make_recipe(
+        ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial",
             action_identifier=action_item.action_identifier,
             subject_identifier=self.subject_identifier,
@@ -193,7 +193,7 @@ class TestAeAndActions(TestCase):
         )
 
     def test_ae_initial_action2(self):
-        ae_initial = mommy.make_recipe(
+        ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
         )
         action_item = ActionItem.objects.get(
@@ -205,7 +205,7 @@ class TestAeAndActions(TestCase):
 
     def test_ae_initial_creates_action(self):
         # create reference model first which creates action_item
-        ae_initial = mommy.make_recipe(
+        ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
         )
         try:
@@ -238,7 +238,7 @@ class TestAeAndActions(TestCase):
 
     def test_ae_initial_does_not_recreate_action_on_resave(self):
         # create reference model first which creates action_item
-        ae_initial = mommy.make_recipe(
+        ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
         )
         ae_initial = AeInitial.objects.get(pk=ae_initial.pk)
@@ -261,7 +261,7 @@ class TestAeAndActions(TestCase):
         )
 
         # then create reference model
-        ae_initial = mommy.make_recipe(
+        ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial",
             subject_identifier=self.subject_identifier,
             action_identifier=action_item.action_identifier,
@@ -272,7 +272,7 @@ class TestAeAndActions(TestCase):
         self.assertEqual(action_item.action_identifier, ae_initial.action_identifier)
 
     def test_ae_initial_creates_next_action_on_close(self):
-        ae_initial = mommy.make_recipe(
+        ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
         )
         ae_initial = AeInitial.objects.get(pk=ae_initial.pk)
@@ -296,7 +296,7 @@ class TestAeAndActions(TestCase):
         )
 
     def test_next_action1(self):
-        ae_initial = mommy.make_recipe(
+        ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
         )
         # action item has no parent, is updated
@@ -314,10 +314,10 @@ class TestAeAndActions(TestCase):
         )
 
     def test_next_action2(self):
-        ae_initial = mommy.make_recipe(
+        ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
         )
-        ae_followup = mommy.make_recipe(
+        ae_followup = baker.make_recipe(
             "adverse_event_app.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
@@ -343,17 +343,17 @@ class TestAeAndActions(TestCase):
 
     def test_next_action3(self):
 
-        ae_initial = mommy.make_recipe(
+        ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
         )
-        ae_followup1 = mommy.make_recipe(
+        ae_followup1 = baker.make_recipe(
             "adverse_event_app.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
         )
         ae_followup1 = AeFollowup.objects.get(pk=ae_followup1.pk)
-        ae_followup2 = mommy.make_recipe(
+        ae_followup2 = baker.make_recipe(
             "adverse_event_app.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
@@ -386,10 +386,10 @@ class TestAeAndActions(TestCase):
 
     def test_next_action4(self):
 
-        ae_initial = mommy.make_recipe(
+        ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
         )
-        ae_followup1 = mommy.make_recipe(
+        ae_followup1 = baker.make_recipe(
             "adverse_event_app.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
@@ -398,7 +398,7 @@ class TestAeAndActions(TestCase):
         )
         ae_followup1 = AeFollowup.objects.get(pk=ae_followup1.pk)
         # set followup = NO so next action item is not created
-        ae_followup2 = mommy.make_recipe(
+        ae_followup2 = baker.make_recipe(
             "adverse_event_app.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
@@ -437,7 +437,7 @@ class TestAeAndActions(TestCase):
 
     def test_next_action5(self):
         anaemia = AeClassification.objects.get(name="anaemia")
-        ae_initial = mommy.make_recipe(
+        ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial",
             subject_identifier=self.subject_identifier,
             ae_classification=anaemia,
@@ -462,7 +462,7 @@ class TestAeAndActions(TestCase):
         )
 
         # note: ae_classification matches ae_initial
-        ae_tmg = mommy.make_recipe(
+        ae_tmg = baker.make_recipe(
             "adverse_event_app.aetmg",
             subject_identifier=self.subject_identifier,
             ae_initial=ae_initial,
@@ -482,12 +482,12 @@ class TestAeAndActions(TestCase):
         )
 
     def test_ae_followup_multiple_instances(self):
-        ae_initial = mommy.make_recipe(
+        ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
         )
         ae_initial = AeInitial.objects.get(pk=ae_initial.pk)
 
-        ae_followup = mommy.make_recipe(
+        ae_followup = baker.make_recipe(
             "adverse_event_app.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
@@ -495,7 +495,7 @@ class TestAeAndActions(TestCase):
         )
         ae_followup = AeFollowup.objects.get(pk=ae_followup.pk)
 
-        ae_followup = mommy.make_recipe(
+        ae_followup = baker.make_recipe(
             "adverse_event_app.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
@@ -518,11 +518,11 @@ class TestAeAndActions(TestCase):
         ]
         mock_get_by_model.return_value = StudyTerminationConclusionAction
 
-        ae_initial = mommy.make_recipe(
+        ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
         )
 
-        ae_followup = mommy.make_recipe(
+        ae_followup = baker.make_recipe(
             "adverse_event_app.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
@@ -550,13 +550,13 @@ class TestAeAndActions(TestCase):
         mock_offschedule_models.return_value = []
         mock_get_by_model.return_value = StudyTerminationConclusionAction
 
-        ae_initial = mommy.make_recipe(
+        ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
         )
 
         self.assertRaises(
             OnScheduleError,
-            mommy.make_recipe,
+            baker.make_recipe,
             "adverse_event_app.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
@@ -577,11 +577,11 @@ class TestAeAndActions(TestCase):
         ]
         mock_get_by_model.return_value = StudyTerminationConclusionAction
 
-        ae_initial = mommy.make_recipe(
+        ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
         )
 
-        ae_followup = mommy.make_recipe(
+        ae_followup = baker.make_recipe(
             "adverse_event_app.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
@@ -601,7 +601,7 @@ class TestAeAndActions(TestCase):
 
     def test_ae_creates_death_report_action(self):
 
-        ae_initial = mommy.make_recipe(
+        ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial",
             subject_identifier=self.subject_identifier,
             ae_grade=GRADE5,
@@ -620,7 +620,7 @@ class TestAeAndActions(TestCase):
 
     def test_ae_initial_creates_susar_if_not_reported(self):
 
-        ae_initial = mommy.make_recipe(
+        ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial",
             subject_identifier=self.subject_identifier,
             susar=YES,
@@ -635,7 +635,7 @@ class TestAeAndActions(TestCase):
             reference_model="adverse_event_app.aesusar",
         )
 
-        ae_initial = mommy.make_recipe(
+        ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial",
             subject_identifier=self.subject_identifier,
             susar=YES,
@@ -651,7 +651,7 @@ class TestAeAndActions(TestCase):
     def test_susar_updates_aeinitial_if_submitted(self):
 
         # create ae initial
-        ae_initial = mommy.make_recipe(
+        ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial",
             subject_identifier=self.subject_identifier,
             susar=YES,
@@ -668,7 +668,7 @@ class TestAeAndActions(TestCase):
         self.assertEqual(action_item.status, NEW)
 
         # create ae susar
-        mommy.make_recipe(
+        baker.make_recipe(
             "adverse_event_app.aesusar",
             subject_identifier=self.subject_identifier,
             submitted_datetime=get_utcnow(),
@@ -686,7 +686,7 @@ class TestAeAndActions(TestCase):
     def test_aeinitial_can_close_action_without_susar_model(self):
 
         # create ae initial
-        ae_initial = mommy.make_recipe(
+        ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial",
             subject_identifier=self.subject_identifier,
             susar=YES,

@@ -1,5 +1,5 @@
 from faker import Faker
-from model_mommy.recipe import Recipe
+from model_bakery.recipe import Recipe
 
 from .models import CauseOfDeath
 
