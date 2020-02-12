@@ -398,7 +398,6 @@ class TestRandomizer(TestCase):
 
     @override_settings(SITE_ID=40)
     def test_invalid_assignment(self):
-        tmpdir = mkdtemp()
         site_randomizers._registry = {}
         site_randomizers.register(MyRandomizer)
 

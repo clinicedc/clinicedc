@@ -53,14 +53,14 @@ class RandomizationListImporter:
     default_fieldnames = ["sid", "assignment", "site_name"]
 
     def __init__(
-            self,
-            name=None,
-            verbose=None,
-            overwrite=None,
-            add=None,
-            dryrun=None,
-            user=None,
-            revision=None,
+        self,
+        name=None,
+        verbose=None,
+        overwrite=None,
+        add=None,
+        dryrun=None,
+        user=None,
+        revision=None,
     ):
         verbose = True if verbose is None else verbose
         self.dryrun = True if dryrun and dryrun.lower() == "yes" else False
