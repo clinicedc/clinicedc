@@ -1,18 +1,17 @@
-from edc_randomization.blinding import is_blinded_trial
-from edc_randomization.utils import get_randomizationlist_model_name
+from pprint import pprint
+
+from edc_randomization.site_randomizers import site_randomizers
 
 
 def get_rando_tuples():
-    app_label, model = get_randomizationlist_model_name().split(".")
-
-    if is_blinded_trial():
-        rando_tuples = [(f"{app_label}.view_{model}", "Can view randomization list")]
-    else:
-        rando_tuples = [
-            (
-                f"{app_label}.display_assignment",
-                "Can display randomization assignment",
-            ),
-            (f"{app_label}.view_{model}", "Can view randomization list"),
-        ]
+    rando_tuples = []
+    for randomizer_cls in site_randomizers._registry.values():
+        app_label, model = randomizer_cls.model.split(".")
+        rando_tuples.append(
+            (f"{app_label}.view_{model}",
+             f"Can view {randomizer_cls.model_cls()._meta.verbose_name}"))
+        if not randomizer_cls.is_blinded_trial:
+            rando_tuples.append(
+                (f"{app_label}.display_{model}",
+                 f"Can display {randomizer_cls.model_cls()._meta.verbose_name} assignment"))
     return rando_tuples

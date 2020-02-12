@@ -8,8 +8,6 @@ from django.db.models.signals import post_migrate
 from .role_names import groups_by_role_name, role_names
 from .system_checks import edc_check
 from .update_roles import update_roles
-from .group_permissions_updater import GroupPermissionsUpdater
-
 
 style = color_style()
 

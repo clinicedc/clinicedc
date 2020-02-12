@@ -1,13 +1,23 @@
+import pdb
+
 from django.apps import apps as django_apps
 from django.contrib.auth.models import Permission, Group
 from django.test import TestCase, tag
 from django.test.utils import override_settings
 from edc_auth.group_names import RANDO
+from edc_randomization import Randomizer
+from edc_randomization.site_randomizers import site_randomizers
 
 from ..group_permissions_updater import GroupPermissionsUpdater
+from .randomizers import CustomRandomizer
 
 
 class GroupPermissionUpdater(TestCase):
+    def setUp(self):
+        site_randomizers._registry = {}
+        site_randomizers.register(Randomizer)
+        site_randomizers.register(CustomRandomizer)
+
     def test_update(self):
         GroupPermissionsUpdater(apps=django_apps)
 
@@ -69,7 +79,7 @@ class GroupPermissionUpdater(TestCase):
         qs = group.permissions.all()
         self.assertIn("view_randomizationlist", "|".join([o.codename for o in qs]))
 
-    @override_settings(EDC_RANDOMIZATION_LIST_MODEL="edc_auth.customrandomizationlist")
+    @tag("1")
     def test_removes_randomization_list_model_perms2(self):
 
         self.assertIn(
