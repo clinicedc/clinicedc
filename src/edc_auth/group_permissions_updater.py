@@ -10,10 +10,7 @@ from django.core.exceptions import (
 )
 from django.core.management.color import color_style
 from edc_auth.codename_tuples import navbar_tuples, get_rando_tuples
-from edc_randomization.utils import (
-    get_randomizationlist_model,
-    get_randomizationlist_model_name,
-)
+from edc_randomization.site_randomizers import site_randomizers
 from warnings import warn
 
 from .codename_tuples import dashboard_tuples
@@ -23,6 +20,7 @@ from .group_names import PII, PII_VIEW
 INVALID_APP_LABEL = "invalid_app_label"
 
 style = color_style()
+site_randomizers.autodiscover()
 
 
 class PermissionsCodenameError(Exception):
@@ -76,9 +74,15 @@ class GroupPermissionsUpdater:
         for model, codename_tuples in (self.create_codename_tuples or {}).items():
             self.create_permissions_from_tuples(model, codename_tuples)
 
-        self.create_permissions_from_tuples(
-            get_randomizationlist_model_name(), self.rando_tuples
-        )
+        for randomizer_cls in site_randomizers._registry.values():
+            rando_tuples = [
+                (k, v)
+                for k, v in self.rando_tuples
+                if k.startswith(randomizer_cls.model.split(".")[0])
+            ]
+            self.create_permissions_from_tuples(
+                randomizer_cls.model, rando_tuples,
+            )
         self.create_permissions_from_tuples("edc_navbar.navbar", self.navbar_tuples)
         self.remove_permissions_to_dummy_models()
         self.make_randomizationlist_view_only()
@@ -158,25 +162,26 @@ class GroupPermissionsUpdater:
         self.group_model_cls.objects.exclude(name__in=self.group_names).delete()
 
     def make_randomizationlist_view_only(self):
-        app_label, model = get_randomizationlist_model(
-            apps=self.apps
-        )._meta.label_lower.split(".")
-        permissions = self.permission_model_cls.objects.filter(
-            content_type__app_label=app_label, content_type__model=model
-        ).exclude(codename=f"view_{model}")
-        codenames = [f"{app_label}.{o.codename}" for o in permissions]
-        codenames.extend(
-            [
-                "edc_randomization.add_randomizationlist",
-                "edc_randomization.change_randomizationlist",
-                "edc_randomization.delete_randomizationlist",
-            ]
-        )
-        codenames = list(set(codenames))
-        for group in self.group_model_cls.objects.all():
-            self.remove_permissions_by_codenames(
-                group=group, codenames=codenames,
+        for randomizer_cls in site_randomizers._registry.values():
+            app_label, model = randomizer_cls.model_cls(
+                apps=self.apps
+            )._meta.label_lower.split(".")
+            permissions = self.permission_model_cls.objects.filter(
+                content_type__app_label=app_label, content_type__model=model
+            ).exclude(codename=f"view_{model}")
+            codenames = [f"{app_label}.{o.codename}" for o in permissions]
+            codenames.extend(
+                [
+                    f"{app_label}.add_{model}",
+                    f"{app_label}.change_{model}",
+                    f"{app_label}.delete_{model}",
+                ]
             )
+            codenames = list(set(codenames))
+            for group in self.group_model_cls.objects.all():
+                self.remove_permissions_by_codenames(
+                    group=group, codenames=codenames,
+                )
 
     def remove_permissions_to_dummy_models(self):
         for group in self.group_model_cls.objects.all():
