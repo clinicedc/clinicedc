@@ -301,11 +301,12 @@ class TestRandomizer(TestCase):
         site_randomizers._registry = {}
         site_randomizers.register(MyRandomizer)
 
-        MyRandomizationList.objects.all().delete()
+        model_cls = MyRandomizer.model_cls()
+        model_cls.objects.all().delete()
         self.populate_list(
             randomizer_name=MyRandomizer.name, site_names=self.site_names, per_site=5
         )
-        site_names = [obj.site_name for obj in MyRandomizationList.objects.all()]
+        site_names = [obj.site_name for obj in model_cls.objects.all()]
         shuffle(site_names)
         self.assertEqual(len(site_names), len(self.site_names * 5))
         # consent and randomize 5 for each site
@@ -325,14 +326,14 @@ class TestRandomizer(TestCase):
         for site_name in site_names:
             randomized_subjects = [
                 (obj.subject_identifier, str(obj.sid))
-                for obj in MyRandomizationList.objects.filter(
+                for obj in model_cls.objects.filter(
                     allocated_site__name=site_name, subject_identifier__isnull=False
                 ).order_by("sid")
             ]
             for index, obj in enumerate(
-                SubjectConsent.objects.filter(site__name=site_name).order_by(
-                    "consent_datetime"
-                )
+                    SubjectConsent.objects.filter(site__name=site_name).order_by(
+                        "consent_datetime"
+                    )
             ):
                 rs = RegisteredSubject.objects.get(
                     subject_identifier=obj.subject_identifier
@@ -341,7 +342,7 @@ class TestRandomizer(TestCase):
                 self.assertEqual(rs.sid, randomized_subjects[index][1])
 
         # clear out any unallocated
-        MyRandomizationList.objects.filter(subject_identifier__isnull=True).delete()
+        model_cls.objects.filter(subject_identifier__isnull=True).delete()
 
         # assert raises on next attempt to randomize
         subject_consent = SubjectConsent.objects.create(
@@ -370,52 +371,26 @@ class TestRandomizer(TestCase):
 
     @override_settings(SITE_ID=40)
     def test_cannot_overwrite(self):
-        tmpdir = mkdtemp()
-
-        class MyRandomizer(Randomizer):
-            name = "my_randomizer"
-
-            @classmethod
-            def get_randomization_list_path(cls):
-                return os.path.join(tmpdir, "randomization_list.csv")
-
         site_randomizers._registry = {}
         site_randomizers.register(MyRandomizer)
-
         make_test_list(
             full_path=MyRandomizer.get_randomization_list_path(),
             site_names=self.site_names,
             count=5,
         )
-
         RandomizationListImporter(name=MyRandomizer.name)
-
         self.assertRaises(NotRegistered, RandomizationListImporter)
 
     @override_settings(SITE_ID=40)
     def test_can_overwrite_explicit(self):
-        tmpdir = mkdtemp()
-
-        class MyRandomizer(Randomizer):
-
-            name = "my_randomizer"
-            use_default_assignment_map = True
-
-            @classmethod
-            def get_randomization_list_path(cls):
-                return os.path.join(tmpdir, "randomization_list.csv")
-
         site_randomizers._registry = {}
         site_randomizers.register(MyRandomizer)
-
         make_test_list(
             full_path=MyRandomizer.get_randomization_list_path(),
             site_names=self.site_names,
             count=5,
         )
-
         RandomizationListImporter(name=MyRandomizer.name)
-
         try:
             RandomizationListImporter(name=MyRandomizer.name, overwrite=True)
         except RandomizationListImportError:
@@ -424,14 +399,6 @@ class TestRandomizer(TestCase):
     @override_settings(SITE_ID=40)
     def test_invalid_assignment(self):
         tmpdir = mkdtemp()
-
-        class MyRandomizer(Randomizer):
-            name = "my_randomizer"
-
-            @classmethod
-            def get_randomization_list_path(cls):
-                return os.path.join(tmpdir, "randomization_list.csv")
-
         site_randomizers._registry = {}
         site_randomizers.register(MyRandomizer)
 

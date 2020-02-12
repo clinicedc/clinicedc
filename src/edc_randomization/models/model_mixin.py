@@ -6,6 +6,7 @@ from edc_model.models import HistoricalRecords
 from edc_sites.models import CurrentSiteManager
 
 from ..randomizer import RandomizationError, Randomizer
+from ..site_randomizers import site_randomizers
 
 
 class RandomizationListModelError(Exception):
@@ -27,13 +28,9 @@ class RandomizationListModelMixin(models.Model):
     `Randomizer` class MAY also need to be customized.
     """
 
-    # customize if approriate
-    randomizer_cls = Randomizer
-
-    # customize if approriate
     assignment = EncryptedCharField()
 
-    randomizer_name = models.CharField(max_length=50)
+    randomizer_name = models.CharField(max_length=50, default="default")
 
     subject_identifier = models.CharField(
         verbose_name="Subject Identifier", max_length=50, null=True, unique=True
@@ -91,6 +88,10 @@ class RandomizationListModelMixin(models.Model):
     @property
     def short_label(self):
         return f"{self.assignment} SID:{self.site_name}.{self.sid}"
+
+    @property
+    def randomizer_cls(self):
+        return site_randomizers.get(self.randomizer_name)
 
     # customize if approriate
     @property

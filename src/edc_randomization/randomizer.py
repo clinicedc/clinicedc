@@ -40,13 +40,6 @@ class Randomizer:
        RandomizationList (cls.model) for this site. A slot is used
        when the subject identifier is not None.
 
-       To override the "assignment_map" for the default randomizer
-       without declaring a new class,
-       set `settings.EDC_RANDOMIZATION_ASSIGNMENT_MAP` to
-       {"default": my_assignment_map}. See also constant
-       DEFAULT_ASSIGNMENT_MAP. This is the recommended approach
-       if there is only one randomizer.
-
        This is the default randomizer class and is registered with
        `site_randomizer` by default. To prevent registration set
        settings.EDC_RANDOMIZATION_REGISTER_DEFAULT_RANDOMIZER=False.
