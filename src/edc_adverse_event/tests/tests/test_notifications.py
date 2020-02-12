@@ -4,7 +4,7 @@ from edc_constants.constants import NO, YES
 from edc_facility.import_holidays import import_holidays
 from edc_list_data.site_list_data import site_list_data
 from edc_reportable.constants import GRADE3, GRADE4, GRADE5
-from model_mommy import mommy
+from model_bakery import baker
 
 from ...action_items import (
     AeFollowupAction,
@@ -31,7 +31,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
         super().tearDownClass()
 
     def test_notifies_initial_ae_g3_not_sae(self):
-        mommy.make_recipe(
+        baker.make_recipe(
             "adverse_event_app.aeinitial",
             subject_identifier=self.subject_identifier,
             ae_grade=GRADE3,
@@ -80,7 +80,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
         )
 
     def test_notifies_initial_ae_g3_is_sae(self):
-        mommy.make_recipe(
+        baker.make_recipe(
             "adverse_event_app.aeinitial",
             subject_identifier=self.subject_identifier,
             ae_grade=GRADE3,
@@ -142,7 +142,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
         )
 
     def test_notifies_initial_ae_g4_is_sae(self):
-        mommy.make_recipe(
+        baker.make_recipe(
             "adverse_event_app.aeinitial",
             subject_identifier=self.subject_identifier,
             ae_grade=GRADE4,
@@ -165,7 +165,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
         )
 
     def test_notifies_initial_ae_death(self):
-        mommy.make_recipe(
+        baker.make_recipe(
             "adverse_event_app.aeinitial",
             subject_identifier=self.subject_identifier,
             ae_grade=GRADE5,
@@ -253,7 +253,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
 
     def test_notifies_initial_ae_susar(self):
 
-        mommy.make_recipe(
+        baker.make_recipe(
             "adverse_event_app.aeinitial",
             subject_identifier=self.subject_identifier,
             ae_grade=GRADE4,

@@ -2,7 +2,7 @@ from adverse_event_app.visit_schedules import visit_schedule
 from edc_action_item.models import ActionItem
 from edc_constants.constants import OTHER, YES
 from edc_visit_schedule import site_visit_schedules
-from model_mommy import mommy
+from model_bakery import baker
 from random import choice
 
 from ...models import CauseOfDeath
@@ -12,7 +12,7 @@ class DeathReportTestMixin:
     def setUp(self):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
-        subject_consent = mommy.make_recipe(
+        subject_consent = baker.make_recipe(
             "adverse_event_app.subjectconsent", subject_identifier="1234567"
         )
         self.subject_identifier = subject_consent.subject_identifier
@@ -34,7 +34,7 @@ class DeathReportTestMixin:
         )
 
         # create ae initial
-        ae_initial = mommy.make_recipe(
+        ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial",
             subject_identifier=self.subject_identifier,
             susar=YES,
@@ -50,7 +50,7 @@ class DeathReportTestMixin:
         )
 
         # create death report
-        death_report = mommy.make_recipe(
+        death_report = baker.make_recipe(
             "adverse_event_app.deathreport",
             subject_identifier=self.subject_identifier,
             action_identifier=action_item.action_identifier,
