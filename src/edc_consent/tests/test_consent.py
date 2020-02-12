@@ -4,7 +4,7 @@ from django.apps import apps as django_apps
 from django.test import tag
 from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from model_mommy import mommy
+from model_bakery import baker
 
 from ..consent import NaiveDatetimeError
 from ..consent_object_validator import ConsentPeriodError, ConsentVersionSequenceError
@@ -32,7 +32,7 @@ class TestConsent(DatesTestMixin, ConsentTestCase):
         subject_identifier = "12345"
         self.assertRaises(
             SiteConsentError,
-            mommy.make_recipe,
+            baker.make_recipe,
             "edc_consent.subjectconsent",
             subject_identifier=subject_identifier,
             consent_datetime=self.study_open_datetime,
@@ -57,7 +57,7 @@ class TestConsent(DatesTestMixin, ConsentTestCase):
         """
         self.consent_object_factory()
         subject_identifier = "12345"
-        mommy.make_recipe(
+        baker.make_recipe(
             "edc_consent.subjectconsent",
             subject_identifier=subject_identifier,
             consent_datetime=self.study_open_datetime,
@@ -79,7 +79,7 @@ class TestConsent(DatesTestMixin, ConsentTestCase):
         )
         self.assertRaises(
             SiteConsentError,
-            mommy.make_recipe,
+            baker.make_recipe,
             "edc_consent.subjectconsent",
             dob=self.dob,
             consent_datetime=self.study_open_datetime,
@@ -87,7 +87,7 @@ class TestConsent(DatesTestMixin, ConsentTestCase):
 
     def test_consent_gets_version(self):
         self.consent_object_factory(version="1.0")
-        consent = mommy.make_recipe(
+        consent = baker.make_recipe(
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
@@ -97,7 +97,7 @@ class TestConsent(DatesTestMixin, ConsentTestCase):
     def test_model_gets_version(self):
         self.consent_object_factory(version="1.0")
         subject_identifier = "12345"
-        mommy.make_recipe(
+        baker.make_recipe(
             "edc_consent.subjectconsent",
             subject_identifier=subject_identifier,
             consent_datetime=self.study_open_datetime,
@@ -112,7 +112,7 @@ class TestConsent(DatesTestMixin, ConsentTestCase):
     def test_model_consent_version_no_change(self):
         self.consent_object_factory(version="1.2")
         subject_identifier = "12345"
-        mommy.make_recipe(
+        baker.make_recipe(
             "edc_consent.subjectconsent",
             subject_identifier=subject_identifier,
             consent_datetime=self.study_open_datetime,
@@ -139,7 +139,7 @@ class TestConsent(DatesTestMixin, ConsentTestCase):
         )
         subject_identifier = "12345"
         consent_datetime = self.study_open_datetime + timedelta(days=10)
-        subject_consent = mommy.make_recipe(
+        subject_consent = baker.make_recipe(
             "edc_consent.subjectconsent",
             subject_identifier=subject_identifier,
             consent_datetime=consent_datetime,
@@ -153,7 +153,7 @@ class TestConsent(DatesTestMixin, ConsentTestCase):
         )
         self.assertEqual(crf_one.consent_version, "1.0")
         consent_datetime = self.study_open_datetime + timedelta(days=60)
-        subject_consent = mommy.make_recipe(
+        subject_consent = baker.make_recipe(
             "edc_consent.subjectconsent",
             subject_identifier=subject_identifier,
             consent_datetime=consent_datetime,
@@ -204,7 +204,7 @@ class TestConsent(DatesTestMixin, ConsentTestCase):
         )
         self.assertRaises(
             ConsentVersionSequenceError,
-            mommy.make_recipe,
+            baker.make_recipe,
             "edc_consent.subjectconsent",
             dob=self.dob,
             consent_datetime=self.study_open_datetime + timedelta(days=60),
@@ -224,13 +224,13 @@ class TestConsent(DatesTestMixin, ConsentTestCase):
             version="1.1",
             updates_versions="1.0",
         )
-        subject_consent = mommy.make_recipe(
+        subject_consent = baker.make_recipe(
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime + timedelta(days=5),
             dob=self.dob,
         )
         self.assertEqual(subject_consent.version, "1.0")
-        subject_consent = mommy.make_recipe(
+        subject_consent = baker.make_recipe(
             "edc_consent.subjectconsent",
             subject_identifier=subject_consent.subject_identifier,
             consent_datetime=self.study_open_datetime + timedelta(days=60),
@@ -264,7 +264,7 @@ class TestConsent(DatesTestMixin, ConsentTestCase):
             version="1.2",
             updates_versions="1.1",
         )
-        subject_consent = mommy.make_recipe(
+        subject_consent = baker.make_recipe(
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
@@ -273,7 +273,7 @@ class TestConsent(DatesTestMixin, ConsentTestCase):
         # use a consent datetime within verion 1.2, skipping 1.1, raises
         self.assertRaises(
             ConsentVersionSequenceError,
-            mommy.make_recipe,
+            baker.make_recipe,
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime + timedelta(days=125),
             subject_identifier=subject_consent.subject_identifier,

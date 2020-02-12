@@ -3,7 +3,7 @@ from django.contrib.sites.models import Site
 from edc_constants.constants import YES, MALE, NO
 from edc_utils import get_utcnow
 from faker import Faker
-from model_mommy.recipe import Recipe, seq
+from model_bakery.recipe import Recipe, seq
 
 from .tests.models import SubjectConsent
 

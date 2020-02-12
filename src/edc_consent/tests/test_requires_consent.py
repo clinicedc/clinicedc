@@ -4,7 +4,7 @@ from edc_action_item.models.action_item import ActionItem
 from edc_utils import get_utcnow
 from edc_locator.models import SubjectLocator
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from model_mommy import mommy
+from model_bakery import baker
 
 from ..exceptions import NotConsentedError
 from ..requires_consent import RequiresConsent
@@ -27,7 +27,7 @@ class TestRequiresConsent(DatesTestMixin, ConsentTestCase):
         self.consent_object_factory()
         self.assertRaises(
             SiteConsentError,
-            mommy.make_recipe,
+            baker.make_recipe,
             "edc_consent.subjectconsent",
             subject_identifier=self.subject_identifier,
         )
@@ -45,7 +45,7 @@ class TestRequiresConsent(DatesTestMixin, ConsentTestCase):
 
     def test_consented(self):
         self.consent_object_factory()
-        mommy.make_recipe(
+        baker.make_recipe(
             "edc_consent.subjectconsent",
             subject_identifier=self.subject_identifier,
             consent_datetime=self.study_open_datetime + relativedelta(months=1),
@@ -65,7 +65,7 @@ class TestRequiresConsent(DatesTestMixin, ConsentTestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
         self.consent_object_factory()
-        consent_obj = mommy.make_recipe(
+        consent_obj = baker.make_recipe(
             "edc_consent.subjectconsent",
             subject_identifier=self.subject_identifier,
             consent_datetime=self.study_open_datetime + relativedelta(months=1),

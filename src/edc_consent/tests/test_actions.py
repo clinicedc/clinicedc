@@ -2,7 +2,7 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.http.request import HttpRequest
 from django.test import tag
-from model_mommy import mommy
+from model_bakery import baker
 
 from ..actions import verify_consent, unverify_consent
 from .consent_test_case import ConsentTestCase
@@ -17,7 +17,7 @@ class TestActions(DatesTestMixin, ConsentTestCase):
         self.request = HttpRequest()
         user = User.objects.create(username="erikvw")
         self.request.user = user
-        mommy.make_recipe(
+        baker.make_recipe(
             "edc_consent.subjectconsent",
             _quantity=3,
             consent_datetime=self.study_open_datetime + relativedelta(days=1),

@@ -4,7 +4,7 @@ from django import forms
 from django.test import TestCase, tag
 from edc_constants.constants import NO, MALE, FEMALE
 from faker import Faker
-from model_mommy import mommy
+from model_bakery import baker
 
 from ..consent import Consent
 from ..modelform_mixins import ConsentModelFormMixin
@@ -60,9 +60,9 @@ class TestConsentForm(DatesTestMixin, TestCase):
         return consent
 
     def test_base_form_is_valid(self):
-        """Asserts mommy defaults validate.
+        """Asserts baker defaults validate.
         """
-        subject_consent = mommy.prepare_recipe(
+        subject_consent = baker.prepare_recipe(
             "edc_consent.subjectconsent",
             dob=self.dob,
             consent_datetime=self.study_open_datetime,
@@ -77,7 +77,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
 
     @tag("1")
     def test_base_form_catches_consent_datetime_before_study_open(self):
-        subject_consent = mommy.prepare_recipe(
+        subject_consent = baker.prepare_recipe(
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime + relativedelta(days=1),
             dob=self.dob,
@@ -90,7 +90,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
         consent_form = SubjectConsentForm(data=subject_consent.__dict__)
         self.assertTrue(consent_form.is_valid())
         self.assertIsNone(consent_form.errors.get("consent_datetime"))
-        subject_consent = mommy.prepare_recipe(
+        subject_consent = baker.prepare_recipe(
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime - relativedelta(days=1),
             dob=self.dob,
@@ -101,7 +101,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
         self.assertFalse(consent_form.is_valid())
 
     def test_base_form_identity_mismatch(self):
-        subject_consent = mommy.prepare_recipe(
+        subject_consent = baker.prepare_recipe(
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
@@ -116,7 +116,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
         self.assertFalse(consent_form.is_valid())
 
     def test_base_form_identity_dupl(self):
-        mommy.make_recipe(
+        baker.make_recipe(
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
@@ -125,7 +125,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
             first_name="ERIK",
             last_name="THEPLEEB",
         )
-        consent2 = mommy.prepare_recipe(
+        consent2 = baker.prepare_recipe(
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
@@ -138,7 +138,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
     def test_base_form_guardian_and_dob1(self):
         """Asserts form for minor is not valid without guardian name.
         """
-        subject_consent = mommy.prepare_recipe(
+        subject_consent = baker.prepare_recipe(
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
@@ -162,7 +162,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
     def test_base_form_guardian_and_dob2(self):
         """Asserts form for minor is valid with guardian name.
         """
-        subject_consent = mommy.prepare_recipe(
+        subject_consent = baker.prepare_recipe(
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
@@ -186,7 +186,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
     def test_base_form_guardian_and_dob3(self):
         """Asserts form for adult is valid.
         """
-        subject_consent = mommy.prepare_recipe(
+        subject_consent = baker.prepare_recipe(
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
@@ -210,7 +210,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
         """Asserts form for adult is not valid if guardian name
         specified.
         """
-        subject_consent = mommy.prepare_recipe(
+        subject_consent = baker.prepare_recipe(
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
@@ -232,7 +232,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
         self.assertFalse(consent_form.is_valid())
 
     def test_base_form_catches_dob_lower(self):
-        subject_consent = mommy.prepare_recipe(
+        subject_consent = baker.prepare_recipe(
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.dob + relativedelta(years=25),
@@ -246,7 +246,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
         self.assertFalse(consent_form.is_valid())
 
     def test_base_form_catches_dob_upper(self):
-        subject_consent = mommy.prepare_recipe(
+        subject_consent = baker.prepare_recipe(
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.dob - relativedelta(years=100),
@@ -270,7 +270,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
             first_name="ERIK",
             last_name="THEPLEEB",
         )
-        subject_consent = mommy.prepare_recipe(
+        subject_consent = baker.prepare_recipe(
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
@@ -283,7 +283,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
             subject_consent.first_name[0] + subject_consent.last_name[0]
         )
         self.assertTrue(form.is_valid())
-        subject_consent = mommy.prepare_recipe(
+        subject_consent = baker.prepare_recipe(
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
@@ -296,7 +296,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
         self.assertFalse(form.is_valid())
 
     def test_base_form_catches_is_literate_and_witness(self):
-        subject_consent = mommy.prepare_recipe(
+        subject_consent = baker.prepare_recipe(
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
@@ -310,7 +310,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
         )
         form = SubjectConsentForm(subject_consent.__dict__)
         self.assertFalse(form.is_valid())
-        subject_consent = mommy.prepare_recipe(
+        subject_consent = baker.prepare_recipe(
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
