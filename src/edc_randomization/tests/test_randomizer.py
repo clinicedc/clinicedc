@@ -331,9 +331,9 @@ class TestRandomizer(TestCase):
                 ).order_by("sid")
             ]
             for index, obj in enumerate(
-                    SubjectConsent.objects.filter(site__name=site_name).order_by(
-                        "consent_datetime"
-                    )
+                SubjectConsent.objects.filter(site__name=site_name).order_by(
+                    "consent_datetime"
+                )
             ):
                 rs = RegisteredSubject.objects.get(
                     subject_identifier=obj.subject_identifier
