@@ -1,6 +1,5 @@
 from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
-from edc_appointment.appointment_config import AppointmentConfig
 
 
 class AppConfig(DjangoAppConfig):
@@ -8,9 +7,7 @@ class AppConfig(DjangoAppConfig):
 
 
 if settings.APP_NAME == "edc_model_admin":
-
     from dateutil.relativedelta import SU, MO, TU, WE, TH, FR, SA
-    from edc_appointment.apps import AppConfig as BaseEdcAppointmentAppConfig
     from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
     from edc_identifier.apps import AppConfig as BaseEdcIdentifierAppConfig
     from edc_metadata.apps import AppConfig as BaseEdcMetadataAppConfig
@@ -34,15 +31,6 @@ if settings.APP_NAME == "edc_model_admin":
                 days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100]
             ),
         }
-
-    class EdcAppointmentAppConfig(BaseEdcAppointmentAppConfig):
-        configurations = [
-            AppointmentConfig(
-                model="edc_appointment.appointment",
-                related_visit_model="edc_model_admin.subjectvisit",
-                appt_type="hospital",
-            )
-        ]
 
     class EdcMetadataAppConfig(BaseEdcMetadataAppConfig):
         reason_field = {"edc_model_admin.subjectvisit": "reason"}
