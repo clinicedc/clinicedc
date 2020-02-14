@@ -26,19 +26,8 @@ class AppConfig(DjangoAppConfig):
 
 
 if settings.APP_NAME == "edc_offstudy":
-
     from dateutil.relativedelta import SU, MO, TU, WE, TH, FR, SA
-    from edc_appointment.appointment_config import AppointmentConfig
-    from edc_appointment.apps import AppConfig as BaseEdcAppointmentAppConfig
     from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
-
-    class EdcAppointmentAppConfig(BaseEdcAppointmentAppConfig):
-        configurations = [
-            AppointmentConfig(
-                model="edc_appointment.appointment",
-                related_visit_model="edc_appointment.subjectvisit",
-            )
-        ]
 
     class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
         definitions = {
