@@ -18,14 +18,9 @@ from ..signals import AppointmentDeleteError
 from .helper import Helper
 from .models import SubjectConsent, SubjectVisit, OnScheduleOne, OnScheduleTwo
 from .visit_schedule import visit_schedule1, visit_schedule2
-from edc_visit_tracking.model_mixins.visit_model_mixin.visit_model_mixin import (
-    VisitModelMixin,
-)
-from edc_model.models.base_uuid_model import BaseUuidModel
 
 
 class TestAppointment(TestCase):
-
     helper_cls = Helper
 
     @classmethod
@@ -62,7 +57,6 @@ class TestAppointment(TestCase):
         )
         self.assertEqual(Appointment.objects.all().count(), 8)
 
-    @tag("2")
     def test_deletes_appointments(self):
         """Asserts manager method can delete appointments.
         """

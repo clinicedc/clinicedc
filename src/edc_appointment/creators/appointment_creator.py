@@ -6,8 +6,7 @@ from django.db.utils import IntegrityError
 from django.utils.timezone import is_naive
 from edc_facility.facility import FacilityError
 
-from ..appointment_config import AppointmentConfigError
-from ..constants import CLINIC
+from ..constants import CLINIC, SCHEDULED_APPT
 
 
 class CreateAppointmentError(Exception):
@@ -36,13 +35,14 @@ class AppointmentCreator:
         visit_schedule_name=None,
         schedule_name=None,
         default_appt_type=None,
+        default_appt_reason=None,
         appt_status=None,
         suggested_datetime=None,
     ):
         self._appointment = None
-        self._appointment_config = None
         self._appointment_model_cls = None
         self._default_appt_type = default_appt_type
+        self._default_appt_reason = default_appt_reason
         self.subject_identifier = subject_identifier
         self.visit_schedule_name = visit_schedule_name
         self.schedule_name = schedule_name
@@ -138,6 +138,7 @@ class AppointmentCreator:
                     timepoint_datetime=self.timepoint_datetime,
                     appt_datetime=self.appt_rdate.datetime,
                     appt_type=self.default_appt_type,
+                    appt_reason=self.default_appt_reason,
                     **self.options,
                 )
         except IntegrityError as e:
@@ -178,28 +179,6 @@ class AppointmentCreator:
         return appt_rdate
 
     @property
-    def appointment_config(self):
-        if not self._appointment_config:
-            app_config = django_apps.get_app_config("edc_appointment")
-            try:
-                self._appointment_config = [
-                    a
-                    for a in app_config.configurations
-                    if a.name == self.appointment_model
-                ][0]
-            except IndexError as e:
-                if len(app_config.configurations) == 1 and not self.appointment_model:
-                    self._appointment_config = app_config.configurations[0]
-                else:
-                    config_names = [a.name for a in app_config.configurations]
-                    raise AppointmentConfigError(
-                        f"Error looking up appointment config for {self.appointment_model}. "
-                        f"Got {e}. AppoinmentConfigs exist for {config_names}. "
-                        f"See {app_config.configurations}. See also the visit schedule."
-                    )
-        return self._appointment_config
-
-    @property
     def appointment_model_cls(self):
         """Returns the appointment model class.
         """
@@ -212,7 +191,19 @@ class AppointmentCreator:
         """
         if not self._default_appt_type:
             try:
-                self._default_appt_type = settings.DEFAULT_APPOINTMENT_TYPE
+                self._default_appt_type = settings.EDC_APPOINTMENT_DEFAULT_APPT_TYPE
             except AttributeError:
                 self._default_appt_type = CLINIC
         return self._default_appt_type
+
+    @property
+    def default_appt_reason(self):
+        """Returns a string that is the default appointment reason
+        type, e.g. 'scheduled'.
+        """
+        if not self._default_appt_reason:
+            try:
+                self._default_appt_reason = settings.EDC_APPOINTMENT_DEFAULT_APPT_REASON
+            except AttributeError:
+                self._default_appt_reason = SCHEDULED_APPT
+        return self._default_appt_reason
