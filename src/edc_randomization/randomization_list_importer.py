@@ -3,6 +3,7 @@ import os
 import sys
 
 from django.contrib.sites.models import Site
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
 from pprint import pprint
@@ -78,6 +79,18 @@ class RandomizationListImporter:
                 f"Randomizer not registered or invalid name. Got `{name}`. "
                 f"Expected one of `{names}`",
                 f"See `site_randomizers`.",
+            )
+        else:
+            sys.stdout.write(
+                style.SUCCESS(
+                    f"(*) Loaded randomizer {randomizer}.\n"
+                    f"    -  Name: {randomizer.name}\n"
+                    f"    -  Assignments: {randomizer.assignment_map}\n"
+                    f"    -  Blinded trial:  {randomizer.is_blinded_trial}\n"
+                    f"    -  CSV file:  {randomizer.file_name}\n"
+                    f"    -  Model: {randomizer.model}\n"
+                    f"    -  Path: {settings.EDC_RANDOMIZATION_LIST_PATH}\n"
+                )
             )
 
         self.site_names = {obj.name: obj.name for obj in Site.objects.all()}
