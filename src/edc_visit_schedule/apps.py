@@ -49,14 +49,9 @@ class AppConfig(DjangoAppConfig):
 
 
 if settings.APP_NAME == "edc_visit_schedule":
-
     from dateutil.relativedelta import MO, TU, WE, TH, FR, SA, SU
     from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
     from edc_visit_tracking.apps import AppConfig as BaseEdcVisitTrackingAppConfig
-    from edc_appointment.apps import AppConfig as BaseEdcAppointmentAppConfig
-
-    class EdcAppointmentAppConfig(BaseEdcAppointmentAppConfig):
-        configurations = []
 
     class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
         definitions = {
