@@ -13,16 +13,11 @@ from edc_visit_tracking.model_mixins import VisitModelMixin
 from ..models import Appointment
 
 
-# class MyModel(VisitModelMixin, BaseUuidModel):
-#     pass
-
-
 class SubjectConsent(
     NonUniqueSubjectIdentifierFieldMixin,
     UpdatesOrCreatesRegistrationModelMixin,
     BaseUuidModel,
 ):
-
     consent_datetime = models.DateTimeField(default=get_utcnow)
 
     report_datetime = models.DateTimeField(default=get_utcnow)
@@ -47,42 +42,34 @@ class SubjectConsent(
 
 
 class OnScheduleOne(OnScheduleModelMixin, BaseUuidModel):
-
     pass
 
 
 class OffScheduleOne(OffScheduleModelMixin, BaseUuidModel):
-
     pass
 
 
 class OnScheduleTwo(OnScheduleModelMixin, BaseUuidModel):
-
     pass
 
 
 class OffScheduleTwo(OffScheduleModelMixin, BaseUuidModel):
-
     pass
 
 
 class SubjectVisit(VisitModelMixin, OffstudyVisitModelMixin, BaseUuidModel):
-
     appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
 
 class SubjectLocator(LocatorModelMixin, BaseUuidModel):
-
     pass
 
 
 class SubjectOffstudy(OffstudyModelMixin, BaseUuidModel):
-
     objects = OffstudyModelManager()
 
 
 class SubjectOffstudy2(OffstudyModelMixin, BaseUuidModel):
-
     objects = OffstudyModelManager()
