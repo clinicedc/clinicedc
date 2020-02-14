@@ -151,9 +151,11 @@ class TestDispenseSchedule(TestCase):
         start_datetime = arrow.Arrow.fromdatetime(datetime(2017, 8, 24)).datetime
         period = Period(start_datetime=start_datetime, unit=WEEKS, duration=2)
         schedule = Schedule(period, name="schedule1", number_of_visits=3)
-        first_day, next_timepoint, third_timepoint = (
-            schedule.selector.selected_timepoints
-        )
+        (
+            first_day,
+            next_timepoint,
+            third_timepoint,
+        ) = schedule.selector.selected_timepoints
         self.assertEqual(first_day.date(), datetime(2017, 8, 24).date())
         self.assertEqual(next_timepoint.date(), datetime(2017, 8, 28).date())
         self.assertEqual(third_timepoint.date(), datetime(2017, 8, 31).date())
