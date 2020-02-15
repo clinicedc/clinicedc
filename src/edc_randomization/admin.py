@@ -21,7 +21,12 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
 
     ordering = ("sid",)
 
-    list_filter = ("allocated_datetime", "allocated_site", "site_name")
+    list_filter = (
+        "allocated_datetime",
+        "allocated_site",
+        "site_name",
+        "randomizer_name",
+    )
 
     search_fields = ("subject_identifier", "sid")
 
@@ -34,6 +39,7 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
         "allocated_user",
         "allocated_datetime",
         "allocated_site",
+        "randomizer_name",
     ] + audit_fields
 
     def get_queryset(self, request):
@@ -55,6 +61,7 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
             "subject_identifier",
             "allocated_datetime",
             "allocated_site",
+            "randomizer_name",
         ]
         if is_blinded_user(request.user.username):
             list_display.remove("assignment")
@@ -69,6 +76,7 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
             "allocated_user",
             "allocated_datetime",
             "allocated_site",
+            "randomizer_name",
         ]
         if is_blinded_user(request.user.username):
             fields.remove("assignment")
