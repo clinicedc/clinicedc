@@ -4,130 +4,136 @@
 {% load edc_subject_dashboard_extras %}
 
 {% block main %}
+    <div id="subject_dashboard" class="container">
+        <div class="row">
+            <div class="col-md-9">
 
-<div id="subject_dashboard" class="container">
-  <div class="row">
-  <div class="col-md-9">
-  
-    <div class="panel-group" id="accordion_schedule">
+                <div class="panel-group" id="accordion_schedule">
 
-        {% if not visit_schedules %}
-          <div class="alert alert-warning">
-              <i class="far fa-hand-paper fa-lg fa-fw"></i> Subject is not enrolled to any schedules.
-          </div>
-          <div class="panel panel-default">
-              <div class="panel-heading">
-                  <h6 class="panel-title"><i class="far fa-calendar fa-lg fa-fw"></i> 
-                      <a href="#">Schedules</a>
-                  </h6>
-              </div>
-          </div>
-        {% endif %}
-
-        {% if appointment %}
-			<div id="subject_dashboard_for_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}"
-				class="panel panel-{% if anonymous %}danger{% else %}info{% endif %}">
-			<div class="panel-heading clearfix">
-			  <i class="far fa-calendar fa-lg fa-fw"></i> 
-			      <a data-toggle="collapse" data-parent="#accordion_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}" aria-hidden="true"
-			         href="#subject_dashboard_forms_for_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}">
-			         {{ current_visit_schedule.verbose_name }} <i class="fas fa-caret-right"></i> {{ current_schedule.verbose_name }} <i class="fas fa-caret-right"></i> {{ appointment.visit_code }}.{{ appointment.visit_code_sequence }} {{ appointment.title|lower|title }} {{ appointment.wrapped_visit.object.get_reason_display }}<span class="caret"></span>
-			      </a>
-	            {% block schedule_button %}
-	            <span class="pull-right"><span class="text test-muted">
-	                <a href="{% url subject_review_listboard_url|default:'subject_review_listboard_url_cannot_be_none' subject_identifier=subject_identifier appointment=appointment.object.id|stringformat:"s" %}#{{ appointment.subject_identifier}}-{{ appointment.visit_code }}-{{ appointment.visit_code_sequence }}"
-	                   role="button" class="btn btn-sm btn-primary">
-	                    <i class="fas fa-reply fa-fw" aria-hidden="true"></i> Subject Review
-	                </a>
-	                <a href="{% url subject_dashboard_url|default:'subject_dashboard_url_cannot_be_none' subject_identifier=subject_identifier %}"
-	                   role="button" class="btn btn-sm btn-primary">
-	                    <i class="fas fa-reply fa-fw" aria-hidden="true"></i> <i class="far fa-calendar fa-fw"></i> Schedule
-	                </a>
-	            </span></span>
-	            {% endblock schedule_button %}
-			</div>
-			<div id="subject_dashboard_forms_for_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}"
-				class="panel-collapse collapse in">
-				    {% block crfs %}
-				  		{% include "edc_subject_dashboard/bootstrap3/dashboard/crfs.html" %}
-				    {% endblock crfs %}
-
-					{% block requisitions %}
-					  	{% include "edc_subject_dashboard/bootstrap3/dashboard/requisitions.html" %}
-					{% endblock requisitions %}
-			</div>
-                {% subject_schedule_footer_row subject_identifier current_visit_schedule current_schedule subject_dashboard_url %}
-                <div id="subject_dashboard_data_queries_for_{{ subject_identifier }}"
-                    class="panel-collapse collapse in">
-                        {% block data_queries %}
-                            {% if open_data_queries %}
-                                {% include "edc_subject_dashboard/bootstrap3/dashboard/data_queries.html" %}
-                            {% endif %}
-                        {% endblock data_queries %}
-                </div>
-	     	</div>
-        {% else %}
-		    {% for visit_schedule in visit_schedules.values %}
-		    	{% for schedule in visit_schedule.schedules.values %}
-					<div id="subject_dashboard_for_{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}"
-						class="panel panel-{% if anonymous %}danger{% else %}info{% endif %}">
-					<div class="panel-heading clearfix">
-					  <i class="far fa-calendar fa-lg fa-fw"></i> 
-					      <a data-toggle="collapse" data-parent="#accordion_{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}" aria-hidden="true"
-					         href="#subject_dashboard_appointments_for_{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}">
-					         {{ visit_schedule.verbose_name }} <i class="fas fa-caret-right"></i> {{ schedule.verbose_name }} <span class="caret"></span>
-					      </a>
-
-					      <span class="pull-right">
-			                <a href="{% url subject_review_listboard_url|default:'subject_review_listboard_url_cannot_be_none' subject_identifier=subject_identifier %}"
-			                   role="button" class="btn btn-sm btn-primary">
-			                    <i class="fas fa-reply fa-fw" aria-hidden="true"></i> Subject Review
-			                </a>
-					  	    {% appointment_in_progress subject_identifier visit_schedule schedule %}
-					  	</span>
-					  
-					</div>
-
-					<div id="subject_dashboard_appointments_for_{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}"
-						class="panel-collapse collapse {% if current_visit_schedule.name == visit_schedule.name and current_schedule.name == schedule.name %}in{% endif %}">
-
-					{% block appointments %}
-						{% include "edc_subject_dashboard/bootstrap3/dashboard/appointments.html" %}
-					{% endblock appointments %}
-
-					</div>
-						{% subject_schedule_footer_row subject_identifier visit_schedule schedule subject_dashboard_url %}
-
-                        <div id="subject_dashboard_data_queries_for_{{ subject_identifier }}"
-                            class="panel-collapse collapse in">
-                            {% if open_data_queries %}
-                                {% include "edc_subject_dashboard/bootstrap3/dashboard/data_queries.html" %}
-                            {% endif %}
+                    {% if not visit_schedules %}
+                        <div class="alert alert-warning">
+                            <i class="far fa-hand-paper fa-lg fa-fw"></i> Subject is not enrolled to any schedules.
                         </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h6 class="panel-title"><i class="far fa-calendar fa-lg fa-fw"></i>
+                                    <a href="#">Schedules</a>
+                                </h6>
+                            </div>
+                        </div>
+                    {% endif %}
 
-			     	</div>
-			    {% endfor %}
-		    {% endfor %}
-	    {% endif %}
-    </div> <!-- panel-group -->
-  
- </div> <!-- col-md-9 -->
+                    {% if appointment %}
+                        <div id="subject_dashboard_for_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}"
+                             class="panel panel-{% if anonymous %}danger{% else %}info{% endif %}">
+                            <div class="panel-heading clearfix">
+                                <i class="far fa-calendar fa-lg fa-fw"></i>
+                                <a data-toggle="collapse"
+                                   data-parent="#accordion_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}"
+                                   aria-hidden="true"
+                                   href="#subject_dashboard_forms_for_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}">
+                                    {{ current_visit_schedule.verbose_name }} <i
+                                        class="fas fa-caret-right"></i> {{ current_schedule.verbose_name }} <i
+                                        class="fas fa-caret-right"></i> {{ appointment.visit_code }}.{{ appointment.visit_code_sequence }} {{ appointment.title|lower|title }} {{ appointment.wrapped_visit.object.get_reason_display }}<span
+                                        class="caret"></span>
+                                </a>
+                                {% block schedule_button %}
+                                    <span class="pull-right">
+                                        <span class="text test-muted">
+                                        <a href="{% url subject_review_listboard_url|default:'subject_review_listboard_url_cannot_be_none' subject_identifier=subject_identifier appointment=appointment.object.id|stringformat:"s" %}#{{ appointment.subject_identifier }}-{{ appointment.visit_code }}-{{ appointment.visit_code_sequence }}"
+                                           role="button" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-reply fa-fw" aria-hidden="true"></i> Subject Review
+                                        </a>
+                                        <a href="{% url subject_dashboard_url|default:'subject_dashboard_url_cannot_be_none' subject_identifier=subject_identifier %}"
+                                           role="button" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-reply fa-fw" aria-hidden="true"></i> <i class="far fa-calendar fa-fw"></i> Schedule
+                                        </a>
+	                                    </span>
+                                    </span>
+                                {% endblock schedule_button %}
+                            </div>
+                            <div id="subject_dashboard_forms_for_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}"
+                                 class="panel-collapse collapse in">
+                                {% block crfs %}
+                                    {% include "edc_subject_dashboard/bootstrap3/dashboard/crfs.html" %}
+                                {% endblock crfs %}
 
-  <div class="col-md-3">
+                                {% block requisitions %}
+                                    {% include "edc_subject_dashboard/bootstrap3/dashboard/requisitions.html" %}
+                                {% endblock requisitions %}
+                            </div>
+                            {% subject_schedule_footer_row subject_identifier current_visit_schedule current_schedule subject_dashboard_url %}
+                            <div id="subject_dashboard_data_queries_for_{{ subject_identifier }}"
+                                 class="panel-collapse collapse in">
+                                {% block data_queries %}
+                                    {% if open_data_queries %}
+                                        {% include "edc_subject_dashboard/bootstrap3/dashboard/data_queries.html" %}
+                                    {% endif %}
+                                {% endblock data_queries %}
+                            </div>
+                        </div>
+                    {% else %}
+                        {% for schedule_obj in onschedule_models %}
+                            <div id="subject_dashboard_for_{{ schedule_obj.visit_schedule.name|slugify }}-{{ schedule_obj.schedule.name|slugify }}"
+                                 class="panel panel-{% if anonymous %}danger{% else %}info{% endif %}">
+                                <div class="panel-heading clearfix">
+                                    <i class="far fa-calendar fa-lg fa-fw"></i>
+                                    <a data-toggle="collapse"
+                                       data-parent="#accordion_{{ schedule_obj.visit_schedule.name|slugify }}-{{ schedule_obj.schedule.name|slugify }}"
+                                       aria-hidden="true"
+                                       href="#subject_dashboard_appointments_for_{{ schedule_obj.visit_schedule.name|slugify }}-{{ schedule_obj.schedule.name|slugify }}">
+                                        {{ schedule_obj.visit_schedule.verbose_name }}
+                                        <i class="fas fa-caret-right"></i> {{ schedule_obj.schedule.verbose_name }}
+                                        <span class="caret"></span>
+                                    </a>
+                                    <span class="pull-right">
+                                        <a href="{% url subject_review_listboard_url|default:'subject_review_listboard_url_cannot_be_none' subject_identifier=subject_identifier %}"
+                                           role="button" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-reply fa-fw" aria-hidden="true"></i> Subject Review
+                                        </a>
+            					  	    {% appointment_in_progress subject_identifier schedule_obj.visit_schedule schedule_obj.schedule %}
+			            		  	</span>
+                                </div>
 
-	{% block top_bar %}
+                                <div id="subject_dashboard_appointments_for_{{ schedule_obj.visit_schedule.name|slugify }}-{{ schedule_obj.schedule.name|slugify }}"
+                                     class="panel-collapse collapse {% if current_visit_schedule.name == schedule_obj.visit_schedule.name and current_schedule.name == schedule_obj.schedule.name %}in{% endif %}">
 
-	    {% include "edc_subject_dashboard/bootstrap3/dashboard/topbar.html" %}
-	
-	{% endblock top_bar %}
+                                    {% block appointments %}
+                                        {% include "edc_subject_dashboard/bootstrap3/dashboard/appointments.html" %}
+                                    {% endblock appointments %}
 
-    {% block side_bar %}
+                                </div>
+                                {% subject_schedule_footer_row subject_identifier schedule_obj.visit_schedule schedule_obj.schedule subject_dashboard_url %}
 
-	    {% include 'edc_subject_dashboard/bootstrap3/dashboard/sidebar.html' %}
+                                <div id="subject_dashboard_data_queries_for_{{ subject_identifier }}"
+                                     class="panel-collapse collapse in">
+                                    {% if open_data_queries %}
+                                        {% include "edc_subject_dashboard/bootstrap3/dashboard/data_queries.html" %}
+                                    {% endif %}
+                                </div>
 
-    {% endblock side_bar %}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div> <!-- panel-group -->
 
-</div> <!-- col-md-3 -->
-</div> <!-- row -->
-</div> <!-- container -->
+            </div> <!-- col-md-9 -->
+
+            <div class="col-md-3">
+
+                {% block top_bar %}
+
+                    {% include "edc_subject_dashboard/bootstrap3/dashboard/topbar.html" %}
+
+                {% endblock top_bar %}
+
+                {% block side_bar %}
+
+                    {% include 'edc_subject_dashboard/bootstrap3/dashboard/sidebar.html' %}
+
+                {% endblock side_bar %}
+
+            </div> <!-- col-md-3 -->
+        </div> <!-- row -->
+    </div> <!-- container -->
 {% endblock main %}
