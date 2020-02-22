@@ -15,7 +15,6 @@ class AlreadyRegistered(Exception):
 
 
 class NavbarCollection:
-
     """A class to contain a dictionary of navbars. See Navbar.
     """
 
