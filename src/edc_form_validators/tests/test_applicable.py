@@ -27,6 +27,36 @@ class TestApplicableFieldValidator(TestCase):
             field_applicable="field_two",
         )
 
+        form_validator = FormValidator(
+            cleaned_data=dict(field_one=YES, field_two=NOT_APPLICABLE)
+        )
+        try:
+            form_validator.applicable_if(
+                NO, field="field_one", field_applicable="field_two"
+            )
+        except forms.ValidationError as e:
+            self.fail(f"Exception unexpectedly raised. Got {e}")
+        else:
+            pass
+
+        form_validator = FormValidator(cleaned_data=dict(field_one=YES, field_two=None))
+        self.assertRaises(
+            forms.ValidationError,
+            form_validator.applicable_if,
+            NO,
+            field="field_one",
+            field_applicable="field_two",
+        )
+
+        form_validator = FormValidator(cleaned_data=dict(field_one=YES, field_two=None))
+        self.assertRaises(
+            forms.ValidationError,
+            form_validator.applicable_if,
+            YES,
+            field="field_one",
+            field_applicable="field_two",
+        )
+
     def test_applicable_if_true(self):
         """Asserts field_two applicable if test_con1 and test_con2
         are YES.
