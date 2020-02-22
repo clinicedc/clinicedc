@@ -16,7 +16,6 @@ from .models import Appointment
 
 @admin.register(Appointment, site=edc_appointment_admin)
 class AppointmentAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
-
     show_cancel = True
 
     form = AppointmentForm
@@ -27,6 +26,7 @@ class AppointmentAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         "appt_datetime",
         "appt_type",
         "appt_status",
+        "schedule_name",
     )
     list_filter = ("visit_code", "appt_datetime", "appt_type", "appt_status")
 
