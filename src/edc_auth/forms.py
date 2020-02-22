@@ -66,7 +66,7 @@ class UserProfileForm(forms.ModelForm):
                 raise forms.ValidationError(
                     {
                         "roles": mark_safe(
-                            "This user is not unblinded and may be assigned "
+                            "This user is not unblinded and may not be assigned "
                             "the role of <U>Pharmacist</U>."
                         )
                     }

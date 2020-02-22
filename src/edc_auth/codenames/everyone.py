@@ -8,5 +8,6 @@ everyone = [
     "edc_navbar.nav_home",
     "edc_navbar.nav_logout",
     "edc_navbar.nav_public",
+    "edc_visit_schedule.view_subjectschedulehistory",
     "sites.view_site",
 ]
