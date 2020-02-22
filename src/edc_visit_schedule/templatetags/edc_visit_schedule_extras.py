@@ -16,16 +16,26 @@ register = template.Library()
 def subject_schedule_footer_row(
     subject_identifier, visit_schedule, schedule, subject_dashboard_url
 ):
-
-    context = {}
+    context = dict(
+        visit_schedule=visit_schedule,
+        schedule=schedule,
+        verbose_name=schedule.offschedule_model_cls._meta.verbose_name,
+    )
     try:
         history_obj = SubjectScheduleHistory.objects.get(
             visit_schedule_name=visit_schedule.name,
             schedule_name=schedule.name,
             subject_identifier=subject_identifier,
-            offschedule_datetime__isnull=False,
+            # offschedule_datetime__isnull=False,
         )
     except ObjectDoesNotExist:
+        history_obj = None
+    context.update(history_obj=history_obj)
+    if not history_obj:
+        # subject was NEVER on this schedule
+        context = dict(offschedule_datetime=None, onschedule_datetime=None, href=None,)
+    elif not history_obj.offschedule_datetime:
+        # subject is still ON this schedule
         onschedule_model_obj = schedule.onschedule_model_cls.objects.get(
             subject_identifier=subject_identifier
         )
@@ -36,12 +46,13 @@ def subject_schedule_footer_row(
             f"{subject_dashboard_url},subject_identifier"
         )
         href = "&".join([href, query])
-        context = dict(
+        context.update(
             offschedule_datetime=None,
             onschedule_datetime=onschedule_model_obj.onschedule_datetime,
             href=mark_safe(href),
         )
-    else:
+    elif history_obj.offschedule_datetime:
+        # subject is OFF this schedule (offschedule_model_obj)
         onschedule_model_obj = schedule.onschedule_model_cls.objects.get(
             subject_identifier=subject_identifier
         )
@@ -55,14 +66,9 @@ def subject_schedule_footer_row(
             f"{subject_dashboard_url},subject_identifier"
         )
         href = "&".join([href, query])
-        context = dict(
+        context.update(
             offschedule_datetime=history_obj.offschedule_datetime,
             onschedule_datetime=onschedule_model_obj.onschedule_datetime,
             href=mark_safe(href),
         )
-    context.update(
-        visit_schedule=visit_schedule,
-        schedule=schedule,
-        verbose_name=schedule.offschedule_model_cls._meta.verbose_name,
-    )
     return context

@@ -29,6 +29,22 @@ class OnScheduleModelMixin(ScheduleModelMixin):
             onschedule_datetime=self.onschedule_datetime,
         )
 
+    @property
+    def visit_schedule(self):
+        """Returns a visit schedule object.
+        """
+        return site_visit_schedules.get_by_onschedule_model(
+            onschedule_model=self._meta.label_lower
+        )[0]
+
+    @property
+    def schedule(self):
+        """Returns a schedule object.
+        """
+        return site_visit_schedules.get_by_onschedule_model(
+            onschedule_model=self._meta.label_lower
+        )[1]
+
     class Meta:
         abstract = True
         indexes = [

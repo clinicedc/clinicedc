@@ -19,7 +19,6 @@ class SiteVisitScheduleError(Exception):
 
 
 class SiteVisitSchedules:
-
     """ Main controller of :class:`VisitSchedule` objects.
 
     A visit_schedule contains schedules
@@ -138,7 +137,9 @@ class SiteVisitSchedules:
 
     @property
     def all_post_consent_models(self):
-        """Returns a list of models that require consent before save.
+        """Returns a dictionary of models that require consent before save.
+
+        {model_name1: consent_model_name, model_name2: consent_model_name, ...}
         """
         if not self._all_post_consent_models:
             models = {}

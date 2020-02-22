@@ -8,6 +8,7 @@ from edc_protocol.validators import date_not_before_study_start
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_utils import get_utcnow
 
+from ..site_visit_schedules import site_visit_schedules
 from .schedule_model_mixin import ScheduleModelMixin
 
 if "offschedule_datetime_field" not in options.DEFAULT_NAMES:
@@ -49,6 +50,22 @@ class OffScheduleModelMixin(ScheduleModelMixin):
             self.offschedule_datetime = dt
         self.report_datetime = self.offschedule_datetime
         super().save(*args, **kwargs)
+
+    @property
+    def visit_schedule(self):
+        """Returns a visit schedule object.
+        """
+        return site_visit_schedules.get_by_offschedule_model(
+            offschedule_model=self._meta.label_lower
+        )[0]
+
+    @property
+    def schedule(self):
+        """Returns a schedule object.
+        """
+        return site_visit_schedules.get_by_offschedule_model(
+            offschedule_model=self._meta.label_lower
+        )[1]
 
     class Meta:
         abstract = True

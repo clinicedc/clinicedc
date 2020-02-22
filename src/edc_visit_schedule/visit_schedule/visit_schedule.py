@@ -27,7 +27,6 @@ class AlreadyRegisteredSchedule(Exception):
 
 
 class VisitSchedule:
-
     name_regex = r"[a-z0-9\_\-]+$"
     name_regex_msg = "numbers, lower case letters and '_'"
     schedules_collection = SchedulesCollection
@@ -96,8 +95,10 @@ class VisitSchedule:
 
     @property
     def all_post_consent_models(self):
-        """Returns a list of models that may only be complete
-        after the consent model.
+        """Returns a dictionary of models and the needed consent model.
+        These models may only be complete after the consent model.
+
+        {model_name1: consent_model_name, model_name2: consent_model_name, ...}
         """
         if not self._all_post_consent_models:
             models = {}

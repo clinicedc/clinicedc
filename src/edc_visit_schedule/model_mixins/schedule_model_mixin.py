@@ -11,7 +11,6 @@ from edc_identifier.managers import SubjectIdentifierManager
 
 
 class CurrentSiteManager(BaseCurrentSiteManager):
-
     use_in_migrations = True
 
     def get_by_natural_key(self, subject_identifier):
