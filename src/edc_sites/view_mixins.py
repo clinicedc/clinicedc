@@ -1,7 +1,7 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.base import ContextMixin
 
 from .models import SiteProfile
-from django.core.exceptions import ObjectDoesNotExist
 
 
 class SiteViewMixin(ContextMixin):
