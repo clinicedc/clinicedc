@@ -27,7 +27,6 @@ class SiteRandomizers:
 
     def __init__(self):
         self._registry = {}
-        self._all_post_consent_models = None
         self.loaded = False
 
     @property
@@ -49,7 +48,6 @@ class SiteRandomizers:
                 f"Got name=`{randomizer_cls.name}`. See also `settings` attribute "
                 "`EDC_RANDOMIZATION_REGISTER_DEFAULT_RANDOMIZER`."
             )
-        self._all_post_consent_models = None
 
     def get(self, name):
         try:
