@@ -8,6 +8,7 @@ from edc_utils import formatted_age, age
 from uuid import uuid4
 
 from ..consent_helper import ConsentHelper
+from ..constants import DEFAULT_CONSENT_GROUP
 from ..field_mixins import VerificationFieldsMixin
 from ..managers import ObjectConsentManager, ConsentManager
 
@@ -16,7 +17,6 @@ if "consent_group" not in options.DEFAULT_NAMES:
 
 
 class ConsentModelMixin(VerificationFieldsMixin, models.Model):
-
     """Mixin for a Consent model class such as SubjectConsent.
 
     Declare with edc_identifier's NonUniqueSubjectIdentifierModelMixin
@@ -102,7 +102,7 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
 
     class Meta:
         abstract = True
-        consent_group = None
+        consent_group = DEFAULT_CONSENT_GROUP
         get_latest_by = "consent_datetime"
         unique_together = (
             ("first_name", "dob", "initials", "version"),

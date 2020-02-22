@@ -26,7 +26,6 @@ class AppConfig(DjangoAppConfig):
 
 
 if settings.APP_NAME == "edc_consent":
-
     from datetime import datetime
     from dateutil.tz.tz import gettz
     from edc_protocol.apps import AppConfig as BaseEdcProtocolAppConfig
