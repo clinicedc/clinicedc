@@ -1,16 +1,17 @@
+from django.apps import apps as django_apps
 from django.contrib.auth import get_user_model
 from django.test import TestCase, tag
 from django.test.client import RequestFactory
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
-from edc_auth.update import (
-    create_edc_dashboard_permissions,
-    create_edc_navbar_permissions,
-)
 
-from ..navbar import Navbar
-from ..navbar_item import NavbarItem, NavbarItemError
-from ..site_navbars import site_navbars, AlreadyRegistered
+from edc_auth import get_default_codenames_by_group
+from edc_auth.group_permissions_updater import GroupPermissionsUpdater
+from edc_dashboard import url_names
+
+from ...navbar import Navbar
+from ...navbar_item import NavbarItem, NavbarItemError
+from ...site_navbars import site_navbars, AlreadyRegistered
 
 User = get_user_model()
 
@@ -18,11 +19,20 @@ User = get_user_model()
 class TestNavbar(TestCase):
     @classmethod
     def setUpClass(cls):
-        create_edc_dashboard_permissions()
-        create_edc_navbar_permissions(
-            extra_codename_tpls=[("edc_navbar.navbar_one", "Can access One")]
+        url_names.register("dashboard_url", "dashboard_url", "edc_dashboard")
+        GroupPermissionsUpdater(
+            codenames_by_group=get_default_codenames_by_group(), verbose=True
         )
-        return super(TestNavbar, cls).setUpClass()
+        # GroupPermissionsUpdater(
+        #     verbose=True,
+        #     apps=django_apps,
+        #     create_codename_tuples={
+        #         "edc_navbar.navbar": [
+        #             ("edc_navbar.navbar_one", "Can access One")
+        #         ]
+        #     },
+        # )
+        return super().setUpClass()
 
     def setUp(self):
         site_navbars._registry = {}
