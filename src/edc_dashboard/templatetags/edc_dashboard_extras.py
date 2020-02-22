@@ -9,9 +9,6 @@ from urllib.parse import urljoin, parse_qsl, urlencode, unquote
 register = template.Library()
 
 
-register = template.Library()
-
-
 class Number:
     def __init__(self, number=None, url=None, current=None):
         self.number = number
@@ -81,7 +78,6 @@ def human(value):
     takes_context=True,
 )
 def paginator_row(context):
-
     numbers = []
     first_url = None
     previous_url = None
