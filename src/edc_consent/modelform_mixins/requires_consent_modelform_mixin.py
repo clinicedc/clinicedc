@@ -1,5 +1,6 @@
 from django import forms
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 
 from ..constants import DEFAULT_CONSENT_GROUP
 from ..site_consents import site_consents
@@ -49,20 +50,18 @@ class RequiresConsentModelFormMixin:
     def get_consent(self, subject_identifier, report_datetime):
         """Return an instance of the consent model.
         """
-        consent = site_consents.get_consent(
+        consent_object = site_consents.get_consent(
             report_datetime=report_datetime,
             consent_group=self.consent_group,
             model=self.consent_model,
         )
         try:
-            obj = consent.model.consent.consent_for_period(
+            obj = consent_object.model_cls.consent.consent_for_period(
                 subject_identifier=subject_identifier, report_datetime=report_datetime
             )
-        except consent.model.DoesNotExist:
+        except ObjectDoesNotExist:
             raise forms.ValidationError(
-                "'{}' does not exist to cover this subject on {}.".format(
-                    consent.model._meta.verbose_name,
-                    report_datetime=report_datetime.strftime("Y%-%m-%d %Z"),
-                )
+                f"`{consent_object.model_cls._meta.verbose_name}` does not exist "
+                f"to cover this subject on {report_datetime.strftime('Y%-%m-%d %Z')}"
             )
         return obj

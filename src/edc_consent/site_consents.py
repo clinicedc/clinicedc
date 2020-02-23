@@ -24,21 +24,19 @@ class SiteConsentError(Exception):
 
 
 class SiteConsents:
-
-    validator_cls = ConsentObjectValidator
+    validate_consent_object = ConsentObjectValidator
 
     def __init__(self):
         self.registry = {}
         self.loaded = False
 
     def register(self, consent=None):
+        """Register consent `objects`, not models."""
         if consent.name in self.registry:
             raise AlreadyRegistered(
                 f"Consent object already registered. Got {consent}."
             )
-        self.consent_object_validator = self.validator_cls(
-            consent=consent, consents=self.consents
-        )
+        self.validate_consent_object(consent=consent, consents=self.consents)
         self.registry.update({consent.name: consent})
         self.loaded = True
 
@@ -98,7 +96,7 @@ class SiteConsents:
         consent_group=None,
         **kwargs,
     ):
-        """Return consent object valid for the datetime.
+        """Return consent object, not model, valid for the datetime.
         """
         app_config = django_apps.get_app_config("edc_consent")
         consent_group = consent_group or app_config.default_consent_group
