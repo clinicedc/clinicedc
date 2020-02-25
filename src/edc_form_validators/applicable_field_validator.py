@@ -10,7 +10,7 @@ from .base_form_validator import APPLICABLE_ERROR, NOT_APPLICABLE_ERROR
             if k not in cleaned_data:
                 cleaned_data.update({k: getattr(self.instance, k)})
         if field not in cleaned_data or field_applicable not in cleaned_data:
-            raise 
+            raise
 """
 
 
@@ -28,15 +28,17 @@ class ApplicableFieldValidator(BaseFormValidator):
         *responses,
         field=None,
         field_applicable=None,
-        msg=None,
+        inverse=None,
         is_instance_field=None,
+        msg=None,
     ):
         return self.applicable(
             *responses,
             field=field,
             field_applicable=field_applicable,
-            msg=msg,
+            inverse=inverse,
             is_instance_field=is_instance_field,
+            msg=msg,
         )
 
     def not_applicable_if(
@@ -76,13 +78,15 @@ class ApplicableFieldValidator(BaseFormValidator):
         *responses,
         field=None,
         field_applicable=None,
-        msg=None,
+        inverse=None,
         is_instance_field=None,
+        msg=None,
     ):
         """Returns False or raises a validation error for field
         pattern where response to question 1 makes
         question 2 applicable.
         """
+        inverse = True if inverse is None else inverse
         if is_instance_field:
             self.update_cleaned_data_from_instance(field)
         if field in self.cleaned_data and field_applicable in self.cleaned_data:
@@ -97,6 +101,7 @@ class ApplicableFieldValidator(BaseFormValidator):
             elif (
                 field_value not in responses
                 and field_applicable_value != NOT_APPLICABLE
+                and inverse
             ):
                 self.raise_not_applicable(field_applicable, msg=msg)
         return False

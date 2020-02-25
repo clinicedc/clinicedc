@@ -13,7 +13,8 @@ class DateRangeFieldValidator:
                 raise forms.ValidationError(
                     {
                         date_field2: (
-                            f"{msg}. Got {formatted_date(date2)} is before {formatted_date(date1)}."
+                            f"{msg}. Got {formatted_date(date2)} is "
+                            "before {formatted_date(date1)}."
                         )
                     }
                 )
