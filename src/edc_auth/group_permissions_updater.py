@@ -60,6 +60,7 @@ class GroupPermissionsUpdater:
         self.update_group_permissions()
 
     def update_group_permissions(self):
+        """Update group permissions for each registered randomizer class."""
         if self.verbose:
             sys.stdout.write(
                 style.MIGRATE_HEADING("Updating groups and permissions:\n")
@@ -75,13 +76,21 @@ class GroupPermissionsUpdater:
             self.create_permissions_from_tuples(model, codename_tuples)
 
         for randomizer_cls in site_randomizers._registry.values():
+            if self.verbose:
+                sys.stdout.write(
+                    f"  creating permissions for registered randomizer_cls "
+                    f"`{randomizer_cls.name}` model "
+                    f"`{randomizer_cls.model_cls()._meta.label_lower}`\n"
+                )
             rando_tuples = [
                 (k, v)
                 for k, v in self.rando_tuples
-                if k.startswith(randomizer_cls.model.split(".")[0])
+                if k.startswith(
+                    randomizer_cls.model_cls()._meta.label_lower.split(".")[0]
+                )
             ]
             self.create_permissions_from_tuples(
-                randomizer_cls.model, rando_tuples,
+                randomizer_cls.model_cls()._meta.label_lower, rando_tuples,
             )
         self.create_permissions_from_tuples("edc_navbar.navbar", self.navbar_tuples)
         self.remove_permissions_to_dummy_models()
