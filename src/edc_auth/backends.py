@@ -6,7 +6,6 @@ UserModel = get_user_model()
 
 
 class ModelBackendWithSite(ModelBackend):
-
     """An authentication backend to only allow a login
     associated with the current SITE_ID.
     """
@@ -15,6 +14,10 @@ class ModelBackendWithSite(ModelBackend):
         user = super().authenticate(request, username=username, password=password)
         if user:
             sites = [obj.id for obj in user.userprofile.sites.all()]
-            if user.is_superuser or settings.SITE_ID in sites:
+            try:
+                site_id = request.site_id
+            except AttributeError:
+                site_id = settings.SITE_ID
+            if user.is_superuser or site_id in sites:
                 return user
         return None
