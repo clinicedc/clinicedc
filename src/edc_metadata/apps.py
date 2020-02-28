@@ -5,19 +5,14 @@ from django.conf import settings
 from django.core.management.color import color_style
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED, MISSED_VISIT
 
-
 style = color_style()
-
-subject_visit_model = getattr(
-    settings, "SUBJECT_VISIT_MODEL", "edc_metadata.subjectvisit"
-)
 
 
 class AppConfig(DjangoAppConfig):
     name = "edc_metadata"
     verbose_name = "Edc Metadata"
     has_exportable_data = True
-    reason_field = {subject_visit_model: "reason"}
+    reason_field = {settings.SUBJECT_VISIT_MODEL: "reason"}
     create_on_reasons = [SCHEDULED, UNSCHEDULED]
     delete_on_reasons = [MISSED_VISIT]
     include_in_administration_section = True
@@ -34,13 +29,10 @@ class AppConfig(DjangoAppConfig):
 
 
 if settings.APP_NAME == "edc_metadata":
-
     from dateutil.relativedelta import SU, MO, TU, WE, TH, FR, SA
     from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
     from edc_visit_tracking.apps import AppConfig as BaseEdcVisitTrackingAppConfig
 
-    class EdcVisitTrackingAppConfig(BaseEdcVisitTrackingAppConfig):
-        visit_models = {"edc_metadata": ("subject_visit", "edc_metadata.subjectvisit")}
 
     class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
         definitions = {
