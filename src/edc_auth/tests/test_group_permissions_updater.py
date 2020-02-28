@@ -1,9 +1,6 @@
-import pdb
-
 from django.apps import apps as django_apps
 from django.contrib.auth.models import Permission, Group
 from django.test import TestCase, tag
-from django.test.utils import override_settings
 from edc_auth.group_names import RANDO
 from edc_randomization import Randomizer
 from edc_randomization.site_randomizers import site_randomizers
@@ -22,6 +19,8 @@ class GroupPermissionUpdater(TestCase):
         GroupPermissionsUpdater(apps=django_apps)
 
     def test_removes_for_apps_not_installed_by_exact_match(self):
+        """The app edc_action_blah is not installed, and will
+        be removed."""
         obj = GroupPermissionsUpdater(
             apps=django_apps,
             codenames_by_group={
@@ -79,18 +78,17 @@ class GroupPermissionUpdater(TestCase):
         qs = group.permissions.all()
         self.assertIn("view_randomizationlist", "|".join([o.codename for o in qs]))
 
-    @tag("1")
     def test_removes_randomization_list_model_perms2(self):
-
         self.assertIn(
             "view_customrandomizationlist",
             "|".join([o.codename for o in Permission.objects.all()]),
         )
-
-        GroupPermissionsUpdater()
+        GroupPermissionsUpdater(verbose=True)
         qs = Permission.objects.filter(
             content_type__app_label__in=["edc_randomization", "edc_auth"]
         )
+        # confirm add_, change_, delete_ codenames for rando
+        # do not exists in any groups.
         for group in Group.objects.all():
             qs = group.permissions.all()
             for model_name in ["customrandomizationlist", "randomizationlist"]:
@@ -103,9 +101,7 @@ class GroupPermissionUpdater(TestCase):
                 self.assertNotIn(
                     f"delete_{model_name}", "|".join([o.codename for o in qs])
                 )
-
-        group = Group.objects.get(name=RANDO)
-        qs = group.permissions.all()
-        self.assertIn(
-            "view_customrandomizationlist", "|".join([o.codename for o in qs])
-        )
+                if group.name == RANDO:
+                    self.assertIn(
+                        f"view_{model_name}", "|".join([o.codename for o in qs])
+                    )
