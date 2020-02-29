@@ -175,9 +175,9 @@ class TestAppointment(TestCase):
             OnScheduleOne.objects.create(
                 subject_identifier=subject_consent.subject_identifier,
                 onschedule_datetime=(
-                        subject_consent.consent_datetime
-                        + relativedelta(weeks=2)
-                        + relativedelta(weekday=day(-1))
+                    subject_consent.consent_datetime
+                    + relativedelta(weeks=2)
+                    + relativedelta(weekday=day(-1))
                 ),
             )
             appt_datetimes = [
@@ -252,7 +252,7 @@ class TestAppointment(TestCase):
         OnScheduleOne.objects.create(
             subject_identifier=self.subject_identifier,
             onschedule_datetime=(
-                    subject_consent.report_datetime + relativedelta(months=1)
+                subject_consent.report_datetime + relativedelta(months=1)
             ),
         )
 
