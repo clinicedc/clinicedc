@@ -1,6 +1,3 @@
-import arrow
-
-from datetime import datetime
 from dateutil.relativedelta import relativedelta, SU, MO, TU, WE, TH, FR, SA
 from decimal import Context
 from django.db import transaction
@@ -18,7 +15,7 @@ from ..signals import AppointmentDeleteError
 from .helper import Helper
 from .models import SubjectConsent, SubjectVisit, OnScheduleOne, OnScheduleTwo
 from .visit_schedule import visit_schedule1, visit_schedule2
-get_utcnow()
+
 
 class TestAppointment(TestCase):
     helper_cls = Helper
@@ -178,9 +175,9 @@ class TestAppointment(TestCase):
             OnScheduleOne.objects.create(
                 subject_identifier=subject_consent.subject_identifier,
                 onschedule_datetime=(
-                        subject_consent.consent_datetime
-                        + relativedelta(weeks=2)
-                        + relativedelta(weekday=day(-1))
+                    subject_consent.consent_datetime
+                    + relativedelta(weeks=2)
+                    + relativedelta(weekday=day(-1))
                 ),
             )
             appt_datetimes = [
@@ -255,7 +252,7 @@ class TestAppointment(TestCase):
         OnScheduleOne.objects.create(
             subject_identifier=self.subject_identifier,
             onschedule_datetime=(
-                    subject_consent.report_datetime + relativedelta(months=1)
+                subject_consent.report_datetime + relativedelta(months=1)
             ),
         )
 
