@@ -12,12 +12,10 @@ from .models import AE
 
 class TwilioTestClient:
     def __init__(self, **kwargs):
-
         self.messages = TwillioTestClientMessages()
 
 
 class TwillioTestClientMessages:
-
     created = []
 
     sid = "test-sid"
@@ -30,7 +28,7 @@ class TwillioTestClientMessages:
 class TestTwilio(TestCase):
     @override_settings(TWILIO_ENABLED=True, TWILIO_SENDER="5555555555")
     def test_(self):
-
+        self.maxDiff = None
         user = User.objects.create(username="erikvw", is_active=True, is_staff=True)
 
         site_notifications._registry = {}
@@ -59,7 +57,8 @@ class TestTwilio(TestCase):
         self.assertEqual(
             TwillioTestClientMessages.created[0].get("body"),
             (
-                'TEST MESSAGE. NO ACTION REQUIRED - My Protocol: Report "Test Grade3 Event" '
+                "TEST MESSAGE. NO ACTION REQUIRED - Project Title (set EDC_PROTOCOL_PROJECT_NAME): "
+                'Report "Test Grade3 Event" '
                 "for patient 1 at site example.com may require your attention. "
                 "Login to review. (See your user profile to unsubscribe.)"
             ),
