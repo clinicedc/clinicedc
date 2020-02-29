@@ -1,8 +1,9 @@
 import arrow
-
+from dateutil import tz
 from dateutil.relativedelta import relativedelta
+from django.conf import settings
 
-from .date import get_utcnow, to_arrow_utc, MyTimezone
+from .date import get_utcnow, to_arrow_utc
 
 
 class AgeValueError(Exception):
@@ -45,7 +46,8 @@ def age(born=None, reference_dt=None, timezone=None):
 def formatted_age(born, reference_dt=None, timezone=None):
     formatted_age = "?"
     if born:
-        tzinfo = MyTimezone(timezone).tzinfo
+        timezone = timezone or getattr(settings, "TIME_ZONE", "UTC")
+        tzinfo = tz.gettz(timezone)
         born = arrow.Arrow.fromdate(born, tzinfo=tzinfo).datetime
         reference_dt = reference_dt or get_utcnow()
         age_delta = age(born, reference_dt or get_utcnow())
