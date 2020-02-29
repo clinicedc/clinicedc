@@ -52,7 +52,7 @@ class Randomizer:
     is_blinded_trial = True
 
     def __init__(
-            self, subject_identifier=None, report_datetime=None, site=None, user=None
+        self, subject_identifier=None, report_datetime=None, site=None, user=None
     ):
         self._model_obj = None
         self._registered_subject = None
@@ -127,11 +127,11 @@ class Randomizer:
             except ObjectDoesNotExist:
                 self._model_obj = (
                     self.model_cls()
-                        .objects.filter(
+                    .objects.filter(
                         subject_identifier__isnull=True, site_name=self.site.name
                     )
-                        .order_by("sid")
-                        .first()
+                    .order_by("sid")
+                    .first()
                 )
                 if not self._model_obj:
                     raise AllocationError(
@@ -150,12 +150,12 @@ class Randomizer:
 
     def randomize(self):
         if any(
-                [
-                    not self.subject_identifier,
-                    not self.allocated_datetime,
-                    not self.user,
-                    not self.site,
-                ]
+            [
+                not self.subject_identifier,
+                not self.allocated_datetime,
+                not self.user,
+                not self.site,
+            ]
         ):
             dct = dict(
                 subject_identifier=self.subject_identifier,
