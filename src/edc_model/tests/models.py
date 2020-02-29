@@ -20,30 +20,25 @@ def get_future_date():
 
 
 class SimpleModel(BaseModel):
-
     f1 = models.CharField(max_length=10, null=True)
 
 
 class BasicModel(BaseModel):
-
     f1 = models.CharField(max_length=10)
     f2 = models.CharField(max_length=10)
 
 
 class BasicModelWithStatus(BaseModel, ReportStatusModelMixin):
-
     f1 = models.CharField(max_length=10)
 
 
 class ModelWithHistory(SiteModelMixin, BaseUuidModel):
-
     f1 = models.CharField(max_length=10, default="1")
 
     history = HistoricalRecords()
 
 
 class ModelWithDateValidators(BaseModel):
-
     datetime_not_future = models.DateTimeField(
         validators=[datetime_not_future], default=get_utcnow
     )
@@ -60,6 +55,5 @@ class ModelWithDateValidators(BaseModel):
 
 
 class ModelWithPhoneValidators(BaseModel):
-
     cell = models.CharField(max_length=25, null=True, validators=[CellNumber])
     tel = models.CharField(max_length=25, null=True, validators=[TelephoneNumber])

@@ -10,7 +10,6 @@ class SerializableModelManager(models.Manager):
 
 
 class SerializableModel(models.Model):
-
     objects = SerializableModelManager()
 
     def natural_key(self):
@@ -21,7 +20,6 @@ class SerializableModel(models.Model):
 
 
 class HistoricalRecords(SimpleHistoricalRecords):
-
     """HistoricalRecords that forces a UUID primary key,
     has a natural key method available for serialization,
     and respects \'using\'.
@@ -35,4 +33,5 @@ class HistoricalRecords(SimpleHistoricalRecords):
         """
         kwargs.update(bases=(self.model_cls,))
         kwargs.update(history_id_field=models.UUIDField(default=uuid.uuid4))
+        kwargs.update(use_base_model_db=True)
         super().__init__(**kwargs)

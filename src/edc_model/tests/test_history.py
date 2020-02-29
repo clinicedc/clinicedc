@@ -11,7 +11,6 @@ UUID_PATTERN = re.compile(
 
 
 class TestHistory(TestCase):
-
     databases = "__all__"
 
     def test_history_creates(self):
@@ -72,6 +71,8 @@ class TestHistory(TestCase):
 
         model_obj = ModelWithHistory.objects.using("client").create()
 
+        self.assertEqual(model_obj.history.using("client").all().count(), 1)
+
         json_text = serializers.serialize(
             "json",
             model_obj.history.using("client").all(),
@@ -91,7 +92,6 @@ class TestHistory(TestCase):
             use_natural_foreign_keys=True,
             use_natural_primary_keys=True,
         )
-
         for obj in gen:
             obj.object.save(using="client")
 
