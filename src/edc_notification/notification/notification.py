@@ -2,6 +2,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
+from edc_protocol import Protocol
 from edc_utils import get_utcnow
 from twilio.base.exceptions import TwilioRestException, TwilioException
 from twilio.rest import Client
@@ -14,7 +15,6 @@ class NotificationError(Exception):
 
 
 class Notification:
-
     app_name = None
     name = None
     display_name = None
@@ -182,11 +182,10 @@ class Notification:
 
         Extend using `extra_template_options`.
         """
-        protocol_name = django_apps.get_app_config("edc_protocol").protocol_name
         test_message = test_message or self.test_message
         template_options = dict(
             name=self.name,
-            protocol_name=protocol_name,
+            protocol_name=Protocol().protocol_name,
             display_name=self.display_name,
             email_from=self.email_from,
             test_subject_line=(
