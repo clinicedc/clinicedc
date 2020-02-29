@@ -6,6 +6,7 @@ from decimal import Context
 from django.db import transaction
 from django.db.models.deletion import ProtectedError
 from django.test import TestCase, tag
+from edc_protocol import Protocol
 from edc_utils import get_utcnow
 from edc_facility.import_holidays import import_holidays
 from edc_visit_schedule import site_visit_schedules
@@ -13,12 +14,11 @@ from edc_visit_tracking.constants import SCHEDULED
 
 from ..constants import INCOMPLETE_APPT, IN_PROGRESS_APPT
 from ..models import Appointment
-from ..model_mixins import AppointmentMethodsModelError
 from ..signals import AppointmentDeleteError
 from .helper import Helper
 from .models import SubjectConsent, SubjectVisit, OnScheduleOne, OnScheduleTwo
 from .visit_schedule import visit_schedule1, visit_schedule2
-
+get_utcnow()
 
 class TestAppointment(TestCase):
     helper_cls = Helper
@@ -35,7 +35,7 @@ class TestAppointment(TestCase):
         site_visit_schedules.register(visit_schedule=visit_schedule2)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
-            now=arrow.Arrow.fromdatetime(datetime(2017, 1, 7), tzinfo="UTC").datetime,
+            now=Protocol().study_open_datetime,
         )
 
     def test_appointments_creation(self):
@@ -178,9 +178,9 @@ class TestAppointment(TestCase):
             OnScheduleOne.objects.create(
                 subject_identifier=subject_consent.subject_identifier,
                 onschedule_datetime=(
-                    subject_consent.consent_datetime
-                    + relativedelta(weeks=2)
-                    + relativedelta(weekday=day(-1))
+                        subject_consent.consent_datetime
+                        + relativedelta(weeks=2)
+                        + relativedelta(weekday=day(-1))
                 ),
             )
             appt_datetimes = [
@@ -255,7 +255,7 @@ class TestAppointment(TestCase):
         OnScheduleOne.objects.create(
             subject_identifier=self.subject_identifier,
             onschedule_datetime=(
-                subject_consent.report_datetime + relativedelta(months=1)
+                    subject_consent.report_datetime + relativedelta(months=1)
             ),
         )
 

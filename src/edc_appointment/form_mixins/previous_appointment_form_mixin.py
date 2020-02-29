@@ -1,4 +1,4 @@
-from arrow import arrow
+import arrow
 
 
 class PreviousAppointmentFormMixin:
