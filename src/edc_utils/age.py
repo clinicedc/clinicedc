@@ -1,5 +1,5 @@
 import arrow
-from dateutil import tz
+import pytz
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 
@@ -47,8 +47,7 @@ def formatted_age(born, reference_dt=None, timezone=None):
     formatted_age = "?"
     if born:
         timezone = timezone or getattr(settings, "TIME_ZONE", "UTC")
-        tzinfo = tz.gettz(timezone)
-        born = arrow.Arrow.fromdate(born, tzinfo=tzinfo).datetime
+        born = arrow.Arrow.fromdate(born, tzinfo=pytz.timezone(timezone)).datetime
         reference_dt = reference_dt or get_utcnow()
         age_delta = age(born, reference_dt or get_utcnow())
         if age_delta.years == 0 and age_delta.months <= 0:

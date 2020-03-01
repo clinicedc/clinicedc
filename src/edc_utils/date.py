@@ -1,8 +1,12 @@
 import arrow
+import pytz
 
 from arrow.arrow import Arrow
-from dateutil import tz
 from django.conf import settings
+
+
+class EdcDatetimeError(Exception):
+    pass
 
 
 def get_utcnow():
@@ -10,7 +14,7 @@ def get_utcnow():
 
 
 def to_arrow_utc(dt, timezone=None):
-    """Returns a datetime after converting date or datetime from
+    """Returns a datetime in UTC after converting date or datetime from
     the given timezone string to \'UTC\'.
     """
     try:
@@ -18,8 +22,10 @@ def to_arrow_utc(dt, timezone=None):
     except AttributeError:
         # handle born as date. Use 0hr as time before converting to UTC
         timezone = timezone or getattr(settings, "TIME_ZONE", "UTC")
-        r_utc = arrow.Arrow.fromdate(dt, tzinfo=tz.gettz(timezone)).to("utc")
+        r_utc = arrow.Arrow.fromdate(dt, tzinfo=pytz.timezone(timezone)).to("utc")
     else:
+        if timezone:
+            raise EdcDatetimeError("Timezone param not expected if dt is a datetime.")
         # handle born as datetime
         r_utc = arrow.Arrow.fromdatetime(dt, tzinfo=dt.tzinfo).to("utc")
     return r_utc
