@@ -3,11 +3,9 @@ import pytz
 
 from datetime import datetime, date
 from dateutil import tz
+from django.test import TestCase, tag  # noqa
 
-# from django.test import TestCase, tag  # noqa
-from unittest import TestCase
-
-from edc_utils import (
+from .. import (
     age,
     formatted_age,
     formatted_datetime,
