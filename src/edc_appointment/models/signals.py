@@ -5,8 +5,8 @@ from edc_utils import formatted_datetime
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from .managers import AppointmentDeleteError
-from .models import Appointment
+from ..managers import AppointmentDeleteError
+from ..models import Appointment
 
 
 @receiver(post_save, weak=False, dispatch_uid="create_appointments_on_post_save")

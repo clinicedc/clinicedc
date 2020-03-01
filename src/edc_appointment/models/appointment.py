@@ -1,12 +1,11 @@
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 
-from .managers import AppointmentManager
-from .model_mixins import AppointmentModelMixin
+from ..managers import AppointmentManager
+from ..model_mixins import AppointmentModelMixin
 
 
 class Appointment(AppointmentModelMixin, SiteModelMixin, BaseUuidModel):
-
     on_site = CurrentSiteManager()
 
     objects = AppointmentManager()

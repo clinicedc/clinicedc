@@ -11,7 +11,7 @@ from edc_visit_tracking.constants import SCHEDULED
 
 from ..constants import INCOMPLETE_APPT, IN_PROGRESS_APPT
 from ..models import Appointment
-from ..signals import AppointmentDeleteError
+from ..managers import AppointmentDeleteError
 from .helper import Helper
 from .models import SubjectConsent, SubjectVisit, OnScheduleOne, OnScheduleTwo
 from .visit_schedule import visit_schedule1, visit_schedule2

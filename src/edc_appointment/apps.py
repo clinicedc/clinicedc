@@ -11,11 +11,5 @@ class AppConfig(DjangoAppConfig):
     include_in_administration_section = True
 
     def ready(self):
-        from .signals import (
-            create_appointments_on_post_save,  # noqa
-            appointment_post_save,  # noqa
-            appointments_on_pre_delete,  # noqa
-        )
-
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
         sys.stdout.write(f" Done loading {self.verbose_name}.\n")
