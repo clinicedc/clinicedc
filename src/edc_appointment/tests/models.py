@@ -10,7 +10,7 @@ from edc_utils import get_utcnow, get_dob, get_uuid
 from edc_visit_schedule.model_mixins import OnScheduleModelMixin, OffScheduleModelMixin
 from edc_visit_tracking.model_mixins import VisitModelMixin
 
-from ..models import Appointment
+from edc_appointment.models import Appointment
 
 
 class SubjectConsent(
