@@ -1,5 +1,3 @@
-import pdb
-
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
@@ -7,7 +5,7 @@ from edc_consent.exceptions import NotConsentedError
 from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from .requires_consent import RequiresConsent
+from ..requires_consent import RequiresConsent
 
 
 @receiver(pre_save, weak=False, dispatch_uid="requires_consent_on_pre_save")
@@ -20,10 +18,14 @@ def requires_consent_on_pre_save(instance, raw, **kwargs):
         except KeyError:
             pass
         else:
+            try:
+                subject_identifier = instance.subject_identifier
+            except AttributeError:
+                subject_identifier = instance.visit.subject_identifier
             if consent_model:
                 requires_consent = RequiresConsent(
                     model=instance._meta.label_lower,
-                    subject_identifier=instance.subject_identifier,
+                    subject_identifier=subject_identifier,
                     report_datetime=instance.report_datetime,
                     consent_model=consent_model,
                 )
@@ -31,7 +33,7 @@ def requires_consent_on_pre_save(instance, raw, **kwargs):
             else:
                 try:
                     RegisteredSubject.objects.get(
-                        subject_identifier=instance.subject_identifier,
+                        subject_identifier=subject_identifier,
                         consent_datetime__lte=instance.report_datetime,
                     )
                 except ObjectDoesNotExist:

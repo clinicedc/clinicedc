@@ -17,8 +17,14 @@ class RequiresConsentModelFormMixin:
         sense relative to the consent.
         """
         cleaned_data = self.cleaned_data
+        try:
+            subject_identifier = self.cleaned_data["appointment"].subject_identifier
+        except KeyError:
+            subject_identifier = self.cleaned_data.get(
+                "subject_visit"
+            ).appointment.subject_identifier
         consent = self.get_consent(
-            self.appointment.subject_identifier, cleaned_data.get("report_datetime")
+            subject_identifier, cleaned_data.get("report_datetime")
         )
         if cleaned_data.get("report_datetime") < consent.consent_datetime:
             raise forms.ValidationError(
@@ -26,10 +32,6 @@ class RequiresConsentModelFormMixin:
             )
         if cleaned_data.get("report_datetime").date() < consent.dob:
             raise forms.ValidationError("Report datetime cannot be before DOB")
-
-    @property
-    def appointment(self):
-        return self.cleaned_data.get("appointment")
 
     @property
     def consent_group(self):

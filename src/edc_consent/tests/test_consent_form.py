@@ -1,17 +1,17 @@
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 from django import forms
-from django.test import TestCase, tag
+from django.test import TestCase, tag, override_settings
 from edc_constants.constants import NO, MALE, FEMALE
+from edc_protocol import Protocol
+from edc_utils import get_utcnow
 from faker import Faker
 from model_bakery import baker
 
 from ..consent import Consent
 from ..modelform_mixins import ConsentModelFormMixin
 from ..site_consents import site_consents
-from .dates_test_mixin import DatesTestMixin
 from .models import SubjectConsent
-
 
 fake = Faker()
 
@@ -22,9 +22,15 @@ class SubjectConsentForm(ConsentModelFormMixin, forms.ModelForm):
         fields = "__all__"
 
 
-class TestConsentForm(DatesTestMixin, TestCase):
+@override_settings(
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
+)
+class TestConsentForm(TestCase):
     def setUp(self):
         site_consents.registry = {}
+        self.study_open_datetime = Protocol().study_open_datetime
+        self.study_close_datetime = Protocol().study_close_datetime
         self.consent_factory(
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),

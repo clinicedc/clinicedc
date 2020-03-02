@@ -1,6 +1,7 @@
 from dateutil.relativedelta import relativedelta
-from django.test import tag
+from django.test import TestCase, tag, override_settings
 from edc_action_item.models.action_item import ActionItem
+from edc_protocol import Protocol
 from edc_utils import get_utcnow
 from edc_locator.models import SubjectLocator
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -8,32 +9,43 @@ from model_bakery import baker
 
 from ..exceptions import NotConsentedError
 from ..requires_consent import RequiresConsent
-from ..site_consents import SiteConsentError
-from .consent_test_case import ConsentTestCase
-from .dates_test_mixin import DatesTestMixin
-from .visit_schedules import visit_schedule
+from ..site_consents import SiteConsentError, site_consents
+from .consent_test_utils import consent_object_factory
 from .models import CrfOne
+from .visit_schedules import visit_schedule
 
 
-class TestRequiresConsent(DatesTestMixin, ConsentTestCase):
+@override_settings(
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
+)
+class TestRequiresConsent(TestCase):
     def setUp(self):
         super().setUp()
+        site_consents.registry = {}
         self.subject_identifier = "12345"
+        self.study_open_datetime = Protocol().study_open_datetime
+        self.study_close_datetime = Protocol().study_close_datetime
 
     def test_(self):
         self.assertRaises(SiteConsentError, RequiresConsent)
 
     def test_consent_out_of_period(self):
-        self.consent_object_factory()
+        consent_object_factory(
+            start=self.study_open_datetime, end=self.study_close_datetime
+        )
         self.assertRaises(
             SiteConsentError,
             baker.make_recipe,
             "edc_consent.subjectconsent",
             subject_identifier=self.subject_identifier,
+            consent_datetime=self.study_close_datetime + relativedelta(days=1),
         )
 
     def test_not_consented(self):
-        self.consent_object_factory()
+        consent_object_factory(
+            start=self.study_open_datetime, end=self.study_close_datetime
+        )
         self.assertRaises(
             NotConsentedError,
             RequiresConsent,
@@ -44,7 +56,9 @@ class TestRequiresConsent(DatesTestMixin, ConsentTestCase):
         )
 
     def test_consented(self):
-        self.consent_object_factory()
+        consent_object_factory(
+            start=self.study_open_datetime, end=self.study_close_datetime
+        )
         baker.make_recipe(
             "edc_consent.subjectconsent",
             subject_identifier=self.subject_identifier,
@@ -60,11 +74,12 @@ class TestRequiresConsent(DatesTestMixin, ConsentTestCase):
         except NotConsentedError:
             self.fail("NotConsentedError unexpectedly raised")
 
-    @tag("1")
     def test_requires_consent(self):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
-        self.consent_object_factory()
+        consent_object_factory(
+            start=self.study_open_datetime, end=self.study_close_datetime
+        )
         consent_obj = baker.make_recipe(
             "edc_consent.subjectconsent",
             subject_identifier=self.subject_identifier,
@@ -74,7 +89,7 @@ class TestRequiresConsent(DatesTestMixin, ConsentTestCase):
             SiteConsentError,
             CrfOne.objects.create,
             subject_identifier="12345",
-            report_datetime=get_utcnow(),
+            report_datetime=self.study_close_datetime + relativedelta(months=1),
         )
         try:
             CrfOne.objects.create(

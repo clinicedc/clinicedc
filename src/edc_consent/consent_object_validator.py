@@ -1,5 +1,5 @@
-from django.apps import apps as django_apps
 from django.conf import settings
+from edc_protocol import Protocol
 from edc_utils import convert_php_dateformat
 
 from .exceptions import ConsentVersionSequenceError
@@ -54,9 +54,9 @@ class ConsentObjectValidator:
         """Raises if the start or end date of the consent period
         it not within the opening and closing dates of the protocol.
         """
-        edc_protocol_app_config = django_apps.get_app_config("edc_protocol")
-        study_open_datetime = edc_protocol_app_config.study_open_datetime
-        study_close_datetime = edc_protocol_app_config.study_close_datetime
+        protocol = Protocol()
+        study_open_datetime = protocol.study_open_datetime
+        study_close_datetime = protocol.study_close_datetime
         for index, dt in enumerate([new_consent.start, new_consent.end]):
             if not (study_open_datetime <= dt <= study_close_datetime):
                 dt_label = "start" if index == 0 else "end"

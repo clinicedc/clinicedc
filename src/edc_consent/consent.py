@@ -11,7 +11,6 @@ class NaiveDatetimeError(Exception):
 
 
 class Consent:
-
     default_version = "1"
     default_subject_type = "subject"
     default_consent_group = django_apps.get_app_config(

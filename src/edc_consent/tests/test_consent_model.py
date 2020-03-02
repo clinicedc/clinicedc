@@ -1,30 +1,38 @@
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 from django.contrib.sites.models import Site
-from django.test import TestCase, tag
+from django.test import TestCase, tag, override_settings
+from edc_protocol import Protocol
+from edc_utils import get_utcnow
 from model_bakery import baker
 
 from ..consent import Consent
 from ..field_mixins import IdentityFieldsMixinError
 from ..site_consents import site_consents
-from .dates_test_mixin import DatesTestMixin
+from .consent_test_utils import consent_factory
 from .models import SubjectConsent
 
 
-class TestConsentModel(DatesTestMixin, TestCase):
+@override_settings(
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
+)
+class TestConsentModel(TestCase):
     def setUp(self):
+        self.study_open_datetime = Protocol().study_open_datetime
+        self.study_close_datetime = Protocol().study_close_datetime
         site_consents.registry = {}
-        self.consent_factory(
+        consent_factory(
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
         )
-        self.consent_factory(
+        consent_factory(
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
             version="2.0",
         )
-        self.consent_factory(
+        consent_factory(
             start=self.study_open_datetime + timedelta(days=101),
             end=self.study_open_datetime + timedelta(days=150),
             version="3.0",
@@ -32,28 +40,12 @@ class TestConsentModel(DatesTestMixin, TestCase):
         )
         self.dob = self.study_open_datetime - relativedelta(years=25)
 
-    def consent_factory(self, **kwargs):
-        options = dict(
-            start=kwargs.get("start"),
-            end=kwargs.get("end"),
-            gender=kwargs.get("gender", ["M", "F"]),
-            updates_versions=kwargs.get("updates_versions", []),
-            version=kwargs.get("version", "1"),
-            age_min=kwargs.get("age_min", 16),
-            age_max=kwargs.get("age_max", 64),
-            age_is_adult=kwargs.get("age_is_adult", 18),
-        )
-        model = kwargs.get("model", "edc_consent.subjectconsent")
-        consent = Consent(model, **options)
-        site_consents.register(consent)
-        return consent
-
     def test_encryption(self):
         subject_consent = baker.make_recipe(
             "edc_consent.subjectconsent",
             first_name="ERIK",
             consent_datetime=self.study_open_datetime,
-            dob=self.dob,
+            dob=get_utcnow() + relativedelta(years=25),
         )
         self.assertEqual(subject_consent.first_name, "ERIK")
 
@@ -65,7 +57,7 @@ class TestConsentModel(DatesTestMixin, TestCase):
             "edc_consent.subjectconsent",
             subject_identifier=None,
             consent_datetime=self.study_open_datetime,
-            dob=self.dob,
+            dob=get_utcnow() + relativedelta(years=25),
             site=Site.objects.get_current(),
         )
         self.assertIsNotNone(consent.subject_identifier)
@@ -87,7 +79,7 @@ class TestConsentModel(DatesTestMixin, TestCase):
             identity=identity,
             confirm_identity=identity,
             consent_datetime=self.study_open_datetime + timedelta(days=1),
-            dob=self.get_utcnow() + relativedelta(years=25),
+            dob=get_utcnow() + relativedelta(years=25),
         )
         subject_consent = SubjectConsent.consent.consent_for_period(
             "123456789", self.study_open_datetime + timedelta(days=1)
@@ -99,7 +91,7 @@ class TestConsentModel(DatesTestMixin, TestCase):
             identity=identity,
             confirm_identity=identity,
             consent_datetime=self.study_open_datetime + timedelta(days=60),
-            dob=self.get_utcnow() + relativedelta(years=25),
+            dob=get_utcnow() + relativedelta(years=25),
         )
         subject_consent = SubjectConsent.consent.consent_for_period(
             "123456789", self.study_open_datetime + timedelta(days=60)
@@ -115,7 +107,7 @@ class TestConsentModel(DatesTestMixin, TestCase):
             identity=identity,
             confirm_identity=identity,
             consent_datetime=self.study_open_datetime,
-            dob=self.dob,
+            dob=get_utcnow() + relativedelta(years=25),
         )
         self.assertEqual(consent.version, "1.0")
         consent = baker.make_recipe(
@@ -124,7 +116,7 @@ class TestConsentModel(DatesTestMixin, TestCase):
             identity=identity,
             confirm_identity=identity,
             consent_datetime=self.study_open_datetime + timedelta(days=51),
-            dob=self.dob,
+            dob=get_utcnow() + relativedelta(years=25),
         )
         self.assertEqual(consent.version, "2.0")
         consent = baker.make_recipe(
@@ -133,7 +125,7 @@ class TestConsentModel(DatesTestMixin, TestCase):
             identity=identity,
             confirm_identity=identity,
             consent_datetime=self.study_open_datetime + timedelta(days=101),
-            dob=self.dob,
+            dob=get_utcnow() + relativedelta(years=25),
         )
         self.assertEqual(consent.version, "3.0")
 
@@ -146,7 +138,7 @@ class TestConsentModel(DatesTestMixin, TestCase):
             identity=identity,
             confirm_identity=identity,
             consent_datetime=self.study_open_datetime,
-            dob=self.dob,
+            dob=get_utcnow() + relativedelta(years=25),
         )
         self.assertEqual(consent.version, "1.0")
         consent = baker.make_recipe(
@@ -155,7 +147,7 @@ class TestConsentModel(DatesTestMixin, TestCase):
             identity=identity,
             confirm_identity=identity,
             consent_datetime=self.study_open_datetime + timedelta(days=101),
-            dob=self.dob,
+            dob=get_utcnow() + relativedelta(years=25),
         )
         self.assertEqual(consent.version, "3.0")
 
