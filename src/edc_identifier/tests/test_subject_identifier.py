@@ -9,7 +9,6 @@ from ..research_identifier import IdentifierMissingTemplateValue
 from ..subject_identifier import SubjectIdentifier
 from .models import EnrollmentThree, Enrollment
 
-
 fake = Faker()
 
 
@@ -67,20 +66,6 @@ class TestSubjectIdentifier(TestCase):
             identifier_type="subject",
             requesting_model="",
         )
-
-    def test_create_missing_args3(self):
-        """Asserts raises exception for missing site_code.
-        """
-        app_config = django_apps.get_app_config("edc_protocol")
-        app_config.site_code = None
-        app_config.ready()
-        self.assertRaises(
-            IdentifierMissingTemplateValue,
-            SubjectIdentifier,
-            identifier_type="subject",
-            requesting_model="edc_identifier.enrollment",
-            site=1,
-        )  # incorrectly not a model instance
 
     def test_create1(self):
         """Asserts exact first identifier given parameters.
