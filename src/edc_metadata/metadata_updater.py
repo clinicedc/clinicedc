@@ -7,7 +7,6 @@ class MetadataUpdaterError(Exception):
 
 
 class MetadataUpdater:
-
     """A class to update a subject's metadata given
     the visit_model_instance, target model name and desired entry status.
     """

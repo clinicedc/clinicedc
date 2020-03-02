@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_facility.import_holidays import import_holidays
 from edc_metadata import NOT_REQUIRED, REQUIRED
@@ -10,7 +10,10 @@ from edc_visit_tracking.constants import SCHEDULED
 
 from ..metadata_updater import MetadataUpdater
 from ..models import CrfMetadata, RequisitionMetadata
-from ..target_handler import TargetModelLookupError, TargetModelNotScheduledForVisit
+from ..target_handler import (
+    TargetModelLookupError,
+    TargetModelNotScheduledForVisit,
+)
 from .models import SubjectVisit, SubjectConsent
 from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule

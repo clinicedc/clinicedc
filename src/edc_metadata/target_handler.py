@@ -1,8 +1,8 @@
 from django.apps import apps as django_apps
 from edc_reference import site_reference_configs
 
-from .constants import CRF
-from .metadata_handler import MetadataHandler
+from edc_metadata.constants import CRF
+from edc_metadata.metadata_handler import MetadataHandler
 
 
 class TargetModelNotScheduledForVisit(Exception):

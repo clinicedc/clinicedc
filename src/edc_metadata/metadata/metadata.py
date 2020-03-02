@@ -4,7 +4,6 @@ from edc_reference import site_reference_configs
 from edc_visit_schedule import site_visit_schedules
 
 from ..constants import NOT_REQUIRED, REQUIRED, KEYED
-import pdb
 
 
 class CreatesMetadataError(Exception):
@@ -16,7 +15,6 @@ class DeleteMetadataError(Exception):
 
 
 class CrfCreator:
-
     metadata_model = "edc_metadata.crfmetadata"
 
     def __init__(
@@ -99,7 +97,6 @@ class CrfCreator:
 
 
 class RequisitionCreator(CrfCreator):
-
     metadata_model = "edc_metadata.requisitionmetadata"
 
     def __init__(self, requisition=None, **kwargs):
@@ -112,9 +109,7 @@ class RequisitionCreator(CrfCreator):
     @property
     def options(self):
         options = super().options
-        options.update(
-            {"panel_name": self.requisition.panel.name,}
-        )
+        options.update({"panel_name": self.requisition.panel.name})
         return options
 
     @property
@@ -134,7 +129,6 @@ class RequisitionCreator(CrfCreator):
 
 
 class Creator:
-
     crf_creator_cls = CrfCreator
     requisition_creator_cls = RequisitionCreator
 
@@ -187,7 +181,6 @@ class Creator:
 
 
 class Destroyer:
-
     metadata_crf_model = "edc_metadata.crfmetadata"
     metadata_requisition_model = "edc_metadata.requisitionmetadata"
 
@@ -223,7 +216,6 @@ class Destroyer:
 
 
 class Metadata:
-
     creator_cls = Creator
     destroyer_cls = Destroyer
 

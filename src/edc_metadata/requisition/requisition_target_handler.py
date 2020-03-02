@@ -16,7 +16,6 @@ class InvalidTargetPanel(Exception):
 
 
 class RequisitionTargetHandler(TargetHandler):
-
     metadata_handler_cls = RequisitionMetadataHandler
     metadata_category = REQUISITION
     metadata_model = "edc_metadata.requisitionmetadata"
