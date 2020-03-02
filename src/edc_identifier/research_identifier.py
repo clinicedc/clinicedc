@@ -2,6 +2,8 @@ from django.apps import apps as django_apps
 from django.contrib.sites.models import Site
 from string import Formatter
 
+from edc_protocol import Protocol
+
 from .checkdigit_mixins import LuhnMixin
 from .exceptions import IdentifierError
 from .models import IdentifierModel
@@ -12,7 +14,6 @@ class IdentifierMissingTemplateValue(Exception):
 
 
 class ResearchIdentifier:
-
     label = None  # e.g. subject_identifier, plot_identifier, etc
     identifier_type = None  # e.g. 'subject', 'infant', 'plot', a.k.a subject_type
     template = None
@@ -41,8 +42,7 @@ class ResearchIdentifier:
         self.template = template or self.template
         app_config = django_apps.get_app_config("edc_device")
         self.device_id = device_id or app_config.device_id
-        app_config = django_apps.get_app_config("edc_protocol")
-        self.protocol_number = protocol_number or app_config.protocol_number
+        self.protocol_number = protocol_number or Protocol().protocol_number
         self.site = site or Site.objects.get_current()
         if identifier:
             # load an existing identifier
