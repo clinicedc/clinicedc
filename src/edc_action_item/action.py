@@ -15,7 +15,6 @@ from .create_action_item import create_action_item
 from .get_action_type import get_action_type
 from .site_action_items import site_action_items
 
-
 logger = logging.getLogger(__name__)
 style = color_style()
 
@@ -31,7 +30,6 @@ class RelatedReferenceObjectDoesNotExist(ObjectDoesNotExist):
 
 
 class Action:
-
     admin_site_name = None
     color_style = "danger"
     create_by_action = None

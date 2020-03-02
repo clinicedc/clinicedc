@@ -2,7 +2,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from edc_constants.constants import NEW, OPEN, CLOSED
 from edc_notification import Notification
 from edc_utils import get_utcnow
-import pdb
 
 NOTIFY_ON_NEW_AND_NO_REFERENCE_OBJ = "notify_on_new_and_no_reference_obj"
 NOTIFY_ON_NEW = "notify_on_new"
@@ -16,7 +15,6 @@ class ActionItemNotificationError(Exception):
 
 
 class ActionItemNotification(Notification):
-
     """ A Notification class for the action item model.
 
     This class is the default superclass for an Action's
