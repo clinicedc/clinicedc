@@ -1,30 +1,53 @@
+from datetime import date
+
+from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
+from edc_consent import site_consents
+from edc_consent.consent import Consent
+from edc_constants.constants import MALE, FEMALE
+from edc_protocol import Protocol
 from edc_sites.tests import SiteTestCaseMixin
+from edc_utils import get_utcnow
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.view_mixins import VisitScheduleViewMixin
 from edc_visit_schedule.visit_schedule import VisitSchedule
 from visit_schedule_app.models import OnSchedule
+from visit_schedule_app.models import SubjectConsent
 
 
 class TestView(VisitScheduleViewMixin):
-
     kwargs = {}
 
 
 class TestViewCurrent(VisitScheduleViewMixin):
-
     kwargs = {}
 
     def is_current_onschedule_model(self, onschedule_instance, **kwargs):
         return True
 
 
-@override_settings(SITE_ID=40)
+@override_settings(
+    SITE_ID=40,
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
+)
 class TestViewMixin(SiteTestCaseMixin, TestCase):
     def setUp(self):
+        v1_consent = Consent(
+            "visit_schedule_app.subjectconsent",
+            version="1",
+            start=Protocol().study_open_datetime,
+            end=Protocol().study_close_datetime,
+            age_min=18,
+            age_is_adult=18,
+            age_max=64,
+            gender=[MALE, FEMALE],
+        )
+        site_consents.registry = {}
+        site_consents.register(v1_consent)
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
@@ -36,14 +59,14 @@ class TestViewMixin(SiteTestCaseMixin, TestCase):
             name="schedule",
             onschedule_model="visit_schedule_app.OnSchedule",
             offschedule_model="visit_schedule_app.OffSchedule",
-            consent_model="edc_appointment.subjectconsent",
+            consent_model="visit_schedule_app.subjectconsent",
             appointment_model="edc_appointment.appointment",
         )
         self.schedule3 = Schedule(
             name="schedule_three",
             onschedule_model="visit_schedule_app.OnScheduleThree",
             offschedule_model="visit_schedule_app.OffScheduleThree",
-            consent_model="edc_appointment.subjectconsent",
+            consent_model="visit_schedule_app.subjectconsent",
             appointment_model="edc_appointment.appointment",
         )
 
@@ -64,6 +87,14 @@ class TestViewMixin(SiteTestCaseMixin, TestCase):
         self.view_current.subject_identifier = self.subject_identifier
         self.view_current.request = RequestFactory()
         self.view_current.request.META = {"HTTP_CLIENT_IP": "1.1.1.1"}
+
+        self.subject_consent = SubjectConsent.objects.create(
+            subject_identifier="12345",
+            consent_datetime=get_utcnow() - relativedelta(seconds=1),
+            dob=date(1995, 1, 1),
+            identity="11111",
+            confirm_identity="11111",
+        )
 
     def test_context(self):
         context = self.view.get_context_data()

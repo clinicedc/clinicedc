@@ -1,7 +1,12 @@
 from datetime import date
+
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase, tag, override_settings
 from edc_appointment.models import Appointment
+from edc_consent import site_consents
+from edc_constants.constants import MALE, FEMALE
+from edc_consent.consent import Consent
+from edc_protocol import Protocol
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
 from edc_facility.import_holidays import import_holidays
@@ -28,10 +33,26 @@ from visit_schedule_app.models import OnSchedule, OnScheduleThree, OffSchedule
 from visit_schedule_app.models import SubjectVisit, SubjectConsent
 
 
+@override_settings(
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
+)
 class TestVisitSchedule(SiteTestCaseMixin, TestCase):
     def setUp(self):
         super().setUp()
+        v1_consent = Consent(
+            "visit_schedule_app.subjectconsent",
+            version="1",
+            start=Protocol().study_open_datetime,
+            end=Protocol().study_close_datetime,
+            age_min=18,
+            age_is_adult=18,
+            age_max=64,
+            gender=[MALE, FEMALE],
+        )
         import_holidays()
+        site_consents.registry = {}
+        site_consents.register(v1_consent)
 
     def test_visit_schedule_name(self):
         """Asserts raises on invalid name.
@@ -68,9 +89,26 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
             self.fail(f"visit_schedule.check() unexpectedly failed")
 
 
+@override_settings(
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
+)
 class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
     def setUp(self):
         import_holidays()
+        v1_consent = Consent(
+            "visit_schedule_app.subjectconsent",
+            version="1",
+            start=Protocol().study_open_datetime,
+            end=Protocol().study_close_datetime,
+            age_min=18,
+            age_is_adult=18,
+            age_max=64,
+            gender=[MALE, FEMALE],
+        )
+        site_consents.registry = {}
+        site_consents.register(v1_consent)
+
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
@@ -146,9 +184,27 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
         )
 
 
+@override_settings(
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
+)
 class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
     def setUp(self):
+
+        v1_consent = Consent(
+            "visit_schedule_app.subjectconsent",
+            version="1",
+            start=Protocol().study_open_datetime,
+            end=Protocol().study_close_datetime,
+            age_min=18,
+            age_is_adult=18,
+            age_max=64,
+            gender=[MALE, FEMALE],
+        )
+
         import_holidays()
+        site_consents.registry = {}
+        site_consents.register(v1_consent)
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
@@ -169,7 +225,6 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
             rbase=relativedelta(days=0),
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
-            facility_name="default",
             timepoint=1,
         )
         self.schedule.add_visit(visit)
@@ -185,6 +240,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         )
         self.subject_identifier = self.subject_consent.subject_identifier
 
+    @tag("vvv")
     def test_put_on_schedule_creates_history(self):
         self.schedule.put_on_schedule(
             subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
@@ -231,16 +287,18 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
 
     def test_creates_appointments(self):
         # signal puts on schedule
+        onschedule_datetime = get_utcnow() - relativedelta(years=4)
         OnSchedule.objects.create(
-            subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
+            subject_identifier=self.subject_identifier,
+            onschedule_datetime=onschedule_datetime,
         )
         self.assertGreater(Appointment.objects.all().count(), 0)
 
     def test_creates_appointments_starting_with_onschedule_datetime(self):
+        onschedule_datetime = get_utcnow() - relativedelta(years=4)
         _, schedule = site_visit_schedules.get_by_onschedule_model(
             "visit_schedule_app.onschedule"
         )
-        onschedule_datetime = get_utcnow() - relativedelta(months=1)
         schedule.put_on_schedule(
             subject_identifier=self.subject_identifier,
             onschedule_datetime=onschedule_datetime,
@@ -262,24 +320,26 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         )
 
     def test_cannot_create_offschedule_before_onschedule(self):
+        onschedule_datetime = get_utcnow() - relativedelta(years=4)
         OnSchedule.objects.create(
             subject_identifier=self.subject_identifier,
-            onschedule_datetime=get_utcnow() - relativedelta(months=1),
+            onschedule_datetime=onschedule_datetime,
         )
         self.assertRaises(
             InvalidOffscheduleDate,
             OffSchedule.objects.create,
             subject_identifier=self.subject_identifier,
-            offschedule_datetime=get_utcnow() - relativedelta(months=2),
+            offschedule_datetime=onschedule_datetime - relativedelta(months=2),
         )
 
     def test_cannot_create_offschedule_before_last_visit(self):
+        onschedule_datetime = get_utcnow() - relativedelta(years=4)
         _, schedule = site_visit_schedules.get_by_onschedule_model(
             "visit_schedule_app.onschedule"
         )
         schedule.put_on_schedule(
             subject_identifier=self.subject_identifier,
-            onschedule_datetime=get_utcnow() - relativedelta(months=1),
+            onschedule_datetime=onschedule_datetime,
         )
         appointments = Appointment.objects.all()
         SubjectVisit.objects.create(
@@ -295,6 +355,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         )
 
     def test_cannot_put_on_schedule_if_visit_schedule_not_registered_subject(self):
+        onschedule_datetime = get_utcnow() - relativedelta(years=4)
         _, schedule = site_visit_schedules.get_by_onschedule_model(
             "visit_schedule_app.onschedule"
         )
@@ -303,10 +364,11 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
             UnknownSubjectError,
             schedule.put_on_schedule,
             subject_identifier=self.subject_identifier,
-            onschedule_datetime=get_utcnow(),
+            onschedule_datetime=onschedule_datetime,
         )
 
     def test_cannot_put_on_schedule_if_visit_schedule_not_consented(self):
+        onschedule_datetime = get_utcnow() - relativedelta(years=4)
         _, schedule = site_visit_schedules.get_by_onschedule_model(
             "visit_schedule_app.onschedule"
         )
@@ -315,7 +377,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
             NotConsentedError,
             schedule.put_on_schedule,
             subject_identifier=self.subject_identifier,
-            onschedule_datetime=get_utcnow(),
+            onschedule_datetime=onschedule_datetime,
         )
 
     def test_cannot_put_on_schedule_if_schedule_not_added(self):

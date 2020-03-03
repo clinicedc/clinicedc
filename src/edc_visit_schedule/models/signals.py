@@ -1,9 +1,9 @@
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
-from .constants import ON_SCHEDULE
-from .model_mixins import OffScheduleModelMixin
-from .site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
+from ..constants import ON_SCHEDULE
+from ..model_mixins import OffScheduleModelMixin
+from ..site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
 
 
 @receiver(post_save, weak=False, dispatch_uid="offschedule_model_on_post_save")

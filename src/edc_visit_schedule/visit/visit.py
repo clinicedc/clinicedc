@@ -2,6 +2,7 @@ import re
 
 from decimal import Decimal
 from django.apps import apps as django_apps
+from django.conf import settings
 
 from .window_period import WindowPeriod
 
@@ -19,7 +20,6 @@ class VisitError(Exception):
 
 
 class VisitDate:
-
     window_period_cls = WindowPeriod
 
     def __init__(self, **kwargs):
@@ -41,7 +41,6 @@ class VisitDate:
 
 
 class Visit:
-
     code_regex = r"^([A-Z0-9])+$"
     visit_date_cls = VisitDate
 
@@ -96,7 +95,9 @@ class Visit:
         else:
             self.code = code  # unique
         self.name = self.code
-        self.facility_name = facility_name
+        self.facility_name = (
+            facility_name or settings.EDC_FACILITY_DEFAULT_FACILITY_NAME
+        )
         self.allow_unscheduled = allow_unscheduled
         if timepoint is None:
             raise VisitError(f"Timepoint not specified. Got None. See Visit {code}.")
