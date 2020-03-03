@@ -12,8 +12,6 @@ from ..holidays import Holidays
 class TestHolidays(TestCase):
     def setUp(self):
         self.user = User.objects.create(username="erik")
-        self.user.userprofile.country = "botswana"
-        self.user.userprofile.save()
         import_holidays()
 
     def test_repr(self):

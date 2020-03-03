@@ -1,11 +1,11 @@
+import csv
 import os
 
 from django.conf import settings
 from django.core.checks import Warning
 
 
-def holiday_check(app_configs, **kwargs):
-
+def holiday_path_check(app_configs, **kwargs):
     errors = []
     holiday_path = None
 
@@ -33,4 +33,31 @@ def holiday_check(app_configs, **kwargs):
                 id="edc_facility.002",
             )
         )
+    return errors
+
+
+def holiday_country_check(app_configs, **kwargs):
+    errors = []
+    holiday_path = settings.HOLIDAY_FILE
+
+    country = getattr(settings, "COUNTRY", None)
+    if not country:
+        errors.append(
+            Warning(
+                f"Holiday file has no records for current country! "
+                f"See settings.COUNTRY. Got None\n",
+                id="edc_facility.003",
+            )
+        )
+    else:
+        with open(holiday_path, "r") as f:
+            reader = csv.DictReader(f, fieldnames=["local_date", "label", "country"])
+            if not [row["country"] for row in reader if row["country"] == country]:
+                errors.append(
+                    Warning(
+                        f"Holiday file has no records for current country! "
+                        f"See settings.COUNTRY. Got {country}\n",
+                        id="edc_facility.004",
+                    )
+                )
     return errors

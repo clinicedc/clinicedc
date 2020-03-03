@@ -2,13 +2,13 @@ import sys
 
 from dateutil.relativedelta import MO, TU, WE, TH, FR, SA, SU
 from django.apps import AppConfig as DjangoAppConfig
+from django.conf import settings
 from django.core.checks.registry import register
 from django.core.management.color import color_style
 
 from .facility import Facility, FacilityError
-from .system_checks import holiday_check
+from .system_checks import holiday_path_check, holiday_country_check
 from _warnings import warn
-from django.conf import settings
 
 style = color_style()
 
@@ -36,7 +36,8 @@ class AppConfig(DjangoAppConfig):
     }
 
     def ready(self):
-        register(holiday_check)
+        register(holiday_path_check)
+        register(holiday_country_check)
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
         for facility in self.facilities.values():
             sys.stdout.write(f" * {facility}.\n")
@@ -48,14 +49,14 @@ class AppConfig(DjangoAppConfig):
         """
         if not self.definitions:
             try:
-                warn_user = not settings.USE_EDC_FACILITY_DEFAULTS
+                warn_user = not settings.EDC_FACILITY_USE_DEFAULTS
             except AttributeError:
                 warn_user = True
             if warn_user:
                 warn(
                     f"Facility definitions not defined. See {self.name} "
                     f"app_config.definitions. Using defaults. "
-                    "To silence, set USE_EDC_FACILITY_DEFAULTS=True in settings."
+                    "To silence, set EDC_FACILITY_USE_DEFAULTS=True in settings."
                 )
         return {
             k: Facility(name=k, **v)
