@@ -6,18 +6,18 @@ from django.test.utils import override_settings
 from django.conf import settings
 
 from ..import_holidays import import_holidays
-from ..system_checks import holiday_check
+from ..system_checks import holiday_path_check, holiday_country_check
 
 
 class TestSystemChecks(TestCase):
     def test_(self):
         app_configs = django_apps.get_app_configs()
-        holiday_check(app_configs=app_configs)
+        holiday_path_check(app_configs=app_configs)
 
     @override_settings(HOLIDAY_FILE=None)
     def test_file(self):
         app_configs = django_apps.get_app_configs()
-        errors = holiday_check(app_configs=app_configs)
+        errors = holiday_path_check(app_configs=app_configs)
         self.assertIn("edc_facility.001", [error.id for error in errors])
 
     @override_settings(
@@ -28,7 +28,7 @@ class TestSystemChecks(TestCase):
     )
     def test_bad_path(self):
         app_configs = django_apps.get_app_configs()
-        errors = holiday_check(app_configs=app_configs)
+        errors = holiday_path_check(app_configs=app_configs)
         self.assertIn("edc_facility.002", [error.id for error in errors])
 
     @override_settings(
@@ -37,9 +37,9 @@ class TestSystemChecks(TestCase):
         ),
         COUNTRY=None,
     )
-    def test_country(self):
+    def test_no_country(self):
         app_configs = django_apps.get_app_configs()
-        errors = holiday_check(app_configs=app_configs)
+        errors = holiday_country_check(app_configs=app_configs)
         self.assertIn("edc_facility.003", [error.id for error in errors])
 
     @override_settings(
@@ -51,5 +51,5 @@ class TestSystemChecks(TestCase):
     def test_unknown_country(self):
         import_holidays()
         app_configs = django_apps.get_app_configs()
-        errors = holiday_check(app_configs=app_configs)
+        errors = holiday_country_check(app_configs=app_configs)
         self.assertIn("edc_facility.004", [error.id for error in errors])
