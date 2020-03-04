@@ -8,7 +8,7 @@ from django.test import TestCase, tag
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
 from edc_auth import CLINIC
-from edc_auth import get_codenames_by_group
+from edc_auth import get_default_codenames_by_group
 from edc_dashboard.url_names import url_names
 from edc_model_wrapper import ModelWrapper
 from edc_utils import get_utcnow
@@ -20,8 +20,7 @@ from ..views import ListboardView
 from .models import SubjectVisit
 from edc_auth.group_permissions_updater import GroupPermissionsUpdater
 
-
-codenames_by_group = get_codenames_by_group()
+codenames_by_group = get_default_codenames_by_group()
 codenames_by_group[CLINIC].append("edc_dashboard.view_my_listboard")
 
 
@@ -69,7 +68,6 @@ class TestViewMixins(TestCase):
             next_url_name = "dashboard_url"
 
         class MyListboardViewFilters(ListboardViewFilters):
-
             all = ListboardFilter(name="all", label="All", lookup={})
 
             scheduled = ListboardFilter(
@@ -83,7 +81,6 @@ class TestViewMixins(TestCase):
             )
 
         class MyView(ListboardFilterViewMixin, ListboardView):
-
             listboard_model = "edc_dashboard.subjectvisit"
             listboard_url = "listboard_url"
             listboard_template = "listboard_template"
