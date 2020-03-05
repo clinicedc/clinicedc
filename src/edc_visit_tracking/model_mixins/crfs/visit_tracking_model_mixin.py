@@ -10,8 +10,7 @@ from ...managers import CrfModelManager
 from .crf_visit_methods_model_mixin import CrfVisitMethodsModelMixin
 
 
-class CrfModelMixin(CrfVisitMethodsModelMixin, models.Model):
-
+class VisitTrackingModelMixin(CrfVisitMethodsModelMixin, models.Model):
     """Base mixin for all CRF models.
 
     You need to define the visit model foreign_key, e.g:

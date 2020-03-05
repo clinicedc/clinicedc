@@ -4,11 +4,10 @@ from django.db.models import options, OneToOneField, ForeignKey
 
 from .crf_inline_visit_methods_model_mixin import CrfInlineVisitMethodsModelMixin
 
-
 options.DEFAULT_NAMES = options.DEFAULT_NAMES + ("crf_inline_parent",)
 
 
-class CrfInlineModelMixin(CrfInlineVisitMethodsModelMixin, models.Model):
+class VisitTrackingInlineModelMixin(InlineVisitMethodsModelMixin, models.Model):
     """A mixin for models used as inlines in ModelAdmin.
     """
 
