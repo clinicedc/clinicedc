@@ -120,7 +120,7 @@ class TestForm(TestCase):
             self.assertFalse(form.is_valid())
             self.assertIn("report_datetime", form._errors)
 
-    @override_settings(TIME_ZONE="Africa/Dar_Es_Salaam")
+    @override_settings(TIME_ZONE="Africa/Dar_es_Salaam")
     def test_visit_tracking_form_report_datetime_zone(self):
         class CrfForm(VisitTrackingModelFormMixin, forms.ModelForm):
             class Meta:
@@ -132,7 +132,7 @@ class TestForm(TestCase):
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment, reason=SCHEDULED, report_datetime=get_utcnow(),
         )
-        a = arrow.utcnow().to("Africa/Dar_Es_Salaam")
+        a = arrow.utcnow().to("Africa/Dar_es_Salaam")
         for report_datetime in [
             a.datetime - relativedelta(months=1),
             a.datetime + relativedelta(months=1),
