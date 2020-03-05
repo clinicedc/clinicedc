@@ -1,7 +1,11 @@
 from django import forms
 
 
-class FormValidatorMixin(forms.ModelForm):
+class FormValidatorMixin:
+    """A ModelForm mixin to add a validator class.
+
+    Declare with `forms.ModelForm`.
+    """
 
     form_validator_cls = None
 
