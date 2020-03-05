@@ -6,7 +6,7 @@ from ..subject_schedule import (
 )
 
 
-class SubjectScheduleCrfModelFormMixin:
+class SubjectScheduleModelFormMixin:
     """A ModelForm mixin to validate that the subject is onschedule.
 
     Declare with `forms.ModelForm`.
@@ -42,7 +42,7 @@ class SubjectScheduleCrfModelFormMixin:
             if "subject_schedule_cls" in str(e):
                 raise AttributeError(
                     f"Was model `{self._meta.model._meta.label_lower}` declared "
-                    f"with `SubjectScheduleCrfModelMixin`? Got {e}"
+                    f"with `SubjectScheduleModelMixin`? Got {e}"
                 )
             else:
                 raise

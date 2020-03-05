@@ -1,10 +1,8 @@
 import arrow
-import pytz
 
-from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ImproperlyConfigured
-from django.test import TestCase, tag, override_settings
+from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_consent.consent import Consent
@@ -25,9 +23,9 @@ from visit_schedule_app.models import (
     SubjectVisit,
     CrfOne,
     SubjectConsent,
-)
-from visit_schedule_app.models import OnScheduleFive, OnScheduleSeven, OffScheduleFive
-from visit_schedule_app.models import (
+    OnScheduleFive,
+    OnScheduleSeven,
+    OffScheduleFive,
     OnScheduleSix,
     OffScheduleSix,
     OffScheduleSeven,
@@ -37,8 +35,8 @@ from visit_schedule_app.visit_schedule import (
     visit_schedule,
     visit_schedule5,
     visit_schedule6,
+    visit_schedule7,
 )
-from visit_schedule_app.visit_schedule import visit_schedule7
 
 
 @override_settings(

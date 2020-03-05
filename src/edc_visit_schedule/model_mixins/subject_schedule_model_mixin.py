@@ -3,8 +3,7 @@ from django.db import models
 from ..subject_schedule import SubjectSchedule
 
 
-class SubjectScheduleCrfModelMixin(models.Model):
-
+class SubjectScheduleModelMixin(models.Model):
     """A mixin for CRF models to add the ability to determine
     if the subject is on/off schedule.
     """

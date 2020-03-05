@@ -24,7 +24,6 @@ class AlreadyRegisteredVisit(Exception):
 
 
 class Schedule:
-
     """A class that represents a "schedule" of visits.
 
     Is contained by a "visit schedule".
