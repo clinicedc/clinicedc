@@ -20,7 +20,6 @@ class DisabledVisitSequence(VisitSequence):
 
 
 class TestPreviousVisit(TestCase):
-
     helper_cls = Helper
 
     @classmethod

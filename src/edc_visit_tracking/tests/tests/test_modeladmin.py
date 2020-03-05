@@ -35,7 +35,6 @@ class CrfOneModelAdmin(
 
 
 class TestModelAdmin(TestCase):
-
     helper_cls = Helper
 
     @classmethod

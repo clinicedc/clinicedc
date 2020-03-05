@@ -5,12 +5,19 @@ from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel
 from edc_offstudy.model_mixins import OffstudyModelMixin
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
+from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
-from edc_visit_schedule.model_mixins import OnScheduleModelMixin, OffScheduleModelMixin
+from edc_visit_schedule.model_mixins import (
+    OnScheduleModelMixin,
+    OffScheduleModelMixin,
+)
 
 from ..choices import VISIT_REASON, VISIT_REASON_MISSED, VISIT_INFO_SOURCE
-from ..model_mixins import CrfInlineModelMixin, CrfModelMixin, VisitModelMixin
-from edc_sites.models import SiteModelMixin
+from ..model_mixins import (
+    CrfInlineModelMixin,
+    VisitTrackingCrfModelMixin,
+    VisitModelMixin,
+)
 
 
 class SubjectConsent(
@@ -18,29 +25,24 @@ class SubjectConsent(
     UpdatesOrCreatesRegistrationModelMixin,
     BaseUuidModel,
 ):
-
     consent_datetime = models.DateTimeField(default=get_utcnow)
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
 
 class OnScheduleOne(OnScheduleModelMixin, BaseUuidModel):
-
     pass
 
 
 class OnScheduleTwo(OnScheduleModelMixin, BaseUuidModel):
-
     pass
 
 
 class OffSchedule(OffScheduleModelMixin, BaseUuidModel):
-
     pass
 
 
 class OffScheduleOne(OffScheduleModelMixin, BaseUuidModel):
-
     pass
 
 
@@ -50,7 +52,6 @@ class SubjectOffstudy(OffstudyModelMixin, BaseUuidModel):
 
 
 class SubjectVisit(VisitModelMixin, SiteModelMixin, BaseUuidModel):
-
     appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
 
     subject_identifier = models.CharField(max_length=50)
@@ -72,8 +73,7 @@ class SubjectVisit(VisitModelMixin, SiteModelMixin, BaseUuidModel):
     )
 
 
-class CrfOne(CrfModelMixin, BaseUuidModel):
-
+class CrfOne(VisitTrackingCrfModelMixin, BaseUuidModel):
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
@@ -84,12 +84,10 @@ class CrfOne(CrfModelMixin, BaseUuidModel):
 
 
 class OtherModel(BaseUuidModel):
-
     f1 = models.CharField(max_length=10, default="erik")
 
 
 class CrfOneInline(CrfInlineModelMixin, BaseUuidModel):
-
     crf_one = models.ForeignKey(CrfOne, on_delete=PROTECT)
 
     other_model = models.ForeignKey(OtherModel, on_delete=PROTECT)
@@ -115,7 +113,6 @@ class BadCrfOneInline(CrfInlineModelMixin, BaseUuidModel):
 
 
 class BadCrfOneInline2(CrfInlineModelMixin, BaseUuidModel):
-
     crf_one = models.ForeignKey(CrfOne, on_delete=PROTECT)
 
     other_model = models.ForeignKey(OtherModel, on_delete=PROTECT)

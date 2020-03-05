@@ -23,23 +23,7 @@ class AppConfig(DjangoAppConfig):
     reason_field = {}
 
     def ready(self):
-
         from .signals import visit_tracking_check_in_progress_on_post_save
 
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
         sys.stdout.write(f" Done loading {self.verbose_name}.\n")
-
-
-if settings.APP_NAME == "edc_visit_tracking":
-
-    from edc_metadata.apps import AppConfig as BaseEdcMetadataAppConfig
-    from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
-    from dateutil.relativedelta import MO, TU, WE, TH, FR
-
-    class EdcMetadataAppConfig(BaseEdcMetadataAppConfig):
-        reason_field = {"edc_visit_tracking.subjectvisit": "reason"}
-
-    class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
-        definitions = {
-            "default": dict(days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100])
-        }

@@ -6,17 +6,16 @@ from edc_model.models import HistoricalRecords
 
 from ..managers import CrfModelManager, VisitModelManager
 from ..model_mixins import VisitModelMixin
-from ..model_mixins.crfs import CrfModelMixin
+from ..model_mixins import VisitTrackingCrfModelMixin
 
 
 class ManagerTestCase:
-
     app_label = None
 
     appointment_manager_cls = AppointmentManager
     appointment_model_cls = AppointmentModelMixin
     crf_manager_cls = CrfModelManager
-    crf_model_cls = CrfModelMixin
+    crf_model_cls = VisitTrackingCrfModelMixin
     history_manager_cls = HistoricalRecords
     list_manager_cls = ListModelManager
     list_model_cls = ListModelMixin

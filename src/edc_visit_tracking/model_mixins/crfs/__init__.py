@@ -1,2 +1,2 @@
 from .crf_inline_model_mixin import CrfInlineModelMixin
-from .crf_model_mixin import CrfModelMixin
+from .visit_tracking_crf_model_mixin import VisitTrackingCrfModelMixin

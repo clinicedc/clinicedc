@@ -8,7 +8,6 @@ class PreviousVisitError(Exception):
 
 
 class PreviousVisitModelMixin(models.Model):
-
     """A model mixin to force the user to complete visit model
     instances in sequence.
 
@@ -21,7 +20,7 @@ class PreviousVisitModelMixin(models.Model):
 
     def save(self, *args, **kwargs):
         try:
-            appointment = self.visit.appointment
+            appointment = self.subject_visit.appointment
         except AttributeError:
             appointment = self.appointment
         visit_sequence = self.visit_sequence_cls(appointment=appointment)
@@ -34,7 +33,7 @@ class PreviousVisitModelMixin(models.Model):
     @property
     def previous_visit(self):
         try:
-            appointment = self.visit.appointment
+            appointment = self.subject_visit.appointment
         except AttributeError:
             appointment = self.appointment
         visit_sequence = self.visit_sequence_cls(appointment=appointment)

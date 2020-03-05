@@ -2,12 +2,23 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models import options, OneToOneField, ForeignKey
 
-from .crf_inline_visit_methods_model_mixin import CrfInlineVisitMethodsModelMixin
-
 options.DEFAULT_NAMES = options.DEFAULT_NAMES + ("crf_inline_parent",)
 
 
-class VisitTrackingInlineModelMixin(InlineVisitMethodsModelMixin, models.Model):
+class InlineVisitMethodsModelMixin(models.Model):
+    @property
+    def visit_code(self):
+        return self.subject_visit.visit_code
+
+    @property
+    def subject_identifier(self):
+        return self.subject_visit.subject_identifier
+
+    class Meta:
+        abstract = True
+
+
+class CrfInlineModelMixin(InlineVisitMethodsModelMixin, models.Model):
     """A mixin for models used as inlines in ModelAdmin.
     """
 
@@ -35,10 +46,10 @@ class VisitTrackingInlineModelMixin(InlineVisitMethodsModelMixin, models.Model):
                 )
 
     def __str__(self):
-        return str(self.parent_instance.visit)
+        return str(self.parent_instance.subject_visit)
 
     def natural_key(self):
-        return self.visit.natural_key()
+        return self.subject_visit.natural_key()
 
     @property
     def parent_instance(self):
@@ -57,7 +68,7 @@ class VisitTrackingInlineModelMixin(InlineVisitMethodsModelMixin, models.Model):
             return field.remote_field.model  # django 2.0 +
 
     @property
-    def visit(self):
+    def subject_visit(self):
         """Return the instance of the inline parent model's visit
         model.
         """
@@ -68,7 +79,7 @@ class VisitTrackingInlineModelMixin(InlineVisitMethodsModelMixin, models.Model):
         """Return the instance of the inline parent model's
         report_datetime.
         """
-        return self.visit.report_datetime
+        return self.subject_visit.report_datetime
 
     class Meta:
         crf_inline_parent = None

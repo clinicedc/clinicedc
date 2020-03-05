@@ -62,7 +62,6 @@ schedule2 = Schedule(
     appointment_model="edc_appointment.appointment",
 )
 
-
 visits = []
 for index in range(0, 4):
     visits.append(
@@ -75,7 +74,6 @@ for index in range(0, 4):
             rupper=relativedelta(days=6),
             requisitions=requisitions,
             crfs=crfs,
-            facility_name="default",
             allow_unscheduled=True,
         )
     )
@@ -94,7 +92,6 @@ for index in range(4, 8):
             rupper=relativedelta(days=6),
             requisitions=requisitions,
             crfs=crfs,
-            facility_name="default",
         )
     )
 for visit in visits:

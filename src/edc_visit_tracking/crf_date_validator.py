@@ -22,7 +22,6 @@ class CrfReportDateIsFuture(Exception):
 
 
 class CrfDateValidator:
-
     report_datetime_allowance = None
     allow_report_datetime_before_visit = False
 
@@ -92,18 +91,17 @@ class CrfDateValidator:
             )
 
         # not more than x days greater than the visit report_datetime
-        if self.report_datetime_allowance > 0:
-            max_allowed_report_datetime = self.visit_report_datetime + relativedelta(
-                days=self.report_datetime_allowance
+        # if self.report_datetime_allowance > 0:
+        max_allowed_report_datetime = self.visit_report_datetime + relativedelta(
+            days=self.report_datetime_allowance
+        )
+        if self.report_datetime.date() > max_allowed_report_datetime.date():
+            diff = (
+                max_allowed_report_datetime.date() - self.visit_report_datetime.date()
+            ).days
+            raise CrfReportDateAllowanceError(
+                f"Report datetime may not be more than {self.report_datetime_allowance} "
+                f"days greater than the visit report datetime. Got {diff} days."
+                f"Visit report datetime is {formatted_visit_datetime}. "
+                f"See also AppConfig.report_datetime_allowance."
             )
-            if self.report_datetime.date() > max_allowed_report_datetime.date():
-                diff = (
-                    max_allowed_report_datetime.date()
-                    - self.visit_report_datetime.date()
-                ).days
-                raise CrfReportDateAllowanceError(
-                    f"Report datetime may not more than {self.report_datetime_allowance} "
-                    f"days greater than the visit report datetime. Got {diff} days."
-                    f"Visit report datetime is {formatted_visit_datetime}. "
-                    f"See also AppConfig.report_datetime_allowance."
-                )
