@@ -8,17 +8,15 @@ from edc_model.models.historical_records import HistoricalRecords
 from edc_offstudy.model_mixins import OffstudyCrfModelMixin
 from edc_reference.model_mixins import ReferenceModelMixin
 from edc_sites.models import SiteModelMixin
-from edc_visit_schedule.model_mixins import SubjectScheduleCrfModelMixin
 from edc_visit_tracking.managers import CrfModelManager
 from edc_visit_tracking.model_mixins import (
-    VisitTrackingModelMixin,
+    VisitTrackingCrfModelMixin,
     PreviousVisitModelMixin,
 )
 
 
 class CrfNoManagerModelMixin(
-    VisitTrackingModelMixin,
-    SubjectScheduleCrfModelMixin,
+    VisitTrackingCrfModelMixin,
     RequiresConsentFieldsModelMixin,
     PreviousVisitModelMixin,
     UpdatesCrfMetadataModelMixin,
