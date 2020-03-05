@@ -32,8 +32,7 @@ class TestDashboard(WebTest):
         return ret
 
     def setUp(self):
-        self.user = User.objects.create_superuser(
-            "user_login", "u@example.com", "pass")
+        self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
 
         site_labs._registry = {}
         site_labs.loaded = False
@@ -103,18 +102,20 @@ class TestDashboard(WebTest):
         )
 
         n = SubjectVisit.objects.filter(
-            subject_identifier=self.subject_identifiers[1]).count()
+            subject_identifier=self.subject_identifiers[1]
+        ).count()
         self.assertIn("Subjects", response.html.get_text())
 
         # shows something like 1. 12345 3 visits
-        self.assertIn(f"{self.subject_identifiers[1]} {n} visits",
-                      response.html.get_text())
         self.assertIn(
-            "click to list reported visits for this subject", response)
+            f"{self.subject_identifiers[1]} {n} visits", response.html.get_text()
+        )
+        self.assertIn("click to list reported visits for this subject", response)
 
         # follow to schedule for this subject
         response = response.click(
-            linkid=f"id-reported-visit-list-{self.subject_identifiers[1]}")
+            linkid=f"id-reported-visit-list-{self.subject_identifiers[1]}"
+        )
         self.assertIn(
             f"Subject Review: Reported visits for {self.subject_identifiers[1]}",
             response.html.get_text(),
@@ -143,8 +144,7 @@ class TestDashboard(WebTest):
             user=self.user,
         )
 
-        self.assertIn(
-            f"id-reported-visit-list-{self.subject_identifiers[1]}", response)
+        self.assertIn(f"id-reported-visit-list-{self.subject_identifiers[1]}", response)
 
         self.assertIn(self.subject_identifiers[1], response)
 
@@ -157,13 +157,9 @@ class TestDashboard(WebTest):
         self.login()
 
         response = self.app.get(
-            reverse(
-                f"review_dashboard_app:subject_review_listboard_url",
-            ),
+            reverse(f"review_dashboard_app:subject_review_listboard_url",),
             user=self.user,
         )
         # response = response.click(linkid="id-reported-visit-list")
-        self.assertIn(
-            f"1. {self.subject_identifiers[1]}", response.html.get_text())
-        self.assertIn(
-            f"2. {self.subject_identifiers[0]}", response.html.get_text())
+        self.assertIn(f"1. {self.subject_identifiers[1]}", response.html.get_text())
+        self.assertIn(f"2. {self.subject_identifiers[0]}", response.html.get_text())
