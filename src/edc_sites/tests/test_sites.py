@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.sites.models import Site
 from django.test import TestCase, tag  # noqa
 from django.test.utils import override_settings
+from edc_sites.models import SiteProfile
 
 from ..add_or_update_django_sites import add_or_update_django_sites
 from ..get_site_id import get_site_id
@@ -77,10 +78,15 @@ class TestSites(SiteTestCaseMixin, TestCase):
         add_or_update_django_sites(sites=self.default_sites)
         self.assertEqual(get_site_id("Mochudi"), 10)
 
+    @override_settings(SITE_ID=30)
+    def test_site_profile(self):
+        obj = TestModelWithSite.objects.create()
+        site_profile = SiteProfile.objects.create(site=obj.site, title="Erik")
+        self.assertEqual(obj.site.siteprofile, site_profile)
+
 
 class TestSites2(TestCase):
     def test_updates_sites(self):
-
         self.assertIn("example.com", [str(obj) for obj in Site.objects.all()])
 
         sites = default_sites

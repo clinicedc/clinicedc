@@ -33,8 +33,8 @@ def add_or_update_django_sites(apps=None, sites=None, fqdn=None, verbose=None):
         sys.stdout.write(f"  * updating sites for {fqdn}.\n")
     fqdn = fqdn or "example.com"
     apps = apps or django_apps
-    Site = apps.get_model("sites", "Site")
-    Site.objects.filter(name="example.com").delete()
+    site_model_cls = apps.get_model("sites", "Site")
+    site_model_cls.objects.filter(name="example.com").delete()
     for site in sites:
         if verbose:
             sys.stdout.write(f"  * {site[SITE_NAME]}.\n")
@@ -43,11 +43,11 @@ def add_or_update_django_sites(apps=None, sites=None, fqdn=None, verbose=None):
 
 
 def get_or_create_site_obj(site, fqdn, apps):
-    Site = apps.get_model("sites", "Site")
+    site_model_cls = apps.get_model("sites", "Site")
     try:
-        site_obj = Site.objects.get(pk=site[SITE_ID])
+        site_obj = site_model_cls.objects.get(pk=site[SITE_ID])
     except ObjectDoesNotExist:
-        site_obj = Site.objects.create(
+        site_obj = site_model_cls.objects.create(
             pk=site[SITE_ID], name=site[SITE_NAME], domain=f"{site[SITE_NAME]}.{fqdn}"
         )
     else:
@@ -58,16 +58,16 @@ def get_or_create_site_obj(site, fqdn, apps):
 
 
 def get_or_create_site_profile_obj(site, site_obj, apps):
-    SiteProfile = apps.get_model("edc_sites", "SiteProfile")
+    site_profile_model_cls = apps.get_model("edc_sites", "SiteProfile")
     try:
-        site_profile = SiteProfile.objects.get(site=site_obj)
+        site_profile = site_profile_model_cls.objects.get(site=site_obj)
     except ObjectDoesNotExist:
         opts = dict(title=site[SITE_TITLE], site=site_obj)
         try:
             opts.update(description=site[SITE_DESCRIPTION])
         except IndexError:
             opts.update(description=None)
-        SiteProfile.objects.create(**opts)
+        site_profile_model_cls.objects.create(**opts)
     else:
         site_profile.title = site[SITE_TITLE]
         try:
