@@ -78,8 +78,8 @@ class RandomizationListVerifier:
         if not message:
             if self.count != index + 1:
                 message = (
-                    f"Randomization list count is off. Expected {self.count}. "
-                    f"Got {index + 1}. See file "
+                    f"Randomization list count is off. Expected {index + 1} (CSV). "
+                    f"Got {self.count} (model_cls). See file "
                     f"{self.randomizer.get_randomization_list_path()}. "
                     f"Resolve this issue before using the system."
                 )
