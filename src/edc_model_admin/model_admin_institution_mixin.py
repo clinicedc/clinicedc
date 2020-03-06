@@ -1,19 +1,18 @@
-from django.apps import apps as django_apps
+from edc_protocol import Protocol
 
 
 class ModelAdminInstitutionMixin:
-
     """Adds institution attrs to the ModelAdmin context.
     """
 
     def get_institution_extra_context(self, extra_context):
-        app_config = django_apps.get_app_config("edc_protocol")
+        protocol = Protocol()
         extra_context.update(
             {
-                "institution": app_config.institution,
-                "copyright": app_config.copyright,
-                "license": app_config.license or "",
-                "disclaimer": app_config.disclaimer,
+                "institution": protocol.institution,
+                "copyright": protocol.copyright,
+                "license": protocol.license or "",
+                "disclaimer": protocol.disclaimer,
             }
         )
         return extra_context

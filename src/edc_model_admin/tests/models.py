@@ -12,7 +12,7 @@ from edc_model.models import BaseUuidModel
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_sites.models import SiteModelMixin
 from edc_visit_schedule.model_mixins import OnScheduleModelMixin, OffScheduleModelMixin
-from edc_visit_tracking.model_mixins import CrfModelMixin, VisitModelMixin
+from edc_visit_tracking.model_mixins import VisitTrackingCrfModelMixin, VisitModelMixin
 from edc_visit_schedule.model_mixins.subject_on_schedule_model_mixin import (
     SubjectOnScheduleModelMixin,
 )
@@ -82,7 +82,7 @@ class Requisition(RequisitionModelMixin, BaseUuidModel):
         pass
 
 
-class BaseCrfModel(CrfModelMixin, SiteModelMixin, models.Model):
+class BaseCrfModel(VisitTrackingCrfModelMixin, SiteModelMixin, models.Model):
 
     f1 = models.CharField(max_length=50, default=uuid.uuid4)
 

@@ -1,7 +1,11 @@
 from .address_model_admin_mixin import AddressModelAdminMixin
 from .changelist_buttons import ModelAdminChangelistButtonMixin
 from .changelist_buttons import ModelAdminChangelistModelButtonMixin
-from .inlines import LimitedAdminInlineMixin, StackedInlineMixin, TabularInlineMixin
+from .inlines import (
+    LimitedAdminInlineMixin,
+    StackedInlineModelAdminMixin,
+    TabularInlineMixin,
+)
 from .model_admin_audit_fields_mixin import ModelAdminAuditFieldsMixin
 from .model_admin_audit_fields_mixin import audit_fields, audit_fieldset_tuple
 from .model_admin_form_auto_number_mixin import ModelAdminFormAutoNumberMixin

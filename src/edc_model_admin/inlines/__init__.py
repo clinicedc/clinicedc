@@ -1,3 +1,3 @@
 from .limited_admin_inline_mixin import LimitedAdminInlineMixin
-from .stacked_inline_mixin import StackedInlineMixin
+from .stacked_inline_modeladmin_mixin import StackedInlineModelAdminMixin
 from .tabular_inline_mixin import TabularInlineMixin
