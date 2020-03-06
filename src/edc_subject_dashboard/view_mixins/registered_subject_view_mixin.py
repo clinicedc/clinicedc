@@ -3,8 +3,7 @@ import re
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.base import ContextMixin
-from edc_registration.exceptions import RegisteredSubjectError
-from edc_registration.models import RegisteredSubject
+from edc_registration.models import RegisteredSubject, RegisteredSubjectError
 
 
 class RegisteredSubjectViewMixin(ContextMixin):
