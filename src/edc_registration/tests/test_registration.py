@@ -5,8 +5,7 @@ from django.test.utils import tag, override_settings  # noqa
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
 
-from ..exceptions import RegisteredSubjectError
-from ..models import RegisteredSubject
+from ..models import RegisteredSubject, RegisteredSubjectError
 from .models import SubjectModelOne, SubjectModelTwo, SubjectModelThree
 
 

@@ -15,8 +15,6 @@ class AppConfig(DjangoAppConfig):
     include_in_administration_section = True
 
     def ready(self):
-        from .signals import update_registered_subject_from_model_on_post_save
-
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
         sys.stdout.write(f"  * using {self.app_label}.registeredsubject\n")
         sys.stdout.write(f" Done loading {self.verbose_name}.\n")

@@ -1,5 +1,6 @@
 import re
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator
 from django.db import models, transaction
 from django.utils.translation import ugettext as _
@@ -13,14 +14,16 @@ from edc_model_fields.fields import IdentityTypeField, IsDateEstimatedField
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 from edc_utils import get_uuid
 
-from .exceptions import RegisteredSubjectError
 from .managers import RegisteredSubjectManager
+
+
+class RegisteredSubjectError(Exception):
+    pass
 
 
 class RegisteredSubject(
     UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseUuidModel
 ):
-
     """A model mixin for the RegisteredSubject model (only).
     """
 
@@ -186,10 +189,15 @@ class RegisteredSubject(
         """Returns True if subject identifier has been set to a
         subject identifier; that is, no longer the default UUID.
         """
-        obj = self.__class__.objects.get(pk=self.id)
-        if re.match(UUID_PATTERN, obj.subject_identifier):
-            return False
-        return True
+        is_set = True
+        try:
+            obj = self.__class__.objects.get(pk=self.id)
+        except ObjectDoesNotExist:
+            is_set = False
+        else:
+            if re.match(UUID_PATTERN, obj.subject_identifier):
+                return False
+        return is_set
 
     def raise_on_changed_subject_identifier(self):
         """Raises an exception if there is an attempt to change

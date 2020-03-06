@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from edc_model import DEFAULT_BASE_FIELDS
 
@@ -40,7 +41,7 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
             obj = self.registration_model.objects.get(
                 **{self.registered_subject_unique_field: registration_value}
             )
-        except self.registration_model.DoesNotExist:
+        except ObjectDoesNotExist:
             pass
         else:
             self.registration_raise_on_illegal_value_change(obj)
