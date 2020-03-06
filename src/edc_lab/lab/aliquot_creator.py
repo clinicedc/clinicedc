@@ -1,6 +1,7 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
+from edc_protocol import Protocol
 
 from ..identifiers import AliquotIdentifier
 
@@ -10,7 +11,6 @@ class AliquotCreatorError(Exception):
 
 
 class AliquotCreator:
-
     """A class that creates an aliquot.
 
     Aliquot is either a primary aliquot (is_primary=True) or
@@ -28,7 +28,6 @@ class AliquotCreator:
         subject_identifier=None,
         is_primary=None,
     ):
-        edc_protocol_app_config = django_apps.get_app_config("edc_protocol")
         self.aliquot_model_cls = django_apps.get_model(self.aliquot_model)
         self.requisition_identifier = requisition_identifier
         self.subject_identifier = subject_identifier
@@ -41,7 +40,7 @@ class AliquotCreator:
             self.parent_identifier = parent_identifier
         self.identifier_prefix = (
             identifier_prefix
-            or f"{edc_protocol_app_config.protocol_number}{self.requisition_identifier}"
+            or f"{Protocol().protocol_number}{self.requisition_identifier}"
         )
         if is_primary:
             self.parent_segment = None

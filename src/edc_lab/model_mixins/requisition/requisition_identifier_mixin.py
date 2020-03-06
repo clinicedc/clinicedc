@@ -1,8 +1,8 @@
 import re
 
-from django.apps import apps as django_apps
 from django.db import models
 from edc_constants.constants import YES, UUID_PATTERN
+from edc_protocol import Protocol
 from edc_utils import get_uuid
 
 from ...identifiers import RequisitionIdentifier
@@ -11,7 +11,6 @@ human_readable_pattern = "^[0-9A-Z]{3}\-[0-9A-Z]{4}$"
 
 
 class RequisitionIdentifierMixin(models.Model):
-
     requisition_identifier = models.CharField(
         verbose_name="Requisition Id", max_length=50, unique=True
     )
@@ -44,7 +43,7 @@ class RequisitionIdentifierMixin(models.Model):
         """
         protocol_number = self.protocol_number
         if not self.protocol_number:
-            protocol_number = django_apps.get_app_config("edc_protocol").protocol_number
+            protocol_number = Protocol().protocol_number
         return protocol_number
 
     def get_requisition_identifier(self):

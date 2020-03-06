@@ -1,5 +1,6 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
+from edc_protocol import Protocol
 
 from ..site_labs import site_labs
 from .base_label import BaseLabel
@@ -10,7 +11,6 @@ class AliquotLabelError(Exception):
 
 
 class AliquotLabel(BaseLabel):
-
     model = "edc_lab.aliquot"
     template_name = "aliquot"
     registered_subject_model = "edc_registration.registeredsubject"
@@ -23,6 +23,8 @@ class AliquotLabel(BaseLabel):
 
     @property
     def requisition(self):
+        """Returns a requisition model instance for this
+        requisition_identifier."""
         if not self._requisition:
             for model in site_labs.requisition_models:
                 model_cls = django_apps.get_model(model)
@@ -44,7 +46,6 @@ class AliquotLabel(BaseLabel):
 
     @property
     def label_context(self):
-        edc_protocol_app_config = django_apps.get_app_config("edc_protocol")
         registered_subject = django_apps.get_model(
             self.registered_subject_model
         ).objects.get(subject_identifier=self.requisition.subject_identifier)
@@ -54,7 +55,7 @@ class AliquotLabel(BaseLabel):
             "children_count": 1 if self.model_obj.is_primary else self.children_count,
             "primary": "<P>" if self.model_obj.is_primary else "",
             "barcode_value": self.model_obj.aliquot_identifier,
-            "protocol": edc_protocol_app_config.protocol,
+            "protocol": Protocol().protocol,
             "site": str(self.requisition.site.id),
             "site_name": str(self.requisition.site.name),
             "site_title": str(self.requisition.site.siteprofile.title),

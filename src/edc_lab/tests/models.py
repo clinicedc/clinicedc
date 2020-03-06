@@ -76,9 +76,9 @@ class DeathReport(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidMod
 
 class SubjectConsent(
     ConsentModelMixin,
+    UniqueSubjectIdentifierFieldMixin,
     PersonalFieldsMixin,
     IdentityFieldsMixin,
-    UniqueSubjectIdentifierFieldMixin,
     UpdatesOrCreatesRegistrationModelMixin,
     SiteModelMixin,
     SubjectOnScheduleModelMixin,
@@ -91,3 +91,6 @@ class SubjectConsent(
 
     def natural_key(self):
         return (self.subject_identifier,)
+
+    class Meta(ConsentModelMixin.Meta):
+        pass

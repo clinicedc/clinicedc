@@ -4,10 +4,10 @@ from arrow.arrow import Arrow
 from django.apps import apps as django_apps
 from django.conf import settings
 from edc_label import Label
+from edc_protocol import Protocol
 
 
 class RequisitionLabel(Label):
-
     template_name = "requisition"
     registered_subject_model = "edc_registration.registeredsubject"
 
@@ -33,7 +33,6 @@ class RequisitionLabel(Label):
 
     @property
     def label_context(self):
-        edc_protocol_app_config = django_apps.get_app_config("edc_protocol")
         tz = pytz.timezone(settings.TIME_ZONE)
         local = Arrow.fromdatetime(
             self.requisition.drawn_datetime or self.requisition.created
@@ -51,7 +50,7 @@ class RequisitionLabel(Label):
             "item_count": self.requisition.item_count or 1,
             "primary": "<P>",
             "barcode_value": self.requisition.requisition_identifier,
-            "protocol": edc_protocol_app_config.protocol,
+            "protocol": Protocol().protocol,
             "site": str(self.requisition.site.id),
             "site_name": str(self.requisition.site.name),
             "site_title": str(self.requisition.site.siteprofile.title),

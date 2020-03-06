@@ -1,4 +1,4 @@
-from django.apps import apps as django_apps
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from edc_consent.model_mixins import RequiresConsentFieldsModelMixin
@@ -9,13 +9,13 @@ from edc_metadata.model_mixins.updates import UpdatesRequisitionMetadataModelMix
 from edc_model.models import HistoricalRecords
 from edc_model.validators import datetime_not_future
 from edc_model_fields.fields import OtherCharField, InitialsField
+from edc_protocol import Protocol
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_reference.model_mixins import RequisitionReferenceModelMixin
 from edc_search.model_mixins import SearchSlugModelMixin
 from edc_sites.models import SiteModelMixin
-from edc_visit_schedule.model_mixins import SubjectScheduleCrfModelMixin
 from edc_visit_tracking.managers import CurrentSiteManager
-from edc_visit_tracking.model_mixins import CrfModelMixin
+from edc_visit_tracking.model_mixins import VisitTrackingCrfModelMixin
 from edc_visit_tracking.model_mixins import PreviousVisitModelMixin
 
 from ...choices import ITEM_TYPE, REASON_NOT_DRAWN
@@ -28,7 +28,7 @@ from .requisition_identifier_mixin import RequisitionIdentifierMixin
 
 class RequisitionModelMixin(
     NonUniqueSubjectIdentifierFieldMixin,
-    CrfModelMixin,
+    VisitTrackingCrfModelMixin,
     PanelModelMixin,
     PreviousVisitModelMixin,
     RequiresConsentFieldsModelMixin,
@@ -38,11 +38,9 @@ class RequisitionModelMixin(
     RequisitionVerifyModelMixin,
     SearchSlugModelMixin,
     SiteModelMixin,
-    SubjectScheduleCrfModelMixin,
     UpdatesRequisitionMetadataModelMixin,
     models.Model,
 ):
-
     requisition_datetime = models.DateTimeField(
         validators=[datetime_not_before_study_start, datetime_not_future],
         default=timezone.now,
@@ -124,8 +122,7 @@ class RequisitionModelMixin(
 
     def save(self, *args, **kwargs):
         if not self.id:
-            edc_protocol_app_config = django_apps.get_app_config("edc_protocol")
-            self.protocol_number = edc_protocol_app_config.protocol_number
+            self.protocol_number = Protocol().protocol_number
         self.subject_identifier = self.subject_visit.subject_identifier
         self.specimen_type = self.panel_object.aliquot_type.alpha_code
         super().save(*args, **kwargs)
@@ -133,7 +130,7 @@ class RequisitionModelMixin(
     def natural_key(self):
         return (self.requisition_identifier,)
 
-    natural_key.dependencies = ["sites.Site"]
+    natural_key.dependencies = [settings.SUBJECT_VISIT_MODEL, "sites.Site"]
 
     def get_search_slug_fields(self):
         fields = super().get_search_slug_fields()
