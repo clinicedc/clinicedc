@@ -48,7 +48,7 @@ class Randomizer:
     name = "default"
     model = "edc_randomization.randomizationlist"
     assignment_map = DEFAULT_ASSIGNMENT_MAP
-    file_name = "randomization_list.csv"
+    filename = "randomization_list.csv"
     is_blinded_trial = True
 
     def __init__(
@@ -78,7 +78,7 @@ class Randomizer:
 
     @classmethod
     def get_randomization_list_path(cls):
-        return os.path.join(settings.EDC_RANDOMIZATION_LIST_PATH, cls.file_name)
+        return os.path.join(settings.EDC_RANDOMIZATION_LIST_PATH, cls.filename)
 
     @classmethod
     def get_assignment(cls, row):

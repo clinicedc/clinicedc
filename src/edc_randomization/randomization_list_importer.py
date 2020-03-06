@@ -87,7 +87,7 @@ class RandomizationListImporter:
                     f"    -  Name: {randomizer.name}\n"
                     f"    -  Assignments: {randomizer.assignment_map}\n"
                     f"    -  Blinded trial:  {randomizer.is_blinded_trial}\n"
-                    f"    -  CSV file:  {randomizer.file_name}\n"
+                    f"    -  CSV file:  {randomizer.filename}\n"
                     f"    -  Model: {randomizer.model}\n"
                     f"    -  Path: {settings.EDC_RANDOMIZATION_LIST_PATH}\n"
                 )
