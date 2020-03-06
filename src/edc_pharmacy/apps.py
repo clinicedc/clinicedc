@@ -27,23 +27,6 @@ class AppConfig(DjangoAppConfig):
 
 if settings.APP_NAME == "edc_pharmacy":
     from edc_appointment.apps import AppConfig as BaseEdcAppointmentAppConfig
-    from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
-    from edc_label.apps import AppConfig as BaseEdcLabelAppConfig
 
     class EdcAppointmentAppConfig(BaseEdcAppointmentAppConfig):
         appointment_model = "edc_pharmacy.appointment"
-
-    class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
-        definitions = {
-            "gaborone": dict(
-                days=[MO, TU, WE, TH, FR, SA, SU],
-                slots=[100, 100, 100, 100, 100, 100, 100],
-            )
-        }
-
-    class EdcLabelAppConfig(BaseEdcLabelAppConfig):
-        default_cups_server_ip = None
-        default_printer_label = "mytest"
-        extra_templates_folder = os.path.join(
-            settings.STATIC_ROOT, "edc_pharmacy", "label_templates"
-        )
