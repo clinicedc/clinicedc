@@ -15,6 +15,13 @@ class SubjectReconsent(BaseUuidModel):
         pass
 
 
+class SubjectVisit(BaseUuidModel):
+    history = HistoricalRecords()
+
+    class Meta:
+        pass
+
+
 class SubjectRequisition(BaseUuidModel):
     history = HistoricalRecords()
 
