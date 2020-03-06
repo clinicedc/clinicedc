@@ -6,7 +6,6 @@ from ..models import QueryRule
 
 class QueryRuleFormValidator(FormValidator):
     def clean(self):
-
         models = list(
             set([obj.model for obj in self.cleaned_data.get("data_dictionaries")])
         )
@@ -17,7 +16,6 @@ class QueryRuleFormValidator(FormValidator):
 
 
 class QueryRuleForm(FormValidatorMixin, forms.ModelForm):
-
     form_validator_cls = QueryRuleFormValidator
 
     class Meta:

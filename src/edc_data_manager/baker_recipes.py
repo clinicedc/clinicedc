@@ -6,7 +6,6 @@ from uuid import uuid4
 
 fake = Faker()
 
-
 queryrule = Recipe(QueryRule, title=str(uuid4()))
 
 dataquery = Recipe(
