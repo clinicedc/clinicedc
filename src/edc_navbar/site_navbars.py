@@ -87,7 +87,7 @@ class NavbarCollection:
         return codenames
 
     def autodiscover(self, module_name=None, verbose=True):
-        if getattr(settings, "LOAD_NAVBARS", True):
+        if getattr(settings, "EDC_NAVBAR_ENABLED", True):
             module_name = module_name or "navbars"
             writer = sys.stdout.write if verbose else lambda x: x
             style = color_style()
