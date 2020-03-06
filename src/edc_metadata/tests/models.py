@@ -18,7 +18,7 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins import OnScheduleModelMixin, OffScheduleModelMixin
 from edc_visit_tracking.model_mixins import (
     VisitModelMixin,
-    CrfModelMixin as BaseCrfModelMixin,
+    VisitTrackingCrfModelMixin,
 )
 
 from ..model_mixins.creates import CreatesMetadataModelMixin
@@ -27,7 +27,7 @@ from ..model_mixins.updates import UpdatesRequisitionMetadataModelMixin
 from edc_sites.models import SiteModelMixin
 
 
-class CrfModelMixin(BaseCrfModelMixin, SiteModelMixin, models.Model):
+class CrfModelMixin(VisitTrackingCrfModelMixin, SiteModelMixin, models.Model):
     class Meta:
         abstract = True
 
