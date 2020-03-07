@@ -13,7 +13,7 @@ import django_audit_fields.fields.uuid_auto_field
 import django_audit_fields.models.audit_model_mixin
 import django_revision.revision_field
 import edc_action_item.models.action_item
-import edc_registration.managers
+import edc_registration.models.managers
 import edc_sites.models
 import edc_utils.date
 import simple_history.models
@@ -175,7 +175,10 @@ class Migration(migrations.Migration):
             bases=("edc_registration.registeredsubject",),
             managers=[
                 ("on_site", edc_sites.models.CurrentSiteManager()),
-                ("objects", edc_registration.managers.RegisteredSubjectManager()),
+                (
+                    "objects",
+                    edc_registration.models.managers.RegisteredSubjectManager(),
+                ),
             ],
         ),
         migrations.CreateModel(
