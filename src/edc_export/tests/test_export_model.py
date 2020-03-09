@@ -7,13 +7,13 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
 from edc_utils import get_utcnow
 from edc_pdutils.model_to_dataframe import ValueGetterInvalidLookup
+from time import sleep
+from unittest.case import skip
 
 from ..constants import EXPORTED, UPDATE, INSERT
 from ..model_exporter import ModelExporter
 from ..models import ObjectHistory, FileHistory
 from .models import Crf, SubjectVisit, ListModel, CrfEncrypted
-from time import sleep
-from unittest.case import skip
 
 app_config = django_apps.get_app_config("edc_export")
 
