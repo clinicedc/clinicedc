@@ -2,7 +2,7 @@
 
 from django.db import migrations
 import edc_sites.models
-import edc_registration.managers
+import edc_registration.models.managers
 
 
 class Migration(migrations.Migration):
@@ -14,7 +14,10 @@ class Migration(migrations.Migration):
             name="registeredsubject",
             managers=[
                 ("on_site", edc_sites.models.CurrentSiteManager()),
-                ("objects", edc_registration.managers.RegisteredSubjectManager()),
+                (
+                    "objects",
+                    edc_registration.models.managers.RegisteredSubjectManager(),
+                ),
             ],
         )
     ]
