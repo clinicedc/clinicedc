@@ -3,8 +3,7 @@ from edc_model_admin.model_admin_audit_fields_mixin import audit_fieldset_tuple
 
 from ..fieldset import Fieldset
 from ..fieldsets_modeladmin_mixin import FieldsetsModelAdminMixin
-from .models import MyModel, MyModel2, MyModel3
-from edc_constants.constants import NO
+from .models import MyModel, MyModel2
 
 VISIT_ONE = "1000"
 VISIT_TWO = "2000"

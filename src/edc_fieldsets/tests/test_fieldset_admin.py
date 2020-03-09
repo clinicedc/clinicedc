@@ -22,7 +22,7 @@ class TestFieldsetAdmin(TestCase):
         )
         self.subject_identifier = "1234"
         for permission in Permission.objects.filter(
-            content_type__app_label="edc_fieldsets", content_type__model="mymodel"
+            content_type__app_label="edc_fieldsets"
         ):
             self.user.user_permissions.add(permission)
         RegisteredSubject.objects.create(subject_identifier=self.subject_identifier)
@@ -96,7 +96,6 @@ class TestFieldsetAdmin(TestCase):
         rf = RequestFactory()
 
         request = rf.get(f"/?appointment={str(appointment.id)}")
-
         request.user = self.user
 
         rendered_change_form = my_model_admin.changeform_view(
@@ -142,7 +141,6 @@ class TestFieldsetAdmin(TestCase):
         rf = RequestFactory()
 
         request = rf.get(f"/?appointment={str(appointment.id)}")
-
         request.user = self.user
 
         rendered_change_form = my_model_admin.changeform_view(
