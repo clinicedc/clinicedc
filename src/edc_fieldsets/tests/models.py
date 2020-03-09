@@ -5,7 +5,7 @@ from edc_constants.choices import YES_NO
 from edc_model.models import BaseUuidModel
 from edc_utils import get_utcnow
 from edc_visit_tracking.model_mixins import VisitModelMixin
-from edc_visit_tracking.model_mixins.crfs.crf_model_mixin import CrfModelMixin
+from edc_visit_tracking.model_mixins.crfs.visit_tracking_crf_model_mixin import CrfModelMixin
 
 
 class SubjectVisit(VisitModelMixin, BaseUuidModel):
