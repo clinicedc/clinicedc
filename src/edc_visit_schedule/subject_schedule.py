@@ -269,8 +269,9 @@ class SubjectSchedule:
             model_cls.objects.get(subject_identifier=subject_identifier)
         except ObjectDoesNotExist:
             raise UnknownSubjectError(
-                f"Failed to put subject on schedule. Unknown subject.  "
-                f"Got {subject_identifier}."
+                f"Failed to put subject on schedule. Unknown subject. "
+                f"Searched `{self.registered_subject_model}`. "
+                f"Got subject_identifier=`{subject_identifier}`."
             )
 
     def consented_or_raise(self, subject_identifier=None):
