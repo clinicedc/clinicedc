@@ -4,7 +4,7 @@ from edc_appointment.tests.models import SubjectVisit, SubjectOffstudy
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel
 from edc_utils import get_utcnow
-from edc_visit_tracking.model_mixins import CrfModelMixin
+from edc_visit_tracking.model_mixins import VisitTrackingCrfModelMixin
 
 from ..model_mixins import (
     OffstudyModelMixin,
@@ -13,7 +13,7 @@ from ..model_mixins import (
 )
 
 
-class CrfOne(OffstudyCrfModelMixin, CrfModelMixin, BaseUuidModel):
+class CrfOne(OffstudyCrfModelMixin, VisitTrackingCrfModelMixin, BaseUuidModel):
 
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
