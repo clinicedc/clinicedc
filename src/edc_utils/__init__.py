@@ -35,5 +35,13 @@ def get_datetime_from_env(
         hour = hour or 0
         minute = minute or 0
         second = second or 0
-
-    return datetime(year, month, day, hour, minute, second, 0, gettz(time_zone))
+    return datetime(
+        int(year),
+        int(month),
+        int(day),
+        int(hour),
+        int(minute),
+        int(second),
+        0,
+        gettz(time_zone),
+    )
