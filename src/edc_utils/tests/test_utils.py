@@ -3,11 +3,9 @@ import pytz
 
 from datetime import datetime, date
 from dateutil import tz
+from django.test import TestCase, tag  # noqa
 
-# from django.test import TestCase, tag  # noqa
-from unittest import TestCase
-
-from edc_utils import (
+from .. import (
     age,
     formatted_age,
     formatted_datetime,
@@ -15,6 +13,7 @@ from edc_utils import (
     get_safe_random_string,
     AgeValueError,
     get_dob,
+    get_datetime_from_env,
 )
 
 
@@ -147,3 +146,8 @@ class TestUtils(TestCase):
             datetime(1990, 5, 2, 0, 0), tz.gettz("Africa/Gaborone")
         ).datetime
         self.assertTrue(formatted_datetime(born))
+
+    def get_datetime_from_env(self):
+        dt = datetime(1990, 5, 2, 0, 0), tz.gettz("Africa/Gaborone")
+
+        self.assertEqual(dt, get_datetime_from_env(1990, 5, 2, 0, 0, "Africa/Gaborone"))
