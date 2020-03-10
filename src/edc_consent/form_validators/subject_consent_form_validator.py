@@ -3,6 +3,7 @@ from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from edc_screening.utils import get_subject_screening_model
 from edc_utils.date import to_utc
 from edc_utils.text import convert_php_dateformat
 from pytz import timezone
@@ -10,7 +11,7 @@ from pytz import timezone
 
 class SubjectConsentFormValidatorMixin:
 
-    subject_screening_model = None
+    subject_screening_model = get_subject_screening_model()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
