@@ -1,3 +1,5 @@
+from datetime import datetime
+from dateutil.tz import gettz
 from math import ceil
 from uuid import uuid4
 
@@ -20,3 +22,18 @@ def get_uuid():
 
 def round_up(value, digits):
     ceil(value * (10 ** digits)) / (10 ** digits)
+
+
+def get_datetime_from_env(
+    year, month, day, hour, minute, second, time_zone, closing_date=None
+):
+    if closing_date:
+        hour = hour or 23
+        minute = minute or 59
+        second = second or 59
+    else:
+        hour = hour or 0
+        minute = minute or 0
+        second = second or 0
+
+    return datetime(year, month, day, hour, minute, second, 0, gettz(time_zone))
