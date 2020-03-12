@@ -4,8 +4,8 @@ from edc_appointment.models import Appointment
 from edc_constants.choices import YES_NO
 from edc_model.models import BaseUuidModel
 from edc_utils import get_utcnow
-from edc_visit_tracking.model_mixins import VisitModelMixin
-from edc_visit_tracking.model_mixins.crfs.crf_model_mixin import CrfModelMixin
+from edc_visit_schedule.model_mixins import OnScheduleModelMixin, OffScheduleModelMixin
+from edc_visit_tracking.model_mixins import VisitModelMixin, VisitTrackingCrfModelMixin
 
 
 class SubjectVisit(VisitModelMixin, BaseUuidModel):
@@ -17,7 +17,7 @@ class SubjectVisit(VisitModelMixin, BaseUuidModel):
     appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
 
 
-class MyModel(CrfModelMixin, BaseUuidModel):
+class MyModel(VisitTrackingCrfModelMixin, BaseUuidModel):
 
     subject_visit = models.OneToOneField(SubjectVisit, on_delete=PROTECT)
 
@@ -26,3 +26,13 @@ class MyModel(CrfModelMixin, BaseUuidModel):
     circumcised = models.CharField(
         verbose_name="Are you circumcised?", max_length=10, choices=YES_NO
     )
+
+
+class OnSchedule(OnScheduleModelMixin, BaseUuidModel):
+    class Meta(OnScheduleModelMixin.Meta):
+        pass
+
+
+class OffSchedule(OffScheduleModelMixin, BaseUuidModel):
+    class Meta(OffScheduleModelMixin.Meta):
+        pass
