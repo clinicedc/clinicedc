@@ -9,12 +9,12 @@ from edc_constants.constants import NO
 from edc_registration.models import RegisteredSubject
 from edc_visit_schedule import site_visit_schedules
 
-from ..custom_label_condition import CustomLabelCondition
-from ..form_label import FormLabel
-from .admin import VISIT_ONE, VISIT_TWO
-from .forms import MyForm
-from .models import MyModel, SubjectVisit
-from .visit_schedule import visit_schedule
+from ...custom_label_condition import CustomLabelCondition
+from ...form_label import FormLabel
+from ..admin import VISIT_ONE, VISIT_TWO
+from ..forms import MyForm
+from ..models import MyModel, SubjectVisit
+from ..visit_schedule import visit_schedule
 
 
 class TestFormLabel(TestCase):
