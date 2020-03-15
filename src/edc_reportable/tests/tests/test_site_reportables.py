@@ -1,3 +1,5 @@
+import os
+
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 from edc_constants.constants import MALE
@@ -17,7 +19,18 @@ class TestSiteReportables(TestCase):
 
     def test_to_csv(self):
         path = mkdtemp()
-        site_reportables.to_csv(collection_name="my_reference_list", path=path)
+        filename1, filename2 = site_reportables.to_csv(
+            collection_name="my_reference_list", path=path
+        )
+        with open(os.path.join(path, filename1)) as f:
+            header = str(f.readline()).strip()
+            self.assertEqual(
+                header,
+                (
+                    "name,description,units,gender,lower,lower_inclusive,upper,upper_inclusive,"
+                    "fasting,age_lower,age_upper,age_units,age_lower_inclusive"
+                ),
+            )
 
     def test_(self):
         reportables = site_reportables.get("my_reference_list")
