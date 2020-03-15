@@ -10,6 +10,10 @@ from .randomization_list_verifier import RandomizationListVerifier
 
 RANDOMIZED = "RANDOMIZED"
 
+assignment_map = getattr(
+    settings, "EDC_RANDOMIZATION_ASSIGNMENT_MAP", DEFAULT_ASSIGNMENT_MAP
+)
+
 
 class RandomizationError(Exception):
     pass
@@ -47,7 +51,7 @@ class Randomizer:
 
     name = "default"
     model = "edc_randomization.randomizationlist"
-    assignment_map = DEFAULT_ASSIGNMENT_MAP
+    assignment_map = assignment_map
     filename = "randomization_list.csv"
     is_blinded_trial = True
 
