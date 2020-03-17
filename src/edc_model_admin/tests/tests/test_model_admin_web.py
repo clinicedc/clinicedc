@@ -52,7 +52,7 @@ class ModelAdminSiteTest(WebTest):
             visit_models={"edc_appointment.appointment": "edc_model_admin.subjectvisit"}
         )
 
-        self.subject_identifier = "12345"
+        self.subject_identifier = "000-12345"
         SubjectConsent.objects.create(
             subject_identifier=self.subject_identifier,
             consent_datetime=get_utcnow(),
