@@ -209,7 +209,6 @@ class RandomizationListImporter:
             reader = csv.DictReader(csvfile)
             for row in tqdm(reader, total=self.sid_count):
                 row = {k: v.strip() for k, v in row.items()}
-
                 try:
                     randomizer.model_cls().objects.get(sid=row["sid"])
                 except ObjectDoesNotExist:
@@ -234,7 +233,9 @@ class RandomizationListImporter:
                     obj = randomizer.model_cls()(**opts)
                     objs.append(obj)
             if not self.dryrun:
+                sys.stdout.write(f"\n bulk creating {self.sid_count} items ...\r")
                 randomizer.model_cls().objects.bulk_create(objs)
+                sys.stdout.write(f"\n bulk creating {self.sid_count} items ... done\n")
                 assert self.sid_count == randomizer.model_cls().objects.all().count()
             else:
                 sys.stdout.write(
