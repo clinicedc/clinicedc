@@ -43,7 +43,7 @@ class Protocol:
         self.project_name = getattr(
             settings,
             "EDC_PROTOCOL_PROJECT_NAME",
-            "Project Title (set EDC_PROTOCOL_PROJECT_NAME)",
+            "Project Name (set EDC_PROTOCOL_PROJECT_NAME)",
         )
         self.protocol_name = self.project_name
         self.disclaimer = "For research purposes only."
@@ -53,6 +53,15 @@ class Protocol:
         self.default_url_name = "home_url"
         self.physical_address = Address()
         self.postal_address = Address()
+
+        self.subject_identifier_pattern = getattr(
+            settings,
+            "EDC_PROTOCOL_SUBJECT_IDENTIFIER_PATTERN",
+            f"{self.protocol_number}\-[0-9\-]+",  # noqa
+        )
+        self.screening_identifier_pattern = getattr(
+            settings, "EDC_PROTOCOL_SCREENING_IDENTIFIER_PATTERN", "[A-Z0-9]{8}"
+        )
 
         study_open_datetime = getattr(
             settings,
