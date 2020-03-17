@@ -57,7 +57,7 @@ class TestTwilio(TestCase):
         self.assertEqual(
             TwillioTestClientMessages.created[0].get("body"),
             (
-                "TEST MESSAGE. NO ACTION REQUIRED - Project Title "
+                "TEST MESSAGE. NO ACTION REQUIRED - Project Name "
                 "(set EDC_PROTOCOL_PROJECT_NAME): "
                 'Report "Test Grade3 Event" '
                 "for patient 1 at site example.com may require your attention. "
