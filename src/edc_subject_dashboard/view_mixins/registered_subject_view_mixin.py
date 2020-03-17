@@ -3,6 +3,7 @@ import re
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.base import ContextMixin
+from edc_protocol import Protocol
 from edc_registration.models import RegisteredSubject, RegisteredSubjectError
 
 
@@ -21,12 +22,12 @@ class RegisteredSubjectViewMixin(ContextMixin):
         if self.subject_identifier:
             app_config = django_apps.get_app_config("edc_identifier")
             if not re.match(
-                app_config.subject_identifier_pattern, self.subject_identifier
+                Protocol().subject_identifier_pattern, self.subject_identifier
             ):
                 raise RegisteredSubjectError(
                     f"Invalid subject identifier format. "
-                    f"Valid pattern is `{app_config.subject_identifier_pattern}`. "
-                    f"See AppConfig in `edc_identifier.subject_identifier_pattern`. "
+                    f"Valid pattern is `{Protocol().subject_identifier_pattern}`. "
+                    f"See `edc_protocol.Protocol().subject_identifier_pattern`. "
                     f"Got `{self.subject_identifier}`."
                 )
             try:
