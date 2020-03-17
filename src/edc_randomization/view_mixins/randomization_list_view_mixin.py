@@ -12,23 +12,23 @@ class RandomizationListViewMixin(ContextMixin):
 
     @property
     def assignment_description(self):
-        Randomizer = site_randomizers.get(self.randomizer_name)
+        randomizer_cls = site_randomizers.get(self.randomizer_name)
         subject_identifier = is_subject_identifier_or_raise(
             self.kwargs.get("subject_identifier")
         )
         try:
-            obj = Randomizer.model_cls().objects.get(
+            obj = randomizer_cls.model_cls().objects.get(
                 subject_identifier=subject_identifier
             )
         except ObjectDoesNotExist as e:
             current_site = Site.objects.get_current()
             total = (
-                Randomizer.model_cls()
+                randomizer_cls.model_cls()
                 .objects.filter(site_name=current_site.name)
                 .count()
             )
             available = (
-                Randomizer.model_cls()
+                randomizer_cls.model_cls()
                 .objects.filter(site_name=current_site.name, allocated=False)
                 .count()
             )

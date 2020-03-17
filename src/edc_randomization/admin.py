@@ -92,8 +92,8 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
 
 site_randomizers.autodiscover()
 
-for Randomizer in site_randomizers._registry.values():
-    model = Randomizer.model_cls()
+for randomizer_cls in site_randomizers._registry.values():
+    model = randomizer_cls.model_cls()
     NewModelAdminClass = type(
         f"{model.__name__}ModelAdmin", (RandomizationListModelAdmin,), {}
     )
