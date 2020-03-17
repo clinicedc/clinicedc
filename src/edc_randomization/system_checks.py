@@ -20,7 +20,7 @@ def randomization_list_check(app_configs, **kwargs):
     sys.stdout.write(style.SQL_KEYWORD("randomization_list_check ... \r"))
     errors = []
     error = error_configs.get("randomization_list_check")
-    if not settings.EDC_RANDOMIZATION_SKIP_VERIFY_CHECKS:
+    if settings.EDC_RANDOMIZATION_SKIP_VERIFY_CHECKS:
         errors.append(
             Warning(
                 "Skipping the randomization list verification.",
