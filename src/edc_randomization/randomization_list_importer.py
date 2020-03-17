@@ -233,10 +233,25 @@ class RandomizationListImporter:
                     obj = randomizer.model_cls()(**opts)
                     objs.append(obj)
             if not self.dryrun:
-                sys.stdout.write(f"\n bulk creating {self.sid_count} items ...\r")
+                sys.stdout.write(
+                    style.SUCCESS(
+                        f"\n    -  bulk creating {self.sid_count} model instances ...\r"
+                    )
+                )
                 randomizer.model_cls().objects.bulk_create(objs)
-                sys.stdout.write(f"\n bulk creating {self.sid_count} items ... done\n")
+                sys.stdout.write(
+                    style.SUCCESS(
+                        f"    -  bulk creating {self.sid_count} model instances ... done\n"
+                    )
+                )
                 assert self.sid_count == randomizer.model_cls().objects.all().count()
+                sys.stdout.write(
+                    style.SUCCESS(
+                        "    Important: You may wish to run the randomization list "
+                        "verifier before going LIVE on production systems."
+                    )
+                )
+
             else:
                 sys.stdout.write(
                     style.MIGRATE_HEADING(
