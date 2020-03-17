@@ -1,11 +1,16 @@
 import csv
 import os
+import sys
 
 from django.conf import settings
 from django.core.checks import Warning
+from django.core.management import color_style
+
+style = color_style()
 
 
 def holiday_path_check(app_configs, **kwargs):
+    sys.stdout.write(style.SQL_KEYWORD("holiday_path_check ... \r"))
     errors = []
     holiday_path = None
 
@@ -33,10 +38,12 @@ def holiday_path_check(app_configs, **kwargs):
                 id="edc_facility.002",
             )
         )
+    sys.stdout.write(style.SQL_KEYWORD("holiday_path_check ... done.\n"))
     return errors
 
 
 def holiday_country_check(app_configs, **kwargs):
+    sys.stdout.write(style.SQL_KEYWORD("holiday_country_check ... \r"))
     errors = []
     holiday_path = settings.HOLIDAY_FILE
 
@@ -60,4 +67,5 @@ def holiday_country_check(app_configs, **kwargs):
                         id="edc_facility.004",
                     )
                 )
+    sys.stdout.write(style.SQL_KEYWORD("holiday_country_check ... done.\n"))
     return errors
