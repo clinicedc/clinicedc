@@ -1,7 +1,11 @@
 import os
+import sys
 
 from django.core.checks import Warning
 from django.conf import settings
+from django.core.management import color_style
+
+style = color_style()
 
 
 def edc_check(app_configs, **kwargs):
@@ -13,6 +17,7 @@ def edc_check(app_configs, **kwargs):
 
 
 def check_etc_dir(errors):
+    sys.stdout.write(style.SQL_KEYWORD("check_etc_dir ... \r"))
     try:
         settings.ETC_DIR
     except AttributeError:
@@ -39,10 +44,12 @@ def check_etc_dir(errors):
                     id=f"settings.ETC_DIR",
                 )
             )
+    sys.stdout.write(style.SQL_KEYWORD("check_etc_dir ... done.\n"))
     return errors
 
 
 def check_static_root(errors):
+    sys.stdout.write(style.SQL_KEYWORD("check_static_root ... \r"))
     try:
         settings.STATIC_ROOT
     except AttributeError:
@@ -55,10 +62,12 @@ def check_static_root(errors):
                     id=f"settings.STATIC_ROOT",
                 )
             )
+    sys.stdout.write(style.SQL_KEYWORD("check_static_root ... done.\n"))
     return errors
 
 
 def check_key_path(errors):
+    sys.stdout.write(style.SQL_KEYWORD("check_key_path ...\r"))
     try:
         settings.KEY_PATH
     except AttributeError:
@@ -72,4 +81,5 @@ def check_key_path(errors):
                     id=f"settings.KEY_PATH",
                 )
             )
+    sys.stdout.write(style.SQL_KEYWORD("check_key_path ... done.\n"))
     return errors
