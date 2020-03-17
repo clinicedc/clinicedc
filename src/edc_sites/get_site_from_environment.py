@@ -16,7 +16,7 @@ class EdcSiteFromEnvironmentError(Exception):
 def get_site_from_environment(
     default_site_name=None, default_country=None, app_name=None, sites_module_name=None,
 ):
-    """Returns the country and site_id for settings
+    """Returns the country, site_id and site_name for settings
     extracted from the environment.
 
     * Assumes the sites module has `sites`, e.g. inte_sites.sites
@@ -41,14 +41,15 @@ def get_site_from_environment(
         )
 
         country = default_country
+        site_name = default_site_name
         site_id = get_site_id(
-            default_site_name,
+            site_name,
             sites=get_sites_by_country(
                 country=country, all_sites=sites_module.all_sites
             ),
         )
     else:
-        _app_name, _, country, _site_name = os.environ.get(
+        _app_name, _, country, site_name = os.environ.get(
             "DJANGO_SETTINGS_MODULE"
         ).split(".")
         if app_name != _app_name:
@@ -56,9 +57,9 @@ def get_site_from_environment(
                 "Invalid app_name extracted from DJANGO_SETTINGS_MODULE."
             )
         site_id = get_site_id(
-            _site_name,
+            site_name,
             sites=get_sites_by_country(
                 country=country, all_sites=sites_module.all_sites
             ),
         )
-    return country, site_id
+    return country, site_id, site_name

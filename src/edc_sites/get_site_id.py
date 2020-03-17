@@ -6,8 +6,10 @@ class InvalidSiteError(Exception):
 
 
 def get_site_id(value, sites=None):
-    """Expects sites list has elements of format
-    (SITE_ID(int), site_name(char), site_long_name(char)).
+    """Returns the site_id given the site_name.
+
+    Expects sites list has elements of format:
+        ((SITE_ID(int), site_name(char), site_long_name(char)), (...)).
     """
     if not sites:
         site_model_cls = django_apps.get_model("edc_sites.edcsite")
