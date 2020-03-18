@@ -1,6 +1,5 @@
 import re
 
-from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.base import ContextMixin
 from edc_protocol import Protocol
@@ -20,7 +19,6 @@ class RegisteredSubjectViewMixin(ContextMixin):
         context = super().get_context_data(**kwargs)
         self.subject_identifier = self.kwargs.get("subject_identifier")
         if self.subject_identifier:
-            app_config = django_apps.get_app_config("edc_identifier")
             if not re.match(
                 Protocol().subject_identifier_pattern, self.subject_identifier
             ):
