@@ -15,7 +15,7 @@ class ModelBackendWithSite(ModelBackend):
         if user:
             sites = [obj.id for obj in user.userprofile.sites.all()]
             try:
-                site_id = request.site_id
+                site_id = request.site.id
             except AttributeError:
                 site_id = settings.SITE_ID
             if user.is_superuser or site_id in sites:
