@@ -36,7 +36,8 @@ def get_site_from_environment(
 
         sys.stderr.write(
             style.ERROR(
-                "Using defaults for country and site. Assuming a test environment (get_site_from_environment).\n"
+                "Using defaults for country and site. Assuming a test environment (get_site_from_environment) "
+                f"Got DJANGO_SETTINGS_MODULE=`{os.environ.get('DJANGO_SETTINGS_MODULE')}`.\n"
             )
         )
 

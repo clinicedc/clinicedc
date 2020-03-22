@@ -32,6 +32,10 @@ class SiteModelMixin(models.Model):
 
 class SiteProfile(models.Model):
 
+    country = models.CharField(max_length=250, null=True)
+
+    country_code = models.CharField(max_length=15, null=True)
+
     title = models.CharField(max_length=250, null=True)
 
     description = models.TextField(null=True)
@@ -50,6 +54,14 @@ class EdcSite(Site):
     @property
     def description(self):
         return SiteProfile.objects.get(site=self).description
+
+    @property
+    def country(self):
+        return SiteProfile.objects.get(site=self).country
+
+    @property
+    def country_code(self):
+        return SiteProfile.objects.get(site=self).country_code
 
     class Meta:
         proxy = True
