@@ -1,5 +1,7 @@
 from django.apps import apps as django_apps
 
+from .single_site import SingleSite
+
 
 class InvalidSiteError(Exception):
     pass
@@ -7,22 +9,30 @@ class InvalidSiteError(Exception):
 
 def get_site_id(value, sites=None):
     """Returns the site_id given the site_name.
-
-    Expects sites list has elements of format:
-        ((SITE_ID(int), site_name(char), site_long_name(char)), (...)).
     """
     if not sites:
         site_model_cls = django_apps.get_model("edc_sites.edcsite")
-        sites = [(obj.id, obj.name, obj.title) for obj in site_model_cls.objects.all()]
+        sites = [
+            SingleSite(
+                obj.id,
+                obj.name,
+                title=obj.title,
+                description=obj.description,
+                country=obj.country,
+                country_code=obj.country_code,
+                domain=obj.domain,
+            )
+            for obj in site_model_cls.objects.all()
+        ]
 
     try:
-        site_id = [site for site in sites if site[1] == value][0][0]
+        site_id = [site for site in sites if site.name == value][0].site_id
     except IndexError:
         try:
-            site_id = [site for site in sites if site[2] == value][0][0]
+            site_id = [site for site in sites if site.title == value][0].site_id
         except IndexError:
-            site_ids = [site[1] for site in sites]
-            site_names = [site[2] for site in sites]
+            site_ids = [site.site_id for site in sites]
+            site_names = [site.name for site in sites]
             raise InvalidSiteError(
                 f"Invalid site. Got '{value}'. Expected one of "
                 f"{site_ids} or {site_names}."

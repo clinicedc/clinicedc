@@ -4,12 +4,13 @@ from django.test import TestCase, tag  # noqa
 from django.test.utils import override_settings
 from edc_sites.models import SiteProfile
 
+from django.conf import settings
 from ..add_or_update_django_sites import add_or_update_django_sites
 from ..get_site_id import get_site_id
 from ..forms import SiteModelFormMixin
 from ..utils import raise_on_save_if_reviewer, ReviewerSiteSaveError
 from .models import TestModelWithSite
-from .site_test_case_mixin import SiteTestCaseMixin, default_sites
+from .site_test_case_mixin import SiteTestCaseMixin
 
 
 class TestForm(SiteModelFormMixin, forms.ModelForm):
@@ -19,6 +20,9 @@ class TestForm(SiteModelFormMixin, forms.ModelForm):
 
 
 class TestSites(SiteTestCaseMixin, TestCase):
+    def setUp(self):
+        add_or_update_django_sites(sites=self.default_sites)
+
     @override_settings(SITE_ID=20)
     def test_20(self):
         obj = TestModelWithSite.objects.create()
@@ -81,23 +85,42 @@ class TestSites(SiteTestCaseMixin, TestCase):
     @override_settings(SITE_ID=30)
     def test_site_profile(self):
         obj = TestModelWithSite.objects.create()
-        site_profile = SiteProfile.objects.create(site=obj.site, title="Erik")
+        site_profile = SiteProfile.objects.get(site=obj.site)
         self.assertEqual(obj.site.siteprofile, site_profile)
 
 
-class TestSites2(TestCase):
+class TestSites2(SiteTestCaseMixin, TestCase):
     def test_updates_sites(self):
         self.assertIn("example.com", [str(obj) for obj in Site.objects.all()])
 
-        sites = default_sites
+        add_or_update_django_sites(sites=self.default_sites)
 
-        add_or_update_django_sites(sites=sites)
-
-        for site in default_sites:
-            self.assertIn(site[0], [obj.id for obj in Site.objects.all()])
+        for site in self.default_sites:
+            self.assertIn(site.site_id, [obj.id for obj in Site.objects.all()])
 
         self.assertNotIn("example.com", [str(obj) for obj in Site.objects.all()])
 
-        add_or_update_django_sites(sites=sites, verbose=True)
+        add_or_update_django_sites(sites=self.default_sites, verbose=True)
 
-        self.assertEqual(len(sites), Site.objects.all().count())
+        self.assertEqual(len(self.default_sites), Site.objects.all().count())
+
+
+class TestSites3(SiteTestCaseMixin, TestCase):
+    def test_domain(self):
+        self.assertIn("example.com", [str(obj) for obj in Site.objects.all()])
+
+        add_or_update_django_sites(sites=self.default_sites)
+
+        obj = Site.objects.get(name="molepolole")
+        self.assertEqual("molepolole.clinicedc.org", obj.domain)
+        obj = Site.objects.get(name="mochudi")
+        self.assertEqual("mochudi.bw.clinicedc.org", obj.domain)
+
+    @override_settings(EDC_SITES_UAT_DOMAIN=True)
+    def test_uat_domain(self):
+        self.assertTrue(settings.EDC_SITES_UAT_DOMAIN)
+        add_or_update_django_sites(sites=self.default_sites)
+        obj = Site.objects.get(name="molepolole")
+        self.assertEqual("molepolole.uat.clinicedc.org", obj.domain)
+        obj = Site.objects.get(name="mochudi")
+        self.assertEqual("mochudi.uat.bw.clinicedc.org", obj.domain)
