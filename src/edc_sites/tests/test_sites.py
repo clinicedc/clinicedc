@@ -2,13 +2,15 @@ from django import forms
 from django.contrib.sites.models import Site
 from django.test import TestCase, tag  # noqa
 from django.test.utils import override_settings
+from edc_sites import get_sites_by_country
+from edc_sites.get_country import get_country
 from edc_sites.models import SiteProfile
 
 from django.conf import settings
 from multisite import SiteID
 
 from ..add_or_update_django_sites import add_or_update_django_sites
-from ..get_site_id import get_site_id
+from ..get_site_id import get_site_id, InvalidSiteError
 from ..forms import SiteModelFormMixin
 from ..utils import raise_on_save_if_reviewer, ReviewerSiteSaveError
 from .models import TestModelWithSite
@@ -84,6 +86,14 @@ class TestSites(SiteTestCaseMixin, TestCase):
         add_or_update_django_sites(sites=self.default_sites)
         self.assertEqual(get_site_id("Mochudi"), 10)
 
+    def test_get_site_id_invalid(self):
+        add_or_update_django_sites(sites=self.default_sites)
+        self.assertRaises(InvalidSiteError, get_site_id, "blahblah")
+
+    def test_get_site_id_without_sites(self):
+        add_or_update_django_sites(sites=self.default_sites)
+        self.assertEqual(get_site_id("mochudi"), 10)
+
     @override_settings(SITE_ID=SiteID(default=30))
     def test_site_profile(self):
         obj = TestModelWithSite.objects.create()
@@ -109,10 +119,7 @@ class TestSites2(SiteTestCaseMixin, TestCase):
 
 class TestSites3(SiteTestCaseMixin, TestCase):
     def test_domain(self):
-        self.assertIn("example.com", [str(obj) for obj in Site.objects.all()])
-
         add_or_update_django_sites(sites=self.default_sites)
-
         obj = Site.objects.get(name="molepolole")
         self.assertEqual("molepolole.clinicedc.org", obj.domain)
         obj = Site.objects.get(name="mochudi")
@@ -126,3 +133,24 @@ class TestSites3(SiteTestCaseMixin, TestCase):
         self.assertEqual("molepolole.uat.clinicedc.org", obj.domain)
         obj = Site.objects.get(name="mochudi")
         self.assertEqual("mochudi.uat.bw.clinicedc.org", obj.domain)
+
+    @override_settings(SITE_ID=SiteID(default=10))
+    def test_country(self):
+        for sites in self.default_all_sites.values():
+            add_or_update_django_sites(sites=sites)
+        self.assertEqual("mochudi", Site.objects.get_current().name)
+        self.assertEqual("botswana", Site.objects.get_current().siteprofile.country)
+        self.assertEqual("botswana", get_country())
+        self.assertEqual(
+            self.default_all_sites.get("botswana"), get_sites_by_country("botswana")
+        )
+        self.assertEqual(self.default_all_sites.get("botswana"), get_sites_by_country())
+        self.assertEqual(
+            self.default_all_sites.get("botswana"),
+            get_sites_by_country(all_sites=self.default_all_sites),
+        )
+
+        self.assertEqual(
+            self.default_all_sites.get("botswana"),
+            get_sites_by_country(country="botswana", all_sites=self.default_all_sites),
+        )

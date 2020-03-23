@@ -1,32 +1,17 @@
-import sys
+from django.conf import settings
+from django_extensions.management.color import color_style
 from importlib import import_module
 
-from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
-from django_extensions.management.color import color_style
+from .get_country import get_country
 
 style = color_style()
 
 
 def get_sites_by_country(country=None, all_sites=None, sites_module_name=None):
+    """Returns a sites tuple for the country."""
     if not all_sites:
         sites_module = import_module(
             sites_module_name or settings.EDC_SITES_MODULE_NAME
         )
         all_sites = sites_module.all_sites
-    if not country:
-        try:
-            country = settings.COUNTRY
-        except ImproperlyConfigured:
-            sys.stdout.write(style.ERROR("Defaulting country to Uganda."))
-            country = "uganda"
-    try:
-        country_sites = all_sites[country]
-    except KeyError:
-        msg = (
-            f"Invalid site name. "
-            f"Expected one of {list(all_sites.keys())}. "
-            f"Got `{country}`."
-        )
-        raise KeyError(msg)
-    return country_sites
+    return all_sites.get(country or get_country())

@@ -17,6 +17,9 @@ class SingleSite:
         description=None,
         fqdn=None,
     ):
+        if not domain and not fqdn:
+            raise ValueError("Require either domain and/or fqdn. Got both as None.")
+        self._domain = domain or f"{name}.{fqdn}"
         self.site_id = site_id
         self.name = name
         self.title = title or name.title()
@@ -26,13 +29,6 @@ class SingleSite:
             raise SiteDomainRequiredError(
                 f"Domain required when using `multisite`. Got None for `{name}`."
             )
-        if not domain and not fqdn:
-            raise ValueError("Require either domain and/or fqdn. Got both as None.")
-        self.domain = domain or f"{name}.{fqdn}"
-        if getattr(settings, "EDC_SITES_UAT_DOMAIN", None):
-            as_list = self.domain.split(".")
-            as_list.insert(1, "uat")
-            self.domain = ".".join(as_list)
         self.description = description or title
 
     def __repr__(self):
@@ -40,6 +36,20 @@ class SingleSite:
 
     def __str__(self):
         return str(self.domain)
+
+    @property
+    def domain(self):
+        """Returns the domain, inserts `uat` if this is a
+        UAT server instance.
+        """
+        if (
+            getattr(settings, "EDC_SITES_UAT_DOMAIN", None)
+            and ".uat." not in self._domain
+        ):
+            as_list = self._domain.split(".")
+            as_list.insert(1, "uat")
+            self._domain = ".".join(as_list)
+        return self._domain
 
     @property
     def site(self):
