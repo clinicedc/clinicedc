@@ -15,14 +15,6 @@ class ReviewerSiteSaveError(Exception):
     pass
 
 
-SITE_ID = 0
-SITE_NAME = 1
-SITE_TITLE = 2
-SITE_COUNTRY_CODE = 3
-SITE_DOMAIN = 4
-SITE_DESCRIPTION = 5
-
-
 def add_or_update_django_sites(apps=None, sites=None, verbose=None):
     """Removes default site and adds/updates given `sites`, etc.
 
