@@ -8,12 +8,53 @@ class SiteTestCaseMixin:
     def default_sites(self):
         return [
             SingleSite(
-                10, "mochudi", "Mochudi", country="bw", domain=f"mochudi.bw.{fqdn}"
+                10,
+                "mochudi",
+                "Mochudi",
+                country="botswana",
+                country_code="bw",
+                domain=f"mochudi.bw.{fqdn}",
             ),
-            SingleSite(20, "molepolole", "molepolole", fqdn=fqdn),
-            SingleSite(30, "lobatse", "lobatse", fqdn=fqdn),
-            SingleSite(40, "gaborone", "gaborone", fqdn=fqdn),
-            SingleSite(50, "karakobis", "karakobis", fqdn=fqdn),
+            SingleSite(
+                20,
+                "molepolole",
+                "molepolole",
+                country="botswana",
+                country_code="bw",
+                fqdn=fqdn,
+            ),
+            SingleSite(
+                30,
+                "lobatse",
+                "lobatse",
+                country="botswana",
+                country_code="bw",
+                fqdn=fqdn,
+            ),
+            SingleSite(
+                40,
+                "gaborone",
+                "gaborone",
+                country="botswana",
+                country_code="bw",
+                fqdn=fqdn,
+            ),
+            SingleSite(
+                50,
+                "karakobis",
+                "karakobis",
+                country="botswana",
+                country_code="bw",
+                fqdn=fqdn,
+            ),
+            SingleSite(
+                60,
+                "windhoek",
+                "windhoek",
+                country="namibia",
+                country_code="na",
+                fqdn=fqdn,
+            ),
         ]
 
     @property
