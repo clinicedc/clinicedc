@@ -16,21 +16,19 @@ class Holidays:
 
     model = "edc_facility.holiday"
 
-    def __init__(self, country=None, facility_name=None):
+    def __init__(self):
+        if getattr(settings, "COUNTRY", None):
+            raise HolidayError(
+                "COUNTRY is no longer a valid settings attribute. "
+                "Country is determined from the site definition "
+                "in your project`s sites app. See SingleSite and "
+                "SiteProfile in edc-sites."
+            )
+        self._country = None
         self._holidays = {}
-        self.country = country
-        if not self.country:
-            try:
-                self.country = settings.COUNTRY
-            except AttributeError:
-                pass
-            if not self.country:
-                raise HolidayError(
-                    f"No country specified for facility {facility_name}. "
-                    f"See settings.COUNTRY"
-                )
         self.time_zone = settings.TIME_ZONE
         self.model_cls = django_apps.get_model(self.model)
+        self.site_model_cls = django_apps.get_model("sites.site")
 
     def __repr__(self):
         return (
@@ -40,6 +38,19 @@ class Holidays:
 
     def __len__(self):
         return len(self.holidays)
+
+    @property
+    def country(self):
+        if not self._country:
+            self._country = (
+                self.site_model_cls.objects.get_current().siteprofile.country
+            )
+            if not self._country:
+                raise HolidayError(
+                    f"Country not defined for site. Got site="
+                    f"`{self.site_model_cls.objects.get_current()}`"
+                )
+        return self._country
 
     @property
     def local_dates(self):

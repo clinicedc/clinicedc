@@ -2,6 +2,7 @@ import csv
 import os
 import sys
 
+from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.checks import Warning
 from django.core.management import color_style
@@ -46,8 +47,8 @@ def holiday_country_check(app_configs, **kwargs):
     sys.stdout.write(style.SQL_KEYWORD("holiday_country_check ... \r"))
     errors = []
     holiday_path = settings.HOLIDAY_FILE
-
-    country = getattr(settings, "COUNTRY", None)
+    edc_site_model_cls = django_apps.get_model("edc_sites.edcsite")
+    country = edc_site_model_cls.objects.get(id=settings.SITE_ID).country
     if not country:
         errors.append(
             Warning(

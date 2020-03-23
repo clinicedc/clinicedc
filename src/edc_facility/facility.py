@@ -44,7 +44,7 @@ class Facility:
             self.days.append(day)
         self.slots = slots or [99999 for _ in self.days]
         self.config = OrderedDict(zip([str(d) for d in self.days], self.slots))
-        self.holidays = self.holiday_cls(facility_name=self.name, **kwargs)
+        self.holidays = self.holiday_cls()
         if not name:
             raise FacilityError(f"Name cannot be None. See {repr(self)}")
         self.best_effort_available_datetime = (
