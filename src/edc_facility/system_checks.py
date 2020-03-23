@@ -2,10 +2,10 @@ import csv
 import os
 import sys
 
-from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.checks import Warning
 from django.core.management import color_style
+from edc_sites import get_country
 
 style = color_style()
 
@@ -47,17 +47,8 @@ def holiday_country_check(app_configs, **kwargs):
     sys.stdout.write(style.SQL_KEYWORD("holiday_country_check ... \r"))
     errors = []
     holiday_path = settings.HOLIDAY_FILE
-    edc_site_model_cls = django_apps.get_model("edc_sites.edcsite")
-    country = edc_site_model_cls.objects.get(id=settings.SITE_ID).country
-    if not country:
-        errors.append(
-            Warning(
-                f"Holiday file has no records for current country! "
-                f"See settings.COUNTRY. Got None\n",
-                id="edc_facility.003",
-            )
-        )
-    else:
+    country = get_country()
+    if country:
         with open(holiday_path, "r") as f:
             reader = csv.DictReader(f, fieldnames=["local_date", "label", "country"])
             if not [row["country"] for row in reader if row["country"] == country]:

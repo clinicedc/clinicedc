@@ -5,6 +5,7 @@ import sys
 from datetime import datetime
 from django.apps import apps as django_apps
 from django.conf import settings
+from edc_sites import get_country
 from edc_utils import get_utcnow
 from tqdm import tqdm
 
@@ -81,7 +82,7 @@ def import_for_tests(model_cls):
     LABEL = 1
     COUNTRY = 2
     year = get_utcnow().year
-    country = settings.COUNTRY.lower()
+    country = get_country()
     rows = [
         [f"{year}-01-02", "Public Holiday", country],
         [f"{year}-01-01", "New Year", country],
