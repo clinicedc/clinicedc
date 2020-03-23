@@ -3,6 +3,8 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta, SU, MO, TU, WE, TH, FR, SA
 from django.test import TestCase, tag
 from django.test.utils import override_settings
+from edc_sites import add_or_update_django_sites
+from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
 
 from ..facility import Facility
@@ -10,8 +12,10 @@ from ..import_holidays import import_holidays
 from ..models import Holiday
 
 
-class TestFacility(TestCase):
+class TestFacility(SiteTestCaseMixin, TestCase):
     def setUp(self):
+        add_or_update_django_sites(sites=self.default_sites)
+
         self.facility = Facility(
             name="clinic", days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100]
         )

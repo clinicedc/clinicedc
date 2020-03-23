@@ -36,9 +36,14 @@ class AppConfig(DjangoAppConfig):
     }
 
     def ready(self):
-        register(holiday_path_check)
-        register(holiday_country_check)
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
+        if "runtests.py" not in sys.argv:
+            register(holiday_path_check)
+            register(holiday_country_check)
+        else:
+            sys.stdout.write(
+                style.NOTICE(f" * not registering system checks for tests.\n")
+            )
         for facility in self.facilities.values():
             sys.stdout.write(f" * {facility}.\n")
         sys.stdout.write(f" Done loading {self.verbose_name}.\n")
