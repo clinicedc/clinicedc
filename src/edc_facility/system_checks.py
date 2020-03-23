@@ -55,7 +55,7 @@ def holiday_country_check(app_configs, **kwargs):
                 errors.append(
                     Warning(
                         f"Holiday file has no records for current country! "
-                        f"See settings.COUNTRY. Got {country}\n",
+                        f"See country in EdcSites definitions. Got {country}\n",
                         id="edc_facility.004",
                     )
                 )

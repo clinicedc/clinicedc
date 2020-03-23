@@ -46,7 +46,7 @@ class Holiday(models.Model):
                     Warning(
                         f"No Holidays have been defined for this country. "
                         f"See edc_facility.Holidays. Expected one of {countries}. "
-                        f"Got country='{settings.COUNTRY}'",
+                        f"Got country='{get_country()}'",
                         id="edc_facility.004",
                     )
                 )
