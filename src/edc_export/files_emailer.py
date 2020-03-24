@@ -5,6 +5,7 @@ import sys
 from django.core.exceptions import ValidationError
 from django.core.mail.message import EmailMessage
 from django.conf import settings
+from edc_protocol.protocol import Protocol
 
 
 class FilesEmailerError(ValidationError):
@@ -44,7 +45,7 @@ class FilesEmailer:
             f"Thanks",
         ]
         return EmailMessage(
-            subject="Ambition trial data request",
+            subject=f"{Protocol().protocol_name.title()} trial data request",
             body="\n\n".join(body),
             from_email=settings.EMAIL_CONTACTS.get("data_request"),
             to=[self.user.email],
