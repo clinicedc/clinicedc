@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin import sites
 from django.core.exceptions import ObjectDoesNotExist
@@ -20,6 +21,10 @@ class Exportables(OrderedDict):
 
     export_group_name = EXPORT
 
+    default_app_labels = getattr(
+        settings, "EDC_EXPORTABLE_DEFAULT_APPS", ["sites", "auth", "admin"]
+    )
+
     def __init__(self, app_configs=None, user=None, request=None):
         super().__init__()
         self._inlines = {}
@@ -33,6 +38,8 @@ class Exportables(OrderedDict):
                 request, "You do not have sufficient permissions to export data."
             )
         else:
+            # for app in self.default_exportable_apps:
+            #     self.update({app_config: exportable})
             for app_config in app_configs:
                 models = []
                 historical_models = []
@@ -57,7 +64,7 @@ class Exportables(OrderedDict):
                     "historicals": historical_models,
                     "lists": list_models,
                 }
-                self.update({app_config: exportable})
+                self.update({app_config.name: exportable})
 
     def is_randomization_list_model(self, model=None, user=None):
         is_randomization_list_model = False
@@ -101,4 +108,6 @@ class Exportables(OrderedDict):
                 has_exportable_data = None
             if has_exportable_data:
                 app_configs.append(app_config)
+        for app_label in self.default_app_labels:
+            app_configs.append(django_apps.get_app_config(app_label))
         return app_configs

@@ -1,4 +1,5 @@
 import json
+import pdb
 
 from django.apps import apps as django_apps
 from django.contrib.auth.models import User, Group
@@ -54,30 +55,37 @@ class TestExportable(TestCase):
             request=self.request,
             user=self.user,
         )
-        self.assertIn(edc_registration, exportables.keys())
-        self.assertIn(edc_appointment, exportables.keys())
+        self.assertIn("edc_registration", exportables.keys())
+        self.assertIn("edc_appointment", exportables.keys())
         self.assertIn(
             registered_subject_opts.verbose_name,
-            [o.verbose_name for o in exportables.get(edc_registration).get("models")],
+            [o.verbose_name for o in exportables.get("edc_registration").get("models")],
         )
         self.assertIn(
             appointment_opts.verbose_name,
-            [o.verbose_name for o in exportables.get(edc_appointment).get("models")],
+            [o.verbose_name for o in exportables.get("edc_appointment").get("models")],
         )
-        #         self.assertFalse(exportables.get(edc_registration).get("historicals"))
         self.assertIn(
             "edc_registration.historicalregisteredsubject",
             [
                 o.label_lower
-                for o in exportables.get(edc_registration).get("historicals")
+                for o in exportables.get("edc_registration").get("historicals")
             ],
         )
         self.assertIn(
             "edc_appointment.historicalappointment",
             [
                 o.label_lower
-                for o in exportables.get(edc_appointment).get("historicals")
+                for o in exportables.get("edc_appointment").get("historicals")
             ],
         )
-        self.assertFalse(exportables.get(edc_registration).get("lists"))
-        self.assertFalse(exportables.get(edc_appointment).get("lists"))
+        self.assertFalse(exportables.get("edc_registration").get("lists"))
+        self.assertFalse(exportables.get("edc_appointment").get("lists"))
+
+    def test_default_exportables(self):
+        exportables = Exportables(
+            app_configs=None, request=self.request, user=self.user,
+        )
+        self.assertIn("django.contrib.admin", exportables)
+        self.assertIn("django.contrib.auth", exportables)
+        self.assertIn("django.contrib.sites", exportables)
