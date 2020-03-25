@@ -32,7 +32,7 @@ class SingleSite:
         self.description = description or title
 
     def __repr__(self):
-        return f"{__class__.__name__}((self.site_id, self.domain, ...))"
+        return f"{__class__.__name__}(({self.site_id}, {self.domain}, ...))"
 
     def __str__(self):
         return str(self.domain)
