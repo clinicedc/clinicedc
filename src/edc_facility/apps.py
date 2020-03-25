@@ -1,4 +1,3 @@
-import pdb
 import sys
 
 from dateutil.relativedelta import MO, TU, WE, TH, FR, SA, SU
@@ -6,10 +5,10 @@ from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
 from django.core.checks.registry import register
 from django.core.management.color import color_style
+from warnings import warn
 
 from .facility import Facility, FacilityError
 from .system_checks import holiday_path_check, holiday_country_check
-from _warnings import warn
 
 style = color_style()
 
@@ -38,7 +37,6 @@ class AppConfig(DjangoAppConfig):
 
     def ready(self):
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
-        # pdb.set_trace()
         # if "runtests.py" not in sys.argv and "test" not in sys.argv:
         if "migrate" not in sys.argv and "showmigrations" not in sys.argv:
             register(holiday_path_check)
