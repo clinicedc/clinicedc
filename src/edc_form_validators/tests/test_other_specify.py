@@ -8,7 +8,6 @@ from ..base_form_validator import (
     InvalidModelFormFieldValidator,
 )
 from form_validators_app.models import Alphabet
-import pdb
 
 
 class TestApplicableFieldValidator(TestCase):
