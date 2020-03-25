@@ -1,5 +1,4 @@
 import json
-import pdb
 
 from django.apps import apps as django_apps
 from django.contrib.auth.models import User, Group
