@@ -2,12 +2,13 @@ from django import forms
 from django.contrib.sites.models import Site
 from django.test import TestCase, tag  # noqa
 from django.test.utils import override_settings
-from edc_sites import get_sites_by_country
+from edc_sites import get_sites_by_country, get_all_sites
 from edc_sites.get_country import get_country
 from edc_sites.models import SiteProfile
-
+from edc_sites.sites import all_sites
 from django.conf import settings
 from multisite import SiteID
+from multisite.models import Alias
 
 from ..add_or_update_django_sites import add_or_update_django_sites
 from ..get_site_id import get_site_id, InvalidSiteError
@@ -15,6 +16,7 @@ from ..forms import SiteModelFormMixin
 from ..utils import raise_on_save_if_reviewer, ReviewerSiteSaveError
 from .models import TestModelWithSite
 from .site_test_case_mixin import SiteTestCaseMixin
+from .sites import all_test_sites
 
 
 class TestForm(SiteModelFormMixin, forms.ModelForm):
@@ -153,4 +155,27 @@ class TestSites3(SiteTestCaseMixin, TestCase):
         self.assertEqual(
             self.default_all_sites.get("botswana"),
             get_sites_by_country(country="botswana", all_sites=self.default_all_sites),
+        )
+
+    def test_custom_sites_module(self):
+        get_all_sites()
+
+    @override_settings(EDC_SITES_MODULE_NAME=None)
+    def test_default_sites_module_domain(self):
+        self.assertEqual(get_all_sites(), all_sites)
+        self.assertIsNone(get_country())
+        for sites in get_all_sites().values():
+            add_or_update_django_sites(sites=sites, verbose=True)
+        site = Site.objects.get(id=1)
+        self.assertEqual(Alias.objects.get(site=site).domain, "localhost")
+
+    @override_settings(EDC_SITES_MODULE_NAME="edc_sites.tests.sites")
+    def test_custom_sites_module_domain(self):
+        self.assertEqual(get_all_sites(), all_test_sites)
+        self.assertIsNone(get_country())
+        for sites in get_all_sites().values():
+            add_or_update_django_sites(sites=sites, verbose=True)
+        site = Site.objects.get(id=10)
+        self.assertEqual(
+            Alias.objects.get(site=site).domain, "mochudi.bw.clinicedc.org"
         )

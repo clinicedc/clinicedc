@@ -4,6 +4,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 
+from .get_sites_module import get_sites_module
 from .single_site import SiteDomainRequiredError
 
 
@@ -32,6 +33,8 @@ def add_or_update_django_sites(apps=None, sites=None, verbose=None):
     site_model_cls = apps.get_model("sites", "Site")
     site_model_cls.objects.filter(name="example.com").delete()
     for single_site in sites:
+        if get_sites_module() and single_site.name == "edc_sites.sites":
+            continue
         if verbose:
             sys.stdout.write(f"  * {single_site.name}.\n")
         site_obj = get_or_create_site_obj(single_site, apps)
