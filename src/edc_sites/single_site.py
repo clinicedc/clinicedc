@@ -1,5 +1,3 @@
-import pdb
-
 from django.conf import settings
 
 
