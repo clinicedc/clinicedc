@@ -41,3 +41,4 @@ more_sites = [
 ]
 
 all_sites = {"botswana": sites, "namibia": more_sites}
+all_test_sites = {"botswana": sites, "namibia": more_sites}

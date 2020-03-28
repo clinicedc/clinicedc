@@ -3,7 +3,9 @@ import sys
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
+from django.db.utils import OperationalError, ProgrammingError
 
+from .get_sites_module import get_sites_module
 from .single_site import SiteDomainRequiredError
 
 
@@ -32,6 +34,8 @@ def add_or_update_django_sites(apps=None, sites=None, verbose=None):
     site_model_cls = apps.get_model("sites", "Site")
     site_model_cls.objects.filter(name="example.com").delete()
     for single_site in sites:
+        if get_sites_module() and single_site.name == "edc_sites.sites":
+            continue
         if verbose:
             sys.stdout.write(f"  * {single_site.name}.\n")
         site_obj = get_or_create_site_obj(single_site, apps)
@@ -69,6 +73,8 @@ def get_or_create_site_profile_obj(single_site, site_obj, apps):
         site_profile = site_profile_model_cls.objects.get(site=site_obj)
     except ObjectDoesNotExist:
         site_profile_model_cls.objects.create(site=site_obj, **opts)
+    except (OperationalError, ProgrammingError):
+        pass
     else:
         for k, v in opts.items():
             setattr(site_profile, k, v)

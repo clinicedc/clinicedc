@@ -5,6 +5,10 @@ class SiteDomainRequiredError(Exception):
     pass
 
 
+class SiteCountryRequiredError(Exception):
+    pass
+
+
 class SingleSite:
     def __init__(
         self,
@@ -23,16 +27,16 @@ class SingleSite:
         self.site_id = site_id
         self.name = name
         self.title = title or name.title()
-        self.country = country or ""
+        self._country = country or ""
         self.country_code = country_code or ""
         if not country and "multisite" in settings.INSTALLED_APPS:
-            raise SiteDomainRequiredError(
-                f"Domain required when using `multisite`. Got None for `{name}`."
+            raise SiteCountryRequiredError(
+                f"Country required when using `multisite`. Got None for `{name}`."
             )
         self.description = description or title
 
     def __repr__(self):
-        return f"{__class__.__name__}((self.site_id, self.domain, ...))"
+        return f"{__class__.__name__}(({self.site_id}, {self.domain}, ...))"
 
     def __str__(self):
         return str(self.domain)
@@ -42,13 +46,16 @@ class SingleSite:
         """Returns the domain, inserts `uat` if this is a
         UAT server instance.
         """
-        if (
-            getattr(settings, "EDC_SITES_UAT_DOMAIN", None)
-            and ".uat." not in self._domain
-        ):
-            as_list = self._domain.split(".")
-            as_list.insert(1, "uat")
-            self._domain = ".".join(as_list)
+        as_list = self._domain.split(".")
+        if getattr(settings, "EDC_SITES_UAT_DOMAIN", None):
+            if "uat" not in as_list:
+                as_list.insert(1, "uat")  # after the site name
+        else:
+            try:
+                as_list.remove("uat")
+            except ValueError:
+                pass
+        self._domain = ".".join(as_list)
         return self._domain
 
     @property
@@ -60,6 +67,10 @@ class SingleSite:
             self.country,
             self.domain,
         )
+
+    @property
+    def country(self):
+        return self._country
 
     def as_dict(self):
         return dict(

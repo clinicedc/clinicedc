@@ -1,6 +1,5 @@
 from django.apps import apps as django_apps
 
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
 
@@ -9,9 +8,9 @@ class EdcSitesCountryError(Exception):
 
 
 def get_country():
-    """Returns the country if site profile is set up, otherwise None."""
-    model_cls = django_apps.get_model("edc_sites.siteprofile")
+    """Returns the country, defaults to that of the default site."""
+    site_model_cls = django_apps.get_model("sites.site")
     try:
-        return model_cls.objects.get(site__id=settings.SITE_ID).country
+        return site_model_cls.objects.get_current().siteprofile.country
     except ObjectDoesNotExist:
         return None
