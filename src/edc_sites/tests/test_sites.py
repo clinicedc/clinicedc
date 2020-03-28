@@ -1,3 +1,5 @@
+import pdb
+
 from django import forms
 from django.contrib.sites.models import Site
 from django.test import TestCase, tag  # noqa
@@ -26,23 +28,23 @@ class TestForm(SiteModelFormMixin, forms.ModelForm):
 
 
 class TestSites(SiteTestCaseMixin, TestCase):
-    def setUp(self):
-        add_or_update_django_sites(sites=self.default_sites)
-
     @override_settings(SITE_ID=SiteID(default=20))
     def test_20(self):
+        add_or_update_django_sites(sites=self.default_sites, verbose=False)
         obj = TestModelWithSite.objects.create()
         self.assertEqual(obj.site.pk, 20)
         self.assertEqual(obj.site.pk, Site.objects.get_current().pk)
 
     @override_settings(SITE_ID=SiteID(default=30))
     def test_30(self):
+        add_or_update_django_sites(sites=self.default_sites, verbose=False)
         obj = TestModelWithSite.objects.create()
         self.assertEqual(obj.site.pk, 30)
         self.assertEqual(obj.site.pk, Site.objects.get_current().pk)
 
     @override_settings(SITE_ID=SiteID(default=30))
     def test_override_current(self):
+        add_or_update_django_sites(sites=self.default_sites, verbose=False)
         site = Site.objects.get(pk=40)
         obj = TestModelWithSite.objects.create(site=site)
         self.assertEqual(obj.site.pk, 40)
@@ -50,6 +52,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
 
     @override_settings(SITE_ID=SiteID(default=30), REVIEWER_SITE_ID=30)
     def test_reviewer(self):
+        add_or_update_django_sites(sites=self.default_sites, verbose=False)
         site = Site.objects.get(pk=30)
         self.assertRaises(
             ReviewerSiteSaveError, TestModelWithSite.objects.create, site=site
@@ -57,6 +60,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
 
     @override_settings(SITE_ID=SiteID(default=30), REVIEWER_SITE_ID=0)
     def test_reviewer_passes(self):
+        add_or_update_django_sites(sites=self.default_sites, verbose=False)
         site = Site.objects.get(pk=30)
         try:
             TestModelWithSite.objects.create(site=site)
@@ -65,6 +69,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
 
     @override_settings(SITE_ID=SiteID(default=30), REVIEWER_SITE_ID=0)
     def test_raise_on_save_if_reviewer(self):
+        add_or_update_django_sites(sites=self.default_sites, verbose=False)
         try:
             raise_on_save_if_reviewer(site_id=30)
         except ReviewerSiteSaveError:
@@ -74,6 +79,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
 
     @override_settings(SITE_ID=SiteID(default=30), REVIEWER_SITE_ID=30)
     def test_raise_on_save_in_form(self):
+        add_or_update_django_sites(sites=self.default_sites, verbose=False)
         form = TestForm(data={"f1": "100"})
         self.assertFalse(form.is_valid())
         self.assertIn(
@@ -98,6 +104,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
 
     @override_settings(SITE_ID=SiteID(default=30))
     def test_site_profile(self):
+        add_or_update_django_sites(sites=self.default_sites, verbose=False)
         obj = TestModelWithSite.objects.create()
         site_profile = SiteProfile.objects.get(site=obj.site)
         self.assertEqual(obj.site.siteprofile, site_profile)
@@ -114,7 +121,7 @@ class TestSites2(SiteTestCaseMixin, TestCase):
 
         self.assertNotIn("example.com", [str(obj) for obj in Site.objects.all()])
 
-        add_or_update_django_sites(sites=self.default_sites, verbose=True)
+        add_or_update_django_sites(sites=self.default_sites, verbose=False)
 
         self.assertEqual(len(self.default_sites), Site.objects.all().count())
 
@@ -163,29 +170,36 @@ class TestSites3(SiteTestCaseMixin, TestCase):
     @override_settings(EDC_SITES_MODULE_NAME=None)
     def test_default_sites_module_domain(self):
         self.assertEqual(get_all_sites(), all_sites)
-        self.assertIsNone(get_country())
+        # self.assertIsNone(get_country())
         for sites in get_all_sites().values():
-            add_or_update_django_sites(sites=sites, verbose=True)
+            add_or_update_django_sites(sites=sites, verbose=False)
         site = Site.objects.get(id=1)
         self.assertEqual(Alias.objects.get(site=site).domain, "localhost")
 
-    @override_settings(EDC_SITES_MODULE_NAME="edc_sites.tests.sites")
+    @override_settings(
+        EDC_SITES_MODULE_NAME="edc_sites.tests.sites", EDC_SITES_UAT_DOMAIN=False
+    )
     def test_custom_sites_module_domain(self):
         self.assertEqual(get_all_sites(), all_test_sites)
-        self.assertIsNone(get_country())
         for sites in get_all_sites().values():
-            add_or_update_django_sites(sites=sites, verbose=True)
+            add_or_update_django_sites(sites=sites, verbose=False)
         site = Site.objects.get(id=10)
+        self.assertEqual(get_country(), "botswana")
         self.assertEqual(
             Alias.objects.get(site=site).domain, "mochudi.bw.clinicedc.org"
         )
 
-    @override_settings(EDC_SITES_MODULE_NAME="edc_sites.tests.sites")
+    @tag("1")
+    @override_settings(
+        EDC_SITES_MODULE_NAME="edc_sites.tests.sites", EDC_SITES_UAT_DOMAIN=False
+    )
     def test_view_context(self):
+        Site.objects.all().delete()
         self.assertEqual(get_all_sites(), all_test_sites)
+        self.assertEqual(settings.SITE_ID, 10)
         self.assertIsNone(get_country())
         for sites in get_all_sites().values():
-            add_or_update_django_sites(sites=sites, verbose=True)
+            add_or_update_django_sites(sites=sites, verbose=False)
         site = Site.objects.get(id=10)
         self.assertEqual(
             Alias.objects.get(site=site).domain, "mochudi.bw.clinicedc.org"
