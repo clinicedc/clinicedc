@@ -1,5 +1,3 @@
-import pdb
-
 from django.apps import apps as django_apps
 
 from django.core.exceptions import ObjectDoesNotExist

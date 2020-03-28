@@ -1,5 +1,3 @@
-import pdb
-
 from django import forms
 from django.contrib.sites.models import Site
 from django.test import TestCase, tag  # noqa
