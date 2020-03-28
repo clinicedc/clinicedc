@@ -3,6 +3,7 @@ import sys
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
+from django.db.utils import OperationalError, ProgrammingError
 
 from .get_sites_module import get_sites_module
 from .single_site import SiteDomainRequiredError
@@ -72,6 +73,8 @@ def get_or_create_site_profile_obj(single_site, site_obj, apps):
         site_profile = site_profile_model_cls.objects.get(site=site_obj)
     except ObjectDoesNotExist:
         site_profile_model_cls.objects.create(site=site_obj, **opts)
+    except (OperationalError, ProgrammingError):
+        pass
     else:
         for k, v in opts.items():
             setattr(site_profile, k, v)

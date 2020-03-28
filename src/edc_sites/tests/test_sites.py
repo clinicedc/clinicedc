@@ -179,3 +179,14 @@ class TestSites3(SiteTestCaseMixin, TestCase):
         self.assertEqual(
             Alias.objects.get(site=site).domain, "mochudi.bw.clinicedc.org"
         )
+
+    @override_settings(EDC_SITES_MODULE_NAME="edc_sites.tests.sites")
+    def test_view_context(self):
+        self.assertEqual(get_all_sites(), all_test_sites)
+        self.assertIsNone(get_country())
+        for sites in get_all_sites().values():
+            add_or_update_django_sites(sites=sites, verbose=True)
+        site = Site.objects.get(id=10)
+        self.assertEqual(
+            Alias.objects.get(site=site).domain, "mochudi.bw.clinicedc.org"
+        )
