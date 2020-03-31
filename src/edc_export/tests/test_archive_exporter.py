@@ -7,6 +7,7 @@ from django.test.utils import override_settings
 from edc_registration.models import RegisteredSubject
 from tempfile import mkdtemp
 
+from django.contrib.sites.models import Site
 from ..archive_exporter import ArchiveExporter, ArchiveExporterNothingExported
 
 
@@ -15,6 +16,7 @@ class TestArchiveExporter(TestCase):
     def setUp(self):
 
         self.user = User.objects.create(username="erikvw")
+        Site.objects.get_current()
         RegisteredSubject.objects.create(subject_identifier="12345")
         self.models = ["auth.user", "edc_registration.registeredsubject"]
 
