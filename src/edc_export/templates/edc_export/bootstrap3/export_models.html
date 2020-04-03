@@ -99,7 +99,7 @@
 
 		{% csrf_token %}
 
-		{% for name, exportable in exportables.items %}
+		{% for exportable in exportables.values %}
 
 			<input type="hidden" name="app_config_name" value="{{ exportable.name }}" form="frm_exportables">
 
@@ -110,8 +110,7 @@
 				<div class="form-group">		
 
 			<table class="table table-hover table-condensed">
-
-			{% for label, models in exportable.as_dict.items %}
+			{% for label, models in exportable.items %}
 				{% if models %}
 					<tr><td colspan=4 class="text"><b>{{ label|title }}</b></td></tr>
 					{% if models|length > 1 %}
@@ -129,7 +128,7 @@
 						<tr>
 							<td>
 								<input id="chk_{{ exportable.name }}_{{ label }}_{{ forloop.counter }}"
-									name="chk_{{ v.name }}_{{ label }}"
+									name="chk_{{ exportable.name }}_{{ label }}"
 									type="checkbox" value="{{ model.label_lower }}"
 									form="frm_exportables"/>
 							</td>

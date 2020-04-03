@@ -12,6 +12,8 @@ from .model_options import ModelOptions
 
 
 def is_randomization_list_model(model=None, user=None):
+    """Returns True if user has permission to access
+    randomization list models."""
     is_randomization_list_model = False
     for randomizer in site_randomizers._registry.values():
         if (
@@ -25,9 +27,11 @@ def is_randomization_list_model(model=None, user=None):
     return is_randomization_list_model
 
 
-class Exportable:
+class Exportable(OrderedDict):
     def __init__(self, app_config=None, user=None):
+        super().__init__()
         self._inlines = {}
+        self.app_config = app_config
         self.historical_models = []
         self.list_models = []
         self.models = []
@@ -48,13 +52,20 @@ class Exportable:
         self.historical_models.sort(key=lambda x: x.verbose_name.title())
         self.list_models.sort(key=lambda x: x.verbose_name.title())
         self.inlines = self.get_inlines(app_config.name)
-
-        self.as_dict = dict(
-            models=self.models,
-            historical_models=self.historical_models,
-            list_models=self.list_models,
-            inlines=self.inlines,
+        self.update(
+            dict(
+                models=self.models,
+                historical_models=self.historical_models,
+                list_models=self.list_models,
+                inlines=self.inlines,
+            )
         )
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(app_config={self.app_config})"
+
+    def __str__(self):
+        return self.name
 
     def get_inlines(self, app_label):
         if not self._inlines:
@@ -85,14 +96,13 @@ class Exportables(OrderedDict):
     export_group_name = EXPORT
 
     default_app_labels = getattr(
-        settings, "EDC_EXPORTABLE_DEFAULT_APPS", ["sites", "auth", "admin"]
+        settings, "EDC_EXPORTABLE_DEFAULT_APPS", ["sites", "auth", "admin"],
     )
 
     def __init__(self, app_configs=None, user=None, request=None):
         super().__init__()
         app_configs = app_configs or self.get_app_configs()
         app_configs.sort(key=lambda x: x.verbose_name)
-
         try:
             user.groups.get(name=self.export_group_name)
         except ObjectDoesNotExist:

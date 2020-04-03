@@ -1,4 +1,5 @@
 import json
+from pprint import pprint
 
 from django.apps import apps as django_apps
 from django.contrib.auth.models import User, Group
@@ -42,6 +43,7 @@ class TestExportable(TestCase):
         obj = json.dumps(model_opts)
         json.loads(obj)
 
+    @tag("1")
     def test_exportables(self):
         registered_subject_opts = ModelOptions(
             model=RegisteredSubject._meta.label_lower
@@ -56,30 +58,32 @@ class TestExportable(TestCase):
         )
         self.assertIn("edc_registration", exportables.keys())
         self.assertIn("edc_appointment", exportables.keys())
+
         self.assertIn(
             registered_subject_opts.verbose_name,
-            [o.verbose_name for o in exportables.get("edc_registration").get("models")],
+            [o.verbose_name for o in exportables.get("edc_registration").models],
         )
         self.assertIn(
             appointment_opts.verbose_name,
-            [o.verbose_name for o in exportables.get("edc_appointment").get("models")],
+            [o.verbose_name for o in exportables.get("edc_appointment").models],
         )
+
         self.assertIn(
             "edc_registration.historicalregisteredsubject",
             [
                 o.label_lower
-                for o in exportables.get("edc_registration").get("historicals")
+                for o in exportables.get("edc_registration").historical_models
             ],
         )
         self.assertIn(
             "edc_appointment.historicalappointment",
             [
                 o.label_lower
-                for o in exportables.get("edc_appointment").get("historicals")
+                for o in exportables.get("edc_appointment").historical_models
             ],
         )
-        self.assertFalse(exportables.get("edc_registration").get("lists"))
-        self.assertFalse(exportables.get("edc_appointment").get("lists"))
+        self.assertFalse(exportables.get("edc_registration").list_models)
+        self.assertFalse(exportables.get("edc_appointment").list_models)
 
     def test_default_exportables(self):
         exportables = Exportables(
