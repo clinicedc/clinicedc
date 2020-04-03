@@ -33,13 +33,20 @@ def add_or_update_django_sites(apps=None, sites=None, verbose=None):
     apps = apps or django_apps
     site_model_cls = apps.get_model("sites", "Site")
     site_model_cls.objects.filter(name="example.com").delete()
-    for single_site in sites:
-        if get_sites_module() and single_site.name == "edc_sites.sites":
-            continue
-        if verbose:
-            sys.stdout.write(f"  * {single_site.name}.\n")
-        site_obj = get_or_create_site_obj(single_site, apps)
-        get_or_create_site_profile_obj(single_site, site_obj, apps)
+    if not sites:
+        all_sites = get_sites_module().all_sites
+    elif isinstance(sites, (list, tuple)):
+        all_sites = {"default": sites}
+
+    for sites in all_sites.values():
+        for single_site in sites:
+            if get_sites_module() and single_site.name == "edc_sites.sites":
+                continue
+            if verbose:
+                sys.stdout.write(f"  * {single_site.name}.\n")
+            site_obj = get_or_create_site_obj(single_site, apps)
+            get_or_create_site_profile_obj(single_site, site_obj, apps)
+    return all_sites
 
 
 def get_or_create_site_obj(single_site, apps):
