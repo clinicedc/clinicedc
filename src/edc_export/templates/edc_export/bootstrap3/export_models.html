@@ -99,42 +99,42 @@
 
 		{% csrf_token %}
 
-		{% for app_config, exportable in exportables.items %}
-			<input type="hidden" name="app_config_name" value="{{ app_config.name }}" form="frm_exportables">
+		{% for exportable in exportables.values %}
+
+			<input type="hidden" name="app_config_name" value="{{ exportable.name }}" form="frm_exportables">
 
 	 		<div class="panel panel-default">
-	 		<div class="panel-heading clearfix"><b>{{ app_config.verbose_name }}</b>&nbsp;<small>({{ app_config.name }})</small>
+	 		<div class="panel-heading clearfix"><b>{{ exportable.verbose_name }}</b>&nbsp;<small>({{ exportable.name }})</small>
 	 		</div>
 			<div class="panel-body">
 				<div class="form-group">		
 
 			<table class="table table-hover table-condensed">
-
 			{% for label, models in exportable.items %}
 				{% if models %}
-					<tr><td colspan=4 class="text"><b>{{ label|title }}</b></td></tr>		
+					<tr><td colspan=4 class="text"><b>{{ label|title }}</b></td></tr>
 					{% if models|length > 1 %}
 						<tr>
 							<td>
-								<input id="select_all_{{ app_config.name }}_{{ label }}"
+								<input id="select_all_{{ exportable.name }}_{{ label }}"
 									type="checkbox" title="select all"
-									onchange="selectAll('{{app_config.name}}','{{ label }}');" />&nbsp;
+									onchange="selectAll('{{exportable.name}}','{{ label }}');" />&nbsp;
 							</td>
-							<td class="text text-muted text-uppercase small text-left" onclick="toggle('select_all_{{ app_config.name }}_{{ label }}');selectAll('{{app_config.name}}','{{ label }}');">select all</td>
-							<td colspan=2 onclick="toggle('select_all_{{ app_config.name }}_{{ label }}');selectAll('{{app_config.name}}','{{ label }}');"></td>
+							<td class="text text-muted text-uppercase small text-left" onclick="toggle('select_all_{{ exportable.name }}_{{ label }}');selectAll('{{exportable.name}}','{{ label }}');">select all</td>
+							<td colspan=2 onclick="toggle('select_all_{{ exportable.name }}_{{ label }}');selectAll('{{exportable.name}}','{{ label }}');"></td>
 						 </tr>
 					{% endif %}
 					{% for model in models %}
 						<tr>
 							<td>
-								<input id="chk_{{ app_config.name }}_{{ label }}_{{ forloop.counter }}"
-									name="chk_{{ app_config.name }}_{{ label }}"
+								<input id="chk_{{ exportable.name }}_{{ label }}_{{ forloop.counter }}"
+									name="chk_{{ exportable.name }}_{{ label }}"
 									type="checkbox" value="{{ model.label_lower }}"
 									form="frm_exportables"/>
 							</td>
-							<td onclick="toggle('chk_{{ app_config.name }}_{{ label }}_{{ forloop.counter }}');" class="text text-left align-left">{{ model.verbose_name|title }}</td>
-							<td onclick="toggle('chk_{{ app_config.name }}_{{ label }}_{{ forloop.counter }}');">{{ model.db_table }}</td>
-							<td onclick="toggle('chk_{{ app_config.name }}_{{ label }}_{{ forloop.counter }}');" class="text text-nowrap text-right">{{ app_config.verbose_name }}</td>						
+							<td onclick="toggle('chk_{{ exportable.name }}_{{ label }}_{{ forloop.counter }}');" class="text text-left align-left">{{ model.verbose_name|title }}</td>
+							<td onclick="toggle('chk_{{ exportable.name }}_{{ label }}_{{ forloop.counter }}');">{{ model.db_table }}</td>
+							<td onclick="toggle('chk_{{ exportable.name }}_{{ label }}_{{ forloop.counter }}');" class="text text-nowrap text-right">{{ exportable.verbose_name }}</td>
 						</tr>
 					{% endfor %}
 				{% endif %}

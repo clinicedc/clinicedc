@@ -11,76 +11,63 @@ from edc_randomization.site_randomizers import site_randomizers
 from .model_options import ModelOptions
 
 
-class Exportables(OrderedDict):
-    """A dictionary-like object that creates a "list" of
-    models that may be exported.
+def is_randomization_list_model(model=None, user=None):
+    """Returns True if user has permission to access
+    randomization list models."""
+    is_randomization_list_model = False
+    for randomizer in site_randomizers._registry.values():
+        if (
+            model._meta.label_lower == randomizer.model
+            or model._meta.label_lower
+            == randomizer.model_cls().history.model._meta.label_lower
+        ):
+            if is_blinded_user(user.username):
+                is_randomization_list_model = True
+                break
+    return is_randomization_list_model
 
-    Checks each AppConfig.has_exportable_data and if True
-    includes that apps models, including historical and list models.
-    """
 
-    export_group_name = EXPORT
-
-    default_app_labels = getattr(
-        settings, "EDC_EXPORTABLE_DEFAULT_APPS", ["sites", "auth", "admin"]
-    )
-
-    def __init__(self, app_configs=None, user=None, request=None):
+class Exportable(OrderedDict):
+    def __init__(self, app_config=None, user=None):
         super().__init__()
         self._inlines = {}
-        app_configs = app_configs or self.get_app_configs()
-        app_configs.sort(key=lambda x: x.verbose_name)
-
-        try:
-            user.groups.get(name=self.export_group_name)
-        except ObjectDoesNotExist:
-            messages.error(
-                request, "You do not have sufficient permissions to export data."
+        self.app_config = app_config
+        self.historical_models = []
+        self.list_models = []
+        self.models = []
+        self.name = app_config.name
+        self.verbose_name = app_config.verbose_name
+        for model in app_config.get_models():
+            if is_randomization_list_model(model=model, user=user):
+                continue
+            model_opts = ModelOptions(model=model._meta.label_lower)
+            if model_opts.is_historical:
+                self.historical_models.append(model_opts)
+            elif model_opts.is_list_model:
+                self.list_models.append(model_opts)
+            else:
+                if not model._meta.proxy:
+                    self.models.append(model_opts)
+        self.models.sort(key=lambda x: x.verbose_name.title())
+        self.historical_models.sort(key=lambda x: x.verbose_name.title())
+        self.list_models.sort(key=lambda x: x.verbose_name.title())
+        self.inlines = self.get_inlines(app_config.name)
+        self.update(
+            dict(
+                models=self.models,
+                historical_models=self.historical_models,
+                list_models=self.list_models,
+                inlines=self.inlines,
             )
-        else:
-            # for app in self.default_exportable_apps:
-            #     self.update({app_config: exportable})
-            for app_config in app_configs:
-                models = []
-                historical_models = []
-                list_models = []
-                for model in app_config.get_models():
-                    if self.is_randomization_list_model(model=model, user=user):
-                        continue
-                    model_opts = ModelOptions(model=model._meta.label_lower)
-                    if model_opts.is_historical:
-                        historical_models.append(model_opts)
-                    elif model_opts.is_list_model:
-                        list_models.append(model_opts)
-                    else:
-                        if not model._meta.proxy:
-                            models.append(model_opts)
-                models.sort(key=lambda x: x.verbose_name.title())
-                historical_models.sort(key=lambda x: x.verbose_name.title())
-                list_models.sort(key=lambda x: x.verbose_name.title())
-                exportable = {
-                    "models": models,
-                    "inlines": self.inlines.get(model._meta.app_label),
-                    "historicals": historical_models,
-                    "lists": list_models,
-                }
-                self.update({app_config.name: exportable})
+        )
 
-    def is_randomization_list_model(self, model=None, user=None):
-        is_randomization_list_model = False
-        for randomizer in site_randomizers._registry.values():
-            if (
-                model._meta.label_lower == randomizer.model
-                or model._meta.label_lower
-                == randomizer.model_cls().history.model._meta.label_lower
-            ):
-                if is_blinded_user(user.username):
-                    is_randomization_list_model = True
-                    break
-        return is_randomization_list_model
+    def __repr__(self):
+        return f"{self.__class__.__name__}(app_config={self.app_config})"
 
-    @property
-    def inlines(self):
+    def __str__(self):
+        return self.name
+
+    def get_inlines(self, app_label):
         if not self._inlines:
             for site in sites.all_sites:
                 for model_cls, admin_site in site._registry.items():
@@ -95,7 +82,38 @@ class Exportables(OrderedDict):
                         self._inlines[model_cls._meta.app_label].sort(
                             key=lambda x: x.verbose_name.title()
                         )
-        return self._inlines
+        return self._inlines.get(app_label)
+
+
+class Exportables(OrderedDict):
+    """A dictionary-like object that creates a "list" of
+    models, historical models, and list models that may be exported.
+
+    Checks each `AppConfig.has_exportable_data` and if True
+    includes that apps models, including historical and list models.
+    """
+
+    export_group_name = EXPORT
+
+    default_app_labels = getattr(
+        settings, "EDC_EXPORTABLE_DEFAULT_APPS", ["sites", "auth", "admin"],
+    )
+
+    def __init__(self, app_configs=None, user=None, request=None):
+        super().__init__()
+        app_configs = app_configs or self.get_app_configs()
+        app_configs.sort(key=lambda x: x.verbose_name)
+        try:
+            user.groups.get(name=self.export_group_name)
+        except ObjectDoesNotExist:
+            messages.error(
+                request, "You do not have sufficient permissions to export data."
+            )
+        else:
+            for app_config in app_configs:
+                self.update(
+                    {app_config.name: Exportable(app_config=app_config, user=user)}
+                )
 
     def get_app_configs(self):
         """Returns a list of app_configs with exportable data.

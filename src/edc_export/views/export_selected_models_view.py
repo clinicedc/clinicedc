@@ -1,3 +1,4 @@
+import pdb
 from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
@@ -146,18 +147,19 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
         """
         exportables = Exportables(request=self.request, user=self.user)
         selected_models = []
-        for app_config in exportables:
+        for exportable in exportables:
+            # pdb.set_trace()
             selected_models.extend(
-                self.request.POST.getlist(f"chk_{app_config.name}_models") or []
+                self.request.POST.getlist(f"chk_{exportable}_models") or []
             )
             selected_models.extend(
-                self.request.POST.getlist(f"chk_{app_config.name}_historicals") or []
+                self.request.POST.getlist(f"chk_{exportable}_historicals") or []
             )
             selected_models.extend(
-                self.request.POST.getlist(f"chk_{app_config.name}_lists") or []
+                self.request.POST.getlist(f"chk_{exportable}_lists") or []
             )
             selected_models.extend(
-                self.request.POST.getlist(f"chk_{app_config.name}_inlines") or []
+                self.request.POST.getlist(f"chk_{exportable}_inlines") or []
             )
         return [ModelOptions(model=m).__dict__ for m in selected_models if m]
 
