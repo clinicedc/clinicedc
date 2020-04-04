@@ -19,6 +19,7 @@ from .constants import (
     NEVER,
     NO,
     NO_UNCONFIRMED,
+    NOT_ESTIMATED,
     NORMAL,
     NOT_APPLICABLE,
     NOT_DONE,
@@ -207,7 +208,7 @@ DAYS_OF_WEEK = (
 
 DATE_ESTIMATED_NA = (
     (NOT_APPLICABLE, "Not applicable"),
-    ("not_estimated", "No."),
+    (NOT_ESTIMATED, "No."),
     ("D", "Yes, estimated the Day"),
     ("MD", "Yes, estimated Month and Day"),
     ("YMD", "Yes, estimated Year, Month and Day"),
