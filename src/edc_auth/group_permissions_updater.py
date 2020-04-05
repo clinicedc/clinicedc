@@ -65,7 +65,6 @@ class GroupPermissionsUpdater:
             sys.stdout.write(
                 style.MIGRATE_HEADING("Updating groups and permissions:\n")
             )
-
         self.create_or_update_groups()
         self.create_permissions_from_tuples(
             "edc_dashboard.dashboard", self.dashboard_tuples

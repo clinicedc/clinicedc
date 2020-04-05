@@ -3,15 +3,15 @@ import os
 
 from django.contrib.auth.models import User, Group
 from django.contrib.sites.models import Site
+from django.core.exceptions import ObjectDoesNotExist
+from django.test import TestCase
+from edc_sites.models import SiteProfile
 from faker import Faker
 from secrets import choice
 from tempfile import mkdtemp
-from django.test import TestCase
 
 from ..import_users import fieldnames
-from ..group_names import CLINIC, LAB, ACCOUNT_MANAGER
 from ..role_names import CLINICIAN_ROLE, LAB_TECHNICIAN_ROLE
-from django.core.exceptions import ObjectDoesNotExist
 
 fake = Faker()
 group_names = ["CLINIC", "LAB"]
@@ -21,10 +21,7 @@ site_names = ["harare", "gaborone", "kampala"]
 class EdcAuthTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
-        #         Group.objects.create(name=CLINIC)
-        #         Group.objects.create(name=LAB)
-        #         Group.objects.create(name=ACCOUNT_MANAGER)
-
+        SiteProfile.objects.all().delete()
         Site.objects.all().delete()
         for site_name in site_names:
             Site.objects.create(name=site_name, domain=f"{site_name}.example.com")

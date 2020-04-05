@@ -15,6 +15,7 @@ navbars = [
     "edc_navbar.nav_pharmacy_section",
     "edc_navbar.nav_public",
     "edc_navbar.nav_screening_section",
+    "edc_navbar.nav_enrolment_section",
     "edc_navbar.nav_subject_section",
     "edc_navbar.nav_tmg_section",
 ]
