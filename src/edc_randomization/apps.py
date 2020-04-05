@@ -19,7 +19,7 @@ class AppConfig(DjangoAppConfig):
     def ready(self):
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
         site_randomizers.autodiscover()
-        register(randomization_list_check)
+        register(randomization_list_check, deploy=True)
         sys.stdout.write(f" Done loading {self.verbose_name} ...\n")
 
     @property
