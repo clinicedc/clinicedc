@@ -7,6 +7,10 @@ from edc_utils import get_utcnow
 from .address import Address
 
 
+class EdcProtocolError(Exception):
+    pass
+
+
 class Protocol:
     """Encapsulates settings attributes:
         EDC_PROTOCOL: 6 digit alpha-numeric
@@ -25,8 +29,12 @@ class Protocol:
 
         self.protocol = getattr(settings, "EDC_PROTOCOL", "AAA000")
 
-        # 3 digits, used for identifiers
+        # 3 digits, used for identifiers, required for live systems
         self.protocol_number = getattr(settings, "EDC_PROTOCOL_NUMBER", "000")
+        if not settings.DEBUG and self.protocol_number == "000":
+            raise EdcProtocolError(
+                "Settings attribute `EDC_PROTOCOL_NUMBER` not defined."
+            )
 
         self.protocol_title = getattr(
             settings, "EDC_PROTOCOL_TITLE", "Protocol Title (set EDC_PROTOCOL_TITLE)"
