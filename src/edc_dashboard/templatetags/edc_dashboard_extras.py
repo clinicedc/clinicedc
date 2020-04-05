@@ -38,24 +38,24 @@ class UrlMaker:
 def age_in_years(context, born):
     reference_datetime = context.get("reference_datetime") or get_utcnow()
     try:
-        age_in_years = age(born, reference_datetime).years
+        age_in_years_ = age(born, reference_datetime).years
     except AgeValueError:
-        age_in_years = None
-    return age_in_years or born
+        age_in_years_ = None
+    return age_in_years_ or born
 
 
-def page_numbers(page, numpages, display=None):
+def page_numbers(page, numpages):
     """Returns a list of x integers (display) relative to the value of n
     where n > 0 and the length of the list cannot exceed count.
     """
-    page_numbers = None
+    page_numbers_ = None
     if page and numpages:
         min_n = page - 5
         min_n = 1 if min_n <= 0 else min_n
         max_n = min_n + 9
         max_n = numpages if max_n >= numpages else max_n
-        page_numbers = [x for x in range(min_n, max_n + 1)]
-    return page_numbers or []
+        page_numbers_ = [x for x in range(min_n, max_n + 1)]
+    return page_numbers_ or []
 
 
 @register.inclusion_tag(
