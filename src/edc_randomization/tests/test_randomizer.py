@@ -1,12 +1,9 @@
-import os
-
 from django.contrib.sites.models import Site
 from django.test import TestCase, tag
 from django.test.utils import override_settings
 from edc_registration.models import RegisteredSubject
 from edc_sites import add_or_update_django_sites
 from random import shuffle
-from tempfile import mkdtemp
 
 from edc_sites.single_site import SingleSite
 from multisite import SiteID
@@ -35,11 +32,21 @@ from .models import SubjectConsent
 
 fqdn = "example.clinicedc.org"
 all_sites = (
-    SingleSite(10, "site_one", title="One", fqdn=fqdn),
-    SingleSite(20, "site_two", title="Two", fqdn=fqdn),
-    SingleSite(30, "site_three", title="Three", fqdn=fqdn),
-    SingleSite(40, "site_four", title="Four", fqdn=fqdn),
-    SingleSite(50, "site_five", title="Five", fqdn=fqdn),
+    SingleSite(
+        10, "site_one", title="One", country="uganda", country_code="ug", fqdn=fqdn
+    ),
+    SingleSite(
+        20, "site_two", title="Two", country="uganda", country_code="ug", fqdn=fqdn
+    ),
+    SingleSite(
+        30, "site_three", title="Three", country="uganda", country_code="ug", fqdn=fqdn
+    ),
+    SingleSite(
+        40, "site_four", title="Four", country="uganda", country_code="ug", fqdn=fqdn
+    ),
+    SingleSite(
+        50, "site_five", title="Five", country="uganda", country_code="ug", fqdn=fqdn
+    ),
 )
 
 
