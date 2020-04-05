@@ -48,5 +48,6 @@ class RequiresConsent:
                 f"Consent is required. Cannot find '{self.consent_model} "
                 f"version {self.version}' when saving model '{self.model}' for "
                 f"subject '{self.subject_identifier}' with date "
-                f"'{formatted_report_datetime}' ."
+                f"'{formatted_report_datetime}'. "
+                f"See also `all_post_consent_models` in the visit schedule."
             )
