@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import tag
+from django.test import tag  # noqa
 from faker import Faker
 
 from ..constants import DATA_MANAGER_ROLE
@@ -15,7 +15,6 @@ user_model = get_user_model()
 
 
 class TestRoles(EdcAuthTestCase):
-    @tag("1")
     def test_post_migrate(self):
         """Assert post-migrate updated defaults for model Role."""
         self.assertGreater(Role.objects.all().count(), 0)
@@ -30,7 +29,6 @@ class TestRoles(EdcAuthTestCase):
         groups.sort()
         self.assertEqual(groups, groups_by_role_name.get(CLINICIAN_ROLE))
 
-    @tag("1")
     def test_add_roles_to_user(self):
         create_users()
         user = user_model.objects.all()[0]
@@ -42,9 +40,8 @@ class TestRoles(EdcAuthTestCase):
         self.assertGreater(user.groups.all().count(), 0)
         # see groups_by_role_name for expected group counts
         # note, count is the unique list count
-        self.assertEqual(user.groups.all().count(), 10)
+        self.assertEqual(user.groups.all().count(), 11)
 
-    @tag("2")
     def test_remove_roles_to_user(self):
         create_users()
         user = user_model.objects.all()[0]
@@ -57,7 +54,7 @@ class TestRoles(EdcAuthTestCase):
         user.refresh_from_db()
         cnt = user.groups.all().count()
         # see groups_by_role_name for expected group counts
-        self.assertEqual(cnt, 10 + 2)
+        self.assertEqual(cnt, 11 + 2)
         # should trigger post remove m2m signal
         user.userprofile.roles.remove(data_manager_role)
         self.assertGreater(cnt, user.groups.all().count())
