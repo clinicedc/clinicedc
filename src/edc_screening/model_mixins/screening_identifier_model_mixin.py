@@ -14,12 +14,17 @@ class ScreeningIdentifierModelMixin(
 ):
 
     identifier_cls = ScreeningIdentifier
+    screening_identifier_field_name = "screening_identifier"
 
     def save(self, *args, **kwargs):
         """Screening Identifier is always allocated.
         """
         if not self.id:
-            self.screening_identifier = self.identifier_cls().identifier
+            setattr(
+                self,
+                self.screening_identifier_field_name,
+                self.identifier_cls().identifier,
+            )
         super().save(*args, **kwargs)
 
     def update_subject_identifier_on_save(self):
