@@ -12,25 +12,35 @@ class RequiresConsentModelFormMixin:
         self.validate_against_consent()
         return cleaned_data
 
+    @property
+    def report_datetime(self):
+        """Returns the report_datetime from directly from
+        cleaned_data or via the subject_visit.
+        """
+        report_datetime = self.cleaned_data.get("report_datetime")
+        subject_visit = self.cleaned_data.get(self._meta.model.visit_model_attr())
+        if subject_visit and not report_datetime:
+            report_datetime = self.cleaned_data.get(
+                self._meta.model.visit_model_attr()
+            ).report_datetime
+        return report_datetime
+
     def validate_against_consent(self):
         """Raise an exception if the report datetime doesn't make
         sense relative to the consent.
         """
-        cleaned_data = self.cleaned_data
         try:
             subject_identifier = self.cleaned_data["appointment"].subject_identifier
         except KeyError:
             subject_identifier = self.cleaned_data.get(
                 "subject_visit"
             ).appointment.subject_identifier
-        consent = self.get_consent(
-            subject_identifier, cleaned_data.get("report_datetime")
-        )
-        if cleaned_data.get("report_datetime") < consent.consent_datetime:
+        consent = self.get_consent(subject_identifier, self.report_datetime)
+        if self.report_datetime < consent.consent_datetime:
             raise forms.ValidationError(
                 "Report datetime cannot be before consent datetime"
             )
-        if cleaned_data.get("report_datetime").date() < consent.dob:
+        if self.report_datetime.date() < consent.dob:
             raise forms.ValidationError("Report datetime cannot be before DOB")
 
     @property
