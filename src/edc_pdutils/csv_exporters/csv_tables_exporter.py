@@ -15,6 +15,9 @@ class CsvTablesExporter:
 
     """Export to CSV all tables for an app_label.
 
+    Does not decrypt values stored in django_crypto_fields
+    encrypted field classes.
+
     Usage:
         exporter = CsvTablesExporter(app_label='td')
         exporter.to_csv()
