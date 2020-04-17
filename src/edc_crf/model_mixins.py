@@ -27,7 +27,9 @@ class CrfNoManagerModelMixin(
     """ Base model for all scheduled models
     """
 
-    subject_visit = models.OneToOneField(settings.SUBJECT_VISIT_MODEL, on_delete=PROTECT)
+    subject_visit = models.OneToOneField(
+        settings.SUBJECT_VISIT_MODEL, on_delete=PROTECT
+    )
 
     def natural_key(self):
         return self.subject_visit.natural_key()
@@ -44,6 +46,7 @@ class CrfNoManagerModelMixin(
 
 
 class CrfModelMixin(CrfNoManagerModelMixin):
+
     on_site = CurrentSiteManager()
     objects = CrfModelManager()
     history = HistoricalRecords(inherit=True)
