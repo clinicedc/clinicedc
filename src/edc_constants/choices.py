@@ -8,8 +8,10 @@ from .constants import (
     ANYTIME,
     DEAD,
     DECLINED,
+    DONT_KNOW,
     DWTA,
     EVENING,
+    FALSE,
     FEMALE,
     IND,
     MALE,
@@ -32,6 +34,7 @@ from .constants import (
     RANDOM_SAMPLING,
     REFUSED,
     TBD,
+    TRUE,
     UNKNOWN,
     WEEKDAYS,
     WEEKENDS,
@@ -387,6 +390,13 @@ TIME_UNITS = (
     ("MONTHS", "Months"),
     ("YEARS", "Years"),
 )
+
+TRUE_FALSE_DONT_KNOW = (
+    (TRUE, "True"),
+    (FALSE, "False"),
+    (DONT_KNOW, "Don't know"),
+)
+
 
 URINALYSIS = (
     ("NAD", "NAD"),
