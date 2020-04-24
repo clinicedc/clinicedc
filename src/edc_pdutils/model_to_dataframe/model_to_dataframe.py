@@ -21,7 +21,7 @@ class ModelToDataframe:
     """
 
     value_getter_cls = ValueGetter
-    sys_field_names = ["_state", "_user_container_instance", "using"]
+    sys_field_names = ["_state", "_user_container_instance", "_domain_cache", "using"]
     edc_sys_columns = [
         "created",
         "modified",
