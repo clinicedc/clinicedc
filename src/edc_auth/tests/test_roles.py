@@ -40,7 +40,7 @@ class TestRoles(EdcAuthTestCase):
         self.assertGreater(user.groups.all().count(), 0)
         # see groups_by_role_name for expected group counts
         # note, count is the unique list count
-        self.assertEqual(user.groups.all().count(), 11)
+        self.assertEqual(user.groups.all().count(), 10)
 
     def test_remove_roles_to_user(self):
         create_users()
@@ -54,7 +54,7 @@ class TestRoles(EdcAuthTestCase):
         user.refresh_from_db()
         cnt = user.groups.all().count()
         # see groups_by_role_name for expected group counts
-        self.assertEqual(cnt, 11 + 2)
+        self.assertEqual(cnt, 10 + 2)
         # should trigger post remove m2m signal
         user.userprofile.roles.remove(data_manager_role)
         self.assertGreater(cnt, user.groups.all().count())
