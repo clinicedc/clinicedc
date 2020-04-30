@@ -40,7 +40,7 @@ class VisitModelFieldsMixin(models.Model):
     )
 
     reason_missed = models.CharField(
-        verbose_name=("If 'missed', provide the reason for the missed visit"),
+        verbose_name="If 'missed', provide the reason for the missed visit",
         max_length=35,
         blank=True,
         null=True,
