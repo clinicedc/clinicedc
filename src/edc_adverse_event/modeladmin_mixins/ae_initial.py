@@ -20,11 +20,9 @@ from .modeladmin_mixins import AdverseEventModelAdminMixin
 
 
 fieldset_part_one = (
-    "Part 1: Description",
+    "Part 1: Descripiton",
     {
         "fields": (
-            "subject_identifier",
-            "report_datetime",
             "ae_classification",
             "ae_classification_other",
             "ae_description",
@@ -82,6 +80,7 @@ class AeInitialModelAdminMixin(
     )
 
     fieldsets = (
+        (None, {"fields": ("subject_identifier", "report_datetime")}),
         fieldset_part_one,
         fieldset_part_two,
         fieldset_part_three,

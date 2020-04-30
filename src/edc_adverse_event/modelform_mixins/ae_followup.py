@@ -8,6 +8,25 @@ from edc_reportable import SEVERITY_INCREASED_FROM_G3, GRADE5
 from edc_utils.text import convert_php_dateformat
 
 
+def validate_ae_initial_outcome_date(form_obj):
+    ae_initial = form_obj.cleaned_data.get("ae_initial")
+    if not ae_initial and form_obj.instance:
+        ae_initial = form_obj.instance.ae_initial
+    outcome_date = form_obj.cleaned_data.get("outcome_date")
+    if ae_initial and outcome_date:
+        if outcome_date < ae_initial.ae_start_date:
+            formatted_dte = ae_initial.ae_start_date.strftime(
+                convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+            )
+            raise forms.ValidationError(
+                {
+                    "outcome_date": (
+                        f"May not be before the AE start date {formatted_dte}."
+                    )
+                }
+            )
+
+
 class DefaultAeFollowupFormValidator(FormValidator):
     def clean(self):
 
@@ -36,28 +55,10 @@ class AeFollowupModelFormMixin(
     def clean(self):
         cleaned_data = super().clean()
 
-        self.validate_ae_initial_outcode_date()
+        validate_ae_initial_outcome_date(self)
         self.validate_no_followup_upon_death()
 
         return cleaned_data
-
-    def validate_ae_initial_outcode_date(self):
-        ae_initial = self.cleaned_data.get("ae_initial")
-        if not ae_initial and self.instance:
-            ae_initial = self.instance.ae_initial
-        outcome_date = self.cleaned_data.get("outcome_date")
-        if ae_initial and outcome_date:
-            if outcome_date < ae_initial.ae_start_date:
-                formatted_dte = ae_initial.ae_start_date.strftime(
-                    convert_php_dateformat(settings.SHORT_DATE_FORMAT)
-                )
-                raise forms.ValidationError(
-                    {
-                        "outcome_date": (
-                            f"May not be before the AE start date {formatted_dte}."
-                        )
-                    }
-                )
 
     def validate_no_followup_upon_death(self):
         if self.cleaned_data.get("followup") == YES:
