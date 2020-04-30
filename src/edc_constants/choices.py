@@ -13,6 +13,7 @@ from .constants import (
     EVENING,
     FALSE,
     FEMALE,
+    FORMER_SMOKER,
     IND,
     MALE,
     MORNING,
@@ -21,6 +22,7 @@ from .constants import (
     NEVER,
     NO,
     NO_UNCONFIRMED,
+    NONSMOKER,
     NOT_ESTIMATED,
     NORMAL,
     NOT_APPLICABLE,
@@ -33,6 +35,7 @@ from .constants import (
     PURPOSIVELY_SELECTED,
     RANDOM_SAMPLING,
     REFUSED,
+    SMOKER,
     TBD,
     TRUE,
     UNKNOWN,
@@ -339,6 +342,12 @@ POS_NEG_NOTESTED = (
     (NEVER, "Never tested for HIV"),
 )
 
+POS_NEG_NOT_DONE = (
+    (POS, "Positive"),
+    (NEG, "Negative"),
+    (NOT_DONE, "Not done"),
+)
+
 
 POS_NEG_UNTESTED_REFUSAL = (
     (POS, "Positive"),
@@ -373,6 +382,13 @@ SELECTION_METHOD = (
 SEVERITY_LEVEL = (("mild", "Mild"), ("moderate", "Moderate"), ("severe", "Severe"))
 
 SEXUAL_DEBUT = (("<=14", "14 or under"), ("15-17", " 15 - 17"), (">=18", "18 or above"))
+
+SMOKER_STATUS = (
+    (SMOKER, "Currently smokes"),
+    (FORMER_SMOKER, "Used to smoke but stopped"),
+    (NONSMOKER, "Never smoked"),
+)
+
 
 TIME_OF_WEEK = ((WEEKDAYS, "Weekdays"), (WEEKENDS, "Weekends"), (ANYTIME, "Anytime"))
 
