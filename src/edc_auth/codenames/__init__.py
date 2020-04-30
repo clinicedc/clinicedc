@@ -9,7 +9,6 @@ from .dashboard import dashboard
 from .data_manager import data_manager
 from .data_query import data_query
 from .dispensing import dispensing
-from .enrolment import enrolment
 from .everyone import everyone
 from .export import export
 from .lab import lab, lab_dashboard, lab_navbar

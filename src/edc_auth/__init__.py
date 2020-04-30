@@ -1,4 +1,4 @@
-from .codenames import data_manager, enrolment, screening
+from .codenames import data_manager, screening
 from .get_default_codenames_by_group import get_default_codenames_by_group
 from .group_names import (
     ACCOUNT_MANAGER,
@@ -12,7 +12,6 @@ from .group_names import (
     DISPENSING,
     SITE_DATA_MANAGER,
     DATA_QUERY,
-    ENROLMENT,
     EVERYONE,
     EXPORT,
     LAB,
