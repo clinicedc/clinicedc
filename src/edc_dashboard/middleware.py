@@ -1,5 +1,5 @@
 from django.conf import settings
-from edc_constants.constants import MALE, FEMALE, OTHER, YES, NO
+from edc_constants.constants import COMPLETE, INCOMPLETE, MALE, FEMALE, OTHER, YES, NO
 from edc_constants.constants import NEW, OPEN, CLOSED
 from edc_constants.constants import NOT_APPLICABLE, CANCELLED
 
@@ -41,8 +41,10 @@ class DashboardMiddleware:
             response.context_data.update(
                 CANCELLED=CANCELLED,
                 CLOSED=CLOSED,
+                COMPLETE=COMPLETE,
                 DEBUG=settings.DEBUG,
                 FEMALE=FEMALE,
+                INCOMPLETE=INCOMPLETE,
                 MALE=MALE,
                 NEW=NEW,
                 NO=NO,
