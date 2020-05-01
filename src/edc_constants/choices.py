@@ -27,6 +27,7 @@ from .constants import (
     NORMAL,
     NOT_APPLICABLE,
     NOT_DONE,
+    NOT_RECORDED,
     NOT_SURE,
     OMANG,
     OTHER,
@@ -387,6 +388,7 @@ SMOKER_STATUS = (
     (SMOKER, "Currently smokes"),
     (FORMER_SMOKER, "Used to smoke but stopped"),
     (NONSMOKER, "Never smoked"),
+    (NOT_RECORDED, "Not recorded"),
 )
 
 
