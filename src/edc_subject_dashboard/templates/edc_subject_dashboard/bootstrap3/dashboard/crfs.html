@@ -21,11 +21,12 @@
                                 {% if crf.entry_status == NOT_REQUIRED %}
                                     <span class="text text-muted small">{{ crf.object.verbose_name }}</span>
                                 {% else %}
-                                    {{ crf.object.verbose_name }}</p>
+                                {{ crf.object.verbose_name }}
                                     {% if crf.object.user_created %}
                                         <p class="text small text-default">
-                                            {{ crf.object.user_created }} on {{ crf.object.object.created|date:"SHORT_DATETIME_FORMAT" }}
+                                            {% if crf.object.crf_status == INCOMPLETE %}<span class="label label-danger" data-toggle="tooltip" title="CRF is flagged as incomplete"><span class="fas fa-tag"></span></span>{% endif %}                                            {{ crf.object.user_created }} on {{ crf.object.object.created|date:"SHORT_DATETIME_FORMAT" }}
                                             {% if crf.object.user_modified %} | {{ crf.object.user_modified }} on {{ crf.object.object.modified|date:"SHORT_DATETIME_FORMAT" }}{% endif %}
+
                                         </p>
                                     {% endif %}
                                 {% endif %}
@@ -33,7 +34,7 @@
                             <td>
                               <span class="btn-group pull-right">
                               {% if crf.entry_status != NOT_REQUIRED %}
-                                <a id="{{ crf.object.html_id }}" name="{{ crf.object.html_id }}" role="button" class="btn btn-sm {% if crf.object.id %}btn-success{% else %}{% if crf.entry_status == NOT_REQUIRED %} disabled btn-default{% else %}btn-warning{% endif %}{% endif %}" 
+                                <a id="{{ crf.object.html_id }}" name="{{ crf.object.html_id }}" role="button" class="btn btn-sm {% if crf.object.id %}btn-success{% else %}{% if crf.entry_status == NOT_REQUIRED %} disabled btn-default{% else %}btn-warning{% endif %}{% endif %}"
                                         {% if crf.object.id and crf.object.has_change_permission %}
                                             href="{{ crf.object.href }}"><span class="fas fa-pen"></span> Change
                                         {% elif not crf.object.id and crf.object.has_add_permission %}
