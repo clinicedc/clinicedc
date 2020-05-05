@@ -10,3 +10,8 @@
 .table-no-border>tfoot>tr>td {
   border-top: none; 
 }
+
+@-ms-viewport       { width: device-width; }
+@-o-viewport        { width: device-width; }
+@viewport           { width: device-width; }
+
