@@ -7,7 +7,7 @@ from edc_dashboard.utils import insert_bootstrap_version
 dashboard_templates = dict(
     aliquot_listboard_template=f"edc_lab_dashboard/aliquot_listboard.html",
     box_listboard_template=f"edc_lab_dashboard/box_listboard.html",
-    edc_lab_base_template=f"edc_dashboard/base.html",
+    edc_lab_base_template=f"edc_lab_dashboard/base.html",
     home_template=f"edc_lab_dashboard/home.html",
     edc_lab_base_listboard_template=f"edc_lab_dashboard/base_listboard.html",
     edc_lab_listboard_template=f"edc_lab_dashboard/listboard.html",
