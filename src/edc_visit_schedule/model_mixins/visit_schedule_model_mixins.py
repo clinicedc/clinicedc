@@ -93,17 +93,7 @@ class VisitScheduleFieldsModelMixin(models.Model):
         abstract = True
 
 
-class VisitScheduleModelMixin(
-    VisitScheduleFieldsModelMixin, VisitScheduleMethodsModelMixin, models.Model
-):
-
-    """A model mixin that adds adds field attributes and methods that
-    link a model instance to its schedule.
-
-    This mixin is used with Appointment and Visit models via their
-    respective model mixins.
-    """
-
+class VisitCodeFieldsModelMixin(models.Model):
     visit_code = models.CharField(max_length=25, null=True, editable=False)
 
     visit_code_sequence = models.IntegerField(
@@ -117,6 +107,24 @@ class VisitScheduleModelMixin(
             "to complete data collection for the timepoint. (NNNN.0)"
         ),
     )
+
+    class Meta:
+        abstract = True
+
+
+class VisitScheduleModelMixin(
+    VisitScheduleFieldsModelMixin,
+    VisitCodeFieldsModelMixin,
+    VisitScheduleMethodsModelMixin,
+    models.Model,
+):
+
+    """A model mixin that adds adds field attributes and methods that
+    link a model instance to its schedule.
+
+    This mixin is used with Appointment and Visit models via their
+    respective model mixins.
+    """
 
     class Meta:
         abstract = True

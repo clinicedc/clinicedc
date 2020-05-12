@@ -7,5 +7,6 @@ from .visit_schedule_model_mixins import VisitScheduleFieldsModelMixin
 from .visit_schedule_model_mixins import VisitScheduleMethodsModelMixin
 from .visit_schedule_model_mixins import (
     VisitScheduleModelMixin,
+    VisitCodeFieldsModelMixin,
     VisitScheduleMethodsError,
 )
