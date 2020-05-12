@@ -20,9 +20,10 @@ def fix_export_permissions(app_label=None):
 
     print(f"Adding `import` and `export` to default permissions")
     for app_config in app_configs:
-        print(f"  * updating {app_config}.name")
+        print(f"  * updating {app_config.name}")
         for model in app_config.get_models():
-            if isinstance(model, (edc_models.BaseUuidModel,)):
+            if issubclass(model, (edc_models.BaseUuidModel,)):
+                print(f"    - {model._meta.label_lower}")
                 try:
                     content_type = ContentType.objects.get(
                         app_label=model._meta.app_label, model=model._meta.object_name
@@ -30,11 +31,13 @@ def fix_export_permissions(app_label=None):
                 except ObjectDoesNotExist as e:
                     raise ObjectDoesNotExist(f"{e} Got {model}.")
                 for action in ["import", "export"]:
-                    codename = f"_{action}".join(model._meta.label_lower.split("."))
+                    codename = f"{action}_{model._meta.label_lower.split('.')[1]}"
                     name = f"Can {action} {model._meta.verbose_name}"
                     opts = dict(name=name, content_type=content_type, codename=codename)
                     try:
                         Permission.objects.get(**opts)
                     except ObjectDoesNotExist:
                         Permission.objects.create(**opts)
+                        print(f"       created for {model._meta.label_lower}")
+
     print(f"Done")
