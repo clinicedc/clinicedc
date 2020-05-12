@@ -3,7 +3,7 @@ from django.contrib.sites.models import Site
 from django.test import TestCase, tag  # noqa
 from django.test.utils import override_settings
 from edc_sites import get_sites_by_country, get_all_sites
-from edc_sites.get_country import get_country
+from edc_sites import get_current_country
 from edc_sites.models import SiteProfile
 from edc_sites.sites import all_sites
 from django.conf import settings
@@ -147,7 +147,7 @@ class TestSites3(SiteTestCaseMixin, TestCase):
             add_or_update_django_sites(sites=sites)
         self.assertEqual("mochudi", Site.objects.get_current().name)
         self.assertEqual("botswana", Site.objects.get_current().siteprofile.country)
-        self.assertEqual("botswana", get_country())
+        self.assertEqual("botswana", get_current_country())
         self.assertEqual(
             self.default_all_sites.get("botswana"), get_sites_by_country("botswana")
         )
@@ -168,7 +168,7 @@ class TestSites3(SiteTestCaseMixin, TestCase):
     @override_settings(EDC_SITES_MODULE_NAME=None)
     def test_default_sites_module_domain(self):
         self.assertEqual(get_all_sites(), all_sites)
-        # self.assertIsNone(get_country())
+        # self.assertIsNone(get_current_country())
         for sites in get_all_sites().values():
             add_or_update_django_sites(sites=sites, verbose=False)
         site = Site.objects.get(id=1)
@@ -182,7 +182,7 @@ class TestSites3(SiteTestCaseMixin, TestCase):
         for sites in get_all_sites().values():
             add_or_update_django_sites(sites=sites, verbose=False)
         site = Site.objects.get(id=10)
-        self.assertEqual(get_country(), "botswana")
+        self.assertEqual(get_current_country(), "botswana")
         self.assertEqual(
             Alias.objects.get(site=site).domain, "mochudi.bw.clinicedc.org"
         )
@@ -195,7 +195,7 @@ class TestSites3(SiteTestCaseMixin, TestCase):
         Site.objects.all().delete()
         self.assertEqual(get_all_sites(), all_test_sites)
         self.assertEqual(settings.SITE_ID, 10)
-        self.assertIsNone(get_country())
+        self.assertIsNone(get_current_country())
         for sites in get_all_sites().values():
             add_or_update_django_sites(sites=sites, verbose=False)
         site = Site.objects.get(id=10)

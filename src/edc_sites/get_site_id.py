@@ -7,23 +7,27 @@ class InvalidSiteError(Exception):
     pass
 
 
+def get_sites_from_model():
+    site_model_cls = django_apps.get_model("edc_sites.edcsite")
+    return [
+        SingleSite(
+            obj.id,
+            obj.name,
+            title=obj.title,
+            description=obj.description,
+            country=obj.country,
+            country_code=obj.country_code,
+            domain=obj.domain,
+        )
+        for obj in site_model_cls.objects.all()
+    ]
+
+
 def get_site_id(value, sites=None):
     """Returns the site_id given the site_name.
     """
     if not sites:
-        site_model_cls = django_apps.get_model("edc_sites.edcsite")
-        sites = [
-            SingleSite(
-                obj.id,
-                obj.name,
-                title=obj.title,
-                description=obj.description,
-                country=obj.country,
-                country_code=obj.country_code,
-                domain=obj.domain,
-            )
-            for obj in site_model_cls.objects.all()
-        ]
+        sites = get_sites_from_model()
 
     try:
         site_id = [site for site in sites if site.name == value][0].site_id
