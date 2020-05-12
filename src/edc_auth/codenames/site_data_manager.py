@@ -1,4 +1,5 @@
 site_data_manager = [
+    "edc_crf.view_crfstatus",
     "edc_data_manager.add_dataquery",
     "edc_data_manager.change_dataquery",
     "edc_data_manager.delete_dataquery",

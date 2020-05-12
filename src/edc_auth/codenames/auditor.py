@@ -8,6 +8,7 @@ auditor = [
     "edc_adverse_event.view_saereason",
     "edc_appointment.view_appointment",
     "edc_appointment.view_historicalappointment",
+    "edc_crf.view_crfstatus",
     "edc_dashboard.view_lab_aliquot_listboard",
     "edc_dashboard.view_lab_box_listboard",
     "edc_dashboard.view_lab_manifest_listboard",
