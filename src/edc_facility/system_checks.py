@@ -5,7 +5,7 @@ import sys
 from django.conf import settings
 from django.core.checks import Warning
 from django.core.management import color_style
-from edc_sites import get_country
+from edc_sites import get_current_country
 
 style = color_style()
 
@@ -47,7 +47,7 @@ def holiday_country_check(app_configs, **kwargs):
     sys.stdout.write(style.SQL_KEYWORD("holiday_country_check ... \r"))
     errors = []
     holiday_path = settings.HOLIDAY_FILE
-    country = get_country()
+    country = get_current_country()
     if country:
         with open(holiday_path, "r") as f:
             reader = csv.DictReader(f, fieldnames=["local_date", "label", "country"])
