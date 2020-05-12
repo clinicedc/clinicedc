@@ -8,48 +8,29 @@ from edc_visit_schedule.fieldsets import (
     visit_schedule_fields,
 )
 from import_export.admin import ExportActionMixin
-from import_export.resources import ModelResource
 
+from .admin_actions import appointment_mark_as_done
 from .admin_site import edc_appointment_admin
 from .constants import NEW_APPT
+from .exim_resources import AppointmentResource
 from .forms import AppointmentForm
 from .models import Appointment
-
-from django.contrib.auth import get_permission_codename
-from django.conf import settings
-
-
-class AppointmentResource(ModelResource):
-    class Meta:
-        model = Appointment
 
 
 @admin.register(Appointment, site=edc_appointment_admin)
 class AppointmentAdmin(
     ModelAdminSubjectDashboardMixin, ExportActionMixin, SimpleHistoryAdmin
 ):
-    def has_export_permission(self, request):
-        """
-        Returns whether a request has export permission.
-        """
-        EXPORT_PERMISSION_CODE = getattr(
-            settings, "IMPORT_EXPORT_EXPORT_PERMISSION_CODE", None
-        )
-        if EXPORT_PERMISSION_CODE is None:
-            return True
-
-        opts = self.opts
-        codename = get_permission_codename(EXPORT_PERMISSION_CODE, opts)
-        return request.user.has_perm("%s.%s" % (opts.app_label, codename))
 
     show_cancel = True
-
     form = AppointmentForm
     resource_class = AppointmentResource
+    actions = [appointment_mark_as_done]
     date_hierarchy = "appt_datetime"
     list_display = (
         "subject_identifier",
         "__str__",
+        "dashboard",
         "appt_datetime",
         "appt_type",
         "appt_status",
