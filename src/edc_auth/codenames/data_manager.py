@@ -1,6 +1,7 @@
 from .dashboard import dashboard
 
 data_manager = [
+    "edc_crf.view_crfstatus",
     "edc_data_manager.add_dataquery",
     "edc_data_manager.add_queryrule",
     "edc_data_manager.change_dataquery",
