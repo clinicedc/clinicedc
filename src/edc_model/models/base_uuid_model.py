@@ -9,3 +9,4 @@ class BaseUuidModel(UrlModelMixin, AuditUuidModelMixin, models.Model):
 
     class Meta(AuditUuidModelMixin.Meta):
         abstract = True
+        default_permissions = ("add", "change", "delete", "view", "export", "import")
