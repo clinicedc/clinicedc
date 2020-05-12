@@ -17,8 +17,15 @@
         <a id="home_list_group_query_rule" href="{% url 'edc_data_manager_admin:edc_data_manager_queryrule_changelist' %}" class="list-group-item">Query rules</a>
         <a id="home_list_group_datadictionary" href="{% url 'edc_data_manager_admin:edc_data_manager_datadictionary_changelist' %}" class="list-group-item">Data dictionary</a>
         <a id="home_list_group_queryvisitschedule" href="{% url 'edc_data_manager_admin:edc_data_manager_queryvisitschedule_changelist' %}" class="list-group-item">Visit schedule</a>
+
+        {% if perms.edc_metadata %}
+          <a id="home_edc_metadata_admin" href="{% url 'edc_metadata_admin:app_list' 'edc_metadata' %}" class="list-group-item">CRF/Requisition Metadata</a>
+        {% endif %}
+        {% if perms.edc_crf %}
+          <a id="home_edc_crf_admin" href="{% url 'edc_crf_admin:edc_crf_crfstatus_changelist' %}" class="list-group-item">Incomplete CRFs</a>
+        {% endif %}
         {% if perms.edc_data_manager %}
-          <a id="home_list_group_admin" href="{% url 'edc_data_manager_admin:app_list' 'edc_data_manager' %}" class="list-group-item">Admin</a>
+          <a id="home_edc_data_manager_admin" href="{% url 'edc_data_manager_admin:app_list' 'edc_data_manager' %}" class="list-group-item">Admin</a>
         {% endif %}
       </div>
     </div>

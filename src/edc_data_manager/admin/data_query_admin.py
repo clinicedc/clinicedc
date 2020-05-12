@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.contrib.admin.decorators import register
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_action_item.fieldsets import action_fieldset_tuple, action_fields
 from edc_appointment.models import Appointment
@@ -20,13 +21,12 @@ from edc_constants.constants import (
 from edc_model_admin import SimpleHistoryAdmin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_utils import formatted_datetime
+from textwrap import wrap
 
 from ..admin_site import edc_data_manager_admin
 from ..constants import CLOSED_WITH_ACTION
 from ..forms import DataQueryForm
 from ..models import DataQuery, DataDictionary
-from textwrap import wrap
-from django.utils.safestring import mark_safe
 
 
 @register(DataQuery, site=edc_data_manager_admin)
@@ -286,6 +286,18 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         return render_to_string(
             self.query_recipients_column_template_name, context=context
         )
+
+    def created_details(self, obj):
+        rule_generated = YES if obj.rule_generated else NO
+        context = {
+            "rule_generated": rule_generated,
+            "YES": YES,
+            "NO": NO,
+            "created": obj.created,
+            "modified": obj.modified,
+            "reference": obj.action_identifier[-9:],
+        }
+        return render_to_string(self.query_date_column_template_name, context=context)
 
     def get_readonly_fields(self, request, obj=None):
         fields = super().get_readonly_fields(request, obj=obj)

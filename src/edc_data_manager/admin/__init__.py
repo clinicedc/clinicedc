@@ -1,6 +1,5 @@
 from .action_item_admin import DataManagerActionItemAdmin
 from .autocomplete_admin import (
-    CrfMetadataAdmin,
     DataManagerUserAdmin,
     QuerySubjectAdmin,
     QueryUserAdmin,
