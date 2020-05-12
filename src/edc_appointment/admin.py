@@ -7,6 +7,8 @@ from edc_visit_schedule.fieldsets import (
     visit_schedule_fieldset_tuple,
     visit_schedule_fields,
 )
+from import_export.admin import ExportActionMixin
+from import_export.resources import ModelResource
 
 from .admin_site import edc_appointment_admin
 from .constants import NEW_APPT
@@ -14,11 +16,19 @@ from .forms import AppointmentForm
 from .models import Appointment
 
 
+class AppointmentResource(ModelResource):
+    class Meta:
+        model = Appointment
+
+
 @admin.register(Appointment, site=edc_appointment_admin)
-class AppointmentAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
+class AppointmentAdmin(
+    ModelAdminSubjectDashboardMixin, ExportActionMixin, SimpleHistoryAdmin
+):
     show_cancel = True
 
     form = AppointmentForm
+    resource_class = AppointmentResource
     date_hierarchy = "appt_datetime"
     list_display = (
         "subject_identifier",
