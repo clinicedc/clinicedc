@@ -4,7 +4,6 @@ from django.contrib.sites.shortcuts import get_current_site
 from edc_auth import DATA_MANAGER
 from edc_auth.admin import UserAdmin as BaseUserAdmin
 from edc_lab.admin import PanelAdmin as BasePanelAdmin
-from edc_metadata.models import CrfMetadata
 from edc_registration.admin import RegisteredSubjectAdmin as BaseRegisteredSubjectAdmin
 from edc_visit_schedule.admin import VisitScheduleAdmin as BaseVisitScheduleAdmin
 
@@ -83,12 +82,6 @@ class QueryUserAdmin(BaseUserAdmin):
             .filter(userprofile__sites__id=get_current_site(request).id)
             .exclude(groups__name=DATA_MANAGER)
         )
-
-
-@register(CrfMetadata, site=edc_data_manager_admin)
-class CrfMetadataAdmin(admin.ModelAdmin):
-    ordering = ("model",)
-    search_fields = ("model",)
 
 
 @register(QueryVisitSchedule, site=edc_data_manager_admin)
