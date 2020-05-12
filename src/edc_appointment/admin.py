@@ -15,6 +15,9 @@ from .constants import NEW_APPT
 from .forms import AppointmentForm
 from .models import Appointment
 
+from django.contrib.auth import get_permission_codename
+from django.conf import settings
+
 
 class AppointmentResource(ModelResource):
     class Meta:
@@ -25,6 +28,20 @@ class AppointmentResource(ModelResource):
 class AppointmentAdmin(
     ModelAdminSubjectDashboardMixin, ExportActionMixin, SimpleHistoryAdmin
 ):
+    def has_export_permission(self, request):
+        """
+        Returns whether a request has export permission.
+        """
+        EXPORT_PERMISSION_CODE = getattr(
+            settings, "IMPORT_EXPORT_EXPORT_PERMISSION_CODE", None
+        )
+        if EXPORT_PERMISSION_CODE is None:
+            return True
+
+        opts = self.opts
+        codename = get_permission_codename(EXPORT_PERMISSION_CODE, opts)
+        return request.user.has_perm("%s.%s" % (opts.app_label, codename))
+
     show_cancel = True
 
     form = AppointmentForm
