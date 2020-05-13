@@ -11,6 +11,7 @@ from .data_query import data_query
 from .dispensing import dispensing
 from .everyone import everyone
 from .export import export
+from .export_rando import export_rando
 from .lab import lab, lab_dashboard, lab_navbar
 from .lab_view import lab_view
 from .navbars import navbars
