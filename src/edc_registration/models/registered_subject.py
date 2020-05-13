@@ -9,7 +9,7 @@ from django_crypto_fields.fields import IdentityField, EncryptedCharField
 from edc_constants.choices import GENDER
 from edc_constants.constants import UUID_PATTERN
 from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
-from edc_model.models import BaseUuidModel, HistoricalRecords
+from edc_model import models as edc_models
 from edc_model_fields.fields import IdentityTypeField, IsDateEstimatedField
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 from edc_utils import get_uuid
@@ -22,7 +22,7 @@ class RegisteredSubjectError(Exception):
 
 
 class RegisteredSubject(
-    UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseUuidModel
+    UniqueSubjectIdentifierModelMixin, SiteModelMixin, edc_models.BaseUuidModel
 ):
     """A model mixin for the RegisteredSubject model (only).
     """
@@ -141,7 +141,7 @@ class RegisteredSubject(
 
     on_site = CurrentSiteManager()
 
-    history = HistoricalRecords()
+    history = edc_models.HistoricalRecords()
 
     objects = RegisteredSubjectManager()
 
@@ -235,7 +235,7 @@ class RegisteredSubject(
                         raise RegisteredSubjectError(error_msg.format(action="update"))
                     else:
                         raise RegisteredSubjectError(error_msg.format(action="update"))
-                except self.__class__.DoesNotExist:
+                except ObjectDoesNotExist:
                     pass
 
     def set_uuid_as_subject_identifier_if_none(self):
@@ -249,7 +249,7 @@ class RegisteredSubject(
         if not self.subject_identifier:
             self.subject_identifier = self.subject_identifier_as_pk.hex
 
-    class Meta:
+    class Meta(edc_models.BaseUuidModel.Meta):
         verbose_name = "Registered Subject"
         ordering = ["subject_identifier"]
         unique_together = ("first_name", "dob", "initials", "additional_key")
