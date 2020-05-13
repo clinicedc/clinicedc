@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_model.models import BaseUuidModel, HistoricalRecords
+from edc_model import models as edc_models
 from edc_sites.models import CurrentSiteManager
 
 from ..model_mixins import ResultModelMixin
@@ -14,7 +14,7 @@ class ResultManager(models.Manager):
         )
 
 
-class Result(ResultModelMixin, BaseUuidModel):
+class Result(ResultModelMixin, edc_models.BaseUuidModel):
 
     order = models.ForeignKey(Order, on_delete=PROTECT)
 
@@ -22,9 +22,12 @@ class Result(ResultModelMixin, BaseUuidModel):
 
     objects = ResultManager()
 
-    history = HistoricalRecords()
+    history = edc_models.HistoricalRecords()
 
     def natural_key(self):
         return (self.report_datetime, self.order.order_identifier)
 
     natural_key.dependencies = ["edc_lab.order", "edc_lab.panel", "sites.Site"]
+
+    class Meta(edc_models.BaseUuidModel.Meta):
+        verbose_name = "Result"

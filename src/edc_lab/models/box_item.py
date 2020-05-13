@@ -2,7 +2,7 @@ import re
 
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_model.models import BaseUuidModel, HistoricalRecords
+from edc_model import models as edc_models
 from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
 from ..model_mixins import VerifyModelMixin
@@ -17,7 +17,7 @@ class BoxItemManager(SearchSlugManager, models.Manager):
         )
 
 
-class BoxItem(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
+class BoxItem(SearchSlugModelMixin, VerifyModelMixin, edc_models.BaseUuidModel):
 
     box = models.ForeignKey(Box, on_delete=PROTECT)
 
@@ -29,7 +29,7 @@ class BoxItem(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
 
     objects = BoxItemManager()
 
-    history = HistoricalRecords()
+    history = edc_models.HistoricalRecords()
 
     def natural_key(self):
         return (self.position, self.identifier) + self.box.natural_key()
@@ -52,7 +52,7 @@ class BoxItem(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
         slugs = [self.identifier, self.human_readable_identifier]
         return slugs
 
-    class Meta:
-        app_label = "edc_lab"
+    class Meta(edc_models.BaseUuidModel.Meta):
+        verbose_name = "Box Item"
         ordering = ("position",)
         unique_together = (("box", "position"), ("box", "identifier"))

@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
 from django.utils import timezone
-from edc_model.models import BaseUuidModel, HistoricalRecords
+from edc_model import models as edc_models
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 from edc_constants.constants import OTHER, OPEN
 from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
@@ -35,7 +35,9 @@ class BoxManager(SearchSlugManager, models.Manager):
         return self.get(box_identifier=box_identifier)
 
 
-class Box(SearchSlugModelMixin, VerifyBoxModelMixin, SiteModelMixin, BaseUuidModel):
+class Box(
+    SearchSlugModelMixin, VerifyBoxModelMixin, SiteModelMixin, edc_models.BaseUuidModel
+):
 
     search_slug_fields = ["box_identifier", "human_readable_identifier", "name"]
 
@@ -72,7 +74,7 @@ class Box(SearchSlugModelMixin, VerifyBoxModelMixin, SiteModelMixin, BaseUuidMod
 
     objects = BoxManager()
 
-    history = HistoricalRecords()
+    history = edc_models.HistoricalRecords()
 
     def save(self, *args, **kwargs):
         if not self.box_identifier:
@@ -124,7 +126,7 @@ class Box(SearchSlugModelMixin, VerifyBoxModelMixin, SiteModelMixin, BaseUuidMod
     def max_position(self):
         return
 
-    class Meta:
-        app_label = "edc_lab"
+    class Meta(edc_models.BaseUuidModel.Meta):
+        verbose_name = "Box"
         ordering = ("-box_datetime",)
         verbose_name_plural = "Boxes"

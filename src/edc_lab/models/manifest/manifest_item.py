@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
 
-from edc_model.models import BaseUuidModel
+from edc_model import models as edc_models
 from edc_sites.models import SiteModelMixin
 from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
@@ -15,7 +15,7 @@ class ManifestItemManager(SearchSlugManager, models.Manager):
 
 
 class ManifestItem(
-    SiteModelMixin, SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel
+    SiteModelMixin, SearchSlugModelMixin, VerifyModelMixin, edc_models.BaseUuidModel
 ):
     def get_search_slug_fields(self):
         return ["identifier", "human_readable_identifier"]
@@ -38,7 +38,7 @@ class ManifestItem(
         x = self.identifier
         return "{}-{}-{}".format(x[0:4], x[4:8], x[8:12])
 
-    class Meta:
-        app_label = "edc_lab"
+    class Meta(edc_models.BaseUuidModel.Meta):
+        verbose_name = "Manifest Item"
         ordering = ("created",)
         unique_together = ("manifest", "identifier")

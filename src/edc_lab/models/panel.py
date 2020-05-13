@@ -1,5 +1,5 @@
 from django.db import models
-from edc_model.models import BaseUuidModel
+from edc_model import models as edc_models
 
 
 class PanelManager(models.Manager):
@@ -7,7 +7,7 @@ class PanelManager(models.Manager):
         return self.get(name=name, lab_profile_name=lab_profile_name)
 
 
-class Panel(BaseUuidModel):
+class Panel(edc_models.BaseUuidModel):
 
     name = models.CharField(max_length=50)
 
@@ -23,6 +23,7 @@ class Panel(BaseUuidModel):
     def natural_key(self):
         return (self.name, self.lab_profile_name)
 
-    class Meta:
+    class Meta(edc_models.BaseUuidModel.Meta):
+        verbose_name = "Panel"
         unique_together = ("name", "lab_profile_name")
         ordering = ("lab_profile_name", "name")
