@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from edc_model.fix_export_permission import fix_export_permissions
+from edc_model.fix_export_permissions import fix_export_permissions
 
 
 class Command(BaseCommand):
