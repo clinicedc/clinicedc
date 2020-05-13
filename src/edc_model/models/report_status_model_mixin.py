@@ -16,7 +16,7 @@ class ReportStatusModelMixin(models.Model):
         blank=True,
         null=True,
         validators=[datetime_not_future],
-        verbose_name=("Date and time report closed."),
+        verbose_name="Date and time report closed.",
     )
 
     class Meta:
