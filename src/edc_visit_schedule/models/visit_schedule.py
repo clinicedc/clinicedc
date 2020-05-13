@@ -1,5 +1,5 @@
 from django.db import models
-from edc_model.models import BaseUuidModel, HistoricalRecords
+from edc_model import models as edc_models
 
 
 class VisitScheduleManager(models.Manager):
@@ -11,7 +11,7 @@ class VisitScheduleManager(models.Manager):
         )
 
 
-class VisitSchedule(BaseUuidModel):
+class VisitSchedule(edc_models.BaseUuidModel):
 
     visit_schedule_name = models.CharField(max_length=150)
 
@@ -29,7 +29,7 @@ class VisitSchedule(BaseUuidModel):
 
     objects = VisitScheduleManager()
 
-    history = HistoricalRecords()
+    history = edc_models.HistoricalRecords()
 
     def __str__(self):
         return (
@@ -40,7 +40,7 @@ class VisitSchedule(BaseUuidModel):
     def natural_key(self):
         return (self.visit_schedule_name, self.schedule_name, self.visit_code)
 
-    class Meta:
+    class Meta(edc_models.BaseUuidModel.Meta):
         ordering = ("visit_schedule_name", "schedule_name", "visit_code")
         unique_together = (
             ("visit_schedule_name", "schedule_name", "visit_code"),
