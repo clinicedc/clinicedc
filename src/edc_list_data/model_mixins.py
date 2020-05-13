@@ -58,5 +58,5 @@ class ListModelMixin(models.Model):
     class Meta:
         abstract = True
         ordering = ["display_index", "display_name"]
-
         indexes = [models.Index(fields=["id", "display_name", "display_index"])]
+        default_permissions = ("add", "change", "delete", "view", "export", "import")
