@@ -1,9 +1,9 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from edc_model.models import BaseUuidModel
+from edc_model import models as edc_models
 
 
-class Notification(BaseUuidModel):
+class Notification(edc_models.BaseUuidModel):
 
     """A model that stores the notification types.
 
@@ -29,5 +29,5 @@ class Notification(BaseUuidModel):
     def __str__(self):
         return f"{self.display_name}"
 
-    class Meta:
+    class Meta(edc_models.BaseUuidModel.Meta):
         ordering = ("display_name",)
