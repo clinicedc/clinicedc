@@ -1,5 +1,5 @@
 from django.db import models
-from edc_model.models import BaseUuidModel
+from edc_model import models as edc_models
 from edc_sites.models import SiteModelMixin
 
 
@@ -19,7 +19,7 @@ class IdentifierModelManager(models.Manager):
         abstract = True
 
 
-class IdentifierModel(SiteModelMixin, BaseUuidModel):
+class IdentifierModel(SiteModelMixin, edc_models.BaseUuidModel):
 
     name = models.CharField(max_length=100)
 
@@ -49,7 +49,7 @@ class IdentifierModel(SiteModelMixin, BaseUuidModel):
     def natural_key(self):
         return (self.identifier,)
 
-    class Meta:
+    class Meta(edc_models.BaseUuidModel.Meta):
         app_label = "edc_identifier"
         ordering = ["sequence_number"]
         unique_together = ("name", "identifier")
