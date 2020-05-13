@@ -32,6 +32,8 @@ class CrfStatusAdmin(
         "label_lower",
     )
 
+    search_fields = ("subject_identifier",)
+
     def get_subject_dashboard_url_kwargs(self, obj):
         return dict(
             subject_identifier=obj.subject_identifier,
