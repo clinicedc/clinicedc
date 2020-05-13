@@ -1,13 +1,13 @@
 from django.apps import apps as django_apps
 from django.db import models
-from edc_model.models import BaseUuidModel
+from edc_model import models as edc_models
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 
 from ..managers import CrfMetadataManager
 from .model_mixin import ModelMixin
 
 
-class CrfMetadata(ModelMixin, SiteModelMixin, BaseUuidModel):
+class CrfMetadata(ModelMixin, SiteModelMixin, edc_models.BaseUuidModel):
 
     on_site = CurrentSiteManager()
 
@@ -37,7 +37,7 @@ class CrfMetadata(ModelMixin, SiteModelMixin, BaseUuidModel):
         model = django_apps.get_model(self.model)
         return model._meta.verbose_name
 
-    class Meta(ModelMixin.Meta):
+    class Meta(ModelMixin.Meta, edc_models.BaseUuidModel.Meta):
         verbose_name = "Crf Metadata"
         verbose_name_plural = "Crf Metadata"
         unique_together = (

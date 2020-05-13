@@ -1,12 +1,12 @@
 from django.db import models
-from edc_model.models import BaseUuidModel
+from edc_model import models as edc_models
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 
 from ..managers import RequisitionMetadataManager
 from .model_mixin import ModelMixin
 
 
-class RequisitionMetadata(ModelMixin, SiteModelMixin, BaseUuidModel):
+class RequisitionMetadata(ModelMixin, SiteModelMixin, edc_models.BaseUuidModel):
 
     panel_name = models.CharField(max_length=50, null=True)
 
@@ -41,7 +41,7 @@ class RequisitionMetadata(ModelMixin, SiteModelMixin, BaseUuidModel):
 
     natural_key.dependencies = ["sites.Site"]
 
-    class Meta(ModelMixin.Meta):
+    class Meta(ModelMixin.Meta, edc_models.BaseUuidModel.Meta):
         app_label = "edc_metadata"
         verbose_name = "Requisition Metadata"
         verbose_name_plural = "Requisition Metadata"

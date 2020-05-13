@@ -1,13 +1,15 @@
 from django.contrib import admin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
+from import_export.admin import ExportActionMixin
 
 from ..admin_site import edc_metadata_admin
+from ..exim_resources import RequisitionMetadataResource
 from ..models import RequisitionMetadata
 
 
 @admin.register(RequisitionMetadata, site=edc_metadata_admin)
 class RequisitionMetadataAdmin(
-    ModelAdminSubjectDashboardMixin, admin.ModelAdmin,
+    ModelAdminSubjectDashboardMixin, ExportActionMixin, admin.ModelAdmin,
 ):
     @staticmethod
     def seq(obj=None):
@@ -17,6 +19,7 @@ class RequisitionMetadataAdmin(
     def panel(obj=None):
         return obj.panel_name
 
+    resource_class = RequisitionMetadataResource
     search_fields = ("subject_identifier", "model", "id", "panel_name")
     list_display = (
         "subject_identifier",

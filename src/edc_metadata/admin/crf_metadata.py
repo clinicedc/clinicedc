@@ -1,12 +1,16 @@
 from django.contrib import admin
+from edc_metadata.exim_resources import CrfMetadataResource
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
+from import_export.admin import ExportActionMixin
 
 from ..admin_site import edc_metadata_admin
 from ..models import CrfMetadata
 
 
 @admin.register(CrfMetadata, site=edc_metadata_admin)
-class CrfMetadataAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
+class CrfMetadataAdmin(
+    ModelAdminSubjectDashboardMixin, ExportActionMixin, admin.ModelAdmin
+):
     @staticmethod
     def seq(obj=None):
         return obj.visit_code_sequence
@@ -18,6 +22,8 @@ class CrfMetadataAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
             schedule_name=obj.schedule_name,
             visit_code=obj.visit_code,
         )
+
+    resource_class = CrfMetadataResource
 
     search_fields = ("subject_identifier", "model", "id")
     list_display = (
