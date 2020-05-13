@@ -8,6 +8,7 @@ from edc_model_admin import (
     ModelAdminFormAutoNumberMixin,
     audit_fields,
 )
+from import_export.admin import ExportActionMixin
 
 
 class BaseModelAdmin(
@@ -17,6 +18,7 @@ class BaseModelAdmin(
     ModelAdminRevisionMixin,
     ModelAdminAuditFieldsMixin,
     FieldsetsModelAdminMixin,
+    ExportActionMixin,
     admin.ModelAdmin,
 ):
 
