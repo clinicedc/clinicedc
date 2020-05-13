@@ -1,13 +1,20 @@
 from django.apps import apps as django_apps
 from django.contrib import admin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
+from import_export.admin import ExportActionMixin
 
 from .admin_site import edc_crf_admin
+from .exim_resources import CrfStatusResource
 from .models import CrfStatus
 
 
 @admin.register(CrfStatus, site=edc_crf_admin)
-class CrfStatusAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
+class CrfStatusAdmin(
+    ModelAdminSubjectDashboardMixin, ExportActionMixin, admin.ModelAdmin
+):
+
+    resource_class = CrfStatusResource
+
     list_display = (
         "subject_identifier",
         "crf",
