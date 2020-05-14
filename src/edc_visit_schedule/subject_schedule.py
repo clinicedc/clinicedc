@@ -332,7 +332,6 @@ class SubjectSchedule:
             formatted_report_datetime = report_datetime.strftime(
                 convert_php_dateformat(settings.SHORT_DATE_FORMAT)
             )
-            offschedule_datetime
             raise NotOnScheduleForDateError(
                 f"Subject not on schedule '{self.schedule_name}' for "
                 f"report date '{formatted_report_datetime}'. "
