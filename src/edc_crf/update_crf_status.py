@@ -1,7 +1,7 @@
 from django.apps import apps as django_apps
 from edc_constants.constants import INCOMPLETE
 
-from .model_mixins import CrfStatusModelMixin
+from .crf_status_model_mixin import CrfStatusModelMixin
 from .update_crf_status_for_instance import update_crf_status_for_instance
 
 

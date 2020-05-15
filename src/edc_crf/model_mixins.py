@@ -15,23 +15,6 @@ from edc_visit_tracking.model_mixins import (
     PreviousVisitModelMixin,
 )
 
-from .choices import CRF_STATUS
-
-
-class CrfStatusModelMixin(models.Model):
-    crf_status = models.CharField(
-        verbose_name="CRF status",
-        max_length=25,
-        choices=CRF_STATUS,
-        default=INCOMPLETE,
-        help_text="If some data is still pending, flag this CRF as incomplete",
-    )
-
-    comments = models.TextField(null=True, blank=True)
-
-    class Meta:
-        abstract = True
-
 
 class CrfNoManagerModelMixin(
     VisitTrackingCrfModelMixin,
