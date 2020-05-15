@@ -1,3 +1,5 @@
+import pdb
+
 from edc_constants.constants import DWTA, NOT_APPLICABLE
 
 from .base_form_validator import BaseFormValidator, InvalidModelFormFieldValidator
@@ -24,6 +26,7 @@ class RequiredFieldValidator(BaseFormValidator):
         optional_if_na=None,
         inverse=None,
         is_instance_field=None,
+        field_required_evaluate_as_int=None,
         code=None,
     ):
         """Raises an exception or returns False.
@@ -35,6 +38,12 @@ class RequiredFieldValidator(BaseFormValidator):
             self.update_cleaned_data_from_instance(field)
         self._inspect_params(*responses, field=field, field_required=field_required)
         field_value = self.get(field)
+
+        if field_required_evaluate_as_int:
+            field_required_has_value = self.cleaned_data.get(field_required) is not None
+        else:
+            field_required_has_value = self.cleaned_data.get(field_required)
+
         if field in self.cleaned_data:
             if DWTA in responses and optional_if_dwta and field_value == DWTA:
                 pass
@@ -45,14 +54,14 @@ class RequiredFieldValidator(BaseFormValidator):
             ):
                 pass
             elif field_value in responses and (
-                not self.cleaned_data.get(field_required)
+                not field_required_has_value
                 or self.cleaned_data.get(field_required) == NOT_APPLICABLE
             ):
                 self.raise_required(field=field_required, msg=required_msg)
             elif inverse and (
                 field_value not in responses
                 and (
-                    self.cleaned_data.get(field_required)
+                    field_required_has_value
                     and (self.cleaned_data.get(field_required) != NOT_APPLICABLE)
                 )
             ):
