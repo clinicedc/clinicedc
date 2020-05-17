@@ -1,7 +1,6 @@
 from datetime import date
-
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
 from edc_consent import site_consents
@@ -18,19 +17,15 @@ from visit_schedule_app.models import OnSchedule
 from visit_schedule_app.models import SubjectConsent
 
 
-class TestView(VisitScheduleViewMixin):
+class MyView(VisitScheduleViewMixin):
     kwargs = {}
 
 
-class TestViewCurrent(VisitScheduleViewMixin):
+class MyViewCurrent(VisitScheduleViewMixin):
     kwargs = {}
-
-    def is_current_onschedule_model(self, onschedule_instance, **kwargs):
-        return True
 
 
 @override_settings(
-    SITE_ID=40,
     EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
 )
@@ -76,13 +71,13 @@ class TestViewMixin(SiteTestCaseMixin, TestCase):
         site_visit_schedules.register(self.visit_schedule)
 
         self.subject_identifier = "12345"
-        self.view = TestView()
+        self.view = MyView()
         self.view.kwargs = dict(subject_identifier=self.subject_identifier)
         self.view.subject_identifier = self.subject_identifier
         self.view.request = RequestFactory()
         self.view.request.META = {"HTTP_CLIENT_IP": "1.1.1.1"}
 
-        self.view_current = TestViewCurrent()
+        self.view_current = MyViewCurrent()
         self.view_current.kwargs = dict(subject_identifier=self.subject_identifier)
         self.view_current.subject_identifier = self.subject_identifier
         self.view_current.request = RequestFactory()
@@ -119,4 +114,4 @@ class TestViewMixin(SiteTestCaseMixin, TestCase):
         obj = OnSchedule.objects.create(subject_identifier=self.subject_identifier)
         context = self.view_current.get_context_data()
         self.assertEqual(context.get("current_onschedule_model"), obj)
-        obj = context.get("current_onschedule_model")
+        context.get("current_onschedule_model")
