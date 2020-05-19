@@ -1,5 +1,3 @@
-import pdb
-
 from edc_constants.constants import DWTA, NOT_APPLICABLE
 
 from .base_form_validator import BaseFormValidator, InvalidModelFormFieldValidator
@@ -27,7 +25,6 @@ class RequiredFieldValidator(BaseFormValidator):
         inverse=None,
         is_instance_field=None,
         field_required_evaluate_as_int=None,
-        code=None,
     ):
         """Raises an exception or returns False.
 
@@ -74,12 +71,11 @@ class RequiredFieldValidator(BaseFormValidator):
         field_required=None,
         required_msg=None,
         not_required_msg=None,
-        code=None,
         inverse=None,
     ):
         inverse = True if inverse is None else inverse
         if not field_required:
-            raise InvalidModelFormFieldValidator(f"The required field cannot be None.")
+            raise InvalidModelFormFieldValidator("The required field cannot be None.")
         if self.cleaned_data and field_required in self.cleaned_data:
             if condition and (
                 self.cleaned_data.get(field_required) is None
@@ -102,7 +98,7 @@ class RequiredFieldValidator(BaseFormValidator):
         The inverse is not tested.
         """
         if not field:
-            raise InvalidModelFormFieldValidator(f"The required field cannot be None.")
+            raise InvalidModelFormFieldValidator("The required field cannot be None.")
         if is_instance_field:
             self.update_cleaned_data_from_instance(field)
         if self.cleaned_data and field in self.cleaned_data:
@@ -132,7 +128,7 @@ class RequiredFieldValidator(BaseFormValidator):
         if is_instance_field:
             self.update_cleaned_data_from_instance(field)
         if not field_required:
-            raise InvalidModelFormFieldValidator(f"The required field cannot be None.")
+            raise InvalidModelFormFieldValidator("The required field cannot be None.")
         if optional_if_dwta and self.cleaned_data.get(field) == DWTA:
             field_value = None
         else:
@@ -172,7 +168,6 @@ class RequiredFieldValidator(BaseFormValidator):
         optional_if_dwta=None,
         inverse=None,
         is_instance_field=None,
-        code=None,
     ):
         """Raises an exception or returns False.
 
@@ -223,7 +218,8 @@ class RequiredFieldValidator(BaseFormValidator):
         ):
             self.raise_not_required(field=field_required, msg=required_msg)
 
-    def _inspect_params(self, *responses, field=None, field_required=None):
+    @staticmethod
+    def _inspect_params(*responses, field=None, field_required=None):
         """Inspects params and raises if any are None.
         """
         if not field:
@@ -233,4 +229,4 @@ class RequiredFieldValidator(BaseFormValidator):
                 f"At least one valid response for field '{field}' must be provided."
             )
         elif not field_required:
-            raise InvalidModelFormFieldValidator(f'"field_required" cannot be None.')
+            raise InvalidModelFormFieldValidator('"field_required" cannot be None.')
