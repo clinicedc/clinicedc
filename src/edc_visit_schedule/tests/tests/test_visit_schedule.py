@@ -86,7 +86,7 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
         )
         errors = visit_schedule.check()
         if errors:
-            self.fail(f"visit_schedule.check() unexpectedly failed")
+            self.fail("visit_schedule.check() unexpectedly failed")
 
 
 @override_settings(
