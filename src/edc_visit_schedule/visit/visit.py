@@ -54,6 +54,7 @@ class Visit:
         crfs=None,
         requisitions=None,
         crfs_unscheduled=None,
+        crfs_missed=None,
         requisitions_unscheduled=None,
         crfs_prn=None,
         requisitions_prn=None,
@@ -70,6 +71,9 @@ class Visit:
         self.crfs_unscheduled = ()
         if crfs_unscheduled:
             self.crfs_unscheduled = crfs_unscheduled.forms
+        self.crfs_missed = ()
+        if crfs_missed:
+            self.crfs_missed = crfs_missed.forms
         self.crfs_prn = ()
         if crfs_prn:
             self.crfs_prn = crfs_prn.forms
@@ -121,6 +125,12 @@ class Visit:
         return self.crfs_unscheduled + self.requisitions_unscheduled
 
     @property
+    def missed_forms(self):
+        """Returns a list of forms to show for a missed visit.
+        """
+        return self.crfs_missed
+
+    @property
     def prn_forms(self):
         """Returns a list of PRN forms.
         """
@@ -128,7 +138,7 @@ class Visit:
 
     @property
     def all_crfs(self):
-        return self.crfs + self.crfs_unscheduled + self.crfs_prn
+        return self.crfs + self.crfs_unscheduled + self.crfs_prn + self.crfs_missed
 
     @property
     def all_requisitions(self):
@@ -201,6 +211,8 @@ class Visit:
             for crf in self.requisitions:
                 django_apps.get_model(crf.model)
             for crf in self.crfs_unscheduled:
+                django_apps.get_model(crf.model)
+            for crf in self.crfs_missed:
                 django_apps.get_model(crf.model)
             for crf in self.requisitions_unscheduled:
                 django_apps.get_model(crf.model)
