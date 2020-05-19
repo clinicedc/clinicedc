@@ -11,7 +11,7 @@ def update_crf_status_command(app_label=None):
     else:
         app_configs = django_apps.get_app_configs()
 
-    print(f"Updating CRF Status model for instances set to crf_status=incomplete")
+    print("Updating CRF Status model for instances set to crf_status=incomplete")
     for app_config in app_configs:
         print(f"  * updating {app_config.name}")
         for model in app_config.get_models():
