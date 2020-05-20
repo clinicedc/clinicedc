@@ -39,12 +39,12 @@ def fix_export_permissions(app_label=None, verbose=None):
                     try:
                         obj = Permission.objects.get(**opts)
                     except ObjectDoesNotExist:
-                        opts.update(name=f"Can {action} {model._meta.verbose}")
+                        opts.update(name=f"Can {action} {model._meta.verbose_name}")
                         Permission.objects.create(**opts)
                         if verbose:
                             print(f"       created for {model._meta.label_lower}")
                     else:
-                        obj.name = f"Can {action} {model._meta.verbose}"
+                        obj.name = f"Can {action} {model._meta.verbose_name}"
                         obj.save()
 
     if verbose:
