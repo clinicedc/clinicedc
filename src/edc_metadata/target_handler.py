@@ -3,6 +3,7 @@ from edc_reference import site_reference_configs
 
 from edc_metadata.constants import CRF
 from edc_metadata.metadata_handler import MetadataHandler
+from edc_visit_tracking.constants import MISSED_VISIT
 
 
 class TargetModelNotScheduledForVisit(Exception):
@@ -98,6 +99,8 @@ class TargetHandler:
                 self.visit_model_instance.visit.unscheduled_forms
                 + self.visit_model_instance.visit.prn_forms
             )
+        elif self.visit_model_instance.reason == MISSED_VISIT:
+            forms = self.visit_model_instance.visit.missed_forms
         else:
             forms = (
                 self.visit_model_instance.visit.forms

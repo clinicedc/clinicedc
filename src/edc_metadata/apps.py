@@ -13,8 +13,8 @@ class AppConfig(DjangoAppConfig):
     verbose_name = "Edc Metadata"
     has_exportable_data = True
     reason_field = {settings.SUBJECT_VISIT_MODEL: "reason"}
-    create_on_reasons = [SCHEDULED, UNSCHEDULED]
-    delete_on_reasons = [MISSED_VISIT]
+    create_on_reasons = [SCHEDULED, UNSCHEDULED, MISSED_VISIT]
+    delete_on_reasons = []  # [MISSED_VISIT]
     include_in_administration_section = True
 
     def ready(self):

@@ -2,6 +2,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from edc_reference import site_reference_configs
 from edc_visit_schedule import site_visit_schedules
+from edc_visit_tracking.constants import MISSED_VISIT
 
 from ..constants import NOT_REQUIRED, REQUIRED, KEYED
 
@@ -148,6 +149,8 @@ class Creator:
     def crfs(self):
         if self.visit_code_sequence != 0:
             return self.visit.crfs_unscheduled
+        elif self.visit_model_instance.reason == MISSED_VISIT:
+            return self.visit.crfs_missed
         return self.visit.crfs
 
     @property
