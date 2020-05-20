@@ -18,7 +18,7 @@ from .get_default_codenames_by_group import get_default_codenames_by_group
 from .group_names import PII, PII_VIEW
 
 INVALID_APP_LABEL = "invalid_app_label"
-
+EDC_AUTH_CODENAMES_WARN_ONLY = getattr(settings, "EDC_AUTH_CODENAMES_WARN_ONLY", False)
 style = color_style()
 site_randomizers.autodiscover()
 
@@ -258,9 +258,11 @@ class GroupPermissionsUpdater:
                         )
                     )
                 except ObjectDoesNotExist as e:
-                    raise ObjectDoesNotExist(
-                        f"{e}. Got codename={codename},app_label={app_label}"
-                    )
+                    errmsg = f"{e}. Got codename={codename},app_label={app_label}"
+                    if EDC_AUTH_CODENAMES_WARN_ONLY:
+                        warn(style.ERROR(errmsg))
+                    else:
+                        raise ObjectDoesNotExist(errmsg)
         return permissions
 
     def get_from_dotted_codename(self, codename=None):

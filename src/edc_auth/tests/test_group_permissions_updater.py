@@ -55,7 +55,8 @@ class GroupPermissionUpdater(TestCase):
         ).order_by("codename")
         self.assertEqual(
             "|".join([o.codename for o in qs]),
-            "add_dashboard|change_dashboard|delete_dashboard|view_dashboard",
+            "add_dashboard|change_dashboard|delete_dashboard|export_dashboard|"
+            "import_dashboard|view_dashboard",
         )
 
     def test_removes_randomization_list_model_perms(self):
