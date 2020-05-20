@@ -33,7 +33,8 @@ class Protocol:
         self.protocol_number = getattr(settings, "EDC_PROTOCOL_NUMBER", "000")
         if not settings.DEBUG and self.protocol_number == "000":
             raise EdcProtocolError(
-                "Settings attribute `EDC_PROTOCOL_NUMBER` not defined."
+                "Settings attribute `EDC_PROTOCOL_NUMBER` not defined or "
+                "set to '000' while DEBUG=False."
             )
 
         self.protocol_title = getattr(
