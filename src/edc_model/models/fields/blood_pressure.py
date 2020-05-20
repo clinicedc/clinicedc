@@ -8,7 +8,7 @@ class SystolicPressureField(models.IntegerField):
 
     def __init__(self, *args, verbose_name=None, **kwargs):
         kwargs["verbose_name"] = verbose_name or "Blood pressure: systolic"
-        kwargs["validators"] = [MinValueValidator(50), MaxValueValidator(220)]
+        kwargs["validators"] = [MinValueValidator(50), MaxValueValidator(300)]
         kwargs["help_text"] = "in mm. format SYS, e.g. 120"
         super().__init__(*args, **kwargs)
 
