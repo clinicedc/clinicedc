@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from edc_model import models as edc_models
 
 
-def fix_export_permissions(app_label=None):
+def fix_export_permissions(app_label=None, verbose=None):
     """Add "import" and "export" to default permissions of add, change, delete, view.
 
     Needed for BaseUuidModel models with an initial migration created before edc==0.1.24.
@@ -13,17 +13,20 @@ def fix_export_permissions(app_label=None):
     Provided for ``django-import-export`` integration
     """
 
+    verbose = verbose if verbose is not None else False
     if app_label:
         app_configs = [django_apps.get_app_config(app_label)]
     else:
         app_configs = django_apps.get_app_configs()
 
-    print(f"Adding `import` and `export` to default permissions")
+    print("Adding `import` and `export` to default permissions.")
     for app_config in app_configs:
-        print(f"  * updating {app_config.name}")
+        if verbose:
+            print(f"  * updating {app_config.name}")
         for model in app_config.get_models():
             if issubclass(model, (edc_models.BaseUuidModel,)):
-                print(f"    - {model._meta.label_lower}")
+                if verbose:
+                    print(f"    - {model._meta.label_lower}")
                 try:
                     content_type = ContentType.objects.get(
                         app_label=model._meta.app_label, model=model._meta.object_name
@@ -32,12 +35,17 @@ def fix_export_permissions(app_label=None):
                     raise ObjectDoesNotExist(f"{e} Got {model}.")
                 for action in ["import", "export"]:
                     codename = f"{action}_{model._meta.label_lower.split('.')[1]}"
-                    name = f"Can {action} {model._meta.verbose_name}"
-                    opts = dict(name=name, content_type=content_type, codename=codename)
+                    opts = dict(content_type=content_type, codename=codename)
                     try:
-                        Permission.objects.get(**opts)
+                        obj = Permission.objects.get(**opts)
                     except ObjectDoesNotExist:
+                        opts.update(name=f"Can {action} {model._meta.verbose}")
                         Permission.objects.create(**opts)
-                        print(f"       created for {model._meta.label_lower}")
+                        if verbose:
+                            print(f"       created for {model._meta.label_lower}")
+                    else:
+                        obj.name = f"Can {action} {model._meta.verbose}"
+                        obj.save()
 
-    print(f"Done")
+    if verbose:
+        print("Done")
