@@ -47,6 +47,7 @@ class VisitFormValidator(FormValidator):
                     {"reason": "Invalid. This is an unscheduled visit"},
                     code=INVALID_ERROR,
                 )
+            # TODO: missed visits now have a CRF, so this won't work
             if reason == MISSED_VISIT and self.metadata_exists_for(entry_status=KEYED):
                 raise forms.ValidationError(
                     {"reason": "Invalid. Some data has already been submitted"},
