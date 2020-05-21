@@ -17,6 +17,10 @@ class MockPanel(DummyPanel):
         super().__init__(requisition_model="edc_metadata.subjectrequisition", name=name)
 
 
+crfs_missed = FormsCollection(
+    Crf(show_order=1, model=f"{app_label}.missedvisit", required=True),
+)
+
 crfs0 = FormsCollection(
     Crf(show_order=1, model=f"{app_label}.crfone", required=True),
     Crf(show_order=2, model=f"{app_label}.crftwo", required=True),
@@ -95,6 +99,7 @@ visit1 = Visit(
     rupper=relativedelta(days=6),
     requisitions=requisitions,
     crfs=crfs1,
+    crfs_missed=crfs_missed,
     facility_name="5-day-clinic",
 )
 

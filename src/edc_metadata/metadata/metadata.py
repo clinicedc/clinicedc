@@ -1,3 +1,5 @@
+import pdb
+
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from edc_reference import site_reference_configs
@@ -157,6 +159,8 @@ class Creator:
     def requisitions(self):
         if self.visit_code_sequence != 0:
             return self.visit.requisitions_unscheduled
+        elif self.visit_model_instance.reason == MISSED_VISIT:
+            return ()
         return self.visit.requisitions
 
     def create(self):
@@ -259,7 +263,12 @@ class Metadata:
         """
         metadata_exists = False
         app_config = django_apps.get_app_config("edc_metadata")
-        if self.reason in app_config.delete_on_reasons:
+        # TODO: crfs_missed?
+        if self.reason == MISSED_VISIT:
+            self.destroyer.delete()
+            self.creator.create()
+            metadata_exists = True
+        elif self.reason in app_config.delete_on_reasons:
             self.destroyer.delete()
         elif self.reason in app_config.create_on_reasons:
             self.creator.create()

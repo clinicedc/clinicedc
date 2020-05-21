@@ -178,6 +178,15 @@ class CrfSeven(
     f1 = models.CharField(max_length=50, null=True)
 
 
+class MissedVisit(
+    CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel
+):
+
+    subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
+
+    f1 = models.CharField(max_length=50, null=True)
+
+
 class CrfMissingManager(ReferenceModelMixin, BaseUuidModel):
 
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
