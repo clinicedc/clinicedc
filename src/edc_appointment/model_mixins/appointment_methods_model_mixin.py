@@ -20,7 +20,6 @@ class AppointmentMethodsModelMixin(models.Model):
 
     @classmethod
     def related_visit_model_attr(cls):
-        related_visit_model_attr = None
         fields = []
         for f in cls._meta.get_fields():
             if f.related_model:
@@ -28,7 +27,7 @@ class AppointmentMethodsModelMixin(models.Model):
                     fields.append(f)
         if len(fields) > 1:
             raise AppointmentMethodsModelError(
-                f"More than field on Appointment is related field to a visit model. "
+                f"More than one field on Appointment is related field to a visit model. "
                 f"Got {fields}."
             )
         elif len(fields) == 0:
