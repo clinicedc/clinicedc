@@ -37,6 +37,7 @@ class AppointmentCreator:
         default_appt_type=None,
         default_appt_reason=None,
         appt_status=None,
+        appt_reason=None,
         suggested_datetime=None,
     ):
         self._appointment = None
@@ -47,6 +48,7 @@ class AppointmentCreator:
         self.visit_schedule_name = visit_schedule_name
         self.schedule_name = schedule_name
         self.appt_status = appt_status
+        self.appt_reason = appt_reason
         self.appointment_model = appointment_model
         # already taken appt_datetimes for this subject
         self.taken_datetimes = taken_datetimes or []
@@ -138,7 +140,7 @@ class AppointmentCreator:
                     timepoint_datetime=self.timepoint_datetime,
                     appt_datetime=self.appt_rdate.datetime,
                     appt_type=self.default_appt_type,
-                    appt_reason=self.default_appt_reason,
+                    appt_reason=self.appt_reason or self.default_appt_reason,
                     **self.options,
                 )
         except IntegrityError as e:

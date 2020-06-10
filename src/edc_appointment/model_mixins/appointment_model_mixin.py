@@ -6,6 +6,8 @@ from edc_timepoint.model_mixins import TimepointModelMixin
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 from uuid import UUID
 
+from edc_visit_tracking.constants import MISSED_VISIT
+
 from ..choices import APPT_TYPE, APPT_STATUS, APPT_REASON
 from ..constants import NEW_APPT
 from ..managers import AppointmentManager
@@ -102,13 +104,9 @@ class AppointmentModelMixin(
 
     @property
     def title(self):
+        title = self.schedule.visits.get(self.visit_code).title
         if self.visit_code_sequence > 0:
-            title = (
-                f"{self.schedule.visits.get(self.visit_code).title} "
-                f"{self.get_appt_reason_display()}"
-            )
-        else:
-            title = self.schedule.visits.get(self.visit_code).title
+            title = f"{title}.{self.visit_code_sequence}"
         return title
 
     @property

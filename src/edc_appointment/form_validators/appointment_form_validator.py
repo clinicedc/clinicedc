@@ -1,3 +1,5 @@
+import pdb
+
 from arrow.arrow import Arrow
 from django import forms
 from django.apps import apps as django_apps
@@ -54,7 +56,7 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
                     self.instance.visit
                 except ObjectDoesNotExist:
                     previous_appt = self.instance.get_previous(include_interim=True)
-                    if previous_appt:
+                    if previous_appt and previous_appt.appt_status != CANCELLED_APPT:
                         try:
                             previous_appt.visit
                         except ObjectDoesNotExist:
@@ -235,6 +237,7 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
         is not UNSCHEDULED_APPT.
         """
         appt_reason = self.cleaned_data.get("appt_reason")
+        appt_status = self.cleaned_data.get("appt_status")
         if (
             appt_reason
             and self.instance.visit_code_sequence
@@ -250,4 +253,12 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
         ):
             raise forms.ValidationError(
                 {"appt_reason": f"Cannot be {UNSCHEDULED_APPT.title()}"}
+            )
+        elif (
+            appt_status
+            and not self.instance.visit_code_sequence
+            and appt_status == CANCELLED_APPT
+        ):
+            raise forms.ValidationError(
+                {"appt_status": "Invalid. This is a scheduled appointment"}
             )

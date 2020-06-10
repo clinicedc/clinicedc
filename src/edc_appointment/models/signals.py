@@ -1,6 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
+from edc_appointment.constants import CANCELLED_APPT
 from edc_utils import formatted_datetime
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -25,6 +26,21 @@ def appointment_post_save(sender, instance, raw, created, using, **kwargs):
     field is empty.
     """
     if not raw:
+        try:
+            cancelled = instance.appt_status == CANCELLED_APPT
+        except AttributeError as e:
+            if "appt_status" not in str(e):
+                raise
+        else:
+            if (
+                cancelled
+                and instance.visit_code_sequence > 0
+                and "historical" not in instance._meta.label_lower
+            ):
+                try:
+                    instance.visit_model_cls().objects.get(appointment=instance)
+                except ObjectDoesNotExist:
+                    instance.delete()
         try:
             if not instance.time_point_status:
                 instance.time_point_status
