@@ -30,7 +30,7 @@ class Command(BaseCommand):
 
         print("Ready to inspect actions with a `related_reference_fk_attr`")
         names = [a.name for a in actions]
-        print(f"Inspecting action types:")
+        print("Inspecting action types:")
         for name in names:
             print(f"  * {name}")
 
@@ -78,4 +78,4 @@ class Command(BaseCommand):
             else:
                 print("  not saving")
             print("******************************************************")
-        print(f"Done.")
+        print("Done.")
