@@ -1,5 +1,3 @@
-import pdb
-
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_model.models import HistoricalRecords
@@ -63,7 +61,6 @@ class ActionNoManagersModelMixin(models.Model):
         return f"{self.action_identifier[-9:]}"
 
     def save(self, *args, **kwargs):
-        pdb.set_trace()
         # ensure action class is defined
         if not self.get_action_cls():
             raise ActionClassNotDefined(
@@ -92,7 +89,6 @@ class ActionNoManagersModelMixin(models.Model):
             # associate a new or existing ActionItem
             # with this reference model instance
             action_cls = self.get_action_cls()
-            pdb.set_trace()
             action = action_cls(
                 subject_identifier=self.subject_identifier,
                 action_identifier=self.action_identifier,
