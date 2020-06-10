@@ -26,7 +26,7 @@ class DiastolicPressureField(models.IntegerField):
 
     def __init__(self, *args, verbose_name=None, **kwargs):
         kwargs["verbose_name"] = verbose_name or "Blood pressure: diastolic"
-        kwargs["validators"] = [MinValueValidator(20), MaxValueValidator(150)]
+        kwargs["validators"] = [MinValueValidator(20), MaxValueValidator(225)]
         kwargs["help_text"] = "in Hg. format DIA, e.g. 80"
         super().__init__(*args, **kwargs)
 
