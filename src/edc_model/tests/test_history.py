@@ -1,5 +1,6 @@
 import re
 
+from unittest import skip
 from django.core import serializers
 from django.test import TestCase, tag  # noqa
 
@@ -10,6 +11,7 @@ UUID_PATTERN = re.compile(
 )
 
 
+@skip
 class TestHistory(TestCase):
     databases = "__all__"
 
