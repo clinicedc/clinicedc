@@ -153,7 +153,7 @@ class ConsentModelFormMixin:
                 raise forms.ValidationError(
                     {
                         "identity": "Subject's identity was previously reported "
-                        "as '{}'.".format(consent.identity, identity)
+                        f"as '{consent.identity}'."
                     }
                 )
 
