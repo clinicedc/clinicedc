@@ -7,7 +7,7 @@ from .action_item import (
     ActionItemUpdatesRequireFollowup,
     SubjectDoesNotExist,
 )
-from .action_model_mixin import ActionModelMixin
+from .action_model_mixin import ActionModelMixin, ActionNoManagersModelMixin
 from .action_type import ActionType, ActionTypeError
 from .reference import Reference
 

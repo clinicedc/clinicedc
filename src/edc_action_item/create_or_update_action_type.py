@@ -2,7 +2,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 
 
-def create_or_update_action_type(name=None, using=None, **options):
+def create_or_update_action_type(name=None, using=None, apps=None, **options):
     """Returns a model instance of ActionType.
 
     Gets or creates the ActionType on first pass.
@@ -11,9 +11,10 @@ def create_or_update_action_type(name=None, using=None, **options):
     """
 
     action_type_model = "edc_action_item.actiontype"
+    apps = apps or django_apps
 
     opts = {}
-    action_type_model_cls = django_apps.get_model(action_type_model)
+    action_type_model_cls = apps.get_model(action_type_model)
     if options:
         fields = [
             f.name for f in action_type_model_cls._meta.fields if f.name != "name"
