@@ -59,11 +59,11 @@ class TestHelpers(TestCase):
         context = helper.get_context()
         self.assertEqual(
             context["reference_url"].split("?")[0],
-            f"/admin/edc_action_item/formone/add/",
+            "/admin/edc_action_item/formone/add/",
         )
         self.assertEqual(
             context["reference_url"].split("?")[1],
-            f"next=edc_action_item:subject_dashboard_url,"
+            "next=edc_action_item:subject_dashboard_url,"
             f"subject_identifier&subject_identifier={self.subject_identifier}&"
             f"action_identifier={action_item.action_identifier}",
         )
@@ -94,7 +94,7 @@ class TestHelpers(TestCase):
 
         self.assertEqual(
             context["reference_url"].split("?")[1],
-            f"next=edc_action_item:subject_dashboard_url,"
+            "next=edc_action_item:subject_dashboard_url,"
             f"subject_identifier&subject_identifier={self.subject_identifier}&"
             f"action_identifier={self.action_item.action_identifier}",
         )
@@ -215,7 +215,7 @@ class TestHelpers(TestCase):
         )
         self.assertEqual(
             context["parent_reference_url"].split("?")[1],
-            f"next=edc_action_item:subject_dashboard_url,"
+            "next=edc_action_item:subject_dashboard_url,"
             f"subject_identifier&subject_identifier={self.subject_identifier}&"
             f"action_identifier={action_item.action_identifier}&"
             f"subject_visit={str(subject_visit.pk)}&"
