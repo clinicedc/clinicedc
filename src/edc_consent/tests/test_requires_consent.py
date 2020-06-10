@@ -11,7 +11,7 @@ from ..exceptions import NotConsentedError
 from ..requires_consent import RequiresConsent
 from ..site_consents import SiteConsentError, site_consents
 from .consent_test_utils import consent_object_factory
-from .models import CrfOne
+from .models import CrfOne, SubjectVisit
 from .visit_schedules import visit_schedule
 
 
@@ -85,23 +85,35 @@ class TestRequiresConsent(TestCase):
             subject_identifier=self.subject_identifier,
             consent_datetime=self.study_open_datetime + relativedelta(months=1),
         )
+        subject_visit = SubjectVisit.objects.create(
+            subject_identifier=self.subject_identifier
+        )
         self.assertRaises(
             SiteConsentError,
             CrfOne.objects.create,
+            subject_visit=subject_visit,
             subject_identifier="12345",
             report_datetime=self.study_close_datetime + relativedelta(months=1),
         )
+        subject_visit = SubjectVisit.objects.create(
+            subject_identifier=self.subject_identifier
+        )
         try:
             CrfOne.objects.create(
+                subject_visit=subject_visit,
                 subject_identifier="12345",
                 report_datetime=self.study_open_datetime + relativedelta(months=1),
             )
         except (SiteConsentError, NotConsentedError) as e:
             self.fail(f"Exception unexpectedly raised. Got {e}")
         consent_obj.delete()
+        subject_visit = SubjectVisit.objects.create(
+            subject_identifier=self.subject_identifier
+        )
         self.assertRaises(
             NotConsentedError,
             CrfOne.objects.create,
+            subject_visit=subject_visit,
             subject_identifier="12345",
             report_datetime=self.study_open_datetime + relativedelta(months=1),
         )

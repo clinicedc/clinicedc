@@ -9,8 +9,8 @@ from ..requires_consent import RequiresConsent
 
 
 @receiver(pre_save, weak=False, dispatch_uid="requires_consent_on_pre_save")
-def requires_consent_on_pre_save(instance, raw, **kwargs):
-    if not raw:
+def requires_consent_on_pre_save(instance, raw, using, update_fields, **kwargs):
+    if not raw and not update_fields:
         try:
             consent_model = site_visit_schedules.all_post_consent_models[
                 instance._meta.label_lower
