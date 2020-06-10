@@ -11,6 +11,8 @@ class ActionTypeError(Exception):
 
 
 class ActionTypeManager(models.Manager):
+    use_in_migrations = True
+
     def get_by_natural_key(self, name):
         return self.get(name=name)
 

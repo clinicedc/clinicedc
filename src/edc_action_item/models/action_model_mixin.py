@@ -1,3 +1,5 @@
+import pdb
+
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_model.models import HistoricalRecords
@@ -19,7 +21,7 @@ class ActionItemModelManager(models.Manager):
         return self.get(action_identifier=action_identifier)
 
 
-class ActionModelMixin(models.Model):
+class ActionNoManagersModelMixin(models.Model):
 
     action_name = None
 
@@ -43,7 +45,7 @@ class ActionModelMixin(models.Model):
     parent_action_identifier = models.CharField(
         max_length=30,
         null=True,
-        help_text=("action identifier that links to parent reference model instance."),
+        help_text="action identifier that links to parent reference model instance.",
     )
 
     # remove
@@ -57,14 +59,11 @@ class ActionModelMixin(models.Model):
 
     action_item_reason = models.TextField(null=True, editable=False)
 
-    objects = ActionItemModelManager()
-
-    history = HistoricalRecords(inherit=True)
-
     def __str__(self):
         return f"{self.action_identifier[-9:]}"
 
     def save(self, *args, **kwargs):
+        pdb.set_trace()
         # ensure action class is defined
         if not self.get_action_cls():
             raise ActionClassNotDefined(
@@ -93,6 +92,7 @@ class ActionModelMixin(models.Model):
             # associate a new or existing ActionItem
             # with this reference model instance
             action_cls = self.get_action_cls()
+            pdb.set_trace()
             action = action_cls(
                 subject_identifier=self.subject_identifier,
                 action_identifier=self.action_identifier,
@@ -135,6 +135,16 @@ class ActionModelMixin(models.Model):
         """Returns a shortened action_identifier.
         """
         return self.action_identifier[-9:]
+
+    class Meta:
+        abstract = True
+
+
+class ActionModelMixin(ActionNoManagersModelMixin):
+
+    objects = ActionItemModelManager()
+
+    history = HistoricalRecords(inherit=True)
 
     class Meta:
         abstract = True

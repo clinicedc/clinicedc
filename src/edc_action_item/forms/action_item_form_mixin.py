@@ -1,7 +1,9 @@
 from django import forms
 
 
-class ActionItemFormMixin(forms.ModelForm):
+class ActionItemFormMixin:
+
+    """Declare with forms.ModelForm."""
 
     action_identifier = forms.CharField(
         label="Action Identifier",
