@@ -2,8 +2,9 @@ from django.conf import settings
 from django.contrib.sites.managers import CurrentSiteManager
 from django.db import models
 from django.db.models.deletion import PROTECT
+from edc_action_item.models import ActionNoManagersModelMixin
 from edc_consent.model_mixins import RequiresConsentFieldsModelMixin
-from edc_constants.constants import INCOMPLETE
+from edc_identifier.model_mixins import TrackingModelMixin
 from edc_metadata.model_mixins.updates import UpdatesCrfMetadataModelMixin
 from edc_model.models.historical_records import HistoricalRecords
 from edc_offstudy.model_mixins import OffstudyCrfModelMixin
@@ -48,6 +49,21 @@ class CrfNoManagerModelMixin(
 
 
 class CrfModelMixin(CrfNoManagerModelMixin):
+
+    on_site = CurrentSiteManager()
+    objects = CrfModelManager()
+    history = HistoricalRecords(inherit=True)
+
+    class Meta(CrfNoManagerModelMixin.Meta):
+        abstract = True
+
+
+class CrfWithActionModelMixin(
+    CrfNoManagerModelMixin, ActionNoManagersModelMixin, TrackingModelMixin,
+):
+
+    action_name = None
+    tracking_identifier_prefix = ""
 
     on_site = CurrentSiteManager()
     objects = CrfModelManager()
