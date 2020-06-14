@@ -5,7 +5,28 @@ from edc_constants.constants import NEW, OPEN, CLOSED
 from edc_notification import site_notifications
 from simple_history.signals import post_create_historical_record
 
-from .models import ActionItem, ActionModelMixin
+from .models import ActionItem, ActionModelMixin, ActionNoManagersModelMixin
+
+
+def update_or_create_action_item(instance, created, using):
+    action_item = None
+    action_cls = instance.get_action_cls()
+    if not instance.action_item:
+        action_item = ActionItem.objects.using(using).get(
+            action_identifier=instance.action_identifier,
+            subject_identifier=instance.subject_identifier,
+        )
+        instance.action_item = action_item
+    # instantiate action class
+    action_cls(
+        action_item=action_item or instance.action_item,
+        subject_identifier=instance.subject_identifier,
+        using=using,
+    )
+    if created and instance.action_item.status == NEW:
+        instance.action_item.status = OPEN
+        instance.action_item.save(using=using)
+    update_action_item_reason(instance)
 
 
 def update_action_item_reason(instance):
@@ -20,9 +41,19 @@ def update_action_item_reason(instance):
 )
 def update_action_item_reason_on_m2m_changed(action, instance, **kwargs):
     if "historical" not in instance._meta.label_lower and isinstance(
-        instance, ActionModelMixin
+        instance, (ActionModelMixin, ActionNoManagersModelMixin)
     ):
         update_action_item_reason(instance)
+
+
+@receiver(
+    m2m_changed, weak=False, dispatch_uid="update_or_create_action_item_on_m2m_change"
+)
+def update_or_create_action_item_on_m2m_change(action, instance, using, **kwargs):
+    if "historical" not in instance._meta.label_lower and isinstance(
+        instance, (ActionModelMixin, ActionNoManagersModelMixin)
+    ):
+        update_or_create_action_item(instance, False, using)
 
 
 @receiver(
@@ -45,26 +76,9 @@ def update_or_create_action_item_on_post_save(
                 raise
         else:
             if "historical" not in instance._meta.label_lower and isinstance(
-                instance, ActionModelMixin
+                instance, (ActionModelMixin, ActionNoManagersModelMixin)
             ):
-                action_item = None
-                action_cls = instance.get_action_cls()
-                if not instance.action_item:
-                    action_item = ActionItem.objects.using(using).get(
-                        action_identifier=instance.action_identifier,
-                        subject_identifier=instance.subject_identifier,
-                    )
-                    instance.action_item = action_item
-                # instantiate action class
-                action_cls(
-                    action_item=action_item or instance.action_item,
-                    subject_identifier=instance.subject_identifier,
-                    using=using,
-                )
-                if created and instance.action_item.status == NEW:
-                    instance.action_item.status = OPEN
-                    instance.action_item.save(using=using)
-                update_action_item_reason(instance)
+                update_or_create_action_item(instance, created, using)
 
 
 @receiver(post_delete, weak=False, dispatch_uid="action_on_reference_model_post_delete")
