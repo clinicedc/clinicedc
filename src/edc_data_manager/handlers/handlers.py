@@ -6,7 +6,7 @@ from edc_constants.constants import RESOLVED, OPEN, NO
 from edc_lab.utils import get_requisition_model
 from edc_metadata.constants import REQUIRED, KEYED
 from edc_metadata.models import RequisitionMetadata, CrfMetadata
-from edc_visit_tracking.models import get_visit_tracking_model
+from edc_visit_tracking.models import get_subject_visit_model
 
 from ..models import DataQuery
 
@@ -279,7 +279,7 @@ class QueryRuleHandler:
         """
         if not self._visit_obj:
             try:
-                self._visit_obj = get_visit_tracking_model().objects.get(
+                self._visit_obj = get_subject_visit_model().objects.get(
                     appointment__visit_schedule_name=(
                         self.visit_schedule_obj.visit_schedule_name
                     ),

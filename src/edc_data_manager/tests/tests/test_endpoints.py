@@ -1,9 +1,10 @@
+from unittest import skip
+
 from django.apps import apps as django_apps
 from data_manager_app.lab_profiles import lab_profile
 from data_manager_app.reference_model_configs import register_to_site_reference_configs
 from data_manager_app.visit_schedules import visit_schedule
 from django.contrib.auth import get_user_model
-from django.test import tag
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_action_item.models.action_item import ActionItem
@@ -20,6 +21,7 @@ from model_bakery import baker
 User = get_user_model()
 
 
+@skip("skip endpoint tests")
 class AdminSiteTest(WebTest):
     def setUp(self):
         self.user = User.objects.create(
@@ -119,7 +121,6 @@ class AdminSiteTest(WebTest):
         res = form.submit()
         self.assertIn("Invalid. Select questions from one CRF only", res)
 
-    @tag("1")
     def test_data_query(self):
         subject_identifier = "092-123456789"
         login(
