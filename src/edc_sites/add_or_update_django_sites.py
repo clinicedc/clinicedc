@@ -29,7 +29,7 @@ def add_or_update_django_sites(apps=None, sites=None, verbose=None):
                 ...)
     """
     if verbose:
-        sys.stdout.write(f"  * updating sites.\n")
+        sys.stdout.write("  * updating sites.\n")
     apps = apps or django_apps
     site_model_cls = apps.get_model("sites", "Site")
     site_model_cls.objects.filter(name="example.com").delete()
