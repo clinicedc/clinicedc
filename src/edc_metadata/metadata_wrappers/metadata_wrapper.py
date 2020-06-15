@@ -16,9 +16,23 @@ class DeletedInvalidMetadata(Exception):
     pass
 
 
+def delete_invalid_metadata_obj(metadata_obj, visit=None, exception=None):
+    """Deletes the metadata object and prints a
+    warning.
+    """
+    metadata_obj.delete()
+    sys.stdout.write(
+        style.NOTICE(
+            f"\nDeleted invalid metadata. " f"{repr(metadata_obj)}.\nGot {exception}\n"
+        )
+    )
+    sys.stdout.flush()
+    visit.save()
+
+
 class MetadataWrapper:
 
-    """A class that gets the corresponding model instance, or not, for the
+    """A class that wraps the corresponding model instance, or not, for the
     given metadata object and sets it to itself along with other
     attributes like the visit, model class, metadata_obj, etc.
     """
@@ -58,8 +72,10 @@ class MetadataWrapper:
             except AttributeError as e:
                 if "visit_model_attr" not in str(e):
                     raise ImproperlyConfigured(f"{e} See {repr(self.model_cls)}")
-                self.delete_invalid_metadata_obj(self.metadata_obj, exception=e)
-                raise DeletedInvalidMetadata()
+                delete_invalid_metadata_obj(
+                    self.metadata_obj, visit=self.visit, exception=e
+                )
+                raise DeletedInvalidMetadata(f"{e} Try refreshing the page (1).")
             except ObjectDoesNotExist:
                 self._model_obj = None
         return self._model_obj
@@ -76,19 +92,8 @@ class MetadataWrapper:
         try:
             model_cls = django_apps.get_model(self.metadata_obj.model)
         except LookupError as e:
-            self.delete_invalid_metadata_obj(self.metadata_obj, exception=e)
-            raise DeletedInvalidMetadata()
-        return model_cls
-
-    def delete_invalid_metadata_obj(self, metadata_obj=None, exception=None):
-        """Deletes the metadata object and prints a
-        warning.
-        """
-        metadata_obj.delete()
-        sys.stdout.write(
-            style.NOTICE(
-                f"\nDeleted invalid metadata. "
-                f"{repr(metadata_obj)}.\nGot {exception}\n"
+            delete_invalid_metadata_obj(
+                self.metadata_obj, visit=self.visit, exception=e
             )
-        )
-        sys.stdout.flush()
+            raise DeletedInvalidMetadata(f"{e} Try refreshing the page (2).")
+        return model_cls

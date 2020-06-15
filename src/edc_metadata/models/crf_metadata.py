@@ -34,7 +34,10 @@ class CrfMetadata(ModelMixin, SiteModelMixin, edc_models.BaseUuidModel):
 
     @property
     def verbose_name(self):
-        model = django_apps.get_model(self.model)
+        try:
+            model = django_apps.get_model(self.model)
+        except LookupError as e:
+            return f"{e}. You need to regenerate metadata."
         return model._meta.verbose_name
 
     class Meta(ModelMixin.Meta, edc_models.BaseUuidModel.Meta):

@@ -14,7 +14,7 @@ class AppConfig(DjangoAppConfig):
     has_exportable_data = True
     reason_field = {settings.SUBJECT_VISIT_MODEL: "reason"}
     create_on_reasons = [SCHEDULED, UNSCHEDULED, MISSED_VISIT]
-    delete_on_reasons = []  # [MISSED_VISIT]
+    delete_on_reasons = []
     include_in_administration_section = True
 
     def ready(self):

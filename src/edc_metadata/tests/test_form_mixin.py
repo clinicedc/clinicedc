@@ -14,7 +14,6 @@ class MyForm(MetaDataFormValidatorMixin, FormValidator):
 
 
 class TestForm(TestViewMixin):
-    @tag("1")
     def test_(self):
         request = RequestFactory().get("/?f=f&e=e&o=o&q=q")
         request.user = self.user
