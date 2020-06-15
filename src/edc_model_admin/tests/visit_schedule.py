@@ -115,7 +115,7 @@ schedule.add_visit(visit2)
 
 visit_schedule = VisitSchedule(
     name="visit_schedule",
-    offstudy_model=f"edc_offstudy.subjectoffstudy",
+    offstudy_model="edc_offstudy.subjectoffstudy",
     death_report_model=f"{app_label}.deathreport",
 )
 

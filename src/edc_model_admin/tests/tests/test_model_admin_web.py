@@ -79,7 +79,7 @@ class ModelAdminSiteTest(WebTest):
         self.login()
 
         self.app.get(
-            reverse(f"dashboard_app:dashboard_url", args=(self.subject_identifier,)),
+            reverse("dashboard_app:dashboard_url", args=(self.subject_identifier,)),
             user=self.user,
             status=200,
         )
@@ -90,7 +90,7 @@ class ModelAdminSiteTest(WebTest):
 
         model = "redirectnextmodel"
         query_string = (
-            f"next=dashboard_app:dashboard_url,subject_identifier&"
+            "next=dashboard_app:dashboard_url,subject_identifier&"
             f"subject_identifier={self.subject_identifier}"
         )
 
@@ -110,7 +110,7 @@ class ModelAdminSiteTest(WebTest):
         self.login()
 
         self.app.get(
-            reverse(f"dashboard_app:dashboard_url", args=(self.subject_identifier,)),
+            reverse("dashboard_app:dashboard_url", args=(self.subject_identifier,)),
             user=self.user,
             status=200,
         )
@@ -118,7 +118,7 @@ class ModelAdminSiteTest(WebTest):
         # add CRF Two
         model = "crftwo"
         query_string = (
-            f"next=dashboard_app:dashboard_url,subject_identifier&"
+            "next=dashboard_app:dashboard_url,subject_identifier&"
             f"subject_identifier={self.subject_identifier}"
         )
         url = reverse(f"admin:edc_model_admin_{model}_add") + "?" + query_string
@@ -198,14 +198,14 @@ class ModelAdminSiteTest(WebTest):
         self.login()
 
         self.app.get(
-            reverse(f"dashboard_app:dashboard_url", args=(self.subject_identifier,)),
+            reverse("dashboard_app:dashboard_url", args=(self.subject_identifier,)),
             user=self.user,
             status=200,
         )
 
         model = "requisition"
         query_string = (
-            f"next=dashboard_app:dashboard_url,subject_identifier&"
+            "next=dashboard_app:dashboard_url,subject_identifier&"
             f"subject_identifier={self.subject_identifier}&"
             f"subject_visit={str(self.subject_visit.id)}"
         )
@@ -291,14 +291,14 @@ class ModelAdminSiteTest(WebTest):
         self.login()
 
         self.app.get(
-            reverse(f"dashboard_app:dashboard_url", args=(self.subject_identifier,)),
+            reverse("dashboard_app:dashboard_url", args=(self.subject_identifier,)),
             user=self.user,
             status=200,
         )
 
         model = "crffour"
         query_string = (
-            f"next=dashboard_app:dashboard_url,subject_identifier&"
+            "next=dashboard_app:dashboard_url,subject_identifier&"
             f"subject_identifier={self.subject_identifier}"
         )
         url = reverse(f"admin:edc_model_admin_{model}_add") + "?" + query_string
