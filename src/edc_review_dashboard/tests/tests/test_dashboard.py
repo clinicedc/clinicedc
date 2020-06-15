@@ -48,7 +48,7 @@ class TestDashboard(WebTest):
             }
         )
 
-        self.subject_identifiers = ["092-40990028-3", "092-40990029-4"]
+        self.subject_identifiers = ["101-40990028-3", "101-40990029-4"]
 
         for subject_identifier in self.subject_identifiers:
             subject_consent = SubjectConsent.objects.create(
