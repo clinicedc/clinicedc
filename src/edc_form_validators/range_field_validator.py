@@ -18,7 +18,7 @@ class RangeFieldValidator(BaseFormValidator):
         lower_inclusive = True if lower_inclusive is None else lower_inclusive
         upper_inclusive = True if upper_inclusive is None else upper_inclusive
         if not field:
-            raise InvalidModelFormFieldValidator(f"The field attr cannot be None.")
+            raise InvalidModelFormFieldValidator("The field attr cannot be None.")
         if self.cleaned_data:
             value = self.cleaned_data.get(field)
             if value is None and allow_none:

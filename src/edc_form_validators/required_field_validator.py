@@ -223,7 +223,7 @@ class RequiredFieldValidator(BaseFormValidator):
         """Inspects params and raises if any are None.
         """
         if not field:
-            raise InvalidModelFormFieldValidator(f'"field" cannot be None.')
+            raise InvalidModelFormFieldValidator('"field" cannot be None.')
         elif not responses:
             raise InvalidModelFormFieldValidator(
                 f"At least one valid response for field '{field}' must be provided."
