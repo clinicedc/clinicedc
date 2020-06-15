@@ -3,7 +3,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse, NoReverseMatch
 from django.utils.translation import gettext as _
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
-
+from edc_dashboard.url_names import url_names
 from edc_model_admin import (
     ModelAdminNextUrlRedirectMixin,
     ModelAdminFormInstructionsMixin,
@@ -15,7 +15,6 @@ from edc_model_admin import (
     TemplatesModelAdminMixin,
 )
 from edc_notification import NotificationModelAdminMixin
-from edc_dashboard.url_names import url_names
 from edc_registration.models import RegisteredSubject
 
 
@@ -64,14 +63,14 @@ class ModelAdminSubjectDashboardMixin(
         return render_to_string("dashboard_button.html", context=context)
 
     def get_list_display(self, request):
-        super().get_list_display(request)
+        list_display = super().get_list_display(request)
         if self.show_dashboard_in_list_display_pos is not None:
-            self.list_display = list(self.list_display)
-            if self.dashboard not in self.list_display:
-                self.list_display.insert(
+            list_display = list(list_display)
+            if self.dashboard not in list_display:
+                list_display.insert(
                     self.show_dashboard_in_list_display_pos, self.dashboard
                 )
-        return self.list_display
+        return list_display
 
     def view_on_site(self, obj):
         try:

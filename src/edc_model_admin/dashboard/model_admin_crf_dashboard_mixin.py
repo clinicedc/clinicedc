@@ -5,12 +5,12 @@ from .model_admin_subject_dashboard_mixin import ModelAdminSubjectDashboardMixin
 
 
 class ModelAdminCrfDashboardMixin(
-    CrfModelAdminMixin, FieldsetsModelAdminMixin, ModelAdminSubjectDashboardMixin
+    FieldsetsModelAdminMixin, ModelAdminSubjectDashboardMixin, CrfModelAdminMixin,
 ):
 
     show_save_next = True
     show_cancel = True
-    show_dashboard_in_list_display_pos = 0
+    show_dashboard_in_list_display_pos = 1
 
     def get_subject_dashboard_url_kwargs(self, obj):
         return dict(
