@@ -55,7 +55,7 @@ class AdminSiteTest(WebTest):
             redirect_url="admin:index",
         )
 
-        self.app.get(reverse(f"data_manager_app:home_url"), user=self.user, status=200)
+        self.app.get(reverse("data_manager_app:home_url"), user=self.user, status=200)
 
         response = self.app.get(
             "/admin/edc_data_manager/queryrule/add/", user=self.user, status=200
