@@ -14,7 +14,7 @@ class RangeFieldValidator(BaseFormValidator):
         upper_inclusive=None,
         allow_none=None,
     ):
-        r = re.compile("^\d*[.,]?\d*$")
+        r = re.compile(r"^\d*[.,]?\d*$")
         lower_inclusive = True if lower_inclusive is None else lower_inclusive
         upper_inclusive = True if upper_inclusive is None else upper_inclusive
         if not field:
