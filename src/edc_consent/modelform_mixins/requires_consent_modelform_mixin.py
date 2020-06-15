@@ -1,6 +1,7 @@
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from edc_visit_tracking.modelform_mixins import get_subject_visit
 
 from ..constants import DEFAULT_CONSENT_GROUP
 from ..site_consents import site_consents
@@ -18,11 +19,11 @@ class RequiresConsentModelFormMixin:
         cleaned_data or via the subject_visit.
         """
         report_datetime = self.cleaned_data.get("report_datetime")
-        subject_visit = self.cleaned_data.get(self._meta.model.visit_model_attr())
+        subject_visit = get_subject_visit(
+            self, subject_visit_attr=self._meta.model.visit_model_attr()
+        )
         if subject_visit and not report_datetime:
-            report_datetime = self.cleaned_data.get(
-                self._meta.model.visit_model_attr()
-            ).report_datetime
+            report_datetime = subject_visit.report_datetime
         return report_datetime
 
     def validate_against_consent(self):
@@ -32,9 +33,10 @@ class RequiresConsentModelFormMixin:
         try:
             subject_identifier = self.cleaned_data["appointment"].subject_identifier
         except KeyError:
-            subject_identifier = self.cleaned_data.get(
-                "subject_visit"
-            ).appointment.subject_identifier
+            subject_visit = get_subject_visit(
+                self, subject_visit_attr=self._meta.model.visit_model_attr()
+            )
+            subject_identifier = subject_visit.appointment.subject_identifier
         consent = self.get_consent(subject_identifier, self.report_datetime)
         if self.report_datetime < consent.consent_datetime:
             raise forms.ValidationError(

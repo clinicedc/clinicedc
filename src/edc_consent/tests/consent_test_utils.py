@@ -1,6 +1,3 @@
-from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
-
 from ..consent import Consent
 from ..site_consents import site_consents
 
@@ -32,7 +29,7 @@ def consent_object_factory(
     return consent
 
 
-def consent_factory(**kwargs):
+def consent_factory(model=None, **kwargs):
     options = dict(
         start=kwargs.get("start"),
         end=kwargs.get("end"),
@@ -43,7 +40,7 @@ def consent_factory(**kwargs):
         age_max=kwargs.get("age_max", 64),
         age_is_adult=kwargs.get("age_is_adult", 18),
     )
-    model = kwargs.get("model", "edc_consent.subjectconsent")
+    model = kwargs.get("model", model or "edc_consent.subjectconsent")
     consent = Consent(model, **options)
     site_consents.register(consent)
     return consent
