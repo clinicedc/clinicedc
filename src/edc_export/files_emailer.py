@@ -24,25 +24,25 @@ class FilesEmailer:
     def get_email_message(self):
         body = [
             f"Hello {self.user.first_name or self.user.username}",
-            f"The data you requested are attached.",
+            "The data you requested are attached.",
             (
-                f"An email can contain no more than 10 attached files. If you selected \n"
-                f"more than 10 tables for export, you will receive more than one email for \n"
-                f"this request."
+                "An email can contain no more than 10 attached files. If you selected \n"
+                "more than 10 tables for export, you will receive more than one email for \n"
+                "this request."
             ),
             (
-                f"Tables with zero records are not exported so the total number of attached \n"
-                f"files may be fewer than the number of tables you originally selected."
+                "Tables with zero records are not exported so the total number of attached \n"
+                "files may be fewer than the number of tables you originally selected."
             ),
             (
-                f"When importing files into your software note that the data are delimited \n"
-                f'by a pipe, "|",  instead of a comma. You will need to indicate this when you \n'  # noqa
-                f"open/import the files into Excel, Numbers or whichever software "
-                f"you are using."
+                "When importing files into your software note that the data are delimited \n"
+                'by a pipe, "|",  instead of a comma. You will need to indicate this when you \n'  # noqa
+                "open/import the files into Excel, Numbers or whichever software "
+                "you are using."
             ),
-            f"Your request includes the following data:",
+            "Your request includes the following data:",
             f"{self.summary}",
-            f"Thanks",
+            "Thanks",
         ]
         return EmailMessage(
             subject=f"{Protocol().protocol_name.title()} trial data request",
