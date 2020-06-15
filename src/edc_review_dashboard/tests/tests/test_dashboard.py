@@ -96,7 +96,7 @@ class TestDashboard(WebTest):
         self.login()
 
         response = self.app.get(
-            reverse(f"review_dashboard_app:subject_review_listboard_url"),
+            reverse("review_dashboard_app:subject_review_listboard_url"),
             user=self.user,
             status=200,
         )
@@ -138,7 +138,7 @@ class TestDashboard(WebTest):
 
         response = self.app.get(
             reverse(
-                f"review_dashboard_app:subject_review_listboard_url",
+                "review_dashboard_app:subject_review_listboard_url",
                 kwargs={"subject_identifier": self.subject_identifiers[1]},
             ),
             user=self.user,
@@ -157,7 +157,7 @@ class TestDashboard(WebTest):
         self.login()
 
         response = self.app.get(
-            reverse(f"review_dashboard_app:subject_review_listboard_url",),
+            reverse("review_dashboard_app:subject_review_listboard_url"),
             user=self.user,
         )
         # response = response.click(linkid="id-reported-visit-list")
