@@ -19,7 +19,7 @@ class UpdateMetadataOnScheduleChange:
         self.update()
 
     def update(self):
-        sys.stdout.write(style.SUCCESS(f"\n\nUpdate metadata.\n"))
+        sys.stdout.write(style.SUCCESS("\n\nUpdate metadata.\n"))
         sys.stdout.write(style.SUCCESS(f"Field is '{self.fieldname}'.\n"))
         sys.stdout.write(
             style.SUCCESS(
@@ -31,7 +31,7 @@ class UpdateMetadataOnScheduleChange:
                 style.WARNING("This is a dry run. No records will be updated. \n")
             )
             sys.stdout.write(
-                f"These models need to updated with the new "
+                "These models need to updated with the new "
                 f"value for field '{self.fieldname}'.\n"
                 f"Old value='{self.old_value}', New value='{self.new_value}'.\n"
             )
