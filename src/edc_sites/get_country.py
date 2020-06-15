@@ -1,5 +1,4 @@
 from django.apps import apps as django_apps
-
 from django.core.exceptions import ObjectDoesNotExist
 
 
@@ -14,7 +13,3 @@ def get_current_country():
         return site_model_cls.objects.get_current().siteprofile.country
     except ObjectDoesNotExist:
         return None
-
-
-# def get_country(site_id, sites=None):
-#     pass
