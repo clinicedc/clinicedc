@@ -54,9 +54,9 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
             messages.error(
                 request,
                 mark_safe(
-                    f"Your account does not include an email address. "
+                    "Your account does not include an email address. "
                     f'Please update your <a href="{user_url}">user account</a> '
-                    f"and try again."
+                    "and try again."
                 ),
             )
         else:
@@ -69,7 +69,7 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
                 else:
                     messages.warning(
                         request,
-                        f"Nothing to do. Select one or more models and try again.",
+                        "Nothing to do. Select one or more models and try again.",
                     )
             except FilesEmailerError as e:
                 messages.error(
@@ -100,13 +100,13 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
         except (ArchiveExporterEmailError, ConnectionRefusedError) as e:
             messages.error(self.request, f"Failed to send files by email. Got '{e}'")
         except ArchiveExporterNothingExported:
-            messages.info(self.request, f"Nothing to export.")
+            messages.info(self.request, "Nothing to export.")
         else:
 
             if email_to_user:
                 msg = (
                     f"Your data request has been sent to {self.user.email}. "
-                    f"Please check your email."
+                    "Please check your email."
                 )
             elif archive:
                 msg = (

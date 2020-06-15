@@ -19,6 +19,9 @@ class Helper:
         self.now = now or get_utcnow()
         self.subject_identifier = subject_identifier or uuid.uuid4().hex
         self.consent_and_put_on_schedule()
+        self.subject_visit = None
+        self.thing_one = None
+        self.thing_two = None
 
     def consent_and_put_on_schedule(self, subject_identifier=None):
         subject_identifier = subject_identifier or self.subject_identifier
@@ -34,7 +37,8 @@ class Helper:
         )
         return subject_consent
 
-    def add_unscheduled_appointment(self, appointment=None):
+    @staticmethod
+    def add_unscheduled_appointment(appointment=None):
         creator = UnscheduledAppointmentCreator(
             subject_identifier=appointment.subject_identifier,
             visit_schedule_name=appointment.visit_schedule_name,
@@ -82,7 +86,8 @@ class Helper:
             if appointment != self.subject_visit.appointment:
                 self.create_crf_with_inlines(appointment)
 
-    def create_crf_with_inlines(self, appointment):
+    @staticmethod
+    def create_crf_with_inlines(appointment):
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             subject_identifier=appointment.subject_identifier,
