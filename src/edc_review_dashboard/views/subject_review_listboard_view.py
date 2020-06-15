@@ -13,7 +13,7 @@ from edc_subject_dashboard.view_mixins import RegisteredSubjectViewMixin
 from edc_subject_dashboard.view_mixins import SubjectVisitViewMixin
 from edc_subject_model_wrappers import SubjectVisitModelWrapper
 from edc_visit_schedule.view_mixins import VisitScheduleViewMixin
-from edc_visit_tracking.models import get_visit_tracking_model
+from edc_visit_tracking.models import get_subject_visit_model
 
 
 class SubjectReviewListboardView(
@@ -29,7 +29,7 @@ class SubjectReviewListboardView(
     ListboardView,
 ):
 
-    listboard_model = get_visit_tracking_model()
+    listboard_model = get_subject_visit_model()
     navbar_selected = "subject_review"
 
     listboard_template = "subject_review_listboard_template"
