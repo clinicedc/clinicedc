@@ -1,9 +1,12 @@
+from copy import deepcopy
+
 from django import forms
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
 from edc_constants.constants import OTHER, YES, ALIVE
 from edc_facility.import_holidays import import_holidays
 from edc_form_validators import REQUIRED_ERROR
+from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, UNSCHEDULED, SCHEDULED
@@ -28,6 +31,11 @@ class TestSubjectVisitFormValidator(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
+        site_reference_configs.register_from_visit_schedule(
+            visit_models={
+                "edc_appointment.appointment": "edc_visit_tracking.subjectvisit"
+            }
+        )
         self.helper.consent_and_put_on_schedule()
         self.appointment = Appointment.objects.all().order_by("timepoint_datetime")[0]
 
@@ -59,7 +67,7 @@ class TestSubjectVisitFormValidator(TestCase):
         self.assertIn("reason", form_validator._errors)
 
     def test_visit_code_reason_with_visit_code_sequence_1(self):
-        SubjectVisit.objects.create(appointment=self.appointment)
+        SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
 
         opts = self.appointment.__dict__
         opts.pop("_state")
@@ -78,7 +86,7 @@ class TestSubjectVisitFormValidator(TestCase):
         self.assertIn("reason", form_validator._errors)
 
     def test_visit_code_reason_with_visit_code_sequence_2(self):
-        SubjectVisit.objects.create(appointment=self.appointment)
+        SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
 
         opts = self.appointment.__dict__
         opts.pop("_state")
@@ -118,8 +126,9 @@ class TestSubjectVisitFormValidator(TestCase):
         self.assertIn("reason_missed", form_validator._errors)
 
     def test_reason_unscheduled(self):
-        SubjectVisit.objects.create(appointment=self.appointment)
+        SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
 
+        # create unscheduled appointment (XXXX.1)
         opts = self.appointment.__dict__
         opts.pop("_state")
         opts.pop("id")
@@ -127,7 +136,7 @@ class TestSubjectVisitFormValidator(TestCase):
         opts.pop("modified")
         opts["visit_code_sequence"] = 1
         appointment = Appointment.objects.create(**opts)
-
+        # start subject visit form with unscheduled appointment
         options = {
             "appointment": appointment,
             "reason": UNSCHEDULED,
@@ -142,7 +151,7 @@ class TestSubjectVisitFormValidator(TestCase):
         self.assertIn(REQUIRED_ERROR, form_validator._error_codes)
 
     def test_reason_unscheduled_other(self):
-        SubjectVisit.objects.create(appointment=self.appointment)
+        SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
 
         opts = self.appointment.__dict__
         opts.pop("_state")

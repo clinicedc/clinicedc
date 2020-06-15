@@ -8,6 +8,7 @@ from edc_facility.import_holidays import import_holidays
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
+from edc_reference import site_reference_configs
 
 from ..helper import Helper
 from ..models import SubjectVisit, CrfOneInline, OtherModel, CrfOne, BadCrfOneInline
@@ -28,6 +29,11 @@ class TestVisit(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
+        site_reference_configs.register_from_visit_schedule(
+            visit_models={
+                "edc_appointment.appointment": "edc_visit_tracking.subjectvisit"
+            }
+        )
 
     def test_methods(self):
         self.helper.consent_and_put_on_schedule()
@@ -180,3 +186,6 @@ class TestVisit(TestCase):
         self.assertEqual(subject_visit.previous_visit, subject_visits[1])
         subject_visit = subject_visits[3]
         self.assertEqual(subject_visit.previous_visit, subject_visits[2])
+
+    def test_missed_no_crfs(self):
+        pass

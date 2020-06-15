@@ -20,7 +20,7 @@ class VisitModelFieldsMixin(models.Model):
     )
 
     reason = models.CharField(
-        verbose_name="What is the reason for this report?", max_length=25
+        verbose_name="What is the reason for this report?", max_length=25,
     )
 
     reason_unscheduled = models.CharField(

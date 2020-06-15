@@ -1,9 +1,13 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_appointment.models import Appointment
+from edc_crf.model_mixins import CrfModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
+from edc_list_data.model_mixins import ListModelMixin
+from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
 from edc_model.models import BaseUuidModel
 from edc_offstudy.model_mixins import OffstudyModelMixin
+from edc_reference.model_mixins import ReferenceModelMixin
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
@@ -15,6 +19,7 @@ from edc_visit_schedule.model_mixins import (
 from ..choices import VISIT_REASON, VISIT_REASON_MISSED, VISIT_INFO_SOURCE
 from ..model_mixins import (
     CrfInlineModelMixin,
+    SubjectVisitMissedModelMixin,
     VisitTrackingCrfModelMixin,
     VisitModelMixin,
 )
@@ -51,10 +56,13 @@ class SubjectOffstudy(OffstudyModelMixin, BaseUuidModel):
         pass
 
 
-class SubjectVisit(VisitModelMixin, SiteModelMixin, BaseUuidModel):
-    appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
-
-    subject_identifier = models.CharField(max_length=50)
+class SubjectVisit(
+    VisitModelMixin,
+    ReferenceModelMixin,
+    CreatesMetadataModelMixin,
+    SiteModelMixin,
+    BaseUuidModel,
+):
 
     reason = models.CharField(max_length=25, choices=VISIT_REASON)
 
@@ -71,6 +79,9 @@ class SubjectVisit(VisitModelMixin, SiteModelMixin, BaseUuidModel):
         max_length=25,
         choices=VISIT_INFO_SOURCE,
     )
+
+    class Meta(VisitModelMixin.Meta, BaseUuidModel.Meta):
+        pass
 
 
 class CrfOne(VisitTrackingCrfModelMixin, BaseUuidModel):
@@ -121,3 +132,16 @@ class BadCrfOneInline2(CrfInlineModelMixin, BaseUuidModel):
 
     class Meta(CrfInlineModelMixin.Meta):
         crf_inline_parent = None
+
+
+class CustomSubjectVisitMissedReasons(ListModelMixin):
+    class Meta(ListModelMixin.Meta):
+        verbose_name = "Subject Visit Missed Reason"
+        verbose_name_plural = "Subject Visit Missed Reasons"
+
+
+class MissedVisit(
+    CrfModelMixin, SubjectVisitMissedModelMixin, BaseUuidModel,
+):
+    class Meta(VisitTrackingCrfModelMixin.Meta):
+        pass

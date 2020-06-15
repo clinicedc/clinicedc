@@ -42,6 +42,7 @@ class VisitModelMixin(
         self.schedule_name = self.appointment.schedule_name
         self.visit_code = self.appointment.visit_code
         self.visit_code_sequence = self.appointment.visit_code_sequence
+        # TODO: may be a problem with crfs_missed
         self.require_crfs = NO if self.reason == MISSED_VISIT else YES
         super().save(*args, **kwargs)
 

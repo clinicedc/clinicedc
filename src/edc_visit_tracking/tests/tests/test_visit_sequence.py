@@ -3,6 +3,7 @@ from django.test import TestCase, tag
 from edc_appointment.managers import AppointmentDeleteError
 from edc_appointment.models import Appointment
 from edc_facility.import_holidays import import_holidays
+from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
@@ -34,6 +35,11 @@ class TestPreviousVisit(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
+        site_reference_configs.register_from_visit_schedule(
+            visit_models={
+                "edc_appointment.appointment": "edc_visit_tracking.subjectvisit"
+            }
+        )
         self.helper.consent_and_put_on_schedule()
 
     def tearDown(self):
@@ -117,6 +123,7 @@ class TestPreviousVisit(TestCase):
         SubjectVisit.objects.create(
             appointment=appointments[0],
             report_datetime=get_utcnow() - relativedelta(months=10),
+            reason=SCHEDULED,
         )
 
         self.assertRaises(

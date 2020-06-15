@@ -31,6 +31,8 @@ class VisitModelManager(models.Manager):
     """A manager class for visit models.
     """
 
+    use_in_migrations = True
+
     def get_by_natural_key(
         self,
         subject_identifier,
@@ -49,4 +51,7 @@ class VisitModelManager(models.Manager):
 
 
 class CurrentSiteManager(BaseCurrentSiteManager, CrfModelManager):
+
+    use_in_migrations = True
+
     pass
