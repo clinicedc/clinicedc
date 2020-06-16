@@ -21,7 +21,7 @@ class DeathReportTmgSecondAction(ActionWithNotification):
     color_style = "info"
     show_link_to_changelist = True
     singleton = True
-    instructions = mark_safe(f"This report is to be completed by the TMG only.")
+    instructions = mark_safe("This report is to be completed by the TMG only.")
 
     reference_model = f"{ADVERSE_EVENT_APP_LABEL}.deathreporttmgsecond"
     related_reference_model = f"{ADVERSE_EVENT_APP_LABEL}.deathreport"
