@@ -9,14 +9,13 @@ ae_navbar_item = NavbarItem(
     title="Adverse Events",
     label="AE",
     codename="edc_navbar.nav_ae_section",
-    url_name=f"edc_adverse_event:ae_home_url",
+    url_name="edc_adverse_event:ae_home_url",
     no_url_namespace=no_url_namespace,
 )
 
 tmg_navbar_item = NavbarItem(
     name="tmg_home",
     label="TMG",
-    # fa_icon="fas fa-chalkboard-teacher",
     codename="edc_navbar.nav_tmg_section",
     url_name="edc_adverse_event:tmg_home_url",
     no_url_namespace=no_url_namespace,

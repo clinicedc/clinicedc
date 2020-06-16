@@ -22,7 +22,7 @@ class AeTmgAction(ActionWithNotification):
     color_style = "info"
     show_link_to_changelist = True
     admin_site_name = ADVERSE_EVENT_ADMIN_SITE
-    instructions = mark_safe(f"This report is to be completed by the TMG only.")
+    instructions = mark_safe("This report is to be completed by the TMG only.")
     priority = HIGH_PRIORITY
 
     def close_action_item_on_save(self):
