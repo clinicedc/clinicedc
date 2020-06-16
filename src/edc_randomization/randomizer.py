@@ -114,8 +114,7 @@ class Randomizer:
     def check_loaded(self):
         if self.model_cls().objects.all().count() == 0:
             raise RandomizationListNotLoaded(
-                f"Randomization list has not been loaded. "
-                f"Run the management command."
+                "Randomization list has not been loaded. " "Run the management command."
             )
 
     @property
@@ -139,14 +138,14 @@ class Randomizer:
                 )
                 if not self._model_obj:
                     raise AllocationError(
-                        f"Randomization failed. No additional SIDs available for "
+                        "Randomization failed. No additional SIDs available for "
                         f"site '{self.site.name}'."
                     )
             else:
                 raise AlreadyRandomized(
-                    f"Subject already randomized. "
+                    "Subject already randomized. "
                     f"Got {obj.subject_identifier} SID={obj.sid}. "
-                    f"Something is wrong. Are registered_subject and "
+                    "Something is wrong. Are registered_subject and "
                     f"{self.model_cls()._meta.label_lower} out of sync?.",
                     code=self.model_cls()._meta.label_lower,
                 )
@@ -216,7 +215,7 @@ class Randomizer:
                     )
                 else:
                     raise AlreadyRandomized(
-                        f"Subject already randomized. See RegisteredSubject. "
+                        "Subject already randomized. See RegisteredSubject. "
                         f"Got {obj.subject_identifier} "
                         f"SID={obj.sid}",
                         code=get_registered_subject_model()._meta.label_lower,

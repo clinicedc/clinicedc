@@ -194,8 +194,7 @@ class TestRandomizer(TestCase):
 
     @override_settings(SITE_ID=SiteID(40))
     def test_error_condition1(self):
-        """Assert raises if RegisteredSubject not updated correctly.
-        """
+        """Assert raises if RegisteredSubject not updated correctly."""
         self.populate_list(randomizer_name="default")
         site = Site.objects.get_current()
         RandomizationList.objects.update(site_name=site.name)
@@ -357,7 +356,7 @@ class TestRandomizer(TestCase):
 
         # assert raises on next attempt to randomize
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier=f"ABCDEF",
+            subject_identifier="ABCDEF",
             site=site,
             user_created="erikvw",
             user_modified="erikvw",
