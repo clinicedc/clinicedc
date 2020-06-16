@@ -32,7 +32,7 @@ def unparse(**kwargs):
     except KeyError:
         fasting_str = ""
     else:
-        fasting_str = f"Fasting " if fasting else ""
+        fasting_str = "Fasting " if fasting else ""
     return f"{lower}{lower_op}x{upper_op}{upper} {fasting_str}{gender} {age}".rstrip()
 
 
@@ -53,7 +53,7 @@ def parse(phrase=None, **kwargs):
     if not match or match.group() != phrase:
         raise ParserError(
             f"Invalid. Got {phrase}. Expected, e.g, 11<x<22, "
-            f"11<=x<22, 11<x<=22, 11<x, 11<=x, x<22, x<=22, etc."
+            "11<=x<22, 11<x<=22, 11<x, 11<=x, x<22, x<=22, etc."
         )
     left, right = phrase.replace(" ", "").split("x")
     lower, lower_inclusive = _parse(left)

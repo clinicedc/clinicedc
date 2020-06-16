@@ -20,7 +20,7 @@ class UserResponse:
         for attr in ["units", "abnormal", "reportable"]:
             if not cleaned_data.get(f"{field}_{attr}"):
                 raise forms.ValidationError(
-                    {f"{field}_{attr}": f"This field is required."}, code=REQUIRED
+                    {f"{field}_{attr}": "This field is required."}, code=REQUIRED
                 )
 
         self.abnormal = cleaned_data.get(f"{field}_abnormal")
@@ -188,7 +188,7 @@ class ReportablesEvaluator:
         )
         if len([True for v in answers if v is not None]) == 0:
             raise forms.ValidationError(
-                {"results_abnormal": f"No results have been entered."}
+                {"results_abnormal": "No results have been entered."}
             )
         answers_as_bool = [True for v in answers if v in responses]
         if self.cleaned_data.get(field) == NO:
