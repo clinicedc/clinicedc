@@ -1,9 +1,14 @@
+import pdb
+
 from dateutil.relativedelta import relativedelta
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from django.test.utils import tag, override_settings  # noqa
+from edc_sites import add_or_update_django_sites
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
+from multisite import SiteID
 
 from ..models import RegisteredSubject, RegisteredSubjectError
 from .models import SubjectModelOne, SubjectModelTwo, SubjectModelThree
@@ -112,16 +117,18 @@ class TestRegistration(SiteTestCaseMixin, TestCase):
         rs.subject_identifier = "WXYZ"
         self.assertRaises(RegisteredSubjectError, rs.save)
 
-    @override_settings(SITE_ID=10)
+    @override_settings(SITE_ID=SiteID(10))
     def test_site1(self):
+        add_or_update_django_sites(sites=self.default_sites, verbose=False)
         obj = SubjectModelOne.objects.create(screening_identifier="12345")
         rs = RegisteredSubject.objects.get(
             registration_identifier=obj.to_string(obj.registration_identifier)
         )
         self.assertEqual(rs.site.pk, 10)
 
-    @override_settings(SITE_ID=20)
+    @override_settings(SITE_ID=SiteID(20))
     def test_site2(self):
+        add_or_update_django_sites(sites=self.default_sites, verbose=False)
         obj = SubjectModelOne.objects.create(screening_identifier="12345")
         rs = RegisteredSubject.objects.get(
             registration_identifier=obj.to_string(obj.registration_identifier)
