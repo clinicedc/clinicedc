@@ -36,18 +36,18 @@ def randomization_list_check(app_configs, **kwargs):
             if settings.ETC_DIR not in randomizer.get_randomization_list_path():
                 errors.append(
                     Warning(
-                        f"Insecure configuration. Randomization list file must be "
-                        f"stored in the etc folder. Got "
+                        "Insecure configuration. Randomization list file must be "
+                        "stored in the etc folder. Got "
                         f"{randomizer.get_randomization_list_path()}",
-                        id=f"randomization_list_path",
+                        id="randomization_list_path",
                     )
                 )
             if os.access(randomizer.get_randomization_list_path(), os.W_OK):
                 errors.append(
                     Warning(
-                        f"Insecure configuration. File is writeable by this user. "
+                        "Insecure configuration. File is writeable by this user. "
                         f"Got {randomizer.get_randomization_list_path()}",
-                        id=f"randomization_list_path",
+                        id="randomization_list_path",
                     )
                 )
     sys.stdout.write(style.SQL_KEYWORD("randomization_list_check ... done.\n"))

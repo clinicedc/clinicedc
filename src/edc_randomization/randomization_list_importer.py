@@ -78,7 +78,7 @@ class RandomizationListImporter:
             raise RandomizationListImportError(
                 f"Randomizer not registered or invalid name. Got `{name}`. "
                 f"Expected one of `{names}`",
-                f"See `site_randomizers`.",
+                "See `site_randomizers`.",
             )
         else:
             sys.stdout.write(
@@ -150,13 +150,13 @@ class RandomizationListImporter:
                     for fieldname in self.default_fieldnames:
                         if fieldname not in row:
                             raise RandomizationListImportError(
-                                f"Invalid header. Missing column "
+                                "Invalid header. Missing column "
                                 f"`{fieldname}`. Got {row}"
                             )
                 elif index == 1:
                     if self.dryrun:
                         row_as_dict = {k: v for k, v in row.items()}
-                        print(f" -->  First row:")
+                        print(" -->  First row:")
                         print(f" -->  {list(row_as_dict.keys())}")
                         print(f" -->  {list(row_as_dict.values())}")
                         assignment = randomizer.get_assignment(row)
