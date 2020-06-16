@@ -77,7 +77,7 @@ class GroupPermissionsUpdater:
         for randomizer_cls in site_randomizers._registry.values():
             if self.verbose:
                 sys.stdout.write(
-                    f"  creating permissions for registered randomizer_cls "
+                    "  creating permissions for registered randomizer_cls "
                     f"`{randomizer_cls.name}` model "
                     f"`{randomizer_cls.model_cls()._meta.label_lower}`\n"
                 )
@@ -271,7 +271,7 @@ class GroupPermissionsUpdater:
         Validates given codename.
         """
         if not codename:
-            raise PermissionsCodenameError(f"Invalid codename. May not be None.")
+            raise PermissionsCodenameError("Invalid codename. May not be None.")
         try:
             app_label, _codename = codename.split(".")
         except ValueError as e:

@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 from django.contrib.auth.models import Permission, Group
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_auth.group_names import RANDO
 from edc_randomization import Randomizer
 from edc_randomization.site_randomizers import site_randomizers
@@ -15,7 +15,8 @@ class GroupPermissionUpdater(TestCase):
         site_randomizers.register(Randomizer)
         site_randomizers.register(CustomRandomizer)
 
-    def test_update(self):
+    @staticmethod
+    def test_update():
         GroupPermissionsUpdater(apps=django_apps)
 
     def test_removes_for_apps_not_installed_by_exact_match(self):
@@ -41,7 +42,7 @@ class GroupPermissionUpdater(TestCase):
 
     def test_removes_edc_dashboard_dashboard_model_perms(self):
         GroupPermissionsUpdater()
-        qs = Permission.objects.filter(content_type__app_label="edc_dashboard")
+        Permission.objects.filter(content_type__app_label="edc_dashboard")
         for group in Group.objects.all():
             qs = group.permissions.all()
             self.assertNotIn("add_dashboard", "|".join([o.codename for o in qs]))
@@ -62,7 +63,7 @@ class GroupPermissionUpdater(TestCase):
     def test_removes_randomization_list_model_perms(self):
         GroupPermissionsUpdater()
 
-        qs = Permission.objects.filter(content_type__app_label="edc_randomization")
+        Permission.objects.filter(content_type__app_label="edc_randomization")
         for group in Group.objects.all():
             qs = group.permissions.all()
             self.assertNotIn(
@@ -85,7 +86,7 @@ class GroupPermissionUpdater(TestCase):
             "|".join([o.codename for o in Permission.objects.all()]),
         )
         GroupPermissionsUpdater(verbose=True)
-        qs = Permission.objects.filter(
+        Permission.objects.filter(
             content_type__app_label__in=["edc_randomization", "edc_auth"]
         )
         # confirm add_, change_, delete_ codenames for rando
