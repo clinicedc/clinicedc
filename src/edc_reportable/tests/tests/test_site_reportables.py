@@ -27,8 +27,9 @@ class TestSiteReportables(TestCase):
             self.assertEqual(
                 header,
                 (
-                    "name,description,units,gender,lower,lower_inclusive,upper,upper_inclusive,"
-                    "fasting,age_lower,age_upper,age_units,age_lower_inclusive"
+                    "name,description,units,gender,lower,lower_inclusive,"
+                    "upper,upper_inclusive,fasting,age_lower,age_upper,"
+                    "age_units,age_lower_inclusive"
                 ),
             )
 

@@ -32,15 +32,6 @@ def get_references(
                 and not non_matching_opts
             ):
                 references.append(ref)
-    #             references.extend(
-    #                 [
-    #                     ref
-    #                     for ref in refs
-    #                     if gender in ref.gender
-    #                     and ref.units == units
-    #                     and ref.age_match(dob, report_datetime)
-    #                 ]
-    #             )
     return references
 
 
@@ -125,7 +116,7 @@ class ValueReferenceGroup:
                     raise BoundariesOverlap(
                         f"Previously got {normal}. "
                         f"Got {value_ref.description(value=value)}. "
-                        f"Check your definitions."
+                        "Check your definitions."
                     )
         return normal
 
@@ -141,7 +132,7 @@ class ValueReferenceGroup:
                     raise BoundariesOverlap(
                         f"Previously got {grade}. "
                         f"Got {grade_ref.description(value=value)} ",
-                        f"Check your definitions.",
+                        "Check your definitions.",
                     )
         return grade
 
@@ -171,7 +162,7 @@ class ValueReferenceGroup:
     def _add(self, value_reference, value_references):
         if value_reference.name != self.name:
             raise InvalidValueReference(
-                f"Cannot add to group; name does not match. "
+                "Cannot add to group; name does not match. "
                 f"Expected '{self.name}'. Got '{value_reference.name}'. "
                 f"See {repr(value_reference)}"
             )
