@@ -1,5 +1,12 @@
 from django.conf import settings
+from edc_appointment.constants import (
+    COMPLETE_APPT,
+    IN_PROGRESS_APPT,
+    INCOMPLETE_APPT,
+    NEW_APPT,
+)
 from edc_dashboard import insert_bootstrap_version, url_names
+from edc_visit_tracking.constants import MISSED_VISIT
 
 from .dashboard_templates import dashboard_templates
 
@@ -33,7 +40,8 @@ class DashboardMiddleware:
         response = self.get_response(request)
         return response
 
-    def process_view(self, request, *args):
+    @staticmethod
+    def process_view(request, *args):
         """Adds/Updates references to urls and templates.
         """
 
@@ -45,16 +53,23 @@ class DashboardMiddleware:
             url_names.register_from_dict(**settings.DASHBOARD_URL_NAMES)
         request.url_name_data = url_names.registry
 
-        template_data = dashboard_templates
         try:
             template_data = settings.DASHBOARD_BASE_TEMPLATES
         except AttributeError:
-            template_data = {}
+            template_data = dashboard_templates
         template_data = insert_bootstrap_version(**template_data)
         request.template_data.update(**template_data)
 
-    def process_template_response(self, request, response):
+    @staticmethod
+    def process_template_response(request, response):
         if response.context_data:
             response.context_data.update(**request.url_name_data)
             response.context_data.update(**request.template_data)
+            response.context_data.update(
+                COMPLETE_APPT=COMPLETE_APPT,
+                INCOMPLETE_APPT=INCOMPLETE_APPT,
+                IN_PROGRESS_APPT=IN_PROGRESS_APPT,
+                MISSED_VISIT=MISSED_VISIT,
+                NEW_APPT=NEW_APPT,
+            )
         return response

@@ -11,22 +11,19 @@
                             {% if wrapped.visit_code_sequence %}.{{ wrapped.visit_code_sequence }}{% endif %}
                     </td>
                     <td>
-                        {% if wrapped.appt_status != COMPLETE_APPT %}
-                            <a id="appointment_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" class="btn btn-sm btn-default {% if wrapped.appt_status != IN_PROGRESS_APPT %}disabled{% endif %}"
-                               href="
-                                       {% if perms.edc_appointment.view_appointment %}{{ wrapped.href }}{% else %}#{% endif %}"
-                               data-toggle="tooltip"
-                               title="{% if perms.edc_appointment.view_appointment %}Edit appointment{% else %}No permission to edit{% endif %}">
-                                <i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i> Appt
-                            </a>
-                        {% endif %}
-
-                        <!--begin unscheduled appointment -->
+                        <!--begin appointment button -->
+                        <a id="appointment_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" class="btn btn-sm btn-default {% if wrapped.appt_status != IN_PROGRESS_APPT %}disabled{% endif %}"
+                           href="{% if perms.edc_appointment.view_appointment %}{{ wrapped.href }}{% else %}#{% endif %}"
+                           data-toggle="tooltip"
+                           title="{% if perms.edc_appointment.view_appointment %}Edit appointment{% else %}No permission to edit{% endif %}">
+                            <i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i> Appt
+                        </a>
+                        <!--end appointment button -->
+                        <!--begin unscheduled appointment button -->
                         {% if wrapped.visit_code_sequence == 0 %}
                             {% if wrapped.appt_status == INCOMPLETE_APPT or wrapped.appt_status == COMPLETE_APPT %}
-                                <a id="uscheduled_appt_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" class="btn btn-sm btn-default"
-                                   href="
-                                           {% if perms.edc_appointment.view_appointment %}{{ wrapped.unscheduled_appointment_url }}{% else %}#{% endif %}">
+                                <a id="unscheduled_appt_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" class="btn btn-sm btn-default"
+                                   href="{% if perms.edc_appointment.view_appointment %}{{ wrapped.unscheduled_appointment_url }}{% else %}#{% endif %}">
                                     <i class="far fa-address-book fa-lg" data-toggle="tooltip" title="Add continuation / unscheduled appointment" aria-hidden="true"></i>
                                 </a>
                             {% endif %}
@@ -34,8 +31,7 @@
                             <button class="btn btn-sm btn-default" disabled>
                                 <i class="far fa-address-book fa-lg" aria-hidden="true"></i></button>
                         {% endif %}
-                        <!--end unscheduled appointment -->
-
+                        <!--end unscheduled appointment button -->
                         {% if wrapped.appt_status == IN_PROGRESS_APPT %}
                             {% with wrapped.wrapped_visit as visit %}
                                 {% if visit.id %}
@@ -61,13 +57,13 @@
                         {% if wrapped.appt_status == COMPLETE_APPT %}
                             <a id="review_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" class="btn btn-sm btn-default"
                                href="{{ wrapped.wrapped_visit.href }}">
-                                <i class="fas fa-pencil-alt fa-sm" aria-hidden="true"></i> Review
+                                <i class="fas fa-pencil-alt fa-sm" aria-hidden="true"></i> Done
                             </a>
                         {% endif %}
 
                     </td>
 
-                    <td>{{ wrapped.object.title }}</td>
+                    <td>{{ wrapped.object.title }}&nbsp{% if wrapped.object.visit.reason == MISSED_VISIT %}<span class="label label-default">MISSED</span>{% endif %}</td>
 
                     {% if wrapped.object.visit.report_datetime %}
                         <td>{{ wrapped.object.visit.report_datetime|date:"SHORT_DATE_FORMAT" }} {{ wrapped.object.visit.report_datetime|date:"D"| capfirst }}</td>

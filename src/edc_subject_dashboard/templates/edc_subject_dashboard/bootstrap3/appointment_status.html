@@ -1,13 +1,25 @@
 <!-- BEGIN appointment status -->
+<style>
+  .fas.fa-star-half {
+    color: darkorange;
+  }
+  .fas.fa-minus {
+    color: black;
+  }
+</style>
 {% if appt_status == NEW_APPT %}
-  <i class="far fa-star fa-fw" aria-hidden="true" data-toggle="tooltip" title="New"></i>
+  <span style="color: darkorange;">
+    <i class="fas fa-star fa-fw" aria-hidden="true" data-toggle="tooltip" title="New"></i>
+  </span>
 {% elif appt_status == IN_PROGRESS_APPT%}
   <i class="fas fa-spinner fa-fw" aria-hidden="true" data-toggle="tooltip" title="In progress"></i>
 {% elif appt_status == INCOMPLETE_APPT %}
   <i class="fas fa-star-half fa-fw" aria-hidden="true" data-toggle="tooltip" title="Incomplete"></i>
 {% elif appt_status == COMPLETE_APPT %}
+  <span style="color: darkgreen;">
   <i class="fas fa-star fa-fw" aria-hidden="true" data-toggle="tooltip" title="Complete"></i>
+  </span>
 {% elif appt_status == CANCELLED_APPT %}
-  <i class="fas fa-times fa-fw" aria-hidden="true" data-toggle="tooltip" title="Cancelled"></i>
+  <i class="fas fa-minus fa-fw" aria-hidden="true" data-toggle="tooltip" title="Cancelled"></i>
 {% endif %}
 <!-- END appointment status -->
