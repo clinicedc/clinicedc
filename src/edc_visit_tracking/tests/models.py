@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_appointment.models import Appointment
 from edc_crf.model_mixins import CrfModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_list_data.model_mixins import ListModelMixin
@@ -63,7 +62,6 @@ class SubjectVisit(
     SiteModelMixin,
     BaseUuidModel,
 ):
-
     reason = models.CharField(max_length=25, choices=VISIT_REASON)
 
     reason_missed = models.CharField(
@@ -140,8 +138,16 @@ class CustomSubjectVisitMissedReasons(ListModelMixin):
         verbose_name_plural = "Subject Visit Missed Reasons"
 
 
+class SubjectVisitMissedReasons(ListModelMixin):
+    class Meta(ListModelMixin.Meta):
+        verbose_name = "Subject Missed Visit Reasons"
+        verbose_name_plural = "Subject Missed Visit Reasons"
+
+
 class MissedVisit(
     CrfModelMixin, SubjectVisitMissedModelMixin, BaseUuidModel,
 ):
+    missed_reasons = models.ManyToManyField(SubjectVisitMissedReasons, blank=True)
+
     class Meta(VisitTrackingCrfModelMixin.Meta):
         pass
