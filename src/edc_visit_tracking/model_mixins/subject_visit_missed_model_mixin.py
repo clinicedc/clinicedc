@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 from edc_constants.choices import ALIVE_DEAD_UNKNOWN, YES_NO, YES_NO_NA
@@ -8,16 +7,7 @@ from edc_model.validators import date_not_future
 from edc_protocol.validators import date_not_before_study_start
 from edc_utils import get_utcnow
 
-
-SUBJECT_VISIT_MISSED_MODEL = getattr(
-    settings, "SUBJECT_VISIT_MISSED_MODEL", "edc_visit_tracking.subjectvisitmissed",
-)
-
-SUBJECT_VISIT_MISSED_REASONS_MODEL = getattr(
-    settings,
-    "SUBJECT_VISIT_MISSED_REASONS_MODEL",
-    "edc_visit_tracking.subjectvisitmissedreasons",
-)
+from ..models import get_subject_visit_missed_reasons_model
 
 
 class SubjectVisitMissedModelMixin(models.Model):
@@ -69,7 +59,7 @@ class SubjectVisitMissedModelMixin(models.Model):
     )
 
     missed_reasons = models.ManyToManyField(
-        SUBJECT_VISIT_MISSED_REASONS_MODEL, blank=True
+        get_subject_visit_missed_reasons_model(), blank=True
     )
 
     missed_reasons_other = edc_models.OtherCharField()
