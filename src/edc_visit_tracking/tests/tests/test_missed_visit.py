@@ -33,7 +33,11 @@ class TestVisit(TestCase):
             Crf(show_order=5, model="edc_metadata.crffive", required=True),
         )
         crfs_missed = FormsCollection(
-            Crf(show_order=1, model="edc_visit_tracking.missedvisit", required=True),
+            Crf(
+                show_order=1,
+                model="edc_visit_tracking.subjectvisitmissed",
+                required=True,
+            ),
         )
 
         visit_schedule1 = VisitSchedule(
@@ -78,7 +82,7 @@ class TestVisit(TestCase):
 
     @tag("1")
     @override_settings(
-        SUBJECT_MISSED_VISIT_REASONS_MODEL="edc_visit_tracking.missedvisit"
+        SUBJECT_MISSED_VISIT_REASONS_MODEL="edc_visit_tracking.subjectvisitmissed"
     )
     def test_(self):
         self.helper.consent_and_put_on_schedule()

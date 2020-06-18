@@ -65,7 +65,7 @@ class SubjectVisit(
     reason = models.CharField(max_length=25, choices=VISIT_REASON)
 
     reason_missed = models.CharField(
-        verbose_name=("If 'missed', provide the reason for the missed visit"),
+        verbose_name="If 'missed', provide the reason for the missed visit",
         max_length=35,
         choices=VISIT_REASON_MISSED,
         blank=True,
@@ -144,7 +144,7 @@ class SubjectVisitMissedReasons(ListModelMixin):
         verbose_name_plural = "Subject Missed Visit Reasons"
 
 
-class MissedVisit(
+class SubjectVisitMissed(
     CrfModelMixin, SubjectVisitMissedModelMixin, BaseUuidModel,
 ):
     missed_reasons = models.ManyToManyField(SubjectVisitMissedReasons, blank=True)

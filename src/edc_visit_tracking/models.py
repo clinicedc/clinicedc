@@ -9,8 +9,9 @@ def get_subject_visit_model():
 
 def get_subject_visit_missed_reasons_model():
     error_msg = (
-        "Settings attribute `SUBJECT_VISIT_MISSED_REASONS_MODEL` not set. Update settings. "
-        "For example, `SUBJECT_VISIT_MISSED_REASONS_MODEL=meta_lists.subjectvisitmissedreasons`. "
+        "Settings attribute `SUBJECT_VISIT_MISSED_REASONS_MODEL` not set. "
+        "Update settings. For example, `SUBJECT_VISIT_MISSED_REASONS_MODEL"
+        "=meta_lists.subjectvisitmissedreasons`. "
         "See also `SubjectVisitMissedModelMixin`."
     )
     try:

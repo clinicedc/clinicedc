@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.core.validators import MinValueValidator
 from django.db import models
 from edc_constants.choices import ALIVE_DEAD_UNKNOWN, YES_NO, YES_NO_NA
@@ -7,10 +9,22 @@ from edc_model.validators import date_not_future
 from edc_protocol.validators import date_not_before_study_start
 from edc_utils import get_utcnow
 
-from ..models import get_subject_visit_missed_reasons_model
+# from ..models import get_subject_visit_missed_reasons_model
 
 
 class SubjectVisitMissedModelMixin(models.Model):
+
+    """Declare with:
+
+        missed_reasons = models.ManyToManyField(SubjectVisitMissedReasons, blank=True)
+
+    And include in your lists app:
+
+        class SubjectVisitMissedReasons(ListModelMixin):
+            class Meta(ListModelMixin.Meta):
+                verbose_name = "Subject Missed Visit Reasons"
+                verbose_name_plural = "Subject Missed Visit Reasons"
+    """
 
     survival_status = models.CharField(
         verbose_name="Survival status", max_length=25, choices=ALIVE_DEAD_UNKNOWN,
@@ -58,9 +72,7 @@ class SubjectVisitMissedModelMixin(models.Model):
         default=NOT_APPLICABLE,
     )
 
-    missed_reasons = models.ManyToManyField(
-        get_subject_visit_missed_reasons_model(), blank=True
-    )
+    # missed_reasons = models.ManyToManyField(SubjectVisitMissedReasons, blank=True)
 
     missed_reasons_other = edc_models.OtherCharField()
 
