@@ -26,7 +26,7 @@ dummies = {
         p(
             "x<0",
             grade=GRADE0,
-            units=MILLIMOLES_PER_LITER,
+            units=PERCENT,
             gender=[MALE, FEMALE],
             **adult_age_options,
         )
