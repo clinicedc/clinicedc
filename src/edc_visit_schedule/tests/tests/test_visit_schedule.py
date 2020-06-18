@@ -7,6 +7,7 @@ from edc_consent import site_consents
 from edc_constants.constants import MALE, FEMALE
 from edc_consent.consent import Consent
 from edc_protocol import Protocol
+from edc_reference import site_reference_configs
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
 from edc_facility.import_holidays import import_holidays
@@ -29,6 +30,7 @@ from edc_visit_schedule.visit_schedule import (
     VisitScheduleNameError,
     AlreadyRegisteredSchedule,
 )
+from edc_visit_tracking.constants import SCHEDULED
 from visit_schedule_app.models import OnSchedule, OnScheduleThree, OffSchedule
 from visit_schedule_app.models import SubjectVisit, SubjectConsent
 
@@ -51,6 +53,11 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
             gender=[MALE, FEMALE],
         )
         import_holidays()
+        site_reference_configs.register_from_visit_schedule(
+            visit_models={
+                "edc_appointment.appointment": "visit_schedule_app.subjectvisit"
+            }
+        )
         site_consents.registry = {}
         site_consents.register(v1_consent)
 
@@ -346,6 +353,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
             appointment=appointments[0],
             subject_identifier=self.subject_identifier,
             report_datetime=appointments[0].appt_datetime,
+            reason=SCHEDULED,
         )
         self.assertRaises(
             InvalidOffscheduleDate,
