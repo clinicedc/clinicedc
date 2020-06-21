@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 
 
-def phone_number(value, pattern):
+def phone_number(value, pattern=None):
     str_value = str(value)
     pattern = pattern or r"^[0-9+\(\)#\.\s\/ext-]+$"
     p = re.compile(pattern)
@@ -12,7 +12,7 @@ def phone_number(value, pattern):
         raise ValidationError("Invalid format.")
 
 
-def CellNumber(value):
+def cell_number(value):
     try:
         pattern = settings.CELLPHONE_REGEX
     except AttributeError:
@@ -20,7 +20,7 @@ def CellNumber(value):
     phone_number(value, pattern)
 
 
-def TelephoneNumber(value):
+def telephone_number(value):
     try:
         pattern = settings.TELEPHONE_REGEX
     except AttributeError:
