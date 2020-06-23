@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.safestring import mark_safe
 from django_crypto_fields.fields import EncryptedCharField, EncryptedTextField
 from edc_constants.choices import YES_NO
-from edc_model.validators import CellNumber, TelephoneNumber
+from edc_model.models import cell_number, telephone_number
 
 
 class SubjectIndirectContactFieldsMixin(models.Model):
@@ -30,19 +30,19 @@ class SubjectIndirectContactFieldsMixin(models.Model):
     )
 
     indirect_contact_cell = EncryptedCharField(
-        verbose_name="Cell number", validators=[CellNumber], blank=True, null=True
+        verbose_name="Cell number", validators=[cell_number], blank=True, null=True
     )
 
     indirect_contact_cell_alt = EncryptedCharField(
         verbose_name="Cell number (alternative)",
-        validators=[CellNumber],
+        validators=[cell_number],
         blank=True,
         null=True,
     )
 
     indirect_contact_phone = EncryptedCharField(
         verbose_name="Telephone number",
-        validators=[TelephoneNumber],
+        validators=[telephone_number],
         blank=True,
         null=True,
     )

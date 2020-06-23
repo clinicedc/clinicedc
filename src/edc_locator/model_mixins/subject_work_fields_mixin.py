@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.safestring import mark_safe
 from django_crypto_fields.fields import EncryptedCharField, EncryptedTextField
 from edc_constants.choices import YES_NO
-from edc_model.validators import TelephoneNumber, CellNumber
+from edc_model.models import telephone_number, cell_number
 
 
 class SubjectWorkFieldsMixin(models.Model):
@@ -25,14 +25,14 @@ class SubjectWorkFieldsMixin(models.Model):
 
     subject_work_phone = EncryptedCharField(
         verbose_name="Work contact telephone",
-        validators=[TelephoneNumber],
+        validators=[telephone_number],
         blank=True,
         null=True,
     )
 
     subject_work_cell = EncryptedCharField(
         verbose_name="Work contact cell number",
-        validators=[CellNumber],
+        validators=[cell_number],
         blank=True,
         null=True,
     )
