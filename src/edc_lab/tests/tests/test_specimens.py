@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.test import TestCase, tag  # noqa
+from django.test import override_settings, TestCase, tag  # noqa
 from edc_appointment.models import Appointment
 from edc_constants.constants import YES, NO
 from edc_lab.identifiers import AliquotIdentifier as AliquotIdentifierBase
@@ -10,9 +10,11 @@ from edc_lab.lab import Specimen as SpecimenBase, SpecimenNotDrawnError
 from edc_lab.lab import SpecimenProcessor
 from edc_lab.models import Aliquot
 from edc_sites import add_or_update_django_sites
+from edc_sites.tests import SiteTestCaseMixin
 from edc_utils.date import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
+from multisite import SiteID
 
 from ..models import SubjectRequisition, SubjectVisit, SubjectConsent
 from ..site_labs_test_helper import SiteLabsTestHelper
@@ -31,21 +33,13 @@ class Specimen(SpecimenBase):
     aliquot_creator_cls = AliquotCreator
 
 
-class TestSpecimen(TestCase):
+@override_settings(SITE_ID=SiteID(default=20))
+class TestSpecimen(SiteTestCaseMixin, TestCase):
 
     lab_helper = SiteLabsTestHelper()
 
-    @classmethod
-    def setUpClass(cls):
-        add_or_update_django_sites(
-            sites=((settings.SITE_ID, "test_site", "Test Site"),), fqdn="clinicedc.org"
-        )
-        return super().setUpClass()
-
-    def tearDown(self):
-        super().tearDown()
-
     def setUp(self):
+        add_or_update_django_sites(sites=self.default_sites, verbose=False)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
         self.subject_identifier = "1111111111"
@@ -105,21 +99,13 @@ class TestSpecimen(TestCase):
         self.assertRaises(SpecimenNotDrawnError, Specimen, requisition=requisition)
 
 
-class TestSpecimen2(TestCase):
+@override_settings(SITE_ID=SiteID(default=20))
+class TestSpecimen2(SiteTestCaseMixin, TestCase):
 
     lab_helper = SiteLabsTestHelper()
 
-    @classmethod
-    def setUpClass(cls):
-        add_or_update_django_sites(
-            sites=((settings.SITE_ID, "test_site", "Test Site"),), fqdn="clinicedc.org"
-        )
-        return super().setUpClass()
-
-    def tearDown(self):
-        super().tearDown()
-
     def setUp(self):
+        add_or_update_django_sites(sites=self.default_sites, verbose=False)
         self.lab_helper.setup_site_labs()
         self.panel = self.lab_helper.panel
         self.profile_aliquot_count = self.lab_helper.profile_aliquot_count

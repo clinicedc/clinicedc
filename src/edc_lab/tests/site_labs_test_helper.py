@@ -9,6 +9,10 @@ from edc_lab.site_labs import site_labs
 
 
 class SiteLabsTestHelper:
+    def __init__(self):
+        self.profile_aliquot_count = None
+        self.panel = None
+        self.lab_profile = None
 
     requisition_model = "edc_lab.subjectrequisition"
 

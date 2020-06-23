@@ -1,22 +1,17 @@
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase, tag  # noqa
+from django.test.utils import override_settings
 from edc_lab.models import Box, BoxItem, BoxType, Aliquot
 from edc_lab.models import Manifest, Shipper, Consignee, ManifestItem
 from edc_lab.reports import ManifestReport, ManifestReportError
 from edc_sites import add_or_update_django_sites
+from edc_sites.tests import SiteTestCaseMixin
+from multisite import SiteID
 
 
-class TestManifest(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        add_or_update_django_sites(
-            sites=((settings.SITE_ID, "test_site", "Test Site"),), fqdn="clinicedc.org"
-        )
-        return super().setUpClass()
-
-    def tearDown(self):
-        super().tearDown()
+class TestManifest(SiteTestCaseMixin, TestCase):
+    def setUp(self):
+        add_or_update_django_sites(sites=self.default_sites, verbose=False)
 
     def test_manifest(self):
         consignee = Consignee.objects.create(name="consignee")
@@ -40,18 +35,22 @@ class TestManifest(TestCase):
         self.assertIn(manifest_item.human_readable_identifier, manifest_item.slug)
 
 
-class TestManifestReport(TestCase):
+@tag("1")
+class TestManifestReport(SiteTestCaseMixin, TestCase):
     def setUp(self):
+        add_or_update_django_sites(sites=self.default_sites, verbose=False)
         self.user = User.objects.create(first_name="Noam", last_name="Chomsky")
         consignee = Consignee.objects.create(name="consignee")
         shipper = Shipper.objects.create(name="shipper")
         self.manifest = Manifest.objects.create(consignee=consignee, shipper=shipper)
 
+    @override_settings(SITE_ID=SiteID(default=20))
     def test_report(self):
         self.assertEqual(self.manifest.site.name, "test_site")
         report = ManifestReport(manifest=self.manifest, user=self.user)
         report.render()
 
+    @override_settings(SITE_ID=SiteID(default=20))
     def test_report_shipped(self):
         self.manifest.shipped = True
         self.manifest.save()
@@ -59,6 +58,7 @@ class TestManifestReport(TestCase):
         report = ManifestReport(manifest=self.manifest, user=self.user)
         report.render()
 
+    @override_settings(SITE_ID=SiteID(default=20))
     def test_report_items_not_in_box(self):
         self.manifest.shipped = True
         self.manifest.save()
@@ -87,6 +87,7 @@ class TestManifestReport(TestCase):
         box = Box.objects.create(box_type=box_type)
         BoxItem.objects.create(box=box, identifier=box.box_identifier, position=0)
 
+    @override_settings(SITE_ID=SiteID(default=20))
     def test_report_invalid_invalid_aliquot_identifier(self):
         self.manifest.shipped = True
         self.manifest.save()
@@ -106,6 +107,7 @@ class TestManifestReport(TestCase):
         except ManifestReportError as e:
             self.assertEqual(e.code, "invalid_aliquot_identifier")
 
+    @override_settings(SITE_ID=SiteID(default=20))
     def test_report_invalid_invalid_requisition_identifier(self):
         self.manifest.shipped = True
         self.manifest.save()

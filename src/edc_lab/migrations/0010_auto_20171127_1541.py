@@ -9,7 +9,7 @@ import django_revision.revision_field
 import edc_model_fields.fields.hostname_modification_field
 import edc_model_fields.fields.userfield
 import edc_model_fields.fields.uuid_auto_field
-import edc_model.validators.date
+import edc_model.models
 import edc_utils
 
 
@@ -97,7 +97,7 @@ class Migration(migrations.Migration):
                     "order_datetime",
                     models.DateTimeField(
                         default=edc_utils.date.get_utcnow,
-                        validators=[edc_model.validators.date.datetime_not_future],
+                        validators=[edc_model.models.datetime_not_future],
                     ),
                 ),
                 ("panel_name", models.CharField(max_length=25)),
@@ -443,7 +443,7 @@ class Migration(migrations.Migration):
                     "order_datetime",
                     models.DateTimeField(
                         default=edc_utils.date.get_utcnow,
-                        validators=[edc_model.validators.date.datetime_not_future],
+                        validators=[edc_model.models.datetime_not_future],
                     ),
                 ),
                 ("panel_name", models.CharField(max_length=25)),

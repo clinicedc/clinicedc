@@ -60,6 +60,15 @@ RESULT_VALIDATION_STATUS = (("P", "Preliminary"), ("F", "Final"), ("R", "Rejecte
 
 RESULT_QUANTIFIER = ((EQ, EQ), (GT, GT), (GTE, GTE), (LT, LT), (LTE, LTE))
 
+RESULT_QUANTIFIER_NA = (
+    (NOT_APPLICABLE, ""),
+    (EQ, EQ),
+    (GT, GT),
+    (GTE, GTE),
+    (LT, LT),
+    (LTE, LTE),
+)
+
 
 SPECIMEN_MEASURE_UNITS = (
     ("mL", "mL"),

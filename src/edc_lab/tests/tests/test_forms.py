@@ -143,7 +143,6 @@ class TestForms(TestCase):
         self.assertIsNone(form.errors.get("drawn_datetime"))
 
 
-@tag("1")
 class TestForms2(TestCase):
 
     lab_helper = SiteLabsTestHelper()
@@ -264,7 +263,6 @@ class TestForms2(TestCase):
             "Requisition may not be changed", "".join(form.errors.get("__all__"))
         )
 
-    @tag("1")
     def test_requisition_form_dates(self):
         class RequisitionForm(
             RequisitionFormMixin, FormValidatorMixin, forms.ModelForm

@@ -7,7 +7,7 @@ from edc_constants.constants import NOT_APPLICABLE
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_metadata.model_mixins.updates import UpdatesRequisitionMetadataModelMixin
 from edc_model.models import HistoricalRecords
-from edc_model.validators import datetime_not_future
+from edc_model.models import datetime_not_future
 from edc_model_fields.fields import OtherCharField, InitialsField
 from edc_protocol import Protocol
 from edc_protocol.validators import datetime_not_before_study_start
