@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models import options
 from django_crypto_fields.fields import EncryptedTextField
-from edc_model.validators import datetime_not_future
+from edc_model.models import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.models import CurrentSiteManager
 from edc_utils import formatted_age, age
