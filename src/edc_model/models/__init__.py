@@ -32,6 +32,7 @@ from .validators import (
     date_not_future,
     datetime_is_future,
     datetime_not_future,
+    date_is_not_now,
     hm_validator,
     hm_validator2,
     telephone_number,

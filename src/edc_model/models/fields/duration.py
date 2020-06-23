@@ -8,10 +8,12 @@ class DurationYearMonthField(models.CharField):
     description = "Duration in y/m"
 
     def __init__(self, *args, **kwargs):
-        kwargs["verbose_name"] = "Duration:"
+        kwargs["verbose_name"] = kwargs.get("verbose_name") or "Duration:"
         kwargs["max_length"] = 8
         kwargs["validators"] = [ym_validator]
-        kwargs["help_text"] = "Format is `YYyMMm`. For example 1y11m, 12y7m, etc"
+        kwargs[
+            "help_text"
+        ] = f"{kwargs.get('help_text') or ''} Format is `YYyMMm`. For example 3y10m, 12y7m, etc"
         super().__init__(*args, **kwargs)
 
     def deconstruct(self):
