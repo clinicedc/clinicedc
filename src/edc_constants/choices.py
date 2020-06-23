@@ -384,8 +384,14 @@ SEVERITY_LEVEL = (("mild", "Mild"), ("moderate", "Moderate"), ("severe", "Severe
 
 SEXUAL_DEBUT = (("<=14", "14 or under"), ("15-17", " 15 - 17"), (">=18", "18 or above"))
 
+SMOKER_STATUS_SIMPLE = (
+    (SMOKER, "Currently smoke"),
+    (FORMER_SMOKER, "Used to smoke but stopped"),
+    (NONSMOKER, "Never smoked"),
+)
+
 SMOKER_STATUS = (
-    (SMOKER, "Currently smokes"),
+    (SMOKER, "Currently smoke"),
     (FORMER_SMOKER, "Used to smoke but stopped"),
     (NONSMOKER, "Never smoked"),
     (NOT_RECORDED, "Not recorded"),
