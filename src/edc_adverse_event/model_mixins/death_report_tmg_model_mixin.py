@@ -12,8 +12,7 @@ from edc_identifier.model_mixins import (
     TrackingModelMixin,
     NonUniqueSubjectIdentifierFieldMixin,
 )
-from edc_model.models import ReportStatusModelMixin
-from edc_model.validators.date import datetime_not_future
+from edc_model.models import ReportStatusModelMixin, datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow

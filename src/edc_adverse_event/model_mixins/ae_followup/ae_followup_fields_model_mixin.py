@@ -2,7 +2,7 @@ from django.conf import settings
 from django.db import models
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES, NOT_APPLICABLE
-from edc_model.validators import date_not_future
+from edc_model.models import date_not_future
 from edc_utils import get_utcnow
 
 from ...choices import AE_OUTCOME, AE_GRADE_SIMPLE

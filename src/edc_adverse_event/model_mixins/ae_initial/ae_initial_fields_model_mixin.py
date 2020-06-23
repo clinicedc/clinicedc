@@ -1,6 +1,6 @@
 from django.db import models
 from edc_constants.constants import NOT_APPLICABLE
-from edc_model.validators.date import date_not_future
+from edc_model.models import date_not_future
 from edc_model_fields.fields.other_charfield import OtherCharField
 from edc_utils.date import get_utcnow
 
