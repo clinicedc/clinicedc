@@ -3,7 +3,7 @@ import arrow
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models import options
-from edc_model.validators import datetime_not_future, date_not_future
+from edc_model.models import datetime_not_future, date_not_future
 from edc_protocol.validators import date_not_before_study_start
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_utils import get_utcnow
