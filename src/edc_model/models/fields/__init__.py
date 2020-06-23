@@ -1,5 +1,6 @@
 from .blood_pressure import SystolicPressureField, DiastolicPressureField
 from .date_estimated import IsDateEstimatedField, IsDateEstimatedFieldNa
+from .duration import DurationYearMonthField
 from .height import HeightField
 from .hostname_modification_field import HostnameModificationField
 from .identity_type_field import IdentityTypeField
