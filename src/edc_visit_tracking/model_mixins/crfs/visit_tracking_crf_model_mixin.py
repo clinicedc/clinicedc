@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_model.validators import datetime_not_future
+from edc_model.models import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins import SubjectScheduleModelMixin
