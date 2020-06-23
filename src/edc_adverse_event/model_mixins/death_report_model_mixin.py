@@ -11,7 +11,7 @@ from edc_identifier.model_mixins import (
     TrackingModelMixin,
     UniqueSubjectIdentifierFieldMixin,
 )
-from edc_model.validators import datetime_not_future
+from edc_model.models import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
@@ -54,7 +54,7 @@ class DeathReportModelMixin(
     cause_of_death = models.ForeignKey(
         CauseOfDeath,
         on_delete=PROTECT,
-        verbose_name=("Main cause of death"),
+        verbose_name="Main cause of death",
         help_text=(
             "Main cause of death in the opinion of the "
             "local study doctor and local PI"
