@@ -28,6 +28,7 @@ from .constants import (
     NOT_APPLICABLE,
     NOT_DONE,
     NOT_RECORDED,
+    NOT_REQUIRED,
     NOT_SURE,
     OMANG,
     OTHER,
@@ -525,6 +526,8 @@ YES_NO_DONT_KNOW_NA = (
 )
 
 YES_NO_DOESNT_WORK = ((YES, YES), (NO, NO), ("Doesnt_work", "Doesn't work"))
+
+YES_NO_NOT_REQUIRED = ((YES, _(YES)), (NO, _(NO)), (NOT_REQUIRED, _("Not required")))
 
 WHYNOPARTICIPATE_CHOICE = (
     ("I don't have time", _("I don't have time")),

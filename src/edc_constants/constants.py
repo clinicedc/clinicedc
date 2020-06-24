@@ -66,6 +66,7 @@ NOT_ADDITIONAL = False
 NOT_APPLICABLE = "N/A"
 NOT_DONE = "not_done"
 NOT_EVALUATED = "Not evaluated"
+NOT_REQUIRED = "not_required"
 NOT_SURE = "not_sure"
 NO_UNCONFIRMED = "no_unconfirmed"
 OFF_STUDY = "off study"
