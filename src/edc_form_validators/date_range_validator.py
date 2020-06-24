@@ -4,9 +4,19 @@ from edc_utils.text import formatted_datetime, formatted_date
 
 
 class DateRangeFieldValidator:
-    def date_not_before(self, date_field1, date_field2, msg=None):
+    def date_not_before(self, date_field1, date_field2, msg=None, convert_to_date=None):
         date1 = self.cleaned_data.get(date_field1)
         date2 = self.cleaned_data.get(date_field2)
+        if convert_to_date:
+            try:
+                date1 = date1.date()
+            except AttributeError:
+                pass
+            try:
+                date2 = date2.date()
+            except AttributeError:
+                pass
+
         msg = msg or f"Invalid. Cannot be before {date_field1} "
         if date1 and date2:
             if date1 > date2:
@@ -14,7 +24,7 @@ class DateRangeFieldValidator:
                     {
                         date_field2: (
                             f"{msg}. Got {formatted_date(date2)} is "
-                            "before {formatted_date(date1)}."
+                            f"before {formatted_date(date1)}."
                         )
                     }
                 )
