@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_action_item.models import ActionNoManagersModelMixin
 from edc_consent.model_mixins import RequiresConsentFieldsModelMixin
+
 from edc_identifier.model_mixins import TrackingModelMixin
 from edc_metadata.model_mixins.updates import UpdatesCrfMetadataModelMixin
 from edc_model.models.historical_records import HistoricalRecords
