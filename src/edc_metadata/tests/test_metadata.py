@@ -100,6 +100,24 @@ class TestCreatesDeletesMetadata(TestCase):
         obj.reason = "ERIK"
         self.assertRaises(CreatesMetadataError, obj.save)
 
+    @tag("1")
+    def test_deletes_metadata_on_changed_reason_toggled(self):
+        SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
+        appointment = Appointment.objects.get(
+            subject_identifier=self.subject_identifier, visit_code="2000",
+        )
+        obj = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
+        self.assertEqual(CrfMetadata.objects.filter(visit_code="2000").count(), 3)
+        self.assertEqual(
+            RequisitionMetadata.objects.filter(visit_code="2000").count(), 6,
+        )
+        obj.reason = MISSED_VISIT
+        obj.save()
+        self.assertEqual(CrfMetadata.objects.filter(visit_code="2000").count(), 1)
+        self.assertEqual(
+            RequisitionMetadata.objects.filter(visit_code="2000").count(), 0
+        )
+
     def test_deletes_metadata_on_changed_reason(self):
         obj = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED

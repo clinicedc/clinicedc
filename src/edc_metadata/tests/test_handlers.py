@@ -5,7 +5,7 @@ from edc_lab.models.panel import Panel
 from edc_reference.site_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
-from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 
 from ..models import CrfMetadata, RequisitionMetadata
 from ..requisition import InvalidTargetPanel, TargetPanelNotScheduledForVisit
@@ -97,3 +97,15 @@ class TestHandlers(TestCase):
             model="edc_metadata.crfseven",
             visit_model_instance=visit_model_instance,
         )
+
+    def test_crf_handler_target_model_ignored_for_missed_visit(self):
+        visit_model_instance = SubjectVisit.objects.create(
+            appointment=self.appointment, reason=MISSED_VISIT
+        )
+        try:
+            TargetHandler(
+                model="edc_metadata.crfseven",
+                visit_model_instance=visit_model_instance,
+            )
+        except TargetModelNotScheduledForVisit:
+            self.fail("TargetModelNotScheduledForVisit unexpectedly raised")

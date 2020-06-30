@@ -27,6 +27,8 @@ class TargetHandler:
     """A class that gets the target model "model instance"
     for a given visit, if it exists.
 
+    If visit reason is MISSED_VISIT, returns None.
+
     If target model is not scheduled for this visit a
     TargetModelNotScheduledForVisit exception will be raised.
     """
@@ -56,9 +58,11 @@ class TargetHandler:
                 f"{self.metadata_category} target model name is invalid. Got {e}"
             )
 
-        self.raise_on_not_scheduled_for_visit()
-
-        self.metadata_obj = self.metadata_handler.metadata_obj
+        if self.visit_model_instance.reason == MISSED_VISIT:
+            self.metadata_obj = None
+        else:
+            self.raise_on_not_scheduled_for_visit()
+            self.metadata_obj = self.metadata_handler.metadata_obj
 
     def __repr__(self):
         return (
