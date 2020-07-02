@@ -12,7 +12,7 @@ M2M_INVALID_SELECTION = "m2m_invalid_selection"
 
 class ManyToManyFieldValidator(BaseFormValidator):
     def get_m2m_selected(self, m2m_field):
-        qs = self.cleaned_data.get(m2m_field)
+        qs = self.cleaned_data.get(m2m_field) or []
         return {
             getattr(obj, self.default_fk_stored_field_name): getattr(
                 obj, self.default_fk_display_field_name
@@ -271,7 +271,7 @@ class ManyToManyFieldValidator(BaseFormValidator):
                 )
                 message = {
                     m2m_field: error_msg
-                    or (f"Invalid selection. " f"Cannot be any of: {display_names}.")
+                    or f"Invalid selection. " f"Cannot be any of: {display_names}."
                 }
                 self._errors.update(message)
                 self._error_codes.append(M2M_INVALID_SELECTION)
