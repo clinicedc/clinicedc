@@ -1,9 +1,10 @@
 from django.apps import apps as django_apps
 from edc_action_item.create_or_update_action_type import create_or_update_action_type
 from edc_action_item.identifiers import ActionIdentifier
+from edc_constants.constants import CLOSED
 
 
-def update_action_identifier(model=None, action_cls=None, apps=None):
+def update_action_identifier(model=None, action_cls=None, apps=None, status=None):
     apps = apps or django_apps
     action_item_cls = apps.get_model("edc_action_item.actionitem")
     model_cls = apps.get_model(model)
@@ -15,6 +16,7 @@ def update_action_identifier(model=None, action_cls=None, apps=None):
             action_identifier=ActionIdentifier().identifier,
         )
         action_item.linked_to_reference = True
+        action_item.status = status or CLOSED
         action_item.save()
         obj.action_identifier = action_item.action_identifier
         obj.action_item = action_item

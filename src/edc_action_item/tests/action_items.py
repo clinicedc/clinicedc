@@ -132,6 +132,25 @@ class SingletonAction(Action):
     singleton = True
 
 
+class CrfLongitudinalTwoAction(Action):
+    name = "submit-crf-longitudinal-two"
+    display_name = "Submit Crf Two"
+    reference_model = "edc_action_item.crflongitudinaltwo"
+    show_on_dashboard = True
+    priority = HIGH_PRIORITY
+    next_actions = []
+    parent_action_names = ["submit-crf-longitudinal-one"]
+
+
+class CrfLongitudinalOneAction(Action):
+    name = "submit-crf-longitudinal-one"
+    display_name = "Submit Crf One"
+    reference_model = "edc_action_item.crflongitudinalone"
+    show_on_dashboard = True
+    priority = HIGH_PRIORITY
+    next_actions = [CrfLongitudinalTwoAction.name]
+
+
 def register_actions():
     site_action_items.registry = {}
     site_action_items.register(FormZeroAction)
@@ -146,6 +165,5 @@ def register_actions():
     site_action_items.register(SingletonAction)
     site_action_items.register(CrfOneAction)
     site_action_items.register(CrfTwoAction)
-
-
-register_actions()
+    site_action_items.register(CrfLongitudinalOneAction)
+    site_action_items.register(CrfLongitudinalTwoAction)

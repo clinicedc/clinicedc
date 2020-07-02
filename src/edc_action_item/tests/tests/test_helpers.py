@@ -5,7 +5,7 @@ from edc_action_item.models import ActionItem
 
 from ..action_items import register_actions, FormOneAction, CrfOneAction
 from ..models import FormOne, SubjectIdentifierModel, CrfOne, CrfTwo, FormTwo
-from ..models import SubjectVisit, Appointment
+from ..models import SubjectVisitSimple, AppointmentSimple
 
 
 class TestHelpers(TestCase):
@@ -167,8 +167,8 @@ class TestHelpers(TestCase):
         self.assertTrue(context["related_reference_url"])
 
     def test_reference_as_crf(self):
-        appointment = Appointment.objects.create()
-        subject_visit = SubjectVisit.objects.create(
+        appointment = AppointmentSimple.objects.create()
+        subject_visit = SubjectVisitSimple.objects.create(
             subject_identifier=self.subject_identifier, appointment=appointment
         )
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
@@ -188,8 +188,8 @@ class TestHelpers(TestCase):
         self.assertIsNone(context["related_reference_url"])
 
     def test_reference_as_crf_create_next_model_instance(self):
-        appointment = Appointment.objects.create()
-        subject_visit = SubjectVisit.objects.create(
+        appointment = AppointmentSimple.objects.create()
+        subject_visit = SubjectVisitSimple.objects.create(
             subject_identifier=self.subject_identifier, appointment=appointment
         )
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
