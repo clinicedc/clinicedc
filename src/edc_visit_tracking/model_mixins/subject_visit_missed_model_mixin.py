@@ -9,8 +9,6 @@ from edc_model.models import date_not_future
 from edc_protocol.validators import date_not_before_study_start
 from edc_utils import get_utcnow
 
-# from ..models import get_subject_visit_missed_reasons_model
-
 
 class SubjectVisitMissedModelMixin(models.Model):
 
