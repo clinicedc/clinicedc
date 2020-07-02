@@ -1,7 +1,4 @@
-import pdb
-
 from dateutil.relativedelta import relativedelta
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from django.test.utils import tag, override_settings  # noqa
