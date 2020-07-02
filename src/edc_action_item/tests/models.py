@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models.deletion import CASCADE, PROTECT
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES
+from edc_crf.model_mixins import CrfWithActionModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel
 from edc_model.models import HistoricalRecords
@@ -52,17 +53,17 @@ class TestModelWithAction(
     action_name = "submit-form-zero"
 
 
-class Appointment(BaseUuidModel):
+class AppointmentSimple(BaseUuidModel):
 
     appt_datetime = models.DateTimeField(default=get_utcnow)
     history = HistoricalRecords()
 
 
-class SubjectVisit(SiteModelMixin, BaseUuidModel):
+class SubjectVisitSimple(SiteModelMixin, BaseUuidModel):
 
     subject_identifier = models.CharField(max_length=25)
 
-    appointment = models.OneToOneField(Appointment, on_delete=CASCADE)
+    appointment = models.OneToOneField(AppointmentSimple, on_delete=CASCADE)
     history = HistoricalRecords()
 
 
@@ -158,7 +159,7 @@ class MyAction(
 
 class CrfOne(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
-    subject_visit = models.OneToOneField(SubjectVisit, on_delete=CASCADE)
+    subject_visit = models.OneToOneField(SubjectVisitSimple, on_delete=CASCADE)
 
     action_name = "submit-crf-one"
 
@@ -177,7 +178,7 @@ class CrfOne(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
 class CrfTwo(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
-    subject_visit = models.OneToOneField(SubjectVisit, on_delete=CASCADE)
+    subject_visit = models.OneToOneField(SubjectVisitSimple, on_delete=CASCADE)
 
     action_name = "submit-crf-two"
 
@@ -192,3 +193,27 @@ class CrfTwo(ActionModelMixin, SiteModelMixin, BaseUuidModel):
     @classmethod
     def visit_model_attr(self):
         return "subject_visit"
+
+
+class CrfLongitudinalOne(
+    CrfWithActionModelMixin, SiteModelMixin, BaseUuidModel,
+):
+    action_name = "submit-crf-longitudinal-one"
+
+    f1 = models.CharField(max_length=50, null=True)
+
+    f2 = models.CharField(max_length=50, null=True)
+
+    f3 = models.CharField(max_length=50, null=True)
+
+
+class CrfLongitudinalTwo(
+    CrfWithActionModelMixin, SiteModelMixin, BaseUuidModel,
+):
+    action_name = "submit-crf-longitudinal-two"
+
+    f1 = models.CharField(max_length=50, null=True)
+
+    f2 = models.CharField(max_length=50, null=True)
+
+    f3 = models.CharField(max_length=50, null=True)
