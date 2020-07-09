@@ -59,7 +59,7 @@ class FormDescriber:
         self.level = level or self.level
         self.conditional_fieldset = None
         self.admin_cls = admin_cls
-        self.model_cls = admin_cls.form._meta.model
+        self.model_cls = admin_cls.model  # admin_cls.form._meta.model
         self.visit_code = visit_code
         self.models_fields = {
             fld.name: fld for fld in self.model_cls._meta.get_fields()
@@ -169,30 +169,30 @@ class FormDescriber:
             self.markdown.append(
                 f"* custom_prompt: *{self.custom_form_labels.get(fname)}*"
             )
-        self.markdown.append(f"* db_table: {self.model_cls._meta.db_table}")
-        self.markdown.append(f"* column: {field_cls.name}")
-        self.markdown.append(f"* type: {field_cls.get_internal_type()}")
+        self.markdown.append(f"- db_table: {self.model_cls._meta.db_table}")
+        self.markdown.append(f"- column: {field_cls.name}")
+        self.markdown.append(f"- type: {field_cls.get_internal_type()}")
         if field_cls.max_length:
-            self.markdown.append(f"* length: {field_cls.max_length}")
+            self.markdown.append(f"- length: {field_cls.max_length}")
         if field_cls.get_internal_type() == "DateField":
-            self.markdown.append(f"* format: YYYY-MM-DD")
+            self.markdown.append(f"- format: YYYY-MM-DD")
         if field_cls.get_internal_type() == "DateTimeField":
-            self.markdown.append(f"* format: YYYY-MM-DD HH:MM:SS.sss (tz=UTC)")
+            self.markdown.append(f"- format: YYYY-MM-DD HH:MM:SS.sss (tz=UTC)")
         self.add_field_responses(field_cls=field_cls)
         self.markdown.append("---")
 
     def add_field_responses(self, field_cls=None):
         if field_cls.get_internal_type() == "CharField":
             if field_cls.choices:
-                self.markdown.append(f"* responses:")
+                self.markdown.append(f"- responses:")
                 for response in [
                     f"`{tpl[0]}`: *{tpl[1]}*" for tpl in field_cls.choices
                 ]:
                     self.markdown.append(f"  - {response} ")
             else:
-                self.markdown.append("* responses: *free text*")
+                self.markdown.append("- responses: *free text*")
         elif field_cls.get_internal_type() == "ManyToManyField":
-            self.markdown.append("* responses: *Select all that apply*")
+            self.markdown.append("- responses: *Select all that apply*")
             for obj in field_cls.related_model.objects.all().order_by("display_index"):
                 self.markdown.append(f"  - `{obj.name}`: *{obj.display_name}* ")
 
