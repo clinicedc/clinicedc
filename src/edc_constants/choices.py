@@ -32,6 +32,7 @@ from .constants import (
     NOT_SURE,
     OMANG,
     OTHER,
+    PENDING,
     POS,
     PRESENT,
     PURPOSIVELY_SELECTED,
@@ -453,6 +454,13 @@ YES_NO_NA_SPECIFY = (
 )
 
 YES_NO_NA = ((YES, YES), (NO, NO), (NOT_APPLICABLE, "Not applicable"))
+
+YES_NO_PENDING_NA = (
+    (YES, YES),
+    (NO, NO),
+    (PENDING, "Pending"),
+    (NOT_APPLICABLE, "Not applicable"),
+)
 
 
 YES_NO_NA_DWTA = (
