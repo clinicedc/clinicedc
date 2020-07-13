@@ -69,6 +69,12 @@ RESULT_QUANTIFIER_NA = (
     (LTE, LTE),
 )
 
+VL_QUANTIFIER_NA = (
+    (EQ, EQ),
+    (GT, GT),
+    (LT, LT),
+)
+
 
 SPECIMEN_MEASURE_UNITS = (
     ("mL", "mL"),
