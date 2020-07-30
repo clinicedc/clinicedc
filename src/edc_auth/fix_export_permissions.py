@@ -1,17 +1,20 @@
+from warnings import warn
+
 from django.apps import apps as django_apps
-from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
+
+# from django.contrib.auth.models import Permission
+# from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
-from edc_model import models as edc_models
 
 
 class ExportPermissionsFixer:
-    def __init__(self, app_label=None, verbose=None):
+    def __init__(self, app_label=None, verbose=None, warn_only=None):
         if app_label:
             self.app_configs = [django_apps.get_app_config(app_label)]
         else:
             self.app_configs = django_apps.get_app_configs()
         self.verbose = verbose if verbose is not None else False
+        self.warn_only = warn_only
 
     def fix(self):
         """Add "import" and "export" to default permissions of add, change, delete, view.
@@ -32,25 +35,33 @@ class ExportPermissionsFixer:
             print("Done")
 
     def fix_for_model(self, model):
+        from edc_model import models as edc_models
+
         if issubclass(model, (edc_models.BaseUuidModel,)):
+            permission_model_cls = django_apps.get_model("auth.permission")
+            content_type_model_cls = django_apps.get_model("contenttypes.contenttype")
             if self.verbose:
                 print(f"    - {model._meta.label_lower}")
             try:
-                content_type = ContentType.objects.get(
+                content_type = content_type_model_cls.objects.get(
                     app_label=model._meta.app_label, model=model._meta.object_name,
                 )
             except ObjectDoesNotExist as e:
-                raise ObjectDoesNotExist(f"{e} Got {model}.")
-            for action in ["import", "export"]:
-                codename = f"{action}_{model._meta.label_lower.split('.')[1]}"
-                opts = dict(content_type=content_type, codename=codename)
-                try:
-                    obj = Permission.objects.get(**opts)
-                except ObjectDoesNotExist:
-                    opts.update(name=f"Can {action} {model._meta.verbose_name}")
-                    Permission.objects.create(**opts)
-                    if self.verbose:
-                        print(f"       created for {model._meta.label_lower}")
+                if self.warn_only:
+                    warn(f"ObjectDoesNotExist: {e} Got {model}.")
                 else:
-                    obj.name = f"Can {action} {model._meta.verbose_name}"
-                    obj.save()
+                    raise ObjectDoesNotExist(f"{e} Got {model}.")
+            else:
+                for action in ["import", "export"]:
+                    codename = f"{action}_{model._meta.label_lower.split('.')[1]}"
+                    opts = dict(content_type=content_type, codename=codename)
+                    try:
+                        obj = permission_model_cls.objects.get(**opts)
+                    except ObjectDoesNotExist:
+                        opts.update(name=f"Can {action} {model._meta.verbose_name}")
+                        permission_model_cls.objects.create(**opts)
+                        if self.verbose:
+                            print(f"       created for {model._meta.label_lower}")
+                    else:
+                        obj.name = f"Can {action} {model._meta.verbose_name}"
+                        obj.save()
