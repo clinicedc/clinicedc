@@ -23,5 +23,5 @@ class Appointment(AppointmentModelMixin, SiteModelMixin, BaseUuidModel):
 
     natural_key.dependencies = ["sites.Site"]
 
-    class Meta(AppointmentModelMixin.Meta):
+    class Meta(AppointmentModelMixin.Meta, BaseUuidModel.Meta):
         pass
