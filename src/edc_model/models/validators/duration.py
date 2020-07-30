@@ -1,5 +1,7 @@
 from django.core.validators import RegexValidator
 
+from ..utils import ym_pattern
+
 """
 expect 1h20m, 11h5m, etc
 """
@@ -10,7 +12,7 @@ hm_validator = RegexValidator(
 )
 
 ym_validator = RegexValidator(
-    r"^([0-9]{1,3}y([0-5]?[0-9]m)?)$|^([0-5]?[0-9]m)$",
+    ym_pattern,
     message="Invalid format. Expected something like 4y, 3y5m, 1y0m, 6m, etc. No spaces allowed.",
 )
 
