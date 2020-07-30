@@ -39,5 +39,5 @@ class SubjectLocator(
 
     natural_key.dependencies = ["sites.Site"]
 
-    class Meta:
+    class Meta(BaseUuidModel.Meta):
         verbose_name = "Subject Locator"
