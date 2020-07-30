@@ -235,7 +235,7 @@ class ActionItem(
         """
         return self.action_identifier[-9:]
 
-    class Meta:
+    class Meta(BaseUuidModel.Meta):
         verbose_name = "Action Item"
         verbose_name_plural = "Action Items"
         indexes = [

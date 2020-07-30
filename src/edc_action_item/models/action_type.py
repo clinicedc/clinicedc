@@ -82,3 +82,4 @@ class ActionType(BaseUuidModel):
     class Meta:
         ordering = ["name"]
         indexes = [models.Index(fields=["id", "name"])]
+        default_permissions = ("add", "change", "delete", "view", "export", "import")
