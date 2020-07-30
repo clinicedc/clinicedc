@@ -15,6 +15,6 @@ class CrfStatus(
 ):
     label_lower = models.CharField(max_length=150, null=True)
 
-    class Meta:
+    class Meta(edc_models.BaseUuidModel.Meta):
         verbose_name = "CRF Status"
         verbose_name_plural = "CRF Status"
