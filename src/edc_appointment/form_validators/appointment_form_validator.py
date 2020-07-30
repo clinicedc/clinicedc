@@ -1,5 +1,3 @@
-import pdb
-
 from arrow.arrow import Arrow
 from django import forms
 from django.apps import apps as django_apps
