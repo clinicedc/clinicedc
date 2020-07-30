@@ -7,6 +7,6 @@ class QueryVisitSchedule(VisitSchedule):
 
     class Meta:
         proxy = True
-        default_permissions = ("view",)
+        default_permissions = ("view", "export")
         verbose_name = "Visit Schedule"
         verbose_name_plural = "Visit Schedule"

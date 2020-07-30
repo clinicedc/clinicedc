@@ -65,7 +65,7 @@ class DataDictionary(BaseUuidModel):
         return django_apps.get_model(self.model)
 
     class Meta:
-        default_permissions = ("view",)
+        default_permissions = ("view", "export")
         ordering = ("model", "number", "prompt")
         unique_together = (("model", "field_name"),)
         verbose_name = "Data Dictionary Item"

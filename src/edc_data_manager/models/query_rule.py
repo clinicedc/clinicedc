@@ -239,7 +239,7 @@ class QueryRule(BaseUuidModel):
             )
         return django_apps.get_model(models[0])
 
-    class Meta:
+    class Meta(BaseUuidModel.Meta):
         ordering = ("title",)
         verbose_name = "Query Rule"
         verbose_name_plural = "Query Rules"
