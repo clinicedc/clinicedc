@@ -7,7 +7,7 @@ class DataManagerUser(BaseUser):
 
     class Meta:
         proxy = True
-        default_permissions = ("view",)
+        default_permissions = ("view", "export")
         verbose_name = "Data Manager User"
         verbose_name_plural = "Data Manager Users"
 
@@ -18,6 +18,6 @@ class QueryUser(BaseUser):
 
     class Meta:
         proxy = True
-        default_permissions = ("view",)
+        default_permissions = ("view", "export")
         verbose_name = "Data Query User"
         verbose_name_plural = "Data Query Users"

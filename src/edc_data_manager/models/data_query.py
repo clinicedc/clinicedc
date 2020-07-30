@@ -275,10 +275,10 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
     @property
     def model_names(self):
-        models = list(set([dd.model for dd in self.data_dictionaries.all()]))
-        return "|".join(models)
+        model_names = list(set([dd.model for dd in self.data_dictionaries.all()]))
+        return "|".join(model_names)
 
-    class Meta:
+    class Meta(BaseUuidModel.Meta):
         verbose_name = "Data Query"
         verbose_name_plural = "Data Queries"
         unique_together = ["registered_subject", "rule_reference", "visit_schedule"]
