@@ -1,5 +1,5 @@
 from django.core import mail
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_constants.constants import NO, YES
 from edc_facility.import_holidays import import_holidays
 from edc_list_data.site_list_data import site_list_data
@@ -16,7 +16,6 @@ from ...action_items import (
 )
 from ...notifications import AeInitialG3EventNotification, AeInitialG4EventNotification
 from .mixins import DeathReportTestMixin
-from pprint import pprint
 
 
 class TestNotifications(DeathReportTestMixin, TestCase):
