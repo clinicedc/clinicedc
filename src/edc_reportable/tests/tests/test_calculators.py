@@ -3,7 +3,6 @@ from edc_constants.constants import FEMALE, MALE, BLACK
 
 from ...calculators import eGFR, CalculatorError, BMI
 from edc_reportable.units import MICROMOLES_PER_LITER
-from pprint import pprint
 
 
 class TestCalculators(TestCase):
