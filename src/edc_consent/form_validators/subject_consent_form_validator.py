@@ -99,7 +99,7 @@ class SubjectConsentFormValidatorMixin:
 
         Eligibility datetime must come first.
 
-        Watchout for timezone.
+        Watchout for timezone, cleaned_data has local TZ.
         """
         if (
             self.consent_datetime - self.subject_screening.eligibility_datetime
