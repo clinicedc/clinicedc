@@ -48,11 +48,6 @@ class PreloadData:
              (name2, display_name),...],
             ...}
         """
-        #         if (
-        #             "migrate" not in sys.argv
-        #             and "showmigrations" not in sys.argv
-        #             and "makemigrations" not in sys.argv
-        #         ):
         apps = apps or django_apps
         if model_name:
             model_names = [model_name]
@@ -61,7 +56,6 @@ class PreloadData:
         for model_name in model_names:
             try:
                 model = apps.get_model(model_name)
-                display_index = 0
                 for display_index, value in enumerate(self.list_data.get(model_name)):
                     store_value, display_value = value
                     try:
@@ -128,8 +122,8 @@ class PreloadData:
             model = apps.get_model(*model_name.split("."))
             for field, values in data.items():
                 try:
-                    obj = model.objects.get(**{field: values[1]})
-                except model.DoesNotExist:
+                    model.objects.get(**{field: values[1]})
+                except ObjectDoesNotExist:
                     try:
                         obj = model.objects.get(**{field: values[0]})
                     except model.DoesNotExist as e:
@@ -150,7 +144,8 @@ class PreloadData:
                         except ProtectedError:
                             pass
 
-    def guess_unique_field(self, model):
+    @staticmethod
+    def guess_unique_field(model):
         """Returns the first field name for a unique field.
         """
         unique_field = None
