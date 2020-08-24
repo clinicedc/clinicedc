@@ -5,6 +5,8 @@ import sys
 from datetime import datetime
 from django.apps import apps as django_apps
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 from edc_sites import get_current_country
 from edc_utils import get_utcnow
 from tqdm import tqdm
@@ -56,7 +58,6 @@ def check_for_duplicates_in_file(path):
 
 
 def import_file(path, recs, model_cls):
-    objs = []
     with open(path, "r") as f:
         reader = csv.DictReader(f, fieldnames=["local_date", "label", "country"])
         for index, row in tqdm(enumerate(reader), total=len(recs)):
@@ -69,12 +70,17 @@ def import_file(path, recs, model_cls):
                     f"Invalid format when importing from " f"{path}. Got '{e}'"
                 )
             else:
-                objs.append(
-                    model_cls(
+                try:
+                    obj = model_cls.objects.get(
+                        country=row["country"], local_date=local_date
+                    )
+                except ObjectDoesNotExist:
+                    model_cls.objects.create(
                         country=row["country"], local_date=local_date, name=row["label"]
                     )
-                )
-        model_cls.objects.bulk_create(objs)
+                else:
+                    obj.name = row["label"]
+                    obj.save()
 
 
 def import_for_tests(model_cls):
@@ -110,4 +116,6 @@ def import_for_tests(model_cls):
             objs.append(
                 model_cls(country=row[COUNTRY], local_date=local_date, name=row[LABEL])
             )
-    model_cls.objects.bulk_create(objs)
+    with transaction.atomic():
+        model_cls.objects.all().delete()
+        model_cls.objects.bulk_create(objs)
