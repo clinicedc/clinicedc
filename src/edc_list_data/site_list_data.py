@@ -49,7 +49,7 @@ class SiteListData:
                             raise SiteListDataError(e)
                 except ImportError:
                     pass
-            writer(f"\n")
+            writer("\n")
 
     @staticmethod
     def get_options(module):
