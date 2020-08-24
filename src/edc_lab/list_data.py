@@ -1,9 +1,8 @@
-from edc_list_data import PreloadData
-
 from .constants import FILL_ACROSS
 
 
 list_data = {}
+unique_field_data = {}
 
 model_data = {
     "edc_lab.boxtype": [
@@ -17,8 +16,7 @@ model_data = {
     ]
 }
 
-unique_field_data = {}
 
-preload_data = PreloadData(
-    list_data=list_data, model_data=model_data, unique_field_data=unique_field_data
-)
+# preload_data = PreloadData(
+#     list_data=list_data, model_data=model_data, unique_field_data=unique_field_data
+# )
