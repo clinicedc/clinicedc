@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.db import models
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_offstudy.model_mixins import OffstudyVisitModelMixin
@@ -6,12 +7,12 @@ from edc_timepoint.model_mixins import TimepointModelMixin
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 from uuid import UUID
 
-from edc_visit_tracking.constants import MISSED_VISIT
-
 from ..choices import APPT_TYPE, APPT_STATUS, APPT_REASON
 from ..constants import NEW_APPT
 from ..managers import AppointmentManager
 from .appointment_methods_model_mixin import AppointmentMethodsModelMixin
+
+APPT_REASON = getattr(settings, "EDC_APPOINTMENT_APPT_REASON", APPT_REASON)
 
 
 class AppointmentModelMixin(
@@ -51,7 +52,7 @@ class AppointmentModelMixin(
     )
 
     appt_datetime = models.DateTimeField(
-        verbose_name=("Appointment date and time"), db_index=True
+        verbose_name="Appointment date and time", db_index=True
     )
 
     appt_type = models.CharField(
@@ -59,23 +60,29 @@ class AppointmentModelMixin(
         choices=APPT_TYPE,
         default="clinic",
         max_length=20,
-        help_text=("Default for subject may be edited Subject Configuration."),
+        help_text="Default for subject may be edited Subject Configuration.",
     )
 
     appt_status = models.CharField(
-        verbose_name=("Status"),
+        verbose_name="Status",
         choices=APPT_STATUS,
         max_length=25,
         default=NEW_APPT,
         db_index=True,
         help_text=(
-            "If the visit has already begun, only 'in progress' or "
-            "'incomplete' are valid options"
+            "If the visit has already begun, only 'in progress', "
+            "'incomplete' or 'done' are valid options"
         ),
     )
 
     appt_reason = models.CharField(
-        verbose_name=("Reason for appointment"), max_length=25, choices=APPT_REASON
+        verbose_name="Reason for appointment",
+        max_length=25,
+        choices=APPT_REASON,
+        help_text=(
+            "The visit report's `reason for visit` will be validated against this. "
+            "Refer to the protocol's documentation for the definition of a `scheduled` visit."
+        ),
     )
 
     comment = models.CharField("Comment", max_length=250, blank=True)
