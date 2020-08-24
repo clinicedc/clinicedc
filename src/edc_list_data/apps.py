@@ -34,8 +34,8 @@ class AppConfig(DjangoAppConfig):
         if "test" in sys.argv or "runtests.py" in sys.argv:
             sys.stdout.write(
                 style.WARNING(
-                    f" Not updating list data for tests. "
-                    "Add site_list_data.autodiscover() to your test setUp.\n"
+                    "\nNot updating list data for tests. "
+                    "Add site_list_data.autodiscover() to your test setUp.\n\n"
                 )
             )
         elif "migrate" in sys.argv or "makemigrations" in sys.argv:
