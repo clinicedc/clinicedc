@@ -102,6 +102,7 @@ SEROCONVERSION = "seroconversion"
 SHOW_FORM = "NEW"
 SMOKER = "smoker"
 STOPPED = "stopped"
+STUDY_DEFINED_TIMEPOINT = "study_defined_timepoint"
 SUBJECT = "subject"
 TBD = "tbd"  # to be determined
 TRUE = "true"
