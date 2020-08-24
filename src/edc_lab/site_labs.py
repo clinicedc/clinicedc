@@ -77,7 +77,9 @@ class SiteLabs:
 
     @property
     def lab_profiles(self):
-        return {l.name: l for l in self._registry.values()}
+        return {
+            lab_profile.name: lab_profile for lab_profile in self._registry.values()
+        }
 
     @property
     def panel_model_cls(self):

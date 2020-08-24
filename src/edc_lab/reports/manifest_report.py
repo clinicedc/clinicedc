@@ -29,7 +29,7 @@ class ManifestReport(Report):
         if self.manifest.shipped:
             self.report_filename = f"{self.manifest.manifest_identifier}.pdf"
         else:
-            self.report_filename = f"manifest_preview.pdf"
+            self.report_filename = "manifest_preview.pdf"
 
     def get_report_story(self, **kwargs):
         story = []
