@@ -39,12 +39,16 @@ class VisitFormValidator(FormValidator):
         if appointment:
             if not appointment.visit_code_sequence and reason == UNSCHEDULED:
                 raise forms.ValidationError(
-                    {"reason": "Invalid. This is not an unscheduled visit"},
+                    {
+                        "reason": "Invalid. This is not an unscheduled visit. See appointment."
+                    },
                     code=INVALID_ERROR,
                 )
             if appointment.visit_code_sequence and reason != UNSCHEDULED:
                 raise forms.ValidationError(
-                    {"reason": "Invalid. This is an unscheduled visit"},
+                    {
+                        "reason": "Invalid. This is an unscheduled visit. See appointment."
+                    },
                     code=INVALID_ERROR,
                 )
             # TODO: missed visits now have a CRF, so this won't work
