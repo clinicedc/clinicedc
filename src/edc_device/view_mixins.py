@@ -1,5 +1,5 @@
 from django.apps import apps as django_apps
-from ipware.ip import get_ip, get_real_ip
+from ipware import get_client_ip
 
 
 class EdcDeviceViewMixin:
@@ -17,14 +17,7 @@ class EdcDeviceViewMixin:
 
     @property
     def ip_address(self):
-        request = self.request
-        try:
-            ip_address = get_real_ip(request)
-        except AttributeError:
-            ip_address = None
-        if not ip_address:
-            try:
-                ip_address = get_ip(request)
-            except AttributeError:
-                ip_address = None
-        return ip_address
+        client_ip = None
+        if self.request:
+            client_ip, _ = get_client_ip(self.request)
+        return client_ip
