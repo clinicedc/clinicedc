@@ -70,15 +70,16 @@ class VisitFormValidator(FormValidator):
             )
 
         if self.validate_unscheduled_visit_reason:
-            self.required_if(
-                UNSCHEDULED, field="reason", field_required="reason_unscheduled"
-            )
+            if "reason_unscheduled" in self.cleaned_data:
+                self.required_if(
+                    UNSCHEDULED, field="reason", field_required="reason_unscheduled"
+                )
 
-            self.required_if(
-                OTHER,
-                field="reason_unscheduled",
-                field_required="reason_unscheduled_other",
-            )
+                self.required_if(
+                    OTHER,
+                    field="reason_unscheduled",
+                    field_required="reason_unscheduled_other",
+                )
 
         self.required_if(OTHER, field="info_source", field_required="info_source_other")
 
