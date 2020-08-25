@@ -43,7 +43,7 @@ def import_holidays(verbose=None, test=None):
         import_file(path, recs, model_cls)
 
         if verbose:
-            sys.stdout.write(f"Done.\n")
+            sys.stdout.write("Done.\n")
 
 
 def check_for_duplicates_in_file(path):

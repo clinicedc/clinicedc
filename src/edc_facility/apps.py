@@ -43,7 +43,7 @@ class AppConfig(DjangoAppConfig):
             register(holiday_country_check, deploy=True)
         else:
             sys.stdout.write(
-                style.NOTICE(f" * not registering system checks for migrations.\n")
+                style.NOTICE(" * not registering system checks for migrations.\n")
             )
         for facility in self.facilities.values():
             sys.stdout.write(f" * {facility}.\n")
@@ -61,7 +61,7 @@ class AppConfig(DjangoAppConfig):
             if warn_user:
                 warn(
                     f"Facility definitions not defined. See {self.name} "
-                    f"app_config.definitions. Using defaults. "
+                    "app_config.definitions. Using defaults. "
                     "To silence, set EDC_FACILITY_USE_DEFAULTS=True in settings."
                 )
         return {
