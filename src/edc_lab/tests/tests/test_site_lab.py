@@ -5,10 +5,12 @@ from django.conf import settings
 from django.test import TestCase, tag  # noqa
 from edc_appointment.models import Appointment
 from edc_constants.constants import YES, NO, NOT_APPLICABLE
+from edc_facility import import_holidays
 from edc_lab.lab import AliquotType, LabProfile, ProcessingProfile
 from edc_lab.lab import Process, ProcessingProfileAlreadyAdded
 from edc_lab.site_labs import SiteLabs, site_labs
 from edc_sites import add_or_update_django_sites
+from edc_sites.single_site import SingleSite
 from edc_utils.date import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -22,12 +24,17 @@ class TestSiteLab(TestCase):
     @classmethod
     def setUpClass(cls):
         add_or_update_django_sites(
-            sites=((settings.SITE_ID, "test_site", "Test Site"),), fqdn="clinicedc.org"
+            sites=[
+                SingleSite(
+                    settings.SITE_ID,
+                    "test_site",
+                    country_code="ug",
+                    country="uganda",
+                    domain="bugamba.ug.clinicedc.org",
+                )
+            ]
         )
         return super().setUpClass()
-
-    def tearDown(self):
-        super().tearDown()
 
     def test_site_labs(self):
         site_lab = SiteLabs()
@@ -47,9 +54,26 @@ class TestSiteLab(TestCase):
         self.assertFalse(site_lab.loaded)
 
 
+@tag("2")
 class TestSiteLab2(TestCase):
 
     lab_helper = SiteLabsTestHelper()
+
+    @classmethod
+    def setUpClass(cls):
+        add_or_update_django_sites(
+            sites=[
+                SingleSite(
+                    settings.SITE_ID,
+                    "test_site",
+                    country_code="ug",
+                    country="uganda",
+                    domain="bugamba.ug.clinicedc.org",
+                )
+            ]
+        )
+        import_holidays()
+        return super().setUpClass()
 
     def setUp(self):
         site_visit_schedules._registry = {}

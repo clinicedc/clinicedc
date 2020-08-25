@@ -5,15 +5,25 @@ from edc_sites import add_or_update_django_sites
 
 from edc_lab.lab import AliquotCreator, AliquotCreatorError
 from edc_lab.models import Aliquot
+from edc_sites.single_site import SingleSite
 from edc_sites.tests import SiteTestCaseMixin
 
 
 class TestAliquot(SiteTestCaseMixin, TestCase):
-    def setUp(self):
-        add_or_update_django_sites(sites=self.default_sites, verbose=False)
-
-    def tearDown(self):
-        super().tearDown()
+    @classmethod
+    def setUpClass(cls):
+        add_or_update_django_sites(
+            sites=[
+                SingleSite(
+                    settings.SITE_ID,
+                    "test_site",
+                    country_code="ug",
+                    country="uganda",
+                    domain="bugamba.ug.clinicedc.org",
+                )
+            ]
+        )
+        return super().setUpClass()
 
     def test_aliquot_model_constraint(self):
         Aliquot.objects.create(count=0)

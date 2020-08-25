@@ -3,6 +3,7 @@ from django.contrib.sites.models import Site
 from django.test import override_settings, TestCase, tag  # noqa
 from edc_appointment.models import Appointment
 from edc_constants.constants import YES, NO
+from edc_facility import import_holidays
 from edc_lab.identifiers import AliquotIdentifier as AliquotIdentifierBase
 from edc_lab.lab import AliquotCreator as AliquotCreatorBase
 from edc_lab.lab import AliquotType, Process, ProcessingProfile
@@ -10,6 +11,7 @@ from edc_lab.lab import Specimen as SpecimenBase, SpecimenNotDrawnError
 from edc_lab.lab import SpecimenProcessor
 from edc_lab.models import Aliquot
 from edc_sites import add_or_update_django_sites
+from edc_sites.single_site import SingleSite
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils.date import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -33,13 +35,27 @@ class Specimen(SpecimenBase):
     aliquot_creator_cls = AliquotCreator
 
 
-@override_settings(SITE_ID=SiteID(default=20))
 class TestSpecimen(SiteTestCaseMixin, TestCase):
 
     lab_helper = SiteLabsTestHelper()
 
+    @classmethod
+    def setUpClass(cls):
+        add_or_update_django_sites(
+            sites=[
+                SingleSite(
+                    settings.SITE_ID,
+                    "test_site",
+                    country_code="ug",
+                    country="uganda",
+                    domain="bugamba.ug.clinicedc.org",
+                )
+            ]
+        )
+        import_holidays()
+        return super().setUpClass()
+
     def setUp(self):
-        add_or_update_django_sites(sites=self.default_sites, verbose=False)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
         self.subject_identifier = "1111111111"
@@ -52,6 +68,7 @@ class TestSpecimen(SiteTestCaseMixin, TestCase):
             confirm_identity="1111111",
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
+            site=Site.objects.get_current(),
         )
         appointment = Appointment.objects.get(visit_code="1000")
         self.subject_visit = SubjectVisit.objects.create(
@@ -99,13 +116,27 @@ class TestSpecimen(SiteTestCaseMixin, TestCase):
         self.assertRaises(SpecimenNotDrawnError, Specimen, requisition=requisition)
 
 
-@override_settings(SITE_ID=SiteID(default=20))
 class TestSpecimen2(SiteTestCaseMixin, TestCase):
 
     lab_helper = SiteLabsTestHelper()
 
+    @classmethod
+    def setUpClass(cls):
+        add_or_update_django_sites(
+            sites=[
+                SingleSite(
+                    settings.SITE_ID,
+                    "test_site",
+                    country_code="ug",
+                    country="uganda",
+                    domain="bugamba.ug.clinicedc.org",
+                )
+            ]
+        )
+        import_holidays()
+        return super().setUpClass()
+
     def setUp(self):
-        add_or_update_django_sites(sites=self.default_sites, verbose=False)
         self.lab_helper.setup_site_labs()
         self.panel = self.lab_helper.panel
         self.profile_aliquot_count = self.lab_helper.profile_aliquot_count

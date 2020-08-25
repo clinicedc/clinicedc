@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase, tag  # noqa
 from django.test.utils import override_settings
@@ -5,13 +6,26 @@ from edc_lab.models import Box, BoxItem, BoxType, Aliquot
 from edc_lab.models import Manifest, Shipper, Consignee, ManifestItem
 from edc_lab.reports import ManifestReport, ManifestReportError
 from edc_sites import add_or_update_django_sites
+from edc_sites.single_site import SingleSite
 from edc_sites.tests import SiteTestCaseMixin
 from multisite import SiteID
 
 
 class TestManifest(SiteTestCaseMixin, TestCase):
-    def setUp(self):
-        add_or_update_django_sites(sites=self.default_sites, verbose=False)
+    @classmethod
+    def setUpClass(cls):
+        add_or_update_django_sites(
+            sites=[
+                SingleSite(
+                    settings.SITE_ID,
+                    "test_site",
+                    country_code="ug",
+                    country="uganda",
+                    domain="bugamba.ug.clinicedc.org",
+                )
+            ]
+        )
+        return super().setUpClass()
 
     def test_manifest(self):
         consignee = Consignee.objects.create(name="consignee")
@@ -35,7 +49,6 @@ class TestManifest(SiteTestCaseMixin, TestCase):
         self.assertIn(manifest_item.human_readable_identifier, manifest_item.slug)
 
 
-@tag("1")
 class TestManifestReport(SiteTestCaseMixin, TestCase):
     def setUp(self):
         add_or_update_django_sites(sites=self.default_sites, verbose=False)

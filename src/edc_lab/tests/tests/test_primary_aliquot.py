@@ -3,6 +3,7 @@ from django.test import TestCase, tag
 from edc_lab.identifiers import AliquotIdentifier
 from edc_lab.lab import PrimaryAliquot, AliquotType, AliquotCreator
 from edc_sites import add_or_update_django_sites
+from edc_sites.single_site import SingleSite
 
 
 class MyAliquotIdentifier(AliquotIdentifier):
@@ -17,12 +18,17 @@ class TestPrimaryAliquot(TestCase):
     @classmethod
     def setUpClass(cls):
         add_or_update_django_sites(
-            sites=((settings.SITE_ID, "test_site", "Test Site"),), fqdn="clinicedc.org"
+            sites=[
+                SingleSite(
+                    settings.SITE_ID,
+                    "test_site",
+                    country_code="ug",
+                    country="uganda",
+                    domain="bugamba.ug.clinicedc.org",
+                )
+            ]
         )
         return super().setUpClass()
-
-    def tearDown(self):
-        super().tearDown()
 
     def test_create_new_primary_aliquot(self):
         aliquot_type = AliquotType(name="aliquot_a", numeric_code="22", alpha_code="WW")

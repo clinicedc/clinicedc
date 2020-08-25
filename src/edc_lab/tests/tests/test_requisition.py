@@ -12,18 +12,24 @@ from edc_lab.lab import (
 )
 from edc_lab.site_labs import site_labs
 from edc_sites import add_or_update_django_sites
+from edc_sites.single_site import SingleSite
 
 
 class TestRequisition(TestCase):
     @classmethod
     def setUpClass(cls):
         add_or_update_django_sites(
-            sites=((settings.SITE_ID, "test_site", "Test Site"),), fqdn="clinicedc.org"
+            sites=[
+                SingleSite(
+                    settings.SITE_ID,
+                    "test_site",
+                    country_code="ug",
+                    country="uganda",
+                    domain="bugamba.ug.clinicedc.org",
+                )
+            ]
         )
         return super().setUpClass()
-
-    def tearDown(self):
-        super().tearDown()
 
     def test_requisition_identifier(self):
         """Asserts requisition identifier class creates identifier
@@ -38,12 +44,17 @@ class TestRequisitionModel(TestCase):
     @classmethod
     def setUpClass(cls):
         add_or_update_django_sites(
-            sites=((settings.SITE_ID, "test_site", "Test Site"),), fqdn="clinicedc.org"
+            sites=[
+                SingleSite(
+                    settings.SITE_ID,
+                    "test_site",
+                    country_code="ug",
+                    country="uganda",
+                    domain="bugamba.ug.clinicedc.org",
+                )
+            ]
         )
         return super().setUpClass()
-
-    def tearDown(self):
-        super().tearDown()
 
     def setUp(self):
         self.requisition_model = "edc_lab.subjectrequisition"
