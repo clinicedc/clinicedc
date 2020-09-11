@@ -148,6 +148,7 @@ class UserImporter:
         self._messages = []
         self._user = None
         self.created = False
+        self.password = None
         try:
             self.email, self.alternate_email = email.split(",")
         except (ValueError, AttributeError):
@@ -195,7 +196,7 @@ class UserImporter:
     def validate_username(self):
         if not self.username:
             raise UserImporterError(f"Invalid username. Got username={self.username}")
-        if not re.match("^\w+$", self.username):
+        if not re.match(r"^\w+$", self.username):
             raise UserImporterError(f"Invalid username. Got {self.username}")
 
     @property
