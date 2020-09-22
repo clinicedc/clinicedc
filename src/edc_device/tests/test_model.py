@@ -1,5 +1,5 @@
 from django.apps import apps as django_apps
-from django.test import TestCase, tag
+from django.test import TestCase
 from django.test.utils import override_settings
 
 from ..constants import CLIENT
@@ -12,7 +12,6 @@ class TestModel(TestCase):
         self.assertFalse(obj.device_created)
         self.assertFalse(obj.device_modified)
 
-    @tag("1")
     def test_model_on_create(self):
         app_config = django_apps.get_app_config("edc_device")
         with override_settings(DEVICE_ID="10", DEVICE_ROLE=CLIENT):
