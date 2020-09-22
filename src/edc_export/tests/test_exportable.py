@@ -2,7 +2,7 @@ import json
 
 from django.apps import apps as django_apps
 from django.contrib.auth.models import User, Group
-from django.test import TestCase, tag
+from django.test import TestCase
 from django.test.client import RequestFactory
 from edc_registration.models import RegisteredSubject
 
@@ -42,7 +42,6 @@ class TestExportable(TestCase):
         obj = json.dumps(model_opts)
         json.loads(obj)
 
-    @tag("1")
     def test_exportables(self):
         registered_subject_opts = ModelOptions(
             model=RegisteredSubject._meta.label_lower

@@ -77,7 +77,8 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
         url = reverse(self.post_action_url, kwargs=self.kwargs)
         return HttpResponseRedirect(url)
 
-    def check_export_permissions(self, selected_models):
+    @staticmethod
+    def check_export_permissions(selected_models):
         return selected_models
 
     def export_models(self, request=None, email_to_user=None):
@@ -101,13 +102,12 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
         except ArchiveExporterNothingExported:
             messages.info(self.request, "Nothing to export.")
         else:
-
             if email_to_user:
                 msg = (
                     f"Your data request has been sent to {self.user.email}. "
                     "Please check your email."
                 )
-            elif archive:
+            else:
                 msg = (
                     f"Your data request has been saved to {exporter.archive_filename}. "
                 )
@@ -147,7 +147,6 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
         exportables = Exportables(request=self.request, user=self.user)
         selected_models = []
         for exportable in exportables:
-            # pdb.set_trace()
             selected_models.extend(
                 self.request.POST.getlist(f"chk_{exportable}_models") or []
             )
