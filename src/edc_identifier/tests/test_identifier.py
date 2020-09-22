@@ -1,11 +1,10 @@
-from django.test import TestCase, tag
+from django.test import TestCase
 
 from ..checkdigit_mixins import LuhnMixin, LuhnOrdMixin
 from ..identifier import Identifier
 
 
 class TestIdentifier(TestCase):
-    @tag("1")
     def test_valid_checkdigit(self):
         mixin = LuhnMixin()
         checkdigit = mixin.calculate_checkdigit("98765")
