@@ -68,16 +68,6 @@ class VisitTrackingModelFormMixin:
     @property
     def subject_visit(self):
         return get_subject_visit(self, subject_visit_attr=self.subject_visit_attr)
-        # if self.subject_visit_attr not in self.cleaned_data:
-        #     pdb.set_trace()
-        #     subject_visit = getattr(self.instance, self.subject_visit_attr, None)
-        #     if not subject_visit:
-        #         raise forms.ValidationError(
-        #             f"Field `{self.subject_visit_attr}` is required (2)."
-        #         )
-        # else:
-        #     subject_visit = self.cleaned_data.get(self.subject_visit_attr)
-        # return subject_visit
 
     @property
     def subject_visit_attr(self):

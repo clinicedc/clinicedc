@@ -1,5 +1,5 @@
 from dateutil.relativedelta import relativedelta
-from django.test import override_settings, TestCase, tag
+from django.test import override_settings, TestCase
 from edc_appointment.models import Appointment
 from edc_facility.import_holidays import import_holidays
 from edc_metadata.models import CrfMetadata
@@ -78,7 +78,6 @@ class TestVisit(TestCase):
             }
         )
 
-    @tag("1")
     @override_settings(
         SUBJECT_MISSED_VISIT_REASONS_MODEL="edc_visit_tracking.subjectvisitmissed"
     )
