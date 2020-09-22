@@ -263,6 +263,10 @@ class GroupPermissionsUpdater:
                         warn(style.ERROR(errmsg))
                     else:
                         raise ObjectDoesNotExist(errmsg)
+                except MultipleObjectsReturned as e:
+                    raise MultipleObjectsReturned(
+                        f"{str(e)} See `{app_label}.{codename}`."
+                    )
         return permissions
 
     def get_from_dotted_codename(self, codename=None):
@@ -288,7 +292,8 @@ class GroupPermissionsUpdater:
                 )
         return app_label, _codename
 
-    def get_from_codename_tuple(self, codename_tpl, app_label=None):
+    @staticmethod
+    def get_from_codename_tuple(codename_tpl, app_label=None):
         try:
             value, name = codename_tpl
         except ValueError as e:
@@ -343,7 +348,8 @@ class GroupPermissionsUpdater:
             ):
                 group.permissions.remove(permission)
 
-    def remove_historical_group_permissions(self, group=None, model=None):
+    @staticmethod
+    def remove_historical_group_permissions(group=None, model=None):
         """Removes permissions for historical models from this
         group.
 
