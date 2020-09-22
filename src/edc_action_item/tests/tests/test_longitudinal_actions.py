@@ -55,7 +55,6 @@ class TestLongitudinal(TestCase):
             onschedule_datetime=subject_consent.consent_datetime,
         )
 
-    @tag("1")
     def test_(self):
         appointment = Appointment.objects.get(
             subject_identifier=self.subject_identifier, visit_code="1000",
