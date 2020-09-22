@@ -1,7 +1,7 @@
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 from django import forms
-from django.test import TestCase, tag, override_settings
+from django.test import TestCase, override_settings
 from edc_constants.constants import NO, MALE, FEMALE
 from edc_protocol import Protocol
 from edc_utils import get_utcnow
@@ -49,7 +49,8 @@ class TestConsentForm(TestCase):
         )
         self.dob = self.study_open_datetime - relativedelta(years=25)
 
-    def consent_factory(self, **kwargs):
+    @staticmethod
+    def consent_factory(**kwargs):
         options = dict(
             start=kwargs.get("start"),
             end=kwargs.get("end"),
@@ -81,7 +82,6 @@ class TestConsentForm(TestCase):
         consent_form = SubjectConsentForm(data=subject_consent.__dict__)
         self.assertTrue(consent_form.is_valid())
 
-    @tag("1")
     def test_base_form_catches_consent_datetime_before_study_open(self):
         subject_consent = baker.prepare_recipe(
             "edc_consent.subjectconsent",
@@ -265,7 +265,6 @@ class TestConsentForm(TestCase):
         consent_form = SubjectConsentForm(subject_consent.__dict__)
         self.assertFalse(consent_form.is_valid())
 
-    @tag("1")
     def test_base_form_catches_gender_of_consent(self):
         site_consents.registry = {}
         self.consent_factory(
