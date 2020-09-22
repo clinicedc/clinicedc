@@ -1,7 +1,7 @@
 from datetime import timedelta
 from django.contrib import admin
 from django.contrib.auth.models import User, Permission
-from django.test import TestCase, tag
+from django.test import TestCase
 from django.test.client import RequestFactory
 from edc_appointment.models import Appointment
 from edc_utils import get_utcnow
@@ -161,17 +161,16 @@ class TestFormLabel(TestCase):
         for model, model_admin in admin.site._registry.items():
             if model == MyModel:
                 my_model_admin = model_admin.admin_site._registry.get(MyModel)
+                rf = RequestFactory()
+                request = rf.get(f"/?appointment={str(self.appointment_one.id)}")
+                request.user = self.user
+                rendered_change_form = my_model_admin.changeform_view(
+                    request, None, "", {"subject_visit": self.subject_visit_one}
+                )
+                self.assertIn(
+                    "Are you circumcised", rendered_change_form.rendered_content
+                )
 
-        rf = RequestFactory()
-        request = rf.get(f"/?appointment={str(self.appointment_one.id)}")
-        request.user = self.user
-
-        rendered_change_form = my_model_admin.changeform_view(
-            request, None, "", {"subject_visit": self.subject_visit_one}
-        )
-        self.assertIn("Are you circumcised", rendered_change_form.rendered_content)
-
-    @tag("1")
     def test_custom_form_labels_2(self):
 
         MyModel.objects.create(subject_visit=self.subject_visit_one, circumcised=NO)
@@ -179,15 +178,16 @@ class TestFormLabel(TestCase):
         for model, model_admin in admin.site._registry.items():
             if model == MyModel:
                 my_model_admin = model_admin.admin_site._registry.get(MyModel)
+                rf = RequestFactory()
+                request = rf.get(f"/?appointment={str(self.appointment_two.id)}")
+                request.user = self.user
 
-        rf = RequestFactory()
-        request = rf.get(f"/?appointment={str(self.appointment_two.id)}")
-        request.user = self.user
-
-        rendered_change_form = my_model_admin.changeform_view(
-            request, None, "", {"subject_visit": self.subject_visit_two}
-        )
-        self.assertNotIn("Are you circumcised", rendered_change_form.rendered_content)
-        self.assertIn(
-            "Since we last saw you in ", rendered_change_form.rendered_content
-        )
+                rendered_change_form = my_model_admin.changeform_view(
+                    request, None, "", {"subject_visit": self.subject_visit_two}
+                )
+                self.assertNotIn(
+                    "Are you circumcised", rendered_change_form.rendered_content
+                )
+                self.assertIn(
+                    "Since we last saw you in ", rendered_change_form.rendered_content
+                )
