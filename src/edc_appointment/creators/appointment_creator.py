@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -54,7 +56,10 @@ class AppointmentCreator:
         self.taken_datetimes = taken_datetimes or []
         self.visit = visit
         self.visit_code_sequence = visit_code_sequence or 0
-        self.timepoint = timepoint
+        self.timepoint = timepoint or self.visit.timepoint
+        if not isinstance(self.timepoint, Decimal):
+            self.timepoint = Decimal(str(self.timepoint))
+
         try:
             if is_naive(timepoint_datetime):
                 raise ValueError(
@@ -87,7 +92,7 @@ class AppointmentCreator:
     def __repr__(self):
         return (
             f"{self.__class__.__name__}(subject_identifier={self.subject_identifier}, "
-            f"visit_code={self.visit.code}.{self.visit_code_sequence}@{self.timepoint})"
+            f"visit_code={self.visit.code}.{self.visit_code_sequence}@{int(self.timepoint)})"
         )
 
     def __str__(self):
@@ -124,7 +129,7 @@ class AppointmentCreator:
             schedule_name=self.schedule_name,
             visit_code=self.visit.code,
             visit_code_sequence=self.visit_code_sequence,
-            timepoint=self.timepoint or self.visit.timepoint,
+            timepoint=self.timepoint,
         )
         if self.appt_status:
             options.update(appt_status=self.appt_status)

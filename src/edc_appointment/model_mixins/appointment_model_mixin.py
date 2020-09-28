@@ -9,6 +9,7 @@ from uuid import UUID
 
 from ..choices import APPT_TYPE, APPT_STATUS, APPT_REASON
 from ..constants import NEW_APPT
+from ..exceptions import UnknownVisitCode
 from ..managers import AppointmentManager
 from .appointment_methods_model_mixin import AppointmentMethodsModelMixin
 
@@ -111,6 +112,14 @@ class AppointmentModelMixin(
 
     @property
     def title(self):
+        if not self.schedule.visits.get(self.visit_code):
+            valid_visit_codes = [v for v in self.schedule.visits]
+            raise UnknownVisitCode(
+                "Unknown visit code specified for existing apointment instance. "
+                "Has the visit schedule changed? Expected one of "
+                f"{valid_visit_codes}. Got {self.visit_code}. "
+                f"See {self}."
+            )
         title = self.schedule.visits.get(self.visit_code).title
         if self.visit_code_sequence > 0:
             title = f"{title}.{self.visit_code_sequence}"
