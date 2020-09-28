@@ -13,10 +13,6 @@ class InvalidSiteError(Exception):
     pass
 
 
-class ReviewerSiteSaveError(Exception):
-    pass
-
-
 def add_or_update_django_sites(apps=None, sites=None, verbose=None):
     """Removes default site and adds/updates given `sites`, etc.
 
@@ -28,6 +24,7 @@ def add_or_update_django_sites(apps=None, sites=None, verbose=None):
                 (<site_id>, <site_name>, <title>),
                 ...)
     """
+    all_sites = {}
     if verbose:
         sys.stdout.write("  * updating sites.\n")
     apps = apps or django_apps

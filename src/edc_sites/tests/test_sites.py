@@ -13,7 +13,6 @@ from multisite.models import Alias
 from ..add_or_update_django_sites import add_or_update_django_sites
 from ..get_site_id import get_site_id, InvalidSiteError
 from ..forms import SiteModelFormMixin
-from ..utils import raise_on_save_if_reviewer, ReviewerSiteSaveError
 from .models import TestModelWithSite
 from .site_test_case_mixin import SiteTestCaseMixin
 from .sites import all_test_sites
@@ -47,42 +46,6 @@ class TestSites(SiteTestCaseMixin, TestCase):
         obj = TestModelWithSite.objects.create(site=site)
         self.assertEqual(obj.site.pk, 40)
         self.assertNotEqual(obj.site.pk, Site.objects.get_current().pk)
-
-    @override_settings(SITE_ID=SiteID(default=30), REVIEWER_SITE_ID=30)
-    def test_reviewer(self):
-        add_or_update_django_sites(sites=self.default_sites, verbose=False)
-        site = Site.objects.get(pk=30)
-        self.assertRaises(
-            ReviewerSiteSaveError, TestModelWithSite.objects.create, site=site
-        )
-
-    @override_settings(SITE_ID=SiteID(default=30), REVIEWER_SITE_ID=0)
-    def test_reviewer_passes(self):
-        add_or_update_django_sites(sites=self.default_sites, verbose=False)
-        site = Site.objects.get(pk=30)
-        try:
-            TestModelWithSite.objects.create(site=site)
-        except ReviewerSiteSaveError:
-            self.fail("SiteModelError unexpectedly raised")
-
-    @override_settings(SITE_ID=SiteID(default=30), REVIEWER_SITE_ID=0)
-    def test_raise_on_save_if_reviewer(self):
-        add_or_update_django_sites(sites=self.default_sites, verbose=False)
-        try:
-            raise_on_save_if_reviewer(site_id=30)
-        except ReviewerSiteSaveError:
-            self.fail("SiteModelError unexpectedly raised")
-
-        self.assertRaises(ReviewerSiteSaveError, raise_on_save_if_reviewer, site_id=0)
-
-    @override_settings(SITE_ID=SiteID(default=30), REVIEWER_SITE_ID=30)
-    def test_raise_on_save_in_form(self):
-        add_or_update_django_sites(sites=self.default_sites, verbose=False)
-        form = TestForm(data={"f1": "100"})
-        self.assertFalse(form.is_valid())
-        self.assertIn(
-            "Adding or changing data has been disabled", form.errors.get("__all__")[0]
-        )
 
     def test_get_site_id_by_name(self):
         add_or_update_django_sites(sites=self.default_sites)
@@ -187,7 +150,6 @@ class TestSites3(SiteTestCaseMixin, TestCase):
             Alias.objects.get(site=site).domain, "mochudi.bw.clinicedc.org"
         )
 
-    @tag("1")
     @override_settings(
         EDC_SITES_MODULE_NAME="edc_sites.tests.sites", EDC_SITES_UAT_DOMAIN=False
     )

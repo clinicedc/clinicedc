@@ -2,8 +2,6 @@ from django.contrib.sites.managers import CurrentSiteManager as BaseCurrentSiteM
 from django.contrib.sites.models import Site
 from django.db import models
 
-from .utils import raise_on_save_if_reviewer
-
 
 class SiteModelError(Exception):
     pass
@@ -23,7 +21,6 @@ class SiteModelMixin(models.Model):
     def save(self, *args, **kwargs):
         if not self.site:
             self.site = Site.objects.get_current()
-        raise_on_save_if_reviewer()
         super().save(*args, **kwargs)
 
     class Meta:
