@@ -56,6 +56,7 @@ class CrfCreator:
                 metadata_obj = self.metadata_model_cls.objects.create(
                     entry_status=REQUIRED if self.crf.required else NOT_REQUIRED,
                     show_order=self.crf.show_order,
+                    site=self.visit_model_instance.site,
                     **self.options,
                 )
             else:

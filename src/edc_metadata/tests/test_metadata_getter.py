@@ -96,7 +96,6 @@ class TestMetadataGetter(TestCase):
         getter = NextFormGetter(model_obj=crf_two)
         self.assertEqual(getter.next_form.model, "edc_metadata.crfthree")
 
-    @tag("1")
     def test_next_requisition(self):
         getter = NextFormGetter(
             appointment=self.appointment,
@@ -107,7 +106,6 @@ class TestMetadataGetter(TestCase):
         self.assertEqual(next_form.model, "edc_metadata.subjectrequisition")
         self.assertEqual(next_form.panel.name, "two")
 
-    @tag("1")
     def test_next_requisition_if_last(self):
         getter = NextFormGetter(
             appointment=self.appointment,
@@ -117,7 +115,6 @@ class TestMetadataGetter(TestCase):
         next_form = getter.next_form
         self.assertIsNone(next_form)
 
-    @tag("1")
     def test_next_requisition_if_not_in_visit(self):
         getter = NextFormGetter(
             appointment=self.appointment,

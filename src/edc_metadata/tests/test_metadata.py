@@ -100,7 +100,6 @@ class TestCreatesDeletesMetadata(TestCase):
         obj.reason = "ERIK"
         self.assertRaises(CreatesMetadataError, obj.save)
 
-    @tag("1")
     def test_deletes_metadata_on_changed_reason_toggled(self):
         SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
         appointment = Appointment.objects.get(
