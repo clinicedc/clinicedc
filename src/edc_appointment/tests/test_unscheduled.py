@@ -1,7 +1,10 @@
+from decimal import Decimal
+
 import arrow
 
 from datetime import datetime
 from django.test import TestCase, tag
+from edc_appointment.exceptions import UnknownVisitCode
 from edc_facility.import_holidays import import_holidays
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -135,3 +138,127 @@ class TestUnscheduledAppointmentCreator(TestCase):
                 new_appointment.appt_status = INCOMPLETE_APPT
                 new_appointment.save()
                 self.assertEqual(new_appointment.appt_status, INCOMPLETE_APPT)
+
+                self.assertEqual(visit.timepoint, int(new_appointment.timepoint))
+
+    def test_unscheduled_timepoint_not_incremented(self):
+        self.helper.consent_and_put_on_schedule()
+        schedule_name = "schedule1"
+        visit = visit_schedule1.schedules.get(schedule_name).visits.first
+        appointment = Appointment.objects.get(
+            subject_identifier=self.subject_identifier, visit_code=visit.code
+        )
+        self.assertEqual(appointment.timepoint, Decimal("0.0"))
+        SubjectVisit.objects.create(
+            appointment=appointment, report_datetime=get_utcnow()
+        )
+        appointment.appt_status = INCOMPLETE_APPT
+        appointment.save()
+        for index in range(1, 5):
+            with self.subTest(index=index):
+                creator = UnscheduledAppointmentCreator(
+                    subject_identifier=appointment.subject_identifier,
+                    visit_schedule_name=appointment.visit_schedule_name,
+                    schedule_name=appointment.schedule_name,
+                    visit_code=appointment.visit_code,
+                    facility=appointment.facility,
+                )
+                self.assertEqual(appointment.timepoint, creator.appointment.timepoint)
+                self.assertNotEqual(
+                    appointment.visit_code_sequence,
+                    creator.appointment.visit_code_sequence,
+                )
+                self.assertEqual(
+                    creator.appointment.visit_code_sequence, index,
+                )
+                SubjectVisit.objects.create(
+                    appointment=creator.appointment, report_datetime=get_utcnow()
+                )
+                creator.appointment.appt_status = INCOMPLETE_APPT
+                creator.appointment.save()
+
+    @tag("1")
+    def test_appointment_title(self):
+        self.helper.consent_and_put_on_schedule()
+        appointment = Appointment.objects.first_appointment(
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name="visit_schedule1",
+            schedule_name="schedule1",
+        )
+        self.assertEqual(appointment.title, "Day 1")
+
+        SubjectVisit.objects.create(
+            appointment=appointment, report_datetime=get_utcnow()
+        )
+        appointment.appt_status = INCOMPLETE_APPT
+        appointment.save()
+
+        creator = UnscheduledAppointmentCreator(
+            subject_identifier=appointment.subject_identifier,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            visit_code=appointment.visit_code,
+            facility=appointment.facility,
+        )
+        self.assertEqual(creator.appointment.title, "Day 1.1")
+
+        SubjectVisit.objects.create(
+            appointment=creator.appointment, report_datetime=get_utcnow()
+        )
+        creator.appointment.appt_status = INCOMPLETE_APPT
+        creator.appointment.save()
+
+        next_appointment = Appointment.objects.next_appointment(
+            visit_code=appointment.visit_code,
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name="visit_schedule1",
+            schedule_name="schedule1",
+        )
+
+        SubjectVisit.objects.create(
+            appointment=next_appointment, report_datetime=get_utcnow()
+        )
+        next_appointment.appt_status = INCOMPLETE_APPT
+        next_appointment.save()
+
+        creator = UnscheduledAppointmentCreator(
+            subject_identifier=next_appointment.subject_identifier,
+            visit_schedule_name=next_appointment.visit_schedule_name,
+            schedule_name=next_appointment.schedule_name,
+            visit_code=next_appointment.visit_code,
+            facility=next_appointment.facility,
+        )
+
+        self.assertEqual(creator.appointment.title, "Day 2.1")
+
+    @tag("1")
+    def test_appointment_title_if_visit_schedule_changes(self):
+        self.helper.consent_and_put_on_schedule()
+        appointment = Appointment.objects.first_appointment(
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name="visit_schedule1",
+            schedule_name="schedule1",
+        )
+        self.assertEqual(appointment.title, "Day 1")
+
+        SubjectVisit.objects.create(
+            appointment=appointment, report_datetime=get_utcnow()
+        )
+        appointment.appt_status = INCOMPLETE_APPT
+        appointment.save()
+
+        next_appointment = Appointment.objects.next_appointment(
+            visit_code=appointment.visit_code,
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name="visit_schedule1",
+            schedule_name="schedule1",
+        )
+
+        SubjectVisit.objects.create(
+            appointment=next_appointment, report_datetime=get_utcnow()
+        )
+        next_appointment.appt_status = INCOMPLETE_APPT
+        next_appointment.visit_code = "1111"
+        next_appointment.save()
+
+        self.assertRaises(UnknownVisitCode, getattr, next_appointment, "title")

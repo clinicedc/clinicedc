@@ -4,3 +4,7 @@ class AppointmentStatusError(Exception):
 
 class AppointmentCreateError(Exception):
     pass
+
+
+class UnknownVisitCode(Exception):
+    pass
