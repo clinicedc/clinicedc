@@ -29,7 +29,7 @@ class MetadataUpdater:
         if self.target.object:
             entry_status = KEYED
         metadata_obj = self.target.metadata_obj
-        if entry_status and metadata_obj.entry_status != entry_status:
+        if entry_status and metadata_obj and metadata_obj.entry_status != entry_status:
             metadata_obj.entry_status = entry_status
             metadata_obj.save()
             metadata_obj.refresh_from_db()
