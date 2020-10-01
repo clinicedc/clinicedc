@@ -129,7 +129,13 @@ class ManyToManyFieldValidator(BaseFormValidator):
                     raise ValidationError(message, code=INVALID_ERROR)
         return False
 
-    def m2m_other_specify(self, *responses, m2m_field=None, field_other=None):
+    def m2m_other_specify(
+        self,
+        *responses,
+        m2m_field=None,
+        field_other=None,
+        field_other_evaluate_as_int=None,
+    ):
         """Raises an exception or returns False.
 
         field_other is required if a selected response from m2m_field
@@ -139,21 +145,27 @@ class ManyToManyFieldValidator(BaseFormValidator):
         """
         qs = self.cleaned_data.get(m2m_field)
         found = False
+
+        if field_other_evaluate_as_int:
+            field_other_has_value = self.cleaned_data.get(field_other) is not None
+        else:
+            field_other_has_value = self.cleaned_data.get(field_other)
+
         if qs and qs.count() > 0:
             for response in responses:
                 if response in self.get_m2m_selected(m2m_field):
                     found = True
-            if found and not self.cleaned_data.get(field_other):
+            if found and not field_other_has_value:
                 message = {field_other: "This field is required."}
                 self._errors.update(message)
                 self._error_codes.append(REQUIRED_ERROR)
                 raise ValidationError(message, code=REQUIRED_ERROR)
-            elif not found and self.cleaned_data.get(field_other):
+            elif not found and field_other_has_value:
                 message = {field_other: "This field is not required."}
                 self._errors.update(message)
                 self._error_codes.append(NOT_REQUIRED_ERROR)
                 raise ValidationError(message, code=NOT_REQUIRED_ERROR)
-        elif self.cleaned_data.get(field_other):
+        elif field_other_has_value:
             message = {field_other: "This field is not required."}
             self._errors.update(message)
             self._error_codes.append(NOT_REQUIRED_ERROR)

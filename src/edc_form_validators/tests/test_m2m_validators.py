@@ -191,6 +191,38 @@ class TestApplicableFieldValidator(TestCase):
         except forms.ValidationError:
             self.fail("ValidationError unexpectedly raised")
 
+    def test_m2m_other_specify_with_zero(self):
+
+        cleaned_data = dict(
+            f1=YES, f3=0, alphabet=Alphabet.objects.filter(name__in=["A", "B"])
+        )
+
+        form_validator = FormValidator(cleaned_data=cleaned_data)
+
+        self.assertRaises(
+            forms.ValidationError,
+            form_validator.m2m_other_specify,
+            "A",
+            m2m_field="alphabet",
+            field_other="f3",
+        )
+
+        cleaned_data = dict(
+            f1=YES, f3=0, alphabet=Alphabet.objects.filter(name__in=["A", "B"])
+        )
+
+        form_validator = FormValidator(cleaned_data=cleaned_data)
+
+        try:
+            form_validator.m2m_other_specify(
+                "A",
+                m2m_field="alphabet",
+                field_other="f3",
+                field_other_evaluate_as_int=True,
+            )
+        except forms.ValidationError:
+            self.fail("forms.ValidationError unexpectedly raised")
+
     def test_m2m_other_specify_applicable(self):
         cleaned_data = dict(
             f1=YES,
