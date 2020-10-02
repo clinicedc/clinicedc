@@ -1,6 +1,6 @@
 from django.core.validators import RegexValidator
 
-from ..utils import ym_pattern
+from ..utils import ymd_pattern
 
 """
 expect 1h20m, 11h5m, etc
@@ -11,9 +11,12 @@ hm_validator = RegexValidator(
     message="Invalid format. Expected something like 1h20m, 11h5m, etc",
 )
 
-ym_validator = RegexValidator(
-    ym_pattern,
-    message="Invalid format. Expected something like 4y, 3y5m, 1y0m, 6m, etc. No spaces allowed.",
+ymd_validator = RegexValidator(
+    ymd_pattern,
+    message=(
+        "Invalid format. Expected combinations of years and months (ym): "
+        "4y, 3y5m, 1y0m, 6m or days (d): 7d, 0d.  No spaces allowed."
+    ),
 )
 
 hm_validator2 = RegexValidator(

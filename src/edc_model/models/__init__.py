@@ -4,9 +4,10 @@ from .address_mixin import AddressMixin
 from .base_model import BaseModel
 from .base_uuid_model import BaseUuidModel
 from .blood_pressure_model_mixin import BloodPressureModelMixin
+from .fields.duration import DurationYearMonthField
 from .fields import (
     DiastolicPressureField,
-    DurationYearMonthField,
+    DurationYMDField,
     HeightField,
     HostnameModificationField,
     IdentityTypeField,
@@ -36,7 +37,7 @@ from .validators import (
     hm_validator,
     hm_validator2,
     telephone_number,
-    ym_validator,
+    ymd_validator,
 )
 
 if settings.APP_NAME == "edc_model":
