@@ -1,5 +1,5 @@
 from django.forms import ValidationError
-from edc_constants.constants import NOT_APPLICABLE
+from edc_constants.constants import NOT_APPLICABLE, OTHER
 
 from .base_form_validator import BaseFormValidator
 from .base_form_validator import NOT_APPLICABLE_ERROR, APPLICABLE_ERROR
@@ -145,12 +145,12 @@ class ManyToManyFieldValidator(BaseFormValidator):
         """
         qs = self.cleaned_data.get(m2m_field)
         found = False
+        responses = (OTHER,) if len(responses) == 0 else responses
 
         if field_other_evaluate_as_int:
             field_other_has_value = self.cleaned_data.get(field_other) is not None
         else:
             field_other_has_value = self.cleaned_data.get(field_other)
-
         if qs and qs.count() > 0:
             for response in responses:
                 if response in self.get_m2m_selected(m2m_field):
