@@ -1,12 +1,13 @@
-from decimal import Decimal
-
 import arrow
 
 from datetime import datetime
-from django.test import TestCase, tag
-from edc_appointment.exceptions import UnknownVisitCode
+from decimal import Decimal
+from django.test import TestCase
 from edc_facility.import_holidays import import_holidays
 from edc_utils import get_utcnow
+from edc_visit_schedule.model_mixins.visit_schedule_model_mixins import (
+    VisitScheduleModelMixinError,
+)
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ..constants import NEW_APPT, INCOMPLETE_APPT, IN_PROGRESS_APPT, CANCELLED_APPT
@@ -177,7 +178,6 @@ class TestUnscheduledAppointmentCreator(TestCase):
                 creator.appointment.appt_status = INCOMPLETE_APPT
                 creator.appointment.save()
 
-    @tag("1")
     def test_appointment_title(self):
         self.helper.consent_and_put_on_schedule()
         appointment = Appointment.objects.first_appointment(
@@ -231,7 +231,6 @@ class TestUnscheduledAppointmentCreator(TestCase):
 
         self.assertEqual(creator.appointment.title, "Day 2.1")
 
-    @tag("1")
     def test_appointment_title_if_visit_schedule_changes(self):
         self.helper.consent_and_put_on_schedule()
         appointment = Appointment.objects.first_appointment(
@@ -259,6 +258,4 @@ class TestUnscheduledAppointmentCreator(TestCase):
         )
         next_appointment.appt_status = INCOMPLETE_APPT
         next_appointment.visit_code = "1111"
-        next_appointment.save()
-
-        self.assertRaises(UnknownVisitCode, getattr, next_appointment, "title")
+        self.assertRaises(VisitScheduleModelMixinError, next_appointment.save)

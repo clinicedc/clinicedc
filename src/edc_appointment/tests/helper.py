@@ -11,13 +11,17 @@ class Helper:
         self.subject_identifier = subject_identifier
         self.now = now or get_utcnow()
 
-    def consent_and_put_on_schedule(self, subject_identifier=None):
+    def consent_and_put_on_schedule(
+        self, subject_identifier=None, visit_schedule_name=None, schedule_name=None,
+    ):
         subject_identifier = subject_identifier or self.subject_identifier
         subject_consent = SubjectConsent.objects.create(
             subject_identifier=subject_identifier, consent_datetime=self.now
         )
-        visit_schedule = site_visit_schedules.get_visit_schedule("visit_schedule1")
-        schedule = visit_schedule.schedules.get("schedule1")
+        visit_schedule = site_visit_schedules.get_visit_schedule(
+            visit_schedule_name or "visit_schedule1"
+        )
+        schedule = visit_schedule.schedules.get(schedule_name or "schedule1")
         schedule.put_on_schedule(
             subject_identifier=subject_consent.subject_identifier,
             onschedule_datetime=subject_consent.consent_datetime,

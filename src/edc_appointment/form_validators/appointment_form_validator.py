@@ -1,10 +1,11 @@
 from arrow.arrow import Arrow
 from django import forms
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from edc_form_validators.form_validator import FormValidator
 from edc_metadata.form_validators import MetaDataFormValidatorMixin
-from edc_utils import get_utcnow
+from edc_utils import convert_php_dateformat, get_utcnow
 
 from ..constants import NEW_APPT, IN_PROGRESS_APPT, CANCELLED_APPT
 from ..constants import UNSCHEDULED_APPT, INCOMPLETE_APPT, COMPLETE_APPT
@@ -22,6 +23,7 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
         self.validate_visit_report_sequence()
         self.validate_appt_sequence()
         self.validate_not_future_appt_datetime()
+        self.validate_appt_datetime_in_window()
         self.validate_appt_new_or_cancelled()
         self.validate_appt_inprogress_or_incomplete()
         self.validate_appt_inprogress()
@@ -110,6 +112,19 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
                 raise forms.ValidationError(
                     {"appt_datetime": "Cannot be a future date."}
                 )
+
+    def validate_appt_datetime_in_window(self):
+        if not self.instance.visit_from_schedule.datetime_in_window(
+            timepoint_datetime=self.instance.timepoint_datetime,
+            dt=self.cleaned_data.get("appt_datetime"),
+        ):
+            datestring = convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+            lower = self.instance.visit_from_schedule.dates.lower.strftime(datestring)
+            upper = self.instance.visit_from_schedule.dates.upper.strftime(datestring)
+            raise forms.ValidationError(
+                f"Invalid appointment date. Expected a date between {lower} and {upper} "
+                f"for visit {self.instance.visit_code}.{self.instance.visit_code_sequence}."
+            )
 
     def validate_appt_new_or_cancelled(self):
         """Don't allow new or cancelled if form data exists.

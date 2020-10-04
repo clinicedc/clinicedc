@@ -4,6 +4,7 @@ from django.db import models
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_offstudy.model_mixins import OffstudyVisitModelMixin
 from edc_timepoint.model_mixins import TimepointModelMixin
+from edc_utils import convert_php_dateformat
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 from uuid import UUID
 
@@ -14,6 +15,10 @@ from ..managers import AppointmentManager
 from .appointment_methods_model_mixin import AppointmentMethodsModelMixin
 
 APPT_REASON = getattr(settings, "EDC_APPOINTMENT_APPT_REASON", APPT_REASON)
+
+
+class AppointmentWindowError(Exception):
+    pass
 
 
 class AppointmentModelMixin(
@@ -94,6 +99,25 @@ class AppointmentModelMixin(
 
     def __str__(self):
         return f"{self.visit_code}.{self.visit_code_sequence}"
+
+    def save(self, *args, **kwargs):
+        if self.id and self.appt_datetime and self.timepoint_datetime:
+            self.raise_on_appt_datetime_outside_window()
+        super().save(*args, **kwargs)
+
+    def raise_on_appt_datetime_outside_window(self):
+        if not self.visit_from_schedule.datetime_in_window(
+            timepoint_datetime=self.timepoint_datetime, dt=self.appt_datetime
+        ):
+            lower = self.visit_from_schedule.dates.lower
+            upper = self.visit_from_schedule.dates.upper
+            raise AppointmentWindowError(
+                "Invalid appointment datetime. Falls outside of the "
+                f"window period for this visit. "
+                f"Expected a datetime between {lower} and {upper} "
+                f"Got `{self.visit_code}`@`{self.appt_datetime}`. "
+                "Perhaps catch this in the form."
+            )
 
     def natural_key(self):
         return (
