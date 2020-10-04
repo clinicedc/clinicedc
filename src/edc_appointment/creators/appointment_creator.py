@@ -114,11 +114,6 @@ class AppointmentCreator:
         return self._appointment
 
     @property
-    def available_rdate(self, dt=None):
-        available_datetime = self.facility.available_rdate(dt)
-        return available_datetime
-
-    @property
     def options(self):
         """Returns default options to "get" an existing
         appointment model instance.
@@ -143,7 +138,7 @@ class AppointmentCreator:
                 appointment = self.appointment_model_cls.objects.create(
                     facility_name=self.facility.name,
                     timepoint_datetime=self.timepoint_datetime,
-                    appt_datetime=self.appt_rdate.datetime,
+                    appt_datetime=self.appt_datetime,
                     appt_type=self.default_appt_type,
                     appt_reason=self.appt_reason or self.default_appt_reason,
                     **self.options,
@@ -159,20 +154,19 @@ class AppointmentCreator:
     def _update(self, appointment=None):
         """Returns an updated appointment model instance.
         """
-        appointment.appt_datetime = self.appt_rdate.datetime
+        appointment.appt_datetime = self.appt_datetime
         appointment.timepoint_datetime = self.timepoint_datetime
         appointment.save()
         return appointment
 
     @property
-    def appt_rdate(self):
-        """Returns an arrow-object for an available appointment
-        datetime.
+    def appt_datetime(self):
+        """Returns an available appointment datetime.
 
         Raises an CreateAppointmentDateError if none.
         """
         try:
-            appt_rdate = self.facility.available_rdate(
+            arw = self.facility.available_arw(
                 suggested_datetime=self.suggested_datetime,
                 forward_delta=self.visit.rupper,
                 reverse_delta=self.visit.rlower,
@@ -183,7 +177,7 @@ class AppointmentCreator:
                 f"{e} Visit={repr(self.visit)}. "
                 f"Try setting 'best_effort_available_datetime=True' on facility."
             )
-        return appt_rdate
+        return arw.datetime
 
     @property
     def appointment_model_cls(self):

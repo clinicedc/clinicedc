@@ -57,6 +57,14 @@ class OffScheduleTwo(OffScheduleModelMixin, BaseUuidModel):
     pass
 
 
+class OnScheduleThree(OnScheduleModelMixin, BaseUuidModel):
+    pass
+
+
+class OffScheduleThree(OffScheduleModelMixin, BaseUuidModel):
+    pass
+
+
 class SubjectVisit(VisitModelMixin, OffstudyVisitModelMixin, BaseUuidModel):
     appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
 

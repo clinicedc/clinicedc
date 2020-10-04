@@ -61,6 +61,13 @@ visit_schedule2 = VisitSchedule(
     locator_model="edc_appointment.subjectlocator",
 )
 
+visit_schedule3 = VisitSchedule(
+    name="visit_schedule3",
+    offstudy_model="edc_appointment.subjectoffstudy2",
+    death_report_model="edc_appointment.deathreport",
+    locator_model="edc_appointment.subjectlocator",
+)
+
 schedule1 = Schedule(
     name="schedule1",
     onschedule_model="edc_appointment.onscheduleone",
@@ -77,6 +84,14 @@ schedule2 = Schedule(
     consent_model="edc_appointment.subjectconsent",
 )
 
+
+schedule3 = Schedule(
+    name="three_monthly_schedule",
+    onschedule_model="edc_appointment.onschedulethree",
+    offschedule_model="edc_appointment.offschedulethree",
+    appointment_model="edc_appointment.appointment",
+    consent_model="edc_appointment.subjectconsent",
+)
 
 visits = []
 for index in range(0, 4):
@@ -117,5 +132,38 @@ for index in range(4, 8):
 for visit in visits:
     schedule2.add_visit(visit)
 
+visits = []
+visits.append(
+    Visit(
+        code="1000",
+        title="Baseline",
+        timepoint=0,
+        rbase=relativedelta(days=0),
+        rlower=relativedelta(days=0),
+        rupper=relativedelta(days=0),
+        requisitions=requisitions,
+        crfs=crfs,
+        facility_name="7-day-clinic",
+    )
+)
+
+for index, visit_code in [(3, "1030"), (6, "1060"), (9, "1090"), (12, "1120")]:
+    visits.append(
+        Visit(
+            code=visit_code,
+            title=f"Month {index}",
+            timepoint=index,
+            rbase=relativedelta(months=index),
+            rlower=relativedelta(days=14),
+            rupper=relativedelta(days=45),
+            requisitions=requisitions,
+            crfs=crfs,
+            facility_name="7-day-clinic",
+        )
+    )
+for visit in visits:
+    schedule3.add_visit(visit)
+
 visit_schedule1.add_schedule(schedule1)
 visit_schedule2.add_schedule(schedule2)
+visit_schedule3.add_schedule(schedule3)

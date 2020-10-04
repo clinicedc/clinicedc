@@ -16,12 +16,7 @@ from ..creators import AppointmentCreator
 from ..models import Appointment
 
 
-class TestAppointmentCreator(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        import_holidays()
-        return super().setUpClass()
-
+class AppointmentCreatorTestCase(TestCase):
     def setUp(self):
         Appointment.objects.all().delete()
         self.subject_identifier = "12345"
@@ -49,15 +44,26 @@ class TestAppointmentCreator(TestCase):
             facility_name="7-day-clinic",
         )
 
-        self.visit1000R = Visit(
-            code="1000",
-            timepoint=0,
-            rbase=relativedelta(days=0),
-            rlower=relativedelta(days=1),
+        self.visit1001 = Visit(
+            code="1001",
+            timepoint=1,
+            rbase=relativedelta(days=14),
+            rlower=relativedelta(days=1),  # one day before base
+            rupper=relativedelta(days=6),
+            facility_name="7-day-clinic",
+        )
+
+        self.visit1010 = Visit(
+            code="1010",
+            timepoint=2,
+            rbase=relativedelta(days=28),
+            rlower=relativedelta(days=6),  # one day before base
             rupper=relativedelta(days=6),
             facility_name="7-day-clinic",
         )
         self.schedule.add_visit(self.visit1000)
+        self.schedule.add_visit(self.visit1001)
+        self.schedule.add_visit(self.visit1010)
         self.visit_schedule.add_schedule(self.schedule)
 
         site_visit_schedules._registry = {}
@@ -76,6 +82,13 @@ class TestAppointmentCreator(TestCase):
             _meta = Meta()
 
         self.model_obj = DummyAppointmentObj()
+
+
+class TestAppointmentCreator(AppointmentCreatorTestCase):
+    @classmethod
+    def setUpClass(cls):
+        import_holidays()
+        return super().setUpClass()
 
     def test_init(self):
         self.assertTrue(
@@ -108,7 +121,9 @@ class TestAppointmentCreator(TestCase):
         )
         self.assertTrue(creator)
 
+    @tag("appt1")
     def test_create(self):
+        """test create appointment, avoids new years holidays"""
         appt_datetime = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
         creator = AppointmentCreator(
             subject_identifier=self.subject_identifier,
@@ -124,25 +139,8 @@ class TestAppointmentCreator(TestCase):
             Arrow.fromdatetime(datetime(2017, 1, 3)).datetime,
         )
 
-    @override_settings(
-        HOLIDAY_FILE=os.path.join(
-            settings.BASE_DIR, settings.APP_NAME, "tests", "no_holidays.csv"
-        )
-    )
-    def test_create_no_holidays(self):
-        for i in range(1, 7):
-            appt_datetime = Arrow.fromdatetime(datetime(2017, 1, i)).datetime
-        creator = AppointmentCreator(
-            subject_identifier=self.subject_identifier,
-            visit_schedule_name=self.visit_schedule.name,
-            schedule_name=self.schedule.name,
-            visit=self.visit1000,
-            timepoint_datetime=appt_datetime,
-        )
-        self.assertEqual(Appointment.objects.all()[0], creator.appointment)
-        self.assertEqual(Appointment.objects.all()[0].appt_datetime, appt_datetime)
-
-    def test_create_forward(self):
+    def test_create_appt_moves_forward(self):
+        """Assert appt datetime moves forward to avoid holidays"""
         appt_datetime = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
         creator = AppointmentCreator(
             subject_identifier=self.subject_identifier,
@@ -158,20 +156,46 @@ class TestAppointmentCreator(TestCase):
             Arrow.fromdatetime(datetime(2017, 1, 3)).datetime,
         )
 
-    def test_create_reverse(self):
+    @tag("appt1")
+    def test_create_appt_with_lower_greater_than_zero(self):
         appt_datetime = Arrow.fromdatetime(datetime(2017, 1, 10)).datetime
+
         creator = AppointmentCreator(
             subject_identifier=self.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
             schedule_name=self.schedule.name,
-            visit=self.visit1000R,
+            visit=self.visit1001,
             timepoint_datetime=appt_datetime,
         )
-        appointment = creator.appointment
-        self.assertEqual(Appointment.objects.all()[0], appointment)
+        appointment = Appointment.objects.get(visit_code=self.visit1001.code)
         self.assertEqual(
-            Appointment.objects.all()[0].appt_datetime,
-            Arrow.fromdatetime(datetime(2017, 1, 9)).datetime,
+            Appointment.objects.get(visit_code=self.visit1001.code),
+            creator.appointment,
+        )
+        self.assertEqual(
+            appointment.appt_datetime,
+            Arrow.fromdatetime(datetime(2017, 1, 10)).datetime,
+        )
+
+    @tag("appt1")
+    def test_create_appt_with_lower_greater_than_zero2(self):
+        appt_datetime = Arrow.fromdatetime(datetime(2017, 1, 10)).datetime
+
+        creator = AppointmentCreator(
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name=self.schedule.name,
+            visit=self.visit1010,
+            timepoint_datetime=appt_datetime,
+        )
+        appointment = Appointment.objects.get(visit_code=self.visit1010.code)
+        self.assertEqual(
+            Appointment.objects.get(visit_code=self.visit1010.code),
+            creator.appointment,
+        )
+        self.assertEqual(
+            appointment.appt_datetime,
+            Arrow.fromdatetime(datetime(2017, 1, 10)).datetime,
         )
 
     def test_raise_on_naive_datetime(self):
@@ -197,3 +221,39 @@ class TestAppointmentCreator(TestCase):
             visit=self.visit1000,
             timepoint_datetime=appt_datetime,
         )
+
+
+class TestAppointmentCreator2(AppointmentCreatorTestCase):
+    @tag("appt")
+    @override_settings(
+        HOLIDAY_FILE=os.path.join(
+            settings.BASE_DIR, settings.APP_NAME, "tests", "no_holidays.csv"
+        )
+    )
+    def test_create_no_holidays(self):
+        """test create appointment, no holiday to avoid after 1900"""
+        import_holidays()
+        appt_datetime = Arrow.fromdatetime(datetime(1900, 1, 1)).datetime
+        expected_appt_datetime = Arrow.fromdatetime(datetime(1900, 1, 2)).datetime
+        creator = AppointmentCreator(
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name=self.schedule.name,
+            visit=self.visit1000,
+            timepoint_datetime=appt_datetime,
+        )
+        self.assertEqual(Appointment.objects.all()[0], creator.appointment)
+        self.assertEqual(
+            Appointment.objects.all()[0].appt_datetime, expected_appt_datetime
+        )
+
+        appt_datetime = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
+        creator = AppointmentCreator(
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name=self.schedule.name,
+            visit=self.visit1000,
+            timepoint_datetime=appt_datetime,
+        )
+        self.assertEqual(Appointment.objects.all()[0], creator.appointment)
+        self.assertEqual(Appointment.objects.all()[0].appt_datetime, appt_datetime)

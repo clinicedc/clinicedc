@@ -2,7 +2,9 @@ import arrow
 
 from copy import deepcopy
 from datetime import datetime
-from dateutil.relativedelta import relativedelta, SU, MO, TU, WE, TH, FR, SA, weekday
+
+from dateutil._common import weekday
+from dateutil.relativedelta import relativedelta, SU, MO, TU, WE, TH, FR, SA
 from django.test import TestCase, tag
 from edc_facility.import_holidays import import_holidays
 from edc_visit_schedule.schedule.visit_collection import VisitCollection
@@ -81,6 +83,7 @@ class TestApptDatetimes(TestCase):
                     base_appt_datetime + relativedelta(days=index), appt_datetime
                 )
 
+    @tag("appt")
     def test_appointments_creation_dates2(self):
         """Assert skips SA, SU.
         """
