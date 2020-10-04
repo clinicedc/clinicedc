@@ -1,3 +1,4 @@
+import arrow
 import re
 
 from decimal import Decimal
@@ -22,11 +23,13 @@ class VisitError(Exception):
 class VisitDate:
     window_period_cls = WindowPeriod
 
-    def __init__(self, **kwargs):
+    def __init__(self, rlower=None, rupper=None, visit_code=None):
         self._base = None
-        self._window = self.window_period_cls(**kwargs)
         self.lower = None
         self.upper = None
+        self._window = self.window_period_cls(
+            rlower=rlower, rupper=rupper, visit_code=visit_code
+        )
 
     @property
     def base(self):
@@ -34,7 +37,7 @@ class VisitDate:
 
     @base.setter
     def base(self, dt=None):
-        self._base = dt
+        self._base = arrow.get(dt).to("utc").datetime
         window = self._window.get_window(dt=dt)
         self.lower = window.lower
         self.upper = window.upper
@@ -92,12 +95,14 @@ class Visit:
         self.rlower = rlower
         self.rupper = rupper
         self.grouping = grouping
-        self.dates = self.visit_date_cls(rlower=rlower, rupper=rupper)
-        self.title = title or f"Visit {code}"
         if not code or isinstance(code, int) or not re.match(self.code_regex, code):
             raise VisitCodeError(f"Invalid visit code. Got '{code}'")
         else:
             self.code = code  # unique
+        self.dates = self.visit_date_cls(
+            rlower=rlower, rupper=rupper, visit_code=self.code
+        )
+        self.title = title or f"Visit {self.code}"
         self.name = self.code
         self.facility_name = (
             facility_name or settings.EDC_FACILITY_DEFAULT_FACILITY_NAME
@@ -202,6 +207,12 @@ class Visit:
     @timepoint_datetime.setter
     def timepoint_datetime(self, dt=None):
         self.dates.base = dt
+
+    def datetime_in_window(self, timepoint_datetime=None, dt=None):
+        self.timepoint_datetime = timepoint_datetime
+        if self.dates.lower <= arrow.get(dt).to("utc").datetime <= self.dates.upper:
+            return True
+        return False
 
     def check(self):
         warnings = []
