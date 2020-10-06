@@ -126,6 +126,9 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
             ).timepoint_datetime
 
             datestring = convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+            self.instance.visit_from_schedule.timepoint_datetime = (
+                self.instance.timepoint_datetime
+            )
             lower = self.instance.visit_from_schedule.dates.lower.strftime(datestring)
             try:
                 self.instance.schedule.datetime_in_window(
