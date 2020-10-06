@@ -46,8 +46,12 @@ from visit_schedule_app.visit_schedule import (
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
 )
 class TestModels(SiteTestCaseMixin, TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         import_holidays()
+        super().setUpClass()
+
+    def setUp(self):
         site_visit_schedules.loaded = False
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)

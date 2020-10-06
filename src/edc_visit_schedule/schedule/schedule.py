@@ -7,12 +7,9 @@ from ..subject_schedule import NotOnScheduleForDateError, NotOnScheduleError
 from ..subject_schedule import SubjectSchedule, SubjectScheduleError
 from ..visit import Visit
 from .visit_collection import VisitCollection
+from .window import Window
 
 style = color_style()
-
-
-class ScheduleError(Exception):
-    pass
 
 
 class ScheduleNameError(Exception):
@@ -36,6 +33,7 @@ class Schedule:
     visit_cls = Visit
     visit_collection_cls = VisitCollection
     subject_schedule_cls = SubjectSchedule
+    window_cls = Window
 
     def __init__(
         self,
@@ -49,7 +47,7 @@ class Schedule:
     ):
         self._subject = None
         self.visits = self.visit_collection_cls()
-        if not name or not re.match(r"[a-z0-9\_\-]+$", name):
+        if not name or not re.match(r"[a-z0-9_\-]+$", name):
             raise ScheduleNameError(
                 f"Invalid name. Got '{name}'. May only contains numbers, "
                 "lower case letters and '_'."
@@ -140,6 +138,11 @@ class Schedule:
         except (NotOnScheduleError, NotOnScheduleForDateError):
             return False
         return True
+
+    def datetime_in_window(self, **kwargs):
+        return self.window_cls(
+            name=self.name, visits=self.visits, **kwargs
+        ).datetime_in_window
 
     @property
     def onschedule_model_cls(self):

@@ -208,12 +208,6 @@ class Visit:
     def timepoint_datetime(self, dt=None):
         self.dates.base = dt
 
-    def datetime_in_window(self, timepoint_datetime=None, dt=None):
-        self.timepoint_datetime = timepoint_datetime
-        if self.dates.lower <= arrow.get(dt).to("utc").datetime <= self.dates.upper:
-            return True
-        return False
-
     def check(self):
         warnings = []
         try:

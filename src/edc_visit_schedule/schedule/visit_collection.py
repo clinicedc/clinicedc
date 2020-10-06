@@ -12,6 +12,12 @@ class VisitCollection(OrderedCollection):
     key = "code"
     ordering_attr = "timepoint"
 
+    def __get__(self, instance, owner):
+        value = super().__get__(instance, owner)
+        if value is None:
+            raise VisitCollectionError(f"Unknown visit. Got {instance}")
+        return value
+
     def timepoint_dates(self, dt=None):
         """Returns an ordered dictionary of visit dates calculated
         relative to the first visit.

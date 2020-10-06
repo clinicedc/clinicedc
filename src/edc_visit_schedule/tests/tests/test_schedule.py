@@ -1,6 +1,7 @@
 from datetime import timedelta
+
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_utils import get_utcnow
 from edc_visit_schedule.schedule import Schedule, AlreadyRegisteredVisit
 from edc_visit_schedule.schedule import ScheduleNameError

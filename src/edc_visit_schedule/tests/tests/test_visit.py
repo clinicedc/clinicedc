@@ -1,4 +1,6 @@
 from datetime import datetime
+
+from arrow import Arrow
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 from edc_visit_schedule.visit import WindowPeriod
@@ -46,7 +48,10 @@ class TestVisit(TestCase):
             timepoint=1,
         )
         visit.timepoint_datetime = datetime(2001, 12, 1)
-        self.assertEqual(visit.timepoint_datetime, datetime(2001, 12, 1))
+        self.assertEqual(
+            visit.timepoint_datetime,
+            Arrow.fromdatetime(datetime(2001, 12, 1), tzinfo="utc"),
+        )
 
     def test_visit_lower_upper_no_datetime(self):
         visit = Visit(
@@ -65,6 +70,7 @@ class TestVisit(TestCase):
         except VisitDateError:
             pass
 
+    @tag("arr")
     def test_visit_lower_upper(self):
         visit = Visit(
             code="1000",
@@ -73,23 +79,43 @@ class TestVisit(TestCase):
             rupper=relativedelta(days=6),
             timepoint=1,
         )
-        visit.timepoint_datetime = datetime(2001, 12, 1)
-        self.assertEqual(visit.dates.lower, datetime(2001, 12, 1))
-        self.assertEqual(visit.dates.upper, datetime(2001, 12, 7))
+        visit.timepoint_datetime = Arrow.fromdatetime(
+            datetime(2001, 12, 1), tzinfo="utc"
+        ).datetime
+        self.assertEqual(
+            visit.dates.lower,
+            Arrow.fromdatetime(datetime(2001, 12, 1), tzinfo="utc").datetime,
+        )
+        self.assertEqual(
+            visit.dates.upper,
+            Arrow.fromdatetime(datetime(2001, 12, 7, 23, 59), tzinfo="utc").datetime,
+        )
 
     def test_window_period_days(self):
         wp = WindowPeriod(rlower=relativedelta(days=0), rupper=relativedelta(days=6))
-        dt = datetime(2001, 12, 1)
+        dt = Arrow.fromdatetime(datetime(2001, 12, 1), tzinfo="utc").datetime
         self.assertEqual(wp.get_window(dt)[0], dt)
         self.assertEqual(wp.get_window(dt).lower, dt)
-        self.assertEqual(wp.get_window(dt)[1], datetime(2001, 12, 7))
-        self.assertEqual(wp.get_window(dt).upper, datetime(2001, 12, 7))
+        self.assertEqual(
+            wp.get_window(dt)[1],
+            Arrow.fromdatetime(datetime(2001, 12, 7, 23, 59), tzinfo="utc").datetime,
+        )
+        self.assertEqual(
+            wp.get_window(dt).upper,
+            Arrow.fromdatetime(datetime(2001, 12, 7, 23, 59), tzinfo="utc").datetime,
+        )
 
     def test_window_period_weeks(self):
         wp = WindowPeriod(rlower=relativedelta(weeks=1), rupper=relativedelta(weeks=6))
-        dt = datetime(2001, 12, 8)
-        self.assertEqual(wp.get_window(dt).lower, datetime(2001, 12, 1))
-        self.assertEqual(wp.get_window(dt).upper, datetime(2002, 1, 19))
+        dt = Arrow.fromdatetime(datetime(2001, 12, 8), tzinfo="utc").datetime
+        self.assertEqual(
+            wp.get_window(dt).lower,
+            Arrow.fromdatetime(datetime(2001, 12, 1), tzinfo="utc").datetime,
+        )
+        self.assertEqual(
+            wp.get_window(dt).upper,
+            Arrow.fromdatetime(datetime(2002, 1, 19, 23, 59), tzinfo="utc").datetime,
+        )
 
     def test_good_codes(self):
         try:
@@ -110,7 +136,7 @@ class TestVisit(TestCase):
                 rupper=relativedelta(days=6),
                 timepoint=1,
             )
-        except (VisitCodeError) as e:
+        except VisitCodeError as e:
             self.fail(f"VisitError unexpectedly raised. Got {e}")
 
     def test_no_code(self):
