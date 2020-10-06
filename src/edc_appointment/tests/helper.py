@@ -28,7 +28,8 @@ class Helper:
         )
         return subject_consent
 
-    def add_unscheduled_appointment(self, appointment=None):
+    @staticmethod
+    def add_unscheduled_appointment(appointment=None):
         creator = UnscheduledAppointmentCreator(
             subject_identifier=appointment.subject_identifier,
             visit_schedule_name=appointment.visit_schedule_name,

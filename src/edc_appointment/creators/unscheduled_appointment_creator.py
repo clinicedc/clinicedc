@@ -33,6 +33,7 @@ class UnscheduledAppointmentCreator:
     def __init__(
         self,
         subject_identifier=None,
+        appt_datetime=None,
         visit_schedule_name=None,
         schedule_name=None,
         visit_code=None,
@@ -93,7 +94,9 @@ class UnscheduledAppointmentCreator:
                 visit_schedule_name=self.visit_schedule_name,
                 schedule_name=self.schedule_name,
                 visit=visit,
-                suggested_datetime=self.parent_appointment.appt_datetime,
+                suggested_datetime=(
+                    appt_datetime or self.parent_appointment.appt_datetime
+                ),
                 timepoint=self.parent_appointment.timepoint,
                 timepoint_datetime=self.parent_appointment.timepoint_datetime,
                 visit_code_sequence=self.parent_appointment.next_visit_code_sequence,
@@ -126,7 +129,7 @@ class UnscheduledAppointmentCreator:
                     f"Unable to create unscheduled appointment. An unscheduled "
                     f"appointment cannot be created if the parent appointment "
                     f"visit form has not been completed. "
-                    f"Got appointment '{self.visit_code}'."
+                    f"Got appointment '{self.visit_code}.0'."
                 )
             else:
                 if self._parent_appointment.appt_status not in [

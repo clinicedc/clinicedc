@@ -2,12 +2,12 @@ import arrow
 
 from datetime import datetime
 from decimal import Decimal
-from django.test import TestCase
+
+from dateutil.relativedelta import relativedelta
+from django.test import TestCase, tag
 from edc_facility.import_holidays import import_holidays
 from edc_utils import get_utcnow
-from edc_visit_schedule.model_mixins.visit_schedule_model_mixins import (
-    VisitScheduleModelMixinError,
-)
+from edc_visit_schedule.schedule import ScheduleError
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ..constants import NEW_APPT, INCOMPLETE_APPT, IN_PROGRESS_APPT, CANCELLED_APPT
@@ -21,6 +21,7 @@ from .models import SubjectVisit
 from .visit_schedule import visit_schedule1, visit_schedule2
 
 
+@tag("uns")
 class TestUnscheduledAppointmentCreator(TestCase):
 
     helper_cls = Helper
@@ -95,6 +96,7 @@ class TestUnscheduledAppointmentCreator(TestCase):
             visit_code="5000",
         )
 
+    @tag("uns1")
     def test_add_subject_visits(self):
         self.helper.consent_and_put_on_schedule()
         schedule_name = "schedule1"
@@ -102,31 +104,31 @@ class TestUnscheduledAppointmentCreator(TestCase):
             with self.subTest(visit=visit):
                 # get parent appointment
                 appointment = Appointment.objects.get(
-                    subject_identifier=self.subject_identifier, visit_code=visit.code
-                )
-                appointment.appt_status = IN_PROGRESS_APPT
-                appointment.save()
-                subject_visit = SubjectVisit.objects.create(
-                    appointment=appointment, report_datetime=get_utcnow()
-                )
-                appointment = Appointment.objects.get(
                     subject_identifier=self.subject_identifier,
                     visit_code=visit.code,
                     visit_code_sequence=0,
                 )
+                appointment.appt_status = IN_PROGRESS_APPT
+                appointment.save()
+                appointment.refresh_from_db()
+                subject_visit = SubjectVisit.objects.create(
+                    appointment=appointment, report_datetime=appointment.appt_datetime
+                )
+                appointment.refresh_from_db()
                 self.assertTrue(appointment.visit, subject_visit)
                 self.assertEqual(0, appointment.visit.visit_code_sequence)
                 self.assertEqual(1, appointment.next_visit_code_sequence)
 
                 appointment.appt_status = INCOMPLETE_APPT
                 appointment.save()
-
+                appointment.refresh_from_db()
                 creator = UnscheduledAppointmentCreator(
                     subject_identifier=self.subject_identifier,
                     visit_schedule_name=visit_schedule1.name,
                     schedule_name=schedule_name,
                     visit_code=visit.code,
                     facility=appointment.facility,
+                    appt_datetime=appointment.appt_datetime + relativedelta(days=1),
                 )
                 new_appointment = creator.appointment
                 self.assertEqual(new_appointment.appt_status, IN_PROGRESS_APPT)
@@ -258,4 +260,4 @@ class TestUnscheduledAppointmentCreator(TestCase):
         )
         next_appointment.appt_status = INCOMPLETE_APPT
         next_appointment.visit_code = "1111"
-        self.assertRaises(VisitScheduleModelMixinError, next_appointment.save)
+        self.assertRaises(ScheduleError, next_appointment.save)
