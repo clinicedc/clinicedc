@@ -1,4 +1,7 @@
 import arrow
+
+from django.conf import settings
+
 from .exceptions import ScheduleError
 
 
@@ -8,6 +11,11 @@ class ScheduledVisitWindowError(Exception):
 
 class UnScheduledVisitWindowError(Exception):
     pass
+
+
+enforce_window_period_enabled = getattr(
+    settings, "EDC_VISIT_SCHEDULE_ENFORCE_WINDOW_PERIOD", True
+)
 
 
 class Window:
@@ -31,16 +39,17 @@ class Window:
 
     @property
     def datetime_in_window(self):
-        if not self.visits.get(self.visit_code):
-            raise ScheduleError(
-                f"Visit not added to schedule. Got visit `{self.visit_code}` "
-                f"not in schedule `{self.name}`. Expected one of "
-                f"{[x for x in self.visits]}."
-            )
-        if self.is_scheduled_visit or not self.visits.next(self.visit_code):
-            self.raise_for_scheduled_not_in_window()
-        else:
-            self.raise_for_unscheduled_not_in_window()
+        if enforce_window_period_enabled:
+            if not self.visits.get(self.visit_code):
+                raise ScheduleError(
+                    f"Visit not added to schedule. Got visit `{self.visit_code}` "
+                    f"not in schedule `{self.name}`. Expected one of "
+                    f"{[x for x in self.visits]}."
+                )
+            if self.is_scheduled_visit or not self.visits.next(self.visit_code):
+                self.raise_for_scheduled_not_in_window()
+            else:
+                self.raise_for_unscheduled_not_in_window()
         return True
 
     @property
