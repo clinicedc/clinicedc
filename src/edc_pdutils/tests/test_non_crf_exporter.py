@@ -6,7 +6,7 @@ from django.test import TestCase, tag  # noqa
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from tempfile import mkdtemp
 
-from ..csv_exporters import CsvNonCrfTablesExporter
+from ..df_exporters import CsvNonCrfTablesExporter
 from ..df_handlers import NonCrfDfHandler
 from .helper import Helper
 from .visit_schedule import get_visit_schedule
