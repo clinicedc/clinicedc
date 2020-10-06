@@ -164,19 +164,25 @@ class AppointmentCreator:
         """Returns an available appointment datetime.
 
         Raises an CreateAppointmentDateError if none.
+
+        Returns an unadjusted suggested datetime if this is an
+        unscheduled appointment.
         """
-        try:
-            arw = self.facility.available_arw(
-                suggested_datetime=self.suggested_datetime,
-                forward_delta=self.visit.rupper,
-                reverse_delta=self.visit.rlower,
-                taken_datetimes=self.taken_datetimes,
-            )
-        except FacilityError as e:
-            raise CreateAppointmentDateError(
-                f"{e} Visit={repr(self.visit)}. "
-                f"Try setting 'best_effort_available_datetime=True' on facility."
-            )
+        if self.visit_code_sequence == 0 or self.visit_code_sequence is None:
+            try:
+                arw = self.facility.available_arw(
+                    suggested_datetime=self.suggested_datetime,
+                    forward_delta=self.visit.rupper,
+                    reverse_delta=self.visit.rlower,
+                    taken_datetimes=self.taken_datetimes,
+                )
+            except FacilityError as e:
+                raise CreateAppointmentDateError(
+                    f"{e} Visit={repr(self.visit)}. "
+                    f"Try setting 'best_effort_available_datetime=True' on facility."
+                )
+        else:
+            return self.suggested_datetime
         return arw.datetime
 
     @property

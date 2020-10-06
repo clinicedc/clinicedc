@@ -65,9 +65,9 @@ class TestApptDatetimes(TestCase):
         default facility (in tests) accepts appointments any day of the week.
         """
         self.register_visit_schedule(facility_name="7-day-clinic")
-        for i in range(0, 7):
+        for i in range(0, 7, 7):
             subject_identifier = f"12345{i}"
-            dt = datetime(2017, 1, 7 + i)
+            dt = datetime(2017, 1, 7) + relativedelta(days=i)
             now = arrow.Arrow.fromdatetime(dt, tzinfo="UTC").datetime
             self.helper = self.helper_cls(
                 subject_identifier=subject_identifier, now=now
@@ -80,7 +80,7 @@ class TestApptDatetimes(TestCase):
             base_appt_datetime = appt_datetimes[0]
             for index, appt_datetime in enumerate(appt_datetimes):
                 self.assertEqual(
-                    base_appt_datetime + relativedelta(days=index), appt_datetime
+                    base_appt_datetime + relativedelta(days=index * 7), appt_datetime
                 )
 
     @tag("appt")

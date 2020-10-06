@@ -97,10 +97,10 @@ visits = []
 for index in range(0, 4):
     visits.append(
         Visit(
-            code=f"{index + 1}000",
-            title=f"Day {index + 1}",
+            code=f"{1 if index == 0 else index + 1}000",
+            title=f"Day {1 if index == 0 else index + 1}",
             timepoint=index,
-            rbase=relativedelta(days=index),
+            rbase=relativedelta(days=7 * index),
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
             requisitions=requisitions,
@@ -118,10 +118,10 @@ visits = []
 for index in range(4, 8):
     visits.append(
         Visit(
-            code=f"{index + 1}000",
-            title=f"Day {index + 1}",
+            code=f"{1 if index == 0 else index + 1}000",
+            title=f"Day {1 if index == 0 else index + 1}",
             timepoint=index,
-            rbase=relativedelta(days=index),
+            rbase=relativedelta(days=7 * index),
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
             requisitions=requisitions,
@@ -159,6 +159,7 @@ for index, visit_code in [(3, "1030"), (6, "1060"), (9, "1090"), (12, "1120")]:
             requisitions=requisitions,
             crfs=crfs,
             facility_name="7-day-clinic",
+            allow_unscheduled=True,
         )
     )
 for visit in visits:

@@ -6,6 +6,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from edc_form_validators.form_validator import FormValidator
 from edc_metadata.form_validators import MetaDataFormValidatorMixin
 from edc_utils import convert_php_dateformat, get_utcnow
+from edc_visit_schedule.schedule.window import (
+    ScheduledVisitWindowError,
+    UnScheduledVisitWindowError,
+)
 
 from ..constants import NEW_APPT, IN_PROGRESS_APPT, CANCELLED_APPT
 from ..constants import UNSCHEDULED_APPT, INCOMPLETE_APPT, COMPLETE_APPT
@@ -114,17 +118,45 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
                 )
 
     def validate_appt_datetime_in_window(self):
-        if not self.instance.visit_from_schedule.datetime_in_window(
-            timepoint_datetime=self.instance.timepoint_datetime,
-            dt=self.cleaned_data.get("appt_datetime"),
-        ):
+        if not self.instance.is_baseline_appt:
+            baseline_timepoint_datetime = self.instance.__class__.objects.first_appointment(
+                subject_identifier=self.instance.subject_identifier,
+                visit_schedule_name=self.instance.visit_schedule_name,
+                schedule_name=self.instance.schedule_name,
+            ).timepoint_datetime
+
             datestring = convert_php_dateformat(settings.SHORT_DATE_FORMAT)
             lower = self.instance.visit_from_schedule.dates.lower.strftime(datestring)
-            upper = self.instance.visit_from_schedule.dates.upper.strftime(datestring)
-            raise forms.ValidationError(
-                f"Invalid appointment date. Expected a date between {lower} and {upper} "
-                f"for visit {self.instance.visit_code}.{self.instance.visit_code_sequence}."
-            )
+            try:
+                self.instance.schedule.datetime_in_window(
+                    timepoint_datetime=self.instance.timepoint_datetime,
+                    dt=self.cleaned_data.get("appt_datetime"),
+                    visit_code=self.instance.visit_code,
+                    visit_code_sequence=self.instance.visit_code_sequence,
+                    baseline_timepoint_datetime=baseline_timepoint_datetime,
+                )
+            except UnScheduledVisitWindowError:
+                upper = self.instance.schedule.visits.next(
+                    self.instance.visit_code
+                ).dates.lower.strftime(datestring)
+                raise forms.ValidationError(
+                    {
+                        "appt_datetime": (
+                            f"Invalid. Expected a date between {lower} and {upper}."
+                        )
+                    }
+                )
+            except ScheduledVisitWindowError:
+                upper = self.instance.visit_from_schedule.dates.upper.strftime(
+                    datestring
+                )
+                raise forms.ValidationError(
+                    {
+                        "appt_datetime": (
+                            f"Invalid. Expected a date between {lower} and {upper}."
+                        )
+                    }
+                )
 
     def validate_appt_new_or_cancelled(self):
         """Don't allow new or cancelled if form data exists.
