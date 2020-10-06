@@ -91,7 +91,6 @@ class TestDashboard(WebTest):
         form["password"] = "pass"
         return form.submit()
 
-    @tag("1")
     def test_url(self):
         self.login()
 
@@ -132,7 +131,6 @@ class TestDashboard(WebTest):
         # follow to dashoard for this visit
         # response = response.click(linkid="id-reported-visit-list")
 
-    @tag("1")
     def test_url_response_for_subject_identifier(self):
         self.login()
 
@@ -152,7 +150,6 @@ class TestDashboard(WebTest):
             linkid=f"id-reported-visit-list-{self.subject_identifiers[1]}"
         )
 
-    @tag("1")
     def test_ordering(self):
         self.login()
 
