@@ -25,15 +25,18 @@ class UserProfileAdmin(admin.ModelAdmin):
         "user_email_notifications",
         "user_sms_notifications",
         "mobile",
+        "export_format",
     )
 
-    def user_sites(self, obj=None):
+    @staticmethod
+    def user_sites(obj=None):
 
         return mark_safe(
             "<BR>".join([o.name for o in obj.sites.all().order_by("name")])
         )
 
-    def user_email_notifications(self, obj=None):
+    @staticmethod
+    def user_email_notifications(obj=None):
         return mark_safe(
             "<BR>".join(
                 [
@@ -43,7 +46,8 @@ class UserProfileAdmin(admin.ModelAdmin):
             )
         )
 
-    def user_sms_notifications(self, obj=None):
+    @staticmethod
+    def user_sms_notifications(obj=None):
         return mark_safe(
             "<BR>".join(
                 [

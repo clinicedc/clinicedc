@@ -5,6 +5,8 @@ from django.db import models
 from django.db.models.deletion import CASCADE
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from edc_export.choices import EXPORT_FORMATS
+from edc_export.constants import CSV
 from edc_notification.model_mixins import NotificationUserProfileModelMixin
 
 from ..constants import CUSTOM_ROLE, STAFF_ROLE
@@ -56,6 +58,16 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
         help_text=mark_safe(
             'Change in <a href="/edc_label/">Edc Label Administration</a>'
         ),
+    )
+
+    export_format = models.CharField(
+        verbose_name="Export format",
+        max_length=25,
+        choices=EXPORT_FORMATS,
+        default=CSV,
+        null=True,
+        blank=True,
+        help_text="Note: requires export permissions",
     )
 
     roles = models.ManyToManyField(Role, blank=True)
