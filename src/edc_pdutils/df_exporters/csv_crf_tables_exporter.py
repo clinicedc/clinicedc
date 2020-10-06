@@ -1,5 +1,5 @@
 from ..df_handlers import CrfDfHandler
-from .csv_tables_exporter import CsvTablesExporter
+from .tables_exporter import TablesExporter
 
 
 class CsvExporterNoTables(Exception):
@@ -10,7 +10,7 @@ class CsvCrfTablesExporterError(Exception):
     pass
 
 
-class CsvCrfTablesExporter(CsvTablesExporter):
+class CsvCrfTablesExporter(TablesExporter):
 
     """A class to export CRF tables for this app_label.
 

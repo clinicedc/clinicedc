@@ -1,5 +1,5 @@
 from ..df_handlers import NonCrfDfHandler
-from .csv_tables_exporter import CsvTablesExporter
+from .tables_exporter import TablesExporter
 
 
 class CsvExporterNoTables(Exception):
@@ -10,7 +10,7 @@ class CsvNonCrfTablesExporterError(Exception):
     pass
 
 
-class CsvNonCrfTablesExporter(CsvTablesExporter):
+class CsvNonCrfTablesExporter(TablesExporter):
 
     """A class to export non-CRF tables for this app_label.
     """

@@ -9,11 +9,11 @@ from edc_utils import get_utcnow
 style = color_style()
 
 
-class CsvExporterExportFolder(Exception):
+class ExporterExportFolder(Exception):
     pass
 
 
-class CsvExporterFileExists(Exception):
+class ExporterFileExists(Exception):
     pass
 
 
@@ -60,9 +60,9 @@ class CsvExporter:
         self.export_folder = export_folder or self.export_folder
         self.verbose = verbose
         if not self.export_folder:
-            raise CsvExporterExportFolder("Invalid export folder. Got None")
+            raise ExporterExportFolder("Invalid export folder. Got None")
         if not os.path.exists(self.export_folder):
-            raise CsvExporterExportFolder(
+            raise ExporterExportFolder(
                 f"Invalid export folder. Got {self.export_folder}"
             )
         self.data_label = data_label
@@ -114,7 +114,7 @@ class CsvExporter:
         """
         path = os.path.join(self.export_folder, self.filename)
         if os.path.exists(path) and not self.file_exists_ok:
-            raise CsvExporterFileExists(
+            raise ExporterFileExists(
                 f"File '{path}' exists! Not exporting {self.data_label}.\n"
             )
         return path

@@ -3,7 +3,7 @@ from ..df_handlers import DfHandler
 from .csv_exporter import CsvExporter
 
 
-class CsvTablesExporterError(Exception):
+class TablesExporterError(Exception):
     pass
 
 
@@ -11,17 +11,17 @@ class InvalidTableName(Exception):
     pass
 
 
-class CsvTablesExporter:
+class TablesExporter:
 
-    """Export to CSV all tables for an app_label.
+    """Export to file all tables for an app_label.
 
     Does not decrypt values stored in django_crypto_fields
     encrypted field classes.
 
     Usage:
-        exporter = CsvTablesExporter(app_label='td')
+        exporter = TablesExporter(app_label='td')
         exporter.to_csv()
-        exporter = CsvTablesExporter(app_label='edc')
+        exporter = TablesExporter(app_label='edc')
         exporter.to_csv()
 
     """
@@ -47,9 +47,7 @@ class CsvTablesExporter:
     ):
         self.app_label = app_label or self.app_label
         if not self.app_label:
-            raise CsvTablesExporterError(
-                f"Missing app_label. Got None. See {repr(self)}"
-            )
+            raise TablesExporterError(f"Missing app_label. Got None. See {repr(self)}")
         self.export_folder = export_folder or self.export_folder
         self.with_columns = with_columns or []
         self.without_columns = without_columns or []
@@ -95,6 +93,9 @@ class CsvTablesExporter:
             if exported.path:
                 self.exported_paths.update({table_name: exported.path})
 
+    def to_stata(self):
+        raise NotImplemented()
+
     def get_table_names(self):
         """Returns a list of table names for this app_label.
         """
@@ -106,6 +107,7 @@ class CsvTablesExporter:
             )
         else:
             df = self.db.show_tables(self.app_label)
+        df = df.rename(columns={"TABLE_NAME": "table_name"})
         return list(df.table_name)
 
     def to_df(self, table_name=None, **kwargs):

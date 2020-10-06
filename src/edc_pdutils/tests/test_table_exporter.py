@@ -5,7 +5,7 @@ from django.apps import apps as django_apps
 from django.test import TestCase, tag  # noqa
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from ..csv_exporters import CsvTablesExporter
+from ..df_exporters import TablesExporter
 from .helper import Helper
 from .visit_schedule import get_visit_schedule
 
@@ -35,7 +35,7 @@ class TestExport(TestCase):
                 os.remove(file)
 
     def test_tables_to_csv_lower_columns(self):
-        tables_exporter = CsvTablesExporter(app_label="edc_pdutils")
+        tables_exporter = TablesExporter(app_label="edc_pdutils")
         for path in tables_exporter.exported_paths.values():
             with open(path, "r") as f:
                 csv_reader = csv.DictReader(f, delimiter="|")
@@ -45,7 +45,7 @@ class TestExport(TestCase):
                     break
 
     def test_tables_to_csv_from_app_label(self):
-        tables_exporter = CsvTablesExporter(app_label="edc_pdutils")
+        tables_exporter = TablesExporter(app_label="edc_pdutils")
         for path in tables_exporter.exported_paths.values():
             with open(path, "r") as f:
                 csv_reader = csv.DictReader(f, delimiter="|")
@@ -53,9 +53,9 @@ class TestExport(TestCase):
             self.assertGreater(len(rows), 0)
 
     def test_tables_to_csv_from_app_label_exclude_history(self):
-        class MyCsvTablesExporter(CsvTablesExporter):
+        class MyTablesExporter(TablesExporter):
             exclude_history_tables = True
 
-        tables_exporter = MyCsvTablesExporter(app_label="edc_pdutils")
+        tables_exporter = MyTablesExporter(app_label="edc_pdutils")
         for path in tables_exporter.exported_paths:
             self.assertNotIn("history", path)

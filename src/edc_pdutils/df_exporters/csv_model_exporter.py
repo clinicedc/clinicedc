@@ -24,3 +24,7 @@ class CsvModelExporter:
     def to_csv(self):
         dataframe = self.df_maker.dataframe
         return self.csv_exporter.to_csv(dataframe=dataframe)
+
+    def to_stata(self):
+        dataframe = self.df_maker.dataframe
+        return self.csv_exporter.to_stata(dataframe=dataframe)
