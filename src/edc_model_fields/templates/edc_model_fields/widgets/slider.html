@@ -1,0 +1,23 @@
+{% load static %}
+
+<div class="container">
+<center>
+<div class="slidecontainer">
+<img src="{% static 'edc_model_fields/slider.png' %}" width="101%" alt="0-100 scale"></img>
+<input class="{{ widget.class }}" type="{{ widget.type }}" name="{{ widget.name }}" min="{{ widget.min }}" max="{{ widget.max }}" {% if widget.value != None %}value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "django/forms/widgets/attrs.html" %}>
+<h1><B><span class="clearfix" id="id_{{ widget.name }}_value"></span> {{ widget.units }}</B></h1>
+</div>
+</center>
+</div>
+
+<script>
+var slider = document.getElementById("id_{{ widget.name }}");
+var output = document.getElementById("id_{{ widget.name }}_value");
+output.innerHTML = slider.value; // Display the default slider value
+
+// Update the current slider value (each time you drag the slider handle)
+slider.oninput = function() {
+  output.innerHTML = this.value;
+}
+</script>
+
