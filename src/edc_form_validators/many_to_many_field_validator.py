@@ -20,6 +20,27 @@ class ManyToManyFieldValidator(BaseFormValidator):
             for obj in qs
         }
 
+    def m2m_applicable_if_true(self, cond, m2m_field=None):
+        message = None
+        qs = self.cleaned_data.get(m2m_field)
+        if cond:
+            if qs and qs.count() > 0:
+                selected = self.get_m2m_selected(m2m_field)
+                if NOT_APPLICABLE in selected:
+                    message = {m2m_field: "This field is applicable"}
+                    code = APPLICABLE_ERROR
+        else:
+            if qs and qs.count() > 0:
+                selected = self.get_m2m_selected(m2m_field)
+                if NOT_APPLICABLE not in selected:
+                    message = {m2m_field: "This field is not applicable"}
+                    code = NOT_APPLICABLE_ERROR
+        if message:
+            self._errors.update(message)
+            self._error_codes.append(code)
+            raise ValidationError(message, code=code)
+        return False
+
     def m2m_applicable_if(self, *responses, field=None, m2m_field=None):
         """Raises an exception or returns False.
 
