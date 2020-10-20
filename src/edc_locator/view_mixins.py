@@ -47,9 +47,7 @@ class SubjectLocatorViewMixin(ContextMixin):
                 subject_identifier=subject_identifier
             )
         except ObjectDoesNotExist:
-            action_cls = site_action_items.get(
-                self.subject_locator_model_cls.action_name
-            )
+            action_cls = site_action_items.get(SUBJECT_LOCATOR_ACTION)
             action_item_model_cls = action_cls.action_item_model_cls()
             try:
                 action_item_model_cls.objects.get(
