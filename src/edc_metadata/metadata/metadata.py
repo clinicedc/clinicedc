@@ -148,10 +148,13 @@ class Creator:
 
     @property
     def crfs(self):
-        if self.visit_code_sequence != 0:
-            return self.visit.crfs_unscheduled
-        elif self.visit_model_instance.reason == MISSED_VISIT:
+        """Returns list of crfs for this visit based on
+        values for visit_code_sequence and MISSED_VISIT.
+        """
+        if self.visit_model_instance.reason == MISSED_VISIT:
             return self.visit.crfs_missed
+        elif self.visit_code_sequence != 0:
+            return self.visit.crfs_unscheduled
         return self.visit.crfs
 
     @property
@@ -206,18 +209,16 @@ class Destroyer:
         the visit instance (self.visit_model_instance) excluding where
         entry_status = KEYED.
         """
-        deleted = (
-            self.metadata_crf_model_cls.objects.filter(
-                subject_identifier=self.visit_model_instance.subject_identifier,
-                **self.visit_model_instance.metadata_query_options,
-            )
-            .exclude(entry_status=KEYED)
-            .delete()
-        )
-        self.metadata_requisition_model_cls.objects.filter(
+        qs = self.metadata_crf_model_cls.objects.filter(
             subject_identifier=self.visit_model_instance.subject_identifier,
             **self.visit_model_instance.metadata_query_options,
-        ).exclude(entry_status=KEYED).delete()
+        ).exclude(entry_status=KEYED)
+        deleted = qs.delete()
+        qs = self.metadata_requisition_model_cls.objects.filter(
+            subject_identifier=self.visit_model_instance.subject_identifier,
+            **self.visit_model_instance.metadata_query_options,
+        ).exclude(entry_status=KEYED)
+        qs.delete()
         return deleted
 
 
@@ -262,7 +263,6 @@ class Metadata:
         """
         metadata_exists = False
         app_config = django_apps.get_app_config("edc_metadata")
-        # TODO: crfs_missed?
         if self.reason in app_config.delete_on_reasons:
             self.destroyer.delete()
         elif self.reason in app_config.create_on_reasons:

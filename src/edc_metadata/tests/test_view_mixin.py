@@ -18,7 +18,6 @@ from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
 from django.test.client import RequestFactory
 from django.contrib.auth.models import User
-from unittest import mock
 from unittest.mock import MagicMock
 
 

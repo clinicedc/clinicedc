@@ -18,7 +18,7 @@ class MockPanel(DummyPanel):
 
 
 crfs_missed = FormsCollection(
-    Crf(show_order=1, model="edc_visit_tracking.subjectvisitmissed", required=True),
+    Crf(show_order=1, model="edc_metadata.subjectvisitmissed", required=True),
 )
 
 crfs0 = FormsCollection(
