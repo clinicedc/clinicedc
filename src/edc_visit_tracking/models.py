@@ -1,6 +1,7 @@
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from edc_list_data.model_mixins import ListModelMixin
 
 
 def get_subject_visit_model():
@@ -37,4 +38,16 @@ def get_subject_visit_missed_model():
     else:
         if not model:
             raise ImproperlyConfigured(f"{error_msg} Got None.")
-    return model
+    return django_apps.get_model(model)
+
+
+class VisitReasons(ListModelMixin):
+    class Meta(ListModelMixin.Meta):
+        verbose_name = "Visit Reasons"
+        verbose_name_plural = "Visit Reasons"
+
+
+class SubjectVisitMissedReasons(ListModelMixin):
+    class Meta(ListModelMixin.Meta):
+        verbose_name = "Subject Missed Visit Reasons"
+        verbose_name_plural = "Subject Missed Visit Reasons"

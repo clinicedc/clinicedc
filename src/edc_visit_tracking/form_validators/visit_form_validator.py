@@ -1,12 +1,18 @@
 from django import forms
+from django.conf import settings
 from edc_constants.constants import OTHER
 from edc_form_validators import FormValidator
 from edc_form_validators import REQUIRED_ERROR, INVALID_ERROR
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 from edc_metadata.constants import KEYED
+from edc_visit_tracking.models import get_subject_visit_missed_model
 
-from ..constants import MISSED_VISIT, UNSCHEDULED
+from ..constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 from ..visit_sequence import VisitSequence, VisitSequenceError
+
+EDC_VISIT_TRACKING_ALLOW_MISSED_UNSCHEDULED = getattr(
+    settings, "EDC_VISIT_TRACKING_ALLOW_MISSED_UNSCHEDULED", False
+)
 
 
 class VisitFormValidator(FormValidator):
@@ -44,17 +50,35 @@ class VisitFormValidator(FormValidator):
                     },
                     code=INVALID_ERROR,
                 )
-            if appointment.visit_code_sequence and reason != UNSCHEDULED:
+            if (
+                appointment.visit_code_sequence
+                and reason != UNSCHEDULED
+                and EDC_VISIT_TRACKING_ALLOW_MISSED_UNSCHEDULED is False
+            ):
                 raise forms.ValidationError(
                     {
                         "reason": "Invalid. This is an unscheduled visit. See appointment."
                     },
                     code=INVALID_ERROR,
                 )
-            # TODO: missed visits now have a CRF, so this won't work
-            if reason == MISSED_VISIT and self.metadata_exists_for(entry_status=KEYED):
+            # raise if CRF metadata exist
+            if reason == MISSED_VISIT and self.metadata_exists_for(
+                entry_status=KEYED,
+                exclude_models=[get_subject_visit_missed_model()._meta.label_lower],
+            ):
                 raise forms.ValidationError(
-                    {"reason": "Invalid. Some data has already been submitted"},
+                    {"reason": "Invalid. Some CRF data has already been submitted."},
+                    code=INVALID_ERROR,
+                )
+            # raise if SubjectVisitMissed CRF metadata exist
+            if reason in [UNSCHEDULED, SCHEDULED] and self.metadata_exists_for(
+                entry_status=KEYED,
+                filter_models=[get_subject_visit_missed_model()._meta.label_lower],
+            ):
+                raise forms.ValidationError(
+                    {
+                        "reason": "Invalid. A missed visit report has already been submitted."
+                    },
                     code=INVALID_ERROR,
                 )
 
@@ -83,20 +107,34 @@ class VisitFormValidator(FormValidator):
 
         self.required_if(OTHER, field="info_source", field_required="info_source_other")
 
-    def metadata_exists_for(self, entry_status=None):
+    def metadata_exists_for(
+        self, entry_status=None, filter_models=None, exclude_models=None
+    ):
         """Returns True if metadata exists for this visit for
         the given entry_status.
         """
+        exclude_opts = {}
+        filter_opts = self.crf_options
+        filter_opts.update(entry_status=entry_status or KEYED)
+        if filter_models:
+            filter_opts.update(model__in=filter_models)
+        if exclude_models:
+            exclude_opts.update(model__in=exclude_models)
+        return (
+            CrfMetadata.objects.filter(**filter_opts).exclude(**exclude_opts).count()
+            + RequisitionMetadata.objects.filter(**filter_opts)
+            .exclude(**exclude_opts)
+            .count()
+        )
+
+    @property
+    def crf_options(self):
         appointment = self.cleaned_data.get("appointment")
-        opts = dict(
+        return dict(
             subject_identifier=appointment.subject_identifier,
             visit_code=appointment.visit_code,
             visit_code_sequence=appointment.visit_code_sequence,
             visit_schedule_name=appointment.visit_schedule_name,
             schedule_name=appointment.schedule_name,
-            entry_status=entry_status or KEYED,
-        )
-        return (
-            CrfMetadata.objects.filter(**opts).count()
-            + RequisitionMetadata.objects.filter(**opts).count()
+            entry_status=KEYED,
         )

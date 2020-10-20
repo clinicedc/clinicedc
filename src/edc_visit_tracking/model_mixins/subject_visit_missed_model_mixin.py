@@ -1,13 +1,14 @@
-from uuid import uuid4
-
 from django.core.validators import MinValueValidator
 from django.db import models
 from edc_constants.choices import ALIVE_DEAD_UNKNOWN, YES_NO, YES_NO_NA
-from edc_constants.constants import NOT_APPLICABLE
+from edc_constants.constants import NO, NOT_APPLICABLE
 from edc_model import models as edc_models
 from edc_model.models import date_not_future
 from edc_protocol.validators import date_not_before_study_start
 from edc_utils import get_utcnow
+
+from ..constants import VISIT_MISSED_ACTION
+from ..models import SubjectVisitMissedReasons
 
 
 class SubjectVisitMissedModelMixin(models.Model):
@@ -24,8 +25,15 @@ class SubjectVisitMissedModelMixin(models.Model):
                 verbose_name_plural = "Subject Missed Visit Reasons"
     """
 
+    action_name = VISIT_MISSED_ACTION
+
+    tracking_identifier_prefix = "VM"
+
     survival_status = models.CharField(
-        verbose_name="Survival status", max_length=25, choices=ALIVE_DEAD_UNKNOWN,
+        verbose_name="Survival status",
+        max_length=25,
+        choices=ALIVE_DEAD_UNKNOWN,
+        help_text="If deceased, complete the death report",
     )
 
     contact_attempted = models.CharField(
@@ -70,9 +78,17 @@ class SubjectVisitMissedModelMixin(models.Model):
         default=NOT_APPLICABLE,
     )
 
-    # missed_reasons = models.ManyToManyField(SubjectVisitMissedReasons, blank=True)
+    missed_reasons = models.ManyToManyField(SubjectVisitMissedReasons, blank=True)
 
     missed_reasons_other = edc_models.OtherCharField()
+
+    ltfu = models.CharField(
+        verbose_name="Has the participant met the protocol criteria for lost to follow up?",
+        max_length=15,
+        choices=YES_NO_NA,
+        default=NO,
+        help_text="If 'Yes', complete the Loss to Follow up form",
+    )
 
     comment = models.TextField(
         verbose_name="Please provide further details, if any", null=True, blank=True,
@@ -80,3 +96,4 @@ class SubjectVisitMissedModelMixin(models.Model):
 
     class Meta:
         abstract = True
+        indexes = [models.Index(fields=["action_identifier", "site", "id"])]
