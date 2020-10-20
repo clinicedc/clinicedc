@@ -22,6 +22,7 @@ class DeathReportAction(ActionWithNotification):
     priority = HIGH_PRIORITY
     singleton = True
     dirty_fields = ["cause_of_death"]
+    enable_tmg_workflow = True
 
     reference_model = f"{ADVERSE_EVENT_APP_LABEL}.deathreport"
     death_report_tmg_model = f"{ADVERSE_EVENT_APP_LABEL}.deathreporttmg"
@@ -32,7 +33,8 @@ class DeathReportAction(ActionWithNotification):
         STUDY_TERMINATION_CONCLUSION if required.
         """
         next_actions = []
-        next_actions = self.append_next_death_tmg_action(next_actions)
+        if self.enable_tmg_workflow:
+            next_actions = self.append_next_death_tmg_action(next_actions)
         next_actions = self.append_next_off_schedule_action(next_actions)
         return next_actions
 

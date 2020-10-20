@@ -164,7 +164,6 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         # assert closed
         self.assertEqual(action_item.status, NEW)
 
-    @tag("1")
     def test_death_tmg_submit_second_tmg_action(self):
         death_report = self.get_death_report()
 
