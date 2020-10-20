@@ -1,6 +1,8 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
+from edc_crf.model_mixins import CrfWithActionModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
+from edc_list_data.model_mixins import ListModelMixin
 from edc_locator.model_mixins import LocatorModelMixin
 from edc_model.models import BaseUuidModel
 from edc_offstudy.model_mixins import OffstudyModelManager, OffstudyVisitModelMixin
@@ -8,7 +10,10 @@ from edc_offstudy.model_mixins import OffstudyModelMixin
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_utils import get_utcnow, get_dob, get_uuid
 from edc_visit_schedule.model_mixins import OnScheduleModelMixin, OffScheduleModelMixin
-from edc_visit_tracking.model_mixins import VisitModelMixin
+from edc_visit_tracking.model_mixins import (
+    SubjectVisitMissedModelMixin,
+    VisitModelMixin,
+)
 
 from edc_appointment.models import Appointment
 
@@ -81,3 +86,28 @@ class SubjectOffstudy(OffstudyModelMixin, BaseUuidModel):
 
 class SubjectOffstudy2(OffstudyModelMixin, BaseUuidModel):
     objects = OffstudyModelManager()
+
+
+class SubjectVisitMissedReasons(ListModelMixin):
+    class Meta(ListModelMixin.Meta):
+        verbose_name = "Subject Missed Visit Reasons"
+        verbose_name_plural = "Subject Missed Visit Reasons"
+
+
+class SubjectVisitMissed(
+    SubjectVisitMissedModelMixin, CrfWithActionModelMixin, BaseUuidModel,
+):
+
+    action_identifier = models.CharField(max_length=50, null=True)
+
+    tracking_identifier = models.CharField(max_length=30, null=True)
+
+    missed_reasons = models.ManyToManyField(
+        SubjectVisitMissedReasons, blank=True, related_name="+"
+    )
+
+    class Meta(
+        SubjectVisitMissedModelMixin.Meta, BaseUuidModel.Meta,
+    ):
+        verbose_name = "Missed Visit Report"
+        verbose_name_plural = "Missed Visit Report"

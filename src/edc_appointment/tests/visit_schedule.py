@@ -30,6 +30,10 @@ crfs = FormsCollection(
     Crf(show_order=5, model="edc_metadata.crffive", required=True),
 )
 
+crfs_missed = FormsCollection(
+    Crf(show_order=10, model="edc_metadata.subjectvisitmissed"), name="missed",
+)
+
 requisitions = FormsCollection(
     Requisition(show_order=10, panel=panel_one, required=True, additional=False),
     Requisition(show_order=20, panel=panel_two, required=True, additional=False),
@@ -105,6 +109,7 @@ for index in range(0, 4):
             rupper=relativedelta(days=6),
             requisitions=requisitions,
             crfs=crfs,
+            crfs_missed=crfs_missed,
             requisitions_unscheduled=requisitions,
             crfs_unscheduled=crfs_unscheduled,
             allow_unscheduled=True,
@@ -126,6 +131,7 @@ for index in range(4, 8):
             rupper=relativedelta(days=6),
             requisitions=requisitions,
             crfs=crfs,
+            crfs_missed=crfs_missed,
             facility_name="7-day-clinic",
         )
     )
@@ -143,6 +149,7 @@ visits.append(
         rupper=relativedelta(days=0),
         requisitions=requisitions,
         crfs=crfs,
+        crfs_missed=crfs_missed,
         facility_name="7-day-clinic",
     )
 )
@@ -158,6 +165,7 @@ for index, visit_code in [(3, "1030"), (6, "1060"), (9, "1090"), (12, "1120")]:
             rupper=relativedelta(days=45),
             requisitions=requisitions,
             crfs=crfs,
+            crfs_missed=crfs_missed,
             facility_name="7-day-clinic",
             allow_unscheduled=True,
         )
