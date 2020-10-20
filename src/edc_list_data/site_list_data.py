@@ -7,7 +7,7 @@ from django.db import transaction
 from django.utils.module_loading import module_has_submodule
 from importlib import import_module
 
-from .preload_data import PreloadData, PreloadDataError
+from .load_list_data import LoadListDataError
 
 
 class SiteListDataError(Exception):
@@ -41,7 +41,7 @@ class SiteListData:
                         with transaction.atomic():
                             PreloadData(**opts)
                         writer(f" * loading '{module_name}' from '{app}'\n")
-                    except PreloadDataError as e:
+                    except LoadListDataError as e:
                         writer(f"   - loading {app}.{module_name} ... \n")
                         writer(style.ERROR(f"ERROR! {e}\n"))
                     except ImportError as e:
