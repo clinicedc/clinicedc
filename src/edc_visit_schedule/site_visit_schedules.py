@@ -95,30 +95,42 @@ class SiteVisitSchedules:
 
         attr `onschedule_model` is in "label_lower" format.
         """
-        schedule = None
-        for visit_schedule in self.visit_schedules.values():
-            for schedule in visit_schedule.schedules.values():
-                if schedule.onschedule_model == onschedule_model:
-                    return visit_schedule, schedule
-        raise SiteVisitScheduleError(
-            f"Schedule not found. No schedule exists for "
-            f"onschedule_model={onschedule_model}."
-        )
-        return None
+        return self._get_by_model(attr="onschedule_model", model=onschedule_model)
 
     def get_by_offschedule_model(self, offschedule_model=None):
         """Returns a tuple of visit_schedule, schedule
         for the given offschedule model.
+
+        attr `offschedule_model` is in "label_lower" format.
         """
+        return self._get_by_model(attr="offschedule_model", model=offschedule_model)
+
+    def get_by_loss_to_followup_model(self, loss_to_followup_model=None):
+        """Returns a tuple of visit_schedule, schedule
+        for the given loss_to_followup model.
+
+        attr `loss_to_followup_model` is in "label_lower" format.
+        """
+        return self._get_by_model(
+            attr="loss_to_followup_model", model=loss_to_followup_model
+        )
+
+    def _get_by_model(self, attr=None, model=None):
+        ret = []
         for visit_schedule in self.visit_schedules.values():
             for schedule in visit_schedule.schedules.values():
-                if schedule.offschedule_model == offschedule_model:
-                    return visit_schedule, schedule
-        raise SiteVisitScheduleError(
-            f"Schedule not found. No schedule exists for "
-            f"offschedule_model={offschedule_model}."
-        )
-        return None, None
+                if getattr(schedule, attr) == model:
+                    ret.append([visit_schedule, schedule])
+        if not ret:
+            raise SiteVisitScheduleError(
+                f"Schedule not found. No schedule exists for {attr}={model}."
+            )
+        elif len(ret) > 1:
+            raise SiteVisitScheduleError(
+                f"Schedule is ambiguous. More than one schedule exists for "
+                f"{attr}={model}. Got {ret}"
+            )
+        return ret[0]
 
     def get_by_offstudy_model(self, offstudy_model=None):
         """Returns a list of visit_schedules for the given

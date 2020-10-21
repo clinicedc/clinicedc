@@ -18,16 +18,16 @@ class VisitScheduleViewMixin(ContextMixin):
         context = super().get_context_data(**kwargs)
         for visit_schedule in site_visit_schedules.visit_schedules.values():
             for schedule in visit_schedule.schedules.values():
-                if not self.current_schedule:
-                    self.current_schedule = schedule
-                    self.current_visit_schedule = visit_schedule
                 try:
                     onschedule_model_obj = schedule.onschedule_model_cls.objects.get(
                         subject_identifier=self.subject_identifier
                     )
                 except ObjectDoesNotExist:
-                    pass
+                    self.current_schedule = None
+                    self.current_visit_schedule = None
                 else:
+                    self.current_schedule = schedule
+                    self.current_visit_schedule = visit_schedule
                     if schedule.is_onschedule(
                         subject_identifier=self.kwargs.get("subject_identifier"),
                         report_datetime=get_utcnow(),

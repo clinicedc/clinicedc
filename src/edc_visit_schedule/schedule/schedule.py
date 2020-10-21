@@ -42,6 +42,7 @@ class Schedule:
         sequence=None,
         onschedule_model=None,
         offschedule_model=None,
+        loss_to_followup_model=None,
         appointment_model=None,
         consent_model=None,
     ):
@@ -61,6 +62,8 @@ class Schedule:
         self.consent_model = consent_model.lower()
         self.offschedule_model = offschedule_model.lower()
         self.onschedule_model = onschedule_model.lower()
+        if loss_to_followup_model:
+            self.loss_to_followup_model = loss_to_followup_model.lower()
 
     def check(self):
         warnings = []
