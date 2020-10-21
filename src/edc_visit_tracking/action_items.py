@@ -8,20 +8,24 @@ from .constants import VISIT_MISSED_ACTION
 
 class VisitMissedAction(ActionWithNotification):
     name = VISIT_MISSED_ACTION
-    display_name = "Submit Loss to Follow Up Report"
-    notification_display_name = " Loss to Follow Up Report"
+    display_name = "Submit Missed Visit"
+    notification_display_name = " Submit Missed Visit"
     parent_action_names = []
     show_link_to_changelist = True
     priority = HIGH_PRIORITY
+    loss_to_followup_action_name = LOSS_TO_FOLLOWUP_ACTION
 
     reference_model = None  # "inte_subject.subjectvisitmissed"
     admin_site_name = None  # "inte_prn_admin"
+
+    def get_loss_to_followup_action_name(self):
+        return self.loss_to_followup_action_name
 
     def get_next_actions(self):
         next_actions = []
         next_actions = self.append_to_next_if_required(
             next_actions=next_actions,
-            action_name=LOSS_TO_FOLLOWUP_ACTION,
+            action_name=self.get_loss_to_followup_action_name(),
             required=self.reference_obj.ltfu == YES,
         )
         next_actions = self.append_to_next_if_required(
