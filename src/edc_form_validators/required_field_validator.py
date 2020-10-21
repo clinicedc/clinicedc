@@ -79,12 +79,14 @@ class RequiredFieldValidator(BaseFormValidator):
         if self.cleaned_data and field_required in self.cleaned_data:
             if condition and (
                 self.cleaned_data.get(field_required) is None
+                or self.cleaned_data.get(field_required) == ""
                 or self.cleaned_data.get(field_required) == NOT_APPLICABLE
             ):
                 self.raise_required(field=field_required, msg=required_msg)
             elif inverse and (
                 not condition
                 and self.cleaned_data.get(field_required) is not None
+                and self.cleaned_data.get(field_required) != ""
                 and self.cleaned_data.get(field_required) != NOT_APPLICABLE
             ):
                 self.raise_not_required(field=field_required, msg=not_required_msg)
