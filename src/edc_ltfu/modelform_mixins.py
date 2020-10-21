@@ -2,7 +2,7 @@ from django import forms
 from edc_constants.constants import NO, YES
 from edc_form_validators import FormValidator
 from edc_visit_tracking.constants import MISSED_VISIT
-from edc_visit_tracking.models import get_subject_visit_missed_model
+from edc_visit_tracking.models import get_subject_visit_model
 
 
 class LossToFollowupFormValidator(FormValidator):
@@ -25,8 +25,12 @@ class LossToFollowupFormValidator(FormValidator):
 
     def check_if_last_visit_was_missed(self):
         last_obj = (
-            get_subject_visit_missed_model()
-            .objects.filter(appointment__subject_identifier=self.subject_identifier,)
+            get_subject_visit_model()
+            .objects.filter(
+                appointment__subject_identifier=self.cleaned_data.get(
+                    "subject_identifier"
+                ),
+            )
             .last()
         )
         if last_obj.reason != MISSED_VISIT:
