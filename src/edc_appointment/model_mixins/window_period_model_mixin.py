@@ -1,7 +1,3 @@
-import pdb
-from decimal import Decimal
-
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from edc_visit_schedule.schedule.window import (
     ScheduledVisitWindowError,
