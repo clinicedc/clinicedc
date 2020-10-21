@@ -1,5 +1,5 @@
 from dateutil.relativedelta import relativedelta
-from django.test import override_settings, TestCase
+from django.test import override_settings, TestCase, tag
 from edc_appointment.models import Appointment
 from edc_constants.constants import (
     ALIVE,
@@ -94,17 +94,22 @@ class TestVisit(TestCase):
             }
         )
 
+    @staticmethod
+    def get_subject_visit():
+        appointment = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )[0]
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointment, reason=MISSED_VISIT
+        )
+        return appointment, subject_visit
+
     @override_settings(
         SUBJECT_MISSED_VISIT_REASONS_MODEL="edc_visit_tracking.subjectvisitmissed"
     )
     def test_(self):
         self.helper.consent_and_put_on_schedule()
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[0]
-        subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, reason=SCHEDULED
-        )
+        appointment, subject_visit = self.get_subject_visit()
         opts = dict(
             visit_schedule_name=appointment.visit_schedule_name,
             schedule_name=appointment.schedule_name,
@@ -116,21 +121,17 @@ class TestVisit(TestCase):
         subject_visit.save()
         self.assertEqual(1, CrfMetadata.objects.filter(**opts).count())
 
-    def test_subject_visit_missed_form(self):
+    @tag("mis")
+    def test_subject_visit_missed_form_survivial_and_ltfu(self):
         self.helper.consent_and_put_on_schedule()
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[0]
-
-        subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, reason=MISSED_VISIT
-        )
+        _, subject_visit = self.get_subject_visit()
         data = dict(
             subject_visit=subject_visit,
             report_datetime=subject_visit.report_datetime,
             survival_status=DEAD,
             contact_attempted=YES,
-            contact_attempts_count=1,
+            contact_attempts_count=4,
+            contact_attempts_explained=None,
             contact_last_date=get_utcnow(),
             missed_reasons=[SubjectVisitMissedReasons.objects.get(name=HOSPITALIZED)],
             contact_made=YES,
@@ -139,47 +140,69 @@ class TestVisit(TestCase):
         form = SubjectVisitMissedForm(data=data)
         form.is_valid()
         self.assertIn("ltfu", form._errors)
-        self.assertNotIn("missed_reasons_other", form._errors)
 
-        data = dict(
-            subject_visit=subject_visit,
-            report_datetime=subject_visit.report_datetime,
-            survival_status=ALIVE,
-            contact_attempted=NO,
-            contact_attempts_count=1,
-            contact_made=NOT_APPLICABLE,
-            missed_reasons=[SubjectVisitMissedReasons.objects.get(name=HOSPITALIZED)],
-            ltfu=YES,
-        )
+        data.update(survival_status=DEAD, ltfu=NOT_APPLICABLE)
         form = SubjectVisitMissedForm(data=data)
         form.is_valid()
-        self.assertIn("contact_attempts_count", form._errors)
+        self.assertNotIn("ltfu", form._errors)
 
-        data = dict(
-            subject_visit=subject_visit,
-            report_datetime=subject_visit.report_datetime,
-            survival_status=ALIVE,
-            contact_attempted=NO,
-            contact_attempts_count=None,
-            contact_made=NOT_APPLICABLE,
-            missed_reasons=[SubjectVisitMissedReasons.objects.get(name=HOSPITALIZED)],
-            ltfu=YES,
-        )
+        data.update(survival_status=ALIVE, ltfu=NOT_APPLICABLE)
         form = SubjectVisitMissedForm(data=data)
         form.is_valid()
-        self.assertIn("missed_reasons", form._errors)
+        self.assertIn("ltfu", form._errors)
 
+    @tag("mis")
+    def test_subject_visit_missed_form_missed_reasons(self):
+        self.helper.consent_and_put_on_schedule()
+        _, subject_visit = self.get_subject_visit()
         data = dict(
             subject_visit=subject_visit,
             report_datetime=subject_visit.report_datetime,
             survival_status=ALIVE,
             contact_attempted=YES,
             contact_attempts_count=1,
-            contact_made=YES,
             contact_last_date=get_utcnow(),
-            missed_reasons=[SubjectVisitMissedReasons.objects.get(name=OTHER)],
+            missed_reasons=[SubjectVisitMissedReasons.objects.get(name=HOSPITALIZED)],
+            contact_made=YES,
+            ltfu=NO,
+        )
+        form = SubjectVisitMissedForm(data=data)
+        form.is_valid()
+        self.assertNotIn("missed_reasons_other", form._errors)
+        data.update(missed_reasons=[SubjectVisitMissedReasons.objects.get(name=OTHER)])
+        form = SubjectVisitMissedForm(data=data)
+        form.is_valid()
+        self.assertIn("missed_reasons_other", form._errors)
+
+    @tag("mis")
+    def test_subject_visit_missed_form_attempts(self):
+        self.helper.consent_and_put_on_schedule()
+        _, subject_visit = self.get_subject_visit()
+        data = dict(
+            subject_visit=subject_visit,
+            report_datetime=subject_visit.report_datetime,
+            survival_status=ALIVE,
+            contact_attempted=NO,
+            contact_made=NOT_APPLICABLE,
+            contact_attempts_count=None,
+            missed_reasons=[SubjectVisitMissedReasons.objects.get(name=HOSPITALIZED)],
             ltfu=YES,
         )
         form = SubjectVisitMissedForm(data=data)
         form.is_valid()
-        self.assertIn("missed_reasons_other", form._errors)
+        self.assertNotIn("contact_attempts_count", form._errors)
+
+        data.update(contact_attempted=YES, contact_made=NO, contact_attempts_count=None)
+        form = SubjectVisitMissedForm(data=data)
+        form.is_valid()
+        self.assertIn("contact_attempts_count", form._errors)
+
+        data.update(contact_attempted=YES, contact_made=NO, contact_attempts_count=2)
+        form = SubjectVisitMissedForm(data=data)
+        form.is_valid()
+        self.assertIn("contact_attempts_explained", form._errors)
+
+        data.update(contact_attempted=YES, contact_made=NO, contact_attempts_count=3)
+        form = SubjectVisitMissedForm(data=data)
+        form.is_valid()
+        self.assertNotIn("contact_attempts_explained", form._errors)
