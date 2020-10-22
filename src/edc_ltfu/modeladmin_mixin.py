@@ -21,6 +21,7 @@ class LossToFollowupModelAdminMixin:
                     "home_visit_detail",
                     "loss_category",
                     "loss_category_other",
+                    "ltfu_date",
                     "comment",
                 )
             },
@@ -32,12 +33,13 @@ class LossToFollowupModelAdminMixin:
     list_display = (
         "subject_identifier",
         "dashboard",
-        "last_seen_datetime",
+        "ltfu_date",
         "number_consecutive_missed_visits",
         "home_visited",
     )
 
     list_filter = (
+        "ltfu_date",
         "last_seen_datetime",
         "last_missed_visit_datetime",
         "number_consecutive_missed_visits",

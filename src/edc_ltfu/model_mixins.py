@@ -31,6 +31,13 @@ class LossToFollowupModelMixin(models.Model):
         blank=False,
     )
 
+    ltfu_date = models.DateField(
+        verbose_name="Date participant considered lost to follow up",
+        default=get_utcnow,
+        null=True,
+        blank=False,
+    )
+
     phone = models.CharField(
         verbose_name="Was contact by phone attempted",
         max_length=15,
