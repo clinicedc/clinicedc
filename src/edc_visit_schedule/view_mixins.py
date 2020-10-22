@@ -23,11 +23,8 @@ class VisitScheduleViewMixin(ContextMixin):
                         subject_identifier=self.subject_identifier
                     )
                 except ObjectDoesNotExist:
-                    self.current_schedule = None
-                    self.current_visit_schedule = None
+                    pass
                 else:
-                    self.current_schedule = schedule
-                    self.current_visit_schedule = visit_schedule
                     if schedule.is_onschedule(
                         subject_identifier=self.kwargs.get("subject_identifier"),
                         report_datetime=get_utcnow(),
