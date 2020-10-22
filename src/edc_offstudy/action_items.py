@@ -22,3 +22,4 @@ class EndOfStudyAction(ActionWithNotification):
     ]
     show_link_to_changelist = True
     priority = HIGH_PRIORITY
+    singleton = True
