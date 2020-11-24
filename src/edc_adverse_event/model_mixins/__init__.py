@@ -23,3 +23,4 @@ from .death_report_tmg_model_mixin import (
     DeathReportTmgSecondManager,
     DeathReportTmgSecondSiteManager,
 )
+from .simple_death_report_model_mixin import SimpleDeathReportModelMixin
