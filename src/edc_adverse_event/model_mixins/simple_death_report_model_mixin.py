@@ -1,27 +1,22 @@
-from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models.deletion import PROTECT
 from edc_action_item.managers import (
     ActionIdentifierSiteManager,
     ActionIdentifierManager,
 )
 from edc_action_item.models import ActionModelMixin
-from edc_constants.choices import YES_NO
 from edc_identifier.model_mixins import (
     TrackingModelMixin,
     UniqueSubjectIdentifierFieldMixin,
 )
-from edc_model.models import datetime_not_future
-from edc_model_fields.fields.other_charfield import OtherCharField
+from edc_model.models import date_not_future, datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
 
 from ..constants import DEATH_REPORT_ACTION
-from ..models import CauseOfDeath
 
 
-class DeathReportModelMixin(
+class SimpleDeathReportModelMixin(
     UniqueSubjectIdentifierFieldMixin,
     SiteModelMixin,
     ActionModelMixin,
@@ -39,31 +34,9 @@ class DeathReportModelMixin(
         default=get_utcnow,
     )
 
-    death_datetime = models.DateTimeField(
-        validators=[datetime_not_future], verbose_name="Date and Time of Death"
+    death_date = models.DateField(
+        validators=[date_not_future], verbose_name="Date of Death"
     )
-
-    study_day = models.IntegerField(
-        validators=[MinValueValidator(1)], verbose_name="Study day"
-    )
-
-    death_as_inpatient = models.CharField(
-        choices=YES_NO, max_length=5, verbose_name="Death as inpatient"
-    )
-
-    cause_of_death = models.ForeignKey(
-        CauseOfDeath,
-        on_delete=PROTECT,
-        verbose_name="Main cause of death",
-        help_text=(
-            "Main cause of death in the opinion of the "
-            "local study doctor and local PI"
-        ),
-        null=True,
-        blank=False,
-    )
-
-    cause_of_death_other = OtherCharField(max_length=100, blank=True, null=True)
 
     narrative = models.TextField(verbose_name="Narrative")
 
@@ -73,8 +46,6 @@ class DeathReportModelMixin(
 
     def natural_key(self):
         return (self.action_identifier,)
-
-    natural_key.dependencies = ["edc_adverse_event.causeofdeath"]
 
     class Meta:
         abstract = True
