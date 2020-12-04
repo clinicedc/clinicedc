@@ -21,7 +21,6 @@ from .constants import (
     NEG,
     NEVER,
     NO,
-    NO_UNCONFIRMED,
     NONSMOKER,
     NOT_ESTIMATED,
     NORMAL,
@@ -64,6 +63,14 @@ ACU_EST_NEG = (
 ALIVE_DEAD = ((ALIVE, "Alive"), (DEAD, "Dead"))
 
 ALIVE_DEAD_UNKNOWN = ((ALIVE, "Alive"), (DEAD, "Deceased"), (UNKNOWN, "Unknown"))
+
+ALIVE_DEAD_UNKNOWN_NA = (
+    (ALIVE, "Alive"),
+    (DEAD, "Deceased"),
+    (UNKNOWN, "Unknown"),
+    (NOT_APPLICABLE, "Not applicable"),
+)
+
 
 ART_STATUS = (
     ("ON", "Yes, on ART"),
@@ -470,13 +477,6 @@ YES_NO_NA_DWTA = (
     (NOT_APPLICABLE, "Not applicable"),
 )
 
-YES_NO_NA_DWTA_DNK = (
-    (YES, _(YES)),
-    (NO, _(NO)),
-    (DWTA, _("Don't want to answer")),
-    ("cant_remember", "Cannot remember"),
-)
-
 YES_NO_NOT_EVALUATED = ((YES, YES), (NO, NO), ("Not_evaluated", "Not evaluated"))
 
 YES_NO_NOT_EVALUATED_NA = (
@@ -487,8 +487,6 @@ YES_NO_NOT_EVALUATED_NA = (
 )
 
 YES_NO_NOT_DONE = ((YES, YES), (NO, NO), (NOT_DONE, "Not done"))
-
-YES_NO_DOESNT_WORK = ((YES, YES), (NO, NO), ("DontWork", "Doesn't work"))
 
 YES_NO_UNKNOWN = ((YES, YES), (NO, NO), (UNKNOWN, "Unknown"))
 
