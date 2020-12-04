@@ -27,7 +27,7 @@ class SingleSite:
         self.site_id = site_id
         self.name = name
         self.title = title or name.title()
-        self._country = country or ""
+        self.country = country or ""
         self.country_code = country_code or ""
         if not country and "multisite" in settings.INSTALLED_APPS:
             raise SiteCountryRequiredError(
@@ -67,10 +67,6 @@ class SingleSite:
             self.country,
             self.domain,
         )
-
-    @property
-    def country(self):
-        return self._country
 
     def as_dict(self):
         return dict(

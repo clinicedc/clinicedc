@@ -1,31 +1,12 @@
-from django.apps import apps as django_apps
-
-from .single_site import SingleSite
+from .get_sites_from_model import get_sites_from_model
 
 
 class InvalidSiteError(Exception):
     pass
 
 
-def get_sites_from_model():
-    site_model_cls = django_apps.get_model("edc_sites.edcsite")
-    return [
-        SingleSite(
-            obj.id,
-            obj.name,
-            title=obj.title,
-            description=obj.description,
-            country=obj.country,
-            country_code=obj.country_code,
-            domain=obj.domain,
-        )
-        for obj in site_model_cls.objects.all()
-    ]
-
-
 def get_site_id(value, sites=None):
-    """Returns the site_id given the site_name.
-    """
+    """Returns the site_id given the site_name"""
     if not sites:
         sites = get_sites_from_model()
 
