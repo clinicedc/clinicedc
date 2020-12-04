@@ -73,7 +73,8 @@ class LossToFollowupModelMixin(models.Model):
 
     comment = models.TextField(
         verbose_name=(
-            "If any, please give additional details of the circumstances that led to this decision."
+            "If any, please give additional details of the "
+            "circumstances that led to this decision."
         ),
         null=True,
         blank=True,

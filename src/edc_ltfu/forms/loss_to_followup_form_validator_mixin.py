@@ -30,13 +30,17 @@ class LossToFollowupFormValidatorMixin:
         except ObjectDoesNotExist:
             if self.offschedule_reason_field not in self.cleaned_data:
                 raise ImproperlyConfigured(
-                    f"Unknown offschedule_reason_field. Got '{self.offschedule_reason_field}'. "
+                    "Unknown offschedule_reason_field. "
+                    f"Got '{self.offschedule_reason_field}'. "
                     f"See form {self.__class__.__name__}"
                 )
             if self.cleaned_data.get(self.offschedule_reason_field) == LOST_TO_FOLLOWUP:
                 raise forms.ValidationError(
                     {
-                        self.offschedule_reason_field: "Patient was lost to followup, please complete "
-                        f"'{self.loss_to_followup_model_cls._meta.verbose_name}' form first."
+                        self.offschedule_reason_field: (
+                            "Patient was lost to followup, please complete "
+                            f"'{self.loss_to_followup_model_cls._meta.verbose_name}' "
+                            "form first."
+                        )
                     }
                 )

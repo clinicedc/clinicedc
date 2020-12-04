@@ -59,7 +59,9 @@ class LtfuFormValidatorMixin:
         return django_apps.get_model(self.loss_to_followup_model)
 
     def validate_loss_to_followup(self):
-        if self.loss_to_followup_model:
+        if self.loss_to_followup_model and (
+            self.cleaned_data.get("subject_identifier") or self.instance
+        ):
             subject_identifier = (
                 self.cleaned_data.get("subject_identifier")
                 or self.instance.subject_identifier
@@ -71,18 +73,16 @@ class LtfuFormValidatorMixin:
                 )
             except ObjectDoesNotExist:
                 if (
-                    self.cleaned_data.get(self.offschedule_reason_field).name
+                    self.cleaned_data.get(self.offschedule_reason_field)
+                    and self.cleaned_data.get(self.offschedule_reason_field).name
                     == self.loss_to_followup_reason
                 ):
-                    raise forms.ValidationError(
-                        {
-                            self.offschedule_reason_field: (
-                                "Patient is lost to followup, please complete "
-                                f"`{self.loss_to_followup_model_cls._meta.verbose_name}` "
-                                "form first."
-                            )
-                        }
+                    msg = (
+                        "Patient is lost to followup, please complete "
+                        f"`{self.loss_to_followup_model_cls._meta.verbose_name}` "
+                        "form first."
                     )
+                    raise forms.ValidationError({self.offschedule_reason_field: msg})
             else:
                 if self.cleaned_data.get(self.loss_to_followup_date_field) and (
                     ltfu.ltfu_date
