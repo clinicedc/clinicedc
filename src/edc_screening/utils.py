@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.utils.html import format_html
 from edc_constants.constants import NORMAL, YES, NO
 
 
@@ -21,3 +22,17 @@ def if_normal(value):
 
 def get_subject_screening_model():
     return getattr(settings, "SUBJECT_SCREENING_MODEL", None)
+
+
+def format_reasons_ineligible(*str_values, delimiter=None):
+    reasons = None
+    delimiter = delimiter or "|"
+    str_values = [x for x in str_values if x is not None]
+    if str_values:
+        str_values = "".join(str_values)
+        reasons = format_html(str_values.replace(delimiter, "<BR>"))
+    return reasons
+
+
+def eligibility_display_label(eligible):
+    return "ELIGIBLE" if eligible else "not eligible"
