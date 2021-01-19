@@ -8,7 +8,6 @@ from edc_reportable.units import (
 
 
 class TestParser(TestCase):
-    @tag("1")
     def test_convert_glucose(self):
         """mg/dL to mmol/L"""
 
@@ -38,7 +37,6 @@ class TestParser(TestCase):
         )
         self.assertEqual(6.9375, converted_value)
 
-    @tag("1")
     def test_convert_creatinine(self):
         """mg/dL to umol/L"""
 

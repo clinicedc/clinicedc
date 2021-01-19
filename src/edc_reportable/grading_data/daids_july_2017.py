@@ -135,7 +135,7 @@ chemistries = {
             **adult_age_options,
         ),
     ],
-    # TODO: confirm amylase grading in UI_LITER
+    # TODO: confirm amylase grading in IU_LITER
     "amylase": [
         p(
             "200<=x<=400",
