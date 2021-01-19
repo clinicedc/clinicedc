@@ -11,3 +11,4 @@ from .many_to_many_field_validator import ManyToManyFieldValidator
 from .many_to_many_field_validator import M2M_SELECTION_ONLY, M2M_INVALID_SELECTION
 from .other_specify_field_validator import OtherSpecifyFieldValidator
 from .required_field_validator import RequiredFieldValidator
+from .test_case_mixin import FormValidatorTestCaseMixin
