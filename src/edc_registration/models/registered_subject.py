@@ -3,7 +3,7 @@ import re
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator
 from django.db import models, transaction
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django_crypto_fields.fields import FirstnameField, LastnameField
 from django_crypto_fields.fields import IdentityField, EncryptedCharField
 from edc_constants.choices import GENDER
