@@ -1,13 +1,20 @@
-from warnings import warn
-
 from django.apps import apps as django_apps
-
-# from django.contrib.auth.models import Permission
-# from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
+from warnings import warn
 
 
 class ExportPermissionsFixer:
+    """
+    Fix permissions when new permissions are added to the default list
+    in the model Meta class.
+
+    For example. see `edc_models.BaseUuidModel.Meta`
+
+    Usage:
+        fixer = ExportPermissionsFixer(warn_only=True)
+        fixer.fix()
+    """
+
     def __init__(self, app_label=None, verbose=None, warn_only=None):
         if app_label:
             self.app_configs = [django_apps.get_app_config(app_label)]
@@ -43,8 +50,9 @@ class ExportPermissionsFixer:
             if self.verbose:
                 print(f"    - {model._meta.label_lower}")
             try:
+                app_label, model_name = model._meta.label_lower.split(".")
                 content_type = content_type_model_cls.objects.get(
-                    app_label=model._meta.app_label, model=model._meta.object_name,
+                    app_label=app_label, model__iexact=model_name,
                 )
             except ObjectDoesNotExist as e:
                 if self.warn_only:

@@ -1,10 +1,9 @@
 import sys
 
-from django.apps import AppConfig as DjangoAppConfig, apps as django_apps
+from django.apps import AppConfig as DjangoAppConfig
 from django.core.checks.registry import register
 from django.core.management.color import color_style
 from django.db.models.signals import post_migrate
-from edc_auth.fix_export_permissions import ExportPermissionsFixer
 
 from .role_names import groups_by_role_name, role_names
 from .system_checks import edc_check
@@ -22,8 +21,9 @@ def post_migrate_user_roles(sender=None, **kwargs):
     update_roles(
         groups_by_role_name=groups_by_role_name, role_names=role_names, verbose=True
     )
-    fixer = ExportPermissionsFixer(warn_only=True)
-    fixer.fix()
+    # below not necessary for new systems
+    # fixer = ExportPermissionsFixer(warn_only=True)
+    # fixer.fix()
 
 
 class AppConfig(DjangoAppConfig):

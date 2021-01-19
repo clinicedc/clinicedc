@@ -50,7 +50,7 @@ class Role(BaseUuidModel):
     def natural_key(self):
         return (self.name,)
 
-    class Meta:
+    class Meta(BaseUuidModel.Meta):
         ordering = ["display_index", "display_name"]
 
         indexes = [models.Index(fields=["id", "display_name", "display_index"])]
