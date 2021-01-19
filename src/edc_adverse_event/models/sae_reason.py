@@ -3,4 +3,5 @@ from edc_model.models import BaseUuidModel
 
 
 class SaeReason(ListModelMixin, BaseUuidModel):
-    pass
+    class Meta(ListModelMixin.Meta, BaseUuidModel.Meta):
+        pass
