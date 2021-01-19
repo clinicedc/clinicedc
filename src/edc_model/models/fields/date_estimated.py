@@ -1,5 +1,5 @@
 from django.db.models.fields import CharField
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from edc_constants.choices import DATE_ESTIMATED, DATE_ESTIMATED_NA
 from edc_constants.constants import NOT_APPLICABLE
 
