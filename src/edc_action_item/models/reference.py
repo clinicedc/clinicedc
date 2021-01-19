@@ -34,3 +34,6 @@ class Reference(NonUniqueSubjectIdentifierFieldMixin, ActionModelMixin, BaseUuid
 
     def natural_key(self):
         return (self.action_identifier,)
+
+    class Meta(BaseUuidModel.Meta):
+        pass
