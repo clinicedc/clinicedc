@@ -62,11 +62,13 @@ class RandomizationListImporter:
         dryrun=None,
         user=None,
         revision=None,
+        sid_count_for_tests=None,
     ):
         verbose = True if verbose is None else verbose
         self.dryrun = True if dryrun and dryrun.lower() == "yes" else False
         self.revision = revision
         self.user = user
+        self.sid_count_for_tests = sid_count_for_tests
 
         if self.dryrun:
             sys.stdout.write(
@@ -207,7 +209,7 @@ class RandomizationListImporter:
         objs = []
         with open(path, "r") as csvfile:
             reader = csv.DictReader(csvfile)
-            for row in tqdm(reader, total=self.sid_count):
+            for row in tqdm(reader, total=self.sid_count_for_tests or self.sid_count):
                 row = {k: v.strip() for k, v in row.items()}
                 try:
                     randomizer.model_cls().objects.get(sid=row["sid"])
@@ -235,13 +237,15 @@ class RandomizationListImporter:
             if not self.dryrun:
                 sys.stdout.write(
                     style.SUCCESS(
-                        f"\n    -  bulk creating {self.sid_count} model instances ...\r"
+                        f"\n    -  bulk creating {self.sid_count_for_tests or self.sid_count} "
+                        "model instances ...\r"
                     )
                 )
                 randomizer.model_cls().objects.bulk_create(objs)
                 sys.stdout.write(
                     style.SUCCESS(
-                        f"    -  bulk creating {self.sid_count} model instances ... done\n"
+                        f"    -  bulk creating {self.sid_count_for_tests or self.sid_count} "
+                        "model instances ... done\n"
                     )
                 )
                 assert self.sid_count == randomizer.model_cls().objects.all().count()
