@@ -9,6 +9,18 @@ from edc_utils.date import get_utcnow
 
 from .choices import TRANSFER_REASONS
 
+"""
+Was the transfer related to a worsening condition?
+
+Was the transfer related to drug supply
+
+Was the transfer for financial reasons
+
+Was the transfer because of stigma
+
+In general, did the patient like integrated care
+"""
+
 
 class SubjectTransferModelMixin(
     UniqueSubjectIdentifierFieldMixin, SiteModelMixin, models.Model,
