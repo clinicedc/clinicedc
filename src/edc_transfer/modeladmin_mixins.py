@@ -15,8 +15,12 @@ class SubjectTransferModelAdminMixin:
             {
                 "fields": (
                     "transfer_date",
+                    "initiated_by",
+                    "initiated_by_other",
                     "transfer_reason",
                     "transfer_reason_other",
+                    "may_return",
+                    "may_contact",
                     "comment",
                 )
             },
@@ -29,15 +33,24 @@ class SubjectTransferModelAdminMixin:
         "subject_identifier",
         "dashboard",
         "transfer_date",
+        "initiated_by",
+        "may_return",
+        "may_contact",
     )
 
     list_filter = (
         "transfer_date",
-        "transfer_reason",
+        "initiated_by",
+        "may_return",
+        "may_contact",
     )
 
+    filter_horizontal = ("transfer_reason",)
+
     radio_fields = {
-        "transfer_reason": admin.VERTICAL,
+        "initiated_by": admin.VERTICAL,
+        "may_return": admin.VERTICAL,
+        "may_contact": admin.VERTICAL,
     }
 
     search_fields = ("subject_identifier", "action_identifier", "tracking_identifier")

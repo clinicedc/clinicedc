@@ -2,103 +2,102 @@ from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from edc_constants.constants import LOST_TO_FOLLOWUP, NO, YES
+from edc_adverse_event import get_ae_model
+from edc_constants.constants import DWTA, OTHER
 from edc_form_validators import FormValidator
 from edc_utils import convert_php_dateformat
-from edc_visit_tracking.constants import MISSED_VISIT
-from edc_visit_tracking.models import get_subject_visit_model
+
+from .constants import TRANSFERRED
 
 
-class LossToFollowupFormValidator(FormValidator):
+class SubjectTransferModelFormMixin:
+
+    # verify transfer date is not on or after death
+    def validate_death_date(self):
+        if self.death_report.death_date <= self.cleaned_data.get("transfer_date"):
+            raise forms.ValidationError()
+
+    def death_report(self):
+        try:
+            return get_ae_model("death_report").objects.get(
+                subject_identifier=self.cleaned_data.get("subject_identifier")
+            )
+        except ObjectDoesNotExist:
+            return None
+
+
+class SubjectTransferFormValidator(FormValidator):
+    """For use with the SubjectTransferForm"""
+
     def clean(self):
-        self.check_if_last_visit_was_missed()
-        self.required_if(YES, field="phone", field_required="phone_attempts")
-        self.required_if(YES, field="home_visit", field_required="home_visit_detail")
-        if (
-            self.cleaned_data.get("phone_attempts") == 0
-            and self.cleaned_data.get("home_visit") == NO
-        ):
-            raise forms.ValidationError(
-                "No contact attempted. An attempt must be made to contact "
-                "the patient by phone or home visit before declaring as lost "
-                "to follow up."
-            )
+
+        # verify on study
+
         self.validate_other_specify(
-            field="loss_category", other_specify_field="loss_category_other"
+            "initiated_by", other_specify_field="initiated_by_other"
         )
 
-    def check_if_last_visit_was_missed(self):
-        last_obj = (
-            get_subject_visit_model()
-            .objects.filter(
-                appointment__subject_identifier=self.cleaned_data.get(
-                    "subject_identifier"
-                ),
-            )
-            .last()
+        self.m2m_single_selection_if(DWTA, m2m_field="transfer_reason")
+
+        self.m2m_other_specify(
+            OTHER, m2m_field="transfer_reason", field_other="transfer_reason_other"
         )
-        if last_obj.reason != MISSED_VISIT:
-            raise forms.ValidationError(
-                f"Wait! Last visit was not reported as `missed`. Got {last_obj}"
-            )
-        return True
 
 
-class LtfuFormValidatorMixin:
+class SubjectTransferFormValidatorMixin:
     """Used in off schedule form or any form that
-    needs to confirm the LTFU form was submitted
+    needs to confirm the Subject Transfer form was submitted
     first.
+
+    Note: This mixin is NOT for use with the SubjectTransferForm.
     """
 
-    loss_to_followup_model = None  # "inte_prn.losstofollowup"
-    loss_to_followup_date_field = None  # "ltfu_date"
-    loss_to_followup_reason = LOST_TO_FOLLOWUP
+    subject_transfer_model = None  # "inte_prn.subjecttransfer"
+    subject_transfer_date_field = "transfer_date"
+    subject_transfer_reason = TRANSFERRED
 
     @property
-    def loss_to_followup_model_cls(self):
-        return django_apps.get_model(self.loss_to_followup_model)
+    def subject_transfer_model_cls(self):
+        return django_apps.get_model(self.subject_transfer_model)
 
-    def validate_loss_to_followup(self):
-        if self.loss_to_followup_model and (
-            self.cleaned_data.get("subject_identifier") or self.instance
-        ):
+    def validate_subject_transferred(self):
+        if self.cleaned_data.get("subject_identifier") or self.instance:
             subject_identifier = (
                 self.cleaned_data.get("subject_identifier")
                 or self.instance.subject_identifier
             )
-
             try:
-                ltfu = django_apps.get_model(self.loss_to_followup_model).objects.get(
-                    subject_identifier=subject_identifier
-                )
+                subject_transfer_obj = django_apps.get_model(
+                    self.subject_transfer_model
+                ).objects.get(subject_identifier=subject_identifier)
             except ObjectDoesNotExist:
                 if (
                     self.cleaned_data.get(self.offschedule_reason_field)
                     and self.cleaned_data.get(self.offschedule_reason_field).name
-                    == self.loss_to_followup_reason
+                    == self.subject_transfer_reason
                 ):
                     msg = (
-                        "Patient is lost to followup, please complete "
-                        f"`{self.loss_to_followup_model_cls._meta.verbose_name}` "
+                        "Patient has been transferred, please complete "
+                        f"`{self.subject_transfer_model_cls._meta.verbose_name}` "
                         "form first."
                     )
                     raise forms.ValidationError({self.offschedule_reason_field: msg})
             else:
-                if self.cleaned_data.get(self.loss_to_followup_date_field) and (
-                    ltfu.ltfu_date
-                    != self.cleaned_data.get(self.loss_to_followup_date_field)
+                if self.cleaned_data.get(self.subject_transfer_date_field) and (
+                    subject_transfer_obj.transfer_date
+                    != self.cleaned_data.get(self.subject_transfer_date_field)
                 ):
-                    expected = ltfu.ltfu_date.strftime(
+                    expected = subject_transfer_obj.transfer_date.strftime(
                         convert_php_dateformat(settings.SHORT_DATE_FORMAT)
                     )
                     got = self.cleaned_data.get(
-                        self.loss_to_followup_date_field
+                        self.subject_transfer_date_field
                     ).strftime(convert_php_dateformat(settings.SHORT_DATE_FORMAT))
                     raise forms.ValidationError(
                         {
-                            self.loss_to_followup_date_field: (
+                            self.subject_transfer_date_field: (
                                 "Date does not match "
-                                f"`{self.loss_to_followup_model_cls._meta.verbose_name}` "
+                                f"`{self.subject_transfer_model_cls._meta.verbose_name}` "
                                 f"form. Expected {expected}. Got {got}."
                             )
                         }

@@ -1,30 +1,21 @@
+from django.conf import settings
 from django.db import models
 from django_crypto_fields.fields import EncryptedTextField
-from edc_identifier.managers import SubjectIdentifierManager
+from edc_constants.choices import YES_NO, YES_NO_UNSURE
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_model import models as edc_models
-from edc_model.models import HistoricalRecords
-from edc_sites.models import SiteModelMixin, CurrentSiteManager
+from edc_sites.models import SiteModelMixin
 from edc_utils.date import get_utcnow
 
-from .choices import TRANSFER_REASONS
-
-"""
-Was the transfer related to a worsening condition?
-
-Was the transfer related to drug supply
-
-Was the transfer for financial reasons
-
-Was the transfer because of stigma
-
-In general, did the patient like integrated care
-"""
+from .choices import TRANSFER_INITIATORS
+from .constants import SUBJECT_TRANSFER_ACTION
 
 
 class SubjectTransferModelMixin(
     UniqueSubjectIdentifierFieldMixin, SiteModelMixin, models.Model,
 ):
+
+    action_name = SUBJECT_TRANSFER_ACTION
 
     report_datetime = models.DateTimeField(
         verbose_name="Report Date and Time", default=get_utcnow
@@ -32,17 +23,37 @@ class SubjectTransferModelMixin(
 
     transfer_date = models.DateField(verbose_name="Transfer date", default=get_utcnow)
 
-    transfer_reason = models.CharField(
-        verbose_name="Reason for transfer", max_length=25, choices=TRANSFER_REASONS,
+    initiated_by = models.CharField(
+        verbose_name="Who initiated the transfer request",
+        max_length=25,
+        choices=TRANSFER_INITIATORS,
+    )
+
+    initiated_by_other = edc_models.OtherCharField()
+
+    transfer_reason = models.ManyToManyField(
+        f"{settings.LIST_MODEL_APP_LABEL}.transferreasons",
+        verbose_name="Reason for transfer",
     )
 
     transfer_reason_other = edc_models.OtherCharField()
 
-    comment = EncryptedTextField(verbose_name="Additional Comments")
+    may_return = models.CharField(
+        verbose_name=(
+            "Is the participant likely to transfer back before "
+            "the end of their stay in the trial?"
+        ),
+        max_length=15,
+        choices=YES_NO_UNSURE,
+    )
 
-    on_site = CurrentSiteManager()
-    objects = SubjectIdentifierManager()
-    history = HistoricalRecords(inherit=True)
+    may_contact = models.CharField(
+        verbose_name="Is the participant willing to be contacted at the end of the study?",
+        max_length=15,
+        choices=YES_NO,
+    )
+
+    comment = EncryptedTextField(verbose_name="Additional Comments")
 
     def natural_key(self):
         return (self.subject_identifier,)

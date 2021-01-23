@@ -1,10 +1,7 @@
-from edc_constants.constants import OTHER, UNKNOWN
+from edc_constants.constants import OTHER
 
-TRANSFER_REASONS = (
-    (OTHER, ""),
-    (OTHER, "Transferred to hospital for specialized care"),
-    (OTHER, "Transferred to private clinic"),
-    (OTHER, "Transferred to another government clinic / hospital"),
-    (UNKNOWN, "Unknown / Reason not given"),
+TRANSFER_INITIATORS = (
+    ("patient", "Patient"),
+    ("clinician", "Attending Clinician / Healthcare worker"),
     (OTHER, "Other"),
 )
