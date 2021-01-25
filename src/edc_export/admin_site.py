@@ -9,4 +9,3 @@ class AdminSite(EdcAdminSite):
 
 
 edc_export_admin = AdminSite(name="edc_export_admin")
-edc_export_admin.disable_action("delete_selected")
