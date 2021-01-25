@@ -60,7 +60,7 @@ class TestTwilio(TestCase):
                 "TEST MESSAGE. NO ACTION REQUIRED - Project Name "
                 "(set EDC_PROTOCOL_PROJECT_NAME): "
                 'Report "Test Grade3 Event" '
-                "for patient 1 at site example.com may require your attention. "
+                "for patient 1 at site edc_notification may require your attention. "
                 "Login to review. (See your user profile to unsubscribe.)"
             ),
         )
