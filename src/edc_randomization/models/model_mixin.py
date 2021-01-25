@@ -104,7 +104,8 @@ class RandomizationListModelMixin(models.Model):
                 f"{list(self.randomizer_cls.assignment_map.keys())}. "
                 f"Got `{self.assignment}`. See "
             )
-        return self.randomizer_cls.assignment_map.get(self.assignment)
+        return self.assignment
+        # return self.randomizer_cls.assignment_map.get(self.assignment)
 
     def natural_key(self):
         return (self.sid,)
