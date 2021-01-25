@@ -1,12 +1,11 @@
-from django.contrib.admin import AdminSite as DjangoAdminSite
+from edc_model_admin.admin_site import EdcAdminSite
 
 
-class AdminSite(DjangoAdminSite):
+class AdminSite(EdcAdminSite):
     site_title = "Edc Visit Schedule"
     site_header = "Edc Visit Schedule"
     index_title = "Edc Visit Schedule"
-    site_url = "/edc_visit_schedule/"
+    # site_url = "/edc_visit_schedule/"
 
 
 edc_visit_schedule_admin = AdminSite(name="edc_visit_schedule_admin")
-edc_visit_schedule_admin.disable_action("delete_selected")
