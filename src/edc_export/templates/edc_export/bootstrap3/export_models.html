@@ -1,9 +1,10 @@
 {% extends edc_base_template %}
 {% load static %}
 
-{% block extra-css %}
-    <link rel="stylesheet" type="text/css" href="{% static 'edc_export/edc.css' %}"> 
-{% endblock extra-css %}
+{% block extrastyle %}
+    <link rel="stylesheet" type="text/css" href="{% static 'edc_export/edc.css' %}">
+    {{ block.super }}
+{% endblock extrastyle %}
 
 {% block scripts %}
 {{ block.super }}
