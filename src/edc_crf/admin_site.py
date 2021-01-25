@@ -1,7 +1,7 @@
-from django.contrib.admin.sites import AdminSite as DjangoAdminSite
+from edc_model_admin.admin_site import EdcAdminSite
 
 
-class AdminSite(DjangoAdminSite):
+class AdminSite(EdcAdminSite):
     site_header = "Edc CRF"
     site_title = "Edc CRF"
     index_title = "Edc CRF Administration"
@@ -9,4 +9,3 @@ class AdminSite(DjangoAdminSite):
 
 
 edc_crf_admin = AdminSite(name="edc_crf_admin")
-edc_crf_admin.disable_action("delete_selected")
