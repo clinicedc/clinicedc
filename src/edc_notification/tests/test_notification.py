@@ -19,7 +19,6 @@ from ..site_notifications import site_notifications, AlreadyRegistered
 from ..site_notifications import RegistryNotLoaded, NotificationNotRegistered
 from ..models import Notification as NotificationModel
 from .models import AE, Death, Condition, AnyModel
-import os
 
 style = color_style()
 
