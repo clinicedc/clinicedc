@@ -1,12 +1,11 @@
-from django.contrib.admin.sites import AdminSite
+from edc_model_admin.admin_site import EdcAdminSite
 
 
-class EdcConsentAdminSite(AdminSite):
+class AdminSite(EdcAdminSite):
     site_header = "Consent"
     site_title = "Consent"
     index_title = "Consent"
     site_url = "/edc_consent/"
 
 
-edc_consent_admin = EdcConsentAdminSite(name="edc_consent_admin")
-edc_consent_admin.disable_action("delete_selected")
+edc_consent_admin = AdminSite(name="edc_consent_admin")
