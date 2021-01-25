@@ -18,6 +18,7 @@ p = inflect.engine()
 class DeathReport(CrfPdfReport):
 
     model_attr = "death_report"
+    not_reported_text = "not reported"
 
     def __init__(self, death_report=None, **kwargs):
         super().__init__(**kwargs)
@@ -68,10 +69,15 @@ class DeathReport(CrfPdfReport):
             ],
             [
                 "Death date:",
-                self.death_report.death_datetime.strftime("%Y-%m-%d %H:%M"),
+                getattr(self.death_report, self.death_report.death_date_field).strftime(
+                    "%Y-%m-%d %H:%M"
+                ),
             ],
-            ["Study day:", self.death_report.study_day],
-            ["Death as inpatient:", self.death_report.death_as_inpatient],
+            ["Study day:", self.death_report.study_day or self.not_reported_text],
+            [
+                "Death as inpatient:",
+                self.death_report.death_as_inpatient or self.not_reported_text,
+            ],
         ]
 
         t = Table(rows, (4 * cm, 14 * cm))
@@ -86,17 +92,19 @@ class DeathReport(CrfPdfReport):
         rows = []
 
         row = ["Main cause of death:"]
-        if self.death_report.cause_of_death.name == OTHER:
-            row.append(
-                fill(
-                    f"{self.death_report.cause_of_death.name}: "
-                    f"{self.death_report.cause_of_death_other}",
-                    width=80,
-                )
-            )
+        if not self.death_report.cause_of_death:
+            row.append(self.not_reported_text)
         else:
-            row.append(fill(self.death_report.cause_of_death.name))
-
+            if self.death_report.cause_of_death.name == OTHER:
+                row.append(
+                    fill(
+                        f"{self.death_report.cause_of_death.name}: "
+                        f"{self.death_report.cause_of_death_other}",
+                        width=80,
+                    )
+                )
+            else:
+                row.append(fill(self.death_report.cause_of_death.name))
         rows.append(row)
 
         t = Table(rows, (4 * cm, 14 * cm))

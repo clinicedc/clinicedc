@@ -26,6 +26,8 @@ class SimpleDeathReportModelMixin(
 
     action_name = DEATH_REPORT_ACTION
 
+    death_date_field = "death_date"
+
     tracking_identifier_prefix = "DR"
 
     report_datetime = models.DateTimeField(
@@ -34,8 +36,18 @@ class SimpleDeathReportModelMixin(
         default=get_utcnow,
     )
 
+    death_datetime = models.DateTimeField(
+        validators=[datetime_not_future],
+        verbose_name="Date and Time of Death",
+        null=True,
+        blank=False,
+    )
+
     death_date = models.DateField(
-        validators=[date_not_future], verbose_name="Date of Death"
+        validators=[date_not_future],
+        verbose_name="Date of Death",
+        null=True,
+        blank=False,
     )
 
     narrative = models.TextField(verbose_name="Narrative")

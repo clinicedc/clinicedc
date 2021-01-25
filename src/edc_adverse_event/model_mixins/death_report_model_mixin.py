@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.deletion import PROTECT
@@ -11,7 +13,7 @@ from edc_identifier.model_mixins import (
     TrackingModelMixin,
     UniqueSubjectIdentifierFieldMixin,
 )
-from edc_model.models import datetime_not_future
+from edc_model.models import date_not_future, datetime_not_future
 from edc_model_fields.fields.other_charfield import OtherCharField
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.models import SiteModelMixin
@@ -31,6 +33,8 @@ class DeathReportModelMixin(
 
     action_name = DEATH_REPORT_ACTION
 
+    death_date_field = "death_datetime"
+
     tracking_identifier_prefix = "DR"
 
     report_datetime = models.DateTimeField(
@@ -40,15 +44,32 @@ class DeathReportModelMixin(
     )
 
     death_datetime = models.DateTimeField(
-        validators=[datetime_not_future], verbose_name="Date and Time of Death"
+        validators=[datetime_not_future],
+        verbose_name="Date and Time of Death",
+        null=True,
+        blank=False,
+    )
+
+    death_date = models.DateField(
+        validators=[date_not_future],
+        verbose_name="Date of Death",
+        null=True,
+        blank=False,
     )
 
     study_day = models.IntegerField(
-        validators=[MinValueValidator(1)], verbose_name="Study day"
+        validators=[MinValueValidator(1)],
+        verbose_name="Study day",
+        null=True,
+        blank=False,
     )
 
     death_as_inpatient = models.CharField(
-        choices=YES_NO, max_length=5, verbose_name="Death as inpatient"
+        choices=YES_NO,
+        max_length=5,
+        verbose_name="Death as inpatient",
+        null=True,
+        blank=False,
     )
 
     cause_of_death = models.ForeignKey(

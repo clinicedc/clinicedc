@@ -10,12 +10,13 @@ from edc_adverse_event.get_ae_model import get_ae_model
 
 
 class DeathDateValidator:
-    def __init__(self, cleaned_data=None, instance=None):
+    def __init__(self, cleaned_data=None, instance=None, death_date_field=None):
         self._death_report_date = None
         self._death_report = None
         self._subject_identifier = None
         self.cleaned_data = cleaned_data
         self.instance = instance
+        self.death_date_field = death_date_field or "death_date"
 
     @property
     def subject_identifier(self):
@@ -42,10 +43,13 @@ class DeathDateValidator:
         """Returns the localized death date from the death report"""
         if not self._death_report_date:
             try:
-                self._death_report_date = self.death_report.death_date
+                self._death_report_date = getattr(
+                    self.death_report, self.death_date_field
+                )
             except AttributeError:
                 self._death_report_date = arrow.get(
-                    self.death_report.death_datetime, tz.gettz(settings.TIME_ZONE),
+                    getattr(self.death_report, self.death_date_field),
+                    tz.gettz(settings.TIME_ZONE),
                 ).date()
             except ValueError:
                 pass
@@ -68,7 +72,9 @@ class ValidateDeathReportMixin:
         """
 
         validator = DeathDateValidator(
-            cleaned_data=self.cleaned_data, instance=self.instance,
+            cleaned_data=self.cleaned_data,
+            instance=self.instance,
+            death_date_field=self.death_date_field,
         )
 
         if self.cleaned_data.get(self.offschedule_reason_field):
