@@ -4,6 +4,9 @@ from edc_form_validators import FormValidator
 
 
 class DeathReportFormValidator(FormValidator):
+
+    death_report_date_field = "death_datetime"
+
     @property
     def cause_of_death_model_cls(self):
         return django_apps.get_model("edc_adverse_event.causeofdeath")
@@ -12,7 +15,7 @@ class DeathReportFormValidator(FormValidator):
 
         self.validate_study_day_with_datetime(
             study_day=self.cleaned_data.get("study_day"),
-            compare_date=self.cleaned_data.get("death_datetime"),
+            compare_date=self.cleaned_data.get(self.death_report_date_field),
             study_day_field="study_day",
         )
 

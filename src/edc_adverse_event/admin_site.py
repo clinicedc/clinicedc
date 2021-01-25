@@ -1,8 +1,8 @@
-from django.contrib.admin import AdminSite as DjangoAdminSite
 from django.contrib.sites.shortcuts import get_current_site
+from edc_model_admin.admin_site import EdcAdminSite
 
 
-class AdminSite(DjangoAdminSite):
+class AdminSite(EdcAdminSite):
 
     site_url = "/administration/"
 
@@ -15,4 +15,3 @@ class AdminSite(DjangoAdminSite):
 
 
 edc_adverse_event_admin = AdminSite(name="edc_adverse_event_admin")
-edc_adverse_event_admin.disable_action("delete_selected")
