@@ -1,20 +1,12 @@
+{% extends "edc_dashboard/bootstrap3/base_dj3.html" %}
 {% load edc_navbar_extras %}
 {% load static %}
 {% load tz %}
-<!doctype html>
-<html lang="en">
-{% block header %}
-    <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- to suppress browserconfig.xml NOT FOUND -->
-    <meta name="msapplication-config" content="none"/>
+{% block title %}{{ project_name|default_if_none:"clinicedc.org" }}{% endblock title %}
 
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>{{ project_name|default_if_none:"clinicedc.org" }}</title>
-
+{% block extrastyle %}
+    {{ block.super }}
     <!-- favicon -->
     <link rel="icon" href="{% static 'edc_dashboard/icons/favicon.ico' %}">
     <link rel="shortcut icon" href="{% static 'edc_dashboard/icons/favicon.ico' %}" type="image/x-icon"/>
@@ -53,67 +45,29 @@
       <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+{% endblock extrastyle %}
 
-    <!-- begin extra-css -->
-    {% block extra-css %}{% endblock extra-css %}
-    <!-- end extra-css -->
-
-    {% block scripts %}
-
-        <script>
-            $(document).ready(function () {
-                $('[data-toggle="tooltip"]').tooltip();
-                $('[data-toggle="popover"]').popover({html: true, trigger: 'focus'});
-                $("#success-alert").fadeTo(1000, 500).slideUp(500, function () {
-                    $("#success-alert").slideUp(500);
-                });
+{% block extrahead %}
+    {{  block.super }}
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+            $('[data-toggle="popover"]').popover({html: true, trigger: 'focus'});
+            $("#success-alert").fadeTo(1000, 500).slideUp(500, function () {
+                $("#success-alert").slideUp(500);
             });
+        });
+    </script>
+
+    {% if sentry_dsn %}
+        <script type="text/javascript">
+            Raven.config('{sentry_dsn}').install();
+            window.onerror = Raven.process;
         </script>
-
-        {% if sentry_dsn %}
-            <script type="text/javascript">
-                Raven.config('{sentry_dsn}').install();
-                window.onerror = Raven.process;
-            </script>
-        {% endif %}
-
-    {% endblock scripts %}
-
-    <!-- begin extra-scripts by app ================================================== -->
-    {% block extra-scripts %}{% endblock extra-scripts %}
-    <!-- end extra-scripts by app ================================================== -->
+    {% endif %}
+{% endblock extrahead %}
 
 
-    <!-- begin extra-styles -->
-    {% block extra-styles %}
-        <style>
-            .panel-extended {
-                min-height: 200px;
-                overflow-y: scroll;
-            }
-
-            .bg-1 {
-                background-color: #428bca; /* dark blue */
-                color: #ffffff;
-            }
-
-            .bg-2 {
-                background-color: #5bc0de; /* light Blue */
-                color: #ffffff;
-            }
-
-            .bg-3 {
-                background-color: #f9f9f9; /* White */
-                color: #555555;
-            }
-        </style>
-    {% endblock extra-styles %}
-    <!-- end extra-styles -->
-
-
-{% endblock header %}
-</head>
-<body class="edc-body" id="edc-body">
 
 {% block topbar %}
 
@@ -148,48 +102,15 @@
     </nav>
     <!-- end topbar -->
 {% endblock topbar %}
-<div class="container">
-    <div class="row">
-        {% block alert %}
-            {% include "edc_dashboard/bootstrap3/alert_messages.html" %}
-        {% endblock alert %}
-    </div>
-    <div class="row">
-        {% block main %}{% endblock main %}
-    </div>
-</div>
+
+{% block alert %}{% include "edc_dashboard/bootstrap3/alert_messages.html" %}{% endblock alert %}
 
 {% block modals %}
-    {{ block.super }}
+        {{ block.super }}
     {% include 'edc_dashboard/bootstrap3/help_modal.html' %}
 {% endblock modals %}
 
 
-{% block bottombar %}{% endblock bottombar %}
-
 {% block footer %}
-    <footer class="footer">
-
-        <div class="container">
-
-            {% block footer_extra_items %}
-            {% endblock footer_extra_items %}
-            <div class="col-md-3"><p class="text-muted small text-center">
-                <span class="fas fa-copyright"></span> Licensed for use under
-                <A href="https://www.gnu.org/licenses/gpl-3.0.en.html">GPL 3.0</A></p></div>
-            <div class="col-md-3"><p class="text-muted small text-center">
-                <span class="fas fa-leaf"></span> Revision: {{ revision }}</p></div>
-            <div class="col-md-3"><p class="text-muted small text-center">
-                <span class="fas fa-clock"></span> {% now "SHORT_DATETIME_FORMAT" %} {% get_current_timezone as TIME_ZONE %} {{ TIME_ZONE }}
-            </p></div>
-            <div class="col-md-3"><p class="text-muted small text-center">
-                <span class="fas fa-exclamation"></span> {{ disclaimer }}</p></div>
-        </div>
-    </footer>
+    {% include 'edc_dashboard/bootstrap3/footer.html' %}
 {% endblock footer %}
-
-</body>
-
-{% block extra-scripts-bottom %}{% endblock %}
-
-</html>

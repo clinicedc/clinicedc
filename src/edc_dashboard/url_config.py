@@ -31,28 +31,19 @@ class UrlConfig:
             re_path(
                 f"{self.label}/"
                 f"(?P<{self.identifier_label}>{self.identifier_pattern})/"
-                f"(?P<visit_schedule_name>\w+)/"
-                f"(?P<schedule_name>\w+)/"
-                f"(?P<visit_code>\w+)/"
-                f"(?P<unscheduled>\w+)/",
+                r"(?P<visit_schedule_name>\w+)/"
+                r"(?P<schedule_name>\w+)/"
+                r"(?P<visit_code>\w+)/"
+                r"(?P<unscheduled>\w+)/",
                 self.view_class.as_view(),
                 name=self.url_name,
             ),
             re_path(
                 f"{self.label}/"
                 f"(?P<{self.identifier_label}>{self.identifier_pattern})/"
-                f"(?P<visit_schedule_name>\w+)/"
-                f"(?P<schedule_name>\w+)/"
-                f"(?P<visit_code>\w+)/",
-                self.view_class.as_view(),
-                name=self.url_name,
-            ),
-            re_path(
-                f"{self.label}/"
-                f"(?P<{self.identifier_label}>{self.identifier_pattern})/"
-                f"(?P<appointment>{UUID_PATTERN.pattern})/"
-                f"(?P<scanning>\d)/"
-                f"(?P<error>\d)/",
+                r"(?P<visit_schedule_name>\w+)/"
+                r"(?P<schedule_name>\w+)/"
+                r"(?P<visit_code>\w+)/",
                 self.view_class.as_view(),
                 name=self.url_name,
             ),
@@ -60,7 +51,16 @@ class UrlConfig:
                 f"{self.label}/"
                 f"(?P<{self.identifier_label}>{self.identifier_pattern})/"
                 f"(?P<appointment>{UUID_PATTERN.pattern})/"
-                f"(?P<reason>\w+)/",
+                r"(?P<scanning>\d)/"
+                r"(?P<error>\d)/",
+                self.view_class.as_view(),
+                name=self.url_name,
+            ),
+            re_path(
+                f"{self.label}/"
+                f"(?P<{self.identifier_label}>{self.identifier_pattern})/"
+                f"(?P<appointment>{UUID_PATTERN.pattern})/"
+                r"(?P<reason>\w+)/",
                 self.view_class.as_view(),
                 name=self.url_name,
             ),
@@ -74,7 +74,7 @@ class UrlConfig:
             re_path(
                 f"{self.label}/"
                 f"(?P<{self.identifier_label}>{self.identifier_pattern})/"
-                "(?P<schedule_name>\w+)/",
+                r"(?P<schedule_name>\w+)/",
                 self.view_class.as_view(),
                 name=self.url_name,
             ),
@@ -97,7 +97,7 @@ class UrlConfig:
             re_path(
                 f"{self.label}/"
                 f"(?P<{self.identifier_label}>{self.identifier_pattern})/"
-                "(?P<page>\d+)/",
+                r"(?P<page>\d+)/",
                 self.view_class.as_view(),
                 name=self.url_name,
             ),
@@ -108,7 +108,7 @@ class UrlConfig:
                 name=self.url_name,
             ),
             re_path(
-                f"{self.label}/(?P<page>\d+)/",
+                f"{self.label}" + r"/(?P<page>\d+)/",
                 self.view_class.as_view(),
                 name=self.url_name,
             ),

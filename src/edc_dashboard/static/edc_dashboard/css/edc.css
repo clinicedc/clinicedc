@@ -15,3 +15,19 @@
 @-o-viewport        { width: device-width; }
 @viewport           { width: device-width; }
 
+.panel-extended {
+    min-height: 200px;
+    overflow-y: scroll;
+}
+.bg-1 {
+    background-color: #428bca; /* dark blue */
+    color: #ffffff;
+}
+.bg-2 {
+    background-color: #5bc0de; /* light Blue */
+    color: #ffffff;
+}
+.bg-3 {
+    background-color: #f9f9f9; /* White */
+    color: #555555;
+}
