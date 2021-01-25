@@ -17,7 +17,7 @@ class AppConfig(DjangoAppConfig):
     _holidays = {}
     name = "edc_facility"
     verbose_name = "Edc Facility"
-    include_in_administration_section = False
+    include_in_administration_section = True
 
     definitions = None
 
