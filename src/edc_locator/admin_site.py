@@ -1,12 +1,10 @@
-from django.contrib.admin import AdminSite as DjangoAdminSite
+from edc_model_admin.admin_site import EdcAdminSite
 
 
-class AdminSite(DjangoAdminSite):
+class AdminSite(EdcAdminSite):
     site_title = "Edc Locator"
     site_header = "Edc Locator"
     index_title = "Edc Locator"
-    site_url = "/administration/"
 
 
 edc_locator_admin = AdminSite(name="edc_locator_admin")
-edc_locator_admin.disable_action("delete_selected")
