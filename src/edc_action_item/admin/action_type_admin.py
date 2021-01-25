@@ -30,6 +30,7 @@ class ActionTypeAdmin(admin.ModelAdmin):
     )
 
     list_display = (
+        "name",
         "display_name",
         "show_on_dashboard",
         "create_by_action",
