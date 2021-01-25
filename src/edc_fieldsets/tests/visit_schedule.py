@@ -4,9 +4,9 @@ from dateutil.relativedelta import relativedelta
 
 
 crfs = FormsCollection(
-    Crf(show_order=1, model=f"edc_fieldsets.mymodel", required=True),
-    Crf(show_order=2, model=f"edc_fieldsets.mymodel2", required=True),
-    Crf(show_order=3, model=f"edc_fieldsets.mymodel3", required=True),
+    Crf(show_order=1, model="edc_fieldsets.mymodel", required=True),
+    Crf(show_order=2, model="edc_fieldsets.mymodel2", required=True),
+    Crf(show_order=3, model="edc_fieldsets.mymodel3", required=True),
 )
 
 

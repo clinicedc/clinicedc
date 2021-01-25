@@ -74,11 +74,12 @@ class Fieldsets:
             raise FieldsetError("Invalid fieldset section. Got {}".format(section))
         return list(fields)
 
-    def _get_field_position(self, fields, insert_after):
+    @staticmethod
+    def _get_field_position(fields, insert_after):
         try:
             position = fields.index(insert_after) + 1
         except ValueError:
             raise FieldsetError(
-                "Field does not exist in section {}. Got {}".format(insert_after)
+                f"Field does not exist in section {fields}. Got {insert_after}"
             )
         return position
