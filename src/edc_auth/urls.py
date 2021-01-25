@@ -9,7 +9,6 @@ try:
 except AttributeError:
     allow_password_reset = None
 
-
 urlpatterns = [
     path("login/", LoginView.as_view(), name="login"),
     path(

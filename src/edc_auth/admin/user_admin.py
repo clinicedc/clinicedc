@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from edc_dashboard import select_edc_template
 
+from ..admin_site import edc_auth_admin
 from ..forms import UserChangeForm
 from ..send_new_credentials_to_user import send_new_credentials_to_user
 from .user_profile_admin import UserProfileInline
@@ -26,6 +27,7 @@ send_new_credentials_to_user_action.short_description = (
 )
 
 
+@admin.register(User)
 class UserAdmin(BaseUserAdmin):
     inlines = (UserProfileInline,)
     form = UserChangeForm
@@ -84,6 +86,3 @@ class UserAdmin(BaseUserAdmin):
         )
         template_obj = select_edc_template("user_role_description.html", "edc_auth")
         return render_to_string(template_obj.template.name, context)
-
-
-admin.site.register(User, UserAdmin)

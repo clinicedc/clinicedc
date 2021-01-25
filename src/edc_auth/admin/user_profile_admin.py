@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
+from ..admin_site import edc_auth_admin
 from ..forms import UserProfileForm
 from ..models import UserProfile
 
@@ -15,6 +16,7 @@ class UserProfileInline(admin.StackedInline):
     form = UserProfileForm
 
 
+@admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
 
     filter_horizontal = ("email_notifications", "sms_notifications", "sites")
@@ -56,6 +58,3 @@ class UserProfileAdmin(admin.ModelAdmin):
                 ]
             )
         )
-
-
-admin.site.register(UserProfile, UserProfileAdmin)
