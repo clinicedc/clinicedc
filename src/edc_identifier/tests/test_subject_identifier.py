@@ -1,8 +1,10 @@
 from django.apps import apps as django_apps
-from django.test import TestCase, tag
+from django.test import override_settings, TestCase, tag
 from edc_identifier.exceptions import SubjectIdentifierError, IdentifierError
 from faker import Faker
 from unittest.case import skip
+
+from multisite import SiteID
 
 from ..models import IdentifierModel
 from ..research_identifier import IdentifierMissingTemplateValue
@@ -45,7 +47,7 @@ class TestSubjectIdentifier(TestCase):
         )
         for i in range(1, 10):
             subject_identifier = SubjectIdentifier(**opts)
-            self.assertEqual(subject_identifier.identifier[8:12], "000" + str(i))
+            self.assertEqual(subject_identifier.identifier[7:11], "000" + str(i))
 
     def test_create_missing_args(self):
         """Asserts raises exception for missing identifier_type.
@@ -76,7 +78,7 @@ class TestSubjectIdentifier(TestCase):
             protocol_number="000",
             device_id="99",
         )
-        self.assertEqual("000-40990001-6", subject_identifier.identifier)
+        self.assertEqual("000-1990001-8", subject_identifier.identifier)
 
     def test_create2(self):
         """Asserts exact first identifier required parameters
@@ -87,7 +89,7 @@ class TestSubjectIdentifier(TestCase):
             requesting_model="edc_identifier.enrollment",
             protocol_number="000",
         )
-        self.assertEqual("000-40140001-5", subject_identifier.identifier)
+        self.assertEqual("000-1140001-7", subject_identifier.identifier)
 
     @skip("enrollment cap not implemented")
     def test_create_hits_cap(self):
