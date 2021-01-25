@@ -40,8 +40,7 @@ class DashboardMiddleware:
         response = self.get_response(request)
         return response
 
-    @staticmethod
-    def process_view(request, *args):
+    def process_view(self, request, *args):
         """Adds/Updates references to urls and templates.
         """
 
@@ -60,8 +59,7 @@ class DashboardMiddleware:
         template_data = insert_bootstrap_version(**template_data)
         request.template_data.update(**template_data)
 
-    @staticmethod
-    def process_template_response(request, response):
+    def process_template_response(self, request, response):
         if response.context_data:
             response.context_data.update(**request.url_name_data)
             response.context_data.update(**request.template_data)

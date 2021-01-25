@@ -57,7 +57,7 @@ def forms_button(wrapper=None, visit=None):
 
 @register.inclusion_tag(
     f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/"
-    f"appointment_in_progress.html"
+    "appointment_in_progress.html"
 )
 def appointment_in_progress(
     subject_identifier=None, visit_schedule=None, schedule=None
