@@ -11,12 +11,13 @@ class SubjectTransferAction(ActionWithNotification):
     admin_site_name = None  # "inte_prn_admin"
 
     name = SUBJECT_TRANSFER_ACTION
-    display_name = "Submit Subject Transfer Report"
-    notification_display_name = " Subject Transfer Report"
+    display_name = "Submit Subject Transfer"
+    notification_display_name = " Subject Transfer"
     parent_action_names = []
     show_link_to_changelist = True
     show_link_to_add = True
     priority = HIGH_PRIORITY
+    singleton = True
 
     def get_next_actions(self):
         next_actions = [END_OF_STUDY_ACTION]
