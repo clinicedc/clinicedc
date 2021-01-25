@@ -1,12 +1,10 @@
-from django.contrib.admin import AdminSite
+from edc_model_admin.admin_site import EdcAdminSite
 
 
-class EdcRegistrationAdminSite(AdminSite):
+class AdminSite(EdcAdminSite):
     site_header = "Registration"
     site_title = "Registration"
     index_title = "Registration Administration"
-    site_url = "/administration/"
 
 
-edc_registration_admin = EdcRegistrationAdminSite(name="edc_registration_admin")
-edc_registration_admin.disable_action("delete_selected")
+edc_registration_admin = AdminSite(name="edc_registration_admin")
