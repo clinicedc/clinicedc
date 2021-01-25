@@ -3,7 +3,7 @@
 {% load static %}
 {% load edc_lab_extras %}
 
-{% block extra-scripts %}
+{% block extrahead %}
 {{ block.super }}
     <script type="text/javascript" charset="utf8" src="{%static "edc_lab_dashboard/js/beep.js" %}"></script>
 	<script>
@@ -13,7 +13,7 @@
 		    }
 		});
 	</script>
-{% endblock extra-scripts %}
+{% endblock extrahead %}
 
 
 {% block results_panel_form %}
