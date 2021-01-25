@@ -88,3 +88,13 @@ class EdcViewMixin(
                 )
         except AttributeError:
             pass
+        if self.request.user.is_superuser:
+            messages.add_message(
+                self.request,
+                messages.ERROR,
+                (
+                    "You are using a `superuser` account. The EDC does not operate correctly "
+                    "with user acounts that have the `superuser` status. "
+                    "Update your user account before continuing."
+                ),
+            )
