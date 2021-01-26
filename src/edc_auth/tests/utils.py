@@ -66,7 +66,8 @@ def create_users(count=None, group_name=None, site_name=None):
 
 
 def create_user_csv_file(
-    user_count=None, filename=None,
+    user_count=None,
+    filename=None,
 ):
     folder = mkdtemp()
     filename = filename or os.path.join(folder, "users.csv")

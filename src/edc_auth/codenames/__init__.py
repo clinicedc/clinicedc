@@ -12,13 +12,13 @@ from .dispensing import dispensing
 from .everyone import everyone
 from .export import export
 from .export_rando import export_rando
+from .get_rando import get_rando
 from .lab import lab, lab_dashboard, lab_navbar
 from .lab_view import lab_view
 from .navbars import navbars
 from .pharmacy import pharmacy
 from .pii import pii
 from .pii_view import pii_view
-from .get_rando import get_rando
 from .review import review
 from .screening import screening
 from .site_data_manager import site_data_manager

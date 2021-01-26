@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+
 from edc_auth.fix_export_permissions import ExportPermissionsFixer
 
 

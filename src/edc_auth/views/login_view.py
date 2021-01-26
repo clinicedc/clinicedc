@@ -10,8 +10,7 @@ class LoginView(BaseLoginView):
     template_name = f"edc_auth/bootstrap{settings.EDC_BOOTSTRAP}/login.html"
 
     def get_context_data(self, **kwargs):
-        """Tests cookies.
-        """
+        """Tests cookies."""
         self.request.session.set_test_cookie()
         if not self.request.session.test_cookie_worked():
             messages.add_message(self.request, messages.ERROR, "Please enable cookies.")

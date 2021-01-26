@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from edc_dashboard import select_edc_template
 
-from ..admin_site import edc_auth_admin
 from ..forms import UserChangeForm
 from ..send_new_credentials_to_user import send_new_credentials_to_user
 from .user_profile_admin import UserProfileInline
@@ -17,7 +16,7 @@ admin.site.unregister(User)
 def send_new_credentials_to_user_action(modeladmin, request, queryset):
     if request.user.has_perms(["auth.change_user"]):
         for obj in queryset:
-            send_new_credentials_to_user(user=obj, request=request)
+            send_new_credentials_to_user(user=obj)
     else:
         messages.error(request, "You do not have permissions to run this action.")
 

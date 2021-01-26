@@ -3,7 +3,7 @@ import csv
 from django.contrib.auth.models import User
 
 
-def export_users(path, **kwargs):
+def export_users(path):
     path = path or "users.csv"
     user = {
         "username": None,

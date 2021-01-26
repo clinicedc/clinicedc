@@ -1,5 +1,6 @@
-from django.contrib.auth.models import Group
 from pprint import pprint
+
+from django.contrib.auth.models import Group
 
 
 def compare_codenames_for_group(group_name=None, expected=None):

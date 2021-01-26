@@ -89,7 +89,8 @@ class GroupPermissionsUpdater:
                 )
             ]
             self.create_permissions_from_tuples(
-                randomizer_cls.model_cls()._meta.label_lower, rando_tuples,
+                randomizer_cls.model_cls()._meta.label_lower,
+                rando_tuples,
             )
         self.create_permissions_from_tuples("edc_navbar.navbar", self.navbar_tuples)
         self.remove_permissions_to_dummy_models()
@@ -188,7 +189,8 @@ class GroupPermissionsUpdater:
             codenames = list(set(codenames))
             for group in self.group_model_cls.objects.all():
                 self.remove_permissions_by_codenames(
-                    group=group, codenames=codenames,
+                    group=group,
+                    codenames=codenames,
                 )
 
     def remove_permissions_to_dummy_models(self):
@@ -208,8 +210,7 @@ class GroupPermissionsUpdater:
             )
 
     def create_permissions_from_tuples(self, model=None, codename_tuples=None):
-        """Creates custom permissions on model "model".
-        """
+        """Creates custom permissions on model "model"."""
         if codename_tuples:
             try:
                 model_cls = self.apps.get_model(model)
@@ -234,8 +235,7 @@ class GroupPermissionsUpdater:
                     self.verify_codename_exists(f"{app_label}.{codename}")
 
     def remove_permissions_by_codenames(self, group=None, codenames=None):
-        """Remove the given codenames from the given group.
-        """
+        """Remove the given codenames from the given group."""
         permissions = self.get_permissions_qs_from_codenames(codenames)
         for permission in permissions:
             group.permissions.remove(permission)

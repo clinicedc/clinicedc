@@ -1,7 +1,7 @@
-from django.contrib.auth.models import User
-from django.core.mail import EmailMessage
 from string import Template
 
+from django.contrib.auth.models import User
+from django.core.mail import EmailMessage
 from mempass import PasswordGenerator
 
 
@@ -37,7 +37,7 @@ class PasswordSetter:
         )
         self._reset(users)
 
-    def reset_by_sites(self, site_names=None, **kwargs):
+    def reset_by_sites(self, site_names=None):
         users = User.objects.filter(
             userprofile__sites__name__in=site_names,
             is_active=True,
