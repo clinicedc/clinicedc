@@ -5,8 +5,8 @@ from faker import Faker
 
 from ..constants import DATA_MANAGER_ROLE
 from ..models import Role
-from ..role_names import CLINICIAN_ROLE, role_names, groups_by_role_name
-from .utils import create_users, EdcAuthTestCase
+from ..role_names import CLINICIAN_ROLE, groups_by_role_name, role_names
+from .utils import EdcAuthTestCase, create_users
 
 fake = Faker()
 

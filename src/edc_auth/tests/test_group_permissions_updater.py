@@ -1,9 +1,10 @@
 from django.apps import apps as django_apps
-from django.contrib.auth.models import Permission, Group
+from django.contrib.auth.models import Group, Permission
 from django.test import TestCase
-from edc_auth.group_names import RANDO
 from edc_randomization import Randomizer
 from edc_randomization.site_randomizers import site_randomizers
+
+from edc_auth.group_names import RANDO
 
 from ..group_permissions_updater import GroupPermissionsUpdater
 from .randomizers import CustomRandomizer

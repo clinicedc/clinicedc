@@ -1,17 +1,18 @@
 import sys
-
 from copy import copy, deepcopy
+from warnings import warn
+
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import (
+    MultipleObjectsReturned,
     ObjectDoesNotExist,
     ValidationError,
-    MultipleObjectsReturned,
 )
 from django.core.management.color import color_style
-from edc_auth.codename_tuples import navbar_tuples, get_rando_tuples
 from edc_randomization.site_randomizers import site_randomizers
-from warnings import warn
+
+from edc_auth.codename_tuples import get_rando_tuples, navbar_tuples
 
 from .codename_tuples import dashboard_tuples
 from .get_default_codenames_by_group import get_default_codenames_by_group

@@ -1,14 +1,14 @@
 import csv
 import os
+from tempfile import mkdtemp
 
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from edc_sites.models import SiteProfile
 from faker import Faker
 from secrets import choice
-from tempfile import mkdtemp
 
 from ..import_users import fieldnames
 from ..role_names import CLINICIAN_ROLE, LAB_TECHNICIAN_ROLE

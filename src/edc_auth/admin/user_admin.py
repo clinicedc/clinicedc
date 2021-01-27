@@ -1,5 +1,4 @@
-from django.contrib import messages
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
@@ -8,7 +7,6 @@ from edc_dashboard import select_edc_template
 from ..forms import UserChangeForm
 from ..send_new_credentials_to_user import send_new_credentials_to_user
 from .user_profile_admin import UserProfileInline
-
 
 admin.site.unregister(User)
 

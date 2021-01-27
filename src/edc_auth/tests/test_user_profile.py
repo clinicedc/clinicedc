@@ -7,8 +7,8 @@ from django.test.utils import override_settings
 
 from ..backends import ModelBackendWithSite
 from ..constants import CLINICIAN_ROLE
-from ..models.role import Role
 from ..group_permissions_updater import GroupPermissionsUpdater
+from ..models.role import Role
 
 
 class TestUserProfile(TestCase):

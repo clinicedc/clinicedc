@@ -8,7 +8,6 @@ from django.core.management import color_style
 style = color_style()
 
 
-
 def edc_check(app_configs, **kwargs):  # noqa
     errors = []
     errors = check_etc_dir(errors)

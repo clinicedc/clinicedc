@@ -1,12 +1,12 @@
 import csv
 import re
+from string import Template
 
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
 from mempass import PasswordGenerator
-from string import Template
 
 from .models import Role
 from .role_names import required_role_names
