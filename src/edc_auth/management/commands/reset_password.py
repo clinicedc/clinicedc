@@ -1,8 +1,9 @@
 import sys
 
-from django.core.management.base import BaseCommand, CommandError
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.management.base import BaseCommand, CommandError
+
 from edc_auth.password_setter import PasswordSetter
 
 

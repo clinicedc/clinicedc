@@ -4,7 +4,6 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
 
-
 style = color_style()
 
 

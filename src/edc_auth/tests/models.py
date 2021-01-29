@@ -1,6 +1,5 @@
 from django.db import models
-from edc_model.models import BaseUuidModel
-from edc_model.models import HistoricalRecords
+from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_randomization.models import RandomizationListModelMixin
 
 

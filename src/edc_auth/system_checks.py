@@ -1,14 +1,14 @@
 import os
 import sys
 
-from django.core.checks import Warning
 from django.conf import settings
+from django.core.checks import Warning
 from django.core.management import color_style
 
 style = color_style()
 
 
-def edc_check(app_configs, **kwargs):
+def edc_check(app_configs, **kwargs):  # noqa
     errors = []
     errors = check_etc_dir(errors)
     errors = check_key_path(errors)

@@ -1,14 +1,14 @@
 import csv
 import os
+from tempfile import mkdtemp
 
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from edc_sites.models import SiteProfile
 from faker import Faker
 from secrets import choice
-from tempfile import mkdtemp
 
 from ..import_users import fieldnames
 from ..role_names import CLINICIAN_ROLE, LAB_TECHNICIAN_ROLE
@@ -66,7 +66,8 @@ def create_users(count=None, group_name=None, site_name=None):
 
 
 def create_user_csv_file(
-    user_count=None, filename=None,
+    user_count=None,
+    filename=None,
 ):
     folder = mkdtemp()
     filename = filename or os.path.join(folder, "users.csv")

@@ -1,12 +1,12 @@
 import csv
 import re
+from string import Template
 
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
 from mempass import PasswordGenerator
-from string import Template
 
 from .models import Role
 from .role_names import required_role_names
@@ -62,15 +62,15 @@ def import_users(
     **kwargs,
 ):
     """Import users from a CSV file with columns:
-        username
-        first_name
-        last_name
-        job_title
-        email
-        alternate_email
-        mobile
-        sites: a comma-separated list of sites
-        roles: a comma-separated list of roles
+    username
+    first_name
+    last_name
+    job_title
+    email
+    alternate_email
+    mobile
+    sites: a comma-separated list of sites
+    roles: a comma-separated list of roles
     """
     users = []
     with open(path) as f:

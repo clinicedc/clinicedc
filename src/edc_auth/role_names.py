@@ -15,7 +15,6 @@ from .constants import (
     STAFF_ROLE,
     TMG_ROLE,
 )
-
 from .group_names import (
     ACCOUNT_MANAGER,
     ADMINISTRATION,
@@ -39,8 +38,8 @@ from .group_names import (
     SCREENING,
     SITE_DATA_MANAGER,
     TMG,
-    UNBLINDING_REVIEWERS,
     UNBLINDING_REQUESTORS,
+    UNBLINDING_REVIEWERS,
 )
 
 role_names = {

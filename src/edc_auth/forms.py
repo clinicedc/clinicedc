@@ -1,12 +1,12 @@
-from django.utils.safestring import mark_safe
 from django import forms
 from django.conf import settings
 from django.contrib.auth.forms import UserChangeForm as BaseForm
+from django.utils.safestring import mark_safe
 from edc_randomization.blinding import is_blinded_user
 
-from .role_names import PHARMACIST_ROLE
 from .group_names import PHARMACY
 from .models import UserProfile
+from .role_names import PHARMACIST_ROLE
 
 
 class UserChangeForm(BaseForm):

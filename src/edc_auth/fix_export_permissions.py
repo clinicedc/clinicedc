@@ -1,6 +1,7 @@
+from warnings import warn
+
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from warnings import warn
 
 
 class ExportPermissionsFixer:
@@ -52,7 +53,8 @@ class ExportPermissionsFixer:
             try:
                 app_label, model_name = model._meta.label_lower.split(".")
                 content_type = content_type_model_cls.objects.get(
-                    app_label=app_label, model__iexact=model_name,
+                    app_label=app_label,
+                    model__iexact=model_name,
                 )
             except ObjectDoesNotExist as e:
                 if self.warn_only:
@@ -73,3 +75,4 @@ class ExportPermissionsFixer:
                     else:
                         obj.name = f"Can {action} {model._meta.verbose_name}"
                         obj.save()
+        obj.save()

@@ -7,8 +7,8 @@ from django.test.utils import override_settings
 
 from ..backends import ModelBackendWithSite
 from ..constants import CLINICIAN_ROLE
-from ..models.role import Role
 from ..group_permissions_updater import GroupPermissionsUpdater
+from ..models.role import Role
 
 
 class TestUserProfile(TestCase):
@@ -21,13 +21,11 @@ class TestUserProfile(TestCase):
         GroupPermissionsUpdater(verbose=True, apps=django_apps)
 
     def test_default_user_profile_created_by_signal(self):
-        """Assert creates userprofile instance.
-        """
+        """Assert creates userprofile instance."""
         self.user = User.objects.create(username="noam")
 
     def test_backend_superuser(self):
-        """Superuser can always log in.
-        """
+        """Superuser can always log in."""
         user = User.objects.create(
             username="erik", is_superuser=True, is_active=True, is_staff=True
         )
@@ -41,8 +39,7 @@ class TestUserProfile(TestCase):
 
     @override_settings(SITE_ID=10)
     def test_backend_one_site(self):
-        """User of site 10 can login to site 10.
-        """
+        """User of site 10 can login to site 10."""
         Site.objects.all().delete()
         ten = Site.objects.create(id=10, domain="ten.example.com", name="ten")
         user = User.objects.create(
@@ -59,8 +56,7 @@ class TestUserProfile(TestCase):
 
     @override_settings(SITE_ID=20)
     def test_backend_one_site2(self):
-        """User of site 10 cannot login to site 20.
-        """
+        """User of site 10 cannot login to site 20."""
         Site.objects.all().delete()
         ten = Site.objects.create(id=10, domain="ten.example.com", name="ten")
         user = User.objects.create(

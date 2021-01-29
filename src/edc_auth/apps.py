@@ -12,7 +12,7 @@ from .update_roles import update_roles
 style = color_style()
 
 
-def post_migrate_user_roles(sender=None, **kwargs):
+def post_migrate_user_roles(sender=None, **kwargs):  # noqa
     """Update Role model with EDC defaults.
 
     To add custom roles, register this in your main

@@ -1,14 +1,15 @@
+from string import Template
+
 from django.contrib.auth.models import User
 from django.core import mail
 from django.test import tag
 from faker import Faker
-from string import Template
 
 from ..group_names import CLINIC
-from ..import_users import import_users, UserImporter, UserImporterError
+from ..import_users import UserImporter, UserImporterError, import_users
 from ..password_setter import PasswordSetter
 from ..role_names import CLINICIAN_ROLE
-from .utils import create_users, create_user_csv_file, EdcAuthTestCase
+from .utils import EdcAuthTestCase, create_user_csv_file, create_users
 
 fake = Faker()
 
