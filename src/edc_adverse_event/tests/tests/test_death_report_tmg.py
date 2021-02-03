@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_action_item.models.action_item import ActionItem
 from edc_constants.constants import CLOSED, NEW, NO, OTHER, YES
 from edc_facility.import_holidays import import_holidays
@@ -30,7 +30,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             user_created="erikvw",
         )
 
-        action_item = ActionItem.objects.get(
+        ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             parent_action_item=None,
             reference_model="adverse_event_app.aeinitial",

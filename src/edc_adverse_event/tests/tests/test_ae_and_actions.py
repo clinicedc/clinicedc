@@ -1,7 +1,7 @@
 from unittest.mock import PropertyMock, patch
 
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_action_item.get_action_type import get_action_type
 from edc_action_item.models import SubjectDoesNotExist
 from edc_action_item.models.action_item import ActionItem
@@ -155,7 +155,7 @@ class TestAeAndActions(TestCase):
             action_identifier=action_item.action_identifier,
             subject_identifier=self.subject_identifier,
         )
-        action_item = ActionItem.objects.get(
+        ActionItem.objects.get(
             subject_identifier=self.subject_identifier, action_type=action_type
         )
         action_item = ActionItem.objects.get(
@@ -175,7 +175,7 @@ class TestAeAndActions(TestCase):
 
         # assert ae initial action created ONE ae followup
         # with correct parent action identifier
-        action_item = ActionItem.objects.get(
+        ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             parent_action_item=action_item,
             action_type=action_type,
@@ -494,7 +494,7 @@ class TestAeAndActions(TestCase):
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
         )
-        ae_followup = AeFollowup.objects.get(pk=ae_followup.pk)
+        AeFollowup.objects.get(pk=ae_followup.pk)
 
         ae_followup = baker.make_recipe(
             "adverse_event_app.aefollowup",
@@ -502,7 +502,7 @@ class TestAeAndActions(TestCase):
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
         )
-        ae_followup = AeFollowup.objects.get(pk=ae_followup.pk)
+        AeFollowup.objects.get(pk=ae_followup.pk)
 
     @patch("edc_adverse_event.action_items.ae_followup_action.site_action_items.get_by_model")
     @patch.object(AeFollowupAction, "offschedule_models", new_callable=PropertyMock)
