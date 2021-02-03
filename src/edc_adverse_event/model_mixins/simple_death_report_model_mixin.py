@@ -1,7 +1,7 @@
 from django.db import models
 from edc_action_item.managers import (
-    ActionIdentifierSiteManager,
     ActionIdentifierManager,
+    ActionIdentifierSiteManager,
 )
 from edc_action_item.models import ActionModelMixin
 from edc_identifier.model_mixins import (
@@ -64,7 +64,5 @@ class SimpleDeathReportModelMixin(
         verbose_name = "Death Report"
         verbose_name_plural = "Death Reports"
         indexes = [
-            models.Index(
-                fields=["subject_identifier", "action_identifier", "site", "id"]
-            )
+            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])
         ]

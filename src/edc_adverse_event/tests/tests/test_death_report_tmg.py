@@ -1,12 +1,13 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
 from edc_action_item.models.action_item import ActionItem
-from edc_adverse_event.constants import DEATH_REPORT_TMG_SECOND_ACTION
-from edc_adverse_event.models import CauseOfDeath
-from edc_constants.constants import CLOSED, NO, NEW, YES, OTHER
+from edc_constants.constants import CLOSED, NEW, NO, OTHER, YES
 from edc_facility.import_holidays import import_holidays
 from edc_list_data.site_list_data import site_list_data
 from model_bakery import baker
+
+from edc_adverse_event.constants import DEATH_REPORT_TMG_SECOND_ACTION
+from edc_adverse_event.models import CauseOfDeath
 
 from .mixins import DeathReportTestMixin
 
@@ -136,9 +137,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         )
 
         # create death report TMG
-        causes_qs = CauseOfDeath.objects.exclude(
-            name__in=[OTHER, death_report.cause_of_death]
-        )
+        causes_qs = CauseOfDeath.objects.exclude(name__in=[OTHER, death_report.cause_of_death])
         baker.make_recipe(
             "adverse_event_app.deathreporttmg",
             death_report=death_report,
@@ -174,9 +173,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         )
 
         # create death report TMG
-        causes_qs = CauseOfDeath.objects.exclude(
-            name__in=[OTHER, death_report.cause_of_death]
-        )
+        causes_qs = CauseOfDeath.objects.exclude(name__in=[OTHER, death_report.cause_of_death])
         death_report_tmg = baker.make_recipe(
             "adverse_event_app.deathreporttmg",
             death_report=death_report,
@@ -233,9 +230,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         )
 
         # create death report TMG
-        causes_qs = CauseOfDeath.objects.exclude(
-            name__in=[OTHER, death_report.cause_of_death]
-        )
+        causes_qs = CauseOfDeath.objects.exclude(name__in=[OTHER, death_report.cause_of_death])
         death_report_tmg = baker.make_recipe(
             "adverse_event_app.deathreporttmg",
             death_report=death_report,
@@ -291,9 +286,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             reference_model="adverse_event_app.deathreporttmg",
         )
 
-        causes_qs = CauseOfDeath.objects.exclude(
-            name__in=[OTHER, death_report.cause_of_death]
-        )
+        causes_qs = CauseOfDeath.objects.exclude(name__in=[OTHER, death_report.cause_of_death])
         death_report_tmg = baker.make_recipe(
             "adverse_event_app.deathreporttmg",
             death_report=death_report,
@@ -324,9 +317,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             reference_model="adverse_event_app.deathreporttmg",
         )
 
-        causes_qs = CauseOfDeath.objects.exclude(
-            name__in=[OTHER, death_report.cause_of_death]
-        )
+        causes_qs = CauseOfDeath.objects.exclude(name__in=[OTHER, death_report.cause_of_death])
         death_report_tmg = baker.make_recipe(
             "adverse_event_app.deathreporttmg",
             death_report=death_report,
@@ -377,9 +368,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             reference_model="adverse_event_app.deathreporttmg",
         )
 
-        causes_qs = CauseOfDeath.objects.exclude(
-            name__in=[OTHER, death_report.cause_of_death]
-        )
+        causes_qs = CauseOfDeath.objects.exclude(name__in=[OTHER, death_report.cause_of_death])
         death_report_tmg = baker.make_recipe(
             "adverse_event_app.deathreporttmg",
             death_report=death_report,

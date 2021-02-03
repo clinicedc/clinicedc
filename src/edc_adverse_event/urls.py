@@ -1,17 +1,14 @@
 from django.urls.conf import path
 from django.views.generic.base import RedirectView
-from edc_adverse_event.admin_site import edc_adverse_event_admin
 from edc_protocol.protocol import Protocol
 
-from .views import (
-    AeHomeView,
-    TmgHomeView,
-    NewTmgAeListboardView,
-    OpenTmgAeListboardView,
-    ClosedTmgAeListboardView,
-    DeathListboardView as TmgDeathListboardView,
-    SummaryListboardView as TmgSummaryListboardView,
-)
+from edc_adverse_event.admin_site import edc_adverse_event_admin
+
+from .views import AeHomeView, ClosedTmgAeListboardView
+from .views import DeathListboardView as TmgDeathListboardView
+from .views import NewTmgAeListboardView, OpenTmgAeListboardView
+from .views import SummaryListboardView as TmgSummaryListboardView
+from .views import TmgHomeView
 
 app_name = "edc_adverse_event"
 

@@ -46,8 +46,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeInitialAction.notification_display_name
-                    in m.__dict__.get("subject")
+                    if AeInitialAction.notification_display_name in m.__dict__.get("subject")
                 ]
             ),
         )
@@ -59,8 +58,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeInitialG3EventNotification.display_name
-                    in m.__dict__.get("subject")
+                    if AeInitialG3EventNotification.display_name in m.__dict__.get("subject")
                 ]
             ),
         )
@@ -72,8 +70,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeFollowupAction.notification_display_name
-                    in m.__dict__.get("subject")
+                    if AeFollowupAction.notification_display_name in m.__dict__.get("subject")
                 ]
             ),
         )
@@ -95,8 +92,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeInitialAction.notification_display_name
-                    in m.__dict__.get("subject")
+                    if AeInitialAction.notification_display_name in m.__dict__.get("subject")
                 ]
             ),
         )
@@ -108,8 +104,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeInitialG3EventNotification.display_name
-                    in m.__dict__.get("subject")
+                    if AeInitialG3EventNotification.display_name in m.__dict__.get("subject")
                 ]
             ),
         )
@@ -121,8 +116,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeFollowupAction.notification_display_name
-                    in m.__dict__.get("subject")
+                    if AeFollowupAction.notification_display_name in m.__dict__.get("subject")
                 ]
             ),
         )
@@ -134,8 +128,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeTmgAction.notification_display_name
-                    in m.__dict__.get("subject")
+                    if AeTmgAction.notification_display_name in m.__dict__.get("subject")
                 ]
             ),
         )
@@ -157,8 +150,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeInitialG4EventNotification.display_name
-                    in m.__dict__.get("subject")
+                    if AeInitialG4EventNotification.display_name in m.__dict__.get("subject")
                 ]
             ),
         )
@@ -180,8 +172,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeInitialAction.notification_display_name
-                    in m.__dict__.get("subject")
+                    if AeInitialAction.notification_display_name in m.__dict__.get("subject")
                 ]
             ),
         )
@@ -193,8 +184,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if DeathReportAction.notification_display_name
-                    in m.__dict__.get("subject")
+                    if DeathReportAction.notification_display_name in m.__dict__.get("subject")
                 ]
             ),
         )
@@ -206,8 +196,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeTmgAction.notification_display_name
-                    in m.__dict__.get("subject")
+                    if AeTmgAction.notification_display_name in m.__dict__.get("subject")
                 ]
             ),
         )
@@ -225,8 +214,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeInitialAction.notification_display_name
-                    in m.__dict__.get("subject")
+                    if AeInitialAction.notification_display_name in m.__dict__.get("subject")
                 ]
             ),
         )
@@ -269,8 +257,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeSusarAction.notification_display_name
-                    in m.__dict__.get("subject")
+                    if AeSusarAction.notification_display_name in m.__dict__.get("subject")
                 ]
             ),
         )

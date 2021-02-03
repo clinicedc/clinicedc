@@ -35,7 +35,5 @@ class DeathReportTmgSecondModelMixin(DeathReportTmgModelMixin):
         verbose_name = "Death Report TMG (2nd)"
         verbose_name_plural = "Death Report TMG (2nd)"
         indexes = [
-            models.Index(
-                fields=["subject_identifier", "action_identifier", "site", "id"]
-            )
+            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])
         ]

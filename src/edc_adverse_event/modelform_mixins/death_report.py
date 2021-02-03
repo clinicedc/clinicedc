@@ -1,9 +1,8 @@
 from django import forms
 from django.apps import apps as django_apps
 from edc_action_item.forms import ActionItemFormMixin
-from edc_constants.constants import OTHER, CLOSED
-from edc_form_validators import FormValidator
-from edc_form_validators import FormValidatorMixin
+from edc_constants.constants import CLOSED, OTHER
+from edc_form_validators import FormValidator, FormValidatorMixin
 from edc_sites.forms import SiteModelFormMixin
 
 
@@ -32,9 +31,7 @@ class DefaultDeathReportFormValidator(FormValidator):
         )
 
 
-class DeathReportModelFormMixin(
-    SiteModelFormMixin, ActionItemFormMixin, FormValidatorMixin
-):
+class DeathReportModelFormMixin(SiteModelFormMixin, ActionItemFormMixin, FormValidatorMixin):
 
     form_validator_cls = DefaultDeathReportFormValidator
 

@@ -1,13 +1,13 @@
-from edc_action_item.action_with_notification import ActionWithNotification
-from edc_constants.constants import HIGH_PRIORITY, CLOSED, NO, YES
 from django.utils.safestring import mark_safe
+from edc_action_item.action_with_notification import ActionWithNotification
+from edc_constants.constants import CLOSED, HIGH_PRIORITY, NO, YES
 
 from ..constants import (
     ADVERSE_EVENT_ADMIN_SITE,
     ADVERSE_EVENT_APP_LABEL,
     DEATH_REPORT_ACTION,
-    DEATH_REPORT_TMG_SECOND_ACTION,
     DEATH_REPORT_TMG_ACTION,
+    DEATH_REPORT_TMG_SECOND_ACTION,
 )
 
 
@@ -39,13 +39,11 @@ class DeathReportTmgAction(ActionWithNotification):
         return next_actions
 
     def reopen_action_item_on_change(self):
-        """Do not reopen if status is CLOSED.
-        """
+        """Do not reopen if status is CLOSED."""
         return self.reference_obj.report_status != CLOSED
 
     def close_action_item_on_save(self):
-        """Close if report status is CLOSED.
-        """
+        """Close if report status is CLOSED."""
         if self.reference_obj.cause_of_death_agreed == YES:
             self.delete_children_if_new(parent_action_item=self.action_item)
         return self.reference_obj.report_status == CLOSED

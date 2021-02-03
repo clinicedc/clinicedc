@@ -6,18 +6,18 @@ from django.urls.base import reverse
 from django.utils.safestring import mark_safe
 from edc_action_item import action_fieldset_tuple
 from edc_action_item.modeladmin_mixins import ModelAdminActionItemMixin
-from edc_adverse_event.get_ae_model import get_ae_model
 from edc_constants.constants import DEAD
 from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
+from edc_adverse_event.get_ae_model import get_ae_model
+
 from ..forms import AeInitialForm
 from ..templatetags.edc_adverse_event_extras import (
-    select_description_template,
     format_ae_description,
+    select_description_template,
 )
 from .modeladmin_mixins import AdverseEventModelAdminMixin
-
 
 fieldset_part_one = (
     "Part 1: Descripiton",

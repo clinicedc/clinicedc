@@ -1,13 +1,14 @@
 from django.utils.safestring import mark_safe
 from edc_action_item import ActionWithNotification
-from edc_adverse_event.constants import (
-    AE_INITIAL_ACTION,
-    AE_FOLLOWUP_ACTION,
-    AE_TMG_ACTION,
-)
 from edc_constants.constants import CLOSED, HIGH_PRIORITY
 
-from ..constants import ADVERSE_EVENT_APP_LABEL, ADVERSE_EVENT_ADMIN_SITE
+from edc_adverse_event.constants import (
+    AE_FOLLOWUP_ACTION,
+    AE_INITIAL_ACTION,
+    AE_TMG_ACTION,
+)
+
+from ..constants import ADVERSE_EVENT_ADMIN_SITE, ADVERSE_EVENT_APP_LABEL
 
 
 class AeTmgAction(ActionWithNotification):

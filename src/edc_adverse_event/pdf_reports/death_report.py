@@ -1,7 +1,7 @@
-import inflect
+from textwrap import fill
 
+import inflect
 from django.contrib.auth import get_user_model
-from edc_adverse_event.get_ae_model import get_ae_model
 from edc_constants.constants import OTHER
 from edc_reports.crf_pdf_report import CrfPdfReport
 from reportlab.lib import colors
@@ -9,7 +9,8 @@ from reportlab.lib.units import cm
 from reportlab.platypus.flowables import Spacer
 from reportlab.platypus.para import Paragraph
 from reportlab.platypus.tables import Table
-from textwrap import fill
+
+from edc_adverse_event.get_ae_model import get_ae_model
 
 User = get_user_model()
 p = inflect.engine()
@@ -127,9 +128,7 @@ class DeathReport(CrfPdfReport):
             ],
             (3 * cm, 3 * cm, 3 * cm, 9 * cm),
         )
-        self.set_table_style(
-            t, bg_cmd=("BACKGROUND", (0, 0), (3, -1), colors.lightgrey)
-        )
+        self.set_table_style(t, bg_cmd=("BACKGROUND", (0, 0), (3, -1), colors.lightgrey))
         story.append(t)
 
         qs = (
@@ -138,9 +137,7 @@ class DeathReport(CrfPdfReport):
             .order_by("-history_date")
         )
         for obj in qs:
-            username = (
-                obj.user_created if obj.history_type == "+" else obj.user_modified
-            )
+            username = obj.user_created if obj.history_type == "+" else obj.user_modified
             t = Table(
                 [
                     [

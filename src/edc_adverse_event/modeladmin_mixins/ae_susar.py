@@ -10,7 +10,7 @@ from ..templatetags.edc_adverse_event_extras import (
     format_ae_susar_description,
     select_description_template,
 )
-from .modeladmin_mixins import NonAeInitialModelAdminMixin, AdverseEventModelAdminMixin
+from .modeladmin_mixins import AdverseEventModelAdminMixin, NonAeInitialModelAdminMixin
 
 
 class AeSusarModelAdminMixin(
@@ -59,7 +59,6 @@ class AeSusarModelAdminMixin(
     radio_fields = {"report_status": admin.VERTICAL}
 
     def description(self, obj):
-        """Returns a formatted comprehensive description.
-        """
+        """Returns a formatted comprehensive description."""
         context = format_ae_susar_description({}, obj, 50)
         return render_to_string(select_description_template("aesusar"), context)

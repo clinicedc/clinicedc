@@ -1,5 +1,4 @@
 import arrow
-
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.safestring import mark_safe
@@ -7,7 +6,6 @@ from django.utils.translation import gettext as _
 from edc_action_item.model_wrappers import (
     ActionItemModelWrapper as BaseActionItemModelWrapper,
 )
-from edc_adverse_event.get_ae_model import get_ae_model
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_dashboard.view_mixins import (
     EdcViewMixin,
@@ -17,8 +15,10 @@ from edc_dashboard.view_mixins import (
 from edc_dashboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
 
-from ...model_wrappers import AeInitialModelWrapper, DeathReportModelWrapper
+from edc_adverse_event.get_ae_model import get_ae_model
+
 from ...constants import AE_INITIAL_ACTION
+from ...model_wrappers import AeInitialModelWrapper, DeathReportModelWrapper
 from ...pdf_reports import AeReport
 
 
@@ -38,9 +38,7 @@ class ActionItemModelWrapper(BaseActionItemModelWrapper):
             model_cls = django_apps.get_model(self.death_report_model_wrapper.model)
             try:
                 self._death_report = self.death_report_model_wrapper(
-                    model_obj=model_cls.objects.get(
-                        subject_identifier=self.subject_identifier
-                    )
+                    model_obj=model_cls.objects.get(subject_identifier=self.subject_identifier)
                 )
             except ObjectDoesNotExist:
                 self._death_report = None

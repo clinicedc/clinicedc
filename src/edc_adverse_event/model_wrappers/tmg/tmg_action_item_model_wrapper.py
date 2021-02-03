@@ -76,7 +76,5 @@ class TmgActionItemModelWrapper(BaseActionItemModelWrapper):
                         action_identifier=self.object.action_identifier,
                         death_report=self.death_report.object,
                     )
-                    self._tmg_death_report = self.get_wrapped_tmg_death_report(
-                        model_obj
-                    )
+                    self._tmg_death_report = self.get_wrapped_tmg_death_report(model_obj)
         return self._tmg_death_report

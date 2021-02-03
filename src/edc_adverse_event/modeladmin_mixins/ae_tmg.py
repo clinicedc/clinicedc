@@ -8,8 +8,8 @@ from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_utils import convert_php_dateformat
 
-from ..get_ae_model import get_ae_model
 from ..forms import AeTmgForm
+from ..get_ae_model import get_ae_model
 from .modeladmin_mixins import NonAeInitialModelAdminMixin
 
 
@@ -83,8 +83,7 @@ class AeTmgModelAdminMixin(
         return obj.report_status.title()
 
     def get_queryset(self, request):
-        """Returns for the current user if has `view_aetmg` permissions.
-        """
+        """Returns for the current user if has `view_aetmg` permissions."""
         # TODO: this used to look at group membership?
         if request.user.has_perm(f"{settings.ADVERSE_EVENT_APP_LABEL}.view_aetmg"):
             return super().get_queryset(request).all()
@@ -114,8 +113,6 @@ class AeTmgModelAdminMixin(
                 )
             initial.update(
                 ae_classification=ae_classification,
-                ae_description=(
-                    f"{ae_initial.ae_description} (reported: {report_datetime})"
-                ),
+                ae_description=(f"{ae_initial.ae_description} (reported: {report_datetime})"),
             )
         return initial

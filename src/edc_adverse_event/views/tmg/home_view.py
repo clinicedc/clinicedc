@@ -3,17 +3,16 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.db.models.aggregates import Count
 from django.views.generic import TemplateView
 from edc_action_item.models.action_item import ActionItem
-from edc_adverse_event.constants import AE_TMG_ACTION
-from edc_constants.constants import CLOSED, OPEN, NEW
+from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
+
+from edc_adverse_event.constants import AE_TMG_ACTION
 
 
 class TmgHomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
 
-    template_name = (
-        f"edc_adverse_event/bootstrap{settings.EDC_BOOTSTRAP}/tmg/tmg_home.html"
-    )
+    template_name = f"edc_adverse_event/bootstrap{settings.EDC_BOOTSTRAP}/tmg/tmg_home.html"
     navbar_selected_item = "tmg_home"
 
     def get_context_data(self, **kwargs):
@@ -29,18 +28,14 @@ class TmgHomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
 
         # summarize new and open for notice
         qs = (
-            ActionItem.objects.filter(
-                action_type__name=AE_TMG_ACTION, status__in=[NEW, OPEN]
-            )
+            ActionItem.objects.filter(action_type__name=AE_TMG_ACTION, status__in=[NEW, OPEN])
             .exclude(site__name=get_current_site(request=self.request).name)
             .values("status", "site__name")
             .annotate(items=Count("status"))
         )
         notices = []
         for item in qs.order_by("status", "site__name"):
-            notices.append(
-                [item.get("site__name"), item.get("status"), item.get("items")]
-            )
+            notices.append([item.get("site__name"), item.get("status"), item.get("items")])
 
         new_count = ActionItem.objects.filter(
             action_type__name=AE_TMG_ACTION,

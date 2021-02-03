@@ -1,11 +1,11 @@
 from django.conf import settings
 from django.db import models
 from edc_constants.choices import YES_NO
-from edc_constants.constants import YES, NOT_APPLICABLE
+from edc_constants.constants import NOT_APPLICABLE, YES
 from edc_model.models import date_not_future
 from edc_utils import get_utcnow
 
-from ...choices import AE_OUTCOME, AE_GRADE_SIMPLE
+from ...choices import AE_GRADE_SIMPLE, AE_OUTCOME
 
 
 class AeFollowupFieldsModelMixin(models.Model):
@@ -18,9 +18,7 @@ class AeFollowupFieldsModelMixin(models.Model):
         verbose_name="Report date and time", default=get_utcnow
     )
 
-    outcome = models.CharField(
-        blank=False, null=False, max_length=25, choices=AE_OUTCOME
-    )
+    outcome = models.CharField(blank=False, null=False, max_length=25, choices=AE_OUTCOME)
 
     outcome_date = models.DateField(validators=[date_not_future])
 

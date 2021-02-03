@@ -15,8 +15,7 @@ class AeFollowupMethodsModelMixin(models.Model):
 
     @property
     def report_date(self):
-        """Returns a date based on the UTC datetime.
-        """
+        """Returns a date based on the UTC datetime."""
         return self.report_datetime.date()
 
     @property

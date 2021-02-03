@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from edc_action_item.models import ActionItem
 from edc_model_wrapper import ModelWrapper
 
@@ -39,9 +39,7 @@ class DeathReportModelWrapper(ModelWrapper):
 
         model_wrappers = []
 
-        action_item = ActionItem.objects.get(
-            action_identifier=self.object.action_identifier
-        )
+        action_item = ActionItem.objects.get(action_identifier=self.object.action_identifier)
         # get tmg 1st
         opts = dict(
             subject_identifier=self.object.subject_identifier,
@@ -103,8 +101,10 @@ class DeathReportModelWrapper(ModelWrapper):
     def death_report_tmg_second(self):
         if not self._death_report_tmg_second:
             try:
-                self._death_report_tmg_second = self.death_report_tmg_second_model_cls.objects.get(
-                    subject_identifier=self.subject_identifier
+                self._death_report_tmg_second = (
+                    self.death_report_tmg_second_model_cls.objects.get(
+                        subject_identifier=self.subject_identifier
+                    )
                 )
             except ObjectDoesNotExist:
                 self._death_report_tmg_second = None

@@ -1,9 +1,9 @@
 from .home_view import AeHomeView
 from .tmg import (
-    SummaryListboardView,
+    ClosedTmgAeListboardView,
     DeathListboardView,
-    TmgHomeView,
     NewTmgAeListboardView,
     OpenTmgAeListboardView,
-    ClosedTmgAeListboardView,
+    SummaryListboardView,
+    TmgHomeView,
 )

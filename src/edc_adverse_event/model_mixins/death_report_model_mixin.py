@@ -1,19 +1,17 @@
-from datetime import datetime
-
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_action_item.managers import (
-    ActionIdentifierSiteManager,
     ActionIdentifierManager,
+    ActionIdentifierSiteManager,
 )
-from edc_action_item.models import ActionModelMixin
+from edc_action_item.models import ActionNoManagersModelMixin
 from edc_constants.choices import YES_NO
 from edc_identifier.model_mixins import (
     TrackingModelMixin,
     UniqueSubjectIdentifierFieldMixin,
 )
-from edc_model.models import date_not_future, datetime_not_future
+from edc_model.models import HistoricalRecords, date_not_future, datetime_not_future
 from edc_model_fields.fields.other_charfield import OtherCharField
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.models import SiteModelMixin
@@ -26,7 +24,7 @@ from ..models import CauseOfDeath
 class DeathReportModelMixin(
     UniqueSubjectIdentifierFieldMixin,
     SiteModelMixin,
-    ActionModelMixin,
+    ActionNoManagersModelMixin,
     TrackingModelMixin,
     models.Model,
 ):
@@ -77,8 +75,7 @@ class DeathReportModelMixin(
         on_delete=PROTECT,
         verbose_name="Main cause of death",
         help_text=(
-            "Main cause of death in the opinion of the "
-            "local study doctor and local PI"
+            "Main cause of death in the opinion of the " "local study doctor and local PI"
         ),
         null=True,
         blank=False,
@@ -92,8 +89,10 @@ class DeathReportModelMixin(
 
     objects = ActionIdentifierManager()
 
+    history = HistoricalRecords(inherit=True)
+
     def natural_key(self):
-        return (self.action_identifier,)
+        return tuple([self.action_identifier])
 
     natural_key.dependencies = ["edc_adverse_event.causeofdeath"]
 
@@ -101,7 +100,5 @@ class DeathReportModelMixin(
         abstract = True
         verbose_name = "Death Report"
         indexes = [
-            models.Index(
-                fields=["subject_identifier", "action_identifier", "site", "id"]
-            )
+            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])
         ]

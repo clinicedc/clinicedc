@@ -1,22 +1,19 @@
-import arrow
 import os
+from textwrap import wrap
 
+import arrow
 from django import template
 from django.conf import settings
-from django.utils.safestring import mark_safe
 from django.template.loader import select_template
+from django.utils.safestring import mark_safe
 from edc_constants.constants import OTHER, YES
-from textwrap import wrap
 
 register = template.Library()
 
 
 def select_ae_template(relative_path):
-    """Returns a template object.
-    """
-    local_path = (
-        f"{settings.ADVERSE_EVENT_APP_LABEL}/bootstrap{settings.EDC_BOOTSTRAP}/"
-    )
+    """Returns a template object."""
+    local_path = f"{settings.ADVERSE_EVENT_APP_LABEL}/bootstrap{settings.EDC_BOOTSTRAP}/"
     default_path = f"edc_adverse_event/bootstrap{settings.EDC_BOOTSTRAP}/"
     return select_template(
         [
@@ -27,8 +24,7 @@ def select_ae_template(relative_path):
 
 
 def select_description_template(model):
-    """Returns a template name.
-    """
+    """Returns a template name."""
     return select_ae_template(f"{model}_description.html").template.name
 
 

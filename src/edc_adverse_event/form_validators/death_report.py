@@ -1,5 +1,5 @@
 from django.apps import apps as django_apps
-from edc_constants.constants import OTHER, CLOSED
+from edc_constants.constants import CLOSED, OTHER
 from edc_form_validators import FormValidator
 
 

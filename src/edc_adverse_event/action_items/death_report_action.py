@@ -1,13 +1,14 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from edc_action_item import ActionWithNotification
-from edc_adverse_event.constants import (
-    AE_INITIAL_ACTION,
-    AE_FOLLOWUP_ACTION,
-    DEATH_REPORT_ACTION,
-)
 from edc_constants.constants import HIGH_PRIORITY
 from edc_visit_schedule.utils import get_offschedule_models
+
+from edc_adverse_event.constants import (
+    AE_FOLLOWUP_ACTION,
+    AE_INITIAL_ACTION,
+    DEATH_REPORT_ACTION,
+)
 
 from ..constants import ADVERSE_EVENT_ADMIN_SITE, ADVERSE_EVENT_APP_LABEL
 

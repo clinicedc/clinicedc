@@ -1,7 +1,5 @@
 from django.conf import settings
-from edc_notification import GradedEventNotification
-from edc_notification import register
-from edc_notification import NewModelNotification
+from edc_notification import GradedEventNotification, NewModelNotification, register
 
 
 @register()

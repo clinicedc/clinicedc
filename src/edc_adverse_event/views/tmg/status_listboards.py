@@ -1,4 +1,4 @@
-from edc_constants.constants import OPEN, NEW, CLOSED
+from edc_constants.constants import CLOSED, NEW, OPEN
 
 from ...model_wrappers import (
     ClosedTmgActionItemModelWrapper,

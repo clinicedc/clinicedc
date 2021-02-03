@@ -2,12 +2,16 @@ import re
 
 from django.conf import settings
 from django.db.models import Q
-from edc_adverse_event.model_wrappers import DeathReportModelWrapper as ModelWrapper
-from edc_dashboard.view_mixins import EdcViewMixin
-from edc_dashboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
+from edc_dashboard.url_names import url_names
+from edc_dashboard.view_mixins import (
+    EdcViewMixin,
+    ListboardFilterViewMixin,
+    SearchFormViewMixin,
+)
 from edc_dashboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
-from edc_dashboard.url_names import url_names
+
+from edc_adverse_event.model_wrappers import DeathReportModelWrapper as ModelWrapper
 
 
 class DeathReportModelWrapper(ModelWrapper):
@@ -47,9 +51,7 @@ class DeathListboardView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(
-            {"subject_dashboard_url": url_names.get("subject_dashboard_url")}
-        )
+        context.update({"subject_dashboard_url": url_names.get("subject_dashboard_url")})
         if self.kwargs.get("subject_identifier"):
             context.update({"q": self.kwargs.get("subject_identifier")})
         return context

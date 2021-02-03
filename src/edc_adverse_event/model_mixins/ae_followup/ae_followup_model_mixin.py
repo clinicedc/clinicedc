@@ -1,12 +1,12 @@
 from django.db import models
 from edc_action_item.managers import (
-    ActionIdentifierSiteManager,
     ActionIdentifierManager,
+    ActionIdentifierSiteManager,
 )
 from edc_action_item.models import ActionModelMixin
 from edc_identifier.model_mixins import (
-    TrackingModelMixin,
     NonUniqueSubjectIdentifierFieldMixin,
+    TrackingModelMixin,
 )
 from edc_sites.models import SiteModelMixin
 
@@ -37,7 +37,5 @@ class AeFollowupModelMixin(
         abstract = True
         verbose_name = "AE Follow-up Report"
         indexes = [
-            models.Index(
-                fields=["subject_identifier", "action_identifier", "site", "id"]
-            )
+            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])
         ]

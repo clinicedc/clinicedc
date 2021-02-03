@@ -1,5 +1,5 @@
-from edc_form_validators import FormValidator
 from edc_constants.constants import YES
+from edc_form_validators import FormValidator
 
 
 class AeInitialFormValidator(FormValidator):
