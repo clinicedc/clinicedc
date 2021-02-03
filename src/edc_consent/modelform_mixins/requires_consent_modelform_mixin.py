@@ -61,11 +61,11 @@ class RequiresConsentModelFormMixin(BaseModelForm):
         return consent_model
 
     def get_consent(self, subject_identifier, report_datetime):
-        """Return an instance of the consent model."""
+        """Return an instance of the consent model"""
         consent_object = site_consents.get_consent(
             report_datetime=report_datetime,
             consent_group=self.consent_group,
-            model=self.consent_model,
+            consent_model=self.consent_model,
         )
         try:
             obj = consent_object.model_cls.consent.consent_for_period(
