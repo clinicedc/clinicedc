@@ -1,12 +1,12 @@
 from datetime import timedelta
+
 from dateutil.relativedelta import relativedelta
 from django.contrib.sites.models import Site
-from django.test import TestCase, tag, override_settings
+from django.test import TestCase, override_settings
 from edc_protocol import Protocol
 from edc_utils import get_utcnow
 from model_bakery import baker
 
-from ..consent import Consent
 from ..field_mixins import IdentityFieldsMixinError
 from ..site_consents import site_consents
 from .consent_test_utils import consent_factory
@@ -61,14 +61,10 @@ class TestConsentModel(TestCase):
             site=Site.objects.get_current(),
         )
         self.assertIsNotNone(consent.subject_identifier)
-        self.assertNotEqual(
-            consent.subject_identifier, consent.subject_identifier_as_pk
-        )
+        self.assertNotEqual(consent.subject_identifier, consent.subject_identifier_as_pk)
         consent.save()
         self.assertIsNotNone(consent.subject_identifier)
-        self.assertNotEqual(
-            consent.subject_identifier, consent.subject_identifier_as_pk
-        )
+        self.assertNotEqual(consent.subject_identifier, consent.subject_identifier_as_pk)
 
     def test_subject_has_current_consent(self):
         subject_identifier = "123456789"
@@ -160,17 +156,13 @@ class TestConsentModel(TestCase):
             )
 
         first = SubjectConsent.objects.get(subject_identifier="1")
-        self.assertEqual(
-            first, SubjectConsent.consent.first_consent(subject_identifier="1")
-        )
+        self.assertEqual(first, SubjectConsent.consent.first_consent(subject_identifier="1"))
 
         SubjectConsent.consent.consent_for_period(
             subject_identifier="1",
             report_datetime=self.study_open_datetime + relativedelta(days=1),
         )
-        self.assertEqual(
-            first, SubjectConsent.consent.first_consent(subject_identifier="1")
-        )
+        self.assertEqual(first, SubjectConsent.consent.first_consent(subject_identifier="1"))
 
         self.assertIsNone(
             SubjectConsent.consent.consent_for_period(

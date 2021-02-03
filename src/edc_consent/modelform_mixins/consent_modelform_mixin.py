@@ -1,19 +1,19 @@
 from dateutil.relativedelta import relativedelta
 from django import forms
+from django.forms import BaseModelForm
 from django.forms.utils import ErrorList
 from django.utils import timezone
-from edc_utils import formatted_age, age
-from edc_constants.constants import YES, NO
+from edc_constants.constants import NO, YES
 from edc_registration.models import RegisteredSubject
+from edc_utils import age, formatted_age
 
 from ..consent_helper import ConsentHelper
 from ..exceptions import ConsentObjectDoesNotExist
-from ..site_consents import site_consents, SiteConsentError
+from ..site_consents import SiteConsentError, site_consents
 
 
-class ConsentModelFormMixin:
-    """Form for models that are a subclass of BaseConsent.
-    """
+class ConsentModelFormMixin(BaseModelForm):
+    """Form for models that are a subclass of BaseConsent."""
 
     confirm_identity = forms.CharField(
         label="Confirm identity", help_text="Retype the identity number"
@@ -31,7 +31,7 @@ class ConsentModelFormMixin:
         self.clean_with_registered_subject()
 
         consent_datetime = (
-            self.cleaned_data.get("consent_datetime") or self.instance.consent_datetime
+            cleaned_data.get("consent_datetime") or self.instance.consent_datetime
         )
         if consent_datetime:
             options = dict(
@@ -44,7 +44,7 @@ class ConsentModelFormMixin:
                 ConsentHelper(
                     model_cls=self._meta.model,
                     update_previous=False,
-                    **self.cleaned_data,
+                    **cleaned_data,
                 )
         return cleaned_data
 
@@ -72,7 +72,8 @@ class ConsentModelFormMixin:
             return age(dob, consent_datetime)
         return None
 
-    def unique_together_string(self, first_name, initials, dob):
+    @staticmethod
+    def unique_together_string(first_name, initials, dob):
         try:
             dob = dob.isoformat()
         except AttributeError:
@@ -200,9 +201,7 @@ class ConsentModelFormMixin:
             if guardian:
                 raise forms.ValidationError(
                     "Subject's age is {}. Subject is an adult. Guardian's "
-                    "name is NOT required.".format(
-                        formatted_age(dob, consent_datetime)
-                    ),
+                    "name is NOT required.".format(formatted_age(dob, consent_datetime)),
                     params={"age": formatted_age(dob, consent_datetime)},
                     code="invalid",
                 )
@@ -212,9 +211,7 @@ class ConsentModelFormMixin:
         MAX set on the model.
         """
         cleaned_data = self.cleaned_data
-        consent_datetime = cleaned_data.get(
-            "consent_datetime", self.instance.consent_datetime
-        )
+        consent_datetime = cleaned_data.get("consent_datetime", self.instance.consent_datetime)
         if not consent_datetime:
             self._errors["consent_datetime"] = ErrorList(
                 ["This field is required. Please fill consent date and time."]
@@ -284,13 +281,11 @@ class ConsentModelFormMixin:
         return consent_signature
 
     def clean_gender_of_consent(self):
-        """Validates gender is a gender of consent.
-        """
+        """Validates gender is a gender of consent."""
         gender = self.cleaned_data.get("gender")
         if gender not in self.consent_config.gender:
             raise forms.ValidationError(
-                "Gender of consent can only be '%(gender_of_consent)s'. "
-                "Got '%(gender)s'.",
+                "Gender of consent can only be '%(gender_of_consent)s'. " "Got '%(gender)s'.",
                 params={
                     "gender_of_consent": "' or '".join(self.consent_config.gender),
                     "gender": gender,

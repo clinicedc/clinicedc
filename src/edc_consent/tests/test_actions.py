@@ -1,15 +1,16 @@
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.http.request import HttpRequest
-from django.test import tag, TestCase, override_settings
-from edc_consent import site_consents
+from django.test import TestCase, override_settings
 from edc_protocol import Protocol
 from edc_utils import get_utcnow
 from model_bakery import baker
 
-from ..actions import verify_consent, unverify_consent
-from .models import SubjectConsent
+from edc_consent import site_consents
+
+from ..actions import unverify_consent, verify_consent
 from .consent_test_utils import consent_object_factory
+from .models import SubjectConsent
 
 
 @override_settings(
@@ -22,9 +23,7 @@ class TestActions(TestCase):
         site_consents.registry = {}
         self.study_open_datetime = Protocol().study_open_datetime
         self.study_close_datetime = Protocol().study_close_datetime
-        consent_object_factory(
-            start=self.study_open_datetime, end=self.study_close_datetime
-        )
+        consent_object_factory(start=self.study_open_datetime, end=self.study_close_datetime)
         self.request = HttpRequest()
         user = User.objects.create(username="erikvw")
         self.request.user = user

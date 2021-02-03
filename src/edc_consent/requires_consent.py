@@ -3,7 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from edc_utils import convert_php_dateformat
 
 from .exceptions import NotConsentedError
-from .site_consents import site_consents, SiteConsentError
+from .site_consents import SiteConsentError, site_consents
 
 
 class RequiresConsent:

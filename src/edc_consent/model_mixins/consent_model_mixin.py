@@ -1,16 +1,17 @@
+from uuid import uuid4
+
 from django.db import models
 from django.db.models import options
 from django_crypto_fields.fields import EncryptedTextField
 from edc_model.models import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.models import CurrentSiteManager
-from edc_utils import formatted_age, age
-from uuid import uuid4
+from edc_utils import age, formatted_age
 
 from ..consent_helper import ConsentHelper
 from ..constants import DEFAULT_CONSENT_GROUP
 from ..field_mixins import VerificationFieldsMixin
-from ..managers import ObjectConsentManager, ConsentManager
+from ..managers import ConsentManager, ObjectConsentManager
 
 if "consent_group" not in options.DEFAULT_NAMES:
     options.DEFAULT_NAMES = options.DEFAULT_NAMES + ("consent_group",)
@@ -49,9 +50,7 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
         help_text="Used for randomization against a prepared rando-list.",
     )
 
-    comment = EncryptedTextField(
-        verbose_name="Comment", max_length=250, blank=True, null=True
-    )
+    comment = EncryptedTextField(verbose_name="Comment", max_length=250, blank=True, null=True)
 
     dm_comment = models.CharField(
         verbose_name="Data Management comment",
@@ -74,10 +73,10 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
     on_site = CurrentSiteManager()
 
     def __str__(self):
-        return f"{self.subject_identifier} v{self.version}"
+        return f"{self.get_subject_identifier()} v{self.version}"
 
     def natural_key(self):
-        return (self.subject_identifier_as_pk,)
+        return tuple([self.get_subject_identifier_as_pk()])
 
     def save(self, *args, **kwargs):
         self.report_datetime = self.consent_datetime
@@ -88,17 +87,47 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
         self.updates_versions = True if consent_helper.updates_versions else False
         super().save(*args, **kwargs)
 
+    def get_subject_identifier(self):
+        """Returns the subject_identifier"""
+        try:
+            return self.subject_identifier  # noqa
+        except AttributeError as e:
+            if "subject_identifier" in str(e):
+                raise NotImplementedError(f"Missing model mixin. Got `{str(e)}`.")
+            raise
+
+    def get_subject_identifier_as_pk(self):
+        """Returns the subject_identifier_as_pk"""
+        try:
+            return self.subject_identifier_as_pk  # noqa
+        except AttributeError as e:
+            if "subject_identifier_as_pk" in str(e):
+                raise NotImplementedError(f"Missing model mixin. Got `{str(e)}`.")
+            raise
+
+    def get_dob(self):
+        """Returns the date of birth"""
+        try:
+            return self.dob  # noqa
+        except AttributeError as e:
+            if "dob" in str(e):
+                raise NotImplementedError(f"Missing model mixin. Got `{str(e)}`.")
+            raise
+
     @property
     def age_at_consent(self):
-        """Returns a relativedelta.
-        """
-        return age(self.dob, self.consent_datetime)
+        """Returns a relativedelta."""
+        try:
+            return age(self.get_dob(), self.consent_datetime)
+        except AttributeError as e:
+            if "dob" in str(e):
+                raise NotImplementedError(f"Missing model mixin. Got `{str(e)}`.")
+            raise
 
     @property
     def formatted_age_at_consent(self):
-        """Returns a string representation.
-        """
-        return formatted_age(self.dob, self.consent_datetime)
+        """Returns a string representation."""
+        return formatted_age(self.get_dob(), self.consent_datetime)
 
     class Meta:
         abstract = True

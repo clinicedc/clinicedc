@@ -2,7 +2,7 @@ import re
 
 from django.core.exceptions import ValidationError
 from django.utils.deconstruct import deconstructible
-from edc_constants.constants import YES, NO, DECLINED, UNKNOWN, MALE, NEG, POS
+from edc_constants.constants import DECLINED, MALE, NEG, NO, POS, UNKNOWN, YES
 
 
 @deconstructible
@@ -13,8 +13,7 @@ class SubjectTypeValidator:
     def __call__(self, value):
         if value not in self.subject_types:
             raise ValidationError(
-                "Undefined subject type. Expected one of '{subject_types}'. "
-                "Got '{value}'.",
+                "Undefined subject type. Expected one of '{subject_types}'. " "Got '{value}'.",
                 params={
                     "subject_types": "' or '".join(self.subject_types),
                     "value": value,
@@ -28,7 +27,7 @@ class SubjectTypeValidator:
 @deconstructible
 class FullNameValidator:
     def __init__(self, regex=None):
-        self.regex = regex or re.compile("^[A-Z]{1,50}\, [A-Z]{1,50}$")
+        self.regex = regex or re.compile(r"^[A-Z]{1,50}, [A-Z]{1,50}$")
 
     def __call__(self, value):
         if not re.match(self.regex, value):

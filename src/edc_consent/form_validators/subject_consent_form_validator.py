@@ -3,13 +3,14 @@ from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from edc_form_validators import FormValidator
 from edc_screening.utils import get_subject_screening_model
 from edc_utils.date import to_utc
 from edc_utils.text import convert_php_dateformat
 from pytz import timezone
 
 
-class SubjectConsentFormValidatorMixin:
+class SubjectConsentFormValidatorMixin(FormValidator):
 
     subject_screening_model = get_subject_screening_model()
 
@@ -45,9 +46,7 @@ class SubjectConsentFormValidatorMixin:
                     raise forms.ValidationError(
                         {"consent_datetime": "This field is required."}
                     )
-                self._consent_datetime = to_utc(
-                    self.cleaned_data.get("consent_datetime")
-                )
+                self._consent_datetime = to_utc(self.cleaned_data.get("consent_datetime"))
             else:
                 self._consent_datetime = self.instance.consent_datetime
         return self._consent_datetime
@@ -67,8 +66,7 @@ class SubjectConsentFormValidatorMixin:
         return self._subject_screening
 
     def validate_age(self):
-        """Validate age matches that on the screening form.
-        """
+        """Validate age matches that on the screening form."""
         screening_age_in_years = relativedelta(
             self.subject_screening.report_datetime.date(), self.dob
         ).years
@@ -83,8 +81,7 @@ class SubjectConsentFormValidatorMixin:
             )
 
     def validate_gender(self):
-        """Validate gender matches that on the screening form.
-        """
+        """Validate gender matches that on the screening form."""
         if self.gender != self.subject_screening.gender:
             raise forms.ValidationError(
                 {

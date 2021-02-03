@@ -16,8 +16,7 @@ class SampleCollectionFieldsMixin(models.Model):
 
     may_store_samples = models.CharField(
         verbose_name=(
-            "Does the participant agree to have samples "
-            "stored after the study has ended"
+            "Does the participant agree to have samples " "stored after the study has ended"
         ),
         max_length=3,
         choices=YES_NO,

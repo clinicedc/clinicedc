@@ -1,8 +1,5 @@
 from dateutil.relativedelta import relativedelta
-
-from edc_visit_schedule import VisitSchedule, Schedule, Visit
-from edc_visit_schedule import FormsCollection, Crf
-
+from edc_visit_schedule import Crf, FormsCollection, Schedule, Visit, VisitSchedule
 
 crfs = FormsCollection(Crf(show_order=1, model="edc_consent.crfone", required=True))
 

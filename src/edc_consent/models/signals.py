@@ -1,10 +1,10 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
-from edc_consent.exceptions import NotConsentedError
 from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
+from ..exceptions import NotConsentedError
 from ..requires_consent import RequiresConsent
 
 

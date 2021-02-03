@@ -1,13 +1,14 @@
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.forms import BaseModelForm
 from edc_visit_tracking.modelform_mixins import get_subject_visit
 
 from ..constants import DEFAULT_CONSENT_GROUP
 from ..site_consents import site_consents
 
 
-class RequiresConsentModelFormMixin:
+class RequiresConsentModelFormMixin(BaseModelForm):
     def clean(self):
         cleaned_data = super().clean()
         self.validate_against_consent()
@@ -39,9 +40,7 @@ class RequiresConsentModelFormMixin:
             subject_identifier = subject_visit.appointment.subject_identifier
         consent = self.get_consent(subject_identifier, self.report_datetime)
         if self.report_datetime < consent.consent_datetime:
-            raise forms.ValidationError(
-                "Report datetime cannot be before consent datetime"
-            )
+            raise forms.ValidationError("Report datetime cannot be before consent datetime")
         if self.report_datetime.date() < consent.dob:
             raise forms.ValidationError("Report datetime cannot be before DOB")
 
@@ -62,8 +61,7 @@ class RequiresConsentModelFormMixin:
         return consent_model
 
     def get_consent(self, subject_identifier, report_datetime):
-        """Return an instance of the consent model.
-        """
+        """Return an instance of the consent model."""
         consent_object = site_consents.get_consent(
             report_datetime=report_datetime,
             consent_group=self.consent_group,

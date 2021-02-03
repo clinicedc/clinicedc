@@ -1,6 +1,5 @@
 from edc_navbar import Navbar, NavbarItem, site_navbars
 
-
 navbar = Navbar(name="edc_consent")
 
 navbar.append_item(

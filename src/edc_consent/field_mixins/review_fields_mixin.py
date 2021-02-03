@@ -17,9 +17,7 @@ class ReviewFieldsMixin(models.Model):
     )
 
     study_questions = models.CharField(
-        verbose_name=(
-            "I have answered all questions the participant had about the study"
-        ),
+        verbose_name=("I have answered all questions the participant had about the study"),
         max_length=3,
         choices=YES_NO,
         validators=[eligible_if_yes],
@@ -42,9 +40,7 @@ class ReviewFieldsMixin(models.Model):
     )
 
     consent_signature = models.CharField(
-        verbose_name=(
-            "I have verified that the participant has signed the consent form"
-        ),
+        verbose_name=("I have verified that the participant has signed the consent form"),
         max_length=3,
         choices=YES_NO,
         validators=[eligible_if_yes],
@@ -55,8 +51,7 @@ class ReviewFieldsMixin(models.Model):
 
     consent_copy = models.CharField(
         verbose_name=(
-            "I have provided the participant with a copy of their "
-            "signed informed consent"
+            "I have provided the participant with a copy of their " "signed informed consent"
         ),
         max_length=20,
         choices=YES_NO_DECLINED,

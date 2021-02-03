@@ -1,4 +1,4 @@
-from edc_constants.constants import YES, NO, OTHER, MOBILE_NUMBER
+from edc_constants.constants import MOBILE_NUMBER, NO, OTHER, YES
 
 from .constants import HOSPITAL_NUMBER
 

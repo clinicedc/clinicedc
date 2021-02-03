@@ -1,17 +1,18 @@
 from django.db import models
-from django.db.models import CASCADE, PROTECT
-from edc_appointment.models import Appointment
+from django.db.models import PROTECT
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierModelMixin
-from edc_metadata.model_mixins.updates import UpdatesCrfMetadataModelMixin
-from edc_model.models import BaseUuidModel, HistoricalRecords
-from edc_reference.model_mixins import ReferenceModelMixin
+from edc_model.models import BaseUuidModel
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
-from edc_visit_tracking.model_mixins import VisitTrackingCrfModelMixin
 
-from ..field_mixins import ReviewFieldsMixin, PersonalFieldsMixin, CitizenFieldsMixin
-from ..field_mixins import VulnerabilityFieldsMixin, IdentityFieldsMixin
+from ..field_mixins import (
+    CitizenFieldsMixin,
+    IdentityFieldsMixin,
+    PersonalFieldsMixin,
+    ReviewFieldsMixin,
+    VulnerabilityFieldsMixin,
+)
 from ..model_mixins import ConsentModelMixin, RequiresConsentFieldsModelMixin
 
 

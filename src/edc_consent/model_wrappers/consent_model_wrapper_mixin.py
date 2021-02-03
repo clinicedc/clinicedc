@@ -1,12 +1,13 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from edc_identifier import is_subject_identifier_or_raise
+from edc_model_wrapper import ModelWrapper
 from edc_utils import get_uuid
 
 from ..site_consents import site_consents
 
 
-class ConsentModelWrapperMixin:
+class ConsentModelWrapperMixin(ModelWrapper):
 
     consent_model_wrapper_cls = None
 
@@ -15,9 +16,7 @@ class ConsentModelWrapperMixin:
         """Returns a consent configuration object from site_consents
         relative to the wrapper's "object" report_datetime.
         """
-        default_consent_group = django_apps.get_app_config(
-            "edc_consent"
-        ).default_consent_group
+        default_consent_group = django_apps.get_app_config("edc_consent").default_consent_group
         consent_object = site_consents.get_consent_for_period(
             model=self.consent_model_wrapper_cls.model,
             report_datetime=self.object.report_datetime,
@@ -27,8 +26,7 @@ class ConsentModelWrapperMixin:
 
     @property
     def consent_model_obj(self):
-        """Returns a consent model instance or None.
-        """
+        """Returns a consent model instance or None."""
         consent_model_cls = django_apps.get_model(self.consent_model_wrapper_cls.model)
         try:
             model_obj = consent_model_cls.objects.get(**self.consent_options)
@@ -38,8 +36,7 @@ class ConsentModelWrapperMixin:
 
     @property
     def consent(self):
-        """Returns a wrapped saved or unsaved consent.
-        """
+        """Returns a wrapped saved or unsaved consent."""
         model_obj = self.consent_model_obj or self.consent_object.model_cls(
             **self.create_consent_options
         )

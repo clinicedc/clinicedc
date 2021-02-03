@@ -1,7 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
-from .site_consents import site_consents, SiteConsentError
+from .site_consents import SiteConsentError, site_consents
 
 
 class ObjectConsentManager(models.Manager):
@@ -11,8 +11,7 @@ class ObjectConsentManager(models.Manager):
 
 class ConsentManager(models.Manager):
     def first_consent(self, subject_identifier=None):
-        """Returns the first consent by consent_datetime.
-        """
+        """Returns the first consent by consent_datetime."""
         return (
             self.filter(subject_identifier=subject_identifier)
             .order_by("consent_datetime")
@@ -20,8 +19,7 @@ class ConsentManager(models.Manager):
         )
 
     def consent_for_period(self, subject_identifier=None, report_datetime=None):
-        """Returns a consent model instance or None.
-        """
+        """Returns a consent model instance or None."""
         model_obj = None
         try:
             consent_object = site_consents.get_consent_for_period(

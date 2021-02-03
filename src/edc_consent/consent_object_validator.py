@@ -50,7 +50,8 @@ class ConsentObjectValidator:
                         f"Got {new_consent}."
                     )
 
-    def check_consent_period_within_study_period(self, new_consent=None):
+    @staticmethod
+    def check_consent_period_within_study_period(new_consent=None):
         """Raises if the start or end date of the consent period
         it not within the opening and closing dates of the protocol.
         """
@@ -66,9 +67,7 @@ class ConsentObjectValidator:
                 formatted_study_close_datetime = study_close_datetime.strftime(
                     convert_php_dateformat(settings.SHORT_DATE_FORMAT)
                 )
-                formatted_dt = dt.strftime(
-                    convert_php_dateformat(settings.SHORT_DATE_FORMAT)
-                )
+                formatted_dt = dt.strftime(convert_php_dateformat(settings.SHORT_DATE_FORMAT))
                 raise ConsentPeriodError(
                     f"Invalid consent. Consent period for {new_consent.name} "
                     "must be within study opening/closing dates of "
@@ -79,9 +78,7 @@ class ConsentObjectValidator:
 
     def check_updates_versions(self, new_consent=None):
         for version in new_consent.updates_versions:
-            if not self.get_consents_by_version(
-                model=new_consent.model, version=version
-            ):
+            if not self.get_consents_by_version(model=new_consent.model, version=version):
                 raise ConsentVersionSequenceError(
                     f"Consent version {version} cannot be an update to version(s) "
                     f"'{new_consent.updates_versions}'. "
@@ -89,9 +86,7 @@ class ConsentObjectValidator:
                 )
 
     def check_version(self, new_consent=None):
-        if self.get_consents_by_version(
-            model=new_consent.model, version=new_consent.version
-        ):
+        if self.get_consents_by_version(model=new_consent.model, version=new_consent.version):
             raise ConsentVersionSequenceError(
                 "Consent version already registered. "
                 f"Version {new_consent.version}. "

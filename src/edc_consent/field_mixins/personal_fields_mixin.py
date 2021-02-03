@@ -2,9 +2,9 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.safestring import mark_safe
 from django_crypto_fields.fields import (
+    EncryptedCharField,
     FirstnameField,
     LastnameField,
-    EncryptedCharField,
 )
 from django_crypto_fields.models import CryptoMixin
 from edc_constants.choices import GENDER_UNDETERMINED
@@ -20,7 +20,7 @@ class PersonalFieldsMixin(CryptoMixin, models.Model):
         blank=False,
         validators=[
             RegexValidator(
-                regex="^([A-Z]+$|[A-Z]+\ [A-Z]+)$",
+                regex=r"^([A-Z]+$|[A-Z]+\ [A-Z]+)$",
                 message="Ensure name consist of letters " "only in upper case",
             )
         ],
@@ -32,7 +32,7 @@ class PersonalFieldsMixin(CryptoMixin, models.Model):
         blank=False,
         validators=[
             RegexValidator(
-                regex="^([A-Z]+$|[A-Z]+\ [A-Z]+)$",
+                regex=r"^([A-Z]+$|[A-Z]+\ [A-Z]+)$",
                 message="Ensure name consist of letters " "only in upper case",
             )
         ],
@@ -43,8 +43,7 @@ class PersonalFieldsMixin(CryptoMixin, models.Model):
             RegexValidator(
                 regex=r"^[A-Z]{2,3}$",
                 message=(
-                    "Ensure initials consist of letters "
-                    "only in upper case, no spaces."
+                    "Ensure initials consist of letters " "only in upper case, no spaces."
                 ),
             )
         ],
@@ -67,7 +66,7 @@ class PersonalFieldsMixin(CryptoMixin, models.Model):
     )
 
     guardian_name = LastnameField(
-        verbose_name=("Guardian's last and first name"),
+        verbose_name="Guardian's last and first name",
         validators=[FullNameValidator()],
         blank=True,
         null=True,

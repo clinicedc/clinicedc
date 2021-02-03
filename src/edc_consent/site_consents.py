@@ -1,14 +1,14 @@
 import sys
-
 from copy import deepcopy
+
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.management.color import color_style
 from django.utils.module_loading import import_module, module_has_submodule
 from edc_utils import convert_php_dateformat
 
-from .exceptions import ConsentObjectDoesNotExist
 from .consent_object_validator import ConsentObjectValidator
+from .exceptions import ConsentObjectDoesNotExist
 
 
 class ConsentError(Exception):
@@ -33,17 +33,14 @@ class SiteConsents:
     def register(self, consent=None):
         """Register consent `objects`, not models."""
         if consent.name in self.registry:
-            raise AlreadyRegistered(
-                f"Consent object already registered. Got {consent}."
-            )
+            raise AlreadyRegistered(f"Consent object already registered. Got {consent}.")
         self.validate_consent_object(consent=consent, consents=self.consents)
         self.registry.update({consent.name: consent})
         self.loaded = True
 
     @property
     def consents(self):
-        """Returns an ordered list of consent objects.
-        """
+        """Returns an ordered list of consent objects."""
         consents = list(self.registry.values())
         return sorted(consents, key=lambda x: x.name, reverse=False)
 
@@ -53,9 +50,7 @@ class SiteConsents:
         """
         return [consent for consent in self.consents if consent.model == model]
 
-    def get_consent_for_period(
-        self, model=None, report_datetime=None, consent_group=None
-    ):
+    def get_consent_for_period(self, model=None, report_datetime=None, consent_group=None):
         """Returns a consent object with a date range that the
         given report_datetime falls within.
         """
@@ -68,9 +63,7 @@ class SiteConsents:
         consent_group = consent_group or app_config.default_consent_group
         registered_consents = self.registry.values()
         registered_consents = [
-            c
-            for c in registered_consents
-            if c.group == consent_group and c.model == model
+            c for c in registered_consents if c.group == consent_group and c.model == model
         ]
         if not registered_consents:
             raise SiteConsentError(
@@ -91,42 +84,35 @@ class SiteConsents:
 
     def get_consent(
         self,
-        model=None,
+        consent_model=None,
         report_datetime=None,
         version=None,
         consent_group=None,
-        **kwargs,
     ):
-        """Return consent object, not model, valid for the datetime.
-        """
+        """Return consent object, not model, valid for the datetime."""
         app_config = django_apps.get_app_config("edc_consent")
         consent_group = consent_group or app_config.default_consent_group
         registered_consents = self.registry.values()
         if consent_group:
-            registered_consents = [
-                c for c in registered_consents if c.group == consent_group
-            ]
+            registered_consents = [c for c in registered_consents if c.group == consent_group]
         if not registered_consents:
             raise ConsentObjectDoesNotExist(
-                f"No matching consent in site consents. "
-                f"Got consent_group={consent_group}."
+                f"No matching consent in site consents. " f"Got consent_group={consent_group}."
             )
         if version:
-            registered_consents = [
-                c for c in registered_consents if c.version == version
-            ]
+            registered_consents = [c for c in registered_consents if c.version == version]
         if not registered_consents:
             raise ConsentObjectDoesNotExist(
                 f"No matching consent in site consents. "
                 f"Got consent_group={consent_group}, version={version}."
             )
-        if model:
-            registered_consents = [c for c in registered_consents if c.model == model]
+        if consent_model:
+            registered_consents = [c for c in registered_consents if c.model == consent_model]
         if not registered_consents:
             raise ConsentObjectDoesNotExist(
                 f"No matching consent in site consents. "
                 f"Got consent_group={consent_group}, version={version}, "
-                f"model={model}."
+                f"model={consent_model}."
             )
         registered_consents = [
             c for c in registered_consents if c.start <= report_datetime <= c.end
@@ -135,7 +121,7 @@ class SiteConsents:
             raise ConsentObjectDoesNotExist(
                 f"No matching consent in site consents. "
                 f"Got consent_group={consent_group}, version={version}, "
-                f"model={model}, report_datetime={report_datetime}."
+                f"model={consent_model}, report_datetime={report_datetime}."
             )
         elif len(registered_consents) > 1:
             consents = list(set([c.name for c in registered_consents]))
@@ -143,17 +129,19 @@ class SiteConsents:
                 convert_php_dateformat(settings.SHORT_DATE_FORMAT)
             )
             raise ConsentError(
-                f"Multiple consents found, using consent model={model}, "
+                f"Multiple consents found, using consent model={consent_model}, "
                 f"date={formatted_report_datetime}, "
                 f"consent_group={consent_group}, version={version}. "
                 f"Got {consents}"
             )
         return registered_consents[0]
 
-    def autodiscover(self, module_name=None, verbose=True):
+    @staticmethod
+    def autodiscover(module_name=None, verbose=True):
         """Autodiscovers consent classes in the consents.py file of
         any INSTALLED_APP.
         """
+        before_import_registry = None
         module_name = module_name or "consents"
         writer = sys.stdout.write if verbose else lambda x: x
         style = color_style()

@@ -1,8 +1,6 @@
 from django.contrib import admin
-from edc_consent.actions import (
-    flag_as_verified_against_paper,
-    unflag_as_verified_against_paper,
-)
+
+from .actions import flag_as_verified_against_paper, unflag_as_verified_against_paper
 
 
 class ModelAdminConsentMixin(admin.ModelAdmin):
@@ -53,7 +51,7 @@ class ModelAdminConsentMixin(admin.ModelAdmin):
             "study_questions",
             "assessment_score",
             "consent_copy",
-        ] + self.get_fields(self, request, obj=obj)
+        ] + super().get_fields(request, obj=obj)
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super().get_readonly_fields(request, obj)

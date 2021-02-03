@@ -76,8 +76,6 @@ class ConsentHelper:
                     "configured to update a previous version."
                 )
             except MultipleObjectsReturned:
-                previous_consents = self.model_cls.objects.filter(**opts).order_by(
-                    "-version"
-                )
+                previous_consents = self.model_cls.objects.filter(**opts).order_by("-version")
                 self._previous_consent = previous_consents[0]
         return self._previous_consent

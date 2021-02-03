@@ -13,9 +13,7 @@ class NaiveDatetimeError(Exception):
 class Consent:
     default_version = "1"
     default_subject_type = "subject"
-    default_consent_group = django_apps.get_app_config(
-        "edc_consent"
-    ).default_consent_group
+    default_consent_group = django_apps.get_app_config("edc_consent").default_consent_group
 
     def __init__(
         self,
@@ -31,8 +29,7 @@ class Consent:
         age_is_adult=None,
         subject_type=None,
     ):
-        """A class that represents the general attributes of a consent.
-        """
+        """A class that represents the general attributes of a consent."""
         if not start.tzinfo:
             raise NaiveDatetimeError(f"Naive datetime is invalid. Got {start}.")
         if not end.tzinfo:
@@ -53,9 +50,7 @@ class Consent:
         if self.updates_versions:
             if not isinstance(self.updates_versions, (list, tuple)):
                 self.updates_versions = [
-                    x.strip()
-                    for x in self.updates_versions.split(",")
-                    if x.strip() != ""
+                    x.strip() for x in self.updates_versions.split(",") if x.strip() != ""
                 ]
 
     def __repr__(self):

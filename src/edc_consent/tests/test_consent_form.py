@@ -1,8 +1,9 @@
 from datetime import timedelta
+
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.test import TestCase, override_settings
-from edc_constants.constants import NO, MALE, FEMALE
+from edc_constants.constants import FEMALE, MALE, NO
 from edc_protocol import Protocol
 from edc_utils import get_utcnow
 from faker import Faker
@@ -67,8 +68,7 @@ class TestConsentForm(TestCase):
         return consent
 
     def test_base_form_is_valid(self):
-        """Asserts baker defaults validate.
-        """
+        """Asserts baker defaults validate."""
         subject_consent = baker.prepare_recipe(
             "edc_consent.subjectconsent",
             dob=self.dob,
@@ -76,9 +76,7 @@ class TestConsentForm(TestCase):
             first_name="ERIK",
             last_name="THEPLEEB",
         )
-        subject_consent.initials = (
-            subject_consent.first_name[0] + subject_consent.last_name[0]
-        )
+        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
         consent_form = SubjectConsentForm(data=subject_consent.__dict__)
         self.assertTrue(consent_form.is_valid())
 
@@ -90,9 +88,7 @@ class TestConsentForm(TestCase):
             first_name="ERIK",
             last_name="THEPLEEB",
         )
-        subject_consent.initials = (
-            subject_consent.first_name[0] + subject_consent.last_name[0]
-        )
+        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
         consent_form = SubjectConsentForm(data=subject_consent.__dict__)
         self.assertTrue(consent_form.is_valid())
         self.assertIsNone(consent_form.errors.get("consent_datetime"))
@@ -115,9 +111,7 @@ class TestConsentForm(TestCase):
             last_name="THEPLEEB",
         )
         subject_consent.confirm_identity = "1"
-        subject_consent.initials = (
-            subject_consent.first_name[0] + subject_consent.last_name[0]
-        )
+        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
         consent_form = SubjectConsentForm(data=subject_consent.__dict__)
         self.assertFalse(consent_form.is_valid())
 
@@ -142,8 +136,7 @@ class TestConsentForm(TestCase):
         self.assertFalse(consent_form.is_valid())
 
     def test_base_form_guardian_and_dob1(self):
-        """Asserts form for minor is not valid without guardian name.
-        """
+        """Asserts form for minor is not valid without guardian name."""
         subject_consent = baker.prepare_recipe(
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
@@ -152,9 +145,7 @@ class TestConsentForm(TestCase):
             last_name="THEPLEEB",
         )
         subject_consent.guardian_name = None
-        subject_consent.initials = (
-            subject_consent.first_name[0] + subject_consent.last_name[0]
-        )
+        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
         consent = site_consents.get_consent_for_period(
             report_datetime=subject_consent.consent_datetime,
             model=subject_consent._meta.label_lower,
@@ -166,8 +157,7 @@ class TestConsentForm(TestCase):
         self.assertFalse(consent_form.is_valid())
 
     def test_base_form_guardian_and_dob2(self):
-        """Asserts form for minor is valid with guardian name.
-        """
+        """Asserts form for minor is valid with guardian name."""
         subject_consent = baker.prepare_recipe(
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
@@ -175,9 +165,7 @@ class TestConsentForm(TestCase):
             first_name="ERIK",
             last_name="THEPLEEB",
         )
-        subject_consent.initials = (
-            subject_consent.first_name[0] + subject_consent.last_name[0]
-        )
+        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
         subject_consent.guardian_name = "SPOCK, YOUCOULDNTPRONOUNCEIT"
         consent = site_consents.get_consent_for_period(
             report_datetime=subject_consent.consent_datetime,
@@ -190,8 +178,7 @@ class TestConsentForm(TestCase):
         self.assertTrue(consent_form.is_valid())
 
     def test_base_form_guardian_and_dob3(self):
-        """Asserts form for adult is valid.
-        """
+        """Asserts form for adult is valid."""
         subject_consent = baker.prepare_recipe(
             "edc_consent.subjectconsent",
             consent_datetime=self.study_open_datetime,
@@ -199,9 +186,7 @@ class TestConsentForm(TestCase):
             first_name="ERIK",
             last_name="THEPLEEB",
         )
-        subject_consent.initials = (
-            subject_consent.first_name[0] + subject_consent.last_name[0]
-        )
+        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
         consent = site_consents.get_consent_for_period(
             report_datetime=subject_consent.consent_datetime,
             model=subject_consent._meta.label_lower,
@@ -223,9 +208,7 @@ class TestConsentForm(TestCase):
             first_name="ERIK",
             last_name="THEPLEEB",
         )
-        subject_consent.initials = (
-            subject_consent.first_name[0] + subject_consent.last_name[0]
-        )
+        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
         subject_consent.guardian_name = "SPOCK, YOUCOULDNTPRONOUNCEIT"
         consent = site_consents.get_consent_for_period(
             report_datetime=subject_consent.consent_datetime,
@@ -245,9 +228,7 @@ class TestConsentForm(TestCase):
             first_name="ERIK",
             last_name="THEPLEEB",
         )
-        subject_consent.initials = (
-            subject_consent.first_name[0] + subject_consent.last_name[0]
-        )
+        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
         consent_form = SubjectConsentForm(subject_consent.__dict__)
         self.assertFalse(consent_form.is_valid())
 
@@ -259,9 +240,7 @@ class TestConsentForm(TestCase):
             first_name="ERIK",
             last_name="THEPLEEB",
         )
-        subject_consent.initials = (
-            subject_consent.first_name[0] + subject_consent.last_name[0]
-        )
+        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
         consent_form = SubjectConsentForm(subject_consent.__dict__)
         self.assertFalse(consent_form.is_valid())
 
@@ -284,9 +263,7 @@ class TestConsentForm(TestCase):
             last_name="THEPLEEB",
         )
         form = SubjectConsentForm(subject_consent.__dict__)
-        subject_consent.initials = (
-            subject_consent.first_name[0] + subject_consent.last_name[0]
-        )
+        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
         self.assertTrue(form.is_valid())
         subject_consent = baker.prepare_recipe(
             "edc_consent.subjectconsent",
@@ -295,9 +272,7 @@ class TestConsentForm(TestCase):
             gender=FEMALE,
         )
         form = SubjectConsentForm(subject_consent.__dict__)
-        subject_consent.initials = (
-            subject_consent.first_name[0] + subject_consent.last_name[0]
-        )
+        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
         self.assertFalse(form.is_valid())
 
     def test_base_form_catches_is_literate_and_witness(self):
@@ -310,9 +285,7 @@ class TestConsentForm(TestCase):
             first_name="ERIK",
             last_name="THEPLEEB",
         )
-        subject_consent.initials = (
-            subject_consent.first_name[0] + subject_consent.last_name[0]
-        )
+        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
         form = SubjectConsentForm(subject_consent.__dict__)
         self.assertFalse(form.is_valid())
         subject_consent = baker.prepare_recipe(
@@ -324,8 +297,6 @@ class TestConsentForm(TestCase):
             first_name="ERIK",
             last_name="THEPLEEB",
         )
-        subject_consent.initials = (
-            subject_consent.first_name[0] + subject_consent.last_name[0]
-        )
+        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
         form = SubjectConsentForm(subject_consent.__dict__)
         self.assertTrue(form.is_valid())

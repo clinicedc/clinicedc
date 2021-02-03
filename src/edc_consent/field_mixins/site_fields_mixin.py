@@ -7,8 +7,7 @@ class SiteFieldsMixin(models.Model):
         verbose_name="Site",
         max_length=25,
         help_text=(
-            "This refers to the site or 'clinic area' where the "
-            "subject is being consented."
+            "This refers to the site or 'clinic area' where the " "subject is being consented."
         ),
     )
 

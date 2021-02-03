@@ -1,6 +1,7 @@
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
+
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag, override_settings
+from django.test import TestCase, override_settings
 from edc_protocol import Protocol
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
@@ -8,8 +9,11 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from model_bakery import baker
 
 from ..consent import NaiveDatetimeError
-from ..consent_object_validator import ConsentPeriodError, ConsentVersionSequenceError
-from ..consent_object_validator import ConsentPeriodOverlapError
+from ..consent_object_validator import (
+    ConsentPeriodError,
+    ConsentPeriodOverlapError,
+    ConsentVersionSequenceError,
+)
 from ..exceptions import NotConsentedError
 from ..site_consents import SiteConsentError, site_consents
 from .consent_test_utils import consent_object_factory
@@ -50,13 +54,9 @@ class TestConsent(TestCase):
         """Asserts a model using the RequiresConsentMixin cannot create
         a new instance if subject not consented.
         """
-        consent_object_factory(
-            start=self.study_open_datetime, end=self.study_close_datetime
-        )
+        consent_object_factory(start=self.study_open_datetime, end=self.study_close_datetime)
         RegisteredSubject.objects.create(subject_identifier=self.subject_identifier)
-        subject_visit = SubjectVisit.objects.create(
-            subject_identifier=self.subject_identifier
-        )
+        subject_visit = SubjectVisit.objects.create(subject_identifier=self.subject_identifier)
         self.assertRaises(
             NotConsentedError,
             CrfOne.objects.create,
@@ -69,18 +69,14 @@ class TestConsent(TestCase):
         """Asserts can create a consent model instance if a valid
         consent.
         """
-        consent_object_factory(
-            start=self.study_open_datetime, end=self.study_close_datetime
-        )
+        consent_object_factory(start=self.study_open_datetime, end=self.study_close_datetime)
         baker.make_recipe(
             "edc_consent.subjectconsent",
             subject_identifier=self.subject_identifier,
             consent_datetime=self.study_open_datetime,
             dob=self.study_open_datetime - relativedelta(years=25),
         )
-        subject_visit = SubjectVisit.objects.create(
-            subject_identifier=self.subject_identifier
-        )
+        subject_visit = SubjectVisit.objects.create(subject_identifier=self.subject_identifier)
         try:
             CrfOne.objects.create(
                 subject_visit=subject_visit,
@@ -125,9 +121,7 @@ class TestConsent(TestCase):
             consent_datetime=self.study_open_datetime,
             dob=self.study_open_datetime - relativedelta(years=25),
         )
-        subject_visit = SubjectVisit.objects.create(
-            subject_identifier=self.subject_identifier
-        )
+        subject_visit = SubjectVisit.objects.create(subject_identifier=self.subject_identifier)
         crf_one = CrfOne.objects.create(
             subject_visit=subject_visit,
             subject_identifier=self.subject_identifier,
@@ -145,9 +139,7 @@ class TestConsent(TestCase):
             consent_datetime=self.study_open_datetime,
             dob=self.study_open_datetime - relativedelta(years=25),
         )
-        subject_visit = SubjectVisit.objects.create(
-            subject_identifier=self.subject_identifier
-        )
+        subject_visit = SubjectVisit.objects.create(subject_identifier=self.subject_identifier)
         crf_one = CrfOne.objects.create(
             subject_visit=subject_visit,
             subject_identifier=self.subject_identifier,
@@ -178,9 +170,7 @@ class TestConsent(TestCase):
         self.assertEqual(subject_consent.version, "1.0")
         self.assertEqual(subject_consent.subject_identifier, self.subject_identifier)
         self.assertEqual(subject_consent.consent_datetime, consent_datetime)
-        subject_visit = SubjectVisit.objects.create(
-            subject_identifier=self.subject_identifier
-        )
+        subject_visit = SubjectVisit.objects.create(subject_identifier=self.subject_identifier)
         crf_one = CrfOne.objects.create(
             subject_visit=subject_visit,
             subject_identifier=self.subject_identifier,
@@ -246,8 +236,7 @@ class TestConsent(TestCase):
         )
 
     def test_consent_needs_previous_version2(self):
-        """Asserts that a consent model updates its previous consent.
-        """
+        """Asserts that a consent model updates its previous consent."""
         consent_object_factory(
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
