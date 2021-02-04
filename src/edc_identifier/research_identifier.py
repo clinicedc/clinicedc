@@ -1,7 +1,7 @@
-from django.apps import apps as django_apps
-from django.contrib.sites.models import Site
 from string import Formatter
 
+from django.apps import apps as django_apps
+from django.contrib.sites.models import Site
 from edc_protocol import Protocol
 
 from .checkdigit_mixins import LuhnMixin
@@ -104,14 +104,8 @@ class ResearchIdentifier:
         """
         template_opts = {}
         formatter = Formatter()
-        keys = [
-            opt[1]
-            for opt in formatter.parse(self.template)
-            if opt[1] not in ["sequence"]
-        ]
-        template_opts.update(
-            sequence=str(self.sequence_number).rjust(self.padding, "0")
-        )
+        keys = [opt[1] for opt in formatter.parse(self.template) if opt[1] not in ["sequence"]]
+        template_opts.update(sequence=str(self.sequence_number).rjust(self.padding, "0"))
         for key in keys:
             try:
                 value = getattr(self, key)
@@ -134,8 +128,7 @@ class ResearchIdentifier:
 
     @property
     def sequence_number(self):
-        """Returns the next sequence number to use.
-        """
+        """Returns the next sequence number to use."""
         try:
             identifier_model = (
                 IdentifierModel.objects.filter(

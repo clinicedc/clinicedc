@@ -30,7 +30,7 @@ class ShortIdentifier:
     template = "{prefix}{random_string}"
     random_string_pattern = r"[A-Z0-9]+"  # alhpanumeric
     random_string_length = 5
-    prefix_pattern = "^[0-9]{2}$"
+    prefix_pattern = r"^[0-9]{2}$"
     identifier_model_cls = IdentifierModel
 
     prefix = None
@@ -64,9 +64,9 @@ class ShortIdentifier:
             )
 
         if self.prefix_pattern:
-            if not self.prefix_pattern.startswith(
-                "^"
-            ) or not self.prefix_pattern.endswith("$"):
+            if not self.prefix_pattern.startswith("^") or not self.prefix_pattern.endswith(
+                "$"
+            ):
                 raise ShortIdentifierPrefixPatternError(
                     f"Invalid prefix pattern. Got {self.prefix_pattern}."
                 )
@@ -74,11 +74,11 @@ class ShortIdentifier:
 
         if not self.prefix and self.prefix_pattern:
             raise ShortIdentifierPrefixError(
-                f"Prefix does not match prefix pattern. " f"Got prefix=None."
+                "Prefix does not match prefix pattern. Got prefix=None."
             )
         elif self.prefix and not self.prefix_pattern.match(self.prefix):
             raise ShortIdentifierPrefixError(
-                f"Prefix does not match prefix pattern. "
+                "Prefix does not match prefix pattern. "
                 f"Got '{self.prefix}' does not match "
                 f"pattern '{self.prefix_pattern}'."
             )
@@ -92,12 +92,9 @@ class ShortIdentifier:
         return self.identifier
 
     def get_identifier(self):
-        """Returns a new unique identifier.
-        """
+        """Returns a new unique identifier."""
         identifier = None
-        allowed_chars = self.random_string_pattern.match(
-            "ABCDEFGHKMNPRTUVWXYZ2346789"
-        ).group()
+        allowed_chars = self.random_string_pattern.match("ABCDEFGHKMNPRTUVWXYZ2346789").group()
         max_tries = len(allowed_chars) ** (self.random_string_length + 1)
         tries = 0
         while not identifier:
@@ -105,9 +102,7 @@ class ShortIdentifier:
             random_string = "".join(
                 [random.choice(allowed_chars) for _ in range(self.random_string_length)]
             )
-            identifier = self.template.format(
-                random_string=random_string, prefix=self.prefix
-            )
+            identifier = self.template.format(random_string=random_string, prefix=self.prefix)
             try:
                 self.identifier_model_cls.objects.get(
                     identifier=identifier, identifier_type=self.name
