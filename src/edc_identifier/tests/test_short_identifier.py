@@ -1,16 +1,15 @@
-from faker import Faker
-
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
+from faker import Faker
 
 from ..models import IdentifierModel
 from ..short_identifier import (
     DuplicateIdentifierError,
+    ShortIdentifier,
+    ShortIdentifierPrefixError,
     ShortIdentifierPrefixPatternError,
 )
-from ..short_identifier import ShortIdentifier, ShortIdentifierPrefixError
-
 
 fake = Faker()
 
@@ -56,9 +55,7 @@ class TestShortIdentifier(TestCase):
         class NewCls(ShortIdentifier):
             prefix_pattern = None
 
-        self.assertRaises(
-            ShortIdentifierPrefixError, NewCls, prefix_pattern=None, prefix=22
-        )
+        self.assertRaises(ShortIdentifierPrefixError, NewCls, prefix_pattern=None, prefix=22)
 
     def test_short_identifier_prefix_pattern_must_match_prefix(self):
         self.assertRaises(
@@ -125,8 +122,7 @@ class TestShortIdentifier(TestCase):
         self.assertEqual(len(short_identifier.identifier), 7)
 
     def test_short_identifier_catches_duplicate_limit1(self):
-        """Asserts raises if a duplicate identifier is generated.
-        """
+        """Asserts raises if a duplicate identifier is generated."""
         options = dict(random_string_pattern=r"[AB]+", random_string_length=3)
         n = 1
         tries = 100
@@ -140,8 +136,7 @@ class TestShortIdentifier(TestCase):
         self.assertLess(n, 11)
 
     def test_short_identifier_catches_duplicate_limit2(self):
-        """Asserts raises if a duplicate identifier is generated.
-        """
+        """Asserts raises if a duplicate identifier is generated."""
         options = dict(random_string_pattern=r"[AB]+", random_string_length=5)
         n = 1
         tries = 100

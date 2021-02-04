@@ -26,9 +26,7 @@ class Identifier:
             seed = self.seed
         edc_device_app_config = django_apps.get_app_config("edc_device")
         self.device_id = edc_device_app_config.device_id
-        self.identifier = (
-            last_identifier or self.last_identifier or f"{self.prefix}{seed}"
-        )
+        self.identifier = last_identifier or self.last_identifier or f"{self.prefix}{seed}"
         self.prefix_pattern = f"^{self.prefix}$"
         self.identifier_pattern = self.prefix_pattern[:-1] + self.identifier_pattern[1:]
         if self.identifier:
@@ -49,8 +47,7 @@ class Identifier:
         return self.__next__()
 
     def next_identifier(self):
-        """Sets the next identifier and updates the identifier model.
-        """
+        """Sets the next identifier and updates the identifier model."""
         identifier = self.remove_separator(self.identifier)
         identifier = self.increment(identifier)
         self.identifier = self.insert_separator(identifier)
@@ -99,8 +96,7 @@ class Identifier:
 
     @property
     def last_identifier(self):
-        """Returns the last identifier in the identifier model.
-        """
+        """Returns the last identifier in the identifier model."""
         try:
             instance = self.identifier_model_cls.objects.filter(
                 identifier_type=self.name
@@ -122,8 +118,7 @@ class Identifier:
             return "".join(self.identifier_as_list)
 
     def insert_separator(self, identifier):
-        """Returns the identifier by reinserting the separator.
-        """
+        """Returns the identifier by reinserting the separator."""
         if not self.identifier_as_list:
             self.identifier_as_list = [identifier]
         start = 0

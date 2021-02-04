@@ -1,10 +1,10 @@
 import re
+from uuid import uuid4
 
 from django.apps import apps as django_apps
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import models
 from edc_constants.constants import UUID_PATTERN
-from uuid import uuid4
 
 from ..exceptions import IdentifierError
 from ..subject_identifier import SubjectIdentifier
@@ -64,8 +64,7 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
         super().save(*args, **kwargs)
 
     def update_subject_identifier_on_save(self):
-        """Returns a subject_identifier if not already set.
-        """
+        """Returns a subject_identifier if not already set."""
         if not self.subject_identifier:
             self.subject_identifier = self.get_or_create_identifier()
         elif re.match(UUID_PATTERN, self.subject_identifier):
@@ -74,8 +73,7 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
 
     @property
     def registered_subject_model_cls(self):
-        """Returns the registered subject model class.
-        """
+        """Returns the registered subject model class."""
         return django_apps.get_model("edc_registration.registeredsubject")
 
     def get_or_create_identifier(self):

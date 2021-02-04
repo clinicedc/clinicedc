@@ -2,7 +2,6 @@ import sys
 
 from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
-from django.core.management.color import color_style
 
 
 class AppConfig(DjangoAppConfig):
@@ -13,7 +12,6 @@ class AppConfig(DjangoAppConfig):
     include_in_administration_section = True
 
     def ready(self):
-        style = color_style()
         if not self.messages_written:
             sys.stdout.write(f"Loading {self.verbose_name} ...\n")
             sys.stdout.write(f" * check-digit modulus: {self.identifier_modulus}\n")

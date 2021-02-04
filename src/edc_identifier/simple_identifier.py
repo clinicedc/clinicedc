@@ -100,10 +100,10 @@ class SimpleUniqueIdentifier:
 
     """Usage:
 
-        class ManifestIdentifier(Identifier):
-            random_string_length = 9
-            identifier_attr = 'manifest_identifier'
-            template = 'M{device_id}{random_string}'
+    class ManifestIdentifier(Identifier):
+        random_string_length = 9
+        identifier_attr = 'manifest_identifier'
+        template = 'M{device_id}{random_string}'
     """
 
     random_string_length = 5
@@ -168,10 +168,7 @@ class SimpleUniqueIdentifier:
                     break
                 else:
                     identifier = self._get_new_identifier()
-                if (
-                    tries
-                    == len("ABCDEFGHKMNPRTUVWXYZ2346789") ** self.random_string_length
-                ):
+                if tries == len("ABCDEFGHKMNPRTUVWXYZ2346789") ** self.random_string_length:
                     raise DuplicateIdentifierError(
                         "Unable prepare a unique identifier, "
                         "all are taken. Increase the length of the random string"
@@ -182,8 +179,7 @@ class SimpleUniqueIdentifier:
         return self._identifier
 
     def _get_new_identifier(self):
-        """Returns a new identifier.
-        """
+        """Returns a new identifier."""
         identifier_obj = self.identifier_cls(
             template=self.template,
             identifier_prefix=self.identifier_prefix,

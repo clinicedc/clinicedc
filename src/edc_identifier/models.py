@@ -9,8 +9,7 @@ class IdentifierModelManager(models.Manager):
 
     @property
     def formatted_sequence(self):
-        """Returns a padded sequence segment for the identifier
-        """
+        """Returns a padded sequence segment for the identifier"""
         if self.is_derived:
             return ""
         return str(self.sequence_number).rjust(self.padding, "0")

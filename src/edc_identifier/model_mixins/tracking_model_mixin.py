@@ -1,7 +1,7 @@
 from django.db import models
 
 from ..managers import TrackingIdentifierManager
-from ..simple_identifier import SimpleUniqueIdentifier, SimpleTimestampIdentifier
+from ..simple_identifier import SimpleTimestampIdentifier, SimpleUniqueIdentifier
 
 
 class TrackingIdentifier(SimpleUniqueIdentifier):
@@ -13,8 +13,7 @@ class TrackingIdentifier(SimpleUniqueIdentifier):
 
 class TrackingModelMixin(models.Model):
 
-    """A model mixin to add a tracking identifier.
-    """
+    """A model mixin to add a tracking identifier."""
 
     tracking_identifier_cls = TrackingIdentifier
     tracking_identifier_prefix = ""
@@ -35,12 +34,11 @@ class TrackingModelMixin(models.Model):
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.tracking_identifier,)
+        return tuple([self.tracking_identifier])
 
     @property
     def identifier(self):
-        """Returns a shortened tracking identifier.
-        """
+        """Returns a shortened tracking identifier"""
         return self.tracking_identifier[-9:]
 
     class Meta:
