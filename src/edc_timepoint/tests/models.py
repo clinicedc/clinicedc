@@ -5,9 +5,8 @@ from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_sites.models import SiteModelMixin
-from edc_visit_schedule.model_mixins import OnScheduleModelMixin, OffScheduleModelMixin
-from edc_visit_tracking.model_mixins import VisitTrackingCrfModelMixin
-from edc_visit_tracking.model_mixins import VisitModelMixin
+from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
+from edc_visit_tracking.model_mixins import VisitModelMixin, VisitTrackingCrfModelMixin
 
 from ..model_mixins import TimepointLookupModelMixin
 from ..timepoint_lookup import TimepointLookup

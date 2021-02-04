@@ -1,11 +1,10 @@
 import arrow
-
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 
 from .choices import TIMEPOINT_STATUS
-from .constants import OPEN_TIMEPOINT, CLOSED_TIMEPOINT, FEEDBACK
+from .constants import CLOSED_TIMEPOINT, FEEDBACK, OPEN_TIMEPOINT
 from .timepoint import TimepointClosed
 from .timepoint_collection import TimepointConfigError
 from .timepoint_lookup import TimepointLookup
@@ -41,8 +40,7 @@ class TimepointLookupModelMixin(models.Model):
 
 class TimepointModelMixin(models.Model):
 
-    """Makes a model serve as a marker for a timepoint, e.g. Appointment.
-    """
+    """Makes a model serve as a marker for a timepoint, e.g. Appointment."""
 
     enabled_as_timepoint = True
 
@@ -112,16 +110,14 @@ class TimepointModelMixin(models.Model):
             )
 
     def timepoint_open_timepoint(self):
-        """Re-opens a timepoint.
-        """
+        """Re-opens a timepoint."""
         if self.timepoint_status == CLOSED_TIMEPOINT:
             self.timepoint_status = OPEN_TIMEPOINT
             self.timepoint_closed_datetime = None
             self.save(update_fields=["timepoint_closed_datetime", "timepoint_status"])
 
     def timepoint(self):
-        """Formats and returns the status for the change_list.
-        """
+        """Formats and returns the status for the change_list."""
         if self.timepoint_status == OPEN_TIMEPOINT:
             return '<span style="color:green;">Open</span>'
         elif self.timepoint_status == CLOSED_TIMEPOINT:
