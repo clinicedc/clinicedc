@@ -1,3 +1,3 @@
-from .form_label_modeladmin_mixin import FormLabelModelAdminMixin
+from .custom_label_condition import CustomFormLabelError, CustomLabelCondition
 from .form_label import FormLabel
-from .custom_label_condition import CustomLabelCondition, CustomFormLabelError
+from .form_label_modeladmin_mixin import FormLabelModelAdminMixin

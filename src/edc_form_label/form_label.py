@@ -21,9 +21,9 @@ class FormLabel:
             )
             visit_datetime = ""
             if obj:
-                visit_datetime = getattr(
-                    obj, obj.visit_model_attr()
-                ).report_datetime.strftime("%B %Y")
+                visit_datetime = getattr(obj, obj.visit_model_attr()).report_datetime.strftime(
+                    "%B %Y"
+                )
             try:
                 label = self.custom_label.format(
                     appointment=condition.appointment,

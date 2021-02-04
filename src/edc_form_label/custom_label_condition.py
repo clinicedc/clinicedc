@@ -27,16 +27,14 @@ class CustomLabelCondition:
 
     @property
     def appointment(self):
-        """Returns the appointment instance for this request or None.
-        """
+        """Returns the appointment instance for this request or None."""
         return django_apps.get_model(self.appointment_model).objects.get(
             pk=self.request.GET.get("appointment")
         )
 
     @property
     def previous_appointment(self):
-        """Returns the previous appointment for this request or None.
-        """
+        """Returns the previous appointment for this request or None."""
         return self.appointment.previous_by_timepoint
 
     @property
