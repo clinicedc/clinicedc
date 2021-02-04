@@ -1,5 +1,3 @@
-from abc import ABC, abstractmethod
-
 from django.views.generic.base import ContextMixin
 from edc_utils import get_utcnow, get_uuid
 
@@ -7,7 +5,7 @@ from .exceptions import ConsentObjectDoesNotExist
 from .site_consents import site_consents
 
 
-class ConsentViewMixin(ContextMixin, ABC):
+class ConsentViewMixin(ContextMixin):
 
     """Declare with edc_appointment view mixin to get `appointment`."""
 
@@ -18,15 +16,15 @@ class ConsentViewMixin(ContextMixin, ABC):
         self._consent = None
         self._consents = None
 
-    @property
-    @abstractmethod
-    def appointment(self):
-        pass
-
-    @property
-    @abstractmethod
-    def subject_identifier(self):
-        pass
+    # @property
+    # @abstractmethod
+    # def appointment(self):
+    #     pass
+    #
+    # @property
+    # @abstractmethod
+    # def subject_identifier(self):
+    #     pass
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
