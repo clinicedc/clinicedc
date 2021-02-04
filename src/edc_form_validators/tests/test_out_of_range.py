@@ -34,8 +34,7 @@ class TestOutOfRangeFieldValidator(TestCase):
             self.fail(f"ValidationError unexpectedly raise. Got {e}")
 
     def test_out_of_range_if2(self):
-        """Asserts 50 out of range of 0-10.
-        """
+        """Asserts 50 out of range of 0-10."""
         form_validator = FormValidator(cleaned_data=dict(field_one=50))
         self.assertRaises(
             forms.ValidationError,

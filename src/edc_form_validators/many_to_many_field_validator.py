@@ -1,10 +1,14 @@
 from django.forms import ValidationError
 from edc_constants.constants import NOT_APPLICABLE, OTHER
 
-from .base_form_validator import BaseFormValidator
-from .base_form_validator import NOT_APPLICABLE_ERROR, APPLICABLE_ERROR
-from .base_form_validator import NOT_REQUIRED_ERROR, REQUIRED_ERROR, INVALID_ERROR
-
+from .base_form_validator import (
+    APPLICABLE_ERROR,
+    INVALID_ERROR,
+    NOT_APPLICABLE_ERROR,
+    NOT_REQUIRED_ERROR,
+    REQUIRED_ERROR,
+    BaseFormValidator,
+)
 
 M2M_SELECTION_ONLY = "m2m_selection_only"
 M2M_INVALID_SELECTION = "m2m_invalid_selection"
@@ -105,9 +109,7 @@ class ManyToManyFieldValidator(BaseFormValidator):
         m2m_field is required if field  == response
         """
         message = None
-        if self.cleaned_data.get(field) == response and not self.cleaned_data.get(
-            m2m_field
-        ):
+        if self.cleaned_data.get(field) == response and not self.cleaned_data.get(m2m_field):
             message = {m2m_field: "This field is required"}
             code = REQUIRED_ERROR
         elif (
@@ -224,9 +226,7 @@ class ManyToManyFieldValidator(BaseFormValidator):
             raise ValidationError(message, code=NOT_REQUIRED_ERROR)
         return False
 
-    def m2m_other_specify_applicable(
-        self, *responses, m2m_field=None, field_other=None
-    ):
+    def m2m_other_specify_applicable(self, *responses, m2m_field=None, field_other=None):
         """Raises an exception or returns False.
 
         field_other is applicable if a selected response from m2m_field

@@ -1,14 +1,14 @@
 from django import forms
 from django.test import TestCase, tag
-from edc_constants.constants import YES, NO, NOT_APPLICABLE, OTHER
+from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
+
 from form_validators_app.models import Alphabet
 
 from ..form_validator import FormValidator
 
 
 class TestApplicableFieldValidator(TestCase):
-    """Test applicable_if().
-    """
+    """Test applicable_if()."""
 
     def setUp(self):
         Alphabet.objects.create(display_name="A", name="A")
@@ -19,8 +19,7 @@ class TestApplicableFieldValidator(TestCase):
         Alphabet.objects.create(display_name=NOT_APPLICABLE, name=NOT_APPLICABLE)
 
     def test_m2m_applicable_if(self):
-        """
-        """
+        """"""
 
         cleaned_data = dict(
             f1=YES, alphabet=Alphabet.objects.filter(name__in=[NOT_APPLICABLE])
@@ -55,9 +54,7 @@ class TestApplicableFieldValidator(TestCase):
 
     def test_m2m_applicable_if2(self):
 
-        cleaned_data = dict(
-            f1=YES, alphabet=Alphabet.objects.filter(name__in=["A", "B"])
-        )
+        cleaned_data = dict(f1=YES, alphabet=Alphabet.objects.filter(name__in=["A", "B"]))
 
         form_validator = FormValidator(cleaned_data=cleaned_data)
 
@@ -72,9 +69,7 @@ class TestApplicableFieldValidator(TestCase):
 
         form_validator = FormValidator(cleaned_data=cleaned_data)
 
-        self.assertRaises(
-            forms.ValidationError, form_validator.m2m_required, "alphabet"
-        )
+        self.assertRaises(forms.ValidationError, form_validator.m2m_required, "alphabet")
 
         cleaned_data = dict(f1=YES, alphabet=Alphabet.objects.filter(name="A"))
 
@@ -86,8 +81,7 @@ class TestApplicableFieldValidator(TestCase):
             self.fail("ValidationError unexpectedly raised")
 
     def test_m2m_required_if(self):
-        """
-        """
+        """"""
 
         cleaned_data = dict(
             f1=YES, alphabet=Alphabet.objects.filter(name__in=[NOT_APPLICABLE])
@@ -113,8 +107,7 @@ class TestApplicableFieldValidator(TestCase):
         )
 
     def test_m2m_single_selection_if(self):
-        """
-        """
+        """"""
 
         cleaned_data = dict(f1=YES, alphabet=Alphabet.objects.filter(name__in=["A"]))
 
@@ -125,9 +118,7 @@ class TestApplicableFieldValidator(TestCase):
         except forms.ValidationError:
             self.fail("ValidationError unexpectedly raised")
 
-        cleaned_data = dict(
-            f1=YES, alphabet=Alphabet.objects.filter(name__in=["A", "B"])
-        )
+        cleaned_data = dict(f1=YES, alphabet=Alphabet.objects.filter(name__in=["A", "B"]))
 
         form_validator = FormValidator(cleaned_data=cleaned_data)
 
@@ -185,9 +176,7 @@ class TestApplicableFieldValidator(TestCase):
 
         form_validator = FormValidator(cleaned_data=cleaned_data)
         try:
-            form_validator.m2m_other_specify(
-                "A", m2m_field="alphabet", field_other="f3"
-            )
+            form_validator.m2m_other_specify("A", m2m_field="alphabet", field_other="f3")
         except forms.ValidationError:
             self.fail("ValidationError unexpectedly raised")
 
@@ -240,9 +229,7 @@ class TestApplicableFieldValidator(TestCase):
             field_other="f3",
         )
 
-        cleaned_data = dict(
-            f1=YES, f3="A", alphabet=Alphabet.objects.filter(name__in=["B"])
-        )
+        cleaned_data = dict(f1=YES, f3="A", alphabet=Alphabet.objects.filter(name__in=["B"]))
 
         form_validator = FormValidator(cleaned_data=cleaned_data)
 

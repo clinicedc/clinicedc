@@ -1,7 +1,11 @@
 from edc_constants.constants import DWTA, NOT_APPLICABLE
 
-from .base_form_validator import BaseFormValidator, InvalidModelFormFieldValidator
-from .base_form_validator import REQUIRED_ERROR, NOT_REQUIRED_ERROR
+from .base_form_validator import (
+    NOT_REQUIRED_ERROR,
+    REQUIRED_ERROR,
+    BaseFormValidator,
+    InvalidModelFormFieldValidator,
+)
 
 
 class RequiredFieldValidator(BaseFormValidator):
@@ -91,9 +95,7 @@ class RequiredFieldValidator(BaseFormValidator):
             ):
                 self.raise_not_required(field=field_required, msg=not_required_msg)
 
-    def not_required_if_true(
-        self, condition, field=None, msg=None, is_instance_field=None
-    ):
+    def not_required_if_true(self, condition, field=None, msg=None, is_instance_field=None):
         """Raises a ValidationError if condition is True stating the
         field is NOT required.
 
@@ -181,11 +183,7 @@ class RequiredFieldValidator(BaseFormValidator):
             self.update_cleaned_data_from_instance(field)
         self._inspect_params(*responses, field=field, field_required=field_required)
         if field in self.cleaned_data and field_required in self.cleaned_data:
-            if (
-                DWTA in responses
-                and optional_if_dwta
-                and self.cleaned_data.get(field) == DWTA
-            ):
+            if DWTA in responses and optional_if_dwta and self.cleaned_data.get(field) == DWTA:
                 pass
             elif self.cleaned_data.get(field) in responses and (
                 self.cleaned_data.get(field_required)
@@ -205,8 +203,7 @@ class RequiredFieldValidator(BaseFormValidator):
     def require_together(
         self, field=None, field_required=None, required_msg=None, is_instance_field=None
     ):
-        """Required b if a. Do not require b if not a.
-        """
+        """Required b if a. Do not require b if not a."""
         if is_instance_field:
             self.update_cleaned_data_from_instance(field)
         if (
@@ -222,8 +219,7 @@ class RequiredFieldValidator(BaseFormValidator):
 
     @staticmethod
     def _inspect_params(*responses, field=None, field_required=None):
-        """Inspects params and raises if any are None.
-        """
+        """Inspects params and raises if any are None."""
         if not field:
             raise InvalidModelFormFieldValidator('"field" cannot be None.')
         elif not responses:

@@ -1,6 +1,6 @@
 from django import forms
 from edc_utils.date import to_utc
-from edc_utils.text import formatted_datetime, formatted_date
+from edc_utils.text import formatted_date, formatted_datetime
 
 
 class DateRangeFieldValidator:
@@ -79,9 +79,5 @@ class DateRangeFieldValidator:
             datetime_field2 = to_utc(datetime_field2)
             if datetime_field1 == datetime_field2:
                 raise forms.ValidationError(
-                    {
-                        datetime_field1: (
-                            f"{msg}. Got {formatted_datetime(datetime_field2)}."
-                        )
-                    }
+                    {datetime_field1: (f"{msg}. Got {formatted_datetime(datetime_field2)}.")}
                 )

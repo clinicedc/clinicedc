@@ -1,7 +1,10 @@
 from edc_constants.constants import NOT_APPLICABLE
 
-from .base_form_validator import BaseFormValidator
-from .base_form_validator import APPLICABLE_ERROR, NOT_APPLICABLE_ERROR
+from .base_form_validator import (
+    APPLICABLE_ERROR,
+    NOT_APPLICABLE_ERROR,
+    BaseFormValidator,
+)
 
 """
         instance_fields = instance_fields or []
@@ -94,8 +97,7 @@ class ApplicableFieldValidator(BaseFormValidator):
             field_applicable_value = self.get(field_applicable)
 
             if field_value in responses and (
-                field_applicable_value is None
-                or field_applicable_value == NOT_APPLICABLE
+                field_applicable_value is None or field_applicable_value == NOT_APPLICABLE
             ):
                 self.raise_applicable(field_applicable, msg=msg)
             elif (
@@ -123,10 +125,7 @@ class ApplicableFieldValidator(BaseFormValidator):
         if is_instance_field:
             self.update_cleaned_data_from_instance(field)
         if field in self.cleaned_data and field_applicable in self.cleaned_data:
-            if (
-                self.get(field) in responses
-                and self.get(field_applicable) != NOT_APPLICABLE
-            ):
+            if self.get(field) in responses and self.get(field_applicable) != NOT_APPLICABLE:
                 self.raise_not_applicable(field_applicable, msg=msg)
             elif inverse and (
                 self.get(field) not in responses

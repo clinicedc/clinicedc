@@ -1,7 +1,11 @@
 import re
 
-from .base_form_validator import BaseFormValidator, InvalidModelFormFieldValidator
-from .base_form_validator import OUT_OF_RANGE_ERROR, REQUIRED_ERROR
+from .base_form_validator import (
+    OUT_OF_RANGE_ERROR,
+    REQUIRED_ERROR,
+    BaseFormValidator,
+    InvalidModelFormFieldValidator,
+)
 
 
 class RangeFieldValidator(BaseFormValidator):
@@ -24,19 +28,14 @@ class RangeFieldValidator(BaseFormValidator):
             if value is None and allow_none:
                 pass
             elif value is None and not allow_none:
-                self.raise_validation_error(
-                    {field: "This field is required."}, REQUIRED_ERROR
-                )
+                self.raise_validation_error({field: "This field is required."}, REQUIRED_ERROR)
             elif r.match(str(value)):
                 lower_op = "<" if not lower_inclusive else "<="
                 upper_op = "<" if not upper_inclusive else "<="
                 expression = f"{lower}{lower_op}{value}{upper_op}{upper}"
                 if not eval(expression):
                     message = {
-                        field: (
-                            f"This field is not within range. Expected "
-                            f"{expression}."
-                        )
+                        field: (f"This field is not within range. Expected " f"{expression}.")
                     }
                     self.raise_validation_error(message, OUT_OF_RANGE_ERROR)
         return False

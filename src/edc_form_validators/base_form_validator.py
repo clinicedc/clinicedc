@@ -1,7 +1,6 @@
-from django.forms import ValidationError
-from django.forms import forms
 from copy import copy
 
+from django.forms import ValidationError, forms
 
 APPLICABLE_ERROR = "applicable"
 INVALID_ERROR = "invalid"
@@ -55,8 +54,7 @@ class BaseFormValidator:
         return self.cleaned_data
 
     def clean(self):
-        """Override with logic normally in ModelForm.clean().
-        """
+        """Override with logic normally in ModelForm.clean()."""
         pass
 
     def update_cleaned_data_from_instance(self, field):

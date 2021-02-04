@@ -1,13 +1,14 @@
 from django import forms
 from django.test import TestCase, tag
-from edc_constants.constants import YES, NO
+from edc_constants.constants import NO, YES
+
 from form_validators_app.models import TestModel
 
-from ..form_validator import FormValidator
 from ..base_form_validator import (
-    ModelFormFieldValidatorError,
     InvalidModelFormFieldValidator,
+    ModelFormFieldValidatorError,
 )
+from ..form_validator import FormValidator
 from ..form_validator_mixin import FormValidatorMixin
 
 
@@ -25,27 +26,20 @@ class TestFieldValidator(TestCase):
         """Asserts raises if cleaned data is None; that is, not
         provided.
         """
-        self.assertRaises(
-            ModelFormFieldValidatorError, FormValidator, cleaned_data=None
-        )
+        self.assertRaises(ModelFormFieldValidatorError, FormValidator, cleaned_data=None)
 
     def test_no_responses(self):
-        """Asserts raises if no response provided.
-        """
+        """Asserts raises if no response provided."""
         form_validator = FormValidator(cleaned_data={})
         self.assertRaises(InvalidModelFormFieldValidator, form_validator.required_if)
 
     def test_no_field(self):
-        """Asserts raises if no field provided.
-        """
+        """Asserts raises if no field provided."""
         form_validator = FormValidator(cleaned_data={})
-        self.assertRaises(
-            InvalidModelFormFieldValidator, form_validator.required_if, YES
-        )
+        self.assertRaises(InvalidModelFormFieldValidator, form_validator.required_if, YES)
 
     def test_no_field_required(self):
-        """Asserts raises if "field required" not provided.
-        """
+        """Asserts raises if "field required" not provided."""
         form_validator = FormValidator(cleaned_data={})
         self.assertRaises(
             InvalidModelFormFieldValidator,
@@ -55,16 +49,12 @@ class TestFieldValidator(TestCase):
         )
 
     def test_no_cleaned_data(self):
-        self.assertRaises(
-            ModelFormFieldValidatorError, FormValidator, cleaned_data=None
-        )
+        self.assertRaises(ModelFormFieldValidatorError, FormValidator, cleaned_data=None)
 
     def test_cleaned_data_ignored(self):
         form_validator = FormValidator(cleaned_data=dict(not_this_field=1))
         try:
-            form_validator.required_if(
-                YES, field="field_one", field_required="field_two"
-            )
+            form_validator.required_if(YES, field="field_one", field_required="field_two")
         except (ModelFormFieldValidatorError, InvalidModelFormFieldValidator) as e:
             self.fail(f"Exception unexpectedly raised. Got {e}")
 
