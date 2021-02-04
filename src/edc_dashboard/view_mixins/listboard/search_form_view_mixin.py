@@ -1,7 +1,8 @@
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
 from django.views.generic.base import ContextMixin
-from edc_dashboard.url_names import url_names
+
+from ...url_names import url_names
 
 
 class SearchFormViewError(Exception):
@@ -35,6 +36,5 @@ class SearchFormViewMixin(ContextMixin):
 
     @property
     def search_form_url_kwargs(self):
-        """Override to add custom kwargs to reverse the search form url.
-        """
+        """Override to add custom kwargs to reverse the search form url."""
         return self.url_kwargs

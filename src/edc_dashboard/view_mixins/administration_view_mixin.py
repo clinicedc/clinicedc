@@ -1,9 +1,10 @@
+from math import floor
+
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
 from django.views.generic.base import ContextMixin
-from math import floor
 
 
 class AdministrationDashboardError(Exception):
@@ -12,9 +13,7 @@ class AdministrationDashboardError(Exception):
 
 class AdministrationViewMixin(ContextMixin):
 
-    template_name = (
-        f"edc_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/administration.html"
-    )
+    template_name = f"edc_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/administration.html"
 
     edc_module_prefix = "Edc"
 
@@ -105,9 +104,7 @@ class AdministrationViewMixin(ContextMixin):
         edc_keys.sort()
 
         other_sections = {
-            k: v
-            for k, v in sections.items()
-            if not k.startswith(self.edc_module_prefix)
+            k: v for k, v in sections.items() if not k.startswith(self.edc_module_prefix)
         }
         other_keys = list(other_sections.keys())
         other_keys.sort()

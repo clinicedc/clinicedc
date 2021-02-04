@@ -1,8 +1,7 @@
 from django.db import models
-from edc_model.models import BaseUuidModel
-from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
+from edc_model.models import BaseUuidModel, HistoricalRecords
+from edc_search.model_mixins import SearchSlugManager, SearchSlugModelMixin
 from edc_sites.models import SiteModelMixin
-from edc_model.models import HistoricalRecords
 
 
 class SubjectVisit(SiteModelMixin, SearchSlugModelMixin, BaseUuidModel):

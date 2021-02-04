@@ -1,10 +1,11 @@
+from math import ceil
+from urllib.parse import parse_qsl, unquote, urlencode, urljoin
+
 from django import template
 from django.conf import settings
 from django.template.defaultfilters import stringfilter
 from django.urls.base import reverse
-from edc_utils import age, get_utcnow, AgeValueError
-from math import ceil
-from urllib.parse import urljoin, parse_qsl, urlencode, unquote
+from edc_utils import AgeValueError, age, get_utcnow
 
 register = template.Library()
 
@@ -58,19 +59,23 @@ def page_numbers(page, numpages):
     return page_numbers_ or []
 
 
-@register.inclusion_tag(
-    f"edc_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/copy_element.html"
-)
+@register.inclusion_tag(f"edc_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/copy_element.html")
 def copy_string_to_clipboard_button(value, index=None):
     return dict(value=value, index=index)
+
+
+@register.inclusion_tag(
+    "edc_dashboard/index_link.html",
+    takes_context=True,
+)
+def index_link(context):
+    return dict(index_page=settings.INDEX_PAGE, index_page_label=settings.INDEX_PAGE_LABEL)
 
 
 @register.filter
 @stringfilter
 def human(value):
-    return "-".join(
-        [value[i * 4 : (i + 1) * 4] for i in range(0, ceil(len(value) / 4))]
-    )
+    return "-".join([value[i * 4 : (i + 1) * 4] for i in range(0, ceil(len(value) / 4))])
 
 
 @register.inclusion_tag(

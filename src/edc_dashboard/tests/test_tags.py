@@ -4,10 +4,10 @@ from django.test import TestCase, tag
 from edc_utils.date import get_utcnow
 
 from ..templatetags.edc_dashboard_extras import (
-    paginator_row,
-    page_numbers,
     age_in_years,
     human,
+    page_numbers,
+    paginator_row,
 )
 from .models import TestModel
 

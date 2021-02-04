@@ -1,13 +1,16 @@
 import six
-
-from django.core.exceptions import PermissionDenied
 from django.apps import apps as django_apps
+from django.core.exceptions import PermissionDenied
 from django.utils.translation import gettext as _
 from django.views.generic.list import ListView
 
-from ..view_mixins import UrlRequestContextMixin, TemplateRequestContextMixin
-from ..view_mixins import QueryStringViewMixin, SearchListboardMixin
-from ..view_mixins import SiteQuerysetViewMixin
+from ..view_mixins import (
+    QueryStringViewMixin,
+    SearchListboardMixin,
+    SiteQuerysetViewMixin,
+    TemplateRequestContextMixin,
+    UrlRequestContextMixin,
+)
 
 
 class ListboardViewError(Exception):
@@ -161,9 +164,7 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
         Note: The returned queryset is set to self.object_list in
         `get()` just before rendering to response.
         """
-        queryset = getattr(
-            self.listboard_model_cls, self.listboard_model_manager_name
-        ).none()
+        queryset = getattr(self.listboard_model_cls, self.listboard_model_manager_name).none()
         if self.has_view_listboard_perms:
             filter_options = self.get_queryset_filter_options(
                 self.request, *self.args, **self.kwargs
@@ -229,9 +230,7 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
         """Returns True if request.user ONLY has permissions to
         view records created by request.user on the listboard.
         """
-        return self.request.user.has_perm(
-            self.listboard_view_only_my_permission_codename
-        )
+        return self.request.user.has_perm(self.listboard_view_only_my_permission_codename)
 
     @property
     def has_listboard_model_perms(self):
