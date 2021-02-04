@@ -1,7 +1,7 @@
 from django.test import TestCase, tag
 from django.test.utils import override_settings
 
-from ..constants import CENTRAL_SERVER, CLIENT, NODE_SERVER, MIDDLEMAN
+from ..constants import CENTRAL_SERVER, CLIENT, MIDDLEMAN, NODE_SERVER
 from ..device import Device, DeviceIdError, DeviceRoleError
 
 
@@ -27,9 +27,7 @@ class TestDevice(TestCase):
                 with override_settings(DEVICE_ID=DEVICE_ID, DEVICE_ROLE=DEVICE_ROLE):
                     for device_id, device_role in opts_config:
                         with self.subTest(device_id=device_id, device_role=device_role):
-                            device = Device(
-                                device_id=device_id, device_role=device_role
-                            )
+                            device = Device(device_id=device_id, device_role=device_role)
                             self.assertTrue(device.device_role == CENTRAL_SERVER)
                             self.assertTrue(device.is_central_server)
 
@@ -95,16 +93,12 @@ class TestDevice(TestCase):
         )
 
     def test_device_middleman(self):
-        device = Device(
-            device_id="95", central_server_id="99", nodes=["98"], middlemen=["95"]
-        )
+        device = Device(device_id="95", central_server_id="99", nodes=["98"], middlemen=["95"])
         self.assertTrue(device.device_role == MIDDLEMAN)
         self.assertTrue(device.is_middleman_server)
 
     def test_device_client2(self):
-        device = Device(
-            device_id="10", central_server_id="99", nodes=["98"], middlemen=["95"]
-        )
+        device = Device(device_id="10", central_server_id="99", nodes=["98"], middlemen=["95"])
         self.assertTrue(device.device_role == CLIENT)
         self.assertTrue(device.is_client)
 

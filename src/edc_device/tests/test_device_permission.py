@@ -1,12 +1,16 @@
-from django.test import TestCase, tag  # noqa
 from django.apps import apps as django_apps
+from django.test import TestCase, tag  # noqa
 from django.test.utils import override_settings
 
-from ..constants import CENTRAL_SERVER, CLIENT, NODE_SERVER
-from ..device_permission import DeviceAddPermission, DeviceChangePermission
 from .. import device_permissions
-from ..device_permission import DevicePermissionAddError, DevicePermissionChangeError
-from .models import TestModel, TestModelPermissions, TestModel2
+from ..constants import CENTRAL_SERVER, CLIENT, NODE_SERVER
+from ..device_permission import (
+    DeviceAddPermission,
+    DeviceChangePermission,
+    DevicePermissionAddError,
+    DevicePermissionChangeError,
+)
+from .models import TestModel, TestModel2, TestModelPermissions
 
 
 class TestDevicePermission(TestCase):

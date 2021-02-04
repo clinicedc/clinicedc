@@ -1,5 +1,5 @@
-from django.conf import settings
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
@@ -16,8 +16,7 @@ def update_device_fields(instance):
 
 @receiver(pre_save, weak=False, dispatch_uid="check_device_on_pre_save")
 def check_device_on_pre_save(sender, instance, raw, using, update_fields, **kwargs):
-    """Updates device id.
-    """
+    """Updates device id."""
     if not raw:
         try:
             instance.device_created

@@ -1,8 +1,9 @@
 from copy import copy
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 
-from .constants import CENTRAL_SERVER, NODE_SERVER, MIDDLEMAN, CLIENT
+from .constants import CENTRAL_SERVER, CLIENT, MIDDLEMAN, NODE_SERVER
 
 
 class DeviceIdError(ValidationError):
@@ -91,8 +92,7 @@ class Device:
 
     @property
     def calculated_device_role(self):
-        """Returns the device role based on the device ID only.
-        """
+        """Returns the device role based on the device ID only."""
         if self.device_id == self.central_server_id:
             role = CENTRAL_SERVER
             self.is_central_server = True

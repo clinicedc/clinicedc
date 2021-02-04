@@ -1,8 +1,8 @@
 from django.apps import apps as django_apps
 from django.contrib.auth.models import User
 from django.test import TestCase
-from django.urls import reverse
 from django.test.utils import override_settings
+from django.urls import reverse
 
 from ..constants import CLIENT
 from ..views import HomeView
@@ -14,7 +14,7 @@ class TestHomeView(TestCase):
         self.user = User.objects.create(username="erik")
         self.view = HomeView()
         self.client.force_login(self.user)
-        self.response = self.client.get(reverse('edc_device:home_url'))
+        self.response = self.client.get(reverse("edc_device:home_url"))
 
     def test_context(self):
         self.assertIn("project_name", self.response.context)
@@ -29,7 +29,7 @@ class TestHomeView(TestCase):
             app_config.device_role = None
             app_config.ready()
             self.client.force_login(self.user)
-            response = self.client.get(reverse('edc_device:home_url'))
+            response = self.client.get(reverse("edc_device:home_url"))
             self.assertEqual(response.context.get("device_id"), "10")
             self.assertEqual(response.context.get("device_role"), CLIENT)
 

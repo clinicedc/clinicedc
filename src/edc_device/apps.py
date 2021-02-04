@@ -3,8 +3,8 @@ import sys
 from django.apps import AppConfig as DjangoAppConfig
 from django.core.management.color import color_style
 
-from .device import Device
 from . import device_permissions
+from .device import Device
 
 style = color_style()
 
