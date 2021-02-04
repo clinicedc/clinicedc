@@ -6,9 +6,7 @@ from edc_model_fields.fields.other_charfield import OtherCharField
 class AeInitialAeModelMixin(models.Model):
 
     ae_study_relation_possibility = models.CharField(
-        verbose_name=(
-            "Is the incident related to the patient involvement in the study?"
-        ),
+        verbose_name=("Is the incident related to the patient involvement in the study?"),
         max_length=10,
         choices=YES_NO_UNKNOWN,
     )
@@ -26,9 +24,7 @@ class AeInitialAeModelMixin(models.Model):
         verbose_name='If "Yes", specify', max_length=250, blank=True, null=True
     )
 
-    ae_treatment = models.TextField(
-        verbose_name="Specify action taken for treatment of AE:"
-    )
+    ae_treatment = models.TextField(verbose_name="Specify action taken for treatment of AE:")
 
     class Meta:
         abstract = True

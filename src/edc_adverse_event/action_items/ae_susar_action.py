@@ -2,8 +2,8 @@ from edc_action_item.action_with_notification import ActionWithNotification
 from edc_constants.constants import HIGH_PRIORITY
 
 from ..constants import (
-    ADVERSE_EVENT_APP_LABEL,
     ADVERSE_EVENT_ADMIN_SITE,
+    ADVERSE_EVENT_APP_LABEL,
     AE_INITIAL_ACTION,
     AE_SUSAR_ACTION,
 )

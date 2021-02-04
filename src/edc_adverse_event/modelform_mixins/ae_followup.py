@@ -1,10 +1,10 @@
 from django import forms
 from django.conf import settings
 from edc_action_item.forms import ActionItemFormMixin
-from edc_constants.constants import YES, DEAD
-from edc_form_validators import FormValidatorMixin, FormValidator
+from edc_constants.constants import DEAD, YES
+from edc_form_validators import FormValidator, FormValidatorMixin
 from edc_registration.modelform_mixins import ModelFormSubjectIdentifierMixin
-from edc_reportable import SEVERITY_INCREASED_FROM_G3, GRADE5
+from edc_reportable import GRADE5, SEVERITY_INCREASED_FROM_G3
 from edc_utils.text import convert_php_dateformat
 
 
@@ -19,11 +19,7 @@ def validate_ae_initial_outcome_date(form_obj):
                 convert_php_dateformat(settings.SHORT_DATE_FORMAT)
             )
             raise forms.ValidationError(
-                {
-                    "outcome_date": (
-                        f"May not be before the AE start date {formatted_dte}."
-                    )
-                }
+                {"outcome_date": (f"May not be before the AE start date {formatted_dte}.")}
             )
 
 

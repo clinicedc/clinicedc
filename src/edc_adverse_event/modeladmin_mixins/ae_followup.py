@@ -5,7 +5,7 @@ from django.urls.base import reverse
 from django.utils.safestring import mark_safe
 from edc_action_item import action_fieldset_tuple
 from edc_action_item.modeladmin_mixins import ModelAdminActionItemMixin
-from edc_constants.constants import YES, NO, NOT_APPLICABLE
+from edc_constants.constants import NO, NOT_APPLICABLE, YES
 from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
@@ -14,7 +14,7 @@ from ..templatetags.edc_adverse_event_extras import (
     format_ae_followup_description,
     select_description_template,
 )
-from .modeladmin_mixins import NonAeInitialModelAdminMixin, AdverseEventModelAdminMixin
+from .modeladmin_mixins import AdverseEventModelAdminMixin, NonAeInitialModelAdminMixin
 
 
 class AeFollowupModelAdminMixin(
@@ -96,8 +96,7 @@ class AeFollowupModelAdminMixin(
         return super().follow_up_reports(obj.ae_initial)
 
     def initial_ae(self, obj):
-        """Returns a shortened action identifier.
-        """
+        """Returns a shortened action identifier."""
         if obj.ae_initial:
             url_name = "_".join(obj.ae_initial._meta.label_lower.split("."))
             namespace = self.admin_site.name

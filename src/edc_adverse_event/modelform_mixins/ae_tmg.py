@@ -1,9 +1,8 @@
 from django import forms
 from edc_action_item.forms import ActionItemFormMixin
-from edc_form_validators import FormValidatorMixin
-from edc_registration.modelform_mixins import ModelFormSubjectIdentifierMixin
 from edc_constants.constants import CLOSED, NO
-from edc_form_validators import FormValidator
+from edc_form_validators import FormValidator, FormValidatorMixin
+from edc_registration.modelform_mixins import ModelFormSubjectIdentifierMixin
 
 
 class DefaultAeTmgFormValidator(FormValidator):

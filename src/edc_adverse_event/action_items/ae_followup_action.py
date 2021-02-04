@@ -2,20 +2,21 @@ from django.conf import settings
 from django.utils.safestring import mark_safe
 from edc_action_item.action_with_notification import ActionWithNotification
 from edc_action_item.site_action_items import site_action_items
+from edc_constants.constants import DEAD, HIGH_PRIORITY, LOST_TO_FOLLOWUP, YES
+from edc_reportable.constants import GRADE5
+from edc_visit_schedule.utils import (
+    OnScheduleError,
+    get_offschedule_models,
+    get_onschedule_models,
+)
+
 from edc_adverse_event.constants import (
     AE_FOLLOWUP_ACTION,
     AE_INITIAL_ACTION,
     DEATH_REPORT_ACTION,
 )
-from edc_constants.constants import HIGH_PRIORITY, YES, DEAD, LOST_TO_FOLLOWUP
-from edc_reportable.constants import GRADE5
-from edc_visit_schedule.utils import (
-    get_offschedule_models,
-    get_onschedule_models,
-    OnScheduleError,
-)
 
-from ..constants import ADVERSE_EVENT_APP_LABEL, ADVERSE_EVENT_ADMIN_SITE
+from ..constants import ADVERSE_EVENT_ADMIN_SITE, ADVERSE_EVENT_APP_LABEL
 
 
 class AeFollowupAction(ActionWithNotification):
@@ -61,8 +62,7 @@ class AeFollowupAction(ActionWithNotification):
             next_actions=next_actions,
             action_name=DEATH_REPORT_ACTION,
             required=(
-                self.reference_obj.outcome == DEAD
-                or self.reference_obj.ae_grade == GRADE5
+                self.reference_obj.outcome == DEAD or self.reference_obj.ae_grade == GRADE5
             ),
         )
 
@@ -71,8 +71,7 @@ class AeFollowupAction(ActionWithNotification):
 
     @property
     def offschedule_models(self):
-        """Returns a list of offschedule models, in label_lower format.
-        """
+        """Returns a list of offschedule models, in label_lower format."""
         return get_offschedule_models(
             subject_identifier=self.subject_identifier,
             report_datetime=self.reference_obj.report_datetime,
@@ -80,20 +79,15 @@ class AeFollowupAction(ActionWithNotification):
 
     @property
     def onschedule_models(self):
-        """Returns a list of offschedule models, in label_lower format.
-        """
+        """Returns a list of offschedule models, in label_lower format."""
         return get_onschedule_models(
             subject_identifier=self.subject_identifier,
             report_datetime=self.reference_obj.report_datetime,
         )
 
     def update_next_actions_lftu(self, next_actions=None):
-        """Add Study termination to next_actions if LTFU.
-        """
-        if (
-            self.reference_obj.outcome
-            and self.reference_obj.outcome == LOST_TO_FOLLOWUP
-        ):
+        """Add Study termination to next_actions if LTFU."""
+        if self.reference_obj.outcome and self.reference_obj.outcome == LOST_TO_FOLLOWUP:
             if not self.onschedule_models:
                 raise OnScheduleError(
                     f"Subject cannot be lost to followup. "

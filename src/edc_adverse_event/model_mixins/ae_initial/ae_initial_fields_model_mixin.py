@@ -44,9 +44,7 @@ class AeInitialFieldsModelMixin(models.Model):
         validators=[date_not_future],
     )
 
-    ae_grade = models.CharField(
-        verbose_name="Severity of AE", max_length=25, choices=AE_GRADE
-    )
+    ae_grade = models.CharField(verbose_name="Severity of AE", max_length=25, choices=AE_GRADE)
 
     study_drug_relation = models.CharField(
         verbose_name="Relation to study drug:",

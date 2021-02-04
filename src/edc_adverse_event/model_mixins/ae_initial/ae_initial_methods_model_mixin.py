@@ -24,8 +24,7 @@ class AeInitialMethodsModelMixin(models.Model):
 
     @property
     def description(self):
-        """Returns a description.
-        """
+        """Returns a description."""
         return f"{self.action_identifier[-9:]} Grade-{self.ae_grade}. {self.ae_description}"
 
     class Meta:

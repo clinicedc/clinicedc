@@ -32,9 +32,7 @@ class AeTmgFieldsModelMixin(models.Model):
         verbose_name="Date and time of clinical review: ",
     )
 
-    ae_description = models.TextField(
-        blank=True, null=True, verbose_name="Description of AE:"
-    )
+    ae_description = models.TextField(blank=True, null=True, verbose_name="Description of AE:")
 
     investigator_comments = models.TextField(
         blank=True, null=True, verbose_name="This investigator's comments:"

@@ -2,7 +2,7 @@ from django.contrib import admin
 from edc_list_data.admin import ListModelAdminMixin
 
 from .admin_site import edc_adverse_event_admin
-from .models import AeClassification, SaeReason, CauseOfDeath
+from .models import AeClassification, CauseOfDeath, SaeReason
 
 
 @admin.register(AeClassification, site=edc_adverse_event_admin)

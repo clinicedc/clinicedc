@@ -1,13 +1,14 @@
-import inflect
+from textwrap import fill
 
-from edc_adverse_event.get_ae_model import get_ae_model
+import inflect
 from edc_constants.constants import OTHER, YES
 from edc_reports.crf_pdf_report import CrfPdfReport
 from reportlab.lib import colors
 from reportlab.lib.units import cm
 from reportlab.platypus import Paragraph, Table
-from reportlab.platypus.flowables import Spacer, KeepTogether
-from textwrap import fill
+from reportlab.platypus.flowables import KeepTogether, Spacer
+
+from edc_adverse_event.get_ae_model import get_ae_model
 
 p = inflect.engine()
 
@@ -93,9 +94,7 @@ class AeReport(CrfPdfReport):
         susar_reported = ""
         if self.ae_initial.susar == YES:
             susar_reported = (
-                ": reported"
-                if self.ae_initial.susar_reported == YES
-                else ": not reported"
+                ": reported" if self.ae_initial.susar_reported == YES else ": not reported"
             )
         susar_text = f"{self.ae_initial.get_susar_display()}{susar_reported}"
 
@@ -183,9 +182,7 @@ class AeReport(CrfPdfReport):
         t1 = Table([["Section 2: Follow-up Reports"]], (18 * cm))
         self.set_table_style(t1, bg_cmd=self.bg_cmd)
         total = self.ae_initial.ae_follow_ups.count()
-        row_text = (
-            f"There {p.plural_verb('is', total)} {p.no('follow-up report', total)}."
-        )
+        row_text = f"There {p.plural_verb('is', total)} {p.no('follow-up report', total)}."
         t2 = Table([[row_text]], (18 * cm))
         self.set_table_style(t2)
         story.append(KeepTogether([t1, t2]))
@@ -210,9 +207,7 @@ class AeReport(CrfPdfReport):
             ],
             (3 * cm, 3 * cm, 3 * cm, 9 * cm),
         )
-        self.set_table_style(
-            t, bg_cmd=("BACKGROUND", (0, 0), (3, -1), colors.lightgrey)
-        )
+        self.set_table_style(t, bg_cmd=("BACKGROUND", (0, 0), (3, -1), colors.lightgrey))
         story.append(t)
 
         followups = self.ae_initial.ae_follow_ups.order_by("-created")
@@ -220,9 +215,7 @@ class AeReport(CrfPdfReport):
         for followup in followups:
             qs = followup.history.filter(id=followup.id).order_by("-history_date")
             for obj in qs:
-                username = (
-                    obj.user_created if obj.history_type == "+" else obj.user_modified
-                )
+                username = obj.user_created if obj.history_type == "+" else obj.user_modified
                 t = Table(
                     [
                         [
@@ -232,9 +225,7 @@ class AeReport(CrfPdfReport):
                             ),
                             Paragraph(username, s),
                             Paragraph(obj.modified.strftime("%Y-%m-%d %H:%M"), s),
-                            Paragraph(
-                                fill(self.history_change_message(obj), width=60), s
-                            ),
+                            Paragraph(fill(self.history_change_message(obj), width=60), s),
                         ]
                     ],
                     (3 * cm, 3 * cm, 3 * cm, 9 * cm),
@@ -248,9 +239,7 @@ class AeReport(CrfPdfReport):
             .order_by("-history_date")
         )
         for obj in qs:
-            username = (
-                obj.user_created if obj.history_type == "+" else obj.user_modified
-            )
+            username = obj.user_created if obj.history_type == "+" else obj.user_modified
             t = Table(
                 [
                     [

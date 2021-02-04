@@ -21,12 +21,8 @@ class Migration(migrations.Migration):
         migrations.RemoveIndex(
             model_name="aeclassification", name="edc_adverse_id_8133d9_idx"
         ),
-        migrations.RemoveIndex(
-            model_name="causeofdeath", name="edc_adverse_id_42a796_idx"
-        ),
-        migrations.RemoveIndex(
-            model_name="saereason", name="edc_adverse_id_88072b_idx"
-        ),
+        migrations.RemoveIndex(model_name="causeofdeath", name="edc_adverse_id_42a796_idx"),
+        migrations.RemoveIndex(model_name="saereason", name="edc_adverse_id_88072b_idx"),
         migrations.RenameField(
             model_name="aeclassification", old_name="name", new_name="display_name"
         ),
@@ -42,9 +38,7 @@ class Migration(migrations.Migration):
         migrations.RenameField(
             model_name="causeofdeath", old_name="short_name", new_name="name"
         ),
-        migrations.RenameField(
-            model_name="saereason", old_name="short_name", new_name="name"
-        ),
+        migrations.RenameField(model_name="saereason", old_name="short_name", new_name="name"),
         migrations.AddIndex(
             model_name="aeclassification",
             index=models.Index(

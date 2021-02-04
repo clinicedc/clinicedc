@@ -1,15 +1,18 @@
 import arrow
-
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from edc_adverse_event.constants import AE_TMG_ACTION
+from edc_auth import TMG
 from edc_constants.constants import CLOSED, NEW, OPEN
-from edc_dashboard.view_mixins import EdcViewMixin
-from edc_dashboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
+from edc_dashboard.view_mixins import (
+    EdcViewMixin,
+    ListboardFilterViewMixin,
+    SearchFormViewMixin,
+)
 from edc_dashboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
 from edc_navbar.get_default_navbar import get_default_navbar
-from edc_auth import TMG
+
+from edc_adverse_event.constants import AE_TMG_ACTION
 
 from ...model_wrappers import TmgActionItemModelWrapper
 
@@ -78,13 +81,11 @@ class TmgAeListboardViewMixin(
                 and model_wrapper.reference_obj._meta.label_lower == self.ae_tmg_model
             ):
                 model_wrapper.has_reference_obj_permissions = (
-                    model_wrapper.reference_obj.user_created
-                    == self.request.user.username
+                    model_wrapper.reference_obj.user_created == self.request.user.username
                 )
             if (
                 model_wrapper.parent_reference_obj
-                and model_wrapper.parent_reference_obj._meta.label_lower
-                == self.ae_tmg_model
+                and model_wrapper.parent_reference_obj._meta.label_lower == self.ae_tmg_model
             ):  # noqa
                 model_wrapper.has_parent_reference_obj_permissions = (
                     model_wrapper.parent_reference_obj.user_created
@@ -92,8 +93,7 @@ class TmgAeListboardViewMixin(
                 )  # noqa
             if (
                 model_wrapper.related_reference_obj
-                and model_wrapper.related_reference_obj._meta.label_lower
-                == self.ae_tmg_model
+                and model_wrapper.related_reference_obj._meta.label_lower == self.ae_tmg_model
             ):  # noqa
                 model_wrapper.has_related_reference_obj_permissions = (
                     model_wrapper.related_reference_obj.user_created

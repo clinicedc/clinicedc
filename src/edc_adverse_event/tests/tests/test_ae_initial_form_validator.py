@@ -1,11 +1,12 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.test import TestCase, tag
-from edc_adverse_event.models import SaeReason
-from edc_constants.constants import YES, NO, NOT_APPLICABLE, OTHER
+from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
 from edc_form_validators import NOT_REQUIRED_ERROR
 from edc_list_data.site_list_data import site_list_data
 from edc_sites.tests import SiteTestCaseMixin
+
+from edc_adverse_event.models import SaeReason
 
 from ...form_validators import AeInitialFormValidator, AeTmgFormValidator
 

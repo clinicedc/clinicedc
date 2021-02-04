@@ -2,20 +2,21 @@ from django.conf import settings
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_action_item.managers import (
-    ActionIdentifierSiteManager,
     ActionIdentifierManager,
+    ActionIdentifierSiteManager,
 )
 from edc_action_item.models import ActionModelMixin
-from edc_adverse_event.models import CauseOfDeath
 from edc_constants.choices import YES_NO
 from edc_identifier.model_mixins import (
-    TrackingModelMixin,
     NonUniqueSubjectIdentifierFieldMixin,
+    TrackingModelMixin,
 )
 from edc_model.models import ReportStatusModelMixin, datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
+
+from edc_adverse_event.models import CauseOfDeath
 
 from ..constants import DEATH_REPORT_TMG_ACTION, DEATH_REPORT_TMG_SECOND_ACTION
 
@@ -61,8 +62,7 @@ class DeathReportTmgFieldsModelMixin(models.Model):
         on_delete=PROTECT,
         verbose_name=("Main cause of death"),
         help_text=(
-            "Main cause of death in the opinion of the "
-            "local study doctor and local PI"
+            "Main cause of death in the opinion of the " "local study doctor and local PI"
         ),
         null=True,
     )
@@ -75,9 +75,7 @@ class DeathReportTmgFieldsModelMixin(models.Model):
     )
 
     cause_of_death_agreed = models.CharField(
-        verbose_name=(
-            "Is the cause of death agreed between study doctor and TMG member?"
-        ),
+        verbose_name=("Is the cause of death agreed between study doctor and TMG member?"),
         max_length=15,
         choices=YES_NO,
         blank=True,
@@ -132,9 +130,7 @@ class DeathReportTmgModelMixin(
         verbose_name = "Death Report TMG (1st)"
         verbose_name_plural = "Death Report TMG (1st)"
         indexes = [
-            models.Index(
-                fields=["subject_identifier", "action_identifier", "site", "id"]
-            )
+            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])
         ]
 
 
@@ -153,7 +149,5 @@ class DeathReportTmgSecondModelMixin(DeathReportTmgModelMixin):
         verbose_name = "Death Report TMG (2nd)"
         verbose_name_plural = "Death Report TMG (2nd)"
         indexes = [
-            models.Index(
-                fields=["subject_identifier", "action_identifier", "site", "id"]
-            )
+            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])
         ]

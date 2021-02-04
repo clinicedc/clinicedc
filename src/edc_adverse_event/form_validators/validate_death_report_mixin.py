@@ -1,11 +1,11 @@
 import arrow
-
 from dateutil import tz
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from edc_constants.constants import DEAD
 from edc_utils import convert_php_dateformat
+
 from edc_adverse_event.get_ae_model import get_ae_model
 
 
@@ -22,8 +22,7 @@ class DeathDateValidator:
     def subject_identifier(self):
         if not self._subject_identifier:
             self._subject_identifier = (
-                self.cleaned_data.get("subject_identifier")
-                or self.instance.subject_identifier
+                self.cleaned_data.get("subject_identifier") or self.instance.subject_identifier
             )
         return self._subject_identifier
 
@@ -43,9 +42,7 @@ class DeathDateValidator:
         """Returns the localized death date from the death report"""
         if not self._death_report_date:
             try:
-                self._death_report_date = getattr(
-                    self.death_report, self.death_date_field
-                )
+                self._death_report_date = getattr(self.death_report, self.death_date_field)
             except AttributeError:
                 self._death_report_date = arrow.get(
                     getattr(self.death_report, self.death_date_field),
@@ -94,14 +91,18 @@ class ValidateDeathReportMixin:
             ):
                 raise forms.ValidationError(
                     {
-                        self.offschedule_reason_field: "Invalid selection. A death report was submitted"
+                        self.offschedule_reason_field: (
+                            "Invalid selection. A death report was submitted"
+                        )
                     }
                 )
 
         if not self.cleaned_data.get(self.death_date_field) and validator.death_report:
             raise forms.ValidationError(
                 {
-                    self.death_date_field: "This field is required. A death report was submitted."
+                    self.death_date_field: (
+                        "This field is required. A death report was submitted."
+                    )
                 }
             )
         elif self.cleaned_data.get(self.death_date_field) and validator.death_report:
@@ -113,9 +114,7 @@ class ValidateDeathReportMixin:
                 expected = validator.death_report_date.strftime(
                     convert_php_dateformat(settings.SHORT_DATE_FORMAT)
                 )
-                got = death_date.strftime(
-                    convert_php_dateformat(settings.SHORT_DATE_FORMAT)
-                )
+                got = death_date.strftime(convert_php_dateformat(settings.SHORT_DATE_FORMAT))
                 raise forms.ValidationError(
                     {
                         self.death_date_field: "Date does not match Death Report. "
