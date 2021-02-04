@@ -1,13 +1,12 @@
 import sys
 
-from django.apps import apps as django_apps
 from django.apps import AppConfig as DjangoAppConfig
+from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.management.color import color_style
 from django.db.models.signals import post_migrate
 
 from .site_data_manager import site_data_manager
-
 
 style = color_style()
 
@@ -23,9 +22,7 @@ def populate_data_dictionary(sender=None, **kwargs):
 
 def update_query_rule_handlers(sender=None, **kwargs):
     sys.stdout.write(
-        style.MIGRATE_HEADING(
-            "Deactivating query rules with invalid rule handler names:\n"
-        )
+        style.MIGRATE_HEADING("Deactivating query rules with invalid rule handler names:\n")
     )
     handler_names = [x for x in site_data_manager.registry.keys()]
     django_apps.get_model("edc_data_manager.queryrule").objects.exclude(
@@ -53,16 +50,14 @@ class AppConfig(DjangoAppConfig):
 
 if settings.APP_NAME == "edc_data_manager":
 
-    from dateutil.relativedelta import SU, MO, TU, WE, TH, FR, SA
-    from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
-    from edc_visit_tracking.apps import AppConfig as BaseEdcVisitTrackingAppConfig
+    from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE
     from edc_appointment.apps import AppConfig as BaseEdcAppointmentAppConfig
+    from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
     from edc_metadata.apps import AppConfig as BaseEdcMetadataAppConfig
+    from edc_visit_tracking.apps import AppConfig as BaseEdcVisitTrackingAppConfig
 
     class EdcVisitTrackingAppConfig(BaseEdcVisitTrackingAppConfig):
-        visit_models = {
-            "data_manager_app": ("subject_visit", "data_manager_app.subjectvisit")
-        }
+        visit_models = {"data_manager_app": ("subject_visit", "data_manager_app.subjectvisit")}
 
     class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
         definitions = {
@@ -70,9 +65,7 @@ if settings.APP_NAME == "edc_data_manager":
                 days=[MO, TU, WE, TH, FR, SA, SU],
                 slots=[100, 100, 100, 100, 100, 100, 100],
             ),
-            "5-day-clinic": dict(
-                days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100]
-            ),
+            "5-day-clinic": dict(days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100]),
         }
 
     class EdcAppointmentAppConfig(BaseEdcAppointmentAppConfig):

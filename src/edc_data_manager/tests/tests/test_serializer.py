@@ -1,14 +1,15 @@
-from data_manager_app.lab_profiles import lab_profile
-from data_manager_app.visit_schedules import visit_schedule
 from django.contrib.auth import get_user_model
 from django.core import serializers
 from django.test import TestCase, tag
-from edc_data_manager.models.requisition_panel import RequisitionPanel
-from edc_data_manager.models.user import DataManagerUser, QueryUser
 from edc_lab.site_labs import site_labs
 from edc_visit_schedule.apps import populate_visit_schedule
 from edc_visit_schedule.constants import HOURS
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+
+from data_manager_app.lab_profiles import lab_profile
+from data_manager_app.visit_schedules import visit_schedule
+from edc_data_manager.models.requisition_panel import RequisitionPanel
+from edc_data_manager.models.user import DataManagerUser, QueryUser
 
 from ...models import CrfDataDictionary, QueryRule, QueryVisitSchedule
 

@@ -1,11 +1,12 @@
-from data_manager_app.admin_site import data_manager_app_admin
 from django.contrib import admin
-from django.urls.conf import path, include
+from django.urls.conf import include, path
 from edc_action_item.admin_site import edc_action_item_admin
 from edc_appointment.admin_site import edc_appointment_admin
-from edc_data_manager.admin_site import edc_data_manager_admin
 from edc_lab.admin_site import edc_lab_admin
 from edc_locator.admin_site import edc_locator_admin
+
+from data_manager_app.admin_site import data_manager_app_admin
+from edc_data_manager.admin_site import edc_data_manager_admin
 
 from .views import HomeView
 

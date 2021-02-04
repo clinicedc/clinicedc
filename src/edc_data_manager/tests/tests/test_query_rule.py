@@ -1,40 +1,40 @@
 # from django_webtest import WebTest
+from decimal import Decimal
 from unittest import skip
+
+from dateutil.relativedelta import relativedelta
+from django.contrib.auth import get_user_model
+from django.test import TestCase, tag  # noqa
+from edc_constants.constants import NO, OPEN, YES
+from edc_facility.import_holidays import import_holidays
+from edc_lab.constants import TUBE
+from edc_lab.models.panel import Panel
+from edc_lab.site_labs import site_labs
+from edc_metadata.metadata_inspector import MetaDataInspector
+from edc_reference.site_reference import site_reference_configs
+from edc_utils.date import get_utcnow
+from edc_visit_schedule.apps import populate_visit_schedule
+from edc_visit_schedule.constants import HOURS
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.constants import SCHEDULED
 
 from data_manager_app.lab_profiles import lab_profile
 from data_manager_app.models import (
     Appointment,
-    SubjectVisit,
-    SubjectConsent,
     CrfOne,
+    SubjectConsent,
     SubjectRequisition,
+    SubjectVisit,
 )
 from data_manager_app.visit_schedules import visit_schedule
-from dateutil.relativedelta import relativedelta
-from decimal import Decimal
-from django.contrib.auth import get_user_model
-from django.test import TestCase, tag  # noqa
-from edc_constants.constants import OPEN, NO, YES
 from edc_data_manager.models import (
     CrfDataDictionary,
     DataQuery,
     QueryRule,
     QueryVisitSchedule,
 )
-from edc_data_manager.rule import RuleRunner
-from edc_facility.import_holidays import import_holidays
-from edc_lab.site_labs import site_labs
-from edc_metadata.metadata_inspector import MetaDataInspector
-from edc_reference.site_reference import site_reference_configs
-from edc_utils.date import get_utcnow
-from edc_visit_schedule.apps import populate_visit_schedule
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_tracking.constants import SCHEDULED
-from edc_visit_schedule.constants import HOURS
 from edc_data_manager.models.requisition_panel import RequisitionPanel
-from edc_lab.models.panel import Panel
-from edc_lab.constants import TUBE
-
+from edc_data_manager.rule import RuleRunner
 
 User = get_user_model()
 
@@ -55,9 +55,7 @@ class TestQueryRules(TestCase):
         populate_visit_schedule()
 
         site_reference_configs.register_from_visit_schedule(
-            visit_models={
-                "edc_appointment.appointment": "data_manager_app.subjectvisit"
-            }
+            visit_models={"edc_appointment.appointment": "data_manager_app.subjectvisit"}
         )
 
         self.subject_identifier = "092-40990029-4"
@@ -79,9 +77,7 @@ class TestQueryRules(TestCase):
             onschedule_datetime=subject_consent.consent_datetime,
         )
 
-    def create_subject_visit(
-        self, visit_code, report_datetime=None, visit_code_sequence=None
-    ):
+    def create_subject_visit(self, visit_code, report_datetime=None, visit_code_sequence=None):
         appointment = Appointment.objects.get(
             subject_identifier=self.subject_identifier,
             visit_schedule_name="visit_schedule",
@@ -411,9 +407,7 @@ class TestQueryRules(TestCase):
             0,
         )
 
-        appointment_1_0 = Appointment.objects.get(
-            visit_code="1000", visit_code_sequence=0
-        )
+        appointment_1_0 = Appointment.objects.get(visit_code="1000", visit_code_sequence=0)
         self.create_subject_visit(
             "1000",
             report_datetime=appointment_1_0.appt_datetime,

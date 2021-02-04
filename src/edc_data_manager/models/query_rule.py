@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -7,8 +9,7 @@ from django.template.loader import render_to_string
 from django.utils.functional import lazy
 from edc_constants.constants import NORMAL
 from edc_model.models import BaseUuidModel, HistoricalRecords
-from edc_visit_schedule.constants import HOURS, DAYS, WEEKS, MONTHS
-from uuid import uuid4
+from edc_visit_schedule.constants import DAYS, HOURS, MONTHS, WEEKS
 
 from ..site_data_manager import site_data_manager
 from .data_dictionary import DataDictionary, DataDictionaryManager

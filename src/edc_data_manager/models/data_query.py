@@ -1,35 +1,35 @@
+from uuid import uuid4
+
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.deletion import PROTECT
 from django.template.loader import render_to_string
 from django.urls.base import reverse
 from edc_action_item.models.action_model_mixin import ActionModelMixin
 from edc_constants.constants import (
-    OPEN,
+    CLOSED,
     FEEDBACK,
-    RESOLVED,
+    HIGH_PRIORITY,
     NEW,
     NORMAL,
-    HIGH_PRIORITY,
-    CLOSED,
+    OPEN,
+    RESOLVED,
 )
-from edc_dashboard.url_names import url_names, InvalidUrlName
+from edc_dashboard.url_names import InvalidUrlName, url_names
 from edc_model.models import BaseUuidModel
-from edc_sites.models import SiteModelMixin, CurrentSiteManager
+from edc_sites.models import CurrentSiteManager, SiteModelMixin
 from edc_utils.date import get_utcnow
 from edc_visit_tracking.models import get_subject_visit_model
-from uuid import uuid4
 
 from ..action_items import DATA_QUERY_ACTION
 from ..constants import CLOSED_WITH_ACTION
 from .data_dictionary import DataDictionary
-from .requisition_panel import RequisitionPanel
 from .query_subject import QuerySubject
 from .query_visit_schedule import QueryVisitSchedule
-from .user import QueryUser, DataManagerUser
-
+from .requisition_panel import RequisitionPanel
+from .user import DataManagerUser, QueryUser
 
 RESPONSE_STATUS = (
     (NEW, "New"),
@@ -54,9 +54,7 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
     action_name = DATA_QUERY_ACTION
 
-    report_datetime = models.DateTimeField(
-        verbose_name="Query date", default=get_utcnow
-    )
+    report_datetime = models.DateTimeField(verbose_name="Query date", default=get_utcnow)
 
     subject_identifier = models.CharField(max_length=50, null=True, editable=False)
 
@@ -198,16 +196,14 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
     def form_and_numbers_to_string(self):
         ret = []
-        models = [
-            o.model_verbose_name for o in self.data_dictionaries.all().order_by("model")
-        ]
+        models = [o.model_verbose_name for o in self.data_dictionaries.all().order_by("model")]
         models = list(set(models))
         for model in models:
             numbers = [
                 str(o.number)
-                for o in self.data_dictionaries.filter(
-                    model_verbose_name=model
-                ).order_by("number")
+                for o in self.data_dictionaries.filter(model_verbose_name=model).order_by(
+                    "number"
+                )
             ]
             numbers = ", ".join(numbers)
             ret.append((model, numbers))
@@ -250,8 +246,7 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
                 )
 
         template_name = (
-            f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/"
-            f"columns/query_text.html"
+            f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/" f"columns/query_text.html"
         )
         context = dict(
             form_and_numbers=self.form_and_numbers_to_string(),

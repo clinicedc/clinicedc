@@ -1,3 +1,5 @@
+from textwrap import wrap
+
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.decorators import register
@@ -5,28 +7,27 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django_audit_fields.admin import audit_fieldset_tuple
-from edc_action_item.fieldsets import action_fieldset_tuple, action_fields
+from edc_action_item.fieldsets import action_fields, action_fieldset_tuple
 from edc_appointment.models import Appointment
 from edc_auth import DATA_MANAGER
 from edc_constants.constants import (
-    RESOLVED,
-    OPEN,
-    FEEDBACK,
-    NEW,
-    HIGH_PRIORITY,
     CLOSED,
-    YES,
+    FEEDBACK,
+    HIGH_PRIORITY,
+    NEW,
     NO,
+    OPEN,
+    RESOLVED,
+    YES,
 )
 from edc_model_admin import SimpleHistoryAdmin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_utils import formatted_datetime
-from textwrap import wrap
 
 from ..admin_site import edc_data_manager_admin
 from ..constants import CLOSED_WITH_ACTION
 from ..forms import DataQueryForm
-from ..models import DataQuery, DataDictionary
+from ..models import DataDictionary, DataQuery
 
 
 @register(DataQuery, site=edc_data_manager_admin)
@@ -42,13 +43,11 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/columns/query_text.html"
     )
     query_recipients_column_template_name = (
-        f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/columns/"
-        f"query_recipients.html"
+        f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/columns/" f"query_recipients.html"
     )
 
     rule_generated_column_template_name = (
-        f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/columns/"
-        f"rule_generated.html"
+        f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/columns/" f"rule_generated.html"
     )
 
     status_column_context = {
@@ -272,9 +271,7 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         return render_to_string(self.status_column_template_name, context=context)
 
     def render_rule_generated_to_string(self, context):
-        return render_to_string(
-            self.rule_generated_column_template_name, context=context
-        )
+        return render_to_string(self.rule_generated_column_template_name, context=context)
 
     def render_query_date_to_string(self, context):
         return render_to_string(self.query_date_column_template_name, context=context)
@@ -283,9 +280,7 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         return render_to_string(self.query_text_column_template_name, context=context)
 
     def render_query_recipients_to_string(self, context):
-        return render_to_string(
-            self.query_recipients_column_template_name, context=context
-        )
+        return render_to_string(self.query_recipients_column_template_name, context=context)
 
     def created_details(self, obj):
         rule_generated = YES if obj.rule_generated else NO

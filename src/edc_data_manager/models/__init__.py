@@ -13,4 +13,4 @@ from .query_subject import QuerySubject
 from .query_visit_schedule import QueryVisitSchedule
 from .requisition_panel import RequisitionPanel
 from .signals import update_query_text
-from .user import QueryUser, DataManagerUser
+from .user import DataManagerUser, QueryUser

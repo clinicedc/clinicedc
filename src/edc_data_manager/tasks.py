@@ -1,9 +1,10 @@
 from __future__ import absolute_import, unicode_literals
+
 from celery import shared_task
 from django.conf import settings
+
 from edc_data_manager.models import QueryRule
 from edc_data_manager.rule import RuleRunner
-
 
 DATA_MANAGER_ENABLED = getattr(settings, "DATA_MANAGER_ENABLED", True)
 

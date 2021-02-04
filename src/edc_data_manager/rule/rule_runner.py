@@ -1,5 +1,4 @@
 import arrow
-
 from edc_metadata.metadata_inspector import MetaDataInspector
 
 from ..models import QueryVisitSchedule
@@ -58,8 +57,7 @@ class RuleRunner:
         )
 
     def get_timepoints(self, visit_schedule_obj):
-        """Returns the timepoints for which there is metadata.
-        """
+        """Returns the timepoints for which there is metadata."""
         qs = MetaDataInspector.metadata_model_cls.objects.values("timepoint").filter(
             visit_schedule_name=visit_schedule_obj.visit_schedule_name,
             schedule_name=visit_schedule_obj.schedule_name,

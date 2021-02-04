@@ -8,9 +8,9 @@ from ..admin_site import edc_data_manager_admin
 from ..forms import QueryRuleForm
 from ..models import QueryRule, get_rule_handler_choices
 from .actions import (
-    update_query_rules_action,
-    toggle_active_flag,
     copy_query_rule_action,
+    toggle_active_flag,
+    update_query_rules_action,
 )
 
 
@@ -24,21 +24,15 @@ class QueryRuleModelAdminMixin:
         return super().formfield_for_choice_field(db_field, request, **kwargs)
 
     def form_name(self, obj=None):
-        data_dictionaries = [
-            dd for dd in obj.data_dictionaries.all().order_by("number")
-        ]
+        data_dictionaries = [dd for dd in obj.data_dictionaries.all().order_by("number")]
         return ", ".join(list(set([dd.model_verbose_name for dd in data_dictionaries])))
 
     def questions(self, obj=None):
-        numbers = [
-            str(dd.number) for dd in obj.data_dictionaries.all().order_by("number")
-        ]
+        numbers = [str(dd.number) for dd in obj.data_dictionaries.all().order_by("number")]
         return ", ".join(numbers)
 
     def field_names(self, obj=None):
-        fields = [
-            dd.field_name for dd in obj.data_dictionaries.all().order_by("field_name")
-        ]
+        fields = [dd.field_name for dd in obj.data_dictionaries.all().order_by("field_name")]
         return ", ".join(fields)
 
     def timepoints(self, obj=None):
@@ -46,10 +40,7 @@ class QueryRuleModelAdminMixin:
         return ", ".join(fields)
 
     def query_timing(self, obj=None):
-        return (
-            f"{obj.timing} {obj.get_timing_units_display()} "
-            f"from {obj.reference_date}"
-        )
+        return f"{obj.timing} {obj.get_timing_units_display()} " f"from {obj.reference_date}"
 
     def requisition(self, obj=None):
         return obj.requisition_panel
@@ -59,9 +50,7 @@ class QueryRuleModelAdminMixin:
 
 
 @register(QueryRule, site=edc_data_manager_admin)
-class QueryRuleAdmin(
-    QueryRuleModelAdminMixin, ModelAdminAuditFieldsMixin, SimpleHistoryAdmin
-):
+class QueryRuleAdmin(QueryRuleModelAdminMixin, ModelAdminAuditFieldsMixin, SimpleHistoryAdmin):
 
     form = QueryRuleForm
 

@@ -1,10 +1,11 @@
+from uuid import uuid4
+
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls.base import reverse
 from django.utils.safestring import mark_safe
-from edc_utils import get_utcnow, formatted_datetime
-from uuid import uuid4
+from edc_utils import formatted_datetime, get_utcnow
 
 from ..models import QueryRule
 from ..rule import update_query_rules
@@ -27,9 +28,7 @@ def copy_query_rule_action(modeladmin, request, queryset):
     if queryset.count() == 1:
         obj = queryset[0]
         options = {
-            k: v
-            for k, v in obj.__dict__.items()
-            if not k.startswith("_") and k not in ["id"]
+            k: v for k, v in obj.__dict__.items() if not k.startswith("_") and k not in ["id"]
         }
         options["title"] = f"{options['title']} (Copy)"
         options["active"] = False
@@ -70,9 +69,7 @@ def update_query_rules_action(modeladmin, request, queryset):
         if settings.CELERY_ENABLED:
             update_query_rules.delay(pks=[o.pk for o in queryset])
             dte = get_utcnow()
-            taskresult_url = reverse(
-                "admin:django_celery_results_taskresult_changelist"
-            )
+            taskresult_url = reverse("admin:django_celery_results_taskresult_changelist")
             msg = mark_safe(
                 f"Updating data queries in the background. "
                 f"Started at {formatted_datetime(dte)}. "

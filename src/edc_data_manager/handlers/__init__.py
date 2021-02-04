@@ -1,1 +1,1 @@
-from .handlers import QueryRuleHandler, QueryRuleHandlerError, DoNothingHandler
+from .handlers import DoNothingHandler, QueryRuleHandler, QueryRuleHandlerError
