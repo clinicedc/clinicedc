@@ -33,9 +33,7 @@ class SubjectTransferFormValidator(FormValidator):
 
         # verify on study
 
-        self.validate_other_specify(
-            "initiated_by", other_specify_field="initiated_by_other"
-        )
+        self.validate_other_specify("initiated_by", other_specify_field="initiated_by_other")
 
         self.m2m_single_selection_if(DWTA, m2m_field="transfer_reason")
 
@@ -63,8 +61,7 @@ class SubjectTransferFormValidatorMixin:
     def validate_subject_transferred(self):
         if self.cleaned_data.get("subject_identifier") or self.instance:
             subject_identifier = (
-                self.cleaned_data.get("subject_identifier")
-                or self.instance.subject_identifier
+                self.cleaned_data.get("subject_identifier") or self.instance.subject_identifier
             )
             try:
                 subject_transfer_obj = django_apps.get_model(
@@ -90,9 +87,9 @@ class SubjectTransferFormValidatorMixin:
                     expected = subject_transfer_obj.transfer_date.strftime(
                         convert_php_dateformat(settings.SHORT_DATE_FORMAT)
                     )
-                    got = self.cleaned_data.get(
-                        self.subject_transfer_date_field
-                    ).strftime(convert_php_dateformat(settings.SHORT_DATE_FORMAT))
+                    got = self.cleaned_data.get(self.subject_transfer_date_field).strftime(
+                        convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+                    )
                     raise forms.ValidationError(
                         {
                             self.subject_transfer_date_field: (
