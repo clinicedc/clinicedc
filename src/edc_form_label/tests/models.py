@@ -4,7 +4,7 @@ from edc_appointment.models import Appointment
 from edc_constants.choices import YES_NO
 from edc_model.models import BaseUuidModel
 from edc_utils import get_utcnow
-from edc_visit_schedule.model_mixins import OnScheduleModelMixin, OffScheduleModelMixin
+from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
 from edc_visit_tracking.model_mixins import VisitModelMixin, VisitTrackingCrfModelMixin
 
 

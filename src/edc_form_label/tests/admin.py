@@ -18,9 +18,7 @@ class MyCustomLabelCondition(CustomLabelCondition):
 
 
 class MyModelAdmin(FormLabelModelAdminMixin, admin.ModelAdmin):
-    """Demonstrate use of a custom form label.
-
-    """
+    """Demonstrate use of a custom form label."""
 
     fieldsets = (
         (
