@@ -3,7 +3,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.base import ContextMixin
 from edc_action_item.site_action_items import site_action_items
 
-
 from .action_items import SUBJECT_LOCATOR_ACTION
 
 

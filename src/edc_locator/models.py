@@ -8,7 +8,7 @@ from edc_model.models import BaseUuidModel
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 
 from .action_items import SUBJECT_LOCATOR_ACTION
-from .model_mixins import LocatorModelMixin, LocatorManager
+from .model_mixins import LocatorManager, LocatorModelMixin
 
 if settings.APP_NAME == "edc_locator" and "makemigrations" not in sys.argv:
     from .tests import models  # noqa

@@ -1,8 +1,9 @@
+from unittest.case import skip
+
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http.request import HttpRequest
 from django.test import TestCase
 from edc_registration.models import RegisteredSubject
-from unittest.case import skip
 
 from ..view_mixins import SubjectLocatorViewMixin, SubjectLocatorViewMixinError
 
