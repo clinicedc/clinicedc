@@ -1,5 +1,6 @@
-from django.core.management.color import color_style
 from django.core.management.base import BaseCommand, CommandError
+from django.core.management.color import color_style
+
 from edc_metadata.update_metadata_on_schedule_change import (
     UpdateMetadataError,
     UpdateMetadataOnScheduleChange,
@@ -23,7 +24,10 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
-            "--old-value", dest="old_value", default=None, help="Old or existing value",
+            "--old-value",
+            dest="old_value",
+            default=None,
+            help="Old or existing value",
         )
 
         parser.add_argument(

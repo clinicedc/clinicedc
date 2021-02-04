@@ -2,7 +2,7 @@ from django.apps import apps as django_apps
 from django.db import models
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from ...constants import REQUIRED, NOT_REQUIRED, REQUISITION, CRF
+from ...constants import CRF, NOT_REQUIRED, REQUIRED, REQUISITION
 
 
 class MetadataError(Exception):
@@ -15,26 +15,22 @@ class UpdatesMetadataModelMixin(models.Model):
     metadata_category = None
 
     def metadata_update(self, entry_status=None):
-        """Updates metatadata.
-        """
+        """Updates metatadata."""
         self.metadata_updater.update(entry_status=entry_status)
 
     def run_metadata_rules_for_crf(self):
-        """Runs all the metadata rules.
-        """
+        """Runs all the metadata rules."""
         self.visit.run_metadata_rules()
 
     @property
     def metadata_updater(self):
-        """Returns an instance of MetadataUpdater.
-        """
+        """Returns an instance of MetadataUpdater."""
         return self.updater_cls(
             visit_model_instance=self.visit, target_model=self._meta.label_lower
         )
 
     def metadata_reset_on_delete(self):
-        """Sets the metadata instance to its original state.
-        """
+        """Sets the metadata instance to its original state."""
         obj = self.metadata_model.objects.get(**self.metadata_query_options)
         try:
             obj.entry_status = self.metadata_default_entry_status
@@ -82,16 +78,13 @@ class UpdatesMetadataModelMixin(models.Model):
 
     @property
     def metadata_model(self):
-        """Returns the metadata model associated with self.
-        """
+        """Returns the metadata model associated with self."""
         if self.metadata_category == CRF:
             metadata_model = "edc_metadata.crfmetadata"
         elif self.metadata_category == REQUISITION:
             metadata_model = "edc_metadata.requisitionmetadata"
         else:
-            raise MetadataError(
-                f"Unknown metadata catergory. Got {self.metadata_category}"
-            )
+            raise MetadataError(f"Unknown metadata catergory. Got {self.metadata_category}")
         return django_apps.get_model(metadata_model)
 
     class Meta:

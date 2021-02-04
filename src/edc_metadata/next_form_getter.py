@@ -53,23 +53,19 @@ class NextFormGetter:
 
     @property
     def metadata_getter(self):
-        """Returns a metadata_getter instance.
-        """
+        """Returns a metadata_getter instance."""
         if not self._getter:
             if self.panel_name:
                 self._getter = self.requisition_metadata_getter_cls(
                     appointment=self.appointment
                 )
             else:
-                self._getter = self.crf_metadata_getter_cls(
-                    appointment=self.appointment
-                )
+                self._getter = self.crf_metadata_getter_cls(appointment=self.appointment)
         return self._getter
 
     @property
     def next_metadata_obj(self):
-        """Returns the "next" metadata model instance or None.
-        """
+        """Returns the "next" metadata model instance or None."""
         if not self._next_metadata_obj:
             show_order = getattr(self.crf_or_requisition, "show_order", None)
             self._next_metadata_obj = self.metadata_getter.next_object(
@@ -79,8 +75,7 @@ class NextFormGetter:
 
     @property
     def next_panel(self):
-        """Returns the metadata model instance.
-        """
+        """Returns the metadata model instance."""
         if not self._next_panel:
             if self.next_metadata_obj:
                 try:
@@ -91,8 +86,7 @@ class NextFormGetter:
 
     @property
     def panel_name(self):
-        """Returns a panel_name or None.
-        """
+        """Returns a panel_name or None."""
         if not self._panel_name:
             if self.model_obj:
                 try:

@@ -1,26 +1,27 @@
 import unittest
 
-from faker import Faker
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
-from edc_utils import get_utcnow
 from edc_constants.constants import MALE
 from edc_facility.import_holidays import import_holidays
 from edc_registration.models import RegisteredSubject
+from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
+from faker import Faker
 
+from .models import SubjectConsent, SubjectVisit
 from .visit_schedule import visit_schedule
-from .models import SubjectVisit, SubjectConsent
 
 skip_condition = "django_collect_offline.apps.AppConfig" not in settings.INSTALLED_APPS
 skip_reason = "django_collect_offline not installed"
 if not skip_condition:
-    from ..offline_models import offline_models
     from django_collect_offline.models import OutgoingTransaction
     from django_collect_offline.tests import OfflineTestHelper
+
+    from ..offline_models import offline_models
 
 fake = Faker()
 

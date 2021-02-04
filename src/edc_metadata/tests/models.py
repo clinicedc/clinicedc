@@ -1,4 +1,5 @@
 from datetime import date
+
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_appointment.models import Appointment
@@ -16,8 +17,9 @@ from edc_reference.model_mixins import (
     RequisitionReferenceModelMixin,
 )
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
+from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
-from edc_visit_schedule.model_mixins import OnScheduleModelMixin, OffScheduleModelMixin
+from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
 from edc_visit_tracking.model_mixins import (
     SubjectVisitMissedModelMixin,
     VisitModelMixin,
@@ -25,9 +27,10 @@ from edc_visit_tracking.model_mixins import (
 )
 
 from ..model_mixins.creates import CreatesMetadataModelMixin
-from ..model_mixins.updates import UpdatesCrfMetadataModelMixin
-from ..model_mixins.updates import UpdatesRequisitionMetadataModelMixin
-from edc_sites.models import SiteModelMixin
+from ..model_mixins.updates import (
+    UpdatesCrfMetadataModelMixin,
+    UpdatesRequisitionMetadataModelMixin,
+)
 
 
 class CrfModelMixin(VisitTrackingCrfModelMixin, SiteModelMixin, models.Model):
@@ -114,9 +117,7 @@ class SubjectRequisition(
     reason_not_drawn = models.CharField(max_length=25, null=True)
 
 
-class CrfOne(
-    CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel
-):
+class CrfOne(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
 
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
@@ -127,9 +128,7 @@ class CrfOne(
     f3 = models.CharField(max_length=50, null=True)
 
 
-class CrfTwo(
-    CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel
-):
+class CrfTwo(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
 
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
@@ -145,27 +144,21 @@ class CrfThree(
     f1 = models.CharField(max_length=50, null=True)
 
 
-class CrfFour(
-    CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel
-):
+class CrfFour(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
 
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
-class CrfFive(
-    CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel
-):
+class CrfFive(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
 
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
-class Crfsix(
-    CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel
-):
+class Crfsix(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
 
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
@@ -204,7 +197,9 @@ class SubjectVisitMissedReasons(ListModelMixin):
 
 
 class SubjectVisitMissed(
-    SubjectVisitMissedModelMixin, CrfWithActionModelMixin, BaseUuidModel,
+    SubjectVisitMissedModelMixin,
+    CrfWithActionModelMixin,
+    BaseUuidModel,
 ):
 
     action_identifier = models.CharField(max_length=50, null=True)
@@ -216,7 +211,8 @@ class SubjectVisitMissed(
     )
 
     class Meta(
-        SubjectVisitMissedModelMixin.Meta, BaseUuidModel.Meta,
+        SubjectVisitMissedModelMixin.Meta,
+        BaseUuidModel.Meta,
     ):
         verbose_name = "Missed Visit Report"
         verbose_name_plural = "Missed Visit Report"

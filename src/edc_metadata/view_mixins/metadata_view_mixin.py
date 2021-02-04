@@ -5,10 +5,11 @@ from django.utils.translation import gettext as _
 from django.views.generic.base import ContextMixin
 from edc_appointment.constants import IN_PROGRESS_APPT
 from edc_dashboard.view_mixins import MessageViewMixin
-from edc_metadata.metadata_wrappers.metadata_wrapper import DeletedInvalidMetadata
-from edc_subject_model_wrappers import RequisitionModelWrapper, CrfModelWrapper
+from edc_subject_model_wrappers import CrfModelWrapper, RequisitionModelWrapper
 
-from ..constants import CRF, NOT_REQUIRED, REQUISITION, REQUIRED, KEYED
+from edc_metadata.metadata_wrappers.metadata_wrapper import DeletedInvalidMetadata
+
+from ..constants import CRF, KEYED, NOT_REQUIRED, REQUIRED, REQUISITION
 from ..metadata_wrappers import CrfMetadataWrappers, RequisitionMetadataWrappers
 
 
@@ -53,18 +54,13 @@ class MetaDataViewMixin(MessageViewMixin, ContextMixin):
         return context
 
     def get_crf_model_wrappers(self):
-        """Returns a list of model wrappers.
-        """
+        """Returns a list of model wrappers."""
         model_wrappers = []
-        crf_metadata_wrappers = self.crf_metadata_wrappers_cls(
-            appointment=self.appointment
-        )
+        crf_metadata_wrappers = self.crf_metadata_wrappers_cls(appointment=self.appointment)
         for metadata_wrapper in crf_metadata_wrappers.objects:
             if not metadata_wrapper.model_obj:
                 metadata_wrapper.model_obj = metadata_wrapper.model_cls(
-                    **{
-                        metadata_wrapper.model_cls.visit_model_attr(): metadata_wrapper.visit
-                    }
+                    **{metadata_wrapper.model_cls.visit_model_attr(): metadata_wrapper.visit}
                 )
             metadata_wrapper.metadata_obj.object = self.crf_model_wrapper_cls(
                 model_obj=metadata_wrapper.model_obj,
@@ -80,8 +76,7 @@ class MetaDataViewMixin(MessageViewMixin, ContextMixin):
         ]
 
     def get_requisition_model_wrapper(self):
-        """Returns a list of model wrappers.
-        """
+        """Returns a list of model wrappers."""
         model_wrappers = []
         requisition_metadata_wrappers = self.requisition_metadata_wrappers_cls(
             appointment=self.appointment

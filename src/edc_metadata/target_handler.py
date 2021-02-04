@@ -1,9 +1,9 @@
 from django.apps import apps as django_apps
 from edc_reference import site_reference_configs
+from edc_visit_tracking.constants import MISSED_VISIT
 
 from edc_metadata.constants import CRF
 from edc_metadata.metadata_handler import MetadataHandler
-from edc_visit_tracking.constants import MISSED_VISIT
 
 
 class TargetModelNotScheduledForVisit(Exception):
@@ -96,8 +96,7 @@ class TargetHandler:
 
     @property
     def models(self):
-        """Returns a list of models for this visit.
-        """
+        """Returns a list of models for this visit."""
         if self.visit_model_instance.visit_code_sequence != 0:
             forms = (
                 self.visit_model_instance.visit.unscheduled_forms

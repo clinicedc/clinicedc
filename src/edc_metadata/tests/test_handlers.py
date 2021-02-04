@@ -8,11 +8,17 @@ from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 
 from ..models import CrfMetadata, RequisitionMetadata
-from ..requisition import InvalidTargetPanel, TargetPanelNotScheduledForVisit
-from ..requisition import RequisitionTargetHandler
-from ..target_handler import TargetModelLookupError, TargetHandler
-from ..target_handler import TargetModelNotScheduledForVisit
-from .models import SubjectVisit, SubjectConsent
+from ..requisition import (
+    InvalidTargetPanel,
+    RequisitionTargetHandler,
+    TargetPanelNotScheduledForVisit,
+)
+from ..target_handler import (
+    TargetHandler,
+    TargetModelLookupError,
+    TargetModelNotScheduledForVisit,
+)
+from .models import SubjectConsent, SubjectVisit
 from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
 

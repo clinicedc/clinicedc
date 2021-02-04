@@ -1,10 +1,11 @@
 from django.test.client import RequestFactory
+from edc_form_validators.form_validator import FormValidator
+
 from edc_metadata.form_validators.metadata_form_validator_mixin import (
     MetaDataFormValidatorMixin,
 )
-from edc_form_validators.form_validator import FormValidator
 
-from .test_view_mixin import TestViewMixin, MyView
+from .test_view_mixin import MyView, TestViewMixin
 
 
 class MyForm(MetaDataFormValidatorMixin, FormValidator):

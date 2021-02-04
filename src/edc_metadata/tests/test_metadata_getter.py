@@ -1,8 +1,8 @@
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
-from edc_utils import get_utcnow
 from edc_facility.import_holidays import import_holidays
 from edc_reference.site_reference import site_reference_configs
+from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
@@ -10,7 +10,7 @@ from ..constants import REQUIRED
 from ..metadata import CrfMetadataGetter
 from ..models import CrfMetadata, RequisitionMetadata
 from ..next_form_getter import NextFormGetter
-from .models import SubjectVisit, SubjectConsent, CrfOne, CrfTwo
+from .models import CrfOne, CrfTwo, SubjectConsent, SubjectVisit
 from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
 
@@ -85,9 +85,7 @@ class TestMetadataGetter(TestCase):
         self.assertEqual(len(objects), len(visit.crfs) - 1)
 
     def test_next_required_form(self):
-        getter = NextFormGetter(
-            appointment=self.appointment, model="edc_metadata.crftwo"
-        )
+        getter = NextFormGetter(appointment=self.appointment, model="edc_metadata.crftwo")
         self.assertEqual(getter.next_form.model, "edc_metadata.crfthree")
 
     def test_next_required_form2(self):

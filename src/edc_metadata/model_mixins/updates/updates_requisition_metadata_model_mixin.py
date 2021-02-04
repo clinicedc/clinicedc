@@ -1,4 +1,4 @@
-from ...constants import REQUISITION, REQUIRED, NOT_REQUIRED
+from ...constants import NOT_REQUIRED, REQUIRED, REQUISITION
 from ...requisition import RequisitionMetadataUpdater
 from .updates_metadata_model_mixin import UpdatesMetadataModelMixin
 
@@ -13,8 +13,7 @@ class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
 
     @property
     def metadata_updater(self):
-        """Returns an instance of RequisitionMetadataUpdater.
-        """
+        """Returns an instance of RequisitionMetadataUpdater."""
         opts = dict(
             visit_model_instance=self.visit,
             target_model=self._meta.label_lower,

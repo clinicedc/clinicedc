@@ -1,9 +1,8 @@
 import sys
 
 from django.apps import apps as django_apps
-from django.core.management.color import color_style
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
-
+from django.core.management.color import color_style
 
 style = color_style()
 
@@ -60,8 +59,7 @@ class MetadataWrapper:
 
     @property
     def options(self):
-        """Returns a dictionary of query options.
-        """
+        """Returns a dictionary of query options."""
         return {f"{self.model_cls.visit_model_attr()}": self.visit}
 
     @property
@@ -72,9 +70,7 @@ class MetadataWrapper:
             except AttributeError as e:
                 if "visit_model_attr" not in str(e):
                     raise ImproperlyConfigured(f"{e} See {repr(self.model_cls)}")
-                delete_invalid_metadata_obj(
-                    self.metadata_obj, visit=self.visit, exception=e
-                )
+                delete_invalid_metadata_obj(self.metadata_obj, visit=self.visit, exception=e)
                 raise DeletedInvalidMetadata(f"{e} Try refreshing the page (1).")
             except ObjectDoesNotExist:
                 self._model_obj = None
@@ -92,8 +88,6 @@ class MetadataWrapper:
         try:
             model_cls = django_apps.get_model(self.metadata_obj.model)
         except LookupError as e:
-            delete_invalid_metadata_obj(
-                self.metadata_obj, visit=self.visit, exception=e
-            )
+            delete_invalid_metadata_obj(self.metadata_obj, visit=self.visit, exception=e)
             raise DeletedInvalidMetadata(f"{e} Try refreshing the page (2).")
         return model_cls

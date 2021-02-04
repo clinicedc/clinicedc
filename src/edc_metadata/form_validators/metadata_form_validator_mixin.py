@@ -4,13 +4,11 @@ from ..models import CrfMetadata, RequisitionMetadata
 
 class MetaDataFormValidatorMixin:
 
-    """Always assumes instance exists.
-    """
+    """Always assumes instance exists."""
 
     @property
     def crf_metadata_exists(self):
-        """Returns True if CRF metadata exists for this visit code.
-        """
+        """Returns True if CRF metadata exists for this visit code."""
         return CrfMetadata.objects.filter(
             subject_identifier=self.instance.subject_identifier,
             visit_schedule_name=self.instance.visit_schedule_name,
@@ -35,8 +33,7 @@ class MetaDataFormValidatorMixin:
 
     @property
     def requisition_metadata_exists(self):
-        """Returns True if requisition metadata exists for this visit code.
-        """
+        """Returns True if requisition metadata exists for this visit code."""
         return RequisitionMetadata.objects.filter(
             subject_identifier=self.instance.subject_identifier,
             visit_schedule_name=self.instance.visit_schedule_name,

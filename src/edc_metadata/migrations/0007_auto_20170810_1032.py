@@ -3,8 +3,8 @@
 from __future__ import unicode_literals
 
 import _socket
-from django.db import migrations, models
 import edc_model_fields.fields.userfield
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):

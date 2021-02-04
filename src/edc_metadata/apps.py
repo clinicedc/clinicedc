@@ -3,7 +3,7 @@ import sys
 from django.apps.config import AppConfig as DjangoAppConfig
 from django.conf import settings
 from django.core.management.color import color_style
-from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED, MISSED_VISIT
+from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 
 style = color_style()
 

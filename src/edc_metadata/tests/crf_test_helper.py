@@ -1,7 +1,7 @@
 from model_bakery import baker
 
+from ..constants import NOT_REQUIRED, REQUIRED
 from ..models import CrfMetadata, RequisitionMetadata
-from ..constants import REQUIRED, NOT_REQUIRED
 
 
 class CrfTestHelper:
@@ -34,8 +34,7 @@ class CrfTestHelper:
         )
 
     def get_crfs(self, visit_code=None, subject_identifier=None):
-        """Return a queryset of crf metadata for the visit.
-        """
+        """Return a queryset of crf metadata for the visit."""
         return CrfMetadata.objects.filter(
             subject_identifier=subject_identifier, visit_code=visit_code
         ).order_by("show_order")
@@ -43,8 +42,7 @@ class CrfTestHelper:
     def get_crfs_by_entry_status(
         self, visit_code=None, entry_status=None, subject_identifier=None
     ):
-        """Return a queryset of crf metadata for the visit by entry_status.
-        """
+        """Return a queryset of crf metadata for the visit by entry_status."""
         return (
             self.get_crfs(visit_code=visit_code, subject_identifier=subject_identifier)
             .filter(entry_status__in=entry_status)
@@ -76,9 +74,7 @@ class CrfTestHelper:
                 subject_identifier=subject_identifier,
             ):
                 options = self.baker_options(visit.report_datetime).get(crf.model, {})
-                options.update(
-                    {visit_attr: visit, "report_datetime": visit.report_datetime}
-                )
+                options.update({visit_attr: visit, "report_datetime": visit.report_datetime})
                 completed_crfs.append(baker.make_recipe(crf.model, **options))
             if not self.get_crfs_by_entry_status(
                 visit_code=visit_code,

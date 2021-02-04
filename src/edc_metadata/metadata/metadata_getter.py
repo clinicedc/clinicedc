@@ -36,8 +36,7 @@ class MetadataGetter:
 
     @property
     def options(self):
-        """Returns a dictionary of query options.
-        """
+        """Returns a dictionary of query options."""
         return dict(
             subject_identifier=self.subject_identifier,
             visit_code=self.visit_code,
@@ -45,15 +44,12 @@ class MetadataGetter:
         )
 
     def next_object(self, show_order=None, entry_status=None):
-        """Returns the next model instance based on the show order.
-        """
+        """Returns the next model instance based on the show order."""
         if show_order is None:
             metadata_obj = None
         else:
             opts = {"show_order__gt": show_order}
             if entry_status:
                 opts.update(entry_status=entry_status)
-            metadata_obj = (
-                self.metadata_objects.filter(**opts).order_by("show_order").first()
-            )
+            metadata_obj = self.metadata_objects.filter(**opts).order_by("show_order").first()
         return metadata_obj

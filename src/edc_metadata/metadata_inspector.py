@@ -1,14 +1,13 @@
 from django.conf import settings
 from django.contrib.sites.models import Site
 
-from .constants import REQUIRED, KEYED
+from .constants import KEYED, REQUIRED
 from .models import CrfMetadata
 
 
 class MetaDataInspector:
 
-    """Inspects for the given timepoint and form.
-    """
+    """Inspects for the given timepoint and form."""
 
     metadata_model_cls = CrfMetadata
 
@@ -36,8 +35,7 @@ class MetaDataInspector:
 
     @property
     def required(self):
-        """Returns a list of subject identifiers.
-        """
+        """Returns a list of subject identifiers."""
         opts = dict(
             visit_schedule_name=self.visit_schedule_name,
             schedule_name=self.schedule_name,
@@ -52,8 +50,7 @@ class MetaDataInspector:
 
     @property
     def keyed(self):
-        """Returns a list of subject identifiers.
-        """
+        """Returns a list of subject identifiers."""
         opts = dict(
             visit_schedule_name=self.visit_schedule_name,
             schedule_name=self.schedule_name,

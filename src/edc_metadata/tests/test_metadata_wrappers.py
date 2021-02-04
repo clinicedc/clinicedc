@@ -7,11 +7,15 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
-from ..metadata_wrappers import RequisitionMetadataWrapper, CrfMetadataWrapper
-from ..metadata_wrappers import MetadataWrapperError
-from ..metadata_wrappers import RequisitionMetadataWrappers, CrfMetadataWrappers
+from ..metadata_wrappers import (
+    CrfMetadataWrapper,
+    CrfMetadataWrappers,
+    MetadataWrapperError,
+    RequisitionMetadataWrapper,
+    RequisitionMetadataWrappers,
+)
 from ..models import CrfMetadata, RequisitionMetadata
-from .models import SubjectConsent, SubjectVisit, CrfOne, SubjectRequisition
+from .models import CrfOne, SubjectConsent, SubjectRequisition, SubjectVisit
 from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
 

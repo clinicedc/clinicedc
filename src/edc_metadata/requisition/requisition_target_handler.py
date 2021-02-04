@@ -39,8 +39,7 @@ class RequisitionTargetHandler(TargetHandler):
 
     @property
     def target_panel_names(self):
-        """Returns a list of panels for this visit.
-        """
+        """Returns a list of panels for this visit."""
         if self.visit_model_instance.visit_code_sequence != 0:
             forms = (
                 self.visit_model_instance.visit.requisitions_unscheduled

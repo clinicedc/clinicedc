@@ -14,12 +14,9 @@ def update_metadata_timepoint(apps, schema_editor):
         for schedule in visit_schedule.schedules.values():
             for visit in schedule.visits.values():
                 visit_str = (
-                    f"{visit_schedule.name}.{schedule.name}.{visit.code}@"
-                    f"{visit.timepoint}"
+                    f"{visit_schedule.name}.{schedule.name}.{visit.code}@" f"{visit.timepoint}"
                 )
-                sys.stdout.write(
-                    f"  - updating CRF metadata timepoint for {visit_str}\n"
-                )
+                sys.stdout.write(f"  - updating CRF metadata timepoint for {visit_str}\n")
                 CrfMetadata.objects.filter(
                     visit_schedule_name=visit_schedule.name,
                     schedule_name=schedule.name,

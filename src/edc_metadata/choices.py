@@ -1,4 +1,4 @@
-from .constants import NOT_REQUIRED, KEYED, REQUIRED
+from .constants import KEYED, NOT_REQUIRED, REQUIRED
 
 ENTRY_CATEGORY = (("CLINIC", "Clinic"), ("LAB", "Lab"), ("OTHER", "Other"))
 

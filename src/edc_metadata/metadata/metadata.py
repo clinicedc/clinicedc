@@ -4,7 +4,7 @@ from edc_reference import site_reference_configs
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT
 
-from ..constants import NOT_REQUIRED, REQUIRED, KEYED
+from ..constants import KEYED, NOT_REQUIRED, REQUIRED
 
 
 class CreatesMetadataError(Exception):
@@ -19,7 +19,10 @@ class CrfCreator:
     metadata_model = "edc_metadata.crfmetadata"
 
     def __init__(
-        self, visit_model_instance=None, update_keyed=None, crf=None,
+        self,
+        visit_model_instance=None,
+        update_keyed=None,
+        crf=None,
     ):
         self._metadata_obj = None
         self.reference_model_cls = None
@@ -64,9 +67,7 @@ class CrfCreator:
                     if self.crf.required and metadata_obj.entry_status == NOT_REQUIRED:
                         metadata_obj.entry_status = REQUIRED
                         metadata_obj.save()
-                    elif (not self.crf.required) and (
-                        metadata_obj.entry_status == REQUIRED
-                    ):
+                    elif (not self.crf.required) and (metadata_obj.entry_status == REQUIRED):
                         metadata_obj.entry_status = NOT_REQUIRED
                         metadata_obj.save()
             self._metadata_obj = metadata_obj
@@ -89,9 +90,7 @@ class CrfCreator:
 
         See also edc_reference.
         """
-        reference_model = site_reference_configs.get_reference_model(
-            name=self.crf.model
-        )
+        reference_model = site_reference_configs.get_reference_model(name=self.crf.model)
         self.reference_model_cls = django_apps.get_model(reference_model)
         return self.reference_model_cls.objects.filter_crf_for_visit(
             name=self.crf.model, visit=self.visit_model_instance
@@ -139,9 +138,7 @@ class Creator:
         self.update_keyed = update_keyed
         self.visit_code_sequence = visit_model_instance.visit_code_sequence
         self.visit = (
-            site_visit_schedules.get_visit_schedule(
-                visit_model_instance.visit_schedule_name
-            )
+            site_visit_schedules.get_visit_schedule(visit_model_instance.visit_schedule_name)
             .schedules.get(visit_model_instance.schedule_name)
             .visits.get(visit_model_instance.visit_code)
         )
@@ -233,9 +230,7 @@ class Metadata:
         )
         self.destroyer = self.destroyer_cls(visit_model_instance=visit_model_instance)
         try:
-            self.reason_field = app_config.reason_field[
-                visit_model_instance._meta.label_lower
-            ]
+            self.reason_field = app_config.reason_field[visit_model_instance._meta.label_lower]
         except KeyError as e:
             raise CreatesMetadataError(
                 f"Unable to determine the reason field for model "

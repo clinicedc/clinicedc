@@ -1,5 +1,9 @@
+from unittest.mock import MagicMock
+
+from django.contrib.auth.models import User
 from django.http.request import HttpRequest
 from django.test import TestCase, tag
+from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
@@ -13,12 +17,9 @@ from edc_visit_tracking.constants import SCHEDULED
 
 from ..models import CrfMetadata, RequisitionMetadata
 from ..view_mixins import MetaDataViewMixin
-from .models import SubjectConsent, SubjectVisit, CrfOne, CrfThree
+from .models import CrfOne, CrfThree, SubjectConsent, SubjectVisit
 from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
-from django.test.client import RequestFactory
-from django.contrib.auth.models import User
-from unittest.mock import MagicMock
 
 
 class DummyCrfModelWrapper:

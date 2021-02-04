@@ -1,9 +1,14 @@
 from django.db import models
 from edc_metadata_rules import MetadataRuleEvaluator
 
-from ...constants import KEYED, REQUISITION, CRF
-from ...metadata import Metadata, Destroyer, DeleteMetadataError
-from ...metadata import RequisitionMetadataGetter, CrfMetadataGetter
+from ...constants import CRF, KEYED, REQUISITION
+from ...metadata import (
+    CrfMetadataGetter,
+    DeleteMetadataError,
+    Destroyer,
+    Metadata,
+    RequisitionMetadataGetter,
+)
 
 
 class CreatesMetadataModelMixin(models.Model):
@@ -16,8 +21,7 @@ class CreatesMetadataModelMixin(models.Model):
     metadata_rule_evaluator_cls = MetadataRuleEvaluator
 
     def metadata_create(self):
-        """Creates metadata, called by post_save signal.
-        """
+        """Creates metadata, called by post_save signal."""
         metadata = self.metadata_cls(visit_model_instance=self, update_keyed=True)
         metadata.prepare()
 
@@ -28,9 +32,7 @@ class CreatesMetadataModelMixin(models.Model):
 
         Also called by post_save signal after metadata is updated.
         """
-        metadata_rule_evaluator = self.metadata_rule_evaluator_cls(
-            visit_model_instance=self
-        )
+        metadata_rule_evaluator = self.metadata_rule_evaluator_cls(visit_model_instance=self)
         metadata_rule_evaluator.evaluate_rules()
 
     @property
