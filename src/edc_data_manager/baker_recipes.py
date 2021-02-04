@@ -1,8 +1,9 @@
+from uuid import uuid4
+
 from faker import Faker
 from model_bakery.recipe import Recipe, related, seq
 
-from .models import QueryRule, DataQuery
-from uuid import uuid4
+from .models import DataQuery, QueryRule
 
 fake = Faker()
 

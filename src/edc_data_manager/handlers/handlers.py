@@ -1,11 +1,10 @@
 import arrow
-
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from edc_constants.constants import RESOLVED, OPEN, NO
+from edc_constants.constants import NO, OPEN, RESOLVED
 from edc_lab.utils import get_requisition_model
-from edc_metadata.constants import REQUIRED, KEYED
-from edc_metadata.models import RequisitionMetadata, CrfMetadata
+from edc_metadata.constants import KEYED, REQUIRED
+from edc_metadata.models import CrfMetadata, RequisitionMetadata
 from edc_visit_tracking.models import get_subject_visit_model
 
 from ..models import DataQuery
@@ -219,11 +218,8 @@ class QueryRuleHandler:
         return self._field_values
 
     def get_field_value(self, field_name):
-        """Safely get a model instance value for this query.
-        """
-        if not self.query_rule_obj.data_dictionaries.filter(
-            field_name=field_name
-        ).exists():
+        """Safely get a model instance value for this query."""
+        if not self.query_rule_obj.data_dictionaries.filter(field_name=field_name).exists():
             field_names = [
                 f"{dd.field_name} ({dd.number})"
                 for dd in self.query_rule_obj.data_dictionaries.all()
@@ -243,8 +239,7 @@ class QueryRuleHandler:
         return resolved_datetime
 
     def resolve_existing_data_query(self):
-        """Resolves a data query model instance.
-        """
+        """Resolves a data query model instance."""
         if self.data_query:
             site_response_text = (self.data_query.site_response_text or "").replace(
                 "[auto-resolved]", ""
@@ -260,8 +255,7 @@ class QueryRuleHandler:
             self.resolved_counter = 1
 
     def reopen_existing_data_query(self):
-        """Re-opens a data query model instance unless locked.
-        """
+        """Re-opens a data query model instance unless locked."""
         if self.data_query and not self.data_query.locked:
             self.data_query.site_response_text.replace("[auto-resolved]", "")
             self.data_query.site_resolved_datetime = None
@@ -315,8 +309,7 @@ class QueryRuleHandler:
 
     @property
     def requisition_obj(self):
-        """Returns a requisition model instance or None.
-        """
+        """Returns a requisition model instance or None."""
         if not self._requisition_obj:
             try:
                 self._requisition_obj = get_requisition_model().objects.get(

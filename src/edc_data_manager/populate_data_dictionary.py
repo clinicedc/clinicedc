@@ -1,19 +1,18 @@
 import sys
+from inspect import isfunction
+from warnings import warn
 
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib.admin import sites
-from django.core.exceptions import ObjectDoesNotExist, FieldDoesNotExist
+from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist
 from django.db.models.fields import NOT_PROVIDED
+from django.db.utils import IntegrityError, OperationalError
 from django.test.client import RequestFactory
 from django.utils.safestring import mark_safe
 from edc_list_data.model_mixins import ListModelMixin
-from inspect import isfunction
-from warnings import warn
 
 from .models import DataDictionary, DataManagerUser
-from django.db.utils import OperationalError, IntegrityError
-
 
 WIDGET = 1
 
@@ -80,10 +79,7 @@ def create_or_update_data_dictionary(index, model, fld):
         try:
             data_dictionary_model_cls.objects.create(**options)
         except (OperationalError, IntegrityError) as e:
-            warn(
-                f"Error when creating DataDictionary instance. "
-                f"Model={model}. Got {e}"
-            )
+            warn(f"Error when creating DataDictionary instance. " f"Model={model}. Got {e}")
     else:
         for k, v in options.items():
             setattr(obj, k, v)

@@ -3,16 +3,15 @@ from django.template.loader import render_to_string
 from edc_action_item import Action, site_action_items
 from edc_constants.constants import (
     CLOSED,
-    RESOLVED,
     FEEDBACK,
     HIGH_PRIORITY,
     MEDIUM_PRIORITY,
     NORMAL,
+    RESOLVED,
 )
 from edc_utils.date import get_utcnow
 
 from .constants import CLOSED_WITH_ACTION
-
 
 DATA_QUERY_ACTION = "data_query_action"
 SHOW_ON_DASHBOARD = getattr(settings, "DATA_MANAGER_SHOW_ON_DASHBOARD", True)
@@ -71,9 +70,7 @@ class DataQueryAction(Action):
 
     def get_category(self):
         return (
-            "DM Query"
-            if self.site_response_status in [FEEDBACK, RESOLVED]
-            else "Site Query"
+            "DM Query" if self.site_response_status in [FEEDBACK, RESOLVED] else "Site Query"
         )
 
     def get_status(self):

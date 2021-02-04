@@ -1,6 +1,6 @@
 import sys
-
 from copy import deepcopy
+
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.utils.module_loading import import_module, module_has_submodule
@@ -29,9 +29,7 @@ class SiteDataManager:
     def get_rule_handler(self, name):
         name = name or "default"
         if name not in self.registry:
-            raise SiteDataManagerError(
-                f"Query rule handler is not registered. Got {name}."
-            )
+            raise SiteDataManagerError(f"Query rule handler is not registered. Got {name}.")
         return self.registry.get(name)
 
     def get_rule_handlers(self, model_name=None):

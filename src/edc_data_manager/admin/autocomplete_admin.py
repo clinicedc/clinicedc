@@ -9,13 +9,13 @@ from edc_visit_schedule.admin import VisitScheduleAdmin as BaseVisitScheduleAdmi
 
 from ..admin_site import edc_data_manager_admin
 from ..models import (
-    QueryUser,
-    DataManagerUser,
-    QueryVisitSchedule,
-    QuerySubject,
-    RequisitionPanel,
     CrfDataDictionary,
+    DataManagerUser,
+    QuerySubject,
+    QueryUser,
+    QueryVisitSchedule,
     RequisitionDataDictionary,
+    RequisitionPanel,
     VisitDataDictionary,
 )
 

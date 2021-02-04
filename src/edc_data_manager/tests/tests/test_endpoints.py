@@ -1,22 +1,23 @@
 from unittest import skip
 
 from django.apps import apps as django_apps
-from data_manager_app.lab_profiles import lab_profile
-from data_manager_app.reference_model_configs import register_to_site_reference_configs
-from data_manager_app.visit_schedules import visit_schedule
 from django.contrib.auth import get_user_model
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_action_item.models.action_item import ActionItem
-from edc_auth import EVERYONE, DATA_MANAGER, CLINIC
+from edc_auth import CLINIC, DATA_MANAGER, EVERYONE
 from edc_auth.group_permissions_updater import GroupPermissionsUpdater
-from edc_data_manager.models import CrfDataDictionary
-from edc_data_manager.models.user import DataManagerUser
 from edc_lab.site_labs import site_labs
 from edc_registration.models import RegisteredSubject
 from edc_test_utils.webtest import login
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from model_bakery import baker
+
+from data_manager_app.lab_profiles import lab_profile
+from data_manager_app.reference_model_configs import register_to_site_reference_configs
+from data_manager_app.visit_schedules import visit_schedule
+from edc_data_manager.models import CrfDataDictionary
+from edc_data_manager.models.user import DataManagerUser
 
 User = get_user_model()
 
@@ -46,8 +47,7 @@ class AdminSiteTest(WebTest):
         site_visit_schedules.register(visit_schedule)
 
     def test_default_rule_handler_names(self):
-        """Assert default rule handler names on queryrule ADD form
-        """
+        """Assert default rule handler names on queryrule ADD form"""
         login(
             self,
             superuser=False,

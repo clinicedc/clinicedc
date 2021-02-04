@@ -1,4 +1,4 @@
-from .handlers import QueryRuleHandler, DoNothingHandler
+from .handlers import DoNothingHandler, QueryRuleHandler
 from .site_data_manager import site_data_manager
 
 site_data_manager.register(DoNothingHandler)

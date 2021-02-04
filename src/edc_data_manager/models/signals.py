@@ -8,7 +8,6 @@ from .data_query import DataQuery
 from .query_rule import QueryRule
 from .query_visit_schedule import QueryVisitSchedule
 
-
 DATA_MANAGER_ENABLED = getattr(settings, "DATA_MANAGER_ENABLED", True)
 
 
@@ -58,9 +57,7 @@ def update_query_on_crf(sender, instance, raw, **kwargs):
                         ),
                     )
                 for data_query in data_queries:
-                    query_rule = QueryRule.objects.get(
-                        reference=data_query.rule_reference
-                    )
+                    query_rule = QueryRule.objects.get(reference=data_query.rule_reference)
                     runner = RuleRunner(query_rule)
                     runner.run_one(
                         subject_identifier=subject_identifier,
