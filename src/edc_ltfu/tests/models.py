@@ -29,7 +29,10 @@ class LossToFollowup(
 
 
 class OffSchedule(
-    OffScheduleModelMixin, ActionModelMixin, TrackingModelMixin, BaseUuidModel,
+    OffScheduleModelMixin,
+    ActionModelMixin,
+    TrackingModelMixin,
+    BaseUuidModel,
 ):
 
     action_name = END_OF_STUDY_ACTION

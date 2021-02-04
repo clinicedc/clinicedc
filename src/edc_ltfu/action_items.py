@@ -1,5 +1,5 @@
-from edc_constants.constants import HIGH_PRIORITY
 from edc_action_item.action_with_notification import ActionWithNotification
+from edc_constants.constants import HIGH_PRIORITY
 from edc_offstudy.constants import END_OF_STUDY_ACTION
 from edc_visit_tracking.constants import VISIT_MISSED_ACTION
 

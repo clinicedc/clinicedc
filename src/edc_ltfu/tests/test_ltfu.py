@@ -5,33 +5,27 @@ from edc_action_item import site_action_items
 from edc_action_item.models import ActionItem
 from edc_adverse_event.constants import DEATH_REPORT_ACTION
 from edc_appointment.tests.appointment_test_case_mixin import AppointmentTestCaseMixin
-from edc_list_data import load_list_data
-from edc_metadata.tests.visit_schedule import visit_schedule
 from edc_consent import site_consents
-from edc_constants.constants import (
-    ALIVE,
-    CLOSED,
-    HOSPITALIZED,
-    NEW,
-    OTHER,
-    YES,
-)
+from edc_constants.constants import ALIVE, CLOSED, HOSPITALIZED, NEW, OTHER, YES
 from edc_facility.import_holidays import import_holidays
-from edc_ltfu.action_items import LossToFollowupAction
-from edc_ltfu.constants import LOSS_TO_FOLLOWUP_ACTION
-from edc_offstudy.action_items import EndOfStudyAction as BaseEndOfStudyAction
-from edc_prn.constants import UNBLINDING_REVIEW_ACTION
-from edc_utils import get_utcnow, get_dob
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_tracking.action_items import VisitMissedAction
-from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
+from edc_list_data import load_list_data
 from edc_metadata.tests.models import (
     SubjectConsent,
     SubjectVisit,
     SubjectVisitMissed,
     SubjectVisitMissedReasons,
 )
+from edc_metadata.tests.visit_schedule import visit_schedule
+from edc_offstudy.action_items import EndOfStudyAction as BaseEndOfStudyAction
+from edc_prn.constants import UNBLINDING_REVIEW_ACTION
 from edc_reference import site_reference_configs
+from edc_utils import get_dob, get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.action_items import VisitMissedAction
+from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
+
+from edc_ltfu.action_items import LossToFollowupAction
+from edc_ltfu.constants import LOSS_TO_FOLLOWUP_ACTION
 
 from .consents import v1_consent
 from .models import LossToFollowup

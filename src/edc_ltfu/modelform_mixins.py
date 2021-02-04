@@ -31,9 +31,7 @@ class LossToFollowupFormValidator(FormValidator):
         last_obj = (
             get_subject_visit_model()
             .objects.filter(
-                appointment__subject_identifier=self.cleaned_data.get(
-                    "subject_identifier"
-                ),
+                appointment__subject_identifier=self.cleaned_data.get("subject_identifier"),
             )
             .last()
         )
@@ -63,8 +61,7 @@ class LtfuFormValidatorMixin:
             self.cleaned_data.get("subject_identifier") or self.instance
         ):
             subject_identifier = (
-                self.cleaned_data.get("subject_identifier")
-                or self.instance.subject_identifier
+                self.cleaned_data.get("subject_identifier") or self.instance.subject_identifier
             )
 
             try:
@@ -85,15 +82,14 @@ class LtfuFormValidatorMixin:
                     raise forms.ValidationError({self.offschedule_reason_field: msg})
             else:
                 if self.cleaned_data.get(self.loss_to_followup_date_field) and (
-                    ltfu.ltfu_date
-                    != self.cleaned_data.get(self.loss_to_followup_date_field)
+                    ltfu.ltfu_date != self.cleaned_data.get(self.loss_to_followup_date_field)
                 ):
                     expected = ltfu.ltfu_date.strftime(
                         convert_php_dateformat(settings.SHORT_DATE_FORMAT)
                     )
-                    got = self.cleaned_data.get(
-                        self.loss_to_followup_date_field
-                    ).strftime(convert_php_dateformat(settings.SHORT_DATE_FORMAT))
+                    got = self.cleaned_data.get(self.loss_to_followup_date_field).strftime(
+                        convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+                    )
                     raise forms.ValidationError(
                         {
                             self.loss_to_followup_date_field: (

@@ -1,7 +1,7 @@
 from django import forms
-from django.conf import settings
 from django.apps import apps as django_apps
-from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from edc_constants.constants import LOST_TO_FOLLOWUP
 
 lftu_model_name = getattr(settings, "EDC_LFTU_MODEL_NAME", None)
@@ -19,14 +19,11 @@ class LossToFollowupFormValidatorMixin:
     def validate_ltfu(self):
 
         subject_identifier = (
-            self.cleaned_data.get("subject_identifier")
-            or self.instance.subject_identifier
+            self.cleaned_data.get("subject_identifier") or self.instance.subject_identifier
         )
 
         try:
-            self.loss_to_followup_model_cls.objects.get(
-                subject_identifier=subject_identifier
-            )
+            self.loss_to_followup_model_cls.objects.get(subject_identifier=subject_identifier)
         except ObjectDoesNotExist:
             if self.offschedule_reason_field not in self.cleaned_data:
                 raise ImproperlyConfigured(
