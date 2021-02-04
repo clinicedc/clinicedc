@@ -3,8 +3,11 @@ from edc_model_admin import SimpleHistoryAdmin, audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
 from .admin_site import edc_locator_admin
-from .fieldsets import subject_contacts_fieldset
-from .fieldsets import indirect_contacts_fieldset, work_contacts_fieldset
+from .fieldsets import (
+    indirect_contacts_fieldset,
+    subject_contacts_fieldset,
+    work_contacts_fieldset,
+)
 from .forms import SubjectLocatorForm
 from .models import SubjectLocator
 

@@ -1,1 +1,1 @@
-from .locator_model_mixin import LocatorModelMixin, LocatorManager
+from .locator_model_mixin import LocatorManager, LocatorModelMixin
