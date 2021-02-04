@@ -1,8 +1,12 @@
 from django.conf import settings
 from django.db import models
 from django_crypto_fields.fields import EncryptedTextField
+from edc_action_item.models import ActionModelMixin
 from edc_constants.choices import YES_NO, YES_NO_UNSURE
-from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
+from edc_identifier.model_mixins import (
+    TrackingModelMixin,
+    UniqueSubjectIdentifierFieldMixin,
+)
 from edc_model import models as edc_models
 from edc_sites.models import SiteModelMixin
 from edc_utils.date import get_utcnow
@@ -12,10 +16,16 @@ from .constants import SUBJECT_TRANSFER_ACTION
 
 
 class SubjectTransferModelMixin(
-    UniqueSubjectIdentifierFieldMixin, SiteModelMixin, models.Model,
+    UniqueSubjectIdentifierFieldMixin,
+    SiteModelMixin,
+    ActionModelMixin,
+    TrackingModelMixin,
+    models.Model,
 ):
 
     action_name = SUBJECT_TRANSFER_ACTION
+
+    tracking_identifier_prefix = "TR"
 
     report_datetime = models.DateTimeField(
         verbose_name="Report Date and Time", default=get_utcnow
@@ -32,7 +42,7 @@ class SubjectTransferModelMixin(
     initiated_by_other = edc_models.OtherCharField()
 
     transfer_reason = models.ManyToManyField(
-        f"{settings.LIST_MODEL_APP_LABEL}.transferreasons",
+        f"{settings.LIST_MODEL_APP_LABEL}.TransferReasons",
         verbose_name="Reason for transfer",
     )
 
@@ -56,7 +66,7 @@ class SubjectTransferModelMixin(
     comment = EncryptedTextField(verbose_name="Additional Comments")
 
     def natural_key(self):
-        return (self.subject_identifier,)
+        return tuple([self.subject_identifier])
 
     class Meta:
         abstract = True
