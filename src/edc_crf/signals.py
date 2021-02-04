@@ -29,7 +29,9 @@ def update_crf_status_for_instance(instance, crf_status):
 
 
 @receiver(
-    post_save, weak=False, dispatch_uid="update_crf_status_post_save",
+    post_save,
+    weak=False,
+    dispatch_uid="update_crf_status_post_save",
 )
 def update_crf_status_post_save(sender, instance, raw, created, using, **kwargs):
     if not raw and not kwargs.get("update_fields"):

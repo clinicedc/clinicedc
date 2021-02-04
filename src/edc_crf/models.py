@@ -2,8 +2,8 @@ from django.db import models
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model import models as edc_models
 from edc_visit_schedule.model_mixins import (
-    VisitScheduleFieldsModelMixin,
     VisitCodeFieldsModelMixin,
+    VisitScheduleFieldsModelMixin,
 )
 
 

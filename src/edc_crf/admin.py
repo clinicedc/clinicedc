@@ -1,12 +1,10 @@
 from django.apps import apps as django_apps
 from django.contrib import admin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
-from import_export.admin import ExportActionMixin
 
 from .admin_site import edc_crf_admin
 from .exim_resources import CrfStatusResource
 from .models import CrfStatus
-
 
 crf_status_fieldset_tuple = (
     "CRF status",
@@ -31,9 +29,7 @@ class CrfStatusModelAdminMixin:
 
 
 @admin.register(CrfStatus, site=edc_crf_admin)
-class CrfStatusAdmin(
-    ModelAdminSubjectDashboardMixin, ExportActionMixin, admin.ModelAdmin
-):
+class CrfStatusAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
 
     resource_class = CrfStatusResource
 
