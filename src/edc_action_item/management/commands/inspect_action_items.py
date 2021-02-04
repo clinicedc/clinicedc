@@ -3,6 +3,7 @@ import sys
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
+
 from edc_action_item.models import ActionItem
 from edc_action_item.site_action_items import site_action_items
 
@@ -41,6 +42,10 @@ class Command(BaseCommand):
 
         qs = ActionItem.objects.filter(**opts).order_by("subject_identifier", "created")
         print(f"Found {qs.count()} action_items with missing `related_action_item`.")
+        self.inspect_action_items(**opts)
+        print("Done.")
+
+    def inspect_action_items(self, **opts):
         for action_item in ActionItem.objects.filter(**opts).order_by(
             "subject_identifier", "created"
         ):
@@ -51,15 +56,11 @@ class Command(BaseCommand):
             )
             model_cls = django_apps.get_model(action_item.action_cls.reference_model)
             try:
-                obj = model_cls.objects.get(
-                    action_identifier=action_item.action_identifier
-                )
+                obj = model_cls.objects.get(action_identifier=action_item.action_identifier)
             except ObjectDoesNotExist:
                 print("  skipping")
             else:
-                related_obj = getattr(
-                    obj, action_item.action_cls.related_reference_fk_attr
-                )
+                related_obj = getattr(obj, action_item.action_cls.related_reference_fk_attr)
                 if not self.dry_run:
                     related_obj.save()
                 else:
@@ -78,4 +79,3 @@ class Command(BaseCommand):
             else:
                 print("  not saving")
             print("******************************************************")
-        print("Done.")

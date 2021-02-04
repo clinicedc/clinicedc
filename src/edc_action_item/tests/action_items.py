@@ -1,4 +1,4 @@
-from edc_constants.constants import NO, HIGH_PRIORITY
+from edc_constants.constants import HIGH_PRIORITY, NO
 
 from ..action import Action
 from ..action_with_notification import ActionWithNotification

@@ -8,12 +8,8 @@ class Migration(migrations.Migration):
     dependencies = [("edc_action_item", "0021_auto_20190628_2113")]
 
     operations = [
-        migrations.RemoveIndex(
-            model_name="actionitem", name="edc_action__action__fe58cb_idx"
-        ),
-        migrations.RemoveIndex(
-            model_name="actiontype", name="edc_action__name_f674a7_idx"
-        ),
+        migrations.RemoveIndex(model_name="actionitem", name="edc_action__action__fe58cb_idx"),
+        migrations.RemoveIndex(model_name="actiontype", name="edc_action__name_f674a7_idx"),
         migrations.AddIndex(
             model_name="actionitem",
             index=models.Index(

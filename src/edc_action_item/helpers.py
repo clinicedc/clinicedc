@@ -1,11 +1,10 @@
 import logging
+from urllib.parse import parse_qsl, unquote, urlencode, urlparse
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from edc_utils import convert_php_dateformat
-from urllib.parse import urlparse, parse_qsl
-from urllib.parse import urlencode, unquote
 
 from .site_action_items import site_action_items
 
@@ -74,8 +73,10 @@ class ActionItemHelper:
 
         if self.action_cls.related_reference_fk_attr:
             try:
-                related_reference_obj = self.action_cls.related_reference_model_cls().objects.get(
-                    action_item=self.related_action_item
+                related_reference_obj = (
+                    self.action_cls.related_reference_model_cls().objects.get(
+                        action_item=self.related_action_item
+                    )
                 )
             except ObjectDoesNotExist as e:
                 logger.warning(
@@ -85,11 +86,7 @@ class ActionItemHelper:
                 opts.update({self.action_cls.related_reference_fk_attr: None})
             else:
                 opts.update(
-                    {
-                        self.action_cls.related_reference_fk_attr: str(
-                            related_reference_obj.pk
-                        )
-                    }
+                    {self.action_cls.related_reference_fk_attr: str(related_reference_obj.pk)}
                 )
         if model_obj:
             try:
@@ -114,8 +111,7 @@ class ActionItemHelper:
 
     @property
     def reference_obj(self):
-        """Returns the reference model instance or None.
-        """
+        """Returns the reference model instance or None."""
         if not self._reference_obj:
             try:
                 self._reference_obj = self.action_item.reference_obj
@@ -125,8 +121,7 @@ class ActionItemHelper:
 
     @property
     def reference_url(self):
-        """Returns the url for the reference object.
-        """
+        """Returns the url for the reference object."""
         if not self._reference_url:
             self._reference_url = self.get_url(
                 model_obj=self.reference_obj,
@@ -136,8 +131,7 @@ class ActionItemHelper:
 
     @property
     def parent_reference_obj(self):
-        """Returns the parent reference model instance or None.
-        """
+        """Returns the parent reference model instance or None."""
         if not self._parent_reference_obj:
             try:
                 self._parent_reference_obj = self.action_item.parent_reference_obj
@@ -241,8 +235,7 @@ class ActionItemHelper:
         return related_reference_model_name
 
     def get_context(self):
-        """Returns a dictionary of instance attr.
-        """
+        """Returns a dictionary of instance attr."""
         context = {}
         if self.action_item.parent_action_item:
             context.update(

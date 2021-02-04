@@ -1,5 +1,5 @@
 from django import forms
-from edc_constants.constants import OPEN, NEW
+from edc_constants.constants import NEW, OPEN
 
 from ..models import ActionItem
 
@@ -11,8 +11,7 @@ class ActionItemForm(forms.ModelForm):
         return cleaned_data
 
     def force_open_status(self):
-        """Sets status to open for edited NEW action items.
-        """
+        """Sets status to open for edited NEW action items."""
         if self.instance.id and self.cleaned_data.get("status") == NEW:
             self.cleaned_data["status"] = OPEN
 

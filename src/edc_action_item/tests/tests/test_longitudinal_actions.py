@@ -1,7 +1,4 @@
 from django.test import TestCase, tag
-from edc_action_item import site_action_items
-from edc_action_item.models import ActionItem
-from edc_action_item.tests.visit_schedule import visit_schedule
 from edc_appointment.models import Appointment
 from edc_facility import import_holidays
 from edc_metadata.tests.models import SubjectConsent, SubjectVisit
@@ -11,10 +8,11 @@ from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
-from ..action_items import (
-    CrfLongitudinalOneAction,
-    CrfLongitudinalTwoAction,
-)
+from edc_action_item import site_action_items
+from edc_action_item.models import ActionItem
+from edc_action_item.tests.visit_schedule import visit_schedule
+
+from ..action_items import CrfLongitudinalOneAction, CrfLongitudinalTwoAction
 from ..models import CrfLongitudinalOne
 
 
@@ -57,18 +55,22 @@ class TestLongitudinal(TestCase):
 
     def test_(self):
         appointment = Appointment.objects.get(
-            subject_identifier=self.subject_identifier, visit_code="1000",
+            subject_identifier=self.subject_identifier,
+            visit_code="1000",
         )
         subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, reason=SCHEDULED,
+            appointment=appointment,
+            reason=SCHEDULED,
         )
         crf_one_a = CrfLongitudinalOne.objects.create(subject_visit=subject_visit)
         ActionItem.objects.get(action_identifier=crf_one_a.action_identifier)
         appointment = Appointment.objects.get(
-            subject_identifier=self.subject_identifier, visit_code="2000",
+            subject_identifier=self.subject_identifier,
+            visit_code="2000",
         )
         subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, reason=SCHEDULED,
+            appointment=appointment,
+            reason=SCHEDULED,
         )
 
         crf_one_b = CrfLongitudinalOne.objects.create(subject_visit=subject_visit)

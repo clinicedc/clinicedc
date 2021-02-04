@@ -29,20 +29,21 @@ class ActionNoManagersModelMixin(models.Model):
 
     action_identifier = models.CharField(max_length=50, unique=True)
 
-    action_item = models.ForeignKey(ActionItem, null=True, on_delete=PROTECT)
+    action_item = models.ForeignKey(ActionItem, null=True, blank=True, on_delete=PROTECT)
 
     parent_action_item = models.ForeignKey(
-        ActionItem, related_name="+", null=True, on_delete=PROTECT
+        ActionItem, related_name="+", null=True, blank=True, on_delete=PROTECT
     )
 
     related_action_item = models.ForeignKey(
-        ActionItem, related_name="+", null=True, on_delete=PROTECT
+        ActionItem, related_name="+", null=True, blank=True, on_delete=PROTECT
     )
 
     # remove
     parent_action_identifier = models.CharField(
         max_length=30,
         null=True,
+        blank=True,
         help_text="action identifier that links to parent reference model instance.",
     )
 
@@ -50,9 +51,8 @@ class ActionNoManagersModelMixin(models.Model):
     related_action_identifier = models.CharField(
         max_length=30,
         null=True,
-        help_text=(
-            "action identifier that links to related " "reference model instance."
-        ),
+        blank=True,
+        help_text=("action identifier that links to related " "reference model instance."),
     )
 
     action_item_reason = models.TextField(null=True, editable=False)
@@ -63,9 +63,7 @@ class ActionNoManagersModelMixin(models.Model):
     def save(self, *args, **kwargs):
         # ensure action class is defined
         if not self.get_action_cls():
-            raise ActionClassNotDefined(
-                f"Action class name not defined. See {repr(self)}"
-            )
+            raise ActionClassNotDefined(f"Action class name not defined. See {repr(self)}")
 
         # ensure subject_identifier
         if not self.subject_identifier:
@@ -76,10 +74,7 @@ class ActionNoManagersModelMixin(models.Model):
 
         # ensure related_action_item is set if there is a
         # related reference model.
-        if (
-            self.get_action_cls().related_reference_model
-            and not self.related_action_item
-        ):
+        if self.get_action_cls().related_reference_model and not self.related_action_item:
             self.related_action_item = getattr(
                 self, self.get_action_cls().related_reference_fk_attr
             ).action_item
@@ -98,9 +93,7 @@ class ActionNoManagersModelMixin(models.Model):
             self.action_item.linked_to_reference = True
             self.action_identifier = self.action_item.action_identifier
         elif self.id and not self.action_item:
-            self.action_item = ActionItem.objects.get(
-                action_identifier=self.action_identifier
-            )
+            self.action_item = ActionItem.objects.get(action_identifier=self.action_identifier)
         self.parent_action_item = self.action_item.parent_action_item
 
         # also see signals.py
@@ -128,8 +121,7 @@ class ActionNoManagersModelMixin(models.Model):
 
     @property
     def identifier(self):
-        """Returns a shortened action_identifier.
-        """
+        """Returns a shortened action_identifier."""
         return self.action_identifier[-9:]
 
     class Meta:

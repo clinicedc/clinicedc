@@ -1,15 +1,16 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
 from django.test import TestCase, tag
-from edc_constants.constants import NEW, OPEN, CLOSED
+from edc_constants.constants import CLOSED, NEW, OPEN
+
 from edc_action_item.action import Action
+from edc_action_item.create_or_update_action_type import create_or_update_action_type
 from edc_action_item.forms import ActionItemForm
 from edc_action_item.get_action_type import get_action_type
-from edc_action_item.models import SubjectDoesNotExist, ActionItem, ActionType
+from edc_action_item.models import ActionItem, ActionType, SubjectDoesNotExist
 from edc_action_item.site_action_items import site_action_items
 
-from ..action_items import FormThreeAction
-from ..action_items import FormZeroAction, FormOneAction, FormTwoAction
+from ..action_items import FormOneAction, FormThreeAction, FormTwoAction, FormZeroAction
 from ..models import (
     FormOne,
     FormThree,
@@ -17,7 +18,6 @@ from ..models import (
     SubjectIdentifierModel,
     TestModelWithAction,
 )
-from edc_action_item.create_or_update_action_type import create_or_update_action_type
 
 
 class TestActionItem(TestCase):
@@ -25,9 +25,7 @@ class TestActionItem(TestCase):
         self.subject_identifier_model = ActionItem.subject_identifier_model
         ActionItem.subject_identifier_model = "edc_action_item.subjectidentifiermodel"
         self.subject_identifier = "12345"
-        SubjectIdentifierModel.objects.create(
-            subject_identifier=self.subject_identifier
-        )
+        SubjectIdentifierModel.objects.create(subject_identifier=self.subject_identifier)
         site_action_items.registry = {}
         site_action_items.register(FormZeroAction)
         get_action_type(FormZeroAction)
@@ -59,12 +57,8 @@ class TestActionItem(TestCase):
             subject_identifier=self.subject_identifier, form_one=form_one
         )
         form_two.refresh_from_db()
-        action_item_one = ActionItem.objects.get(
-            action_identifier=form_one.action_identifier
-        )
-        action_item_two = ActionItem.objects.get(
-            action_identifier=form_two.action_identifier
-        )
+        action_item_one = ActionItem.objects.get(action_identifier=form_one.action_identifier)
+        action_item_two = ActionItem.objects.get(action_identifier=form_two.action_identifier)
 
         self.assertEqual(
             action_item_two.action_cls,
@@ -129,9 +123,7 @@ class TestActionItem(TestCase):
         my_action = MyAction(subject_identifier=self.subject_identifier)
 
         try:
-            action_item = ActionItem.objects.get(
-                action_identifier=my_action.action_identifier
-            )
+            action_item = ActionItem.objects.get(action_identifier=my_action.action_identifier)
         except ObjectDoesNotExist:
             self.fail("ActionItem unexpectedly does not exist")
 
@@ -213,9 +205,7 @@ class TestActionItem(TestCase):
         # delete form one
         form_one.delete()
         # assert resets action item
-        action_item = ActionItem.objects.get(
-            action_type__name=FormOneAction.name, status=NEW
-        )
+        action_item = ActionItem.objects.get(action_type__name=FormOneAction.name, status=NEW)
 
         # assert cleans up child action items
         self.assertRaises(
@@ -290,9 +280,7 @@ class TestActionItem(TestCase):
             subject_identifier=self.subject_identifier, form_one=form_one
         )
 
-        form_three = FormThree.objects.create(
-            subject_identifier=self.subject_identifier
-        )
+        form_three = FormThree.objects.create(subject_identifier=self.subject_identifier)
 
         self.assertEqual(form_one.action_item.status, CLOSED)
         self.assertEqual(form_two.action_item.status, CLOSED)
@@ -329,9 +317,7 @@ class TestActionItem(TestCase):
         form_two = FormTwo.objects.create(
             subject_identifier=self.subject_identifier, form_one=form_one
         )
-        form_three = FormThree.objects.create(
-            subject_identifier=self.subject_identifier
-        )
+        form_three = FormThree.objects.create(subject_identifier=self.subject_identifier)
 
         form_one.f1 = "blah"
         form_one.save()

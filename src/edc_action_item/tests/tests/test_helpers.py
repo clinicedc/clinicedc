@@ -1,11 +1,19 @@
 from django.test import TestCase, tag
+
 from edc_action_item.helpers import ActionItemHelper
 from edc_action_item.model_wrappers import ActionItemModelWrapper
 from edc_action_item.models import ActionItem
 
-from ..action_items import register_actions, FormOneAction, CrfOneAction
-from ..models import FormOne, SubjectIdentifierModel, CrfOne, CrfTwo, FormTwo
-from ..models import SubjectVisitSimple, AppointmentSimple
+from ..action_items import CrfOneAction, FormOneAction, register_actions
+from ..models import (
+    AppointmentSimple,
+    CrfOne,
+    CrfTwo,
+    FormOne,
+    FormTwo,
+    SubjectIdentifierModel,
+    SubjectVisitSimple,
+)
 
 
 class TestHelpers(TestCase):
@@ -14,12 +22,8 @@ class TestHelpers(TestCase):
         self.subject_identifier_model = ActionItem.subject_identifier_model
         ActionItem.subject_identifier_model = "edc_action_item.subjectidentifiermodel"
         self.subject_identifier = "12345"
-        SubjectIdentifierModel.objects.create(
-            subject_identifier=self.subject_identifier
-        )
-        self.form_one = FormOne.objects.create(
-            subject_identifier=self.subject_identifier
-        )
+        SubjectIdentifierModel.objects.create(subject_identifier=self.subject_identifier)
+        self.form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
         self.action_item = ActionItem.objects.get(
             action_identifier=self.form_one.action_identifier
         )
@@ -38,9 +42,7 @@ class TestHelpers(TestCase):
         self.assertIsNone(action.reference_obj)
 
         model_wrapper = ActionItemModelWrapper(model_obj=action.action_item)
-        helper = ActionItemHelper(
-            action_item=model_wrapper.object, href=model_wrapper.href
-        )
+        helper = ActionItemHelper(action_item=model_wrapper.object, href=model_wrapper.href)
         context = helper.get_context()
         self.assertIsNone(context["reference_obj"])
         self.assertIsNone(context["parent_reference_obj"])
@@ -53,9 +55,7 @@ class TestHelpers(TestCase):
         action = FormOneAction(subject_identifier=self.subject_identifier)
         action_item = action.action_item
         model_wrapper = ActionItemModelWrapper(model_obj=action_item)
-        helper = ActionItemHelper(
-            action_item=model_wrapper.object, href=model_wrapper.href
-        )
+        helper = ActionItemHelper(action_item=model_wrapper.object, href=model_wrapper.href)
         context = helper.get_context()
         self.assertEqual(
             context["reference_url"].split("?")[0],
@@ -104,24 +104,16 @@ class TestHelpers(TestCase):
         form_two = FormTwo.objects.create(
             form_one=self.form_one, subject_identifier=self.subject_identifier
         )
-        action_item = ActionItem.objects.get(
-            action_identifier=form_two.action_identifier
-        )
+        action_item = ActionItem.objects.get(action_identifier=form_two.action_identifier)
 
         model_wrapper = ActionItemModelWrapper(model_obj=action_item)
-        helper = ActionItemHelper(
-            action_item=model_wrapper.object, href=model_wrapper.href
-        )
+        helper = ActionItemHelper(action_item=model_wrapper.object, href=model_wrapper.href)
         context = helper.get_context()
         self.assertEqual(context["reference_obj"], form_two)
         form_two.delete()
-        action_item = ActionItem.objects.get(
-            action_identifier=form_two.action_identifier
-        )
+        action_item = ActionItem.objects.get(action_identifier=form_two.action_identifier)
         model_wrapper = ActionItemModelWrapper(model_obj=action_item)
-        helper = ActionItemHelper(
-            action_item=model_wrapper.object, href=model_wrapper.href
-        )
+        helper = ActionItemHelper(action_item=model_wrapper.object, href=model_wrapper.href)
         context = helper.get_context()
         self.assertIsNone(context["reference_obj"])
 
@@ -129,13 +121,9 @@ class TestHelpers(TestCase):
         form_two = FormTwo.objects.create(
             form_one=self.form_one, subject_identifier=self.subject_identifier
         )
-        action_item = ActionItem.objects.get(
-            action_identifier=form_two.action_identifier
-        )
+        action_item = ActionItem.objects.get(action_identifier=form_two.action_identifier)
         model_wrapper = ActionItemModelWrapper(model_obj=action_item)
-        helper = ActionItemHelper(
-            action_item=model_wrapper.object, href=model_wrapper.href
-        )
+        helper = ActionItemHelper(action_item=model_wrapper.object, href=model_wrapper.href)
         context = helper.get_context()
         self.assertEqual(context["reference_obj"], form_two)
         self.assertEqual(context["parent_reference_obj"], self.form_one)
@@ -155,9 +143,7 @@ class TestHelpers(TestCase):
             action_identifier=second_form_two.action_identifier
         )
         model_wrapper = ActionItemModelWrapper(model_obj=action_item)
-        helper = ActionItemHelper(
-            action_item=model_wrapper.object, href=model_wrapper.href
-        )
+        helper = ActionItemHelper(action_item=model_wrapper.object, href=model_wrapper.href)
         context = helper.get_context()
         self.assertEqual(context["reference_obj"], second_form_two)
         self.assertEqual(context["parent_reference_obj"], first_form_two)
@@ -172,13 +158,9 @@ class TestHelpers(TestCase):
             subject_identifier=self.subject_identifier, appointment=appointment
         )
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
-        action_item = ActionItem.objects.get(
-            action_identifier=crf_one.action_identifier
-        )
+        action_item = ActionItem.objects.get(action_identifier=crf_one.action_identifier)
         model_wrapper = ActionItemModelWrapper(model_obj=action_item)
-        helper = ActionItemHelper(
-            action_item=model_wrapper.object, href=model_wrapper.href
-        )
+        helper = ActionItemHelper(action_item=model_wrapper.object, href=model_wrapper.href)
         context = helper.get_context()
         self.assertEqual(context["reference_obj"], crf_one)
         self.assertIsNone(context["parent_reference_obj"])
@@ -194,13 +176,9 @@ class TestHelpers(TestCase):
         )
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
         crf_two = CrfTwo.objects.create(subject_visit=subject_visit)
-        action_item = ActionItem.objects.get(
-            action_identifier=crf_two.action_identifier
-        )
+        action_item = ActionItem.objects.get(action_identifier=crf_two.action_identifier)
         model_wrapper = ActionItemModelWrapper(model_obj=action_item)
-        helper = ActionItemHelper(
-            action_item=model_wrapper.object, href=model_wrapper.href
-        )
+        helper = ActionItemHelper(action_item=model_wrapper.object, href=model_wrapper.href)
         context = helper.get_context()
         self.assertEqual(context["reference_obj"], crf_two)
         self.assertEqual(context["parent_reference_obj"], crf_one)

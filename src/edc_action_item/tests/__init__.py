@@ -1,6 +1,6 @@
 from edc_action_item.admin_site import edc_action_item_admin
 
-from .models import CrfOne, CrfTwo, FormOne, FormTwo, Initial, Followup
+from .models import CrfOne, CrfTwo, Followup, FormOne, FormTwo, Initial
 
 edc_action_item_admin.register(CrfOne)
 edc_action_item_admin.register(CrfTwo)

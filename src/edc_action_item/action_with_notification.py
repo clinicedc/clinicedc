@@ -20,8 +20,7 @@ class ActionWithNotification(Action):
 
     @classmethod
     def notification_cls(action_cls):
-        """Returns a subclass of ActionItemModelNotification.
-        """
+        """Returns a subclass of ActionItemModelNotification."""
         return type(
             f"{action_cls.__name__}Notification",
             (action_cls.notification_super_cls,),

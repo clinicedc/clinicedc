@@ -1,11 +1,11 @@
 from django.test import TestCase, tag
+from edc_test_utils.natural_key_test_helper import NaturalKeyTestHelper
 
 # from django_collect_offline.models import OutgoingTransaction
 # from django_collect_offline.tests import OfflineTestHelper
 from edc_action_item.get_action_type import get_action_type
 from edc_action_item.models import ActionItem
 from edc_action_item.site_action_items import site_action_items
-from edc_test_utils.natural_key_test_helper import NaturalKeyTestHelper
 
 from ..action_items import FormOneAction
 from ..models import SubjectIdentifierModel
@@ -20,9 +20,7 @@ class TestNaturalKey(TestCase):
         self.subject_identifier = "12345"
         ActionItem.subject_identifier_model = "edc_action_item.subjectidentifiermodel"
         self.subject_identifier_model = ActionItem.subject_identifier_model
-        SubjectIdentifierModel.objects.create(
-            subject_identifier=self.subject_identifier
-        )
+        SubjectIdentifierModel.objects.create(subject_identifier=self.subject_identifier)
         site_action_items.registry = {}
 
     def test_natural_key_attrs(self):

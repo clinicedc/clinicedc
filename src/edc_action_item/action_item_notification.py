@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from edc_constants.constants import NEW, OPEN, CLOSED
+from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_notification import Notification
 from edc_utils import get_utcnow
 
@@ -15,7 +15,7 @@ class ActionItemNotificationError(Exception):
 
 
 class ActionItemNotification(Notification):
-    """ A Notification class for the action item model.
+    """A Notification class for the action item model.
 
     This class is the default superclass for an Action's
     notification class.
@@ -119,8 +119,7 @@ class ActionItemNotification(Notification):
         return notify, updated
 
     def notify(self, force_notify=None, use_email=None, use_sms=None, **kwargs):
-        """Overridden to only call `notify` if action name matches.
-        """
+        """Overridden to only call `notify` if action name matches."""
         notified = False
         instance = kwargs.get("instance")
         if instance._meta.label_lower == "edc_action_item.actionitem":
@@ -162,7 +161,7 @@ class ActionItemNotification(Notification):
                             use_email=use_email,
                             use_sms=use_sms,
                             email_body_template=email_body_template,
-                            **kwargs
+                            **kwargs,
                         )
         return notified
 
@@ -193,8 +192,7 @@ class ActionItemNotification(Notification):
         return reference_obj
 
     def get_action_name(self, instance):
-        """Returns that action_name.
-        """
+        """Returns that action_name."""
         try:
             action_name = instance.action_item.action_cls.name
         except AttributeError:
@@ -213,8 +211,7 @@ class ActionItemNotification(Notification):
         return template_options
 
     def post_notification_actions(self, email_sent=None, **kwargs):
-        """Record the datetime of first email sent.
-        """
+        """Record the datetime of first email sent."""
         action_item = kwargs.get("action_item")
         if email_sent and not action_item.emailed:
             action_item.emailed = True

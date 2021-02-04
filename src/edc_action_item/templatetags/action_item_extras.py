@@ -1,6 +1,6 @@
 from django import template
 from django.conf import settings
-from edc_constants.constants import NEW, OPEN, CLOSED, CANCELLED, HIGH_PRIORITY
+from edc_constants.constants import CANCELLED, CLOSED, HIGH_PRIORITY, NEW, OPEN
 
 from ..choices import ACTION_STATUS
 from ..helpers import ActionItemHelper
@@ -24,8 +24,7 @@ def add_action_item_popover(subject_identifier, subject_dashboard_url):
 
 
 @register.inclusion_tag(
-    f"edc_action_item/bootstrap{settings.EDC_BOOTSTRAP}/"
-    "action_item_with_popover.html"
+    f"edc_action_item/bootstrap{settings.EDC_BOOTSTRAP}/" "action_item_with_popover.html"
 )
 def action_item_with_popover(action_item_model_wrapper, tabindex):
     helper = ActionItemHelper(

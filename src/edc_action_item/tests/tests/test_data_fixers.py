@@ -1,16 +1,15 @@
 from django.apps import apps as django_apps
-from django.test import TestCase, tag
 from django.db.models.signals import post_save
+from django.test import TestCase
+
 from edc_action_item.data_fixers import (
-    fix_null_related_action_items,
     fix_null_action_item_fk,
+    fix_null_related_action_items,
 )
-from edc_action_item.models import ActionItem
-from edc_action_item.signals import update_or_create_action_item_on_post_save
+from edc_action_item.models import ActionItem, update_or_create_action_item_on_post_save
 
 from ..action_items import register_actions
-from ..models import FormOne, FormTwo
-from ..models import SubjectIdentifierModel
+from ..models import FormOne, FormTwo, SubjectIdentifierModel
 
 
 class TestUtils(TestCase):
@@ -19,9 +18,7 @@ class TestUtils(TestCase):
         self.subject_identifier_model = ActionItem.subject_identifier_model
         ActionItem.subject_identifier_model = "edc_action_item.subjectidentifiermodel"
         self.subject_identifier = "12345"
-        SubjectIdentifierModel.objects.create(
-            subject_identifier=self.subject_identifier
-        )
+        SubjectIdentifierModel.objects.create(subject_identifier=self.subject_identifier)
 
     def test_fix_null_related_action_items(self):
 
@@ -93,9 +90,7 @@ class TestUtils(TestCase):
 
         # assert related_action_item are NOT None
         form_two_b.refresh_from_db()
-        self.assertEqual(
-            form_one.action_item, form_two_b.action_item.related_action_item
-        )
+        self.assertEqual(form_one.action_item, form_two_b.action_item.related_action_item)
         self.assertEqual(form_one.action_item, form_two_b.related_action_item)
         self.assertEqual(form_two_a.action_item, form_two_b.parent_action_item)
 
@@ -143,9 +138,7 @@ class TestUtils(TestCase):
         )
 
         self.assertEqual(form_one.action_item, form_two_b.parent_action_item)
-        self.assertEqual(
-            form_one.action_item, form_two_b.action_item.parent_action_item
-        )
+        self.assertEqual(form_one.action_item, form_two_b.action_item.parent_action_item)
 
         # fix
         fix_null_related_action_items(django_apps)
@@ -158,37 +151,25 @@ class TestUtils(TestCase):
         form_two_b.parent_action_item.refresh_from_db()
 
         # assert related_action_item are NOT None
-        self.assertEqual(
-            form_one.action_item, form_two_a.action_item.related_action_item
-        )
+        self.assertEqual(form_one.action_item, form_two_a.action_item.related_action_item)
         self.assertEqual(form_one.action_item, form_two_b.related_action_item)
 
         self.assertEqual(form_two_a.parent_action_item, form_two_a.related_action_item)
 
         self.assertEqual(form_one.action_item, form_two_a.parent_action_item)
 
-        self.assertEqual(
-            form_one.action_item, form_two_a.action_item.parent_action_item
-        )
+        self.assertEqual(form_one.action_item, form_two_a.action_item.parent_action_item)
 
         # assert parent was fixed
-        self.assertEqual(
-            form_two_a.action_item, form_two_b.action_item.parent_action_item
-        )
+        self.assertEqual(form_two_a.action_item, form_two_b.action_item.parent_action_item)
         self.assertEqual(form_two_a.action_item, form_two_b.parent_action_item)
 
-        self.assertNotEqual(
-            form_two_b.parent_action_item, form_two_b.related_action_item
-        )
+        self.assertNotEqual(form_two_b.parent_action_item, form_two_b.related_action_item)
 
     def test_fix_null_action_item_fk(self):
         form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
-        FormTwo.objects.create(
-            subject_identifier=self.subject_identifier, form_one=form_one
-        )
-        FormTwo.objects.create(
-            subject_identifier=self.subject_identifier, form_one=form_one
-        )
+        FormTwo.objects.create(subject_identifier=self.subject_identifier, form_one=form_one)
+        FormTwo.objects.create(subject_identifier=self.subject_identifier, form_one=form_one)
         fix_null_action_item_fk(
             django_apps, app_label="edc_action_item", models=["formone", "formtwo"]
         )

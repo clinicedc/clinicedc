@@ -4,8 +4,8 @@ from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel
 from edc_utils import get_utcnow
 
-from .action_type import ActionType
 from .action_model_mixin import ActionModelMixin
+from .action_type import ActionType
 
 
 class ReferenceManager(models.Manager):

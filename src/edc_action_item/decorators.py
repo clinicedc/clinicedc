@@ -1,5 +1,5 @@
-from .site_action_items import site_action_items
 from .action import Action
+from .site_action_items import site_action_items
 
 
 class RegisterNotificationError(Exception):
@@ -7,8 +7,7 @@ class RegisterNotificationError(Exception):
 
 
 def register(**kwargs):
-    """Registers a action_cls.
-    """
+    """Registers a action_cls."""
 
     def _wrapper(action_cls):
 

@@ -1,14 +1,16 @@
+from uuid import uuid4
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
+
 from edc_action_item.action import ActionError
 from edc_action_item.get_action_type import get_action_type
-from edc_action_item.models import ActionType, ActionItem
+from edc_action_item.models import ActionItem, ActionType
 from edc_action_item.site_action_items import (
-    site_action_items,
-    SiteActionError,
     AlreadyRegistered,
+    SiteActionError,
+    site_action_items,
 )
-from uuid import uuid4
 
 from ..action_items import FormZeroAction
 from ..models import SubjectIdentifierModel
@@ -19,9 +21,7 @@ class TestSiteActionItems(TestCase):
         self.subject_identifier_model = ActionItem.subject_identifier_model
         ActionItem.subject_identifier_model = "edc_action_item.subjectidentifiermodel"
         self.subject_identifier = "12345"
-        SubjectIdentifierModel.objects.create(
-            subject_identifier=self.subject_identifier
-        )
+        SubjectIdentifierModel.objects.create(subject_identifier=self.subject_identifier)
         site_action_items.registry = {}
         get_action_type(FormZeroAction)
         self.action_type = ActionType.objects.get(name=FormZeroAction.name)
@@ -52,9 +52,7 @@ class TestSiteActionItems(TestCase):
     def test_action_instance_creates_action_type(self):
 
         ActionType.objects.all().delete()
-        self.assertRaises(
-            ObjectDoesNotExist, ActionType.objects.get, name=FormZeroAction.name
-        )
+        self.assertRaises(ObjectDoesNotExist, ActionType.objects.get, name=FormZeroAction.name)
         site_action_items.register(FormZeroAction)
         FormZeroAction(subject_identifier=self.subject_identifier)
         try:

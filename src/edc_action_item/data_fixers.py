@@ -1,17 +1,19 @@
 import sys
 
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from django.core.exceptions import FieldError
+from django.core.exceptions import (
+    FieldError,
+    MultipleObjectsReturned,
+    ObjectDoesNotExist,
+)
 from django.db import connection
-from django.db.models.signals import post_save, pre_save, post_delete
+from django.db.models.signals import post_delete, post_save, pre_save
 from edc_constants.constants import CLOSED, NEW, OPEN
 
 from .site_action_items import site_action_items
 
 
 def fix_null_historical_action_identifier(app_label, models):
-    """Fix null action_identifiers from previous versions.
-    """
+    """Fix null action_identifiers from previous versions."""
     with connection.cursor() as cursor:
         for model in models:
             cursor.execute(
@@ -22,8 +24,7 @@ def fix_null_historical_action_identifier(app_label, models):
 
 
 def fix_null_action_item_fk(apps, app_label, models):
-    """Re-save instances to update action_item FKs.
-    """
+    """Re-save instances to update action_item FKs."""
     ActionItem = apps.get_model("edc_action_item", "ActionItem")
     post_save.disconnect(dispatch_uid="serialize_on_save")
     pre_save.disconnect(dispatch_uid="requires_consent_on_pre_save")
@@ -40,9 +41,7 @@ def fix_null_action_item_fk(apps, app_label, models):
         ][0]
         if model_cls.action_name:
             for obj in model_cls.objects.all():
-                sys.stdout.write(
-                    f"fixing {model_cls.action_name} action_item for {obj}.\n"
-                )
+                sys.stdout.write(f"fixing {model_cls.action_name} action_item for {obj}.\n")
                 if not obj.action_item:
                     try:
                         obj.action_item_id = ActionItem.objects.get(
@@ -73,10 +72,7 @@ def fix_null_action_items(apps):
         print(e)
     else:
         for action_item in action_items:
-            if (
-                not action_item.parent_action_item
-                and action_item.parent_action_identifier
-            ):
+            if not action_item.parent_action_item and action_item.parent_action_identifier:
                 parent_action_item = ActionItem.objects.get(
                     action_identifier=action_item.parent_action_identifier
                 )
@@ -100,10 +96,7 @@ def fix_null_action_items(apps):
         print(e)
     else:
         for action_item in action_items:
-            if (
-                not action_item.related_action_item
-                and action_item.related_action_identifier
-            ):
+            if not action_item.related_action_item and action_item.related_action_identifier:
                 related_action_item = ActionItem.objects.get(
                     action_identifier=action_item.related_action_identifier
                 )
@@ -122,8 +115,7 @@ def fix_null_action_items(apps):
 
 
 def fix_null_related_action_items(apps):  # noqa
-    """
-    """
+    """"""
     post_save.disconnect(dispatch_uid="serialize_on_save")
     pre_save.disconnect(dispatch_uid="requires_consent_on_pre_save")
     ActionItem = apps.get_model("edc_action_item", "ActionItem")
@@ -156,9 +148,7 @@ def fix_null_related_action_items(apps):  # noqa
                     else:
                         related_action_item = related_reference_obj.action_item
                 if related_action_item:
-                    related_action_items.update(
-                        {related_action_item: related_action_item}
-                    )
+                    related_action_items.update({related_action_item: related_action_item})
                     action_item.related_action_item = related_action_item
                     action_item.save()
                     if reference_obj:
@@ -183,9 +173,7 @@ def fix_null_related_action_items(apps):  # noqa
         )
 
 
-def fix_action_item_sequence(
-    action_item_cls, action_identifier=None, subject_identifier=None
-):
+def fix_action_item_sequence(action_item_cls, action_identifier=None, subject_identifier=None):
     """Verify the parent sequence of action items given the
     related action item.
     """

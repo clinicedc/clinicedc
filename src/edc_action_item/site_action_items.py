@@ -1,18 +1,16 @@
 import copy
 import sys
-
 from collections import OrderedDict
+from importlib import import_module
+
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.utils.module_loading import module_has_submodule
 from edc_notification import AlreadyRegistered as NotificationAlreadyRegistered
 from edc_notification import site_notifications
 from edc_prn.prn import Prn
-from edc_prn.site_prn_forms import (
-    site_prn_forms,
-    AlreadyRegistered as PrnAlreadyRegistered,
-)
-from importlib import import_module
+from edc_prn.site_prn_forms import AlreadyRegistered as PrnAlreadyRegistered
+from edc_prn.site_prn_forms import site_prn_forms
 
 from .create_or_update_action_type import create_or_update_action_type
 from .get_action_type import get_action_type
@@ -29,9 +27,7 @@ class SiteActionError(Exception):
 class SiteActionItemCollection:
     def __init__(self):
         self.registry = OrderedDict()
-        prn = Prn(
-            model="edc_action_item.actionitem", url_namespace="edc_action_item_admin"
-        )
+        prn = Prn(model="edc_action_item.actionitem", url_namespace="edc_action_item_admin")
         site_prn_forms.register(prn)
 
     def __repr__(self):
@@ -80,8 +76,7 @@ class SiteActionItemCollection:
                 pass
 
     def get(self, name):
-        """Returns an action class.
-        """
+        """Returns an action class."""
         if name not in self.registry:
             raise SiteActionError(
                 f"Action does not exist. Did you register the Action? "
@@ -90,8 +85,7 @@ class SiteActionItemCollection:
         return self.registry.get(name)
 
     def get_by_model(self, model=None):
-        """Returns the action_cls linked to this reference model.
-        """
+        """Returns the action_cls linked to this reference model."""
         for action_cls in self.registry.values():
             if action_cls.reference_model == model:
                 return self.get(action_cls.name)
@@ -108,8 +102,7 @@ class SiteActionItemCollection:
         return [Wrapper(action_cls=self.get(name)) for name in names]
 
     def create_or_update_action_types(self):
-        """Populates the ActionType model.
-        """
+        """Populates the ActionType model."""
         for action_cls in self.registry.values():
             create_or_update_action_type(**action_cls.as_dict())
         self.updated_action_types = True

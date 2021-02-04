@@ -1,14 +1,20 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
 from django.test import TestCase, tag
-from edc_action_item.delete_action_item import delete_action_item, ActionItemDeleteError
+from edc_constants.constants import CLOSED, NEW, OPEN
+
+from edc_action_item.delete_action_item import ActionItemDeleteError, delete_action_item
 from edc_action_item.models import ActionItem, ActionType
 from edc_action_item.site_action_items import site_action_items
 from edc_action_item.tests.models import FormTwo
-from edc_constants.constants import CLOSED, OPEN, NEW
 
-from ..action_items import FormOneAction, FormTwoAction, FormThreeAction
-from ..action_items import SingletonAction, register_actions
+from ..action_items import (
+    FormOneAction,
+    FormThreeAction,
+    FormTwoAction,
+    SingletonAction,
+    register_actions,
+)
 from ..models import FormOne, SubjectIdentifierModel
 
 
@@ -18,9 +24,7 @@ class TestAction(TestCase):
         self.subject_identifier_model = ActionItem.subject_identifier_model
         ActionItem.subject_identifier_model = "edc_action_item.subjectidentifiermodel"
         self.subject_identifier = "12345"
-        SubjectIdentifierModel.objects.create(
-            subject_identifier=self.subject_identifier
-        )
+        SubjectIdentifierModel.objects.create(subject_identifier=self.subject_identifier)
         self.assertIn(FormOneAction.name, site_action_items.registry)
         self.assertIn(FormTwoAction.name, site_action_items.registry)
         self.assertIn(FormThreeAction.name, site_action_items.registry)
@@ -74,7 +78,5 @@ class TestAction(TestCase):
             subject_identifier=self.subject_identifier, form_one=form_one
         )
 
-        action_item = ActionItem.objects.get(
-            action_identifier=form_two.action_identifier
-        )
+        action_item = ActionItem.objects.get(action_identifier=form_two.action_identifier)
         self.assertRaises(ProtectedError, action_item.delete)

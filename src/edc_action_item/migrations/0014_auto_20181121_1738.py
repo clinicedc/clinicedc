@@ -9,12 +9,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RemoveField(model_name="actionitemupdate", name="action_item"),
-        migrations.RemoveField(
-            model_name="historicalactionitemupdate", name="action_item"
-        ),
-        migrations.RemoveField(
-            model_name="historicalactionitemupdate", name="history_user"
-        ),
+        migrations.RemoveField(model_name="historicalactionitemupdate", name="action_item"),
+        migrations.RemoveField(model_name="historicalactionitemupdate", name="history_user"),
         migrations.DeleteModel(name="ActionItemUpdate"),
         migrations.DeleteModel(name="HistoricalActionItemUpdate"),
     ]

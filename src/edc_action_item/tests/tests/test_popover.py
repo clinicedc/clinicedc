@@ -1,13 +1,18 @@
 from django.test import TestCase, tag
+from edc_constants.constants import CLOSED, NEW, OPEN
+from edc_model_wrapper import ModelWrapper
+
 from edc_action_item.models import ActionItem, ActionType
 from edc_action_item.site_action_items import site_action_items
 from edc_action_item.templatetags.action_item_extras import action_item_with_popover
-from edc_constants.constants import CLOSED, OPEN, NEW
-from edc_model_wrapper import ModelWrapper
 
-from ..action_items import FormOneAction, FormTwoAction, FormThreeAction
-from ..action_items import register_actions
-from ..models import FormOne, FormTwo, SubjectIdentifierModel, Initial, Followup
+from ..action_items import (
+    FormOneAction,
+    FormThreeAction,
+    FormTwoAction,
+    register_actions,
+)
+from ..models import Followup, FormOne, FormTwo, Initial, SubjectIdentifierModel
 
 
 class TestPopover(TestCase):
@@ -16,9 +21,7 @@ class TestPopover(TestCase):
         self.subject_identifier_model = ActionItem.subject_identifier_model
         ActionItem.subject_identifier_model = "edc_action_item.subjectidentifiermodel"
         self.subject_identifier = "12345"
-        SubjectIdentifierModel.objects.create(
-            subject_identifier=self.subject_identifier
-        )
+        SubjectIdentifierModel.objects.create(subject_identifier=self.subject_identifier)
         self.assertIn(FormOneAction.name, site_action_items.registry)
         self.assertIn(FormTwoAction.name, site_action_items.registry)
         self.assertIn(FormThreeAction.name, site_action_items.registry)
@@ -51,15 +54,11 @@ class TestPopover(TestCase):
         obj = ActionItem.objects.get(action_identifier=form_two.action_identifier)
         wrapper = ActionItemModelWrapper(model_obj=obj)
         context = action_item_with_popover(wrapper, 0)
-        self.assertEqual(
-            context.get("parent_action_identifier"), form_one.action_identifier
-        )
+        self.assertEqual(context.get("parent_action_identifier"), form_one.action_identifier)
         self.assertEqual(context.get("parent_action_item"), form_one.action_item)
 
         context = action_item_with_popover(wrapper, 0)
-        self.assertEqual(
-            context.get("parent_action_identifier"), form_one.action_identifier
-        )
+        self.assertEqual(context.get("parent_action_identifier"), form_one.action_identifier)
         self.assertEqual(context.get("parent_action_item"), form_one.action_item)
 
     def test_popover_templatetag_action_url_if_reference_model_exists(self):
@@ -151,9 +150,7 @@ class TestPopover(TestCase):
         )
 
         # assert followup_obj has action identifier
-        self.assertEqual(
-            followup_obj.action_identifier, followup_action_obj.action_identifier
-        )
+        self.assertEqual(followup_obj.action_identifier, followup_action_obj.action_identifier)
         self.assertIsNotNone(followup_obj.action_identifier)
 
         # requery followup action
@@ -183,13 +180,9 @@ class TestPopover(TestCase):
 
         Initial.objects.create(subject_identifier=self.subject_identifier)
 
-        initial_obj1 = Initial.objects.create(
-            subject_identifier=self.subject_identifier
-        )
+        initial_obj1 = Initial.objects.create(subject_identifier=self.subject_identifier)
 
-        initial_obj2 = Initial.objects.create(
-            subject_identifier=self.subject_identifier
-        )
+        initial_obj2 = Initial.objects.create(subject_identifier=self.subject_identifier)
 
         followup_action_obj = ActionItem.objects.get(
             parent_action_item=initial_obj1.action_item
@@ -222,9 +215,7 @@ class TestPopover(TestCase):
 
         Initial.objects.create(subject_identifier=self.subject_identifier)
 
-        initial_obj1 = Initial.objects.create(
-            subject_identifier=self.subject_identifier
-        )
+        initial_obj1 = Initial.objects.create(subject_identifier=self.subject_identifier)
 
         Initial.objects.create(subject_identifier=self.subject_identifier)
 

@@ -4,13 +4,10 @@ from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_constants.constants import NEW
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
-from edc_model.models import BaseUuidModel
-from edc_model.models import HistoricalRecords
+from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_notification.model_mixins import NotificationModelMixin
-from edc_sites.models import (
-    CurrentSiteManager as BaseCurrentSiteManager,
-    SiteModelMixin,
-)
+from edc_sites.models import CurrentSiteManager as BaseCurrentSiteManager
+from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
 
 from ..choices import ACTION_STATUS, PRIORITY
@@ -76,9 +73,7 @@ class ActionItem(
         ),
     )
 
-    related_reference_model = models.CharField(
-        max_length=100, null=True, editable=False
-    )
+    related_reference_model = models.CharField(max_length=100, null=True, editable=False)
 
     related_action_identifier = models.CharField(
         max_length=50,
@@ -149,16 +144,13 @@ class ActionItem(
         )
 
     def save(self, *args, **kwargs):
-        """See also signals and action_cls.
-        """
+        """See also signals and action_cls."""
         if not self.id:
             # a new persisted action item always has
             # a unique action identifier
             self.action_identifier = ActionIdentifier().identifier
             # subject_identifier
-            subject_identifier_model_cls = django_apps.get_model(
-                self.subject_identifier_model
-            )
+            subject_identifier_model_cls = django_apps.get_model(self.subject_identifier_model)
             try:
                 subject_identifier_model_cls.objects.get(
                     subject_identifier=self.subject_identifier
@@ -189,14 +181,12 @@ class ActionItem(
 
     @property
     def action_cls(self):
-        """Returns the action_cls.
-        """
+        """Returns the action_cls."""
         return site_action_items.get(self.action_type.name)
 
     @property
     def action(self):
-        """Returns the instantiated action_cls.
-        """
+        """Returns the instantiated action_cls."""
         return self.action_cls(
             subject_identifier=self.subject_identifier,
             action_identifier=self.action_identifier,
@@ -209,9 +199,7 @@ class ActionItem(
 
     @property
     def reference_obj(self):
-        return self.reference_model_cls.objects.get(
-            action_identifier=self.action_identifier
-        )
+        return self.reference_model_cls.objects.get(action_identifier=self.action_identifier)
 
     @property
     def parent_reference_obj(self):
@@ -231,8 +219,7 @@ class ActionItem(
 
     @property
     def identifier(self):
-        """Returns a shortened action identifier.
-        """
+        """Returns a shortened action identifier."""
         return self.action_identifier[-9:]
 
     class Meta(BaseUuidModel.Meta):

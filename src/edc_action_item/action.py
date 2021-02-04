@@ -2,16 +2,18 @@ import logging
 
 from django.apps import apps as django_apps
 from django.conf import settings
-from django.core.exceptions import MultipleObjectsReturned
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import (
+    MultipleObjectsReturned,
+    ObjectDoesNotExist,
+    ValidationError,
+)
 from django.core.management.color import color_style
 from django.db.models import Q
 from django.utils.formats import localize
-from edc_model.constants import DEFAULT_BASE_FIELDS
 from edc_constants.constants import CLOSED, NEW, OPEN
+from edc_model.constants import DEFAULT_BASE_FIELDS
 
-from .create_action_item import SingletonActionItemError
-from .create_action_item import create_action_item
+from .create_action_item import SingletonActionItemError, create_action_item
 from .get_action_type import get_action_type
 from .site_action_items import site_action_items
 
@@ -193,28 +195,11 @@ class Action:
                 )
                 try:
                     self._action_item = (
-                        self.action_item_model_cls()
-                        .objects.using(self.using)
-                        .get(**opts)
+                        self.action_item_model_cls().objects.using(self.using).get(**opts)
                     )
                 except ObjectDoesNotExist:
-                    try:
-                        self._action_item = create_action_item(
-                            self.__class__,
-                            parent_action_item=self.parent_action_item,
-                            priority=self.get_priority(),
-                            using=self.using,
-                            **opts,
-                        )
-                    except SingletonActionItemError:
-                        self._action_item = (
-                            self.action_item_model_cls()
-                            .objects.using(self.using)
-                            .get(
-                                subject_identifier=self.subject_identifier,
-                                action_type=get_action_type(self.__class__),
-                            )
-                        )
+                    # does not exist so create ...
+                    self._create_new_action_item(**opts)
                 except MultipleObjectsReturned:
                     self._action_item = (
                         self.action_item_model_cls()
@@ -233,34 +218,52 @@ class Action:
                 raise ActionError(f"Unable to get or create ActionItem. Got {opts}.")
         return self._action_item
 
+    def _create_new_action_item(self, **opts):
+        """Create a new action item.
+
+        Called only after checking.
+        """
+        try:
+            self._action_item = create_action_item(
+                self.__class__,
+                parent_action_item=self.parent_action_item,
+                priority=self.get_priority(),
+                using=self.using,
+                **opts,
+            )
+        except SingletonActionItemError:
+            self._action_item = (
+                self.action_item_model_cls()
+                .objects.using(self.using)
+                .get(
+                    subject_identifier=self.subject_identifier,
+                    action_type=get_action_type(self.__class__),
+                )
+            )
+
     @classmethod
     def action_item_model_cls(cls):
-        """Returns the ActionItem model class.
-        """
+        """Returns the ActionItem model class."""
         return django_apps.get_model(cls.action_item_model)
 
     @classmethod
     def action_type_model_cls(cls):
-        """Returns the ActionType model class.
-        """
+        """Returns the ActionType model class."""
         return django_apps.get_model(cls.action_type_model)
 
     @classmethod
     def reference_model_cls(cls):
-        """Returns the reference model class.
-        """
+        """Returns the reference model class."""
         return django_apps.get_model(cls.reference_model)
 
     @classmethod
     def related_reference_model_cls(cls):
-        """Returns the related reference model class
-        """
+        """Returns the related reference model class"""
         return django_apps.get_model(cls.related_reference_model)
 
     @classmethod
     def as_dict(cls):
-        """Returns select class attrs as a dictionary.
-        """
+        """Returns select class attrs as a dictionary."""
         dct = {k: v for k, v in cls.__dict__.items() if not k.startswith("_")}
         try:
             dct.update(reference_model=cls.reference_model.lower())
@@ -277,14 +280,10 @@ class Action:
                 True if cls.show_on_dashboard is None else cls.show_on_dashboard
             ),
             show_link_to_changelist=(
-                True
-                if cls.show_link_to_changelist is None
-                else cls.show_link_to_changelist
+                True if cls.show_link_to_changelist is None else cls.show_link_to_changelist
             ),
             create_by_user=(True if cls.create_by_user is None else cls.create_by_user),
-            create_by_action=(
-                True if cls.create_by_action is None else cls.create_by_action
-            ),
+            create_by_action=(True if cls.create_by_action is None else cls.create_by_action),
             instructions=cls.instructions,
         )
         return dct
@@ -324,15 +323,11 @@ class Action:
         next_actions = list(set(self.get_next_actions()))
         for action_name in next_actions:
             action_cls = (
-                self.__class__
-                if action_name == "self"
-                else site_action_items.get(action_name)
+                self.__class__ if action_name == "self" else site_action_items.get(action_name)
             )
             action_type = get_action_type(action_cls)
             if action_type.related_reference_model:
-                related_action_item = (
-                    self.action_item.related_action_item or self.action_item
-                )
+                related_action_item = self.action_item.related_action_item or self.action_item
             else:
                 related_action_item = None
             action_cls(
@@ -392,9 +387,7 @@ class Action:
         changed_message = {}
         try:
             history = (
-                self.reference_obj.history.using(self.using)
-                .all()
-                .order_by("-history_date")[1]
+                self.reference_obj.history.using(self.using).all().order_by("-history_date")[1]
             )
         except IndexError:
             pass
@@ -410,9 +403,7 @@ class Action:
             ]
             for field_name in field_names:
                 try:
-                    if getattr(history, field_name) != getattr(
-                        self.reference_obj, field_name
-                    ):
+                    if getattr(history, field_name) != getattr(self.reference_obj, field_name):
                         changed_message.update(
                             {field_name: getattr(self.reference_obj, field_name)}
                         )

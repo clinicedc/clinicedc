@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls.base import reverse
 from django.utils.safestring import mark_safe
-from edc_model_admin import audit_fieldset_tuple, SimpleHistoryAdmin
+from edc_model_admin import SimpleHistoryAdmin, audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
 from ..admin_site import edc_action_item_admin
@@ -131,7 +131,5 @@ class ActionItemAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "action_type":
-            kwargs["queryset"] = db_field.related_model.objects.filter(
-                create_by_user=True
-            )
+            kwargs["queryset"] = db_field.related_model.objects.filter(create_by_user=True)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)

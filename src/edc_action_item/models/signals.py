@@ -1,11 +1,13 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models.signals import post_save, post_delete, m2m_changed
+from django.db.models.signals import m2m_changed, post_delete, post_save
 from django.dispatch import receiver
-from edc_constants.constants import NEW, OPEN, CLOSED
+from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_notification import site_notifications
 from simple_history.signals import post_create_historical_record
 
-from .models import ActionItem, ActionModelMixin, ActionNoManagersModelMixin
+from ..utils import reset_and_delete_action_item
+from .action_item import ActionItem
+from .action_model_mixin import ActionModelMixin, ActionNoManagersModelMixin
 
 
 def update_or_create_action_item(instance, created, using):
@@ -36,9 +38,7 @@ def update_action_item_reason(instance):
         instance.save_base(update_fields=["action_item_reason"])
 
 
-@receiver(
-    m2m_changed, weak=False, dispatch_uid="update_action_item_reason_on_m2m_changed"
-)
+@receiver(m2m_changed, weak=False, dispatch_uid="update_action_item_reason_on_m2m_changed")
 def update_action_item_reason_on_m2m_changed(action, instance, **kwargs):
     if "historical" not in instance._meta.label_lower and isinstance(
         instance, (ActionModelMixin, ActionNoManagersModelMixin)
@@ -46,9 +46,7 @@ def update_action_item_reason_on_m2m_changed(action, instance, **kwargs):
         update_action_item_reason(instance)
 
 
-@receiver(
-    m2m_changed, weak=False, dispatch_uid="update_or_create_action_item_on_m2m_change"
-)
+@receiver(m2m_changed, weak=False, dispatch_uid="update_or_create_action_item_on_m2m_change")
 def update_or_create_action_item_on_m2m_change(action, instance, using, **kwargs):
     if "historical" not in instance._meta.label_lower and isinstance(
         instance, (ActionModelMixin, ActionNoManagersModelMixin)
@@ -56,9 +54,7 @@ def update_or_create_action_item_on_m2m_change(action, instance, using, **kwargs
         update_or_create_action_item(instance, False, using)
 
 
-@receiver(
-    post_save, weak=False, dispatch_uid="update_or_create_action_item_on_post_save"
-)
+@receiver(post_save, weak=False, dispatch_uid="update_or_create_action_item_on_post_save")
 def update_or_create_action_item_on_post_save(
     sender, instance, raw, created, using, update_fields, **kwargs
 ):
@@ -97,22 +93,7 @@ def action_on_reference_model_post_delete(sender, instance, using, **kwargs):
             if "get_action_cls" not in str(e):
                 raise
         else:
-            action_item = ActionItem.objects.using(using).get(
-                action_identifier=instance.action_identifier
-            )
-            action_item.status = NEW
-            action_item.linked_to_reference = False
-            action_item.save(using=using)
-            for obj in ActionItem.objects.using(using).filter(
-                parent_action_item=instance.action_item, status=NEW
-            ):
-                obj.delete(using=using)
-            for obj in ActionItem.objects.using(using).filter(
-                related_action_item=instance.action_item, status=NEW
-            ):
-                obj.delete(using=using)
-            if action_item.action.delete_with_reference_object:
-                action_item.delete()
+            reset_and_delete_action_item(instance, using)
     elif isinstance(instance, ActionItem):
         if instance.parent_action_item:
             try:
@@ -151,6 +132,6 @@ def action_item_notification_on_post_create_historical_record(
                 history_user=history_user,
                 history_change_reason=history_change_reason,
                 fail_silently=True,
-                **kwargs
+                **kwargs,
             )
             site_notifications.notify(**opts)

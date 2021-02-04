@@ -4,8 +4,7 @@ from edc_constants.choices import YES_NO
 from edc_constants.constants import YES
 from edc_crf.model_mixins import CrfWithActionModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
-from edc_model.models import BaseUuidModel
-from edc_model.models import HistoricalRecords
+from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
 
@@ -196,7 +195,9 @@ class CrfTwo(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
 
 class CrfLongitudinalOne(
-    CrfWithActionModelMixin, SiteModelMixin, BaseUuidModel,
+    CrfWithActionModelMixin,
+    SiteModelMixin,
+    BaseUuidModel,
 ):
     action_name = "submit-crf-longitudinal-one"
 
@@ -208,7 +209,9 @@ class CrfLongitudinalOne(
 
 
 class CrfLongitudinalTwo(
-    CrfWithActionModelMixin, SiteModelMixin, BaseUuidModel,
+    CrfWithActionModelMixin,
+    SiteModelMixin,
+    BaseUuidModel,
 ):
     action_name = "submit-crf-longitudinal-two"
 
