@@ -1,7 +1,8 @@
+from edc_visit_tracking.constants import UNSCHEDULED
+
 from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
-from edc_visit_tracking.constants import UNSCHEDULED
 
 
 class AppointmentTestCaseMixin:

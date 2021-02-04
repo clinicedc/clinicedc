@@ -1,13 +1,13 @@
+from uuid import UUID
+
 from django.conf import settings
 from django.db import models
-
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_offstudy.model_mixins import OffstudyVisitModelMixin
 from edc_timepoint.model_mixins import TimepointModelMixin
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
-from uuid import UUID
 
-from ..choices import APPT_TYPE, APPT_STATUS, APPT_REASON
+from ..choices import APPT_REASON, APPT_STATUS, APPT_TYPE
 from ..constants import NEW_APPT
 from ..exceptions import UnknownVisitCode
 from ..managers import AppointmentManager

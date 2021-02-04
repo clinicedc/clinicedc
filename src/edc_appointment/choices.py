@@ -1,5 +1,12 @@
-from .constants import IN_PROGRESS_APPT, INCOMPLETE_APPT, COMPLETE_APPT
-from .constants import SCHEDULED_APPT, UNSCHEDULED_APPT, CANCELLED_APPT, NEW_APPT
+from .constants import (
+    CANCELLED_APPT,
+    COMPLETE_APPT,
+    IN_PROGRESS_APPT,
+    INCOMPLETE_APPT,
+    NEW_APPT,
+    SCHEDULED_APPT,
+    UNSCHEDULED_APPT,
+)
 
 APPT_REASON = (
     (SCHEDULED_APPT, "Routine / Scheduled"),

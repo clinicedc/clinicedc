@@ -1,16 +1,15 @@
 import os
+from datetime import datetime
 
 from arrow.arrow import Arrow
-from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.test import TestCase, tag
 from django.test.utils import override_settings
-from edc_utils import get_utcnow
 from edc_facility.import_holidays import import_holidays
-from edc_visit_schedule import VisitSchedule, Schedule, Visit
-from edc_visit_schedule import site_visit_schedules
+from edc_utils import get_utcnow
+from edc_visit_schedule import Schedule, Visit, VisitSchedule, site_visit_schedules
 
 from ..creators import AppointmentCreator
 from ..models import Appointment
@@ -243,9 +242,7 @@ class TestAppointmentCreator2(AppointmentCreatorTestCase):
             timepoint_datetime=appt_datetime,
         )
         self.assertEqual(Appointment.objects.all()[0], creator.appointment)
-        self.assertEqual(
-            Appointment.objects.all()[0].appt_datetime, expected_appt_datetime
-        )
+        self.assertEqual(Appointment.objects.all()[0].appt_datetime, expected_appt_datetime)
 
         appt_datetime = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
         creator = AppointmentCreator(

@@ -1,6 +1,6 @@
 from django import template
-from django.urls import reverse
 from django.apps import apps as django_apps
+from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 
 register = template.Library()
@@ -70,8 +70,7 @@ class ContinuationAppointmentAnchor(template.Node):
 
 @register.tag(name="continuation_appointment_anchor")
 def continuation_appointment_anchor(parser, token):
-    """Compilation function for renderer ContinuationAppointmentUrl.
-    """
+    """Compilation function for renderer ContinuationAppointmentUrl."""
     try:
         _, appointment, dashboard_type, extra_url_context = token.split_contents()
     except ValueError:
@@ -83,8 +82,7 @@ def continuation_appointment_anchor(parser, token):
 
 @register.filter(name="appt_type")
 def appt_type(value):
-    """Filters appointment.appt_type.
-    """
+    """Filters appointment.appt_type."""
     if value == "clinic":
         retval = "Clin"
     elif value == "telephone":

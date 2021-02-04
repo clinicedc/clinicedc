@@ -1,10 +1,9 @@
-import arrow
-
 from copy import deepcopy
 from datetime import datetime
 
+import arrow
 from dateutil._common import weekday
-from dateutil.relativedelta import relativedelta, SU, MO, TU, WE, TH, FR, SA
+from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
 from django.test import TestCase, tag
 from edc_facility.import_holidays import import_holidays
 from edc_visit_schedule.schedule.visit_collection import VisitCollection
@@ -69,13 +68,9 @@ class TestApptDatetimes(TestCase):
             subject_identifier = f"12345{i}"
             dt = datetime(2017, 1, 7) + relativedelta(days=i)
             now = arrow.Arrow.fromdatetime(dt, tzinfo="UTC").datetime
-            self.helper = self.helper_cls(
-                subject_identifier=subject_identifier, now=now
-            )
+            self.helper = self.helper_cls(subject_identifier=subject_identifier, now=now)
             self.helper.consent_and_put_on_schedule()
-            appointments = Appointment.objects.filter(
-                subject_identifier=subject_identifier
-            )
+            appointments = Appointment.objects.filter(subject_identifier=subject_identifier)
             appt_datetimes = [obj.appt_datetime for obj in appointments]
             base_appt_datetime = appt_datetimes[0]
             for index, appt_datetime in enumerate(appt_datetimes):
@@ -85,8 +80,7 @@ class TestApptDatetimes(TestCase):
 
     @tag("appt")
     def test_appointments_creation_dates2(self):
-        """Assert skips SA, SU.
-        """
+        """Assert skips SA, SU."""
         self.register_visit_schedule(facility_name="5-day-clinic")
         base_appt_datetime = datetime(2017, 1, 7)
         self.assertTrue(weekday(base_appt_datetime.weekday()), SA)
@@ -139,8 +133,7 @@ class TestApptDatetimes(TestCase):
         self.assertTrue(weekday(appt_datetimes[3].weekday()), MO)
 
     def test_appointments_creation_dates3(self):
-        """Assert skips FR, SA, SU, MO.
-        """
+        """Assert skips FR, SA, SU, MO."""
         self.register_visit_schedule(facility_name="3-day-clinic")
         base_appt_datetime = datetime(2017, 1, 7)
         self.assertTrue(weekday(base_appt_datetime.weekday()), SA)

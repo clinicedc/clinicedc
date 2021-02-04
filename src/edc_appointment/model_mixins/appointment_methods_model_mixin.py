@@ -10,19 +10,16 @@ class AppointmentMethodsModelError(Exception):
 
 class AppointmentMethodsModelMixin(models.Model):
 
-    """Mixin of methods for the appointment model only.
-    """
+    """Mixin of methods for the appointment model only."""
 
     @property
     def visit(self):
-        """Returns the related visit model instance.
-        """
+        """Returns the related visit model instance."""
         return getattr(self, self.related_visit_model_attr())
 
     @property
     def facility(self):
-        """Returns the facility instance for this facility name.
-        """
+        """Returns the facility instance for this facility name."""
         app_config = django_apps.get_app_config("edc_facility")
         return app_config.get_facility(name=self.facility_name)
 

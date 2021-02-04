@@ -3,18 +3,17 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.base import ContextMixin
 
 from ..constants import (
-    NEW_APPT,
+    CANCELLED_APPT,
+    COMPLETE_APPT,
     IN_PROGRESS_APPT,
     INCOMPLETE_APPT,
-    COMPLETE_APPT,
-    CANCELLED_APPT,
+    NEW_APPT,
 )
 
 
 class AppointmentViewMixin(ContextMixin):
 
-    """A view mixin to handle appointments on the dashboard.
-    """
+    """A view mixin to handle appointments on the dashboard."""
 
     appointment_model_wrapper_cls = None
 
@@ -77,8 +76,7 @@ class AppointmentViewMixin(ContextMixin):
 
     @property
     def appointments(self):
-        """Returns a Queryset of all appointments for this subject.
-        """
+        """Returns a Queryset of all appointments for this subject."""
         if not self._appointments:
             self._appointments = self.appointment_model_cls.objects.filter(
                 subject_identifier=self.subject_identifier
@@ -87,8 +85,7 @@ class AppointmentViewMixin(ContextMixin):
 
     @property
     def appointments_wrapped(self):
-        """Returns a list of wrapped appointments.
-        """
+        """Returns a list of wrapped appointments."""
         if not self._wrapped_appointments:
             if self.appointments:
                 wrapped = [

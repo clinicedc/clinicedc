@@ -5,11 +5,13 @@ from django.urls.base import reverse
 from django.utils.safestring import mark_safe
 from django.views.generic.base import View
 
-from ..creators import AppointmentInProgressError
-from ..creators import InvalidParentAppointmentMissingVisitError
-from ..creators import InvalidParentAppointmentStatusError
-from ..creators import UnscheduledAppointmentCreator
-from ..creators import UnscheduledAppointmentError
+from ..creators import (
+    AppointmentInProgressError,
+    InvalidParentAppointmentMissingVisitError,
+    InvalidParentAppointmentStatusError,
+    UnscheduledAppointmentCreator,
+    UnscheduledAppointmentError,
+)
 
 
 class UnscheduledAppointmentView(View):
@@ -39,9 +41,7 @@ class UnscheduledAppointmentView(View):
         else:
             messages.success(
                 self.request,
-                mark_safe(
-                    f"Appointment {creator.appointment} was created successfully."
-                ),
+                mark_safe(f"Appointment {creator.appointment} was created successfully."),
             )
             messages.warning(
                 self.request,

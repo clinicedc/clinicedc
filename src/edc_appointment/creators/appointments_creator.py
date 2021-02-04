@@ -1,5 +1,4 @@
 import arrow
-
 from django.apps import apps as django_apps
 from django.db.models.deletion import ProtectedError
 from edc_facility import FacilityError

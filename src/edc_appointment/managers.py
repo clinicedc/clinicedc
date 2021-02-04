@@ -132,9 +132,7 @@ class AppointmentManager(models.Manager):
         try:
             last_appointment = [
                 obj
-                for obj in self.filter(**options).order_by(
-                    "timepoint", "visit_code_sequence"
-                )
+                for obj in self.filter(**options).order_by("timepoint", "visit_code_sequence")
             ][-1]
         except IndexError:
             last_appointment = None
@@ -239,9 +237,7 @@ class AppointmentManager(models.Manager):
         # delete future appointments until the first with a
         # visit report
         deleted = 0
-        appointments = self.filter(**options).order_by(
-            "timepoint", "visit_code_sequence"
-        )
+        appointments = self.filter(**options).order_by("timepoint", "visit_code_sequence")
         for appointment in appointments.reverse():
             try:
                 with transaction.atomic():

@@ -1,7 +1,8 @@
-from arrow import arrow
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
 from decimal import Decimal
+
+from arrow import arrow
+from dateutil.relativedelta import relativedelta
 from django.forms import ValidationError
 from django.test import TestCase
 from edc_facility.import_holidays import import_holidays
@@ -43,17 +44,14 @@ class TestAppointmentForm(TestCase):
         for i in [0, 1]:
             Appointment.objects.create(
                 subject_identifier=appointments[i].subject_identifier,
-                appt_datetime=appointments[i].appt_datetime
-                + relativedelta(hours=i + 1),
+                appt_datetime=appointments[i].appt_datetime + relativedelta(hours=i + 1),
                 timepoint=appointments[i].timepoint + Decimal(str(i / 10)),
                 visit_code=appointments[i].visit_code,
                 visit_code_sequence=i + 1,
                 visit_schedule_name=appointments[i].visit_schedule_name,
                 schedule_name=appointments[i].schedule_name,
             )
-        appointments = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         self.assertEqual(
             [f"{obj.visit_code}.{obj.visit_code_sequence}" for obj in appointments],
             ["1000.0", "1000.1", "1000.2", "2000.0", "3000.0", "4000.0"],
@@ -62,15 +60,9 @@ class TestAppointmentForm(TestCase):
         self.assertIsNone(appointments[0].get_previous())
         self.assertEqual(appointments[4], appointments[5].get_previous())
         self.assertEqual(appointments[0], appointments[3].get_previous())
-        self.assertEqual(
-            appointments[0], appointments[1].get_previous(include_interim=True)
-        )
-        self.assertEqual(
-            appointments[1], appointments[2].get_previous(include_interim=True)
-        )
-        self.assertEqual(
-            appointments[2], appointments[3].get_previous(include_interim=True)
-        )
+        self.assertEqual(appointments[0], appointments[1].get_previous(include_interim=True))
+        self.assertEqual(appointments[1], appointments[2].get_previous(include_interim=True))
+        self.assertEqual(appointments[2], appointments[3].get_previous(include_interim=True))
 
     def test_(self):
         try:
@@ -128,16 +120,13 @@ class TestAppointmentForm(TestCase):
         Validate the visit_code_sequence
         """
         self.helper.consent_and_put_on_schedule()
-        appointments = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
 
         # add continuation appt (visit_code_sequence=1)
         for i in [0, 1]:
             Appointment.objects.create(
                 subject_identifier=appointments[i].subject_identifier,
-                appt_datetime=appointments[i].appt_datetime
-                + relativedelta(hours=i + 1),
+                appt_datetime=appointments[i].appt_datetime + relativedelta(hours=i + 1),
                 timepoint=appointments[i].timepoint + Decimal(str(i / 10)),
                 visit_code=appointments[i].visit_code,
                 visit_code_sequence=i + 1,
@@ -145,9 +134,7 @@ class TestAppointmentForm(TestCase):
                 schedule_name=appointments[i].schedule_name,
             )
 
-        appointments = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
 
         # appointments is
         # 1000.0, 1000.1, 1000.2 2000.0, 3000.0, 4000.0

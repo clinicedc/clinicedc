@@ -1,13 +1,14 @@
+from edc_constants.constants import NEW
+from edc_crf.models import CrfStatus
+from edc_metadata import REQUIRED
+from edc_metadata.models import CrfMetadata
+
 from edc_appointment.constants import (
     COMPLETE_APPT,
     IN_PROGRESS_APPT,
     INCOMPLETE_APPT,
     NEW_APPT,
 )
-from edc_constants.constants import NEW
-from edc_crf.models import CrfStatus
-from edc_metadata import REQUIRED
-from edc_metadata.models import CrfMetadata
 
 
 def appointment_mark_as_done(modeladmin, request, queryset):

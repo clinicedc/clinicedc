@@ -1,13 +1,12 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
-from edc_model_admin import audit_fieldset_tuple, SimpleHistoryAdmin
+from edc_model_admin import SimpleHistoryAdmin, audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
-from edc_visit_schedule import off_schedule_or_raise, OnScheduleError
+from edc_visit_schedule import OnScheduleError, off_schedule_or_raise
 from edc_visit_schedule.fieldsets import (
-    visit_schedule_fieldset_tuple,
     visit_schedule_fields,
+    visit_schedule_fieldset_tuple,
 )
-from import_export.admin import ExportActionMixin
 
 from .admin_actions import appointment_mark_as_done, appointment_mark_as_new
 from .admin_site import edc_appointment_admin
@@ -18,9 +17,7 @@ from .models import Appointment
 
 
 @admin.register(Appointment, site=edc_appointment_admin)
-class AppointmentAdmin(
-    ModelAdminSubjectDashboardMixin, ExportActionMixin, SimpleHistoryAdmin
-):
+class AppointmentAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
 
     show_cancel = True
     form = AppointmentForm

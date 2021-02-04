@@ -63,8 +63,7 @@ class AppointmentCreator:
         try:
             if is_naive(timepoint_datetime):
                 raise ValueError(
-                    f"Naive datetime not allowed. {repr(self)}. "
-                    f"Got {timepoint_datetime}"
+                    f"Naive datetime not allowed. {repr(self)}. " f"Got {timepoint_datetime}"
                 )
             else:
                 self.timepoint_datetime = timepoint_datetime
@@ -77,16 +76,13 @@ class AppointmentCreator:
         # to timepoint_datetime still apply.
         if suggested_datetime and is_naive(suggested_datetime):
             raise ValueError(
-                f"Naive datetime not allowed. {repr(self)}. "
-                f"Got {suggested_datetime}"
+                f"Naive datetime not allowed. {repr(self)}. " f"Got {suggested_datetime}"
             )
         else:
             self.suggested_datetime = suggested_datetime or self.timepoint_datetime
         self.facility = facility or visit.facility
         if not self.facility:
-            raise AppointmentCreatorError(
-                f"facility_name not defined. See {repr(visit)}"
-            )
+            raise AppointmentCreatorError(f"facility_name not defined. See {repr(visit)}")
         self.appointment
 
     def __repr__(self):
@@ -100,13 +96,10 @@ class AppointmentCreator:
 
     @property
     def appointment(self):
-        """Returns a newly created or updated appointment model instance.
-        """
+        """Returns a newly created or updated appointment model instance."""
         if not self._appointment:
             try:
-                self._appointment = self.appointment_model_cls.objects.get(
-                    **self.options
-                )
+                self._appointment = self.appointment_model_cls.objects.get(**self.options)
             except ObjectDoesNotExist:
                 self._appointment = self._create()
             else:
@@ -131,8 +124,7 @@ class AppointmentCreator:
         return options
 
     def _create(self):
-        """Returns a newly created appointment model instance.
-        """
+        """Returns a newly created appointment model instance."""
         try:
             with transaction.atomic():
                 appointment = self.appointment_model_cls.objects.create(
@@ -152,8 +144,7 @@ class AppointmentCreator:
         return appointment
 
     def _update(self, appointment=None):
-        """Returns an updated appointment model instance.
-        """
+        """Returns an updated appointment model instance."""
         appointment.appt_datetime = self.appt_datetime
         appointment.timepoint_datetime = self.timepoint_datetime
         appointment.save()
@@ -187,8 +178,7 @@ class AppointmentCreator:
 
     @property
     def appointment_model_cls(self):
-        """Returns the appointment model class.
-        """
+        """Returns the appointment model class."""
         return django_apps.get_model("edc_appointment.appointment")
 
     @property

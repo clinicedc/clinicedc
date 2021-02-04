@@ -1,10 +1,10 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
-from edc_appointment.constants import CANCELLED_APPT
-from edc_utils import formatted_datetime
-from edc_utils import get_utcnow
+from edc_utils import formatted_datetime, get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+
+from edc_appointment.constants import CANCELLED_APPT
 
 from ..managers import AppointmentDeleteError
 from ..models import Appointment
@@ -41,13 +41,13 @@ def appointment_post_save(sender, instance, raw, created, using, **kwargs):
                     instance.visit_model_cls().objects.get(appointment=instance)
                 except ObjectDoesNotExist:
                     instance.delete()
-        try:
-            if not instance.time_point_status:
-                instance.time_point_status
-                instance.save(update_fields=["time_point_status"])
-        except AttributeError as e:
-            if "time_point_status" not in str(e):
-                raise
+        # try:
+        #     if not instance.time_point_status:
+        #         instance.time_point_status
+        #         instance.save(update_fields=["time_point_status"])
+        # except AttributeError as e:
+        #     if "time_point_status" not in str(e):
+        #         raise
 
 
 @receiver(pre_delete, weak=False, dispatch_uid="appointments_on_pre_delete")
@@ -77,11 +77,7 @@ def appointments_on_pre_delete(sender, instance, using, **kwargs):
                     f"first."
                 )
             else:
-                if (
-                    onschedule_datetime
-                    <= instance.appt_datetime
-                    <= offschedule_datetime
-                ):
+                if onschedule_datetime <= instance.appt_datetime <= offschedule_datetime:
                     raise AppointmentDeleteError(
                         f"Appointment may not be deleted. "
                         f"Subject {instance.subject_identifier} is on schedule "

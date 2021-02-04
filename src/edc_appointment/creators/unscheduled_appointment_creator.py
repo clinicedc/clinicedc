@@ -1,8 +1,14 @@
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from ..constants import COMPLETE_APPT, INCOMPLETE_APPT, NEW_APPT, UNSCHEDULED_APPT
-from ..constants import CANCELLED_APPT, IN_PROGRESS_APPT
+from ..constants import (
+    CANCELLED_APPT,
+    COMPLETE_APPT,
+    IN_PROGRESS_APPT,
+    INCOMPLETE_APPT,
+    NEW_APPT,
+    UNSCHEDULED_APPT,
+)
 from .appointment_creator import AppointmentCreator
 
 
@@ -47,9 +53,7 @@ class UnscheduledAppointmentCreator:
         self.schedule_name = schedule_name
         self.visit_code = visit_code
         self.facility = facility
-        self.visit_schedule = site_visit_schedules.get_visit_schedule(
-            visit_schedule_name
-        )
+        self.visit_schedule = site_visit_schedules.get_visit_schedule(visit_schedule_name)
         self.schedule = self.visit_schedule.schedules.get(schedule_name)
         self.appointment_model_cls = self.schedule.appointment_model_cls
         visit = self.visit_schedule.schedules.get(schedule_name).visits.get(visit_code)
@@ -94,9 +98,7 @@ class UnscheduledAppointmentCreator:
                 visit_schedule_name=self.visit_schedule_name,
                 schedule_name=self.schedule_name,
                 visit=visit,
-                suggested_datetime=(
-                    appt_datetime or self.parent_appointment.appt_datetime
-                ),
+                suggested_datetime=(appt_datetime or self.parent_appointment.appt_datetime),
                 timepoint=self.parent_appointment.timepoint,
                 timepoint_datetime=self.parent_appointment.timepoint_datetime,
                 visit_code_sequence=self.parent_appointment.next_visit_code_sequence,

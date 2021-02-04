@@ -1,4 +1,5 @@
 from decimal import Decimal
+
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
@@ -12,7 +13,10 @@ class Helper:
         self.now = now or get_utcnow()
 
     def consent_and_put_on_schedule(
-        self, subject_identifier=None, visit_schedule_name=None, schedule_name=None,
+        self,
+        subject_identifier=None,
+        visit_schedule_name=None,
+        schedule_name=None,
     ):
         subject_identifier = subject_identifier or self.subject_identifier
         subject_consent = SubjectConsent.objects.create(

@@ -1,8 +1,7 @@
-import arrow
-
 from datetime import datetime
 from decimal import Decimal
 
+import arrow
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 from edc_facility.import_holidays import import_holidays
@@ -10,12 +9,14 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.schedule import ScheduleError
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from ..constants import NEW_APPT, INCOMPLETE_APPT, IN_PROGRESS_APPT, CANCELLED_APPT
+from ..constants import CANCELLED_APPT, IN_PROGRESS_APPT, INCOMPLETE_APPT, NEW_APPT
+from ..creators import (
+    InvalidParentAppointmentMissingVisitError,
+    InvalidParentAppointmentStatusError,
+    UnscheduledAppointmentCreator,
+    UnscheduledAppointmentNotAllowed,
+)
 from ..models import Appointment
-from ..creators import InvalidParentAppointmentMissingVisitError
-from ..creators import InvalidParentAppointmentStatusError
-from ..creators import UnscheduledAppointmentCreator
-from ..creators import UnscheduledAppointmentNotAllowed
 from .helper import Helper
 from .models import SubjectVisit
 from .visit_schedule import visit_schedule1, visit_schedule2
@@ -152,9 +153,7 @@ class TestUnscheduledAppointmentCreator(TestCase):
             subject_identifier=self.subject_identifier, visit_code=visit.code
         )
         self.assertEqual(appointment.timepoint, Decimal("0.0"))
-        SubjectVisit.objects.create(
-            appointment=appointment, report_datetime=get_utcnow()
-        )
+        SubjectVisit.objects.create(appointment=appointment, report_datetime=get_utcnow())
         appointment.appt_status = INCOMPLETE_APPT
         appointment.save()
         for index in range(1, 5):
@@ -172,7 +171,8 @@ class TestUnscheduledAppointmentCreator(TestCase):
                     creator.appointment.visit_code_sequence,
                 )
                 self.assertEqual(
-                    creator.appointment.visit_code_sequence, index,
+                    creator.appointment.visit_code_sequence,
+                    index,
                 )
                 SubjectVisit.objects.create(
                     appointment=creator.appointment, report_datetime=get_utcnow()
@@ -189,9 +189,7 @@ class TestUnscheduledAppointmentCreator(TestCase):
         )
         self.assertEqual(appointment.title, "Day 1")
 
-        SubjectVisit.objects.create(
-            appointment=appointment, report_datetime=get_utcnow()
-        )
+        SubjectVisit.objects.create(appointment=appointment, report_datetime=get_utcnow())
         appointment.appt_status = INCOMPLETE_APPT
         appointment.save()
 
@@ -217,9 +215,7 @@ class TestUnscheduledAppointmentCreator(TestCase):
             schedule_name="schedule1",
         )
 
-        SubjectVisit.objects.create(
-            appointment=next_appointment, report_datetime=get_utcnow()
-        )
+        SubjectVisit.objects.create(appointment=next_appointment, report_datetime=get_utcnow())
         next_appointment.appt_status = INCOMPLETE_APPT
         next_appointment.save()
 
@@ -242,9 +238,7 @@ class TestUnscheduledAppointmentCreator(TestCase):
         )
         self.assertEqual(appointment.title, "Day 1")
 
-        SubjectVisit.objects.create(
-            appointment=appointment, report_datetime=get_utcnow()
-        )
+        SubjectVisit.objects.create(appointment=appointment, report_datetime=get_utcnow())
         appointment.appt_status = INCOMPLETE_APPT
         appointment.save()
 
@@ -255,9 +249,7 @@ class TestUnscheduledAppointmentCreator(TestCase):
             schedule_name="schedule1",
         )
 
-        SubjectVisit.objects.create(
-            appointment=next_appointment, report_datetime=get_utcnow()
-        )
+        SubjectVisit.objects.create(appointment=next_appointment, report_datetime=get_utcnow())
         next_appointment.appt_status = INCOMPLETE_APPT
         next_appointment.visit_code = "1111"
         self.assertRaises(ScheduleError, next_appointment.save)

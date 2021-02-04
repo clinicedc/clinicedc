@@ -1,16 +1,17 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
+from edc_facility.import_holidays import import_holidays
+from edc_protocol import Protocol
+from edc_visit_schedule import site_visit_schedules
+from edc_visit_tracking.constants import SCHEDULED
+
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.forms import AppointmentForm
 from edc_appointment.tests.models import SubjectVisit
-from edc_protocol import Protocol
-from edc_facility.import_holidays import import_holidays
-from edc_visit_schedule import site_visit_schedules
-from edc_visit_tracking.constants import SCHEDULED
 
-from ..models import Appointment
 from ..model_mixins import AppointmentWindowError
+from ..models import Appointment
 from .helper import Helper
 from .visit_schedule import visit_schedule3
 
@@ -114,9 +115,7 @@ class TestAppointmentWindowPeriod(TestCase):
             visit_schedule_name="visit_schedule3",
             schedule_name="three_monthly_schedule",
         )
-        appointments = Appointment.objects.filter(
-            subject_identifier=self.subject_identifier
-        )
+        appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
         self.assertEqual(appointments.count(), 5)
 
         appointment_1030 = Appointment.objects.get(

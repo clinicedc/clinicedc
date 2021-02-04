@@ -5,11 +5,14 @@ from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_list_data.model_mixins import ListModelMixin
 from edc_locator.model_mixins import LocatorModelMixin
 from edc_model.models import BaseUuidModel
-from edc_offstudy.model_mixins import OffstudyModelManager, OffstudyVisitModelMixin
-from edc_offstudy.model_mixins import OffstudyModelMixin
+from edc_offstudy.model_mixins import (
+    OffstudyModelManager,
+    OffstudyModelMixin,
+    OffstudyVisitModelMixin,
+)
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
-from edc_utils import get_utcnow, get_dob, get_uuid
-from edc_visit_schedule.model_mixins import OnScheduleModelMixin, OffScheduleModelMixin
+from edc_utils import get_dob, get_utcnow, get_uuid
+from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
 from edc_visit_tracking.model_mixins import (
     SubjectVisitMissedModelMixin,
     VisitModelMixin,
@@ -95,7 +98,9 @@ class SubjectVisitMissedReasons(ListModelMixin):
 
 
 class SubjectVisitMissed(
-    SubjectVisitMissedModelMixin, CrfWithActionModelMixin, BaseUuidModel,
+    SubjectVisitMissedModelMixin,
+    CrfWithActionModelMixin,
+    BaseUuidModel,
 ):
 
     action_identifier = models.CharField(max_length=50, null=True)
@@ -107,7 +112,8 @@ class SubjectVisitMissed(
     )
 
     class Meta(
-        SubjectVisitMissedModelMixin.Meta, BaseUuidModel.Meta,
+        SubjectVisitMissedModelMixin.Meta,
+        BaseUuidModel.Meta,
     ):
         verbose_name = "Missed Visit Report"
         verbose_name_plural = "Missed Visit Report"
