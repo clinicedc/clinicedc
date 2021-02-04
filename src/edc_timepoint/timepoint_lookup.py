@@ -51,6 +51,4 @@ class TimepointLookup:
         except ObjectDoesNotExist:
             pass
         else:
-            raise TimepointClosed(
-                f"Timepoint is closed for {model_obj}. See {timepoint_obj}."
-            )
+            raise TimepointClosed(f"Timepoint is closed for {model_obj}. See {timepoint_obj}.")

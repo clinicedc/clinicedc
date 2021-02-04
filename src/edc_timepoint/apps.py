@@ -1,7 +1,7 @@
 import sys
 
-from django.conf import settings
 from django.apps import AppConfig as DjangoAppConfig
+from django.conf import settings
 from edc_appointment.constants import COMPLETE_APPT
 
 from .timepoint import Timepoint
@@ -40,7 +40,7 @@ class AppConfig(DjangoAppConfig):
 
 if settings.APP_NAME == "edc_timepoint":
 
-    from dateutil.relativedelta import SU, MO, TU, WE, TH, FR, SA
+    from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE
     from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
 
     class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
@@ -49,9 +49,7 @@ if settings.APP_NAME == "edc_timepoint":
                 days=[MO, TU, WE, TH, FR, SA, SU],
                 slots=[100, 100, 100, 100, 100, 100, 100],
             ),
-            "5-day-clinic": dict(
-                days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100]
-            ),
+            "5-day-clinic": dict(days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100]),
             "3-day-clinic": dict(
                 days=[TU, WE, TH],
                 slots=[100, 100, 100],

@@ -7,8 +7,7 @@ from .constants import OPEN_TIMEPOINT
 
 @receiver(post_save, weak=False, dispatch_uid="update_timepoint_on_post_save")
 def update_timepoint_on_post_save(sender, instance, raw, created, using, **kwargs):
-    """Update the TimePointStatus mixin datetime field.
-    """
+    """Update the TimePointStatus mixin datetime field."""
     if not raw:
         try:
             if instance.enabled_as_timepoint:

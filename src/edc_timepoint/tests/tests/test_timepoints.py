@@ -1,22 +1,23 @@
-from arrow import arrow
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
 from decimal import Decimal
+
+from arrow import arrow
+from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.test import TestCase, tag  # noqa
 from edc_appointment.constants import COMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
+from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_consent.site_consents import site_consents
 
-from ...constants import OPEN_TIMEPOINT, CLOSED_TIMEPOINT
+from ...constants import CLOSED_TIMEPOINT, OPEN_TIMEPOINT
 from ...model_mixins import UnableToCloseTimepoint
 from ...timepoint import TimepointClosed
 from ..consents import v1
-from ..models import CrfOne, SubjectVisit, SubjectConsent
+from ..models import CrfOne, SubjectConsent, SubjectVisit
 from ..visit_schedule import visit_schedule1
 
 
@@ -90,12 +91,9 @@ class TimepointTests(TestCase):
         )
 
     def test_timepoint_status_close_attempt_fails1(self):
-        """Assert timepoint does not closed when tried.
-        """
+        """Assert timepoint does not closed when tried."""
         self.assertEqual(self.appointment.timepoint_status, OPEN_TIMEPOINT)
-        self.assertRaises(
-            UnableToCloseTimepoint, self.appointment.timepoint_close_timepoint
-        )
+        self.assertRaises(UnableToCloseTimepoint, self.appointment.timepoint_close_timepoint)
 
     def test_timepoint_status_closed_blocks_everything(self):
         """Assert timepoint closes because appointment status
@@ -110,10 +108,11 @@ class TimepointTests(TestCase):
         """Assert timepoint closes because appointment status
         is "closed".
         """
-        self.appointment.appt_status = COMPLETE_APPT
-        self.appointment.save()
         subject_visit = SubjectVisit.objects.create(appointment=self.appointment)
         crf_obj = CrfOne.objects.create(subject_visit=subject_visit)
+        self.appointment.appt_status = COMPLETE_APPT
+        self.appointment.save()
+        self.appointment.refresh_from_db()
         self.appointment.timepoint_close_timepoint()
         self.assertRaises(TimepointClosed, self.appointment.save)
         self.assertRaises(TimepointClosed, subject_visit.save)
@@ -151,9 +150,11 @@ class TimepointTests(TestCase):
         self.assertRaises(TimepointClosed, crf_obj.save)
 
     def test_timepoint_lookup_blocks_update(self):
+        subject_visit = SubjectVisit.objects.create(appointment=self.appointment)
+        crf_obj = CrfOne.objects.create(subject_visit=subject_visit)
         self.appointment.appt_status = COMPLETE_APPT
         self.appointment.save()
-        subject_visit = SubjectVisit.objects.create(appointment=self.appointment)
-        crf_model = CrfOne.objects.create(subject_visit=subject_visit)
         self.appointment.timepoint_close_timepoint()
-        self.assertRaises(TimepointClosed, crf_model.save)
+
+        self.assertRaises(TimepointClosed, crf_obj.save)
+        self.assertRaises(TimepointClosed, subject_visit.save)
