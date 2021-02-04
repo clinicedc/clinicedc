@@ -73,8 +73,7 @@ class DeviceAddPermission(BaseDevicePermission):
     exception_cls = DevicePermissionAddError
 
     def model_operation(self, model_obj=None, **kwargs):
-        """Returns ADD if this is an add model.
-        """
+        """Returns ADD if this is an add model."""
         if not model_obj.id:
             return self.label
         return None
@@ -86,16 +85,14 @@ class DeviceChangePermission(BaseDevicePermission):
     exception_cls = DevicePermissionChangeError
 
     def model_operation(self, model_obj=None, **kwargs):
-        """Returns CHANGE if this is a change model.
-        """
+        """Returns CHANGE if this is a change model."""
         if model_obj.id:
             return self.label
         return None
 
 
 class DevicePermissions:
-    """Container class for registered device permission instances.
-    """
+    """Container class for registered device permission instances."""
 
     def __init__(self):  # , *device_permissions):
         self._registry = []
