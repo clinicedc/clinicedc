@@ -1,8 +1,9 @@
 from copy import copy
+
 from django.apps import apps as django_apps
+from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, tag  # noqa
 from django.test.utils import override_settings
-from django.core.exceptions import ImproperlyConfigured
 
 from ..models import UrlModelMixinNoReverseMatch
 from .models import BasicModel, SimpleModel
@@ -15,8 +16,7 @@ class TestModels(TestCase):
         self.assertRaises(ImproperlyConfigured, app_config.ready)
 
     def test_base_update_fields(self):
-        """Assert update fields cannot bypass modified fields.
-        """
+        """Assert update fields cannot bypass modified fields."""
         obj = BasicModel.objects.create()
         modified = copy(obj.modified)
 

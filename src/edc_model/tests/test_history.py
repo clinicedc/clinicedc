@@ -1,6 +1,6 @@
 import re
-
 from unittest import skip
+
 from django.core import serializers
 from django.test import TestCase, tag  # noqa
 
