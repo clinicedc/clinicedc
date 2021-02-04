@@ -1,4 +1,4 @@
-from .blood_pressure import SystolicPressureField, DiastolicPressureField
+from .blood_pressure import DiastolicPressureField, SystolicPressureField
 from .date_estimated import IsDateEstimatedField, IsDateEstimatedFieldNa
 from .duration import DurationYMDField
 from .height import HeightField

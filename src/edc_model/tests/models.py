@@ -1,5 +1,4 @@
 import arrow
-
 from dateutil.relativedelta import relativedelta
 from django.db import models
 from edc_sites.models import SiteModelMixin
@@ -56,9 +55,7 @@ class ModelWithDateValidators(BaseModel):
         validators=[datetime_is_future], default=get_future_date
     )
 
-    date_is_future = models.DateField(
-        validators=[date_is_future], default=get_future_date
-    )
+    date_is_future = models.DateField(validators=[date_is_future], default=get_future_date)
 
 
 class ModelWithPhoneValidators(BaseModel):

@@ -31,9 +31,7 @@ class TestValidators(TestCase):
         future_date = (get_utcnow() + relativedelta(days=10)).date()
         form = DateForm(data={"date_not_future": future_date})
         self.assertFalse(form.is_valid())
-        self.assertEqual(
-            form.errors.get("date_not_future"), ["Cannot be a future date"]
-        )
+        self.assertEqual(form.errors.get("date_not_future"), ["Cannot be a future date"])
 
         past_datetime = get_utcnow() - relativedelta(days=10)
         form = DateForm(data={"datetime_is_future": past_datetime})

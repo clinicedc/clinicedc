@@ -1,5 +1,6 @@
-from django.db import models
 from warnings import warn
+
+from django.db import models
 
 from ..validators import ymd_validator
 

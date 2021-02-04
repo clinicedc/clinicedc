@@ -2,7 +2,7 @@ from datetime import date
 
 from django.test import TestCase
 
-from edc_model.models import duration_to_date, InvalidFormat
+from edc_model.models import InvalidFormat, duration_to_date
 
 
 class TestUtils(TestCase):
