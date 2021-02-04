@@ -1,16 +1,13 @@
 from django.contrib import admin
 from edc_metadata.exim_resources import CrfMetadataResource
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
-from import_export.admin import ExportActionMixin
 
 from ..admin_site import edc_metadata_admin
 from ..models import CrfMetadata
 
 
 @admin.register(CrfMetadata, site=edc_metadata_admin)
-class CrfMetadataAdmin(
-    ModelAdminSubjectDashboardMixin, ExportActionMixin, admin.ModelAdmin
-):
+class CrfMetadataAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
     @staticmethod
     def seq(obj=None):
         return obj.visit_code_sequence

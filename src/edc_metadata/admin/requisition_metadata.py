@@ -1,6 +1,5 @@
 from django.contrib import admin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
-from import_export.admin import ExportActionMixin
 
 from ..admin_site import edc_metadata_admin
 from ..exim_resources import RequisitionMetadataResource
@@ -9,7 +8,8 @@ from ..models import RequisitionMetadata
 
 @admin.register(RequisitionMetadata, site=edc_metadata_admin)
 class RequisitionMetadataAdmin(
-    ModelAdminSubjectDashboardMixin, ExportActionMixin, admin.ModelAdmin,
+    ModelAdminSubjectDashboardMixin,
+    admin.ModelAdmin,
 ):
     @staticmethod
     def seq(obj=None):
