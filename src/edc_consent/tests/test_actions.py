@@ -27,11 +27,11 @@ class TestActions(TestCase):
         self.request = HttpRequest()
         user = User.objects.create(username="erikvw")
         self.request.user = user
-        baker.make_recipe(
-            "edc_consent.subjectconsent",
-            _quantity=3,
-            consent_datetime=self.study_open_datetime + relativedelta(days=1),
-        )
+        for _ in range(3):
+            baker.make_recipe(
+                "edc_consent.subjectconsent",
+                consent_datetime=self.study_open_datetime + relativedelta(days=1),
+            )
 
     def test_verify(self):
         for consent_obj in SubjectConsent.objects.all():

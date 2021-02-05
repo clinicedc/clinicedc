@@ -1,14 +1,13 @@
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.forms import BaseModelForm
 from edc_visit_tracking.modelform_mixins import get_subject_visit
 
 from ..constants import DEFAULT_CONSENT_GROUP
 from ..site_consents import site_consents
 
 
-class RequiresConsentModelFormMixin(BaseModelForm):
+class RequiresConsentModelFormMixin:
     def clean(self):
         cleaned_data = super().clean()
         self.validate_against_consent()

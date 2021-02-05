@@ -131,6 +131,8 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
 
     class Meta:
         abstract = True
+        verbose_name = "Subject Consent"
+        verbose_name_plural = "Subject Consents"
         consent_group = DEFAULT_CONSENT_GROUP
         get_latest_by = "consent_datetime"
         unique_together = (
