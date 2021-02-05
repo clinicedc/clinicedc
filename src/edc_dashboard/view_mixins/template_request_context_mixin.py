@@ -12,15 +12,13 @@ class TemplateRequestContextMixin:
     """
 
     def get_context_data(self, **kwargs):
-        """Adds template data to context.
-        """
+        """Adds template data to context."""
         context = super().get_context_data(**kwargs)
         context.update(self.request.template_data)
         return context
 
     def get_template_from_context(self, key=None):
-        """Returns a template_name from request.context_data.
-        """
+        """Returns a template_name from request.context_data."""
         try:
             template_name = self.request.template_data[key]
         except KeyError as e:

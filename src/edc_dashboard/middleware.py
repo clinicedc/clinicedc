@@ -1,11 +1,22 @@
 from django.conf import settings
-from edc_constants.constants import COMPLETE, INCOMPLETE, MALE, FEMALE, OTHER, YES, NO
-from edc_constants.constants import NEW, OPEN, CLOSED
-from edc_constants.constants import NOT_APPLICABLE, CANCELLED
+from edc_constants.constants import (
+    CANCELLED,
+    CLOSED,
+    COMPLETE,
+    FEMALE,
+    INCOMPLETE,
+    MALE,
+    NEW,
+    NO,
+    NOT_APPLICABLE,
+    OPEN,
+    OTHER,
+    YES,
+)
 
 from .dashboard_templates import dashboard_templates
-from .utils import insert_bootstrap_version
 from .url_names import url_names
+from .utils import insert_bootstrap_version
 
 
 class DashboardMiddleware:
@@ -26,8 +37,7 @@ class DashboardMiddleware:
         return response
 
     def process_view(self, request, *args):
-        """Adds/Updates references to urls and templates.
-        """
+        """Adds/Updates references to urls and templates."""
         template_data = dashboard_templates
         try:
             template_data.update(settings.DASHBOARD_BASE_TEMPLATES)

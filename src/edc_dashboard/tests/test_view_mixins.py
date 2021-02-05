@@ -1,19 +1,19 @@
-import arrow
-
 from datetime import datetime
+
+import arrow
 from django.apps import apps as django_apps
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
 from django.test import TestCase, tag
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
 from edc_auth import CLINIC, get_default_codenames_by_group
 from edc_auth.group_permissions_updater import GroupPermissionsUpdater
-from edc_dashboard.url_names import url_names
 from edc_model_wrapper import ModelWrapper
 from edc_utils import get_utcnow
 
 from ..listboard_filter import ListboardFilter, ListboardViewFilters
+from ..url_names import url_names
 from ..view_mixins import ListboardFilterViewMixin
 from ..view_mixins.listboard.querystring_view_mixin import QueryStringViewMixin
 from ..views import ListboardView
@@ -69,9 +69,7 @@ class TestViewMixins(TestCase):
         class MyListboardViewFilters(ListboardViewFilters):
             all = ListboardFilter(name="all", label="All", lookup={})
 
-            scheduled = ListboardFilter(
-                label="Scheduled", lookup={"reason": "scheduled"}
-            )
+            scheduled = ListboardFilter(label="Scheduled", lookup={"reason": "scheduled"})
 
             not_scheduled = ListboardFilter(
                 label="Not Scheduled",

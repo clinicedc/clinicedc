@@ -2,8 +2,8 @@ import os
 
 from django.apps import apps as django_apps
 from django.conf import settings
-from django.template.loader import get_template, select_template
 from django.template.exceptions import TemplateDoesNotExist
+from django.template.loader import get_template, select_template
 
 
 class EdcTemplateDoesNotExist(Exception):
@@ -29,9 +29,7 @@ def insert_bootstrap_version(**template_data):
                 get_template(original_path)
             except TemplateDoesNotExist:
                 if "bootstrap" not in original_path:
-                    path = get_template_path_with_bootstrap(
-                        original_path, bootstrap_version
-                    )
+                    path = get_template_path_with_bootstrap(original_path, bootstrap_version)
                     template_data.update({key: path})
     return template_data
 
@@ -61,8 +59,7 @@ def get_template_path_with_bootstrap(original_path, bootstrap_version=None):
             get_template(path)
         except TemplateDoesNotExist as e:
             raise EdcTemplateDoesNotExist(
-                f"Template file does not exist. "
-                f"Tried {original_path} and {path}. Got {e}"
+                f"Template file does not exist. " f"Tried {original_path} and {path}. Got {e}"
             )
     return path
 
@@ -87,8 +84,7 @@ def splitall(path):
 
 
 def select_edc_template(relative_path, default_app_label):
-    """Returns a template object.
-    """
+    """Returns a template object."""
     local_path = f"{settings.APP_NAME}/bootstrap{settings.EDC_BOOTSTRAP}/"
     default_path = f"{default_app_label}/bootstrap{settings.EDC_BOOTSTRAP}/"
     return select_template(

@@ -3,11 +3,11 @@ import warnings
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.base import ContextMixin
 from django_revision.views import RevisionMixin
-from django.contrib.auth.mixins import LoginRequiredMixin
-from edc_sites.view_mixins import SiteViewMixin
 from edc_protocol import Protocol
+from edc_sites.view_mixins import SiteViewMixin
 
 from .message_view_mixin import MessageViewMixin
 from .template_request_context_mixin import TemplateRequestContextMixin
@@ -21,8 +21,7 @@ class EdcViewMixin(
     TemplateRequestContextMixin,
     ContextMixin,
 ):
-    """Adds common template variables and warning messages.
-    """
+    """Adds common template variables and warning messages."""
 
     edc_protocol_app = "edc_protocol"
     edc_device_app = "edc_device"
@@ -42,9 +41,7 @@ class EdcViewMixin(
             {
                 "copyright": getattr(protocol, "copyright", "copyright?"),
                 "device_id": getattr(edc_device_app_config, "device_id", "device_id?"),
-                "device_role": getattr(
-                    edc_device_app_config, "device_role", "device_role?"
-                ),
+                "device_role": getattr(edc_device_app_config, "device_role", "device_role?"),
                 "disclaimer": getattr(protocol, "disclaimer", "disclaimer?"),
                 "institution": getattr(protocol, "institution", "institution?"),
                 "license": getattr(protocol, "license", "license?"),

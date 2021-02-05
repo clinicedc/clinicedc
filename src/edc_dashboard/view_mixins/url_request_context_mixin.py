@@ -23,9 +23,7 @@ class UrlRequestContextMixin(ContextMixin):
         raise NotImplementedError
 
     @classmethod
-    def urls(
-        cls, namespace=None, label=None, identifier_label=None, identifier_pattern=None
-    ):
+    def urls(cls, namespace=None, label=None, identifier_label=None, identifier_pattern=None):
         label = (
             label
             or cls.urlconfig_label

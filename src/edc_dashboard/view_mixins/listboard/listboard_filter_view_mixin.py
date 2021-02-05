@@ -1,7 +1,7 @@
 from django.views.generic.base import ContextMixin
-from edc_dashboard.url_names import url_names
 
 from ...listboard_filter import ListboardViewFilters
+from ...url_names import url_names
 
 
 class ListboardFilterViewMixin(ContextMixin):
@@ -22,9 +22,7 @@ class ListboardFilterViewMixin(ContextMixin):
             listboard_url = None
         context.update(
             listboard_view_filters=self.listboard_view_filters.filters,
-            listboard_filter_url=url_names.get(
-                self.listboard_filter_url or listboard_url
-            ),
+            listboard_filter_url=url_names.get(self.listboard_filter_url or listboard_url),
         )
         return context
 
@@ -41,9 +39,7 @@ class ListboardFilterViewMixin(ContextMixin):
             not self.listboard_view_include_filter_applied
             and self.listboard_view_filters.default_include_filter
         ):
-            options.update(
-                **self.listboard_view_filters.default_include_filter.lookup_options
-            )
+            options.update(**self.listboard_view_filters.default_include_filter.lookup_options)
         return options
 
     def get_queryset_exclude_options(self, request, *args, **kwargs):
@@ -60,7 +56,5 @@ class ListboardFilterViewMixin(ContextMixin):
             and not self.listboard_view_include_filter_applied
             and self.listboard_view_filters.default_exclude_filter
         ):
-            options.update(
-                **self.listboard_view_filters.default_exclude_filter.lookup_options
-            )
+            options.update(**self.listboard_view_filters.default_exclude_filter.lookup_options)
         return options

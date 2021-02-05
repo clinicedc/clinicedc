@@ -1,5 +1,5 @@
-from django.utils.html import escape
 from django.db.models import Q
+from django.utils.html import escape
 from django.utils.text import slugify
 
 
@@ -80,8 +80,7 @@ class SearchListboardMixin:
         return queryset
 
     def get_filtered_queryset(self, filter_options=None, exclude_options=None):
-        """Override to add conditional logic to filter on search term.
-        """
+        """Override to add conditional logic to filter on search term."""
         if self.search_term and "|" not in self.search_term:
             queryset = self.get_search_filtered_queryset(
                 filter_options=filter_options, exclude_options=exclude_options

@@ -1,8 +1,8 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.base import TemplateView
-from edc_dashboard.url_names import url_names
 
-from ..view_mixins import UrlRequestContextMixin, TemplateRequestContextMixin
+from ..url_names import url_names
+from ..view_mixins import TemplateRequestContextMixin, UrlRequestContextMixin
 
 
 class DashboardView(UrlRequestContextMixin, TemplateRequestContextMixin, TemplateView):

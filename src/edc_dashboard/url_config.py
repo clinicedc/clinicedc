@@ -25,8 +25,7 @@ class UrlConfig:
 
     @property
     def dashboard_urls(self):
-        """Returns url patterns.
-        """
+        """Returns url patterns."""
         urlpatterns = [
             re_path(
                 f"{self.label}/"
@@ -79,8 +78,7 @@ class UrlConfig:
                 name=self.url_name,
             ),
             re_path(
-                f"{self.label}/"
-                f"(?P<{self.identifier_label}>{self.identifier_pattern})/",
+                f"{self.label}/" f"(?P<{self.identifier_label}>{self.identifier_pattern})/",
                 self.view_class.as_view(),
                 name=self.url_name,
             ),
@@ -102,8 +100,7 @@ class UrlConfig:
                 name=self.url_name,
             ),
             re_path(
-                f"{self.label}/"
-                f"(?P<{self.identifier_label}>{self.identifier_pattern})/",
+                f"{self.label}/" f"(?P<{self.identifier_label}>{self.identifier_pattern})/",
                 self.view_class.as_view(),
                 name=self.url_name,
             ),

@@ -1,6 +1,5 @@
 from edc_navbar import Navbar, NavbarItem, site_navbars
 
-
 navbar = Navbar(name="edc_dashboard")
 navbar.append_item(
     NavbarItem(
