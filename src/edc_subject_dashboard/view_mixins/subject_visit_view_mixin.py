@@ -1,5 +1,5 @@
-from django.views.generic.base import ContextMixin
 from django.core.exceptions import ObjectDoesNotExist
+from django.views.generic.base import ContextMixin
 from edc_visit_schedule.models import VisitSchedule
 
 
@@ -50,8 +50,7 @@ class SubjectVisitViewMixin(ContextMixin):
         return context
 
     def get_visit_schedule_pk(self, appointment):
-        """Returns a str(pk) from the VisitSchedule model.
-        """
+        """Returns a str(pk) from the VisitSchedule model."""
         visit_schedule_pk = ""
         opts = dict(
             visit_schedule_name=appointment.visit_schedule_name,

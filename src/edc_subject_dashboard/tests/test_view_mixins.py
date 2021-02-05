@@ -1,14 +1,14 @@
 from django.test import TestCase, tag
-from edc_utils import get_utcnow
 from edc_locator.view_mixins import (
     SubjectLocatorViewMixin,
     SubjectLocatorViewMixinError,
 )
 from edc_registration.models import RegisteredSubject
+from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
 
 from ..view_mixins import SubjectVisitViewMixin, SubjectVisitViewMixinError
-from .models import SubjectVisit, TestModel, BadSubjectVisit, Appointment
+from .models import Appointment, BadSubjectVisit, SubjectVisit, TestModel
 from .visit_schedule import visit_schedule1
 
 
@@ -49,8 +49,7 @@ class TestViewMixins(TestCase):
         self.assertEqual(context.get("subject_visit"), self.subject_visit)
 
     def test_subject_visit_incorrect_relation(self):
-        """Asserts raises if relation is not one to one.
-        """
+        """Asserts raises if relation is not one to one."""
 
         class MySubjectVisitViewMixin(SubjectVisitViewMixin):
             visit_attr = "badsubjectvisit"

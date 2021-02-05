@@ -1,14 +1,15 @@
 from collections import namedtuple
+
 from django import template
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from edc_appointment.constants import (
     CANCELLED_APPT,
     COMPLETE_APPT,
-    INCOMPLETE_APPT,
     IN_PROGRESS_APPT,
+    INCOMPLETE_APPT,
     NEW_APPT,
 )
 from edc_appointment.models import Appointment
@@ -21,8 +22,7 @@ register = template.Library()
     f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/forms_button.html"
 )
 def forms_button(wrapper=None, visit=None):
-    """wrapper is an AppointmentModelWrapper.
-    """
+    """wrapper is an AppointmentModelWrapper."""
 
     visit_pk = visit.id
     if visit_pk:
@@ -56,12 +56,9 @@ def forms_button(wrapper=None, visit=None):
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/"
-    "appointment_in_progress.html"
+    f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/" "appointment_in_progress.html"
 )
-def appointment_in_progress(
-    subject_identifier=None, visit_schedule=None, schedule=None
-):
+def appointment_in_progress(subject_identifier=None, visit_schedule=None, schedule=None):
 
     try:
         appointment = Appointment.objects.get(
@@ -125,8 +122,7 @@ def print_requisition_popover(context):
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/"
-    f"appointment_status.html"
+    f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/" f"appointment_status.html"
 )
 def appointment_status_icon(appt_status=None):
     return dict(

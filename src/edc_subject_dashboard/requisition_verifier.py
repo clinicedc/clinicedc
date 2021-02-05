@@ -1,9 +1,9 @@
 from django.core.exceptions import ObjectDoesNotExist
 from edc_appointment.models import Appointment
-from edc_utils import get_utcnow
-from edc_constants.constants import YES, NO
+from edc_constants.constants import NO, YES
 from edc_lab.constants import TUBE
 from edc_lab.model_mixins import RequisitionModelMixin
+from edc_utils import get_utcnow
 
 
 class RequisitionVerifier:
@@ -27,9 +27,7 @@ class RequisitionVerifier:
             self.requisition.is_drawn = self.requisition.is_drawn or YES
             self.requisition.item_count = self.requisition.item_count or 1
             self.requisition.item_type = self.requisition.item_type or TUBE
-            self.requisition.drawn_datetime = (
-                self.requisition.drawn_datetime or get_utcnow()
-            )
+            self.requisition.drawn_datetime = self.requisition.drawn_datetime or get_utcnow()
             self.requisition.save()
             self.verified = self.requisition.clinic_verified
 
@@ -37,15 +35,11 @@ class RequisitionVerifier:
         return f"{self.requisition_identifier} {self.verified}"
 
     def __repr__(self):
-        return (
-            f"<{self.__class__.__name__}("
-            "{self.requisition_identifier}) {self.verified}>"
-        )
+        return f"<{self.__class__.__name__}(" "{self.requisition_identifier}) {self.verified}>"
 
     @property
     def requisition(self):
-        """Returns a requisition model instance.
-        """
+        """Returns a requisition model instance."""
         if not self._requisition:
             try:
                 self._requisition = self.requisition_model_cls.objects.get(

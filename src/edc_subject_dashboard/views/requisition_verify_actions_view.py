@@ -16,9 +16,7 @@ class RequisitionVerifyActionsView(BaseRequisitionView):
         appointment_pk = request.POST.get("appointment")
         if request.POST.get("requisition_identifier"):
             requisition_identifier = (
-                request.POST.get("requisition_identifier")
-                .replace("-", "")
-                .replace(" ", "")
+                request.POST.get("requisition_identifier").replace("-", "").replace(" ", "")
             )
             requisition_verifier = self.requisition_verifier_cls(
                 appointment_pk=appointment_pk,

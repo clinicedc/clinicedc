@@ -1,3 +1,5 @@
+from tempfile import mkdtemp
+
 from django.contrib import messages
 from edc_constants.constants import YES
 from edc_identifier.simple_identifier import make_human_readable
@@ -7,9 +9,8 @@ from edc_reports import Report
 from edc_utils import get_utcnow
 from reportlab.graphics.barcode import code39
 from reportlab.lib import colors
-from reportlab.lib.units import mm, cm
-from reportlab.platypus import Table, TableStyle, Paragraph, Spacer
-from tempfile import mkdtemp
+from reportlab.lib.units import cm, mm
+from reportlab.platypus import Paragraph, Spacer, Table, TableStyle
 
 
 class RequisitionReport(Report):
@@ -36,14 +37,11 @@ class RequisitionReport(Report):
 
     @property
     def shipper(self):
-        """Return a shipper model instance.
-        """
+        """Return a shipper model instance."""
         try:
             shipper = Shipper.objects.all()[0]
         except IndexError:
-            messages.error(
-                self.request, "Unable to print report. Please define the shipper."
-            )
+            messages.error(self.request, "Unable to print report. Please define the shipper.")
             shipper = Shipper()
         return shipper
 
@@ -63,9 +61,7 @@ class RequisitionReport(Report):
                 Paragraph("REFERENCE", self.styles["line_label"]),
             ],
             [
-                Paragraph(
-                    get_utcnow().strftime("%Y-%m-%d"), self.styles["line_data_largest"]
-                ),
+                Paragraph(get_utcnow().strftime("%Y-%m-%d"), self.styles["line_data_largest"]),
                 Paragraph(
                     make_human_readable(self.timestamp),
                     self.styles["line_data_largest"],
@@ -87,12 +83,8 @@ class RequisitionReport(Report):
 
         data = [
             [
-                Paragraph(
-                    "FROM (complete name and address)", self.styles["line_label"]
-                ),
-                Paragraph(
-                    "DELIVER TO (complete name and address)", self.styles["line_label"]
-                ),
+                Paragraph("FROM (complete name and address)", self.styles["line_label"]),
+                Paragraph("DELIVER TO (complete name and address)", self.styles["line_label"]),
             ],
             [
                 Paragraph(
@@ -187,9 +179,7 @@ class RequisitionReport(Report):
                 ),
             ],
             [
-                Paragraph(
-                    "SIGNATURE (sign next to your name.)", self.styles["line_label"]
-                ),
+                Paragraph("SIGNATURE (sign next to your name.)", self.styles["line_label"]),
                 "",
                 Paragraph("DATE", self.styles["line_label"]),
             ],

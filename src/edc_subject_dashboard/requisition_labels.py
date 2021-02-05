@@ -25,9 +25,7 @@ class RequisitionLabels:
             if requisition.is_drawn != NO:
                 item_count = requisition.item_count or 1
                 for item in range(1, item_count + 1):
-                    label = self.label_cls(
-                        requisition=requisition, user=user, item=item
-                    )
+                    label = self.label_cls(requisition=requisition, user=user, item=item)
                     zpl_datas.append(label.render_as_zpl_data(copies=1))
             else:
                 self.requisitions_not_printed.append(requisition)

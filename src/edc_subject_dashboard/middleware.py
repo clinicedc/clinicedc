@@ -41,8 +41,7 @@ class DashboardMiddleware:
         return response
 
     def process_view(self, request, *args):
-        """Adds/Updates references to urls and templates.
-        """
+        """Adds/Updates references to urls and templates."""
 
         try:
             settings.DASHBOARD_URL_NAMES

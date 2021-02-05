@@ -3,15 +3,15 @@ from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
 from edc_appointment.models import Appointment
 from edc_constants.constants import YES
-from edc_lab.models import Consignee
 from edc_lab.model_mixins import RequisitionModelMixin
+from edc_lab.models import Consignee
 from edc_label.job_result import JobResult
-from edc_label.printers_mixin import PrintServerError, PrinterError
-from edc_metadata.constants import REQUIRED, KEYED
+from edc_label.printers_mixin import PrinterError, PrintServerError
+from edc_metadata.constants import KEYED, REQUIRED
 from edc_metadata.models import RequisitionMetadata
 
-from ..requisition_report import RequisitionReport
 from ..requisition_labels import RequisitionLabels
+from ..requisition_report import RequisitionReport
 from .base_requisition_view import BaseRequisitionView
 
 
@@ -72,9 +72,7 @@ class RequisitionPrintActionsView(BaseRequisitionView):
 
         if labels.zpl_data:
             try:
-                job_id = self.clinic_label_printer.stream_print(
-                    zpl_data=labels.zpl_data
-                )
+                job_id = self.clinic_label_printer.stream_print(zpl_data=labels.zpl_data)
             except (PrintServerError, PrinterError) as e:
                 messages.error(self.request, str(e))
             else:
@@ -86,9 +84,7 @@ class RequisitionPrintActionsView(BaseRequisitionView):
                 )
                 messages.success(self.request, job_result.message)
         if labels.requisitions_not_printed:
-            panels = ", ".join(
-                [str(r.panel_object) for r in labels.requisitions_not_printed]
-            )
+            panels = ", ".join([str(r.panel_object) for r in labels.requisitions_not_printed])
             messages.warning(
                 self.request, f"Some selected labels were not printed. See {panels}."
             )
@@ -104,9 +100,7 @@ class RequisitionPrintActionsView(BaseRequisitionView):
             )
             response = requisition_report.render()
         else:
-            messages.error(
-                self.request, 'Nothing to do. No "verified" requisitions selected.'
-            )
+            messages.error(self.request, 'Nothing to do. No "verified" requisitions selected.')
             response = None
         return response
 
@@ -116,9 +110,7 @@ class RequisitionPrintActionsView(BaseRequisitionView):
         appointment.
         """
         if not self._requisition_metadata:
-            appointment = Appointment.objects.get(
-                pk=self.request.POST.get("appointment")
-            )
+            appointment = Appointment.objects.get(pk=self.request.POST.get("appointment"))
             subject_identifier = self.request.POST.get("subject_identifier")
             opts = dict(
                 subject_identifier=subject_identifier,
