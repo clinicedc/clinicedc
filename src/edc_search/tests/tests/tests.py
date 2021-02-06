@@ -2,9 +2,10 @@ from django.test import TestCase, tag
 from django.utils.text import slugify
 from edc_utils import get_utcnow
 
-from ..model_mixins import SearchSlugDuplicateFields
-from ..search_slug import SearchSlug
-from .models import TestModel, TestModelExtra, TestModelDuplicate
+from edc_search.updater import SearchSlugDuplicateFields
+
+from ...search_slug import SearchSlug
+from ..models import TestModel, TestModelDuplicate, TestModelExtra
 
 
 class TestSearchSlug(TestCase):
