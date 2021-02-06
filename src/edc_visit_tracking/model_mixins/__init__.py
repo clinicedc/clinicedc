@@ -1,5 +1,5 @@
 from .caretaker_fields_mixin import CaretakerFieldsMixin
-from .crfs import VisitTrackingCrfModelMixin, CrfInlineModelMixin
-from .previous_visit_model_mixin import PreviousVisitModelMixin, PreviousVisitError
+from .crfs import CrfInlineModelMixin, VisitTrackingCrfModelMixin
+from .previous_visit_model_mixin import PreviousVisitError, PreviousVisitModelMixin
 from .subject_visit_missed_model_mixin import SubjectVisitMissedModelMixin
-from .visit_model_mixin import VisitModelMixin, VisitModelFieldsMixin
+from .visit_model_mixin import VisitModelFieldsMixin, VisitModelMixin

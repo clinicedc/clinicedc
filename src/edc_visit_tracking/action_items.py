@@ -1,6 +1,6 @@
+from edc_action_item.action_with_notification import ActionWithNotification
 from edc_adverse_event.constants import DEATH_REPORT_ACTION
 from edc_constants.constants import DEAD, HIGH_PRIORITY, YES
-from edc_action_item.action_with_notification import ActionWithNotification
 from edc_ltfu.constants import LOSS_TO_FOLLOWUP_ACTION
 
 from .constants import VISIT_MISSED_ACTION

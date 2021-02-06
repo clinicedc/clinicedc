@@ -1,21 +1,19 @@
 from django import forms
 from django.conf import settings
 
-from ..crf_date_validator import CrfDateValidator
 from ..crf_date_validator import (
+    CrfDateValidator,
     CrfReportDateAllowanceError,
     CrfReportDateBeforeStudyStart,
+    CrfReportDateIsFuture,
 )
-from ..crf_date_validator import CrfReportDateIsFuture
 
 
 def get_subject_visit(modelform, subject_visit_attr=None):
     if subject_visit_attr not in modelform.cleaned_data:
         subject_visit = getattr(modelform.instance, subject_visit_attr, None)
         if not subject_visit:
-            raise forms.ValidationError(
-                f"Field `{subject_visit_attr}` is required (2)."
-            )
+            raise forms.ValidationError(f"Field `{subject_visit_attr}` is required (2).")
     else:
         subject_visit = modelform.cleaned_data.get(subject_visit_attr)
     return subject_visit
@@ -29,9 +27,7 @@ class VisitTrackingModelFormMixin:
     """
 
     crf_date_validator_cls = CrfDateValidator
-    report_datetime_allowance = getattr(
-        settings, "DEFAULT_REPORT_DATETIME_ALLOWANCE", 0
-    )
+    report_datetime_allowance = getattr(settings, "DEFAULT_REPORT_DATETIME_ALLOWANCE", 0)
 
     def clean(self):
         """Triggers a validation error if subject visit is None.

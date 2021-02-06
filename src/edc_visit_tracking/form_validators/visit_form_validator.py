@@ -1,10 +1,10 @@
 from django import forms
 from django.conf import settings
 from edc_constants.constants import OTHER
-from edc_form_validators import FormValidator
-from edc_form_validators import REQUIRED_ERROR, INVALID_ERROR
-from edc_metadata.models import CrfMetadata, RequisitionMetadata
+from edc_form_validators import INVALID_ERROR, REQUIRED_ERROR, FormValidator
 from edc_metadata.constants import KEYED
+from edc_metadata.models import CrfMetadata, RequisitionMetadata
+
 from edc_visit_tracking.models import get_subject_visit_missed_model
 
 from ..constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
@@ -45,9 +45,7 @@ class VisitFormValidator(FormValidator):
         if appointment:
             if not appointment.visit_code_sequence and reason == UNSCHEDULED:
                 raise forms.ValidationError(
-                    {
-                        "reason": "Invalid. This is not an unscheduled visit. See appointment."
-                    },
+                    {"reason": "Invalid. This is not an unscheduled visit. See appointment."},
                     code=INVALID_ERROR,
                 )
             if (
@@ -56,9 +54,7 @@ class VisitFormValidator(FormValidator):
                 and EDC_VISIT_TRACKING_ALLOW_MISSED_UNSCHEDULED is False
             ):
                 raise forms.ValidationError(
-                    {
-                        "reason": "Invalid. This is an unscheduled visit. See appointment."
-                    },
+                    {"reason": "Invalid. This is an unscheduled visit. See appointment."},
                     code=INVALID_ERROR,
                 )
             # raise if CRF metadata exist
@@ -76,18 +72,14 @@ class VisitFormValidator(FormValidator):
                 filter_models=[get_subject_visit_missed_model()._meta.label_lower],
             ):
                 raise forms.ValidationError(
-                    {
-                        "reason": "Invalid. A missed visit report has already been submitted."
-                    },
+                    {"reason": "Invalid. A missed visit report has already been submitted."},
                     code=INVALID_ERROR,
                 )
 
     def validate_required_fields(self):
 
         if self.validate_missed_visit_reason:
-            self.required_if(
-                MISSED_VISIT, field="reason", field_required="reason_missed"
-            )
+            self.required_if(MISSED_VISIT, field="reason", field_required="reason_missed")
 
             self.required_if(
                 OTHER, field="reason_missed", field_required="reason_missed_other"
@@ -107,9 +99,7 @@ class VisitFormValidator(FormValidator):
 
         self.required_if(OTHER, field="info_source", field_required="info_source_other")
 
-    def metadata_exists_for(
-        self, entry_status=None, filter_models=None, exclude_models=None
-    ):
+    def metadata_exists_for(self, entry_status=None, filter_models=None, exclude_models=None):
         """Returns True if metadata exists for this visit for
         the given entry_status.
         """
@@ -122,9 +112,7 @@ class VisitFormValidator(FormValidator):
             exclude_opts.update(model__in=exclude_models)
         return (
             CrfMetadata.objects.filter(**filter_opts).exclude(**exclude_opts).count()
-            + RequisitionMetadata.objects.filter(**filter_opts)
-            .exclude(**exclude_opts)
-            .count()
+            + RequisitionMetadata.objects.filter(**filter_opts).exclude(**exclude_opts).count()
         )
 
     @property

@@ -2,9 +2,10 @@ from django.contrib import admin
 from edc_constants.constants import OTHER
 from edc_model_admin.model_admin_audit_fields_mixin import audit_fieldset_tuple
 from edc_visit_schedule.fieldsets import (
-    visit_schedule_fieldset_tuple,
     visit_schedule_fields,
+    visit_schedule_fieldset_tuple,
 )
+
 from edc_visit_tracking.constants import UNSCHEDULED
 
 
@@ -97,9 +98,9 @@ class VisitModelAdminMixin:
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         db = kwargs.get("using")
         if db_field.name == "appointment" and request.GET.get("appointment"):
-            kwargs["queryset"] = db_field.related_model._default_manager.using(
-                db
-            ).filter(pk=request.GET.get("appointment"))
+            kwargs["queryset"] = db_field.related_model._default_manager.using(db).filter(
+                pk=request.GET.get("appointment")
+            )
         else:
             kwargs["queryset"] = db_field.related_model._default_manager.none()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)

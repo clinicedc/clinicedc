@@ -6,6 +6,7 @@ from edc_facility.import_holidays import import_holidays
 from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.model_mixins import PreviousVisitError
 from edc_visit_tracking.visit_sequence import VisitSequence, VisitSequenceError
@@ -36,9 +37,7 @@ class TestPreviousVisit(TestCase):
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
         site_reference_configs.register_from_visit_schedule(
-            visit_models={
-                "edc_appointment.appointment": "edc_visit_tracking.subjectvisit"
-            }
+            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
         )
         self.helper.consent_and_put_on_schedule()
 
@@ -46,9 +45,7 @@ class TestPreviousVisit(TestCase):
         SubjectVisit.visit_sequence_cls = VisitSequence
 
     def test_visit_sequence_enforcer_on_first_visit_in_sequence(self):
-        appointments = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         SubjectVisit.visit_sequence_cls = DisabledVisitSequence
         visit = SubjectVisit.objects.create(
             appointment=appointments[0],
@@ -62,9 +59,7 @@ class TestPreviousVisit(TestCase):
             self.fail(f"VisitSequenceError unexpectedly raised. Got '{e}'")
 
     def test_visit_sequence_enforcer_without_first_visit_in_sequence(self):
-        appointments = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         SubjectVisit.visit_sequence_cls = DisabledVisitSequence
         visit = SubjectVisit.objects.create(
             appointment=appointments[1],
@@ -75,11 +70,8 @@ class TestPreviousVisit(TestCase):
         self.assertRaises(VisitSequenceError, visit_sequence.enforce_sequence)
 
     def test_requires_previous_visit_thru_model(self):
-        """Asserts requires previous visit to exist on create.
-        """
-        appointments = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )
+        """Asserts requires previous visit to exist on create."""
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         SubjectVisit.objects.create(
             appointment=appointments[0],
             report_datetime=get_utcnow() - relativedelta(months=10),
@@ -106,9 +98,7 @@ class TestPreviousVisit(TestCase):
         )
 
     def test_requires_previous_visit_thru_model2(self):
-        appointments = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
 
         opts = appointments[1].__dict__
         opts.pop("_state")
@@ -134,9 +124,7 @@ class TestPreviousVisit(TestCase):
         )
 
     def test_previous_appointment(self):
-        appointments = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         visit_sequence = VisitSequence(appointment=appointments[0])
         self.assertIsNone(visit_sequence.previous_appointment)
         visit_sequence = VisitSequence(appointment=appointments[1])
@@ -145,9 +133,7 @@ class TestPreviousVisit(TestCase):
         self.assertEqual(visit_sequence.previous_appointment, appointments[1])
 
     def test_previous_appointment_with_unscheduled(self):
-        appointments = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
 
         # insert some unscheduled appointments
         opts = appointments[1].__dict__
@@ -167,16 +153,12 @@ class TestPreviousVisit(TestCase):
             self.assertEqual(visit_sequence.previous_appointment, appointments[i])
 
     def test_previous_appointment_broken_sequence1(self):
-        appointments = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
 
         self.assertRaises(AppointmentDeleteError, appointments[1].delete)
 
     def test_previous_appointment_broken_sequence2(self):
-        appointments = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
 
         opts = appointments[1].__dict__
         opts.pop("_state")
@@ -192,17 +174,13 @@ class TestPreviousVisit(TestCase):
         self.assertEqual(visit_sequence.previous_appointment, appointments[0])
 
         visit_sequence = VisitSequence(appointment=appointments[2])
-        self.assertRaises(
-            VisitSequenceError, getattr, visit_sequence, "previous_appointment"
-        )
+        self.assertRaises(VisitSequenceError, getattr, visit_sequence, "previous_appointment")
 
         visit_sequence = VisitSequence(appointment=appointments[3])
         self.assertEqual(visit_sequence.previous_appointment, appointments[2])
 
     def test_previous_visit(self):
-        appointments = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         for index, appointment in enumerate(appointments):
             SubjectVisit.objects.create(
                 appointment=appointment,
@@ -211,9 +189,7 @@ class TestPreviousVisit(TestCase):
             )
 
     def test_previous_visit2(self):
-        appointments = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         opts = appointments[1].__dict__
         opts.pop("_state")
         opts.pop("id")
@@ -228,7 +204,5 @@ class TestPreviousVisit(TestCase):
             SubjectVisit.objects.create(
                 appointment=appointment,
                 report_datetime=get_utcnow() - relativedelta(months=10 - index),
-                reason=SCHEDULED
-                if appointment.visit_code_sequence == 0
-                else UNSCHEDULED,
+                reason=SCHEDULED if appointment.visit_code_sequence == 0 else UNSCHEDULED,
             )

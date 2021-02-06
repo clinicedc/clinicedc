@@ -1,6 +1,7 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 from edc_utils import get_utcnow
+
 from edc_visit_tracking.crf_date_validator import (
     CrfDateValidator,
     CrfReportDateAllowanceError,
@@ -40,14 +41,11 @@ class TestVisitDateValidator(TestCase):
             with self.subTest(days=days):
                 try:
                     MyCrfDateValidator(
-                        report_datetime=visit_report_datetime
-                        + relativedelta(days=days),
+                        report_datetime=visit_report_datetime + relativedelta(days=days),
                         visit_report_datetime=visit_report_datetime,
                     )
                 except CrfReportDateAllowanceError as e:
-                    self.fail(
-                        f"VisitReportDateAllowanceError unexpectedly raised. Got {e}"
-                    )
+                    self.fail(f"VisitReportDateAllowanceError unexpectedly raised. Got {e}")
 
     def test_raises_if_report_datetime(self):
         class MyCrfDateValidator(CrfDateValidator):

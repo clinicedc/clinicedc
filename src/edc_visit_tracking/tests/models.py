@@ -11,17 +11,14 @@ from edc_reference.model_mixins import ReferenceModelMixin
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
-from edc_visit_schedule.model_mixins import (
-    OnScheduleModelMixin,
-    OffScheduleModelMixin,
-)
+from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
 
-from ..choices import VISIT_REASON, VISIT_REASON_MISSED, VISIT_INFO_SOURCE
+from ..choices import VISIT_INFO_SOURCE, VISIT_REASON, VISIT_REASON_MISSED
 from ..model_mixins import (
     CrfInlineModelMixin,
     SubjectVisitMissedModelMixin,
-    VisitTrackingCrfModelMixin,
     VisitModelMixin,
+    VisitTrackingCrfModelMixin,
 )
 from ..models import SubjectVisitMissedReasons
 
@@ -123,8 +120,7 @@ class CrfOneInline(CrfInlineModelMixin, BaseUuidModel):
 
 
 class BadCrfOneInline(CrfInlineModelMixin, BaseUuidModel):
-    """A model class missing _meta.crf_inline_parent.
-    """
+    """A model class missing _meta.crf_inline_parent."""
 
     crf_one = models.ForeignKey(CrfOne, on_delete=PROTECT)
 
@@ -154,7 +150,9 @@ class CustomSubjectVisitMissedReasons(ListModelMixin):
 
 
 class SubjectVisitMissed(
-    CrfModelMixin, SubjectVisitMissedModelMixin, BaseUuidModel,
+    CrfModelMixin,
+    SubjectVisitMissedModelMixin,
+    BaseUuidModel,
 ):
     missed_reasons = models.ManyToManyField(SubjectVisitMissedReasons, blank=True)
 

@@ -1,5 +1,5 @@
 from dateutil.relativedelta import relativedelta
-from django.test import override_settings, TestCase, tag
+from django.test import TestCase, override_settings, tag
 from edc_appointment.models import Appointment
 from edc_constants.constants import (
     ALIVE,
@@ -17,11 +17,12 @@ from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule import Crf, FormsCollection, Schedule, Visit, VisitSchedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 
 from ..forms import SubjectVisitMissedForm
 from ..helper import Helper
-from ..models import list_data, SubjectVisit, SubjectVisitMissedReasons
+from ..models import SubjectVisit, SubjectVisitMissedReasons, list_data
 
 
 class TestVisit(TestCase):
@@ -89,16 +90,12 @@ class TestVisit(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_reference_configs.register_from_visit_schedule(
-            visit_models={
-                "edc_appointment.appointment": "edc_visit_tracking.subjectvisit"
-            }
+            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
         )
 
     @staticmethod
     def get_subject_visit():
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment, reason=MISSED_VISIT
         )

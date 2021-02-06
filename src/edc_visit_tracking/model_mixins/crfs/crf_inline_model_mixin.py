@@ -1,6 +1,6 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
-from django.db.models import options, OneToOneField, ForeignKey
+from django.db.models import ForeignKey, OneToOneField, options
 
 options.DEFAULT_NAMES = options.DEFAULT_NAMES + ("crf_inline_parent",)
 
@@ -19,8 +19,7 @@ class InlineVisitMethodsModelMixin(models.Model):
 
 
 class CrfInlineModelMixin(InlineVisitMethodsModelMixin, models.Model):
-    """A mixin for models used as inlines in ModelAdmin.
-    """
+    """A mixin for models used as inlines in ModelAdmin."""
 
     def __init__(self, *args, **kwargs):
         """Try to detect the inline parent model attribute
@@ -53,14 +52,12 @@ class CrfInlineModelMixin(InlineVisitMethodsModelMixin, models.Model):
 
     @property
     def parent_instance(self):
-        """Return the instance of the inline parent model.
-        """
+        """Return the instance of the inline parent model."""
         return getattr(self, self._meta.crf_inline_parent)
 
     @property
     def parent_model(self):
-        """Return the class of the inline parent model.
-        """
+        """Return the class of the inline parent model."""
         field = getattr(self.__class__, self._meta.crf_inline_parent).field
         try:
             return field.rel.to

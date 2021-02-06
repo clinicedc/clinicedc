@@ -1,5 +1,5 @@
-from django.db import models
 from django.contrib.sites.managers import CurrentSiteManager as BaseCurrentSiteManager
+from django.db import models
 
 
 class CrfModelManager(models.Manager):
@@ -28,8 +28,7 @@ class CrfModelManager(models.Manager):
 
 
 class VisitModelManager(models.Manager):
-    """A manager class for visit models.
-    """
+    """A manager class for visit models."""
 
     use_in_migrations = True
 

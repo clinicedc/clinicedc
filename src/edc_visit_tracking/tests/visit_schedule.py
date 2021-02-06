@@ -1,6 +1,12 @@
 from dateutil.relativedelta import relativedelta
-from edc_visit_schedule import VisitSchedule, Schedule, Visit
-from edc_visit_schedule import FormsCollection, Crf, Requisition
+from edc_visit_schedule import (
+    Crf,
+    FormsCollection,
+    Requisition,
+    Schedule,
+    Visit,
+    VisitSchedule,
+)
 from edc_visit_schedule.tests.dummy_panel import DummyPanel
 
 
@@ -10,9 +16,7 @@ class Panel(DummyPanel):
     """
 
     def __init__(self, name):
-        super().__init__(
-            requisition_model="edc_appointment.subjectrequisition", name=name
-        )
+        super().__init__(requisition_model="edc_appointment.subjectrequisition", name=name)
 
 
 crfs = FormsCollection(

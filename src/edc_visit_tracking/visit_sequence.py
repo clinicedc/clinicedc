@@ -1,4 +1,4 @@
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 
 
 class VisitSequenceError(Exception):
@@ -89,9 +89,7 @@ class VisitSequence:
             if self.visit_code_sequence:
                 opts.update(visit_code_sequence=self.visit_code_sequence - 1)
                 try:
-                    previous_appointment = self.appointment_model_cls.objects.get(
-                        **opts
-                    )
+                    previous_appointment = self.appointment_model_cls.objects.get(**opts)
                 except ObjectDoesNotExist:
                     raise VisitSequenceError(
                         f"Appointment unexpectedly does not exist. Expected "
@@ -116,8 +114,7 @@ class VisitSequence:
 
     @property
     def previous_visit(self):
-        """Returns the previous visit model instance if it exists.
-        """
+        """Returns the previous visit model instance if it exists."""
         if self.previous_appointment:
             return self.model_cls.objects.get(appointment=self.previous_appointment)
         return None

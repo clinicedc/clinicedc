@@ -1,8 +1,7 @@
-from model_bakery import baker
-
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from edc_utils import get_utcnow
+from model_bakery import baker
 
 from ..constants import SCHEDULED
 
@@ -26,8 +25,7 @@ class VisitTestHelper:
     def add_visit(
         self, model_label=None, visit_code=None, reason=None, subject_identifier=None
     ):
-        """Adds (or gets) and returns a visit for give model and code.
-        """
+        """Adds (or gets) and returns a visit for give model and code."""
         reason = reason or SCHEDULED
         model = django_apps.get_model(*model_label.split("."))
         try:
@@ -59,9 +57,7 @@ class VisitTestHelper:
             )
         return visit
 
-    def add_visits(
-        self, *codes, model_label=None, subject_identifier=None, reason=None
-    ):
+    def add_visits(self, *codes, model_label=None, subject_identifier=None, reason=None):
         """Adds a sequence of visits for the codes provided.
 
         If a infant visit already exists, it will just pass.

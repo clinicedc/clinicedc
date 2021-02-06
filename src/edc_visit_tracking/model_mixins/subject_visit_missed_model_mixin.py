@@ -91,7 +91,9 @@ class SubjectVisitMissedModelMixin(models.Model):
     )
 
     comment = models.TextField(
-        verbose_name="Please provide further details, if any", null=True, blank=True,
+        verbose_name="Please provide further details, if any",
+        null=True,
+        blank=True,
     )
 
     class Meta:

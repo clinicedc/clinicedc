@@ -1,10 +1,12 @@
 from django.db import models
-from edc_constants.choices import YES_NO, ALIVE_DEAD_UNKNOWN
-from edc_constants.constants import YES, ALIVE, NOT_APPLICABLE
-from edc_model.models import datetime_not_future, date_not_future
+from edc_constants.choices import ALIVE_DEAD_UNKNOWN, YES_NO
+from edc_constants.constants import ALIVE, NOT_APPLICABLE, YES
+from edc_model.models import date_not_future, datetime_not_future
 from edc_model_fields.fields import OtherCharField
-from edc_protocol.validators import date_not_before_study_start
-from edc_protocol.validators import datetime_not_before_study_start
+from edc_protocol.validators import (
+    date_not_before_study_start,
+    datetime_not_before_study_start,
+)
 from edc_utils import get_utcnow
 
 from ...choices import VISIT_REASON_UNSCHEDULED
@@ -20,13 +22,12 @@ class VisitModelFieldsMixin(models.Model):
     )
 
     reason = models.CharField(
-        verbose_name="What is the reason for this report?", max_length=25,
+        verbose_name="What is the reason for this report?",
+        max_length=25,
     )
 
     reason_unscheduled = models.CharField(
-        verbose_name=(
-            "If 'unscheduled', provide the reason for " "the unscheduled visit"
-        ),
+        verbose_name=("If 'unscheduled', provide the reason for " "the unscheduled visit"),
         max_length=25,
         choices=VISIT_REASON_UNSCHEDULED,
         default=NOT_APPLICABLE,

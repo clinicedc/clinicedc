@@ -1,13 +1,13 @@
-from edc_constants.constants import OTHER, NOT_APPLICABLE
+from edc_constants.constants import NOT_APPLICABLE, OTHER
 
 from .constants import (
+    CHART,
+    COMPLETED_PROTOCOL_VISIT,
+    DEFERRED_VISIT,
+    LOST_VISIT,
     MISSED_VISIT,
     SCHEDULED,
     UNSCHEDULED,
-    LOST_VISIT,
-    DEFERRED_VISIT,
-    COMPLETED_PROTOCOL_VISIT,
-    CHART,
 )
 
 VISIT_REASON = (

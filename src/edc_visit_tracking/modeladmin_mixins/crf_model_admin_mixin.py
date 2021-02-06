@@ -34,9 +34,7 @@ class CrfModelAdminMixin:
     def get_search_fields(self, request):
         search_fields = super().get_search_fields(request)
         fields = [f"{self.visit_model_attr}__appointment__subject_identifier"]
-        search_fields = [f for f in fields if f not in search_fields] + list(
-            search_fields
-        )
+        search_fields = [f for f in fields if f not in search_fields] + list(search_fields)
         return search_fields
 
     def get_list_filter(self, request):
@@ -60,9 +58,7 @@ class CrfModelAdminMixin:
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         db = kwargs.get("using")
-        if db_field.name == self.visit_model_attr and request.GET.get(
-            self.visit_model_attr
-        ):
+        if db_field.name == self.visit_model_attr and request.GET.get(self.visit_model_attr):
             if request.GET.get(self.visit_model_attr):
                 kwargs["queryset"] = self.visit_model._default_manager.using(db).filter(
                     id__exact=request.GET.get(self.visit_model_attr)

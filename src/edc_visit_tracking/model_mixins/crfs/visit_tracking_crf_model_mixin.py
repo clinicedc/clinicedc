@@ -9,7 +9,6 @@ from edc_visit_schedule.model_mixins import SubjectScheduleModelMixin
 
 from ...crf_date_validator import CrfDateValidator
 from ...managers import CrfModelManager
-
 from ..visit_model_mixin import VisitModelMixin
 
 
@@ -66,8 +65,7 @@ class VisitMethodsModelMixin(models.Model):
 
     @classmethod
     def visit_model_cls(cls):
-        """Returns the visit foreign key attribute model class.
-        """
+        """Returns the visit foreign key attribute model class."""
         fields = {field.name: field for field in cls._meta.fields}
         for name, field in fields.items():
             if name == cls.visit_model_attr():

@@ -1,12 +1,11 @@
 from django.apps import apps as django_apps
 from edc_appointment.managers import AppointmentManager
 from edc_appointment.model_mixins import AppointmentModelMixin
-from edc_list_data.model_mixins import ListModelMixin, ListModelManager
+from edc_list_data.model_mixins import ListModelManager, ListModelMixin
 from edc_model.models import HistoricalRecords
 
 from ..managers import CrfModelManager, VisitModelManager
-from ..model_mixins import VisitModelMixin
-from ..model_mixins import VisitTrackingCrfModelMixin
+from ..model_mixins import VisitModelMixin, VisitTrackingCrfModelMixin
 
 
 class ManagerTestCase:
@@ -26,8 +25,7 @@ class ManagerTestCase:
 
     @property
     def appointment_model(self):
-        """Returns the appointment model name.
-        """
+        """Returns the appointment model name."""
         appointment_model = None
         app_config = django_apps.get_app_config(self.app_label)
         for model in app_config.get_models():
@@ -38,8 +36,7 @@ class ManagerTestCase:
 
     @property
     def visit_models(self):
-        """Returns a list of "Visit" model names.
-        """
+        """Returns a list of "Visit" model names."""
         visit_models = []
         app_config = django_apps.get_app_config(self.app_label)
         for model in app_config.get_models():
@@ -49,8 +46,7 @@ class ManagerTestCase:
 
     @property
     def requisition_models(self):
-        """Returns a list of "Requisition" model names.
-        """
+        """Returns a list of "Requisition" model names."""
         requisition_models = []
         app_config = django_apps.get_app_config(self.app_label)
         for model in app_config.get_models():
@@ -60,8 +56,7 @@ class ManagerTestCase:
 
     @property
     def list_models(self):
-        """Returns a list of "List" model names.
-        """
+        """Returns a list of "List" model names."""
         list_models = []
         app_config = django_apps.get_app_config(self.app_label)
         for model in app_config.get_models():
@@ -91,8 +86,7 @@ class ManagerTestCase:
 
     @property
     def crf_models(self):
-        """Returns a list of CRF model names.
-        """
+        """Returns a list of CRF model names."""
         crf_models = []
         app_config = django_apps.get_app_config(self.app_label)
         for model in app_config.get_models():
@@ -134,9 +128,7 @@ class ManagerTestCase:
                     )
 
     def test_crf_default_manager_subclass(self):
-        self.have_manager_or_raise(
-            models=self.crf_models, manager_cls=self.crf_manager_cls
-        )
+        self.have_manager_or_raise(models=self.crf_models, manager_cls=self.crf_manager_cls)
 
     def test_crf_history_manager_subclass(self):
         self.have_history_or_raise(models=self.crf_models)
