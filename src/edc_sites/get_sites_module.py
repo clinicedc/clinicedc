@@ -2,7 +2,6 @@ from importlib import import_module
 from warnings import warn
 
 from django.conf import settings
-
 from django.core.management.color import color_style
 
 style = color_style()

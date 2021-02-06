@@ -20,23 +20,48 @@ sites = [
         fqdn=fqdn,
     ),
     SingleSite(
-        30, "lobatse", "lobatse", country="botswana", country_code="bw", fqdn=fqdn,
+        30,
+        "lobatse",
+        "lobatse",
+        country="botswana",
+        country_code="bw",
+        fqdn=fqdn,
     ),
     SingleSite(
-        40, "gaborone", "gaborone", country="botswana", country_code="bw", fqdn=fqdn,
+        40,
+        "gaborone",
+        "gaborone",
+        country="botswana",
+        country_code="bw",
+        fqdn=fqdn,
     ),
     SingleSite(
-        50, "karakobis", "karakobis", country="botswana", country_code="bw", fqdn=fqdn,
+        50,
+        "karakobis",
+        "karakobis",
+        country="botswana",
+        country_code="bw",
+        fqdn=fqdn,
     ),
     SingleSite(
-        60, "windhoek", "windhoek", country="namibia", country_code="na", fqdn=fqdn,
+        60,
+        "windhoek",
+        "windhoek",
+        country="namibia",
+        country_code="na",
+        fqdn=fqdn,
     ),
 ]
 
 
 more_sites = [
     SingleSite(
-        60, "windhoek", "windhoek", country="namibia", country_code="na", fqdn=fqdn,
+        60,
+        "windhoek",
+        "windhoek",
+        country="namibia",
+        country_code="na",
+        fqdn=fqdn,
     ),
 ]
 

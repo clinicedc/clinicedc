@@ -1,18 +1,18 @@
 from django import forms
+from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, tag  # noqa
 from django.test.utils import override_settings
-from edc_sites import get_sites_by_country, get_all_sites
-from edc_sites import get_current_country
-from edc_sites.models import SiteProfile
-from edc_sites.sites import all_sites
-from django.conf import settings
 from multisite import SiteID
 from multisite.models import Alias
 
+from edc_sites import get_all_sites, get_current_country, get_sites_by_country
+from edc_sites.models import SiteProfile
+from edc_sites.sites import all_sites
+
 from ..add_or_update_django_sites import add_or_update_django_sites
-from ..get_site_id import get_site_id, InvalidSiteError
 from ..forms import SiteModelFormMixin
+from ..get_site_id import InvalidSiteError, get_site_id
 from .models import TestModelWithSite
 from .site_test_case_mixin import SiteTestCaseMixin
 from .sites import all_test_sites
@@ -146,9 +146,7 @@ class TestSites3(SiteTestCaseMixin, TestCase):
             add_or_update_django_sites(sites=sites, verbose=False)
         site = Site.objects.get(id=10)
         self.assertEqual(get_current_country(), "botswana")
-        self.assertEqual(
-            Alias.objects.get(site=site).domain, "mochudi.bw.clinicedc.org"
-        )
+        self.assertEqual(Alias.objects.get(site=site).domain, "mochudi.bw.clinicedc.org")
 
     @override_settings(
         EDC_SITES_MODULE_NAME="edc_sites.tests.sites", EDC_SITES_UAT_DOMAIN=False
@@ -161,6 +159,4 @@ class TestSites3(SiteTestCaseMixin, TestCase):
         for sites in get_all_sites().values():
             add_or_update_django_sites(sites=sites, verbose=False)
         site = Site.objects.get(id=10)
-        self.assertEqual(
-            Alias.objects.get(site=site).domain, "mochudi.bw.clinicedc.org"
-        )
+        self.assertEqual(Alias.objects.get(site=site).domain, "mochudi.bw.clinicedc.org")

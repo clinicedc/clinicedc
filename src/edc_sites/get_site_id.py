@@ -19,7 +19,6 @@ def get_site_id(value, sites=None):
             site_ids = [site.site_id for site in sites]
             site_names = [site.name for site in sites]
             raise InvalidSiteError(
-                f"Invalid site. Got '{value}'. Expected one of "
-                f"{site_ids} or {site_names}."
+                f"Invalid site. Got '{value}'. Expected one of " f"{site_ids} or {site_names}."
             )
     return site_id

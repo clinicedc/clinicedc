@@ -5,6 +5,7 @@ to the name of that module.
 
 """
 from django.conf import settings
+
 from edc_sites.single_site import SingleSite
 
 default_country = getattr(settings, "EDC_SITES_DEFAULT_COUNTRY", "botswana")
