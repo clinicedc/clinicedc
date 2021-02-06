@@ -1,13 +1,23 @@
 # from https://gist.github.com/bruce-shi/fd0e3f5e2360c64bc9ce2efb254744f7
 from collections import defaultdict
-from django.db.models.signals import *
+
+from django.db.models.signals import (
+    post_delete,
+    post_init,
+    post_migrate,
+    post_save,
+    pre_delete,
+    pre_init,
+    pre_migrate,
+    pre_save,
+)
 
 
 class DisableSignals(object):
     """
-        Example usage:
-        with DisableSignals():
-            user.save()  # will not call any signals
+    Example usage:
+    with DisableSignals():
+        user.save()  # will not call any signals
 
     """
 

@@ -1,6 +1,5 @@
 import arrow
 import pytz
-
 from arrow.arrow import Arrow
 from django.conf import settings
 
@@ -32,6 +31,5 @@ def to_arrow_utc(dt, timezone=None):
 
 
 def to_utc(dt):
-    """Returns UTC datetime from any aware datetime.
-    """
+    """Returns UTC datetime from any aware datetime."""
     return Arrow.fromdatetime(dt, dt.tzinfo).to("utc").datetime

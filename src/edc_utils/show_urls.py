@@ -1,8 +1,8 @@
 # taken from django-extensions management command
 # https://github.com/django-extensions/django-extensions/blob/master/django_extensions/management/commands/show_urls.py
 
-from django.urls import URLPattern, URLResolver  # type: ignore
 from django.core.exceptions import ViewDoesNotExist
+from django.urls import URLPattern, URLResolver  # type: ignore
 
 
 class RegexURLPattern:  # type: ignore
@@ -65,9 +65,7 @@ def extract_views_from_urlpatterns(urlpatterns, base="", namespace=None):
                 _namespace = p.namespace or namespace
             pattern = describe_pattern(p)
             views.extend(
-                extract_views_from_urlpatterns(
-                    patterns, base + pattern, namespace=_namespace
-                )
+                extract_views_from_urlpatterns(patterns, base + pattern, namespace=_namespace)
             )
         elif hasattr(p, "_get_callback"):
             try:

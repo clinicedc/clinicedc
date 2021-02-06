@@ -2,7 +2,6 @@ import random
 import re
 
 import pytz
-
 from arrow.arrow import Arrow
 from django.conf import settings
 
@@ -12,8 +11,7 @@ safe_allowed_chars = "ABCDEFGHKMNPRTUVWXYZ2346789"
 def get_safe_random_string(length=12, safe=None, allowed_chars=None):
     safe = True if safe is None else safe
     allowed_chars = allowed_chars or (
-        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKL"
-        "MNOPQRTUVWXYZ012346789!@#%^&*()?<>.,[]{}"
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKL" "MNOPQRTUVWXYZ012346789!@#%^&*()?<>.,[]{}"
     )
     if safe:
         allowed_chars = "ABCDEFGHKMNPRTUVWXYZ2346789"
@@ -59,15 +57,13 @@ def convert_php_dateformat(php_format_string):
 
 
 def convert_from_camel(name):
-    """Converts from camel case to lowercase divided by underscores.
-    """
+    """Converts from camel case to lowercase divided by underscores."""
     s1 = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
     return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
 
 def formatted_datetime(aware_datetime, php_dateformat=None, tz=None):
-    """Returns a formatted datetime string, localized by default.
-    """
+    """Returns a formatted datetime string, localized by default."""
     if aware_datetime:
         php_dateformat = php_dateformat or settings.SHORT_DATETIME_FORMAT
         tz = tz or pytz.timezone(settings.TIME_ZONE)
@@ -78,8 +74,7 @@ def formatted_datetime(aware_datetime, php_dateformat=None, tz=None):
 
 
 def formatted_date(dte, php_dateformat=None):
-    """Returns a formatted datetime string.
-    """
+    """Returns a formatted datetime string."""
     if dte:
         php_dateformat = php_dateformat or settings.SHORT_DATE_FORMAT
         return dte.strftime(convert_php_dateformat(php_dateformat))

@@ -1,8 +1,8 @@
 import os
 import urllib
+from urllib.error import URLError
 
 from django.conf import settings
-from urllib.error import URLError
 
 
 def get_static_file(app_label, filename):
