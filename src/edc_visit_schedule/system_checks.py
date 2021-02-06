@@ -8,9 +8,7 @@ def visit_schedule_check(app_configs, **kwargs):
 
     if not site_visit_schedules.visit_schedules:
         errors.append(
-            Warning(
-                "No visit schedules have been registered!", id="edc_visit_schedule.001"
-            )
+            Warning("No visit schedules have been registered!", id="edc_visit_schedule.001")
         )
     site_results = site_visit_schedules.check()
     for key, results in site_results.items():

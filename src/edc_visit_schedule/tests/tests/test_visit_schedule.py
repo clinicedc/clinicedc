@@ -1,38 +1,45 @@
 from datetime import date
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag, override_settings
+from django.test import TestCase, override_settings, tag
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
-from edc_constants.constants import MALE, FEMALE
 from edc_consent.consent import Consent
+from edc_constants.constants import FEMALE, MALE
+from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
 from edc_reference import site_reference_configs
+from edc_registration.models import RegisteredSubject
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
-from edc_facility.import_holidays import import_holidays
-from edc_registration.models import RegisteredSubject
+from edc_visit_tracking.constants import SCHEDULED
+
 from edc_visit_schedule.constants import ON_SCHEDULE
 from edc_visit_schedule.models import SubjectScheduleHistory
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import (
-    site_visit_schedules,
     SiteVisitScheduleError,
+    site_visit_schedules,
 )
 from edc_visit_schedule.subject_schedule import (
-    NotOnScheduleError,
     InvalidOffscheduleDate,
+    NotConsentedError,
+    NotOnScheduleError,
+    UnknownSubjectError,
 )
-from edc_visit_schedule.subject_schedule import NotConsentedError, UnknownSubjectError
-from edc_visit_schedule.visit import Visit, Crf, FormsCollectionError, FormsCollection
-from edc_visit_schedule.visit_schedule import VisitSchedule
+from edc_visit_schedule.visit import Crf, FormsCollection, FormsCollectionError, Visit
 from edc_visit_schedule.visit_schedule import (
-    VisitScheduleNameError,
     AlreadyRegisteredSchedule,
+    VisitSchedule,
+    VisitScheduleNameError,
 )
-from edc_visit_tracking.constants import SCHEDULED
-from visit_schedule_app.models import OnSchedule, OnScheduleThree, OffSchedule
-from visit_schedule_app.models import SubjectVisit, SubjectConsent
+from visit_schedule_app.models import (
+    OffSchedule,
+    OnSchedule,
+    OnScheduleThree,
+    SubjectConsent,
+    SubjectVisit,
+)
 
 
 @override_settings(
@@ -54,16 +61,13 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
         )
         import_holidays()
         site_reference_configs.register_from_visit_schedule(
-            visit_models={
-                "edc_appointment.appointment": "visit_schedule_app.subjectvisit"
-            }
+            visit_models={"edc_appointment.appointment": "visit_schedule_app.subjectvisit"}
         )
         site_consents.registry = {}
         site_consents.register(v1_consent)
 
     def test_visit_schedule_name(self):
-        """Asserts raises on invalid name.
-        """
+        """Asserts raises on invalid name."""
         self.assertRaises(
             VisitScheduleNameError,
             VisitSchedule,
@@ -74,8 +78,7 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
         )
 
     def test_visit_schedule_repr(self):
-        """Asserts repr evaluates correctly.
-        """
+        """Asserts repr evaluates correctly."""
         v = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
@@ -315,9 +318,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
 
     def test_cannot_create_offschedule_without_onschedule(self):
         self.assertEqual(
-            OnSchedule.objects.filter(
-                subject_identifier=self.subject_identifier
-            ).count(),
+            OnSchedule.objects.filter(subject_identifier=self.subject_identifier).count(),
             0,
         )
         self.assertRaises(

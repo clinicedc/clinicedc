@@ -1,9 +1,6 @@
 from django import forms
 
-from ..subject_schedule import (
-    NotOnScheduleError,
-    NotOnScheduleForDateError,
-)
+from ..subject_schedule import NotOnScheduleError, NotOnScheduleForDateError
 
 
 class SubjectScheduleModelFormMixin:

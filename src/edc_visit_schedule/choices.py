@@ -1,5 +1,4 @@
-from .constants import HOURS, DAYS, WEEKS, MONTHS, YEARS, ON_SCHEDULE, OFF_SCHEDULE
-
+from .constants import DAYS, HOURS, MONTHS, OFF_SCHEDULE, ON_SCHEDULE, WEEKS, YEARS
 
 SCHEDULE_STATUS = ((ON_SCHEDULE, "On schedule"), (OFF_SCHEDULE, "Off schedule"))
 

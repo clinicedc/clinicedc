@@ -1,11 +1,12 @@
 import arrow
-
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models import options
-from edc_model.models import datetime_not_future, date_not_future
-from edc_protocol.validators import date_not_before_study_start
-from edc_protocol.validators import datetime_not_before_study_start
+from edc_model.models import date_not_future, datetime_not_future
+from edc_protocol.validators import (
+    date_not_before_study_start,
+    datetime_not_before_study_start,
+)
 from edc_utils import get_utcnow
 
 from ..site_visit_schedules import site_visit_schedules
@@ -16,8 +17,7 @@ if "offschedule_datetime_field" not in options.DEFAULT_NAMES:
 
 
 class OffScheduleModelMixin(ScheduleModelMixin):
-    """Model mixin for a schedule's OffSchedule model.
-    """
+    """Model mixin for a schedule's OffSchedule model."""
 
     offschedule_datetime = models.DateTimeField(
         verbose_name="Date and time subject taken off schedule",
@@ -53,16 +53,14 @@ class OffScheduleModelMixin(ScheduleModelMixin):
 
     @property
     def visit_schedule(self):
-        """Returns a visit schedule object.
-        """
+        """Returns a visit schedule object."""
         return site_visit_schedules.get_by_offschedule_model(
             offschedule_model=self._meta.label_lower
         )[0]
 
     @property
     def schedule(self):
-        """Returns a schedule object.
-        """
+        """Returns a schedule object."""
         return site_visit_schedules.get_by_offschedule_model(
             offschedule_model=self._meta.label_lower
         )[1]
@@ -71,7 +69,5 @@ class OffScheduleModelMixin(ScheduleModelMixin):
         abstract = True
         offschedule_datetime_field = "offschedule_datetime"
         indexes = [
-            models.Index(
-                fields=["id", "subject_identifier", "offschedule_datetime", "site"]
-            )
+            models.Index(fields=["id", "subject_identifier", "offschedule_datetime", "site"])
         ]

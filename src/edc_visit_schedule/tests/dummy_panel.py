@@ -1,7 +1,6 @@
 class DummyPanel:
 
-    """A dummy lab panel object.
-    """
+    """A dummy lab panel object."""
 
     def __init__(self, name=None, verbose_name=None, requisition_model=None):
         self.name = name

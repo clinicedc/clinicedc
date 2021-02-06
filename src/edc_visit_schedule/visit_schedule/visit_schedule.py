@@ -74,8 +74,7 @@ class VisitSchedule:
         return django_apps.get_model(self.death_report_model)
 
     def add_schedule(self, schedule=None):
-        """Adds a schedule, if not already added.
-        """
+        """Adds a schedule, if not already added."""
         if schedule.name in self.schedules:
             raise AlreadyRegisteredSchedule(
                 f"Schedule '{schedule.name}' is already registered. See '{self}'"

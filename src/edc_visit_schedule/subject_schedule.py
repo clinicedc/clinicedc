@@ -1,9 +1,9 @@
 from django.apps import apps as django_apps
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from edc_appointment.constants import IN_PROGRESS_APPT, COMPLETE_APPT
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from edc_appointment.constants import COMPLETE_APPT, IN_PROGRESS_APPT
 from edc_appointment.creators import AppointmentsCreator
-from edc_utils import get_utcnow, convert_php_dateformat, formatted_datetime
+from edc_utils import convert_php_dateformat, formatted_datetime, get_utcnow
 
 from .constants import OFF_SCHEDULE, ON_SCHEDULE
 
@@ -212,9 +212,7 @@ class SubjectSchedule:
                 subject_identifier=subject_identifier,
                 schedule_name=self.schedule_name,
                 visit_schedule_name=self.visit_schedule_name,
-                **{
-                    f"{related_visit_model_attr}__report_datetime__gt": offschedule_datetime
-                },
+                **{f"{related_visit_model_attr}__report_datetime__gt": offschedule_datetime},
             )
         except ObjectDoesNotExist:
             appointments = None
@@ -223,9 +221,7 @@ class SubjectSchedule:
                 subject_identifier=subject_identifier,
                 schedule_name=self.schedule_name,
                 visit_schedule_name=self.visit_schedule_name,
-                **{
-                    f"{related_visit_model_attr}__report_datetime__gt": offschedule_datetime
-                },
+                **{f"{related_visit_model_attr}__report_datetime__gt": offschedule_datetime},
             )
         if appointments:
             raise InvalidOffscheduleDate(
@@ -256,14 +252,11 @@ class SubjectSchedule:
         """Resaves the onschedule model instance to trigger, for example,
         appointment creation (if using edc_appointment mixin).
         """
-        obj = self.onschedule_model_cls.objects.get(
-            subject_identifier=subject_identifier
-        )
+        obj = self.onschedule_model_cls.objects.get(subject_identifier=subject_identifier)
         obj.save()
 
     def registered_or_raise(self, subject_identifier=None):
-        """Raises an exception if RegisteredSubject instance does not exist.
-        """
+        """Raises an exception if RegisteredSubject instance does not exist."""
         model_cls = django_apps.get_model(self.registered_subject_model)
         try:
             model_cls.objects.get(subject_identifier=subject_identifier)
@@ -275,8 +268,7 @@ class SubjectSchedule:
             )
 
     def consented_or_raise(self, subject_identifier=None):
-        """Raises an exception if one or more consents do not exist.
-        """
+        """Raises an exception if one or more consents do not exist."""
         if not self.consent_model_cls.objects.filter(
             subject_identifier=subject_identifier
         ).exists():
@@ -292,9 +284,7 @@ class SubjectSchedule:
         """Raise an exception if subject is not on the schedule during
         the given date.
         """
-        compare_as_datetimes = (
-            True if compare_as_datetimes is None else compare_as_datetimes
-        )
+        compare_as_datetimes = True if compare_as_datetimes is None else compare_as_datetimes
         try:
             onschedule_obj = self.onschedule_model_cls.objects.get(
                 subject_identifier=subject_identifier

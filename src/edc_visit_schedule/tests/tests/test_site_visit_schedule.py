@@ -1,12 +1,13 @@
 from django.test import TestCase, tag
+
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import (
-    site_visit_schedules,
+    AlreadyRegisteredVisitSchedule,
     SiteVisitScheduleError,
+    site_visit_schedules,
 )
-from edc_visit_schedule.site_visit_schedules import AlreadyRegisteredVisitSchedule
 from edc_visit_schedule.visit_schedule import VisitSchedule
-from visit_schedule_app.models import OnSchedule, OffSchedule
+from visit_schedule_app.models import OffSchedule, OnSchedule
 
 
 class TestSiteVisitSchedule(TestCase):
@@ -85,16 +86,11 @@ class TestSiteVisitSchedule1(TestCase):
         site_visit_schedules.register(self.visit_schedule_two)
 
     def test_visit_schedules(self):
-        self.assertIn(
-            self.visit_schedule, site_visit_schedules.visit_schedules.values()
-        )
-        self.assertIn(
-            self.visit_schedule_two, site_visit_schedules.visit_schedules.values()
-        )
+        self.assertIn(self.visit_schedule, site_visit_schedules.visit_schedules.values())
+        self.assertIn(self.visit_schedule_two, site_visit_schedules.visit_schedules.values())
 
     def test_get_visit_schedules(self):
-        """Asserts returns a dictionary of visit schedules.
-        """
+        """Asserts returns a dictionary of visit schedules."""
         self.assertEqual(len(site_visit_schedules.get_visit_schedules()), 2)
 
     def test_get_visit_schedule_by_name(self):

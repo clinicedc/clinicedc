@@ -13,9 +13,7 @@ def get_onschedule_models(subject_identifier=None, report_datetime=None):
     for this subject and date.
     """
     onschedule_models = []
-    SubjectScheduleHistory = django_apps.get_model(
-        "edc_visit_schedule.SubjectScheduleHistory"
-    )
+    SubjectScheduleHistory = django_apps.get_model("edc_visit_schedule.SubjectScheduleHistory")
     for onschedule_model_obj in SubjectScheduleHistory.objects.onschedules(
         subject_identifier=subject_identifier, report_datetime=report_datetime
     ):
@@ -35,9 +33,7 @@ def get_offschedule_models(subject_identifier=None, report_datetime=None):
     See also, manager method `onschedules`.
     """
     offschedule_models = []
-    SubjectScheduleHistory = django_apps.get_model(
-        "edc_visit_schedule.SubjectScheduleHistory"
-    )
+    SubjectScheduleHistory = django_apps.get_model("edc_visit_schedule.SubjectScheduleHistory")
     onschedule_models = SubjectScheduleHistory.objects.onschedules(
         subject_identifier=subject_identifier, report_datetime=report_datetime
     )

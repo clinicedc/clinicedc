@@ -1,5 +1,4 @@
 import arrow
-
 from django.conf import settings
 
 from .exceptions import ScheduleError
@@ -67,9 +66,7 @@ class Window:
         visit = self.visits.get(self.visit_code)
         visit.timepoint_datetime = self.timepoint_datetime
         if not (
-            visit.dates.lower
-            <= arrow.get(self.dt).to("utc").datetime
-            <= visit.dates.upper
+            visit.dates.lower <= arrow.get(self.dt).to("utc").datetime <= visit.dates.upper
         ):
             raise ScheduledVisitWindowError(
                 "Invalid datetime. Falls outside of the "

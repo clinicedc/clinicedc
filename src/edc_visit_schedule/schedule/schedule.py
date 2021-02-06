@@ -2,9 +2,13 @@ import re
 
 from django.core.management.color import color_style
 
-from ..site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
-from ..subject_schedule import NotOnScheduleForDateError, NotOnScheduleError
-from ..subject_schedule import SubjectSchedule, SubjectScheduleError
+from ..site_visit_schedules import SiteVisitScheduleError, site_visit_schedules
+from ..subject_schedule import (
+    NotOnScheduleError,
+    NotOnScheduleForDateError,
+    SubjectSchedule,
+    SubjectScheduleError,
+)
 from ..visit import Visit
 from .visit_collection import VisitCollection
 from .window import Window
@@ -80,8 +84,7 @@ class Schedule:
         return self.name
 
     def add_visit(self, visit=None, **kwargs):
-        """Adds a unique visit to the schedule.
-        """
+        """Adds a unique visit to the schedule."""
         visit = visit or self.visit_cls(**kwargs)
         for attr in ["code", "title", "timepoint", "rbase"]:
             if getattr(visit, attr) in [getattr(v, attr) for v in self.visits.values()]:
@@ -120,8 +123,7 @@ class Schedule:
         return self._subject
 
     def put_on_schedule(self, **kwargs):
-        """Wrapper method to puts a subject onto this schedule.
-        """
+        """Wrapper method to puts a subject onto this schedule."""
         self.subject.put_on_schedule(**kwargs)
 
     def refresh_schedule(self, **kwargs):
@@ -131,9 +133,7 @@ class Schedule:
         self.subject.resave(**kwargs)
 
     def take_off_schedule(self, offschedule_datetime=None, **kwargs):
-        self.subject.take_off_schedule(
-            offschedule_datetime=offschedule_datetime, **kwargs
-        )
+        self.subject.take_off_schedule(offschedule_datetime=offschedule_datetime, **kwargs)
 
     def is_onschedule(self, **kwargs):
         try:
@@ -143,9 +143,7 @@ class Schedule:
         return True
 
     def datetime_in_window(self, **kwargs):
-        return self.window_cls(
-            name=self.name, visits=self.visits, **kwargs
-        ).datetime_in_window
+        return self.window_cls(name=self.name, visits=self.visits, **kwargs).datetime_in_window
 
     @property
     def onschedule_model_cls(self):

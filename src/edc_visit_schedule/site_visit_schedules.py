@@ -2,8 +2,8 @@ import copy
 import sys
 
 from django.apps import apps as django_apps
-from django.utils.module_loading import import_module, module_has_submodule
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.module_loading import import_module, module_has_submodule
 
 
 class RegistryNotLoaded(Exception):
@@ -19,7 +19,7 @@ class SiteVisitScheduleError(Exception):
 
 
 class SiteVisitSchedules:
-    """ Main controller of :class:`VisitSchedule` objects.
+    """Main controller of :class:`VisitSchedule` objects.
 
     A visit_schedule contains schedules
     """
@@ -58,8 +58,7 @@ class SiteVisitSchedules:
         return self.registry
 
     def get_visit_schedule(self, visit_schedule_name=None, **kwargs):
-        """Returns a visit schedule instance or raises.
-        """
+        """Returns a visit schedule instance or raises."""
         try:
             visit_schedule_name = visit_schedule_name.split(".")[0]
         except AttributeError:
@@ -84,9 +83,7 @@ class SiteVisitSchedules:
                 visit_schedule_name = visit_schedule_name.split(".")[0]
             except AttributeError:
                 pass
-            visit_schedules[visit_schedule_name] = self.get_visit_schedule(
-                visit_schedule_name
-            )
+            visit_schedules[visit_schedule_name] = self.get_visit_schedule(visit_schedule_name)
         return visit_schedules or self.registry
 
     def get_by_onschedule_model(self, onschedule_model=None):
@@ -111,9 +108,7 @@ class SiteVisitSchedules:
 
         attr `loss_to_followup_model` is in "label_lower" format.
         """
-        return self._get_by_model(
-            attr="loss_to_followup_model", model=loss_to_followup_model
-        )
+        return self._get_by_model(attr="loss_to_followup_model", model=loss_to_followup_model)
 
     def _get_by_model(self, attr=None, model=None):
         ret = []
@@ -215,9 +210,7 @@ class SiteVisitSchedules:
                     before_import_registry = copy.copy(site_visit_schedules._registry)
                     import_module(f"{app}.{module_name}")
                     if verbose:
-                        sys.stdout.write(
-                            " * registered visit schedule from " f"'{app}'\n"
-                        )
+                        sys.stdout.write(" * registered visit schedule from " f"'{app}'\n")
                 except Exception as e:
                     if f"No module named '{app}.{module_name}'" not in str(e):
                         raise

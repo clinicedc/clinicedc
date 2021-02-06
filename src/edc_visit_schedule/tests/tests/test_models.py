@@ -1,37 +1,37 @@
 import arrow
-
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_consent.consent import Consent
-from edc_constants.constants import MALE, FEMALE
+from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
 from edc_reference import site_reference_configs
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
+from edc_visit_tracking.constants import SCHEDULED
+
 from edc_visit_schedule.constants import OFF_SCHEDULE, ON_SCHEDULE
 from edc_visit_schedule.models import SubjectScheduleHistory
 from edc_visit_schedule.site_visit_schedules import (
-    site_visit_schedules,
     RegistryNotLoaded,
+    site_visit_schedules,
 )
-from edc_visit_tracking.constants import SCHEDULED
 from visit_schedule_app.models import (
-    OnSchedule,
-    OffSchedule,
-    SubjectVisit,
+    BadOffSchedule1,
     CrfOne,
-    SubjectConsent,
+    OffSchedule,
+    OffScheduleFive,
+    OffScheduleSeven,
+    OffScheduleSix,
+    OnSchedule,
     OnScheduleFive,
     OnScheduleSeven,
-    OffScheduleFive,
     OnScheduleSix,
-    OffScheduleSix,
-    OffScheduleSeven,
-    BadOffSchedule1,
+    SubjectConsent,
+    SubjectVisit,
 )
 from visit_schedule_app.visit_schedule import (
     visit_schedule,
@@ -56,9 +56,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
-            visit_models={
-                "edc_appointment.appointment": "visit_schedule_app.subjectvisit"
-            }
+            visit_models={"edc_appointment.appointment": "visit_schedule_app.subjectvisit"}
         )
         v1_consent = Consent(
             "visit_schedule_app.subjectconsent",
@@ -81,9 +79,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
         self.assertEqual(obj.natural_key(), (self.subject_identifier,))
         self.assertEqual(
             obj,
-            OnSchedule.objects.get_by_natural_key(
-                subject_identifier=self.subject_identifier
-            ),
+            OnSchedule.objects.get_by_natural_key(subject_identifier=self.subject_identifier),
         )
 
     def test_str_offschedule(self):
@@ -94,9 +90,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
         self.assertEqual(obj.natural_key(), (self.subject_identifier,))
         self.assertEqual(
             obj,
-            OffSchedule.objects.get_by_natural_key(
-                subject_identifier=self.subject_identifier
-            ),
+            OffSchedule.objects.get_by_natural_key(subject_identifier=self.subject_identifier),
         )
 
     def test_offschedule_custom_field_datetime(self):
@@ -189,8 +183,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
         self.assertEqual(obj.offschedule_datetime, offschedule_datetime)
 
     def test_onschedule(self):
-        """Asserts cannot access without site_visit_schedule loaded.
-        """
+        """Asserts cannot access without site_visit_schedule loaded."""
         site_visit_schedules.loaded = False
         self.assertRaises(
             RegistryNotLoaded,
@@ -199,8 +192,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
         )
 
     def test_offschedule_raises(self):
-        """Asserts cannot access without site_visit_schedule loaded.
-        """
+        """Asserts cannot access without site_visit_schedule loaded."""
         site_visit_schedules.loaded = False
         self.assertRaises(
             RegistryNotLoaded,
@@ -243,9 +235,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
             subject_identifier=self.subject_identifier,
             offschedule_datetime=get_utcnow(),
         )
-        obj = SubjectScheduleHistory.objects.get(
-            subject_identifier=self.subject_identifier
-        )
+        obj = SubjectScheduleHistory.objects.get(subject_identifier=self.subject_identifier)
         self.assertEqual(
             obj.natural_key(),
             (obj.subject_identifier, obj.visit_schedule_name, obj.schedule_name),
@@ -258,8 +248,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
         )
 
     def test_crf(self):
-        """Assert can enter a CRF.
-        """
+        """Assert can enter a CRF."""
         SubjectConsent.objects.create(
             subject_identifier=self.subject_identifier,
             consent_datetime=get_utcnow() - relativedelta(years=3),

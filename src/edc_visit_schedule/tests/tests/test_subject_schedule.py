@@ -2,16 +2,17 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
 from edc_consent import site_consents
 from edc_consent.consent import Consent
-from edc_constants.constants import MALE, FEMALE
+from edc_constants.constants import FEMALE, MALE
 from edc_protocol import Protocol
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
+
 from edc_visit_schedule.models import SubjectScheduleHistory
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.subject_schedule import SubjectSchedule, SubjectScheduleError
 from edc_visit_schedule.visit_schedule import VisitSchedule
-from visit_schedule_app.models import SubjectConsent, OnSchedule, OffSchedule
+from visit_schedule_app.models import OffSchedule, OnSchedule, SubjectConsent
 
 
 class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
@@ -84,15 +85,12 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         SubjectConsent.objects.create(subject_identifier=self.subject_identifier)
 
     def test_onschedule_updates_history(self):
-        """Asserts returns the correct instances for the schedule.
-        """
+        """Asserts returns the correct instances for the schedule."""
         for onschedule_model, schedule_name in [
             ("visit_schedule_app.onscheduletwo", "schedule_two"),
             ("visit_schedule_app.onschedulefour", "schedule_four"),
         ]:
-            with self.subTest(
-                onschedule_model=onschedule_model, schedule_name=schedule_name
-            ):
+            with self.subTest(onschedule_model=onschedule_model, schedule_name=schedule_name):
                 visit_schedule, schedule = site_visit_schedules.get_by_onschedule_model(
                     onschedule_model
                 )
@@ -116,18 +114,12 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         for this subject
         """
         subject_identifier = "ABCDEF"
-        SubjectConsent.objects.create(
-            subject_identifier=subject_identifier, version="1"
-        )
-        SubjectConsent.objects.create(
-            subject_identifier=subject_identifier, version="2"
-        )
+        SubjectConsent.objects.create(subject_identifier=subject_identifier, version="1")
+        SubjectConsent.objects.create(subject_identifier=subject_identifier, version="2")
         visit_schedule, schedule = site_visit_schedules.get_by_onschedule_model(
             "visit_schedule_app.onscheduletwo"
         )
-        subject_schedule = SubjectSchedule(
-            visit_schedule=visit_schedule, schedule=schedule
-        )
+        subject_schedule = SubjectSchedule(visit_schedule=visit_schedule, schedule=schedule)
         try:
             subject_schedule.put_on_schedule(
                 subject_identifier=subject_identifier, onschedule_datetime=get_utcnow()
@@ -136,14 +128,11 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
             self.fail("SubjectScheduleError unexpectedly raised.")
 
     def test_resave(self):
-        """Asserts returns the correct instances for the schedule.
-        """
+        """Asserts returns the correct instances for the schedule."""
         visit_schedule, schedule = site_visit_schedules.get_by_onschedule_model(
             "visit_schedule_app.onscheduletwo"
         )
-        subject_schedule = SubjectSchedule(
-            visit_schedule=visit_schedule, schedule=schedule
-        )
+        subject_schedule = SubjectSchedule(visit_schedule=visit_schedule, schedule=schedule)
         subject_schedule.put_on_schedule(
             subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
         )

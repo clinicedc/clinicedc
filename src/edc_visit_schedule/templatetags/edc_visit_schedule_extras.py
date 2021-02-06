@@ -1,8 +1,9 @@
+from urllib.parse import unquote, urlencode
+
 from django import template
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.safestring import mark_safe
-from urllib.parse import urlencode, unquote
 
 from ..models import SubjectScheduleHistory
 
@@ -33,7 +34,11 @@ def subject_schedule_footer_row(
     context.update(history_obj=history_obj)
     if not history_obj:
         # subject was NEVER on this schedule
-        context = dict(offschedule_datetime=None, onschedule_datetime=None, href=None,)
+        context = dict(
+            offschedule_datetime=None,
+            onschedule_datetime=None,
+            href=None,
+        )
     elif not history_obj.offschedule_datetime:
         # subject is still ON this schedule
         onschedule_model_obj = schedule.onschedule_model_cls.objects.get(

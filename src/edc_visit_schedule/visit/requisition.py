@@ -24,9 +24,7 @@ class Requisition(Crf):
                 f"Was the panel referred to by this schedule's requisition "
                 f"added to a lab profile and registered with site_labs?"
             )
-        super().__init__(
-            required=required, model=self.panel.requisition_model, **kwargs
-        )
+        super().__init__(required=required, model=self.panel.requisition_model, **kwargs)
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.show_order}, {self.panel.name})"

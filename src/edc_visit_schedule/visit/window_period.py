@@ -9,8 +9,7 @@ class WindowPeriod:
         self.rupper = rupper
 
     def get_window(self, dt=None):
-        """Returns a named tuple of the lower and upper values.
-        """
+        """Returns a named tuple of the lower and upper values."""
         dt_floor = arrow.get(dt).to("utc").replace(hour=0, minute=0).datetime
         dt_ceil = arrow.get(dt).to("utc").replace(hour=23, minute=59).datetime
         Window = namedtuple("window", ["lower", "upper"])

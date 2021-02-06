@@ -1,3 +1,2 @@
 from .exceptions import ScheduleError
-from .schedule import Schedule, ScheduleNameError
-from .schedule import AlreadyRegisteredVisit
+from .schedule import AlreadyRegisteredVisit, Schedule, ScheduleNameError

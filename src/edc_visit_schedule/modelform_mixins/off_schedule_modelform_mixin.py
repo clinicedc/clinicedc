@@ -1,11 +1,11 @@
-from django.forms import ValidationError
+from django.forms import ModelForm, ValidationError
 from edc_utils import get_utcnow
 
 from ..site_visit_schedules import site_visit_schedules
 from ..subject_schedule import InvalidOffscheduleDate
 
 
-class OffScheduleModelFormMixin:
+class OffScheduleModelFormMixin(ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         subject_identifier = cleaned_data.get("subject_identifier")

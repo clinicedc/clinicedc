@@ -1,7 +1,7 @@
-import arrow
 import re
-
 from decimal import Decimal
+
+import arrow
 from django.apps import apps as django_apps
 from django.conf import settings
 
@@ -99,14 +99,10 @@ class Visit:
             raise VisitCodeError(f"Invalid visit code. Got '{code}'")
         else:
             self.code = code  # unique
-        self.dates = self.visit_date_cls(
-            rlower=rlower, rupper=rupper, visit_code=self.code
-        )
+        self.dates = self.visit_date_cls(rlower=rlower, rupper=rupper, visit_code=self.code)
         self.title = title or f"Visit {self.code}"
         self.name = self.code
-        self.facility_name = (
-            facility_name or settings.EDC_FACILITY_DEFAULT_FACILITY_NAME
-        )
+        self.facility_name = facility_name or settings.EDC_FACILITY_DEFAULT_FACILITY_NAME
         self.allow_unscheduled = allow_unscheduled
         if timepoint is None:
             raise VisitError(f"Timepoint not specified. Got None. See Visit {code}.")
@@ -119,26 +115,22 @@ class Visit:
 
     @property
     def forms(self):
-        """Returns a list of scheduled forms.
-        """
+        """Returns a list of scheduled forms."""
         return self.crfs + self.requisitions
 
     @property
     def unscheduled_forms(self):
-        """Returns a list of unscheduled forms.
-        """
+        """Returns a list of unscheduled forms."""
         return self.crfs_unscheduled + self.requisitions_unscheduled
 
     @property
     def missed_forms(self):
-        """Returns a list of forms to show for a missed visit.
-        """
+        """Returns a list of forms to show for a missed visit."""
         return self.crfs_missed
 
     @property
     def prn_forms(self):
-        """Returns a list of PRN forms.
-        """
+        """Returns a list of PRN forms."""
         return self.crfs_prn + self.requisitions_prn
 
     @property
@@ -152,14 +144,11 @@ class Visit:
             r for r in self.requisitions_unscheduled if r.name not in names
         ]
         names = list(set([r.name for r in requisitions]))
-        requisitions = requisitions + [
-            r for r in self.requisitions_prn if r.name not in names
-        ]
+        requisitions = requisitions + [r for r in self.requisitions_prn if r.name not in names]
         return sorted(requisitions, key=lambda x: x.show_order)
 
     def next_form(self, model=None, panel=None):
-        """Returns the next required "form" or None.
-        """
+        """Returns the next required "form" or None."""
         next_form = None
         for index, form in enumerate(self.forms):
             if form.model == model and form.required:
@@ -193,8 +182,7 @@ class Visit:
 
     @property
     def facility(self):
-        """Returns a Facility object.
-        """
+        """Returns a Facility object."""
         if self.facility_name:
             app_config = django_apps.get_app_config("edc_facility")
             return app_config.get_facility(name=self.facility_name)
@@ -228,9 +216,7 @@ class Visit:
     def to_dict(self):
         return dict(
             crfs=[(crf.model, crf.required) for crf in self.crfs],
-            crfs_unscheduled=[
-                (crf.model, crf.required) for crf in self.crfs_unscheduled
-            ],
+            crfs_unscheduled=[(crf.model, crf.required) for crf in self.crfs_unscheduled],
             requisitions=[
                 (requisition.panel.name, requisition.required)
                 for requisition in self.requisitions

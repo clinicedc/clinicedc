@@ -8,8 +8,7 @@ from .schedule_model_mixin import ScheduleModelMixin
 
 
 class OnScheduleModelMixin(ScheduleModelMixin):
-    """A model mixin for a schedule's onschedule model.
-    """
+    """A model mixin for a schedule's onschedule model."""
 
     onschedule_datetime = models.DateTimeField(
         validators=[datetime_not_before_study_start, datetime_not_future],
@@ -21,9 +20,7 @@ class OnScheduleModelMixin(ScheduleModelMixin):
         super().save(*args, **kwargs)
 
     def put_on_schedule(self):
-        _, schedule = site_visit_schedules.get_by_onschedule_model(
-            self._meta.label_lower
-        )
+        _, schedule = site_visit_schedules.get_by_onschedule_model(self._meta.label_lower)
         schedule.put_on_schedule(
             subject_identifier=self.subject_identifier,
             onschedule_datetime=self.onschedule_datetime,
@@ -31,16 +28,14 @@ class OnScheduleModelMixin(ScheduleModelMixin):
 
     @property
     def visit_schedule(self):
-        """Returns a visit schedule object.
-        """
+        """Returns a visit schedule object."""
         return site_visit_schedules.get_by_onschedule_model(
             onschedule_model=self._meta.label_lower
         )[0]
 
     @property
     def schedule(self):
-        """Returns a schedule object.
-        """
+        """Returns a schedule object."""
         return site_visit_schedules.get_by_onschedule_model(
             onschedule_model=self._meta.label_lower
         )[1]
@@ -48,7 +43,5 @@ class OnScheduleModelMixin(ScheduleModelMixin):
     class Meta:
         abstract = True
         indexes = [
-            models.Index(
-                fields=["id", "subject_identifier", "onschedule_datetime", "site"]
-            )
+            models.Index(fields=["id", "subject_identifier", "onschedule_datetime", "site"])
         ]

@@ -17,8 +17,7 @@ class Crf:
 
     def __repr__(self):
         return (
-            f"{self.__class__.__name__}({self.show_order}, "
-            f"{self.model}, {self.required})"
+            f"{self.__class__.__name__}({self.show_order}, " f"{self.model}, {self.required})"
         )
 
     def __str__(self):
@@ -26,8 +25,7 @@ class Crf:
         return f"{self.model} {required}"
 
     def validate(self):
-        """Raises an exception if the model class lookup fails.
-        """
+        """Raises an exception if the model class lookup fails."""
         try:
             self.model_cls
         except LookupError as e:

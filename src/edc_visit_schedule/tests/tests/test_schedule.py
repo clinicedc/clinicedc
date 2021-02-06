@@ -3,10 +3,14 @@ from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase
 from edc_utils import get_utcnow
-from edc_visit_schedule.schedule import Schedule, AlreadyRegisteredVisit
-from edc_visit_schedule.schedule import ScheduleNameError
+
+from edc_visit_schedule.schedule import (
+    AlreadyRegisteredVisit,
+    Schedule,
+    ScheduleNameError,
+)
 from edc_visit_schedule.visit import Visit
-from visit_schedule_app.models import OnSchedule, OffSchedule
+from visit_schedule_app.models import OffSchedule, OnSchedule
 
 
 class TestSchedule(TestCase):
@@ -14,8 +18,7 @@ class TestSchedule(TestCase):
         self.assertRaises(ScheduleNameError, Schedule, name="sched  ule")
 
     def test_visit_schedule_repr(self):
-        """Asserts repr evaluates correctly.
-        """
+        """Asserts repr evaluates correctly."""
         schedule = Schedule(
             name="schedule",
             onschedule_model="visit_schedule_app.onschedule",
@@ -36,14 +39,10 @@ class TestSchedule(TestCase):
         self.assertEqual(schedule.field_value, "schedule")
 
     def test_schedule_onschedule_model_is_none(self):
-        self.assertRaises(
-            AttributeError, Schedule, name="schedule", onschedule_model=None
-        )
+        self.assertRaises(AttributeError, Schedule, name="schedule", onschedule_model=None)
 
     def test_schedule_offschedule_model_is_none(self):
-        self.assertRaises(
-            AttributeError, Schedule, name="schedule", offschedule_model=None
-        )
+        self.assertRaises(AttributeError, Schedule, name="schedule", offschedule_model=None)
 
     def test_schedule_bad_label_lower(self):
         schedule = Schedule(

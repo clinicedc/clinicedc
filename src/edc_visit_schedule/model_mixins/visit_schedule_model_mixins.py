@@ -1,6 +1,5 @@
 from django.db import models
 
-
 from ..site_visit_schedules import site_visit_schedules
 
 
@@ -45,8 +44,7 @@ class VisitScheduleMethodsModelMixin(models.Model):
 
     @property
     def visits(self):
-        """Returns all visit objects from the schedule object.
-        """
+        """Returns all visit objects from the schedule object."""
         return self.schedule.visits
 
     @property
@@ -75,9 +73,7 @@ class VisitScheduleMethodsModelMixin(models.Model):
             visit_schedule_name = self._meta.visit_schedule_name
         except AttributeError:
             visit_schedule_name = self.visit_schedule_name
-        return site_visit_schedules.get_visit_schedule(
-            visit_schedule_name=visit_schedule_name
-        )
+        return site_visit_schedules.get_visit_schedule(visit_schedule_name=visit_schedule_name)
 
     class Meta:
         abstract = True

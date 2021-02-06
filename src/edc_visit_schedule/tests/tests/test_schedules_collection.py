@@ -1,4 +1,5 @@
 from django.test import TestCase, tag
+
 from edc_visit_schedule.visit_schedule import (
     SchedulesCollection,
     SchedulesCollectionError,
@@ -26,8 +27,7 @@ class TestSchedulesCollection(TestCase):
         self.test_collection.update({self.dummy_schedule.key: self.dummy_schedule})
 
     def test_get_by_model_raises(self):
-        """Asserts bad model name raises.
-        """
+        """Asserts bad model name raises."""
         obj = SchedulesCollection()
         self.assertRaises(SchedulesCollectionError, obj.get_schedule, "blah")
 

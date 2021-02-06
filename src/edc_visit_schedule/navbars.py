@@ -1,6 +1,5 @@
 from edc_navbar import Navbar, NavbarItem, site_navbars
 
-
 visit_schedule = Navbar(name="edc_visit_schedule")
 
 visit_schedule.append_item(

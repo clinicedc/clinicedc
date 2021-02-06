@@ -1,13 +1,11 @@
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
-from edc_utils import convert_php_dateformat
-from edc_sites.models import (
-    CurrentSiteManager as BaseCurrentSiteManager,
-    SiteModelMixin,
-)
-from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_identifier.managers import SubjectIdentifierManager
+from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
+from edc_sites.models import CurrentSiteManager as BaseCurrentSiteManager
+from edc_sites.models import SiteModelMixin
+from edc_utils import convert_php_dateformat
 
 
 class CurrentSiteManager(BaseCurrentSiteManager):
@@ -17,11 +15,8 @@ class CurrentSiteManager(BaseCurrentSiteManager):
         return self.get(subject_identifier=subject_identifier)
 
 
-class ScheduleModelMixin(
-    UniqueSubjectIdentifierFieldMixin, SiteModelMixin, models.Model
-):
-    """A model mixin for a schedule's on/off schedule models.
-    """
+class ScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, models.Model):
+    """A model mixin for a schedule's on/off schedule models."""
 
     report_datetime = models.DateTimeField(editable=False)
 
