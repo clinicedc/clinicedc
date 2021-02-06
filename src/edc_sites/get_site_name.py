@@ -1,9 +1,8 @@
-from .get_site_id import get_sites_from_model, InvalidSiteError
+from .get_site_id import InvalidSiteError, get_sites_from_model
 
 
 def get_site_name(value, sites=None):
-    """Returns the site_name given the site_id.
-    """
+    """Returns the site_name given the site_id."""
     if not sites:
         sites = get_sites_from_model()
 
@@ -11,7 +10,5 @@ def get_site_name(value, sites=None):
         site_name = [site for site in sites if site.site_id == value][0].name
     except IndexError:
         site_ids = [site.site_id for site in sites]
-        raise InvalidSiteError(
-            f"Invalid site. Got '{value}'. Expected one of " f"{site_ids}."
-        )
+        raise InvalidSiteError(f"Invalid site. Got '{value}'. Expected one of " f"{site_ids}.")
     return site_name

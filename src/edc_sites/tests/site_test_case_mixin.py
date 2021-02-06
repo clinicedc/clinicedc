@@ -1,4 +1,4 @@
-from .sites import sites, all_sites
+from .sites import all_sites, sites
 
 
 class SiteTestCaseMixin:

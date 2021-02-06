@@ -1,8 +1,8 @@
 import sys
 
 from django.apps import apps as django_apps
-from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import OperationalError, ProgrammingError
 
 from .get_sites_module import get_sites_module

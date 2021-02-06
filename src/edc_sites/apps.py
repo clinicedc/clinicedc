@@ -18,7 +18,9 @@ def post_migrate_update_sites(sender=None, **kwargs):
     for country, sites in get_all_sites().items():
         sys.stdout.write(style.MIGRATE_HEADING(f" (*) sites for {country} ...\n"))
         add_or_update_django_sites(
-            apps=django_apps, sites=sites, verbose=True,
+            apps=django_apps,
+            sites=sites,
+            verbose=True,
         )
     sys.stdout.write("Done.\n")
     sys.stdout.flush()
