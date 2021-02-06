@@ -21,8 +21,6 @@ class SearchSlug:
         slugs = [slugify(item or "") for item in values]
         slug = f"{sep.join(slugs)}"
         if len(slug) > 250:
-            self.warning = (
-                f"Warning! Search slug string exceeds 250 chars. See {repr(obj)}\n"
-            )
+            self.warning = f"Warning! Search slug string exceeds 250 chars. See {repr(obj)}\n"
             sys.stdout.write(style.WARNING(self.warning))
         self.slug = slug[:250]
