@@ -1,19 +1,19 @@
+from datetime import date, datetime
+
 import arrow
 import pytz
-
-from datetime import datetime, date
 from dateutil import tz
 from django.test import TestCase, tag  # noqa
 
 from .. import (
+    AgeValueError,
     age,
     formatted_age,
     formatted_datetime,
     get_age_in_days,
-    get_safe_random_string,
-    AgeValueError,
-    get_dob,
     get_datetime_from_env,
+    get_dob,
+    get_safe_random_string,
 )
 
 
@@ -28,14 +28,10 @@ class TestUtils(TestCase):
 
     def test_formatted_age(self):
 
-        self.assertEqual(
-            formatted_age(None, pytz.utc.localize(datetime(2016, 12, 12))), "?"
-        )
+        self.assertEqual(formatted_age(None, pytz.utc.localize(datetime(2016, 12, 12))), "?")
 
         self.assertEqual(
-            formatted_age(
-                date(1990, 12, 12), pytz.utc.localize(datetime(2016, 12, 12))
-            ),
+            formatted_age(date(1990, 12, 12), pytz.utc.localize(datetime(2016, 12, 12))),
             "26y",
         )
         self.assertEqual(
@@ -43,9 +39,7 @@ class TestUtils(TestCase):
             "3m",
         )
         self.assertEqual(
-            formatted_age(
-                date(2016, 10, 28), pytz.utc.localize(datetime(2016, 12, 12))
-            ),
+            formatted_age(date(2016, 10, 28), pytz.utc.localize(datetime(2016, 12, 12))),
             "1m14d",
         )
         self.assertEqual(
@@ -53,9 +47,7 @@ class TestUtils(TestCase):
             "6d",
         )
         self.assertEqual(
-            formatted_age(
-                date(2015, 12, 12), pytz.utc.localize(datetime(2016, 12, 12))
-            ),
+            formatted_age(date(2015, 12, 12), pytz.utc.localize(datetime(2016, 12, 12))),
             "12m",
         )
 
@@ -96,33 +88,25 @@ class TestUtils(TestCase):
 
     def test_age_zero1(self):
         """Assert born precedes reference considering timezones."""
-        born = arrow.get(
-            datetime(1990, 5, 1, 0, 0), tz.gettz("Africa/Gaborone")
-        ).datetime
+        born = arrow.get(datetime(1990, 5, 1, 0, 0), tz.gettz("Africa/Gaborone")).datetime
         reference_dt = arrow.get(datetime(1990, 5, 1, 0, 0), tz.gettz("UTC")).datetime
         self.assertEqual(age(born, reference_dt).years, 0)
 
     def test_age_zero2(self):
         """Assert born == reference considering timezones."""
-        born = arrow.get(
-            datetime(1990, 5, 1, 2, 0), tz.gettz("Africa/Gaborone")
-        ).datetime
+        born = arrow.get(datetime(1990, 5, 1, 2, 0), tz.gettz("Africa/Gaborone")).datetime
         reference_dt = arrow.get(datetime(1990, 5, 1, 0, 0), tz.gettz("UTC")).datetime
         self.assertEqual(age(born, reference_dt).hours, 0)
 
     def test_age_zero3(self):
         """Assert born after reference date considering timezones."""
-        born = arrow.get(
-            datetime(1990, 5, 2, 5, 0), tz.gettz("Africa/Gaborone")
-        ).datetime
+        born = arrow.get(datetime(1990, 5, 2, 5, 0), tz.gettz("Africa/Gaborone")).datetime
         reference_dt = arrow.get(datetime(1990, 5, 2, 2, 0), tz.gettz("UTC")).datetime
         self.assertRaises(AgeValueError, age, born, reference_dt)
 
     def test_age_zero4(self):
         """Assert born 2hrs before reference date considering timezones."""
-        born = arrow.get(
-            datetime(1990, 5, 2, 0, 0), tz.gettz("Africa/Gaborone")
-        ).datetime
+        born = arrow.get(datetime(1990, 5, 2, 0, 0), tz.gettz("Africa/Gaborone")).datetime
         reference_dt = arrow.get(
             datetime(1990, 5, 2, 2, 0), tz.gettz("Africa/Gaborone")
         ).datetime
@@ -131,20 +115,14 @@ class TestUtils(TestCase):
     def test_age_zero5(self):
         """Assert born 8hrs before reference date considering timezones."""
         born = arrow.get(datetime(1990, 5, 2, 0, 0), tz.gettz("Africa/Gaborone"))
-        reference_dt = arrow.get(
-            datetime(1990, 5, 2, 2, 0), tz.gettz("America/New_York")
-        )
+        reference_dt = arrow.get(datetime(1990, 5, 2, 2, 0), tz.gettz("America/New_York"))
         dst = reference_dt.dst()
         seconds = dst.days * 24 * 60 * 60 + dst.seconds
         dst_hours, _ = divmod(seconds, 3600)
-        self.assertEqual(
-            age(born.datetime, reference_dt.datetime).hours, 7 + 2 - dst_hours
-        )
+        self.assertEqual(age(born.datetime, reference_dt.datetime).hours, 7 + 2 - dst_hours)
 
     def test_formatted_datetime(self):
-        born = arrow.get(
-            datetime(1990, 5, 2, 0, 0), tz.gettz("Africa/Gaborone")
-        ).datetime
+        born = arrow.get(datetime(1990, 5, 2, 0, 0), tz.gettz("Africa/Gaborone")).datetime
         self.assertTrue(formatted_datetime(born))
 
     def get_datetime_from_env(self):
