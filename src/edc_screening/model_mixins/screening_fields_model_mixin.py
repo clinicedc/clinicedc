@@ -1,4 +1,6 @@
-from django.core.validators import MinValueValidator, MaxValueValidator
+from uuid import uuid4
+
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from edc_constants.choices import GENDER, YES_NO, YES_NO_NA
 from edc_constants.constants import NO, NOT_APPLICABLE
@@ -6,7 +8,6 @@ from edc_model.models.historical_records import HistoricalRecords
 from edc_search.model_mixins import SearchSlugManager
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 from edc_utils.date import get_utcnow
-from uuid import uuid4
 
 
 class ScreeningManager(SearchSlugManager, models.Manager):

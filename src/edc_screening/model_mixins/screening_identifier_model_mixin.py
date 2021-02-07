@@ -17,8 +17,7 @@ class ScreeningIdentifierModelMixin(
     screening_identifier_field_name = "screening_identifier"
 
     def save(self, *args, **kwargs):
-        """Screening Identifier is always allocated.
-        """
+        """Screening Identifier is always allocated."""
         if not self.id:
             setattr(
                 self,
@@ -41,9 +40,7 @@ class ScreeningIdentifierModelMixin(
             # validate it is either a valid subject identifier or a
             # uuid/uuid.hex
             if not re.match(UUID_PATTERN, self.subject_identifier):
-                is_subject_identifier_or_raise(
-                    self.subject_identifier, reference_obj=self
-                )
+                is_subject_identifier_or_raise(self.subject_identifier, reference_obj=self)
         return self.subject_identifier
 
     def make_new_identifier(self):

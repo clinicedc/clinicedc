@@ -18,9 +18,7 @@ class EligibilityModelMixin(models.Model):
 
         self.eligible = eligibility_obj.eligible
         if not self.eligible:
-            reasons_ineligible = [
-                v for v in eligibility_obj.reasons_ineligible.values() if v
-            ]
+            reasons_ineligible = [v for v in eligibility_obj.reasons_ineligible.values() if v]
             reasons_ineligible.sort()
             self.reasons_ineligible = "|".join(reasons_ineligible)
         else:

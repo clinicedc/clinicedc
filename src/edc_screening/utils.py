@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.utils.html import format_html
-from edc_constants.constants import NORMAL, YES, NO
+from edc_constants.constants import NO, NORMAL, YES
 
 
 def if_yes(value):

@@ -59,9 +59,7 @@ class Eligibility:
                     elif k not in ["age", "gender"]:
                         self.reasons_ineligible.update({k: k})
             if not self.age_evaluator.eligible(age):
-                self.reasons_ineligible.update(
-                    age=self.age_evaluator.reasons_ineligible
-                )
+                self.reasons_ineligible.update(age=self.age_evaluator.reasons_ineligible)
             if not self.gender_evaluator.eligible:
                 self.reasons_ineligible.update(
                     gender=f"{' and '.join(self.gender_evaluator.reasons_ineligible)}."
@@ -89,8 +87,7 @@ class Eligibility:
         return {}
 
     def get_custom_reasons_dict(self):
-        """Returns a dictionary of custom reasons for named criteria.
-        """
+        """Returns a dictionary of custom reasons for named criteria."""
         for k in self.custom_reasons_dict:
             if k in self.custom_reasons_dict and k not in self.criteria:
                 raise EligibilityError(
