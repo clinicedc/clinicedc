@@ -1,12 +1,13 @@
 import os
+from tempfile import mkdtemp
 
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 from edc_constants.constants import MALE
-from edc_reportable import site_reportables
 from edc_utils import get_utcnow
-from tempfile import mkdtemp
-from reportable_app.reportables import normal_data, grading_data
+
+from edc_reportable import site_reportables
+from reportable_app.reportables import grading_data, normal_data
 
 
 class TestSiteReportables(TestCase):

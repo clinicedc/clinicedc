@@ -1,7 +1,11 @@
 from datetime import datetime
+
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
-from edc_constants.constants import MALE, FEMALE
+from edc_constants.constants import FEMALE, MALE
+from edc_utils import get_utcnow
+from pytz import utc
+
 from edc_reportable import (
     BoundariesOverlap,
     InvalidValueReference,
@@ -10,8 +14,6 @@ from edc_reportable import (
     ValueReferenceAlreadyAdded,
     ValueReferenceGroup,
 )
-from edc_utils import get_utcnow
-from pytz import utc
 from edc_reportable.units import MICROMOLES_PER_LITER, MILLIMOLES_PER_LITER
 
 

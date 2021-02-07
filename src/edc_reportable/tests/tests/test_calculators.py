@@ -1,8 +1,9 @@
 from django.test import TestCase, tag
-from edc_constants.constants import FEMALE, MALE, BLACK
+from edc_constants.constants import BLACK, FEMALE, MALE
 
-from ...calculators import eGFR, CalculatorError, BMI
 from edc_reportable.units import MICROMOLES_PER_LITER
+
+from ...calculators import BMI, CalculatorError, eGFR
 
 
 class TestCalculators(TestCase):
@@ -26,9 +27,7 @@ class TestCalculators(TestCase):
         )
         self.assertEqual(0.7, egfr.kappa)
 
-        egfr = eGFR(
-            gender=MALE, age=30, creatinine=1.0, creatinine_units=MICROMOLES_PER_LITER
-        )
+        egfr = eGFR(gender=MALE, age=30, creatinine=1.0, creatinine_units=MICROMOLES_PER_LITER)
         self.assertEqual(0.9, egfr.kappa)
 
         egfr = eGFR(
@@ -36,9 +35,7 @@ class TestCalculators(TestCase):
         )
         self.assertEqual(-0.329, egfr.alpha)
 
-        egfr = eGFR(
-            gender=MALE, age=30, creatinine=1.0, creatinine_units=MICROMOLES_PER_LITER
-        )
+        egfr = eGFR(gender=MALE, age=30, creatinine=1.0, creatinine_units=MICROMOLES_PER_LITER)
         self.assertEqual(-0.411, egfr.alpha)
 
         egfr1 = eGFR(
@@ -49,7 +46,7 @@ class TestCalculators(TestCase):
             creatinine_units=MICROMOLES_PER_LITER,
         )
 
-        self.assertEquals(round(egfr1.value, 2), 712.56)
+        self.assertEqual(round(egfr1.value, 2), 712.56)
 
         egfr2 = eGFR(
             gender=MALE,
@@ -59,4 +56,4 @@ class TestCalculators(TestCase):
             creatinine_units=MICROMOLES_PER_LITER,
         )
 
-        self.assertEquals(round(egfr2.value, 2), 828.04)
+        self.assertEqual(round(egfr2.value, 2), 828.04)

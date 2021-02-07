@@ -1,6 +1,7 @@
 from django.test import TestCase, tag
 from edc_constants.constants import MALE
-from edc_reportable import parse, unparse, ParserError
+
+from edc_reportable import ParserError, parse, unparse
 
 
 class TestParser(TestCase):

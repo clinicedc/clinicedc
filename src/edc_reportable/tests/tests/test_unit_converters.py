@@ -1,9 +1,10 @@
 from django.test import TestCase, tag
+
 from edc_reportable import convert_units
 from edc_reportable.units import (
+    MICROMOLES_PER_LITER,
     MILLIGRAMS_PER_DECILITER,
     MILLIMOLES_PER_LITER,
-    MICROMOLES_PER_LITER,
 )
 
 

@@ -1,6 +1,6 @@
-from edc_constants.constants import NOT_APPLICABLE, NO
+from edc_constants.constants import NO, NOT_APPLICABLE
 
-from .constants import GRADE3, GRADE4, PRESENT_AT_BASELINE, ALREADY_REPORTED
+from .constants import ALREADY_REPORTED, GRADE3, GRADE4, PRESENT_AT_BASELINE
 
 REPORTABLE = (
     (NOT_APPLICABLE, "Not applicable"),

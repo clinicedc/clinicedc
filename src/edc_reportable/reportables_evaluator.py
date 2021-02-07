@@ -1,14 +1,14 @@
 from django import forms
-from edc_constants.constants import NOT_APPLICABLE, NO, YES
+from edc_constants.constants import NO, NOT_APPLICABLE, YES
 from edc_metadata.constants import REQUIRED
 
 from .constants import (
     ALREADY_REPORTED,
-    PRESENT_AT_BASELINE,
     GRADE2,
     GRADE3,
     GRADE4,
     INVALID_REFERENCE,
+    PRESENT_AT_BASELINE,
 )
 from .site_reportables import site_reportables
 from .value_reference_group import NotEvaluated
@@ -62,8 +62,7 @@ class ReportablesEvaluator:
     def validate_results_abnormal_field(
         self, field=None, responses=None, suffix=None, word=None
     ):
-        """Validate the "results_abnormal" field.
-        """
+        """Validate the "results_abnormal" field."""
         self._validate_final_assessment(
             field=field or "results_abnormal",
             responses=responses or [YES],
@@ -74,8 +73,7 @@ class ReportablesEvaluator:
     def validate_results_reportable_field(
         self, field=None, responses=None, suffix=None, word=None
     ):
-        """Validate the "results_reportable" field.
-        """
+        """Validate the "results_reportable" field."""
         self._validate_final_assessment(
             field=field or "results_reportable",
             responses=responses or [GRADE2, GRADE3, GRADE4],
@@ -150,11 +148,7 @@ class ReportablesEvaluator:
         # illogical user response combination
         if response.abnormal == YES and response.reportable == NOT_APPLICABLE:
             raise forms.ValidationError(
-                {
-                    f"{field}_reportable": (
-                        "This field is applicable if result is abnormal"
-                    )
-                }
+                {f"{field}_reportable": ("This field is applicable if result is abnormal")}
             )
 
         # illogical user response combination
@@ -177,9 +171,7 @@ class ReportablesEvaluator:
             raise forms.ValidationError({field: str(e)})
         return normal
 
-    def _validate_final_assessment(
-        self, field=None, responses=None, suffix=None, word=None
-    ):
+    def _validate_final_assessment(self, field=None, responses=None, suffix=None, word=None):
         """Common code to validate fields `results_abnormal`
         and `results_reportable`.
         """
@@ -187,9 +179,7 @@ class ReportablesEvaluator:
             {k: v for k, v in self.cleaned_data.items() if k.endswith(suffix)}.values()
         )
         if len([True for v in answers if v is not None]) == 0:
-            raise forms.ValidationError(
-                {"results_abnormal": "No results have been entered."}
-            )
+            raise forms.ValidationError({"results_abnormal": "No results have been entered."})
         answers_as_bool = [True for v in answers if v in responses]
         if self.cleaned_data.get(field) == NO:
             if any(answers_as_bool):
@@ -199,6 +189,4 @@ class ReportablesEvaluator:
                 )
         elif self.cleaned_data.get(field) == YES:
             if not any(answers_as_bool):
-                raise forms.ValidationError(
-                    {field: f"None of the above results are {word}"}
-                )
+                raise forms.ValidationError({field: f"None of the above results are {word}"})

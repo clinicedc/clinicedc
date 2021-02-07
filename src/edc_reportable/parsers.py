@@ -1,5 +1,4 @@
 import re
-
 from collections import OrderedDict
 
 
@@ -16,12 +15,8 @@ def unparse(**kwargs):
     gender = kwargs.get("gender", "")
     age_lower = kwargs.get("age_lower", "")
     age_upper = kwargs.get("age_upper", "")
-    age_lower_op = (
-        "" if not age_lower else "<=" if kwargs.get("age_lower_inclusive") else "<"
-    )
-    age_upper_op = (
-        "" if not age_upper else "<=" if kwargs.get("age_upper_inclusive") else "<"
-    )
+    age_lower_op = "" if not age_lower else "<=" if kwargs.get("age_lower_inclusive") else "<"
+    age_upper_op = "" if not age_upper else "<=" if kwargs.get("age_upper_inclusive") else "<"
     age = (
         ""
         if not age_lower and not age_upper

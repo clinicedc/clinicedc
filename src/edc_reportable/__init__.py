@@ -1,6 +1,6 @@
 from .adult_age_options import adult_age_options
 from .age_evaluator import AgeEvaluator
-from .calculators import BMI, eGFR, CalculatorError
+from .calculators import BMI, CalculatorError, eGFR
 from .constants import (
     ALREADY_REPORTED,
     GRADE0,
@@ -15,7 +15,7 @@ from .constants import (
     SEVERE,
     SEVERITY_INCREASED_FROM_G3,
 )
-from .convert_units import convert_units, ConversionNotHandled
+from .convert_units import ConversionNotHandled, convert_units
 from .evaluator import (
     Evaluator,
     InvalidCombination,
@@ -25,10 +25,10 @@ from .evaluator import (
     ValueBoundryError,
 )
 from .form_validator_mixin import ReportablesFormValidatorMixin
-from .grade_reference import GradeReference, GradeError
+from .grade_reference import GradeError, GradeReference
 from .normal_reference import NormalReference
-from .parsers import parse, unparse, ParserError
-from .reference_collection import ReferenceCollection, AlreadyRegistered
+from .parsers import ParserError, parse, unparse
+from .reference_collection import AlreadyRegistered, ReferenceCollection
 from .reportables_evaluator import ReportablesEvaluator
 from .site_reportables import site_reportables
 from .units import (
