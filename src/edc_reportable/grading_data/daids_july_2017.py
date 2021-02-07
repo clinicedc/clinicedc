@@ -3,8 +3,9 @@ Based on Corrected Version 2.1 July 2017
 """
 
 from edc_constants.constants import FEMALE, MALE
+
 from edc_reportable import (
-    parse as p,
+    CELLS_PER_MILLIMETER_CUBED,
     GRADE0,
     GRADE3,
     GRADE4,
@@ -16,8 +17,8 @@ from edc_reportable import (
     MILLIMOLES_PER_LITER,
     PERCENT,
     TEN_X_9_PER_LITER,
-    CELLS_PER_MILLIMETER_CUBED,
 )
+from edc_reportable import parse as p
 
 from ..adult_age_options import adult_age_options
 

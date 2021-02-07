@@ -1,4 +1,4 @@
-from edc_constants.constants import MALE, FEMALE, OTHER, BLACK
+from edc_constants.constants import BLACK, FEMALE, MALE, OTHER
 
 from ..convert_units import convert_units
 from ..units import MILLIGRAMS_PER_DECILITER
@@ -31,9 +31,7 @@ class eGFR:
         self.gender = gender
 
         if not (18 <= (age or 0) < 120):
-            raise CalculatorError(
-                f"Invalid age. See {self.__class__.__name__}. Got {age}"
-            )
+            raise CalculatorError(f"Invalid age. See {self.__class__.__name__}. Got {age}")
         self.age = float(age)
 
         self.ethnicity = ethnicity or OTHER

@@ -1,6 +1,5 @@
 from edc_utils import get_utcnow
 
-
 GRADING = "grading"
 NORMAL = "normal"
 
@@ -22,9 +21,7 @@ def get_references(
     report_datetime = report_datetime or get_utcnow()
     for refs in value_references.values():
         for ref in refs:
-            non_matching_opts = [
-                k for k, v in extra_options.items() if getattr(ref, k) != v
-            ]
+            non_matching_opts = [k for k, v in extra_options.items() if getattr(ref, k) != v]
             if (
                 gender in ref.gender
                 and ref.units == units
@@ -105,8 +102,7 @@ class ValueReferenceGroup:
         return descriptions
 
     def get_normal(self, value=None, **kwargs):
-        """Returns a Normal instance or None.
-        """
+        """Returns a Normal instance or None."""
         normal = None
         for value_ref in self._get_normal_references(**kwargs):
             if value_ref.in_bounds(value=value, **kwargs):
@@ -121,8 +117,7 @@ class ValueReferenceGroup:
         return normal
 
     def get_grade(self, value=None, **kwargs):
-        """Returns a Grade instance or None.
-        """
+        """Returns a Grade instance or None."""
         grade = None
         for grade_ref in self._get_grading_references(**kwargs):
             if grade_ref.in_bounds(value=value, **kwargs):
@@ -137,8 +132,7 @@ class ValueReferenceGroup:
         return grade
 
     def _get_normal_references(self, **kwargs):
-        """Returns a list of ValueReference instances or raises.
-        """
+        """Returns a list of ValueReference instances or raises."""
         references = get_references(value_references=self.normal, **kwargs)
         if not references:
             raise NotEvaluated(
@@ -148,8 +142,7 @@ class ValueReferenceGroup:
         return references
 
     def _get_grading_references(self, **kwargs):
-        """Returns a list of GradeReference instances or raises.
-        """
+        """Returns a list of GradeReference instances or raises."""
         references = get_references(value_references=self.grading, **kwargs)
         if not references:
             raise NotEvaluated(

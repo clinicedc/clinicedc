@@ -2,17 +2,17 @@ import copy
 import csv
 import os
 import sys
+from importlib import import_module
 
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.utils.module_loading import module_has_submodule
-from importlib import import_module
 
 from .grade_reference import GradeReference
 from .normal_reference import NormalReference
 from .parsers import unparse
 from .reference_collection import ReferenceCollection
-from .value_reference_group import ValueReferenceGroup, GRADING, NORMAL
+from .value_reference_group import GRADING, NORMAL, ValueReferenceGroup
 
 
 class SiteReportablesError(Exception):
@@ -52,9 +52,7 @@ class Reportables:
                 grade_ref = GradeReference(name=name, **data)
                 grp.add_grading(grade_ref)
             reference_collection.update_grp(grp)
-        site_reportables._registry.update(
-            {reference_collection.name: reference_collection}
-        )
+        site_reportables._registry.update({reference_collection.name: reference_collection})
 
     def get(self, name):
         return self._registry.get(name)

@@ -3,8 +3,9 @@ from edc_action_item.models import ActionModelMixin
 from edc_constants.choices import YES_NO, YES_NO_NA
 from edc_identifier.model_mixins import TrackingModelMixin
 from edc_registration.models import RegisteredSubject
-from edc_reportable import site_reportables
 from edc_visit_tracking.managers import CrfModelManager, CurrentSiteManager
+
+from edc_reportable import site_reportables
 
 
 class BloodResultsModelMixin(ActionModelMixin, TrackingModelMixin, models.Model):
@@ -18,8 +19,7 @@ class BloodResultsModelMixin(ActionModelMixin, TrackingModelMixin, models.Model)
     )
 
     results_reportable = models.CharField(
-        verbose_name="If any results are abnormal, are results within grade 3 "
-        "or above?",
+        verbose_name="If any results are abnormal, are results within grade 3 " "or above?",
         max_length=25,
         choices=YES_NO_NA,
         help_text="If YES, this value will open Adverse Event Form.",
