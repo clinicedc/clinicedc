@@ -2,8 +2,7 @@ from edc_protocol import Protocol
 
 
 class ModelAdminInstitutionMixin:
-    """Adds institution attrs to the ModelAdmin context.
-    """
+    """Adds institution attrs to the ModelAdmin context."""
 
     @staticmethod
     def get_institution_extra_context(extra_context):

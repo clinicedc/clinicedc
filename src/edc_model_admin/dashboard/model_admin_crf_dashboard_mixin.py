@@ -5,7 +5,9 @@ from .model_admin_subject_dashboard_mixin import ModelAdminSubjectDashboardMixin
 
 
 class ModelAdminCrfDashboardMixin(
-    FieldsetsModelAdminMixin, ModelAdminSubjectDashboardMixin, CrfModelAdminMixin,
+    FieldsetsModelAdminMixin,
+    ModelAdminSubjectDashboardMixin,
+    CrfModelAdminMixin,
 ):
 
     show_save_next = True

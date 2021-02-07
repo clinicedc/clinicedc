@@ -15,18 +15,17 @@ from edc_visit_tracking.constants import SCHEDULED
 
 from ..lab_profiles import lab_profile
 from ..models import (
-    SubjectVisit,
-    SubjectConsent,
-    CrfOne,
-    CrfTwo,
-    CrfFour,
     CrfFive,
+    CrfFour,
+    CrfOne,
     CrfSix,
+    CrfTwo,
     Requisition,
+    SubjectConsent,
+    SubjectVisit,
 )
 from ..reference_configs import register_to_site_reference_configs
 from ..visit_schedule import visit_schedule
-
 
 User = get_user_model()
 
@@ -84,9 +83,7 @@ class ModelAdminSiteTest(WebTest):
             status=200,
         )
 
-        CrfOne.objects.create(
-            subject_visit=self.subject_visit, report_datetime=get_utcnow()
-        )
+        CrfOne.objects.create(subject_visit=self.subject_visit, report_datetime=get_utcnow())
 
         model = "redirectnextmodel"
         query_string = (
@@ -321,9 +318,7 @@ class ModelAdminSiteTest(WebTest):
             + query_string
         )
         response = self.app.get(url, user=self.user)
-        delete_url = reverse(
-            f"admin:edc_model_admin_{model}_delete", args=(crffour.id,)
-        )
+        delete_url = reverse(f"admin:edc_model_admin_{model}_delete", args=(crffour.id,))
         response = response.click(href=delete_url)
 
         # submit confirmation page
@@ -343,9 +338,7 @@ class ModelAdminSiteTest(WebTest):
         model = "crffive"
         url = reverse(f"admin:edc_model_admin_{model}_change", args=(crffive.id,))
         response = self.app.get(url, user=self.user)
-        delete_url = reverse(
-            f"admin:edc_model_admin_{model}_delete", args=(crffive.id,)
-        )
+        delete_url = reverse(f"admin:edc_model_admin_{model}_delete", args=(crffive.id,))
         response = response.click(href=delete_url)
         response = response.form.submit().follow()
         self.assertIn("You are at Dashboard Two", response)

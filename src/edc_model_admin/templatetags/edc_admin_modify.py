@@ -1,11 +1,13 @@
+from warnings import warn
+
 from django import template
 from django.contrib.admin.templatetags.admin_modify import (
     submit_row as django_submit_row,
 )
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
+
 from edc_model_admin import get_next_url
-from warnings import warn
 
 register = template.Library()
 
@@ -15,8 +17,7 @@ class EdcContextProcessorError(Exception):
 
 
 def get_request_object(context):
-    """Returns a request object or raises EdcContextProcessorError.
-    """
+    """Returns a request object or raises EdcContextProcessorError."""
     request = context.get("request")
     if not request:
         raise EdcContextProcessorError(
@@ -28,8 +29,7 @@ def get_request_object(context):
 
 
 def get_subject_identifier(context):
-    """Returns the subject identifier.
-    """
+    """Returns the subject identifier."""
     request = get_request_object(context)
     subject_identifier = request.GET.get("subject_identifier")
     if not subject_identifier:
@@ -44,8 +44,7 @@ def get_subject_identifier(context):
 
 
 def get_cancel_url(context, cancel_attr=None):
-    """Returns the url for the Cancel button on the change_form.
-    """
+    """Returns the url for the Cancel button on the change_form."""
     request = get_request_object(context)
     cancel_url = request.GET.dict().get("cancel_url")
     if not cancel_url:

@@ -1,9 +1,10 @@
+from urllib.parse import urlencode
+
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect
-from django.urls import reverse, NoReverseMatch
+from django.urls import NoReverseMatch, reverse
 from edc_metadata.next_form_getter import NextFormGetter
-from urllib.parse import urlencode
 
 from .base_model_admin_redirect_mixin import BaseModelAdminRedirectMixin
 
@@ -63,9 +64,7 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
         normal behavior.
         """
         if self.show_cancel and request.POST.get("_cancel"):
-            redirect_url = self.get_next_redirect_url(
-                request=request, object_id=object_id
-            )
+            redirect_url = self.get_next_redirect_url(request=request, object_id=object_id)
             return HttpResponseRedirect(redirect_url)
         extra_context = self.extra_context(extra_context)
         return super().change_view(
@@ -146,8 +145,7 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
             querystring_opts.update(panel=str(panel.id))
         querystring = urlencode(querystring_opts)
         return (
-            f"{redirect_url}?{self.next_querystring_attr}="
-            f"{next_querystring}&{querystring}"
+            f"{redirect_url}?{self.next_querystring_attr}=" f"{next_querystring}&{querystring}"
         )
 
     def get_next_options(self, request=None, **kwargs):
@@ -155,6 +153,4 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
         as a dictionary.
         """
         attrs = request.GET.dict().get(self.next_querystring_attr).split(",")[1:]
-        return {
-            k: request.GET.dict().get(k) for k in attrs if request.GET.dict().get(k)
-        }
+        return {k: request.GET.dict().get(k) for k in attrs if request.GET.dict().get(k)}

@@ -11,8 +11,7 @@ from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
 from edc_model.models import BaseUuidModel
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_sites.models import SiteModelMixin
-from edc_visit_schedule.model_mixins import OnScheduleModelMixin, OffScheduleModelMixin
-from edc_visit_tracking.model_mixins import VisitTrackingCrfModelMixin, VisitModelMixin
+from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
 from edc_visit_schedule.model_mixins.subject_on_schedule_model_mixin import (
     SubjectOnScheduleModelMixin,
 )
@@ -20,6 +19,7 @@ from edc_visit_schedule.model_mixins.visit_schedule_model_mixins import (
     VisitScheduleFieldsModelMixin,
     VisitScheduleMethodsModelMixin,
 )
+from edc_visit_tracking.model_mixins import VisitModelMixin, VisitTrackingCrfModelMixin
 
 
 class BasicModel(SiteModelMixin, BaseUuidModel):
@@ -70,9 +70,7 @@ class SubjectConsent(
         return (self.subject_identifier,)
 
 
-class SubjectVisit(
-    VisitModelMixin, CreatesMetadataModelMixin, SiteModelMixin, BaseUuidModel
-):
+class SubjectVisit(VisitModelMixin, CreatesMetadataModelMixin, SiteModelMixin, BaseUuidModel):
     def update_reference_on_save(self):
         pass
 

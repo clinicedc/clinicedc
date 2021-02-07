@@ -5,8 +5,7 @@ from .base_model_admin_redirect_mixin import BaseModelAdminRedirectMixin
 
 class ModelAdminModelRedirectMixin(BaseModelAdminRedirectMixin):
 
-    """Redirect to another model's changelist on add, change or delete.
-    """
+    """Redirect to another model's changelist on add, change or delete."""
 
     redirect_app_label = None
     redirect_model_name = None

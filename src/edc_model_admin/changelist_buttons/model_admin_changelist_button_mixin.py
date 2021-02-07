@@ -59,7 +59,5 @@ class ModelAdminChangelistButtonMixin:
         if disabled or not url:
             url = "#"
         button_template = self.changelist_model_button_template.format(label=label)
-        button_template = format_html(
-            button_template, disabled=disabled, title=title, url=url
-        )
+        button_template = format_html(button_template, disabled=disabled, title=title, url=url)
         return button_template

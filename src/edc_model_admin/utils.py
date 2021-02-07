@@ -1,6 +1,7 @@
+from warnings import warn
+
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
-from warnings import warn
 
 
 def get_next_url(request, next_attr=None, warn_to_console=None):

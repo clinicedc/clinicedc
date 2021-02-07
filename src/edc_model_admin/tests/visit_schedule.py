@@ -1,7 +1,12 @@
 from dateutil.relativedelta import relativedelta
-
-from edc_visit_schedule import VisitSchedule, Schedule, Visit
-from edc_visit_schedule import FormsCollection, Crf, Requisition
+from edc_visit_schedule import (
+    Crf,
+    FormsCollection,
+    Requisition,
+    Schedule,
+    Visit,
+    VisitSchedule,
+)
 from edc_visit_schedule.tests import DummyPanel
 
 from .lab_profiles import panel_one, panel_two
@@ -47,19 +52,13 @@ requisitions = FormsCollection(
 )
 
 requisitions3000 = FormsCollection(
-    Requisition(
-        show_order=10, panel=MockPanel("seven"), required=True, additional=False
-    )
+    Requisition(show_order=10, panel=MockPanel("seven"), required=True, additional=False)
 )
 
 requisitions_unscheduled = FormsCollection(
     Requisition(show_order=10, panel=MockPanel("one"), required=True, additional=False),
-    Requisition(
-        show_order=20, panel=MockPanel("three"), required=True, additional=False
-    ),
-    Requisition(
-        show_order=30, panel=MockPanel("five"), required=True, additional=False
-    ),
+    Requisition(show_order=20, panel=MockPanel("three"), required=True, additional=False),
+    Requisition(show_order=30, panel=MockPanel("five"), required=True, additional=False),
 )
 
 visit0 = Visit(

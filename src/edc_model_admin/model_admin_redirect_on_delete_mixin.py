@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.http.response import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.encoding import force_str
-from edc_dashboard.url_names import url_names, InvalidUrlName
+from edc_dashboard.url_names import InvalidUrlName, url_names
 
 
 class ModelAdminRedirectOnDeleteMixin:
@@ -42,8 +42,7 @@ class ModelAdminRedirectOnDeleteMixin:
         obj.delete()
 
     def response_delete(self, request, obj_display, obj_id):
-        """Overridden to redirect to `post_url_on_delete`, if not None.
-        """
+        """Overridden to redirect to `post_url_on_delete`, if not None."""
         if self.post_url_on_delete:
             opts = self.model._meta
             msg = 'The %(name)s "%(obj)s" was deleted successfully.' % {

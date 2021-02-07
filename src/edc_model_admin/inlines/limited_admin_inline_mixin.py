@@ -35,9 +35,7 @@ class LimitedAdminInlineMixin:
             formset.form.base_fields[field].queryset = qs
 
     def get_formset(self, request, obj=None, **kwargs):
-        formset = super(LimitedAdminInlineMixin, self).get_formset(
-            request, obj, **kwargs
-        )
+        formset = super(LimitedAdminInlineMixin, self).get_formset(request, obj, **kwargs)
 
         for (field, filters) in self.get_filters(obj):
             if obj:

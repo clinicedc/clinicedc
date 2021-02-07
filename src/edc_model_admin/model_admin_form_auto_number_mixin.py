@@ -1,6 +1,6 @@
 import re
-
 from copy import copy
+
 from django.utils.safestring import mark_safe
 
 
@@ -25,15 +25,11 @@ class ModelAdminFormAutoNumberMixin:
         WIDGET = 1
         start = getattr(form, "AUTO_NUMBER_START", 1)
         base_fields = {
-            k: v
-            for k, v in form.base_fields.items()
-            if k not in self.skip_auto_numbering
+            k: v for k, v in form.base_fields.items() if k not in self.skip_auto_numbering
         }
         for index, fld in enumerate(base_fields.items(), start=start):
             label = str(fld[WIDGET].label)
-            if not re.match(r"^\d+\.", label) and not re.match(
-                r"\<a\ title\=\"", label
-            ):
+            if not re.match(r"^\d+\.", label) and not re.match(r"\<a\ title\=\"", label):
                 fld[WIDGET].original_label = copy(label)
                 fld[WIDGET].label = mark_safe(
                     '<a title="{0}">{1}</a>. {2}'.format(fld[0], str(index), label)

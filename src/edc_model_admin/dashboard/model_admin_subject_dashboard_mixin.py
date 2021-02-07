@@ -1,21 +1,22 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
-from django.urls import reverse, NoReverseMatch
+from django.urls import NoReverseMatch, reverse
 from django.utils.translation import gettext as _
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
 from edc_dashboard.url_names import url_names
+from edc_notification import NotificationModelAdminMixin
+from edc_registration.models import RegisteredSubject
+
 from edc_model_admin import (
-    ModelAdminNextUrlRedirectMixin,
-    ModelAdminFormInstructionsMixin,
-    ModelAdminFormAutoNumberMixin,
     ModelAdminAuditFieldsMixin,
+    ModelAdminFormAutoNumberMixin,
+    ModelAdminFormInstructionsMixin,
     ModelAdminInstitutionMixin,
+    ModelAdminNextUrlRedirectMixin,
     ModelAdminRedirectOnDeleteMixin,
     ModelAdminReplaceLabelTextMixin,
     TemplatesModelAdminMixin,
 )
-from edc_notification import NotificationModelAdminMixin
-from edc_registration.models import RegisteredSubject
 
 
 class ModelAdminSubjectDashboardMixin(
@@ -67,9 +68,7 @@ class ModelAdminSubjectDashboardMixin(
         if self.show_dashboard_in_list_display_pos is not None:
             list_display = list(list_display)
             if self.dashboard not in list_display:
-                list_display.insert(
-                    self.show_dashboard_in_list_display_pos, self.dashboard
-                )
+                list_display.insert(self.show_dashboard_in_list_display_pos, self.dashboard)
         return list_display
 
     def view_on_site(self, obj):

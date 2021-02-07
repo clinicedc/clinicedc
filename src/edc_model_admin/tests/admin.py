@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from edc_model_admin import (
     ModelAdminNextUrlRedirectMixin,
     ModelAdminRedirectOnDeleteMixin,
@@ -9,13 +10,12 @@ from .models import (
     CrfFive,
     CrfFour,
     CrfOne,
+    CrfSix,
     CrfThree,
     CrfTwo,
-    CrfSix,
     RedirectNextModel,
     Requisition,
 )
-
 
 __all__ = [
     "CrfOneAdmin",
@@ -43,9 +43,7 @@ class CrfOneAdmin(BaseModelAdmin, admin.ModelAdmin):
 
 
 @admin.register(RedirectNextModel)
-class RedirectNextModelAdmin(
-    BaseModelAdmin, ModelAdminNextUrlRedirectMixin, admin.ModelAdmin
-):
+class RedirectNextModelAdmin(BaseModelAdmin, ModelAdminNextUrlRedirectMixin, admin.ModelAdmin):
     pass
 
 
@@ -61,9 +59,7 @@ class CrfThreeAdmin(BaseModelAdmin, ModelAdminNextUrlRedirectMixin, admin.ModelA
 
 
 @admin.register(Requisition)
-class RequisitionAdmin(
-    BaseModelAdmin, ModelAdminNextUrlRedirectMixin, admin.ModelAdmin
-):
+class RequisitionAdmin(BaseModelAdmin, ModelAdminNextUrlRedirectMixin, admin.ModelAdmin):
     show_save_next = True
     show_cancel = True
 

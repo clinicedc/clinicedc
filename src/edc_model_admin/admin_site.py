@@ -1,6 +1,6 @@
+from django.contrib import admin
 from django.contrib.admin import AdminSite as DjangoAdminSite
 from django.contrib.sites.shortcuts import get_current_site
-from django.contrib import admin
 
 admin.site.enable_nav_sidebar = False
 
