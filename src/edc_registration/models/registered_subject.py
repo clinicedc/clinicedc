@@ -4,8 +4,12 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator
 from django.db import models, transaction
 from django.utils.translation import gettext as _
-from django_crypto_fields.fields import FirstnameField, LastnameField
-from django_crypto_fields.fields import IdentityField, EncryptedCharField
+from django_crypto_fields.fields import (
+    EncryptedCharField,
+    FirstnameField,
+    IdentityField,
+    LastnameField,
+)
 from edc_constants.choices import GENDER
 from edc_constants.constants import UUID_PATTERN
 from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
@@ -24,8 +28,7 @@ class RegisteredSubjectError(Exception):
 class RegisteredSubject(
     UniqueSubjectIdentifierModelMixin, SiteModelMixin, edc_models.BaseUuidModel
 ):
-    """A model mixin for the RegisteredSubject model (only).
-    """
+    """A model mixin for the RegisteredSubject model (only)."""
 
     # may not be available when instance created (e.g. infants prior to birth
     # report)
@@ -41,8 +44,7 @@ class RegisteredSubject(
             RegexValidator(
                 regex=r"^[A-Z]{2,3}$",
                 message=(
-                    "Ensure initials consist of letters "
-                    "only in upper case, no spaces."
+                    "Ensure initials consist of letters " "only in upper case, no spaces."
                 ),
             )
         ],
@@ -110,9 +112,7 @@ class RegisteredSubject(
 
     consent_datetime = models.DateTimeField(null=True, blank=True)
 
-    comment = models.TextField(
-        verbose_name="Comment", max_length=250, null=True, blank=True
-    )
+    comment = models.TextField(verbose_name="Comment", max_length=250, null=True, blank=True)
 
     additional_key = models.CharField(
         max_length=36,
@@ -164,8 +164,7 @@ class RegisteredSubject(
     natural_key.dependencies = ["sites.Site"]
 
     def update_subject_identifier_on_save(self):
-        """Overridden to not set the subject identifier on save.
-        """
+        """Overridden to not set the subject identifier on save."""
         if not self.subject_identifier:
             self.subject_identifier = self.subject_identifier_as_pk.hex
         elif re.match(UUID_PATTERN, self.subject_identifier):
@@ -255,9 +254,7 @@ class RegisteredSubject(
         unique_together = ("first_name", "dob", "initials", "additional_key")
         indexes = [
             models.Index(fields=["first_name", "dob", "initials", "additional_key"]),
-            models.Index(
-                fields=["identity", "subject_identifier", "screening_identifier"]
-            ),
+            models.Index(fields=["identity", "subject_identifier", "screening_identifier"]),
         ]
         permissions = (
             ("display_firstname", "Can display first name"),

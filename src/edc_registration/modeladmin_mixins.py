@@ -1,12 +1,10 @@
 from django.contrib import admin
-from edc_auth import PII_VIEW, PII
+from edc_auth import PII, PII_VIEW
 from edc_model_admin import audit_fields
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
 
-class RegisteredSubjectModelAdminMixin(
-    ModelAdminSubjectDashboardMixin, admin.ModelAdmin
-):
+class RegisteredSubjectModelAdminMixin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
 
     ordering = ("registration_datetime",)
 

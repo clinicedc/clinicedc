@@ -1,6 +1,6 @@
 import sys
-
 from datetime import datetime
+
 from dateutil.tz import gettz
 from django.apps import AppConfig as DjangoAppConfig
 from django.apps import apps as django_apps

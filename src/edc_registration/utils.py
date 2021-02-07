@@ -18,9 +18,7 @@ def get_registered_subject(subject_identifier):
         pass
     else:
         try:
-            registered_subject = model_cls.objects.get(
-                subject_identifier=subject_identifier
-            )
+            registered_subject = model_cls.objects.get(subject_identifier=subject_identifier)
         except ObjectDoesNotExist:
             pass
     return registered_subject

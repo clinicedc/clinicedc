@@ -1,14 +1,14 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
-from django.test.utils import tag, override_settings  # noqa
+from django.test.utils import override_settings, tag  # noqa
 from edc_sites import add_or_update_django_sites
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
 from multisite import SiteID
 
 from ..models import RegisteredSubject, RegisteredSubjectError
-from .models import SubjectModelOne, SubjectModelTwo, SubjectModelThree
+from .models import SubjectModelOne, SubjectModelThree, SubjectModelTwo
 
 
 class TestRegistration(SiteTestCaseMixin, TestCase):
@@ -37,8 +37,7 @@ class TestRegistration(SiteTestCaseMixin, TestCase):
         self.assertEqual(rs.dob, new_dob)
 
     def test_creates_registered_subject_overridden(self):
-        """Assert creates RegisteredSubject with registration_unique_field overridden.
-        """
+        """Assert creates RegisteredSubject with registration_unique_field overridden."""
         obj = SubjectModelTwo.objects.create(subject_identifier="12345")
         try:
             RegisteredSubject.objects.get(subject_identifier=obj.subject_identifier)
@@ -46,8 +45,7 @@ class TestRegistration(SiteTestCaseMixin, TestCase):
             self.fail("RegisteredSubject was unexpectedly not created")
 
     def test_updates_registered_subject_overridden(self):
-        """Assert updates RegisteredSubject with registration_unique_field overridden.
-        """
+        """Assert updates RegisteredSubject with registration_unique_field overridden."""
         SubjectModelTwo.objects.create(
             subject_identifier="12345", dob=get_utcnow() - relativedelta(years=5)
         )
@@ -61,8 +59,7 @@ class TestRegistration(SiteTestCaseMixin, TestCase):
         self.assertEqual(rs.dob, new_dob)
 
     def test_creates_registered_subject_overridden2(self):
-        """Assert creates RegisteredSubject with registration_unique_field overridden.
-        """
+        """Assert creates RegisteredSubject with registration_unique_field overridden."""
         obj = SubjectModelThree.objects.create(subject_identifier="12345")
         try:
             RegisteredSubject.objects.get(subject_identifier=obj.subject_identifier)
@@ -70,8 +67,7 @@ class TestRegistration(SiteTestCaseMixin, TestCase):
             self.fail("RegisteredSubject was unexpectedly not created")
 
     def test_updates_registered_subject_overridden2(self):
-        """Assert updates RegisteredSubject with registration_unique_field overridden.
-        """
+        """Assert updates RegisteredSubject with registration_unique_field overridden."""
         SubjectModelThree.objects.create(
             subject_identifier="12345", dob=get_utcnow() - relativedelta(years=5)
         )

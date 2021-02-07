@@ -16,8 +16,7 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
 
     @property
     def registration_model(self):
-        """Returns the RegisteredSubject model, Do not override.
-        """
+        """Returns the RegisteredSubject model, Do not override."""
         return django_apps.get_app_config("edc_registration").model
 
     def registration_update_or_create(self):
