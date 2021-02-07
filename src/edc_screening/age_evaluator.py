@@ -1,7 +1,8 @@
-from edc_reportable import AgeEvaluator as ReportableAgeEvaluator, ValueBoundryError
-from django.utils.timezone import localtime
-from edc_utils.date import get_utcnow
 from dateutil.relativedelta import relativedelta
+from django.utils.timezone import localtime
+from edc_reportable import AgeEvaluator as ReportableAgeEvaluator
+from edc_reportable import ValueBoundryError
+from edc_utils.date import get_utcnow
 
 
 class AgeEvaluator(ReportableAgeEvaluator):

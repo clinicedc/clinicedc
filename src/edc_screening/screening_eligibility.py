@@ -5,12 +5,10 @@ class ScreeningEligibility:
 
     @property
     def eligible(self):
-        """Returns True or False.
-        """
+        """Returns True or False."""
         return False
 
     @property
     def reasons_ineligible(self):
-        """Returns a dictionary of reasons ineligible.
-        """
+        """Returns a dictionary of reasons ineligible."""
         return {}
