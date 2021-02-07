@@ -3,14 +3,19 @@ import re
 from django.db.models import Q
 from django.db.models.aggregates import Count
 from edc_appointment.view_mixins import AppointmentViewMixin
-from edc_dashboard.view_mixins import EdcViewMixin
-from edc_dashboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
+from edc_dashboard.view_mixins import (
+    EdcViewMixin,
+    ListboardFilterViewMixin,
+    SearchFormViewMixin,
+)
 from edc_dashboard.views import ListboardView
-from edc_metadata.constants import REQUIRED, KEYED
+from edc_metadata.constants import KEYED, REQUIRED
 from edc_metadata.view_mixins.metadata_view_mixin import MetaDataViewMixin
 from edc_navbar.view_mixin import NavbarViewMixin
-from edc_subject_dashboard.view_mixins import RegisteredSubjectViewMixin
-from edc_subject_dashboard.view_mixins import SubjectVisitViewMixin
+from edc_subject_dashboard.view_mixins import (
+    RegisteredSubjectViewMixin,
+    SubjectVisitViewMixin,
+)
 from edc_subject_model_wrappers import SubjectVisitModelWrapper
 from edc_visit_schedule.view_mixins import VisitScheduleViewMixin
 from edc_visit_tracking.models import get_subject_visit_model

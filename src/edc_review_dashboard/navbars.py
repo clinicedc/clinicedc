@@ -1,5 +1,4 @@
-from edc_navbar import NavbarItem, site_navbars, Navbar
-
+from edc_navbar import Navbar, NavbarItem, site_navbars
 
 navbar = Navbar(name="edc_review_dashboard")
 

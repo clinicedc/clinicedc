@@ -1,7 +1,4 @@
-from review_dashboard_app.lab_profiles import lab_profile
-from review_dashboard_app.models import Appointment, SubjectVisit, SubjectConsent
-from review_dashboard_app.reference_configs import register_to_site_reference_configs
-from review_dashboard_app.visit_schedule import visit_schedule
+from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.test import tag  # noqa
 from django.urls.base import reverse
@@ -12,7 +9,11 @@ from edc_reference.site_reference import site_reference_configs
 from edc_utils.date import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
-from dateutil.relativedelta import relativedelta
+
+from review_dashboard_app.lab_profiles import lab_profile
+from review_dashboard_app.models import Appointment, SubjectConsent, SubjectVisit
+from review_dashboard_app.reference_configs import register_to_site_reference_configs
+from review_dashboard_app.visit_schedule import visit_schedule
 
 User = get_user_model()
 
@@ -43,9 +44,7 @@ class TestDashboard(WebTest):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
-            visit_models={
-                "edc_appointment.appointment": "review_dashboard_app.subjectvisit"
-            }
+            visit_models={"edc_appointment.appointment": "review_dashboard_app.subjectvisit"}
         )
 
         self.subject_identifiers = ["101-40990028-3", "101-40990029-4"]
@@ -100,15 +99,11 @@ class TestDashboard(WebTest):
             status=200,
         )
 
-        n = SubjectVisit.objects.filter(
-            subject_identifier=self.subject_identifiers[1]
-        ).count()
+        n = SubjectVisit.objects.filter(subject_identifier=self.subject_identifiers[1]).count()
         self.assertIn("Subjects", response.html.get_text())
 
         # shows something like 1. 12345 3 visits
-        self.assertIn(
-            f"{self.subject_identifiers[1]} {n} visits", response.html.get_text()
-        )
+        self.assertIn(f"{self.subject_identifiers[1]} {n} visits", response.html.get_text())
         self.assertIn("click to list reported visits for this subject", response)
 
         # follow to schedule for this subject
