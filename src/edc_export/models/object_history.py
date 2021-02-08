@@ -4,8 +4,8 @@ from django_crypto_fields.fields import EncryptedTextField
 from edc_constants.constants import CLOSED, NEW
 from edc_model.models import BaseUuidModel, HistoricalRecords
 
+from ..constants import CANCELLED, EXPORTED
 from ..model_mixins import ExportTrackingFieldsModelMixin
-from ..constants import EXPORTED, CANCELLED
 
 
 class ObjectHistoryManager(models.Manager):

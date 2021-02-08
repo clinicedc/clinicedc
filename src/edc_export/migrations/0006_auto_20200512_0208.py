@@ -12,15 +12,11 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name="exportdata",
-            options={
-                "permissions": [("show_export_admin_action", "Show export action")]
-            },
+            options={"permissions": [("show_export_admin_action", "Show export action")]},
         ),
         migrations.AlterModelOptions(
             name="importdata",
-            options={
-                "permissions": [("show_import_admin_action", "Show import action")]
-            },
+            options={"permissions": [("show_import_admin_action", "Show import action")]},
         ),
         migrations.AlterModelOptions(
             name="plan",

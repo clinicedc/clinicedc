@@ -1,14 +1,24 @@
 import uuid
-
 from decimal import Decimal
+
 from edc_appointment.creators import UnscheduledAppointmentCreator
-from edc_utils import get_utcnow
 from edc_registration.models import RegisteredSubject
+from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from .models import ListModel, SubjectVisit, Crf
-from .models import CrfTwo, CrfOne, CrfThree, CrfWithInline, ListOne, ListTwo
-from .models import SubjectConsent, Appointment
+from .models import (
+    Appointment,
+    Crf,
+    CrfOne,
+    CrfThree,
+    CrfTwo,
+    CrfWithInline,
+    ListModel,
+    ListOne,
+    ListTwo,
+    SubjectConsent,
+    SubjectVisit,
+)
 from .visit_schedule import visit_schedule1
 
 
@@ -76,13 +86,9 @@ class Helper:
             )
             CrfOne.objects.create(subject_visit=self.subject_visit, dte=get_utcnow())
             CrfTwo.objects.create(subject_visit=self.subject_visit, dte=get_utcnow())
-            CrfThree.objects.create(
-                subject_visit=self.subject_visit, UPPERCASE=get_utcnow()
-            )
+            CrfThree.objects.create(subject_visit=self.subject_visit, UPPERCASE=get_utcnow())
 
-        for i, appointment in enumerate(
-            Appointment.objects.all().order_by("visit_code")
-        ):
+        for i, appointment in enumerate(Appointment.objects.all().order_by("visit_code")):
             if appointment != self.subject_visit.appointment:
                 self.create_crf_with_inlines(appointment)
 

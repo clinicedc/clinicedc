@@ -2,9 +2,9 @@ import os
 import socket
 import sys
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.mail.message import EmailMessage
-from django.conf import settings
 from edc_protocol.protocol import Protocol
 
 
@@ -55,9 +55,7 @@ class FilesEmailer:
         try:
             email_message.send()
         except socket.gaierror:
-            raise FilesEmailerError(
-                "Unable to connect to email server.", code="gaierror"
-            )
+            raise FilesEmailerError("Unable to connect to email server.", code="gaierror")
 
     def email_files(self):
         email_message = self.get_email_message()

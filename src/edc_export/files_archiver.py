@@ -6,8 +6,7 @@ from edc_utils import get_utcnow
 
 
 class FilesArchiver:
-    """Archives a folder of CSV files using make_archive.
-    """
+    """Archives a folder of CSV files using make_archive."""
 
     def __init__(
         self,

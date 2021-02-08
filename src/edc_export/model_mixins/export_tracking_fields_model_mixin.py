@@ -3,13 +3,12 @@ import uuid
 from django.db import models
 from django.utils import timezone
 
-from ..constants import INSERT, UPDATE, DELETE
+from ..constants import DELETE, INSERT, UPDATE
 
 
 class ExportTrackingFieldsModelMixin(models.Model):
 
-    """Adds these fields to the Concrete model.
-    """
+    """Adds these fields to the Concrete model."""
 
     exported = models.BooleanField(
         default=False,

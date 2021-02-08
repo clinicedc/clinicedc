@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -8,8 +9,11 @@ from django.utils.safestring import mark_safe
 from django.views.generic.base import TemplateView
 from edc_dashboard.view_mixins import EdcViewMixin
 
-from ..archive_exporter import ArchiveExporter, ArchiveExporterNothingExported
-from ..archive_exporter import ArchiveExporterEmailError
+from ..archive_exporter import (
+    ArchiveExporter,
+    ArchiveExporterEmailError,
+    ArchiveExporterNothingExported,
+)
 from ..exportables import Exportables
 from ..files_emailer import FilesEmailerError
 from ..model_options import ModelOptions
@@ -41,8 +45,7 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
         if self.request.session.get("selected_models"):
             context.update(
                 selected_models=[
-                    ModelOptions(**dct)
-                    for dct in self.request.session["selected_models"]
+                    ModelOptions(**dct) for dct in self.request.session["selected_models"]
                 ]
             )
         return context
@@ -71,9 +74,7 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
                         "Nothing to do. Select one or more models and try again.",
                     )
             except FilesEmailerError as e:
-                messages.error(
-                    request, f"Failed to send the data you requested. Got '{e}'"
-                )
+                messages.error(request, f"Failed to send the data you requested. Got '{e}'")
         url = reverse(self.post_action_url, kwargs=self.kwargs)
         return HttpResponseRedirect(url)
 
@@ -108,9 +109,7 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
                     "Please check your email."
                 )
             else:
-                msg = (
-                    f"Your data request has been saved to {exporter.archive_filename}. "
-                )
+                msg = f"Your data request has been saved to {exporter.archive_filename}. "
 
             messages.success(request, msg)
             summary = [str(x) for x in exporter.exported]
@@ -133,8 +132,7 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
 
     @property
     def allowed_selected_models(self):
-        """Returns a list of selected models as ModelOptions.
-        """
+        """Returns a list of selected models as ModelOptions."""
         if self._selected_models:
             selected_models = self.get_selected_models_from_session()
             self._selected_models = self.check_export_permissions(selected_models)
@@ -147,15 +145,11 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
         exportables = Exportables(request=self.request, user=self.user)
         selected_models = []
         for exportable in exportables:
-            selected_models.extend(
-                self.request.POST.getlist(f"chk_{exportable}_models") or []
-            )
+            selected_models.extend(self.request.POST.getlist(f"chk_{exportable}_models") or [])
             selected_models.extend(
                 self.request.POST.getlist(f"chk_{exportable}_historicals") or []
             )
-            selected_models.extend(
-                self.request.POST.getlist(f"chk_{exportable}_lists") or []
-            )
+            selected_models.extend(self.request.POST.getlist(f"chk_{exportable}_lists") or [])
             selected_models.extend(
                 self.request.POST.getlist(f"chk_{exportable}_inlines") or []
             )
@@ -176,8 +170,7 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
 
     @property
     def user(self):
-        """Returns an instance of the User model.
-        """
+        """Returns an instance of the User model."""
         if not self._user:
             self._user = User.objects.get(username=self.request.user)
         return self._user

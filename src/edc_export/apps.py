@@ -12,8 +12,10 @@ class AppConfig(DjangoApponfig):
     include_in_administration_section = True
 
     def ready(self):
-        from .signals import export_transaction_history_on_post_save
-        from .signals import export_transaction_history_on_pre_delete
+        from .signals import (
+            export_transaction_history_on_post_save,
+            export_transaction_history_on_pre_delete,
+        )
 
         os.makedirs(self.export_folder, exist_ok=True)
         os.makedirs(self.upload_folder, exist_ok=True)
@@ -21,7 +23,7 @@ class AppConfig(DjangoApponfig):
 
 if settings.APP_NAME == "edc_export":
 
-    from dateutil.relativedelta import SU, MO, TU, WE, TH, FR, SA
+    from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE
     from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
 
     class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
@@ -30,7 +32,5 @@ if settings.APP_NAME == "edc_export":
                 days=[MO, TU, WE, TH, FR, SA, SU],
                 slots=[100, 100, 100, 100, 100, 100, 100],
             ),
-            "5-day-clinic": dict(
-                days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100]
-            ),
+            "5-day-clinic": dict(days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100]),
         }

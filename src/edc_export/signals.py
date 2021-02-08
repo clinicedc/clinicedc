@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 
-from .constants import UPDATE, INSERT, DELETE
+from .constants import DELETE, INSERT, UPDATE
 
 
 @receiver(post_save, weak=False, dispatch_uid="export_transaction_history_on_post_save")
@@ -21,9 +21,7 @@ def export_transaction_history_on_post_save(
                 raise AttributeError(e)
 
 
-@receiver(
-    pre_delete, weak=False, dispatch_uid="export_transaction_history_on_pre_delete"
-)
+@receiver(pre_delete, weak=False, dispatch_uid="export_transaction_history_on_pre_delete")
 def export_transaction_history_on_pre_delete(sender, instance, using, **kwargs):
     """Serializes the model instance, before deleting, to export
     history model if manager exists."""
