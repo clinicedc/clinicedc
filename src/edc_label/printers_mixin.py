@@ -33,24 +33,19 @@ class PrintersMixin:
 
     @property
     def print_server_name(self):
-        """Returns a string.
-        """
-        return self.request.session.get(
-            PRINT_SERVER_NAME, self.user_profile.print_server
-        )
+        """Returns a string."""
+        return self.request.session.get(PRINT_SERVER_NAME, self.user_profile.print_server)
 
     @property
     def clinic_label_printer_name(self):
-        """Returns a string.
-        """
+        """Returns a string."""
         return self.request.session.get(
             CLINIC_LABEL_PRINTER_NAME, self.user_profile.clinic_label_printer
         )
 
     @property
     def lab_label_printer_name(self):
-        """Returns a string.
-        """
+        """Returns a string."""
         return self.request.session.get(
             LAB_LABEL_PRINTER_NAME, self.user_profile.lab_label_printer
         )
@@ -73,8 +68,7 @@ class PrintersMixin:
         return getattr(settings, "CUPS_SERVERS", ["localhost"])
 
     def print_server(self):
-        """Returns a CUPS connection.
-        """
+        """Returns a CUPS connection."""
         cups_connection = None
         if self.print_server_name:
             try:
@@ -111,8 +105,7 @@ class PrintersMixin:
         return printers
 
     def get_label_printer(self, name):
-        """Returns a PrinterProperties object, None or raises.
-        """
+        """Returns a PrinterProperties object, None or raises."""
         printer = self.printers.get(name)
         if not printer:
             raise PrinterError(
@@ -123,12 +116,10 @@ class PrintersMixin:
 
     @property
     def clinic_label_printer(self):
-        """Returns a PrinterProperties object or None.
-        """
+        """Returns a PrinterProperties object or None."""
         return self.get_label_printer(self.clinic_label_printer_name)
 
     @property
     def lab_label_printer(self):
-        """Returns a PrinterProperties object or None.
-        """
+        """Returns a PrinterProperties object or None."""
         return self.get_label_printer(self.lab_label_printer_name)

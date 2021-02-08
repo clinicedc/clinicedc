@@ -5,8 +5,7 @@ from .label_template import LabelTemplate
 
 class Label:
 
-    """A class that prepares data for x copies of labels.
-    """
+    """A class that prepares data for x copies of labels."""
 
     label_name = "label"
     label_template_cls = LabelTemplate
@@ -16,9 +15,7 @@ class Label:
         if label_template_name:
             self.label_template_name = label_template_name
         self.messages = None
-        self.label_template = self.label_template_cls(
-            template_name=self.label_template_name
-        )
+        self.label_template = self.label_template_cls(template_name=self.label_template_name)
 
     def __str__(self):
         return f"{self.label_template_name}."

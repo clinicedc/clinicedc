@@ -1,8 +1,8 @@
 from django.conf import settings
-from django.urls import re_path, include, path
 from django.contrib import admin
+from django.urls import include, path, re_path
 
-from .views import HomeView, ChangePrinterView, PrintLabelView
+from .views import ChangePrinterView, HomeView, PrintLabelView
 
 app_name = "edc_label"
 
@@ -32,9 +32,7 @@ urlpatterns = [
         HomeView.as_view(),
         name="print-test-label",
     ),
-    re_path(
-        r"print/(?P<label_name>\w+)/$", HomeView.as_view(), name="print-test-label"
-    ),
+    re_path(r"print/(?P<label_name>\w+)/$", HomeView.as_view(), name="print-test-label"),
     path("", HomeView.as_view(), name="home_url"),
 ]
 

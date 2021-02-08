@@ -1,7 +1,7 @@
 import os
+from string import Template
 
 from django.apps import apps as django_apps
-from string import Template
 
 
 class LabelTemplateError(Exception):

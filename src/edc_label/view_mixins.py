@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.views.generic.base import ContextMixin
 
-from .printers_mixin import PrintersMixin, PrinterError, PrintServerError
+from .printers_mixin import PrinterError, PrintersMixin, PrintServerError
 
 
 class EdcLabelViewMixin(PrintersMixin, ContextMixin):
@@ -22,9 +22,7 @@ class EdcLabelViewMixin(PrintersMixin, ContextMixin):
                 messages.error(self.request, str(e))
             else:
                 try:
-                    context.update(
-                        selected_clinic_label_printer=self.clinic_label_printer
-                    )
+                    context.update(selected_clinic_label_printer=self.clinic_label_printer)
                 except PrinterError:
                     pass
                 try:

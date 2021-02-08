@@ -34,8 +34,7 @@ class AppConfig(DjangoAppConfig):
         if not os.path.exists(label_template_folder):
             sys.stdout.write(
                 style.ERROR(
-                    f"Label template folder does not exist!\n"
-                    "Not loading label templates\n"
+                    f"Label template folder does not exist!\n" "Not loading label templates\n"
                 )
             )
         else:

@@ -1,13 +1,13 @@
-from edc_auth.models import UserProfile
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
 from django.views.generic.edit import ProcessFormView
+from edc_auth.models import UserProfile
 
 from ..constants import (
-    PRINT_SERVER_NAME,
     CLINIC_LABEL_PRINTER_NAME,
     LAB_LABEL_PRINTER_NAME,
+    PRINT_SERVER_NAME,
 )
 
 
