@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.core.checks import Warning, register
 from django.core.management import color_style
 from django.db.models import Q
-from django.db.utils import ProgrammingError, OperationalError
+from django.db.utils import OperationalError, ProgrammingError
 
 style = color_style()
 

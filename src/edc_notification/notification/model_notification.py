@@ -35,9 +35,7 @@ class ModelNotification(Notification):
     def __init__(self):
         super().__init__()
         if not self.display_name:
-            self.display_name = django_apps.get_model(
-                self.model
-            )._meta.verbose_name.title()
+            self.display_name = django_apps.get_model(self.model)._meta.verbose_name.title()
 
     def __repr__(self):
         return (
@@ -50,8 +48,7 @@ class ModelNotification(Notification):
         return f"{self.name}: {self.display_name} ({self.model})"
 
     def notify(self, force_notify=None, use_email=None, use_sms=None, **kwargs):
-        """Overridden to only call `notify` if model matches.
-        """
+        """Overridden to only call `notify` if model matches."""
         notified = False
         instance = kwargs.get("instance")
         if instance._meta.label_lower == self.model:

@@ -1,6 +1,6 @@
-import requests
 import sys
 
+import requests
 from django.conf import settings
 from django.core.exceptions import ValidationError
 
@@ -36,8 +36,7 @@ class MailingListManager:
 
     @property
     def api_url(self):
-        """Returns the api_url or None.
-        """
+        """Returns the api_url or None."""
         if not self._api_url:
             error_msg = (
                 f"Email is enabled but API_URL is not set. "
@@ -54,8 +53,7 @@ class MailingListManager:
 
     @property
     def api_key(self):
-        """Returns the api_key or None.
-        """
+        """Returns the api_key or None."""
         if not self._api_key:
             error_msg = (
                 f"Email is enabled but API_KEY is not set. "
@@ -75,9 +73,7 @@ class MailingListManager:
         a member to the list.
         """
         if not self.email_enabled:
-            raise EmailNotEnabledError(
-                "Email is not enabled. See settings.EMAIL_ENABLED"
-            )
+            raise EmailNotEnabledError("Email is not enabled. See settings.EMAIL_ENABLED")
         if not user.email:
             raise UserEmailError(f"User {user}'s email address is not defined.")
         response = requests.post(
@@ -100,9 +96,7 @@ class MailingListManager:
         a member from the list.
         """
         if not self.email_enabled:
-            raise EmailNotEnabledError(
-                "Email is not enabled. See settings.EMAIL_ENABLED"
-            )
+            raise EmailNotEnabledError("Email is not enabled. See settings.EMAIL_ENABLED")
         response = requests.put(
             f"{self.api_url}/{self.address}/members/{user.email}",
             auth=("api", self.api_key),
@@ -130,12 +124,9 @@ class MailingListManager:
             )
 
     def create(self, verbose=None):
-        """Returns a response after attempting to create the list.
-        """
+        """Returns a response after attempting to create the list."""
         if not self.email_enabled:
-            raise EmailNotEnabledError(
-                "Email is not enabled. See settings.EMAIL_ENABLED"
-            )
+            raise EmailNotEnabledError("Email is not enabled. See settings.EMAIL_ENABLED")
         response = requests.post(
             self.api_url,
             auth=("api", self.api_key),
@@ -153,24 +144,17 @@ class MailingListManager:
         return response
 
     def delete(self):
-        """Returns a response after attempting to delete the list.
-        """
+        """Returns a response after attempting to delete the list."""
         if not self.email_enabled:
-            raise EmailNotEnabledError(
-                "Email is not enabled. See settings.EMAIL_ENABLED"
-            )
-        return requests.delete(
-            f"{self.api_url}/{self.address}", auth=("api", self.api_key)
-        )
+            raise EmailNotEnabledError("Email is not enabled. See settings.EMAIL_ENABLED")
+        return requests.delete(f"{self.api_url}/{self.address}", auth=("api", self.api_key))
 
     def delete_member(self, user):
         """Returns a response after attempting to remove
         a member from the list.
         """
         if not self.email_enabled:
-            raise EmailNotEnabledError(
-                "Email is not enabled. See settings.EMAIL_ENABLED"
-            )
+            raise EmailNotEnabledError("Email is not enabled. See settings.EMAIL_ENABLED")
         return requests.delete(
             f"{self.api_url}/{self.address}/members/{user.email}",
             auth=("api", self.api_key),

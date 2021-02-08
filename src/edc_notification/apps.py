@@ -1,12 +1,12 @@
 import sys
 
 from django.apps import AppConfig as DjangoAppConfig
-from django.core.management.color import color_style
 from django.core.checks.registry import register
+from django.core.management.color import color_style
 from django.db.models.signals import post_migrate
 
-from .system_checks import edc_notification_check
 from .site_notifications import site_notifications
+from .system_checks import edc_notification_check
 
 style = color_style()
 

@@ -1,12 +1,12 @@
 import copy
 import sys
+from json.decoder import JSONDecodeError
 
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
 from django.utils.module_loading import import_module, module_has_submodule
-from json.decoder import JSONDecodeError
 from requests.exceptions import ConnectionError
 
 from .mailing_list_manager import MailingListManager
@@ -45,19 +45,15 @@ class SiteNotifications:
         return self._registry
 
     def get(self, name):
-        """Returns a Notification by name.
-        """
+        """Returns a Notification by name."""
         if not self.loaded:
             raise RegistryNotLoaded(self)
         if not self._registry.get(name):
-            raise NotificationNotRegistered(
-                f"Notification not registered. Got '{name}'."
-            )
+            raise NotificationNotRegistered(f"Notification not registered. Got '{name}'.")
         return self._registry.get(name)
 
     def register(self, notification_cls=None):
-        """Registers a Notification class unique by name.
-        """
+        """Registers a Notification class unique by name."""
         self.loaded = True
         display_names = [n.display_name for n in self.registry.values()]
         if (
@@ -71,9 +67,7 @@ class SiteNotifications:
                 models = [getattr(notification_cls, "model")]
             for model in models:
                 try:
-                    if notification_cls.name not in [
-                        n.name for n in self.models[model]
-                    ]:
+                    if notification_cls.name not in [n.name for n in self.models[model]]:
                         self.models[model].append(notification_cls)
                 except KeyError:
                     self.models.update({model: [notification_cls]})
@@ -113,9 +107,7 @@ class SiteNotifications:
         Notification.objects.all().update(enabled=False)
         if site_notifications.loaded:
             if verbose:
-                sys.stdout.write(
-                    style.MIGRATE_HEADING("Populating Notification model:\n")
-                )
+                sys.stdout.write(style.MIGRATE_HEADING("Populating Notification model:\n"))
             self.delete_unregistered_notifications(apps=apps)
             for name, notification_cls in site_notifications.registry.items():
                 if verbose:
@@ -138,22 +130,19 @@ class SiteNotifications:
                     obj.save()
 
     def delete_unregistered_notifications(self, apps=None):
-        """Delete orphaned notification model instances.
-        """
+        """Delete orphaned notification model instances."""
         Notification = (apps or django_apps).get_model("edc_notification.notification")
         return Notification.objects.exclude(
             name__in=[n.name for n in site_notifications.registry.values()]
         ).delete()
 
     def create_mailing_lists(self, verbose=True):
-        """Creates the mailing list for each registered notification.
-        """
+        """Creates the mailing list for each registered notification."""
         responses = {}
         if (
             settings.EMAIL_ENABLED
             and self.loaded
-            and settings.EMAIL_BACKEND
-            != "django.core.mail.backends.locmem.EmailBackend"
+            and settings.EMAIL_BACKEND != "django.core.mail.backends.locmem.EmailBackend"
         ):
             sys.stdout.write(style.MIGRATE_HEADING(f"Creating mailing lists:\n"))
             for name, notification_cls in self.registry.items():
@@ -168,9 +157,7 @@ class SiteNotifications:
                     response = manager.create()
                 except ConnectionError as e:
                     sys.stdout.write(
-                        style.ERROR(
-                            f"  * Failed to create mailing list {name}. " f"Got {e}\n"
-                        )
+                        style.ERROR(f"  * Failed to create mailing list {name}. " f"Got {e}\n")
                     )
                 else:
                     if verbose:

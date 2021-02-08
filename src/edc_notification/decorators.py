@@ -7,8 +7,7 @@ class RegisterNotificationError(Exception):
 
 
 def register(**kwargs):
-    """Registers a notification_cls.
-    """
+    """Registers a notification_cls."""
 
     def _wrapper(notification_cls):
 
