@@ -1,8 +1,17 @@
 from django.contrib.sites.models import Site
 from django.test import TestCase, tag
 from django.urls.base import reverse
-from edc_lab.models import Aliquot, Box, BoxType, Manifest, Shipper, Consignee
-from edc_lab.models import ManifestItem, BoxItem
+from edc_lab.models import (
+    Aliquot,
+    Box,
+    BoxItem,
+    BoxType,
+    Consignee,
+    Manifest,
+    ManifestItem,
+    Shipper,
+)
+
 from edc_lab_dashboard.model_wrappers import (
     BoxModelWrapper,
     ManageBoxItemModelWrapper,

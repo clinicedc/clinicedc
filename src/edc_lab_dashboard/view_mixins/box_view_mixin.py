@@ -11,8 +11,7 @@ class BoxViewError(Exception):
 
 class BoxViewMixin(ContextMixin):
 
-    """Declare with the ModelsViewMixin.
-    """
+    """Declare with the ModelsViewMixin."""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -37,19 +36,15 @@ class BoxViewMixin(ContextMixin):
 
     @property
     def box_identifier(self):
-        """Returns a cleaned box identifier.
-        """
+        """Returns a cleaned box identifier."""
         if not self._box_identifier:
-            self.original_box_identifier = escape(
-                self.kwargs.get("box_identifier")
-            ).strip()
+            self.original_box_identifier = escape(self.kwargs.get("box_identifier")).strip()
             self._box_identifier = "".join(self.original_box_identifier.split("-"))
         return self._box_identifier
 
     @property
     def box_item_identifier(self):
-        """Returns a cleaned box_item_identifier or None.
-        """
+        """Returns a cleaned box_item_identifier or None."""
         if not self._box_item_identifier:
             self.original_box_item_identifier = escape(
                 self.request.POST.get("box_item_identifier", "")
@@ -70,8 +65,7 @@ class BoxViewMixin(ContextMixin):
 
     @property
     def box_item(self):
-        """Returns a box item model instance.
-        """
+        """Returns a box item model instance."""
         if not self._box_item:
             if self.box_item_identifier:
                 try:
@@ -86,8 +80,7 @@ class BoxViewMixin(ContextMixin):
         return self._box_item
 
     def get_box_item(self, position):
-        """Returns a box item model instance for the given position.
-        """
+        """Returns a box item model instance for the given position."""
         try:
             box_item = BoxItem.objects.get(box=self.box, position=position)
         except ObjectDoesNotExist:
@@ -97,8 +90,7 @@ class BoxViewMixin(ContextMixin):
         return box_item
 
     def _clean_box_item_identifier(self):
-        """Returns a valid identifier or raises.
-        """
+        """Returns a valid identifier or raises."""
         box_item_identifier = "".join(self.original_box_item_identifier.split("-"))
         try:
             obj = Aliquot.objects.get(aliquot_identifier=box_item_identifier)

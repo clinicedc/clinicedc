@@ -2,9 +2,9 @@ import re
 
 from django.apps import apps as django_apps
 from edc_constants.constants import UUID_PATTERN
-from edc_lab.site_labs import site_labs
 from edc_lab.lab import Specimen as SpecimenObject
-from edc_label import add_job_results_to_messages, LabPrintersMixin
+from edc_lab.site_labs import site_labs
+from edc_label import LabPrintersMixin, add_job_results_to_messages
 
 
 class ProcessRequisitionViewMixin(LabPrintersMixin):
@@ -31,8 +31,7 @@ class ProcessRequisitionViewMixin(LabPrintersMixin):
 
     @property
     def selected_items(self):
-        """Returns a list of UUIDs as strings.
-        """
+        """Returns a list of UUIDs as strings."""
         if not self._selected_items:
             for pk in self.request.POST.getlist(self.form_action_selected_items_name):
                 if re.match(UUID_PATTERN, str(pk)):

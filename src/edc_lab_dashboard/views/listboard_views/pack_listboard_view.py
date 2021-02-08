@@ -1,7 +1,7 @@
 from django.apps import apps as django_apps
 from edc_constants.constants import OPEN
 from edc_lab.constants import SHIPPED
-from edc_lab.models import Manifest, Box
+from edc_lab.models import Box, Manifest
 
 from ...model_wrappers import BoxModelWrapper
 from ..listboard_filters import PackListboardViewFilters

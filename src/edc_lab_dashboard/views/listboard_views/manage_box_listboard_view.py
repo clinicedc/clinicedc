@@ -1,4 +1,5 @@
 from copy import copy
+
 from django.urls.base import reverse
 from edc_dashboard.url_names import url_names
 from edc_lab.models import BoxItem

@@ -1,5 +1,5 @@
-from django.views.generic.base import ContextMixin
 from django.urls.base import reverse
+from django.views.generic.base import ContextMixin
 from edc_dashboard.url_names import url_names
 
 

@@ -1,6 +1,6 @@
+from django.conf.urls import include
 from django.urls.conf import path
 from django.views.generic.base import TemplateView
-from django.conf.urls import include
 from edc_lab.admin_site import edc_lab_admin
 
 urlpatterns = [
@@ -11,9 +11,7 @@ urlpatterns = [
     path("edc_lab/", include("edc_lab.urls")),
     path("edc_protocol/", include("edc_protocol.urls")),
     path("edc_lab_dashboard/", include("edc_lab_dashboard.urls")),
-    path(
-        "", TemplateView.as_view(template_name="home.html"), name="administration_url"
-    ),
+    path("", TemplateView.as_view(template_name="home.html"), name="administration_url"),
     path("", TemplateView.as_view(template_name="home.html"), name="logout"),
     path("", TemplateView.as_view(template_name="home.html"), name="home_url"),
 ]

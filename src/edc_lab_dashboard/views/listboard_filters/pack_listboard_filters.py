@@ -1,5 +1,5 @@
 from edc_dashboard.listboard_filter import ListboardFilter, ListboardViewFilters
-from edc_lab.constants import VERIFIED, SHIPPED, PACKED
+from edc_lab.constants import PACKED, SHIPPED, VERIFIED
 
 
 class PackListboardViewFilters(ListboardViewFilters):
