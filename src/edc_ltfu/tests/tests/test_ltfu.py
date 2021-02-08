@@ -27,8 +27,8 @@ from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 from edc_ltfu.action_items import LossToFollowupAction
 from edc_ltfu.constants import LOSS_TO_FOLLOWUP_ACTION
 
-from .consents import v1_consent
-from .models import LossToFollowup
+from ..consents import v1_consent
+from ..models import LossToFollowup
 
 list_data = {
     "edc_metadata.subjectvisitmissedreasons": [
