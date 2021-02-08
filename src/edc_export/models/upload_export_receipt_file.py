@@ -1,8 +1,8 @@
 import csv
 import os
 import re
-
 from datetime import datetime
+
 from django.db import models
 from edc_constants.constants import UUID_PATTERN
 from edc_model.models import BaseUuidModel
@@ -41,9 +41,7 @@ class UploadExportReceiptFile(BaseUuidModel):
 
     def save(self, *args, **kwargs):
         if not self.id:
-            self.file_name = self.export_receipt_file.name.replace("\\", "/").split(
-                "/"
-            )[-1]
+            self.file_name = self.export_receipt_file.name.replace("\\", "/").split("/")[-1]
             self.update_file_history()
         super(UploadExportReceiptFile, self).save(*args, **kwargs)
 

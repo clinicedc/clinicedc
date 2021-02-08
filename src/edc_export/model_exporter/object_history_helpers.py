@@ -1,8 +1,8 @@
 from django.apps import apps as django_apps
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core import serializers
-from edc_utils import get_utcnow
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from edc_constants.constants import NEW
+from edc_utils import get_utcnow
 
 from ..constants import EXPORTED, INSERT, UPDATE
 
@@ -110,9 +110,7 @@ class ObjectHistoryHelper:
         self.create = create
 
     def get_not_exported(self):
-        return self.obj_getter.get_not_exported(
-            model_obj=self.model_obj, create=self.create
-        )
+        return self.obj_getter.get_not_exported(model_obj=self.model_obj, create=self.create)
 
     def update_as_exported(self, **kwargs):
         self.obj_updater.update_as_exported(**kwargs)

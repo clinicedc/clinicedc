@@ -1,7 +1,7 @@
-from django.urls.conf import re_path, path
+from django.urls.conf import path, re_path
 
 from .admin_site import edc_export_admin
-from .views import HomeView, ExportModelsView, ExportSelectedModelsView
+from .views import ExportModelsView, ExportSelectedModelsView, HomeView
 
 app_name = "edc_export"
 

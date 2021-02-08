@@ -1,11 +1,11 @@
 import csv
+from tempfile import mkdtemp
 
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
 from edc_facility.import_holidays import import_holidays
 from edc_pdutils import CsvModelExporter, ModelToDataframe
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tempfile import mkdtemp
 
 from .helper import Helper
 from .models import Crf, CrfEncrypted, SubjectVisit
@@ -53,9 +53,7 @@ class TestExport(TestCase):
         for i, appointment in enumerate(
             Appointment.objects.all().order_by("subject_identifier", "visit_code")
         ):
-            self.assertEqual(
-                df.subject_identifier.iloc[i], appointment.subject_identifier
-            )
+            self.assertEqual(df.subject_identifier.iloc[i], appointment.subject_identifier)
             self.assertEqual(df.visit_code.iloc[i], appointment.visit_code)
 
     def test_encrypted_none(self):
@@ -64,24 +62,18 @@ class TestExport(TestCase):
         self.assertEqual(len(m.dataframe.index), 0)
 
     def test_encrypted_records(self):
-        CrfEncrypted.objects.create(
-            subject_visit=self.subject_visit, encrypted1="encrypted1"
-        )
+        CrfEncrypted.objects.create(subject_visit=self.subject_visit, encrypted1="encrypted1")
         model = "edc_export.crfencrypted"
         m = ModelToDataframe(model=model)
         self.assertEqual(len(m.dataframe.index), 1)
 
     def test_encrypted_records_as_qs(self):
-        CrfEncrypted.objects.create(
-            subject_visit=self.subject_visit, encrypted1="encrypted1"
-        )
+        CrfEncrypted.objects.create(subject_visit=self.subject_visit, encrypted1="encrypted1")
         m = ModelToDataframe(queryset=CrfEncrypted.objects.all())
         self.assertEqual(len(m.dataframe.index), 1)
 
     def test_encrypted_to_csv_from_qs(self):
-        CrfEncrypted.objects.create(
-            subject_visit=self.subject_visit, encrypted1="encrypted1"
-        )
+        CrfEncrypted.objects.create(subject_visit=self.subject_visit, encrypted1="encrypted1")
         model_exporter = CsvModelExporter(
             queryset=CrfEncrypted.objects.all(),
             add_columns_for="subject_visit",
@@ -90,9 +82,7 @@ class TestExport(TestCase):
         model_exporter.to_csv()
 
     def test_encrypted_to_csv_from_model(self):
-        CrfEncrypted.objects.create(
-            subject_visit=self.subject_visit, encrypted1="encrypted1"
-        )
+        CrfEncrypted.objects.create(subject_visit=self.subject_visit, encrypted1="encrypted1")
         model_exporter = CsvModelExporter(
             model="edc_export.CrfEncrypted",
             add_columns_for="subject_visit",
@@ -101,9 +91,7 @@ class TestExport(TestCase):
         model_exporter.to_csv()
 
     def test_records_to_csv_from_qs(self):
-        model_exporter = CsvModelExporter(
-            queryset=Crf.objects.all(), export_folder=self.path
-        )
+        model_exporter = CsvModelExporter(queryset=Crf.objects.all(), export_folder=self.path)
         model_exporter.to_csv()
 
     def test_records_to_csv_from_model(self):

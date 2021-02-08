@@ -1,13 +1,12 @@
 import csv
 import os
-
 from datetime import datetime
 
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.management.base import BaseCommand, CommandError
 from edc_constants.constants import CLOSED
 
-from ...models import ExportReceipt, ExportTransaction, ExportPlan
+from ...models import ExportPlan, ExportReceipt, ExportTransaction
 
 
 class Command(BaseCommand):
@@ -32,9 +31,7 @@ class Command(BaseCommand):
         error_filepath = os.path.join(
             os.path.expanduser(self.export_plan.target_path) or "", self.error_filename
         )
-        with open(self.ack_filename, "r") as f, (
-            open(error_filepath, "w")
-        ) as error_file:
+        with open(self.ack_filename, "r") as f, (open(error_filepath, "w")) as error_file:
             rows = csv.reader(f, delimiter="|")
             writer = csv.writer(error_file, delimiter="|")
             for row in rows:
@@ -75,9 +72,7 @@ class Command(BaseCommand):
         try:
             app_label1, app_label2 = self.app_labe1.split("_")
             error_filename = (
-                "_".join(
-                    ["error", app_label1, app_label2, self.object_name, self.timestamp]
-                )
+                "_".join(["error", app_label1, app_label2, self.object_name, self.timestamp])
                 + "."
                 + self.extension
             )

@@ -1,19 +1,19 @@
 import csv
 import os
 import uuid
+from time import sleep
+from unittest.case import skip
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
-from edc_utils import get_utcnow
 from edc_pdutils.model_to_dataframe import ValueGetterInvalidLookup
-from time import sleep
-from unittest.case import skip
+from edc_utils import get_utcnow
 
-from ..constants import EXPORTED, UPDATE, INSERT
+from ..constants import EXPORTED, INSERT, UPDATE
 from ..model_exporter import ModelExporter
-from ..models import ObjectHistory, FileHistory
-from .models import Crf, SubjectVisit, ListModel, CrfEncrypted
+from ..models import FileHistory, ObjectHistory
+from .models import Crf, CrfEncrypted, ListModel, SubjectVisit
 
 app_config = django_apps.get_app_config("edc_export")
 
@@ -23,12 +23,8 @@ class TestExportModel(TestCase):
     path = app_config.export_folder
 
     def setUp(self):
-        self.thing_one = ListModel.objects.create(
-            display_name="thing_one", name="thing_one"
-        )
-        self.thing_two = ListModel.objects.create(
-            display_name="thing_two", name="thing_two"
-        )
+        self.thing_one = ListModel.objects.create(display_name="thing_one", name="thing_one")
+        self.thing_two = ListModel.objects.create(display_name="thing_two", name="thing_two")
         self.subject_visit = SubjectVisit.objects.create(
             subject_identifier="12345", report_datetime=get_utcnow()
         )
@@ -41,8 +37,7 @@ class TestExportModel(TestCase):
         )
 
     def tearDown(self):
-        """Remove .csv files created in tests.
-        """
+        """Remove .csv files created in tests."""
         super().tearDown()
         if "edc_export" not in self.path:
             raise ValueError(f"Invalid path in test. Got {self.path}")
@@ -65,8 +60,7 @@ class TestExportModel(TestCase):
         ModelExporter(queryset=queryset)
 
     def test_export_file(self):
-        """Assert creates file.
-        """
+        """Assert creates file."""
         Crf.objects.all().delete()
         queryset = Crf.objects.all()
         self.assertEqual(queryset.model, Crf)
@@ -297,9 +291,7 @@ class TestExportModel(TestCase):
         model_exporter.export()
         model_exporter = ModelExporter(queryset=queryset)
         model_exporter.export()
-        tx_qs = ObjectHistory.objects.filter(tx_pk=self.crf.pk).order_by(
-            "exported_datetime"
-        )
+        tx_qs = ObjectHistory.objects.filter(tx_pk=self.crf.pk).order_by("exported_datetime")
         self.assertEqual(tx_qs[0].export_change_type, INSERT)
 
     @skip("check insert/update flags?")
@@ -318,9 +310,7 @@ class TestExportModel(TestCase):
         sleep(1)
         model_exporter = ModelExporter(queryset=queryset)
         model_exporter.export()
-        tx_qs = ObjectHistory.objects.filter(tx_pk=self.crf.pk).order_by(
-            "exported_datetime"
-        )
+        tx_qs = ObjectHistory.objects.filter(tx_pk=self.crf.pk).order_by("exported_datetime")
         self.assertEqual(tx_qs[0].export_change_type, INSERT)
         self.assertEqual(tx_qs[1].export_change_type, UPDATE)
 

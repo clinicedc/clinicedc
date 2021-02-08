@@ -1,6 +1,5 @@
-from django_collect_offline.site_offline_models import site_offline_models
 from django_collect_offline.offline_model import OfflineModel
-
+from django_collect_offline.site_offline_models import site_offline_models
 
 offline_models = [
     "edc_export.objecthistory",

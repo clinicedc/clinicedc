@@ -1,7 +1,7 @@
 import json
 
 from django.apps import apps as django_apps
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group, User
 from django.test import TestCase
 from django.test.client import RequestFactory
 from edc_registration.models import RegisteredSubject
@@ -43,9 +43,7 @@ class TestExportable(TestCase):
         json.loads(obj)
 
     def test_exportables(self):
-        registered_subject_opts = ModelOptions(
-            model=RegisteredSubject._meta.label_lower
-        )
+        registered_subject_opts = ModelOptions(model=RegisteredSubject._meta.label_lower)
         appointment_opts = ModelOptions(model=Appointment._meta.label_lower)
         edc_appointment = django_apps.get_app_config("edc_appointment")
         edc_registration = django_apps.get_app_config("edc_registration")
@@ -68,24 +66,20 @@ class TestExportable(TestCase):
 
         self.assertIn(
             "edc_registration.historicalregisteredsubject",
-            [
-                o.label_lower
-                for o in exportables.get("edc_registration").historical_models
-            ],
+            [o.label_lower for o in exportables.get("edc_registration").historical_models],
         )
         self.assertIn(
             "edc_appointment.historicalappointment",
-            [
-                o.label_lower
-                for o in exportables.get("edc_appointment").historical_models
-            ],
+            [o.label_lower for o in exportables.get("edc_appointment").historical_models],
         )
         self.assertFalse(exportables.get("edc_registration").list_models)
         self.assertFalse(exportables.get("edc_appointment").list_models)
 
     def test_default_exportables(self):
         exportables = Exportables(
-            app_configs=None, request=self.request, user=self.user,
+            app_configs=None,
+            request=self.request,
+            user=self.user,
         )
         self.assertIn("django.contrib.admin", exportables)
         self.assertIn("django.contrib.auth", exportables)

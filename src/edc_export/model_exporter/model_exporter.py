@@ -4,8 +4,8 @@ import uuid
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
-from edc_utils import get_utcnow
 from edc_pdutils import ValueGetter
+from edc_utils import get_utcnow
 
 from .file_history_updater import FileHistoryUpdater
 from .object_history_helpers import ObjectHistoryHelper
@@ -102,17 +102,10 @@ class ModelExporter(object):
                         self.field_names.pop(self._field_names.index(f))
 
         for f in self._field_names:
-            if (
-                f in self.export_fields
-                or f in self.audit_fields
-                or f in self.required_fields
-            ):
+            if f in self.export_fields or f in self.audit_fields or f in self.required_fields:
                 self._field_names.pop(self._field_names.index(f))
         self._field_names = (
-            self.export_fields
-            + self.required_fields
-            + self.field_names
-            + self.audit_fields
+            self.export_fields + self.required_fields + self.field_names + self.audit_fields
         )
 
     @property
@@ -127,8 +120,7 @@ class ModelExporter(object):
         return self._model_cls
 
     def export(self, queryset=None):
-        """Writes the export file and returns the file name.
-        """
+        """Writes the export file and returns the file name."""
         self.queryset = queryset or self.queryset
         exported_datetime = get_utcnow()
         filename = self.get_filename(exported_datetime)
@@ -162,16 +154,12 @@ class ModelExporter(object):
         file_history_updater.update()
         return path
 
-    def prepare_row(
-        self, model_obj=None, exported_datetime=None, export_change_type=None
-    ):
+    def prepare_row(self, model_obj=None, exported_datetime=None, export_change_type=None):
         """Returns one row for the CSV writer.
 
         Most of the work is done by the ValueGetter class.
         """
-        additional_values = self.additional_values_cls(
-            export_datetime=exported_datetime
-        )
+        additional_values = self.additional_values_cls(export_datetime=exported_datetime)
         row = {}
         for field_name in self.field_names:
             value_getter = self.value_getter_cls(

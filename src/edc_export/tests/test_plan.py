@@ -4,10 +4,9 @@ from django.apps import apps as django_apps
 from django.test import TestCase, tag
 from edc_utils import get_utcnow
 
-from ..models import Plan
 from ..model_exporter import PlanExporter
-from .models import ListModel, SubjectVisit, Crf
-
+from ..models import Plan
+from .models import Crf, ListModel, SubjectVisit
 
 app_config = django_apps.get_app_config("edc_export")
 
@@ -17,12 +16,8 @@ class TestPlan(TestCase):
     path = app_config.export_folder
 
     def setUp(self):
-        self.thing_one = ListModel.objects.create(
-            display_name="thing_one", name="thing_one"
-        )
-        self.thing_two = ListModel.objects.create(
-            display_name="thing_two", name="thing_two"
-        )
+        self.thing_one = ListModel.objects.create(display_name="thing_one", name="thing_one")
+        self.thing_two = ListModel.objects.create(display_name="thing_two", name="thing_two")
         self.subject_visit = SubjectVisit.objects.create(
             subject_identifier="12345", report_datetime=get_utcnow()
         )

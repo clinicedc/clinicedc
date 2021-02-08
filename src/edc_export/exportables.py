@@ -1,4 +1,5 @@
 from collections import OrderedDict
+
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib import messages
@@ -72,9 +73,7 @@ class Exportable(OrderedDict):
             for site in sites.all_sites:
                 for model_cls, admin_site in site._registry.items():
                     for inline_cls in admin_site.inlines:
-                        model_opts = ModelOptions(
-                            model=inline_cls.model._meta.label_lower
-                        )
+                        model_opts = ModelOptions(model=inline_cls.model._meta.label_lower)
                         try:
                             self._inlines[model_cls._meta.app_label].append(model_opts)
                         except KeyError:
@@ -96,7 +95,9 @@ class Exportables(OrderedDict):
     export_group_name = EXPORT
 
     default_app_labels = getattr(
-        settings, "EDC_EXPORTABLE_DEFAULT_APPS", ["sites", "auth", "admin"],
+        settings,
+        "EDC_EXPORTABLE_DEFAULT_APPS",
+        ["sites", "auth", "admin"],
     )
 
     def __init__(self, app_configs=None, user=None, request=None):
@@ -106,18 +107,13 @@ class Exportables(OrderedDict):
         try:
             user.groups.get(name=self.export_group_name)
         except ObjectDoesNotExist:
-            messages.error(
-                request, "You do not have sufficient permissions to export data."
-            )
+            messages.error(request, "You do not have sufficient permissions to export data.")
         else:
             for app_config in app_configs:
-                self.update(
-                    {app_config.name: Exportable(app_config=app_config, user=user)}
-                )
+                self.update({app_config.name: Exportable(app_config=app_config, user=user)})
 
     def get_app_configs(self):
-        """Returns a list of app_configs with exportable data.
-        """
+        """Returns a list of app_configs with exportable data."""
         app_configs = []
         for app_config in django_apps.get_app_configs():
             try:
