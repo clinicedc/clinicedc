@@ -1,5 +1,4 @@
 import arrow
-
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from edc_utils import get_utcnow
@@ -13,16 +12,16 @@ class EdcProtocolError(Exception):
 
 class Protocol:
     """Encapsulates settings attributes:
-        EDC_PROTOCOL: 6 digit alpha-numeric
-        EDC_PROTOCOL_INSTITUTION_NAME
-        EDC_PROTOCOL_NUMBER: Used for identifiers NNN
-        EDC_PROTOCOL_PROJECT_NAME: Short name
-            e.g. Mashi, Tshepo, Ambition, BCPP, META, INTE, etc
-        EDC_PROTOCOL_STUDY_CLOSE_DATETIME
-        EDC_PROTOCOL_STUDY_OPEN_DATETIME
-        EDC_PROTOCOL_TITLE: Long name
-        EMAIL_CONTACTS
-        """
+    EDC_PROTOCOL: 6 digit alpha-numeric
+    EDC_PROTOCOL_INSTITUTION_NAME
+    EDC_PROTOCOL_NUMBER: Used for identifiers NNN
+    EDC_PROTOCOL_PROJECT_NAME: Short name
+        e.g. Mashi, Tshepo, Ambition, BCPP, META, INTE, etc
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME
+    EDC_PROTOCOL_TITLE: Long name
+    EMAIL_CONTACTS
+    """
 
     def __init__(self):
         """Set with example defaults, you will need to change from your project"""

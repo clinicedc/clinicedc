@@ -1,9 +1,10 @@
 from pprint import pprint
 
 from dateutil.relativedelta import relativedelta
-from django.test import override_settings, TestCase, tag
-from edc_protocol import Protocol
+from django.test import TestCase, override_settings, tag
 from edc_utils import get_utcnow
+
+from edc_protocol import Protocol
 
 opendte = get_utcnow() - relativedelta(years=2)
 closedte = get_utcnow() + relativedelta(years=1)
