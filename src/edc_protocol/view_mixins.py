@@ -1,4 +1,5 @@
 from django.views.generic.base import ContextMixin
+
 from edc_protocol import Protocol
 
 

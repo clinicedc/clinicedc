@@ -1,6 +1,5 @@
 from edc_navbar import Navbar, NavbarItem, site_navbars
 
-
 protocol = Navbar(name="edc_protocol")
 
 protocol.append_item(
