@@ -4,8 +4,7 @@ from django.apps import AppConfig as DjangoAppConfig
 from django.core.management.color import color_style
 from django.db.models.signals import post_migrate
 
-from .site_list_data import site_list_data, SiteListDataError
-
+from .site_list_data import SiteListDataError, site_list_data
 
 style = color_style()
 
@@ -34,8 +33,7 @@ def post_migrate_list_data(sender=None, **kwargs):
     except SiteListDataError as e:
         sys.stdout.write(
             style.ERROR(
-                f" Failed to update list data! Fix the issue "
-                f"and restart. \n '{e}'.\n"
+                f" Failed to update list data! Fix the issue " f"and restart. \n '{e}'.\n"
             )
         )
     sys.stdout.write("Done.\n")
