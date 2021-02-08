@@ -1,6 +1,6 @@
 from django.test import TestCase, tag  # noqa
 
-from ..dialects import CrfDialect
+from ...dialects import CrfDialect
 
 
 class DummyDfHandler:

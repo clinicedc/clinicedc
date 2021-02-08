@@ -1,7 +1,7 @@
 from django.test import TestCase, tag  # noqa
 
-from ..df_handlers import DfHandler
-from ..site import (
+from ...df_handlers import DfHandler
+from ...site import (
     AlreadyRegistered,
     SiteDataframeHandlerNotFound,
     site_dataframe_handlers,
