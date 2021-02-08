@@ -9,8 +9,7 @@ class OffstudyError(ValidationError):
 
 
 def off_all_schedules_or_raise(subject_identifier=None, offstudy_datetime=None):
-    """Raises an exception if subject is enrolled to any schedule.
-    """
+    """Raises an exception if subject is enrolled to any schedule."""
     for visit_schedule in site_visit_schedules.get_visit_schedules().values():
         for schedule in visit_schedule.schedules.values():
             try:
@@ -27,9 +26,7 @@ def off_all_schedules_or_raise(subject_identifier=None, offstudy_datetime=None):
                             subject_identifier=subject_identifier
                         )
                 except ObjectDoesNotExist:
-                    model_name = (
-                        schedule.offschedule_model_cls()._meta.verbose_name.title()
-                    )
+                    model_name = schedule.offschedule_model_cls()._meta.verbose_name.title()
                     offschedule_date = formatted_datetime(offstudy_datetime)
                     raise OffstudyError(
                         f"Subject is on schedule on this date. See form "
@@ -41,9 +38,7 @@ def off_all_schedules_or_raise(subject_identifier=None, offstudy_datetime=None):
     return True
 
 
-def raise_if_offstudy(
-    subject_identifier=None, report_datetime=None, offstudy_model_cls=None
-):
+def raise_if_offstudy(subject_identifier=None, report_datetime=None, offstudy_model_cls=None):
     try:
         with transaction.atomic():
             offstudy_model_cls.objects.get(

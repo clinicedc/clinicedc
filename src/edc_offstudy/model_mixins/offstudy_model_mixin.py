@@ -5,7 +5,7 @@ from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_model.models import datetime_not_future
 from edc_model_fields.fields import OtherCharField
 from edc_protocol.validators import datetime_not_before_study_start
-from edc_utils import get_utcnow, formatted_datetime
+from edc_utils import formatted_datetime, get_utcnow
 
 from ..choices import OFF_STUDY_REASONS
 from ..utils import off_all_schedules_or_raise

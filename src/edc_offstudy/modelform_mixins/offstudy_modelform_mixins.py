@@ -1,12 +1,11 @@
 from django import forms
 
-from ..utils import off_all_schedules_or_raise, OffstudyError
+from ..utils import OffstudyError, off_all_schedules_or_raise
 
 
 class OffstudyModelFormMixin(forms.ModelForm):
 
-    """ModelForm mixin for the Offstudy Model.
-    """
+    """ModelForm mixin for the Offstudy Model."""
 
     def clean(self):
         cleaned_data = super().clean()

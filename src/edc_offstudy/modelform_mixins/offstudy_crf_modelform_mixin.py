@@ -5,8 +5,7 @@ from ..utils import OffstudyError, raise_if_offstudy
 
 class OffstudyCrfModelFormMixin(forms.ModelForm):
 
-    """ModelForm mixin for CRF Models.
-    """
+    """ModelForm mixin for CRF Models."""
 
     def clean(self):
         cleaned_data = super().clean()

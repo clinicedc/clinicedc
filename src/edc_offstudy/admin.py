@@ -1,5 +1,5 @@
-from django.contrib.admin.decorators import register
 from django.contrib import admin
+from django.contrib.admin.decorators import register
 
 from .admin_site import edc_offstudy_admin
 from .models import SubjectOffstudy

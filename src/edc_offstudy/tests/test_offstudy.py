@@ -2,19 +2,23 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
-from edc_appointment.tests.models import SubjectConsent, SubjectVisit
-from edc_appointment.tests.models import SubjectOffstudy, OffScheduleOne
+from edc_appointment.tests.models import (
+    OffScheduleOne,
+    SubjectConsent,
+    SubjectOffstudy,
+    SubjectVisit,
+)
 from edc_appointment.tests.visit_schedule import visit_schedule1, visit_schedule2
 from edc_consent import NotConsentedError, site_consents
 from edc_constants.constants import DEAD
 from edc_facility.import_holidays import import_holidays
-from edc_utils import get_utcnow, get_dob
+from edc_utils import get_dob, get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
 from ..utils import OffstudyError
 from .consents import v1_consent
-from .forms import SubjectOffstudyForm, CrfOneForm, NonCrfOneForm, BadNonCrfOneForm
+from .forms import BadNonCrfOneForm, CrfOneForm, NonCrfOneForm, SubjectOffstudyForm
 from .models import BadNonCrfOne, CrfOne, NonCrfOne
 
 
@@ -111,9 +115,7 @@ class TestOffstudy(TestCase):
         appointments = Appointment.objects.filter(
             subject_identifier=self.subject_identifier
         ).order_by("appt_datetime")
-        appointment_datetimes = [
-            appointment.appt_datetime for appointment in appointments
-        ]
+        appointment_datetimes = [appointment.appt_datetime for appointment in appointments]
         # report visits for first and second appointment, 1, 2
         for index, appointment in enumerate(appointments[0:2]):
             SubjectVisit.objects.create(
@@ -139,9 +141,7 @@ class TestOffstudy(TestCase):
         )
 
         subject_visit = SubjectVisit.objects.all().order_by("report_datetime").last()
-        subject_visit.report_datetime = subject_visit.report_datetime + relativedelta(
-            years=1
-        )
+        subject_visit.report_datetime = subject_visit.report_datetime + relativedelta(years=1)
         self.assertRaises(OffstudyError, subject_visit.save)
 
     def test_crf_model_mixin(self):
@@ -226,9 +226,7 @@ class TestOffstudy(TestCase):
         except OffstudyError as e:
             self.fail(f"OffstudyError unexpectedly raised. Got {e}")
 
-        non_crf_one.report_datetime = non_crf_one.report_datetime + relativedelta(
-            years=1
-        )
+        non_crf_one.report_datetime = non_crf_one.report_datetime + relativedelta(years=1)
         self.assertRaises(OffstudyError, non_crf_one.save)
 
     def test_bad_non_crf_model_mixin(self):
@@ -298,9 +296,7 @@ class TestOffstudy(TestCase):
         OffScheduleOne.objects.create(
             subject_identifier=self.subject_identifier,
             report_datetime=get_utcnow(),
-            offschedule_datetime=(
-                appointments[0].appt_datetime + relativedelta(hours=1)
-            ),
+            offschedule_datetime=(appointments[0].appt_datetime + relativedelta(hours=1)),
         )
 
         SubjectOffstudy.objects.create(

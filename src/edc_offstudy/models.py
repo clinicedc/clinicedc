@@ -1,7 +1,7 @@
 from edc_model import models as edc_models
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 
-from .model_mixins import OffstudyModelMixin, OffstudyModelManager
+from .model_mixins import OffstudyModelManager, OffstudyModelMixin
 
 
 class SubjectOffstudy(OffstudyModelMixin, SiteModelMixin, edc_models.BaseUuidModel):
