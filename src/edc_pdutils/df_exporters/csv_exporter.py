@@ -5,7 +5,6 @@ from django.conf import settings
 from django.core.management.color import color_style
 from edc_utils import get_utcnow
 
-
 style = color_style()
 
 
@@ -62,9 +61,7 @@ class CsvExporter:
         if not self.export_folder:
             raise ExporterExportFolder("Invalid export folder. Got None")
         if not os.path.exists(self.export_folder):
-            raise ExporterExportFolder(
-                f"Invalid export folder. Got {self.export_folder}"
-            )
+            raise ExporterExportFolder(f"Invalid export folder. Got {self.export_folder}")
         self.data_label = data_label
 
     def to_csv(self, dataframe=None, export_folder=None):
@@ -100,8 +97,7 @@ class CsvExporter:
 
     @property
     def csv_options(self):
-        """Returns default options for dataframe.to_csv().
-        """
+        """Returns default options for dataframe.to_csv()."""
         return dict(
             index=self.index,
             encoding=self.encoding,
@@ -110,8 +106,7 @@ class CsvExporter:
         )
 
     def get_path(self):
-        """Returns a full path and filename.
-        """
+        """Returns a full path and filename."""
         path = os.path.join(self.export_folder, self.filename)
         if os.path.exists(path) and not self.file_exists_ok:
             raise ExporterFileExists(
@@ -121,8 +116,7 @@ class CsvExporter:
 
     @property
     def filename(self):
-        """Returns a CSV filename based on the timestamp.
-        """
+        """Returns a CSV filename based on the timestamp."""
         try:
             timestamp_format = settings.EXPORT_FILENAME_TIMESTAMP_FORMAT
         except AttributeError:

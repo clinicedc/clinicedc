@@ -75,8 +75,7 @@ class TablesExporter:
         return f"{self.__class__.__name__}(app_label='{self.app_label}')"
 
     def to_csv(self, table_names=None, export_folder=None, **kwargs):
-        """Exports all tables to CSV.
-        """
+        """Exports all tables to CSV."""
         self.exported_paths = {}
         export_folder = export_folder or self.export_folder
         if table_names:
@@ -97,14 +96,11 @@ class TablesExporter:
         raise NotImplemented()
 
     def get_table_names(self):
-        """Returns a list of table names for this app_label.
-        """
+        """Returns a list of table names for this app_label."""
         if self.with_columns:
             df = self.db.show_tables_with_columns(self.app_label, self.with_columns)
         elif self.without_columns:
-            df = self.db.show_tables_without_columns(
-                self.app_label, self.without_columns
-            )
+            df = self.db.show_tables_without_columns(self.app_label, self.without_columns)
         else:
             df = self.db.show_tables(self.app_label)
         df = df.rename(columns={"TABLE_NAME": "table_name"})

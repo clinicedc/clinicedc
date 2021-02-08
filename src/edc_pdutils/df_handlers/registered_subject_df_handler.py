@@ -1,7 +1,7 @@
 import pandas as pd
 
-from ..dialects import RsDialect
 from ..constants import SYSTEM_COLUMNS
+from ..dialects import RsDialect
 from .df_handler import DfHandler
 
 
@@ -19,9 +19,7 @@ class RegisteredSubjectDfHandler(DfHandler):
     def __init__(self, exclude_system_columns=None, **kwargs):
         self._df_registered_subject = pd.DataFrame()
         self.rs_dialect = self.rs_dialect_cls(self)
-        self.exclude_system_columns = (
-            exclude_system_columns or self.exclude_system_columns
-        )
+        self.exclude_system_columns = exclude_system_columns or self.exclude_system_columns
         super().__init__(**kwargs)
 
     def prepare_dataframe(self, **kwargs):
@@ -39,8 +37,7 @@ class RegisteredSubjectDfHandler(DfHandler):
 
     @property
     def columns(self):
-        """Returns a list of column names.
-        """
+        """Returns a list of column names."""
         df_columns = list(self.dataframe.columns)
         df_columns.pop(df_columns.index(self.registered_subject_column))
         columns = list(self.df_registered_subject.columns)

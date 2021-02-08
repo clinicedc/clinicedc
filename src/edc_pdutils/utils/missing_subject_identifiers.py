@@ -1,6 +1,6 @@
-import pandas as pd
-
 from warnings import warn
+
+import pandas as pd
 
 from ..model_to_dataframe import SubjectModelToDataframe
 
@@ -16,9 +16,7 @@ def missing_subject_identifiers(
             subject_identifiers=[a list of subject identifiers])
     """
     # convert list of subject identifiers to a dataframe
-    df_subject_identifiers = pd.DataFrame(
-        subject_identifiers, columns=["subject_identifier"]
-    )
+    df_subject_identifiers = pd.DataFrame(subject_identifiers, columns=["subject_identifier"])
     df_subject_identifiers["identifier"] = df_subject_identifiers["subject_identifier"]
     df_subject_identifiers = df_subject_identifiers.set_index("subject_identifier")
     if verbose:

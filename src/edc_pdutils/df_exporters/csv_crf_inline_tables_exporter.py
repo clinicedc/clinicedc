@@ -7,28 +7,22 @@ from .csv_crf_tables_exporter import CsvCrfTablesExporter
 
 class CsvCrfInlineTablesExporter(CsvCrfTablesExporter):
 
-    """A class to export non-CRF tables for this app_label.
-    """
+    """A class to export non-CRF tables for this app_label."""
 
     visit_column = None
     df_inline_handler_cls = NonCrfDfHandler
     exclude_inline_tables = None
 
     def __init__(self, exclude_inline_tables=None, **kwargs):
-        self.exclude_inline_tables = (
-            exclude_inline_tables or self.exclude_inline_tables or []
-        )
+        self.exclude_inline_tables = exclude_inline_tables or self.exclude_inline_tables or []
         super().__init__(**kwargs)
 
     def to_csv(self, export_folder=None, **kwargs):
-        """Exports all tables to CSV.
-        """
+        """Exports all tables to CSV."""
         self.exported_paths = {}
         export_folder = export_folder or self.export_folder
         for table_name in self.table_names:
-            df_table = self.to_df(
-                table_name=table_name, exclude_system_columns=True, **kwargs
-            )
+            df_table = self.to_df(table_name=table_name, exclude_system_columns=True, **kwargs)
             for row in self.get_inline_table_names(table_name).itertuples():
                 if row.table_name not in self.exclude_inline_tables:
                     df_inline = self.to_inline_df(table_name=row.table_name, **kwargs)
@@ -52,14 +46,9 @@ class CsvCrfInlineTablesExporter(CsvCrfTablesExporter):
     def get_inline_table_names(self, table_name=None):
         return self.db.show_inline_tables(referenced_table_name=table_name)
 
-    def merge_with_inline(
-        self, df_table=None, df_inline=None, left_on=None, right_on=None
-    ):
-        """Merge main table and its inline.
-        """
-        df_table = df_table[
-            [col for col in df_table.columns if col not in SYSTEM_COLUMNS]
-        ]
+    def merge_with_inline(self, df_table=None, df_inline=None, left_on=None, right_on=None):
+        """Merge main table and its inline."""
+        df_table = df_table[[col for col in df_table.columns if col not in SYSTEM_COLUMNS]]
         df = pd.merge(
             df_table,
             df_inline,
@@ -71,8 +60,7 @@ class CsvCrfInlineTablesExporter(CsvCrfTablesExporter):
         return df
 
     def to_inline_df(self, table_name=None, **kwargs):
-        """Returns a "prepped" dataframe for this inline table_name.
-        """
+        """Returns a "prepped" dataframe for this inline table_name."""
         df = self.get_raw_df(table_name)
         return self.get_prepped_inline_df(table_name, df, **kwargs)
 

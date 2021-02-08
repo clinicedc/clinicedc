@@ -1,10 +1,10 @@
 import csv
 import sys
+from tempfile import mkdtemp
 
 from django.apps import apps as django_apps
 from django.test import TestCase, tag  # noqa
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tempfile import mkdtemp
 
 from ..df_exporters import CsvNonCrfTablesExporter
 from ..df_handlers import NonCrfDfHandler

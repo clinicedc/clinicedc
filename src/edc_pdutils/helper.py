@@ -1,7 +1,6 @@
 import pandas as pd
-
 from django.conf import settings
-from edc_constants.constants import YES, NO
+from edc_constants.constants import NO, YES
 
 
 class Helper:
@@ -24,15 +23,13 @@ class Helper:
         return df_crf
 
     def to_local_datetime(self, s):
-        """Returns a localized datetime series given tz-aware dates.
-        """
+        """Returns a localized datetime series given tz-aware dates."""
         s = s.dt.tz_localize("UTC")
         s = s.dt.tz_convert(self.local_tz)
         return s
 
     def date_to_local_datetime(self, s):
-        """Returns a localized datetime series given naive dates.
-        """
+        """Returns a localized datetime series given naive dates."""
         s = pd.to_datetime(s, format=self.date_format, exact=True, utc=True, box=True)
         s = s.dt.tz_localize(self.local_tz)
         return s

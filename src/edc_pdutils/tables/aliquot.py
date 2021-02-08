@@ -1,6 +1,6 @@
-import pandas as pd
-
 from copy import copy
+
+import pandas as pd
 from edc_model import DEFAULT_BASE_FIELDS
 
 from ..mappings import yes_no
@@ -29,9 +29,7 @@ class Aliquot(Table):
         self.dataframe["aliquot_datetime"] = self.helper.to_local_datetime(
             self.dataframe["aliquot_datetime"]
         )
-        self.dataframe["aliquot_date"] = self.dataframe[
-            "aliquot_datetime"
-        ].dt.normalize()
+        self.dataframe["aliquot_date"] = self.dataframe["aliquot_datetime"].dt.normalize()
 
         # drop sys and other unwanted columns
         base_cols = copy(DEFAULT_BASE_FIELDS)
@@ -83,17 +81,11 @@ class Aliquot(Table):
 
     def fix_parent_identifier(self, value):
         if value:
-            value = (
-                value.replace("(", "")
-                .replace(")", "")
-                .replace("'", "")
-                .replace(",", "")
-            )
+            value = value.replace("(", "").replace(")", "").replace("'", "").replace(",", "")
         return value
 
     def missing_requisition(self, df_requisition=None):
-        """Returns a Series with True for rows missing a requisition.
-        """
+        """Returns a Series with True for rows missing a requisition."""
         missing = pd.merge(
             self.dataframe,
             df_requisition[self.requisition_columns],

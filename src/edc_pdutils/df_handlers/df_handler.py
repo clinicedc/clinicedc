@@ -36,9 +36,7 @@ class DfHandler:
         cols = list(self.dataframe.columns)
         diff = set([x for x in cols if cols.count(x) > 1])
         if len(diff) > 0:
-            raise DfHandlerDuplicateColumn(
-                f"Duplicate column detected. Got {list(diff)}"
-            )
+            raise DfHandlerDuplicateColumn(f"Duplicate column detected. Got {list(diff)}")
 
         self.prepare_dataframe()
         self.finish_dataframe()

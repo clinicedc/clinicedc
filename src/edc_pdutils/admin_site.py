@@ -1,12 +1,11 @@
-from django.contrib.admin import AdminSite as DjangoAdminSite
+from edc_model_admin.admin_site import EdcAdminSite
 
 
-class AdminSite(DjangoAdminSite):
+class AdminSite(EdcAdminSite):
 
     site_title = "EDC Pandas Utils"
     site_header = "EDC Pandas Utils"
     index_title = "EDC Pandas Utils"
-    site_url = "/administration/"
 
 
 edc_pdutils_admin = AdminSite(name="edc_pdutils_admin")

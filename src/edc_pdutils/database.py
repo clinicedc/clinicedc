@@ -1,8 +1,8 @@
-import pandas as pd
-import numpy as np
-
-from django.db import connection
 from uuid import UUID
+
+import numpy as np
+import pandas as pd
+from django.db import connection
 
 from .dialects import MysqlDialect
 
@@ -24,18 +24,15 @@ class Database:
 
     @property
     def database(self):
-        """Returns the database name.
-        """
+        """Returns the database name."""
         return connection.settings_dict["NAME"]
 
     def read_sql(self, sql, params=None):
-        """Returns a dataframe. A simple wrapper for pd.read_sql().
-        """
+        """Returns a dataframe. A simple wrapper for pd.read_sql()."""
         return pd.read_sql(sql, connection, params=params)
 
     def show_databases(self):
-        """Returns a dataframe of database names in the schema.
-        """
+        """Returns a dataframe of database names in the schema."""
         sql, params = self.dialect.show_databases()
         return self.read_sql(sql, params=params)
 
@@ -58,14 +55,11 @@ class Database:
             columns = {col: col.lower() for col in list(df.columns)}
             df.rename(columns=columns, inplace=True)
         for col in uuid_columns:
-            df[col] = df.apply(
-                lambda row: str(UUID(row[col])) if row[col] else np.nan, axis=1
-            )
+            df[col] = df.apply(lambda row: str(UUID(row[col])) if row[col] else np.nan, axis=1)
         return df
 
     def show_tables(self, app_label=None):
-        """Returns a dataframe of table names in the schema.
-        """
+        """Returns a dataframe of table names in the schema."""
         sql, params = self.dialect.show_tables(app_label)
         return self.read_sql(sql, params=params)
 

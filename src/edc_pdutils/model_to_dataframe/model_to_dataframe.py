@@ -1,8 +1,8 @@
+import sys
+from copy import copy
+
 import numpy as np
 import pandas as pd
-import sys
-
-from copy import copy
 from django.apps import apps as django_apps
 from django.db.models.constants import LOOKUP_SEP
 
@@ -15,9 +15,9 @@ class ModelToDataframeError(Exception):
 
 class ModelToDataframe:
     """
-        m = ModelToDataframe(model='edc_pdutils.crf',
-            add_columns_for=['clinic_visit'])
-        my_df = m.dataframe
+    m = ModelToDataframe(model='edc_pdutils.crf',
+        add_columns_for=['clinic_visit'])
+    my_df = m.dataframe
     """
 
     value_getter_cls = ValueGetter
@@ -61,8 +61,7 @@ class ModelToDataframe:
 
     @property
     def dataframe(self):
-        """Returns a pandas dataframe.
-        """
+        """Returns a pandas dataframe."""
         if self._dataframe.empty:
             row_count = self.queryset.count()
             if row_count > 0:
@@ -73,9 +72,7 @@ class ModelToDataframe:
                     data = []
                     for index, model_obj in enumerate(queryset.order_by("id")):
                         if self.verbose:
-                            sys.stdout.write(
-                                f"   {self.model} {index + 1}/{row_count} ... \r"
-                            )
+                            sys.stdout.write(f"   {self.model} {index + 1}/{row_count} ... \r")
                         row = []
                         for lookup, column_name in self.columns.items():
                             value = self.get_column_value(
@@ -90,28 +87,21 @@ class ModelToDataframe:
                     columns = [
                         col for col in self.columns if col not in self.encrypted_columns
                     ]
-                    queryset = self.queryset.values_list(*columns).filter(
-                        **self.query_filter
-                    )
+                    queryset = self.queryset.values_list(*columns).filter(**self.query_filter)
                     self._dataframe = pd.DataFrame(list(queryset), columns=columns)
                 self.merge_dataframe_with_pivoted_m2ms()
                 self._dataframe.rename(columns=self.columns, inplace=True)
                 self._dataframe.fillna(value=np.nan, inplace=True)
                 for column in list(
-                    self._dataframe.select_dtypes(
-                        include=["datetime64[ns, UTC]"]
-                    ).columns
+                    self._dataframe.select_dtypes(include=["datetime64[ns, UTC]"]).columns
                 ):
-                    self._dataframe[column] = self._dataframe[column].astype(
-                        "datetime64[ns]"
-                    )
+                    self._dataframe[column] = self._dataframe[column].astype("datetime64[ns]")
             if self.drop_sys_columns:
                 self._dataframe = self._dataframe.drop(self.edc_sys_columns, axis=1)
         return self._dataframe
 
     def merge_dataframe_with_pivoted_m2ms(self):
-        """For each m2m field, merge in a single pivoted field.
-        """
+        """For each m2m field, merge in a single pivoted field."""
         for m2m_field in self.queryset.model._meta.many_to_many:
             m2m_values_list = self.get_m2m_values_list(m2m_field)
             df_m2m = pd.DataFrame.from_records(
@@ -140,8 +130,7 @@ class ModelToDataframe:
         return m2m_values_list
 
     def get_column_value(self, model_obj=None, column_name=None, lookup=None):
-        """Returns the column value.
-        """
+        """Returns the column value."""
         lookups = {column_name: lookup} if LOOKUP_SEP in lookup else None
         value_getter = self.value_getter_cls(
             field_name=column_name,
@@ -157,8 +146,7 @@ class ModelToDataframe:
 
     @property
     def has_encrypted_fields(self):
-        """Returns True if at least one field uses encryption.
-        """
+        """Returns True if at least one field uses encryption."""
         for field in self.queryset.model._meta.fields:
             if hasattr(field, "field_cryptor"):
                 return True
@@ -166,8 +154,7 @@ class ModelToDataframe:
 
     @property
     def encrypted_columns(self):
-        """Return a list of column names that use encryption.
-        """
+        """Return a list of column names that use encryption."""
         if not self._encrypted_columns:
             self._encrypted_columns = ["identity_or_pk"]
             for field in self.queryset.model._meta.fields:
@@ -179,8 +166,7 @@ class ModelToDataframe:
 
     @property
     def columns(self):
-        """Return a dictionary of column names.
-        """
+        """Return a dictionary of column names."""
         if not self._columns:
             columns_list = list(self.queryset[0].__dict__.keys())
             for name in self.sys_field_names:
@@ -205,9 +191,7 @@ class ModelToDataframe:
     def add_subject_identifier_column(self, columns):
         if "subject_identifier" not in [v for v in columns.values()]:
             subject_identifier_column = None
-            id_columns = [
-                col.replace("_id", "") for col in columns if col.endswith("_id")
-            ]
+            id_columns = [col.replace("_id", "") for col in columns if col.endswith("_id")]
             for col in id_columns:
                 field = getattr(self.model_cls, col)
                 if [
@@ -225,15 +209,9 @@ class ModelToDataframe:
     def add_columns_for_subject_visit(self, column_name=None, columns=None):
         if "subject_identifier" not in [v for v in columns.values()]:
             columns.update(
-                {
-                    f"{column_name}__appointment__subject_identifier": (
-                        "subject_identifier"
-                    )
-                }
+                {f"{column_name}__appointment__subject_identifier": ("subject_identifier")}
             )
-        columns.update(
-            {f"{column_name}__appointment__appt_datetime": "appointment_datetime"}
-        )
+        columns.update({f"{column_name}__appointment__appt_datetime": "appointment_datetime"})
         columns.update({f"{column_name}__appointment__visit_code": "visit_code"})
         columns.update(
             {f"{column_name}__appointment__visit_code_sequence": "visit_code_sequence"}

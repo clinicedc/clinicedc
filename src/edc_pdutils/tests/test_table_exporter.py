@@ -23,8 +23,7 @@ class TestExport(TestCase):
             self.helper.create_crf(i)
 
     def tearDown(self):
-        """Remove .csv files created in tests.
-        """
+        """Remove .csv files created in tests."""
         super().tearDown()
         if "edc_pdutils" not in self.path:
             raise ValueError(f"Invalid path in test. Got {self.path}")

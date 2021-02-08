@@ -11,8 +11,7 @@ class NonCrfDfHandler(CrfDfHandler):
 
     @property
     def columns(self):
-        """Returns a list of column names.
-        """
+        """Returns a list of column names."""
         columns = list(self.dataframe.columns)
         # "export_" columns
         if self.exclude_export_columns:
