@@ -1,7 +1,7 @@
 from django import template
 from django.core.exceptions import ObjectDoesNotExist
+from edc_metadata.constants import KEYED, REQUIRED
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
-from edc_metadata.constants import REQUIRED, KEYED
 
 from ..site_prn_forms import site_prn_forms
 
