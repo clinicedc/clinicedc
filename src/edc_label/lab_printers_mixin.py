@@ -1,7 +1,7 @@
 from django.contrib import messages
 
 from .job_result import JobResult
-from .printers_mixin import PrintersMixin, PrinterError, PrintServerError
+from .printers_mixin import PrinterError, PrintersMixin, PrintServerError
 
 
 class LabPrintersMixin(PrintersMixin):
@@ -26,8 +26,7 @@ class LabPrintersMixin(PrintersMixin):
         return printer
 
     def print_labels(self, pks=None, request=None):
-        """Returns a job_result object or None after printing.
-        """
+        """Returns a job_result object or None after printing."""
         zpl_data = b""
         try:
             printer = self.printer

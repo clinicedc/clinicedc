@@ -1,6 +1,6 @@
 from django.test import TestCase, tag
 
-from ..printer import Printer
+from ...printer import Printer
 
 
 class DummyCupsConnection:

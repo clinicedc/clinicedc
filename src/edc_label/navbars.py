@@ -1,6 +1,5 @@
 from edc_navbar import Navbar, NavbarItem, site_navbars
 
-
 label = Navbar(name="edc_label")
 
 label.append_item(
