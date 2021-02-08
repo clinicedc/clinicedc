@@ -2,12 +2,12 @@ import copy
 
 from django.apps import apps as django_apps
 from django.conf import settings
+from django.core.management.color import color_style
 from django.template.loader import render_to_string
 from django.urls.base import reverse
-from edc_constants.constants import WARN, IGNORE
-from edc_dashboard.url_names import url_names, InvalidUrlName
 from django.urls.exceptions import NoReverseMatch
-from django.core.management.color import color_style
+from edc_constants.constants import IGNORE, WARN
+from edc_dashboard.url_names import InvalidUrlName, url_names
 
 style = color_style()
 
@@ -24,8 +24,7 @@ class PermissionsCodenameError(Exception):
 
 class NavbarItem:
 
-    """A class that represents a single item on a navbar.
-    """
+    """A class that represents a single item on a navbar."""
 
     template_name = f"edc_navbar/bootstrap{settings.EDC_BOOTSTRAP}/navbar_item.html"
 
@@ -83,8 +82,7 @@ class NavbarItem:
         return f"{self.name}<url={self.url_name}>"
 
     def get_context(self, selected_item=None, **kwargs):
-        """Returns a dictionary of context data.
-        """
+        """Returns a dictionary of context data."""
         context = copy.copy(self.__dict__)
         context.update(reversed_url=self.reversed_url, url_name=self.url_name)
         context.update(**kwargs)
@@ -103,9 +101,7 @@ class NavbarItem:
         if not self.codename:
             context.update(has_navbar_item_permission=True)
         else:
-            context.update(
-                has_navbar_item_permission=request.user.has_perm(self.codename)
-            )
+            context.update(has_navbar_item_permission=request.user.has_perm(self.codename))
         return render_to_string(template_name=self.template_name, context=context)
 
     def verify_codename(self, dotted_codename=None):

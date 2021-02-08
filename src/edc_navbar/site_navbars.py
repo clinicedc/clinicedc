@@ -1,11 +1,11 @@
-import sys
 import copy
+import sys
+from importlib import import_module
 
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.management.color import color_style
 from django.utils.module_loading import module_has_submodule
-from importlib import import_module
 
 from .navbar import NavbarError
 
@@ -15,8 +15,7 @@ class AlreadyRegistered(Exception):
 
 
 class NavbarCollection:
-    """A class to contain a dictionary of navbars. See Navbar.
-    """
+    """A class to contain a dictionary of navbars. See Navbar."""
 
     name = "default"
 
@@ -32,13 +31,10 @@ class NavbarCollection:
             self.registry.update({navbar.name: navbar})
             self.codenames.update(**navbar.codenames)
         else:
-            raise AlreadyRegistered(
-                f"Navbar with name {navbar.name} is already registered."
-            )
+            raise AlreadyRegistered(f"Navbar with name {navbar.name} is already registered.")
 
     def context(self, name=None, selected_item=None):
-        """Returns the named navbar in the collection as context.
-        """
+        """Returns the named navbar in the collection as context."""
         return dict(
             navbar_item_selected=selected_item,
             navbar=self.get_navbar(name=name, selected_item=selected_item),
@@ -46,8 +42,7 @@ class NavbarCollection:
         )
 
     def get_navbar(self, name=None, selected_item=None):
-        """Returns a selected navbar in the collection.
-        """
+        """Returns a selected navbar in the collection."""
         # does navbar exist?
         try:
             navbar = self.registry[name]

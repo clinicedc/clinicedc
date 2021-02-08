@@ -4,8 +4,7 @@ class NavbarError(Exception):
 
 class Navbar:
 
-    """A class to contain a list of navbar items. See NavbarItem.
-    """
+    """A class to contain a list of navbar items. See NavbarItem."""
 
     def __init__(self, name=None, navbar_items=None):
         self.name = name
@@ -43,9 +42,7 @@ class Navbar:
                     f"Expected one of {list(self.codenames.keys())}."
                     f" Got {item.codename}."
                 )
-            if not item.codename or (
-                item.codename and request.user.has_perm(item.codename)
-            ):
+            if not item.codename or (item.codename and request.user.has_perm(item.codename)):
                 self.rendered_items.append(
                     item.render(selected_item=selected_item, request=request, **kwargs)
                 )
