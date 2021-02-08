@@ -1,9 +1,10 @@
 from django.conf import settings
 from django.test import TestCase, tag
-from edc_lab.identifiers import AliquotIdentifier
-from edc_lab.lab import PrimaryAliquot, AliquotType, AliquotCreator
 from edc_sites import add_or_update_django_sites
 from edc_sites.single_site import SingleSite
+
+from edc_lab.identifiers import AliquotIdentifier
+from edc_lab.lab import AliquotCreator, AliquotType, PrimaryAliquot
 
 
 class MyAliquotIdentifier(AliquotIdentifier):
@@ -63,8 +64,7 @@ class TestPrimaryAliquot(TestCase):
         self.assertEqual(pk, p.object.id)
 
     def test_primary_aliquot_exists(self):
-        """Asserts primary aliquot exists using identifier_prefix.
-        """
+        """Asserts primary aliquot exists using identifier_prefix."""
         aliquot_type = AliquotType(name="aliquot_a", numeric_code="22", alpha_code="WW")
         primary_aliquot = PrimaryAliquot(
             requisition_identifier="ABCDE",
@@ -80,8 +80,7 @@ class TestPrimaryAliquot(TestCase):
         self.assertEqual(obj.aliquot_identifier, p.object.aliquot_identifier)
 
     def test_primary_aliquot_exists2(self):
-        """Asserts primary aliquot exists using requisition_identifier.
-        """
+        """Asserts primary aliquot exists using requisition_identifier."""
         aliquot_type = AliquotType(name="aliquot_a", numeric_code="22", alpha_code="WW")
         primary_aliquot = PrimaryAliquot(
             requisition_identifier="ABCDE",

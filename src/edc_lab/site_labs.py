@@ -2,8 +2,8 @@ import copy
 import sys
 
 from django.apps import apps as django_apps
-from django.utils.module_loading import import_module, module_has_submodule
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.module_loading import import_module, module_has_submodule
 
 
 class AlreadyRegistered(Exception):
@@ -40,14 +40,12 @@ class SiteLabs:
     def registry(self):
         if not self.loaded:
             raise RegistryNotLoaded(
-                "Registry not loaded. Is AppConfig for 'edc_lab' "
-                "declared in settings?."
+                "Registry not loaded. Is AppConfig for 'edc_lab' " "declared in settings?."
             )
         return self._registry
 
     def get(self, lab_profile_name):
-        """Returns a LabProfile instance.
-        """
+        """Returns a LabProfile instance."""
         if not self.loaded:
             raise RegistryNotLoaded(self)
         return self._registry.get(lab_profile_name)
@@ -71,15 +69,11 @@ class SiteLabs:
                     panel_model_cls = django_apps.get_model(self.panel_model)
                     self.update_panel_model(panel_model_cls=panel_model_cls)
             else:
-                raise AlreadyRegistered(
-                    f"Lab profile {lab_profile} is already registered."
-                )
+                raise AlreadyRegistered(f"Lab profile {lab_profile} is already registered.")
 
     @property
     def lab_profiles(self):
-        return {
-            lab_profile.name: lab_profile for lab_profile in self._registry.values()
-        }
+        return {lab_profile.name: lab_profile for lab_profile in self._registry.values()}
 
     @property
     def panel_model_cls(self):
@@ -93,8 +87,7 @@ class SiteLabs:
         }
 
     def check_lab_profile_name_on_panels(self, panel_model_cls=None):
-        """Checks if for panels referencing non-existent lab_profiles
-        """
+        """Checks if for panels referencing non-existent lab_profiles"""
         panel_model_cls = panel_model_cls or self.panel_model_cls
         for panel in panel_model_cls.objects.all().order_by("lab_profile_name"):
             if panel.lab_profile_name not in self.lab_profiles:
@@ -156,9 +149,7 @@ class SiteLabs:
                     before_import_registry = copy.copy(site_labs._registry)
                     import_module(f"{app}.{module_name}")
                     if verbose:
-                        sys.stdout.write(
-                            f" * registered labs from application '{app}'\n"
-                        )
+                        sys.stdout.write(f" * registered labs from application '{app}'\n")
                 except Exception as e:
                     if f"No module named '{app}.{module_name}'" not in str(e):
                         site_labs._registry = before_import_registry

@@ -1,18 +1,7 @@
 from edc_constants.constants import COMPLETE, NOT_APPLICABLE, OTHER, PARTIAL, PENDING
 from edc_metadata.constants import NOT_REQUIRED
 
-from .constants import (
-    FILL_ACROSS,
-    FILL_DOWN,
-    TUBE,
-    FINGER_PRICK,
-    EQ,
-    GT,
-    GTE,
-    LT,
-    LTE,
-)
-
+from .constants import EQ, FILL_ACROSS, FILL_DOWN, FINGER_PRICK, GT, GTE, LT, LTE, TUBE
 
 ABS_CALC = (("absolute", "Absolute"), ("calculated", "Calculated"))
 

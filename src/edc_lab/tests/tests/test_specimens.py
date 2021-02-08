@@ -1,15 +1,9 @@
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.test import override_settings, TestCase, tag  # noqa
+from django.test import TestCase, override_settings, tag  # noqa
 from edc_appointment.models import Appointment
-from edc_constants.constants import YES, NO
+from edc_constants.constants import NO, YES
 from edc_facility import import_holidays
-from edc_lab.identifiers import AliquotIdentifier as AliquotIdentifierBase
-from edc_lab.lab import AliquotCreator as AliquotCreatorBase
-from edc_lab.lab import AliquotType, Process, ProcessingProfile
-from edc_lab.lab import Specimen as SpecimenBase, SpecimenNotDrawnError
-from edc_lab.lab import SpecimenProcessor
-from edc_lab.models import Aliquot
 from edc_sites import add_or_update_django_sites
 from edc_sites.single_site import SingleSite
 from edc_sites.tests import SiteTestCaseMixin
@@ -18,7 +12,14 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from multisite import SiteID
 
-from ..models import SubjectRequisition, SubjectVisit, SubjectConsent
+from edc_lab.identifiers import AliquotIdentifier as AliquotIdentifierBase
+from edc_lab.lab import AliquotCreator as AliquotCreatorBase
+from edc_lab.lab import AliquotType, Process, ProcessingProfile
+from edc_lab.lab import Specimen as SpecimenBase
+from edc_lab.lab import SpecimenNotDrawnError, SpecimenProcessor
+from edc_lab.models import Aliquot
+
+from ..models import SubjectConsent, SubjectRequisition, SubjectVisit
 from ..site_labs_test_helper import SiteLabsTestHelper
 from ..visit_schedules import visit_schedule
 
@@ -185,9 +186,7 @@ class TestSpecimen2(SiteTestCaseMixin, TestCase):
             requisition_identifier=self.requisition.requisition_identifier,
             is_primary=True,
         )
-        self.assertEqual(
-            specimen.aliquots[0].aliquot_identifier, obj.aliquot_identifier
-        )
+        self.assertEqual(specimen.aliquots[0].aliquot_identifier, obj.aliquot_identifier)
 
     def test_process_repr(self):
         a = AliquotType(name="aliquot_a", numeric_code="55", alpha_code="AA")
@@ -196,9 +195,7 @@ class TestSpecimen2(SiteTestCaseMixin, TestCase):
 
     def test_process_profile_repr(self):
         a = AliquotType(name="aliquot_a", numeric_code="55", alpha_code="AA")
-        processing_profile = ProcessingProfile(
-            name="processing_profile", aliquot_type=a
-        )
+        processing_profile = ProcessingProfile(name="processing_profile", aliquot_type=a)
         self.assertTrue(repr(processing_profile))
 
     def test_specimen_process(self):
@@ -210,8 +207,7 @@ class TestSpecimen2(SiteTestCaseMixin, TestCase):
         self.assertEqual(self.specimen.aliquots.count(), self.profile_aliquot_count + 1)
 
     def test_specimen_process2(self):
-        """Asserts calling process more than once has no effect.
-        """
+        """Asserts calling process more than once has no effect."""
         self.specimen.process()
         self.assertEqual(self.specimen.aliquots.count(), self.profile_aliquot_count + 1)
         self.specimen.process()
@@ -230,8 +226,7 @@ class TestSpecimen2(SiteTestCaseMixin, TestCase):
             )
 
     def test_specimen_process_identifier_parent_segment(self):
-        """Assert all aliquots have correct 4 chars parent_segment.
-        """
+        """Assert all aliquots have correct 4 chars parent_segment."""
         self.specimen.process()
         parent_segment = self.specimen.primary_aliquot.aliquot_identifier[-4:]
 
@@ -244,8 +239,7 @@ class TestSpecimen2(SiteTestCaseMixin, TestCase):
             self.assertEqual(parent_segment, aliquot.aliquot_identifier[-8:-4])
 
     def test_specimen_process_identifier_child_segment(self):
-        """Assert all aliquots have correct 4 chars child_segment.
-        """
+        """Assert all aliquots have correct 4 chars child_segment."""
         self.specimen.process()
 
         aliquot = self.specimen.aliquots.order_by("count")[0]
@@ -255,6 +249,4 @@ class TestSpecimen2(SiteTestCaseMixin, TestCase):
         for index, aliquot in enumerate(self.specimen.aliquots.order_by("count")[1:]):
             index += 2
             self.assertFalse(aliquot.is_primary)
-            self.assertEqual(
-                f"66{str(index).zfill(2)}", aliquot.aliquot_identifier[-4:]
-            )
+            self.assertEqual(f"66{str(index).zfill(2)}", aliquot.aliquot_identifier[-4:])

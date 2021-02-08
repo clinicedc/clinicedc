@@ -1,7 +1,9 @@
+from uuid import UUID
+
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from edc_constants.constants import YES
-from uuid import UUID
+
 from edc_lab.admin.fieldsets import (
     requisition_identifier_fields,
     requisition_verify_fields,
@@ -44,9 +46,7 @@ class RequisitionAdminMixin:
         if obj.is_drawn == YES:
             return obj.requisition_identifier
         elif not obj.is_drawn:
-            return mark_safe(
-                f'<span style="color:red;">{obj.requisition_identifier}</span>'
-            )
+            return mark_safe(f'<span style="color:red;">{obj.requisition_identifier}</span>')
         return mark_safe('<span style="color:red;">not drawn</span>')
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):

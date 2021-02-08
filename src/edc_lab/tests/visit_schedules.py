@@ -1,7 +1,5 @@
 from dateutil.relativedelta import relativedelta
-
-from edc_visit_schedule import VisitSchedule, Schedule, Visit
-from edc_visit_schedule import FormsCollection, Crf
+from edc_visit_schedule import Crf, FormsCollection, Schedule, Visit, VisitSchedule
 from edc_visit_schedule.tests.dummy_panel import DummyPanel
 from edc_visit_schedule.visit.requisition import Requisition
 
@@ -18,9 +16,7 @@ class MockPanel(DummyPanel):
 crfs = FormsCollection(Crf(show_order=1, model="edc_lab.crfone", required=True))
 
 requisitions = FormsCollection(
-    Requisition(
-        show_order=10, panel=MockPanel("panel"), required=True, additional=False
-    )
+    Requisition(show_order=10, panel=MockPanel("panel"), required=True, additional=False)
 )
 
 

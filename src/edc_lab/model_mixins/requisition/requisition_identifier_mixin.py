@@ -1,7 +1,7 @@
 import re
 
 from django.db import models
-from edc_constants.constants import YES, UUID_PATTERN
+from edc_constants.constants import UUID_PATTERN, YES
 from edc_protocol import Protocol
 from edc_utils import get_uuid
 
@@ -15,9 +15,7 @@ class RequisitionIdentifierMixin(models.Model):
         verbose_name="Requisition Id", max_length=50, unique=True
     )
 
-    identifier_prefix = models.CharField(
-        max_length=50, null=True, editable=False, unique=True
-    )
+    identifier_prefix = models.CharField(max_length=50, null=True, editable=False, unique=True)
 
     primary_aliquot_identifier = models.CharField(
         max_length=18, null=True, editable=False, unique=True
@@ -32,8 +30,7 @@ class RequisitionIdentifierMixin(models.Model):
 
     @property
     def human_readable_identifier(self):
-        """Returns a human readable requisition identifier.
-        """
+        """Returns a human readable requisition identifier."""
         x = self.requisition_identifier
         return f"{x[0:3]}-{x[3:7]}"
 

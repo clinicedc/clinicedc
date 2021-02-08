@@ -8,8 +8,7 @@ from ..constants import VERIFIED
 
 
 class Manifest:
-    """A class of manifest that contains boxes.
-    """
+    """A class of manifest that contains boxes."""
 
     manifest_model = "edc_lab.manifest"
     manifest_item_model = "edc_lab.manifestitem"
@@ -67,9 +66,7 @@ class Manifest:
                             "manifest_identifier": manifest_item.manifest.manifest_identifier
                         },
                     )
-                    manifest_identifier = (
-                        manifest_item.manifest.human_readable_identifier
-                    )
+                    manifest_identifier = manifest_item.manifest.human_readable_identifier
                     message = mark_safe(
                         "Item is already in a manifest. See "
                         f'<a href="{href}" class="alert-link">'
@@ -84,8 +81,7 @@ class Manifest:
         return added
 
     def validate_box_category(self, box=None):
-        """Returns True if box category matches manifest category.
-        """
+        """Returns True if box category matches manifest category."""
         if box.category != self.manifest.category:
             message = "Invalid category. Manifest accepts {}. Got {}.".format(
                 self.manifest.get_category_display(), box.get_category_display()
@@ -95,12 +91,9 @@ class Manifest:
         return True
 
     def validate_box_verified(self, box=None):
-        """Returns True if box status is verified.
-        """
+        """Returns True if box status is verified."""
         if box.status != VERIFIED:
-            message = "Box is not verified. Got {}.".format(
-                box.human_readable_identifier
-            )
+            message = "Box is not verified. Got {}.".format(box.human_readable_identifier)
             messages.error(self.request, message)
             return False
         return True

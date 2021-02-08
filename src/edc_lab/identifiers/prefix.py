@@ -8,8 +8,7 @@ class PrefixKeyError(Exception):
 
 class Prefix:
 
-    """A class to generate an identifier prefix.
-    """
+    """A class to generate an identifier prefix."""
 
     template = "{protocol_number}{requisition_identifier}"
     length = 10

@@ -39,8 +39,7 @@ class AliquotCreator:
         else:
             self.parent_identifier = parent_identifier
         self.identifier_prefix = (
-            identifier_prefix
-            or f"{Protocol().protocol_number}{self.requisition_identifier}"
+            identifier_prefix or f"{Protocol().protocol_number}{self.requisition_identifier}"
         )
         if is_primary:
             self.parent_segment = None
@@ -82,8 +81,7 @@ class AliquotCreator:
         return aliquot
 
     def _create(self, parent_identifier=None, count=None, aliquot_type=None):
-        """Returns a newly created aliquot.
-        """
+        """Returns a newly created aliquot."""
         aliquot_identifier_obj = self.aliquot_identifier_cls(
             count=count,
             numeric_code=aliquot_type.numeric_code,

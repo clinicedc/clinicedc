@@ -26,9 +26,7 @@ class AliquotType:
         else:
             self.alpha_code = alpha_code
         if not numeric_code or not re.match("^\d+$", numeric_code, re.ASCII):
-            raise AliquotTypeNumericCodeError(
-                f"Invalid numeric code. Got {numeric_code}."
-            )
+            raise AliquotTypeNumericCodeError(f"Invalid numeric code. Got {numeric_code}.")
         else:
             self.numeric_code = numeric_code
 

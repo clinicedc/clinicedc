@@ -2,17 +2,18 @@ import re
 
 from django.conf import settings
 from django.test import TestCase, tag  # noqa
+from edc_sites import add_or_update_django_sites
+from edc_sites.single_site import SingleSite
+
 from edc_lab.identifiers import RequisitionIdentifier
 from edc_lab.lab import (
     AliquotType,
     LabProfile,
+    Process,
     ProcessingProfile,
     RequisitionPanel,
-    Process,
 )
 from edc_lab.site_labs import site_labs
-from edc_sites import add_or_update_django_sites
-from edc_sites.single_site import SingleSite
 
 
 class TestRequisition(TestCase):
@@ -64,12 +65,8 @@ class TestRequisitionModel(TestCase):
         process = Process(aliquot_type=b, aliquot_count=3)
         processing_profile = ProcessingProfile(name="process", aliquot_type=a)
         processing_profile.add_processes(process)
-        panel = RequisitionPanel(
-            name="Viral Load", processing_profile=processing_profile
-        )
-        self.lab_profile = LabProfile(
-            name="profile", requisition_model=self.requisition_model
-        )
+        panel = RequisitionPanel(name="Viral Load", processing_profile=processing_profile)
+        self.lab_profile = LabProfile(name="profile", requisition_model=self.requisition_model)
         self.lab_profile.add_panel(panel=panel)
         site_labs._registry = {}
         site_labs.loaded = False

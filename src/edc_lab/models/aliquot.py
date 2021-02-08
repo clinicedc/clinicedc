@@ -1,10 +1,14 @@
 from edc_model import models as edc_models
-from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
+from edc_search.model_mixins import SearchSlugManager, SearchSlugModelMixin
 from edc_sites.models import CurrentSiteManager
 
 from ..managers import AliquotManager
-from ..model_mixins import AliquotModelMixin, AliquotIdentifierModelMixin
-from ..model_mixins import AliquotTypeModelMixin, AliquotShippingMixin
+from ..model_mixins import (
+    AliquotIdentifierModelMixin,
+    AliquotModelMixin,
+    AliquotShippingMixin,
+    AliquotTypeModelMixin,
+)
 
 
 class Manager(AliquotManager, SearchSlugManager):
@@ -36,8 +40,7 @@ class Aliquot(
 
     @property
     def human_readable_identifier(self):
-        """Returns a human readable aliquot identifier.
-        """
+        """Returns a human readable aliquot identifier."""
         x = self.aliquot_identifier
         return "{}-{}-{}-{}-{}".format(x[0:3], x[3:6], x[6:10], x[10:14], x[14:18])
 

@@ -4,18 +4,24 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.test import TestCase, tag  # noqa
 from edc_appointment.models import Appointment
-from edc_constants.constants import YES, NO, NOT_APPLICABLE
+from edc_constants.constants import NO, NOT_APPLICABLE, YES
 from edc_facility import import_holidays
-from edc_lab.lab import AliquotType, LabProfile, ProcessingProfile
-from edc_lab.lab import Process, ProcessingProfileAlreadyAdded
-from edc_lab.site_labs import SiteLabs, site_labs
 from edc_sites import add_or_update_django_sites
 from edc_sites.single_site import SingleSite
 from edc_utils.date import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
-from ..models import SubjectRequisition, SubjectVisit, SubjectConsent
+from edc_lab.lab import (
+    AliquotType,
+    LabProfile,
+    Process,
+    ProcessingProfile,
+    ProcessingProfileAlreadyAdded,
+)
+from edc_lab.site_labs import SiteLabs, site_labs
+
+from ..models import SubjectConsent, SubjectRequisition, SubjectVisit
 from ..site_labs_test_helper import SiteLabsTestHelper
 from ..visit_schedules import visit_schedule
 
@@ -115,15 +121,13 @@ class TestSiteLab2(TestCase):
         )
 
     def test_requisition_specimen(self):
-        """Asserts can create a requisition.
-        """
+        """Asserts can create a requisition."""
         SubjectRequisition.objects.create(
             subject_visit=self.subject_visit, panel=self.panel.panel_model_obj
         )
 
     def test_requisition_identifier2(self):
-        """Asserts requisition identifier is set on requisition.
-        """
+        """Asserts requisition identifier is set on requisition."""
         requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
             panel=self.panel.panel_model_obj,
@@ -163,8 +167,7 @@ class TestSiteLab2(TestCase):
         self.assertTrue(pattern.match(requisition.requisition_identifier))
 
     def test_requisition_identifier6(self):
-        """Asserts requisition identifier is unchanged on save/resave.
-        """
+        """Asserts requisition identifier is unchanged on save/resave."""
         requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
             panel=self.panel.panel_model_obj,

@@ -13,26 +13,22 @@ from edc_visit_schedule.model_mixins import (
     OffScheduleModelMixin,
     OnScheduleModelMixin,
     SubjectOnScheduleModelMixin,
-    VisitScheduleMethodsModelMixin,
     VisitScheduleFieldsModelMixin,
+    VisitScheduleMethodsModelMixin,
 )
 from edc_visit_tracking.model_mixins import VisitModelMixin
+
 from edc_lab.model_mixins import RequisitionModelMixin
 
-
 site_reference_configs.registry = {}
-reference = ReferenceModelConfig(
-    name="edc_lab.subjectrequisition.panel", fields=["panel"]
-)
+reference = ReferenceModelConfig(name="edc_lab.subjectrequisition.panel", fields=["panel"])
 site_reference_configs.register(reference)
 reference = ReferenceModelConfig(name="edc_lab.CrfOne", fields=["f1"])
 site_reference_configs.register(reference)
 
 
 class SubjectRequisitionManager(models.Manager):
-    def get_by_natural_key(
-        self, requisition_identifier, subject_identifier, report_datetime
-    ):
+    def get_by_natural_key(self, requisition_identifier, subject_identifier, report_datetime):
         subject_visit = SubjectVisit.objects.get(
             subject_identifier=subject_identifier, report_datetime=report_datetime
         )
@@ -41,9 +37,7 @@ class SubjectRequisitionManager(models.Manager):
         )
 
 
-class SubjectVisit(
-    VisitModelMixin, CreatesMetadataModelMixin, SiteModelMixin, BaseUuidModel
-):
+class SubjectVisit(VisitModelMixin, CreatesMetadataModelMixin, SiteModelMixin, BaseUuidModel):
     def update_reference_on_save(self):
         pass
 

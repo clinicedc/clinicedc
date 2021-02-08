@@ -1,21 +1,23 @@
 from datetime import timedelta
+
 from django import forms
 from django.conf import settings
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
-from edc_constants.constants import OTHER, YES, NO, NOT_APPLICABLE
+from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
 from edc_facility.import_holidays import import_holidays
 from edc_form_validators import FormValidatorMixin
-from edc_lab.form_validators import RequisitionFormValidator
-from edc_lab.forms import BoxForm, ManifestForm, BoxTypeForm, RequisitionFormMixin
-from edc_lab.models import Aliquot
 from edc_sites import add_or_update_django_sites
 from edc_sites.single_site import SingleSite
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
-from ..models import SubjectRequisition, SubjectVisit, SubjectConsent
+from edc_lab.form_validators import RequisitionFormValidator
+from edc_lab.forms import BoxForm, BoxTypeForm, ManifestForm, RequisitionFormMixin
+from edc_lab.models import Aliquot
+
+from ..models import SubjectConsent, SubjectRequisition, SubjectVisit
 from ..site_labs_test_helper import SiteLabsTestHelper
 from ..visit_schedules import visit_schedule
 
@@ -95,9 +97,7 @@ class TestForms(TestCase):
         self.assertNotIn("category_other", list(form.errors.keys()))
 
     def test_requisition_form_reason(self):
-        class RequisitionForm(
-            RequisitionFormMixin, FormValidatorMixin, forms.ModelForm
-        ):
+        class RequisitionForm(RequisitionFormMixin, FormValidatorMixin, forms.ModelForm):
 
             form_validator_cls = RequisitionFormValidator
 
@@ -122,9 +122,7 @@ class TestForms(TestCase):
         self.assertNotIn("item_type", list(form.errors.keys()))
 
     def test_requisition_form_drawn_not_drawn(self):
-        class RequisitionForm(
-            RequisitionFormMixin, FormValidatorMixin, forms.ModelForm
-        ):
+        class RequisitionForm(RequisitionFormMixin, FormValidatorMixin, forms.ModelForm):
 
             form_validator_cls = RequisitionFormValidator
 
@@ -142,9 +140,7 @@ class TestForms(TestCase):
         form = RequisitionForm(data=data)
         form.is_valid()
         self.assertIn("drawn_datetime", list(form.errors.keys()))
-        self.assertEqual(
-            form.errors.get("drawn_datetime"), ["This field is not required."]
-        )
+        self.assertEqual(form.errors.get("drawn_datetime"), ["This field is not required."])
 
         data = {"is_drawn": NO, "drawn_datetime": None}
         form = RequisitionForm(data=data)
@@ -177,9 +173,7 @@ class TestForms2(TestCase):
         site_visit_schedules.register(visit_schedule)
         self.lab_helper.setup_site_labs()
 
-        class RequisitionForm(
-            RequisitionFormMixin, FormValidatorMixin, forms.ModelForm
-        ):
+        class RequisitionForm(RequisitionFormMixin, FormValidatorMixin, forms.ModelForm):
 
             form_validator_cls = RequisitionFormValidator
 
@@ -279,14 +273,10 @@ class TestForms2(TestCase):
         data = {"received": True}
         form = self.form_cls(data=data, instance=obj)
         form.is_valid()
-        self.assertIn(
-            "Requisition may not be changed", "".join(form.errors.get("__all__"))
-        )
+        self.assertIn("Requisition may not be changed", "".join(form.errors.get("__all__")))
 
     def test_requisition_form_dates(self):
-        class RequisitionForm(
-            RequisitionFormMixin, FormValidatorMixin, forms.ModelForm
-        ):
+        class RequisitionForm(RequisitionFormMixin, FormValidatorMixin, forms.ModelForm):
 
             form_validator_cls = RequisitionFormValidator
 
@@ -297,8 +287,7 @@ class TestForms2(TestCase):
         data = {
             "is_drawn": YES,
             "drawn_datetime": self.subject_visit.report_datetime,
-            "requisition_datetime": self.subject_visit.report_datetime
-            - timedelta(days=3),
+            "requisition_datetime": self.subject_visit.report_datetime - timedelta(days=3),
             "subject_visit": self.subject_visit.pk,
         }
         form = RequisitionForm(data=data)

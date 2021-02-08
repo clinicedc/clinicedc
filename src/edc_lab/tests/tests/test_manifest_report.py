@@ -2,13 +2,22 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase, tag  # noqa
 from django.test.utils import override_settings
-from edc_lab.models import Box, BoxItem, BoxType, Aliquot
-from edc_lab.models import Manifest, Shipper, Consignee, ManifestItem
-from edc_lab.reports import ManifestReport, ManifestReportError
 from edc_sites import add_or_update_django_sites
 from edc_sites.single_site import SingleSite
 from edc_sites.tests import SiteTestCaseMixin
 from multisite import SiteID
+
+from edc_lab.models import (
+    Aliquot,
+    Box,
+    BoxItem,
+    BoxType,
+    Consignee,
+    Manifest,
+    ManifestItem,
+    Shipper,
+)
+from edc_lab.reports import ManifestReport, ManifestReportError
 
 
 class TestManifest(SiteTestCaseMixin, TestCase):
@@ -109,9 +118,7 @@ class TestManifestReport(SiteTestCaseMixin, TestCase):
         # add box items with invalid aliquot identifiers
         for i in range(0, 3):
             BoxItem.objects.create(box=box, identifier=f"{i}", position=i)
-        ManifestItem.objects.create(
-            manifest=self.manifest, identifier=box.box_identifier
-        )
+        ManifestItem.objects.create(manifest=self.manifest, identifier=box.box_identifier)
         self.assertEqual(self.manifest.site.name, "test_site")
         report = ManifestReport(manifest=self.manifest, user=self.user)
         self.assertRaises(ManifestReportError, report.render)
@@ -134,9 +141,7 @@ class TestManifestReport(SiteTestCaseMixin, TestCase):
             BoxItem.objects.create(
                 box=box, identifier=aliquot.aliquot_identifier, position=index
             )
-        ManifestItem.objects.create(
-            manifest=self.manifest, identifier=box.box_identifier
-        )
+        ManifestItem.objects.create(manifest=self.manifest, identifier=box.box_identifier)
         self.assertEqual(self.manifest.site.name, "test_site")
         report = ManifestReport(manifest=self.manifest, user=self.user)
         self.assertRaises(ManifestReportError, report.render)

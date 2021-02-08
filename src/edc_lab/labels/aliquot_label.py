@@ -46,9 +46,9 @@ class AliquotLabel(BaseLabel):
 
     @property
     def label_context(self):
-        registered_subject = django_apps.get_model(
-            self.registered_subject_model
-        ).objects.get(subject_identifier=self.requisition.subject_identifier)
+        registered_subject = django_apps.get_model(self.registered_subject_model).objects.get(
+            subject_identifier=self.requisition.subject_identifier
+        )
         return {
             "aliquot_identifier": self.model_obj.human_readable_identifier,
             "aliquot_count": 1 if self.model_obj.is_primary else self.model_obj.count,
@@ -60,9 +60,7 @@ class AliquotLabel(BaseLabel):
             "site_name": str(self.requisition.site.name),
             "site_title": str(self.requisition.site.siteprofile.title),
             "clinician_initials": self.requisition.user_created[0:2].upper(),
-            "drawn_datetime": self.requisition.drawn_datetime.strftime(
-                "%Y-%m-%d %H:%M"
-            ),
+            "drawn_datetime": self.requisition.drawn_datetime.strftime("%Y-%m-%d %H:%M"),
             "subject_identifier": registered_subject.subject_identifier,
             "gender": registered_subject.gender,
             "dob": registered_subject.dob.strftime("%Y-%m-%d"),

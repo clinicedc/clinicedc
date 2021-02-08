@@ -1,10 +1,10 @@
 from django.db import models
 from django.utils import timezone
-from edc_constants.constants import OPEN, CLOSED, OTHER
+from edc_constants.constants import CLOSED, OPEN, OTHER
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
 
-from ...constants import TESTING, STORAGE
+from ...constants import STORAGE, TESTING
 from ...identifiers import ManifestIdentifier
 
 STATUS = ((OPEN, "Open"), (CLOSED, "Closed"))
@@ -32,9 +32,7 @@ class ManifestModelMixin(SiteModelMixin, models.Model):
 
     status = models.CharField(max_length=15, default=OPEN, choices=STATUS)
 
-    category = models.CharField(
-        max_length=25, default=TESTING, choices=MANIFEST_CATEGORY
-    )
+    category = models.CharField(max_length=25, default=TESTING, choices=MANIFEST_CATEGORY)
 
     category_other = models.CharField(max_length=25, null=True, blank=True)
 

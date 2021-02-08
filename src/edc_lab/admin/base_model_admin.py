@@ -3,12 +3,11 @@ from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
 from edc_fieldsets import FieldsetsModelAdminMixin
 from edc_model_admin import (
     ModelAdminAuditFieldsMixin,
+    ModelAdminFormAutoNumberMixin,
     ModelAdminFormInstructionsMixin,
     ModelAdminNextUrlRedirectMixin,
-    ModelAdminFormAutoNumberMixin,
     audit_fields,
 )
-from import_export.admin import ExportActionMixin
 
 
 class BaseModelAdmin(
@@ -18,7 +17,6 @@ class BaseModelAdmin(
     ModelAdminRevisionMixin,
     ModelAdminAuditFieldsMixin,
     FieldsetsModelAdminMixin,
-    ExportActionMixin,
     admin.ModelAdmin,
 ):
 

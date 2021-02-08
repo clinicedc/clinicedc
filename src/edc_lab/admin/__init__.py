@@ -6,9 +6,9 @@ from .consignee_admin import ConsigneeAdmin
 from .fieldsets import (
     requisition_fieldset,
     requisition_identifier_fields,
+    requisition_identifier_fieldset,
     requisition_status_fields,
     requisition_status_fieldset,
-    requisition_identifier_fieldset,
     requisition_verify_fields,
     requisition_verify_fieldset,
 )

@@ -51,8 +51,7 @@ class ProcessingProfile:
         return f"Processing profile {self.verbose_name}"
 
     def add_processes(self, *processes):
-        """Adds processes to the processing profile or raises.
-        """
+        """Adds processes to the processing profile or raises."""
         for process in processes:
             if process.aliquot_type not in self.aliquot_type.derivatives:
                 raise ProcessingProfileInvalidDerivative(

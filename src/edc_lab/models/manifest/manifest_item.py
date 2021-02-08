@@ -1,9 +1,8 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-
 from edc_model import models as edc_models
+from edc_search.model_mixins import SearchSlugManager, SearchSlugModelMixin
 from edc_sites.models import SiteModelMixin
-from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
 from ...model_mixins import VerifyModelMixin
 from .manifest import Manifest

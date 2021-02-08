@@ -1,10 +1,11 @@
+from copy import copy
+
 from django.contrib import admin
 from edc_model_admin import audit_fieldset_tuple
 
 from ..admin_site import edc_lab_admin
 from ..models import Panel
 from .base_model_admin import BaseModelAdmin
-from copy import copy
 
 
 @admin.register(Panel, site=edc_lab_admin)

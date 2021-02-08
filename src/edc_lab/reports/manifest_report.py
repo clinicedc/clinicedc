@@ -1,13 +1,14 @@
+from tempfile import mkdtemp
+
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from edc_reports import Report
 from reportlab.graphics.barcode import code39
 from reportlab.lib import colors
-from reportlab.lib.units import mm, cm
-from reportlab.platypus import Table, TableStyle, Paragraph, Spacer
-from tempfile import mkdtemp
+from reportlab.lib.units import cm, mm
+from reportlab.platypus import Paragraph, Spacer, Table, TableStyle
 
-from ..models import Box, BoxItem, Aliquot
+from ..models import Aliquot, Box, BoxItem
 from ..site_labs import site_labs
 
 
@@ -68,9 +69,7 @@ class ManifestReport(Report):
 
         story.append(
             Paragraph(
-                "SPECIMEN MANIFEST{}".format(
-                    " (reprint)" if self.manifest.printed else ""
-                ),
+                "SPECIMEN MANIFEST{}".format(" (reprint)" if self.manifest.printed else ""),
                 self.styles["line_label_center"],
             )
         )
@@ -144,9 +143,7 @@ class ManifestReport(Report):
                     "SHIPPER/EXPORTER (complete name and address)",
                     self.styles["line_label"],
                 ),
-                Paragraph(
-                    "CONSIGNEE (complete name and address)", self.styles["line_label"]
-                ),
+                Paragraph("CONSIGNEE (complete name and address)", self.styles["line_label"]),
             ],
             [
                 Paragraph(
@@ -182,16 +179,12 @@ class ManifestReport(Report):
                 ),
             ],
             [
-                Paragraph(
-                    self.manifest.shipper.country, self.styles["line_data_largest"]
-                ),
+                Paragraph(self.manifest.shipper.country, self.styles["line_data_largest"]),
                 Paragraph(self.description, self.styles["line_data_large"]),
             ],
             [Paragraph("COUNTRY OF ORIGIN", self.styles["line_label"]), ""],
             [
-                Paragraph(
-                    self.manifest.shipper.country, self.styles["line_data_largest"]
-                ),
+                Paragraph(self.manifest.shipper.country, self.styles["line_data_largest"]),
                 "",
             ],
             [
@@ -199,9 +192,7 @@ class ManifestReport(Report):
                 "",
             ],
             [
-                Paragraph(
-                    self.manifest.consignee.country, self.styles["line_data_largest"]
-                ),
+                Paragraph(self.manifest.consignee.country, self.styles["line_data_largest"]),
                 "",
             ],
         ]
@@ -336,9 +327,7 @@ class ManifestReport(Report):
     @property
     def description(self):
         boxes = self.box_model.objects.filter(
-            box_identifier__in=[
-                obj.identifier for obj in self.manifest.manifestitem_set.all()
-            ]
+            box_identifier__in=[obj.identifier for obj in self.manifest.manifestitem_set.all()]
         )
         box_items = self.box_item_model.objects.filter(box__in=boxes)
         aliquots = self.aliquot_model.objects.filter(
@@ -380,9 +369,7 @@ class ManifestReport(Report):
             data1 = []
             data1.append(box_header)
             try:
-                box = self.box_model.objects.get(
-                    box_identifier=manifest_item.identifier
-                )
+                box = self.box_model.objects.get(box_identifier=manifest_item.identifier)
             except ObjectDoesNotExist as e:
                 raise ManifestReportError(
                     f"{e} Got Manifest item '{manifest_item.identifier}'.",
@@ -442,9 +429,7 @@ class ManifestReport(Report):
                     [
                         barcode,
                         Paragraph(str(box_item.position), self.styles["row_data"]),
-                        Paragraph(
-                            aliquot.human_readable_identifier, self.styles["row_data"]
-                        ),
+                        Paragraph(aliquot.human_readable_identifier, self.styles["row_data"]),
                         Paragraph(aliquot.subject_identifier, self.styles["row_data"]),
                         Paragraph(
                             "{} ({}) {}".format(
@@ -474,12 +459,9 @@ class ManifestReport(Report):
         return story
 
     def get_aliquot(self, box_item_identifier=None):
-        """Returns the aliquot instance for this box item.
-        """
+        """Returns the aliquot instance for this box item."""
         try:
-            aliquot = self.aliquot_model.objects.get(
-                aliquot_identifier=box_item_identifier
-            )
+            aliquot = self.aliquot_model.objects.get(aliquot_identifier=box_item_identifier)
         except ObjectDoesNotExist as e:
             raise ManifestReportError(
                 f"{e} Got Box item '{box_item_identifier}'",

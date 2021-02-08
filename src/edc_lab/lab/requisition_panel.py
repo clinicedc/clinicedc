@@ -15,22 +15,18 @@ class InvalidProcessingProfile(Exception):
 
 class PanelAttrs:
 
-    """"A simple class of panel name attributes.
-    """
+    """ "A simple class of panel name attributes."""
 
     def __init__(self, name=None, alpha_code=None):
         title = " ".join(name.split("_")).title()
         alpha_code = alpha_code or ""
         self.abbreviation = f"{name[0:2]}{name[-1:]}".upper()
-        self.verbose_name = f"{title} {alpha_code} {self.abbreviation}".replace(
-            "  ", " "
-        )
+        self.verbose_name = f"{title} {alpha_code} {self.abbreviation}".replace("  ", " ")
 
 
 class RequisitionPanel:
 
-    """A panel class that contains processing profile instances.
-    """
+    """A panel class that contains processing profile instances."""
 
     panel_attrs_cls = PanelAttrs
     requisition_model = None  # set by lab profile.add_panel
@@ -65,8 +61,7 @@ class RequisitionPanel:
 
     @property
     def panel_model_obj(self):
-        """Returns the underlying panel model instance.
-        """
+        """Returns the underlying panel model instance."""
         if not self._panel_model_obj:
             self._panel_model_obj = self.panel_model_cls.objects.get(
                 name=self.name, lab_profile_name=self.lab_profile_name

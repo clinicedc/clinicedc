@@ -6,24 +6,29 @@ from edc_constants.choices import YES_NO
 from edc_constants.constants import NOT_APPLICABLE
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_metadata.model_mixins.updates import UpdatesRequisitionMetadataModelMixin
-from edc_model.models import HistoricalRecords
-from edc_model.models import datetime_not_future
-from edc_model.models import OtherCharField, InitialsField
+from edc_model.models import (
+    HistoricalRecords,
+    InitialsField,
+    OtherCharField,
+    datetime_not_future,
+)
 from edc_protocol import Protocol
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_reference.model_mixins import RequisitionReferenceModelMixin
 from edc_search.model_mixins import SearchSlugModelMixin
 from edc_sites.models import SiteModelMixin
 from edc_visit_tracking.managers import CurrentSiteManager
-from edc_visit_tracking.model_mixins import VisitTrackingCrfModelMixin
-from edc_visit_tracking.model_mixins import PreviousVisitModelMixin
+from edc_visit_tracking.model_mixins import (
+    PreviousVisitModelMixin,
+    VisitTrackingCrfModelMixin,
+)
 
 from ...choices import ITEM_TYPE, REASON_NOT_DRAWN
 from ...managers import RequisitionManager
 from ..panel_model_mixin import PanelModelMixin
-from .requisition_verify_model_mixin import RequisitionVerifyModelMixin
-from .requisition_status_mixin import RequisitionStatusMixin
 from .requisition_identifier_mixin import RequisitionIdentifierMixin
+from .requisition_status_mixin import RequisitionStatusMixin
+from .requisition_verify_model_mixin import RequisitionVerifyModelMixin
 
 
 class RequisitionModelMixin(

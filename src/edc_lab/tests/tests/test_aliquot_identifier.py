@@ -2,13 +2,11 @@ from django.test import TestCase, tag
 
 from edc_lab.identifiers import (
     AliquotIdentifier,
+    AliquotIdentifierCountError,
+    AliquotIdentifierLengthError,
     Prefix,
     PrefixKeyError,
     PrefixLengthError,
-)
-from edc_lab.identifiers import (
-    AliquotIdentifierLengthError,
-    AliquotIdentifierCountError,
 )
 
 
@@ -46,8 +44,7 @@ class TestAliquotIdentifier(TestCase):
         )
 
     def test_length_raises(self):
-        """Asserts raises exception for invalid identifier length.
-        """
+        """Asserts raises exception for invalid identifier length."""
 
         class MyAliquotIdentifier(AliquotIdentifier):
             identifier_length = 0
@@ -62,24 +59,19 @@ class TestAliquotIdentifier(TestCase):
         class MyAliquotIdentifier(AliquotIdentifier):
             identifier_length = 16
 
-        identifier = MyAliquotIdentifier(
-            identifier_prefix="XXXXXXXX", numeric_code="02"
-        )
+        identifier = MyAliquotIdentifier(identifier_prefix="XXXXXXXX", numeric_code="02")
         self.assertIn("02", str(identifier))
 
     def test_primary(self):
         class MyAliquotIdentifier(AliquotIdentifier):
             identifier_length = 16
 
-        identifier = MyAliquotIdentifier(
-            identifier_prefix="XXXXXXXX", numeric_code="11"
-        )
+        identifier = MyAliquotIdentifier(identifier_prefix="XXXXXXXX", numeric_code="11")
         self.assertIn("0000", str(identifier))
         self.assertTrue(identifier.is_primary)
 
     def test_not_primary_needs_count(self):
-        """Asserts need a count if not a primary aliquot.
-        """
+        """Asserts need a count if not a primary aliquot."""
 
         class MyAliquotIdentifier(AliquotIdentifier):
             identifier_length = 16

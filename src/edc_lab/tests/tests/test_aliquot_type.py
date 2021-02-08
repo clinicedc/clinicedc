@@ -2,8 +2,8 @@ from django.test import TestCase, tag
 
 from edc_lab.lab import (
     AliquotType,
-    AliquotTypeNumericCodeError,
     AliquotTypeAlphaCodeError,
+    AliquotTypeNumericCodeError,
 )
 
 
@@ -35,14 +35,12 @@ class TestAliquotType(TestCase):
         self.assertTrue(repr(aliquot_type))
 
     def test_aliquot_type_derivatives_single(self):
-        """Asserts can add a derivative.
-        """
+        """Asserts can add a derivative."""
         self.wb.add_derivatives(self.bc)
         self.assertEqual(self.wb.derivatives, [self.bc])
 
     def test_aliquot_type_derivatives_multi(self):
-        """Asserts can add more than one derivative.
-        """
+        """Asserts can add more than one derivative."""
         pl = AliquotType(name="plasma", numeric_code="32", alpha_code="PL")
         self.wb.add_derivatives(self.bc, pl)
         self.assertEqual(self.wb.derivatives, [self.bc, pl])

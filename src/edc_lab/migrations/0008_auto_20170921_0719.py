@@ -3,12 +3,12 @@
 from __future__ import unicode_literals
 
 import _socket
-from django.db import migrations, models
 import django_revision.revision_field
 import edc_model_fields.fields.hostname_modification_field
 import edc_model_fields.fields.userfield
 import edc_model_fields.fields.uuid_auto_field
 import edc_utils
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):

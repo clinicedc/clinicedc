@@ -41,9 +41,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="consignee",
             name="address",
-            field=models.CharField(
-                default="address", max_length=50, verbose_name="Address"
-            ),
+            field=models.CharField(default="address", max_length=50, verbose_name="Address"),
             preserve_default=False,
         ),
         migrations.AlterField(
@@ -66,9 +64,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalconsignee",
             name="address",
-            field=models.CharField(
-                default="address", max_length=50, verbose_name="Address"
-            ),
+            field=models.CharField(default="address", max_length=50, verbose_name="Address"),
             preserve_default=False,
         ),
         migrations.AlterField(
@@ -91,9 +87,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalshipper",
             name="address",
-            field=models.CharField(
-                default="address", max_length=50, verbose_name="Address"
-            ),
+            field=models.CharField(default="address", max_length=50, verbose_name="Address"),
             preserve_default=False,
         ),
         migrations.AlterField(
@@ -116,9 +110,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="shipper",
             name="address",
-            field=models.CharField(
-                default="address", max_length=50, verbose_name="Address"
-            ),
+            field=models.CharField(default="address", max_length=50, verbose_name="Address"),
             preserve_default=False,
         ),
         migrations.AlterField(

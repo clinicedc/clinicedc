@@ -1,5 +1,5 @@
-from django.db.utils import IntegrityError
 from django.db import transaction
+from django.db.utils import IntegrityError
 
 
 class SpecimenProcessorError(Exception):
@@ -31,8 +31,7 @@ class SpecimenProcessor:
         )
 
     def create(self):
-        """Creates all aliquots in the processing profile "processes".
-        """
+        """Creates all aliquots in the processing profile "processes"."""
         created = []
         count = 1
         for process in self.processing_profile.processes.values():

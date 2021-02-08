@@ -1,5 +1,4 @@
 import pytz
-
 from arrow.arrow import Arrow
 from django.apps import apps as django_apps
 from django.conf import settings

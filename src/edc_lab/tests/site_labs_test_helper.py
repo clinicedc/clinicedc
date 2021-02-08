@@ -1,9 +1,9 @@
 from edc_lab.lab import (
     AliquotType,
-    RequisitionPanel,
+    LabProfile,
     Process,
     ProcessingProfile,
-    LabProfile,
+    RequisitionPanel,
 )
 from edc_lab.site_labs import site_labs
 
@@ -17,8 +17,7 @@ class SiteLabsTestHelper:
     requisition_model = "edc_lab.subjectrequisition"
 
     def setup_site_labs(self):
-        """Sets up the site_lab global.
-        """
+        """Sets up the site_lab global."""
         site_labs._registry = {}
         site_labs.loaded = False
 
@@ -35,9 +34,7 @@ class SiteLabsTestHelper:
         processing_profile.add_processes(process)
 
         # create a panel
-        self.panel = RequisitionPanel(
-            name="panel", processing_profile=processing_profile
-        )
+        self.panel = RequisitionPanel(name="panel", processing_profile=processing_profile)
 
         # lab profile
         self.lab_profile = LabProfile(

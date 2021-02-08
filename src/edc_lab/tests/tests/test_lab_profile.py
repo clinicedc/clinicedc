@@ -1,7 +1,14 @@
 from django.test import TestCase, tag
-from edc_lab.lab import AliquotType, LabProfile, ProcessingProfile, RequisitionPanel
-from edc_lab.lab import PanelAlreadyRegistered, ProcessingProfileInvalidDerivative
-from edc_lab.lab import Process
+
+from edc_lab.lab import (
+    AliquotType,
+    LabProfile,
+    PanelAlreadyRegistered,
+    Process,
+    ProcessingProfile,
+    ProcessingProfileInvalidDerivative,
+    RequisitionPanel,
+)
 
 from ..models import SubjectRequisition
 
@@ -54,9 +61,7 @@ class TestBuildProfile(TestCase):
         process = Process(aliquot_type=b, aliquot_count=3)
         processing_profile = ProcessingProfile(name="process", aliquot_type=a)
         processing_profile.add_processes(process)
-        panel = RequisitionPanel(
-            name="some panel", processing_profile=processing_profile
-        )
+        panel = RequisitionPanel(name="some panel", processing_profile=processing_profile)
         lab_profile = LabProfile(
             name="profile", requisition_model="edc_lab.subjectrequisition"
         )
@@ -70,26 +75,21 @@ class TestBuildProfile(TestCase):
         process = Process(aliquot_type=b, aliquot_count=3)
         processing_profile = ProcessingProfile(name="process", aliquot_type=a)
         processing_profile.add_processes(process)
-        panel = RequisitionPanel(
-            name="Viral Load", processing_profile=processing_profile
-        )
+        panel = RequisitionPanel(name="Viral Load", processing_profile=processing_profile)
         lab_profile = LabProfile(
             name="profile", requisition_model="edc_lab.subjectrequisition"
         )
         lab_profile.add_panel(panel=panel)
 
     def test_add_panel(self):
-        """Assert same panel cannot be added twice.
-        """
+        """Assert same panel cannot be added twice."""
         a = AliquotType(name="aliquot_a", numeric_code="55", alpha_code="AA")
         b = AliquotType(name="aliquot_b", numeric_code="66", alpha_code="BB")
         a.add_derivatives(b)
         process = Process(aliquot_type=b, aliquot_count=3)
         processing_profile = ProcessingProfile(name="process", aliquot_type=a)
         processing_profile.add_processes(process)
-        panel = RequisitionPanel(
-            name="Viral Load", processing_profile=processing_profile
-        )
+        panel = RequisitionPanel(name="Viral Load", processing_profile=processing_profile)
         lab_profile = LabProfile(
             name="profile", requisition_model="edc_lab.subjectrequisition"
         )
@@ -97,17 +97,14 @@ class TestBuildProfile(TestCase):
         self.assertRaises(PanelAlreadyRegistered, lab_profile.add_panel, panel=panel)
 
     def test_added_panel_knows_requisition_model(self):
-        """Assert same panel cannot be added twice.
-        """
+        """Assert same panel cannot be added twice."""
         a = AliquotType(name="aliquot_a", numeric_code="55", alpha_code="AA")
         b = AliquotType(name="aliquot_b", numeric_code="66", alpha_code="BB")
         a.add_derivatives(b)
         process = Process(aliquot_type=b, aliquot_count=3)
         processing_profile = ProcessingProfile(name="process", aliquot_type=a)
         processing_profile.add_processes(process)
-        panel = RequisitionPanel(
-            name="Viral Load", processing_profile=processing_profile
-        )
+        panel = RequisitionPanel(name="Viral Load", processing_profile=processing_profile)
         lab_profile = LabProfile(
             name="profile", requisition_model="edc_lab.subjectrequisition"
         )

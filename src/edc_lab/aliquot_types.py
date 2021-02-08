@@ -1,6 +1,5 @@
 from .lab import AliquotType
 
-
 bc = AliquotType(name="Buffy Coat", alpha_code="BC", numeric_code="12")
 fbc = AliquotType(name="FBC", alpha_code="FBC", numeric_code="63")
 pl = AliquotType(name="Plasma", alpha_code="PL", numeric_code="36")

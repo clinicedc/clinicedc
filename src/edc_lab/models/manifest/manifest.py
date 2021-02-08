@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_model import models as edc_models
-from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
+from edc_search.model_mixins import SearchSlugManager, SearchSlugModelMixin
 from edc_sites.models import CurrentSiteManager
 
 from ...managers import ManifestManager
@@ -23,13 +23,9 @@ class Manifest(ManifestModelMixin, SearchSlugModelMixin, edc_models.BaseUuidMode
             "consignee.name",
         ]
 
-    consignee = models.ForeignKey(
-        Consignee, verbose_name="Consignee", on_delete=PROTECT
-    )
+    consignee = models.ForeignKey(Consignee, verbose_name="Consignee", on_delete=PROTECT)
 
-    shipper = models.ForeignKey(
-        Shipper, verbose_name="Shipper/Exporter", on_delete=PROTECT
-    )
+    shipper = models.ForeignKey(Shipper, verbose_name="Shipper/Exporter", on_delete=PROTECT)
 
     on_site = CurrentSiteManager()
 

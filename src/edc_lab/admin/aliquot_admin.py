@@ -7,7 +7,6 @@ from ..forms import AliquotForm
 from ..models import Aliquot
 from .base_model_admin import BaseModelAdmin
 
-
 aliquot_identifiers_fields = (
     "subject_identifier",
     "requisition_identifier",

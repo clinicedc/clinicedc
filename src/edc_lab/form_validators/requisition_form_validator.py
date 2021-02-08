@@ -1,6 +1,6 @@
 from django import forms
 from django.apps import apps as django_apps
-from edc_constants.constants import YES, NO
+from edc_constants.constants import NO, YES
 from edc_form_validators import FormValidator
 from edc_utils import formatted_datetime, to_utc
 
@@ -34,8 +34,7 @@ class RequisitionFormValidator(FormValidator):
             )
         elif self.instance.received:
             raise forms.ValidationError(
-                "Requisition may not be changed. The specimen has "
-                "already been received."
+                "Requisition may not be changed. The specimen has " "already been received."
             )
 
         self.validate_requisition_datetime()

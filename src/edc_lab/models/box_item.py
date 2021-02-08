@@ -3,7 +3,7 @@ import re
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_model import models as edc_models
-from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
+from edc_search.model_mixins import SearchSlugManager, SearchSlugModelMixin
 
 from ..model_mixins import VerifyModelMixin
 from ..patterns import aliquot_pattern
@@ -38,14 +38,11 @@ class BoxItem(SearchSlugModelMixin, VerifyModelMixin, edc_models.BaseUuidModel):
 
     @property
     def human_readable_identifier(self):
-        """Returns a human readable identifier.
-        """
+        """Returns a human readable identifier."""
         if self.identifier:
             x = self.identifier
             if re.match(aliquot_pattern, self.identifier):
-                return "{}-{}-{}-{}-{}".format(
-                    x[0:3], x[3:6], x[6:10], x[10:14], x[14:18]
-                )
+                return "{}-{}-{}-{}-{}".format(x[0:3], x[3:6], x[6:10], x[10:14], x[14:18])
         return self.identifier
 
     def get_slugs(self):

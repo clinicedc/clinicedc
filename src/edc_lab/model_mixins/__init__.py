@@ -1,10 +1,15 @@
-from .aliquot import AliquotIdentifierModelMixin, AliquotLabelMixin, AliquotModelMixin
-from .aliquot import AliquotShippingMixin, AliquotTypeModelMixin
-from .panel_model_mixin import PanelModelMixin, PanelModelError, LabProfileError
-from .result import ResultItemModelMixin, ResultModelMixin
+from .aliquot import (
+    AliquotIdentifierModelMixin,
+    AliquotLabelMixin,
+    AliquotModelMixin,
+    AliquotShippingMixin,
+    AliquotTypeModelMixin,
+)
+from .panel_model_mixin import LabProfileError, PanelModelError, PanelModelMixin
 from .requisition import (
     RequisitionIdentifierMixin,
     RequisitionModelMixin,
     RequisitionStatusMixin,
 )
-from .shipping import ManifestModelMixin, VerifyModelMixin, VerifyBoxModelMixin
+from .result import ResultItemModelMixin, ResultModelMixin
+from .shipping import ManifestModelMixin, VerifyBoxModelMixin, VerifyModelMixin

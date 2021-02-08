@@ -13,15 +13,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="consignee",
             name="name",
-            field=models.CharField(
-                help_text="Company name", max_length=50, unique=True
-            ),
+            field=models.CharField(help_text="Company name", max_length=50, unique=True),
         ),
         migrations.AlterField(
             model_name="historicalconsignee",
             name="name",
-            field=models.CharField(
-                db_index=True, help_text="Company name", max_length=50
-            ),
+            field=models.CharField(db_index=True, help_text="Company name", max_length=50),
         ),
     ]

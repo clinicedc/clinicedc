@@ -1,16 +1,15 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
 from django.utils import timezone
+from edc_constants.constants import OPEN, OTHER
 from edc_model import models as edc_models
+from edc_search.model_mixins import SearchSlugManager, SearchSlugModelMixin
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
-from edc_constants.constants import OTHER, OPEN
-from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
-from ..constants import VERIFIED, PACKED, SHIPPED, TESTING, STORAGE
+from ..constants import PACKED, SHIPPED, STORAGE, TESTING, VERIFIED
 from ..identifiers import BoxIdentifier
 from ..model_mixins import VerifyBoxModelMixin
 from .box_type import BoxType
-
 
 BOX_DIMENSIONS = (("8 x 8", "8 x 8"), ("9 x 9", "9 x 9"), ("10 x 10", "10 x 10"))
 
@@ -35,9 +34,7 @@ class BoxManager(SearchSlugManager, models.Manager):
         return self.get(box_identifier=box_identifier)
 
 
-class Box(
-    SearchSlugModelMixin, VerifyBoxModelMixin, SiteModelMixin, edc_models.BaseUuidModel
-):
+class Box(SearchSlugModelMixin, VerifyBoxModelMixin, SiteModelMixin, edc_models.BaseUuidModel):
 
     search_slug_fields = ["box_identifier", "human_readable_identifier", "name"]
 
@@ -108,8 +105,7 @@ class Box(
 
     @property
     def next_position(self):
-        """Returns an integer or None.
-        """
+        """Returns an integer or None."""
         last_obj = self.boxitem_set.all().order_by("position").last()
         if not last_obj:
             next_position = 1

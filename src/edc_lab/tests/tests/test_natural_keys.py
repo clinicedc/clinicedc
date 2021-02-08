@@ -1,9 +1,9 @@
 from django.conf import settings
 from django.test import TestCase, tag  # noqa
-from edc_test_utils.natural_key_test_helper import NaturalKeyTestHelper
+from edc_sites import add_or_update_django_sites
 from edc_sites.single_site import SingleSite
 from edc_sites.tests import SiteTestCaseMixin
-from edc_sites import add_or_update_django_sites
+from edc_test_utils.natural_key_test_helper import NaturalKeyTestHelper
 
 
 class TestNaturalKey(SiteTestCaseMixin, TestCase):

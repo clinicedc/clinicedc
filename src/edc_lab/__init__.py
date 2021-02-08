@@ -1,9 +1,23 @@
-from .aliquot_types import pl, bc, serum, wb, disposable, sputum, urine, fbc
-from .constants import SHIPPED, PACKED
+from .aliquot_types import bc, disposable, fbc, pl, serum, sputum, urine, wb
+from .constants import PACKED, SHIPPED
 from .form_validators import CrfRequisitionFormValidatorMixin
-from .identifiers import AliquotIdentifier, AliquotIdentifierCountError
-from .identifiers import AliquotIdentifierLengthError
-from .identifiers import RequisitionIdentifier, ManifestIdentifier, BoxIdentifier
-from .lab import ProcessingProfile, Specimen, LabProfile, Process, Manifest
-from .lab import AliquotCreator, SpecimenProcessor, AliquotType, RequisitionPanel
+from .identifiers import (
+    AliquotIdentifier,
+    AliquotIdentifierCountError,
+    AliquotIdentifierLengthError,
+    BoxIdentifier,
+    ManifestIdentifier,
+    RequisitionIdentifier,
+)
+from .lab import (
+    AliquotCreator,
+    AliquotType,
+    LabProfile,
+    Manifest,
+    Process,
+    ProcessingProfile,
+    RequisitionPanel,
+    Specimen,
+    SpecimenProcessor,
+)
 from .site_labs import site_labs

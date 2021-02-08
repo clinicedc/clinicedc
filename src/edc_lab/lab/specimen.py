@@ -70,9 +70,7 @@ class Specimen:
     @property
     def aliquots(self):
         aliquot_model_cls = django_apps.get_model(self.aliquot_model)
-        return aliquot_model_cls.objects.filter(
-            identifier_prefix=self.identifier_prefix
-        )
+        return aliquot_model_cls.objects.filter(identifier_prefix=self.identifier_prefix)
 
     @property
     def identifier_prefix(self):

@@ -8,8 +8,7 @@ class PrimaryAliquotPrefixError(Exception):
 
 class PrimaryAliquot:
 
-    """A class that gets or creates the primary aliquot.
-    """
+    """A class that gets or creates the primary aliquot."""
 
     def __init__(
         self,
@@ -33,8 +32,7 @@ class PrimaryAliquot:
 
     @property
     def object(self):
-        """Returns an existing or newly created aliquot model instance.
-        """
+        """Returns an existing or newly created aliquot model instance."""
         if not self._object:
             aliquot_creator = self.aliquot_creator_cls(
                 identifier_prefix=self.identifier_prefix,
@@ -42,7 +40,5 @@ class PrimaryAliquot:
                 requisition_identifier=self.requisition_identifier,
                 subject_identifier=self.subject_identifier,
             )
-            self._object = aliquot_creator.create_primary(
-                aliquot_type=self.aliquot_type
-            )
+            self._object = aliquot_creator.create_primary(aliquot_type=self.aliquot_type)
         return self._object
