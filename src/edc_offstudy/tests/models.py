@@ -1,14 +1,14 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_appointment.tests.models import SubjectVisit, SubjectOffstudy
+from edc_appointment.tests.models import SubjectOffstudy, SubjectVisit
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel
 from edc_utils import get_utcnow
 from edc_visit_tracking.model_mixins import VisitTrackingCrfModelMixin
 
 from ..model_mixins import (
-    OffstudyModelMixin,
     OffstudyCrfModelMixin,
+    OffstudyModelMixin,
     OffstudyNonCrfModelMixin,
 )
 
@@ -26,9 +26,7 @@ class CrfOne(OffstudyCrfModelMixin, VisitTrackingCrfModelMixin, BaseUuidModel):
     f3 = models.CharField(max_length=50, null=True, blank=True)
 
 
-class NonCrfOne(
-    NonUniqueSubjectIdentifierFieldMixin, OffstudyNonCrfModelMixin, BaseUuidModel
-):
+class NonCrfOne(NonUniqueSubjectIdentifierFieldMixin, OffstudyNonCrfModelMixin, BaseUuidModel):
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 

@@ -26,7 +26,7 @@ class AppConfig(DjangoAppConfig):
 
 
 if settings.APP_NAME == "edc_offstudy":
-    from dateutil.relativedelta import SU, MO, TU, WE, TH, FR, SA
+    from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE
     from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
 
     class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
@@ -35,9 +35,7 @@ if settings.APP_NAME == "edc_offstudy":
                 days=[MO, TU, WE, TH, FR, SA, SU],
                 slots=[100, 100, 100, 100, 100, 100, 100],
             ),
-            "5-day-clinic": dict(
-                days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100]
-            ),
+            "5-day-clinic": dict(days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100]),
             "3-day-clinic": dict(
                 days=[TU, WE, TH],
                 slots=[100, 100, 100],

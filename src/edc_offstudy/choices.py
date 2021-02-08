@@ -1,5 +1,5 @@
-from edc_visit_tracking.constants import COMPLETED_PROTOCOL_VISIT, LOST_VISIT
 from edc_constants.constants import DEAD
+from edc_visit_tracking.constants import COMPLETED_PROTOCOL_VISIT, LOST_VISIT
 
 from .constants import CONSENT_WITHDRAWAL
 

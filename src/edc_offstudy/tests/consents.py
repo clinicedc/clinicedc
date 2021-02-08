@@ -1,5 +1,5 @@
-from edc_constants.constants import MALE, FEMALE
 from edc_consent.consent import Consent
+from edc_constants.constants import FEMALE, MALE
 from edc_protocol import Protocol
 
 v1_consent = Consent(

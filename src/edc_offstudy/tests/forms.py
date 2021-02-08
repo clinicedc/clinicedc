@@ -1,9 +1,12 @@
 from django import forms
 
-from ..modelform_mixins import OffstudyModelFormMixin
-from ..modelform_mixins import OffstudyCrfModelFormMixin, OffstudyNonCrfModelFormMixin
+from ..modelform_mixins import (
+    OffstudyCrfModelFormMixin,
+    OffstudyModelFormMixin,
+    OffstudyNonCrfModelFormMixin,
+)
 from ..models import SubjectOffstudy
-from .models import CrfOne, NonCrfOne, BadNonCrfOne
+from .models import BadNonCrfOne, CrfOne, NonCrfOne
 
 
 class SubjectOffstudyForm(OffstudyModelFormMixin, forms.ModelForm):
