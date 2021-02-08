@@ -10,9 +10,7 @@ from .randomization_list_verifier import RandomizationListVerifier
 
 RANDOMIZED = "RANDOMIZED"
 
-assignment_map = getattr(
-    settings, "EDC_RANDOMIZATION_ASSIGNMENT_MAP", DEFAULT_ASSIGNMENT_MAP
-)
+assignment_map = getattr(settings, "EDC_RANDOMIZATION_ASSIGNMENT_MAP", DEFAULT_ASSIGNMENT_MAP)
 
 
 class RandomizationError(Exception):
@@ -41,12 +39,12 @@ class InvalidAssignment(Exception):
 
 class Randomizer:
     """Selects and uses the next available slot in model
-       RandomizationList (cls.model) for this site. A slot is used
-       when the subject identifier is not None.
+    RandomizationList (cls.model) for this site. A slot is used
+    when the subject identifier is not None.
 
-       This is the default randomizer class and is registered with
-       `site_randomizer` by default. To prevent registration set
-       settings.EDC_RANDOMIZATION_REGISTER_DEFAULT_RANDOMIZER=False.
+    This is the default randomizer class and is registered with
+    `site_randomizer` by default. To prevent registration set
+    settings.EDC_RANDOMIZATION_REGISTER_DEFAULT_RANDOMIZER=False.
     """
 
     name = "default"
@@ -55,9 +53,7 @@ class Randomizer:
     filename = "randomization_list.csv"
     is_blinded_trial = True
 
-    def __init__(
-        self, subject_identifier=None, report_datetime=None, site=None, user=None
-    ):
+    def __init__(self, subject_identifier=None, report_datetime=None, site=None, user=None):
         self._model_obj = None
         self._registered_subject = None
         self.subject_identifier = subject_identifier
@@ -86,8 +82,7 @@ class Randomizer:
 
     @classmethod
     def get_assignment(cls, row):
-        """Returns assignment (text) after checking validity.
-        """
+        """Returns assignment (text) after checking validity."""
         assignment = row["assignment"]
         if assignment not in cls.assignment_map:
             raise InvalidAssignment(
@@ -107,8 +102,7 @@ class Randomizer:
 
     @property
     def sid(self):
-        """Returns the SID.
-        """
+        """Returns the SID."""
         return self.model_obj.sid
 
     def check_loaded(self):
@@ -124,15 +118,11 @@ class Randomizer:
         """
         if not self._model_obj:
             try:
-                obj = self.model_cls().objects.get(
-                    subject_identifier=self.subject_identifier
-                )
+                obj = self.model_cls().objects.get(subject_identifier=self.subject_identifier)
             except ObjectDoesNotExist:
                 self._model_obj = (
                     self.model_cls()
-                    .objects.filter(
-                        subject_identifier__isnull=True, site_name=self.site.name
-                    )
+                    .objects.filter(subject_identifier__isnull=True, site_name=self.site.name)
                     .order_by("sid")
                     .first()
                 )
@@ -166,9 +156,7 @@ class Randomizer:
                 user=self.user,
                 site=self.site,
             )
-            raise RandomizationError(
-                f"Randomization failed. Insufficient data. Got {dct}."
-            )
+            raise RandomizationError(f"Randomization failed. Insufficient data. Got {dct}.")
         self.model_obj.subject_identifier = self.subject_identifier
         self.model_obj.allocated = True
         self.model_obj.allocated_datetime = self.allocated_datetime
@@ -182,13 +170,9 @@ class Randomizer:
             allocated_datetime=self.allocated_datetime,
         )
         self.registered_subject.sid = self.model_obj.sid
-        self.registered_subject.randomization_datetime = (
-            self.model_obj.allocated_datetime
-        )
+        self.registered_subject.randomization_datetime = self.model_obj.allocated_datetime
         self.registered_subject.registration_status = RANDOMIZED
-        self.registered_subject.randomization_list_model = (
-            self.model_obj._meta.label_lower
-        )
+        self.registered_subject.randomization_list_model = self.model_obj._meta.label_lower
         self.registered_subject.save()
         # requery
         self._registered_subject = get_registered_subject_model().objects.get(
@@ -197,8 +181,7 @@ class Randomizer:
 
     @property
     def registered_subject(self):
-        """Returns an instance of the registered subject model.
-        """
+        """Returns an instance of the registered subject model."""
         if not self._registered_subject:
             try:
                 self._registered_subject = get_registered_subject_model().objects.get(
@@ -224,7 +207,5 @@ class Randomizer:
 
     @classmethod
     def verify_list(cls):
-        randomization_list_verifier = RandomizationListVerifier(
-            randomizer_name=cls.name
-        )
+        randomization_list_verifier = RandomizationListVerifier(randomizer_name=cls.name)
         return randomization_list_verifier.messages

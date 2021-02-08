@@ -1,7 +1,7 @@
 from .model_mixin import (
     RandomizationError,
-    RandomizationListModelMixin,
     RandomizationListManager,
     RandomizationListModelError,
+    RandomizationListModelMixin,
 )
 from .randomization_list import RandomizationList

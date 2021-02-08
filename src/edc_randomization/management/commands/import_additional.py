@@ -3,8 +3,8 @@ import os
 import uuid
 
 from django.apps import apps as django_apps
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.sites.models import Site
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class AllocationError(Exception):

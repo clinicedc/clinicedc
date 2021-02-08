@@ -22,8 +22,7 @@ class SiteRandomizerError(Exception):
 
 
 class SiteRandomizers:
-    """ Main controller of :class:`SiteRandomizers` objects.
-    """
+    """Main controller of :class:`SiteRandomizers` objects."""
 
     def __init__(self):
         self._registry = {}

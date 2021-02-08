@@ -1,7 +1,7 @@
 import os
 import sys
-
 from collections import namedtuple
+
 from django.conf import settings
 from django.core.checks import Warning
 from django.core.management import color_style

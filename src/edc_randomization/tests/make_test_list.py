@@ -1,11 +1,9 @@
-import os
 import csv
+import os
 import random
-
 from tempfile import mkdtemp
 
 from ..constants import ACTIVE, PLACEBO
-
 
 default_assignments = [ACTIVE, PLACEBO]
 
@@ -37,7 +35,5 @@ def make_test_list(
         for i in range(first_sid, count + first_sid):
             n += 1
             assignment = random.choice(assignments)
-            writer.writerow(
-                dict(sid=i, assignment=assignment, site_name=next(gen_site_name))
-            )
+            writer.writerow(dict(sid=i, assignment=assignment, site_name=next(gen_site_name)))
     return full_path

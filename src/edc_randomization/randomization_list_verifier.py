@@ -4,6 +4,7 @@ import sys
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import OperationalError, ProgrammingError
+
 from edc_randomization.site_randomizers import site_randomizers
 
 
@@ -13,8 +14,7 @@ class RandomizationListError(Exception):
 
 class RandomizationListVerifier:
 
-    """Verifies the RandomizationList upon instantiation.
-    """
+    """Verifies the RandomizationList upon instantiation."""
 
     default_fieldnames = ["sid", "assignment", "site_name"]
 
@@ -23,9 +23,7 @@ class RandomizationListVerifier:
 
         self.randomizer = site_randomizers.get(randomizer_name)
         if not self.randomizer:
-            raise RandomizationListError(
-                f"Randomizer not registered. Got `{randomizer_name}`"
-            )
+            raise RandomizationListError(f"Randomizer not registered. Got `{randomizer_name}`")
         self.fieldnames = fieldnames or self.default_fieldnames
         try:
             self.count = self.randomizer.model_cls().objects.all().count()
