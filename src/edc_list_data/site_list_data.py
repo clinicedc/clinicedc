@@ -1,10 +1,10 @@
 import sys
+from importlib import import_module
 
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.db import transaction
 from django.utils.module_loading import module_has_submodule
-from importlib import import_module
 
 from .load_list_data import LoadListDataError
 from .preload_data import PreloadData

@@ -1,6 +1,6 @@
 from django.contrib.admin import AdminSite as DjangoAdminSite
 
-from .models import Antibiotic, Neurological, Symptom, SignificantNewDiagnosis
+from .models import Antibiotic, Neurological, SignificantNewDiagnosis, Symptom
 
 
 class AdminSite(DjangoAdminSite):

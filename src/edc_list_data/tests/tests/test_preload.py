@@ -1,8 +1,9 @@
 from django.test import TestCase, tag
+
 from edc_list_data.preload_data import PreloadData
 
 from ..list_data import list_data
-from ..models import Antibiotic, Neurological, Symptom, SignificantNewDiagnosis
+from ..models import Antibiotic, Neurological, SignificantNewDiagnosis, Symptom
 
 
 class TestPreload(TestCase):

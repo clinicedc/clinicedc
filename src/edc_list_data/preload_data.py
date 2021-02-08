@@ -1,7 +1,7 @@
 import sys
 
 from django.apps import apps as django_apps
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.core.management.color import color_style
 from django.db.models.deletion import ProtectedError
 from django.db.utils import IntegrityError
@@ -109,8 +109,7 @@ class PreloadData:
 
     @staticmethod
     def guess_unique_field(model):
-        """Returns the first field name for a unique field.
-        """
+        """Returns the first field name for a unique field."""
         unique_field = None
         for field in model._meta.get_fields():
             try:

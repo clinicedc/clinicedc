@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 
-from edc_list_data.site_list_data import site_list_data, SiteListDataError
+from edc_list_data.site_list_data import SiteListDataError, site_list_data
 
 
 class Command(BaseCommand):

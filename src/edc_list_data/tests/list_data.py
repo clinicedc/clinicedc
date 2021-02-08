@@ -1,4 +1,5 @@
 from edc_constants.constants import OTHER
+
 from edc_list_data import PreloadData
 
 list_data = {
