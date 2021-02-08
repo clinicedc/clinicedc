@@ -89,23 +89,25 @@ class PreloadData:
                 except ObjectDoesNotExist:
                     try:
                         obj = model.objects.get(**{field: values[0]})
-                    except model.DoesNotExist as e:
-                        sys.stdout.write(style.ERROR(str(e) + "\n"))
-                    except MultipleObjectsReturned as e:
+                    except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
                         sys.stdout.write(style.ERROR(str(e) + "\n"))
                     else:
                         setattr(obj, field, values[1])
                         obj.save()
                 else:
-                    try:
-                        obj = model.objects.get(**{field: values[0]})
-                    except model.DoesNotExist:
-                        pass
-                    else:
-                        try:
-                            obj.delete()
-                        except ProtectedError:
-                            pass
+                    self._attempt_delete_if_exists(field, values[0], model)
+
+    @staticmethod
+    def _attempt_delete_if_exists(field, value, model):
+        try:
+            obj = model.objects.get(**{field: value})
+        except ObjectDoesNotExist:
+            pass
+        else:
+            try:
+                obj.delete()
+            except ProtectedError:
+                pass
 
     @staticmethod
     def guess_unique_field(model):
