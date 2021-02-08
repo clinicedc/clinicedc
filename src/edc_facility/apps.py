@@ -1,14 +1,14 @@
 import sys
+from warnings import warn
 
-from dateutil.relativedelta import MO, TU, WE, TH, FR, SA, SU
+from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE
 from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
 from django.core.checks.registry import register
 from django.core.management.color import color_style
-from warnings import warn
 
 from .facility import Facility, FacilityError
-from .system_checks import holiday_path_check, holiday_country_check
+from .system_checks import holiday_country_check, holiday_path_check
 
 style = color_style()
 
@@ -25,9 +25,7 @@ class AppConfig(DjangoAppConfig):
         "7-day-clinic": dict(
             days=[MO, TU, WE, TH, FR, SA, SU], slots=[100, 100, 100, 100, 100, 100, 100]
         ),
-        "5-day-clinic": dict(
-            days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100]
-        ),
+        "5-day-clinic": dict(days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100]),
         "3-day-clinic": dict(
             days=[TU, WE, TH],
             slots=[100, 100, 100],
@@ -51,8 +49,7 @@ class AppConfig(DjangoAppConfig):
 
     @property
     def facilities(self):
-        """Returns a dictionary of facilities.
-        """
+        """Returns a dictionary of facilities."""
         if not self.definitions:
             try:
                 warn_user = not settings.EDC_FACILITY_USE_DEFAULTS

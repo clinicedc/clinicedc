@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 
-from ...import_holidays import import_holidays, HolidayImportError
+from ...import_holidays import HolidayImportError, import_holidays
 
 
 class Command(BaseCommand):

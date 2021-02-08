@@ -1,14 +1,14 @@
-import arrow
-
 from datetime import datetime
-from django.test import TestCase, tag
+
+import arrow
 from django.contrib.auth.models import User
+from django.test import TestCase, tag
 from django.test.utils import override_settings
 from edc_sites import add_or_update_django_sites
 from edc_sites.tests import SiteTestCaseMixin
 
-from ..import_holidays import import_holidays
-from ..holidays import Holidays, HolidayError
+from ...holidays import HolidayError, Holidays
+from ...import_holidays import import_holidays
 
 
 class TestHolidays(SiteTestCaseMixin, TestCase):
