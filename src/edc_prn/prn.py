@@ -27,18 +27,14 @@ class Prn:
         self.model = model
         self.add_button_id = f"{'_'.join(model.split('.'))}_add"
         self.dashboard_url_name = dashboard_url_name  # next url
-        self.show_on_dashboard = (
-            True if show_on_dashboard is None else show_on_dashboard
-        )
+        self.show_on_dashboard = True if show_on_dashboard is None else show_on_dashboard
 
         self.url_name = "_".join(self.model.split("."))
         sep = ":" if self.url_namespace else ""
         self.add_url_name = None
         if self.allow_add:
             self.add_url_name = f"{self.url_namespace}{sep}{self.url_name}_add"
-        self.changelist_url_name = (
-            f"{self.url_namespace}{sep}{self.url_name}_changelist"
-        )
+        self.changelist_url_name = f"{self.url_namespace}{sep}{self.url_name}_changelist"
 
     def __repr__(self):
         return f"{self.__class__.__name__}(model={self.model})"
