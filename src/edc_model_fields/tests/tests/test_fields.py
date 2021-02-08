@@ -5,7 +5,7 @@ import socket
 
 from django.test import TestCase
 
-from .models import TestModel
+from ..models import TestModel
 
 
 class TestFields(TestCase):
@@ -49,43 +49,41 @@ class TestFields(TestCase):
         self.assertFalse(test_model.hostname_modified)
         test_model = TestModel.objects.create()
         self.assertIsInstance(test_model.hostname_modified, str)
-        self.assertEquals(hostname, test_model.hostname_modified)
+        self.assertEqual(hostname, test_model.hostname_modified)
         test_model.save()
-        self.assertEquals(hostname, test_model.hostname_modified)
+        self.assertEqual(hostname, test_model.hostname_modified)
 
     def test_hostname_created(self):
         hostname = socket.gethostname()
         test_model = TestModel(f1="monday")
         self.assertIsNotNone(test_model.hostname_created)
-        self.assertEquals(hostname, test_model.hostname_created)
+        self.assertEqual(hostname, test_model.hostname_created)
         test_model = TestModel.objects.create(f1="tuesday")
-        self.assertEquals(hostname, test_model.hostname_created)
+        self.assertEqual(hostname, test_model.hostname_created)
         test_model.save()
-        self.assertEquals(hostname, test_model.hostname_created)
+        self.assertEqual(hostname, test_model.hostname_created)
 
     def test_user_created(self):
-        """Assert user is set on created ONLY unless explicitly set.
-        """
+        """Assert user is set on created ONLY unless explicitly set."""
         pwd.getpwuid(os.getuid()).pw_name
         test_model = TestModel.objects.create(f1="monday")
-        self.assertEquals("", test_model.user_created)
+        self.assertEqual("", test_model.user_created)
         test_model.user_created = ""
         test_model.save()
         test_model = TestModel(f1="tuesday", user_created="jason")
         test_model.save()
-        self.assertEquals("jason", test_model.user_created)
+        self.assertEqual("jason", test_model.user_created)
         test_model.save()
-        self.assertEquals("jason", test_model.user_created)
+        self.assertEqual("jason", test_model.user_created)
 
     def test_user_modified(self):
-        """Assert user is always updated.
-        """
+        """Assert user is always updated."""
         user = pwd.getpwuid(os.getuid()).pw_name
         test_model = TestModel(f1="monday")
         test_model.save()
-        self.assertEquals("", test_model.user_modified)
+        self.assertEqual("", test_model.user_modified)
         test_model = TestModel.objects.create(f1="tuesday")
-        self.assertEquals("", test_model.user_modified)
+        self.assertEqual("", test_model.user_modified)
         test_model.user_modified = ""
         test_model.save()
-        self.assertEquals(user, test_model.user_modified)
+        self.assertEqual(user, test_model.user_modified)

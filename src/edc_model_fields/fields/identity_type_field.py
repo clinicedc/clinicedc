@@ -1,32 +1,32 @@
-from django.utils.translation import gettext as _
 from django.db.models import CharField
+from django.utils.translation import gettext as _
 from edc_constants.choices import IDENTITY_TYPE
 
 
 class IdentityTypeField(CharField):
 
     """
-        have IdentityTypeField immediately follow an identity field:
+    have IdentityTypeField immediately follow an identity field:
 
-        For example,
+    For example,
 
-        ...
+    ...
 
-        identity = models.CharField(
-            verbose_name=_("Identity number (OMANG, etc)"),
-            max_length=25,
-            unique=True,
-            help_text=_(
-                "Use Omang, Passport number, driver's license "
-                "number or Omang receipt number")
-            )
+    identity = models.CharField(
+        verbose_name=_("Identity number (OMANG, etc)"),
+        max_length=25,
+        unique=True,
+        help_text=_(
+            "Use Omang, Passport number, driver's license "
+            "number or Omang receipt number")
+        )
 
-        identity_type = IdentityTypeField()
+    identity_type = IdentityTypeField()
 
-        ...
+    ...
 
-        Use the value of identity_type to check the cleaned
-        value of identity at the form level.
+    Use the value of identity_type to check the cleaned
+    value of identity at the form level.
     """
 
     description = _("Custom field for Identity Type")
