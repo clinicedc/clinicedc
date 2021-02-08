@@ -1,12 +1,12 @@
-import arrow
-
 from collections import OrderedDict
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
-from dateutil._common import weekday
-from django.conf import settings
-from edc_utils import get_utcnow, convert_php_dateformat
 from operator import methodcaller
+
+import arrow
+from dateutil._common import weekday
+from dateutil.relativedelta import relativedelta
+from django.conf import settings
+from edc_utils import convert_php_dateformat, get_utcnow
 
 from .holidays import Holidays
 
@@ -29,7 +29,11 @@ class Facility:
     holiday_cls = Holidays
 
     def __init__(
-        self, name=None, days=None, slots=None, best_effort_available_datetime=None,
+        self,
+        name=None,
+        days=None,
+        slots=None,
+        best_effort_available_datetime=None,
     ):
         self.days = []
         self.name = name
@@ -45,9 +49,7 @@ class Facility:
         if not name:
             raise FacilityError(f"Name cannot be None. See {repr(self)}")
         self.best_effort_available_datetime = (
-            True
-            if best_effort_available_datetime is None
-            else best_effort_available_datetime
+            True if best_effort_available_datetime is None else best_effort_available_datetime
         )
 
     def __repr__(self):
@@ -55,10 +57,7 @@ class Facility:
 
     def __str__(self):
         description = ", ".join(
-            [
-                str(day) + "(" + str(slot) + " slots)"
-                for day, slot in self.config.items()
-            ]
+            [str(day) + "(" + str(slot) + " slots)" for day, slot in self.config.items()]
         )
         return f"{self.name.title()} {description}"
 
@@ -84,8 +83,7 @@ class Facility:
 
     @staticmethod
     def to_arrow_utc(dt):
-        """Returns timezone-aware datetime as a UTC arrow object.
-        """
+        """Returns timezone-aware datetime as a UTC arrow object."""
         return arrow.Arrow.fromdatetime(dt, dt.tzinfo).to("utc")
 
     def is_holiday(self, arr_utc=None):
@@ -99,14 +97,13 @@ class Facility:
 
     def get_arw_span(self, suggested_arw, forward_delta, reverse_delta):
         """Returns a list of arrow objects in a custom ordered.
-         Objects are ordered around the suggested date. For example,
+        Objects are ordered around the suggested date. For example,
 
-         """
+        """
         min_arw = self.to_arrow_utc(suggested_arw.datetime - reverse_delta)
         max_arw = self.to_arrow_utc(suggested_arw.datetime + forward_delta)
         span = [
-            arw[0]
-            for arw in arrow.Arrow.span_range("day", min_arw.datetime, max_arw.datetime)
+            arw[0] for arw in arrow.Arrow.span_range("day", min_arw.datetime, max_arw.datetime)
         ]
         span_lt = [arw for arw in span if arw.date() < suggested_arw.date()]
         span_lt = sorted(span_lt, key=methodcaller("date"), reverse=True)
@@ -152,7 +149,9 @@ class Facility:
         else:
             suggested_arw = arrow.Arrow.fromdatetime(get_utcnow())
         arw_span_range, min_arw, max_arw = self.get_arw_span(
-            suggested_arw, forward_delta, reverse_delta,
+            suggested_arw,
+            forward_delta,
+            reverse_delta,
         )
         for arw in arw_span_range:
             # add back time to arrow object, r

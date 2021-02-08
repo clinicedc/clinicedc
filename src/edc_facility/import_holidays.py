@@ -1,8 +1,8 @@
 import csv
 import os
 import sys
-
 from datetime import datetime
+
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -33,8 +33,7 @@ def import_holidays(verbose=None, test=None):
             raise HolidayImportError(f"Invalid path. Got {path}.")
         if verbose:
             sys.stdout.write(
-                f"\nImporting holidays from '{path}' "
-                f"into {model_cls._meta.label_lower}\n"
+                f"\nImporting holidays from '{path}' " f"into {model_cls._meta.label_lower}\n"
             )
         model_cls.objects.all().delete()
 
@@ -47,8 +46,7 @@ def import_holidays(verbose=None, test=None):
 
 
 def check_for_duplicates_in_file(path):
-    """Returns a list of records.
-    """
+    """Returns a list of records."""
     with open(path, "r") as f:
         reader = csv.DictReader(f, fieldnames=["local_date", "label", "country"])
         recs = [(row["local_date"], row["country"]) for row in reader]
@@ -71,9 +69,7 @@ def import_file(path, recs, model_cls):
                 )
             else:
                 try:
-                    obj = model_cls.objects.get(
-                        country=row["country"], local_date=local_date
-                    )
+                    obj = model_cls.objects.get(country=row["country"], local_date=local_date)
                 except ObjectDoesNotExist:
                     model_cls.objects.create(
                         country=row["country"], local_date=local_date, name=row["label"]

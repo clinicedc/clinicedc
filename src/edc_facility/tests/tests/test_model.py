@@ -1,6 +1,7 @@
 from django.test import TestCase, tag
-from edc_facility.models import Holiday
 from edc_utils import get_utcnow
+
+from ...models import Holiday
 
 
 class TestModel(TestCase):
