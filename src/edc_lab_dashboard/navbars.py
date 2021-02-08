@@ -1,6 +1,6 @@
 from copy import copy
-from edc_navbar import NavbarItem, site_navbars, Navbar
 
+from edc_navbar import Navbar, NavbarItem, site_navbars
 
 specimens_navbar = NavbarItem(
     name="specimens",

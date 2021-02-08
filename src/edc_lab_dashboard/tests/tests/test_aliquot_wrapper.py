@@ -1,9 +1,10 @@
 from copy import copy
+
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
-from edc_lab.models import Aliquot, Box, BoxType, BoxItem
-from edc_lab_dashboard.model_wrappers import AliquotModelWrapper
+from edc_lab.models import Aliquot, Box, BoxItem, BoxType
 
+from edc_lab_dashboard.model_wrappers import AliquotModelWrapper
 
 app_config = django_apps.get_app_config("edc_lab_dashboard")
 
@@ -33,8 +34,7 @@ class TestModelWrapper(TestCase):
         self.assertIn("edc_lab_dashboard:aliquot_listboard_url", wrapper.href)
 
     def test_aliquot_wrapper_attrs(self):
-        """Asserts attrs used in template exist.
-        """
+        """Asserts attrs used in template exist."""
         wrapper = self.wrapper_cls(self.aliquot)
         attrs = [
             "is_primary",

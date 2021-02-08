@@ -9,8 +9,7 @@ register = template.Library()
 
 
 @register.inclusion_tag(
-    f"edc_lab_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/"
-    f"listboard/box/box_cell.html"
+    f"edc_lab_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/" f"listboard/box/box_cell.html"
 )
 def show_box_rows(box, listboard_url, position=None):
     """Returns rendered HTML of a box as a dictionary of keys headers, rows.
@@ -50,8 +49,7 @@ def show_box_rows(box, listboard_url, position=None):
 
 @register.filter(is_safe=True)
 def verified(box_item):
-    """Returns a safe HTML check mark string if a Box item has been verified.
-    """
+    """Returns a safe HTML check mark string if a Box item has been verified."""
     verified = False
     if box_item.verified:
         if int(box_item.verified) == 1:
@@ -70,8 +68,7 @@ def verified(box_item):
 
 @register.filter(is_safe=True)
 def shipped(box_item):
-    """Returns a safe HTML check mark string if a Box item has been shipped.
-    """
+    """Returns a safe HTML check mark string if a Box item has been shipped."""
     return (
         ""
         if not box_item.status == SHIPPED
@@ -83,8 +80,7 @@ def shipped(box_item):
 
 
 @register.inclusion_tag(
-    f"edc_lab_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/"
-    "listboard/tags/status_column.html"
+    f"edc_lab_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/" "listboard/tags/status_column.html"
 )
 def status_column(model_wrapper, *attrs):
     options = {}

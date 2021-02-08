@@ -1,11 +1,11 @@
 from django.conf import settings
 from django.contrib import messages
+from django.utils.safestring import mark_safe
 from edc_constants.constants import YES
 
 from ...model_wrappers import RequisitionModelWrapper
 from ..listboard_filters import RequisitionListboardViewFilters
 from .base_listboard_view import BaseListboardView
-from django.utils.safestring import mark_safe
 
 
 class RequisitionListboardView(BaseListboardView):
@@ -41,9 +41,7 @@ class RequisitionListboardView(BaseListboardView):
                     "Please follow up."
                 ),
             )
-            context.update(
-                unverified_requisition_count=self.unverified_requisition_count
-            )
+            context.update(unverified_requisition_count=self.unverified_requisition_count)
         return context
 
     def get_filtered_queryset(self, filter_options=None, exclude_options=None):

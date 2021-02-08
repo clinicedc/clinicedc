@@ -2,9 +2,9 @@ from django.contrib import messages
 from django.db.models.deletion import ProtectedError
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_lab import SHIPPED
-from edc_lab.models import Box, Aliquot, Manifest
 from edc_lab.labels import ManifestLabel
-from edc_label import add_job_results_to_messages, LabPrintersMixin
+from edc_lab.models import Aliquot, Box, Manifest
+from edc_label import LabPrintersMixin, add_job_results_to_messages
 
 from ...view_mixins import ManifestViewMixin
 from .action_view import ActionView
@@ -35,8 +35,7 @@ class ManifestView(EdcViewMixin, ManifestViewMixin, LabPrintersMixin, ActionView
                 self.ship_selected_items()
 
     def remove_selected_items(self):
-        """Deletes the selected items, if allowed.
-        """
+        """Deletes the selected items, if allowed."""
         try:
             deleted = Manifest.objects.filter(
                 pk__in=self.selected_items, shipped=False
@@ -48,8 +47,7 @@ class ManifestView(EdcViewMixin, ManifestViewMixin, LabPrintersMixin, ActionView
             messages.error(self.request, message)
 
     def ship_selected_items(self):
-        """Flags selected items as shipped.
-        """
+        """Flags selected items as shipped."""
         for manifest in Manifest.objects.filter(pk__in=self.selected_items):
             if manifest.shipped:
                 message = (

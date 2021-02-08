@@ -2,10 +2,10 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from edc_dashboard.view_mixins import EdcViewMixin
 from edc_dashboard.url_names import url_names
+from edc_dashboard.view_mixins import EdcViewMixin
 from edc_lab import SHIPPED
-from edc_lab.models import BoxItem, BoxIsFullError
+from edc_lab.models import BoxIsFullError, BoxItem
 
 from ...view_mixins import BoxViewMixin
 from .action_view import ActionView
@@ -33,8 +33,7 @@ class ManageBoxItemView(EdcViewMixin, BoxViewMixin, ActionView):
             self.remove_selected_items()
 
     def remove_selected_items(self):
-        """Deletes the selected items.
-        """
+        """Deletes the selected items."""
         if not self.selected_items:
             message = "Nothing to do. No items have been selected."
             messages.warning(self.request, message)
@@ -51,8 +50,7 @@ class ManageBoxItemView(EdcViewMixin, BoxViewMixin, ActionView):
             messages.success(self.request, message)
 
     def renumber_items(self):
-        """Resets positions to be a sequence incremented by 1.
-        """
+        """Resets positions to be a sequence incremented by 1."""
         box_items = self.box.boxitem_set.all().order_by("position")
         if box_items.count() == 0:
             message = "Nothing to do. There are no items in the box."
@@ -76,8 +74,7 @@ class ManageBoxItemView(EdcViewMixin, BoxViewMixin, ActionView):
             messages.success(self.request, message)
 
     def add_box_item(self, **kwargs):
-        """Adds the item to the next available position in the box.
-        """
+        """Adds the item to the next available position in the box."""
         if self.box.status == SHIPPED:
             message = "Unable to add. Box has already been shipped."
             messages.error(self.request, message)

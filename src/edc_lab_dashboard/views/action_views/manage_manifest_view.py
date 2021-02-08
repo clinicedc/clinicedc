@@ -3,7 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_lab import Manifest as ManifestObject
-from edc_lab.models import ManifestItem, Box
+from edc_lab.models import Box, ManifestItem
 
 from ...view_mixins import ManifestViewMixin
 from .action_view import ActionView
@@ -33,8 +33,7 @@ class ManageManifestView(EdcViewMixin, ManifestViewMixin, ActionView):
             self.remove_selected_items()
 
     def remove_selected_items(self):
-        """Deletes the selected items, if allowed.
-        """
+        """Deletes the selected items, if allowed."""
         if not self.selected_items:
             message = "Nothing to do. No items have been selected."
             messages.warning(self.request, message)
@@ -55,8 +54,7 @@ class ManageManifestView(EdcViewMixin, ManifestViewMixin, ActionView):
                 messages.error(self.request, message)
 
     def add_item(self):
-        """Adds the box to the manifest if validated.
-        """
+        """Adds the box to the manifest if validated."""
         manifest_object = ManifestObject(manifest=self.manifest, request=self.request)
         manifest_object.add_box(
             box=self.box, manifest_item_identifier=self.manifest_item_identifier

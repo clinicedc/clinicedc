@@ -1,7 +1,7 @@
 from edc_dashboard.url_names import url_names
 from edc_lab.constants import SHIPPED
-from edc_lab.reports import ManifestReport
 from edc_lab.models import Manifest
+from edc_lab.reports import ManifestReport
 
 from ...model_wrappers import ManifestModelWrapper
 from ..listboard_filters import ManifestListboardViewFilters

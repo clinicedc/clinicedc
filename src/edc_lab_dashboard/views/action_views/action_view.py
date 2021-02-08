@@ -4,9 +4,9 @@ from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
 from django.utils.text import slugify
 from django.views.generic.base import TemplateView
+from edc_dashboard.url_names import url_names
 
 from ...dashboard_templates import dashboard_templates
-from edc_dashboard.url_names import url_names
 
 
 class InvalidPostError(Exception):
@@ -37,14 +37,12 @@ class ActionView(TemplateView):
         self.action = None
 
     def process_form_action(self, request=None):
-        """Override to conditionally handle the action POST attr.
-        """
+        """Override to conditionally handle the action POST attr."""
         pass
 
     @property
     def selected_items(self):
-        """Returns a list of selected listboard items.
-        """
+        """Returns a list of selected listboard items."""
         if not self._selected_items:
             self._selected_items = (
                 self.request.POST.getlist(self.form_action_selected_items_name) or []
@@ -54,13 +52,11 @@ class ActionView(TemplateView):
 
     @property
     def url_kwargs(self):
-        """Returns the default dictionary to reverse the post url.
-        """
+        """Returns the default dictionary to reverse the post url."""
         return {}
 
     def post(self, request, *args, **kwargs):
-        """Process the form "action" then redirect.
-        """
+        """Process the form "action" then redirect."""
         action = slugify(self.request.POST.get("action", "").lower())
         if action not in self.valid_form_actions:
             raise InvalidPostError(f"Invalid form action in POST. Got {action}")

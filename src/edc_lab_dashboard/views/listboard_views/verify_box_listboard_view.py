@@ -1,4 +1,5 @@
 from copy import copy
+
 from django.urls import reverse
 from edc_dashboard.url_names import url_names
 from edc_lab.constants import SHIPPED

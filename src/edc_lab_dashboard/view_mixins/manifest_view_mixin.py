@@ -36,15 +36,12 @@ class ManifestViewMixin(ContextMixin):
             self.original_manifest_identifier = escape(
                 self.kwargs.get("manifest_identifier")
             ).strip()
-            self._manifest_identifier = "".join(
-                self.original_manifest_identifier.split("-")
-            )
+            self._manifest_identifier = "".join(self.original_manifest_identifier.split("-"))
         return self._manifest_identifier
 
     @property
     def manifest_item_identifier(self):
-        """Returns a cleaned manifest_item_identifier or None.
-        """
+        """Returns a cleaned manifest_item_identifier or None."""
         if not self._manifest_item_identifier:
             self.original_manifest_item_identifier = escape(
                 self.request.POST.get("manifest_item_identifier", "")
@@ -67,8 +64,7 @@ class ManifestViewMixin(ContextMixin):
 
     @property
     def manifest_item(self):
-        """Returns a manifest item model instance.
-        """
+        """Returns a manifest item model instance."""
         if not self._manifest_item:
             if self.manifest_item_identifier:
                 try:
@@ -83,25 +79,17 @@ class ManifestViewMixin(ContextMixin):
         return self._manifest_item
 
     def get_manifest_item(self, position):
-        """Returns a manifest item model instance for the given position.
-        """
+        """Returns a manifest item model instance for the given position."""
         try:
-            manifest_item = ManifestItem.objects.get(
-                manifest=self.manifest, position=position
-            )
+            manifest_item = ManifestItem.objects.get(manifest=self.manifest, position=position)
         except ObjectDoesNotExist:
-            messages.error(
-                self.request, f"Invalid position for manifest. Got {position}"
-            )
+            messages.error(self.request, f"Invalid position for manifest. Got {position}")
             return None
         return manifest_item
 
     def _clean_manifest_item_identifier(self):
-        """Returns a valid identifier or raises.
-        """
-        manifest_item_identifier = "".join(
-            self.original_manifest_item_identifier.split("-")
-        )
+        """Returns a valid identifier or raises."""
+        manifest_item_identifier = "".join(self.original_manifest_item_identifier.split("-"))
         try:
             Box.objects.get(box_identifier=manifest_item_identifier)
         except ObjectDoesNotExist:

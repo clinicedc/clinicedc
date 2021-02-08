@@ -7,9 +7,7 @@ class TestUrls(TestCase):
         url = reverse("edc_lab_dashboard:requisition_listboard_url")
         self.assertEqual("/edc_lab_dashboard/listboard/requisition/", url)
 
-        url = reverse(
-            "edc_lab_dashboard:requisition_listboard_url", kwargs=dict(page=1)
-        )
+        url = reverse("edc_lab_dashboard:requisition_listboard_url", kwargs=dict(page=1))
         self.assertEqual("/edc_lab_dashboard/listboard/requisition/1/", url)
 
     def test_receive_listboard_url(self):
@@ -88,9 +86,7 @@ class TestUrls(TestCase):
 
         url = reverse(
             "edc_lab_dashboard:verify_box_listboard_url",
-            kwargs=dict(
-                action_name="verify", box_identifier="ABC123", position=22, page=1
-            ),
+            kwargs=dict(action_name="verify", box_identifier="ABC123", position=22, page=1),
         )
         self.assertEqual("/edc_lab_dashboard/listboard/box/verify/ABC123/22/1/", url)
 

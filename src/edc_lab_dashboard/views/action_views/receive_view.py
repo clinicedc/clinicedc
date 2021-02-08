@@ -1,10 +1,10 @@
 from django.apps import apps as django_apps
 from django.contrib import messages
-from edc_dashboard.view_mixins import EdcViewMixin
 from edc_constants.constants import YES
+from edc_dashboard.view_mixins import EdcViewMixin
 from edc_lab import Specimen
-from edc_lab.site_labs import site_labs
 from edc_lab.labels import AliquotLabel
+from edc_lab.site_labs import site_labs
 from edc_utils import get_utcnow
 
 from ...view_mixins import ProcessRequisitionViewMixin
@@ -31,8 +31,7 @@ class ReceiveView(EdcViewMixin, ProcessRequisitionViewMixin, ActionView):
             self.process(request)
 
     def receive(self):
-        """Updates selected requisitions as received.
-        """
+        """Updates selected requisitions as received."""
         updated = 0
         for model in site_labs.requisition_models.values():
             model_cls = django_apps.get_model(model)
@@ -47,9 +46,6 @@ class ReceiveView(EdcViewMixin, ProcessRequisitionViewMixin, ActionView):
         return updated
 
     def create_specimens(self):
-        """Creates aliquots for each selected and received requisition.
-        """
-        for requisition in self.get_requisitions(
-            pk__in=self.selected_items, received=True
-        ):
+        """Creates aliquots for each selected and received requisition."""
+        for requisition in self.get_requisitions(pk__in=self.selected_items, received=True):
             self.specimen_cls(requisition=requisition)

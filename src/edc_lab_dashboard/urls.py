@@ -3,28 +3,27 @@ from edc_dashboard.url_names import url_names
 
 from .dashboard_urls import dashboard_urls
 from .views import (
-    HomeView,
-    RequisitionListboardView,
     AliquotListboardView,
-    ResultListboardView,
-    ReceiveView,
-    ProcessView,
-    ManifestListboardView,
-    ReceiveListboardView,
-    PackListboardView,
-    ManageBoxListboardView,
-    VerifyBoxListboardView,
-    ManageBoxItemView,
-    VerifyBoxItemView,
-    ProcessListboardView,
-    PackView,
-    ManageManifestView,
-    ManageManifestListboardView,
-    ManifestView,
     AliquotView,
+    HomeView,
+    ManageBoxItemView,
+    ManageBoxListboardView,
+    ManageManifestListboardView,
+    ManageManifestView,
+    ManifestListboardView,
+    ManifestView,
+    PackListboardView,
+    PackView,
+    ProcessListboardView,
+    ProcessView,
+    ReceiveListboardView,
+    ReceiveView,
+    RequisitionListboardView,
     RequisitionView,
+    ResultListboardView,
+    VerifyBoxItemView,
+    VerifyBoxListboardView,
 )
-
 
 app_name = "edc_lab_dashboard"
 

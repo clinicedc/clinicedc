@@ -31,8 +31,7 @@ class VerifyBoxItemView(EdcViewMixin, BoxViewMixin, ActionView):
             self.verify_box()
 
     def next_position(self):
-        """Returns the next position relative to that from the URL.
-        """
+        """Returns the next position relative to that from the URL."""
         self.kwargs["position"] = str(int(self.kwargs.get("position", "1")) + 1)
 
     def verify_item(self):
@@ -43,9 +42,7 @@ class VerifyBoxItemView(EdcViewMixin, BoxViewMixin, ActionView):
             message = "Unable to verify. Box has already been shipped."
             messages.error(self.request, message)
         else:
-            box_item_in_position = self.get_box_item(
-                position=self.kwargs.get("position")
-            )
+            box_item_in_position = self.get_box_item(position=self.kwargs.get("position"))
             self.redirect_querystring.update(alert=1)
             if box_item_in_position:
                 if self.box_item:

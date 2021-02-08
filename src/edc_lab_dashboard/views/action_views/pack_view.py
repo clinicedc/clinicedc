@@ -2,10 +2,11 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
 from edc_dashboard.view_mixins import EdcViewMixin
-from edc_lab import PACKED, Manifest as ManifestObject
-from edc_lab.models import Manifest, Box
+from edc_lab import PACKED
+from edc_lab import Manifest as ManifestObject
 from edc_lab.labels import BoxLabel
-from edc_label import add_job_results_to_messages, LabPrintersMixin
+from edc_lab.models import Box, Manifest
+from edc_label import LabPrintersMixin, add_job_results_to_messages
 
 from .action_view import ActionView
 
@@ -52,8 +53,7 @@ class PackView(EdcViewMixin, LabPrintersMixin, ActionView):
         return self._selected_manifest
 
     def add_selected_to_manifest(self):
-        """Adds the selected items to the selected manifest.
-        """
+        """Adds the selected items to the selected manifest."""
         if not self.selected_items:
             message = "Nothing to do. No items have been selected."
             messages.warning(self.request, message)
@@ -86,8 +86,7 @@ class PackView(EdcViewMixin, LabPrintersMixin, ActionView):
                 messages.error(self.request, message)
 
     def remove_selected_items(self):
-        """Deletes the selected boxes, if allowed.
-        """
+        """Deletes the selected boxes, if allowed."""
         if not self.selected_items:
             message = "Nothing to do. No items have been selected."
             messages.warning(self.request, message)

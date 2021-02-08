@@ -11,6 +11,4 @@ class ManifestListboardViewFilters(ListboardViewFilters):
 
     printed = ListboardFilter(label="Printed", lookup={"printed": True})
 
-    not_printed = ListboardFilter(
-        label="Not printed", default=True, lookup={"printed": False}
-    )
+    not_printed = ListboardFilter(label="Not printed", default=True, lookup={"printed": False})

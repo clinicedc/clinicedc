@@ -1,10 +1,9 @@
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
 from edc_lab.models import Aliquot, Box, BoxType
-
 from edc_lab.models.box_item import BoxItem
-from edc_lab_dashboard.model_wrappers import BoxModelWrapper
 
+from edc_lab_dashboard.model_wrappers import BoxModelWrapper
 
 app_config = django_apps.get_app_config("edc_lab_dashboard")
 
