@@ -3,11 +3,11 @@ from django.contrib.auth.models import User
 from django.test.testcases import TestCase
 from django.test.utils import override_settings
 
-from ..decorators import register
-from ..models import Notification as NotificationModel
-from ..notification import GradedEventNotification
-from ..site_notifications import site_notifications
-from .models import AE
+from ...decorators import register
+from ...models import Notification as NotificationModel
+from ...notification import GradedEventNotification
+from ...site_notifications import site_notifications
+from ..models import AE
 
 
 class TwilioTestClient:
@@ -48,9 +48,7 @@ class TestTwilio(TestCase):
         user.userprofile.mobile = settings.TWILIO_TEST_RECIPIENT
         user.userprofile.save()
 
-        self.assertIn(
-            settings.TWILIO_TEST_RECIPIENT, G3EventNotification().sms_recipients
-        )
+        self.assertIn(settings.TWILIO_TEST_RECIPIENT, G3EventNotification().sms_recipients)
 
         AE.objects.create(subject_identifier="1", ae_grade=3)
 

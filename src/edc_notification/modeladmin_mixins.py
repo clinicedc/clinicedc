@@ -17,9 +17,7 @@ class NotificationModelAdminMixin:
         notifications = site_notifications.models.get(self.model._meta.label_lower)
         notification_instructions = None
         if notifications:
-            notifications = [
-                notification.display_name for notification in notifications
-            ]
+            notifications = [notification.display_name for notification in notifications]
             tooltip1 = mark_safe(", ".join(notifications))
             my_notifications = [
                 n.display_name

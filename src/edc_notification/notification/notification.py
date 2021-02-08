@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
 from edc_protocol import Protocol
 from edc_utils import get_utcnow
-from twilio.base.exceptions import TwilioRestException, TwilioException
+from twilio.base.exceptions import TwilioException, TwilioRestException
 from twilio.rest import Client
 
 from ..site_notifications import site_notifications
@@ -39,9 +39,7 @@ class Notification:
         "Thanks."
     )
     email_subject_template = (
-        "{test_subject_line}{protocol_name}: "
-        "{display_name} "
-        "for {subject_identifier}"
+        "{test_subject_line}{protocol_name}: " "{display_name} " "for {subject_identifier}"
     )
     email_footer_template = (
         "\n\n-----------------\n"
@@ -117,14 +115,10 @@ class Notification:
                 email_body_template = (
                     email_body_template or self.email_body_template
                 ) + self.email_footer_template
-                email_sent = self.send_email(
-                    email_body_template=email_body_template, **kwargs
-                )
+                email_sent = self.send_email(email_body_template=email_body_template, **kwargs)
             if use_sms:
                 sms_sent = self.send_sms(**kwargs)
-            self.post_notification_actions(
-                email_sent=email_sent, sms_sent=sms_sent, **kwargs
-            )
+            self.post_notification_actions(email_sent=email_sent, sms_sent=sms_sent, **kwargs)
         return True if email_sent or sms_sent else False
 
     def notify_on_condition(self, **kwargs):
@@ -136,8 +130,7 @@ class Notification:
         return True
 
     def _notify_on_condition(self, test_message=None, **kwargs):
-        """Returns the value of `notify_on_condition` or False.
-        """
+        """Returns the value of `notify_on_condition` or False."""
         if test_message:
             return True
         else:
@@ -188,9 +181,7 @@ class Notification:
             protocol_name=Protocol().protocol_name,
             display_name=self.display_name,
             email_from=self.email_from,
-            test_subject_line=(
-                self.email_test_subject_line if test_message else ""
-            ).strip(),
+            test_subject_line=(self.email_test_subject_line if test_message else "").strip(),
             test_body_line=self.email_test_body_line if test_message else "",
             test_line=self.sms_test_line if test_message else "",
             message_datetime=get_utcnow(),

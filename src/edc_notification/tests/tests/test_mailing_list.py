@@ -1,14 +1,13 @@
-import requests
+from unittest.mock import patch
 
+import requests
 from django.contrib.auth.models import User
 from django.test import TestCase, tag
 from django.test.utils import override_settings
-from unittest.mock import patch
 
-from ..mailing_list_manager import EmailNotEnabledError
-from ..mailing_list_manager import MailingListManager
-from ..notification import GradedEventNotification
-from ..site_notifications import site_notifications
+from ...mailing_list_manager import EmailNotEnabledError, MailingListManager
+from ...notification import GradedEventNotification
+from ...site_notifications import site_notifications
 
 
 class G3EventNotification(GradedEventNotification):

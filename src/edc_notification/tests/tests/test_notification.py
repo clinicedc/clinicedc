@@ -1,6 +1,6 @@
-import sys
-
 from datetime import timedelta
+from unittest.mock import patch
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import mail
@@ -9,16 +9,23 @@ from django.core.management.color import color_style
 from django.test import TestCase, tag
 from django.test.utils import override_settings
 from edc_utils import get_utcnow
-from unittest.mock import patch
 
-from ..decorators import register, RegisterNotificationError
-from ..notification import ModelNotification
-from ..notification import GradedEventNotification, NewModelNotification
-from ..notification import Notification, UpdatedModelNotification
-from ..site_notifications import site_notifications, AlreadyRegistered
-from ..site_notifications import RegistryNotLoaded, NotificationNotRegistered
-from ..models import Notification as NotificationModel
-from .models import AE, Death, Condition, AnyModel
+from ...decorators import RegisterNotificationError, register
+from ...models import Notification as NotificationModel
+from ...notification import (
+    GradedEventNotification,
+    ModelNotification,
+    NewModelNotification,
+    Notification,
+    UpdatedModelNotification,
+)
+from ...site_notifications import (
+    AlreadyRegistered,
+    NotificationNotRegistered,
+    RegistryNotLoaded,
+    site_notifications,
+)
+from ..models import AE, AnyModel, Condition, Death
 
 style = color_style()
 
@@ -36,9 +43,7 @@ class TestNotification(TestCase):
             class NotANotification:
                 pass
 
-        self.assertIn(
-            "Wrapped class must be a 'Notification' class.", str(cm.exception)
-        )
+        self.assertIn("Wrapped class must be a 'Notification' class.", str(cm.exception))
 
         class G4EventNotification(GradedEventNotification):
 
@@ -96,8 +101,7 @@ class TestNotification(TestCase):
         self.assertRaises(NotificationNotRegistered, site_notifications.get, "frisco")
 
     def test_duplicate_notifications(self):
-        """Assert raises for non-unique names and non-unique display_names.
-        """
+        """Assert raises for non-unique names and non-unique display_names."""
 
         class ErikNotification1(Notification):
             name = "erik"
@@ -134,8 +138,7 @@ class TestNotification(TestCase):
         self.assertEqual(site_notifications.get("erik"), ErikNotification)
 
     def test_notification_model(self):
-        """Assert repr and str.
-        """
+        """Assert repr and str."""
         site_notifications._registry = {}
 
         class ErikNotification(Notification):
@@ -148,8 +151,7 @@ class TestNotification(TestCase):
         self.assertTrue(str(notification))
 
     def test_notification(self):
-        """Assert repr and str.
-        """
+        """Assert repr and str."""
         site_notifications._registry = {}
 
         class SomeNotification(Notification):
@@ -465,9 +467,7 @@ class TestNotification(TestCase):
 
         site_notifications.update_notification_list()
 
-        G3EventNotification().send_test_sms(
-            sms_recipient=settings.TWILIO_TEST_RECIPIENT
-        )
+        G3EventNotification().send_test_sms(sms_recipient=settings.TWILIO_TEST_RECIPIENT)
 
     def test_graded_event_grade3_as_test_sms_message_to_subscribed_user(self, *args):
 
@@ -487,17 +487,13 @@ class TestNotification(TestCase):
         user.userprofile.mobile = settings.TWILIO_TEST_RECIPIENT
         user.userprofile.save()
 
-        self.assertIn(
-            settings.TWILIO_TEST_RECIPIENT, G3EventNotification().sms_recipients
-        )
+        self.assertIn(settings.TWILIO_TEST_RECIPIENT, G3EventNotification().sms_recipients)
 
         AE.objects.create(subject_identifier="1", ae_grade=3)
 
         user.userprofile.sms_notifications.remove(notification)
 
-        self.assertNotIn(
-            settings.TWILIO_TEST_RECIPIENT, G3EventNotification().sms_recipients
-        )
+        self.assertNotIn(settings.TWILIO_TEST_RECIPIENT, G3EventNotification().sms_recipients)
 
     def test_notification_model_instance_deletes_for_unregistered(self):
 
@@ -520,9 +516,7 @@ class TestNotification(TestCase):
         try:
             NotificationModel.objects.get(name=G3EventNotification.name)
         except ObjectDoesNotExist as e:
-            self.fail(
-                f"Notification model instance unexpectedly does not exist. Got {e}"
-            )
+            self.fail(f"Notification model instance unexpectedly does not exist. Got {e}")
 
         site_notifications._registry = {}
         site_notifications.update_notification_list()
