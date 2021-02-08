@@ -1,10 +1,10 @@
 import os
 import sys
+from warnings import warn
 
 from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
 from django.core.checks.registry import register
-from warnings import warn
 
 from .site_randomizers import site_randomizers
 from .system_checks import randomization_list_check

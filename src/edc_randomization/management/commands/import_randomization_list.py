@@ -1,7 +1,9 @@
 from django.core.management.base import BaseCommand, CommandError
 
-from ...randomization_list_importer import RandomizationListImportError
-from ...randomization_list_importer import RandomizationListImporter
+from ...randomization_list_importer import (
+    RandomizationListImporter,
+    RandomizationListImportError,
+)
 
 
 class Command(BaseCommand):
@@ -12,9 +14,7 @@ class Command(BaseCommand):
             "--path",
             dest="path",
             default=None,
-            help=(
-                "full path to CSV file. Default: app_config." "randomization_list_path"
-            ),
+            help=("full path to CSV file. Default: app_config." "randomization_list_path"),
         )
 
         parser.add_argument(
@@ -37,9 +37,7 @@ class Command(BaseCommand):
 
         parser.add_argument("--user", dest="user", default=None, help="user")
 
-        parser.add_argument(
-            "--revision", dest="revision", default=None, help="revision"
-        )
+        parser.add_argument("--revision", dest="revision", default=None, help="revision")
 
     def handle(self, *args, **options):
         add = options["add"] if options["add"] == "YES" else None

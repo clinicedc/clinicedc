@@ -1,10 +1,11 @@
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.contrib import admin
+from django.contrib.sites.models import Site
 from edc_model_admin.model_admin_audit_fields_mixin import (
-    audit_fieldset_tuple,
     audit_fields,
+    audit_fieldset_tuple,
 )
+
 from .admin_site import edc_randomization_admin
 from .blinding import is_blinded_user
 from .site_randomizers import site_randomizers

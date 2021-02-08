@@ -1,14 +1,14 @@
 import csv
 import os
 import sys
+from pprint import pprint
+from uuid import uuid4
 
-from django.contrib.sites.models import Site
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
-from pprint import pprint
 from tqdm import tqdm
-from uuid import uuid4
 
 from .site_randomizers import site_randomizers
 
@@ -104,14 +104,10 @@ class RandomizationListImporter:
         if verbose and add:
             count = randomizer.model_cls().objects.all().count()
             sys.stdout.write(
-                style.SUCCESS(
-                    f"(*) Randolist model has {count} SIDs (count before import).\n"
-                )
+                style.SUCCESS(f"(*) Randolist model has {count} SIDs (count before import).\n")
             )
 
-        self.import_list(
-            randomizer=randomizer, verbose=verbose, overwrite=overwrite, add=add
-        )
+        self.import_list(randomizer=randomizer, verbose=verbose, overwrite=overwrite, add=add)
 
     def import_list(self, randomizer=None, verbose=None, overwrite=None, add=None):
         path = os.path.expanduser(randomizer.get_randomization_list_path())
@@ -133,8 +129,7 @@ class RandomizationListImporter:
         return path
 
     def get_site_name(self, row):
-        """Returns the site name or raises.
-        """
+        """Returns the site name or raises."""
         try:
             site_name = self.site_names[row["site_name"]]
         except KeyError:
@@ -152,8 +147,7 @@ class RandomizationListImporter:
                     for fieldname in self.default_fieldnames:
                         if fieldname not in row:
                             raise RandomizationListImportError(
-                                "Invalid header. Missing column "
-                                f"`{fieldname}`. Got {row}"
+                                "Invalid header. Missing column " f"`{fieldname}`. Got {row}"
                             )
                 elif index == 1:
                     if self.dryrun:

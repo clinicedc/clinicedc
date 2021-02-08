@@ -1,5 +1,5 @@
-from django.views.generic.base import RedirectView
 from django.urls.conf import path
+from django.views.generic.base import RedirectView
 
 from .admin_site import edc_randomization_admin
 

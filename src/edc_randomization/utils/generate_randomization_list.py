@@ -19,11 +19,10 @@ Usage:
 
 """
 import csv
+import os
 import sys
 
 import django
-import os
-
 from django.conf import settings
 from edc_sites import get_site_id
 
@@ -51,9 +50,7 @@ def main(
     # get site ID and write the file
     site_id = get_site_id(site_name, sites=all_sites[country])
     with open(filename, "a+", newline="") as f:
-        writer = csv.DictWriter(
-            f, fieldnames=["sid", "assignment", "site_name", "country"]
-        )
+        writer = csv.DictWriter(f, fieldnames=["sid", "assignment", "site_name", "country"])
         if write_header:
             writer.writeheader()
         for j in range(1, int(slots)):

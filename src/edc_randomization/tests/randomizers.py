@@ -1,5 +1,4 @@
 import os
-
 from tempfile import mkdtemp
 
 from ..randomizer import Randomizer

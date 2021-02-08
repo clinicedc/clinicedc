@@ -1,14 +1,13 @@
+from random import shuffle
+
 from django.contrib.sites.models import Site
 from django.test import TestCase, tag
 from django.test.utils import override_settings
 from edc_registration.models import RegisteredSubject
 from edc_sites import add_or_update_django_sites
-from random import shuffle
-
 from edc_sites.single_site import SingleSite
 from multisite import SiteID
 
-from .randomizers import MyRandomizer
 from ..constants import ACTIVE
 from ..models import RandomizationList
 from ..randomization_list_importer import (
@@ -16,37 +15,30 @@ from ..randomization_list_importer import (
     RandomizationListImportError,
 )
 from ..randomization_list_verifier import (
-    RandomizationListVerifier,
     RandomizationListError,
+    RandomizationListVerifier,
 )
 from ..randomizer import (
-    RandomizationError,
     AllocationError,
-    InvalidAssignment,
-    Randomizer,
     AlreadyRandomized,
+    InvalidAssignment,
+    RandomizationError,
+    Randomizer,
 )
-from ..site_randomizers import site_randomizers, NotRegistered
+from ..site_randomizers import NotRegistered, site_randomizers
 from .make_test_list import make_test_list
 from .models import SubjectConsent
+from .randomizers import MyRandomizer
 
 fqdn = "example.clinicedc.org"
 all_sites = (
-    SingleSite(
-        10, "site_one", title="One", country="uganda", country_code="ug", fqdn=fqdn
-    ),
-    SingleSite(
-        20, "site_two", title="Two", country="uganda", country_code="ug", fqdn=fqdn
-    ),
+    SingleSite(10, "site_one", title="One", country="uganda", country_code="ug", fqdn=fqdn),
+    SingleSite(20, "site_two", title="Two", country="uganda", country_code="ug", fqdn=fqdn),
     SingleSite(
         30, "site_three", title="Three", country="uganda", country_code="ug", fqdn=fqdn
     ),
-    SingleSite(
-        40, "site_four", title="Four", country="uganda", country_code="ug", fqdn=fqdn
-    ),
-    SingleSite(
-        50, "site_five", title="Five", country="uganda", country_code="ug", fqdn=fqdn
-    ),
+    SingleSite(40, "site_four", title="Four", country="uganda", country_code="ug", fqdn=fqdn),
+    SingleSite(50, "site_five", title="Five", country="uganda", country_code="ug", fqdn=fqdn),
 )
 
 
@@ -220,8 +212,7 @@ class TestRandomizer(TestCase):
 
     @override_settings(SITE_ID=SiteID(40))
     def test_error_condition2(self):
-        """Assert raises if RandomizationList not updated correctly.
-        """
+        """Assert raises if RandomizationList not updated correctly."""
         self.populate_list(randomizer_name="default")
         site = Site.objects.get_current()
         RandomizationList.objects.update(site_name=site.name)
@@ -246,8 +237,7 @@ class TestRandomizer(TestCase):
         self.assertEqual(cm.exception.code, "edc_randomization.randomizationlist")
 
     def test_error_condition3(self):
-        """Assert raises if RandomizationList not updated correctly.
-        """
+        """Assert raises if RandomizationList not updated correctly."""
         self.populate_list(randomizer_name="default")
         site = Site.objects.get_current()
         RandomizationList.objects.update(site_name=site.name)
@@ -305,8 +295,7 @@ class TestRandomizer(TestCase):
 
     @override_settings(SITE_ID=SiteID(40))
     def test_for_sites(self):
-        """Assert that allocates by site correctly.
-        """
+        """Assert that allocates by site correctly."""
 
         site_randomizers._registry = {}
         site_randomizers.register(MyRandomizer)
@@ -345,9 +334,7 @@ class TestRandomizer(TestCase):
                     "consent_datetime"
                 )
             ):
-                rs = RegisteredSubject.objects.get(
-                    subject_identifier=obj.subject_identifier
-                )
+                rs = RegisteredSubject.objects.get(subject_identifier=obj.subject_identifier)
                 self.assertEqual(obj.subject_identifier, randomized_subjects[index][0])
                 self.assertEqual(rs.sid, randomized_subjects[index][1])
 
@@ -419,9 +406,7 @@ class TestRandomizer(TestCase):
             assignments=[100, 101],
             count=5,
         )
-        self.assertRaises(
-            InvalidAssignment, RandomizationListImporter, name=MyRandomizer.name
-        )
+        self.assertRaises(InvalidAssignment, RandomizationListImporter, name=MyRandomizer.name)
 
     @override_settings(SITE_ID=SiteID(40))
     def test_invalid_sid(self):
@@ -440,9 +425,7 @@ class TestRandomizer(TestCase):
         site = Site.objects.get_current()
         # change number of SIDs in DB
         RandomizationListImporter(name="default")
-        RandomizationList.objects.create(
-            sid=100, assignment=ACTIVE, site_name=site.name
-        )
+        RandomizationList.objects.create(sid=100, assignment=ACTIVE, site_name=site.name)
         self.assertEqual(RandomizationList.objects.all().count(), 51)
         with self.assertRaises(RandomizationListError) as cm:
             RandomizationListVerifier(randomizer_name=Randomizer.name)
