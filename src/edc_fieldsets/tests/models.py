@@ -22,9 +22,7 @@ class MyModel(VisitTrackingCrfModelMixin, BaseUuidModel):
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
-    f1 = models.CharField(
-        verbose_name="Are you circumcised?", max_length=10, choices=YES_NO
-    )
+    f1 = models.CharField(verbose_name="Are you circumcised?", max_length=10, choices=YES_NO)
 
     f2 = models.CharField(max_length=10, null=True, blank=True)
 
