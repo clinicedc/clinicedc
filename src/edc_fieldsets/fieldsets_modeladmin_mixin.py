@@ -32,9 +32,7 @@ class FieldsetsModelAdminMixin:
         """
         appointment_model_cls = django_apps.get_model(self.appointment_model)
         try:
-            appointment = appointment_model_cls.objects.get(
-                pk=request.GET.get("appointment")
-            )
+            appointment = appointment_model_cls.objects.get(pk=request.GET.get("appointment"))
         except ObjectDoesNotExist:
             visit_code = None
         else:
@@ -69,9 +67,7 @@ class FieldsetsModelAdminMixin:
             except AttributeError:
                 pass
             try:
-                fieldsets.remove_fields(
-                    *fieldlist.remove_fields, section=fieldlist.section
-                )
+                fieldsets.remove_fields(*fieldlist.remove_fields, section=fieldlist.section)
             except AttributeError:
                 pass
         fieldsets.move_to_end(self.fieldsets_move_to_end)

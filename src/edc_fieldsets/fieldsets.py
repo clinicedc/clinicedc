@@ -1,5 +1,4 @@
 import copy
-
 from collections import OrderedDict
 
 
@@ -9,8 +8,7 @@ class FieldsetError(Exception):
 
 class Fieldsets:
 
-    """A class to use with model admin fieldsets.
-    """
+    """A class to use with model admin fieldsets."""
 
     def __init__(self, fieldsets=None, **kwargs):
         self.fieldsets_asdict = OrderedDict(copy.deepcopy(fieldsets))
@@ -35,8 +33,7 @@ class Fieldsets:
         self.fieldsets_asdict.update({section: {"fields": fields}})
 
     def add_fieldsets(self, fieldsets=None):
-        """Adds a list of fieldsets.
-        """
+        """Adds a list of fieldsets."""
         try:
             fieldsets[0]
         except TypeError:
@@ -47,8 +44,7 @@ class Fieldsets:
             self.fieldsets_asdict.update({section: {"fields": fields}})
 
     def insert_fields(self, *insert_fields, insert_after=None, section=None):
-        """Inserts fields after insert_after in the given section.
-        """
+        """Inserts fields after insert_after in the given section."""
         if insert_fields and insert_fields != (None,):
             fields = self._copy_section_fields(section)
             position = self._get_field_position(fields, insert_after)
@@ -57,8 +53,7 @@ class Fieldsets:
             self.fieldsets_asdict[section]["fields"] = tuple(fields)
 
     def remove_fields(self, *remove_fields, section=None):
-        """Removes fields from the given section.
-        """
+        """Removes fields from the given section."""
         if remove_fields and remove_fields != (None,):
             fields = self._copy_section_fields(section)
             fields = [f for f in fields if f not in remove_fields]

@@ -1,4 +1,4 @@
-from .fieldlist import Remove, Insert, Fieldlist
+from .fieldlist import Fieldlist, Insert, Remove
 from .fieldset import Fieldset
-from .fieldsets import Fieldsets, FieldsetError
+from .fieldsets import FieldsetError, Fieldsets
 from .fieldsets_modeladmin_mixin import FieldsetsModelAdminMixin

@@ -1,29 +1,26 @@
 from datetime import timedelta
+
 from django.contrib import admin
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import Permission, User
 from django.test import TestCase, tag
 from django.test.client import RequestFactory
 from edc_appointment.models import Appointment
-from edc_utils import get_utcnow
 from edc_registration.models import RegisteredSubject
+from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from .admin import VISIT_ONE, VISIT_TWO
-from .models import MyModel, SubjectVisit, MyModel2
-from .visit_schedule import visit_schedule
+from ..admin import VISIT_ONE, VISIT_TWO
+from ..models import MyModel, MyModel2, SubjectVisit
+from ..visit_schedule import visit_schedule
 
 
 class TestFieldsetAdmin(TestCase):
     def setUp(self):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
-        self.user = User.objects.create(
-            username="erikvw", is_staff=True, is_active=True
-        )
+        self.user = User.objects.create(username="erikvw", is_staff=True, is_active=True)
         self.subject_identifier = "1234"
-        for permission in Permission.objects.filter(
-            content_type__app_label="edc_fieldsets"
-        ):
+        for permission in Permission.objects.filter(content_type__app_label="edc_fieldsets"):
             self.user.user_permissions.add(permission)
         RegisteredSubject.objects.create(subject_identifier=self.subject_identifier)
 
