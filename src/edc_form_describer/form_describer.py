@@ -147,7 +147,7 @@ class FormDescriber:
         markdown_writer.to_file(markdown=self.markdown)
 
     def add_hidden_fields(self):
-        self.markdown.append(f"\n**Hidden fields:**")
+        self.markdown.append("\n**Hidden fields:**")
         self.add_field(fname="report_datetime")
         base_fields = DEFAULT_BASE_FIELDS
         base_fields.append("revision")
@@ -171,16 +171,16 @@ class FormDescriber:
         if field_cls.max_length:
             self.markdown.append(f"- length: {field_cls.max_length}")
         if field_cls.get_internal_type() == "DateField":
-            self.markdown.append(f"- format: YYYY-MM-DD")
+            self.markdown.append("- format: YYYY-MM-DD")
         if field_cls.get_internal_type() == "DateTimeField":
-            self.markdown.append(f"- format: YYYY-MM-DD HH:MM:SS.sss (tz=UTC)")
+            self.markdown.append("- format: YYYY-MM-DD HH:MM:SS.sss (tz=UTC)")
         self.add_field_responses(field_cls=field_cls)
         self.markdown.append("---")
 
     def add_field_responses(self, field_cls=None):
         if field_cls.get_internal_type() == "CharField":
             if field_cls.choices:
-                self.markdown.append(f"- responses:")
+                self.markdown.append("- responses:")
                 for response in [f"`{tpl[0]}`: *{tpl[1]}*" for tpl in field_cls.choices]:
                     self.markdown.append(f"  - {response} ")
             else:
