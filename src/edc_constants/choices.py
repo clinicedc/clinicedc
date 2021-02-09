@@ -22,10 +22,10 @@ from .constants import (
     NEVER,
     NO,
     NONSMOKER,
-    NOT_ESTIMATED,
     NORMAL,
     NOT_APPLICABLE,
     NOT_DONE,
+    NOT_ESTIMATED,
     NOT_RECORDED,
     NOT_REQUIRED,
     NOT_SURE,
@@ -45,7 +45,6 @@ from .constants import (
     WEEKENDS,
     YES,
 )
-
 
 BLANK_CHOICE_DASH = [("", "---------")]
 
@@ -162,7 +161,10 @@ ARV_STATUS = (
     ("no_mod", "1. No modifications made to existing HAART treatment"),
     (
         "start",
-        "2. Started antriretroviral treatment since last attended scheduled visit(including today)",
+        (
+            "2. Started antriretroviral treatment since last "
+            "attended scheduled visit(including today)"
+        ),
     ),
     (
         "discontinued",
@@ -192,7 +194,10 @@ ARV_STATUS_WITH_NEVER = (
     ("never started", "4. Never started"),
     (
         "modified",
-        "5. Change in at least one medication since the last attended scheduled visit or today",
+        (
+            "5. Change in at least one medication since the "
+            "last attended scheduled visit or today"
+        ),
     ),
     (NOT_APPLICABLE, "Not applicable"),
 )
