@@ -1,5 +1,4 @@
 import os
-
 from datetime import datetime
 
 
@@ -7,7 +6,8 @@ class MarkdownWriter:
     def __init__(self, path=None, exists_ok=None):
         self.path = self.get_path(path=path, exists_ok=exists_ok)
 
-    def get_path(self, path=None, exists_ok=None):
+    @staticmethod
+    def get_path(path=None, exists_ok=None):
         if not path:
             timestamp = datetime.today().strftime("%Y%m%d%H%M")
             path = f"forms_{timestamp}.md"
@@ -18,9 +18,9 @@ class MarkdownWriter:
                 raise FileExistsError(f"File exists. Got '{path}'")
         return path
 
-    def to_markdown(self, markdown=None):
-        """Returns the markdown as a text string.
-        """
+    @staticmethod
+    def to_markdown(markdown=None):
+        """Returns the markdown as a text string."""
         return "\n".join(markdown)
 
     def to_file(self, markdown=None, pad=None, append=None, prepend=None):
