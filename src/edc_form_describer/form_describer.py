@@ -1,12 +1,12 @@
 import re
 import string
 import sys
-
 from datetime import datetime
+from math import floor
+
 from django.core.management.color import color_style
 from edc_fieldsets import Fieldsets
 from edc_model import DEFAULT_BASE_FIELDS
-from math import floor
 
 from .markdown_writer import MarkdownWriter
 
@@ -59,11 +59,9 @@ class FormDescriber:
         self.level = level or self.level
         self.conditional_fieldset = None
         self.admin_cls = admin_cls
-        self.model_cls = admin_cls.model  # admin_cls.form._meta.model
+        self.model_cls = admin_cls.form._meta.model
         self.visit_code = visit_code
-        self.models_fields = {
-            fld.name: fld for fld in self.model_cls._meta.get_fields()
-        }
+        self.models_fields = {fld.name: fld for fld in self.model_cls._meta.get_fields()}
 
         # include custom labels from admin
         try:
@@ -116,8 +114,7 @@ class FormDescriber:
         return f"{self.anchor_prefix}-{slug}"
 
     def describe(self):
-        """Appends all form features to a list `lines`.
-        """
+        """Appends all form features to a list `lines`."""
         number = 0.0
         self.markdown.append(f"{self.level} {self.verbose_name}")
         docstring = self.model_cls.__doc__
@@ -153,6 +150,7 @@ class FormDescriber:
         self.markdown.append(f"\n**Hidden fields:**")
         self.add_field(fname="report_datetime")
         base_fields = DEFAULT_BASE_FIELDS
+        base_fields.append("revision")
         base_fields.sort()
         for fname in base_fields:
             self.add_field(fname=fname)
@@ -166,9 +164,7 @@ class FormDescriber:
         if field_cls.help_text:
             self.markdown.append(f"\n&nbsp;&nbsp;&nbsp;&nbsp; *{field_cls.help_text}*")
         if self.custom_form_labels.get(fname):
-            self.markdown.append(
-                f"* custom_prompt: *{self.custom_form_labels.get(fname)}*"
-            )
+            self.markdown.append(f"* custom_prompt: *{self.custom_form_labels.get(fname)}*")
         self.markdown.append(f"- db_table: {self.model_cls._meta.db_table}")
         self.markdown.append(f"- column: {field_cls.name}")
         self.markdown.append(f"- type: {field_cls.get_internal_type()}")
@@ -185,9 +181,7 @@ class FormDescriber:
         if field_cls.get_internal_type() == "CharField":
             if field_cls.choices:
                 self.markdown.append(f"- responses:")
-                for response in [
-                    f"`{tpl[0]}`: *{tpl[1]}*" for tpl in field_cls.choices
-                ]:
+                for response in [f"`{tpl[0]}`: *{tpl[1]}*" for tpl in field_cls.choices]:
                     self.markdown.append(f"  - {response} ")
             else:
                 self.markdown.append("- responses: *free text*")

@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from django.apps import apps as django_apps
 
 from .form_describer import FormDescriber
@@ -7,9 +8,7 @@ from .markdown_writer import MarkdownWriter
 
 class FormsReference:
 
-    """
-
-    """
+    """"""
 
     describer_cls = FormDescriber
     markdown_writer_cls = MarkdownWriter
