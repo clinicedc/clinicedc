@@ -4,10 +4,10 @@ from edc_model import models as edc_models
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 
 from ..managers import CrfMetadataManager
-from .model_mixin import ModelMixin
+from .crf_metadata_model_mixin import CrfMetadataModelMixin
 
 
-class CrfMetadata(ModelMixin, SiteModelMixin, edc_models.BaseUuidModel):
+class CrfMetadata(CrfMetadataModelMixin, SiteModelMixin, edc_models.BaseUuidModel):
 
     on_site = CurrentSiteManager()
 
@@ -40,7 +40,7 @@ class CrfMetadata(ModelMixin, SiteModelMixin, edc_models.BaseUuidModel):
             return f"{e}. You need to regenerate metadata."
         return model._meta.verbose_name
 
-    class Meta(ModelMixin.Meta, edc_models.BaseUuidModel.Meta):
+    class Meta(CrfMetadataModelMixin.Meta, edc_models.BaseUuidModel.Meta):
         verbose_name = "Crf Metadata"
         verbose_name_plural = "Crf Metadata"
         unique_together = (

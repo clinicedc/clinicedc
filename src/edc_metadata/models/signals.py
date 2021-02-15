@@ -24,7 +24,7 @@ def metadata_create_on_post_save(
             if "metadata_create" not in str(e):
                 raise
         else:
-            if django_apps.get_app_config("edc_metadata_rules").metadata_rules_enabled:
+            if django_apps.get_app_config("edc_metadata").metadata_rules_enabled:
                 instance.run_metadata_rules()
 
 
@@ -49,7 +49,7 @@ def metadata_update_on_post_save(
             if "metadata_update" not in str(e):
                 raise
         else:
-            if django_apps.get_app_config("edc_metadata_rules").metadata_rules_enabled:
+            if django_apps.get_app_config("edc_metadata").metadata_rules_enabled:
                 instance.run_metadata_rules_for_crf()
 
 
@@ -71,7 +71,7 @@ def metadata_reset_on_post_delete(sender, instance, using, **kwargs):
         if "metadata_reset_on_delete" not in str(e):
             raise
     else:
-        if django_apps.get_app_config("edc_metadata_rules").metadata_rules_enabled:
+        if django_apps.get_app_config("edc_metadata").metadata_rules_enabled:
             instance.run_metadata_rules_for_crf()
     # deletes all for a visit used by CreatesMetadataMixin
     try:

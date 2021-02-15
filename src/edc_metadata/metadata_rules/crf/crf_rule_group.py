@@ -1,8 +1,7 @@
 from collections import OrderedDict
 
-from edc_metadata import MetadataUpdater
-from edc_metadata.target_handler import TargetModelConflict
-
+from ...metadata_updater import MetadataUpdater
+from ...target_handler import TargetModelConflict
 from ..rule_group import RuleGroup
 from ..rule_group_metaclass import RuleGroupMetaclass
 

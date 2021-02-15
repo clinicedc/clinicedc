@@ -1,9 +1,8 @@
 from django.contrib import admin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
-from edc_metadata.exim_resources import CrfMetadataResource
-
 from ..admin_site import edc_metadata_admin
+from ..exim_resources import CrfMetadataResource
 from ..models import CrfMetadata
 
 

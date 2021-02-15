@@ -1,4 +1,4 @@
-from edc_metadata import DO_NOTHING, NOT_REQUIRED, REQUIRED
+from ..constants import DO_NOTHING, NOT_REQUIRED, REQUIRED
 
 
 class RuleLogicError(Exception):

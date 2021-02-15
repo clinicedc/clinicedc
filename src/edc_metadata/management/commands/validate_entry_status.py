@@ -4,9 +4,10 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 from django.db.models import Count
-from edc_metadata.constants import KEYED
-from edc_metadata.models import CrfMetadata, RequisitionMetadata
 from tqdm import tqdm
+
+from ...constants import KEYED
+from ...models import CrfMetadata, RequisitionMetadata
 
 
 class Command(BaseCommand):

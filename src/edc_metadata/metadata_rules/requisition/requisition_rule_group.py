@@ -1,8 +1,8 @@
 from collections import OrderedDict, namedtuple
 
 from django.core.exceptions import ValidationError
-from edc_metadata import RequisitionMetadataUpdater
 
+from ...requisition import RequisitionMetadataUpdater
 from ..rule_group import RuleGroup
 from ..rule_group_meta_options import RuleGroupMetaOptions
 from ..rule_group_metaclass import RuleGroupMetaclass

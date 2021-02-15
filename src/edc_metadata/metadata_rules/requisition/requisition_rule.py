@@ -1,5 +1,4 @@
-from edc_metadata import REQUISITION
-
+from ...constants import REQUISITION
 from ..rule import Rule
 from ..rule_evaluator import RuleEvaluator
 

@@ -1,5 +1,4 @@
-from edc_metadata.constants import CRF
-
+from ...constants import CRF
 from ..rule import Rule
 
 

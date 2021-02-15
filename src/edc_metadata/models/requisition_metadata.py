@@ -3,10 +3,10 @@ from edc_model import models as edc_models
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 
 from ..managers import RequisitionMetadataManager
-from .model_mixin import ModelMixin
+from .crf_metadata_model_mixin import CrfMetadataModelMixin
 
 
-class RequisitionMetadata(ModelMixin, SiteModelMixin, edc_models.BaseUuidModel):
+class RequisitionMetadata(CrfMetadataModelMixin, SiteModelMixin, edc_models.BaseUuidModel):
 
     panel_name = models.CharField(max_length=50, null=True)
 
@@ -41,7 +41,7 @@ class RequisitionMetadata(ModelMixin, SiteModelMixin, edc_models.BaseUuidModel):
 
     natural_key.dependencies = ["sites.Site"]
 
-    class Meta(ModelMixin.Meta, edc_models.BaseUuidModel.Meta):
+    class Meta(CrfMetadataModelMixin.Meta, edc_models.BaseUuidModel.Meta):
         app_label = "edc_metadata"
         verbose_name = "Requisition Metadata"
         verbose_name_plural = "Requisition Metadata"

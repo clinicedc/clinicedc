@@ -1,5 +1,4 @@
 from django.db import models
-from edc_metadata_rules import MetadataRuleEvaluator
 
 from ...constants import CRF, KEYED, REQUISITION
 from ...metadata import (
@@ -9,6 +8,7 @@ from ...metadata import (
     Metadata,
     RequisitionMetadataGetter,
 )
+from ...metadata_rules import MetadataRuleEvaluator
 
 
 class CreatesMetadataModelMixin(models.Model):
