@@ -8,7 +8,7 @@ from edc_visit_schedule.model_mixins import (
 from ..choices import ENTRY_STATUS, NOT_REQUIRED, REQUIRED
 
 
-class ModelMixin(
+class CrfMetadataModelMixin(
     NonUniqueSubjectIdentifierFieldMixin,
     VisitScheduleMethodsModelMixin,
     VisitScheduleFieldsModelMixin,

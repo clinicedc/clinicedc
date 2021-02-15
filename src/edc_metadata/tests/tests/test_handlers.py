@@ -7,20 +7,20 @@ from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 
-from ..models import CrfMetadata, RequisitionMetadata
-from ..requisition import (
+from ...models import CrfMetadata, RequisitionMetadata
+from ...requisition import (
     InvalidTargetPanel,
     RequisitionTargetHandler,
     TargetPanelNotScheduledForVisit,
 )
-from ..target_handler import (
+from ...target_handler import (
     TargetHandler,
     TargetModelLookupError,
     TargetModelNotScheduledForVisit,
 )
-from .models import SubjectConsent, SubjectVisit
-from .reference_configs import register_to_site_reference_configs
-from .visit_schedule import visit_schedule
+from ..models import SubjectConsent, SubjectVisit
+from ..reference_configs import register_to_site_reference_configs
+from ..visit_schedule import visit_schedule
 
 
 class TestHandlers(TestCase):
