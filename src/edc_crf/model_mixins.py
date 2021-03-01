@@ -16,6 +16,8 @@ from edc_visit_tracking.model_mixins import (
     VisitTrackingCrfModelMixin,
 )
 
+from .stubs import CrfModelStub
+
 
 class CrfNoManagerModelMixin(
     VisitTrackingCrfModelMixin,
@@ -28,14 +30,12 @@ class CrfNoManagerModelMixin(
 ):
     """Base model for all scheduled models"""
 
-    subject_visit = models.OneToOneField(
-        settings.SUBJECT_VISIT_MODEL, on_delete=PROTECT
-    )
+    subject_visit = models.OneToOneField(settings.SUBJECT_VISIT_MODEL, on_delete=PROTECT)
 
-    def natural_key(self):
+    def natural_key(self: CrfModelStub) -> tuple:
         return self.subject_visit.natural_key()
 
-    natural_key.dependencies = [
+    natural_key.dependencies = [  # type:ignore
         settings.SUBJECT_VISIT_MODEL,
         "sites.Site",
         "edc_appointment.appointment",
