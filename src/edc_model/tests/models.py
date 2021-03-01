@@ -27,6 +27,10 @@ def get_future_date():
 
 class SimpleModel(BaseModel):
     f1 = models.CharField(max_length=10, null=True)
+    dt1 = models.DateTimeField(null=True)
+    d1 = models.DateField(null=True)
+    ago = models.CharField(max_length=25, null=True)
+    report_datetime = models.DateTimeField(null=True)
 
 
 class BasicModel(BaseModel):
@@ -34,7 +38,7 @@ class BasicModel(BaseModel):
     f2 = models.CharField(max_length=10)
 
 
-class BasicModelWithStatus(BaseModel, ReportStatusModelMixin):
+class BasicModelWithStatus(ReportStatusModelMixin, BaseModel):  # type: ignore
     f1 = models.CharField(max_length=10)
 
 

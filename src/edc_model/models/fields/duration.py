@@ -9,7 +9,7 @@ class DurationYMDField(models.CharField):
 
     description = "Duration in y/m"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         kwargs["verbose_name"] = kwargs.get("verbose_name") or "Duration:"
         kwargs["max_length"] = 8
         kwargs["validators"] = [ymd_validator]
@@ -29,7 +29,7 @@ class DurationYMDField(models.CharField):
 
 
 class DurationYearMonthField(DurationYMDField):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         warn(
             "DurationYearMonthField has been deprecated. Use DurationYMDField instead",
             DeprecationWarning,

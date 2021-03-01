@@ -13,7 +13,7 @@ class UrlModelMixin(models.Model):
 
     ADMIN_SITE_NAME = None  # default is '{app_label}_admin'
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         try:
             if self.id:
                 absolute_url = reverse(self.admin_url_name, args=(str(self.id),))
@@ -29,7 +29,7 @@ class UrlModelMixin(models.Model):
         return absolute_url
 
     @property
-    def admin_url_name(self):
+    def admin_url_name(self) -> str:
         """Returns the django admin add or change url name
         (includes namespace).
         """
@@ -40,7 +40,7 @@ class UrlModelMixin(models.Model):
         )
 
     @property
-    def admin_site_name(self):
+    def admin_site_name(self) -> str:
         """Returns the "admin" url namespace for this model.
 
         Default naming convention for edc is "<app_label>_admin".
@@ -63,7 +63,7 @@ class UrlModelMixin(models.Model):
         return admin_site_name
 
     @property
-    def next_string(self):
+    def next_string(self) -> str:
         return (
             f"{self.admin_site_name}:{self._meta.label_lower.split('.')[0]}_"
             f"{self._meta.label_lower.split('.')[1]}"
