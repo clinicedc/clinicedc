@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 import django.core.validators
+import django_audit_fields.fields.uuid_auto_field
 import django_crypto_fields.fields.encrypted_char_field
 import django_crypto_fields.fields.firstname_field
 import django_crypto_fields.fields.identity_field
@@ -13,7 +14,6 @@ import edc_model_fields.fields
 import edc_model_fields.fields.date_estimated
 import edc_model_fields.fields.hostname_modification_field
 import edc_model_fields.fields.userfield
-import edc_model_fields.fields.uuid_auto_field
 import edc_utils
 from django.db import migrations, models
 
@@ -89,7 +89,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "id",
-                    edc_model_fields.fields.uuid_auto_field.UUIDAutoField(
+                    django_audit_fields.fields.uuid_auto_field.UUIDAutoField(
                         blank=True,
                         editable=False,
                         help_text="System auto field. UUID primary key.",
