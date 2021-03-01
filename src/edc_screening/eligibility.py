@@ -17,18 +17,18 @@ class Eligibility:
     gender_evaluator_cls = GenderEvaluator
 
     # default to eligible if >=18
-    age_evaluator = age_evaluator = AgeEvaluator(age_lower=18, age_lower_inclusive=True)
+    age_evaluator = AgeEvaluator(age_lower=18, age_lower_inclusive=True)
 
-    custom_reasons_dict = {}
+    custom_reasons_dict: dict = {}
 
     def __init__(
         self,
-        age=None,
-        gender=None,
-        pregnant=None,
-        breast_feeding=None,
+        age: int = None,
+        gender: str = None,
+        pregnant: bool = None,
+        breast_feeding: bool = None,
         **additional_criteria,
-    ):
+    ) -> None:
 
         self.criteria = dict(**additional_criteria)
         if len(self.criteria) == 0:
@@ -64,29 +64,15 @@ class Eligibility:
                 self.reasons_ineligible.update(
                     gender=f"{' and '.join(self.gender_evaluator.reasons_ineligible)}."
                 )
-            if (
-                self.early_withdrawal_evaluator
-                and not self.early_withdrawal_evaluator.eligible
-            ):
-                self.reasons_ineligible.update(
-                    {**self.early_withdrawal_evaluator.reasons_ineligible}
-                )
 
     def __str__(self):
         return self.eligible
 
     @property
-    def early_withdrawal_evaluator(self):
-        pass
-
-    @property
-    def extra_eligibility_criteria(self):
+    def extra_eligibility_criteria(self) -> dict:
         return {}
 
-    def extra_eligibility_checks(self, **additional_criteria):
-        return {}
-
-    def get_custom_reasons_dict(self):
+    def get_custom_reasons_dict(self) -> dict:
         """Returns a dictionary of custom reasons for named criteria."""
         for k in self.custom_reasons_dict:
             if k in self.custom_reasons_dict and k not in self.criteria:

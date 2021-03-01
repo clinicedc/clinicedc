@@ -7,6 +7,7 @@ from edc_identifier.model_mixins import NonUniqueSubjectIdentifierModelMixin
 from edc_search.model_mixins import SearchSlugModelMixin
 
 from ..screening_identifier import ScreeningIdentifier
+from ..stubs import SubjectScreeningModelStub
 
 
 class ScreeningIdentifierModelMixin(
@@ -14,9 +15,9 @@ class ScreeningIdentifierModelMixin(
 ):
 
     identifier_cls = ScreeningIdentifier
-    screening_identifier_field_name = "screening_identifier"
+    screening_identifier_field_name: str = "screening_identifier"
 
-    def save(self, *args, **kwargs):
+    def save(self: SubjectScreeningModelStub, *args, **kwargs):
         """Screening Identifier is always allocated."""
         if not self.id:
             setattr(
@@ -24,9 +25,9 @@ class ScreeningIdentifierModelMixin(
                 self.screening_identifier_field_name,
                 self.identifier_cls().identifier,
             )
-        super().save(*args, **kwargs)
+        super().save(*args, **kwargs)  # type:ignore
 
-    def update_subject_identifier_on_save(self):
+    def update_subject_identifier_on_save(self: SubjectScreeningModelStub) -> str:
         """Overridden to not create a new study-allocated subject identifier on save.
 
         Instead just set subject_identifier to a UUID for uniqueness
@@ -43,7 +44,7 @@ class ScreeningIdentifierModelMixin(
                 is_subject_identifier_or_raise(self.subject_identifier, reference_obj=self)
         return self.subject_identifier
 
-    def make_new_identifier(self):
+    def make_new_identifier(self) -> str:
         return self.subject_identifier_as_pk.hex
 
     class Meta:

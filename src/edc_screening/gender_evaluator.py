@@ -5,7 +5,7 @@ class GenderEvaluator:
 
     eligible_gender = [MALE, FEMALE]
 
-    def __init__(self, gender=None, **kwargs):
+    def __init__(self, gender=None, **kwargs) -> None:  # noqa
         self.eligible = False
         self.reasons_ineligible = None
         if gender in self.eligible_gender:
