@@ -1,3 +1,6 @@
+from typing import Optional
+
+from django.apps import AppConfig
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -6,7 +9,9 @@ class LoadListDataError(Exception):
     pass
 
 
-def load_list_data(list_data=None, model_name=None, apps=None):
+def load_list_data(
+    list_data: dict = None, model_name: Optional[str] = None, apps: Optional[AppConfig] = None
+) -> None:
     """Loads data into a list model.
 
     List models have name, display_name where name
