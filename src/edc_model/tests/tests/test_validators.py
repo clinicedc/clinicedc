@@ -3,7 +3,7 @@ from django import forms
 from django.test import TestCase
 from edc_utils import get_utcnow
 
-from .models import ModelWithDateValidators, ModelWithPhoneValidators
+from ..models import ModelWithDateValidators, ModelWithPhoneValidators
 
 
 class DateForm(forms.ModelForm):

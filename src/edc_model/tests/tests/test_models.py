@@ -5,8 +5,9 @@ from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, tag  # noqa
 from django.test.utils import override_settings
 
-from ..models import UrlModelMixinNoReverseMatch
-from .models import BasicModel, SimpleModel
+from edc_model.models import UrlModelMixinNoReverseMatch
+
+from ..models import BasicModel, SimpleModel
 
 
 class TestModels(TestCase):
