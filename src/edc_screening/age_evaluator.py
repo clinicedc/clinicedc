@@ -1,3 +1,5 @@
+from typing import Optional
+
 from dateutil.relativedelta import relativedelta
 from django.utils.timezone import localtime
 from edc_reportable import AgeEvaluator as ReportableAgeEvaluator
@@ -6,11 +8,11 @@ from edc_utils.date import get_utcnow
 
 
 class AgeEvaluator(ReportableAgeEvaluator):
-    def __init__(self, **kwargs):
-        self.reasons_ineligible = None
+    def __init__(self, **kwargs) -> None:
+        self.reasons_ineligible: Optional[str] = None
         super().__init__(**kwargs)
 
-    def eligible(self, age=None):
+    def eligible(self, age: Optional[int] = None) -> bool:
         age = age or 18
         self.reasons_ineligible = None
         eligible = False
@@ -23,7 +25,7 @@ class AgeEvaluator(ReportableAgeEvaluator):
                 eligible = True
         return eligible
 
-    def in_bounds_or_raise(self, age=None):
+    def in_bounds_or_raise(self, age: int = None):
         self.reasons_ineligible = None
         dob = localtime(get_utcnow() - relativedelta(years=age)).date()
         age_units = "years"

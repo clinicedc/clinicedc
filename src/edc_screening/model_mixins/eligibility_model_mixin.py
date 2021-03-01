@@ -1,13 +1,14 @@
 from django.db import models
 
 from ..screening_eligibility import ScreeningEligibility
+from ..stubs import SubjectScreeningModelStub
 
 
 class EligibilityModelMixin(models.Model):
 
     eligibility_cls = ScreeningEligibility
 
-    def save(self, *args, **kwargs):
+    def save(self: SubjectScreeningModelStub, *args, **kwargs):
         """When saved, the eligibility_cls is instantiated and the
         value of `eligible` is evaluated.
 
@@ -22,10 +23,10 @@ class EligibilityModelMixin(models.Model):
             reasons_ineligible.sort()
             self.reasons_ineligible = "|".join(reasons_ineligible)
         else:
-            self.reasons_ineligible = None
+            self.reasons_ineligible = eligibility_obj.reasons_ineligible
         if not self.id:
             self.screening_identifier = self.identifier_cls().identifier
-        super().save(*args, **kwargs)
+        super().save(*args, **kwargs)  # type:ignore
 
     class Meta:
         abstract = True
