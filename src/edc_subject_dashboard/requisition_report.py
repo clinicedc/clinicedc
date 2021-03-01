@@ -2,7 +2,7 @@ from tempfile import mkdtemp
 
 from django.contrib import messages
 from edc_constants.constants import YES
-from edc_identifier.simple_identifier import make_human_readable
+from edc_identifier.simple_identifier import convert_to_human_readable
 from edc_lab.model_mixins import RequisitionModelMixin
 from edc_lab.models.manifest.shipper import Shipper
 from edc_reports import Report
@@ -46,14 +46,12 @@ class RequisitionReport(Report):
         return shipper
 
     def get_report_story(self, **kwargs):
-        story = []
-
-        story.append(
+        story = [
             Paragraph(
                 "PATIENT SPECIMEN REQUISITION / MANIFEST",
                 self.styles["line_label_center"],
             )
-        )
+        ]
 
         data = [
             [
@@ -63,7 +61,7 @@ class RequisitionReport(Report):
             [
                 Paragraph(get_utcnow().strftime("%Y-%m-%d"), self.styles["line_data_largest"]),
                 Paragraph(
-                    make_human_readable(self.timestamp),
+                    convert_to_human_readable(self.timestamp),
                     self.styles["line_data_largest"],
                 ),
             ],
@@ -285,7 +283,8 @@ class RequisitionReport(Report):
         data = self.consignee.__dict__
         return data
 
-    def formatted_address(self, **kwargs):
+    @staticmethod
+    def formatted_address(**kwargs):
         data = {
             "contact_name": None,
             "name": None,
