@@ -1,3 +1,10 @@
+from typing import ClassVar, Optional, Type, Union
+
+from ..stubs import (
+    MetadataGetterStub,
+    MetadataWrapperStub,
+    RequisitionMetadataWrapperStub,
+)
 from .metadata_wrapper import DeletedInvalidMetadata
 
 
@@ -9,8 +16,8 @@ class MetadataWrappers:
     See also classes Crf, Requisition in edc_visit_schedule.
     """
 
-    metadata_getter_cls = None
-    metadata_wrapper_cls = None
+    metadata_getter_cls: ClassVar[MetadataGetterStub] = None
+    metadata_wrapper_cls: ClassVar[MetadataWrapperStub] = None
 
     def __init__(self, **kwargs):
         self.metadata = self.metadata_getter_cls(**kwargs)

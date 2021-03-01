@@ -1,3 +1,5 @@
+from edc_metadata.stubs import RequisitionMetadataModelStub
+
 from ...constants import NOT_REQUIRED, REQUIRED, REQUISITION
 from ...requisition import RequisitionMetadataUpdater
 from .updates_metadata_model_mixin import UpdatesMetadataModelMixin
@@ -12,7 +14,7 @@ class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
     metadata_category = REQUISITION
 
     @property
-    def metadata_updater(self):
+    def metadata_updater(self: RequisitionMetadataModelStub) -> RequisitionMetadataUpdater:
         """Returns an instance of RequisitionMetadataUpdater."""
         opts = dict(
             visit_model_instance=self.visit,
@@ -22,13 +24,13 @@ class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
         return self.updater_cls(**opts)
 
     @property
-    def metadata_query_options(self):
+    def metadata_query_options(self: RequisitionMetadataModelStub) -> dict:
         options = super().metadata_query_options
         options.update({"panel_name": self.panel.name})
         return options
 
     @property
-    def metadata_default_entry_status(self):
+    def metadata_default_entry_status(self: RequisitionMetadataModelStub) -> str:
         """Returns a string that represents the configured
         entry status of the requisition in the visit schedule.
         """

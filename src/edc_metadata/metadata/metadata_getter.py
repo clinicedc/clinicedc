@@ -1,4 +1,8 @@
+from typing import Optional
+
 from django.apps import apps as django_apps
+from edc_appointment.stubs import AppointmentModelStub
+from edc_visit_tracking.stubs import SubjectVisitModelStub
 
 
 class MetadataGetter:
@@ -7,17 +11,18 @@ class MetadataGetter:
     `metadata_objects`.
     """
 
-    metadata_model = None
+    metadata_model: Optional[str] = None
 
     def __init__(
         self,
-        appointment=None,
-        subject_identifier=None,
-        visit_code=None,
-        visit_code_sequence=None,
-    ):
+        appointment: Optional[AppointmentModelStub] = None,
+        subject_identifier: str = None,
+        visit_code: str = None,
+        visit_code_sequence: int = None,
+    ) -> None:
+        self.visit: Optional[SubjectVisitModelStub] = None
         try:
-            self.visit = appointment.visit
+            self.visit = appointment.visit  # type:ignore
         except AttributeError:
             self.subject_identifier = subject_identifier
             self.visit_code = visit_code

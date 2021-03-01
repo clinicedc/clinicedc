@@ -1,8 +1,13 @@
 import sys
+from typing import Optional, Type, Union
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.core.management.color import color_style
+from edc_crf.stubs import CrfModelStub
+from edc_visit_tracking.stubs import SubjectVisitModelStub
+
+from ..stubs import CrfMetadataModelStub, RequisitionMetadataModelStub
 
 style = color_style()
 
@@ -15,7 +20,11 @@ class DeletedInvalidMetadata(Exception):
     pass
 
 
-def delete_invalid_metadata_obj(metadata_obj, visit=None, exception=None):
+def delete_invalid_metadata_obj(
+    metadata_obj: Union[CrfMetadataModelStub, RequisitionMetadataModelStub],
+    visit: SubjectVisitModelStub,
+    exception: Exception = None,
+):
     """Deletes the metadata object and prints a
     warning.
     """
@@ -36,9 +45,14 @@ class MetadataWrapper:
     attributes like the visit, model class, metadata_obj, etc.
     """
 
-    label = None
+    label: Optional[str] = None
 
-    def __init__(self, visit=None, metadata_obj=None, **kwargs):
+    def __init__(
+        self,
+        visit: SubjectVisitModelStub,
+        metadata_obj: Union[CrfMetadataModelStub, RequisitionMetadataModelStub],
+        **kwargs
+    ) -> None:
         self._model_obj = None
         self.metadata_obj = metadata_obj
         self.visit = visit
@@ -58,12 +72,12 @@ class MetadataWrapper:
         return f"{self.__class__.__name__}({self.visit}, {self.metadata_obj})"
 
     @property
-    def options(self):
+    def options(self) -> dict:
         """Returns a dictionary of query options."""
         return {f"{self.model_cls.visit_model_attr()}": self.visit}
 
     @property
-    def model_obj(self):
+    def model_obj(self) -> CrfModelStub:
         if not self._model_obj:
             try:
                 self._model_obj = self.model_cls.objects.get(**self.options)
@@ -81,7 +95,7 @@ class MetadataWrapper:
         self._model_obj = value
 
     @property
-    def model_cls(self):
+    def model_cls(self) -> Type[CrfModelStub]:
         """Returns a model class or raises for the model that
         the metadata model instance represents.
         """

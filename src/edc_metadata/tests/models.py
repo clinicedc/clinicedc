@@ -58,7 +58,9 @@ class DeathReport(UniqueSubjectIdentifierFieldMixin, BaseUuidModel):
     objects = SubjectIdentifierManager()
 
     def natural_key(self):
-        return (self.subject_identifier,)
+        return tuple(
+            self.subject_identifier,
+        )
 
 
 class SubjectConsent(
@@ -82,7 +84,9 @@ class SubjectConsent(
     objects = SubjectIdentifierManager()
 
     def natural_key(self):
-        return (self.subject_identifier,)
+        return tuple(
+            self.subject_identifier,
+        )
 
 
 class SubjectVisit(

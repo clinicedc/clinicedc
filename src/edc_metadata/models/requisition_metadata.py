@@ -14,7 +14,7 @@ class RequisitionMetadata(CrfMetadataModelMixin, SiteModelMixin, edc_models.Base
 
     objects = RequisitionMetadataManager()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             f"RequisitionMeta {self.model} {self.visit_schedule_name}."
             f"{self.schedule_name}.{self.visit_code}.{self.visit_code_sequence}@"
@@ -23,12 +23,12 @@ class RequisitionMetadata(CrfMetadataModelMixin, SiteModelMixin, edc_models.Base
         )
 
     @property
-    def verbose_name(self):
+    def verbose_name(self) -> str:
         from edc_lab.site_labs import site_labs
 
         return site_labs.panel_names.get(self.panel_name) or self.panel_name
 
-    def natural_key(self):
+    def natural_key(self) -> tuple:
         return (
             self.panel_name,
             self.model,
@@ -39,7 +39,8 @@ class RequisitionMetadata(CrfMetadataModelMixin, SiteModelMixin, edc_models.Base
             self.visit_code_sequence,
         )
 
-    natural_key.dependencies = ["sites.Site"]
+    # noinspection PyTypeHints
+    natural_key.dependencies = ["sites.Site"]  # type: ignore
 
     class Meta(CrfMetadataModelMixin.Meta, edc_models.BaseUuidModel.Meta):
         app_label = "edc_metadata"

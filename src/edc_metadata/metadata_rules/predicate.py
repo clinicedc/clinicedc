@@ -1,3 +1,5 @@
+from typing import Any
+
 from edc_reference.reference import ReferenceObjectDoesNotExist
 
 
@@ -10,7 +12,8 @@ class NoValueError(Exception):
 
 
 class BasePredicate:
-    def get_value(self, attr=None, source_model=None, reference_getter_cls=None, **kwargs):
+    @staticmethod
+    def get_value(attr=None, source_model=None, reference_getter_cls=None, **kwargs):
         """Returns a value by checking for the attr on each arg.
 
         Each arg in args may be a model instance, queryset, or None.
@@ -18,8 +21,7 @@ class BasePredicate:
         A NoValueError is raised if attr is not found on any "instance".
         in kwargs.
         """
-        value = None
-        found_on_instance = None
+        found_on_instance: Any = None
         for instance in kwargs.values():
             try:
                 getattr(instance, attr)
@@ -99,7 +101,7 @@ class P(BasePredicate):
             f"{self.expected_value})"
         )
 
-    def __call__(self, **kwargs):
+    def __call__(self, **kwargs) -> bool:
         value = self.get_value(attr=self.attr, **kwargs)
         return self.func(value, self.expected_value)
 

@@ -8,7 +8,7 @@ from edc_visit_schedule import Crf, FormsCollection, Requisition, site_visit_sch
 from edc_visit_tracking.constants import MISSED_VISIT
 
 from ..constants import KEYED, NOT_REQUIRED, REQUIRED
-from ..stubs import CrfMetadataModel, RequisitionMetadataModel, VisitModel
+from ..stubs import CrfMetadataModelStub, RequisitionMetadataModelStub, VisitModel
 
 
 class CreatesMetadataError(Exception):
@@ -36,7 +36,7 @@ class CrfCreator:
     @property
     def metadata_model_cls(
         self,
-    ) -> Union[Type[CrfMetadataModel], Type[RequisitionMetadataModel]]:
+    ) -> Union[Type[CrfMetadataModelStub], Type[RequisitionMetadataModelStub]]:
         return django_apps.get_model(self.metadata_model)
 
     @property
@@ -56,7 +56,7 @@ class CrfCreator:
         return options
 
     @property
-    def metadata_obj(self) -> Union[CrfMetadataModel, RequisitionMetadataModel]:
+    def metadata_obj(self) -> Union[CrfMetadataModelStub, RequisitionMetadataModelStub]:
         """Returns a metadata model instance.
 
         Creates the metadata model instance to represent a
@@ -83,7 +83,7 @@ class CrfCreator:
             self._metadata_obj = metadata_obj
         return self._metadata_obj
 
-    def create(self) -> Union[CrfMetadataModel]:
+    def create(self) -> Union[CrfMetadataModelStub]:
         """Creates a metadata model instance to represent a
         CRF, if it does not already exist.
         """
@@ -197,14 +197,14 @@ class Creator:
         for requisition in self.requisitions:
             self.create_requisition(requisition)
 
-    def create_crf(self, crf) -> CrfMetadataModel:
+    def create_crf(self, crf) -> CrfMetadataModelStub:
         return self.crf_creator_cls(
             crf=crf,
             update_keyed=self.update_keyed,
             visit_model_instance=self.visit_model_instance,
         ).create()
 
-    def create_requisition(self, requisition) -> RequisitionMetadataModel:
+    def create_requisition(self, requisition) -> RequisitionMetadataModelStub:
         return self.requisition_creator_cls(
             requisition=requisition,
             update_keyed=self.update_keyed,
@@ -220,11 +220,11 @@ class Destroyer:
         self.visit_model_instance: VisitModel = visit_model_instance
 
     @property
-    def metadata_crf_model_cls(self) -> Type[CrfMetadataModel]:
+    def metadata_crf_model_cls(self) -> Type[CrfMetadataModelStub]:
         return django_apps.get_model(self.metadata_crf_model)
 
     @property
-    def metadata_requisition_model_cls(self) -> Type[RequisitionMetadataModel]:
+    def metadata_requisition_model_cls(self) -> Type[RequisitionMetadataModelStub]:
         return django_apps.get_model(self.metadata_requisition_model)
 
     def delete(self) -> int:

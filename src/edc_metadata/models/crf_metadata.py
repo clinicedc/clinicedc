@@ -13,14 +13,14 @@ class CrfMetadata(CrfMetadataModelMixin, SiteModelMixin, edc_models.BaseUuidMode
 
     objects = CrfMetadataManager()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             f"CrfMeta {self.model} {self.visit_schedule_name}.{self.schedule_name}."
             f"{self.visit_code}.{self.visit_code_sequence}@{self.timepoint} "
             f"{self.entry_status} {self.subject_identifier}"
         )
 
-    def natural_key(self):
+    def natural_key(self) -> tuple:
         return (
             self.model,
             self.subject_identifier,
@@ -30,10 +30,11 @@ class CrfMetadata(CrfMetadataModelMixin, SiteModelMixin, edc_models.BaseUuidMode
             self.visit_code_sequence,
         )
 
-    natural_key.dependencies = ["sites.Site"]
+    # noinspection PyTypeHints
+    natural_key.dependencies = ["sites.Site"]  # type: ignore
 
     @property
-    def verbose_name(self):
+    def verbose_name(self) -> str:
         try:
             model = django_apps.get_model(self.model)
         except LookupError as e:
