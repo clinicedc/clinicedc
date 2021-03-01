@@ -1,4 +1,4 @@
-from django import forms
+from django.forms import ModelForm
 
 
 class FormValidatorMixin:
@@ -9,14 +9,15 @@ class FormValidatorMixin:
 
     form_validator_cls = None
 
-    def clean(self):
-        cleaned_data = super().clean()
+    def clean(self: ModelForm) -> dict:
+        cleaned_data = super().clean()  # type: ignore
         try:
             form_validator = self.form_validator_cls(
                 cleaned_data=cleaned_data, instance=self.instance
             )
-        except TypeError:
-            pass
+        except TypeError as e:
+            if str(e) != "'NoneType' object is not callable":
+                raise
         else:
             cleaned_data = form_validator.validate()
         return cleaned_data

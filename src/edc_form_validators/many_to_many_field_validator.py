@@ -1,3 +1,5 @@
+from typing import Optional, Union
+
 from django.forms import ValidationError
 from edc_constants.constants import NOT_APPLICABLE, OTHER
 
@@ -15,7 +17,7 @@ M2M_INVALID_SELECTION = "m2m_invalid_selection"
 
 
 class ManyToManyFieldValidator(BaseFormValidator):
-    def get_m2m_selected(self, m2m_field):
+    def get_m2m_selected(self, m2m_field: str) -> dict:
         qs = self.cleaned_data.get(m2m_field) or []
         return {
             getattr(obj, self.default_fk_stored_field_name): getattr(
@@ -24,8 +26,9 @@ class ManyToManyFieldValidator(BaseFormValidator):
             for obj in qs
         }
 
-    def m2m_applicable_if_true(self, cond, m2m_field=None):
-        message = None
+    def m2m_applicable_if_true(self, cond: bool, m2m_field: str = None) -> bool:
+        code: Optional[str] = None
+        message: dict = {}
         qs = self.cleaned_data.get(m2m_field)
         if cond:
             if qs and qs.count() > 0:
@@ -45,12 +48,15 @@ class ManyToManyFieldValidator(BaseFormValidator):
             raise ValidationError(message, code=code)
         return False
 
-    def m2m_applicable_if(self, *responses, field=None, m2m_field=None):
+    def m2m_applicable_if(
+        self, *responses: Union[str, int, bool], field: str = None, m2m_field: str = None
+    ) -> bool:
         """Raises an exception or returns False.
 
         m2m_field is applicable if field is in responses.
         """
-        message = None
+        code: Optional[str] = None
+        message: dict = {}
         if self.cleaned_data.get(field):
             qs = self.cleaned_data.get(m2m_field)
             if self.cleaned_data.get(field) not in responses:
@@ -73,12 +79,13 @@ class ManyToManyFieldValidator(BaseFormValidator):
             raise ValidationError(message, code=code)
         return False
 
-    def m2m_required(self, m2m_field=None):
+    def m2m_required(self, m2m_field: str = None) -> bool:
         """Raises an exception or returns False.
 
         m2m_field is required.
         """
-        message = None
+        code: Optional[str] = None
+        message: dict = {}
         if not self.cleaned_data.get(m2m_field):
             message = {m2m_field: "This field is required"}
             code = REQUIRED_ERROR
@@ -88,12 +95,13 @@ class ManyToManyFieldValidator(BaseFormValidator):
             raise ValidationError(message, code=code)
         return False
 
-    def m2m_not_required(self, m2m_field=None):
+    def m2m_not_required(self, m2m_field: str = None) -> bool:
         """Raises an exception or returns False.
 
         m2m_field is not required.
         """
-        message = None
+        code: Optional[str] = None
+        message: dict = {}
         if self.cleaned_data.get(m2m_field):
             message = {m2m_field: "This field is not required"}
             code = REQUIRED_ERROR
@@ -103,12 +111,15 @@ class ManyToManyFieldValidator(BaseFormValidator):
             raise ValidationError(message, code=code)
         return False
 
-    def m2m_required_if(self, response=None, field=None, m2m_field=None):
+    def m2m_required_if(
+        self, response: Union[str, int, bool], field: str = None, m2m_field: str = None
+    ) -> bool:
         """Raises an exception or returns False.
 
         m2m_field is required if field  == response
         """
-        message = None
+        code: Optional[str] = None
+        message: dict = {}
         if self.cleaned_data.get(field) == response and not self.cleaned_data.get(m2m_field):
             message = {m2m_field: "This field is required"}
             code = REQUIRED_ERROR
@@ -131,7 +142,7 @@ class ManyToManyFieldValidator(BaseFormValidator):
             raise ValidationError(message, code=code)
         return False
 
-    def m2m_single_selection_if(self, *single_selections, m2m_field=None):
+    def m2m_single_selection_if(self, *single_selections: str, m2m_field=None):
         """Raises an exception of returns False.
 
         if a selected response from m2m_field is in single_selections
@@ -154,11 +165,11 @@ class ManyToManyFieldValidator(BaseFormValidator):
 
     def m2m_other_specify(
         self,
-        *responses,
-        m2m_field=None,
-        field_other=None,
-        field_other_evaluate_as_int=None,
-    ):
+        *responses: Union[str, int, bool],
+        m2m_field: str = None,
+        field_other: Optional[str] = None,
+        field_other_evaluate_as_int: Optional[bool] = None,
+    ) -> bool:
         """Raises an exception or returns False.
 
         field_other is required if a selected response from m2m_field
@@ -195,7 +206,12 @@ class ManyToManyFieldValidator(BaseFormValidator):
             raise ValidationError(message, code=NOT_REQUIRED_ERROR)
         return False
 
-    def m2m_other_not_specify(self, *responses, m2m_field=None, field_other=None):
+    def m2m_other_not_specify(
+        self,
+        *responses: Union[str, int, bool],
+        m2m_field: str = None,
+        field_other: Optional[str] = None,
+    ) -> bool:
         """Raises an exception or returns False.
 
         field_other is NOT required if a selected response from m2m_field
@@ -226,7 +242,12 @@ class ManyToManyFieldValidator(BaseFormValidator):
             raise ValidationError(message, code=NOT_REQUIRED_ERROR)
         return False
 
-    def m2m_other_specify_applicable(self, *responses, m2m_field=None, field_other=None):
+    def m2m_other_specify_applicable(
+        self,
+        *responses: Union[str, int, bool],
+        m2m_field: str = None,
+        field_other: Optional[str] = None,
+    ) -> bool:
         """Raises an exception or returns False.
 
         field_other is applicable if a selected response from m2m_field
@@ -257,7 +278,9 @@ class ManyToManyFieldValidator(BaseFormValidator):
             raise ValidationError(message, code=NOT_APPLICABLE_ERROR)
         return False
 
-    def m2m_selection_expected(self, response, m2m_field=None, error_msg=None):
+    def m2m_selection_expected(
+        self, response: Union[str, int, bool], m2m_field: str = None, error_msg: str = None
+    ) -> bool:
         """Raises an exception or returns False.
 
         m2m_field is required and the selection must be `response`
@@ -282,7 +305,12 @@ class ManyToManyFieldValidator(BaseFormValidator):
                 raise ValidationError(message, code=M2M_SELECTION_ONLY)
         return False
 
-    def m2m_selections_not_expected(self, *responses, m2m_field=None, error_msg=None):
+    def m2m_selections_not_expected(
+        self,
+        *responses: Union[str, int, bool],
+        m2m_field: str = None,
+        error_msg: Optional[str] = None,
+    ) -> bool:
         """Raises an exception or returns False.
 
         m2m_field is required but no selections may be in `responses`.

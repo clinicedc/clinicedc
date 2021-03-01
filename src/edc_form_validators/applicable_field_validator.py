@@ -1,3 +1,5 @@
+from typing import Any, Optional
+
 from edc_constants.constants import NOT_APPLICABLE
 
 from .base_form_validator import (
@@ -18,23 +20,23 @@ from .base_form_validator import (
 
 
 class ApplicableFieldValidator(BaseFormValidator):
-    def raise_applicable(self, field, msg=None):
+    def raise_applicable(self, field, msg=None) -> None:
         message = {field: f"This field is applicable. {msg or ''}".strip()}
         self.raise_validation_error(message, APPLICABLE_ERROR)
 
-    def raise_not_applicable(self, field, msg=None):
+    def raise_not_applicable(self, field, msg=None) -> None:
         message = {field: f"This field is not applicable. {msg or ''}".strip()}
         self.raise_validation_error(message, NOT_APPLICABLE_ERROR)
 
     def applicable_if(
         self,
-        *responses,
-        field=None,
-        field_applicable=None,
-        inverse=None,
-        is_instance_field=None,
-        msg=None,
-    ):
+        *responses: Any,
+        field: str = None,
+        field_applicable: str = None,
+        inverse: Optional[bool] = None,
+        is_instance_field: Optional[bool] = None,
+        msg: Optional[str] = None,
+    ) -> bool:
         return self.applicable(
             *responses,
             field=field,
@@ -46,13 +48,13 @@ class ApplicableFieldValidator(BaseFormValidator):
 
     def not_applicable_if(
         self,
-        *responses,
-        field=None,
-        field_applicable=None,
-        inverse=None,
-        is_instance_field=None,
-        msg=None,
-    ):
+        *responses: Any,
+        field: str = None,
+        field_applicable: str = None,
+        inverse: Optional[bool] = None,
+        is_instance_field: Optional[bool] = None,
+        msg: Optional[str] = None,
+    ) -> bool:
         return self.not_applicable(
             *responses,
             field=field,
@@ -64,7 +66,7 @@ class ApplicableFieldValidator(BaseFormValidator):
 
     def not_applicable_only_if(
         self, *responses, field=None, field_applicable=None, is_instance_field=None
-    ):
+    ) -> bool:
 
         if is_instance_field:
             self.update_cleaned_data_from_instance(field)
@@ -75,16 +77,17 @@ class ApplicableFieldValidator(BaseFormValidator):
             (field_applicable_value and field_applicable_value is not None)
         ):
             self.raise_not_applicable(field_applicable)
+        return False
 
     def applicable(
         self,
-        *responses,
-        field=None,
-        field_applicable=None,
-        inverse=None,
-        is_instance_field=None,
-        msg=None,
-    ):
+        *responses: Any,
+        field: str = None,
+        field_applicable: str = None,
+        inverse: Optional[bool] = None,
+        is_instance_field: Optional[bool] = None,
+        msg: Optional[str] = None,
+    ) -> bool:
         """Returns False or raises a validation error for field
         pattern where response to question 1 makes
         question 2 applicable.
@@ -110,13 +113,13 @@ class ApplicableFieldValidator(BaseFormValidator):
 
     def not_applicable(
         self,
-        *responses,
-        field=None,
-        field_applicable=None,
-        inverse=None,
-        is_instance_field=None,
-        msg=None,
-    ):
+        *responses: Any,
+        field: str = None,
+        field_applicable: str = None,
+        inverse: Optional[bool] = None,
+        is_instance_field: Optional[bool] = None,
+        msg: Optional[str] = None,
+    ) -> bool:
         """Returns False or raises a validation error for field
         pattern where response to question 1 makes
         question 2 NOT applicable.
@@ -136,13 +139,17 @@ class ApplicableFieldValidator(BaseFormValidator):
 
     def applicable_if_true(
         self,
-        condition,
-        field_applicable=None,
-        applicable_msg=None,
-        not_applicable_msg=None,
-    ):
+        condition: bool,
+        field_applicable: str = None,
+        applicable_msg: Optional[str] = None,
+        not_applicable_msg: Optional[str] = None,
+        inverse: Optional[bool] = None,
+    ) -> bool:
+        inverse = True if inverse is None else inverse
         if field_applicable in self.cleaned_data:
             if condition and self.get(field_applicable) == NOT_APPLICABLE:
                 self.raise_applicable(field_applicable, msg=applicable_msg)
             elif not condition and self.get(field_applicable) != NOT_APPLICABLE:
-                self.raise_not_applicable(field_applicable, msg=not_applicable_msg)
+                if inverse:
+                    self.raise_not_applicable(field_applicable, msg=not_applicable_msg)
+        return False

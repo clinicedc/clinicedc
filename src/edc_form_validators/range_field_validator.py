@@ -11,13 +11,13 @@ from .base_form_validator import (
 class RangeFieldValidator(BaseFormValidator):
     def out_of_range_if(
         self,
-        lower,
-        upper,
-        field=None,
-        lower_inclusive=None,
-        upper_inclusive=None,
-        allow_none=None,
-    ):
+        lower: int,
+        upper: int,
+        field: str = None,
+        lower_inclusive: bool = None,
+        upper_inclusive: bool = None,
+        allow_none: bool = None,
+    ) -> bool:
         r = re.compile(r"^\d*[.,]?\d*$")
         lower_inclusive = True if lower_inclusive is None else lower_inclusive
         upper_inclusive = True if upper_inclusive is None else upper_inclusive
@@ -35,7 +35,7 @@ class RangeFieldValidator(BaseFormValidator):
                 expression = f"{lower}{lower_op}{value}{upper_op}{upper}"
                 if not eval(expression):
                     message = {
-                        field: (f"This field is not within range. Expected " f"{expression}.")
+                        field: f"This field is not within range. Expected " f"{expression}."
                     }
                     self.raise_validation_error(message, OUT_OF_RANGE_ERROR)
         return False

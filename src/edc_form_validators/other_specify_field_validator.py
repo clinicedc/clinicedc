@@ -1,3 +1,5 @@
+from typing import Any, Optional
+
 from django.forms import ValidationError
 from edc_constants.constants import OTHER
 
@@ -11,15 +13,15 @@ class OtherSpecifyFieldValidator(BaseFormValidator):
 
     def validate_other_specify(
         self,
-        field,
-        other_specify_field=None,
-        required_msg=None,
-        not_required_msg=None,
-        other_stored_value=None,
-        ref=None,
-        fk_stored_field_name=None,
+        field: str,
+        other_specify_field: Optional[str] = None,
+        required_msg: Optional[str] = None,
+        not_required_msg: Optional[str] = None,
+        other_stored_value: Optional[Any] = None,
+        ref: Optional[str] = None,
+        fk_stored_field_name: Optional[str] = None,
         **kwargs,
-    ):
+    ) -> bool:
         """Returns False or raises a ValidationError."""
         cleaned_data = self.cleaned_data
         other = other_stored_value or OTHER
