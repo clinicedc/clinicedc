@@ -45,19 +45,19 @@ class SiteProfile(models.Model):
 
 class EdcSite(Site):
     @property
-    def title(self):
+    def title(self) -> str:
         return SiteProfile.objects.get(site=self).title
 
     @property
-    def description(self):
+    def description(self) -> str:
         return SiteProfile.objects.get(site=self).description
 
     @property
-    def country(self):
+    def country(self) -> str:
         return SiteProfile.objects.get(site=self).country
 
     @property
-    def country_code(self):
+    def country_code(self) -> str:
         return SiteProfile.objects.get(site=self).country_code
 
     class Meta:
