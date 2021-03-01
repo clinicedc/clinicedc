@@ -1,3 +1,6 @@
+from datetime import date, datetime
+from typing import Optional, Union
+
 import arrow
 import pytz
 from dateutil.relativedelta import relativedelta
@@ -14,7 +17,7 @@ class AgeFormatError(Exception):
     pass
 
 
-def get_dob(age_in_years, now=None):
+def get_dob(age_in_years, now=None) -> date:
     """Returns a DoB for the given age relative to now.
 
     Used in tests.
@@ -27,7 +30,11 @@ def get_dob(age_in_years, now=None):
     return now - relativedelta(years=age_in_years)
 
 
-def age(born=None, reference_dt=None, timezone=None):
+def age(
+    born: Union[date, datetime],
+    reference_dt: Union[date, datetime],
+    timezone: Optional[str] = None,
+) -> relativedelta:
     """Returns a relative delta.
 
     Convert dates or datetimes to UTC datetimes.
@@ -45,7 +52,11 @@ def age(born=None, reference_dt=None, timezone=None):
     return rdelta
 
 
-def formatted_age(born, reference_dt=None, timezone=None):
+def formatted_age(
+    born: Union[date, datetime],
+    reference_dt: Union[date, datetime],
+    timezone: Optional[str] = None,
+) -> str:
     formatted_age_ = "?"
     if born:
         timezone = timezone or getattr(settings, "TIME_ZONE", "UTC")
@@ -66,6 +77,8 @@ def formatted_age(born, reference_dt=None, timezone=None):
     return formatted_age_
 
 
-def get_age_in_days(reference_datetime, dob):
+def get_age_in_days(
+    reference_datetime: Union[date, datetime], dob: Union[date, datetime]
+) -> int:
     age_delta = age(dob, reference_datetime)
     return age_delta.days
