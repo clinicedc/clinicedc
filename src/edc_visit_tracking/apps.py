@@ -17,12 +17,10 @@ class AppConfig(DjangoAppConfig):
     #   set to not allow CRF report_datetimes to exceed the
     #   visit report_datetime
     #   by more than X days. Set to -1 to ignore
-    report_datetime_allowance = 30
-    allow_crf_report_datetime_before_visit = False
-    reason_field = {}
+    report_datetime_allowance: int = 30
+    allow_crf_report_datetime_before_visit: bool = False
+    reason_field: dict = {}
 
     def ready(self):
-        from .signals import visit_tracking_check_in_progress_on_post_save
-
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
         sys.stdout.write(f" Done loading {self.verbose_name}.\n")

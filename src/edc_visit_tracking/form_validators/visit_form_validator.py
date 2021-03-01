@@ -1,3 +1,5 @@
+from typing import List, Optional
+
 from django import forms
 from django.conf import settings
 from edc_constants.constants import OTHER
@@ -21,7 +23,7 @@ class VisitFormValidator(FormValidator):
     validate_missed_visit_reason = True
     validate_unscheduled_visit_reason = True
 
-    def clean(self):
+    def clean(self) -> None:
         appointment = self.cleaned_data.get("appointment")
         if not appointment:
             raise forms.ValidationError(
@@ -39,7 +41,7 @@ class VisitFormValidator(FormValidator):
 
         self.validate_required_fields()
 
-    def validate_visit_code_sequence_and_reason(self):
+    def validate_visit_code_sequence_and_reason(self) -> None:
         appointment = self.cleaned_data.get("appointment")
         reason = self.cleaned_data.get("reason")
         if appointment:
@@ -76,7 +78,7 @@ class VisitFormValidator(FormValidator):
                     code=INVALID_ERROR,
                 )
 
-    def validate_required_fields(self):
+    def validate_required_fields(self) -> None:
 
         if self.validate_missed_visit_reason:
             self.required_if(MISSED_VISIT, field="reason", field_required="reason_missed")
@@ -99,11 +101,16 @@ class VisitFormValidator(FormValidator):
 
         self.required_if(OTHER, field="info_source", field_required="info_source_other")
 
-    def metadata_exists_for(self, entry_status=None, filter_models=None, exclude_models=None):
+    def metadata_exists_for(
+        self,
+        entry_status: str = None,
+        filter_models: Optional[List[str]] = None,
+        exclude_models: Optional[List[str]] = None,
+    ) -> bool:
         """Returns True if metadata exists for this visit for
         the given entry_status.
         """
-        exclude_opts = {}
+        exclude_opts: dict = {}
         filter_opts = self.crf_options
         filter_opts.update(entry_status=entry_status or KEYED)
         if filter_models:
@@ -116,7 +123,7 @@ class VisitFormValidator(FormValidator):
         )
 
     @property
-    def crf_options(self):
+    def crf_options(self) -> dict:
         appointment = self.cleaned_data.get("appointment")
         return dict(
             subject_identifier=appointment.subject_identifier,

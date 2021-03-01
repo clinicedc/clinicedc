@@ -1,5 +1,8 @@
+from typing import Union
+
 from django import forms
 from django.conf import settings
+from edc_crf.stubs import CrfModelFormStub
 
 from ..crf_date_validator import (
     CrfDateValidator,
@@ -7,16 +10,7 @@ from ..crf_date_validator import (
     CrfReportDateBeforeStudyStart,
     CrfReportDateIsFuture,
 )
-
-
-def get_subject_visit(modelform, subject_visit_attr=None):
-    if subject_visit_attr not in modelform.cleaned_data:
-        subject_visit = getattr(modelform.instance, subject_visit_attr, None)
-        if not subject_visit:
-            raise forms.ValidationError(f"Field `{subject_visit_attr}` is required (2).")
-    else:
-        subject_visit = modelform.cleaned_data.get(subject_visit_attr)
-    return subject_visit
+from .utils import get_subject_visit
 
 
 class VisitTrackingModelFormMixin:
@@ -29,12 +23,12 @@ class VisitTrackingModelFormMixin:
     crf_date_validator_cls = CrfDateValidator
     report_datetime_allowance = getattr(settings, "DEFAULT_REPORT_DATETIME_ALLOWANCE", 0)
 
-    def clean(self):
+    def clean(self) -> dict:
         """Triggers a validation error if subject visit is None.
 
         If subject visit, validate report_datetime.
         """
-        cleaned_data = super().clean()
+        cleaned_data = super().clean()  # type: ignore
 
         # trigger a validation error if visit field is None
         # no comment needed since django will catch it as
@@ -62,9 +56,9 @@ class VisitTrackingModelFormMixin:
         return cleaned_data
 
     @property
-    def subject_visit(self):
+    def subject_visit(self: Union["VisitTrackingModelFormMixin", CrfModelFormStub]):
         return get_subject_visit(self, subject_visit_attr=self.subject_visit_attr)
 
     @property
-    def subject_visit_attr(self):
+    def subject_visit_attr(self: CrfModelFormStub):
         return self._meta.model.visit_model_attr()

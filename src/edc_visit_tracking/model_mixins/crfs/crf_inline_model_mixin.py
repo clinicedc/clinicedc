@@ -1,17 +1,22 @@
+from datetime import datetime
+
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models import ForeignKey, OneToOneField, options
+from edc_crf.stubs import CrfModelStub
+
+from edc_visit_tracking.stubs import SubjectVisitModelStub, TSubjectVisitModelStub
 
 options.DEFAULT_NAMES = options.DEFAULT_NAMES + ("crf_inline_parent",)
 
 
 class InlineVisitMethodsModelMixin(models.Model):
     @property
-    def visit_code(self):
+    def visit_code(self: CrfModelStub):
         return self.subject_visit.visit_code
 
     @property
-    def subject_identifier(self):
+    def subject_identifier(self: CrfModelStub):
         return self.subject_visit.subject_identifier
 
     class Meta:
@@ -21,7 +26,7 @@ class InlineVisitMethodsModelMixin(models.Model):
 class CrfInlineModelMixin(InlineVisitMethodsModelMixin, models.Model):
     """A mixin for models used as inlines in ModelAdmin."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """Try to detect the inline parent model attribute
         name or raise.
         """
@@ -44,10 +49,10 @@ class CrfInlineModelMixin(InlineVisitMethodsModelMixin, models.Model):
                     "explicitly in Meta."
                 )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.parent_instance.subject_visit)
 
-    def natural_key(self):
+    def natural_key(self) -> tuple:
         return self.subject_visit.natural_key()
 
     @property
@@ -56,7 +61,7 @@ class CrfInlineModelMixin(InlineVisitMethodsModelMixin, models.Model):
         return getattr(self, self._meta.crf_inline_parent)
 
     @property
-    def parent_model(self):
+    def parent_model(self) -> TSubjectVisitModelStub:
         """Return the class of the inline parent model."""
         field = getattr(self.__class__, self._meta.crf_inline_parent).field
         try:
@@ -65,19 +70,19 @@ class CrfInlineModelMixin(InlineVisitMethodsModelMixin, models.Model):
             return field.remote_field.model  # django 2.0 +
 
     @property
-    def subject_visit(self):
+    def subject_visit(self) -> SubjectVisitModelStub:
         """Return the instance of the inline parent model's visit
         model.
         """
         return getattr(self.parent_instance, self.parent_model.visit_model_attr())
 
     @property
-    def report_datetime(self):
+    def report_datetime(self) -> datetime:
         """Return the instance of the inline parent model's
         report_datetime.
         """
         return self.subject_visit.report_datetime
 
     class Meta:
-        crf_inline_parent = None
+        crf_inline_parent: str = None
         abstract = True

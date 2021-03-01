@@ -7,6 +7,7 @@ from edc_visit_schedule.fieldsets import (
 )
 
 from edc_visit_tracking.constants import UNSCHEDULED
+from edc_visit_tracking.stubs import SubjectVisitModelStub
 
 
 class VisitModelAdminMixin:
@@ -76,10 +77,12 @@ class VisitModelAdminMixin:
         "require_crfs",
     ]
 
-    def subject_identifier(self, obj=None):
+    @staticmethod
+    def subject_identifier(obj: SubjectVisitModelStub = None) -> str:
         return obj.appointment.subject_identifier
 
-    def visit_reason(self, obj=None):
+    @staticmethod
+    def visit_reason(obj: SubjectVisitModelStub = None) -> str:
         if obj.reason != UNSCHEDULED:
             visit_reason = obj.get_reason_display()
         else:
@@ -89,13 +92,15 @@ class VisitModelAdminMixin:
                 visit_reason = obj.get_reason_unscheduled_display()
         return visit_reason
 
-    def status(self, obj=None):
+    @staticmethod
+    def status(obj: SubjectVisitModelStub = None) -> str:
         return obj.study_status
 
-    def scheduled_data(self, obj=None):
+    @staticmethod
+    def scheduled_data(obj: SubjectVisitModelStub = None) -> str:
         return obj.get_require_crfs_display()
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):  # type: ignore
         db = kwargs.get("using")
         if db_field.name == "appointment" and request.GET.get("appointment"):
             kwargs["queryset"] = db_field.related_model._default_manager.using(db).filter(
@@ -105,6 +110,6 @@ class VisitModelAdminMixin:
             kwargs["queryset"] = db_field.related_model._default_manager.none()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
-    def get_readonly_fields(self, request, obj=None):
-        readonly_fields = super().get_readonly_fields(request, obj=obj)
+    def get_readonly_fields(self, request, obj=None) -> list:
+        readonly_fields = super().get_readonly_fields(request, obj=obj)  # type: ignore
         return list(readonly_fields) + list(visit_schedule_fields)

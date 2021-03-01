@@ -27,7 +27,7 @@ class VisitModelFieldsMixin(models.Model):
     )
 
     reason_unscheduled = models.CharField(
-        verbose_name=("If 'unscheduled', provide the reason for " "the unscheduled visit"),
+        verbose_name="If 'unscheduled', provide the reason for " "the unscheduled visit",
         max_length=25,
         choices=VISIT_REASON_UNSCHEDULED,
         default=NOT_APPLICABLE,

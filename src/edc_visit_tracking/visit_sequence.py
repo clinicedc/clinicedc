@@ -1,4 +1,7 @@
+from typing import Optional
+
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from edc_appointment.stubs import AppointmentModelStub
 
 
 class VisitSequenceError(Exception):
@@ -11,7 +14,7 @@ class VisitSequence:
     that visits are filled in sequence.
     """
 
-    def __init__(self, appointment=None):
+    def __init__(self, appointment: AppointmentModelStub) -> None:
         self.appointment = appointment
         self.appointment_model_cls = self.appointment.__class__
         self.model_cls = getattr(
@@ -23,12 +26,12 @@ class VisitSequence:
         self.visit_code = self.appointment.visit_code
         self.visit_code_sequence = self.appointment.visit_code_sequence
 
-    def enforce_sequence(self):
+    def enforce_sequence(self) -> None:
         """Raises an exception if sequence is not adhered to; that is,
         the visits are not completed in order.
         """
         try:
-            self.previous_visit
+            self.get_previous_visit()
         except ObjectDoesNotExist:
             previous_visit_code_sequence = (
                 0 if not self.visit_code_sequence else self.visit_code_sequence - 1
@@ -40,7 +43,7 @@ class VisitSequence:
             )
 
     @property
-    def previous_visit_code(self):
+    def previous_visit_code(self) -> str:
         """Return the previous visit code or the existing
         visit code if sequence is not 0.
         """
@@ -56,7 +59,7 @@ class VisitSequence:
         return previous_visit_code
 
     @property
-    def previous_appointment(self):
+    def previous_appointment(self) -> Optional[AppointmentModelStub]:
         """Returns the previous appointment model instance or None.
 
         Considers visit code sequence.
@@ -113,8 +116,11 @@ class VisitSequence:
         return previous_appointment
 
     @property
-    def previous_visit(self):
-        """Returns the previous visit model instance if it exists."""
+    def previous_visit(self) -> Optional[AppointmentModelStub]:
+        """Returns the previous visit model instance if it exists"""
         if self.previous_appointment:
             return self.model_cls.objects.get(appointment=self.previous_appointment)
         return None
+
+    def get_previous_visit(self) -> Optional[AppointmentModelStub]:
+        return self.previous_visit

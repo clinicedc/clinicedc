@@ -5,6 +5,8 @@ from edc_constants.constants import NO, YES
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 
+from edc_visit_tracking.stubs import SubjectVisitModelStub
+
 from ...constants import MISSED_VISIT, NO_FOLLOW_UP_REASONS
 from ...managers import VisitModelManager
 from ..previous_visit_model_mixin import PreviousVisitModelMixin
@@ -33,10 +35,10 @@ class VisitModelMixin(
 
     objects = VisitModelManager()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.subject_identifier} {self.visit_code}.{self.visit_code_sequence}"
 
-    def save(self, *args, **kwargs):
+    def save(self: SubjectVisitModelStub, *args, **kwargs):
         self.subject_identifier = self.appointment.subject_identifier
         self.visit_schedule_name = self.appointment.visit_schedule_name
         self.schedule_name = self.appointment.schedule_name
@@ -44,9 +46,9 @@ class VisitModelMixin(
         self.visit_code_sequence = self.appointment.visit_code_sequence
         # TODO: may be a problem with crfs_missed
         self.require_crfs = NO if self.reason == MISSED_VISIT else YES
-        super().save(*args, **kwargs)
+        super().save(*args, **kwargs)  # type:ignore
 
-    def natural_key(self):
+    def natural_key(self) -> tuple:
         return (
             self.subject_identifier,
             self.visit_schedule_name,
@@ -55,13 +57,15 @@ class VisitModelMixin(
             self.visit_code_sequence,
         )
 
-    natural_key.dependencies = ["edc_appointment.appointment"]
+    # noinspection PyTypeHints
+    natural_key.dependencies = ["edc_appointment.appointment"]  # type:ignore
 
     @property
-    def timepoint(self):
+    def timepoint(self: SubjectVisitModelStub) -> int:
         return self.appointment.timepoint
 
-    def get_visit_reason_no_follow_up_choices(self):
+    @staticmethod
+    def get_visit_reason_no_follow_up_choices() -> dict:
         """Returns the visit reasons that do not imply any
         data collection; that is, the subject is not available.
         """
@@ -70,7 +74,7 @@ class VisitModelMixin(
             dct.update({item: item})
         return dct
 
-    def post_save_check_appointment_in_progress(self):
+    def check_appointment_in_progress(self: SubjectVisitModelStub) -> None:
         if self.reason in self.get_visit_reason_no_follow_up_choices():
             if self.appointment.appt_status != COMPLETE_APPT:
                 self.appointment.appt_status = COMPLETE_APPT

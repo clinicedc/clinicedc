@@ -1,5 +1,9 @@
-from django.db import models
+from typing import Union
 
+from django.db import models
+from edc_crf.stubs import CrfModelStub
+
+from ..stubs import SubjectVisitModelStub
 from ..visit_sequence import VisitSequence, VisitSequenceError
 
 
@@ -18,7 +22,11 @@ class PreviousVisitModelMixin(models.Model):
 
     visit_sequence_cls = VisitSequence
 
-    def save(self, *args, **kwargs):
+    def save(
+        self: Union[CrfModelStub, SubjectVisitModelStub, "PreviousVisitModelMixin"],
+        *args,
+        **kwargs
+    ):
         try:
             appointment = self.subject_visit.appointment
         except AttributeError:
@@ -28,10 +36,12 @@ class PreviousVisitModelMixin(models.Model):
             visit_sequence.enforce_sequence()
         except VisitSequenceError as e:
             raise PreviousVisitError(e)
-        super().save(*args, **kwargs)
+        super().save(*args, **kwargs)  # type: ignore
 
     @property
-    def previous_visit(self):
+    def previous_visit(
+        self: Union[CrfModelStub, SubjectVisitModelStub, "PreviousVisitModelMixin"]
+    ):
         try:
             appointment = self.subject_visit.appointment
         except AttributeError:

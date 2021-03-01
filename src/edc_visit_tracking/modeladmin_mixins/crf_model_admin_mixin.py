@@ -1,3 +1,10 @@
+from typing import List, Union
+
+from django.contrib import admin
+
+from edc_visit_tracking.stubs import TSubjectVisitModelStub
+
+
 class CrfModelAdminMixin:
 
     """ModelAdmin subclass for models with a ForeignKey to your
@@ -15,8 +22,8 @@ class CrfModelAdminMixin:
     def subject_identifier(self, obj=None):
         return getattr(obj, self.visit_model_attr).subject_identifier
 
-    def get_list_display(self, request):
-        list_display = super().get_list_display(request)
+    def get_list_display(self: Union["CrfModelAdminMixin", admin.ModelAdmin], request) -> List:
+        list_display = super().get_list_display(request)  # type: ignore
         fields = [self.visit_code, self.visit_reason]
         fields_first = [self.subject_identifier, "report_datetime"]
         list_display = list(list_display)
@@ -31,14 +38,14 @@ class CrfModelAdminMixin:
         )
         return list_display
 
-    def get_search_fields(self, request):
-        search_fields = super().get_search_fields(request)
+    def get_search_fields(self, request) -> List:
+        search_fields = super().get_search_fields(request)  # type: ignore
         fields = [f"{self.visit_model_attr}__appointment__subject_identifier"]
         search_fields = [f for f in fields if f not in search_fields] + list(search_fields)
         return search_fields
 
-    def get_list_filter(self, request):
-        list_filter = super().get_list_filter(request)
+    def get_list_filter(self: Union["CrfModelAdminMixin", admin.ModelAdmin], request) -> List:
+        list_filter = super().get_list_filter(request)  # type: ignore
         fields = [
             f"{self.visit_model_attr}__report_datetime",
             f"{self.visit_model_attr}__appointment__visit_code",
@@ -49,11 +56,11 @@ class CrfModelAdminMixin:
         return list_filter
 
     @property
-    def visit_model(self):
+    def visit_model(self: admin.ModelAdmin) -> TSubjectVisitModelStub:
         return self.model.visit_model_cls()
 
     @property
-    def visit_model_attr(self):
+    def visit_model_attr(self: admin.ModelAdmin) -> str:
         return self.model.visit_model_attr()
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -65,10 +72,10 @@ class CrfModelAdminMixin:
                 )
             else:
                 kwargs["queryset"] = self.visit_model._default_manager.none()
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)  # type: ignore
 
-    def get_readonly_fields(self, request, obj=None):
-        readonly_fields = super().get_readonly_fields(request, obj=obj)
+    def get_readonly_fields(self, request, obj=None) -> List:
+        readonly_fields = super().get_readonly_fields(request, obj=obj)  # type: ignore
         if (
             not request.GET.get(self.visit_model_attr)
             and self.visit_model_attr not in readonly_fields
