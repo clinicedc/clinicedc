@@ -20,7 +20,7 @@ class AgeEvaluator(Evaluator):
         kwargs["upper_inclusive"] = age_upper_inclusive
         super().__init__(**kwargs)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.description(show_as_int=True)})"
 
     def description(self, value=None, **kwargs):
