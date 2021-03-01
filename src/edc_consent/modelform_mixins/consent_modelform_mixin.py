@@ -5,7 +5,7 @@ from django.forms.utils import ErrorList
 from django.utils import timezone
 from edc_constants.constants import NO, YES
 from edc_registration.models import RegisteredSubject
-from edc_utils import age, formatted_age
+from edc_utils import AgeValueError, age, formatted_age
 
 from ..consent_helper import ConsentHelper
 from ..exceptions import ConsentObjectDoesNotExist
@@ -69,7 +69,10 @@ class ConsentModelFormMixin(BaseModelForm):
         )
         dob = self.cleaned_data.get("dob")
         if consent_datetime and dob:
-            return age(dob, consent_datetime)
+            try:
+                return age(dob, consent_datetime)
+            except AgeValueError as e:
+                raise forms.ValidationError(str(e))
         return None
 
     @staticmethod

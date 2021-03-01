@@ -1,4 +1,8 @@
+from django.apps import apps as django_apps
+from django.conf import settings
 from django.contrib import admin
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from edc_identifier import SubjectIdentifierError, is_subject_identifier_or_raise
 
 from .actions import flag_as_verified_against_paper, unflag_as_verified_against_paper
 
@@ -109,3 +113,38 @@ class ModelAdminConsentMixin(admin.ModelAdmin):
             self.list_filter
         )
         return self.list_filter
+
+    def delete_view(self, request, object_id, extra_context=None):
+        """Prevent deletion if SubjectVisit objects exist."""
+        extra_context = extra_context or {}
+        subject_consent_model_cls = django_apps.get_model(settings.SUBJECT_CONSENT_MODEL)
+        subject_visit_model_cls = django_apps.get_model(settings.SUBJECT_VISIT_MODEL)
+        obj = subject_consent_model_cls.objects.get(id=object_id)
+        try:
+            protected = [
+                subject_visit_model_cls.objects.get(subject_identifier=obj.subject_identifier)
+            ]
+        except ObjectDoesNotExist:
+            protected = None
+        except MultipleObjectsReturned:
+            protected = subject_visit_model_cls.objects.filter(
+                subject_identifier=obj.subject_identifier
+            )
+        extra_context.update({"protected": protected})
+        return super().delete_view(request, object_id, extra_context)
+
+    def get_next_options(self, request=None, **kwargs):
+        """Returns the key/value pairs from the "next" querystring
+        as a dictionary.
+        """
+        subject_screening_model_cls = django_apps.get_model(settings.SUBJECT_SCREENING_MODEL)
+        next_options = super().get_next_options(request=request, **kwargs)
+        try:
+            is_subject_identifier_or_raise(next_options["subject_identifier"])
+        except SubjectIdentifierError:
+            next_options["subject_identifier"] = subject_screening_model_cls.objects.get(
+                subject_identifier_as_pk=next_options["subject_identifier"]
+            ).subject_identifier
+        except KeyError:
+            pass
+        return next_options

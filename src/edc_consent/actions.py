@@ -31,7 +31,10 @@ def flag_as_verified_against_paper(modeladmin, request, queryset, **kwargs):
         )
 
 
-flag_as_verified_against_paper.short_description = "Verify consent against paper document"
+# noinspection PyTypeHints
+flag_as_verified_against_paper.short_description = (  # type:ignore
+    "Verify consent against paper document"  # type:ignore
+)  # type:ignore
 
 
 def unflag_as_verified_against_paper(modeladmin, request, queryset, **kwargs):
@@ -40,4 +43,5 @@ def unflag_as_verified_against_paper(modeladmin, request, queryset, **kwargs):
         unverify_consent(consent_obj)
 
 
-unflag_as_verified_against_paper.short_description = "Unverify consent"
+# noinspection PyTypeHints
+unflag_as_verified_against_paper.short_description = "Unverify consent"  # type:ignore

@@ -1,10 +1,10 @@
-from dateutil.relativedelta import relativedelta
 from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from edc_form_validators import FormValidator
-from edc_screening.utils import get_subject_screening_model
+from edc_screening.utils import get_subject_screening_model_name
+from edc_utils import AgeValueError, age
 from edc_utils.date import to_utc
 from edc_utils.text import convert_php_dateformat
 from pytz import timezone
@@ -12,7 +12,7 @@ from pytz import timezone
 
 class SubjectConsentFormValidatorMixin(FormValidator):
 
-    subject_screening_model = get_subject_screening_model()
+    subject_screening_model = get_subject_screening_model_name()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -65,18 +65,22 @@ class SubjectConsentFormValidatorMixin(FormValidator):
                 )
         return self._subject_screening
 
+    @property
+    def screening_age_in_years(self):
+        try:
+            return age(self.dob, self.subject_screening.report_datetime.date())
+        except AgeValueError as e:
+            raise forms.ValidationError(str(e))
+
     def validate_age(self):
         """Validate age matches that on the screening form."""
-        screening_age_in_years = relativedelta(
-            self.subject_screening.report_datetime.date(), self.dob
-        ).years
-        if screening_age_in_years != self.subject_screening.age_in_years:
+        if self.screening_age_in_years != self.subject_screening.age_in_years:
             raise forms.ValidationError(
                 {
                     "dob": "Age mismatch. The date of birth entered does "
                     f"not match the age at screening. "
                     f"Expected {self.subject_screening.age_in_years}. "
-                    f"Got {screening_age_in_years}."
+                    f"Got {self.screening_age_in_years}."
                 }
             )
 
