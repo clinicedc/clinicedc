@@ -1,8 +1,10 @@
 import random
 import re
+from typing import Optional, Type
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
 from django.utils import timezone
 from edc_utils import get_utcnow
 
@@ -15,34 +17,34 @@ class IdentifierError(Exception):
     pass
 
 
-def make_human_readable(identifier):
-    return "-".join(re.findall(".{1,4}", identifier))
+def convert_to_human_readable(identifier: str) -> str:
+    return "-".join(re.findall(r".{1,4}", identifier))
 
 
 class SimpleIdentifier:
 
-    random_string_length = 5
-    template = "{device_id}{random_string}"
-    identifier_prefix = None
+    random_string_length: int = 5
+    template: str = "{device_id}{random_string}"
+    identifier_prefix: str = None
 
     def __init__(
         self,
-        template=None,
-        random_string_length=None,
-        identifier_prefix=None,
-        device_id=None,
-    ):
-        self._identifier = None
+        template: Optional[str] = None,
+        random_string_length: Optional[int] = None,
+        identifier_prefix: Optional[str] = None,
+        device_id: Optional[str] = None,
+    ) -> None:
+        self._identifier: Optional[str] = None
         self.template = template or self.template
         self.random_string_length = random_string_length or self.random_string_length
         self.device_id = device_id or django_apps.get_app_config("edc_device").device_id
         self.identifier_prefix = identifier_prefix or self.identifier_prefix
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.identifier
 
     @property
-    def identifier(self):
+    def identifier(self) -> str:
         if not self._identifier:
             self._identifier = self.template.format(
                 device_id=self.device_id, random_string=self.random_string
@@ -52,7 +54,7 @@ class SimpleIdentifier:
         return self._identifier
 
     @property
-    def random_string(self):
+    def random_string(self) -> str:
         return "".join(
             [
                 random.choice("ABCDEFGHKMNPRTUVWXYZ2346789")
@@ -63,11 +65,11 @@ class SimpleIdentifier:
 
 class SimpleTimestampIdentifier(SimpleIdentifier):
 
-    timestamp_format = "%y%m%d%H%M%S%f"
-    timestamp_length = 14
+    timestamp_format: str = "%y%m%d%H%M%S%f"
+    timestamp_length: int = 14
 
     @property
-    def identifier(self):
+    def identifier(self) -> str:
         if not self._identifier:
             self._identifier = self.template.format(
                 device_id=self.device_id,
@@ -83,16 +85,16 @@ class SimpleTimestampIdentifier(SimpleIdentifier):
 
 class SimpleSequentialIdentifier:
 
-    prefix = None
+    prefix: Optional[str] = None
 
     def __init__(self):
-        sequence = int(get_utcnow().timestamp())
-        random_number = random.choice(range(1000, 9999))
-        sequence = f"{sequence}{random_number}"
-        chk = int(sequence) % 11
-        self.identifier = f'{self.prefix or ""}{sequence}{chk}'
+        sequence: int = int(get_utcnow().timestamp())
+        random_number: int = random.choice(range(1000, 9999))
+        sequence: str = f"{sequence}{random_number}"
+        chk: int = int(sequence) % 11
+        self.identifier: str = f'{self.prefix or ""}{sequence}{chk}'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.identifier
 
 
@@ -106,28 +108,28 @@ class SimpleUniqueIdentifier:
         template = 'M{device_id}{random_string}'
     """
 
-    random_string_length = 5
-    identifier_type = "simple_identifier"
-    identifier_attr = "identifier"
-    model = "edc_identifier.identifiermodel"
-    template = "{device_id}{random_string}"
-    identifier_prefix = None
+    random_string_length: int = 5
+    identifier_type: str = "simple_identifier"
+    identifier_attr: str = "identifier"
+    model: str = "edc_identifier.identifiermodel"
+    template: str = "{device_id}{random_string}"
+    identifier_prefix: Optional[str] = None
     identifier_cls = SimpleIdentifier
-    make_human_readable = None
+    make_human_readable: Optional[bool] = None
 
     def __init__(
         self,
-        model=None,
-        identifier_attr=None,
-        identifier_type=None,
-        identifier_prefix=None,
-        make_human_readable=None,
-        linked_identifier=None,
-        protocol_number=None,
-        source_model=None,
-        subject_identifier=None,
+        model: str = None,
+        identifier_attr: Optional[str] = None,
+        identifier_type: Optional[str] = None,
+        identifier_prefix: Optional[str] = None,
+        make_human_readable: Optional[bool] = None,
+        linked_identifier: Optional[str] = None,
+        protocol_number: Optional[str] = None,
+        source_model: Optional[str] = None,
+        subject_identifier: Optional[str] = None,
     ):
-        self._identifier = None
+        self._identifier: str = None
         self.model = model or self.model
         self.identifier_attr = identifier_attr or self.identifier_attr
         self.identifier_type = identifier_type or self.identifier_type
@@ -153,7 +155,7 @@ class SimpleUniqueIdentifier:
         return self.identifier
 
     @property
-    def identifier(self):
+    def identifier(self) -> str:
         if not self._identifier:
             identifier = self._get_new_identifier()
             tries = 1
@@ -175,10 +177,10 @@ class SimpleUniqueIdentifier:
                     )
             self._identifier = identifier
             if self.make_human_readable:
-                self._identifier = make_human_readable(identifier)
+                self._identifier = convert_to_human_readable(identifier)
         return self._identifier
 
-    def _get_new_identifier(self):
+    def _get_new_identifier(self) -> str:
         """Returns a new identifier."""
         identifier_obj = self.identifier_cls(
             template=self.template,
@@ -189,5 +191,5 @@ class SimpleUniqueIdentifier:
         return identifier_obj.identifier
 
     @property
-    def model_cls(self):
+    def model_cls(self) -> Type[models.Model]:
         return django_apps.get_model(self.model)

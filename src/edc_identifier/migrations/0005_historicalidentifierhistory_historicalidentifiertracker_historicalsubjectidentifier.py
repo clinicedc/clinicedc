@@ -4,11 +4,11 @@ from __future__ import unicode_literals
 
 import django.db.models.deletion
 import django.utils.timezone
+import django_audit_fields.fields.uuid_auto_field
 import django_extensions.db.fields
 import django_revision.revision_field
 import edc_model_fields.fields.hostname_modification_field
 import edc_model_fields.fields.userfield
-import edc_model_fields.fields.uuid_auto_field
 from django.conf import settings
 from django.db import migrations, models
 
@@ -119,7 +119,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "id",
-                    edc_model_fields.fields.uuid_auto_field.UUIDAutoField(
+                    django_audit_fields.fields.uuid_auto_field.UUIDAutoField(
                         blank=True,
                         db_index=True,
                         editable=False,
@@ -142,7 +142,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "history_id",
-                    edc_model_fields.fields.uuid_auto_field.UUIDAutoField(
+                    django_audit_fields.fields.uuid_auto_field.UUIDAutoField(
                         primary_key=True, serialize=False
                     ),
                 ),
@@ -219,7 +219,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "id",
-                    edc_model_fields.fields.uuid_auto_field.UUIDAutoField(
+                    django_audit_fields.fields.uuid_auto_field.UUIDAutoField(
                         blank=True,
                         db_index=True,
                         editable=False,
@@ -252,7 +252,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "history_id",
-                    edc_model_fields.fields.uuid_auto_field.UUIDAutoField(
+                    django_audit_fields.fields.uuid_auto_field.UUIDAutoField(
                         primary_key=True, serialize=False
                     ),
                 ),

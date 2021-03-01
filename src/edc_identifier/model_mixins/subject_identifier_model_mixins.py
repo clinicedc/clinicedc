@@ -1,4 +1,5 @@
 import re
+from typing import Union
 from uuid import uuid4
 
 from django.apps import apps as django_apps
@@ -63,7 +64,7 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
             self.subject_identifier = self.update_subject_identifier_on_save()
         super().save(*args, **kwargs)
 
-    def update_subject_identifier_on_save(self):
+    def update_subject_identifier_on_save(self) -> Union[str, models.CharField]:
         """Returns a subject_identifier if not already set."""
         if not self.subject_identifier:
             self.subject_identifier = self.get_or_create_identifier()
@@ -76,7 +77,7 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
         """Returns the registered subject model class."""
         return django_apps.get_model("edc_registration.registeredsubject")
 
-    def get_or_create_identifier(self):
+    def get_or_create_identifier(self) -> str:
         """Returns a subject identifier either by retrieving and
         exisiting "subject identifier from RegisteredSubject or
         creating a new and unique "subject" identifier.
@@ -87,7 +88,7 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
             subject_identifier = self.make_new_identifier()
         return subject_identifier
 
-    def make_new_identifier(self):
+    def make_new_identifier(self) -> str:
         """Returns a new and unique identifier.
 
         Override this if needed.

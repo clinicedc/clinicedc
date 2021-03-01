@@ -1,4 +1,5 @@
 from string import Formatter
+from typing import Optional
 
 from django.apps import apps as django_apps
 from django.contrib.sites.models import Site
@@ -14,23 +15,25 @@ class IdentifierMissingTemplateValue(Exception):
 
 
 class ResearchIdentifier:
-    label = None  # e.g. subject_identifier, plot_identifier, etc
-    identifier_type = None  # e.g. 'subject', 'infant', 'plot', a.k.a subject_type
-    template = None
-    padding = 5
+    label: str = None  # e.g. subject_identifier, plot_identifier, etc
+    identifier_type: Optional[
+        str
+    ] = None  # e.g. 'subject', 'infant', 'plot', a.k.a subject_type
+    template: Optional[str] = None
+    padding: int = 5
     checkdigit = LuhnMixin()
     identifier_model_cls = IdentifierModel
 
     def __init__(
         self,
-        identifier_type=None,
-        template=None,
-        device_id=None,
-        protocol_number=None,
-        site=None,
-        requesting_model=None,
-        identifier=None,
-    ):
+        identifier_type: Optional[str] = None,
+        template: Optional[str] = None,
+        device_id: Optional[str] = None,
+        protocol_number: Optional[str] = None,
+        site: Site = None,
+        requesting_model: Optional[str] = None,
+        identifier: Optional[str] = None,
+    ) -> None:
 
         self._identifier = None
         self.requesting_model = requesting_model
@@ -52,16 +55,16 @@ class ResearchIdentifier:
             self._identifier = self.identifier_model.identifier
             self.subject_type = self.identifier_model.subject_type
             self.site = self.identifier_model.site
-        self.identifier
+        self.get_identifier()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.label})"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.identifier
 
     @property
-    def identifier(self):
+    def identifier(self) -> str:
         """Returns a new and unique identifier and updates
         the IdentifierModel.
         """
@@ -78,8 +81,11 @@ class ResearchIdentifier:
             self.post_identifier()
         return self._identifier
 
+    def get_identifier(self) -> str:
+        return self.identifier
+
     @property
-    def identifier_options(self):
+    def identifier_options(self) -> dict:
         return dict(
             name=self.label,
             sequence_number=self.sequence_number,
@@ -91,18 +97,18 @@ class ResearchIdentifier:
             identifier_type=self.identifier_type,
         )
 
-    def pre_identifier(self):
+    def pre_identifier(self) -> None:
         pass
 
-    def post_identifier(self):
+    def post_identifier(self) -> None:
         pass
 
     @property
-    def template_opts(self):
+    def template_opts(self) -> dict:
         """Returns the template key/values, if a key from the template
         does not exist raises an exception.
         """
-        template_opts = {}
+        template_opts: dict = {}
         formatter = Formatter()
         keys = [opt[1] for opt in formatter.parse(self.template) if opt[1] not in ["sequence"]]
         template_opts.update(sequence=str(self.sequence_number).rjust(self.padding, "0"))
@@ -123,11 +129,11 @@ class ResearchIdentifier:
         return template_opts
 
     @property
-    def site_id(self):
+    def site_id(self) -> str:
         return str(self.site.pk)
 
     @property
-    def sequence_number(self):
+    def sequence_number(self) -> int:
         """Returns the next sequence number to use."""
         try:
             identifier_model = (
