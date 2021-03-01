@@ -1,3 +1,5 @@
+from typing import List
+
 from django.db import models
 
 from .updater import SearchSlugUpdater
@@ -8,7 +10,7 @@ class SearchSlugManager(models.Manager):
     search_slug_updater_cls = SearchSlugUpdater
     search_slug_field_name = "slug"
 
-    def update_search_slugs(self):
+    def update_search_slugs(self) -> None:
         for obj in self.all():
             updater = self.search_slug_updater_cls(
                 fields=obj.get_search_slug_fields(), model_obj=obj
@@ -22,7 +24,7 @@ class SearchSlugModelMixin(models.Model):
     search_slug_warning = None
     search_slug_updater_cls = SearchSlugUpdater
 
-    def get_search_slug_fields(self):
+    def get_search_slug_fields(self) -> List[str]:
         return []
 
     slug = models.CharField(
