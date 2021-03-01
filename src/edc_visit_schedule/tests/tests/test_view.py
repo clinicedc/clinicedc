@@ -19,11 +19,11 @@ from visit_schedule_app.models import OnSchedule, SubjectConsent
 
 
 class MyView(VisitScheduleViewMixin):
-    kwargs = {}
+    kwargs: dict = {}
 
 
 class MyViewCurrent(VisitScheduleViewMixin):
-    kwargs = {}
+    kwargs: dict = {}
 
 
 @override_settings(

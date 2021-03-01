@@ -1,6 +1,28 @@
+from typing import Protocol
+
 from django.db import models
 
+from ..schedule import Schedule, VisitCollection
 from ..site_visit_schedules import site_visit_schedules
+from ..visit import Visit
+from ..visit_schedule import VisitSchedule
+
+
+class MetaStub(Protocol):
+    visit_schedule_name: str
+    schedule_name: str
+    ...
+
+
+class VisitScheduleStub(Protocol):
+    visit_schedule: VisitSchedule
+    schedule: Schedule
+    visit_schedule_name: str
+    schedule_name: str
+    visit_code: str
+    visit_code_sequence: int
+    _meta: MetaStub
+    ...
 
 
 class VisitScheduleMethodsError(Exception):
@@ -19,7 +41,7 @@ class VisitScheduleMethodsModelMixin(models.Model):
     """
 
     @property
-    def visit(self):
+    def visit(self) -> Visit:
         """Returns the visit object from the schedule object
         for this visit code.
 
@@ -28,7 +50,7 @@ class VisitScheduleMethodsModelMixin(models.Model):
         return self.visit_from_schedule
 
     @property
-    def visit_from_schedule(self):
+    def visit_from_schedule(self: VisitScheduleStub) -> Visit:
         """Returns the visit object from the schedule object
         for this visit code.
 
@@ -43,12 +65,12 @@ class VisitScheduleMethodsModelMixin(models.Model):
         return visit
 
     @property
-    def visits(self):
+    def visits(self: VisitScheduleStub) -> VisitCollection:
         """Returns all visit objects from the schedule object."""
         return self.schedule.visits
 
     @property
-    def schedule(self):
+    def schedule(self: VisitScheduleStub) -> Schedule:
         """Returns a schedule object from Meta.visit_schedule_name or
         self.schedule_name.
 
@@ -58,7 +80,7 @@ class VisitScheduleMethodsModelMixin(models.Model):
         return self.visit_schedule.schedules.get(self.schedule_name)
 
     @property
-    def visit_schedule(self):
+    def visit_schedule(self: VisitScheduleStub) -> VisitSchedule:
         """Returns a visit schedule object from Meta.visit_schedule_name.
 
         Declared on Meta like this:

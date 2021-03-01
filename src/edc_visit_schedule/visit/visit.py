@@ -68,27 +68,15 @@ class Visit:
         facility_name=None,
     ):
 
-        self.crfs = ()
-        if crfs:
-            self.crfs = crfs.forms
-        self.crfs_unscheduled = ()
-        if crfs_unscheduled:
-            self.crfs_unscheduled = crfs_unscheduled.forms
-        self.crfs_missed = ()
-        if crfs_missed:
-            self.crfs_missed = crfs_missed.forms
-        self.crfs_prn = ()
-        if crfs_prn:
-            self.crfs_prn = crfs_prn.forms
-        self.requisitions = ()
-        if requisitions:
-            self.requisitions = requisitions.forms
-        self.requisitions_unscheduled = ()
-        if requisitions_unscheduled:
-            self.requisitions_unscheduled = requisitions_unscheduled.forms
-        self.requisitions_prn = ()
-        if requisitions_prn:
-            self.requisitions_prn = requisitions_prn.forms
+        self.crfs = crfs.forms if crfs else ()
+        self.crfs_unscheduled = crfs_unscheduled.forms if crfs_unscheduled else ()
+        self.crfs_missed = crfs_missed.forms if crfs_missed else ()
+        self.crfs_prn = crfs_prn.forms if crfs_prn else ()
+        self.requisitions = requisitions.forms if requisitions else ()
+        self.requisitions_unscheduled = (
+            requisitions_unscheduled.forms if requisitions_unscheduled else ()
+        )
+        self.requisitions_prn = requisitions_prn.forms if requisitions_prn else ()
         self.instructions = instructions
         self.timepoint = Decimal(str(timepoint))
         self.rbase = rbase

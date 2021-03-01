@@ -1,4 +1,6 @@
 from collections import OrderedDict
+from datetime import datetime
+from typing import Any
 
 from ..ordered_collection import OrderedCollection
 
@@ -9,16 +11,16 @@ class VisitCollectionError(Exception):
 
 class VisitCollection(OrderedCollection):
 
-    key = "code"
-    ordering_attr = "timepoint"
+    key: str = "code"
+    ordering_attr: str = "timepoint"
 
-    def __get__(self, instance, owner):
-        value = super().__get__(instance, owner)
+    def __get__(self, instance: Any, owner: Any):
+        value = super().__get__(instance, owner)  # type: ignore
         if value is None:
             raise VisitCollectionError(f"Unknown visit. Got {instance}")
         return value
 
-    def timepoint_dates(self, dt=None):
+    def timepoint_dates(self, dt: datetime) -> dict:
         """Returns an ordered dictionary of visit dates calculated
         relative to the first visit.
         """

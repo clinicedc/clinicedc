@@ -17,11 +17,13 @@ register = template.Library()
 def subject_schedule_footer_row(
     subject_identifier, visit_schedule, schedule, subject_dashboard_url
 ):
+
     context = dict(
         visit_schedule=visit_schedule,
-        schedule=schedule,
         verbose_name=schedule.offschedule_model_cls._meta.verbose_name,
+        schedule=schedule,
     )
+
     try:
         history_obj = SubjectScheduleHistory.objects.get(
             visit_schedule_name=visit_schedule.name,

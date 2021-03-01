@@ -1,4 +1,5 @@
 from ..ordered_collection import OrderedCollection
+from ..schedule import Schedule
 
 
 class SchedulesCollectionError(Exception):
@@ -10,11 +11,11 @@ class SchedulesCollection(OrderedCollection):
     key = "name"
     ordering_attr = "sequence"
 
-    def __init__(self, visit_schedule_name=None, *args, **kwargs):
+    def __init__(self, visit_schedule_name: str = None, *args, **kwargs) -> None:
         self.visit_schedule_name = visit_schedule_name
         super().__init__(*args, **kwargs)
 
-    def get_schedule(self, model=None, schedule_name=None, **kwargs):
+    def get_schedule(self, model: str = None, schedule_name: str = None) -> Schedule:
         """Returns a schedule or raises; by name, by onschedule/offschedule model
         or by model label_lower.
         """
@@ -37,6 +38,6 @@ class SchedulesCollection(OrderedCollection):
             )
         return schedule
 
-    def validate(self):
+    def validate(self) -> None:
         for schedule in self.values():
             schedule.validate(visit_schedule_name=self.visit_schedule_name)

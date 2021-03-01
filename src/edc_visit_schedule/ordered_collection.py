@@ -4,10 +4,10 @@ from collections import OrderedDict
 
 class OrderedCollection(OrderedDict):
 
-    key = None  # key name in dictionary key/value pair
-    ordering_attr = None  # value.attrname to order dictionary on.
+    key: str = None  # key name in dictionary key/value pair
+    ordering_attr: str = None  # value.attrname to order dictionary on.
 
-    def update(self, *args, **kwargs):
+    def update(self, *args, **kwargs) -> None:
         """Updates and reorders."""
 
         def key_order(v):
