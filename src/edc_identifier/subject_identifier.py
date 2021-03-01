@@ -6,18 +6,18 @@ from .research_identifier import ResearchIdentifier
 
 class SubjectIdentifier(ResearchIdentifier):
 
-    template = "{protocol_number}-{site_id}{device_id}{sequence}"
-    label = "subjectidentifier"
-    padding = 4
+    template: str = "{protocol_number}-{site_id}{device_id}{sequence}"
+    label: str = "subjectidentifier"
+    padding: int = 4
 
-    def __init__(self, last_name=None, **kwargs):
+    def __init__(self, last_name: str = None, **kwargs):
         self.last_name = last_name
         super().__init__(**kwargs)
 
-    def pre_identifier(self):
+    def pre_identifier(self) -> None:
         pass
 
-    def post_identifier(self):
+    def post_identifier(self) -> None:
         """Creates a registered subject instance for this
         subject identifier.
         """

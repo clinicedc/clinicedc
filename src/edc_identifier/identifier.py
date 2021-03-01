@@ -1,4 +1,5 @@
 import re
+from typing import Optional
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -12,21 +13,21 @@ class Identifier:
     name = "identifier"
     identifier_model_cls = IdentifierModel
     identifier_pattern = "^\d+$"  # noqa
-    prefix_pattern = None
-    prefix = None
-    seed = ["0"]
-    separator = None
+    prefix_pattern: Optional[str] = None
+    prefix: Optional[str] = None
+    seed: str = "0"
+    separator: Optional[str] = None
 
-    def __init__(self, last_identifier=None, prefix=None):
-        self.identifier_as_list = []
-        self.prefix = prefix or self.prefix or ""
-        try:
-            seed = "".join(self.seed)
-        except TypeError:
-            seed = self.seed
+    def __init__(
+        self, last_identifier: Optional[str] = None, prefix: Optional[str] = None
+    ) -> None:
+        self.identifier_as_list: list = []
+        self.prefix: str = prefix or self.prefix or ""
         edc_device_app_config = django_apps.get_app_config("edc_device")
         self.device_id = edc_device_app_config.device_id
-        self.identifier = last_identifier or self.last_identifier or f"{self.prefix}{seed}"
+        self.identifier = (
+            last_identifier or self.last_identifier or f"{self.prefix}{self.seed}"
+        )
         self.prefix_pattern = f"^{self.prefix}$"
         self.identifier_pattern = self.prefix_pattern[:-1] + self.identifier_pattern[1:]
         if self.identifier:
@@ -78,13 +79,12 @@ class Identifier:
             return None
         return re.match(self.prefix_pattern[:-1], self.identifier).group()
 
-    def update_identifier_model(self):
+    def update_identifier_model(self) -> bool:
         """Attempts to update identifier_model and returns True (or instance)
         if successful else False if identifier already exists.
         """
         try:
             self.identifier_model_cls.objects.get(identifier=self.identifier)
-            return False
         except ObjectDoesNotExist:
             return self.identifier_model_cls.objects.create(
                 identifier=self.identifier,
@@ -92,7 +92,7 @@ class Identifier:
                 identifier_prefix=self.identifier_prefix,
                 device_id=self.device_id,
             )
-        return True
+        return False
 
     @property
     def last_identifier(self):

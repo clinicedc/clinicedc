@@ -3,11 +3,11 @@
 from __future__ import unicode_literals
 
 import django.utils.timezone
+import django_audit_fields.fields.uuid_auto_field
 import django_extensions.db.fields
 import django_revision.revision_field
 import edc_model_fields.fields.hostname_modification_field
 import edc_model_fields.fields.userfield
-import edc_model_fields.fields.uuid_auto_field
 from django.db import migrations, models
 
 
@@ -96,7 +96,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "id",
-                    edc_model_fields.fields.uuid_auto_field.UUIDAutoField(
+                    django_audit_fields.fields.uuid_auto_field.UUIDAutoField(
                         editable=False,
                         help_text="System field. UUID primary key.",
                         primary_key=True,
@@ -237,7 +237,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "id",
-                    edc_model_fields.fields.uuid_auto_field.UUIDAutoField(
+                    django_audit_fields.fields.uuid_auto_field.UUIDAutoField(
                         editable=False,
                         help_text="System field. UUID primary key.",
                         primary_key=True,
