@@ -1,3 +1,5 @@
+from typing import List, Optional
+
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -8,24 +10,28 @@ from twilio.base.exceptions import TwilioException, TwilioRestException
 from twilio.rest import Client
 
 from ..site_notifications import site_notifications
+from ..stubs import NotificationModelStub
 
 
 class NotificationError(Exception):
     pass
 
 
+LIVE_SYSTEM: bool = getattr(settings, "LIVE_SYSTEM", False)
+
+
 class Notification:
-    app_name = None
-    name = None
-    display_name = None
+    # app_name: str = None
+    name: Optional[str] = None
+    display_name: Optional[str] = None
 
     sms_client = Client
 
-    email_from = settings.EMAIL_CONTACTS.get("data_manager")
-    email_to = None  # usually a mailing list address
+    email_from: List[str] = settings.EMAIL_CONTACTS.get("data_manager")
+    email_to: Optional[List[str]] = None  # usually a mailing list address
     email_message_cls = EmailMessage
 
-    email_body_template = (
+    email_body_template: str = (
         "\n\nDo not reply to this email\n\n"
         "{test_body_line}"
         "A report has been submitted for patient "
@@ -38,10 +44,10 @@ class Notification:
         "{test_body_line}"
         "Thanks."
     )
-    email_subject_template = (
+    email_subject_template: str = (
         "{test_subject_line}{protocol_name}: " "{display_name} " "for {subject_identifier}"
     )
-    email_footer_template = (
+    email_footer_template: str = (
         "\n\n-----------------\n"
         'To unsubscribe remove "{display_name}" from your chosen '
         "email notifications in your user profile.\n\n"
@@ -49,41 +55,37 @@ class Notification:
         "{message_reference}\n"
         "{message_datetime} (UTC)"
     )
-    email_test_body_line = "THIS IS A TEST MESSAGE. NO ACTION IS REQUIRED\n\n"
-    email_test_subject_line = "TEST/UAT -- "
+    email_test_body_line: str = "THIS IS A TEST MESSAGE. NO ACTION IS REQUIRED\n\n"
+    email_test_subject_line: str = "TEST/UAT -- "
 
-    sms_template = (
+    sms_template: str = (
         '{test_line}{protocol_name}: Report "{display_name}" for '
         "patient {subject_identifier} "
         "at site {site_name} may require "
         "your attention. Login to review."
     )
-    sms_test_line = "TEST MESSAGE. NO ACTION REQUIRED - "
+    sms_test_line: str = "TEST MESSAGE. NO ACTION REQUIRED - "
 
-    def __init__(self):
-        self._notification_enabled = None
-        self._template_opts = {}
+    def __init__(self) -> None:
+        self._notification_enabled: Optional[bool] = None
+        self._template_opts: dict = {}
         self.email_to = self.email_to or self.default_email_to
-        self.test_message = False
-        try:
-            live_system = settings.LIVE_SYSTEM
-        except AttributeError:
-            live_system = False
-        if not live_system:
+        self.test_message: bool = False
+        if not LIVE_SYSTEM:
             self.email_to = [f"test.{email}" for email in self.email_to]
             self.test_message = True
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"<{self.__class__.__name__}:name='{self.name}', "
             f"display_name='{self.display_name}'>"
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name}: {self.display_name}"
 
     @property
-    def default_email_to(self):
+    def default_email_to(self) -> List[str]:
         return [f"{self.name}.{settings.APP_NAME}@mg.clinicedc.org"]
 
     def notify(
@@ -106,8 +108,8 @@ class Notification:
             * instance
             * user
         """
-        email_sent = None
-        sms_sent = None
+        email_sent: Optional[int] = None
+        sms_sent: Optional[dict] = None
         use_email = use_email or getattr(settings, "EMAIL_ENABLED", False)
         use_sms = use_sms or getattr(settings, "TWILIO_ENABLED", False)
         if force_notify or self._notify_on_condition(**kwargs):
@@ -121,7 +123,7 @@ class Notification:
             self.post_notification_actions(email_sent=email_sent, sms_sent=sms_sent, **kwargs)
         return True if email_sent or sms_sent else False
 
-    def notify_on_condition(self, **kwargs):
+    def notify_on_condition(self, **kwargs) -> bool:
         """Override to conditionally return True if the notification
         should be sent by email and/or sms.
 
@@ -129,7 +131,7 @@ class Notification:
         """
         return True
 
-    def _notify_on_condition(self, test_message=None, **kwargs):
+    def _notify_on_condition(self, test_message=None, **kwargs) -> bool:
         """Returns the value of `notify_on_condition` or False."""
         if test_message:
             return True
@@ -140,7 +142,7 @@ class Notification:
         pass
 
     @property
-    def enabled(self):
+    def enabled(self) -> bool:
         """Returns True if this notification is enabled based on the value
         of Notification model instance.
 
@@ -156,18 +158,18 @@ class Notification:
         return self._notification_enabled
 
     @property
-    def notification_model(self):
+    def notification_model(self) -> NotificationModelStub:
         """Returns the Notification 'model' instance associated
         with this notification.
         """
-        NotificationModel = django_apps.get_model("edc_notification.notification")
+        notification_model_cls = django_apps.get_model("edc_notification.notification")
         # trigger exception if this class is not registered.
         site_notifications.get(self.name)
         try:
-            notification_model = NotificationModel.objects.get(name=self.name)
+            notification_model = notification_model_cls.objects.get(name=self.name)
         except ObjectDoesNotExist:
             site_notifications.update_notification_list()
-            notification_model = NotificationModel.objects.get(name=self.name)
+            notification_model = notification_model_cls.objects.get(name=self.name)
         return notification_model
 
     def get_template_options(self, instance=None, test_message=None, **kwargs):
@@ -200,8 +202,12 @@ class Notification:
         return template_options
 
     def send_email(
-        self, fail_silently=None, email_to=None, email_body_template=None, **kwargs
-    ):
+        self,
+        fail_silently: Optional[bool] = None,
+        email_to: List[str] = None,
+        email_body_template: str = None,
+        **kwargs
+    ) -> int:
         kwargs.update(**self.get_template_options(**kwargs))
         subject = self.email_subject_template.format(**kwargs)
         body = (email_body_template or self.email_body_template).format(**kwargs)
@@ -210,7 +216,12 @@ class Notification:
         )
         return email.send(fail_silently)
 
-    def send_sms(self, fail_silently=None, sms_recipient=None, **kwargs):
+    def send_sms(
+        self,
+        fail_silently: Optional[bool] = None,
+        sms_recipient: Optional[str] = None,
+        **kwargs
+    ) -> dict:
         status = {}
         if self.sms_sender:
             kwargs.update(**self.get_template_options(**kwargs))
@@ -250,8 +261,8 @@ class Notification:
         See also: edc_auth.UserProfile.
         """
         sms_recipients = []
-        UserProfile = django_apps.get_model("edc_auth.UserProfile")
-        for user_profile in UserProfile.objects.filter(
+        user_profile_model_cls = django_apps.get_model("edc_auth.UserProfile")
+        for user_profile in user_profile_model_cls.objects.filter(
             user__is_active=True, user__is_staff=True
         ):
             try:
@@ -267,7 +278,7 @@ class Notification:
     def test_template_options(self):
         return dict(subject_identifier="123456910", site_name="Gaborone")
 
-    def send_test_email(self, email_to):
+    def send_test_email(self, email_to: str):
         """Sends a test message to "email_to".
 
         For example:
@@ -284,7 +295,7 @@ class Notification:
             **self.test_template_options,
         )
 
-    def send_test_sms(self, sms_recipient=None):
+    def send_test_sms(self, sms_recipient: str):
         """Sends a test message to "email_to".
 
         For example:

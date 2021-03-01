@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from ...site_notifications import site_notifications
+from edc_notification.site_notifications import site_notifications
 
 
 class Command(BaseCommand):

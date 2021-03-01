@@ -1,13 +1,17 @@
+from typing import Optional
+
 from django.apps import apps as django_apps
+from django.db import models
+from edc_model.stubs import BaseUuidModelStub
 
 from .notification import Notification
 
 
 class ModelNotification(Notification):
 
-    model = None
+    model: Optional[str] = None  # label_lower format
 
-    email_body_template = (
+    email_body_template: str = (
         "\n\nDo not reply to this email\n\n"
         "{test_body_line}"
         "A report has been submitted for patient "
@@ -20,47 +24,38 @@ class ModelNotification(Notification):
         "{test_body_line}"
         "Thanks."
     )
-    email_subject_template = (
+    email_subject_template: str = (
         "{test_subject_line}{protocol_name}: "
         "{display_name} "
         "for {instance.subject_identifier}"
     )
-    sms_template = (
+    sms_template: str = (
         '{test_line}{protocol_name}: Report "{display_name}" for '
         "patient {instance.subject_identifier} "
         "at site {instance.site.name} may require "
         "your attention. Login to review. (See your user profile to unsubscribe.)"
     )
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         if not self.display_name:
             self.display_name = django_apps.get_model(self.model)._meta.verbose_name.title()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"<{self.__class__.__name__}:name='{self.name}', "
             f"display_name='{self.display_name}',"
             f"model='{self.model}'>"
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name}: {self.display_name} ({self.model})"
 
-    def notify(self, force_notify=None, use_email=None, use_sms=None, **kwargs):
-        """Overridden to only call `notify` if model matches."""
-        notified = False
-        instance = kwargs.get("instance")
-        if instance._meta.label_lower == self.model:
-            notified = super().notify(
-                force_notify=force_notify,
-                use_email=use_email,
-                use_sms=use_sms,
-                **kwargs,
-            )
-        return notified
+    def notify_on_condition(self, instance: BaseUuidModelStub = None, **kwargs) -> bool:
+        """Override to notify is cls.model matches models instance name"""
+        return instance._meta.label_lower == self.model  # type:ignore
 
-    def get_template_options(self, instance=None, test_message=None, **kwargs):
+    def get_template_options(self, instance=None, test_message=None, **kwargs) -> dict:
         opts = super().get_template_options(
             instance=instance, test_message=test_message, **kwargs
         )
@@ -68,7 +63,7 @@ class ModelNotification(Notification):
         return opts
 
     @property
-    def test_template_options(self):
+    def test_template_options(self) -> dict:
         class Site:
             domain = "gaborone.example.com"
             name = "gaborone"

@@ -11,12 +11,13 @@ from ..models import AE
 
 
 class TwilioTestClient:
+    # noinspection PyUnusedLocal
     def __init__(self, **kwargs):
         self.messages = TwillioTestClientMessages()
 
 
 class TwillioTestClientMessages:
-    created = []
+    created: list = []
 
     sid = "test-sid"
 
