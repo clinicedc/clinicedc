@@ -1,8 +1,11 @@
 import sys
+from typing import Any, Optional
 
+from django.apps import AppConfig
 from django.apps import apps as django_apps
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.core.management.color import color_style
+from django.db import models
 from django.db.models.deletion import ProtectedError
 from django.db.utils import IntegrityError
 
@@ -14,12 +17,12 @@ style = color_style()
 class PreloadData:
     def __init__(
         self,
-        list_data=None,
-        model_data=None,
-        unique_field_data=None,
-        list_data_model_name=None,
-        apps=None,
-    ):
+        list_data: dict = None,
+        model_data: dict = None,
+        unique_field_data: dict = None,
+        list_data_model_name: str = None,
+        apps: AppConfig = None,
+    ) -> None:
         self.list_data = list_data or {}
         self.model_data = model_data or {}
         self.unique_field_data = unique_field_data or {}
@@ -33,10 +36,10 @@ class PreloadData:
         if self.unique_field_data:
             self.update_unique_field_data()
 
-    def load_list_data(self, model_name=None, apps=None):
+    def load_list_data(self, model_name: str = None, apps: Optional[AppConfig] = None) -> None:
         load_list_data(self.list_data, model_name=model_name, apps=apps)
 
-    def load_model_data(self, apps=None):
+    def load_model_data(self, apps: Optional[AppConfig] = None):
         """Loads data into a model, creates or updates existing.
 
         Must have a unique field
@@ -70,7 +73,7 @@ class PreloadData:
                         setattr(obj, key, value)
                     obj.save()
 
-    def update_unique_field_data(self, apps=None):
+    def update_unique_field_data(self, apps: Optional[AppConfig] = None) -> None:
         """Updates the values of the unique fields in a model.
 
         Model must have a unique field and the record must exist
@@ -89,26 +92,28 @@ class PreloadData:
                 except ObjectDoesNotExist:
                     try:
                         obj = model.objects.get(**{field: values[0]})
-                    except model.DoesNotExist as e:
-                        sys.stdout.write(style.ERROR(str(e) + "\n"))
-                    except MultipleObjectsReturned as e:
+                    except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
                         sys.stdout.write(style.ERROR(str(e) + "\n"))
                     else:
                         setattr(obj, field, values[1])
                         obj.save()
                 else:
-                    try:
-                        obj = model.objects.get(**{field: values[0]})
-                    except model.DoesNotExist:
-                        pass
-                    else:
-                        try:
-                            obj.delete()
-                        except ProtectedError:
-                            pass
+                    self._attempt_delete_if_exists(field, values[0], model)
 
     @staticmethod
-    def guess_unique_field(model):
+    def _attempt_delete_if_exists(field: str, value: Any, model: models.Model) -> None:
+        try:
+            obj = model.objects.get(**{field: value})
+        except ObjectDoesNotExist:
+            pass
+        else:
+            try:
+                obj.delete()
+            except ProtectedError:
+                pass
+
+    @staticmethod
+    def guess_unique_field(model: models.Model) -> str:
         """Returns the first field name for a unique field."""
         unique_field = None
         for field in model._meta.get_fields():

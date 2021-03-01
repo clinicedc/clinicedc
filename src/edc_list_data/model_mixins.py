@@ -34,7 +34,7 @@ class ListModelMixin(models.Model):
         verbose_name="display index",
         default=0,
         db_index=True,
-        help_text=("Index to control display order if not alphabetical, not required"),
+        help_text="Index to control display order if not alphabetical, not required",
     )
 
     field_name = models.CharField(
@@ -44,7 +44,7 @@ class ListModelMixin(models.Model):
     version = models.CharField(max_length=35, editable=False, default="1.0")
     objects = ListModelManager()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.display_name
 
     def save(self, *args, **kwargs):
@@ -52,8 +52,10 @@ class ListModelMixin(models.Model):
             self.name = slugify(self.display_name).lower()
         super().save(*args, **kwargs)
 
-    def natural_key(self):
-        return (self.name,)
+    def natural_key(self) -> tuple:
+        return tuple(
+            self.name,
+        )
 
     class Meta:
         abstract = True

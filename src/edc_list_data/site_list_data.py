@@ -21,18 +21,17 @@ class SiteListData:
     Called in AppConfig or by management command.
     """
 
-    def autodiscover(self, module_name=None, verbose=True):
+    def autodiscover(self, module_name=None) -> None:
         if (
             # "migrate" not in sys.argv
             "makemigrations" not in sys.argv
             and "showmigrations" not in sys.argv
         ):
             module_name = module_name or "list_data"
-            writer = sys.stdout.write if verbose else lambda x: x
             style = color_style()
-            writer(f"\n * checking for site {module_name} ...\n")
+            sys.stdout.write(f"\n * checking for site {module_name} ...\n")
             for app in django_apps.app_configs:
-                writer(f" * searching {app}           \r")
+                sys.stdout.write(f" * searching {app}           \r")
                 try:
                     mod = import_module(app)
                     try:
@@ -40,20 +39,20 @@ class SiteListData:
                         opts = self.get_options(module)
                         with transaction.atomic():
                             PreloadData(**opts)
-                        writer(f" * loading '{module_name}' from '{app}'\n")
+                        sys.stdout.write(f" * loading '{module_name}' from '{app}'\n")
                     except LoadListDataError as e:
-                        writer(f"   - loading {app}.{module_name} ... \n")
-                        writer(style.ERROR(f"ERROR! {e}\n"))
+                        sys.stdout.write(f"   - loading {app}.{module_name} ... \n")
+                        sys.stdout.write(style.ERROR(f"ERROR! {e}\n"))
                     except ImportError as e:
                         if module_has_submodule(mod, module_name):
                             raise SiteListDataError(e)
                 except ImportError:
                     pass
-            writer("\n")
+            sys.stdout.write("\n")
 
     @staticmethod
-    def get_options(module):
-        opts = {}
+    def get_options(module) -> dict:
+        opts: dict = {}
         opts.update(list_data=getattr(module, "list_data", None))
         opts.update(model_data=getattr(module, "model_data", None))
         opts.update(unique_field_data=getattr(module, "unique_field_data", None))
