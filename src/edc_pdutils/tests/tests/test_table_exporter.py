@@ -5,9 +5,9 @@ from django.apps import apps as django_apps
 from django.test import TestCase, tag  # noqa
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from ..df_exporters import TablesExporter
-from .helper import Helper
-from .visit_schedule import get_visit_schedule
+from ...df_exporters import TablesExporter
+from ..helper import Helper
+from ..visit_schedule import get_visit_schedule
 
 
 class TestExport(TestCase):
@@ -23,8 +23,7 @@ class TestExport(TestCase):
             self.helper.create_crf(i)
 
     def tearDown(self):
-        """Remove .csv files created in tests.
-        """
+        """Remove .csv files created in tests."""
         super().tearDown()
         if "edc_pdutils" not in self.path:
             raise ValueError(f"Invalid path in test. Got {self.path}")

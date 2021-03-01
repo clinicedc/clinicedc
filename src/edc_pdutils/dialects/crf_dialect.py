@@ -4,8 +4,7 @@ class CrfDialect:
 
     @property
     def select_visit_and_related(self):
-        """Returns an SQL statement that joins visit, appt, and registered_subject.
-        """
+        """Returns an SQL statement that joins visit, appt, and registered_subject."""
         sql = (
             "SELECT R.subject_identifier, R.screening_identifier, R.dob, "
             "R.gender, R.subject_type, R.sid, "

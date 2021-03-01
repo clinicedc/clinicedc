@@ -51,15 +51,11 @@ class Site:
         except KeyError:
             pass
         try:
-            handler_cls = self.registry[
-                self.model_reference_registry.get(key.split(".")[0])
-            ]
+            handler_cls = self.registry[self.model_reference_registry.get(key.split(".")[0])]
         except KeyError:
             pass
         if not handler_cls:
-            keys = list(self.registry.keys()) + list(
-                self.model_reference_registry.keys()
-            )
+            keys = list(self.registry.keys()) + list(self.model_reference_registry.keys())
             raise SiteDataframeHandlerNotFound(
                 f"Cannot find dataframe hander. Got {key}. " f"Expected one of {keys}."
             )

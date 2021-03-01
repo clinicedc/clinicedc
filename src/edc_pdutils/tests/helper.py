@@ -1,11 +1,10 @@
 import uuid
 
 from edc_appointment.models import Appointment
-from edc_utils import get_utcnow
 from edc_registration.models import RegisteredSubject
+from edc_utils import get_utcnow
 
-from .models import ListModel, SubjectVisit, Crf
-from .models import CrfTwo, CrfOne, CrfThree, CrfInline
+from .models import Crf, CrfInline, CrfOne, CrfThree, CrfTwo, ListModel, SubjectVisit
 
 
 class Helper:
@@ -39,13 +38,7 @@ class Helper:
             int1=i,
             uuid1=uuid.uuid4(),
         )
-        crf_one = CrfOne.objects.create(
-            subject_visit=self.subject_visit, dte=get_utcnow()
-        )
-        crf_two = CrfTwo.objects.create(
-            subject_visit=self.subject_visit, dte=get_utcnow()
-        )
-        CrfThree.objects.create(
-            subject_visit=self.subject_visit, UPPERCASE=get_utcnow()
-        )
+        crf_one = CrfOne.objects.create(subject_visit=self.subject_visit, dte=get_utcnow())
+        crf_two = CrfTwo.objects.create(subject_visit=self.subject_visit, dte=get_utcnow())
+        CrfThree.objects.create(subject_visit=self.subject_visit, UPPERCASE=get_utcnow())
         CrfInline.objects.create(crf_one=crf_one, crf_two=crf_two, dte=get_utcnow())

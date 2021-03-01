@@ -3,7 +3,6 @@ from django.core.management.color import color_style
 from ..model_to_dataframe import ModelToDataframe
 from .csv_exporter import CsvExporter
 
-
 style = color_style()
 
 

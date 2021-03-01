@@ -53,8 +53,7 @@ class ValueGetter:
 
     @property
     def value(self):
-        """Returns the "value".
-        """
+        """Returns the "value"."""
         if not self._value:
             try:
                 self._value = self._get_field_value(self.model_obj, self.field_name)
@@ -91,13 +90,10 @@ class ValueGetter:
                 value = getattr(model_obj, field_name)
             except AttributeError:
                 if field_name in self.lookups:
-                    value = self.get_lookup_value(
-                        model_obj=model_obj, field_name=field_name
-                    )
+                    value = self.get_lookup_value(model_obj=model_obj, field_name=field_name)
                 else:
                     raise ValueGetterUnknownField(
-                        f"Unknown field name. Perhaps add a lookup. "
-                        f"Got {field_name}.",
+                        f"Unknown field name. Perhaps add a lookup. " f"Got {field_name}.",
                         code=field_name,
                     )
             if isinstance(value, Manager):
@@ -119,27 +115,22 @@ class ValueGetter:
             try:
                 value = getattr(value, attr)
             except AttributeError:
-                raise ValueGetterInvalidLookup(
-                    f"Invalid lookup string. Got {lookup_string}"
-                )
+                raise ValueGetterInvalidLookup(f"Invalid lookup string. Got {lookup_string}")
         return value
 
     @property
     def m2m_field_names(self):
-        """Returns the list of m2m field names for this model.
-        """
+        """Returns the list of m2m field names for this model."""
         return [m2m.name for m2m in self.model_cls._meta.many_to_many]
 
     def get_m2m_value(self, model_obj=None, field_name=None):
-        """Returns an m2m field value as a delimited string.
-        """
+        """Returns an m2m field value as a delimited string."""
         return self.m2m_delimiter.join(
             [value.name for value in getattr(model_obj, field_name).all()]
         )
 
     def strip_value(self, value):
-        """Returns a string cleaned of \n\t\r and double spaces.
-        """
+        """Returns a string cleaned of \n\t\r and double spaces."""
         try:
             value = value.replace(string.whitespace, " ")
         except (TypeError, AttributeError):

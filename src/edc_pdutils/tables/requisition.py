@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-
 from edc_constants.constants import YES
 
 from ..mappings import yes_no
@@ -31,21 +30,13 @@ class Requisition(Table):
         self.dataframe["received_datetime"] = self.helper.to_local_datetime(
             self.dataframe["received_datetime"]
         )
-        self.dataframe["received"] = self.dataframe["received"].map(
-            yes_no, na_action="ignore"
-        )
+        self.dataframe["received"] = self.dataframe["received"].map(yes_no, na_action="ignore")
         self.dataframe["processed"] = self.dataframe["processed"].map(
             yes_no, na_action="ignore"
         )
-        self.dataframe["packed"] = self.dataframe["packed"].map(
-            yes_no, na_action="ignore"
-        )
-        self.dataframe["shipped"] = self.dataframe["shipped"].map(
-            yes_no, na_action="ignore"
-        )
-        self.dataframe = pd.merge(
-            self.dataframe, df_visit, on="subject_visit_id", how="left"
-        )
+        self.dataframe["packed"] = self.dataframe["packed"].map(yes_no, na_action="ignore")
+        self.dataframe["shipped"] = self.dataframe["shipped"].map(yes_no, na_action="ignore")
+        self.dataframe = pd.merge(self.dataframe, df_visit, on="subject_visit_id", how="left")
         self.dataframe = self.dataframe.drop(["subject_visit_id"], axis=1)
         # fix reason_not_drawn
         is_blank = (self.dataframe.reason_not_drawn.notnull()) & (

@@ -1,7 +1,7 @@
 import pandas as pd
 
-from ..dialects import CrfDialect
 from ..constants import SYSTEM_COLUMNS
+from ..dialects import CrfDialect
 from .df_handler import DfHandler
 
 
@@ -27,9 +27,7 @@ class CrfDfHandler(DfHandler):
     def __init__(self, exclude_system_columns=None, **kwargs):
         self._df_visit_and_related = pd.DataFrame()
         self.crf_dialect = self.crf_dialect_cls(self)
-        self.exclude_system_columns = (
-            exclude_system_columns or self.exclude_system_columns
-        )
+        self.exclude_system_columns = exclude_system_columns or self.exclude_system_columns
         super().__init__(**kwargs)
 
     def prepare_dataframe(self, **kwargs):
@@ -52,8 +50,7 @@ class CrfDfHandler(DfHandler):
 
     @property
     def columns(self):
-        """Returns a list of column names.
-        """
+        """Returns a list of column names."""
         crf_columns = list(self.dataframe.columns)
         crf_columns.pop(crf_columns.index(self.visit_column))
         columns = list(self.df_visit_and_related.columns)
@@ -77,8 +74,6 @@ class CrfDfHandler(DfHandler):
         SQL statement.
         """
         if self._df_visit_and_related.empty:
-            sql, params = getattr(
-                self.crf_dialect, self.dialect_select_visit_and_related
-            )
+            sql, params = getattr(self.crf_dialect, self.dialect_select_visit_and_related)
             self._df_visit_and_related = self.db.read_sql(sql, params=params)
         return self._df_visit_and_related

@@ -1,7 +1,7 @@
 import os
-import pandas as pd
-
 from datetime import datetime
+
+import pandas as pd
 
 from ..helper import Helper as BaseHelper
 from .table_to_dataframe import TableToDataframe
@@ -19,8 +19,7 @@ class Helper(BaseHelper):
         path=None,
         timestamp=None,
     ):
-        """Returns a dataframe.
-        """
+        """Returns a dataframe."""
         if csv_filename:
             timestamp = timestamp or datetime.today().strftime("%Y%m%d%H%M%S")
             csv_filename = f"{table_name}_{timestamp}.csv"

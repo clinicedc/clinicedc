@@ -1,6 +1,12 @@
 from dateutil.relativedelta import relativedelta
-from edc_visit_schedule import VisitSchedule, Schedule, Visit
-from edc_visit_schedule import FormsCollection, Crf, Requisition
+from edc_visit_schedule import (
+    Crf,
+    FormsCollection,
+    Requisition,
+    Schedule,
+    Visit,
+    VisitSchedule,
+)
 from edc_visit_schedule.tests.dummy_panel import DummyPanel
 
 
@@ -10,9 +16,7 @@ class Panel(DummyPanel):
     """
 
     def __init__(self, name):
-        super().__init__(
-            requisition_model="edc_appointment.subjectrequisition", name=name
-        )
+        super().__init__(requisition_model="edc_appointment.subjectrequisition", name=name)
 
 
 def get_visit_schedule(i=None):
@@ -30,15 +34,9 @@ def get_visit_schedule(i=None):
     requisitions = FormsCollection(
         Requisition(show_order=10, panel=Panel("one"), required=True, additional=False),
         Requisition(show_order=20, panel=Panel("two"), required=True, additional=False),
-        Requisition(
-            show_order=30, panel=Panel("three"), required=True, additional=False
-        ),
-        Requisition(
-            show_order=40, panel=Panel("four"), required=True, additional=False
-        ),
-        Requisition(
-            show_order=50, panel=Panel("five"), required=True, additional=False
-        ),
+        Requisition(show_order=30, panel=Panel("three"), required=True, additional=False),
+        Requisition(show_order=40, panel=Panel("four"), required=True, additional=False),
+        Requisition(show_order=50, panel=Panel("five"), required=True, additional=False),
         Requisition(show_order=60, panel=Panel("six"), required=True, additional=False),
     )
 

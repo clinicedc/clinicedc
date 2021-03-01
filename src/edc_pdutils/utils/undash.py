@@ -1,5 +1,6 @@
-import pandas as pd
 import re
+
+import pandas as pd
 
 
 def undash(value, exclude_pattern=None):

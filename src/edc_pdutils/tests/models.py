@@ -2,10 +2,10 @@ from django.db import models
 from django.db.models.deletion import PROTECT
 from django_crypto_fields.fields.encrypted_char_field import EncryptedCharField
 from edc_appointment.models import Appointment
-from edc_model.models import BaseUuidModel
-from edc_utils import get_utcnow
 from edc_constants.constants import YES
 from edc_list_data.model_mixins import ListModelMixin
+from edc_model.models import BaseUuidModel
+from edc_utils import get_utcnow
 
 
 class SubjectVisit(BaseUuidModel):
@@ -42,9 +42,7 @@ class SubjectConsent(BaseUuidModel):
 
     marriage_certificate = models.CharField(max_length=25, null=True)
 
-    happy = models.CharField(
-        max_length=25, choices=(("YES", "YES"), ("NO", "NO")), null=True
-    )
+    happy = models.CharField(max_length=25, choices=(("YES", "YES"), ("NO", "NO")), null=True)
 
 
 class SubjectLocator(BaseUuidModel):
