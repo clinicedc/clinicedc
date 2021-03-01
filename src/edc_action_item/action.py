@@ -1,4 +1,5 @@
 import logging
+from typing import List, Optional
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -8,10 +9,13 @@ from django.core.exceptions import (
     ValidationError,
 )
 from django.core.management.color import color_style
-from django.db.models import Q
+from django.db import models
 from django.utils.formats import localize
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_model.constants import DEFAULT_BASE_FIELDS
+from edc_model.stubs import BaseUuidModelStub
+
+from edc_action_item.stubs import ActionItemStub
 
 from .create_action_item import SingletonActionItemError, create_action_item
 from .get_action_type import get_action_type
@@ -32,50 +36,52 @@ class RelatedReferenceObjectDoesNotExist(ObjectDoesNotExist):
 
 
 class Action:
-    admin_site_name = None
-    color_style = "danger"
-    create_by_action = None
-    create_by_user = None
-    display_name = None
-    help_text = None
+    admin_site_name: str = None
+    color_style: str = "danger"
+    create_by_action: bool = None
+    create_by_user: bool = None
+    display_name: str = None
+    help_text: str = None
     instructions = None
-    name = None
-    parent_action_names = None
-    enforce_parent_action_names = True
-    priority = None
-    reference_model = None
-    related_reference_fk_attr = None
-    related_reference_model = None
-    show_link_to_add = False
-    show_link_to_changelist = False
-    show_on_dashboard = None
-    singleton = False
-    delete_with_reference_object = False
+    name: str = None
+    parent_action_names: Optional[List[str]] = None
+    enforce_parent_action_names: bool = True
+    priority: bool = None
+    reference_model: str = None
+    related_reference_fk_attr: str = None
+    related_reference_model: str = None
+    show_link_to_add: bool = False
+    show_link_to_changelist: bool = False
+    show_on_dashboard: bool = None
+    singleton: bool = False
+    delete_with_reference_object: bool = False
 
     popover_title = "Action Item"
 
-    action_item_model = "edc_action_item.actionitem"
-    action_type_model = "edc_action_item.actiontype"
-    next_actions = None  # a list of Action classes which may include 'self'
+    action_item_model: str = "edc_action_item.actionitem"
+    action_type_model: str = "edc_action_item.actiontype"
+    next_actions: Optional[
+        List[str]
+    ] = None  # a list of Action classes which may include 'self'
 
     def __init__(
         self,
-        action_item=None,
-        reference_obj=None,
-        subject_identifier=None,
-        action_identifier=None,
-        parent_action_item=None,
-        related_action_item=None,
-        using=None,
-        readonly=None,
-    ):
+        action_item: ActionItemStub = None,
+        reference_obj: models.Model = None,
+        subject_identifier: str = None,
+        action_identifier: str = None,
+        parent_action_item: Optional[ActionItemStub] = None,
+        related_action_item: Optional[ActionItemStub] = None,
+        using: Optional[str] = None,
+        readonly: Optional[bool] = None,
+    ) -> None:
 
         self._action_item = action_item
         self._reference_obj = reference_obj
 
         self.parent_action_names = self.parent_action_names or []
 
-        self.messages = {}
+        self.messages: dict = {}
 
         self.action_identifier = action_identifier
         self.parent_action_item = parent_action_item
@@ -129,16 +135,16 @@ class Action:
     def get_color_style(self):
         return self.color_style
 
-    def get_display_name(self):
+    def get_display_name(self) -> str:
         return self.action_item.action_type.display_name
 
-    def get_priority(self):
+    def get_priority(self) -> bool:
         return self.priority
 
-    def get_popover_title(self):
+    def get_popover_title(self) -> str:
         return self.popover_title
 
-    def get_status(self):
+    def get_status(self) -> str:
         return self.action_item.get_status_display()
 
     @property
@@ -262,7 +268,7 @@ class Action:
         return django_apps.get_model(cls.related_reference_model)
 
     @classmethod
-    def as_dict(cls):
+    def as_dict(cls) -> dict:
         """Returns select class attrs as a dictionary."""
         dct = {k: v for k, v in cls.__dict__.items() if not k.startswith("_")}
         try:
@@ -288,13 +294,13 @@ class Action:
         )
         return dct
 
-    def get_next_actions(self):
+    def get_next_actions(self) -> List[str]:
         """Returns a list of action classes to be created
         again by this model if the first has been closed on post_save.
         """
         return self.next_actions or []
 
-    def close_action_item_on_save(self):
+    def close_action_item_on_save(self) -> bool:
         """Returns True if action item for \'action_identifier\'
         is to be closed on post_save.
 
@@ -302,7 +308,7 @@ class Action:
         """
         return True
 
-    def close_and_create_next(self):
+    def close_and_create_next(self) -> None:
         """Attempt to close the action item and
         create new ones, if required.
         """
@@ -316,7 +322,7 @@ class Action:
         if status == CLOSED:
             self.create_next_action_items()
 
-    def create_next_action_items(self):
+    def create_next_action_items(self) -> None:
         """Creates any next action items if they do not
         already exist.
         """
@@ -351,13 +357,13 @@ class Action:
             .objects.using(self.using)
             .filter(
                 (
-                    Q(action_identifier=self.reference_obj.action_identifier)
-                    | Q(
+                    models.Q(action_identifier=self.reference_obj.action_identifier)
+                    | models.Q(
                         parent_action_item__action_identifier=(
                             self.reference_obj.action_identifier
                         )
                     )
-                    | Q(related_action_item=self.reference_obj.action_item)  # noqa
+                    | models.Q(related_action_item=self.reference_obj.action_item)  # noqa
                 ),
                 status=CLOSED,
             )

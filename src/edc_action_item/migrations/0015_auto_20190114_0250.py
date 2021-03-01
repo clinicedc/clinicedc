@@ -4,10 +4,10 @@ import uuid
 
 import _socket
 import django.db.models.deletion
+import django_audit_fields.fields.uuid_auto_field
 import django_revision.revision_field
 import edc_model_fields.fields.hostname_modification_field
 import edc_model_fields.fields.userfield
-import edc_model_fields.fields.uuid_auto_field
 import edc_utils
 import simple_history.models
 from django.conf import settings
@@ -83,7 +83,7 @@ class Migration(migrations.Migration):
                 ("device_modified", models.CharField(blank=True, max_length=10)),
                 (
                     "id",
-                    edc_model_fields.fields.uuid_auto_field.UUIDAutoField(
+                    django_audit_fields.fields.uuid_auto_field.UUIDAutoField(
                         blank=True,
                         db_index=True,
                         editable=False,

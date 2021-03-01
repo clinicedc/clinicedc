@@ -10,5 +10,5 @@ class ActionIdentifier(SimpleUniqueIdentifier):
     make_human_readable = True
 
     @property
-    def random_string(self):
+    def random_string(self) -> str:
         return uuid.uuid4().hex

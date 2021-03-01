@@ -29,7 +29,7 @@ class TestPrnAction(Action):
 
     name = "test-prn-action"
     display_name = "Test Prn Action"
-    next_actions = [FormZeroAction]
+    next_actions = [FormZeroAction.name]
     parent_action_names = None
 
 
@@ -138,7 +138,7 @@ class CrfLongitudinalTwoAction(Action):
     reference_model = "edc_action_item.crflongitudinaltwo"
     show_on_dashboard = True
     priority = HIGH_PRIORITY
-    next_actions = []
+    next_actions = None
     parent_action_names = ["submit-crf-longitudinal-one"]
 
 

@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import Optional, Type
+
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -9,6 +12,8 @@ from edc_notification.model_mixins import NotificationModelMixin
 from edc_sites.models import CurrentSiteManager as BaseCurrentSiteManager
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
+
+from edc_action_item.stubs import ActionStub
 
 from ..choices import ACTION_STATUS, PRIORITY
 from ..identifiers import ActionIdentifier
@@ -168,24 +173,24 @@ class ActionItem(
             self.instructions = self.action_type.instructions
         super().save(*args, **kwargs)
 
-    def natural_key(self):
-        return (self.action_identifier,)
+    def natural_key(self) -> tuple:
+        return tuple(self.action_identifier)
 
     @property
-    def last_updated(self):
+    def last_updated(self) -> Optional[datetime]:
         return None if self.status == NEW else self.modified
 
     @property
-    def user_last_updated(self):
+    def user_last_updated(self) -> Optional[str]:
         return None if self.status == NEW else self.user_modified or self.user_created
 
     @property
-    def action_cls(self):
+    def action_cls(self) -> Type[ActionStub]:
         """Returns the action_cls."""
         return site_action_items.get(self.action_type.name)
 
     @property
-    def action(self):
+    def action(self) -> ActionStub:
         """Returns the instantiated action_cls."""
         return self.action_cls(
             subject_identifier=self.subject_identifier,
@@ -194,15 +199,15 @@ class ActionItem(
         )
 
     @property
-    def reference_model_cls(self):
+    def reference_model_cls(self) -> Type[BaseUuidModel]:
         return django_apps.get_model(self.reference_model)
 
     @property
-    def reference_obj(self):
+    def reference_obj(self) -> BaseUuidModel:
         return self.reference_model_cls.objects.get(action_identifier=self.action_identifier)
 
     @property
-    def parent_reference_obj(self):
+    def parent_reference_obj(self) -> BaseUuidModel:
         if not self.parent_action_item:
             raise ObjectDoesNotExist(
                 f"Parent ActionItem does not exist for {self.action_identifier}."
@@ -210,7 +215,7 @@ class ActionItem(
         return self.parent_action_item.reference_obj
 
     @property
-    def related_reference_obj(self):
+    def related_reference_obj(self) -> BaseUuidModel:
         if not self.related_action_item:
             raise ObjectDoesNotExist(
                 f"Related ActionItem does not exist for {self.action_identifier}."
@@ -218,7 +223,7 @@ class ActionItem(
         return self.related_action_item.reference_obj
 
     @property
-    def identifier(self):
+    def identifier(self) -> str:
         """Returns a shortened action identifier."""
         return self.action_identifier[-9:]
 

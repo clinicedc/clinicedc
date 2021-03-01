@@ -2,6 +2,8 @@ from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_model.models import HistoricalRecords
 
+from edc_action_item.stubs import ActionItemStub
+
 from ..site_action_items import site_action_items
 from .action_item import ActionItem
 
@@ -21,11 +23,11 @@ class ActionItemModelManager(models.Manager):
 
 class ActionNoManagersModelMixin(models.Model):
 
-    action_name = None
+    action_name: str = None
 
-    action_item_model = "edc_action_item.actionitem"
+    action_item_model: str = "edc_action_item.actionitem"
 
-    subject_dashboard_url = "subject_dashboard_url"
+    subject_dashboard_url: str = "subject_dashboard_url"
 
     action_identifier = models.CharField(max_length=50, unique=True)
 
@@ -52,7 +54,7 @@ class ActionNoManagersModelMixin(models.Model):
         max_length=30,
         null=True,
         blank=True,
-        help_text=("action identifier that links to related " "reference model instance."),
+        help_text="action identifier that links to related " "reference model instance.",
     )
 
     action_item_reason = models.TextField(null=True, editable=False)
@@ -60,7 +62,7 @@ class ActionNoManagersModelMixin(models.Model):
     def __str__(self):
         return f"{self.action_identifier[-9:]}"
 
-    def save(self, *args, **kwargs):
+    def save(self: ActionItemStub, *args, **kwargs):
         # ensure action class is defined
         if not self.get_action_cls():
             raise ActionClassNotDefined(f"Action class name not defined. See {repr(self)}")
@@ -97,12 +99,15 @@ class ActionNoManagersModelMixin(models.Model):
         self.parent_action_item = self.action_item.parent_action_item
 
         # also see signals.py
-        super().save(*args, **kwargs)
+        super().save(*args, **kwargs)  # type: ignore
 
-    def natural_key(self):
-        return (self.action_identifier,)
+    def natural_key(self) -> tuple:
+        return tuple(
+            self.action_identifier,
+        )
 
-    natural_key.dependencies = ["edc_action_item.actionitem"]
+    # noinspection PyTypeHints
+    natural_key.dependencies = ["edc_action_item.actionitem"]  # type:ignore
 
     @classmethod
     def get_action_cls(cls):

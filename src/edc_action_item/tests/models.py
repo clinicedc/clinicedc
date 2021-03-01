@@ -23,7 +23,9 @@ class SubjectIdentifierModel(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel
     history = HistoricalRecords()
 
     def natural_key(self):
-        return (self.subject_identifier,)
+        return tuple(
+            self.subject_identifier,
+        )
 
 
 class TestModelWithoutMixin(BaseUuidModel):
@@ -171,7 +173,7 @@ class CrfOne(ActionModelMixin, SiteModelMixin, BaseUuidModel):
         return self.subject_visit
 
     @classmethod
-    def visit_model_attr(self):
+    def visit_model_attr(cls):
         return "subject_visit"
 
 
@@ -190,7 +192,7 @@ class CrfTwo(ActionModelMixin, SiteModelMixin, BaseUuidModel):
         return self.subject_visit
 
     @classmethod
-    def visit_model_attr(self):
+    def visit_model_attr(cls):
         return "subject_visit"
 
 

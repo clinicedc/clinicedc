@@ -1,3 +1,5 @@
+from typing import List
+
 from django.core.exceptions import ObjectDoesNotExist
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_notification import Notification
@@ -33,28 +35,28 @@ class ActionItemNotification(Notification):
     """
 
     # set by default
-    notification_action_name = None
+    notification_action_name: str = None
     # set by class user, list of field(s) from
     # the action_item.reference_obj
-    notification_fields = []
+    notification_fields: List[str] = []
 
     # action_item created before the reference obj
-    notify_on_new_and_no_reference_obj = True
+    notify_on_new_and_no_reference_obj: bool = True
     # reference obj creates action_item and status set to OPEN
-    notify_on_open = False
+    notify_on_open: bool = False
     # action_item status set to CLOSED
-    notify_on_closed = False
+    notify_on_closed: bool = False
     # reference obj changed, action item status set to OPEN
-    notify_on_changed_reference_obj = True
+    notify_on_changed_reference_obj: bool = True
     # set by default to the the Action's reference_model
-    model = None
+    model: str = None
 
-    email_subject_template = (
+    email_subject_template: str = (
         "{updated_subject_line}{test_subject_line}{protocol_name}: "
         "{display_name} "
         "for {subject_identifier}"
     )
-    email_body_template_new = (
+    email_body_template_new: str = (
         "\n\nDo not reply to this email\n\n"
         "{test_body_line}"
         'A report titled "{parent_reference_verbose_name}" has been submitted '
@@ -67,7 +69,7 @@ class ActionItemNotification(Notification):
         "{test_body_line}"
         "Thanks."
     )
-    email_body_template_update = (
+    email_body_template_update: str = (
         "\n\nDo not reply to this email\n\n"
         "{test_body_line}"
         "An updated report has been submitted.\n\n"
@@ -79,7 +81,7 @@ class ActionItemNotification(Notification):
         "{test_body_line}"
         "Thanks."
     )
-    email_footer_template = (
+    email_footer_template: str = (
         "\n\n-----------------\n"
         'To unsubscribe remove "{display_name}" from your chosen '
         "email notifications in your user profile.\n\n"
