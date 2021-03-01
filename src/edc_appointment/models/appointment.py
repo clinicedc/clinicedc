@@ -12,7 +12,7 @@ class Appointment(AppointmentModelMixin, SiteModelMixin, BaseUuidModel):
 
     history = HistoricalRecords()
 
-    def natural_key(self):
+    def natural_key(self) -> tuple:
         return (
             self.subject_identifier,
             self.visit_schedule_name,
@@ -21,7 +21,8 @@ class Appointment(AppointmentModelMixin, SiteModelMixin, BaseUuidModel):
             self.visit_code_sequence,
         )
 
-    natural_key.dependencies = ["sites.Site"]
+    # noinspection PyTypeHints
+    natural_key.dependencies = ["sites.Site"]  # type: ignore
 
     class Meta(AppointmentModelMixin.Meta, BaseUuidModel.Meta):
         pass

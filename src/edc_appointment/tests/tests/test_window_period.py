@@ -10,10 +10,10 @@ from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.forms import AppointmentForm
 from edc_appointment.tests.models import SubjectVisit
 
-from ..model_mixins import AppointmentWindowError
-from ..models import Appointment
-from .helper import Helper
-from .visit_schedule import visit_schedule3
+from ...model_mixins import AppointmentWindowError
+from ...models import Appointment
+from ..helper import Helper
+from ..visit_schedule import visit_schedule3
 
 
 class TestAppointmentWindowPeriod(TestCase):

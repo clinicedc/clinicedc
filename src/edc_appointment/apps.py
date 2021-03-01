@@ -4,7 +4,7 @@ from django.apps import AppConfig as DjangoAppConfig
 
 
 class AppConfig(DjangoAppConfig):
-    _holidays = {}
+    _holidays: dict = {}
     name = "edc_appointment"
     verbose_name = "Edc Appointments"
     has_exportable_data = True

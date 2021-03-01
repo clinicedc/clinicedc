@@ -10,12 +10,12 @@ from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
-from ..constants import IN_PROGRESS_APPT, INCOMPLETE_APPT
-from ..managers import AppointmentDeleteError
-from ..models import Appointment
-from .helper import Helper
-from .models import OnScheduleOne, OnScheduleTwo, SubjectConsent, SubjectVisit
-from .visit_schedule import visit_schedule1, visit_schedule2
+from ...constants import IN_PROGRESS_APPT, INCOMPLETE_APPT
+from ...managers import AppointmentDeleteError
+from ...models import Appointment
+from ..helper import Helper
+from ..models import OnScheduleOne, OnScheduleTwo, SubjectConsent, SubjectVisit
+from ..visit_schedule import visit_schedule1, visit_schedule2
 
 
 class TestAppointment(TestCase):

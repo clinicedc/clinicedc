@@ -11,8 +11,8 @@ from edc_facility.import_holidays import import_holidays
 from edc_utils import get_utcnow
 from edc_visit_schedule import Schedule, Visit, VisitSchedule, site_visit_schedules
 
-from ..creators import AppointmentCreator
-from ..models import Appointment
+from ...creators import AppointmentCreator
+from ...models import Appointment
 
 
 class AppointmentCreatorTestCase(TestCase):

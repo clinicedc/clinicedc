@@ -43,7 +43,8 @@ def appointment_mark_as_done(modeladmin, request, queryset):
             obj.save(update_fields=["appt_status"])
 
 
-appointment_mark_as_done.short_description = "Mark as DONE (if allowed)"
+# noinspection PyTypeHints
+appointment_mark_as_done.short_description = "Mark as DONE (if allowed)"  # type: ignore
 
 
 def appointment_mark_as_new(modeladmin, request, queryset):
@@ -60,4 +61,5 @@ def appointment_mark_as_new(modeladmin, request, queryset):
             obj.save(update_fields=["appt_status"])
 
 
-appointment_mark_as_new.short_description = "Mark as NEW (if allowed)"
+# noinspection PyTypeHints
+appointment_mark_as_new.short_description = "Mark as NEW (if allowed)"  # type: ignore

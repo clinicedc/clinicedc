@@ -9,9 +9,9 @@ from edc_facility.import_holidays import import_holidays
 from edc_visit_schedule.schedule.visit_collection import VisitCollection
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from ..models import Appointment
-from .helper import Helper
-from .visit_schedule import visit_schedule1
+from ...models import Appointment
+from ..helper import Helper
+from ..visit_schedule import visit_schedule1
 
 
 class TestApptDatetimes(TestCase):

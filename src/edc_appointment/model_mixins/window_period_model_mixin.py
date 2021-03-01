@@ -4,6 +4,8 @@ from edc_visit_schedule.schedule.window import (
     UnScheduledVisitWindowError,
 )
 
+from ..stubs import AppointmentModelStub
+
 
 class AppointmentWindowError(Exception):
     pass
@@ -16,12 +18,12 @@ class WindowPeriodModelMixin(models.Model):
 
     window_period_checks_enabled = True
 
-    def save(self, *args, **kwargs):
+    def save(self: AppointmentModelStub, *args, **kwargs) -> None:
         if self.id and self.appt_datetime and self.timepoint_datetime:
             self.raise_on_not_datetime_in_window()
-        super().save(*args, **kwargs)
+        super().save(*args, **kwargs)  # type:ignore
 
-    def raise_on_not_datetime_in_window(self):
+    def raise_on_not_datetime_in_window(self: AppointmentModelStub):
         if not self.is_baseline_appt:
             baseline_timepoint_datetime = self.__class__.objects.first_appointment(
                 subject_identifier=self.subject_identifier,
@@ -48,7 +50,7 @@ class WindowPeriodModelMixin(models.Model):
                 raise AppointmentWindowError(msg)
 
     @property
-    def is_baseline_appt(self):
+    def is_baseline_appt(self: AppointmentModelStub) -> bool:
         return self.timepoint == 0 and self.visit_code_sequence == 0
 
     class Meta:

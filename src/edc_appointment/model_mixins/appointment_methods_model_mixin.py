@@ -1,7 +1,13 @@
+from typing import Optional, Protocol, Type
+
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from edc_facility import Facility
 from edc_visit_tracking.model_mixins import VisitModelMixin
+from edc_visit_tracking.stubs import SubjectVisitModelStub
+
+from edc_appointment.stubs import AppointmentModelStub, TAppointmentModelStub
 
 
 class AppointmentMethodsModelError(Exception):
@@ -10,21 +16,21 @@ class AppointmentMethodsModelError(Exception):
 
 class AppointmentMethodsModelMixin(models.Model):
 
-    """Mixin of methods for the appointment model only."""
+    """Mixin of methods for the appointment model only"""
 
     @property
-    def visit(self):
-        """Returns the related visit model instance."""
+    def visit(self: AppointmentModelStub) -> SubjectVisitModelStub:
+        """Returns the related visit model instance"""
         return getattr(self, self.related_visit_model_attr())
 
     @property
-    def facility(self):
-        """Returns the facility instance for this facility name."""
+    def facility(self: AppointmentModelStub) -> Facility:
+        """Returns the facility instance for this facility name"""
         app_config = django_apps.get_app_config("edc_facility")
         return app_config.get_facility(name=self.facility_name)
 
     @classmethod
-    def related_visit_model_attr(cls):
+    def related_visit_model_attr(cls: TAppointmentModelStub) -> str:
         fields = []
         for f in cls._meta.get_fields():
             if f.related_model:
@@ -46,11 +52,11 @@ class AppointmentMethodsModelMixin(models.Model):
         return related_visit_model_attr
 
     @classmethod
-    def visit_model_cls(cls):
+    def visit_model_cls(cls: TAppointmentModelStub) -> Type[SubjectVisitModelStub]:
         return getattr(cls, cls.related_visit_model_attr()).related.related_model
 
     @property
-    def next_by_timepoint(self):
+    def next_by_timepoint(self: AppointmentModelStub) -> AppointmentModelStub:
         """Returns the next appointment or None of all appointments
         for this subject for visit_code_sequence=0.
         """
@@ -65,7 +71,7 @@ class AppointmentMethodsModelMixin(models.Model):
         )
 
     @property
-    def last_visit_code_sequence(self):
+    def last_visit_code_sequence(self: AppointmentModelStub) -> Optional[int]:
         """Returns an integer, or None, that is the visit_code_sequence
         of the last appointment for this visit code that is not self.
         (ordered by visit_code_sequence).
@@ -88,7 +94,7 @@ class AppointmentMethodsModelMixin(models.Model):
         return None
 
     @property
-    def next_visit_code_sequence(self):
+    def next_visit_code_sequence(self: AppointmentModelStub) -> int:
         """Returns an integer that is the next visit_code_sequence.
 
         A sequence would be 1000.0, 1000.1, 1000.2, ...
@@ -97,14 +103,16 @@ class AppointmentMethodsModelMixin(models.Model):
             return self.last_visit_code_sequence + 1
         return self.visit_code_sequence + 1
 
-    def get_last_appointment_with_visit_report(self):
+    def get_last_appointment_with_visit_report(
+        self: AppointmentModelStub,
+    ) -> Optional[AppointmentModelStub]:
         """Returns the last appointment model instance,
         or None, with a completed visit report.
 
         Ordering is by appointment timepoint/visit_code_sequence
         with a completed visit report.
         """
-        appointment = None
+        appointment: Optional[AppointmentModelStub] = None
         visit = (
             self.__class__.visit_model_cls()
             .objects.filter(
@@ -120,7 +128,7 @@ class AppointmentMethodsModelMixin(models.Model):
         return appointment
 
     @property
-    def previous_by_timepoint(self):
+    def previous_by_timepoint(self: AppointmentModelStub) -> Optional[AppointmentModelStub]:
         """Returns the previous appointment or None by timepoint
         for visit_code_sequence=0.
         """
@@ -135,13 +143,15 @@ class AppointmentMethodsModelMixin(models.Model):
         )
 
     @property
-    def previous(self):
+    def previous(self: AppointmentModelStub) -> Optional[AppointmentModelStub]:
         """Returns the previous appointment or None in this schedule
         for visit_code_sequence=0.
         """
         return self.get_previous()
 
-    def get_previous(self, include_interim=None):
+    def get_previous(
+        self: AppointmentModelStub, include_interim=None
+    ) -> Optional[AppointmentModelStub]:
         """Returns the previous appointment model instance,
         or None, in this schedule.
 
@@ -166,17 +176,17 @@ class AppointmentMethodsModelMixin(models.Model):
             .order_by("timepoint", "visit_code_sequence")
         )
         try:
-            previous_appt = appointments.reverse()[0]
+            previous_appt: Optional[AppointmentModelStub] = appointments.reverse()[0]
         except IndexError:
             previous_appt = None
         return previous_appt
 
     @property
-    def next(self):
+    def next(self: AppointmentModelStub) -> Optional[AppointmentModelStub]:
         """Returns the next appointment or None in this schedule
         for visit_code_sequence=0.
         """
-        next_appt = None
+        next_appt: Optional[AppointmentModelStub] = None
         next_visit = self.schedule.visits.next(self.visit_code)
         if next_visit:
             try:

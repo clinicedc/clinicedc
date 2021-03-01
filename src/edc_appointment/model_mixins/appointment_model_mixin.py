@@ -1,3 +1,6 @@
+import uuid
+from datetime import datetime
+from typing import Union
 from uuid import UUID
 
 from django.conf import settings
@@ -11,6 +14,7 @@ from ..choices import APPT_REASON, APPT_STATUS, APPT_TYPE
 from ..constants import NEW_APPT
 from ..exceptions import UnknownVisitCode
 from ..managers import AppointmentManager
+from ..stubs import AppointmentModelStub
 from .appointment_methods_model_mixin import AppointmentMethodsModelMixin
 from .window_period_model_mixin import WindowPeriodModelMixin
 
@@ -94,10 +98,10 @@ class AppointmentModelMixin(
 
     objects = AppointmentManager()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.visit_code}.{self.visit_code_sequence}"
 
-    def natural_key(self):
+    def natural_key(self) -> tuple:
         return (
             self.subject_identifier,
             self.visit_schedule_name,
@@ -107,13 +111,13 @@ class AppointmentModelMixin(
         )
 
     @property
-    def str_pk(self):
+    def str_pk(self: AppointmentModelStub) -> Union[str, uuid.UUID]:
         if isinstance(self.id, UUID):
             return str(self.pk)
         return self.pk
 
     @property
-    def title(self):
+    def title(self: AppointmentModelStub) -> str:
         if not self.schedule.visits.get(self.visit_code):
             valid_visit_codes = [v for v in self.schedule.visits]
             raise UnknownVisitCode(
@@ -128,7 +132,7 @@ class AppointmentModelMixin(
         return title
 
     @property
-    def report_datetime(self):
+    def report_datetime(self: AppointmentModelStub) -> datetime:
         return self.appt_datetime
 
     class Meta:
