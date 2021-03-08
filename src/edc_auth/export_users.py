@@ -1,10 +1,11 @@
 import csv
+from datetime import datetime
 
 from django.contrib.auth.models import User
 
 
 def export_users(path):
-    path = path or "users.csv"
+    path = path or f"edc_users_{datetime.now().strftime('%Y%m%d%H%M%S')}.csv"
     user = {
         "username": None,
         "password": None,
@@ -21,11 +22,11 @@ def export_users(path):
     }
 
     with open(path, "w+") as f:
-        writer = csv.DictWriter(f, fieldnames=user)
+        writer = csv.DictWriter(f, fieldnames=user, delimiter="|")
         writer.writeheader()
         for user in User.objects.all().order_by("username"):
-            site_names = ";".join([s.name for s in user.userprofile.sites.all()])
-            role_names = ";".join([g.name for g in user.userprofile.roles.all()])
+            site_names = ",".join([s.name for s in user.userprofile.sites.all()])
+            role_names = ",".join([g.name for g in user.userprofile.roles.all()])
             user = {
                 "username": user.username,
                 "password": user.password,
@@ -37,8 +38,8 @@ def export_users(path):
                 "email": user.email,
                 "mobile": user.userprofile.mobile,
                 "alternate_email": user.userprofile.alternate_email,
-                "site_names": site_names or "None",
-                "role_names": role_names or "None",
+                "site_names": site_names or "",
+                "role_names": role_names or "",
             }
             writer.writerow(user)
     print(f"Done. See file `{path}` in the current directory.")

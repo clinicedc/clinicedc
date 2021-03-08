@@ -3,10 +3,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.test import tag  # noqa
 from faker import Faker
 
-from ..constants import DATA_MANAGER_ROLE
-from ..models import Role
-from ..role_names import CLINICIAN_ROLE, groups_by_role_name, role_names
-from .utils import EdcAuthTestCase, create_users
+from ...constants import DATA_MANAGER_ROLE
+from ...models import Role
+from ...role_names import CLINICIAN_ROLE, groups_by_role_name, role_names
+from ..utils import EdcAuthTestCase, create_users
 
 fake = Faker()
 

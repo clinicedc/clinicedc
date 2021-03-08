@@ -1,23 +1,22 @@
 from django.apps import apps as django_apps
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
-from django.test import TestCase, tag
+from django.test import tag
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
 
-from ..backends import ModelBackendWithSite
-from ..constants import CLINICIAN_ROLE
-from ..group_permissions_updater import GroupPermissionsUpdater
-from ..models.role import Role
+from edc_auth.tests.utils import EdcAuthTestCase
+
+from ...backends import ModelBackendWithSite
+from ...constants import CLINICIAN_ROLE
+from ...group_permissions_updater import GroupPermissionsUpdater
+from ...models.role import Role
 
 
-class TestUserProfile(TestCase):
-    #     def tearDown(self):
-    #         UserProfile.objects.all().delete()
-    #         User.objects.all().delete()
-
-    def setUp(self):
-
+class TestUserProfile(EdcAuthTestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
         GroupPermissionsUpdater(verbose=True, apps=django_apps)
 
     def test_default_user_profile_created_by_signal(self):
@@ -40,8 +39,8 @@ class TestUserProfile(TestCase):
     @override_settings(SITE_ID=10)
     def test_backend_one_site(self):
         """User of site 10 can login to site 10."""
-        Site.objects.all().delete()
-        ten = Site.objects.create(id=10, domain="ten.example.com", name="ten")
+        # Site.objects.all().delete()
+        ten = Site.objects.get(id=10)
         user = User.objects.create(
             username="erik", is_superuser=False, is_active=True, is_staff=True
         )
@@ -57,8 +56,7 @@ class TestUserProfile(TestCase):
     @override_settings(SITE_ID=20)
     def test_backend_one_site2(self):
         """User of site 10 cannot login to site 20."""
-        Site.objects.all().delete()
-        ten = Site.objects.create(id=10, domain="ten.example.com", name="ten")
+        ten = Site.objects.get(id=10)
         user = User.objects.create(
             username="erik", is_superuser=False, is_active=True, is_staff=True
         )

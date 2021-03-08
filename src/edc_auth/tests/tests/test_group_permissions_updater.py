@@ -6,8 +6,8 @@ from edc_randomization.site_randomizers import site_randomizers
 
 from edc_auth.group_names import RANDO
 
-from ..group_permissions_updater import GroupPermissionsUpdater
-from .randomizers import CustomRandomizer
+from ...group_permissions_updater import GroupPermissionsUpdater
+from ..randomizers import CustomRandomizer
 
 
 class GroupPermissionUpdater(TestCase):

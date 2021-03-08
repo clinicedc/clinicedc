@@ -9,7 +9,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--csvfile", default="users.csv", dest="csvfile", help="CSV filename"
+            "--csvfile", default=None, dest="csvfile", help="CSV filename"
         )
 
         parser.add_argument(

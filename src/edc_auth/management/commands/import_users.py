@@ -28,7 +28,8 @@ class Command(BaseCommand):
 
         parser.add_argument(
             "--resource-name",
-            default="clinicedc.org",
+            type=str,
+            default=f"clinicedc.org",
             dest="resource_name",
             help="Mail server domain",
         )
@@ -51,10 +52,18 @@ class Command(BaseCommand):
 
         parser.add_argument(
             "--notify-users",
-            default=True,
+            default=False,
             action="store_true",
             dest="notify_users",
             help="Send email to users",
+        )
+
+        parser.add_argument(
+            "--limit_to_user",
+            default="",
+            type=str,
+            dest="limit_to_username",
+            help="Limit import to a single username",
         )
 
     def handle(self, *args, **options):
@@ -67,4 +76,5 @@ class Command(BaseCommand):
             export_to_file=options["export_to_file"],
             test_email_address=options["notify_to_test_email"],
             resend_as_new=options["resend_as_new"],
+            limit_to_username=options["limit_to_username"],
         )

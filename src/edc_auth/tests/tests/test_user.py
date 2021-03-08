@@ -2,14 +2,14 @@ from string import Template
 
 from django.contrib.auth.models import User
 from django.core import mail
-from django.test import tag
+from edc_protocol import Protocol
 from faker import Faker
 
-from ..group_names import CLINIC
-from ..import_users import UserImporter, UserImporterError, import_users
-from ..password_setter import PasswordSetter
-from ..role_names import CLINICIAN_ROLE
-from .utils import EdcAuthTestCase, create_user_csv_file, create_users
+from ...group_names import CLINIC
+from ...import_users import UserImporter, UserImporterError, import_users
+from ...password_setter import PasswordSetter
+from ...role_names import CLINICIAN_ROLE
+from ..utils import EdcAuthTestCase, create_user_csv_file, create_users
 
 fake = Faker()
 
@@ -18,14 +18,15 @@ site_names = ["harare", "gaborone", "kampala"]
 
 class TestUser(EdcAuthTestCase):
     def setUp(self):
-        self.filename = create_user_csv_file(user_count=2)
+        self.filename = create_user_csv_file(user_count=2, include_passwords=True)
 
     def test_import_users(self):
         # import new users
         import_users(self.filename, resource_name=None, send_email_to_user=True)
         self.assertEqual(len(mail.outbox), User.objects.all().count())  # noqa
         self.assertEqual(
-            mail.outbox[0].subject, "Your example.com user account is ready."
+            mail.outbox[0].subject,
+            f"{Protocol().project_name}: Your example.com user account is ready.",
         )
 
         # update existing users
@@ -33,7 +34,8 @@ class TestUser(EdcAuthTestCase):
         user_count = User.objects.all().count()
         self.assertEqual(len(mail.outbox), user_count * 2)  # noqa
         self.assertEqual(
-            mail.outbox[0].subject, "Your example.com user account is ready."
+            mail.outbox[0].subject,
+            f"{Protocol().project_name}: Your example.com user account is ready.",
         )
 
     def test_bad_username(self):
@@ -126,26 +128,30 @@ class TestUser(EdcAuthTestCase):
 
     def test_password_setter_all(self):
         create_users(5)
-        pwsetter = PasswordSetter()
+        user = User.objects.all()[0]
+        pwsetter = PasswordSetter(super_username=user.username)
         pwsetter.reset_all()
         self.assertEqual(len(mail.outbox), User.objects.all().count())  # noqa
 
     def test_password_setter_groups(self):
         count = User.objects.filter(groups__name=CLINIC).count()
         create_users(5, group_name=CLINIC)
-        pwsetter = PasswordSetter()
+        user = User.objects.all()[0]
+        pwsetter = PasswordSetter(super_username=user.username)
         pwsetter.reset_by_groups([CLINIC])
         self.assertEqual(len(mail.outbox), User.objects.all().count() + count)  # noqa
 
     def test_password_setter_sites(self):
         count = User.objects.filter(userprofile__sites__name="harare").count()
         create_users(5, site_name="harare")
-        pwsetter = PasswordSetter()
+        user = User.objects.all()[0]
+        pwsetter = PasswordSetter(super_username=user.username)
         pwsetter.reset_by_sites(["harare"])
         self.assertEqual(len(mail.outbox), User.objects.all().count() + count)  # noqa
 
     def test_password_setter_user(self):
         usernames = create_users(5)
-        pwsetter = PasswordSetter()
+        user = User.objects.all()[0]
+        pwsetter = PasswordSetter(super_username=user.username)
         pwsetter.reset_users(usernames)
         self.assertEqual(len(mail.outbox), 5)  # noqa

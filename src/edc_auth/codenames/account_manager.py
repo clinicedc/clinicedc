@@ -1,11 +1,7 @@
 account_manager = [
-    #     "auth.add_group",
-    #     "auth.add_permission",
     "auth.add_user",
-    #     "auth.change_group",
     "auth.change_permission",
     "auth.change_user",
-    #     "auth.delete_group",
     "auth.delete_permission",
     "auth.delete_user",
     "auth.view_group",
