@@ -13,6 +13,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("username")
+        parser.add_argument("super_user")
         parser.add_argument(
             "--resource",
             default="clinicedc.org",
@@ -31,10 +32,8 @@ class Command(BaseCommand):
         except ObjectDoesNotExist as e:
             raise CommandError(e)
         else:
-            p = PasswordSetter()
-            p.reset_user(
-                resource_name=options["resource"], username=options["username"]
-            )
+            p = PasswordSetter(super_username=options["super_user"])
+            p.reset_user(username=options["username"])
             sys.stdout.write(
-                f"\nYour password has been reset and " f"emailed to {user.email}\n"
+                f"\nYour password has been reset and emailed to {user.email}\n"
             )

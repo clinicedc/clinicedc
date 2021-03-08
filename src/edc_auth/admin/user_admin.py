@@ -48,7 +48,8 @@ class UserAdmin(BaseUserAdmin):
         "groups",
     )
 
-    def role(self, obj=None):
+    @staticmethod
+    def role(obj=None):
         roles = []
         role_group_names = []
         for role in obj.userprofile.roles.all():
@@ -66,7 +67,8 @@ class UserAdmin(BaseUserAdmin):
         template_obj = select_edc_template("user_role_description.html", "edc_auth")
         return render_to_string(template_obj.template.name, context)
 
-    def groups_in_role(self, obj=None):
+    @staticmethod
+    def groups_in_role(obj=None):
         roles = []
         role_group_names = []
         for role in obj.userprofile.roles.all():
