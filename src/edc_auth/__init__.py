@@ -8,6 +8,7 @@ from .group_names import (
     AUDITOR,
     CELERY_MANAGER,
     CLINIC,
+    CLINIC_SUPER,
     DATA_MANAGER,
     DATA_QUERY,
     DISPENSING,
