@@ -1,3 +1,5 @@
+from edc_lab import RequisitionPanel
+
 from .crf import Crf
 
 
@@ -14,7 +16,7 @@ class ScheduledRequisitionError(Exception):
 
 
 class Requisition(Crf):
-    def __init__(self, panel=None, required=None, **kwargs):
+    def __init__(self, panel: RequisitionPanel = None, required: bool = None, **kwargs):
         required = False if required is None else required
         self.panel = panel
         if not self.panel.requisition_model:
