@@ -18,14 +18,14 @@ class AliquotType:
     aliquot type, e.g. WB->Plasma, WB->Buffy Coat.
     """
 
-    def __init__(self, name=None, alpha_code=None, numeric_code=None):
+    def __init__(self, name: str = None, alpha_code: str = None, numeric_code: str = None):
         self.derivatives = []
         self.name = name
-        if not alpha_code or not re.match("^[A-Z]+$", alpha_code, re.ASCII):
+        if not alpha_code or not re.match(r"^[A-Z]+$", alpha_code, re.ASCII):
             raise AliquotTypeAlphaCodeError(f"Invalid alpha code. Got {alpha_code}.")
         else:
             self.alpha_code = alpha_code
-        if not numeric_code or not re.match("^\d+$", numeric_code, re.ASCII):
+        if not numeric_code or not re.match(r"^\d+$", numeric_code, re.ASCII):
             raise AliquotTypeNumericCodeError(f"Invalid numeric code. Got {numeric_code}.")
         else:
             self.numeric_code = numeric_code
@@ -38,7 +38,7 @@ class AliquotType:
         numeric_code = self.numeric_code or "?numeric_code"
         return f"{self.name.title()} ({alpha_code}:{numeric_code})"
 
-    def add_derivatives(self, *aliquot_type):
+    def add_derivatives(self, *aliquot_type: "AliquotType") -> None:
         """Adds an aliquot instance that is a valid
         derivative of self.
         """

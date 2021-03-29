@@ -1,4 +1,9 @@
+from typing import Type
+
 from django.apps import apps as django_apps
+from django.db import models
+
+from .processing_profile import ProcessingProfile
 
 
 class RequisitionPanelError(Exception):
@@ -17,7 +22,7 @@ class PanelAttrs:
 
     """ "A simple class of panel name attributes."""
 
-    def __init__(self, name=None, alpha_code=None):
+    def __init__(self, name: str = None, alpha_code: str = None) -> None:
         title = " ".join(name.split("_")).title()
         alpha_code = alpha_code or ""
         self.abbreviation = f"{name[0:2]}{name[-1:]}".upper()
@@ -29,13 +34,17 @@ class RequisitionPanel:
     """A panel class that contains processing profile instances."""
 
     panel_attrs_cls = PanelAttrs
-    requisition_model = None  # set by lab profile.add_panel
-    lab_profile_name = None  # set by lab profile.add_panel
-    panel_model = "edc_lab.panel"
+    requisition_model: str = None  # set by lab profile.add_panel
+    lab_profile_name: str = None  # set by lab profile.add_panel
+    panel_model: str = "edc_lab.panel"
 
     def __init__(
-        self, name=None, processing_profile=None, verbose_name=None, abbreviation=None
-    ):
+        self,
+        name: str = None,
+        processing_profile: ProcessingProfile = None,
+        verbose_name: str = None,
+        abbreviation: str = None,
+    ) -> None:
         self._panel_model_obj = None
         self.name = name
         self.processing_profile = processing_profile
@@ -69,7 +78,7 @@ class RequisitionPanel:
         return self._panel_model_obj
 
     @property
-    def requisition_model_cls(self):
+    def requisition_model_cls(self) -> Type[models.Model]:
         """Returns the requisition model class associated with this
         panel (set by it's lab profile).
         """
@@ -85,11 +94,11 @@ class RequisitionPanel:
         return requisition_model_cls
 
     @property
-    def numeric_code(self):
+    def numeric_code(self) -> str:
         return self.aliquot_type.numeric_code
 
     @property
-    def alpha_code(self):
+    def alpha_code(self) -> str:
         return self.aliquot_type.alpha_code
 
 

@@ -1,3 +1,6 @@
+from .aliquot_type import AliquotType
+
+
 class ProcessingProfileInvalidDerivative(Exception):
     pass
 
@@ -38,7 +41,9 @@ class ProcessingProfile:
 
     process_cls = Process
 
-    def __init__(self, name=None, aliquot_type=None, verbose_name=None):
+    def __init__(
+        self, name: str = None, aliquot_type: AliquotType = None, verbose_name: str = None
+    ):
         self.aliquot_type = aliquot_type
         self.name = name
         self.processes = {}
@@ -50,7 +55,7 @@ class ProcessingProfile:
     def __str__(self):
         return f"Processing profile {self.verbose_name}"
 
-    def add_processes(self, *processes):
+    def add_processes(self, *processes: Process) -> None:
         """Adds processes to the processing profile or raises."""
         for process in processes:
             if process.aliquot_type not in self.aliquot_type.derivatives:
