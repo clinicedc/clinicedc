@@ -14,28 +14,30 @@ class RequisitionFormValidator(FormValidator):
         return django_apps.get_model(self.aliquot_model)
 
     def clean(self):
-        if self.cleaned_data.get("packed") != self.instance.packed:
-            raise forms.ValidationError({"packed": "Value may not be changed here."})
-        elif self.cleaned_data.get("processed") != self.instance.processed:
-            if self.aliqout_model_cls.objects.filter(
-                requisition_identifier=self.instance.requisition_identifier
-            ).exists():
+        if self.instance:
+            if self.cleaned_data.get("packed") != self.instance.packed:
+                raise forms.ValidationError({"packed": "Value may not be changed here."})
+            elif self.cleaned_data.get("processed") != self.instance.processed:
+                if self.aliqout_model_cls.objects.filter(
+                    requisition_identifier=self.instance.requisition_identifier
+                ).exists():
+                    raise forms.ValidationError(
+                        {"processed": "Value may not be changed. Aliquots exist."}
+                    )
+            elif not self.cleaned_data.get("received") and self.instance.received:
+                if self.instance.processed:
+                    raise forms.ValidationError(
+                        {"received": "Specimen has already been processed."}
+                    )
+            elif self.cleaned_data.get("received") and not self.instance.received:
                 raise forms.ValidationError(
-                    {"processed": "Value may not be changed. Aliquots exist."}
+                    {"received": "Receive specimens in the lab section of the EDC."}
                 )
-        elif not self.cleaned_data.get("received") and self.instance.received:
-            if self.instance.processed:
+            elif self.instance.received:
                 raise forms.ValidationError(
-                    {"received": "Specimen has already been processed."}
+                    "Requisition may not be changed. The specimen has "
+                    "already been received."
                 )
-        elif self.cleaned_data.get("received") and not self.instance.received:
-            raise forms.ValidationError(
-                {"received": "Receive specimens in the lab section of the EDC."}
-            )
-        elif self.instance.received:
-            raise forms.ValidationError(
-                "Requisition may not be changed. The specimen has " "already been received."
-            )
 
         self.validate_requisition_datetime()
         self.applicable_if(NO, field="is_drawn", field_applicable="reason_not_drawn")
@@ -45,7 +47,8 @@ class RequisitionFormValidator(FormValidator):
         self.required_if(YES, field="is_drawn", field_required="item_count")
         self.required_if(YES, field="is_drawn", field_required="estimated_volume")
 
-    def validate_assay_datetime(self, assay_datetime, requisition, field):
+    @staticmethod
+    def validate_assay_datetime(assay_datetime, requisition, field):
         if assay_datetime:
             assay_datetime = to_utc(assay_datetime)
             requisition_datetime = to_utc(requisition.requisition_datetime)
