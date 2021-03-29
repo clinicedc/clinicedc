@@ -5,6 +5,7 @@ from .ae_review import ae_review
 from .auditor import auditor
 from .celery_manager import celery_manager
 from .clinic import clinic
+from .clinic_super import clinic_super
 from .dashboard import dashboard
 from .data_manager import data_manager
 from .data_query import data_query

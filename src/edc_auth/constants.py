@@ -1,6 +1,7 @@
 ACCOUNT_MANAGER_ROLE = "account_manager"
 AUDITOR_ROLE = "auditor"
 CLINICIAN_ROLE = "clinician"
+CLINICIAN_SUPER_ROLE = "clinician_super"
 CUSTOM_ROLE = "custom"
 DATA_EXPORTER_ROLE = "data_exporter"
 DATA_MANAGER_ROLE = "data_manager"
