@@ -22,9 +22,11 @@ class ReportablesFormValidatorMixin:
         """
 
         subject_visit = self.cleaned_data.get("subject_visit")
-        RegisteredSubject = django_apps.get_model("edc_registration.registeredsubject")
+        registered_subject_model_cls = django_apps.get_model(
+            "edc_registration.registeredsubject"
+        )
         subject_identifier = self.cleaned_data.get("subject_visit").subject_identifier
-        registered_subject = RegisteredSubject.objects.get(
+        registered_subject = registered_subject_model_cls.objects.get(
             subject_identifier=subject_identifier
         )
 
@@ -44,3 +46,27 @@ class ReportablesFormValidatorMixin:
             YES, field="results_abnormal", field_applicable="results_reportable"
         )
         reportables.validate_results_reportable_field(responses=self.reportable_grades)
+
+    # def validate_units_field(self, field_name):
+    #     if f"{field_name}_units" in self.cleaned_data:
+    #         self.required_if_not_none(
+    #             field=field_name,
+    #             field_required=f"{field_name}_units",
+    #             field_required_evaluate_as_int=True,
+    #         )
+    #
+    # def validate_abnormal_field(self, field_name):
+    #     if f"{field_name}_abnormal" in self.cleaned_data:
+    #         self.required_if_not_none(
+    #             field=field_name,
+    #             field_required=f"{field_name}_abnormal",
+    #             field_required_evaluate_as_int=True,
+    #         )
+    #
+    # def validate_reportable_field(self, field_name):
+    #     if f"{field_name}_reportable" in self.cleaned_data:
+    #         self.required_if_not_none(
+    #             field=field_name,
+    #             field_required=f"{field_name}_reportable",
+    #             field_required_evaluate_as_int=True,
+    #         )
