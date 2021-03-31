@@ -169,6 +169,22 @@ chemistries = {
             **adult_age_options,
         ),
     ],
+    "chol": [
+        p(
+            "300<=x",
+            grade=GRADE3,
+            units=MILLIGRAMS_PER_DECILITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "7.77<=x",
+            grade=GRADE3,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+    ],
     "creatinine": [
         p(
             "2.47<=x<=4.42",
