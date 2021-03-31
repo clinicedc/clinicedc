@@ -148,7 +148,7 @@ class ReportablesEvaluator:
         # illogical user response combination
         if response.abnormal == YES and response.reportable == NOT_APPLICABLE:
             raise forms.ValidationError(
-                {f"{field}_reportable": ("This field is applicable if result is abnormal")}
+                {f"{field}_reportable": "This field is applicable if result is abnormal"}
             )
 
         # illogical user response combination

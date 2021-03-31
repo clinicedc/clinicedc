@@ -11,6 +11,7 @@ from edc_reportable import site_reportables
 class BloodResultsModelMixin(ActionModelMixin, TrackingModelMixin, models.Model):
 
     action_name = None
+    reportables_name = "default"
 
     results_abnormal = models.CharField(
         verbose_name="Are any of the above results abnormal?",
@@ -49,7 +50,7 @@ class BloodResultsModelMixin(ActionModelMixin, TrackingModelMixin, models.Model)
         opts = self.get_summary_options()
         summary = []
         for field in [f.name for f in self._meta.fields]:
-            grp = site_reportables.get("meta").get(field)
+            grp = site_reportables.get(self.reportables_name).get(field)
             value = getattr(self, field)
             if value and grp:
                 units = getattr(self, f"{field}_units")
