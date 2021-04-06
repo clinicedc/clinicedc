@@ -66,15 +66,15 @@ class CrfRuleGroupTwo(CrfRuleGroup):
 
 class CrfRuleGroupTestCase(TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         import_holidays()
-        register_to_site_reference_configs()
-        return super().setUpClass()
 
     def setUp(self):
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
+
+        register_to_site_reference_configs()
         site_reference_configs.register_from_visit_schedule(
             visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
         )

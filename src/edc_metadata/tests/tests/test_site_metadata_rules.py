@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_constants.constants import MALE
 from edc_facility.import_holidays import import_holidays
 
@@ -51,14 +51,15 @@ class RuleGroupWithRules2(CrfRuleGroup):
         source_model = "edc_metadata.subjectvisit"
 
 
+@tag("12")
 class TestSiteMetadataRules(TestCase):
     @classmethod
     def setUpClass(cls):
         import_holidays()
-        register_to_site_reference_configs()
         return super().setUpClass()
 
     def setUp(self):
+        register_to_site_reference_configs()
         site_metadata_rules.registry = OrderedDict()
 
     def test_register_rule_group_no_rules_raises_on_register(self):

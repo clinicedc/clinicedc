@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_appointment.models import Appointment
 from edc_facility.import_holidays import import_holidays
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
@@ -10,12 +10,8 @@ from ..models import SubjectVisit
 from .metadata_test_mixin import TestMetadataMixin
 
 
+@tag("12")
 class TestCreatesMetadata(TestMetadataMixin, TestCase):
-    @classmethod
-    def setUpClass(cls):
-        import_holidays()
-        return super().setUpClass()
-
     def test_metadata_updater_repr(self):
         obj = MetadataUpdater()
         self.assertTrue(repr(obj))

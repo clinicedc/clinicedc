@@ -1,9 +1,10 @@
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from ...constants import NOT_REQUIRED, REQUIRED
 from ...metadata_rules import Logic, RuleLogicError
 
 
+@tag("12")
 class MetadataRulesTests(TestCase):
     def test_logic(self):
         logic = Logic(

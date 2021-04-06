@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_appointment.models import Appointment
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
@@ -23,23 +23,27 @@ from ..reference_configs import register_to_site_reference_configs
 from ..visit_schedule import visit_schedule
 
 
+@tag("12")
 class TestHandlers(TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         import_holidays()
-        return super(TestHandlers, cls).setUpClass()
 
     def setUp(self):
         self.panel_one = Panel.objects.create(name="one")
         self.panel_seven = Panel.objects.create(name="seven")
         self.panel_blah = Panel.objects.create(name="blah")
-        register_to_site_reference_configs()
+        self.panel_nine = Panel.objects.create(name="nine")
+
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
+
+        register_to_site_reference_configs()
         site_reference_configs.register_from_visit_schedule(
             visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
         )
+
         self.subject_identifier = "1111111"
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
         self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
@@ -79,7 +83,7 @@ class TestHandlers(TestCase):
             RequisitionTargetHandler,
             model="edc_metadata.subjectrequisition",
             visit_model_instance=visit_model_instance,
-            target_panel=self.panel_seven,
+            target_panel=self.panel_nine,
         )
 
     def test_crf_handler_invalid_target_model(self):

@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_appointment.models import Appointment
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 
@@ -9,6 +9,7 @@ from ..models import SubjectVisit
 from .metadata_test_mixin import TestMetadataMixin
 
 
+@tag("12")
 class TestDeletesMetadata(TestMetadataMixin, TestCase):
     def test_deletes_metadata_on_changed_reason_toggled(self):
         SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
@@ -20,7 +21,7 @@ class TestDeletesMetadata(TestMetadataMixin, TestCase):
         self.assertEqual(CrfMetadata.objects.filter(visit_code="2000").count(), 3)
         self.assertEqual(
             RequisitionMetadata.objects.filter(visit_code="2000").count(),
-            6,
+            8,
         )
         obj.reason = MISSED_VISIT
         obj.save()

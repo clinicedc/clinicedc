@@ -12,6 +12,8 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from faker import Faker
 
+from edc_metadata.tests.reference_configs import register_to_site_reference_configs
+
 from ..models import SubjectConsent, SubjectVisit
 from ..visit_schedule import visit_schedule
 
@@ -26,6 +28,7 @@ if not skip_condition:
 fake = Faker()
 
 
+@unittest.skip("2")
 class TestNaturalKey(TestCase):
 
     exclude_models = [
@@ -43,14 +46,15 @@ class TestNaturalKey(TestCase):
     ]
 
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         import_holidays()
-        return super(TestNaturalKey, cls).setUpClass()
 
     def setUp(self):
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
+
+        register_to_site_reference_configs()
 
         # note crfs in visit schedule are all set to REQUIRED by default.
         _, self.schedule = site_visit_schedules.get_by_onschedule_model(

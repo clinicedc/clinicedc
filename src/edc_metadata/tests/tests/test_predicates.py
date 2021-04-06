@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_appointment.models import Appointment
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
@@ -18,17 +18,19 @@ from ..visit_schedule import visit_schedule
 fake = Faker()
 
 
+@tag("12")
 class TestPredicates(TestCase):
     @classmethod
     def setUpClass(cls):
         import_holidays()
-        register_to_site_reference_configs()
         return super().setUpClass()
 
     def setUp(self):
+
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
+
         register_to_site_reference_configs()
         site_reference_configs.register_from_visit_schedule(
             visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}

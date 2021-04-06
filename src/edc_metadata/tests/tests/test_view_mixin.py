@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 from django.contrib.auth.models import User
 from django.http.request import HttpRequest
-from django.test import TestCase
+from django.test import TestCase, tag
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
 from edc_appointment.constants import INCOMPLETE_APPT
@@ -14,6 +14,8 @@ from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
+
+from edc_metadata.tests.tests.metadata_test_mixin import TestMetadataMixin
 
 from ...models import CrfMetadata, RequisitionMetadata
 from ...view_mixins import MetaDataViewMixin
@@ -39,28 +41,33 @@ class MyView(MetaDataViewMixin, ContextMixin, View):
     requisition_model_wrapper_cls = DummyRequisitionModelWrapper
 
 
+@tag("12")
 class TestViewMixin(TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         import_holidays()
-        return super(TestViewMixin, cls).setUpClass()
+        return super().setUpTestData()
 
     def setUp(self):
-        register_to_site_reference_configs()
-        for name in ["one", "two", "three", "four", "five", "six"]:
-            Panel.objects.create(name=name)
 
         self.user = User.objects.create(username="erik")
+
+        for name in ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]:
+            Panel.objects.create(name=name)
 
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
+
+        register_to_site_reference_configs()
         site_reference_configs.register_from_visit_schedule(
             visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
         )
+
         self.subject_identifier = "1111111"
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
         self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
+
         subject_consent = SubjectConsent.objects.create(
             subject_identifier=self.subject_identifier, consent_datetime=get_utcnow()
         )
@@ -123,7 +130,7 @@ class TestViewMixin(TestCase):
         view.appointment = self.appointment
         view.subject_identifier = self.subject_identifier
         context_data = view.get_context_data()
-        self.assertEqual(len(context_data.get("requisitions")), 6)
+        self.assertEqual(len(context_data.get("requisitions")), 2)
 
     def test_view_mixin_context_data_crfs_unscheduled(self):
         self.appointment.appt_status = INCOMPLETE_APPT
@@ -150,7 +157,7 @@ class TestViewMixin(TestCase):
         view.kwargs = {}
         context_data = view.get_context_data()
         self.assertEqual(len(context_data.get("crfs")), 3)
-        self.assertEqual(len(context_data.get("requisitions")), 3)
+        self.assertEqual(len(context_data.get("requisitions")), 4)
 
         request = RequestFactory().get("/?f=f&e=e&o=o&q=q")
         request.user = self.user
@@ -164,4 +171,4 @@ class TestViewMixin(TestCase):
         # view.message_user.assert_called_with(3, 4, 5, key='value')
         context_data = view.get_context_data()
         self.assertEqual(len(context_data.get("crfs")), 5)
-        self.assertEqual(len(context_data.get("requisitions")), 6)
+        self.assertEqual(len(context_data.get("requisitions")), 2)

@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_visit_tracking.constants import SCHEDULED
 
 from ...constants import KEYED, NOT_REQUIRED, REQUIRED
@@ -11,6 +11,7 @@ from ..models import CrfOne, CrfThree, CrfTwo, SubjectRequisition, SubjectVisit
 from .metadata_test_mixin import TestMetadataMixin
 
 
+@tag("12")
 class TestMetadataUpdater(TestMetadataMixin, TestCase):
     def test_updates_crf_metadata_as_keyed(self):
         subject_visit = SubjectVisit.objects.create(
@@ -223,26 +224,29 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
         self.assertEqual(len(inspector.keyed), 1)
 
     def test_crf_updates_ok(self):
+        subject_visit = SubjectVisit.objects.create(
+            appointment=self.appointment, reason=SCHEDULED
+        )
         CrfMetadata.objects.get(
-            visit_code=self.subject_visit.visit_code,
+            visit_code=subject_visit.visit_code,
             model="edc_metadata.crfone",
             entry_status=REQUIRED,
         )
         metadata_updater = MetadataUpdater(
-            visit_model_instance=self.subject_visit,
+            visit_model_instance=subject_visit,
             target_model="edc_metadata.crfone",
         )
         metadata_updater.update(entry_status=NOT_REQUIRED)
         self.assertRaises(
             ObjectDoesNotExist,
             CrfMetadata.objects.get,
-            visit_code=self.subject_visit.visit_code,
+            visit_code=subject_visit.visit_code,
             model="edc_metadata.crfone",
             entry_status=REQUIRED,
         )
 
         for visit_obj in SubjectVisit.objects.all():
-            if visit_obj == self.subject_visit:
+            if visit_obj == subject_visit:
                 try:
                     CrfMetadata.objects.get(
                         visit_code=visit_obj.visit_code,
@@ -261,8 +265,11 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
                 )
 
     def test_crf_invalid_model(self):
+        subject_visit = SubjectVisit.objects.create(
+            appointment=self.appointment, reason=SCHEDULED
+        )
         metadata_updater = MetadataUpdater(
-            visit_model_instance=self.subject_visit,
+            visit_model_instance=subject_visit,
             target_model="edc_metadata.blah",
         )
         self.assertRaises(
@@ -270,8 +277,11 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
         )
 
     def test_crf_model_not_scheduled(self):
+        subject_visit = SubjectVisit.objects.create(
+            appointment=self.appointment, reason=SCHEDULED
+        )
         metadata_updater = MetadataUpdater(
-            visit_model_instance=self.subject_visit,
+            visit_model_instance=subject_visit,
             target_model="edc_metadata.crfseven",
         )
         self.assertRaises(

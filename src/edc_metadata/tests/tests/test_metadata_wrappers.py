@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_appointment.models import Appointment
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
@@ -20,21 +20,24 @@ from ..reference_configs import register_to_site_reference_configs
 from ..visit_schedule import visit_schedule
 
 
+@tag("12")
 class TestMetadataWrapperObjects(TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         import_holidays()
-        return super(TestMetadataWrapperObjects, cls).setUpClass()
 
     def setUp(self):
         self.panel_one = Panel.objects.create(name="one")
-        register_to_site_reference_configs()
+
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
+
+        register_to_site_reference_configs()
         site_reference_configs.register_from_visit_schedule(
             visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
         )
+
         self.subject_identifier = "1111111"
         subject_consent = SubjectConsent.objects.create(
             subject_identifier=self.subject_identifier, consent_datetime=get_utcnow()
@@ -146,4 +149,4 @@ class TestMetadataWrapperObjects(TestCase):
         requisition_metadata_wrappers = RequisitionMetadataWrappers(
             appointment=self.appointment
         )
-        self.assertEqual(len(requisition_metadata_wrappers.objects), 6)
+        self.assertEqual(len(requisition_metadata_wrappers.objects), 8)

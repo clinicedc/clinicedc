@@ -51,10 +51,12 @@ crfs_unscheduled = FormsCollection(
 requisitions = FormsCollection(
     Requisition(show_order=10, panel=MockPanel("one"), required=True, additional=False),
     Requisition(show_order=20, panel=MockPanel("two"), required=True, additional=False),
-    Requisition(show_order=30, panel=MockPanel("three"), required=True, additional=False),
-    Requisition(show_order=40, panel=MockPanel("four"), required=True, additional=False),
-    Requisition(show_order=50, panel=MockPanel("five"), required=True, additional=False),
-    Requisition(show_order=60, panel=MockPanel("six"), required=True, additional=False),
+    Requisition(show_order=30, panel=MockPanel("three"), required=False, additional=False),
+    Requisition(show_order=40, panel=MockPanel("four"), required=False, additional=False),
+    Requisition(show_order=50, panel=MockPanel("five"), required=False, additional=False),
+    Requisition(show_order=60, panel=MockPanel("six"), required=False, additional=False),
+    Requisition(show_order=70, panel=MockPanel("seven"), required=False, additional=False),
+    Requisition(show_order=80, panel=MockPanel("eight"), required=False, additional=False),
 )
 
 requisitions3000 = FormsCollection(
@@ -65,6 +67,7 @@ requisitions_unscheduled = FormsCollection(
     Requisition(show_order=10, panel=MockPanel("one"), required=True, additional=False),
     Requisition(show_order=20, panel=MockPanel("three"), required=True, additional=False),
     Requisition(show_order=30, panel=MockPanel("five"), required=True, additional=False),
+    Requisition(show_order=90, panel=MockPanel("nine"), required=True, additional=False),
 )
 
 visit0 = Visit(

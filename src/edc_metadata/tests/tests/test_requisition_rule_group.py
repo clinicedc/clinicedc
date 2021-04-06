@@ -142,7 +142,6 @@ class TestRequisitionRuleGroup(TestCase):
     @classmethod
     def setUpClass(cls):
         import_holidays()
-        register_to_site_reference_configs()
         return super().setUpClass()
 
     def setUp(self):
@@ -154,9 +153,12 @@ class TestRequisitionRuleGroup(TestCase):
         self.panel_six = Panel.objects.create(name=panel_six.name)
         self.panel_seven = Panel.objects.create(name=panel_seven.name)
         self.panel_eight = Panel.objects.create(name=panel_eight.name)
+
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
+
+        register_to_site_reference_configs()
         site_reference_configs.register_from_visit_schedule(
             visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
         )
@@ -347,16 +349,20 @@ class TestRequisitionRuleGroup(TestCase):
                 self.assertEqual(obj.entry_status, NOT_REQUIRED)
 
     def test_metadata_requisition(self):
-        subject_visit = self.enroll(gender=FEMALE)
         site_metadata_rules.registry = OrderedDict()
         site_metadata_rules.register(RequisitionRuleGroup3)
-        CrfOne.objects.create(subject_visit=subject_visit, f1="hello")
-        for panel in [
-            self.panel_one,
-            self.panel_two,
-            self.panel_three,
-            self.panel_four,
-            self.panel_five,
+
+        subject_visit = self.enroll(gender=FEMALE)
+
+        for panel, entry_status in [
+            (self.panel_one, REQUIRED),
+            (self.panel_two, REQUIRED),
+            (self.panel_three, NOT_REQUIRED),
+            (self.panel_four, NOT_REQUIRED),
+            (self.panel_five, NOT_REQUIRED),
+            (self.panel_six, NOT_REQUIRED),
+            (self.panel_seven, NOT_REQUIRED),
+            (self.panel_eight, NOT_REQUIRED),
         ]:
             with self.subTest(panel=panel):
                 obj = RequisitionMetadata.objects.get(
@@ -365,13 +371,37 @@ class TestRequisitionRuleGroup(TestCase):
                     visit_code=subject_visit.visit_code,
                     panel_name=panel.name,
                 )
-                self.assertEqual(obj.entry_status, NOT_REQUIRED)
+                self.assertEqual(obj.entry_status, entry_status)
 
+        CrfOne.objects.create(subject_visit=subject_visit, f1="hello")
+
+        for panel, entry_status in [
+            (self.panel_one, REQUIRED),
+            (self.panel_two, REQUIRED),
+            (self.panel_three, NOT_REQUIRED),
+            (self.panel_four, NOT_REQUIRED),
+            (self.panel_five, NOT_REQUIRED),
+            (self.panel_six, REQUIRED),
+            (self.panel_seven, REQUIRED),
+            (self.panel_eight, REQUIRED),
+        ]:
+            with self.subTest(panel=panel):
+                obj = RequisitionMetadata.objects.get(
+                    model="edc_metadata.subjectrequisition",
+                    subject_identifier=subject_visit.subject_identifier,
+                    visit_code=subject_visit.visit_code,
+                    panel_name=panel.name,
+                )
+                self.assertEqual(obj.entry_status, entry_status)
+
+    # TODO: fix
     def test_keyed_instance_ignores_rules(self):
         """Asserts if instance exists, rule is ignored"""
-        subject_visit = self.enroll(gender=FEMALE)
         site_metadata_rules.registry = OrderedDict()
         site_metadata_rules.register(RequisitionRuleGroup3)
+
+        subject_visit = self.enroll(gender=FEMALE)
+
         Reference.objects.create(
             visit_schedule_name=subject_visit.visit_schedule_name,
             schedule_name=subject_visit.schedule_name,

@@ -58,7 +58,7 @@ class RequisitionMetadataModelStub(Protocol):
     timepoint: int
     visit_code: str
     visit_code_sequence: int
-    panel: PanelStub
+    panel_name: str
 
     objects: Manager
     visit: VisitModel

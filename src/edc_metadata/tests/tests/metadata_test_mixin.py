@@ -14,20 +14,25 @@ from ..visit_schedule import visit_schedule
 
 class TestMetadataMixin(TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         import_holidays()
-        return super(TestMetadataMixin, cls).setUpClass()
 
     def setUp(self):
         self.panel_one = Panel.objects.create(name="one")
         self.panel_two = Panel.objects.create(name="two")
-        register_to_site_reference_configs()
+
+        for name in ["three", "four", "five", "six"]:
+            Panel.objects.create(name=name)
+
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
+
+        register_to_site_reference_configs()
         site_reference_configs.register_from_visit_schedule(
             visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
         )
+
         self.subject_identifier = "1111111"
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
         self.assertEqual(RequisitionMetadata.objects.all().count(), 0)

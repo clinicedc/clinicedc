@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from django.test import TestCase, tag
+from django.test import TestCase, override_settings
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_reference.site_reference import site_reference_configs
@@ -9,6 +9,8 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from faker import Faker
+
+from edc_metadata.tests.reference_configs import register_to_site_reference_configs
 
 from ...constants import NOT_REQUIRED, REQUIRED
 from ...metadata_rules import (
@@ -25,7 +27,6 @@ from ...metadata_rules import (
 from ...models import CrfMetadata
 from ...target_handler import TargetModelConflict
 from ..models import Appointment, CrfOne, SubjectConsent, SubjectVisit
-from ..reference_configs import register_to_site_reference_configs
 from ..visit_schedule import visit_schedule
 
 fake = Faker()
@@ -116,16 +117,16 @@ class CrfRuleGroupGender(CrfRuleGroup):
 
 class TestMetadataRulesWithGender(TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         import_holidays()
-        register_to_site_reference_configs()
-        return super(TestMetadataRulesWithGender, cls).setUpClass()
 
     def setUp(self):
+        site_reference_configs.registry = {}
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
 
+        register_to_site_reference_configs()
         site_reference_configs.register_from_visit_schedule(
             visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
         )
@@ -315,7 +316,6 @@ class TestMetadataRulesWithGender(TestCase):
                 )
                 self.assertEqual(obj.entry_status, REQUIRED)
 
-    @tag("rule")
     def test_metadata_rules_run_female_not_required(self):
         subject_visit = self.enroll(gender=FEMALE)
         for target_model in [
@@ -469,13 +469,14 @@ class TestMetadataRulesWithGender(TestCase):
         )
         self.assertEqual(obj.entry_status, REQUIRED)
 
+    @override_settings(DEBUG=True)
     def test_predicate_pf2(self):
         """Asserts entry status set to alternative if source model
         exists but does not meet criteria.
         """
 
         def func(f1, f2):
-            return f1 == "f1" and f2 == "f2"
+            return f1 == "f1_value" and f2 == "f2_value"
 
         class MyCrfRuleGroup(CrfRuleGroup):
             rule = CrfRule(
@@ -490,15 +491,23 @@ class TestMetadataRulesWithGender(TestCase):
                 source_model = "edc_metadata.crfone"
 
         site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.register(MyCrfRuleGroup)
         subject_visit = self.enroll(gender=MALE)
-        CrfOne.objects.create(subject_visit=subject_visit)
-        MyCrfRuleGroup().evaluate_rules(visit=subject_visit)
-
         obj = CrfMetadata.objects.get(
             model="edc_metadata.crftwo",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
         )
+        self.assertEqual(obj.entry_status, REQUIRED)
+        CrfOne.objects.create(subject_visit=subject_visit, f1="blah", f2="f2_value")
+        self.assertFalse(func("blah", "f2_value"))
+        # MyCrfRuleGroup().evaluate_rules(visit=subject_visit)
+        obj = CrfMetadata.objects.get(
+            model="edc_metadata.crftwo",
+            subject_identifier=subject_visit.subject_identifier,
+            visit_code=subject_visit.visit_code,
+        )
+
         self.assertEqual(obj.entry_status, NOT_REQUIRED)
 
     def test_predicate_pf3(self):
