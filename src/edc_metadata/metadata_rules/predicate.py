@@ -12,8 +12,7 @@ class NoValueError(Exception):
 
 
 class BasePredicate:
-    @staticmethod
-    def get_value(attr=None, source_model=None, reference_getter_cls=None, **kwargs):
+    def get_value(self, attr=None, source_model=None, reference_getter_cls=None, **kwargs):
         """Returns a value by checking for the attr on each arg.
 
         Each arg in args may be a model instance, queryset, or None.
@@ -33,16 +32,8 @@ class BasePredicate:
         if found_on_instance:
             value = getattr(found_on_instance, attr)
         else:
-            visit = kwargs.get("visit")
             opts = dict(
-                field_name=attr,
-                name=source_model,
-                subject_identifier=visit.subject_identifier,
-                report_datetime=visit.report_datetime,
-                visit_schedule_name=visit.visit_schedule_name,
-                schedule_name=visit.schedule_name,
-                visit_code=visit.visit_code,
-                timepoint=visit.timepoint,
+                field_name=attr, name=source_model, **self.opts_from_visit(kwargs.get("visit"))
             )
             try:
                 reference = reference_getter_cls(**opts)
@@ -54,6 +45,22 @@ class BasePredicate:
                 else:
                     raise NoValueError(f"No value found for {attr}. Given {kwargs}")
         return value
+
+    @staticmethod
+    def opts_from_visit(visit):
+        """Returns a dict of values from the visit model instance"""
+        try:
+            opts = dict(
+                subject_identifier=visit.subject_identifier,
+                report_datetime=visit.report_datetime,
+                visit_schedule_name=visit.visit_schedule_name,
+                schedule_name=visit.schedule_name,
+                visit_code=visit.visit_code,
+                timepoint=visit.timepoint,
+            )
+        except AttributeError as e:
+            raise PredicateError(f"Invalid visit model or None. Got {e}")
+        return opts
 
 
 class P(BasePredicate):
