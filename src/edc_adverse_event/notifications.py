@@ -1,5 +1,5 @@
 from django.conf import settings
-from edc_notification import GradedEventNotification, NewModelNotification, register
+from edc_notification import GradedEventNotification, ModelNotification, register
 
 
 @register()
@@ -39,7 +39,7 @@ class AeFollowupG4EventNotification(GradedEventNotification):
 
 
 @register()
-class DeathNotification(NewModelNotification):
+class DeathNotification(ModelNotification):
 
     name = "death"
     display_name = "a death has been reported"
