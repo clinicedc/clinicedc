@@ -21,6 +21,8 @@ LIVE_SYSTEM: bool = getattr(settings, "LIVE_SYSTEM", False)
 
 
 class Notification:
+    """A generic class to generate a notification on a condition"""
+
     # app_name: str = None
     name: Optional[str] = None
     display_name: Optional[str] = None
@@ -172,6 +174,9 @@ class Notification:
             notification_model = notification_model_cls.objects.get(name=self.name)
         return notification_model
 
+    def get_display_name(self, **kwargs):
+        return self.display_name
+
     def get_template_options(self, instance=None, test_message=None, **kwargs):
         """Returns a dictionary of message template options.
 
@@ -181,7 +186,9 @@ class Notification:
         template_options = dict(
             name=self.name,
             protocol_name=Protocol().protocol_name,
-            display_name=self.display_name,
+            display_name=self.get_display_name(
+                instance=instance, test_message=test_message, **kwargs
+            ),
             email_from=self.email_from,
             test_subject_line=(self.email_test_subject_line if test_message else "").strip(),
             test_body_line=self.email_test_body_line if test_message else "",
@@ -196,7 +203,7 @@ class Notification:
                 pass
         if "site_name" not in template_options:
             try:
-                template_options.update(site_name=instance.site.name.title())
+                template_options.update(site_name=instance.site.name.replace("_", " ").title())
             except AttributeError:
                 pass
         return template_options
