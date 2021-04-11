@@ -20,14 +20,9 @@ from .mixins import DeathReportTestMixin
 
 class TestNotifications(DeathReportTestMixin, TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         site_list_data.autodiscover()
         import_holidays()
-        super().setUpClass()
-
-    @classmethod
-    def tearDownClass(cls):
-        super().tearDownClass()
 
     def test_notifies_initial_ae_g3_not_sae(self):
         baker.make_recipe(
