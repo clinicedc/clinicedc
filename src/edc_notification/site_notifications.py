@@ -91,7 +91,7 @@ class SiteNotifications:
                 notified.update({notification_cls.name: instance._meta.label_lower})
         return notified
 
-    def update_notification_list(self, apps=None, schema_editor=None, verbose=False):
+    def update_notification_list(self, apps=None, schema_editor=None, verbose=False):  # noqa
         """Updates the notification model to ensure all registered
         notifications classes are listed.
 
@@ -101,10 +101,12 @@ class SiteNotifications:
         class (not model) will automatically call this method if the
         named notification does not exist. See notification.notify()
         """
-        Notification = (apps or django_apps).get_model("edc_notification.notification")
+        notification_model_cls = (apps or django_apps).get_model(
+            "edc_notification.notification"
+        )
 
         # flag all notifications as disabled and re-enable as required
-        Notification.objects.all().update(enabled=False)
+        notification_model_cls.objects.all().update(enabled=False)
         if site_notifications.loaded:
             if verbose:
                 sys.stdout.write(style.MIGRATE_HEADING("Populating Notification model:\n"))
@@ -115,9 +117,9 @@ class SiteNotifications:
                         f"  * Adding '{name}': '{notification_cls().display_name}'\n"
                     )
                 try:
-                    obj = Notification.objects.get(name=name)
+                    obj = notification_model_cls.objects.get(name=name)
                 except ObjectDoesNotExist:
-                    Notification.objects.create(
+                    notification_model_cls.objects.create(
                         name=name,
                         display_name=notification_cls().display_name,
                         mailing_list_address=notification_cls().email_to[0],
@@ -129,10 +131,13 @@ class SiteNotifications:
                     obj.enabled = True
                     obj.save()
 
-    def delete_unregistered_notifications(self, apps=None):
+    @staticmethod
+    def delete_unregistered_notifications(apps=None):
         """Delete orphaned notification model instances."""
-        Notification = (apps or django_apps).get_model("edc_notification.notification")
-        return Notification.objects.exclude(
+        notification_model_cls = (apps or django_apps).get_model(
+            "edc_notification.notification"
+        )
+        return notification_model_cls.objects.exclude(
             name__in=[n.name for n in site_notifications.registry.values()]
         ).delete()
 
@@ -146,7 +151,6 @@ class SiteNotifications:
         ):
             sys.stdout.write(style.MIGRATE_HEADING("Creating mailing lists:\n"))
             for name, notification_cls in self.registry.items():
-                message = None
                 notification = notification_cls()
                 manager = MailingListManager(
                     address=notification.email_to,
@@ -172,7 +176,8 @@ class SiteNotifications:
                     responses.update({name: response})
         return responses
 
-    def autodiscover(self, module_name=None, verbose=False):
+    @staticmethod
+    def autodiscover(module_name=None, verbose=False):
         """Autodiscovers classes in the notifications.py file of any
         INSTALLED_APP.
         """
@@ -180,6 +185,7 @@ class SiteNotifications:
         verbose = True if verbose is None else verbose
         sys.stdout.write(f" * checking for {module_name} ...\n")
         for app in django_apps.app_configs:
+            before_import_registry = None
             try:
                 mod = import_module(app)
                 try:
