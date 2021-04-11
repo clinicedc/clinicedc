@@ -10,6 +10,8 @@ from django.test import TestCase, tag
 from django.test.utils import override_settings
 from edc_utils import get_utcnow
 
+from edc_notification.constants import CREATE, UPDATE
+
 from ...decorators import RegisterNotificationError, register
 from ...models import Notification as NotificationModel
 from ...notification import (
@@ -30,6 +32,7 @@ from ..models import AE, AnyModel, Condition, Death
 style = color_style()
 
 
+@tag("22")
 class TestNotification(TestCase):
     def setUp(self):
         Condition.objects.create()
@@ -219,7 +222,7 @@ class TestNotification(TestCase):
 
         self.assertEqual(len(mail.outbox), 2)
 
-    def test_graded_event_grade4(self):
+    def test_graded_event_grade4_on_create(self):
 
         site_notifications._registry = {}
         site_notifications.update_notification_list()
@@ -227,6 +230,25 @@ class TestNotification(TestCase):
         @register()
         class G4EventNotification(GradedEventNotification):
             name = "g4_event"
+            display_name = "g4_event"
+            grade = 4
+            model = "edc_notification.ae"
+
+        site_notifications.update_notification_list()
+
+        # create new
+        ae = AE.objects.create(subject_identifier="1", ae_grade=4)
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_graded_event_grade4_on_create_then_escalate(self):
+
+        site_notifications._registry = {}
+        site_notifications.update_notification_list()
+
+        @register()
+        class G4EventNotification(GradedEventNotification):
+            name = "g4_event"
+            display_name = "g4_event"
             grade = 4
             model = "edc_notification.ae"
 
@@ -235,24 +257,95 @@ class TestNotification(TestCase):
         # create new
         ae = AE.objects.create(subject_identifier="1", ae_grade=2)
         self.assertEqual(len(mail.outbox), 0)
+
+        ae.ae_grade = 4
+        ae.save()
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_graded_event_grade4(self):
+
+        site_notifications._registry = {}
+        site_notifications.update_notification_list()
+
+        @register()
+        class G4EventNotification(GradedEventNotification):
+            name = "g4_event"
+            display_name = "g4_event"
+            grade = 4
+            model = "edc_notification.ae"
+
+        site_notifications.update_notification_list()
+
+        # create new
+        ae = AE.objects.create(subject_identifier="1", ae_grade=2)
+        self.assertEqual(len(mail.outbox), 0)
+
         # increase grade
         ae.ae_grade = 2
         ae.save()
         self.assertEqual(len(mail.outbox), 0)
+
         # increase grade
         ae.ae_grade = 3
         ae.save()
         self.assertEqual(len(mail.outbox), 0)
+
         # increase grade
         ae.ae_grade = 4
         ae.save()
         self.assertEqual(len(mail.outbox), 1)
+
         # decrease back to G3
         ae.ae_grade = 3
         ae.save()
         self.assertEqual(len(mail.outbox), 1)
 
-    def test_model_notification(self):
+    def test_graded_event_grade3_and_grade4(self):
+
+        site_notifications._registry = {}
+        site_notifications.update_notification_list()
+
+        @register()
+        class G3EventNotification(GradedEventNotification):
+            name = "g3_event"
+            display_name = "g3_event"
+            grade = 3
+            model = "edc_notification.ae"
+
+        @register()
+        class G4EventNotification(GradedEventNotification):
+            name = "g4_event"
+            display_name = "g4_event"
+            grade = 4
+            model = "edc_notification.ae"
+
+        site_notifications.update_notification_list()
+
+        # create new at grade 2
+        ae = AE.objects.create(subject_identifier="1", ae_grade=2)
+        self.assertEqual(len(mail.outbox), 0)
+
+        # start at grade 4
+        ae.ae_grade = 4
+        ae.save()
+        self.assertEqual(len(mail.outbox), 1)
+
+        # unchanged
+        ae.ae_grade = 4
+        ae.save()
+        self.assertEqual(len(mail.outbox), 1)
+
+        # decrease grade
+        ae.ae_grade = 3
+        ae.save()
+        self.assertEqual(len(mail.outbox), 2)
+
+        # increase to G4
+        ae.ae_grade = 4
+        ae.save()
+        self.assertEqual(len(mail.outbox), 3)
+
+    def test_model_notification_str(self):
         class DeathNotification(ModelNotification):
             name = "death"
             model = "edc_notification.death"
@@ -266,9 +359,10 @@ class TestNotification(TestCase):
         site_notifications.update_notification_list()
 
         @register()
-        class DeathNotification(NewModelNotification):
+        class DeathNotification(ModelNotification):
             name = "death"
             model = "edc_notification.death"
+            model_operations = [CREATE]
 
         site_notifications.update_notification_list()
         death = Death.objects.create(subject_identifier="1")
@@ -276,47 +370,80 @@ class TestNotification(TestCase):
         death.save()
         self.assertEqual(len(mail.outbox), 1)
 
-    def test_updated_model_notification(self):
+    def test_model_notification(self):
 
         site_notifications._registry = {}
         site_notifications.update_notification_list()
 
         @register()
-        class DeathNotification(UpdatedModelNotification):
+        class DeathNotification(ModelNotification):
             name = "death"
             model = "edc_notification.death"
-            fields = ["cause"]
+            update_fields = ["cause"]
 
         site_notifications.update_notification_list()
 
         death = Death.objects.create(subject_identifier="1", cause="A")
         # this is an update notification, do nothing on create
-        self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(len(mail.outbox), 1)
 
         # update/change cause of death, notify
         death.cause = "B"
         death.save()
-        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 2)
 
         # re-save, do nothing
         death.save()
-        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 2)
 
         # update/change cause of death, notify
         death.cause = "A"
         death.save()
-        self.assertEqual(len(mail.outbox), 2)
+        self.assertEqual(len(mail.outbox), 3)
 
-    def test_updated_model_notification2(self):
+    def test_model_notification2(self):
 
         site_notifications._registry = {}
         site_notifications.update_notification_list()
 
         @register()
-        class DeathNotification(UpdatedModelNotification):
+        class DeathNotification(ModelNotification):
             name = "death"
             model = "edc_notification.death"
-            fields = ["report_datetime"]
+            update_fields = ["report_datetime"]
+
+        site_notifications.update_notification_list()
+
+        death = Death.objects.create(subject_identifier="1", cause="A")
+        self.assertEqual(len(mail.outbox), 1)
+        death.save()
+        self.assertEqual(len(mail.outbox), 1)
+
+        death.report_datetime = get_utcnow() - timedelta(days=1)
+        death.save()
+        self.assertEqual(len(mail.outbox), 2)
+
+        death.save()
+        self.assertEqual(len(mail.outbox), 2)
+
+        death.report_datetime = get_utcnow()
+        death.save()
+        self.assertEqual(len(mail.outbox), 3)
+
+        death.delete()
+        self.assertEqual(len(mail.outbox), 4)
+
+    def test_model_notification3(self):
+
+        site_notifications._registry = {}
+        site_notifications.update_notification_list()
+
+        @register()
+        class DeathNotification(ModelNotification):
+            name = "death"
+            model = "edc_notification.death"
+            update_fields = ["report_datetime"]
+            model_operations = [UPDATE]
 
         site_notifications.update_notification_list()
 
@@ -336,6 +463,39 @@ class TestNotification(TestCase):
         death.save()
         self.assertEqual(len(mail.outbox), 2)
 
+        death.delete()
+        self.assertEqual(len(mail.outbox), 2)
+
+    @tag("11")
+    @override_settings(EDC_PROTOCOL_PROJECT_NAME="Mashi Trial")
+    def test_model_notification_mail_subject(self):
+
+        site_notifications._registry = {}
+        site_notifications.update_notification_list()
+
+        @register()
+        class DeathNotification(ModelNotification):
+            name = "death"
+            model = "edc_notification.death"
+            update_fields = ["report_datetime"]
+
+        site_notifications.update_notification_list()
+
+        death = Death.objects.create(subject_identifier="1", cause="A")
+        self.assertNotIn("UPDATE*", mail.outbox[0].subject)
+        self.assertNotIn("DELETED*", mail.outbox[0].subject)
+
+        death.report_datetime = get_utcnow() - timedelta(days=1)
+        death.save()
+        self.assertIn("UPDATE*", mail.outbox[1].subject)
+
+        death.report_datetime = get_utcnow()
+        death.save()
+        self.assertIn("UPDATE*", mail.outbox[2].subject)
+
+        death.delete()
+        self.assertIn("DELETED*", mail.outbox[3].subject)
+
     def test_notification_model_is_updated(self):
 
         site_notifications._registry = {}
@@ -345,7 +505,7 @@ class TestNotification(TestCase):
         class DeathNotification(UpdatedModelNotification):
             name = "death"
             model = "edc_notification.death"
-            fields = ["report_datetime"]
+            update_fields = ["report_datetime"]
 
         site_notifications.update_notification_list()
 
@@ -361,7 +521,7 @@ class TestNotification(TestCase):
             name = "death2"
             display_name = "Death Two"
             model = "edc_notification.death"
-            fields = ["report_datetime"]
+            update_fields = ["report_datetime"]
 
         site_notifications.update_notification_list()
 
@@ -386,7 +546,7 @@ class TestNotification(TestCase):
             name = "death_update"
             display_name = "Death (Updated Report)"
             model = "edc_notification.death"
-            fields = ["cause"]
+            update_fields = ["cause"]
 
         site_notifications.update_notification_list()
 
@@ -406,14 +566,14 @@ class TestNotification(TestCase):
         class DeathNotification(UpdatedModelNotification):
             name = "death"
             model = "edc_notification.death"
-            fields = ["report_datetime"]
+            update_fields = ["report_datetime"]
 
         @register()
         class DeathNotification2(UpdatedModelNotification):
             name = "death2"
             display_name = "Death Two"
             model = "edc_notification.death"
-            fields = ["report_datetime"]
+            update_fields = ["report_datetime"]
 
         site_notifications.update_notification_list()
 
@@ -438,6 +598,7 @@ class TestNotification(TestCase):
             enabled=True,
         )
 
+    @tag("1")
     def test_graded_event_grade3_as_test_email_message(self):
 
         site_notifications._registry = {}
