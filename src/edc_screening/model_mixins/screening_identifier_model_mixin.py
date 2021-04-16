@@ -17,7 +17,7 @@ class ScreeningIdentifierModelMixin(
     identifier_cls = ScreeningIdentifier
     screening_identifier_field_name: str = "screening_identifier"
 
-    def save(self: SubjectScreeningModelStub, *args, **kwargs):
+    def save(self, *args, **kwargs):
         """Screening Identifier is always allocated."""
         if not self.id:
             setattr(
