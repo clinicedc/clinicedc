@@ -13,7 +13,7 @@ class EligibilityModelMixin(models.Model):
         value of `eligible` is evaluated.
 
         * If not eligible, updates reasons_ineligible.
-        * Screening Identifier is always allocated by ScreeningModelMixin.
+        * Screening Identifier is always allocated.
         """
         eligibility_obj = self.eligibility_cls(model_obj=self, allow_none=True)
 
@@ -24,6 +24,8 @@ class EligibilityModelMixin(models.Model):
             self.reasons_ineligible = "|".join(reasons_ineligible)
         else:
             self.reasons_ineligible = eligibility_obj.reasons_ineligible
+        if not self.id:
+            self.screening_identifier = self.identifier_cls().identifier
         super().save(*args, **kwargs)  # type:ignore
 
     class Meta:
