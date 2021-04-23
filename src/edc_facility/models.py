@@ -8,6 +8,8 @@ from edc_utils import convert_php_dateformat
 
 class Holiday(models.Model):
 
+    id = models.BigAutoField(primary_key=True)
+
     country = models.CharField(max_length=50)
 
     local_date = models.DateField()
