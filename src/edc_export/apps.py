@@ -10,6 +10,7 @@ class AppConfig(DjangoApponfig):
     export_folder = os.path.join(settings.MEDIA_ROOT, "edc_export", "export")
     upload_folder = os.path.join(settings.MEDIA_ROOT, "edc_export", "upload")
     include_in_administration_section = True
+    default_auto_field = "django.db.models.BigAutoField"
 
     def ready(self):
         from .signals import (
