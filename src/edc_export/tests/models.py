@@ -4,7 +4,7 @@ from django_crypto_fields.fields import EncryptedCharField
 from edc_appointment.models import Appointment
 from edc_constants.constants import YES
 from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
-from edc_list_data.model_mixins import ListModelMixin
+from edc_list_data.model_mixins import BaseListModelMixin, ListModelMixin
 from edc_model.models import BaseUuidModel
 from edc_offstudy.model_mixins import OffstudyModelManager, OffstudyModelMixin
 from edc_sites.models import SiteModelMixin
@@ -124,14 +124,14 @@ class CrfThree(CrfModelMixin, BaseUuidModel):
     UPPERCASE = models.DateTimeField(default=get_utcnow)
 
 
-class ListOne(ListModelMixin, BaseUuidModel):
+class ListOne(BaseListModelMixin, BaseUuidModel):
 
     char1 = models.CharField(max_length=25, null=True)
 
     dte = models.DateTimeField(default=get_utcnow)
 
 
-class ListTwo(ListModelMixin, BaseUuidModel):
+class ListTwo(BaseListModelMixin, BaseUuidModel):
 
     char1 = models.CharField(max_length=25, null=True)
 
