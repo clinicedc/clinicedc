@@ -96,6 +96,8 @@ class ModelToDataframe:
                     self._dataframe.select_dtypes(include=["datetime64[ns, UTC]"]).columns
                 ):
                     self._dataframe[column] = self._dataframe[column].astype("datetime64[ns]")
+                for column in list(self._dataframe.select_dtypes(include=["O"]).columns):
+                    self._dataframe[column] = self._dataframe[column].astype(str)
             if self.drop_sys_columns:
                 self._dataframe = self._dataframe.drop(self.edc_sys_columns, axis=1)
         return self._dataframe
