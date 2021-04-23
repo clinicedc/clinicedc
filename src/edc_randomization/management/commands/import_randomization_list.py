@@ -14,7 +14,7 @@ class Command(BaseCommand):
             "--path",
             dest="path",
             default=None,
-            help=("full path to CSV file. Default: app_config." "randomization_list_path"),
+            help="full path to CSV file. Default: app_config.randomization_list_path",
         )
 
         parser.add_argument(
