@@ -1,7 +1,6 @@
-from edc_list_data.model_mixins import ListModelMixin
-from edc_model.models import BaseUuidModel
+from edc_list_data.model_mixins import ListUUidModelMixin
 
 
-class SaeReason(ListModelMixin, BaseUuidModel):
-    class Meta(ListModelMixin.Meta, BaseUuidModel.Meta):
+class SaeReason(ListUUidModelMixin):
+    class Meta(ListUUidModelMixin.Meta):
         pass

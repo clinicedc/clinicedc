@@ -1,6 +1,6 @@
-from edc_list_data.model_mixins import ListModelMixin
-from edc_model.models import BaseUuidModel
+from edc_list_data.model_mixins import ListUUidModelMixin
 
 
-class CauseOfDeath(ListModelMixin, BaseUuidModel):
-    pass
+class CauseOfDeath(ListUUidModelMixin):
+    class Meta(ListUUidModelMixin.Meta):
+        pass
