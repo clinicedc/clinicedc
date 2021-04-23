@@ -83,7 +83,7 @@ class DeathReportModelMixin(
 
     cause_of_death_other = OtherCharField(max_length=100, blank=True, null=True)
 
-    narrative = models.TextField(verbose_name="Narrative")
+    narrative = models.TextField(verbose_name="Narrative", blank=False, null=True)
 
     on_site = ActionIdentifierSiteManager()
 
