@@ -1,0 +1,18 @@
+.button.add, input[type=submit].add, input.add {
+    float: left;
+    border: none;
+    font-weight: 400;
+    background: #f0ad4e;
+}
+.button.edit, input[type=submit].edit, input.edit {
+    float: left;
+    border: none;
+    font-weight: 400;
+    background: #5cb85c;
+}
+.button.go, input[type=submit].go, input.go {
+    float: left;
+    border: none;
+    font-weight: 400;
+    background: #337ab7;
+}
