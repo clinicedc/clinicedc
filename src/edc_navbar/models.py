@@ -10,4 +10,4 @@ class Navbar(models.Model):
     See also: edc_auth.permissions_updater
     """
 
-    pass
+    id = models.BigAutoField(primary_key=True)
