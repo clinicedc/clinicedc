@@ -12,6 +12,10 @@ class ExporterExportFolder(Exception):
     pass
 
 
+class ExporterInvalidExportFormat(Exception):
+    pass
+
+
 class ExporterFileExists(Exception):
     pass
 
@@ -64,7 +68,7 @@ class CsvExporter:
             raise ExporterExportFolder(f"Invalid export folder. Got {self.export_folder}")
         self.data_label = data_label
 
-    def to_csv(self, dataframe=None, export_folder=None):
+    def to_format(self, export_format, dataframe=None, export_folder=None):
         """Returns the full path of the written CSV file if the
         dataframe is exported otherwise None.
 
@@ -84,7 +88,14 @@ class CsvExporter:
                 dataframe.sort_values(by=self.sort_by, inplace=True)
             if self.verbose:
                 sys.stdout.write(f"( ) {self.data_label} ...     \r")
-            dataframe.to_csv(path_or_buf=path, **self.csv_options)
+            if export_format == "csv":
+                dataframe.to_csv(path_or_buf=f"{path}.csv", **self.csv_options)
+            elif export_format == "stata":
+                dataframe.to_stata(path=f"{path}.dta", **self.stata_options)
+            else:
+                raise ExporterInvalidExportFormat(
+                    f"Invalid export format. Got {export_format}"
+                )
             record_count = len(dataframe)
             if self.verbose:
                 sys.stdout.write(
@@ -95,6 +106,22 @@ class CsvExporter:
                 sys.stdout.write(f"(?) {self.data_label} empty  \n")
         return Exported(path, self.data_label, record_count)
 
+    def to_csv(self, dataframe=None, export_folder=None):
+        """Returns the full path of the written CSV file if the
+        dataframe is exported otherwise None.
+
+        Note: You could also just do:
+            >>> dataframe.to_csv(path_or_buf=path, **self.csv_options)
+            to suppress stdout messages.
+        """
+        return self.to_format("csv", dataframe=dataframe, export_folder=export_folder)
+
+    def to_stata(self, dataframe=None, export_folder=None):
+        """Returns the full path of the written STATA file if the
+        dataframe is exported otherwise None.
+        """
+        return self.to_format("stata", dataframe=dataframe, export_folder=export_folder)
+
     @property
     def csv_options(self):
         """Returns default options for dataframe.to_csv()."""
@@ -103,6 +130,14 @@ class CsvExporter:
             encoding=self.encoding,
             sep=self.delimiter,
             date_format=self.date_format,
+        )
+
+    @property
+    def stata_options(self):
+        """Returns default options for dataframe.to_stata()."""
+        return dict(
+            data_label=f"{self.data_label}.dta",
+            version=118,
         )
 
     def get_path(self):
@@ -126,4 +161,4 @@ class CsvExporter:
         else:
             suffix = f"_{get_utcnow().strftime(timestamp_format)}"
         prefix = self.data_label.replace("-", "_").replace(".", "_")
-        return f"{prefix}{suffix}.csv"
+        return f"{prefix}{suffix}"
