@@ -29,6 +29,8 @@ class SiteModelMixin(models.Model):
 
 class SiteProfile(models.Model):
 
+    id = models.BigAutoField(primary_key=True)
+
     country = models.CharField(max_length=250, null=True)
 
     country_code = models.CharField(max_length=15, null=True)
