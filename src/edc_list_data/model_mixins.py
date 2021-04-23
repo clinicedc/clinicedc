@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+from edc_model.models import BaseUuidModel
 
 
 class ListModelManager(models.Manager):
@@ -7,11 +8,7 @@ class ListModelManager(models.Manager):
         return self.get(name=name)
 
 
-class ListModelMixin(models.Model):
-
-    """Mixin for list data used in dropdown and radio widgets having
-    display value and store value pairs.
-    """
+class BaseListModelMixin(models.Model):
 
     # FIXME: this should be a short string, e.g. 15-25 chars!
     name = models.CharField(
@@ -42,6 +39,7 @@ class ListModelMixin(models.Model):
     )
 
     version = models.CharField(max_length=35, editable=False, default="1.0")
+
     objects = ListModelManager()
 
     def __str__(self) -> str:
@@ -62,3 +60,27 @@ class ListModelMixin(models.Model):
         ordering = ["display_index", "display_name"]
         indexes = [models.Index(fields=["id", "display_name", "display_index"])]
         default_permissions = ("add", "change", "delete", "view", "export", "import")
+
+
+class ListModelMixin(BaseListModelMixin):
+
+    """Mixin for list data used in dropdown and radio widgets having
+    display value and store value pairs.
+    """
+
+    id = models.AutoField(primary_key=True)
+
+    class Meta(BaseListModelMixin.Meta):
+        abstract = True
+
+
+class ListUUidModelMixin(BaseListModelMixin, BaseUuidModel):
+
+    """Mixin with UUID pk for list data used in dropdown
+    and radio widgets having display value and store value pairs.
+    """
+
+    id = models.AutoField(primary_key=True)
+
+    class Meta(BaseListModelMixin.Meta, BaseUuidModel.Meta):
+        abstract = True
