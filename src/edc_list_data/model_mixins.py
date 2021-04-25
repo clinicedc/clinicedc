@@ -74,13 +74,11 @@ class ListModelMixin(BaseListModelMixin):
         abstract = True
 
 
-class ListUUidModelMixin(BaseListModelMixin, BaseUuidModel):
+class ListUuidModelMixin(BaseListModelMixin, BaseUuidModel):
 
     """Mixin with UUID pk for list data used in dropdown
     and radio widgets having display value and store value pairs.
     """
-
-    id = models.AutoField(primary_key=True)
 
     class Meta(BaseListModelMixin.Meta, BaseUuidModel.Meta):
         abstract = True
