@@ -1,7 +1,7 @@
 {% extends 'admin/change_form.html' %}
 
+{% load i18n admin_urls static admin_modify %}
 {% load edc_dashboard_extras edc_admin_modify %}
-{% load static %}
 
 {% block extrastyle %}{{ block.super }}
 
@@ -9,17 +9,26 @@
 
 {% endblock %}
 
-
 {% block field_sets %}
 
-  {% instructions %}
+    {% instructions %}
 
-  {% additional_instructions %}
-  
-  {{ block.super }}
+    {% additional_instructions %}
 
-{% endblock field_sets %}
+    {% for fieldset in adminform %}
+        {#  Custom fieldsets template #}
+        {% include "edc_model_admin/admin/fieldset.html" with inline_admin_formsets=inline_admin_formsets %}
+    {% endfor %}
+{% endblock %}
 
+{# Filter inlines that where already rendered to avoid duplication #}
+{% block inline_field_sets %}
+    {% for inline_admin_formset in inline_admin_formsets %}
+        {% if not inline_admin_formset.opts.insert_after %}
+            {% include inline_admin_formset.opts.template %}
+        {% endif %}
+    {% endfor %}
+{% endblock %}
 
 {% block submit_buttons_top %}{% edc_submit_row %}{% endblock %}
 

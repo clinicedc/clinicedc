@@ -1,4 +1,19 @@
 class TemplatesModelAdminMixin:
+    """Override admin templates.
+
+    Note: If using inlines.
+
+    On the inline admin class specify the position `after` with class
+    attribute `insert_after`:
+
+    For example:
+        class MyInlineModelAdmin(..):
+            ...
+            insert_after="<fieldname>"
+            ...
+
+    See also: https://linevi.ch/en/django-inline-in-fieldset.html
+    """
 
     show_object_tools = False
 
