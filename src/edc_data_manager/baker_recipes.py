@@ -1,7 +1,7 @@
 from uuid import uuid4
 
 from faker import Faker
-from model_bakery.recipe import Recipe, related, seq
+from model_bakery.recipe import Recipe
 
 from .models import DataQuery, QueryRule
 

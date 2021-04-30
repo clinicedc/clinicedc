@@ -299,18 +299,21 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         extra_fields = ["rule_generated", "rule_reference", *action_fields]
         if not request.user.groups.filter(name=DATA_MANAGER):
             extra_fields = [
-                "registered_subject",
-                "report_datetime",
-                "sender",
-                "recipients",
-                "visit_schedule",
                 "data_dictionaries",
-                "query_priority",
-                "query_text",
-                "status",
-                "resolved_datetime",
                 "dm_user",
                 "plan_of_action",
+                "query_priority",
+                "query_text",
+                "recipients",
+                "registered_subject",
+                "report_datetime",
+                "requisition_panel",
+                "resolved_datetime",
+                "sender",
+                "status",
+                "title",
+                "visit_code_sequence",
+                "visit_schedule",
             ]
         return list(fields) + extra_fields
 

@@ -1,6 +1,4 @@
-# from django_webtest import WebTest
 from decimal import Decimal
-from unittest import skip
 
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
@@ -58,7 +56,7 @@ class TestQueryRules(TestCase):
             visit_models={"edc_appointment.appointment": "data_manager_app.subjectvisit"}
         )
 
-        self.subject_identifier = "092-40990029-4"
+        self.subject_identifier = "101-40990029-4"
         identity = "123456789"
         subject_consent = SubjectConsent.objects.create(
             subject_identifier=self.subject_identifier,
@@ -149,7 +147,6 @@ class TestQueryRules(TestCase):
         self.assertEqual(len(inspector.required), 0)
         self.assertEqual(len(inspector.keyed), 0)
 
-    @skip("")
     def test_crf_rule(self):
 
         # create a rule
@@ -256,7 +253,6 @@ class TestQueryRules(TestCase):
             0,
         )
 
-    @skip("")
     def test_crf_rule_with_requisition(self):
 
         # create a rule
@@ -371,7 +367,6 @@ class TestQueryRules(TestCase):
             0,
         )
 
-    @skip("")
     def test_crf_rule_with_requisition_prn_visit(self):
 
         # create a rule
