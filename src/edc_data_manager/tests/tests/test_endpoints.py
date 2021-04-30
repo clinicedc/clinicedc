@@ -1,5 +1,3 @@
-from unittest import skip
-
 from django.apps import apps as django_apps
 from django.contrib.auth import get_user_model
 from django.urls.base import reverse
@@ -16,13 +14,12 @@ from model_bakery import baker
 from data_manager_app.lab_profiles import lab_profile
 from data_manager_app.reference_model_configs import register_to_site_reference_configs
 from data_manager_app.visit_schedules import visit_schedule
-from edc_data_manager.models import CrfDataDictionary
+from edc_data_manager.models import CrfDataDictionary, DataQuery
 from edc_data_manager.models.user import DataManagerUser
 
 User = get_user_model()
 
 
-@skip("skip endpoint tests")
 class AdminSiteTest(WebTest):
     def setUp(self):
         self.user = User.objects.create(
@@ -99,7 +96,7 @@ class AdminSiteTest(WebTest):
         )
 
         registered_subject = RegisteredSubject.objects.create(
-            subject_identifier="092-123456789"
+            subject_identifier="101-123456789"
         )
 
         data_query = baker.make_recipe(
@@ -122,7 +119,7 @@ class AdminSiteTest(WebTest):
         self.assertIn("Invalid. Select questions from one CRF only", res)
 
     def test_data_query(self):
-        subject_identifier = "092-123456789"
+        subject_identifier = "101-123456789"
         login(
             self,
             superuser=False,
@@ -151,8 +148,69 @@ class AdminSiteTest(WebTest):
         res = form.submit()
         self.assertIn("was changed successfully", str(res))
 
+        # try without a `data_dictionary` (list of crfs)
+        data_query = baker.make_recipe(
+            "edc_data_manager.dataquery",
+            registered_subject=registered_subject,
+            sender=DataManagerUser.objects.get(username=self.user.username),
+        )
+
+        res = self.app.get(
+            f"/admin/edc_data_manager/dataquery/{str(data_query.pk)}/change/",
+            user=self.user,
+        )
+        form = res.form
+        res = form.submit()
+        self.assertIn("was changed successfully", str(res))
+
+    def test_data_query_add_and_permissions(self):
+        subject_identifier = "101-123456789"
+        login(
+            self,
+            superuser=False,
+            groups=[EVERYONE, DATA_MANAGER],
+            redirect_url="admin:index",
+        )
+
+        registered_subject = RegisteredSubject.objects.create(
+            subject_identifier=subject_identifier
+        )
+
+        res = self.app.get(
+            (
+                "/admin/edc_data_manager/dataquery/add/?"
+                f"subject_identifier={subject_identifier}&"
+                f"registered_subject={str(registered_subject.pk)}&"
+                f"sender={str(DataManagerUser.objects.get(username=self.user.username).pk)}"
+            ),
+            user=self.user,
+        )
+        form = res.form
+        form["title"] = "My first query"
+        form["query_text"] = "this is a query"
+        res = form.submit()
+
+        self.assertIn("was added successfully", str(res))
+        self.app.get(reverse("admin:logout"), user=self.user, status=302)
+
+        login(
+            self,
+            superuser=False,
+            groups=[EVERYONE, CLINIC],
+            redirect_url="admin:index",
+        )
+
+        data_query = DataQuery.objects.get(title="My first query")
+        res = self.app.get(
+            f"/admin/edc_data_manager/dataquery/{str(data_query.pk)}/change/",
+            user=self.user,
+        )
+        form = res.form
+        res = form.submit()
+        self.assertIn("was changed successfully", str(res))
+
     def test_data_query_action_attrs(self):
-        subject_identifier = "092-123456789"
+        subject_identifier = "101-123456789"
         login(
             self,
             superuser=False,

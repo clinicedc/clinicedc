@@ -1,3 +1,5 @@
+import pdb
+
 from django import forms
 from edc_action_item.forms.action_item_form_mixin import ActionItemFormMixin
 from edc_constants.constants import CLOSED, FEEDBACK, HIGH_PRIORITY, NEW, OPEN, RESOLVED
@@ -10,11 +12,14 @@ from ..models import DataQuery
 class DataQueryFormValidator(FormValidator):
     def clean(self):
 
-        models = list(set([obj.model for obj in self.cleaned_data.get("data_dictionaries")]))
-        if len(models) > 1:
-            raise forms.ValidationError(
-                {"data_dictionaries": "Invalid. Select questions from one CRF only"}
+        if self.cleaned_data.get("data_dictionaries"):
+            models = list(
+                set([obj.model for obj in self.cleaned_data.get("data_dictionaries")])
             )
+            if len(models) > 1:
+                raise forms.ValidationError(
+                    {"data_dictionaries": "Invalid. Select questions from one CRF only"}
+                )
 
         self.required_if(
             HIGH_PRIORITY,
