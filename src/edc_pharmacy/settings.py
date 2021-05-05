@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     "edc_identifier.apps.AppConfig",
     "edc_timepoint.apps.AppConfig",
     "edc_metadata.apps.AppConfig",
-    "edc_metadata_rules.apps.AppConfig",
     "edc_pharmacy.apps.EdcLabelAppConfig",
     "edc_pharmacy.apps.EdcBaseAppConfig",
     "edc_pharmacy.apps.EdcFacilityAppConfig",
