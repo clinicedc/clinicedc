@@ -1,8 +1,8 @@
-from django.test import TestCase, tag
+from django.test import TestCase
 
 from ..choices import DRUG_FORMULATION
 from ..dosage_calculator import DosageGuidelineError
-from ..models import Medication, DosageGuideline
+from ..models import DosageGuideline, Medication
 
 
 class TestDoseCalculator(TestCase):

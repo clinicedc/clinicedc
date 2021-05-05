@@ -1,9 +1,15 @@
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_utils import get_utcnow
 
-from ..models import DosageGuideline, DispensedItem, DispenseError
-from ..models import Prescription, Medication, PrescriptionItem
+from ..models import (
+    DispensedItem,
+    DispenseError,
+    DosageGuideline,
+    Medication,
+    Prescription,
+    PrescriptionItem,
+)
 
 
 class TestPrescription(TestCase):
