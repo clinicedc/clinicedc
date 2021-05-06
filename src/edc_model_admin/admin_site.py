@@ -45,3 +45,4 @@ class EdcAdminSite(DjangoAdminSite):
 
     site_url = "/administration/"
     enable_nav_sidebar = False  # DJ 3.1
+    final_catch_all_view = False
