@@ -1,4 +1,3 @@
-from django.apps import apps as django_apps
 from django.views.generic.base import ContextMixin
 from edc_protocol import Protocol
 from edc_utils.text import convert_from_camel
@@ -17,10 +16,11 @@ class UrlRequestContextMixin(ContextMixin):
     urlconfig_identifier_label = "subject_identifier"
     urlconfig_identifier_pattern = Protocol().subject_identifier_pattern
     urlconfig_label = None
+    url_name = None
 
     @classmethod
     def get_urlname(cls):
-        raise NotImplementedError
+        return cls.url_name
 
     @classmethod
     def urls(cls, namespace=None, label=None, identifier_label=None, identifier_pattern=None):
@@ -39,7 +39,8 @@ class UrlRequestContextMixin(ContextMixin):
         )
         return getattr(urlconfig, cls.urlconfig_getattr)
 
-    def add_url_to_context(self, new_key=None, existing_key=None, context=None):
+    @staticmethod
+    def add_url_to_context(new_key=None, existing_key=None, context=None):
         """Add a url as new_key to the context using the value
         of the existing_key from request.context_data.
         """
