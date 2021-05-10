@@ -28,6 +28,11 @@ class DataQueryFormValidator(FormValidator):
             inverse=False,
         )
 
+        self.required_if_not_none(
+            field="visit_code",
+            field_required="visit_code_sequence",
+        )
+
         # Site
         self.required_if(
             RESOLVED,
