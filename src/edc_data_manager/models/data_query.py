@@ -103,6 +103,8 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
         verbose_name="Visit code sequence",
         default=0,
         validators=[MinValueValidator(0), MaxValueValidator(25)],
+        null=True,
+        blank=True,
         help_text=(
             "Defaults to '0'. For example, when combined with the "
             "visit code `1000` would make `1000.0`."

@@ -140,13 +140,12 @@ class AdminSiteTest(WebTest):
         crf = CrfDataDictionary.objects.all()[0]
         data_query.data_dictionaries.add(crf)
 
-        res = self.app.get(
-            f"/admin/edc_data_manager/dataquery/{str(data_query.pk)}/change/",
-            user=self.user,
+        url = reverse(
+            "edc_data_manager_admin:edc_data_manager_dataquery_change", args=(data_query.pk,)
         )
-        form = res.form
-        res = form.submit()
-        self.assertIn("was changed successfully", str(res))
+        form = self.app.get(url, user=self.user).form
+        response = form.submit().follow()
+        self.assertIn("was changed successfully", str(response.content))
 
         # try without a `data_dictionary` (list of crfs)
         data_query = baker.make_recipe(
@@ -155,13 +154,12 @@ class AdminSiteTest(WebTest):
             sender=DataManagerUser.objects.get(username=self.user.username),
         )
 
-        res = self.app.get(
+        form = self.app.get(
             f"/admin/edc_data_manager/dataquery/{str(data_query.pk)}/change/",
             user=self.user,
-        )
-        form = res.form
-        res = form.submit()
-        self.assertIn("was changed successfully", str(res))
+        ).form
+        response = form.submit().follow()
+        self.assertIn("was changed successfully", str(response.content))
 
     def test_data_query_add_and_permissions(self):
         subject_identifier = "101-123456789"
@@ -176,7 +174,7 @@ class AdminSiteTest(WebTest):
             subject_identifier=subject_identifier
         )
 
-        res = self.app.get(
+        form = self.app.get(
             (
                 "/admin/edc_data_manager/dataquery/add/?"
                 f"subject_identifier={subject_identifier}&"
@@ -184,14 +182,13 @@ class AdminSiteTest(WebTest):
                 f"sender={str(DataManagerUser.objects.get(username=self.user.username).pk)}"
             ),
             user=self.user,
-        )
-        form = res.form
+        ).form
         form["title"] = "My first query"
         form["query_text"] = "this is a query"
-        res = form.submit()
+        response = form.submit().follow()
 
-        self.assertIn("was added successfully", str(res))
-        self.app.get(reverse("admin:logout"), user=self.user, status=302)
+        self.assertIn("was added successfully", str(response))
+        self.app.get(reverse("admin:logout"), user=self.user, status=200)
 
         login(
             self,
@@ -201,13 +198,12 @@ class AdminSiteTest(WebTest):
         )
 
         data_query = DataQuery.objects.get(title="My first query")
-        res = self.app.get(
+        form = self.app.get(
             f"/admin/edc_data_manager/dataquery/{str(data_query.pk)}/change/",
             user=self.user,
-        )
-        form = res.form
-        res = form.submit()
-        self.assertIn("was changed successfully", str(res))
+        ).form
+        response = form.submit().follow()
+        self.assertIn("was changed successfully", str(response))
 
     def test_data_query_action_attrs(self):
         subject_identifier = "101-123456789"
