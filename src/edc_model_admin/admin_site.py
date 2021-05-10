@@ -1,8 +1,8 @@
 from django.apps import apps as django_apps
-from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin import AdminSite as DjangoAdminSite
 from django.contrib.sites.shortcuts import get_current_site
+from edc_protocol import Protocol
 
 admin.site.enable_nav_sidebar = False
 
@@ -32,18 +32,15 @@ class EdcAdminSite(DjangoAdminSite):
     def get_edc_site_title(self, request):
         verbose_name = django_apps.get_app_config(self.app_label).verbose_name
         return verbose_name.replace(
-            settings.EDC_PROTOCOL_PROJECT_NAME,
-            (
-                f"{settings.EDC_PROTOCOL_PROJECT_NAME} @ "
-                f"{get_current_site(request).name.title()}: "
-            ),
+            Protocol().project_name,
+            f"{Protocol().project_name} @ {get_current_site(request).name.title()}: ",
         )
 
     def get_edc_site_header(self, request):
         return self.get_edc_site_title(request)
 
     """
-    To inlcude this in the administration section set
+    To include this in the administration section set
     `AppConfig.include_in_administration_section = True`
     in your apps.py. (See also View `edc_dashboard.administration.py`).
 
