@@ -1,11 +1,5 @@
 from edc_model_admin.admin_site import EdcAdminSite
 
+from .apps import AppConfig
 
-class AdminSite(EdcAdminSite):
-    site_header = "Appointments"
-    site_title = "Appointments"
-    index_title = "Appointments Administration"
-    site_url = "/administration/"
-
-
-edc_appointment_admin = AdminSite(name="edc_appointment_admin")
+edc_appointment_admin = EdcAdminSite(name="edc_appointment_admin", app_label=AppConfig.name)

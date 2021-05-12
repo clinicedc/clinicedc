@@ -6,7 +6,7 @@ from django.apps import AppConfig as DjangoAppConfig
 class AppConfig(DjangoAppConfig):
     _holidays: dict = {}
     name = "edc_appointment"
-    verbose_name = "Edc Appointments"
+    verbose_name = "Appointments"
     has_exportable_data = True
     include_in_administration_section = True
 
