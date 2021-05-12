@@ -1,11 +1,5 @@
 from edc_model_admin.admin_site import EdcAdminSite
 
+from .apps import AppConfig
 
-class AdminSite(EdcAdminSite):
-    site_header = "Edc CRF"
-    site_title = "Edc CRF"
-    index_title = "Edc CRF Administration"
-    site_url = "/administration/"
-
-
-edc_crf_admin = AdminSite(name="edc_crf_admin")
+edc_crf_admin = EdcAdminSite(name="edc_crf_admin", app_label=AppConfig.name)
