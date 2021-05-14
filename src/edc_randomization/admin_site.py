@@ -1,10 +1,7 @@
 from edc_model_admin.admin_site import EdcAdminSite
 
+from .apps import AppConfig
 
-class AdminSite(EdcAdminSite):
-    site_title = "Randomization"
-    site_header = "Randomization"
-    index_title = "Randomization"
-
-
-edc_randomization_admin = AdminSite(name="edc_randomization_admin")
+edc_randomization_admin = EdcAdminSite(
+    name="edc_randomization_admin", app_label=AppConfig.name
+)
