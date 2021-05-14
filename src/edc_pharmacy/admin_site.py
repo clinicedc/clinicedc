@@ -1,11 +1,5 @@
-from django.contrib.admin import AdminSite
+from edc_model_admin.admin_site import EdcAdminSite
 
+from .apps import AppConfig
 
-class EdcPharmacyAdminSite(AdminSite):
-    site_header = "Edc Pharmacy"
-    site_title = "Edc Pharmacy"
-    index_title = "Edc Pharmacy Administration"
-    site_url = "/administration/"
-
-
-edc_pharmacy_admin = EdcPharmacyAdminSite(name="edc_pharmacy_admin")
+edc_pharmacy_admin = EdcAdminSite(name="edc_pharmacy_admin", app_label=AppConfig.name)
