@@ -1,10 +1,5 @@
 from edc_model_admin.admin_site import EdcAdminSite
 
+from .apps import AppConfig
 
-class AdminSite(EdcAdminSite):
-    site_title = "Edc Notification"
-    site_header = "Edc Notification"
-    index_title = "Edc Notification"
-
-
-edc_notification_admin = AdminSite(name="edc_notification_admin")
+edc_notification_admin = EdcAdminSite(name="edc_notification_admin", app_label=AppConfig.name)
