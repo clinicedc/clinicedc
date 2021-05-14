@@ -1,10 +1,5 @@
 from edc_model_admin.admin_site import EdcAdminSite
 
+from .apps import AppConfig
 
-class AdminSite(EdcAdminSite):
-    site_header = "Registration"
-    site_title = "Registration"
-    index_title = "Registration Administration"
-
-
-edc_registration_admin = AdminSite(name="edc_registration_admin")
+edc_registration_admin = EdcAdminSite(name="edc_registration_admin", app_label=AppConfig.name)
