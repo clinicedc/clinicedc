@@ -1,10 +1,5 @@
 from edc_model_admin.admin_site import EdcAdminSite
 
+from .apps import AppConfig
 
-class AdminSite(EdcAdminSite):
-    site_title = "Edc Loss to Follow up"
-    site_header = "Edc Loss to Follow up"
-    index_title = "Edc Loss to Follow up"
-
-
-edc_ltfu_admin = AdminSite(name="edc_ltfu_admin")
+edc_ltfu_admin = EdcAdminSite(name="edc_ltfu_admin", app_label=AppConfig.name)
