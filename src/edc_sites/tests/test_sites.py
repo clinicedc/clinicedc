@@ -70,24 +70,13 @@ class TestSites(SiteTestCaseMixin, TestCase):
         site_profile = SiteProfile.objects.get(site=obj.site)
         self.assertEqual(obj.site.siteprofile, site_profile)
 
-
-class TestSites2(SiteTestCaseMixin, TestCase):
     def test_updates_sites(self):
-        self.assertIn("example.com", [str(obj) for obj in Site.objects.all()])
-
         add_or_update_django_sites(sites=self.default_sites)
-
         for site in self.default_sites:
             self.assertIn(site.site_id, [obj.id for obj in Site.objects.all()])
-
-        self.assertNotIn("example.com", [str(obj) for obj in Site.objects.all()])
-
-        add_or_update_django_sites(sites=self.default_sites, verbose=False)
-
+        self.assertNotIn("example.com", str([str(obj) for obj in Site.objects.all()]))
         self.assertEqual(len(self.default_sites), Site.objects.all().count())
 
-
-class TestSites3(SiteTestCaseMixin, TestCase):
     def test_domain(self):
         add_or_update_django_sites(sites=self.default_sites)
         obj = Site.objects.get(name="molepolole")
@@ -125,13 +114,9 @@ class TestSites3(SiteTestCaseMixin, TestCase):
             get_sites_by_country(country="botswana", all_sites=self.default_all_sites),
         )
 
-    def test_custom_sites_module(self):
-        get_all_sites()
-
     @override_settings(EDC_SITES_MODULE_NAME=None)
     def test_default_sites_module_domain(self):
         self.assertEqual(get_all_sites(), all_sites)
-        # self.assertIsNone(get_current_country())
         for sites in get_all_sites().values():
             add_or_update_django_sites(sites=sites, verbose=False)
         site = Site.objects.get(id=1)
@@ -142,21 +127,9 @@ class TestSites3(SiteTestCaseMixin, TestCase):
     )
     def test_custom_sites_module_domain(self):
         self.assertEqual(get_all_sites(), all_test_sites)
+        self.assertEqual(settings.SITE_ID, 10)
         for sites in get_all_sites().values():
             add_or_update_django_sites(sites=sites, verbose=False)
         site = Site.objects.get(id=10)
         self.assertEqual(get_current_country(), "botswana")
-        self.assertEqual(Alias.objects.get(site=site).domain, "mochudi.bw.clinicedc.org")
-
-    @override_settings(
-        EDC_SITES_MODULE_NAME="edc_sites.tests.sites", EDC_SITES_UAT_DOMAIN=False
-    )
-    def test_view_context(self):
-        Site.objects.all().delete()
-        self.assertEqual(get_all_sites(), all_test_sites)
-        self.assertEqual(settings.SITE_ID, 10)
-        self.assertIsNone(get_current_country())
-        for sites in get_all_sites().values():
-            add_or_update_django_sites(sites=sites, verbose=False)
-        site = Site.objects.get(id=10)
         self.assertEqual(Alias.objects.get(site=site).domain, "mochudi.bw.clinicedc.org")
