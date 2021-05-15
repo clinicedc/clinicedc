@@ -1,7 +1,7 @@
 import csv
 from tempfile import mkdtemp
 
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_facility.import_holidays import import_holidays
 from edc_pdutils import CsvModelExporter, ModelToDataframe
