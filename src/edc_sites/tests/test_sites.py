@@ -71,9 +71,9 @@ class TestSites(SiteTestCaseMixin, TestCase):
         self.assertEqual(obj.site.siteprofile, site_profile)
 
     def test_updates_sites(self):
-        self.assertNotIn("example.com", str([str(obj) for obj in Site.objects.all()]))
         for site in self.default_sites:
             self.assertIn(site.site_id, [obj.id for obj in Site.objects.all()])
+        self.assertNotIn("example.com", str([str(obj) for obj in Site.objects.all()]))
         self.assertEqual(len(self.default_sites), Site.objects.all().count())
 
     def test_domain(self):
