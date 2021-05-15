@@ -27,7 +27,11 @@ class TwillioTestClientMessages:
 
 
 class TestTwilio(TestCase):
-    @override_settings(TWILIO_ENABLED=True, TWILIO_SENDER="5555555555")
+    @override_settings(
+        TWILIO_ENABLED=True,
+        TWILIO_SENDER="5555555555",
+        EDC_PROTOCOL_PROJECT_NAME="My Project",
+    )
     def test_(self):
         self.maxDiff = None
         user = User.objects.create(username="erikvw", is_active=True, is_staff=True)
@@ -56,8 +60,7 @@ class TestTwilio(TestCase):
         self.assertEqual(
             TwillioTestClientMessages.created[0].get("body"),
             (
-                "TEST MESSAGE. NO ACTION REQUIRED - Project Name "
-                "(set EDC_PROTOCOL_PROJECT_NAME): "
+                "TEST MESSAGE. NO ACTION REQUIRED - My Project: "
                 "Report 'Test Grade3 Event' "
                 "for patient 1 at site Edc Notification may require your attention. "
                 "Login to review. (See your user profile to unsubscribe.)"
