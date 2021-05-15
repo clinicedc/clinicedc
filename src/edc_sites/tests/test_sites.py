@@ -71,6 +71,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
         self.assertEqual(obj.site.siteprofile, site_profile)
 
     def test_updates_sites(self):
+        add_or_update_django_sites(sites=self.default_sites)
         for site in self.default_sites:
             self.assertIn(site.site_id, [obj.id for obj in Site.objects.all()])
         self.assertNotIn("example.com", str([str(obj) for obj in Site.objects.all()]))
