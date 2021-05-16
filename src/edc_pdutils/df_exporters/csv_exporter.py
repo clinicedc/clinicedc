@@ -52,7 +52,7 @@ class CsvExporter:
         date_format=None,
         index=None,
         verbose=None,
-        **kwargs,
+        **kwargs,  # noqa
     ):
         self.delimiter = delimiter or self.delimiter
         self.date_format = date_format or self.date_format
@@ -73,7 +73,9 @@ class CsvExporter:
         dataframe is exported otherwise None.
 
         Note: You could also just do:
-            >>> dataframe.to_csv(path_or_buf=path, **self.csv_options)
+
+            dataframe.to_csv(path_or_buf=path, **self.csv_options)
+
             to suppress stdout messages.
         """
         path = None
@@ -89,9 +91,11 @@ class CsvExporter:
             if self.verbose:
                 sys.stdout.write(f"( ) {self.data_label} ...     \r")
             if export_format == "csv":
-                dataframe.to_csv(path_or_buf=f"{path}.csv", **self.csv_options)
+                path = ".".join([path, "csv"])
+                dataframe.to_csv(path_or_buf=path, **self.csv_options)
             elif export_format == "stata":
-                dataframe.to_stata(path=f"{path}.dta", **self.stata_options)
+                path = ".".join([path, "dta"])
+                dataframe.to_stata(path=path, **self.stata_options)
             else:
                 raise ExporterInvalidExportFormat(
                     f"Invalid export format. Got {export_format}"
@@ -111,7 +115,9 @@ class CsvExporter:
         dataframe is exported otherwise None.
 
         Note: You could also just do:
-            >>> dataframe.to_csv(path_or_buf=path, **self.csv_options)
+
+            dataframe.to_csv(path_or_buf=path, **self.csv_options)
+
             to suppress stdout messages.
         """
         return self.to_format("csv", dataframe=dataframe, export_folder=export_folder)

@@ -17,7 +17,7 @@ class Database:
     lowercase_columns = True
     DATABASES_NAME = "default"
 
-    def __init__(self, **kwargs):
+    def __init__(self):
         self._database = None
         self._tables = pd.DataFrame()
         self.dialect = self.dialect_cls(dbname=self.database)
@@ -27,7 +27,8 @@ class Database:
         """Returns the database name."""
         return connection.settings_dict["NAME"]
 
-    def read_sql(self, sql, params=None):
+    @staticmethod
+    def read_sql(sql, params=None):
         """Returns a dataframe. A simple wrapper for pd.read_sql()."""
         return pd.read_sql(sql, connection, params=params)
 
