@@ -3,7 +3,6 @@ from django.contrib import admin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
 from .admin_site import edc_crf_admin
-from .exim_resources import CrfStatusResource
 from .models import CrfStatus
 
 crf_status_fieldset_tuple = (
@@ -30,8 +29,6 @@ class CrfStatusModelAdminMixin:
 
 @admin.register(CrfStatus, site=edc_crf_admin)
 class CrfStatusAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
-
-    resource_class = CrfStatusResource
 
     list_display = (
         "subject_identifier",
