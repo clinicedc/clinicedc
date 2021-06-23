@@ -24,16 +24,16 @@
                     {% endif %}
 
                     {% if appointment %}
-                        <div id="subject_dashboard_for_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}"
+                        <div id="subject_dashboard_for_{{ appointment.visit_schedule.name|slugify }}-{{ appointment.schedule.name|slugify }}"
                              class="panel panel-{% if anonymous %}danger{% else %}info{% endif %}">
                             <div class="panel-heading clearfix">
                                 <i class="far fa-calendar fa-lg fa-fw"></i>
                                 <a data-toggle="collapse"
-                                   data-parent="#accordion_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}"
+                                   data-parent="#accordion_{{ appointment.visit_schedule.name|slugify }}-{{ appointment.schedule.name|slugify }}"
                                    aria-hidden="true"
-                                   href="#subject_dashboard_forms_for_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}">
-                                    {{ current_visit_schedule.verbose_name }} <i
-                                        class="fas fa-caret-right"></i> {{ current_schedule.verbose_name }} <i
+                                   href="#subject_dashboard_forms_for_{{ appointment.visit_schedule.name|slugify }}-{{ appointment.schedule.name|slugify }}">
+                                    {{ appointment.visit_schedule.verbose_name }} <i
+                                        class="fas fa-caret-right"></i> {{ appointment.schedule.verbose_name }} <i
                                         class="fas fa-caret-right"></i> {{ appointment.visit_code }}.{{ appointment.visit_code_sequence }} {{ appointment.title|lower|title }} {{ appointment.wrapped_visit.object.get_reason_display }}<span
                                         class="caret"></span>
                                 </a>
@@ -52,7 +52,7 @@
                                     </span>
                                 {% endblock schedule_button %}
                             </div>
-                            <div id="subject_dashboard_forms_for_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}"
+                            <div id="subject_dashboard_forms_for_{{ appointment.visit_schedule.name|slugify }}-{{ appointment.schedule.name|slugify }}"
                                  class="panel-collapse collapse in">
                                 {% block crfs %}
                                     {% include "edc_subject_dashboard/bootstrap3/dashboard/crfs.html" %}
@@ -62,7 +62,7 @@
                                     {% include "edc_subject_dashboard/bootstrap3/dashboard/requisitions.html" %}
                                 {% endblock requisitions %}
                             </div>
-                            {% subject_schedule_footer_row subject_identifier current_visit_schedule current_schedule subject_dashboard_url %}
+                            {% subject_schedule_footer_row subject_identifier appointment.visit_schedule appointment.schedule subject_dashboard_url %}
                             <div id="subject_dashboard_data_queries_for_{{ subject_identifier }}"
                                  class="panel-collapse collapse in">
                                 {% block data_queries %}
