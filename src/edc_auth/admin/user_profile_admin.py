@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
-from ..admin_site import edc_auth_admin
 from ..forms import UserProfileForm
 from ..models import UserProfile
 
