@@ -1,5 +1,8 @@
 from django.contrib import admin
+from django.utils.html import format_html
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
+
+from edc_metadata import KEYED, REQUIRED
 
 from ..admin_site import edc_metadata_admin
 from ..exim_resources import CrfMetadataResource
@@ -29,7 +32,7 @@ class CrfMetadataAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
         "model",
         "visit_code",
         "seq",
-        "entry_status",
+        "status",
         "fill_datetime",
         "due_datetime",
         "close_datetime",
@@ -57,3 +60,11 @@ class CrfMetadataAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
         "show_order",
         "current_entry_title",
     )
+
+    @staticmethod
+    def status(obj=None):
+        if obj.entry_status == REQUIRED:
+            return format_html('<font color="orange">New</font>')
+        if obj.entry_status == KEYED:
+            return format_html('<font color="green">Keyed</font>')
+        return obj.get_entry_status_display()

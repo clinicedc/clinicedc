@@ -31,7 +31,8 @@ class Command(BaseCommand):
         self.validate_requisitions(requisition_models)
         self.validate_crfs(crf_models)
 
-    def validate_requisitions(self, requisition_models):
+    @staticmethod
+    def validate_requisitions(requisition_models):
         for model in tqdm(requisition_models):
             model_cls = django_apps.get_model(model)
             exists = 0
@@ -70,7 +71,8 @@ class Command(BaseCommand):
                 f"missing={doesnotexist}/{count}    {perc}% \n"
             )
 
-    def validate_crfs(self, crf_models):
+    @staticmethod
+    def validate_crfs(crf_models):
         for model in tqdm(crf_models):
             model_cls = django_apps.get_model(model)
             exists = 0
