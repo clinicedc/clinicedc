@@ -1,6 +1,8 @@
+from django import forms
 from django.apps import apps as django_apps
 from edc_utils import formatted_datetime
 
+from .constants import DAY1
 from .site_visit_schedules import site_visit_schedules
 
 
@@ -8,13 +10,32 @@ class OnScheduleError(Exception):
     pass
 
 
+def is_baseline(subject_visit) -> bool:
+    return (
+        subject_visit.appointment.visit_code == DAY1
+        and subject_visit.appointment.visit_code_sequence == 0
+    )
+
+
+def raise_if_baseline(subject_visit) -> None:
+    if subject_visit and is_baseline(subject_visit=subject_visit):
+        raise forms.ValidationError("This form is not available for completion at baseline.")
+
+
+def raise_if_not_baseline(subject_visit) -> None:
+    if subject_visit and not is_baseline(subject_visit=subject_visit):
+        raise forms.ValidationError("This form is only available for completion at baseline.")
+
+
 def get_onschedule_models(subject_identifier=None, report_datetime=None):
     """Returns a list of onschedule models, in label_lower format,
     for this subject and date.
     """
     onschedule_models = []
-    SubjectScheduleHistory = django_apps.get_model("edc_visit_schedule.SubjectScheduleHistory")
-    for onschedule_model_obj in SubjectScheduleHistory.objects.onschedules(
+    subject_schedule_history_model_cls = django_apps.get_model(
+        "edc_visit_schedule.SubjectScheduleHistory"
+    )
+    for onschedule_model_obj in subject_schedule_history_model_cls.objects.onschedules(
         subject_identifier=subject_identifier, report_datetime=report_datetime
     ):
         _, schedule = site_visit_schedules.get_by_onschedule_model(
@@ -33,8 +54,10 @@ def get_offschedule_models(subject_identifier=None, report_datetime=None):
     See also, manager method `onschedules`.
     """
     offschedule_models = []
-    SubjectScheduleHistory = django_apps.get_model("edc_visit_schedule.SubjectScheduleHistory")
-    onschedule_models = SubjectScheduleHistory.objects.onschedules(
+    subject_schedule_history_model_cls = django_apps.get_model(
+        "edc_visit_schedule.SubjectScheduleHistory"
+    )
+    onschedule_models = subject_schedule_history_model_cls.objects.onschedules(
         subject_identifier=subject_identifier, report_datetime=report_datetime
     )
     for onschedule_model_obj in onschedule_models:

@@ -1,5 +1,3 @@
-from edc_lab import RequisitionPanel
-
 from .crf import Crf
 
 
@@ -16,7 +14,7 @@ class ScheduledRequisitionError(Exception):
 
 
 class Requisition(Crf):
-    def __init__(self, panel: RequisitionPanel = None, required: bool = None, **kwargs):
+    def __init__(self, panel=None, required: bool = None, **kwargs):
         required = False if required is None else required
         self.panel = panel
         if not self.panel.requisition_model:
@@ -58,7 +56,12 @@ class Requisition(Crf):
             raise RequisitionLookupError(e) from e
 
         for lab_profile in site_labs.registry.values():
-            if self.panel.name not in lab_profile.panels:
-                raise ScheduledRequisitionError(
-                    f"Panel does not exist in lab profiles. " f"Got {repr(self.panel)}"
-                )
+            try:
+                panels = self.panel.panels
+            except AttributeError:
+                panels = [self.panel]
+            for panel in panels:
+                if panel.name not in lab_profile.panels:
+                    raise ScheduledRequisitionError(
+                        f"Panel does not exist in lab profiles. " f"Got {repr(panel)}"
+                    )
