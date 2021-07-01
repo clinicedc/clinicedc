@@ -11,7 +11,7 @@ from django.utils.module_loading import module_has_submodule
 from .grade_reference import GradeReference
 from .normal_reference import NormalReference
 from .parsers import unparse
-from .reference_collection import ReferenceCollection
+from .reference_range_collection import ReferenceRangeCollection
 from .value_reference_group import GRADING, NORMAL, ValueReferenceGroup
 
 
@@ -32,17 +32,17 @@ class Reportables:
 
     def register(self, name=None, normal_data=None, grading_data=None):
         if name in self._registry:
-            reference_collection = self._registry.get(name)
+            reference_range_collection = self._registry.get(name)
         else:
-            reference_collection = ReferenceCollection(name=name)
+            reference_range_collection = ReferenceRangeCollection(name=name)
         for name, datas in normal_data.items():
             grp = ValueReferenceGroup(name=name)
             for data in datas:
                 val_ref = NormalReference(name=name, **data)
                 grp.add_normal(val_ref)
-            reference_collection.register(grp)
+            reference_range_collection.register(grp)
         for name, datas in grading_data.items():
-            grp = reference_collection.get(name)
+            grp = reference_range_collection.get(name)
             if not grp:
                 raise MissingNormalReference(
                     f"Attempting to add grading for item without a "
@@ -51,8 +51,10 @@ class Reportables:
             for data in datas:
                 grade_ref = GradeReference(name=name, **data)
                 grp.add_grading(grade_ref)
-            reference_collection.update_grp(grp)
-        site_reportables._registry.update({reference_collection.name: reference_collection})
+            reference_range_collection.update_grp(grp)
+        site_reportables._registry.update(
+            {reference_range_collection.name: reference_range_collection}
+        )
 
     def get(self, name):
         return self._registry.get(name)
@@ -71,8 +73,8 @@ class Reportables:
         path = os.path.expanduser(path)
         filename1 = os.path.join(path, f"{collection_name}_normal_ranges.csv")
         filename2 = os.path.join(path, f"{collection_name}_grading.csv")
-        reference_collection = self.get(collection_name)
-        data = reference_collection.as_data()
+        reference_range_collection = self.get(collection_name)
+        data = reference_range_collection.as_data()
         try:
             fieldnames = list(data.get(NORMAL)[0].keys())
         except IndexError:
