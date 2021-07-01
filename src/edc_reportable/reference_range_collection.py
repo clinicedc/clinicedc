@@ -2,7 +2,7 @@ class AlreadyRegistered(Exception):
     pass
 
 
-class ReferenceCollection:
+class ReferenceRangeCollection:
 
     """Holds all normal and grading data available by name.
 

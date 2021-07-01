@@ -10,7 +10,7 @@ from edc_reportable import (
     AlreadyRegistered,
     GradeReference,
     NormalReference,
-    ReferenceCollection,
+    ReferenceRangeCollection,
     ValueReferenceGroup,
 )
 
@@ -19,7 +19,7 @@ class TestCollection(TestCase):
     def test_collection(self):
         dob = get_utcnow() - relativedelta(years=25)
         report_datetime = utc.localize(datetime(2017, 12, 7))
-        reference = ReferenceCollection()
+        reference = ReferenceRangeCollection()
 
         self.assertTrue(repr(reference))
 
