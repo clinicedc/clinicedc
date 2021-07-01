@@ -44,6 +44,8 @@ from .constants import (
     WEEKDAYS,
     WEEKENDS,
     YES,
+    FASTING,
+    NON_FASTING,
 )
 
 BLANK_CHOICE_DASH = [("", "---------")]
@@ -258,6 +260,8 @@ DOSE_STATUS = (
     ("Resumed", "Resumed"),
     ("Not initiated", "Not initiated"),
 )
+
+FASTING_CHOICES = ((FASTING, "Fasting"), (NON_FASTING, "Non-fasting"))
 
 FEEDING = (("BF", "Breast feed"), ("FF", "Formula feed"))
 
