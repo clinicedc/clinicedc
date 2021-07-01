@@ -23,5 +23,6 @@ from .requisition_panel import (
     RequisitionPanelError,
     RequisitionPanelLookupError,
 )
+from .requisition_panel_group import RequisitionPanelGroup
 from .specimen import Specimen, SpecimenNotDrawnError
 from .specimen_processor import SpecimenProcessor, SpecimenProcessorError

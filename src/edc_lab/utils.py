@@ -16,3 +16,7 @@ def get_panel_model_name():
 
 def get_requisition_model_name():
     return settings.SUBJECT_REQUISITION_MODEL
+
+
+def get_subject_requisition_model():
+    return get_requisition_model_name()

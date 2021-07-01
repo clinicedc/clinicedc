@@ -44,6 +44,9 @@ class RequisitionPanel:
         processing_profile: ProcessingProfile = None,
         verbose_name: str = None,
         abbreviation: str = None,
+        utest_ids=None,
+        is_poc=None,
+        reference_range_collection_name=None,
     ) -> None:
         self._panel_model_obj = None
         self.name = name
@@ -53,6 +56,10 @@ class RequisitionPanel:
         )
         self.abbreviation = abbreviation or panel_attrs.abbreviation
         self.verbose_name = verbose_name or panel_attrs.verbose_name
+        self.utest_ids = utest_ids
+        self.is_poc = is_poc
+        # name for site_reportables collection, may also be set by LabProfile
+        self.reference_range_collection_name = reference_range_collection_name
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.name}, {self.aliquot_type})"

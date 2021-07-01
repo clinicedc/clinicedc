@@ -17,6 +17,7 @@ from .lab import (
     Process,
     ProcessingProfile,
     RequisitionPanel,
+    RequisitionPanelGroup,
     Specimen,
     SpecimenProcessor,
 )

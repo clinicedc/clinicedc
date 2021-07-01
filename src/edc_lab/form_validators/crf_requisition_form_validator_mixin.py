@@ -10,8 +10,8 @@ class CrfRequisitionFormValidatorMixin:
 
     Call in FormValidator.clean.
 
-    For test 'xxx' expects the field trio of 'xxx_requisition' and
-    'xxx_assay_datetime', 'xxx_panel'
+    For test 'xxx' expects the field trio of 'requisition' and
+    'assay_datetime', 'xxx_panel'
 
         self.required_if_true(
             self.cleaned_data.get('cd4') is not None,
@@ -22,10 +22,15 @@ class CrfRequisitionFormValidatorMixin:
     See also, for example: ambition_form_validators.form_validators.blood_result
     """
 
-    def validate_requisition(self, requisition_field, assay_datetime_field, *panels):
+    assay_datetime_field = "assay_datetime"
+    requisition_field = "requisition"
+
+    def validate_requisition(self, *panels, requisition_field=None, assay_datetime_field=None):
         """Validates that the requisition model instance exists
         and assay datetime provided.
         """
+        requisition_field = requisition_field or self.requisition_field
+        assay_datetime_field = assay_datetime_field or self.assay_datetime_field
         requisition = self.cleaned_data.get(requisition_field)
         if requisition and requisition.panel_object not in panels:
             raise forms.ValidationError({requisition_field: "Incorrect requisition."})
@@ -33,8 +38,10 @@ class CrfRequisitionFormValidatorMixin:
         self.required_if_true(requisition, field_required=assay_datetime_field)
 
         self.validate_assay_datetime(requisition, assay_datetime_field)
+        return requisition
 
-    def validate_assay_datetime(self, requisition, assay_datetime_field):
+    def validate_assay_datetime(self, requisition, assay_datetime_field=None):
+        assay_datetime_field = assay_datetime_field or self.assay_datetime_field
         assay_datetime = self.cleaned_data.get(assay_datetime_field)
         if assay_datetime:
             assay_datetime = to_utc(assay_datetime)

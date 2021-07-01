@@ -11,9 +11,10 @@ from edc_lab.lab import (
 )
 
 from ..models import SubjectRequisition
+from .edc_lab_test_mixin import EdcLabTestMixin
 
 
-class TestBuildProfile(TestCase):
+class TestBuildProfile(EdcLabTestMixin, TestCase):
     def setUp(self):
         self.wb = AliquotType(name="whole_blood", numeric_code="02", alpha_code="WB")
         self.bc = AliquotType(name="buffy_coat", numeric_code="12", alpha_code="BC")
@@ -65,7 +66,7 @@ class TestBuildProfile(TestCase):
         lab_profile = LabProfile(
             name="profile", requisition_model="edc_lab.subjectrequisition"
         )
-        lab_profile.add_panel(panel=panel)
+        lab_profile.add_panel(panel)
         self.assertEqual(panel, lab_profile.panels.get(panel.name))
 
     def test_add_processing(self):
@@ -79,7 +80,7 @@ class TestBuildProfile(TestCase):
         lab_profile = LabProfile(
             name="profile", requisition_model="edc_lab.subjectrequisition"
         )
-        lab_profile.add_panel(panel=panel)
+        lab_profile.add_panel(panel)
 
     def test_add_panel(self):
         """Assert same panel cannot be added twice."""
@@ -93,8 +94,8 @@ class TestBuildProfile(TestCase):
         lab_profile = LabProfile(
             name="profile", requisition_model="edc_lab.subjectrequisition"
         )
-        lab_profile.add_panel(panel=panel)
-        self.assertRaises(PanelAlreadyRegistered, lab_profile.add_panel, panel=panel)
+        lab_profile.add_panel(panel)
+        self.assertRaises(PanelAlreadyRegistered, lab_profile.add_panel, panel)
 
     def test_added_panel_knows_requisition_model(self):
         """Assert same panel cannot be added twice."""
@@ -108,7 +109,30 @@ class TestBuildProfile(TestCase):
         lab_profile = LabProfile(
             name="profile", requisition_model="edc_lab.subjectrequisition"
         )
-        lab_profile.add_panel(panel=panel)
+        lab_profile.add_panel(panel)
         panel = lab_profile.panels.get("Viral Load")
         self.assertEqual(panel.requisition_model, "edc_lab.subjectrequisition")
         self.assertEqual(panel.requisition_model_cls, SubjectRequisition)
+
+    def test_add_panel_group(self):
+        panel_group = self.get_panel_group()
+        lab_profile = LabProfile(
+            name="profile",
+            requisition_model="edc_lab.subjectrequisition",
+        )
+        lab_profile.add_panel_group(panel_group)
+        self.assertIsNotNone(lab_profile.panel_groups.get(panel_group.name))
+        self.assertEqual(len(lab_profile.panels), 4)
+        self.assertRaises(PanelAlreadyRegistered, lab_profile.add_panel_group, panel_group)
+
+    def test_added_panel_group_knows_requisition_model(self):
+        """Assert same panel cannot be added twice."""
+        panel_group = self.get_panel_group()
+        lab_profile = LabProfile(
+            name="profile", requisition_model="edc_lab.subjectrequisition"
+        )
+        lab_profile.add_panel_group(panel_group)
+        for panel in panel_group.panels:
+            panel = lab_profile.panels.get(panel.name)
+            self.assertEqual(panel.requisition_model, "edc_lab.subjectrequisition")
+            self.assertEqual(panel.requisition_model_cls, SubjectRequisition)

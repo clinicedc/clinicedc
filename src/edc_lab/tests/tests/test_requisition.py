@@ -67,7 +67,7 @@ class TestRequisitionModel(TestCase):
         processing_profile.add_processes(process)
         panel = RequisitionPanel(name="Viral Load", processing_profile=processing_profile)
         self.lab_profile = LabProfile(name="profile", requisition_model=self.requisition_model)
-        self.lab_profile.add_panel(panel=panel)
+        self.lab_profile.add_panel(panel)
         site_labs._registry = {}
         site_labs.loaded = False
         site_labs.register(lab_profile=self.lab_profile)

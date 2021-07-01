@@ -22,6 +22,7 @@ class PanelModelMixin(models.Model):
 
     @property
     def panel_object(self):
+        """Returns a `panel` or `panel group` object"""
         try:
             panel_name = self.panel.name
         except AttributeError:
@@ -31,7 +32,8 @@ class PanelModelMixin(models.Model):
                 panel_object = self.lab_profile_object.panels[panel_name]
             except KeyError as e:
                 raise PanelModelError(
-                    f"Undefined panel name. Got {panel_name}. See AppConfig. Got {e}"
+                    "Undefined `panel` name or `panel group` name. "
+                    f"Got {panel_name}. See AppConfig. Got {e}"
                 )
         return panel_object
 
