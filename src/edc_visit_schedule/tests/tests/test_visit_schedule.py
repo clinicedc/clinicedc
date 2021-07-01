@@ -1,6 +1,7 @@
-from datetime import date
+from datetime import date, datetime
 
 from dateutil.relativedelta import relativedelta
+from dateutil.tz import tzutc
 from django.test import TestCase, override_settings, tag
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
@@ -215,6 +216,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         import_holidays()
         site_consents.registry = {}
         site_consents.register(v1_consent)
+
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
@@ -241,6 +243,12 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         self.visit_schedule.add_schedule(self.schedule)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(self.visit_schedule)
+
+        site_reference_configs.registry = {}
+        site_reference_configs.register_from_visit_schedule(
+            visit_models={"edc_appointment.appointment": "visit_schedule_app.subjectvisit"}
+        )
+
         self.subject_consent = SubjectConsent.objects.create(
             subject_identifier="12345",
             consent_datetime=get_utcnow() - relativedelta(seconds=1),
@@ -250,7 +258,6 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         )
         self.subject_identifier = self.subject_consent.subject_identifier
 
-    @tag("vvv")
     def test_put_on_schedule_creates_history(self):
         self.schedule.put_on_schedule(
             subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
@@ -305,7 +312,8 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         self.assertGreater(Appointment.objects.all().count(), 0)
 
     def test_creates_appointments_starting_with_onschedule_datetime(self):
-        onschedule_datetime = get_utcnow() - relativedelta(years=4)
+        """Will pass as long as this is not a holiday"""
+        onschedule_datetime = datetime(2017, 7, 19, 15, 29, 44, 903192, tzinfo=tzutc())
         _, schedule = site_visit_schedules.get_by_onschedule_model(
             "visit_schedule_app.onschedule"
         )
