@@ -3,6 +3,8 @@ from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.urls import reverse
+from django.utils.html import format_html
 from edc_form_validators.form_validator import FormValidator
 from edc_metadata.form_validators import MetaDataFormValidatorMixin
 from edc_utils import convert_php_dateformat, get_utcnow
@@ -180,24 +182,24 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
             appt_status not in [INCOMPLETE_APPT, IN_PROGRESS_APPT]
             and self.crf_metadata_required_exists
         ):
+            url = self.changelist_url("crfmetadata")
             raise forms.ValidationError(
-                {"appt_status": "Invalid. Not all required CRFs have been keyed"}
+                {
+                    "appt_status": format_html(
+                        f'Invalid. Not all <a href="{url}">required CRFs</a> have been keyed'
+                    )
+                }
             )
         elif (
             appt_status not in [INCOMPLETE_APPT, IN_PROGRESS_APPT]
             and self.requisition_metadata_required_exists
         ):
-            raise forms.ValidationError(
-                {"appt_status": ("Invalid. Not all required requisitions have been keyed")}
-            )
-        elif (
-            appt_status not in [INCOMPLETE_APPT, IN_PROGRESS_APPT]
-            and self.required_additional_forms_exist
-        ):
+            url = self.changelist_url("requisitionmetadata")
             raise forms.ValidationError(
                 {
-                    "appt_status": (
-                        "Invalid. Not all required 'additional' forms have been keyed"
+                    "appt_status": format_html(
+                        f'Invalid. Not all <a href="{url}">'
+                        "required requisitions</a> have been keyed"
                     )
                 }
             )
@@ -229,7 +231,7 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
                 )
             elif not self.requisition_metadata_required_exists:
                 raise forms.ValidationError(
-                    {"appt_status": ("Invalid. All required requisitions have been keyed")}
+                    {"appt_status": "Invalid. All required requisitions have been keyed"}
                 )
             elif not self.required_additional_forms_exist:
                 raise forms.ValidationError(
@@ -293,3 +295,13 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
             raise forms.ValidationError(
                 {"appt_status": "Invalid. This is a scheduled appointment"}
             )
+
+    def changelist_url(self, model_name):
+        """Returns the model's changelist url with filter querystring"""
+        url = reverse(f"edc_metadata_admin:edc_metadata_{model_name}_changelist")
+        url = (
+            f"{url}?q={self.instance.subject_identifier}"
+            f"&visit_code={self.instance.visit_code}"
+            f"&visit_code_sequence={self.instance.visit_code_sequence}"
+        )
+        return url
