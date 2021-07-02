@@ -62,7 +62,7 @@ class ActionType(BaseUuidModel):
             try:
                 model_cls = django_apps.get_model(self.reference_model)
             except (LookupError, ValueError) as e:
-                raise ActionTypeError(f"{e}. Got reference_model=`self.reference_model`")
+                raise ActionTypeError(f"{e}. Got reference_model=`{self.reference_model}`")
         return model_cls
 
     def save(self, *args, **kwargs):
