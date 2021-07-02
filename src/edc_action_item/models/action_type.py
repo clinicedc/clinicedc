@@ -57,9 +57,13 @@ class ActionType(BaseUuidModel):
 
     @property
     def reference_model_cls(self):
+        model_cls = None
         if self.reference_model:
-            return django_apps.get_model(self.reference_model)
-        return None
+            try:
+                model_cls = django_apps.get_model(self.reference_model)
+            except (LookupError, ValueError) as e:
+                raise ActionTypeError(f"{e}. Got reference_model=`self.reference_model`")
+        return model_cls
 
     def save(self, *args, **kwargs):
         self.display_name = self.display_name or self.name
