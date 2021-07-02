@@ -18,7 +18,7 @@ class eGFR:
         gender=None,
         age=None,
         ethnicity=None,
-        creatinine=None,
+        creatinine_value=None,
         creatinine_units=None,
     ):
         """Expects creatinine (scr) in umols/L.
@@ -36,7 +36,7 @@ class eGFR:
 
         self.ethnicity = ethnicity or OTHER
         self.scr = convert_units(
-            creatinine, units_from=creatinine_units, units_to=MILLIGRAMS_PER_DECILITER
+            creatinine_value, units_from=creatinine_units, units_to=MILLIGRAMS_PER_DECILITER
         )
 
     @property
