@@ -41,7 +41,7 @@ blood_glucose_panel = RequisitionPanel(
     verbose_name="Blood Glucose (Venous)",
     abbreviation="BGL",
     processing_profile=blood_glucose_processing,
-    utest_ids=[("gluc", "Glucose")],
+    utest_ids=[("glucose", "Glucose")],
 )
 
 blood_glucose_poc_panel = RequisitionPanel(
@@ -49,7 +49,7 @@ blood_glucose_poc_panel = RequisitionPanel(
     verbose_name="Blood Glucose (POC)",
     abbreviation="BGL-POC",
     processing_profile=poc_processing,
-    utest_ids=[("gluc", "Glucose")],
+    utest_ids=[("glucose", "Glucose")],
 )
 
 
