@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from django import forms
-from edc_reportable import MILLIMOLES_PER_LITER, convert_units
+from edc_reportable import MILLIMOLES_PER_LITER, ConversionNotHandled, convert_units
 
 
 def validate_glucose_as_millimoles_per_liter(prefix, cleaned_data=None) -> None:
@@ -11,7 +11,12 @@ def validate_glucose_as_millimoles_per_liter(prefix, cleaned_data=None) -> None:
     value = cleaned_data.get(f"{prefix}_value")
     units = cleaned_data.get(f"{prefix}_units")
     if value and units:
-        converted_value = convert_units(value, units_from=units, units_to=MILLIMOLES_PER_LITER)
+        try:
+            converted_value = convert_units(
+                value, units_from=units, units_to=MILLIMOLES_PER_LITER
+            )
+        except ConversionNotHandled as e:
+            raise forms.ValidationError({f"{prefix}_units": str(e)})
         if (
             not (min_val <= round(converted_value, 2) <= max_val)
             and round(converted_value, 2) != high_value
