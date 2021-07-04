@@ -39,7 +39,6 @@ class MyView(MetaDataViewMixin, ContextMixin, View):
     requisition_model_wrapper_cls = DummyRequisitionModelWrapper
 
 
-@tag("12")
 class TestViewMixin(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -130,6 +129,7 @@ class TestViewMixin(TestCase):
         context_data = view.get_context_data()
         self.assertEqual(len(context_data.get("requisitions")), 2)
 
+    @tag("1")
     def test_view_mixin_context_data_crfs_unscheduled(self):
         self.appointment.appt_status = INCOMPLETE_APPT
         self.appointment.save()

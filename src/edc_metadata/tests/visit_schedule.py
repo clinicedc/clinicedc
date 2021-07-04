@@ -72,7 +72,7 @@ requisitions_unscheduled = FormsCollection(
 
 visit0 = Visit(
     code="1000",
-    title="Day 1",
+    title="Week 1",
     timepoint=0,
     rbase=relativedelta(days=0),
     rlower=relativedelta(days=0),
@@ -87,9 +87,9 @@ visit0 = Visit(
 
 visit1 = Visit(
     code="2000",
-    title="Day 2",
+    title="Week 2",
     timepoint=1,
-    rbase=relativedelta(days=1),
+    rbase=relativedelta(days=7),
     rlower=relativedelta(days=0),
     rupper=relativedelta(days=6),
     requisitions=requisitions,
@@ -100,9 +100,9 @@ visit1 = Visit(
 
 visit2 = Visit(
     code="3000",
-    title="Day 3",
+    title="Week 3",
     timepoint=2,
-    rbase=relativedelta(days=2),
+    rbase=relativedelta(days=14),
     rlower=relativedelta(days=0),
     rupper=relativedelta(days=6),
     requisitions=requisitions3000,
