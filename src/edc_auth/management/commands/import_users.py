@@ -29,7 +29,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--resource-name",
             type=str,
-            default=f"clinicedc.org",
+            default="clinicedc.org",
             dest="resource_name",
             help="Mail server domain",
         )
