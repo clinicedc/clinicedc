@@ -17,7 +17,7 @@ class EgfrFormValidatorMixin:
                 gender=self.cleaned_data.get("gender"),
                 age=self.cleaned_data.get("age_in_years"),
                 ethnicity=self.cleaned_data.get("ethnicity"),
-                creatinine=self.cleaned_data.get("creatinine_value"),
+                creatinine_value=self.cleaned_data.get("creatinine_value"),
                 creatinine_units=self.cleaned_data.get("creatinine_units"),
             )
             try:
