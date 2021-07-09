@@ -8,12 +8,16 @@ from edc_utils import get_utcnow
 from pytz import utc
 
 from edc_reportable import (
+    IU_LITER,
     BoundariesOverlap,
     GradeError,
     GradeReference,
+    NormalReference,
     NotEvaluated,
     ValueReferenceGroup,
+    adult_age_options,
 )
+from edc_reportable.constants import HIGH_VALUE
 
 
 class TestGrading(TestCase):
@@ -167,3 +171,110 @@ class TestGrading(TestCase):
             report_datetime=report_datetime,
             units="mg/dL",
         )
+
+    def test_grading_with_limits_normal(self):
+        dob = get_utcnow() - relativedelta(years=25)
+        report_datetime = utc.localize(datetime(2017, 12, 7))
+        grp = ValueReferenceGroup(name="amylase")
+        normal_reference = NormalReference(
+            name="amylase",
+            gender=[MALE, FEMALE],
+            units=IU_LITER,
+            lower=25.0,
+            upper=125.0,
+            lower_inclusive=True,
+            upper_inclusive=True,
+            **adult_age_options,
+        )
+        opts = dict(
+            name="amylase",
+            grade=1,
+            lower="1.1*ULN",
+            upper="1.5*ULN",
+            lower_inclusive=True,
+            upper_inclusive=False,
+            units=IU_LITER,
+            gender=MALE,
+            **adult_age_options,
+        )
+        g1 = GradeReference(normal_references={MALE: [normal_reference]}, **opts)
+
+        new_opts = copy(opts)
+        new_opts.update(grade=2, lower="1.5*ULN", upper="3.0*ULN")
+        g2 = GradeReference(normal_references={MALE: [normal_reference]}, **new_opts)
+
+        new_opts = copy(opts)
+        new_opts.update(grade=3, lower="3.0*ULN", upper="5.0*ULN")
+        g3 = GradeReference(normal_references={MALE: [normal_reference]}, **new_opts)
+
+        new_opts = copy(opts)
+        new_opts.update(grade=4, lower="5.0*ULN", upper=f"{HIGH_VALUE}*ULN")
+        g4 = GradeReference(normal_references={MALE: [normal_reference]}, **new_opts)
+
+        grp.add_grading(g1)
+        grp.add_grading(g2)
+        grp.add_grading(g3)
+        grp.add_grading(g4)
+
+        grade = grp.get_grade(
+            value=130,
+            gender=MALE,
+            dob=dob,
+            report_datetime=report_datetime,
+            units=IU_LITER,
+        )
+        self.assertIsNone(grade)
+
+        grade = grp.get_grade(
+            value=137.5,
+            gender=MALE,
+            dob=dob,
+            report_datetime=report_datetime,
+            units=IU_LITER,
+        )
+        self.assertEqual(grade.grade, 1)
+
+        grade = grp.get_grade(
+            value=187.4,
+            gender=MALE,
+            dob=dob,
+            report_datetime=report_datetime,
+            units=IU_LITER,
+        )
+        self.assertEqual(grade.grade, 1)
+
+        grade = grp.get_grade(
+            value=187.5,
+            gender=MALE,
+            dob=dob,
+            report_datetime=report_datetime,
+            units=IU_LITER,
+        )
+        self.assertEqual(grade.grade, 2)
+
+        grade = grp.get_grade(
+            value=212,
+            gender=MALE,
+            dob=dob,
+            report_datetime=report_datetime,
+            units=IU_LITER,
+        )
+        self.assertEqual(grade.grade, 2)
+
+        grade = grp.get_grade(
+            value=600,
+            gender=MALE,
+            dob=dob,
+            report_datetime=report_datetime,
+            units=IU_LITER,
+        )
+        self.assertEqual(grade.grade, 3)
+
+        grade = grp.get_grade(
+            value=780,
+            gender=MALE,
+            dob=dob,
+            report_datetime=report_datetime,
+            units=IU_LITER,
+        )
+        self.assertEqual(grade.grade, 4)

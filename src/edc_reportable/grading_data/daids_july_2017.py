@@ -4,11 +4,11 @@ Based on Corrected Version 2.1 July 2017
 
 from edc_constants.constants import FEMALE, MALE
 
-from edc_reportable import (
+from ..adult_age_options import adult_age_options
+from ..constants import GRADE0, GRADE1, GRADE2, GRADE3, GRADE4, HIGH_VALUE
+from ..parsers import parse as p
+from ..units import (
     CELLS_PER_MILLIMETER_CUBED,
-    GRADE0,
-    GRADE3,
-    GRADE4,
     GRAMS_PER_DECILITER,
     GRAMS_PER_LITER,
     IU_LITER,
@@ -18,9 +18,20 @@ from edc_reportable import (
     PERCENT,
     TEN_X_9_PER_LITER,
 )
-from edc_reportable import parse as p
 
-from ..adult_age_options import adult_age_options
+# eGFR
+# G4
+# G3
+"""
+Creatinine Clearance14 or eGFR, Low
+*Report only one
+NA
+G1 N/A
+G2 < 90 to 60 ml/min or ml/min/1.73 m2 OR 10 to < 30% decrease from participant’s baseline
+G3 < 60 to 30 ml/min or ml/min/1.73 m2 OR 30 to < 50% decrease from participant’s baseline
+G4 < 30 ml/min or ml/min/1.73 m2 OR ≥ 50% decrease from participant’s baseline
+"""
+
 
 dummies = {
     "hba1c": [
@@ -87,8 +98,8 @@ dummies = {
 }
 
 
-chemistries = {
-    "albumin": [
+chemistries = dict(
+    albumin=[
         p(
             "x<2.0",
             grade=GRADE3,
@@ -104,7 +115,7 @@ chemistries = {
             **adult_age_options,
         ),
     ],
-    "alp": [
+    alp=[
         p(
             "200<=x<=400",
             grade=GRADE3,
@@ -120,7 +131,7 @@ chemistries = {
             **adult_age_options,
         ),
     ],
-    "alt": [
+    alt=[
         p(
             "200<=x<=400",
             grade=GRADE3,
@@ -136,8 +147,37 @@ chemistries = {
             **adult_age_options,
         ),
     ],
-    # TODO: confirm amylase grading in IU_LITER
-    "amylase": [
+    amylase=[
+        p(
+            "1.1*ULN<=x<1.5*ULN",
+            grade=GRADE1,
+            units=IU_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "1.5*ULN<=x<3.0*ULN",
+            grade=GRADE2,
+            units=IU_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "3.0*ULN<=x<5.0*ULN",
+            grade=GRADE3,
+            units=IU_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            f"5.0*ULN<=x<{HIGH_VALUE}*ULN",
+            grade=GRADE4,
+            units=IU_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+    ],
+    ast=[
         p(
             "200<=x<=400",
             grade=GRADE3,
@@ -153,23 +193,7 @@ chemistries = {
             **adult_age_options,
         ),
     ],
-    "ast": [
-        p(
-            "200<=x<=400",
-            grade=GRADE3,
-            units=IU_LITER,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-        ),
-        p(
-            "400<x",
-            grade=GRADE4,
-            units=IU_LITER,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-        ),
-    ],
-    "chol": [
+    chol=[
         p(
             "300<=x",
             grade=GRADE3,
@@ -185,7 +209,7 @@ chemistries = {
             **adult_age_options,
         ),
     ],
-    "creatinine": [
+    creatinine=[
         p(
             "2.47<=x<=4.42",
             grade=GRADE3,
@@ -215,7 +239,7 @@ chemistries = {
             **adult_age_options,
         ),
     ],
-    "glucose": [  # G3/G4 same for fasting / non-fasting
+    glucose=[  # G3/G4 same for fasting / non-fasting
         p(
             "13.89<=x<27.75",
             grade=GRADE3,
@@ -249,7 +273,7 @@ chemistries = {
             fasting=False,
         ),
     ],
-    "ldl": [
+    ldl=[
         p(
             "4.90<=x",
             grade=GRADE3,
@@ -259,7 +283,7 @@ chemistries = {
             fasting=True,
         ),
     ],
-    "magnesium": [
+    magnesium=[
         p(
             "0.3<=x<=0.44",
             grade=GRADE3,
@@ -289,7 +313,7 @@ chemistries = {
             **adult_age_options,
         ),
     ],
-    "potassium": [
+    potassium=[
         p(
             "2.0<=x<=2.4",
             grade=GRADE3,
@@ -319,7 +343,7 @@ chemistries = {
             **adult_age_options,
         ),
     ],
-    "sodium": [
+    sodium=[
         p(
             "121<=x<=124",
             grade=GRADE3,
@@ -349,7 +373,7 @@ chemistries = {
             **adult_age_options,
         ),
     ],
-    "trig": [
+    trig=[
         p(
             "5.7<=x<=11.4",
             grade=GRADE3,
@@ -367,7 +391,7 @@ chemistries = {
             fasting=True,
         ),
     ],
-    "uric_acid": [
+    uric_acid=[
         p(
             "12<=x<15.0",
             grade=GRADE3,
@@ -397,7 +421,7 @@ chemistries = {
             **adult_age_options,
         ),
     ],
-}
+)
 
 hematology = {
     "haemoglobin": [

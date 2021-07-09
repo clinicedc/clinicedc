@@ -10,11 +10,13 @@ from edc_reportable import (
     BoundariesOverlap,
     InvalidValueReference,
     NormalReference,
+    NormalReferenceError,
     NotEvaluated,
     ValueReferenceAlreadyAdded,
     ValueReferenceGroup,
 )
-from edc_reportable.units import MICROMOLES_PER_LITER, MILLIMOLES_PER_LITER
+from edc_reportable.normal_data.africa import normal_data
+from edc_reportable.units import IU_LITER, MILLIMOLES_PER_LITER
 
 
 class TestValueReference(TestCase):
@@ -326,3 +328,19 @@ class TestValueReference(TestCase):
             units=MILLIMOLES_PER_LITER,
             fasting=False,
         )
+
+    def test_value_reference_group_with_ll(self):
+        opts = dict(
+            name="amylase",
+            lower="1.5*ULN",
+            upper="3.0*ULN",
+            units=IU_LITER,
+            age_lower=18,
+            age_upper=99,
+            age_units="years",
+            gender=[MALE, FEMALE],
+            fasting=True,
+            normal_references={"MF": normal_data.get("amylase")},
+        )
+
+        self.assertRaises(NormalReferenceError, NormalReference, **opts)
