@@ -33,7 +33,12 @@ class ReferenceRangeCollection:
         """Returns a dictionary of the normal and grading references
         in this collection.
         """
-        exclude_attrs = ["evaluator", "age_evaluator"]
+        exclude_attrs = [
+            "evaluator",
+            "age_evaluator",
+            "_normal_reference",
+            "normal_references",
+        ]
         data = {"normal": [], "grading": []}
         for name, grp in self.registry.items():
             for normal_refs in grp.normal.values():

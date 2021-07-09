@@ -23,25 +23,29 @@ class TestCalculators(TestCase):
     def test_egfr_calculator(self):
 
         egfr = eGFR(
-            gender=FEMALE, age=30, creatinine=1.0, creatinine_units=MICROMOLES_PER_LITER
+            gender=FEMALE, age=30, creatinine_value=1.0, creatinine_units=MICROMOLES_PER_LITER
         )
         self.assertEqual(0.7, egfr.kappa)
 
-        egfr = eGFR(gender=MALE, age=30, creatinine=1.0, creatinine_units=MICROMOLES_PER_LITER)
+        egfr = eGFR(
+            gender=MALE, age=30, creatinine_value=1.0, creatinine_units=MICROMOLES_PER_LITER
+        )
         self.assertEqual(0.9, egfr.kappa)
 
         egfr = eGFR(
-            gender=FEMALE, age=30, creatinine=1.0, creatinine_units=MICROMOLES_PER_LITER
+            gender=FEMALE, age=30, creatinine_value=1.0, creatinine_units=MICROMOLES_PER_LITER
         )
         self.assertEqual(-0.329, egfr.alpha)
 
-        egfr = eGFR(gender=MALE, age=30, creatinine=1.0, creatinine_units=MICROMOLES_PER_LITER)
+        egfr = eGFR(
+            gender=MALE, age=30, creatinine_value=1.0, creatinine_units=MICROMOLES_PER_LITER
+        )
         self.assertEqual(-0.411, egfr.alpha)
 
         egfr1 = eGFR(
             gender=MALE,
             ethnicity=BLACK,
-            creatinine=1.3,
+            creatinine_value=1.3,
             age=30,
             creatinine_units=MICROMOLES_PER_LITER,
         )
@@ -51,7 +55,7 @@ class TestCalculators(TestCase):
         egfr2 = eGFR(
             gender=MALE,
             ethnicity=BLACK,
-            creatinine=0.9,
+            creatinine_value=0.9,
             age=30,
             creatinine_units=MICROMOLES_PER_LITER,
         )

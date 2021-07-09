@@ -1,6 +1,8 @@
 import re
 from collections import OrderedDict
 
+from edc_reportable.constants import LLN, ULN
+
 
 class ParserError(Exception):
     pass
@@ -31,21 +33,29 @@ def unparse(**kwargs):
     return f"{lower}{lower_op}x{upper_op}{upper} {fasting_str}{gender} {age}".rstrip()
 
 
-def parse(phrase=None, **kwargs):
+def parse(phrase=None, fasting=None, uln=None, lln=None, **kwargs):
 
     pattern = r"(([\d+\.\d+]|[\.\d+])?(<|<=)?)+x((<|<=)?([\d+\.\d+]|[\.\d+])+)?"
+    lln = f"*{LLN}"
+    uln = f"*{ULN}"
 
     def _parse(string):
         inclusive = True if "=" in string else None
         try:
-            value = float(string.replace("<", "").replace("=", ""))
+            value = float(
+                string.replace("<", "").replace("=", "").replace(lln, "").replace(uln, "")
+            )
         except ValueError:
             value = None
+        if lln in string:
+            value = f"{value}{lln}"
+        elif uln in string:
+            value = f"{value}{uln}"
         return value, inclusive
 
     phrase = phrase.replace(" ", "")
-    match = re.match(pattern, phrase)
-    if not match or match.group() != phrase:
+    match = re.match(pattern, phrase.replace(lln, "").replace(uln, ""))
+    if not match or match.group() != phrase.replace(lln, "").replace(uln, ""):
         raise ParserError(
             f"Invalid. Got {phrase}. Expected, e.g, 11<x<22, "
             "11<=x<22, 11<x<=22, 11<x, 11<=x, x<22, x<=22, etc."
@@ -53,10 +63,7 @@ def parse(phrase=None, **kwargs):
     left, right = phrase.replace(" ", "").split("x")
     lower, lower_inclusive = _parse(left)
     upper, upper_inclusive = _parse(right)
-    try:
-        fasting = kwargs.pop("fasting")
-    except KeyError:
-        fasting = False
+    fasting = True if fasting else False
     ret = OrderedDict(
         lower=lower,
         lower_inclusive=lower_inclusive,
@@ -68,3 +75,18 @@ def parse(phrase=None, **kwargs):
     for k, v in ret.items():
         setattr(ret, k, v)
     return ret
+
+
+def parse_boundary(value):
+    uln = lln = None
+    value = value.upper()
+    pattern = r"(\d+\.\d+)\*[LLN|ULN]"
+    if not re.match(pattern, value):
+        raise ParserError(f"Invalid value. Got {value}")
+    else:
+        value, limit_normal = value.split("*")
+        if limit_normal == LLN:
+            lln = float(value)
+        elif limit_normal == ULN:
+            uln = float(value)
+    return lln, uln

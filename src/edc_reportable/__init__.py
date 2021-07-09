@@ -30,7 +30,7 @@ from .form_validator_mixins import (
     ReportablesFormValidatorMixin,
 )
 from .grade_reference import GradeError, GradeReference
-from .normal_reference import NormalReference
+from .normal_reference import NormalReference, NormalReferenceError
 from .parsers import ParserError, parse, unparse
 from .reference_range_collection import AlreadyRegistered, ReferenceRangeCollection
 from .reportables_evaluator import ReportablesEvaluator

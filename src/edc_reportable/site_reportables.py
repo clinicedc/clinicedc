@@ -23,7 +23,7 @@ class MissingNormalReference(Exception):
     pass
 
 
-class Reportables:
+class SiteReportables:
     def __init__(self):
         self._registry = {}
 
@@ -49,7 +49,7 @@ class Reportables:
                     f"normal reference. Got {name}."
                 )
             for data in datas:
-                grade_ref = GradeReference(name=name, **data)
+                grade_ref = GradeReference(name=name, normal_references=grp.normal, **data)
                 grp.add_grading(grade_ref)
             reference_range_collection.update_grp(grp)
         site_reportables._registry.update(
@@ -130,4 +130,4 @@ class Reportables:
                 )
 
 
-site_reportables = Reportables()
+site_reportables = SiteReportables()

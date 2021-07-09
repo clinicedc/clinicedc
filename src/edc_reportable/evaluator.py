@@ -1,12 +1,22 @@
 import re
 from typing import Optional, Union
 
+from .constants import HIGH_VALUE
+
 
 class InvalidUnits(Exception):
     pass
 
 
 class InvalidLowerBound(Exception):
+    pass
+
+
+class InvalidLowerLimitNormal(Exception):
+    pass
+
+
+class InvalidUpperLimitNormal(Exception):
     pass
 
 
@@ -85,6 +95,8 @@ class Evaluator:
             value = float(value) if value is not None else placeholder
             lower = float(self.lower) if self.lower is not None else ""
             upper = float(self.upper) if self.upper is not None else ""
+        if upper and upper >= float(HIGH_VALUE):
+            upper = ""
         return (
             f'{lower}{self.lower_operator or ""}{value}'
             f'{self.upper_operator or ""}{upper} {self.units}'
@@ -98,7 +110,6 @@ class Evaluator:
 
         Condition is evaluated as a string constructed from
         given parameters."""
-
         value = float(value)
         if units != self.units:
             raise InvalidUnits(f"Expected {self.units}. See {repr(self)}")
@@ -106,7 +117,6 @@ class Evaluator:
             f'{"" if self.lower is None else self.lower}{self.lower_operator or ""}{value}'
             f'{self.upper_operator or ""}{"" if self.upper is None else self.upper}'
         )
-
         if not eval(condition):
             raise ValueBoundryError(condition)
         return True

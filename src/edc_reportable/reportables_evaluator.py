@@ -1,5 +1,3 @@
-import pdb
-
 from django import forms
 from edc_constants.constants import NO, NOT_APPLICABLE, YES
 from edc_metadata.constants import REQUIRED
