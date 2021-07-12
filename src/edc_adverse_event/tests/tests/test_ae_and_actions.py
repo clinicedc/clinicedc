@@ -5,8 +5,9 @@ from django.test import TestCase
 from edc_action_item.get_action_type import get_action_type
 from edc_action_item.models import SubjectDoesNotExist
 from edc_action_item.models.action_item import ActionItem
-from edc_constants.constants import CLOSED, DEAD, LOST_TO_FOLLOWUP, NEW, NO, YES
+from edc_constants.constants import CLOSED, DEAD, NEW, NO, YES
 from edc_list_data.site_list_data import site_list_data
+from edc_ltfu.constants import LOST_TO_FOLLOWUP
 from edc_registration.models import RegisteredSubject
 from edc_reportable import GRADE5
 from edc_utils import get_utcnow

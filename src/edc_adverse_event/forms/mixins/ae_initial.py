@@ -8,8 +8,8 @@ from edc_form_validators import FormValidatorMixin
 from edc_registration.modelform_mixins import ModelFormSubjectIdentifierMixin
 from edc_reportable import GRADE4, GRADE5
 
-from ..form_validators import AeInitialFormValidator
-from ..get_ae_model import get_ae_model
+from edc_adverse_event.form_validators import AeInitialFormValidator
+from edc_adverse_event.get_ae_model import get_ae_model
 
 
 class AeInitialModelFormMixin(
