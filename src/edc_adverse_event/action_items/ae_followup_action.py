@@ -2,7 +2,8 @@ from django.conf import settings
 from django.utils.safestring import mark_safe
 from edc_action_item.action_with_notification import ActionWithNotification
 from edc_action_item.site_action_items import site_action_items
-from edc_constants.constants import DEAD, HIGH_PRIORITY, LOST_TO_FOLLOWUP, YES
+from edc_constants.constants import DEAD, HIGH_PRIORITY, YES
+from edc_ltfu.constants import LOST_TO_FOLLOWUP
 from edc_reportable.constants import GRADE5
 from edc_visit_schedule.utils import (
     OnScheduleError,
@@ -66,7 +67,7 @@ class AeFollowupAction(ActionWithNotification):
             ),
         )
 
-        next_actions = self.update_next_actions_lftu(next_actions)
+        next_actions = self.update_next_actions_ltfu(next_actions)
         return next_actions
 
     @property
@@ -85,7 +86,7 @@ class AeFollowupAction(ActionWithNotification):
             report_datetime=self.reference_obj.report_datetime,
         )
 
-    def update_next_actions_lftu(self, next_actions=None):
+    def update_next_actions_ltfu(self, next_actions=None):
         """Add Study termination to next_actions if LTFU."""
         if self.reference_obj.outcome and self.reference_obj.outcome == LOST_TO_FOLLOWUP:
             if not self.onschedule_models:

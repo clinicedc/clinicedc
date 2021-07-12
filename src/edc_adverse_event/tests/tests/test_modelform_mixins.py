@@ -3,7 +3,7 @@ from django.test import TestCase
 
 from adverse_event_app.models import AeFollowup
 
-from ...modelform_mixins import AeFollowupModelFormMixin
+from ...forms import AeFollowupModelFormMixin
 
 
 class TestModelformMixins(TestCase):
