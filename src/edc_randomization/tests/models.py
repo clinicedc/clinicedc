@@ -16,6 +16,8 @@ class SubjectConsent(UpdatesOrCreatesRegistrationModelMixin, SiteModelMixin, Bas
 
     consent_datetime = models.DateTimeField(default=get_utcnow)
 
+    gender = models.CharField(max_length=25, null=True)
+
 
 class MyRandomizationList(RandomizationListModelMixin, BaseUuidModel):
     randomizer_cls = MyRandomizer

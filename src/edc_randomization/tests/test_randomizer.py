@@ -3,6 +3,7 @@ from random import shuffle
 from django.contrib.sites.models import Site
 from django.test import TestCase, tag
 from django.test.utils import override_settings
+from edc_constants.constants import FEMALE
 from edc_registration.models import RegisteredSubject
 from edc_sites import add_or_update_django_sites
 from edc_sites.single_site import SingleSite
@@ -93,6 +94,33 @@ class TestRandomizer(TestCase):
                 subject_identifier=subject_consent.subject_identifier,
                 report_datetime=subject_consent.consent_datetime,
                 site=subject_consent.site,
+                user=subject_consent.user_created,
+            )
+        except Exception as e:
+            self.fail(f"Exception unexpectedly raised. Got {str(e)}.")
+
+    @override_settings(SITE_ID=SiteID(40))
+    def test_with_gender_and_consent(self):
+        class RandomizerWithGender(Randomizer):
+            def __init__(self, gender=None, **kwargs):
+                self.gender = gender
+                super().__init__(**kwargs)
+
+            @property
+            def extra_required_attrs(self):
+                return dict(gender=self.gender)
+
+        RandomizationListImporter(name="default")
+        site = Site.objects.get_current()
+        subject_consent = SubjectConsent.objects.create(
+            subject_identifier="12345", site=site, gender=FEMALE, user_created="erikvw"
+        )
+        try:
+            RandomizerWithGender(
+                subject_identifier=subject_consent.subject_identifier,
+                report_datetime=subject_consent.consent_datetime,
+                site=subject_consent.site,
+                gender=FEMALE,
                 user=subject_consent.user_created,
             )
         except Exception as e:

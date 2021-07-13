@@ -3,7 +3,7 @@ import os
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from edc_registration.utils import get_registered_subject_model
+from edc_registration.utils import get_registered_subject_model_cls
 
 from .constants import DEFAULT_ASSIGNMENT_MAP
 from .randomization_list_verifier import RandomizationListVerifier
@@ -53,7 +53,9 @@ class Randomizer:
     filename = "randomization_list.csv"
     is_blinded_trial = True
 
-    def __init__(self, subject_identifier=None, report_datetime=None, site=None, user=None):
+    def __init__(
+        self, subject_identifier=None, report_datetime=None, site=None, user=None, **kwargs
+    ):
         self._model_obj = None
         self._registered_subject = None
         self.subject_identifier = subject_identifier
@@ -62,7 +64,7 @@ class Randomizer:
         self.user = user
         self.check_loaded()
         # force query, will raise if already randomized
-        self.registered_subject
+        self.get_registered_subject()
         # will raise if already randomized
         self.randomize()
 
@@ -112,6 +114,10 @@ class Randomizer:
             )
 
     @property
+    def model_filter_options(self):
+        return dict(site_name=self.site.name)
+
+    @property
     def model_obj(self):
         """Returns a "rando" model instance by selecting
         the next available SID.
@@ -122,14 +128,18 @@ class Randomizer:
             except ObjectDoesNotExist:
                 self._model_obj = (
                     self.model_cls()
-                    .objects.filter(subject_identifier__isnull=True, site_name=self.site.name)
+                    .objects.filter(
+                        subject_identifier__isnull=True, **self.model_filter_options
+                    )
                     .order_by("sid")
                     .first()
                 )
                 if not self._model_obj:
+                    fld_str = ", ".join(
+                        [f"{k}=`{v}`" for k, v in self.model_filter_options.items()]
+                    )
                     raise AllocationError(
-                        "Randomization failed. No additional SIDs available for "
-                        f"site '{self.site.name}'."
+                        f"Randomization failed. No additional SIDs available for {fld_str}."
                     )
             else:
                 raise AlreadyRandomized(
@@ -141,27 +151,30 @@ class Randomizer:
                 )
         return self._model_obj
 
+    @property
+    def extra_required_attrs(self):
+        return {}
+
+    @property
+    def required_attrs(self):
+        return dict(
+            subject_identifier=self.subject_identifier,
+            allocated_datetime=self.allocated_datetime,
+            user=self.user,
+            site=self.site,
+            **self.extra_required_attrs,
+        )
+
     def randomize(self):
-        if any(
-            [
-                not self.subject_identifier,
-                not self.allocated_datetime,
-                not self.user,
-                not self.site,
-            ]
-        ):
-            dct = dict(
-                subject_identifier=self.subject_identifier,
-                allocated_datetime=self.allocated_datetime,
-                user=self.user,
-                site=self.site,
+        if not all(self.required_attrs.values()):
+            raise RandomizationError(
+                f"Randomization failed. Insufficient data. Got {self.required_attrs}."
             )
-            raise RandomizationError(f"Randomization failed. Insufficient data. Got {dct}.")
         self.model_obj.subject_identifier = self.subject_identifier
-        self.model_obj.allocated = True
         self.model_obj.allocated_datetime = self.allocated_datetime
         self.model_obj.allocated_user = self.user
         self.model_obj.allocated_site = self.site
+        self.model_obj.allocated = True
         self.model_obj.save()
         # requery
         self._model_obj = self.model_cls().objects.get(
@@ -175,21 +188,24 @@ class Randomizer:
         self.registered_subject.randomization_list_model = self.model_obj._meta.label_lower
         self.registered_subject.save()
         # requery
-        self._registered_subject = get_registered_subject_model().objects.get(
+        self._registered_subject = get_registered_subject_model_cls().objects.get(
             subject_identifier=self.subject_identifier, sid=self.model_obj.sid
         )
+
+    def get_registered_subject(self):
+        return self.registered_subject
 
     @property
     def registered_subject(self):
         """Returns an instance of the registered subject model."""
         if not self._registered_subject:
             try:
-                self._registered_subject = get_registered_subject_model().objects.get(
+                self._registered_subject = get_registered_subject_model_cls().objects.get(
                     subject_identifier=self.subject_identifier, sid__isnull=True
                 )
             except ObjectDoesNotExist:
                 try:
-                    obj = get_registered_subject_model().objects.get(
+                    obj = get_registered_subject_model_cls().objects.get(
                         subject_identifier=self.subject_identifier
                     )
                 except ObjectDoesNotExist:
@@ -201,7 +217,7 @@ class Randomizer:
                         "Subject already randomized. See RegisteredSubject. "
                         f"Got {obj.subject_identifier} "
                         f"SID={obj.sid}",
-                        code=get_registered_subject_model()._meta.label_lower,
+                        code=get_registered_subject_model_cls()._meta.label_lower,
                     )
         return self._registered_subject
 
