@@ -3,10 +3,10 @@ from edc_model_admin import SimpleHistoryAdmin, audit_fieldset_tuple
 
 from .admin_site import edc_registration_admin
 from .modeladmin_mixins import RegisteredSubjectModelAdminMixin
-from .models import RegisteredSubject
+from .utils import get_registered_subject_model_cls
 
 
-@admin.register(RegisteredSubject, site=edc_registration_admin)
+@admin.register(get_registered_subject_model_cls(), site=edc_registration_admin)
 class RegisteredSubjectAdmin(RegisteredSubjectModelAdminMixin, SimpleHistoryAdmin):
 
     ordering = ("subject_identifier",)
