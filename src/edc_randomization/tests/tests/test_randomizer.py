@@ -9,27 +9,25 @@ from edc_sites import add_or_update_django_sites
 from edc_sites.single_site import SingleSite
 from multisite import SiteID
 
-from ..constants import ACTIVE
-from ..models import RandomizationList
-from ..randomization_list_importer import (
-    RandomizationListImporter,
-    RandomizationListImportError,
-)
-from ..randomization_list_verifier import (
+from edc_randomization.constants import ACTIVE
+from edc_randomization.models import RandomizationList
+from edc_randomization.randomization_list_importer import RandomizationListImportError
+from edc_randomization.randomization_list_verifier import (
     RandomizationListError,
     RandomizationListVerifier,
 )
-from ..randomizer import (
+from edc_randomization.randomizer import (
     AllocationError,
     AlreadyRandomized,
     InvalidAssignment,
     RandomizationError,
     Randomizer,
 )
-from ..site_randomizers import NotRegistered, site_randomizers
-from .make_test_list import make_test_list
-from .models import SubjectConsent
-from .randomizers import MyRandomizer
+from edc_randomization.site_randomizers import site_randomizers
+
+from ..make_test_list import make_test_list
+from ..models import SubjectConsent
+from ..randomizers import MyRandomizer
 
 fqdn = "example.clinicedc.org"
 all_sites = (
@@ -53,23 +51,29 @@ class TestRandomizer(TestCase):
         site_randomizers._registry = {}
         site_randomizers.register(Randomizer)
 
-    def populate_list(self, randomizer_name=None, site_names=None, per_site=None):
-
+    def populate_list(
+        self, randomizer_name=None, site_names=None, per_site=None, overwrite_site=None
+    ):
         randomizer = site_randomizers.get(randomizer_name)
         make_test_list(
-            full_path=randomizer.get_randomization_list_path(),
+            full_path=randomizer.get_randomization_list_fullpath(),
             site_names=site_names or self.site_names,
             per_site=per_site,
         )
-        RandomizationListImporter(name=randomizer.name, overwrite=True)
+        randomizer.import_list(overwrite=True)
+        if overwrite_site:
+            site = Site.objects.get_current()
+            randomizer.model_cls().objects.update(site_name=site.name)
 
     @override_settings(SITE_ID=SiteID(40))
     def test_(self):
-        RandomizationListImporter(name="default")
+        randomizer = site_randomizers.get("default")
+        randomizer.import_list()
 
     @override_settings(SITE_ID=SiteID(40))
     def test_with_consent_insufficient_data(self):
-        RandomizationListImporter(name="default")
+        randomizer = site_randomizers.get("default")
+        randomizer.import_list()
         subject_consent = SubjectConsent.objects.create(
             subject_identifier="12345", user_created="erikvw"
         )
@@ -84,7 +88,8 @@ class TestRandomizer(TestCase):
 
     @override_settings(SITE_ID=SiteID(40))
     def test_with_consent(self):
-        RandomizationListImporter(name="default")
+        randomizer = site_randomizers.get("default")
+        randomizer.import_list()
         site = Site.objects.get_current()
         subject_consent = SubjectConsent.objects.create(
             subject_identifier="12345", site=site, user_created="erikvw"
@@ -110,7 +115,8 @@ class TestRandomizer(TestCase):
             def extra_required_attrs(self):
                 return dict(gender=self.gender)
 
-        RandomizationListImporter(name="default")
+        randomizer = site_randomizers.get("default")
+        randomizer.import_list()
         site = Site.objects.get_current()
         subject_consent = SubjectConsent.objects.create(
             subject_identifier="12345", site=site, gender=FEMALE, user_created="erikvw"
@@ -128,9 +134,7 @@ class TestRandomizer(TestCase):
 
     @override_settings(SITE_ID=SiteID(40))
     def test_with_list_selects_first(self):
-        self.populate_list(randomizer_name="default")
-        site = Site.objects.get_current()
-        RandomizationList.objects.update(site_name=site.name)
+        self.populate_list(randomizer_name="default", overwrite_site=True)
         first_obj = RandomizationList.objects.all().first()
         subject_consent = SubjectConsent.objects.create(
             subject_identifier="12345", user_created="erikvw"
@@ -145,9 +149,7 @@ class TestRandomizer(TestCase):
 
     @override_settings(SITE_ID=SiteID(40))
     def test_updates_registered_subject(self):
-        self.populate_list(randomizer_name="default")
-        site = Site.objects.get_current()
-        RandomizationList.objects.update(site_name=site.name)
+        self.populate_list(randomizer_name="default", overwrite_site=True)
         subject_consent = SubjectConsent.objects.create(
             subject_identifier="12345", user_created="erikvw"
         )
@@ -166,9 +168,7 @@ class TestRandomizer(TestCase):
 
     @override_settings(SITE_ID=SiteID(40))
     def test_updates_list_obj_as_allocated(self):
-        self.populate_list(randomizer_name="default")
-        site = Site.objects.get_current()
-        RandomizationList.objects.update(site_name=site.name)
+        self.populate_list(randomizer_name="default", overwrite_site=True)
         RandomizationList.objects.all().first()
         subject_consent = SubjectConsent.objects.create(
             subject_identifier="12345", user_created="erikvw"
@@ -189,9 +189,7 @@ class TestRandomizer(TestCase):
 
     @override_settings(SITE_ID=SiteID(40))
     def test_cannot_rerandomize(self):
-        self.populate_list(randomizer_name="default")
-        site = Site.objects.get_current()
-        RandomizationList.objects.update(site_name=site.name)
+        self.populate_list(randomizer_name="default", overwrite_site=True)
         first_obj = RandomizationList.objects.all().first()
         subject_consent = SubjectConsent.objects.create(
             subject_identifier="12345", user_created="erikvw"
@@ -215,9 +213,7 @@ class TestRandomizer(TestCase):
     @override_settings(SITE_ID=SiteID(40))
     def test_error_condition1(self):
         """Assert raises if RegisteredSubject not updated correctly."""
-        self.populate_list(randomizer_name="default")
-        site = Site.objects.get_current()
-        RandomizationList.objects.update(site_name=site.name)
+        self.populate_list(randomizer_name="default", overwrite_site=True)
         subject_consent = SubjectConsent.objects.create(
             subject_identifier="12345", user_created="erikvw"
         )
@@ -241,9 +237,7 @@ class TestRandomizer(TestCase):
     @override_settings(SITE_ID=SiteID(40))
     def test_error_condition2(self):
         """Assert raises if RandomizationList not updated correctly."""
-        self.populate_list(randomizer_name="default")
-        site = Site.objects.get_current()
-        RandomizationList.objects.update(site_name=site.name)
+        self.populate_list(randomizer_name="default", overwrite_site=True)
         subject_consent = SubjectConsent.objects.create(
             subject_identifier="12345", user_created="erikvw"
         )
@@ -266,9 +260,8 @@ class TestRandomizer(TestCase):
 
     def test_error_condition3(self):
         """Assert raises if RandomizationList not updated correctly."""
-        self.populate_list(randomizer_name="default")
+        self.populate_list(randomizer_name="default", overwrite_site=True)
         site = Site.objects.get_current()
-        RandomizationList.objects.update(site_name=site.name)
         subject_consent = SubjectConsent.objects.create(
             subject_identifier="12345", site=site, user_created="erikvw"
         )
@@ -289,9 +282,8 @@ class TestRandomizer(TestCase):
         self.assertEqual(cm.exception.code, "edc_registration.registeredsubject")
 
     def test_subject_does_not_exist(self):
-        self.populate_list(randomizer_name="default")
+        self.populate_list(randomizer_name="default", overwrite_site=True)
         site = Site.objects.get_current()
-        RandomizationList.objects.update(site_name=site.name)
         subject_consent = SubjectConsent.objects.create(
             subject_identifier="12345", site=site, user_created="erikvw"
         )
@@ -306,9 +298,8 @@ class TestRandomizer(TestCase):
         )
 
     def test_str(self):
-        self.populate_list(randomizer_name="default")
+        self.populate_list(randomizer_name="default", overwrite_site=True)
         site = Site.objects.get_current()
-        RandomizationList.objects.update(site_name=site.name)
         subject_consent = SubjectConsent.objects.create(
             subject_identifier="12345", site=site, user_created="erikvw"
         )
@@ -399,25 +390,26 @@ class TestRandomizer(TestCase):
         site_randomizers._registry = {}
         site_randomizers.register(MyRandomizer)
         make_test_list(
-            full_path=MyRandomizer.get_randomization_list_path(),
+            full_path=MyRandomizer.get_randomization_list_fullpath(),
             site_names=self.site_names,
             count=5,
         )
-        RandomizationListImporter(name=MyRandomizer.name)
-        self.assertRaises(NotRegistered, RandomizationListImporter)
+        randomizer = site_randomizers.get(MyRandomizer.name)
+        randomizer.import_list()
+        self.assertRaises(RandomizationListImportError, randomizer.import_list)
 
     @override_settings(SITE_ID=SiteID(40))
     def test_can_overwrite_explicit(self):
         site_randomizers._registry = {}
         site_randomizers.register(MyRandomizer)
         make_test_list(
-            full_path=MyRandomizer.get_randomization_list_path(),
+            full_path=MyRandomizer.get_randomization_list_fullpath(),
             site_names=self.site_names,
             count=5,
         )
-        RandomizationListImporter(name=MyRandomizer.name)
+        randomizer = site_randomizers.get(MyRandomizer.name)
         try:
-            RandomizationListImporter(name=MyRandomizer.name, overwrite=True)
+            randomizer.import_list(overwrite=True)
         except RandomizationListImportError:
             self.fail("RandomizationListImportError unexpectedly raised")
 
@@ -426,19 +418,19 @@ class TestRandomizer(TestCase):
         site_randomizers._registry = {}
         site_randomizers.register(MyRandomizer)
 
-        MyRandomizer.get_randomization_list_path()
+        MyRandomizer.get_randomization_list_fullpath()
         make_test_list(
-            full_path=MyRandomizer.get_randomization_list_path(),
+            full_path=MyRandomizer.get_randomization_list_fullpath(),
             site_names=self.site_names,
             # change to a different assignments
             assignments=[100, 101],
             count=5,
         )
-        self.assertRaises(InvalidAssignment, RandomizationListImporter, name=MyRandomizer.name)
+        self.assertRaises(InvalidAssignment, MyRandomizer.import_list)
 
     @override_settings(SITE_ID=SiteID(40))
     def test_invalid_sid(self):
-        RandomizationListImporter(name="default")
+        self.populate_list(randomizer_name="default")
         # change to a different starting SID
         obj = RandomizationList.objects.all().order_by("sid").first()
         obj.sid = 99999
@@ -452,15 +444,9 @@ class TestRandomizer(TestCase):
     def test_invalid_count(self):
         site = Site.objects.get_current()
         # change number of SIDs in DB
-        RandomizationListImporter(name="default")
+        self.populate_list(randomizer_name="default")
         RandomizationList.objects.create(sid=100, assignment=ACTIVE, site_name=site.name)
         self.assertEqual(RandomizationList.objects.all().count(), 51)
         with self.assertRaises(RandomizationListError) as cm:
             RandomizationListVerifier(randomizer_name=Randomizer.name)
         self.assertIn("Randomization list count is off", str(cm.exception))
-
-    @override_settings(SITE_ID=SiteID(40))
-    def test_invalid_key(self):
-        Site.objects.get_current()
-        # change number of SIDs in DB
-        self.assertRaises(NotRegistered, RandomizationListImporter, name="blah")

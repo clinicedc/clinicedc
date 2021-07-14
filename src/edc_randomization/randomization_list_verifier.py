@@ -39,13 +39,13 @@ class RandomizationListVerifier:
                 )
 
             else:
-                if not self.randomizer.get_randomization_list_path() or not os.path.exists(
-                    self.randomizer.get_randomization_list_path()
+                if not self.randomizer.get_randomization_list_fullpath() or not os.path.exists(
+                    self.randomizer.get_randomization_list_fullpath()
                 ):
                     self.messages.append(
                         f"Randomization list file does not exist but SIDs "
                         f"have been loaded. Expected file "
-                        f"{self.randomizer.get_randomization_list_path()}. "
+                        f"{self.randomizer.get_randomization_list_fullpath()}. "
                         f"Resolve this issue before using the system."
                     )
                 else:
@@ -64,7 +64,7 @@ class RandomizationListVerifier:
 
         message = None
 
-        with open(self.randomizer.get_randomization_list_path(), "r") as f:
+        with open(self.randomizer.get_randomization_list_fullpath(), "r") as f:
             reader = csv.DictReader(f)
             for index, row in enumerate(reader):
                 row = {k: v.strip() for k, v in row.items() if k}
@@ -78,7 +78,7 @@ class RandomizationListVerifier:
                 message = (
                     f"Randomization list count is off. Expected {index + 1} (CSV). "
                     f"Got {self.count} (model_cls). See file "
-                    f"{self.randomizer.get_randomization_list_path()}. "
+                    f"{self.randomizer.get_randomization_list_fullpath()}. "
                     f"Resolve this issue before using the system."
                 )
         return message
@@ -95,7 +95,7 @@ class RandomizationListVerifier:
                 message = (
                     f"Randomization list has invalid SIDs. List has invalid SIDs. "
                     f"File data does not match model data. See file "
-                    f"{self.randomizer.get_randomization_list_path()}. "
+                    f"{self.randomizer.get_randomization_list_fullpath()}. "
                     f"Resolve this issue before using the system. "
                     f"Problem started on line {index + 1}. "
                     f'Got \'{row["sid"]}\' != \'{obj1.sid}\'.'
@@ -106,7 +106,7 @@ class RandomizationListVerifier:
                     message = (
                         f"Randomization list does not match model. File data "
                         f"does not match model data. See file "
-                        f"{self.randomizer.get_randomization_list_path()}. "
+                        f"{self.randomizer.get_randomization_list_fullpath()}. "
                         f"Resolve this issue before using the system. "
                         f"Got '{assignment}' != '{obj2.assignment}' for sid={obj2.sid}."
                     )
@@ -114,7 +114,7 @@ class RandomizationListVerifier:
                     message = (
                         f"Randomization list does not match model. File data "
                         f"does not match model data. See file "
-                        f"{self.randomizer.get_randomization_list_path()}. "
+                        f"{self.randomizer.get_randomization_list_fullpath()}. "
                         f"Resolve this issue before using the system. "
                         f'Got \'{obj2.site_name}\' != \'{row["site_name"]}\' '
                         f"for sid={obj2.sid}."

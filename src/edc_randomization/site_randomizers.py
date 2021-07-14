@@ -39,8 +39,8 @@ class SiteRandomizers:
 
     def register(self, randomizer_cls):
         self.loaded = True
-        if randomizer_cls.name not in self.registry:
-            self.registry.update({randomizer_cls.name: randomizer_cls})
+        if str(randomizer_cls.name) not in self.registry:
+            self.registry.update({str(randomizer_cls.name): randomizer_cls})
         else:
             raise AlreadyRegistered(
                 f"Randomizer class for `{randomizer_cls}` is already registered. "
@@ -50,7 +50,7 @@ class SiteRandomizers:
 
     def get(self, name):
         try:
-            return self._registry[name]
+            return self._registry[str(name)]
         except KeyError:
             raise NotRegistered(
                 f"A Randomizer class by this name is not registered. "

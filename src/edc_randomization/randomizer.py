@@ -1,9 +1,15 @@
 import os
+from uuid import uuid4
 
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from edc_registration.utils import get_registered_subject_model_cls
+
+from edc_randomization.randomization_list_importer import (
+    RandomizationListImporter,
+    RandomizationListImportError,
+)
 
 from .constants import DEFAULT_ASSIGNMENT_MAP
 from .randomization_list_verifier import RandomizationListVerifier
@@ -14,6 +20,10 @@ assignment_map = getattr(settings, "EDC_RANDOMIZATION_ASSIGNMENT_MAP", DEFAULT_A
 
 
 class RandomizationError(Exception):
+    pass
+
+
+class RandomizationListNotFound(Exception):
     pass
 
 
@@ -51,7 +61,9 @@ class Randomizer:
     model = "edc_randomization.randomizationlist"
     assignment_map = assignment_map
     filename = "randomization_list.csv"
+    randomization_list_path = settings.EDC_RANDOMIZATION_LIST_PATH
     is_blinded_trial = True
+    importer_cls = RandomizationListImporter
 
     def __init__(
         self, subject_identifier=None, report_datetime=None, site=None, user=None, **kwargs
@@ -62,6 +74,11 @@ class Randomizer:
         self.allocated_datetime = report_datetime
         self.site = site
         self.user = user
+        if not os.path.exists(self.get_randomization_list_fullpath()):
+            raise RandomizationListNotFound(
+                "RandomizationListNotFound. "
+                f"Got {self.get_randomization_list_fullpath()}. See {self}."
+            )
         self.check_loaded()
         # force query, will raise if already randomized
         self.get_registered_subject()
@@ -69,18 +86,61 @@ class Randomizer:
         self.randomize()
 
     def __repr__(self):
-        return f"{self.__class__.__name__}({self.name},{self.get_randomization_list_path()})"
+        return (
+            f"{self.__class__.__name__}({self.name},{self.get_randomization_list_fullpath()})"
+        )
 
     def __str__(self):
-        return f"<{self.name} for file {self.get_randomization_list_path()}>"
+        return f"<{self.name} for file {self.get_randomization_list_fullpath()}>"
+
+    def randomize(self):
+        required_instance_attrs = dict(
+            subject_identifier=self.subject_identifier,
+            allocated_datetime=self.allocated_datetime,
+            user=self.user,
+            site=self.site,
+            **self.extra_required_instance_attrs,
+        )
+
+        if not all(required_instance_attrs.values()):
+            raise RandomizationError(
+                f"Randomization failed. Insufficient data. Got {required_instance_attrs}."
+            )
+        self.model_obj.subject_identifier = self.subject_identifier
+        self.model_obj.allocated_datetime = self.allocated_datetime
+        self.model_obj.allocated_user = self.user
+        self.model_obj.allocated_site = self.site
+        self.model_obj.allocated = True
+        self.model_obj.save()
+        # requery
+        self._model_obj = self.model_cls().objects.get(
+            subject_identifier=self.subject_identifier,
+            allocated=True,
+            allocated_datetime=self.allocated_datetime,
+        )
+        self.registered_subject.sid = self.model_obj.sid
+        self.registered_subject.randomization_datetime = self.model_obj.allocated_datetime
+        self.registered_subject.registration_status = RANDOMIZED
+        self.registered_subject.randomization_list_model = self.model_obj._meta.label_lower
+        self.registered_subject.save()
+        # requery
+        self._registered_subject = get_registered_subject_model_cls().objects.get(
+            subject_identifier=self.subject_identifier, sid=self.model_obj.sid
+        )
+
+    @property
+    def extra_required_instance_attrs(self):
+        """Returns a dict of extra attributes that must have
+        value on self."""
+        return {}
 
     @classmethod
     def model_cls(cls, apps=None):
         return (apps or django_apps).get_model(cls.model)
 
     @classmethod
-    def get_randomization_list_path(cls):
-        return os.path.join(settings.EDC_RANDOMIZATION_LIST_PATH, cls.filename)
+    def get_randomization_list_fullpath(cls):
+        return os.path.expanduser(os.path.join(cls.randomization_list_path, cls.filename))
 
     @classmethod
     def get_assignment(cls, row):
@@ -108,14 +168,14 @@ class Randomizer:
         return self.model_obj.sid
 
     def check_loaded(self):
+        try:
+            self.import_list(overwrite=False)
+        except RandomizationListImportError:
+            pass
         if self.model_cls().objects.all().count() == 0:
             raise RandomizationListNotLoaded(
                 "Randomization list has not been loaded. " "Run the management command."
             )
-
-    @property
-    def model_filter_options(self):
-        return dict(site_name=self.site.name)
 
     @property
     def model_obj(self):
@@ -126,18 +186,15 @@ class Randomizer:
             try:
                 obj = self.model_cls().objects.get(subject_identifier=self.subject_identifier)
             except ObjectDoesNotExist:
+                opts = dict(site_name=self.site.name, **self.extra_model_obj_options)
                 self._model_obj = (
                     self.model_cls()
-                    .objects.filter(
-                        subject_identifier__isnull=True, **self.model_filter_options
-                    )
+                    .objects.filter(subject_identifier__isnull=True, **opts)
                     .order_by("sid")
                     .first()
                 )
                 if not self._model_obj:
-                    fld_str = ", ".join(
-                        [f"{k}=`{v}`" for k, v in self.model_filter_options.items()]
-                    )
+                    fld_str = ", ".join([f"{k}=`{v}`" for k, v in opts.items()])
                     raise AllocationError(
                         f"Randomization failed. No additional SIDs available for {fld_str}."
                     )
@@ -152,45 +209,10 @@ class Randomizer:
         return self._model_obj
 
     @property
-    def extra_required_attrs(self):
+    def extra_model_obj_options(self):
+        """Returns a dict of extra key/value pair for filtering the
+        "rando" model."""
         return {}
-
-    @property
-    def required_attrs(self):
-        return dict(
-            subject_identifier=self.subject_identifier,
-            allocated_datetime=self.allocated_datetime,
-            user=self.user,
-            site=self.site,
-            **self.extra_required_attrs,
-        )
-
-    def randomize(self):
-        if not all(self.required_attrs.values()):
-            raise RandomizationError(
-                f"Randomization failed. Insufficient data. Got {self.required_attrs}."
-            )
-        self.model_obj.subject_identifier = self.subject_identifier
-        self.model_obj.allocated_datetime = self.allocated_datetime
-        self.model_obj.allocated_user = self.user
-        self.model_obj.allocated_site = self.site
-        self.model_obj.allocated = True
-        self.model_obj.save()
-        # requery
-        self._model_obj = self.model_cls().objects.get(
-            subject_identifier=self.subject_identifier,
-            allocated=True,
-            allocated_datetime=self.allocated_datetime,
-        )
-        self.registered_subject.sid = self.model_obj.sid
-        self.registered_subject.randomization_datetime = self.model_obj.allocated_datetime
-        self.registered_subject.registration_status = RANDOMIZED
-        self.registered_subject.randomization_list_model = self.model_obj._meta.label_lower
-        self.registered_subject.save()
-        # requery
-        self._registered_subject = get_registered_subject_model_cls().objects.get(
-            subject_identifier=self.subject_identifier, sid=self.model_obj.sid
-        )
 
     def get_registered_subject(self):
         return self.registered_subject
@@ -225,3 +247,8 @@ class Randomizer:
     def verify_list(cls):
         randomization_list_verifier = RandomizationListVerifier(randomizer_name=cls.name)
         return randomization_list_verifier.messages
+
+    @classmethod
+    def import_list(cls, **kwargs):
+        importer = cls.importer_cls(randomizer_cls=cls, **kwargs)
+        importer.import_list()
