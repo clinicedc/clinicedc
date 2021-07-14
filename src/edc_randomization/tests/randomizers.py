@@ -1,4 +1,3 @@
-import os
 from tempfile import mkdtemp
 
 from ..randomizer import Randomizer
@@ -9,7 +8,10 @@ tmpdir = mkdtemp()
 class MyRandomizer(Randomizer):
     name = "my_randomizer"
     model = "edc_randomization.myrandomizationlist"
+    randomization_list_path = tmpdir
 
-    @classmethod
-    def get_randomization_list_path(cls):
-        return os.path.join(tmpdir, "randomization_list.csv")
+
+class MyOtherRandomizer(Randomizer):
+    name = "my_other_randomizer"
+    model = "edc_randomization.myotherrandomizationlist"
+    randomization_list_path = tmpdir

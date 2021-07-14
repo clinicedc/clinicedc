@@ -33,20 +33,20 @@ def randomization_list_check(app_configs, **kwargs):
             for error_msg in error_msgs:
                 errors.append(error.cls(error_msg, hint=None, obj=None, id=error.id))
         if not settings.DEBUG:
-            if settings.ETC_DIR not in randomizer.get_randomization_list_path():
+            if settings.ETC_DIR not in randomizer.get_randomization_list_fullpath():
                 errors.append(
                     Warning(
                         "Insecure configuration. Randomization list file must be "
                         "stored in the etc folder. Got "
-                        f"{randomizer.get_randomization_list_path()}",
+                        f"{randomizer.get_randomization_list_fullpath()}",
                         id="randomization_list_path",
                     )
                 )
-            if os.access(randomizer.get_randomization_list_path(), os.W_OK):
+            if os.access(randomizer.get_randomization_list_fullpath(), os.W_OK):
                 errors.append(
                     Warning(
                         "Insecure configuration. File is writeable by this user. "
-                        f"Got {randomizer.get_randomization_list_path()}",
+                        f"Got {randomizer.get_randomization_list_fullpath()}",
                         id="randomization_list_path",
                     )
                 )
