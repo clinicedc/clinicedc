@@ -27,6 +27,7 @@ class SubjectRefusalModelMixin(models.Model):
 
     reason = models.ForeignKey(
         RefusalReasons,
+        on_delete=models.PROTECT,
         verbose_name="Reason for refusal to join",
     )
 
