@@ -1,4 +1,5 @@
 import copy
+import pdb
 import sys
 
 from django.apps import apps as django_apps
@@ -57,6 +58,12 @@ class SiteRandomizers:
                 f"Expected one of {list(self._registry.keys())}. "
                 f"Got '{name}'. See site_randomizer."
             )
+
+    def get_by_model(self, model):
+        for randomizer_cls in self._registry.values():
+            if randomizer_cls.model == model:
+                return randomizer_cls
+        return None
 
     def randomize(
         self,

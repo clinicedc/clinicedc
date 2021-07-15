@@ -1,5 +1,4 @@
 import os
-from uuid import uuid4
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -131,7 +130,8 @@ class Randomizer:
     @property
     def extra_required_instance_attrs(self):
         """Returns a dict of extra attributes that must have
-        value on self."""
+        value on self.
+        """
         return {}
 
     @classmethod
@@ -211,7 +211,8 @@ class Randomizer:
     @property
     def extra_model_obj_options(self):
         """Returns a dict of extra key/value pair for filtering the
-        "rando" model."""
+        "rando" model.
+        """
         return {}
 
     def get_registered_subject(self):
@@ -242,6 +243,11 @@ class Randomizer:
                         code=get_registered_subject_model_cls()._meta.label_lower,
                     )
         return self._registered_subject
+
+    @classmethod
+    def get_extra_list_display(cls):
+        """Returns a list of tuples of (pos, field name) for ModelAdmin."""
+        return []
 
     @classmethod
     def verify_list(cls):
