@@ -33,7 +33,16 @@ fbc_panel = RequisitionPanel(
     verbose_name="Full Blood Count",
     processing_profile=fbc_processing,
     abbreviation="FBC",
-    utest_ids=[("haemoglobin", "Haemoglobin"), "hct", "rbc", "wbc", "platelets"],
+    utest_ids=[
+        ("haemoglobin", "Haemoglobin"),
+        "hct",
+        "rbc",
+        "wbc",
+        "platelets",
+        "mcv",
+        "mch",
+        "mchc",
+    ],
 )
 
 blood_glucose_panel = RequisitionPanel(
@@ -66,7 +75,7 @@ lipids_panel = RequisitionPanel(
     verbose_name="Chemistry: Lipids",
     abbreviation="LIPIDS",
     processing_profile=lipids_processing,
-    utest_ids=["ldl", "hdl", "trig"],
+    utest_ids=["ldl", "hdl", "trig", "chol"],
 )
 
 lft_panel = RequisitionPanel(
