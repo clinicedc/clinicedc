@@ -4,10 +4,11 @@ from typing import Optional, Union
 
 from dateutil.relativedelta import relativedelta
 from django import forms
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import CharField, DateField, DateTimeField
 
-from ..constants import REPORT_DATETIME_FIELD_NAME
+from .constants import REPORT_DATETIME_FIELD_NAME
 
 ymd_pattern = (
     r"^([0-9]{1,3}y([0-1]?[0-2]m)?([0-9]m)?)$|^([0-1]?"
@@ -116,3 +117,22 @@ def raise_on_invalid_field_name(data: Union[dict, models.Model], attrname: str) 
     else:
         raise InvalidFieldName(f"Field name cannot be None. Got {data}")
     return None
+
+
+def model_exists_or_raise(
+    subject_visit,
+    model_cls,
+    singleton=None,
+) -> bool:
+    singleton = False if singleton is None else singleton
+    if singleton:
+        opts = {"subject_visit__subject_identifier": subject_visit.subject_identifier}
+    else:
+        opts = {"subject_visit": subject_visit}
+    try:
+        model_cls.objects.get(**opts)
+    except ObjectDoesNotExist:
+        raise forms.ValidationError(
+            f"Complete the `{model_cls._meta.verbose_name}` CRF first."
+        )
+    return True
