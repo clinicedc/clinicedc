@@ -1,6 +1,6 @@
 from django.core.validators import RegexValidator
 
-from ..utils import ymd_pattern
+from ...utils import ymd_pattern
 
 """
 expect 1h20m, 11h5m, etc

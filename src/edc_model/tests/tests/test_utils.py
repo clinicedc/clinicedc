@@ -4,7 +4,7 @@ from django import forms
 from django.test import TestCase, override_settings
 from pytz import UTC
 
-from edc_model.models import (
+from edc_model.utils import (
     InvalidFieldName,
     InvalidFormat,
     duration_to_date,
