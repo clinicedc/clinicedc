@@ -19,6 +19,7 @@ class RefusalReasons(ListModelMixin):
 
 
 class SubjectRefusalModelMixin(models.Model):
+
     screening_identifier = models.CharField(max_length=50, unique=True)
 
     report_datetime = models.DateTimeField(
@@ -39,12 +40,6 @@ class SubjectRefusalModelMixin(models.Model):
         blank=True,
     )
 
-    on_site = CurrentSiteManager()
-
-    objects = SubjectRefusalManager()
-
-    history = HistoricalRecords()
-
     def __str__(self):
         return self.screening_identifier
 
@@ -60,6 +55,12 @@ class SubjectRefusalModelMixin(models.Model):
 
 
 class SubjectRefusal(SubjectRefusalModelMixin, SiteModelMixin, BaseUuidModel):
+    on_site = CurrentSiteManager()
+
+    objects = SubjectRefusalManager()
+
+    history = HistoricalRecords()
+
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Subject Refusal"
         verbose_name_plural = "Subject Refusals"
