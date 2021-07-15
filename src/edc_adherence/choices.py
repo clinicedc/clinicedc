@@ -1,3 +1,5 @@
+from edc_constants.constants import NEVER
+
 MISSED_PILLS = (
     ("today", "today"),
     ("yesterday", "yesterday"),
