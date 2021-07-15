@@ -9,7 +9,4 @@ tmpdir = mkdtemp()
 class CustomRandomizer(Randomizer):
     name = "custom_randomizer"
     model = "edc_auth.customrandomizationlist"
-
-    @classmethod
-    def get_randomization_list_path(cls):
-        return os.path.join(tmpdir, "randomization_list.csv")
+    randomization_list_path = tmpdir
