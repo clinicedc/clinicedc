@@ -208,10 +208,11 @@ class ModelToDataframe:
 
         return columns
 
-    def add_columns_for_subject_visit(self, column_name=None, columns=None):
+    @staticmethod
+    def add_columns_for_subject_visit(column_name=None, columns=None):
         if "subject_identifier" not in [v for v in columns.values()]:
             columns.update(
-                {f"{column_name}__appointment__subject_identifier": ("subject_identifier")}
+                {f"{column_name}__appointment__subject_identifier": "subject_identifier"}
             )
         columns.update({f"{column_name}__appointment__appt_datetime": "appointment_datetime"})
         columns.update({f"{column_name}__appointment__visit_code": "visit_code"})
@@ -222,7 +223,8 @@ class ModelToDataframe:
         columns.update({f"{column_name}__reason": "visit_reason"})
         return columns
 
-    def add_columns_for_subject_requisitions(self, columns=None):
+    @staticmethod
+    def add_columns_for_subject_requisitions(columns=None):
         for col in copy(columns):
             if col.endswith("_requisition_id"):
                 col_prefix = col.split("_")[0]
