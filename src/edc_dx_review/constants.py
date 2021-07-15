@@ -1,0 +1,7 @@
+INSULIN = "insulin"
+DIET_LIFESTYLE = "diet_lifestyle"
+DRUGS = "drugs"
+DIABETES_CLINIC = "diabetes_clinic"
+HIV_CLINIC = "hiv_clinic"
+HYPERTENSION_CLINIC = "hypertension_clinic"
+THIS_CLINIC = "this_clinic"
