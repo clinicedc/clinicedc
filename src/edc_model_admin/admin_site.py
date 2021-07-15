@@ -61,7 +61,7 @@ class EdcAdminSite(DjangoAdminSite):
         verbose_name = django_apps.get_app_config(self.app_label).verbose_name
         return verbose_name.replace(
             Protocol().project_name,
-            f"{Protocol().project_name} @ {get_current_site(request).name.title()}: ",
+            f"{Protocol().project_name} @ {get_current_site(request).name.title()} ",
         )
 
     def get_edc_site_header(self, request):
