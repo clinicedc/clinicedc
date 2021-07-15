@@ -1,3 +1,5 @@
+import pdb
+
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.sites.models import Site
@@ -64,6 +66,11 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
         ]
         if is_blinded_user(request.user.username):
             list_display.remove("assignment")
+        if flds := site_randomizers.get_by_model(
+            self.model._meta.label_lower
+        ).get_extra_list_display():
+            for pos, fldname in flds:
+                list_display.insert(pos, fldname)
         return list_display
 
     def get_fieldnames(self, request):
