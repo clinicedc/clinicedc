@@ -5,10 +5,10 @@ from edc_model import models as edc_models
 from edc_protocol.validators import date_not_before_study_start
 from edc_utils.date import get_utcnow
 
-from .choices import LOSS_CHOICES
+from .choices import LTFU_CHOICES
 
 
-class LossToFollowupModelMixin(models.Model):
+class LtfuModelMixin(models.Model):
 
     report_datetime = models.DateTimeField(
         verbose_name="Report Date and Time",
@@ -63,13 +63,13 @@ class LossToFollowupModelMixin(models.Model):
         blank=True,
     )
 
-    loss_category = models.CharField(
+    ltfu_category = models.CharField(
         verbose_name="Category of loss to follow up",
         max_length=25,
-        choices=LOSS_CHOICES,
+        choices=LTFU_CHOICES,
     )
 
-    loss_category_other = edc_models.OtherCharField()
+    ltfu_category_other = edc_models.OtherCharField()
 
     comment = models.TextField(
         verbose_name=(

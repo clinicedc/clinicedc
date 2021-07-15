@@ -4,10 +4,12 @@ from django.contrib import admin
 from edc_action_item import action_fields, action_fieldset_tuple
 from edc_model_admin import audit_fieldset_tuple
 
+from .forms import LtfuForm
 
-class LossToFollowupModelAdminMixin:
 
-    form = None
+class LtfuModelAdminMixin:
+
+    form = LtfuForm
 
     fieldsets = (
         (None, {"fields": ("subject_identifier", "report_datetime")}),
@@ -20,8 +22,8 @@ class LossToFollowupModelAdminMixin:
                     "last_missed_visit_datetime",
                     "home_visited",
                     "home_visit_detail",
-                    "loss_category",
-                    "loss_category_other",
+                    "ltfu_category",
+                    "ltfu_category_other",
                     "ltfu_date",
                     "comment",
                 )
@@ -48,7 +50,7 @@ class LossToFollowupModelAdminMixin:
 
     radio_fields = {
         "home_visited": admin.VERTICAL,
-        "loss_category": admin.VERTICAL,
+        "ltfu_category": admin.VERTICAL,
     }
 
     search_fields = ("subject_identifier", "action_identifier", "tracking_identifier")

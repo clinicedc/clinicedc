@@ -3,15 +3,17 @@ from edc_constants.constants import HIGH_PRIORITY
 from edc_offstudy.constants import END_OF_STUDY_ACTION
 from edc_visit_tracking.constants import VISIT_MISSED_ACTION
 
-from .constants import LOSS_TO_FOLLOWUP_ACTION
+from .admin_site import edc_ltfu_admin
+from .constants import LTFU_ACTION
+from .utils import get_ltfu_model_cls
 
 
-class LossToFollowupAction(ActionWithNotification):
+class LtfuAction(ActionWithNotification):
 
-    reference_model = None  # "inte_prn.losstofollowup"
-    admin_site_name = None  # "inte_prn_admin"
+    reference_model = get_ltfu_model_cls()
+    admin_site_name = edc_ltfu_admin
 
-    name = LOSS_TO_FOLLOWUP_ACTION
+    name = LTFU_ACTION
     display_name = "Submit Loss to Follow Up Report"
     notification_display_name = " Loss to Follow Up Report"
     parent_action_names = [VISIT_MISSED_ACTION]

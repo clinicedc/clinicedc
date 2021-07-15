@@ -1,11 +1,8 @@
-from django.urls import path
-from django.views.generic.base import RedirectView
-
-from .admin_site import edc_ltfu_admin
+from django.urls.conf import path
+from django.views.generic import RedirectView
 
 app_name = "edc_ltfu"
 
 urlpatterns = [
-    path("admin/", edc_ltfu_admin.urls),
-    path("", RedirectView.as_view(url="/edc_ltfu/admin/"), name="home_url"),
+    path("", RedirectView.as_view(url="/edc_ltfu_admin/"), name="home_url"),
 ]

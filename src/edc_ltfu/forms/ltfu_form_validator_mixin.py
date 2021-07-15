@@ -1,20 +1,19 @@
 from django import forms
 from django.apps import apps as django_apps
-from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
-from edc_constants.constants import LOST_TO_FOLLOWUP
 
-lftu_model_name = getattr(settings, "EDC_LFTU_MODEL_NAME", None)
+from ..constants import LOST_TO_FOLLOWUP
+from ..utils import get_ltfu_model_name
 
 
-class LossToFollowupFormValidatorMixin:
+class LtfuFormValidatorMixin:
 
-    loss_to_followup_model = lftu_model_name
+    ltfu_model = get_ltfu_model_name()
     offschedule_reason_field = "offschedule_reason"
 
     @property
-    def loss_to_followup_model_cls(self):
-        return django_apps.get_model(self.loss_to_followup_model)
+    def ltfu_model_cls(self):
+        return django_apps.get_model(self.ltfu_model)
 
     def validate_ltfu(self):
 
@@ -23,7 +22,7 @@ class LossToFollowupFormValidatorMixin:
         )
 
         try:
-            self.loss_to_followup_model_cls.objects.get(subject_identifier=subject_identifier)
+            self.ltfu_model_cls.objects.get(subject_identifier=subject_identifier)
         except ObjectDoesNotExist:
             if self.offschedule_reason_field not in self.cleaned_data:
                 raise ImproperlyConfigured(
@@ -36,7 +35,7 @@ class LossToFollowupFormValidatorMixin:
                     {
                         self.offschedule_reason_field: (
                             "Patient was lost to followup, please complete "
-                            f"'{self.loss_to_followup_model_cls._meta.verbose_name}' "
+                            f"'{self.ltfu_model_cls._meta.verbose_name}' "
                             "form first."
                         )
                     }

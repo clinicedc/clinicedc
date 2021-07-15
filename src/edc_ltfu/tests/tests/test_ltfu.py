@@ -24,11 +24,11 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.action_items import VisitMissedAction
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 
-from edc_ltfu.action_items import LossToFollowupAction
-from edc_ltfu.constants import LOSS_TO_FOLLOWUP_ACTION
+from edc_ltfu.action_items import LtfuAction
+from edc_ltfu.constants import LTFU_ACTION
+from edc_ltfu.models import Ltfu
 
 from ..consents import v1_consent
-from ..models import LossToFollowup
 
 list_data = {
     "edc_metadata.subjectvisitmissedreasons": [
@@ -44,7 +44,7 @@ list_data = {
 }
 
 
-class TestLossToFollowup(AppointmentTestCaseMixin, TestCase):
+class TestLtfu(AppointmentTestCaseMixin, TestCase):
     @classmethod
     def setUpClass(cls):
         site_consents.register(v1_consent)
@@ -61,8 +61,8 @@ class TestLossToFollowup(AppointmentTestCaseMixin, TestCase):
         )
         site_action_items.registry = {}
 
-        class TestLossToFollowupAction(LossToFollowupAction):
-            reference_model = "edc_ltfu.losstofollowup"
+        class TestLtfuAction(LtfuAction):
+            reference_model = "edc_ltfu.ltfu"
             admin_site_name = "edc_ltfu_admin"
 
         class SubjectVisitMissedAction(VisitMissedAction):
@@ -75,10 +75,10 @@ class TestLossToFollowup(AppointmentTestCaseMixin, TestCase):
             parent_action_names = [
                 UNBLINDING_REVIEW_ACTION,
                 DEATH_REPORT_ACTION,
-                LOSS_TO_FOLLOWUP_ACTION,
+                LTFU_ACTION,
             ]
 
-        site_action_items.register(TestLossToFollowupAction)
+        site_action_items.register(TestLtfuAction)
         site_action_items.register(SubjectVisitMissedAction)
         site_action_items.register(EndOfStudyAction)
 
@@ -122,17 +122,17 @@ class TestLossToFollowup(AppointmentTestCaseMixin, TestCase):
         )
 
     def test_ltfu_creates_and_closes_action(self):
-        LossToFollowup.objects.create(
+        Ltfu.objects.create(
             subject_identifier=self.subject_identifier,
             last_seen_datetime=get_utcnow(),
             phone_attempts=3,
             home_visited=YES,
-            loss_category="lost",
+            ltfu_category="lost",
         )
         try:
             ActionItem.objects.get(
                 subject_identifier=self.subject_identifier,
-                action_type__name=LOSS_TO_FOLLOWUP_ACTION,
+                action_type__name=LTFU_ACTION,
                 status=CLOSED,
             )
         except ObjectDoesNotExist:
@@ -167,7 +167,7 @@ class TestLossToFollowup(AppointmentTestCaseMixin, TestCase):
         try:
             ActionItem.objects.get(
                 subject_identifier=self.subject_identifier,
-                action_type__name=LOSS_TO_FOLLOWUP_ACTION,
+                action_type__name=LTFU_ACTION,
                 status=NEW,
             )
         except ObjectDoesNotExist:
