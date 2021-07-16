@@ -1,16 +1,24 @@
 from importlib import import_module
 
-from django.test import TestCase, override_settings
+from django.core.exceptions import ObjectDoesNotExist
+from django.test import TestCase, override_settings, tag
 
 from edc_list_data import site_list_data
-from edc_list_data.preload_data import PreloadData
+from edc_list_data.preload_data import PreloadData, PreloadDataError
 from edc_list_data.site_list_data import AlreadyRegistered, SiteListDataError
 
 from ..list_data import list_data
-from ..models import Antibiotic, Neurological, SignificantNewDiagnosis, Symptom
+from ..models import (
+    Antibiotic,
+    Customer,
+    Neurological,
+    SignificantNewDiagnosis,
+    Symptom,
+)
 
 
 class TestPreload(TestCase):
+    @tag("4")
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=True)
     def test_autodiscover_default(self):
         site_list_data.autodiscover()
@@ -75,6 +83,50 @@ class TestPreload(TestCase):
         site_list_data.initialize(module_name="bad_list_data3")
         site_list_data._import_and_register(app_name="my_list_app")
         self.assertRaises(LookupError, site_list_data.load_data)
+
+    @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
+    def test_load_model_data_no_unique_field(self):
+        site_list_data.initialize(module_name="model_data")
+        site_list_data._import_and_register(app_name="my_list_app")
+        self.assertRaises(PreloadDataError, site_list_data.load_data)
+
+    @tag("1")
+    @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
+    def test_load_model_data_no_unique_field2(self):
+        site_list_data.initialize(module_name="model_data2")
+        site_list_data._import_and_register(app_name="my_list_app")
+        self.assertRaises(PreloadDataError, site_list_data.load_data)
+
+    @tag("1")
+    @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
+    def test_load_model_data_with_unique_field(self):
+        site_list_data.initialize(module_name="model_data3")
+        site_list_data._import_and_register(app_name="my_list_app")
+        try:
+            site_list_data.load_data()
+        except PreloadDataError:
+            self.fail("PreloadDataError exception unexpectedly raised")
+
+    @tag("1")
+    @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
+    def test_load_model_data_with_unique_field2(self):
+        site_list_data.initialize(module_name="model_data4")
+        site_list_data._import_and_register(app_name="my_list_app")
+        try:
+            site_list_data.load_data()
+        except PreloadDataError:
+            self.fail("PreloadDataError exception unexpectedly raised")
+
+    @tag("2")
+    @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
+    def test_load_model_data_with_unique_field3(self):
+        site_list_data.initialize(module_name="model_data3")
+        site_list_data._import_and_register(app_name="my_list_app")
+        site_list_data.load_data()
+        try:
+            Customer.objects.get(name="The META Trial")
+        except ObjectDoesNotExist:
+            self.fail("ObjectDoesNotExist exception unexpectedly raised")
 
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_sample_app_raises_on_duplicate_definition_for_table(self):

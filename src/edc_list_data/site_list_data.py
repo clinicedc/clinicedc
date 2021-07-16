@@ -1,12 +1,12 @@
 import copy
 import sys
 from importlib import import_module
+from pprint import pprint
 
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.management.color import color_style
 from django.db import transaction
-from django.utils.module_loading import module_has_submodule
 
 from .load_list_data import LoadListDataError
 from .preload_data import PreloadData
@@ -94,7 +94,7 @@ class SiteListData:
 
     def _get_default_module_name(self, module, label_lower: str) -> str:
         for full_module_name, opts in self.registry.items():
-            if label_lower in opts.get(self.module_name):
+            if label_lower in (opts.get(self.module_name) or {}):
                 for prefix in self.default_module_prefixes:
                     if (
                         full_module_name.startswith(prefix)
@@ -117,7 +117,6 @@ class SiteListData:
         opts: dict = {}
         opts.update(list_data=getattr(module, "list_data", None))
         opts.update(model_data=getattr(module, "model_data", None))
-        opts.update(unique_field_data=getattr(module, "unique_field_data", None))
         opts.update(list_data_model_name=getattr(module, "list_data_model_name", None))
         opts.update(apps=getattr(module, "apps", None))
         if not any([x for x in opts.values()]):
@@ -138,9 +137,9 @@ class SiteListData:
                     pass
 
     def _import_and_register(self, app_name: str) -> None:
-        app_module = import_module(app_name)
+        import_module(app_name)
+        before_import_registry = copy.deepcopy(site_list_data.registry)
         try:
-            before_import_registry = copy.deepcopy(site_list_data.registry)
             module = import_module(f"{app_name}.{self.module_name}")
         except Exception as e:
             site_list_data.registry = before_import_registry

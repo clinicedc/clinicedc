@@ -1,12 +1,11 @@
-import sys
-from typing import Any, Optional
+import pdb
+from typing import Optional
 
 from django.apps import AppConfig
 from django.apps import apps as django_apps
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
 from django.db import models
-from django.db.models.deletion import ProtectedError
 from django.db.utils import IntegrityError
 
 from .load_list_data import load_list_data
@@ -14,25 +13,25 @@ from .load_list_data import load_list_data
 style = color_style()
 
 
+class PreloadDataError(Exception):
+    pass
+
+
 class PreloadData:
     def __init__(
         self,
         list_data: dict = None,
         model_data: dict = None,
-        unique_field_data: dict = None,
         list_data_model_name: str = None,
         apps: AppConfig = None,
     ) -> None:
         self.list_data = list_data or {}
         self.model_data = model_data or {}
-        self.unique_field_data = unique_field_data or {}
         self.item_count = 0
         if self.list_data:
             self.item_count += self.load_list_data(model_name=list_data_model_name, apps=apps)
         if self.model_data:
             self.item_count += self.load_model_data()
-        if self.unique_field_data:
-            self.item_count += self.update_unique_field_data()
 
     def load_list_data(self, model_name: str = None, apps: Optional[AppConfig] = None) -> int:
         return load_list_data(self.list_data, model_name=model_name, apps=apps)
@@ -58,7 +57,9 @@ class PreloadData:
             except ValueError:
                 unique_field = None
             model = apps.get_model(model_name)
-            unique_field = unique_field or self.guess_unique_field(model)
+            unique_field = self.check_is_unique(
+                model, unique_field
+            ) or self.guess_unique_field(model)
             for opts in options:
                 try:
                     obj = model.objects.get(**{unique_field: opts.get(unique_field)})
@@ -74,48 +75,6 @@ class PreloadData:
             n += 1
         return n
 
-    def update_unique_field_data(self, apps: Optional[AppConfig] = None) -> int:
-        """Updates the values of the unique fields in a model.
-
-        Model must have a unique field and the record must exist
-
-        Format:
-            {model_name1: {unique_field_name: (current_value, new_value)},
-             model_name2: {unique_field_name: (current_value, new_value)},
-             ...}
-        """
-        apps = apps or django_apps
-        n = 0
-        for model_name, data in self.unique_field_data.items():
-            model = apps.get_model(*model_name.split("."))
-            for field, values in data.items():
-                try:
-                    model.objects.get(**{field: values[1]})
-                except ObjectDoesNotExist:
-                    try:
-                        obj = model.objects.get(**{field: values[0]})
-                    except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
-                        sys.stdout.write(style.ERROR(str(e) + "\n"))
-                    else:
-                        setattr(obj, field, values[1])
-                        obj.save()
-                else:
-                    self._attempt_delete_if_exists(field, values[0], model)
-            n += 1
-        return n
-
-    @staticmethod
-    def _attempt_delete_if_exists(field: str, value: Any, model: models.Model) -> None:
-        try:
-            obj = model.objects.get(**{field: value})
-        except ObjectDoesNotExist:
-            pass
-        else:
-            try:
-                obj.delete()
-            except ProtectedError:
-                pass
-
     @staticmethod
     def guess_unique_field(model: models.Model) -> str:
         """Returns the first field name for a unique field."""
@@ -127,4 +86,17 @@ class PreloadData:
                     break
             except AttributeError:
                 pass
+        if not unique_field:
+            raise PreloadDataError(
+                f"Unable to determine unique field when loading model data. See {model}."
+            )
+        return unique_field
+
+    @staticmethod
+    def check_is_unique(model: models.Model, unique_field: str) -> str:
+        if unique_field:
+            fld_cls = getattr(model, unique_field)
+            unique = fld_cls.field.unique
+            if not unique:
+                raise PreloadDataError(f"Field is not unique. See {model}.{unique_field}")
         return unique_field
