@@ -1,3 +1,4 @@
+import pdb
 from typing import Optional
 
 from django.apps import AppConfig
@@ -11,7 +12,7 @@ class LoadListDataError(Exception):
 
 def load_list_data(
     list_data: dict = None, model_name: Optional[str] = None, apps: Optional[AppConfig] = None
-) -> None:
+) -> int:
     """Loads data into a list model.
 
     List models have name, display_name where name
@@ -29,6 +30,7 @@ def load_list_data(
         model_names = [model_name]
     else:
         model_names = [k for k in list_data.keys()]
+    n = 0
     for model_name in model_names:
         try:
             model = apps.get_model(model_name)
@@ -48,3 +50,5 @@ def load_list_data(
                     obj.save()
         except ValueError as e:
             raise LoadListDataError(f"{e} See {list_data.get(model_name)}.")
+        n += 1
+    return n

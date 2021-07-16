@@ -1,7 +1,9 @@
+import copy
 import sys
 from importlib import import_module
 
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.core.management.color import color_style
 from django.db import transaction
 from django.utils.module_loading import module_has_submodule
@@ -10,8 +12,16 @@ from .load_list_data import LoadListDataError
 from .preload_data import PreloadData
 
 
+class AlreadyRegistered(Exception):
+    pass
+
+
 class SiteListDataError(Exception):
     pass
+
+
+def get_autodiscover_enabled():
+    return getattr(settings, "EDC_LIST_DATA_ENABLE_AUTODISCOVER", True)
 
 
 class SiteListData:
@@ -21,37 +31,89 @@ class SiteListData:
     Called in AppConfig or by management command.
     """
 
-    def autodiscover(self, module_name=None) -> None:
-        if (
-            # "migrate" not in sys.argv
-            "makemigrations" not in sys.argv
-            and "showmigrations" not in sys.argv
-        ):
-            module_name = module_name or "list_data"
-            style = color_style()
-            sys.stdout.write(f"\n * checking for site {module_name} ...\n")
-            for app in django_apps.app_configs:
-                sys.stdout.write(f" * searching {app}           \r")
-                try:
-                    mod = import_module(app)
-                    try:
-                        module = import_module(f"{app}.{module_name}")
-                        opts = self.get_options(module)
-                        with transaction.atomic():
-                            PreloadData(**opts)
-                        sys.stdout.write(f" * loading '{module_name}' from '{app}'\n")
-                    except LoadListDataError as e:
-                        sys.stdout.write(f"   - loading {app}.{module_name} ... \n")
-                        sys.stdout.write(style.ERROR(f"ERROR! {e}\n"))
-                    except ImportError as e:
-                        if module_has_submodule(mod, module_name):
-                            raise SiteListDataError(e)
-                except ImportError:
-                    pass
-            sys.stdout.write("\n")
+    default_module_prefixes = ["edc_"]
+    default_module_name = "list_data"
+
+    def __init__(self, module_name=None):
+        self.registry = {}
+        self.models = []
+        self.module_name = module_name or self.default_module_name
+
+    def initialize(self, module_name=None):
+        self.__init__(module_name=module_name)
+
+    def register(self, module):
+        opts = copy.deepcopy(self._get_options(module))
+        sys.stdout.write(f"   + registered {self.module_name} from '{module.__name__}'\n")
+        if opts.get(self.module_name):
+            self._replace_list_data_or_raise_on_duplicate(module, opts)
+        self.registry[module.__name__] = opts
+
+    def load_data(self) -> None:
+        style = color_style()
+        for module_name, opts in self.registry.items():
+            sys.stdout.write(f"   - loading {module_name} ... \r")
+            try:
+                with transaction.atomic():
+                    obj = PreloadData(**opts)
+                    sys.stdout.write(
+                        f"   - loading {module_name} ... {obj.item_count} items.\n"
+                    )
+            except LoadListDataError as e:
+                sys.stdout.write(style.ERROR(f"ERROR! {e}\n"))
+
+    def _replace_list_data_or_raise_on_duplicate(self, module, opts: dict) -> None:
+        """Raises on duplicates or replaces.
+
+        1. Checks `list model` has not been registered from another app
+        2. Updates the list of `list models` already registered.
+        3. If duplicate is found raises OR replaces.
+
+        Note: * edc_* modules should load first.
+              * only edc_* modules can provide defaults
+        """
+        models = []
+        for label_lower, data in opts.get(self.module_name).items():
+            default_module_name = self._get_default_module_name(module, label_lower)
+            if label_lower not in self.models:
+                models.append(label_lower)
+            elif (
+                label_lower in self.models
+                and default_module_name
+                and module.__name__ != default_module_name
+            ):
+                self._replace_default_list_data_for_model(
+                    label_lower, module.__name__, default_module_name
+                )
+            else:
+                raise AlreadyRegistered(
+                    "List data for table is already registered. "
+                    f"Got table {label_lower} in {module.__name__}."
+                )
+        self.models.extend(models)
+
+    def _get_default_module_name(self, module, label_lower: str) -> str:
+        for full_module_name, opts in self.registry.items():
+            if label_lower in opts.get(self.module_name):
+                for prefix in self.default_module_prefixes:
+                    if (
+                        full_module_name.startswith(prefix)
+                        and full_module_name != module.__name__
+                    ):
+                        return full_module_name
+        return ""
+
+    def _replace_default_list_data_for_model(
+        self, label_lower: str, full_module_name: str, default_module_name: str
+    ) -> None:
+        self.registry[default_module_name][self.module_name].pop(label_lower)
+        sys.stdout.write(
+            f"   - {self.module_name} from `{full_module_name}.{label_lower}`\n"
+            f"       has replaced `{default_module_name}.{label_lower}`.\n"
+        )
 
     @staticmethod
-    def get_options(module) -> dict:
+    def _get_options(module) -> dict:
         opts: dict = {}
         opts.update(list_data=getattr(module, "list_data", None))
         opts.update(model_data=getattr(module, "model_data", None))
@@ -61,6 +123,33 @@ class SiteListData:
         if not any([x for x in opts.values()]):
             raise SiteListDataError(f"Invalid list_data module. See {module}")
         return opts
+
+    def autodiscover(self) -> None:
+        if (
+            get_autodiscover_enabled()
+            and "makemigrations" not in sys.argv
+            and "showmigrations" not in sys.argv
+        ):
+            sys.stdout.write(f" * checking sites for `{self.module_name}` ...\n")
+            for app_name in django_apps.app_configs:
+                try:
+                    self._import_and_register(app_name)
+                except ModuleNotFoundError:
+                    pass
+
+    def _import_and_register(self, app_name: str) -> None:
+        app_module = import_module(app_name)
+        try:
+            before_import_registry = copy.deepcopy(site_list_data.registry)
+            module = import_module(f"{app_name}.{self.module_name}")
+        except Exception as e:
+            site_list_data.registry = before_import_registry
+            if f"No module named '{app_name}.{self.module_name}'" not in str(e):
+                raise SiteListDataError(f"{e} See {app_name}.{self.module_name}")
+            else:
+                raise
+        else:
+            self.register(module)
 
 
 site_list_data = SiteListData()

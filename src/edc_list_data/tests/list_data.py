@@ -1,7 +1,5 @@
 from edc_constants.constants import OTHER
 
-from edc_list_data import PreloadData
-
 list_data = {
     "edc_list_data.antibiotic": [
         ("amoxicillin_ampicillin", "Amoxicillin/Ampicillin"),
@@ -54,6 +52,3 @@ list_data = {
         ("weight_loss", "Weight loss"),
     ],
 }
-
-
-# preload_data = PreloadData(list_data=list_data)
