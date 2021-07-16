@@ -26,20 +26,18 @@ class PreloadData:
         self.list_data = list_data or {}
         self.model_data = model_data or {}
         self.unique_field_data = unique_field_data or {}
-
+        self.item_count = 0
         if self.list_data:
-            self.load_list_data(model_name=list_data_model_name, apps=apps)
-
+            self.item_count += self.load_list_data(model_name=list_data_model_name, apps=apps)
         if self.model_data:
-            self.load_model_data()
-
+            self.item_count += self.load_model_data()
         if self.unique_field_data:
-            self.update_unique_field_data()
+            self.item_count += self.update_unique_field_data()
 
-    def load_list_data(self, model_name: str = None, apps: Optional[AppConfig] = None) -> None:
-        load_list_data(self.list_data, model_name=model_name, apps=apps)
+    def load_list_data(self, model_name: str = None, apps: Optional[AppConfig] = None) -> int:
+        return load_list_data(self.list_data, model_name=model_name, apps=apps)
 
-    def load_model_data(self, apps: Optional[AppConfig] = None):
+    def load_model_data(self, apps: Optional[AppConfig] = None) -> int:
         """Loads data into a model, creates or updates existing.
 
         Must have a unique field
@@ -53,6 +51,7 @@ class PreloadData:
              ...}
         """
         apps = apps or django_apps
+        n = 0
         for model_name, options in self.model_data.items():
             try:
                 model_name, unique_field = model_name
@@ -72,8 +71,10 @@ class PreloadData:
                     for key, value in opts.items():
                         setattr(obj, key, value)
                     obj.save()
+            n += 1
+        return n
 
-    def update_unique_field_data(self, apps: Optional[AppConfig] = None) -> None:
+    def update_unique_field_data(self, apps: Optional[AppConfig] = None) -> int:
         """Updates the values of the unique fields in a model.
 
         Model must have a unique field and the record must exist
@@ -84,6 +85,7 @@ class PreloadData:
              ...}
         """
         apps = apps or django_apps
+        n = 0
         for model_name, data in self.unique_field_data.items():
             model = apps.get_model(*model_name.split("."))
             for field, values in data.items():
@@ -99,6 +101,8 @@ class PreloadData:
                         obj.save()
                 else:
                     self._attempt_delete_if_exists(field, values[0], model)
+            n += 1
+        return n
 
     @staticmethod
     def _attempt_delete_if_exists(field: str, value: Any, model: models.Model) -> None:
