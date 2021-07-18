@@ -47,6 +47,8 @@ class Consent:
         self.age_max = age_max
         self.age_is_adult = age_is_adult
         self.subject_type = subject_type or self.default_subject_type
+        self.verbose_name = f"{self.model} {self.version}"
+        self.name = f"{self.model}-{self.version}"
         if self.updates_versions:
             if not isinstance(self.updates_versions, (list, tuple)):
                 self.updates_versions = [
@@ -60,11 +62,7 @@ class Consent:
         )
 
     def __str__(self):
-        return f"{self.model} {self.version}"
-
-    @property
-    def name(self):
-        return f"{self.model}-{self.version}"
+        return self.verbose_name
 
     @property
     def model_cls(self):
