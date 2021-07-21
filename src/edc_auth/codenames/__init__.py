@@ -24,3 +24,4 @@ from .review import review
 from .screening import screening
 from .site_data_manager import site_data_manager
 from .tmg import tmg
+from .tmg_review import tmg_review

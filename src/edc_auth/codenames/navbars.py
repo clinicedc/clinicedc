@@ -1,5 +1,6 @@
 navbars = [
     "edc_navbar.nav_administration",
+    "edc_navbar.nav_action_item_section",
     "edc_navbar.nav_ae_section",
     "edc_navbar.nav_data_manager_section",
     "edc_navbar.nav_home",

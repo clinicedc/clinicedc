@@ -4,10 +4,7 @@ from django.urls.conf import path
 
 from .views import LoginView, LogoutView
 
-try:
-    allow_password_reset = settings.ALLOW_PASSWORD_RESET
-except AttributeError:
-    allow_password_reset = None
+allow_password_reset = getattr(settings, "ALLOW_PASSWORD_RESET", None)
 
 urlpatterns = [
     path("login/", LoginView.as_view(), name="login"),

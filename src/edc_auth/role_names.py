@@ -40,6 +40,7 @@ from .group_names import (
     SCREENING,
     SITE_DATA_MANAGER,
     TMG,
+    TMG_REVIEW,
     UNBLINDING_REQUESTORS,
     UNBLINDING_REVIEWERS,
 )
@@ -75,6 +76,7 @@ groups_by_role_name = {
         LAB_VIEW,
         PII_VIEW,
         REVIEW,
+        TMG_REVIEW,
     ],
     CLINICIAN_ROLE: [
         ADMINISTRATION,
@@ -96,6 +98,7 @@ groups_by_role_name = {
     DATA_MANAGER_ROLE: [
         ADMINISTRATION,
         AE,
+        TMG,
         CELERY_MANAGER,
         CLINIC,
         DATA_MANAGER,
