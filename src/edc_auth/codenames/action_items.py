@@ -10,4 +10,5 @@ action_items = [
     "edc_action_item.view_historicalactionitem",
     "edc_action_item.view_historicalreference",
     "edc_action_item.view_reference",
+    "edc_navbar.nav_action_item_section",
 ]

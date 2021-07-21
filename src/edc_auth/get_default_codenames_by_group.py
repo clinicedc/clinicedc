@@ -22,6 +22,7 @@ from .codenames import (
     review,
     site_data_manager,
     tmg,
+    tmg_review,
 )
 from .group_names import (
     ACCOUNT_MANAGER,
@@ -47,6 +48,7 @@ from .group_names import (
     REVIEW,
     SITE_DATA_MANAGER,
     TMG,
+    TMG_REVIEW,
 )
 
 
@@ -75,6 +77,7 @@ def get_default_codenames_by_group():
         REVIEW: review,
         SITE_DATA_MANAGER: site_data_manager,
         TMG: tmg,
+        TMG_REVIEW: tmg_review,
     }
 
     codenames_by_group = {}

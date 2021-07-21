@@ -21,9 +21,6 @@ def post_migrate_user_roles(sender=None, **kwargs):  # noqa
     update_roles(
         groups_by_role_name=groups_by_role_name, role_names=role_names, verbose=True
     )
-    # below not necessary for new systems
-    # fixer = ExportPermissionsFixer(warn_only=True)
-    # fixer.fix()
 
 
 class AppConfig(DjangoAppConfig):

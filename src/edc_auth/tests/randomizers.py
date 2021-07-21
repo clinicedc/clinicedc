@@ -1,4 +1,3 @@
-import os
 from tempfile import mkdtemp
 
 from edc_randomization.randomizer import Randomizer
