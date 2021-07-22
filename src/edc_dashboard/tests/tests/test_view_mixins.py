@@ -12,12 +12,15 @@ from edc_auth.group_permissions_updater import GroupPermissionsUpdater
 from edc_model_wrapper import ModelWrapper
 from edc_utils import get_utcnow
 
-from ..listboard_filter import ListboardFilter, ListboardViewFilters
-from ..url_names import url_names
-from ..view_mixins import ListboardFilterViewMixin
-from ..view_mixins.listboard.querystring_view_mixin import QueryStringViewMixin
-from ..views import ListboardView
-from .models import SubjectVisit
+from edc_dashboard.listboard_filter import ListboardFilter, ListboardViewFilters
+from edc_dashboard.url_names import url_names
+from edc_dashboard.view_mixins import ListboardFilterViewMixin
+from edc_dashboard.view_mixins.listboard.querystring_view_mixin import (
+    QueryStringViewMixin,
+)
+from edc_dashboard.views import ListboardView
+
+from ..models import SubjectVisit
 
 codenames_by_group = get_default_codenames_by_group()
 codenames_by_group[CLINIC].append("edc_dashboard.view_my_listboard")
