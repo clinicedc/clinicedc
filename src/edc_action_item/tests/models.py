@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models.deletion import CASCADE, PROTECT
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES
-from edc_crf.model_mixins import CrfWithActionModelMixin
+from edc_crf.crf_with_action_model_mixin import CrfWithActionModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.models import SiteModelMixin
