@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from edc_crf.model_mixins import CrfModelMixin
 from edc_model import models as edc_models
@@ -12,8 +13,14 @@ class SubjectVisitMissed(
     edc_models.BaseUuidModel,
 ):
 
+    subject_visit = models.OneToOneField(
+        settings.SUBJECT_VISIT_MODEL,
+        on_delete=models.PROTECT,
+        related_name="edc_subject_visit",
+    )
+
     missed_reasons = models.ManyToManyField(
-        SubjectVisitMissedReasons, blank=True, related_name="+"
+        SubjectVisitMissedReasons, blank=True, related_name="missed_reasons"
     )
 
     class Meta(CrfModelMixin.Meta, edc_models.BaseUuidModel.Meta):
