@@ -2,13 +2,13 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from edc_constants.constants import COMPLETE, INCOMPLETE
 
-from ..model_mixins import CrfStatusModelMixin
-from .crf_status import CrfStatus
+from .model_mixins import CrfStatusModelMixin
 
 
 def update_crf_status_for_instance(instance, crf_status):
     """Only works for CRFs, e.g. have subject_visit."""
     if hasattr(instance, "subject_visit"):
+        crf_status_model_cls = django_apps.get_model("edc_crf.crfstatus")
         opts = dict(
             subject_identifier=instance.subject_visit.subject_identifier,
             visit_schedule_name=instance.subject_visit.visit_schedule_name,
@@ -18,12 +18,12 @@ def update_crf_status_for_instance(instance, crf_status):
             label_lower=instance._meta.label_lower,
         )
         if crf_status == COMPLETE:
-            CrfStatus.objects.filter(**opts).delete()
+            crf_status_model_cls.objects.filter(**opts).delete()
         elif crf_status == INCOMPLETE:
             try:
-                CrfStatus.objects.get(**opts)
+                crf_status_model_cls.objects.get(**opts)
             except ObjectDoesNotExist:
-                CrfStatus.objects.create(**opts)
+                crf_status_model_cls.objects.create(**opts)
 
 
 def update_crf_status_command(app_label=None):
