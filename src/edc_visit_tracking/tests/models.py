@@ -16,11 +16,9 @@ from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleMod
 from ..choices import VISIT_INFO_SOURCE, VISIT_REASON, VISIT_REASON_MISSED
 from ..model_mixins import (
     CrfInlineModelMixin,
-    SubjectVisitMissedModelMixin,
     VisitModelMixin,
     VisitTrackingCrfModelMixin,
 )
-from ..models import SubjectVisitMissedReasons
 
 list_data = {
     "edc_visit_tracking.subjectvisitmissedreasons": [
@@ -149,12 +147,14 @@ class CustomSubjectVisitMissedReasons(ListModelMixin):
         verbose_name_plural = "Subject Visit Missed Reasons"
 
 
-class SubjectVisitMissed(
-    CrfModelMixin,
-    SubjectVisitMissedModelMixin,
-    BaseUuidModel,
-):
-    missed_reasons = models.ManyToManyField(SubjectVisitMissedReasons, blank=True)
-
-    class Meta(VisitTrackingCrfModelMixin.Meta):
-        pass
+# class SubjectVisitMissed(
+#     CrfModelMixin,
+#     SubjectVisitMissedModelMixin,
+#     BaseUuidModel,
+# ):
+#     missed_reasons = models.ManyToManyField(
+#         SubjectVisitMissedReasons, blank=True
+#     )
+#
+#     class Meta(VisitTrackingCrfModelMixin.Meta):
+#         pass

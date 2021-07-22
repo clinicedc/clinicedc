@@ -18,11 +18,12 @@ from edc_utils import get_utcnow
 from edc_visit_schedule import Crf, FormsCollection, Schedule, Visit, VisitSchedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
+from edc_visit_tracking.constants import MISSED_VISIT
+from edc_visit_tracking.models import SubjectVisitMissedReasons
 
 from ..forms import SubjectVisitMissedForm
 from ..helper import Helper
-from ..models import SubjectVisit, SubjectVisitMissedReasons, list_data
+from ..models import SubjectVisit, list_data
 
 
 class TestVisit(TestCase):

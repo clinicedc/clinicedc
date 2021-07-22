@@ -4,9 +4,8 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
-from edc_appointment.constants import COMPLETE_APPT, IN_PROGRESS_APPT
 
-from ..stubs import SubjectVisitModelStub, TSubjectVisitModelStub
+from ..stubs import TSubjectVisitModelStub
 
 
 def get_subject_visit_model() -> TSubjectVisitModelStub:

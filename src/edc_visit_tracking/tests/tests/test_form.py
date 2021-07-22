@@ -1,7 +1,7 @@
 import arrow
 from dateutil.relativedelta import relativedelta
 from django import forms
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
 from edc_facility.import_holidays import import_holidays
 from edc_reference import site_reference_configs

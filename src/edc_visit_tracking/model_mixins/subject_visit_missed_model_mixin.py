@@ -8,7 +8,6 @@ from edc_protocol.validators import date_not_before_study_start
 from edc_utils import get_utcnow
 
 from ..constants import VISIT_MISSED_ACTION
-from ..models import SubjectVisitMissedReasons
 
 
 class SubjectVisitMissedModelMixin(models.Model):
@@ -78,7 +77,9 @@ class SubjectVisitMissedModelMixin(models.Model):
         default=NOT_APPLICABLE,
     )
 
-    missed_reasons = models.ManyToManyField(SubjectVisitMissedReasons, blank=True)
+    missed_reasons = models.ManyToManyField(
+        "edc_visit_tracking.SubjectVisitMissedReasons", blank=True
+    )
 
     missed_reasons_other = edc_models.OtherCharField()
 

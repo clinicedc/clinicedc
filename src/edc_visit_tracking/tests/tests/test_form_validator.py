@@ -1,7 +1,5 @@
-from copy import deepcopy
-
 from django import forms
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_constants.constants import ALIVE, OTHER, YES
 from edc_facility.import_holidays import import_holidays

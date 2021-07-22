@@ -1,5 +1,5 @@
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_utils import get_utcnow
 
 from edc_visit_tracking.crf_date_validator import (
