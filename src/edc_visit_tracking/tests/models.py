@@ -1,7 +1,6 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_constants.constants import HOSPITALIZED, OTHER
-from edc_crf.model_mixins import CrfModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_list_data.model_mixins import ListModelMixin
 from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
