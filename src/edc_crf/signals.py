@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from .utils import update_crf_status_for_instance
+from .update_crf_status_for_instance import update_crf_status_for_instance
 
 
 @receiver(
