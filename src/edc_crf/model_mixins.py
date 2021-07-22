@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_action_item.models import ActionNoManagersModelMixin
 from edc_consent.model_mixins import RequiresConsentFieldsModelMixin
+from edc_constants.constants import INCOMPLETE
 from edc_identifier.model_mixins import TrackingModelMixin
 from edc_metadata.model_mixins.updates import UpdatesCrfMetadataModelMixin
 from edc_model.models.historical_records import HistoricalRecords
@@ -16,7 +17,9 @@ from edc_visit_tracking.model_mixins import (
     VisitTrackingCrfModelMixin,
 )
 
-from .stubs import CrfModelStub
+from .choices import CRF_STATUS
+
+crf_status_default = getattr(settings, "CRF_STATUS_DEFAULT", INCOMPLETE)
 
 
 class CrfNoManagerModelMixin(
@@ -32,7 +35,7 @@ class CrfNoManagerModelMixin(
 
     subject_visit = models.OneToOneField(settings.SUBJECT_VISIT_MODEL, on_delete=PROTECT)
 
-    def natural_key(self: CrfModelStub) -> tuple:
+    def natural_key(self) -> tuple:
         return self.subject_visit.natural_key()
 
     natural_key.dependencies = [  # type:ignore
@@ -71,4 +74,24 @@ class CrfWithActionModelMixin(
     history = HistoricalRecords(inherit=True)
 
     class Meta(CrfNoManagerModelMixin.Meta):
+        abstract = True
+
+
+class CrfStatusModelMixin(models.Model):
+    crf_status = models.CharField(
+        verbose_name="CRF status",
+        max_length=25,
+        choices=CRF_STATUS,
+        default=crf_status_default,
+        help_text="If some data is still pending, flag this CRF as incomplete",
+    )
+
+    crf_status_comments = models.TextField(
+        verbose_name="Any comments related to status of this CRF",
+        null=True,
+        blank=True,
+        help_text="for example, why some data is still pending",
+    )
+
+    class Meta:
         abstract = True

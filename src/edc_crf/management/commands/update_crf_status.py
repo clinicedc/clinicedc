@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
-from edc_crf.update_crf_status import update_crf_status_command
+
+from edc_crf.models import update_crf_status_command
 
 
 class Command(BaseCommand):
