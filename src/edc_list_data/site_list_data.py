@@ -1,4 +1,5 @@
 import copy
+import pdb
 import sys
 from importlib import import_module
 from pprint import pprint
@@ -13,6 +14,10 @@ from .preload_data import PreloadData
 
 
 class AlreadyRegistered(Exception):
+    pass
+
+
+class AlreadyLoaded(Exception):
     pass
 
 
@@ -36,18 +41,23 @@ class SiteListData:
 
     def __init__(self, module_name=None):
         self.registry = {}
+        self.app_names = []
         self.models = []
         self.module_name = module_name or self.default_module_name
 
     def initialize(self, module_name=None):
         self.__init__(module_name=module_name)
 
-    def register(self, module):
-        opts = copy.deepcopy(self._get_options(module))
-        sys.stdout.write(f"   + registered {self.module_name} from '{module.__name__}'\n")
-        if opts.get(self.module_name):
-            self._replace_list_data_or_raise_on_duplicate(module, opts)
-        self.registry[module.__name__] = opts
+    def register(self, module, app_name=None):
+        if app_name and app_name in self.app_names:
+            raise AlreadyLoaded(f"App already loaded. Got {app_name}.")
+        else:
+            self.app_names.append(app_name)
+            opts = copy.deepcopy(self._get_options(module))
+            sys.stdout.write(f"   + registered {self.module_name} from '{module.__name__}'\n")
+            if opts.get(self.module_name):
+                self._replace_list_data_or_raise_on_duplicate(module, opts)
+            self.registry[module.__name__] = opts
 
     def load_data(self) -> None:
         style = color_style()
@@ -148,7 +158,7 @@ class SiteListData:
             else:
                 raise
         else:
-            self.register(module)
+            self.register(module, app_name=app_name)
 
 
 site_list_data = SiteListData()
