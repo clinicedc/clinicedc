@@ -1,20 +1,24 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from django.test import TestCase, tag
+from django.test import TestCase, override_settings
 from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
 from edc_form_validators import NOT_REQUIRED_ERROR
 from edc_list_data.site_list_data import site_list_data
 from edc_sites.tests import SiteTestCaseMixin
 
+from adverse_event_app import list_data
 from edc_adverse_event.models import SaeReason
 
 from ...form_validators import AeInitialFormValidator, AeTmgFormValidator
 
 
+@override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
 class TestAeInitialFormValidator(SiteTestCaseMixin, TestCase):
     @classmethod
     def setUpClass(cls):
-        site_list_data.autodiscover()
+        site_list_data.initialize()
+        site_list_data.register(list_data, app_name="adverse_event_app")
+        site_list_data.load_data()
         super().setUpClass()
 
     def test_ae_cause_yes(self):

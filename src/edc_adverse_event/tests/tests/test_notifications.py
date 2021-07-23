@@ -1,10 +1,12 @@
 from django.core import mail
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from edc_constants.constants import NO, YES
 from edc_facility.import_holidays import import_holidays
 from edc_list_data.site_list_data import site_list_data
 from edc_reportable.constants import GRADE3, GRADE4, GRADE5
 from model_bakery import baker
+
+from adverse_event_app import list_data
 
 from ...action_items import (
     AeFollowupAction,
@@ -18,10 +20,13 @@ from ...notifications import AeInitialG3EventNotification, AeInitialG4EventNotif
 from .mixins import DeathReportTestMixin
 
 
+@override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
 class TestNotifications(DeathReportTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
-        site_list_data.autodiscover()
+        site_list_data.initialize()
+        site_list_data.register(list_data, app_name="adverse_event_app")
+        site_list_data.load_data()
         import_holidays()
 
     def test_notifies_initial_ae_g3_not_sae(self):

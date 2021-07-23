@@ -1,21 +1,25 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from edc_action_item.models.action_item import ActionItem
 from edc_constants.constants import CLOSED, NEW, NO, OTHER, YES
 from edc_facility.import_holidays import import_holidays
 from edc_list_data.site_list_data import site_list_data
 from model_bakery import baker
 
+from adverse_event_app import list_data
 from edc_adverse_event.constants import DEATH_REPORT_TMG_SECOND_ACTION
 from edc_adverse_event.models import CauseOfDeath
 
 from .mixins import DeathReportTestMixin
 
 
+@override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
 class TestDeathReportTmg(DeathReportTestMixin, TestCase):
     @classmethod
     def setUpClass(cls):
-        site_list_data.autodiscover()
+        site_list_data.initialize()
+        site_list_data.register(list_data, app_name="adverse_event_app")
+        site_list_data.load_data()
         import_holidays()
         super().setUpClass()
 
