@@ -1,7 +1,7 @@
 from unittest.mock import PropertyMock, patch
 
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from edc_action_item.get_action_type import get_action_type
 from edc_action_item.models import SubjectDoesNotExist
 from edc_action_item.models.action_item import ActionItem
@@ -14,6 +14,7 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.utils import OnScheduleError
 from model_bakery import baker
 
+from adverse_event_app import list_data
 from adverse_event_app.action_items import (
     AeFollowupAction,
     AeInitialAction,
@@ -25,10 +26,13 @@ from edc_adverse_event.models import AeClassification
 from ...constants import CONTINUING_UPDATE, RECOVERED, RECOVERING
 
 
+@override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
 class TestAeAndActions(TestCase):
     @classmethod
     def setUpClass(cls):
-        site_list_data.autodiscover()
+        site_list_data.initialize()
+        site_list_data.register(list_data, app_name="adverse_event_app")
+        site_list_data.load_data()
         super().setUpClass()
 
     @classmethod
