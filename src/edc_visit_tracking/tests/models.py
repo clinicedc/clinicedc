@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_constants.constants import HOSPITALIZED, OTHER
+from edc_crf.crf_model_mixin import CrfModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_list_data.model_mixins import ListModelMixin
 from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
@@ -11,6 +12,9 @@ from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
+
+from edc_visit_tracking.model_mixins import SubjectVisitMissedModelMixin
+from edc_visit_tracking.models import SubjectVisitMissedReasons
 
 from ..choices import VISIT_INFO_SOURCE, VISIT_REASON, VISIT_REASON_MISSED
 from ..model_mixins import (
@@ -146,14 +150,12 @@ class CustomSubjectVisitMissedReasons(ListModelMixin):
         verbose_name_plural = "Subject Visit Missed Reasons"
 
 
-# class SubjectVisitMissed(
-#     CrfModelMixin,
-#     SubjectVisitMissedModelMixin,
-#     BaseUuidModel,
-# ):
-#     missed_reasons = models.ManyToManyField(
-#         SubjectVisitMissedReasons, blank=True
-#     )
-#
-#     class Meta(VisitTrackingCrfModelMixin.Meta):
-#         pass
+class SubjectVisitMissed(
+    CrfModelMixin,
+    SubjectVisitMissedModelMixin,
+    BaseUuidModel,
+):
+    missed_reasons = models.ManyToManyField(SubjectVisitMissedReasons, blank=True)
+
+    class Meta(VisitTrackingCrfModelMixin.Meta):
+        pass
