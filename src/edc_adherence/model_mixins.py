@@ -38,7 +38,7 @@ class MedicationAdherenceModelMixin(models.Model):
         blank=True,
     )
 
-    other_missed_pill_reason = edc_models.OtherCharField()
+    other_missed_pill_reason = edc_models.OtherCharField(max_length=150)
 
     class Meta:
         abstract = True
