@@ -5,7 +5,7 @@ from django.db.models.deletion import PROTECT
 from edc_appointment.models import Appointment
 from edc_constants.choices import YES_NO
 from edc_constants.constants import MALE
-from edc_crf.model_mixins import CrfWithActionModelMixin
+from edc_crf.crf_with_action_model_mixin import CrfWithActionModelMixin
 from edc_identifier.managers import SubjectIdentifierManager
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_lab.model_mixins import PanelModelMixin
