@@ -18,10 +18,23 @@ class SubjectVisitMissedModelMixin(models.Model):
 
     And include in your lists app:
 
-        class SubjectVisitMissedReasons(ListModelMixin):
-            class Meta(ListModelMixin.Meta):
-                verbose_name = "Subject Missed Visit Reasons"
-                verbose_name_plural = "Subject Missed Visit Reasons"
+        class SubjectVisitMissed(
+            CrfModelMixin,
+            SubjectVisitMissedModelMixin,
+            edc_models.BaseUuidModel):
+
+            subject_visit = models.OneToOneField(
+                settings.SUBJECT_VISIT_MODEL,
+                on_delete=models.PROTECT,
+            )
+
+            missed_reasons = models.ManyToManyField(
+                SubjectVisitMissedReasons, blank=True
+            )
+
+            class Meta(CrfModelMixin.Meta, edc_models.BaseUuidModel.Meta):
+                verbose_name = "Missed Visit Report"
+                verbose_name_plural = "Missed Visit Report"
     """
 
     action_name = VISIT_MISSED_ACTION
