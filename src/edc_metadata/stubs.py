@@ -3,7 +3,7 @@ from typing import Any, Optional, Protocol, Type, Union
 from django.db.models import Manager, Model, QuerySet
 from edc_appointment.stubs import AppointmentModelStub
 from edc_model.stubs import ModelMetaStub
-from edc_visit_schedule import Visit
+from edc_visit_schedule import Visit, VisitSchedule
 from edc_visit_tracking.stubs import SubjectVisitModelStub
 
 
@@ -19,6 +19,9 @@ class VisitModel(Protocol):
     visit_code_sequence: int
     visit_schedule_name: str
     _meta: ModelMetaStub
+
+    def visit_schedule(self) -> VisitSchedule:
+        ...
 
 
 class CrfMetadataModelStub(Protocol):

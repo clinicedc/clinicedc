@@ -83,7 +83,7 @@ class CrfCreator:
             self._metadata_obj = metadata_obj
         return self._metadata_obj
 
-    def create(self) -> Union[CrfMetadataModelStub]:
+    def create(self) -> Union[CrfMetadataModelStub, RequisitionMetadataModelStub]:
         """Creates a metadata model instance to represent a
         CRF, if it does not already exist.
         """
@@ -185,7 +185,7 @@ class Creator:
         if self.visit_code_sequence != 0:
             return self.visit.requisitions_unscheduled
         elif self.visit_model_instance.reason == MISSED_VISIT:
-            return tuple()
+            return FormsCollection()
         return self.visit.requisitions
 
     def create(self) -> None:
@@ -254,43 +254,24 @@ class Metadata:
         visit_model_instance: VisitModel,
         update_keyed: bool,
     ) -> None:
-        app_config = django_apps.get_app_config("edc_metadata")
+        self._reason = None
+        self._reason_field = "reason"
+        self.visit_model_instance = visit_model_instance
         self.creator = self.creator_cls(
             visit_model_instance=visit_model_instance, update_keyed=update_keyed
         )
         self.destroyer = self.destroyer_cls(visit_model_instance=visit_model_instance)
-        try:
-            self.reason_field = app_config.reason_field[visit_model_instance._meta.label_lower]
-        except KeyError as e:
-            raise CreatesMetadataError(
-                f"Unable to determine the reason field for model "
-                f"{visit_model_instance._meta.label_lower}. Got {e}. "
-                f"edc_metadata.AppConfig reason_field = {app_config.reason_field}"
-            ) from e
-        try:
-            self.reason = getattr(visit_model_instance, self.reason_field)
-        except AttributeError as e:
-            raise CreatesMetadataError(
-                f"Invalid reason field. Expected attribute {self.reason_field}. "
-                f"{visit_model_instance._meta.label_lower}. Got {e}. "
-                f"edc_metadata.AppConfig reason_field = {app_config.reason_field}"
-            ) from e
-        if not self.reason:
-            raise CreatesMetadataError(
-                f"Invalid reason from field '{self.reason_field}'. Got None. "
-                "Check field value and/or edc_metadata.AppConfig."
-                "create_on_reasons/delete_on_reasons."
-            )
 
     def prepare(self) -> bool:
         """Creates or deletes metadata, depending on the visit reason,
         for the visit instance.
         """
         metadata_exists = False
-        app_config = django_apps.get_app_config("edc_metadata")
-        if self.reason in app_config.delete_on_reasons:
+        if self.reason in self.visit_model_instance.visit_schedule.delete_metadata_on_reasons:
             self.destroyer.delete()
-        elif self.reason in app_config.create_on_reasons:
+        elif (
+            self.reason in self.visit_model_instance.visit_schedule.create_metadata_on_reasons
+        ):
             self.destroyer.delete()
             self.creator.create()
             metadata_exists = True
@@ -303,3 +284,29 @@ class Metadata:
                 "create_on_reasons/delete_on_reasons."
             )
         return metadata_exists
+
+    @property
+    def reason(self):
+        """Returns the `value` of the reason field on the
+        subject visit model instance.
+
+        For example: `schedule` or `unscheduled`
+        """
+        if not self._reason:
+            reason_field = self.visit_model_instance.visit_schedule.visit_model_reason_field
+            try:
+                self._reason = getattr(self.visit_model_instance, reason_field)
+            except AttributeError as e:
+                raise CreatesMetadataError(
+                    f"Invalid reason field. Expected attribute {reason_field}. "
+                    f"{self.visit_model_instance._meta.label_lower}. Got {e}. "
+                    f"visit schedule `{self.visit_model_instance.visit_schedule.name}` "
+                    f"visit_model_reason_field = {reason_field}"
+                ) from e
+            if not self._reason:
+                raise CreatesMetadataError(
+                    f"Invalid reason from field '{reason_field}'. Got None. "
+                    "Check field value and/or edc_metadata.AppConfig."
+                    "create_on_reasons/delete_on_reasons."
+                )
+        return self._reason
