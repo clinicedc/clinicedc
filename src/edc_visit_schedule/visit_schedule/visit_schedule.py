@@ -2,6 +2,8 @@ import json
 import re
 
 from django.apps import apps as django_apps
+from django.conf import settings
+from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 
 from .schedules_collection import SchedulesCollection
 
@@ -30,6 +32,8 @@ class VisitSchedule:
     name_regex = r"[a-z0-9\_\-]+$"
     name_regex_msg = "numbers, lower case letters and '_'"
     schedules_collection = SchedulesCollection
+    create_metadata_on_reasons = [SCHEDULED, UNSCHEDULED, MISSED_VISIT]
+    delete_metadata_on_reasons = []
 
     def __init__(
         self,
@@ -39,6 +43,10 @@ class VisitSchedule:
         death_report_model=None,
         offstudy_model=None,
         locator_model=None,
+        visit_model=None,
+        visit_model_reason_field=None,
+        create_metadata_on_reasons=None,
+        delete_metadata_on_reasons=None,
     ):
         self._all_post_consent_models = None
         self.name = name
@@ -47,6 +55,15 @@ class VisitSchedule:
         self.death_report_model = death_report_model
         self.locator_model = locator_model or "edc_locator.subjectlocator"
         self.previous_visit_schedule = previous_visit_schedule
+        self.visit_model = visit_model or settings.SUBJECT_VISIT_MODEL
+        self.visit_model_reason_field = visit_model_reason_field or "reason"
+        self.create_metadata_on_reasons = (
+            create_metadata_on_reasons or self.create_metadata_on_reasons
+        )
+        self.delete_metadata_on_reasons = (
+            delete_metadata_on_reasons or self.delete_metadata_on_reasons
+        )
+
         if not re.match(self.name_regex, name):
             raise VisitScheduleNameError(
                 f"Visit schedule name may only contain {self.name_regex_msg}. Got {name}"
