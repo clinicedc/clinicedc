@@ -4,6 +4,7 @@ import sys
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.module_loading import import_module, module_has_submodule
+from edc_reportable.site_reportables import site_reportables
 
 
 class AlreadyRegistered(Exception):
@@ -68,6 +69,7 @@ class SiteLabs:
                 if self.migrated:
                     panel_model_cls = django_apps.get_model(self.panel_model)
                     self.update_panel_model(panel_model_cls=panel_model_cls)
+                self.verify_reference_range_collections(lab_profile)
             else:
                 raise AlreadyRegistered(f"Lab profile {lab_profile} is already registered.")
 
@@ -134,6 +136,22 @@ class SiteLabs:
 
     def to_csv(self):
         pass
+
+    @staticmethod
+    def verify_reference_range_collections(lab_profile):
+        for panel in lab_profile.panels.values():
+            if (
+                panel.reference_range_collection_name
+                and panel.reference_range_collection_name not in site_reportables._registry
+            ):
+                raise SiteLabsLabProfileError(
+                    "Unknown site reportables collection. "
+                    f"Collection referenced by panel `{panel}`. "
+                    f"Expected one of {list(site_reportables._registry.keys())}. "
+                    "Got panel.reference_range_collection_name="
+                    f"`{panel.reference_range_collection_name}` "
+                    "Hint: load `site_reportables` before `site_labs`."
+                )
 
     def autodiscover(self, module_name=None, verbose=False):
         """Autodiscovers classes in the labs.py file of any
