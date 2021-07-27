@@ -10,23 +10,17 @@ from edc_action_item.action_item_notification import (
     NOTIFY_ON_CHANGED_REFERENCE_OBJ,
     NOTIFY_ON_NEW_AND_NO_REFERENCE_OBJ,
 )
-from edc_action_item.models import ActionItem
 from edc_action_item.site_action_items import site_action_items
 
 from ..action_items import FormZeroAction, register_actions
-from ..models import FormZero, SubjectIdentifierModel
+from ..models import FormZero
+from ..test_case_mixin import TestCaseMixin
 
 
-class TestActionNotification(TestCase):
+class TestActionNotification(TestCaseMixin, TestCase):
     def setUp(self):
         register_actions()
-        self.subject_identifier_model = ActionItem.subject_identifier_model
-        ActionItem.subject_identifier_model = "edc_action_item.subjectidentifiermodel"
-        self.subject_identifier = "12345"
-        SubjectIdentifierModel.objects.create(subject_identifier=self.subject_identifier)
-
-    def tearDown(self):
-        ActionItem.subject_identifier_model = self.subject_identifier_model
+        self.subject_identifier = self.fake_enroll()
 
     def test_sends_correct_number_of_emails(self):
 

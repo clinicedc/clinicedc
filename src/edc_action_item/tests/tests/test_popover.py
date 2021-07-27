@@ -1,8 +1,8 @@
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_model_wrapper import ModelWrapper
 
-from edc_action_item.models import ActionItem, ActionType
+from edc_action_item.models import ActionItem
 from edc_action_item.site_action_items import site_action_items
 from edc_action_item.templatetags.action_item_extras import action_item_with_popover
 
@@ -12,22 +12,17 @@ from ..action_items import (
     FormTwoAction,
     register_actions,
 )
-from ..models import Followup, FormOne, FormTwo, Initial, SubjectIdentifierModel
+from ..models import Followup, FormOne, FormTwo, Initial
+from ..test_case_mixin import TestCaseMixin
 
 
-class TestPopover(TestCase):
+class TestPopover(TestCaseMixin, TestCase):
     def setUp(self):
         register_actions()
-        self.subject_identifier_model = ActionItem.subject_identifier_model
-        ActionItem.subject_identifier_model = "edc_action_item.subjectidentifiermodel"
-        self.subject_identifier = "12345"
-        SubjectIdentifierModel.objects.create(subject_identifier=self.subject_identifier)
+        self.subject_identifier = self.fake_enroll()
         self.assertIn(FormOneAction.name, site_action_items.registry)
         self.assertIn(FormTwoAction.name, site_action_items.registry)
         self.assertIn(FormThreeAction.name, site_action_items.registry)
-
-    def tearDown(self):
-        ActionItem.subject_identifier_model = self.subject_identifier_model
 
     def test_popover_templatetag(self):
         class ActionItemModelWrapper(ModelWrapper):

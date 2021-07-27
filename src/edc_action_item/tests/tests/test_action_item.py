@@ -11,28 +11,17 @@ from edc_action_item.models import ActionItem, ActionType, SubjectDoesNotExist
 from edc_action_item.site_action_items import site_action_items
 
 from ..action_items import FormOneAction, FormThreeAction, FormTwoAction, FormZeroAction
-from ..models import (
-    FormOne,
-    FormThree,
-    FormTwo,
-    SubjectIdentifierModel,
-    TestModelWithAction,
-)
+from ..models import FormOne, FormThree, FormTwo, TestModelWithAction
+from ..test_case_mixin import TestCaseMixin
 
 
-class TestActionItem(TestCase):
+class TestActionItem(TestCaseMixin, TestCase):
     def setUp(self):
-        self.subject_identifier_model = ActionItem.subject_identifier_model
-        ActionItem.subject_identifier_model = "edc_action_item.subjectidentifiermodel"
-        self.subject_identifier = "12345"
-        SubjectIdentifierModel.objects.create(subject_identifier=self.subject_identifier)
+        self.subject_identifier = self.fake_enroll()
         site_action_items.registry = {}
         site_action_items.register(FormZeroAction)
         get_action_type(FormZeroAction)
         self.action_type = ActionType.objects.get(name=FormZeroAction.name)
-
-    def tearDown(self):
-        ActionItem.subject_identifier_model = self.subject_identifier_model
 
     def test_creates(self):
         obj = ActionItem.objects.create(
@@ -80,7 +69,7 @@ class TestActionItem(TestCase):
         action_identifier = obj.action_identifier
         obj.save()
         try:
-            obj = ActionItem.objects.get(action_identifier=action_identifier)
+            ActionItem.objects.get(action_identifier=action_identifier)
         except ObjectDoesNotExist:
             self.fail("ActionItem unexpectedly does not exist")
 

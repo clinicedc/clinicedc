@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_constants.constants import CLOSED, NEW, NO, YES
 
 from edc_action_item.get_action_type import get_action_type
@@ -16,29 +16,17 @@ from ..action_items import (
     SingletonAction,
     register_actions,
 )
-from ..models import (
-    FormFour,
-    FormOne,
-    FormThree,
-    FormTwo,
-    FormZero,
-    SubjectIdentifierModel,
-)
+from ..models import FormFour, FormOne, FormThree, FormTwo, FormZero
+from ..test_case_mixin import TestCaseMixin
 
 
-class TestAction(TestCase):
+class TestAction(TestCaseMixin, TestCase):
     def setUp(self):
         register_actions()
-        self.subject_identifier_model = ActionItem.subject_identifier_model
-        ActionItem.subject_identifier_model = "edc_action_item.subjectidentifiermodel"
-        self.subject_identifier = "12345"
-        SubjectIdentifierModel.objects.create(subject_identifier=self.subject_identifier)
+        self.subject_identifier = self.fake_enroll()
         self.assertIn(FormOneAction.name, site_action_items.registry)
         self.assertIn(FormTwoAction.name, site_action_items.registry)
         self.assertIn(FormThreeAction.name, site_action_items.registry)
-
-    def tearDown(self):
-        ActionItem.subject_identifier_model = self.subject_identifier_model
 
     def test_str(self):
         action = FormZeroAction(subject_identifier=self.subject_identifier)
@@ -162,7 +150,7 @@ class TestAction(TestCase):
     def test_creates_own_action1(self):
         obj = FormOne.objects.create(subject_identifier=self.subject_identifier)
         try:
-            obj = ActionItem.objects.get(action_identifier=obj.action_identifier)
+            ActionItem.objects.get(action_identifier=obj.action_identifier)
         except ObjectDoesNotExist:
             self.fail("Action item unexpectedly does not exist")
         for name in ["submit-form-one", "submit-form-two", "submit-form-three"]:

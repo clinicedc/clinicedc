@@ -4,7 +4,7 @@ from django.test import TestCase, tag
 from edc_constants.constants import CLOSED, NEW, OPEN
 
 from edc_action_item.delete_action_item import ActionItemDeleteError, delete_action_item
-from edc_action_item.models import ActionItem, ActionType
+from edc_action_item.models import ActionItem
 from edc_action_item.site_action_items import site_action_items
 from edc_action_item.tests.models import FormTwo
 
@@ -15,16 +15,15 @@ from ..action_items import (
     SingletonAction,
     register_actions,
 )
-from ..models import FormOne, SubjectIdentifierModel
+from ..models import FormOne
+from ..test_case_mixin import TestCaseMixin
 
 
-class TestAction(TestCase):
+@tag("1")
+class TestAction(TestCaseMixin, TestCase):
     def setUp(self):
         register_actions()
-        self.subject_identifier_model = ActionItem.subject_identifier_model
-        ActionItem.subject_identifier_model = "edc_action_item.subjectidentifiermodel"
-        self.subject_identifier = "12345"
-        SubjectIdentifierModel.objects.create(subject_identifier=self.subject_identifier)
+        self.subject_identifier = self.fake_enroll()
         self.assertIn(FormOneAction.name, site_action_items.registry)
         self.assertIn(FormTwoAction.name, site_action_items.registry)
         self.assertIn(FormThreeAction.name, site_action_items.registry)

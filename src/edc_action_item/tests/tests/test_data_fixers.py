@@ -6,22 +6,19 @@ from edc_action_item.data_fixers import (
     fix_null_action_item_fk,
     fix_null_related_action_items,
 )
-from edc_action_item.models import ActionItem, update_or_create_action_item_on_post_save
+from edc_action_item.models import update_or_create_action_item_on_post_save
 
 from ..action_items import register_actions
-from ..models import FormOne, FormTwo, SubjectIdentifierModel
+from ..models import FormOne, FormTwo
+from ..test_case_mixin import TestCaseMixin
 
 
-class TestUtils(TestCase):
+class TestUtils(TestCaseMixin, TestCase):
     def setUp(self):
         register_actions()
-        self.subject_identifier_model = ActionItem.subject_identifier_model
-        ActionItem.subject_identifier_model = "edc_action_item.subjectidentifiermodel"
-        self.subject_identifier = "12345"
-        SubjectIdentifierModel.objects.create(subject_identifier=self.subject_identifier)
+        self.subject_identifier = self.fake_enroll()
 
     def test_fix_null_related_action_items(self):
-
         form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
         form_two = FormTwo.objects.create(
             subject_identifier=self.subject_identifier, form_one=form_one

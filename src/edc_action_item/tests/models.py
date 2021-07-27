@@ -7,6 +7,8 @@ from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
+from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.model_mixins import VisitModelMixin
 
 from ..models import ActionModelMixin
 
@@ -54,18 +56,17 @@ class TestModelWithAction(
     action_name = "submit-form-zero"
 
 
-class AppointmentSimple(BaseUuidModel):
-
-    appt_datetime = models.DateTimeField(default=get_utcnow)
-    history = HistoricalRecords()
-
-
-class SubjectVisitSimple(SiteModelMixin, BaseUuidModel):
-
-    subject_identifier = models.CharField(max_length=25)
-
-    appointment = models.OneToOneField(AppointmentSimple, on_delete=CASCADE)
-    history = HistoricalRecords()
+# class SubjectVisit(VisitModelMixin, SiteModelMixin, BaseUuidModel):
+#
+#     appointment = models.OneToOneField(
+#         "edc_appointment.appointment", on_delete=PROTECT, related_name="D_NHJS34"
+#     )
+#
+#     report_datetime = models.DateTimeField(default=get_utcnow)
+#
+#     reason = models.CharField(max_length=25, default=SCHEDULED)
+#
+#     history = HistoricalRecords()
 
 
 class FormZero(
@@ -160,7 +161,11 @@ class MyAction(
 
 class CrfOne(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
-    subject_visit = models.OneToOneField(SubjectVisitSimple, on_delete=CASCADE)
+    subject_visit = models.OneToOneField(
+        "edc_metadata.subjectvisit",
+        on_delete=CASCADE,
+        related_name="edc_action_item_test_visit_one",
+    )
 
     action_name = "submit-crf-one"
 
@@ -179,7 +184,11 @@ class CrfOne(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
 class CrfTwo(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
-    subject_visit = models.OneToOneField(SubjectVisitSimple, on_delete=CASCADE)
+    subject_visit = models.OneToOneField(
+        "edc_metadata.subjectvisit",
+        on_delete=CASCADE,
+        related_name="edc_action_item_test_visit_two",
+    )
 
     action_name = "submit-crf-two"
 

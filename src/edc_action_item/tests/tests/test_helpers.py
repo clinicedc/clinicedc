@@ -1,28 +1,21 @@
+from django.apps import apps as django_apps
 from django.test import TestCase, tag
+from edc_appointment.models import Appointment
+from edc_visit_tracking.constants import SCHEDULED
 
 from edc_action_item.helpers import ActionItemHelper
 from edc_action_item.model_wrappers import ActionItemModelWrapper
 from edc_action_item.models import ActionItem
 
 from ..action_items import CrfOneAction, FormOneAction, register_actions
-from ..models import (
-    AppointmentSimple,
-    CrfOne,
-    CrfTwo,
-    FormOne,
-    FormTwo,
-    SubjectIdentifierModel,
-    SubjectVisitSimple,
-)
+from ..models import CrfOne, CrfTwo, FormOne, FormTwo
+from ..test_case_mixin import TestCaseMixin
 
 
-class TestHelpers(TestCase):
+class TestHelpers(TestCaseMixin, TestCase):
     def setUp(self):
         register_actions()
-        self.subject_identifier_model = ActionItem.subject_identifier_model
-        ActionItem.subject_identifier_model = "edc_action_item.subjectidentifiermodel"
-        self.subject_identifier = "12345"
-        SubjectIdentifierModel.objects.create(subject_identifier=self.subject_identifier)
+        self.subject_identifier = self.fake_enroll()
         self.form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
         self.action_item = ActionItem.objects.get(
             action_identifier=self.form_one.action_identifier
@@ -100,7 +93,6 @@ class TestHelpers(TestCase):
         )
 
     def test_create_parent_reference_model_instance_then_delete(self):
-
         form_two = FormTwo.objects.create(
             form_one=self.form_one, subject_identifier=self.subject_identifier
         )
@@ -153,9 +145,10 @@ class TestHelpers(TestCase):
         self.assertTrue(context["related_reference_url"])
 
     def test_reference_as_crf(self):
-        appointment = AppointmentSimple.objects.create()
-        subject_visit = SubjectVisitSimple.objects.create(
-            subject_identifier=self.subject_identifier, appointment=appointment
+        self.enroll()
+        appointment = Appointment.objects.all().order_by("timepoint")[0]
+        subject_visit = django_apps.get_model("edc_metadata.subjectvisit").objects.create(
+            appointment=appointment, reason=SCHEDULED
         )
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
         action_item = ActionItem.objects.get(action_identifier=crf_one.action_identifier)
@@ -170,9 +163,10 @@ class TestHelpers(TestCase):
         self.assertIsNone(context["related_reference_url"])
 
     def test_reference_as_crf_create_next_model_instance(self):
-        appointment = AppointmentSimple.objects.create()
-        subject_visit = SubjectVisitSimple.objects.create(
-            subject_identifier=self.subject_identifier, appointment=appointment
+        subject_identifier = self.enroll()
+        appointment = Appointment.objects.all().order_by("timepoint")[0]
+        subject_visit = django_apps.get_model("edc_metadata.subjectvisit").objects.create(
+            appointment=appointment, reason=SCHEDULED
         )
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
         crf_two = CrfTwo.objects.create(subject_visit=subject_visit)
@@ -194,7 +188,7 @@ class TestHelpers(TestCase):
         self.assertEqual(
             context["parent_reference_url"].split("?")[1],
             "next=edc_action_item:subject_dashboard_url,"
-            f"subject_identifier&subject_identifier={self.subject_identifier}&"
+            f"subject_identifier&subject_identifier={subject_identifier}&"
             f"action_identifier={action_item.action_identifier}&"
             f"subject_visit={str(subject_visit.pk)}&"
             f"appointment={str(appointment.pk)}",
