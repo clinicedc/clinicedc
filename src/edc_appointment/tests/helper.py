@@ -1,16 +1,28 @@
 from decimal import Decimal
 
+from django.apps import apps as django_apps
+from django.conf import settings
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ..creators import UnscheduledAppointmentCreator
-from .models import SubjectConsent
 
 
 class Helper:
     def __init__(self, subject_identifier=None, now=None):
         self.subject_identifier = subject_identifier
         self.now = now or get_utcnow()
+
+    @property
+    def consent_model_cls(self):
+        """Returns a consent model class.
+
+        Defaults to edc_appointment.subjectconsent
+        """
+        try:
+            return django_apps.get_model(settings.SUBJECT_CONSENT_MODEL)
+        except LookupError:
+            return django_apps.get_model("edc_appointment.subjectconsent")
 
     def consent_and_put_on_schedule(
         self,
@@ -19,7 +31,7 @@ class Helper:
         schedule_name=None,
     ):
         subject_identifier = subject_identifier or self.subject_identifier
-        subject_consent = SubjectConsent.objects.create(
+        subject_consent = self.consent_model_cls.objects.create(
             subject_identifier=subject_identifier, consent_datetime=self.now
         )
         visit_schedule = site_visit_schedules.get_visit_schedule(
