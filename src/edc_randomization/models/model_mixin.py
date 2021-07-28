@@ -70,7 +70,7 @@ class RandomizationListModelMixin(models.Model):
     def save(self, *args, **kwargs):
         self.randomizer_name = self.randomizer_cls.name
         try:
-            self.assignment_description
+            getattr(self, "assignment_description")
         except RandomizationError as e:
             raise RandomizationListModelError(e)
         try:
@@ -101,7 +101,6 @@ class RandomizationListModelMixin(models.Model):
                 f"Got `{self.assignment}`. See "
             )
         return self.assignment
-        # return self.randomizer_cls.assignment_map.get(self.assignment)
 
     def natural_key(self):
         return (self.sid,)
