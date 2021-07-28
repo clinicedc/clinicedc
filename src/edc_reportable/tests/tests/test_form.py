@@ -46,8 +46,6 @@ class TestSpecimenResultForm(TestCase):
             "creatinine_units": MICROMOLES_PER_LITER,
             "creatinine_abnormal": NO,
             "creatinine_reportable": NOT_APPLICABLE,
-            "alt_abnormal": NO,
-            "alt_reportable": NOT_APPLICABLE,
             "neutrophil": 3,
             "neutrophil_units": TEN_X_9_PER_LITER,
             "neutrophil_abnormal": NO,
