@@ -530,3 +530,9 @@ hba1c = {
         )
     ]
 }
+
+grading_data = {}
+grading_data.update(**dummies)
+grading_data.update(**chemistries)
+grading_data.update(**hematology)
+grading_data.update(**hba1c)
