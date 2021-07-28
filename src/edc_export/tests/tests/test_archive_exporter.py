@@ -8,7 +8,7 @@ from django.test import TestCase, tag
 from django.test.utils import override_settings
 from edc_registration.models import RegisteredSubject
 
-from ..archive_exporter import ArchiveExporter, ArchiveExporterNothingExported
+from edc_export.archive_exporter import ArchiveExporter, ArchiveExporterNothingExported
 
 
 @override_settings(EXPORT_FOLDER=mkdtemp())

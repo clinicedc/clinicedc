@@ -4,9 +4,10 @@ from django.apps import apps as django_apps
 from django.test import TestCase, tag
 from edc_utils import get_utcnow
 
-from ..model_exporter import PlanExporter
-from ..models import Plan
-from .models import Crf, ListModel, SubjectVisit
+from edc_export.model_exporter import PlanExporter
+from edc_export.models import Plan
+
+from ..models import Crf, ListModel, SubjectVisit
 
 app_config = django_apps.get_app_config("edc_export")
 

@@ -10,10 +10,11 @@ from django.test import TestCase, tag
 from edc_pdutils.model_to_dataframe import ValueGetterInvalidLookup
 from edc_utils import get_utcnow
 
-from ..constants import EXPORTED, INSERT, UPDATE
-from ..model_exporter import ModelExporter
-from ..models import FileHistory, ObjectHistory
-from .models import Crf, CrfEncrypted, ListModel, SubjectVisit
+from edc_export.constants import EXPORTED, INSERT, UPDATE
+from edc_export.model_exporter import ModelExporter
+from edc_export.models import FileHistory, ObjectHistory
+
+from ..models import Crf, CrfEncrypted, ListModel, SubjectVisit
 
 app_config = django_apps.get_app_config("edc_export")
 
