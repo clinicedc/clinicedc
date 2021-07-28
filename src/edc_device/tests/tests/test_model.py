@@ -2,9 +2,10 @@ from django.apps import apps as django_apps
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from ..constants import CLIENT
-from .models import TestModel as MyTestModel
-from .models import TestModelPermissions
+from edc_device.constants import CLIENT
+
+from ..models import TestModel as MyTestModel
+from ..models import TestModelPermissions
 
 
 class TestModel(TestCase):
