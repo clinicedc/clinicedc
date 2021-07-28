@@ -4,8 +4,8 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 
-from ..constants import CLIENT
-from ..views import HomeView
+from edc_device.constants import CLIENT
+from edc_device.views import HomeView
 
 
 @override_settings(DEBUG=False, LIVE_SYSTEM=True)

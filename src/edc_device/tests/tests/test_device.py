@@ -1,8 +1,8 @@
 from django.test import TestCase, tag
 from django.test.utils import override_settings
 
-from ..constants import CENTRAL_SERVER, CLIENT, MIDDLEMAN, NODE_SERVER
-from ..device import Device, DeviceIdError, DeviceRoleError
+from edc_device.constants import CENTRAL_SERVER, CLIENT, MIDDLEMAN, NODE_SERVER
+from edc_device.device import Device, DeviceIdError, DeviceRoleError
 
 
 class TestDevice(TestCase):
