@@ -37,6 +37,12 @@ class SiteLabs:
     def __repr__(self):
         return f"{self.__class__.__name__}(loaded={self.loaded})"
 
+    def initialize(self):
+        self._registry = {}
+        self.aliquot_types = {}
+        self.loaded = False
+        self.requisition_models = {}
+
     @property
     def registry(self):
         if not self.loaded:
