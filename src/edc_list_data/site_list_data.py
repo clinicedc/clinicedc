@@ -2,7 +2,6 @@ import copy
 import pdb
 import sys
 from importlib import import_module
-from pprint import pprint
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -49,6 +48,7 @@ class SiteListData:
         self.__init__(module_name=module_name)
 
     def register(self, module, app_name=None):
+        """Registers but does NOT `load` list_data."""
         if app_name and app_name in self.app_names:
             raise AlreadyLoaded(f"App already loaded. Got {app_name}.")
         else:
@@ -60,6 +60,9 @@ class SiteListData:
             self.registry[module.__name__] = opts
 
     def load_data(self) -> None:
+        """Calls `load` class with each list_data dictionary module to
+        update database `list` tables.
+        """
         style = color_style()
         for module_name, opts in self.registry.items():
             sys.stdout.write(f"   - loading {module_name} ... \r")
