@@ -1,6 +1,5 @@
 import copy
 import sys
-from collections import OrderedDict
 from importlib import import_module
 
 from django.apps import apps as django_apps
@@ -26,7 +25,7 @@ class SiteActionError(Exception):
 
 class SiteActionItemCollection:
     def __init__(self):
-        self.registry = OrderedDict()
+        self.registry = {}
         prn = Prn(model="edc_action_item.actionitem", url_namespace="edc_action_item_admin")
         site_prn_forms.register(prn)
 
