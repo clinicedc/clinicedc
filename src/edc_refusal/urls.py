@@ -4,5 +4,5 @@ from django.views.generic import RedirectView
 app_name = "edc_refusal"
 
 urlpatterns = [
-    path("", RedirectView.as_view(url="/edc_refusal_admin/"), name="home_url"),
+    path("", RedirectView.as_view(url="/edc_refusal/admin/"), name="home_url"),
 ]
