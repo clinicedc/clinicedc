@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin import AdminSite as DjangoAdminSite
 from django.contrib.sites.shortcuts import get_current_site
@@ -20,26 +21,27 @@ class EdcAdminSite(DjangoAdminSite):
 
     If set to `include_in_administration_section=True`, add a local `urls.py`
 
-        from django.urls import path
+        from django.urls.conf import path
         from django.views.generic import RedirectView
-
-        from .admin_site import edc_action_item_admin
 
         app_name = "edc_action_item"
 
         urlpatterns = [
-            path("", RedirectView.as_view(url="/edc_action_item/"), name="home_url"),
+            path("", RedirectView.as_view(url="admin/"), name="home_url"),
         ]
 
     and then add to your project urls.py
 
+        path("edc_action_item/admin/", edc_action_item_admin.urls),
         path("edc_action_item/", include("edc_action_item.urls")),
 
     """
 
     app_index_template = "edc_model_admin/admin/app_index.html"
+    login_template = f"edc_auth/bootstrap{settings.EDC_BOOTSTRAP}/login.html"
+    logout_template = f"edc_auth/bootstrap{settings.EDC_BOOTSTRAP}/login.html"
     enable_nav_sidebar = False  # DJ 3.1
-    final_catch_all_view = False  # DJ 3.2
+    final_catch_all_view = True  # DJ 3.2
     site_url = "/administration/"
 
     def __init__(self, name="admin", app_label=None):
