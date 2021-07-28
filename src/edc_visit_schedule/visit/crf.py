@@ -18,7 +18,7 @@ class Crf:
         site_ids: List[int] = None,
     ) -> None:
         self.additional = additional
-        self.model = model
+        self.model = model.lower()
         self.required = True if required is None else required
         self.show_order = show_order
         self.site_ids = site_ids or []
