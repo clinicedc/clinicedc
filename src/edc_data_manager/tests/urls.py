@@ -33,16 +33,15 @@ for app_name in [
 
 
 urlpatterns += [
-    path("admin/", data_manager_app_admin.urls),
-    path("admin/", edc_data_manager_admin.urls),
-    path("admin/", edc_action_item_admin.urls),
-    path("admin/", edc_lab_admin.urls),
-    path("admin/", edc_appointment_admin.urls),
-    path("admin/", edc_locator_admin.urls),
+    path("data_manager_app_admin/", data_manager_app_admin.urls),
+    path("edc_data_manager_admin/", edc_data_manager_admin.urls),
+    path("edc_action_item_admin/", edc_action_item_admin.urls),
+    path("edc_lab_admin/", edc_lab_admin.urls),
+    path("edc_appointment_admin/", edc_appointment_admin.urls),
+    path("edc_locator_admin/", edc_locator_admin.urls),
     path("accounts/", include("edc_auth.urls")),
-    path("admin/", include("edc_auth.urls")),
+    path("edc_auth/", include("edc_auth.urls")),
     path("admin/", admin.site.urls),
-    path("", HomeView.as_view(), name="logout"),
     path("", HomeView.as_view(), name="administration_url"),
     path("", HomeView.as_view(), name="home_url"),
 ]
