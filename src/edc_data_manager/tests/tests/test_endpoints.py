@@ -1,3 +1,5 @@
+import pdb
+
 from django.apps import apps as django_apps
 from django.contrib.auth import get_user_model
 from django.urls.base import reverse
@@ -22,6 +24,7 @@ User = get_user_model()
 
 class AdminSiteTest(WebTest):
     def setUp(self):
+        self.subject_identifier = "101-123456789"
         self.user = User.objects.create(
             username="user_login",
             email="u@example.com",
@@ -47,16 +50,16 @@ class AdminSiteTest(WebTest):
         """Assert default rule handler names on queryrule ADD form"""
         login(
             self,
-            superuser=False,
+            user=self.user,
             groups=[EVERYONE, DATA_MANAGER],
             redirect_url="admin:index",
         )
+        url = reverse("data_manager_app:home_url")
+        response = self.app.get(url, user=self.user, status=200)
+        self.assertIn("You are home", response)
 
-        self.app.get(reverse("data_manager_app:home_url"), user=self.user, status=200)
-
-        response = self.app.get(
-            "/admin/edc_data_manager/queryrule/add/", user=self.user, status=200
-        )
+        url = reverse("edc_data_manager_admin:edc_data_manager_queryrule_add")
+        response = self.app.get(url, user=self.user, status=200)
 
         self.assertIn('<option value="do_nothing"', response)
         self.assertIn('<option value="default"', response)
@@ -74,14 +77,15 @@ class AdminSiteTest(WebTest):
             sender=DataManagerUser.objects.get(username=self.user.username),
         )
 
-        qs = CrfDataDictionary.objects.all()
-        for obj in qs:
-            query_rule.data_dictionaries.add(obj)
+        crf = CrfDataDictionary.objects.all()[0]
+        query_rule.data_dictionaries.add(crf)
+        crf = CrfDataDictionary.objects.all()[1]
+        query_rule.data_dictionaries.add(crf)
 
-        res = self.app.get(
-            f"/admin/edc_data_manager/queryrule/{str(query_rule.pk)}/change/",
-            user=self.user,
+        url = reverse(
+            "edc_data_manager_admin:edc_data_manager_queryrule_change", args=(query_rule.pk,)
         )
+        res = self.app.get(url, user=self.user)
 
         form = res.form
         res = form.submit()
@@ -96,7 +100,7 @@ class AdminSiteTest(WebTest):
         )
 
         registered_subject = RegisteredSubject.objects.create(
-            subject_identifier="101-123456789"
+            subject_identifier=self.subject_identifier
         )
 
         data_query = baker.make_recipe(
@@ -105,21 +109,21 @@ class AdminSiteTest(WebTest):
             sender=DataManagerUser.objects.get(username=self.user.username),
         )
 
-        qs = CrfDataDictionary.objects.all()
-        for obj in qs:
-            data_query.data_dictionaries.add(obj)
+        crf = CrfDataDictionary.objects.all()[0]
+        data_query.data_dictionaries.add(crf)
+        crf = CrfDataDictionary.objects.all()[1]
+        data_query.data_dictionaries.add(crf)
 
-        res = self.app.get(
-            f"/admin/edc_data_manager/dataquery/{str(data_query.pk)}/change/",
-            user=self.user,
+        url = reverse(
+            "edc_data_manager_admin:edc_data_manager_dataquery_change", args=(data_query.pk,)
         )
+        res = self.app.get(url, user=self.user, status=200)
 
         form = res.form
         res = form.submit()
         self.assertIn("Invalid. Select questions from one CRF only", res)
 
     def test_data_query(self):
-        subject_identifier = "101-123456789"
         login(
             self,
             superuser=False,
@@ -128,7 +132,7 @@ class AdminSiteTest(WebTest):
         )
 
         registered_subject = RegisteredSubject.objects.create(
-            subject_identifier=subject_identifier
+            subject_identifier=self.subject_identifier
         )
 
         data_query = baker.make_recipe(
@@ -154,15 +158,14 @@ class AdminSiteTest(WebTest):
             sender=DataManagerUser.objects.get(username=self.user.username),
         )
 
-        form = self.app.get(
-            f"/admin/edc_data_manager/dataquery/{str(data_query.pk)}/change/",
-            user=self.user,
-        ).form
+        url = reverse(
+            "edc_data_manager_admin:edc_data_manager_dataquery_change", args=(data_query.pk,)
+        )
+        form = self.app.get(url, user=self.user).form
         response = form.submit().follow()
         self.assertIn("was changed successfully", str(response.content))
 
     def test_data_query_add_and_permissions(self):
-        subject_identifier = "101-123456789"
         login(
             self,
             superuser=False,
@@ -171,13 +174,13 @@ class AdminSiteTest(WebTest):
         )
 
         registered_subject = RegisteredSubject.objects.create(
-            subject_identifier=subject_identifier
+            subject_identifier=self.subject_identifier
         )
 
+        url = reverse("edc_data_manager_admin:edc_data_manager_dataquery_add")
         form = self.app.get(
             (
-                "/admin/edc_data_manager/dataquery/add/?"
-                f"subject_identifier={subject_identifier}&"
+                f"{url}?subject_identifier={self.subject_identifier}&"
                 f"registered_subject={str(registered_subject.pk)}&"
                 f"sender={str(DataManagerUser.objects.get(username=self.user.username).pk)}"
             ),
@@ -198,15 +201,14 @@ class AdminSiteTest(WebTest):
         )
 
         data_query = DataQuery.objects.get(title="My first query")
-        form = self.app.get(
-            f"/admin/edc_data_manager/dataquery/{str(data_query.pk)}/change/",
-            user=self.user,
-        ).form
+        url = reverse(
+            "edc_data_manager_admin:edc_data_manager_dataquery_change", args=(data_query.pk,)
+        )
+        form = self.app.get(url, user=self.user).form
         response = form.submit().follow()
         self.assertIn("was changed successfully", str(response))
 
     def test_data_query_action_attrs(self):
-        subject_identifier = "101-123456789"
         login(
             self,
             superuser=False,
@@ -215,7 +217,7 @@ class AdminSiteTest(WebTest):
         )
 
         registered_subject = RegisteredSubject.objects.create(
-            subject_identifier=subject_identifier
+            subject_identifier=self.subject_identifier
         )
 
         data_query = baker.make_recipe(
