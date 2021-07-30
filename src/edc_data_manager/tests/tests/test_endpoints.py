@@ -2,7 +2,6 @@ import pdb
 
 from django.apps import apps as django_apps
 from django.contrib.auth import get_user_model
-from django.test import tag
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_action_item.models.action_item import ActionItem
@@ -78,9 +77,10 @@ class AdminSiteTest(WebTest):
             sender=DataManagerUser.objects.get(username=self.user.username),
         )
 
-        qs = CrfDataDictionary.objects.all()
-        for obj in qs:
-            query_rule.data_dictionaries.add(obj)
+        crf = CrfDataDictionary.objects.all()[0]
+        query_rule.data_dictionaries.add(crf)
+        crf = CrfDataDictionary.objects.all()[1]
+        query_rule.data_dictionaries.add(crf)
 
         url = reverse(
             "edc_data_manager_admin:edc_data_manager_queryrule_change", args=(query_rule.pk,)
@@ -109,8 +109,11 @@ class AdminSiteTest(WebTest):
             sender=DataManagerUser.objects.get(username=self.user.username),
         )
 
-        data_query.data_dictionaries.add(CrfDataDictionary.objects.all()[0])
-        pdb.set_trace()
+        crf = CrfDataDictionary.objects.all()[0]
+        data_query.data_dictionaries.add(crf)
+        crf = CrfDataDictionary.objects.all()[1]
+        data_query.data_dictionaries.add(crf)
+
         url = reverse(
             "edc_data_manager_admin:edc_data_manager_dataquery_change", args=(data_query.pk,)
         )
