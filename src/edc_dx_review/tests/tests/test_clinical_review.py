@@ -1,186 +1,424 @@
-from dateutil.relativedelta import relativedelta
-from django.test import TestCase
-from edc_appointment.constants import INCOMPLETE_APPT
-from edc_constants.constants import INCOMPLETE, NO, NOT_APPLICABLE, YES
-from edc_utils import get_utcnow
-from edc_visit_tracking.constants import UNSCHEDULED
-from model_bakery import baker
+from copy import deepcopy
 
-from ...constants import HIV_CLINIC
-from ...forms import ClinicalReviewForm
-from ..testcase_mixin import TestCaseMixin
+from django.apps import apps as django_apps
+from django.test import TestCase, override_settings, tag
+from edc_appointment.models import Appointment
+from edc_constants.constants import (
+    CHOL,
+    DM,
+    HIV,
+    HTN,
+    INCOMPLETE,
+    NO,
+    NOT_APPLICABLE,
+    YES,
+)
+from edc_dx.utils import DiagnosisLabelError
+from edc_utils import get_utcnow
+from edc_visit_tracking.constants import SCHEDULED
+
+from edc_dx_review.forms import ClinicalReviewFollowupForm
+
+from ..forms import ClinicalReviewBaselineForm
+from ..test_case_mixin import TestCaseMixin
 
 
 class TestClinicalReview(TestCaseMixin, TestCase):
     def setUp(self):
         super().setUp()
-        self.baseline_datetime = get_utcnow() - relativedelta(months=1)
-        self.subject_screening = self.get_subject_screening(
-            report_datetime=self.baseline_datetime, clinic_type=HIV_CLINIC
-        )
-        self.subject_consent = self.get_subject_consent(
-            subject_screening=self.subject_screening,
-            clinic_type=HIV_CLINIC,
-            consent_datetime=self.baseline_datetime,
-        )
+        self.subject_identifier = self.enroll()
+        self.create_visits(self.subject_identifier)
+        # appointment = Appointment.objects.get(
+        #     subject_identifier=self.subject_identifier,
+        #     visit_code="1000",
+        # )
+        # self.subject_visit_baseline = django_apps.get_model(
+        #     "edc_metadata.subjectvisit"
+        # ).objects.create(
+        #     report_datetime=get_utcnow(),
+        #     appointment=appointment,
+        #     reason=SCHEDULED,
+        # )
+        #
+        # appointment = Appointment.objects.get(
+        #     subject_identifier=self.subject_identifier,
+        #     visit_code="1010",
+        # )
+        # self.subject_visit_followup = django_apps.get_model(
+        #     "edc_metadata.subjectvisit"
+        # ).objects.create(
+        #     report_datetime=get_utcnow(),
+        #     appointment=appointment,
+        #     reason=SCHEDULED,
+        # )
 
-    def test_clinical_review_requires_clinical_review_baseline(self):
-        subject_visit_baseline = self.get_subject_visit(
-            subject_screening=self.subject_screening,
-            subject_consent=self.subject_consent,
-            report_datetime=self.baseline_datetime,
-        )
-        subject_visit_baseline.appointment.appt_status = INCOMPLETE_APPT
-        subject_visit_baseline.appointment.save()
-        subject_visit_baseline.appointment.refresh_from_db()
-        subject_visit_baseline.refresh_from_db()
-
-        subject_visit = self.get_next_subject_visit(
-            subject_visit=subject_visit_baseline,
-            reason=UNSCHEDULED,
-            report_datetime=self.baseline_datetime + relativedelta(days=14),
-        )
-
-        data = {
-            "subject_visit": subject_visit,
-            "report_datetime": subject_visit.report_datetime,
+        self.baseline_data = {
+            "subject_visit": self.subject_visit_baseline.pk,
+            "report_datetime": self.subject_visit_baseline.report_datetime,
             "crf_status": INCOMPLETE,
-        }
-        form = ClinicalReviewForm(data=data)
-        form.is_valid()
-        self.assertIn("__all__", form._errors)
-
-        baker.make(
-            "inte_subject.clinicalreviewbaseline",
-            subject_visit=subject_visit_baseline,
-            report_datetime=self.baseline_datetime,
-            hiv_test=YES,
-            hiv_test_date=get_utcnow() - relativedelta(years=5),
-            hiv_dx=YES,
-        )
-        baker.make(
-            "inte_subject.hivinitialreview",
-            subject_visit=subject_visit_baseline,
-            report_datetime=self.baseline_datetime,
-            dx_date=get_utcnow() - relativedelta(years=5),
-            arv_initiation_ago="4y",
-        )
-
-        form = ClinicalReviewForm(data=data)
-        form.is_valid()
-        self.assertNotIn("__all__", form._errors)
-
-    def test_hiv_na_if_diagnosed(self):
-        subject_visit_baseline = self.get_subject_visit(
-            subject_screening=self.subject_screening,
-            subject_consent=self.subject_consent,
-            report_datetime=self.baseline_datetime,
-        )
-        baker.make(
-            "inte_subject.clinicalreviewbaseline",
-            subject_visit=subject_visit_baseline,
-            report_datetime=self.baseline_datetime,
-            hiv_dx=YES,
-            hiv_test_ago="5y",
-        )
-
-        baker.make(
-            "inte_subject.hivinitialreview",
-            subject_visit=subject_visit_baseline,
-            report_datetime=self.baseline_datetime,
-            dx_ago="5y",
-            arv_initiation_ago="4y",
-        )
-
-        subject_visit_baseline.appointment.appt_status = INCOMPLETE_APPT
-        subject_visit_baseline.appointment.save()
-        subject_visit_baseline.appointment.refresh_from_db()
-        subject_visit_baseline.refresh_from_db()
-
-        subject_visit = self.get_next_subject_visit(
-            subject_visit=subject_visit_baseline,
-            reason=UNSCHEDULED,
-            report_datetime=self.baseline_datetime + relativedelta(days=14),
-        )
-
-        data = {
-            "subject_visit": subject_visit,
-            "report_datetime": subject_visit.report_datetime,
-            "crf_status": INCOMPLETE,
-        }
-
-        # at next visit and patient reported an HIV dx at the previous visit
-        for hiv_test in [YES, NO]:
-            with self.subTest():
-                data.update(hiv_test=hiv_test)
-                form = ClinicalReviewForm(data=data)
-                form.is_valid()
-                self.assertIn("hiv_test", form._errors)
-                self.assertIn("not applicable", form._errors.get("hiv_test")[0])
-
-        data.update(hiv_test=NOT_APPLICABLE)
-        form = ClinicalReviewForm(data=data)
-        form.is_valid()
-        self.assertNotIn("hiv_test", form._errors)
-
-    def test_treatment_pay_method(self):
-        subject_visit_baseline = self.get_subject_visit(
-            subject_screening=self.subject_screening,
-            subject_consent=self.subject_consent,
-            report_datetime=self.baseline_datetime,
-        )
-        baker.make(
-            "inte_subject.clinicalreviewbaseline",
-            subject_visit=subject_visit_baseline,
-            report_datetime=self.baseline_datetime,
-            hiv_dx=YES,
-            hiv_test_ago="5y",
-        )
-
-        baker.make(
-            "inte_subject.hivinitialreview",
-            subject_visit=subject_visit_baseline,
-            report_datetime=self.baseline_datetime,
-            dx_ago="5y",
-            arv_initiation_ago="4y",
-        )
-
-        subject_visit_baseline.appointment.appt_status = INCOMPLETE_APPT
-        subject_visit_baseline.appointment.save()
-        subject_visit_baseline.appointment.refresh_from_db()
-        subject_visit_baseline.refresh_from_db()
-
-        subject_visit = self.get_next_subject_visit(
-            subject_visit=subject_visit_baseline,
-            reason=UNSCHEDULED,
-            report_datetime=self.baseline_datetime + relativedelta(days=14),
-        )
-
-        data = {
-            "subject_visit": subject_visit,
-            "report_datetime": subject_visit.report_datetime,
-            "hiv_test": NOT_APPLICABLE,
-            "hiv_dx": NOT_APPLICABLE,
+            "hiv_test": YES,
+            "hiv_test_ago": "5y",
+            "hiv_dx": YES,
             "htn_test": NO,
             "htn_dx": NOT_APPLICABLE,
             "dm_test": NO,
             "dm_dx": NOT_APPLICABLE,
+            "chol_test": NO,
+            "chol_dx": NOT_APPLICABLE,
             "complications": NO,
-            "crf_status": INCOMPLETE,
-            "health_insurance": YES,
-            "patient_club": YES,
         }
-        form = ClinicalReviewForm(data=data)
-        form.is_valid()
-        self.assertIn("health_insurance_monthly_pay", form._errors)
 
-        data.update(health_insurance_monthly_pay=0)
-        form = ClinicalReviewForm(data=data)
-        form.is_valid()
-        self.assertNotIn("health_insurance_monthly_pay", form._errors)
-        self.assertIn("patient_club_monthly_pay", form._errors)
+        self.followup_data = {
+            "subject_visit": self.subject_visit_followup.pk,
+            "report_datetime": self.subject_visit_followup.report_datetime,
+            "crf_status": INCOMPLETE,
+            "hiv_test": YES,
+            "hiv_test_ago": "5y",
+            "hiv_dx": YES,
+            "htn_test": NO,
+            "htn_dx": NOT_APPLICABLE,
+            "dm_test": NO,
+            "dm_dx": NOT_APPLICABLE,
+            "chol_test": NO,
+            "chol_dx": NOT_APPLICABLE,
+            "complications": NO,
+        }
 
-        data.update(patient_club_monthly_pay=0)
-        form = ClinicalReviewForm(data=data)
+    @tag("1")
+    @override_settings(EDC_DIAGNOSIS_LABELS={HIV: "HIV"})
+    def test_baseline_form_ok(self):
+        """Tests validation respects DIAGNOSIS LABELS"""
+        form = ClinicalReviewBaselineForm(data=self.baseline_data)
         form.is_valid()
-        self.assertNotIn("patient_club_monthly_pay", form._errors)
+        self.assertEqual(form._errors, {})
+        obj = form.save()
+        self.assertIsNotNone(obj.hiv_test_estimated_date)
+        self.assertIsNone(obj.htn_test_estimated_date)
+        self.assertIsNone(obj.dm_test_estimated_date)
+        self.assertIsNone(obj.chol_test_estimated_date)
+
+    @tag("1")
+    @override_settings(EDC_DIAGNOSIS_LABELS={HIV: "HIV"})
+    def test_baseline_unknown_label_raises(self):
+        data = deepcopy(self.baseline_data)
+        data.update(
+            {
+                "htn_test": YES,
+                "htn_test_ago": "1y2m",
+                "htn_dx": YES,
+            }
+        )
+        form = ClinicalReviewBaselineForm(data=data)
+        form.is_valid()
+        self.assertEqual(form._errors, {})
+        # response to htn fields is unexpected
+        self.assertRaises(DiagnosisLabelError, form.save)
+
+    @tag("1")
+    @override_settings(EDC_DIAGNOSIS_LABELS={HIV: "HIV", HTN: "htn"})
+    def test_baseline_known_label_does_not_raise(self):
+        data = deepcopy(self.baseline_data)
+        data.update(
+            {
+                "htn_test": YES,
+                "htn_test_ago": "1y2m",
+                "htn_dx": YES,
+            }
+        )
+        form = ClinicalReviewBaselineForm(data=data)
+        form.is_valid()
+        self.assertEqual(form._errors, {})
+        try:
+            form.save()
+        except DiagnosisLabelError:
+            self.fail("DiagnosisLabelError unexpectedly raised")
+
+    @tag("1")
+    @override_settings(
+        EDC_DIAGNOSIS_LABELS={
+            HIV: "HIV",
+            HTN: "Hypertensive",
+            DM: "diabetic",
+            CHOL: "High Cholesteral",
+        }
+    )
+    def test_baseline_all_labels(self):
+        data = deepcopy(self.baseline_data)
+        data.update(
+            {
+                "htn_test": YES,
+                "htn_test_ago": "1y2m",
+                "htn_dx": YES,
+                "dm_test": YES,
+                "dm_test_ago": "1y2m",
+                "dm_dx": YES,
+                "chol_test": YES,
+                "chol_test_ago": "1y2m",
+                "chol_dx": YES,
+            }
+        )
+        form = ClinicalReviewBaselineForm(data=data)
+        form.is_valid()
+        self.assertEqual(form._errors, {})
+
+    @tag("1")
+    @override_settings(
+        EDC_DIAGNOSIS_LABELS={
+            HIV: "HIV",
+            HTN: "Hypertensive",
+        }
+    )
+    def test_baseline_requires_date_or_ago(self):
+        """Assert raises if neither a date nor an `ago` is provided"""
+        data = deepcopy(self.baseline_data)
+        data.update(
+            {
+                "htn_test": YES,
+                "htn_test_ago": None,
+                "htn_test_date": None,
+                "htn_dx": YES,
+            }
+        )
+        form = ClinicalReviewBaselineForm(data=data)
+        form.is_valid()
+        self.assertIn("Htn: When was the ", str([form._errors.get("__all__")]))
+
+    @tag("1")
+    @override_settings(
+        EDC_DIAGNOSIS_LABELS={
+            HIV: "HIV",
+        }
+    )
+    def test_baseline_allowed_at_baseline_only(self):
+        data = deepcopy(self.baseline_data)
+        data.update(
+            {
+                "subject_visit": self.subject_visit_followup.pk,
+                "report_datetime": self.subject_visit_followup.report_datetime,
+            }
+        )
+        form = ClinicalReviewBaselineForm(data=data)
+        form.is_valid()
+        self.assertIn(
+            "This form is only available for completion at baseline",
+            str([form._errors.get("__all__")]),
+        )
+
+    @tag("1")
+    @override_settings(EDC_DIAGNOSIS_LABELS={HIV: "HIV"})
+    def test_followup_requires_baseline_review(self):
+        form = ClinicalReviewFollowupForm(data=self.followup_data)
+        form.is_valid()
+        self.assertIn(
+            "Please complete Clinical Review: Baseline",
+            str([form._errors.get("__all__")]),
+        )
+
+    @tag("1")
+    @override_settings(EDC_DIAGNOSIS_LABELS={HIV: "HIV"})
+    def test_followup_ok(self):
+        form = ClinicalReviewBaselineForm(data=self.baseline_data)
+        form.is_valid()
+        self.assertEqual(form._errors, {})
+        form.save()
+
+        form = ClinicalReviewFollowupForm(data=self.followup_data)
+        form.is_valid()
+        self.assertIn("Complete the `HIV Initial Review`", str(form._errors.get("__all__")))
+
+        # form = HivInitialReviewForm(data=self.followup_data)
+        # obj = form.save()
+        # self.assertIsNotNone(obj.hiv_test_estimated_date)
+        # self.assertIsNone(obj.htn_test_estimated_date)
+        # self.assertIsNone(obj.dm_test_estimated_date)
+        # self.assertIsNone(obj.chol_test_estimated_date)
+
+    # def test_form_ok_hypertensive(self):
+    #     data = {
+    #         "subject_visit": self.subject_visit_htn.pk,
+    #         "report_datetime": self.subject_visit_htn.report_datetime,
+    #         "crf_status": INCOMPLETE,
+    #         "hiv_test": NO,
+    #         "hiv_test_ago": None,
+    #         "hiv_dx": NOT_APPLICABLE,
+    #         "htn_test": YES,
+    #         "htn_test_ago": "1y1m",
+    #         "htn_dx": YES,
+    #         "dm_test": NO,
+    #         "dm_test_ago": None,
+    #         "dm_dx": NOT_APPLICABLE,
+    #         "health_insurance": YES,
+    #         "patient_club": YES,
+    #     }
+    #     form = ClinicalReviewBaselineForm(data=data)
+    #     form.is_valid()
+    #     self.assertEqual(form._errors, {})
+    #
+    # def test_form_ok_dm(self):
+    #     data = {
+    #         "subject_visit": self.subject_visit_dm.pk,
+    #         "report_datetime": self.subject_visit_dm.report_datetime,
+    #         "crf_status": INCOMPLETE,
+    #         "hiv_test": NO,
+    #         "hiv_test_ago": None,
+    #         "hiv_dx": NOT_APPLICABLE,
+    #         "htn_test": NO,
+    #         "htn_test_ago": None,
+    #         "htn_dx": NOT_APPLICABLE,
+    #         "dm_test": YES,
+    #         "dm_test_ago": "1y1m",
+    #         "dm_dx": YES,
+    #         "health_insurance": YES,
+    #         "patient_club": YES,
+    #     }
+    #     form = ClinicalReviewBaselineForm(data=data)
+    #     form.is_valid()
+    #     self.assertEqual(form._errors, {})
+    #
+    # def test_hiv_if_hiv_clinic(self):
+    #     data = {
+    #         "subject_visit": self.subject_visit_hiv.pk,
+    #         "report_datetime": self.subject_visit_hiv.report_datetime,
+    #         "crf_status": INCOMPLETE,
+    #     }
+    #     data.update(
+    #         hiv_test=NO,
+    #         hiv_test_ago=None,
+    #         hiv_test_date=None,
+    #         hiv_dx=NOT_APPLICABLE,
+    #     )
+    #     form = ClinicalReviewBaselineForm(data=data)
+    #     form.is_valid()
+    #     self.assertIn("hiv_test", form._errors)
+    #
+    #     data.update(
+    #         hiv_test=YES,
+    #         hiv_test_ago=None,
+    #         hiv_test_date=None,
+    #         hiv_dx=NO,
+    #         dm_test=NO,
+    #         htn_test=NO,
+    #     )
+    #     form = ClinicalReviewBaselineForm(data=data)
+    #     form.is_valid()
+    #     self.assertNotIn("hiv_test", form._errors)
+    #     self.assertIn("hiv_dx", form._errors)
+    #
+    #     data.update(
+    #         hiv_test=YES,
+    #         hiv_test_ago=None,
+    #         hiv_test_date=None,
+    #         hiv_dx=NOT_APPLICABLE,
+    #         dm_test=NO,
+    #         htn_test=NO,
+    #     )
+    #     form = ClinicalReviewBaselineForm(data=data)
+    #     form.is_valid()
+    #     self.assertNotIn("hiv_test", form._errors)
+    #     self.assertIn("hiv_dx", form._errors)
+    #
+    #     data.update(
+    #         hiv_test=YES,
+    #         hiv_test_ago=None,
+    #         hiv_test_date=None,
+    #         hiv_dx=YES,
+    #         dm_test=NO,
+    #         htn_test=NO,
+    #     )
+    #     form = ClinicalReviewBaselineForm(data=data)
+    #     form.is_valid()
+    #     self.assertNotIn("hiv_test", form._errors)
+    #     self.assertNotIn("hiv_dx", form._errors)
+    #     self.assertIn("__all__", form._errors)
+    #
+    #     data.update(
+    #         hiv_test=YES,
+    #         hiv_test_ago=None,
+    #         hiv_test_date=get_utcnow(),
+    #         hiv_dx=YES,
+    #     )
+    #     form = ClinicalReviewBaselineForm(data=data)
+    #     form.is_valid()
+    #     self.assertNotIn("hiv_test", form._errors)
+    #     self.assertNotIn("hiv_dx", form._errors)
+    #     self.assertNotIn("__all__", form._errors)
+    #
+    #     data.update(hiv_test=YES, hiv_test_ago="10y", hiv_test_date=None, hiv_dx=YES)
+    #     form = ClinicalReviewBaselineForm(data=data)
+    #     form.is_valid()
+    #     self.assertNotIn("hiv_test", form._errors)
+    #     self.assertNotIn("hiv_dx", form._errors)
+    #     self.assertNotIn("__all__", form._errors)
+    #
+    # def test_htn_if_htn_clinic(self):
+    #     data = {
+    #         "subject_visit": self.subject_visit_htn.pk,
+    #         "report_datetime": self.subject_visit_htn.report_datetime,
+    #         "crf_status": INCOMPLETE,
+    #         "hiv_test": NO,
+    #         "hiv_test_ago": None,
+    #         "hiv_dx": NOT_APPLICABLE,
+    #         "htn_test": NO,
+    #         "htn_test_ago": "1y",
+    #         "htn_dx": NOT_APPLICABLE,
+    #     }
+    #     form = ClinicalReviewBaselineForm(data=data)
+    #     form.is_valid()
+    #     self.assertIn("htn_test", form._errors)
+    #
+    #     data.update(
+    #         htn_test=YES,
+    #         htn_dx=NOT_APPLICABLE,
+    #     )
+    #     form = ClinicalReviewBaselineForm(data=data)
+    #     form.is_valid()
+    #     self.assertNotIn("htn_test", form._errors)
+    #     self.assertIn("htn_dx", form._errors)
+    #
+    #     data.update(
+    #         htn_test=YES,
+    #         htn_dx=YES,
+    #     )
+    #     form = ClinicalReviewBaselineForm(data=data)
+    #     form.is_valid()
+    #     self.assertNotIn("htn_test", form._errors)
+    #     self.assertNotIn("htn_dx", form._errors)
+    #
+    # def test_dm_if_ncd_clinic(self):
+    #     for cond in ["dm", "htn"]:
+    #         data = {
+    #             "subject_visit": self.subject_visit_ncd.pk,
+    #             "report_datetime": self.subject_visit_ncd.report_datetime,
+    #             "crf_status": INCOMPLETE,
+    #             "hiv_test": NO,
+    #             "hiv_test_ago": None,
+    #             "hiv_dx": NOT_APPLICABLE,
+    #             "dm_test": NO,
+    #             "dm_dx": NOT_APPLICABLE,
+    #             "htn_test": NO,
+    #             "htn_dx": NOT_APPLICABLE,
+    #         }
+    #         with self.subTest(cond=cond):
+    #             form = ClinicalReviewBaselineForm(data=data)
+    #             form.is_valid()
+    #             # expects a test
+    #             self.assertIn("__all__", [k for k in form._errors.keys()])
+    #
+    #             data.update(
+    #                 {
+    #                     f"{cond}_test": YES,
+    #                     f"{cond}_test_ago": "1y",
+    #                     f"{cond}_dx": NOT_APPLICABLE,
+    #                 }
+    #             )
+    #             form = ClinicalReviewBaselineForm(data=data)
+    #             form.is_valid()
+    #             # expects a diagnosis
+    #             self.assertIn("__all__", [k for k in form._errors.keys()])
+    #
+    #             data.update({f"{cond}_test": YES, f"{cond}_test_ago": "1y", f"{cond}_dx": YES})
+    #             form = ClinicalReviewBaselineForm(data=data)
+    #             form.is_valid()
+    #             self.assertNotIn("__all__", [k for k in form._errors.keys()])
+    #             self.assertNotIn(f"{cond}_test", form._errors)
+    #             self.assertNotIn(cond, form._errors)

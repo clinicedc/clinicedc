@@ -3,6 +3,7 @@ from django.db import models
 from edc_constants.choices import YES_NO, YES_NO_NA, YES_NO_PENDING_NA
 from edc_constants.constants import NOT_APPLICABLE, YES
 from edc_lab.choices import VL_QUANTIFIER_NA
+from edc_model import estimated_date_from_ago
 from edc_model import models as edc_models
 from edc_reportable import CELLS_PER_MILLIMETER_CUBED_DISPLAY, COPIES_PER_MILLILITER
 
@@ -46,8 +47,8 @@ class HivArvInitiationModelMixin(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        self.dx_estimated_date = edc_models.estimated_date_from_ago(self, "dx_ago")
-        self.arv_initiation_estimated_date = edc_models.estimated_date_from_ago(
+        self.dx_estimated_date = estimated_date_from_ago(self, "dx_ago")
+        self.arv_initiation_estimated_date = estimated_date_from_ago(
             self, "arv_initiation_ago"
         )
         super().save(*args, **kwargs)

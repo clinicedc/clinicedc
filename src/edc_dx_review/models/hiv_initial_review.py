@@ -3,14 +3,15 @@ from django.utils.html import format_html
 from edc_constants.choices import YES_NO
 from edc_constants.constants import NOT_APPLICABLE
 from edc_model import models as edc_models
-from respond_models.mixins import (
+
+from ..choices import CARE_ACCESS
+from ..model_mixins import (
+    CrfModelMixin,
+    DxLocationModelMixin,
     HivArvInitiationModelMixin,
     HivArvMonitoringModelMixin,
     InitialReviewModelMixin,
 )
-
-from ..choices import CARE_ACCESS
-from ..model_mixins import CrfModelMixin, DxLocationModelMixin
 
 
 class HivInitialReview(

@@ -12,8 +12,14 @@ class ModelNotDefined(Exception):
     pass
 
 
+class BaselineModelError(Exception):
+    pass
+
+
 def get_list_model_app():
-    return getattr(settings, "EDC_DX_REVIEW_LIST_MODEL_APP_LABEL", "LIST_MODEL_APP_LABEL")
+    return getattr(
+        settings, "EDC_DX_REVIEW_LIST_MODEL_APP_LABEL", settings.LIST_MODEL_APP_LABEL
+    )
 
 
 def get_clinical_review_baseline_model_cls():

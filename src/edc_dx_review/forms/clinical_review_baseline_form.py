@@ -1,10 +1,13 @@
+import pdb
+
 from django import forms
 from edc_constants.constants import CHOL, DM, HIV, HTN, YES
 from edc_crf.forms.crf_form_validator_mixin import CrfFormValidatorMixin
 from edc_crf.modelform_mixins import CrfModelFormMixin
-from edc_dx import get_condition_abbreviations
+from edc_dx import get_diagnosis_labels_prefixes
 from edc_form_validators.form_validator import FormValidator
 from edc_utils.forms import EstimatedDateFromAgoFormMixin
+from edc_visit_schedule.utils import raise_if_not_baseline
 
 from ..models import ClinicalReviewBaseline
 
@@ -13,20 +16,19 @@ class ClinicalReviewBaselineFormValidator(
     CrfFormValidatorMixin, EstimatedDateFromAgoFormMixin, FormValidator
 ):
     def clean(self):
-        if HIV.lower() in get_condition_abbreviations():
+        raise_if_not_baseline(self.cleaned_data.get("subject_visit"))
+        if HIV.lower() in get_diagnosis_labels_prefixes():
             self.estimated_date_from_ago("hiv_test_ago")
             self.when_tested_required(cond="hiv")
-
-        if HTN.lower() in get_condition_abbreviations():
+        if HTN.lower() in get_diagnosis_labels_prefixes():
             self.estimated_date_from_ago("htn_test_ago")
             self.when_tested_required(cond="htn")
             self.required_if(YES, field="htn_test", field_required="htn_dx")
-
-        if DM.lower() in get_condition_abbreviations():
+        if DM.lower() in get_diagnosis_labels_prefixes():
             self.estimated_date_from_ago("dm_test_ago")
             self.when_tested_required(cond="diabetes")
             self.required_if(YES, field="dm_test", field_required="dm_dx")
-        if CHOL.lower() in get_condition_abbreviations():
+        if CHOL.lower() in get_diagnosis_labels_prefixes():
             self.estimated_date_from_ago("chol_test_ago")
             self.when_tested_required(cond="cholesterol")
             self.required_if(YES, field="chol_test", field_required="chol_dx")

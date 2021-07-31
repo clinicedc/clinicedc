@@ -1,2 +1,8 @@
-from .clinical_review_baseline_form import ClinicalReviewBaselineForm
-from .clinical_review_form import ClinicalReviewForm
+from .clinical_review_baseline_form import (
+    ClinicalReviewBaselineForm,
+    ClinicalReviewBaselineFormValidator,
+)
+from .clinical_review_followup_form import (
+    ClinicalReviewFollowupForm,
+    ClinicalReviewFollowupFormValidator,
+)

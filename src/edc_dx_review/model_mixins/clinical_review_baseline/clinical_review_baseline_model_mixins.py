@@ -1,12 +1,9 @@
 from django.db import models
 from edc_constants.choices import YES_NO
-from edc_dx import get_condition_abbreviations
+from edc_constants.constants import YES
+from edc_dx import get_diagnosis_labels_prefixes, raise_on_unknown_diagnosis_labels
 from edc_model.utils import estimated_date_from_ago
-from edc_visit_schedule.constants import DAY1
-
-
-class ClinicalReviewBaselineError(Exception):
-    pass
+from edc_visit_schedule.utils import raise_if_not_baseline
 
 
 class ClinicalReviewBaselineModelMixin(models.Model):
@@ -19,14 +16,9 @@ class ClinicalReviewBaselineModelMixin(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        if (
-            self.subject_visit.visit_code != DAY1
-            and self.subject_visit.visit_code_sequence != 0
-        ):
-            raise ClinicalReviewBaselineError(
-                f"This model is only valid at baseline. Got `{self.subject_visit}`."
-            )
-        for prefix in get_condition_abbreviations():
+        raise_if_not_baseline(self.subject_visit)
+        raise_on_unknown_diagnosis_labels(self, "_test", YES)
+        for prefix in get_diagnosis_labels_prefixes():
             setattr(
                 self,
                 f"{prefix}_test_estimated_date",

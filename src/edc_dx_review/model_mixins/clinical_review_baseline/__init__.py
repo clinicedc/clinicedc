@@ -9,6 +9,3 @@ from .clinical_review_baseline_htn_model_mixins import (
     ClinicalReviewBaselineHtnModelMixin,
 )
 from .clinical_review_baseline_model_mixins import ClinicalReviewBaselineModelMixin
-from .clinical_review_baseline_required_model_mixin import (
-    ClinicalReviewBaselineRequiredModelFormMixin,
-)

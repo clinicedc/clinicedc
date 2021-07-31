@@ -1,3 +1,2 @@
-from .chol_review_model_mixin import CholReviewModelMixin
 from .followup_review_model_mixin import FollowupReviewModelMixin
 from .hiv_followup_review_model_mixin import HivFollowupReviewModelMixin
