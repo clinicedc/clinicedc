@@ -2,8 +2,13 @@ from django.conf import settings
 from edc_constants.constants import NO, YES
 from edc_model.utils import duration_to_date
 
+
+class DiagnosisLabelError(Exception):
+    pass
+
+
 try:
-    DIAGNOSIS_LABELS = getattr(settings, "EDC_DIAGNOSIS_LABELS")
+    getattr(settings, "EDC_DIAGNOSIS_LABELS")
 except AttributeError as e:
     raise AttributeError(
         f"{e}. Expected something like `EDC_DIAGNOSIS_LABELS=dict"
@@ -25,9 +30,40 @@ def calculate_dx_date_if_estimated(
     return dx_estimated_date, dx_date_estimated
 
 
-def get_condition_abbreviations():
-    return [k for k in DIAGNOSIS_LABELS]
-
-
 def get_diagnosis_labels():
-    return DIAGNOSIS_LABELS
+    try:
+        diagnosis_labels = getattr(settings, "EDC_DIAGNOSIS_LABELS")
+    except AttributeError as e:
+        raise AttributeError(
+            f"{e}. Expected something like `EDC_DIAGNOSIS_LABELS=dict"
+            "(hiv=HIV,dm=Diabetes,htn=Hypertension,chol=High Cholesterol)`"
+        )
+
+    return {k.lower(): v for k, v in diagnosis_labels.items()}
+
+
+def get_diagnosis_labels_prefixes():
+    return [k for k in get_diagnosis_labels()]
+
+
+def raise_on_unknown_diagnosis_labels(obj, fld_suffix, fld_value):
+    """Raises an exception if a diagnosis field has a response
+    but is not an expected condition.
+
+    See also EDC_DIAGNOSIS_LABELS.
+    """
+    labels = [
+        fld.name.split(fld_suffix)[0]
+        for fld in obj._meta.fields
+        if fld.name.endswith(fld_suffix)
+        and fld.name.split(fld_suffix)[0] not in get_diagnosis_labels_prefixes()
+        and getattr(obj, fld.name) == fld_value
+    ]
+    if labels:
+        raise DiagnosisLabelError(
+            "Diagnosis prefix not expected. See settings.EDC_DIAGNOSIS_LABELS. "
+            f"Expected one of {get_diagnosis_labels_prefixes()}. Got {labels}."
+        )
+
+
+# EDC_DX_REVIEW_SUBJECT_MODEL_APP_LABEL

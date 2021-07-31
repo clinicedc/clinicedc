@@ -1,12 +1,15 @@
 from datetime import date, datetime
 from typing import Dict, Optional
 
-from django.apps import apps as django_apps
-from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from edc_constants.constants import YES
+from edc_dx_review.utils import (
+    get_clinical_review_baseline_model_cls,
+    get_clinical_review_model_cls,
+    get_initial_review_model_cls,
+)
 
-from .utils import get_diagnosis_labels
+from .utils import get_diagnosis_labels, get_diagnosis_labels_prefixes
 
 
 class InitialReviewRequired(Exception):
@@ -38,7 +41,7 @@ class Diagnoses:
         lte: Optional[bool] = None,
         limit_to_single_condition_prefix=None,
     ) -> None:
-        self.condition_prefix = (
+        self.single_condition_prefix = (
             limit_to_single_condition_prefix.lower()
             if limit_to_single_condition_prefix
             else None
@@ -55,31 +58,33 @@ class Diagnoses:
             self.report_datetime = report_datetime
             self.subject_identifier = subject_identifier
         self.lte = lte
-
-        for prefix in self.diagnosis_labels:
-            setattr(self, f"{prefix}_dx", self.get_dx(prefix))
+        self.clinical_review_baseline_exists_or_raise()
 
     @property
     def diagnosis_labels(self):
-        if self.condition_prefix:
+        if self.single_condition_prefix:
             return {
                 k.lower(): v
                 for k, v in get_diagnosis_labels().items()
-                if k == self.condition_prefix
+                if k == self.single_condition_prefix
             }
         return get_diagnosis_labels()
 
     def get_dx_by_model(self, instance) -> str:
         dx = None
         for prefix in self.diagnosis_labels:
-            if instance.__class__.__name__.lower().startswith(prefix):
-                dx = getattr(self, f"{prefix}_dx")
+            if instance.__class__.__name__.lower().startswith(prefix.lower()):
+                dx = self.get_dx(prefix)
                 break
         if not dx:
             models_classes = [
-                self.get_initial_review_model_cls(prefix) for prefix in DIAGNOSIS_LABELS
+                get_initial_review_model_cls(prefix)
+                for prefix in get_diagnosis_labels_prefixes()
             ]
-            raise DiagnosesError(f"Invalid. Expected an instance of one of {models_classes}")
+            raise DiagnosesError(
+                f"Invalid. Expected an instance of one of {models_classes}. "
+                f"Got {instance.__class__}"
+            )
         return dx
 
     def get_dx_date(self, prefix: str) -> Optional[date]:
@@ -106,16 +111,19 @@ class Diagnoses:
             return YES
         return None
 
+    def clinical_review_baseline_exists_or_raise(self):
+        return self.clinical_review_baseline
+
     @property
     def clinical_review_baseline(self):
         try:
-            obj = self.clinical_review_baseline_model_cls.objects.get(
+            obj = get_clinical_review_baseline_model_cls().objects.get(
                 subject_visit__subject_identifier=self.subject_identifier,
             )
         except ObjectDoesNotExist:
             raise ClinicalReviewBaselineRequired(
                 "Please complete "
-                f"{self.clinical_review_baseline_model_cls._meta.verbose_name}."
+                f"{get_clinical_review_baseline_model_cls()._meta.verbose_name}."
             )
         return obj
 
@@ -133,7 +141,7 @@ class Diagnoses:
 
     @property
     def clinical_reviews(self):
-        return self.clinical_review_model_cls.objects.filter(
+        return get_clinical_review_model_cls().objects.filter(
             subject_visit__subject_identifier=self.subject_identifier,
             **self.report_datetime_opts("subject_visit__"),
         )
@@ -153,11 +161,12 @@ class Diagnoses:
 
         options = []
         for prefix, label in self.diagnosis_labels.items():
+            prefix = prefix.lower()
             options.append(
                 (
                     prefix,
-                    getattr(self, f"{prefix.lower()}_dx"),
-                    self.get_initial_review_model_cls(prefix),
+                    self.get_dx(prefix),
+                    get_initial_review_model_cls(prefix),
                     f"{label.title()} diagnosis",
                 )
             )
@@ -213,25 +222,9 @@ class Diagnoses:
                     initial_reviews.update({name: obj})
         return initial_reviews
 
-    @staticmethod
-    def get_initial_review_model_cls(prefix: str):
-        return django_apps.get_model(f"{settings.SUBJECT_APP_LABEL}.{prefix}initialreview")
-
-    @property
-    def clinical_review_model_cls(self):
-        return django_apps.get_model(f"{settings.SUBJECT_APP_LABEL}.clinicalreview")
-
-    @property
-    def clinical_review_baseline_model_cls(self):
-        return django_apps.get_model(f"{settings.SUBJECT_APP_LABEL}.clinicalreviewbaseline")
-
-    @property
-    def subject_visit_model_cls(self):
-        return django_apps.get_model(f"{settings.SUBJECT_APP_LABEL}.subjectvisit")
-
     def initial_diagnosis_visit(self, prefix):
         try:
-            clinical_review_baseline = self.clinical_review_baseline_model_cls.objects.get(
+            clinical_review_baseline = get_clinical_review_baseline_model_cls().objects.get(
                 subject_visit__subject_identifier=self.subject_identifier,
                 **self.report_datetime_opts("subject_visit__", lte=True),
                 **{f"{prefix.lower()}_dx": YES},
@@ -242,7 +235,7 @@ class Diagnoses:
             subject_visit = clinical_review_baseline.subject_visit
         if not subject_visit:
             try:
-                clinical_review = self.clinical_review_model_cls.objects.get(
+                clinical_review = get_clinical_review_model_cls().objects.get(
                     subject_visit__subject_identifier=self.subject_identifier,
                     **self.report_datetime_opts("subject_visit__", lte=True),
                     **{f"{prefix.lower()}_dx": YES},
