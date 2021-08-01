@@ -1,24 +1,20 @@
 from datetime import datetime
 
-from django.apps import apps as django_apps
+from edc_consent.utils import get_consent_model_cls
 from edc_form_validators import FormValidator
 from edc_screening.stubs import SubjectScreeningModelStub
+from edc_screening.utils import get_subject_screening_model_cls
 from edc_utils import age
 
 
 class CrfFormValidatorMixin(FormValidator):
-
-    consent_model_cls = "mocca_consent.subjectconsent"
-    screening_model_cls = "mocca_screening.subjectscreening"
-
     @property
     def age_in_years(self) -> int:
         return age(self.subject_consent.dob, self.report_datetime).years
 
     @property
     def subject_screening(self) -> SubjectScreeningModelStub:
-        subject_screening_model_cls = django_apps.get_model(self.screening_model_cls)
-        return subject_screening_model_cls.objects.get(
+        return get_subject_screening_model_cls().objects.get(
             subject_identifier=self.subject_identifier
         )
 
@@ -32,10 +28,7 @@ class CrfFormValidatorMixin(FormValidator):
 
     @property
     def subject_consent(self):
-        subject_consent_model_cls = django_apps.get_model(self.consent_model_cls)
-        return subject_consent_model_cls.objects.get(
-            subject_identifier=self.subject_identifier
-        )
+        return get_consent_model_cls().objects.get(subject_identifier=self.subject_identifier)
 
     @property
     def report_datetime(self) -> datetime:
