@@ -158,7 +158,7 @@ class ModelToDataframe:
     def encrypted_columns(self):
         """Return a list of column names that use encryption."""
         if not self._encrypted_columns:
-            self._encrypted_columns = ["identity_or_pk"]
+            self._encrypted_columns = ["identity"]
             for field in self.queryset.model._meta.fields:
                 if hasattr(field, "field_cryptor"):
                     self._encrypted_columns.append(field.name)
