@@ -8,7 +8,7 @@ from django.db import models
 from ..stubs import TSubjectVisitModelStub
 
 
-def get_subject_visit_model() -> TSubjectVisitModelStub:
+def get_subject_visit_model_cls() -> TSubjectVisitModelStub:
     return django_apps.get_model(settings.SUBJECT_VISIT_MODEL)
 
 
