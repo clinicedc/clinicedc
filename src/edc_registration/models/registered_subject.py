@@ -84,6 +84,7 @@ class RegisteredSubject(
 
     identity = IdentityField(null=True, blank=True)
 
+    # TODO: This should be removed, its not encrypted!
     identity_or_pk = models.CharField(
         verbose_name="identity or pk",
         max_length=75,
@@ -148,7 +149,7 @@ class RegisteredSubject(
     def save(self, *args, **kwargs):
         if self.identity:
             self.additional_key = None
-            self.identity_or_pk = self.identity
+            # self.identity_or_pk = self.identity
         self.set_uuid_as_subject_identifier_if_none()
         self.raise_on_duplicate("subject_identifier")
         self.raise_on_duplicate("identity")
@@ -156,7 +157,7 @@ class RegisteredSubject(
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.subject_identifier_as_pk,)
+        return tuple(self.subject_identifier_as_pk)
 
     def __str__(self):
         return self.masked_subject_identifier
