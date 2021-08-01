@@ -3,7 +3,7 @@ from typing import Union
 from uuid import uuid4
 
 from django.apps import apps as django_apps
-from django.core.exceptions import MultipleObjectsReturned
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db import models
 from edc_constants.constants import UUID_PATTERN
 
@@ -84,7 +84,7 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
         """
         try:
             subject_identifier = self.registered_subject.subject_identifier
-        except AttributeError:
+        except ObjectDoesNotExist:
             subject_identifier = self.make_new_identifier()
         return subject_identifier
 
@@ -105,19 +105,15 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
         """Returns a registered subject instance.
 
         Override this if your query options are different.
+
+        Will raise ObjectDoesNotExist if this is a new instance.
         """
         try:
-            obj = self.registered_subject_model_cls.objects.get(
-                identity_or_pk=self.identity_or_pk
-            )
-        except self.registered_subject_model_cls.DoesNotExist:
-            # means this is a new model instance that creates RS on the
-            # post save signal.
-            obj = None
+            obj = self.registered_subject_model_cls.objects.get(identity=self.identity)
         except MultipleObjectsReturned as e:
             raise IdentifierError(
                 "Cannot lookup a unique RegisteredSubject instance. "
-                "Identity {} is not unique. Got {}".format(self.identity_or_pk, e)
+                "Identity {} is not unique. Got {}".format(self.identity, e)
             )
         return obj
 
