@@ -21,7 +21,7 @@ from edc_dashboard.url_names import InvalidUrlName, url_names
 from edc_model.models import BaseUuidModel
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 from edc_utils.date import get_utcnow
-from edc_visit_tracking.models import get_subject_visit_model
+from edc_visit_tracking.models import get_subject_visit_model_cls
 
 from ..action_items import DATA_QUERY_ACTION
 from ..constants import CLOSED_WITH_ACTION
@@ -221,7 +221,7 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
             visit_href = "#"
         else:
             try:
-                visit = get_subject_visit_model().objects.get(
+                visit = get_subject_visit_model_cls().objects.get(
                     subject_identifier=self.registered_subject.subject_identifier,
                     visit_schedule_name=self.visit_schedule.visit_schedule_name,
                     schedule_name=self.visit_schedule.schedule_name,
