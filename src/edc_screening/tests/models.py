@@ -1,7 +1,10 @@
 from django.db import models
 from edc_model.models import BaseUuidModel
 
-from edc_screening.model_mixins import EligibilityModelMixin
+from edc_screening.model_mixins import (
+    EligibilityModelMixin,
+    ScreeningIdentifierModelMixin,
+)
 from edc_screening.screening_eligibility import ScreeningEligibility
 
 from ..model_mixins import ScreeningModelMixin
