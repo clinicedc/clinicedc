@@ -80,12 +80,16 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
 
     def save(self, *args, **kwargs):
         self.report_datetime = self.consent_datetime
-        consent_helper = self.consent_helper_cls(
+        helper = self.get_consent_helper()
+        self.version = helper.version
+        self.updates_versions = True if helper.updates_versions else False
+        super().save(*args, **kwargs)
+
+    def get_consent_helper(self):
+        """Returns a consent helper instance"""
+        return self.consent_helper_cls(
             model_cls=self.__class__, update_previous=True, **self.__dict__
         )
-        self.version = consent_helper.version
-        self.updates_versions = True if consent_helper.updates_versions else False
-        super().save(*args, **kwargs)
 
     def get_subject_identifier(self):
         """Returns the subject_identifier"""
