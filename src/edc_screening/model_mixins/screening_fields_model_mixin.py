@@ -1,7 +1,14 @@
 from uuid import uuid4
 
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import (
+    MaxLengthValidator,
+    MaxValueValidator,
+    MinLengthValidator,
+    MinValueValidator,
+    RegexValidator,
+)
 from django.db import models
+from django_crypto_fields.fields import EncryptedCharField
 from edc_constants.choices import GENDER, YES_NO, YES_NO_NA
 from edc_constants.constants import NO, NOT_APPLICABLE
 from edc_model.models.historical_records import HistoricalRecords
@@ -35,6 +42,16 @@ class ScreeningFieldsModeMixin(SiteModelMixin, models.Model):
         verbose_name="Report Date and Time",
         default=get_utcnow,
         help_text="Date and time of report.",
+    )
+
+    initials = EncryptedCharField(
+        validators=[
+            RegexValidator("[A-Z]{1,3}", "Invalid format"),
+            MinLengthValidator(2),
+            MaxLengthValidator(3),
+        ],
+        help_text="Use UPPERCASE letters only. May be 2 or 3 letters.",
+        blank=False,
     )
 
     gender = models.CharField(choices=GENDER, max_length=10)
