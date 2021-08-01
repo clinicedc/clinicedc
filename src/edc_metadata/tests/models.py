@@ -3,11 +3,16 @@ from datetime import date
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_appointment.models import Appointment
+from edc_consent.field_mixins import PersonalFieldsMixin
+from edc_consent.model_mixins import ConsentModelMixin
 from edc_constants.choices import YES_NO
 from edc_constants.constants import MALE
 from edc_crf.crf_with_action_model_mixin import CrfWithActionModelMixin
 from edc_identifier.managers import SubjectIdentifierManager
-from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
+from edc_identifier.model_mixins import (
+    UniqueSubjectIdentifierFieldMixin,
+    UniqueSubjectIdentifierModelMixin,
+)
 from edc_lab.model_mixins import PanelModelMixin
 from edc_list_data.model_mixins import ListModelMixin
 from edc_model.models import BaseUuidModel
@@ -64,14 +69,18 @@ class DeathReport(UniqueSubjectIdentifierFieldMixin, BaseUuidModel):
 
 
 class SubjectConsent(
-    UniqueSubjectIdentifierFieldMixin,
+    UniqueSubjectIdentifierModelMixin,
+    PersonalFieldsMixin,
     UpdatesOrCreatesRegistrationModelMixin,
+    SiteModelMixin,
     BaseUuidModel,
 ):
 
     consent_datetime = models.DateTimeField(default=get_utcnow)
 
     version = models.CharField(max_length=25, default="1")
+
+    screening_identifier = models.CharField(max_length=25, null=True)
 
     identity = models.CharField(max_length=25, default="111111111")
 
@@ -87,6 +96,10 @@ class SubjectConsent(
         return tuple(
             self.subject_identifier,
         )
+
+    class Meta(BaseUuidModel.Meta):
+        verbose_name = "Subject Consent"
+        verbose_name_plural = "Subject Consents"
 
 
 class SubjectVisit(
