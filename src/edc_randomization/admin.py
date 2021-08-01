@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib import admin
+from django.contrib.admin.sites import AlreadyRegistered
 from django.contrib.sites.models import Site
 from edc_model_admin.model_admin_audit_fields_mixin import (
     audit_fields,
@@ -94,11 +95,16 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
         return fieldsets
 
 
-site_randomizers.autodiscover()
+def register_admin():
+    site_randomizers.autodiscover()
 
-for randomizer_cls in site_randomizers._registry.values():
-    model = randomizer_cls.model_cls()
-    NewModelAdminClass = type(
-        f"{model.__name__}ModelAdmin", (RandomizationListModelAdmin,), {}
-    )
-    edc_randomization_admin.register(model, NewModelAdminClass)
+    for randomizer_cls in site_randomizers._registry.values():
+        model = randomizer_cls.model_cls()
+        admin_cls = type(f"{model.__name__}ModelAdmin", (RandomizationListModelAdmin,), {})
+        try:
+            edc_randomization_admin.register(model, admin_cls)
+        except AlreadyRegistered:
+            pass
+
+
+register_admin()
