@@ -167,12 +167,13 @@ class Randomizer:
         """Returns the SID."""
         return self.model_obj.sid
 
-    def check_loaded(self):
+    @classmethod
+    def check_loaded(cls):
         try:
-            self.import_list(overwrite=False)
+            cls.import_list(overwrite=False)
         except RandomizationListImportError:
             pass
-        if self.model_cls().objects.all().count() == 0:
+        if cls.model_cls().objects.all().count() == 0:
             raise RandomizationListNotLoaded(
                 "Randomization list has not been loaded. " "Run the management command."
             )
