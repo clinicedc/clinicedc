@@ -1,1 +1,2 @@
+from .consent_form_validator_mixin import ConsentFormValidatorMixin
 from .subject_consent_form_validator import SubjectConsentFormValidatorMixin
