@@ -1,7 +1,8 @@
 from django.db import models
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from edc_lab.choices import GLUCOSE_UNITS, RESULT_QUANTIFIER
+from edc_constants.constants import NOT_APPLICABLE
+from edc_lab.choices import GLUCOSE_UNITS_NA, RESULT_QUANTIFIER
 from edc_lab.constants import EQ
 
 
@@ -27,9 +28,8 @@ class IfgModelMixin(models.Model):
     ifg_units = models.CharField(
         verbose_name="IFG units",
         max_length=15,
-        choices=GLUCOSE_UNITS,
-        blank=True,
-        null=True,
+        choices=GLUCOSE_UNITS_NA,
+        default=NOT_APPLICABLE,
     )
 
     ifg_datetime = models.DateTimeField(
