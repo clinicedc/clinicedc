@@ -61,7 +61,7 @@ role_names = {
     SITE_DATA_MANAGER_ROLE: "Site Data Manager",
     SITE_PHARMACIST_ROLE: "Site Pharmacist",
     STAFF_ROLE: "Staff",
-    TMG_ROLE: "TMG (External Review",
+    TMG_ROLE: "TMG (External Review)",
 }
 
 required_role_names = {STAFF_ROLE: "Staff"}
