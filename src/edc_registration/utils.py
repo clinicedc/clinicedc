@@ -16,14 +16,10 @@ def get_registered_subject_model_cls():
 
 
 def get_registered_subject(subject_identifier):
-    registered_subject = None
     try:
-        model_cls = get_registered_subject_model_cls()
-    except LookupError:
-        pass
-    else:
-        try:
-            registered_subject = model_cls.objects.get(subject_identifier=subject_identifier)
-        except ObjectDoesNotExist:
-            pass
+        registered_subject = get_registered_subject_model_cls().get(
+            subject_identifier=subject_identifier
+        )
+    except ObjectDoesNotExist:
+        registered_subject = None
     return registered_subject
