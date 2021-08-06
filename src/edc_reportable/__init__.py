@@ -1,6 +1,6 @@
 from .adult_age_options import adult_age_options
 from .age_evaluator import AgeEvaluator
-from .calculators import BMI, CalculatorError, eGFR
+from .calculators import BMI, CalculatorError, calculate_bmi, calculate_egfr, eGFR
 from .constants import (
     ALREADY_REPORTED,
     GRADE0,
@@ -31,7 +31,7 @@ from .form_validator_mixins import (
 )
 from .grade_reference import GradeError, GradeReference
 from .normal_reference import NormalReference, NormalReferenceError
-from .parsers import ParserError, parse, unparse
+from .parsers import ParserError, dummy_parse, parse, unparse
 from .reference_range_collection import AlreadyRegistered, ReferenceRangeCollection
 from .reportables_evaluator import ReportablesEvaluator
 from .site_reportables import site_reportables
