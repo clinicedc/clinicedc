@@ -1,7 +1,10 @@
 import re
 from collections import OrderedDict
 
-from edc_reportable.constants import LLN, ULN
+from edc_constants.constants import FEMALE, MALE
+
+from .adult_age_options import adult_age_options
+from .constants import LLN, ULN
 
 
 class ParserError(Exception):
@@ -90,3 +93,12 @@ def parse_boundary(value):
         elif limit_normal == ULN:
             uln = float(value)
     return lln, uln
+
+
+def dummy_parse(phrase=None, units=None):
+    return parse(
+        phrase or "0<=x",
+        units=units,
+        gender=[MALE, FEMALE],
+        **adult_age_options,
+    )
