@@ -1,8 +1,6 @@
 from copy import deepcopy
 
-from django.apps import apps as django_apps
 from django.test import TestCase, override_settings, tag
-from edc_appointment.models import Appointment
 from edc_constants.constants import (
     CHOL,
     DM,
@@ -14,8 +12,6 @@ from edc_constants.constants import (
     YES,
 )
 from edc_dx.utils import DiagnosisLabelError
-from edc_utils import get_utcnow
-from edc_visit_tracking.constants import SCHEDULED
 
 from edc_dx_review.forms import ClinicalReviewFollowupForm
 
@@ -28,29 +24,6 @@ class TestClinicalReview(TestCaseMixin, TestCase):
         super().setUp()
         self.subject_identifier = self.enroll()
         self.create_visits(self.subject_identifier)
-        # appointment = Appointment.objects.get(
-        #     subject_identifier=self.subject_identifier,
-        #     visit_code="1000",
-        # )
-        # self.subject_visit_baseline = django_apps.get_model(
-        #     "edc_metadata.subjectvisit"
-        # ).objects.create(
-        #     report_datetime=get_utcnow(),
-        #     appointment=appointment,
-        #     reason=SCHEDULED,
-        # )
-        #
-        # appointment = Appointment.objects.get(
-        #     subject_identifier=self.subject_identifier,
-        #     visit_code="1010",
-        # )
-        # self.subject_visit_followup = django_apps.get_model(
-        #     "edc_metadata.subjectvisit"
-        # ).objects.create(
-        #     report_datetime=get_utcnow(),
-        #     appointment=appointment,
-        #     reason=SCHEDULED,
-        # )
 
         self.baseline_data = {
             "subject_visit": self.subject_visit_baseline.pk,
