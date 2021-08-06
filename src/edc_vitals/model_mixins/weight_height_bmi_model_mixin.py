@@ -33,7 +33,13 @@ class WeightHeightBmiModelMixin(models.Model):
             height_cm=self.height,
             lower_bmi_value=self.lower_bmi_value,
             upper_bmi_value=self.upper_bmi_value,
+            report_datetime=self.report_datetime,
+            dob=self.get_dob(),
         )
+
+    def get_dob(self):
+        """Override to provides DoB if not on the model"""
+        return None
 
     class Meta:
         abstract = True

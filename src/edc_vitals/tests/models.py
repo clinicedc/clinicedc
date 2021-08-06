@@ -1,4 +1,5 @@
 from django.db import models
+from edc_utils import get_utcnow
 
 from edc_vitals.model_mixins import (
     BloodPressureModelMixin,
@@ -16,4 +17,7 @@ class SimpleBloodPressure(SimpleBloodPressureModelMixin, models.Model):
 
 
 class WeightHeightBmi(WeightHeightBmiModelMixin, models.Model):
-    pass
+
+    report_datetime = models.DateTimeField(default=get_utcnow)
+
+    dob = models.DateField(null=True)
