@@ -1,7 +1,7 @@
 from edc_constants.constants import BLACK, FEMALE, MALE, OTHER
 
 from ..convert_units import convert_units
-from ..units import MILLIGRAMS_PER_DECILITER
+from ..units import MICROMOLES_PER_LITER, MILLIGRAMS_PER_DECILITER
 from .exceptions import CalculatorError
 
 
@@ -36,7 +36,9 @@ class eGFR:
 
         self.ethnicity = ethnicity or OTHER
         self.scr = convert_units(
-            creatinine_value, units_from=creatinine_units, units_to=MILLIGRAMS_PER_DECILITER
+            float(creatinine_value),
+            units_from=creatinine_units,
+            units_to=MILLIGRAMS_PER_DECILITER,
         )
 
     @property
@@ -69,3 +71,24 @@ class eGFR:
     @property
     def age_factor(self):
         return 0.993 ** self.age
+
+
+def calculate_egfr(
+    gender=None,
+    age_in_years=None,
+    ethnicity=None,
+    creatinine_value=None,
+    creatinine_units=None,
+    **kwargs
+):
+    calculated_egfr_value = None
+    if gender and age_in_years and ethnicity and creatinine_value and creatinine_units:
+        opts = dict(
+            gender=gender,
+            age=age_in_years,
+            ethnicity=ethnicity,
+            creatinine_value=creatinine_value,
+            creatinine_units=creatinine_units,
+        )
+        calculated_egfr_value = eGFR(**opts).value
+    return calculated_egfr_value

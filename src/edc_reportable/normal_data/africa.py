@@ -9,8 +9,14 @@ from edc_reportable import (
     TEN_X_9_PER_LITER,
     adult_age_options,
 )
+from edc_reportable import dummy_parse as dummy
 from edc_reportable import parse as p
-from edc_reportable.units import CELLS_PER_MILLIMETER_CUBED, GRAMS_PER_LITER, PERCENT
+from edc_reportable.units import (
+    CELLS_PER_MILLIMETER_CUBED,
+    EGFR_UNITS,
+    GRAMS_PER_LITER,
+    PERCENT,
+)
 
 normal_data = {
     "albumin": [
@@ -31,7 +37,7 @@ normal_data = {
     "alt": [p("0<=x<=55", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options)],
     "amylase": [p("25<=x<=125", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options)],
     "ast": [p("5<=x<=34", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options)],
-    "egfr": [],
+    "egfr": [dummy(units=EGFR_UNITS)],
     "chol": [
         p(
             "0.5<=x<=6.2",
@@ -178,7 +184,7 @@ normal_data = {
     ],
     "uric_acid": [
         p(
-            "0.15<=x0.35",
+            "0.15<=x<=0.35",
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
@@ -204,5 +210,7 @@ normal_data = {
             **adult_age_options,
         ),
     ],
-    "wbc": [p("2.49<x", units=TEN_X_9_PER_LITER, gender=[MALE, FEMALE], **adult_age_options)],
+    "wbc": [
+        p("2.49<x", units=TEN_X_9_PER_LITER, gender=[MALE, FEMALE], **adult_age_options),
+    ],
 }

@@ -9,6 +9,7 @@ from ..constants import GRADE0, GRADE1, GRADE2, GRADE3, GRADE4, HIGH_VALUE
 from ..parsers import parse as p
 from ..units import (
     CELLS_PER_MILLIMETER_CUBED,
+    EGFR_UNITS,
     GRAMS_PER_DECILITER,
     GRAMS_PER_LITER,
     IU_LITER,
@@ -32,8 +33,16 @@ G3 < 60 to 30 ml/min or ml/min/1.73 m2 OR 30 to < 50% decrease from participant�
 G4 < 30 ml/min or ml/min/1.73 m2 OR ≥ 50% decrease from participant’s baseline
 """
 
-
 dummies = {
+    "egfr": [
+        p(
+            "x<0",
+            grade=GRADE0,
+            units=EGFR_UNITS,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+    ],
     "hba1c": [
         p(
             "x<0",
