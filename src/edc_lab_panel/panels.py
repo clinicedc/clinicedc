@@ -4,6 +4,7 @@ from .processing_profiles import (
     blood_glucose_processing,
     fbc_processing,
     hba1c_processing,
+    insulin_processing,
     lft_processing,
     lipids_processing,
     poc_processing,
@@ -84,4 +85,12 @@ lft_panel = RequisitionPanel(
     abbreviation="LFT",
     processing_profile=lft_processing,
     utest_ids=["ast", "alt", "alp", "amylase", "ggt", "albumin"],
+)
+
+insulin_panel = RequisitionPanel(
+    name="insulin",
+    verbose_name="Insulin",
+    abbreviation="INS",
+    processing_profile=insulin_processing,
+    utest_ids=["ins"],
 )
