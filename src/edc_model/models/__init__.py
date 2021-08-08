@@ -1,4 +1,11 @@
 from django.conf import settings
+from edc_vitals.models import (  # noqa
+    DiastolicPressureField,
+    HeightField,
+    SystolicPressureField,
+    WaistCircumferenceField,
+    WeightField,
+)
 
 from .address_mixin import AddressMixin
 from .base_model import BaseModel
