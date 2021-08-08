@@ -9,6 +9,10 @@ from edc_consent.site_consents import SiteConsentError
 
 class ConsentFormValidatorMixin(FormValidator):
 
+    """Validator mixin for forms that require consent.
+
+    Call `get_consent_for_period_or_raise` in clean()."""
+
     consent_model = settings.SUBJECT_CONSENT_MODEL
 
     def get_consent_for_period_or_raise(self, report_datetime):

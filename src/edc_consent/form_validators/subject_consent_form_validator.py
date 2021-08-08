@@ -12,6 +12,8 @@ from pytz import timezone
 
 class SubjectConsentFormValidatorMixin(FormValidator):
 
+    """Form Validator mixin for the consent model."""
+
     subject_screening_model = get_subject_screening_model_name()
 
     def __init__(self, **kwargs):
