@@ -1,6 +1,7 @@
 from django.db import models
-from edc_model import models as edc_models
 from edc_reportable import calculate_bmi
+
+from ..models import HeightField, WeightField
 
 
 class WeightHeightBmiModelMixin(models.Model):
@@ -9,9 +10,9 @@ class WeightHeightBmiModelMixin(models.Model):
 
     upper_bmi_value = 60.0
 
-    weight = edc_models.WeightField(null=True, blank=True)
+    weight = WeightField(null=True, blank=True)
 
-    height = edc_models.HeightField(null=True, blank=True)
+    height = HeightField(null=True, blank=True)
 
     calculated_bmi_value = models.DecimalField(
         verbose_name="BMI",
