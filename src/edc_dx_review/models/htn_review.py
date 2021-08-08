@@ -2,12 +2,18 @@ from django.db import models
 from edc_constants.choices import YES_NO_NA
 from edc_constants.constants import NOT_APPLICABLE
 from edc_model import models as edc_models
+from edc_vitals.model_mixins import SimpleBloodPressureModelMixin
 
 from ..choices import HTN_MANAGEMENT
 from ..model_mixins import CrfModelMixin, FollowupReviewModelMixin
 
 
-class HtnReview(FollowupReviewModelMixin, CrfModelMixin, edc_models.BaseUuidModel):
+class HtnReview(
+    FollowupReviewModelMixin,
+    SimpleBloodPressureModelMixin,
+    CrfModelMixin,
+    edc_models.BaseUuidModel,
+):
 
     test_date = models.DateField(
         verbose_name="Date tested for Hypertension",
@@ -23,10 +29,6 @@ class HtnReview(FollowupReviewModelMixin, CrfModelMixin, edc_models.BaseUuidMode
         choices=YES_NO_NA,
         default=NOT_APPLICABLE,
     )
-
-    sys_blood_pressure = edc_models.SystolicPressureField(null=True, blank=True)
-
-    dia_blood_pressure = edc_models.DiastolicPressureField(null=True, blank=True)
 
     managed_by = models.CharField(
         verbose_name="How will the patient's hypertension be managed going forward?",
