@@ -3,21 +3,15 @@ from django.conf import settings
 from .address_mixin import AddressMixin
 from .base_model import BaseModel
 from .base_uuid_model import BaseUuidModel
-from .blood_pressure_model_mixin import BloodPressureModelMixin
 from .fields import (
-    DiastolicPressureField,
     DurationYMDField,
-    HeightField,
     HostnameModificationField,
     IdentityTypeField,
     InitialsField,
     IsDateEstimatedField,
     IsDateEstimatedFieldNa,
     OtherCharField,
-    SystolicPressureField,
     UserField,
-    WaistCircumferenceField,
-    WeightField,
 )
 from .fields.duration import DurationYearMonthField
 from .historical_records import HistoricalRecords
