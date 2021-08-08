@@ -109,7 +109,7 @@ def raise_on_invalid_field_name(data: Union[dict, models.Model], attrname: str) 
             data[attrname]
         except KeyError as e:
             raise InvalidFieldName(f"{e} Got {data}")
-        except TypeError as e:
+        except TypeError:
             try:
                 getattr(data, attrname)
             except AttributeError as e:
