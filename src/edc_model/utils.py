@@ -136,3 +136,12 @@ def model_exists_or_raise(
             f"Complete the `{model_cls._meta.verbose_name}` CRF first."
         )
     return True
+
+
+def is_inline_model(instance):
+    """See also, edc-crf inline model mixin."""
+    try:
+        instance._meta.crf_inline_parent
+    except AttributeError:
+        return False
+    return True
