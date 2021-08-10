@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_constants.constants import HOSPITALIZED, OTHER
+from edc_crf.crf_inline_model_mixin import CrfInlineModelMixin
 from edc_crf.crf_model_mixin import CrfModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_list_data.model_mixins import ListModelMixin
@@ -17,11 +18,7 @@ from edc_visit_tracking.model_mixins import SubjectVisitMissedModelMixin
 from edc_visit_tracking.models import SubjectVisitMissedReasons
 
 from ..choices import VISIT_INFO_SOURCE, VISIT_REASON, VISIT_REASON_MISSED
-from ..model_mixins import (
-    CrfInlineModelMixin,
-    VisitModelMixin,
-    VisitTrackingCrfModelMixin,
-)
+from ..model_mixins import VisitModelMixin, VisitTrackingCrfModelMixin
 
 list_data = {
     "edc_visit_tracking.subjectvisitmissedreasons": [
@@ -116,6 +113,9 @@ class CrfOneInline(CrfInlineModelMixin, BaseUuidModel):
 
     f1 = models.CharField(max_length=10, default="erik")
 
+    def natural_key(self) -> tuple:
+        return tuple()
+
     class Meta(CrfInlineModelMixin.Meta):
         crf_inline_parent = "crf_one"
 
@@ -129,6 +129,9 @@ class BadCrfOneInline(CrfInlineModelMixin, BaseUuidModel):
 
     f1 = models.CharField(max_length=10, default="erik")
 
+    def natural_key(self) -> tuple:
+        return tuple()
+
     class Meta:
         pass
 
@@ -139,6 +142,9 @@ class BadCrfOneInline2(CrfInlineModelMixin, BaseUuidModel):
     other_model = models.ForeignKey(OtherModel, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=10, default="erik")
+
+    def natural_key(self) -> tuple:
+        return tuple()
 
     class Meta(CrfInlineModelMixin.Meta):
         crf_inline_parent = None
