@@ -22,7 +22,11 @@ class OtherSpecifyFieldValidator(BaseFormValidator):
         fk_stored_field_name: Optional[str] = None,
         **kwargs,
     ) -> bool:
-        """Returns False or raises a ValidationError."""
+        """Returns False or raises a ValidationError.
+
+        Note: "stored" means value stored in the db table as
+              opposed to the "display" value.
+        """
         cleaned_data = self.cleaned_data
         other = other_stored_value or OTHER
         if fk_stored_field_name is None:
