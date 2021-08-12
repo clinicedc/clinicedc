@@ -12,6 +12,7 @@ from .constants import (
     DWTA,
     EVENING,
     FALSE,
+    FASTING,
     FEMALE,
     FORMER_SMOKER,
     IND,
@@ -21,6 +22,7 @@ from .constants import (
     NEG,
     NEVER,
     NO,
+    NON_FASTING,
     NONSMOKER,
     NORMAL,
     NOT_APPLICABLE,
@@ -44,8 +46,6 @@ from .constants import (
     WEEKDAYS,
     WEEKENDS,
     YES,
-    FASTING,
-    NON_FASTING,
 )
 
 BLANK_CHOICE_DASH = [("", "---------")]
@@ -273,7 +273,18 @@ GENDER_UNDETERMINED = (
     ("U", _("Undetermined")),
 )
 
+
 GRADING_SCALE = (
+    (1, "Grade 1"),
+    (2, "Grade 2"),
+    (3, "Grade 3"),
+    (4, "Grade 4"),
+    (5, "Grade 5"),
+)
+
+
+GRADING_SCALE_WITH_NOT_GRADED = (
+    (0, "Not graded"),
     (1, "Grade 1"),
     (2, "Grade 2"),
     (3, "Grade 3"),
