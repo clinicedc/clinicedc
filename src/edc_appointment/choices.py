@@ -7,11 +7,18 @@ from .constants import (
     SCHEDULED_APPT,
     UNSCHEDULED_APPT,
 )
+from .utils import get_appt_reason_choices
 
-APPT_REASON = (
+# choices for the model
+DEFAULT_APPT_REASON_CHOICES = (
     (SCHEDULED_APPT, "Routine / Scheduled"),
     (UNSCHEDULED_APPT, "Unscheduled"),
 )
+
+
+# choices for the form and elsewhere
+APPT_REASON_CHOICES = get_appt_reason_choices(DEFAULT_APPT_REASON_CHOICES)
+
 
 APPT_STATUS = (
     (NEW_APPT, "New"),

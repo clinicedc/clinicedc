@@ -19,7 +19,7 @@ from ..models import SubjectVisit
 from ..visit_schedule import visit_schedule1, visit_schedule2
 
 
-class TestAppointmentForm(TestCase):
+class TestAppointmentFormValidator(TestCase):
 
     helper_cls = Helper
 

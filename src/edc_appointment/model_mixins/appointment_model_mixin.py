@@ -3,22 +3,19 @@ from datetime import datetime
 from typing import Union
 from uuid import UUID
 
-from django.conf import settings
 from django.db import models
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_offstudy.model_mixins import OffstudyVisitModelMixin
 from edc_timepoint.model_mixins import TimepointModelMixin
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 
-from ..choices import APPT_REASON, APPT_STATUS, APPT_TYPE
+from ..choices import APPT_STATUS, APPT_TYPE, DEFAULT_APPT_REASON_CHOICES
 from ..constants import NEW_APPT
 from ..exceptions import UnknownVisitCode
 from ..managers import AppointmentManager
 from ..stubs import AppointmentModelStub
 from .appointment_methods_model_mixin import AppointmentMethodsModelMixin
 from .window_period_model_mixin import WindowPeriodModelMixin
-
-APPT_REASON = getattr(settings, "EDC_APPOINTMENT_APPT_REASON", APPT_REASON)
 
 
 class AppointmentModelMixin(
@@ -85,7 +82,7 @@ class AppointmentModelMixin(
     appt_reason = models.CharField(
         verbose_name="Reason for appointment",
         max_length=25,
-        choices=APPT_REASON,
+        choices=DEFAULT_APPT_REASON_CHOICES,
         help_text=(
             "The visit report's `reason for visit` will be validated against this. "
             "Refer to the protocol's documentation for the definition of a `scheduled` visit."

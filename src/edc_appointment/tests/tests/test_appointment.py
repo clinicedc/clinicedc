@@ -1,16 +1,24 @@
 from decimal import Context
 
 from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
+from django.core.exceptions import ImproperlyConfigured
 from django.db import transaction
 from django.db.models.deletion import ProtectedError
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
 from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
-from ...constants import IN_PROGRESS_APPT, INCOMPLETE_APPT
+from edc_appointment.utils import get_appt_reason_choices
+
+from ...constants import (
+    IN_PROGRESS_APPT,
+    INCOMPLETE_APPT,
+    SCHEDULED_APPT,
+    UNSCHEDULED_APPT,
+)
 from ...managers import AppointmentDeleteError
 from ...models import Appointment
 from ..helper import Helper
@@ -464,3 +472,32 @@ class TestAppointment(TestCase):
             )[1],
             appointment,
         )
+
+    def test_setting_reason_choices_invalid(self):
+        self.assertRaises(
+            ImproperlyConfigured,
+            get_appt_reason_choices,
+            ((UNSCHEDULED_APPT, "Unscheduled"),),
+        )
+
+    def test_setting_reason_choices_valid(self):
+        try:
+            get_appt_reason_choices(
+                (
+                    (SCHEDULED_APPT, "Routine / Scheduled"),
+                    (UNSCHEDULED_APPT, "Unscheduled"),
+                ),
+            )
+        except ImproperlyConfigured:
+            self.fail("ImproperlyConfigured unexpectedly raised")
+
+        try:
+            get_appt_reason_choices(
+                (
+                    (SCHEDULED_APPT, "Routine / Scheduled"),
+                    (UNSCHEDULED_APPT, "Unscheduled"),
+                    ("blah", "Blah"),
+                ),
+            )
+        except ImproperlyConfigured:
+            self.fail("ImproperlyConfigured unexpectedly raised")
