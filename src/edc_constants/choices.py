@@ -46,6 +46,7 @@ from .constants import (
     WEEKDAYS,
     WEEKENDS,
     YES,
+    NOT_EXAMINED,
 )
 
 BLANK_CHOICE_DASH = [("", "---------")]
@@ -505,6 +506,13 @@ YES_NO_NOT_EVALUATED_NA = (
     ("Not_evaluated", "Not evaluated"),
     (NOT_APPLICABLE, "Not applicable"),
 )
+
+YES_NO_NOT_EXAMINED = (
+    (YES, YES),
+    (NO, NO),
+    (NOT_EXAMINED, "Not examined"),
+)
+
 
 YES_NO_NOT_DONE = ((YES, YES), (NO, NO), (NOT_DONE, "Not done"))
 
