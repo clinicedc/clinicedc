@@ -20,12 +20,24 @@ from .base_form_validator import (
 
 
 class ApplicableFieldValidator(BaseFormValidator):
-    def raise_applicable(self, field, msg=None) -> None:
-        message = {field: f"This field is applicable. {msg or ''}".strip()}
+    def raise_applicable(
+        self,
+        field,
+        msg: Optional[str] = None,
+        applicable_msg: Optional[str] = None,
+    ) -> None:
+        message = {field: applicable_msg or f"This field is applicable. {msg or ''}".strip()}
         self.raise_validation_error(message, APPLICABLE_ERROR)
 
-    def raise_not_applicable(self, field, msg=None) -> None:
-        message = {field: f"This field is not applicable. {msg or ''}".strip()}
+    def raise_not_applicable(
+        self,
+        field,
+        msg: Optional[str] = None,
+        not_applicable_msg: Optional[str] = None,
+    ) -> None:
+        message = {
+            field: not_applicable_msg or f"This field is not applicable. {msg or ''}".strip()
+        }
         self.raise_validation_error(message, NOT_APPLICABLE_ERROR)
 
     def applicable_if(
@@ -36,6 +48,9 @@ class ApplicableFieldValidator(BaseFormValidator):
         inverse: Optional[bool] = None,
         is_instance_field: Optional[bool] = None,
         msg: Optional[str] = None,
+        applicable_msg: Optional[str] = None,
+        not_applicable_msg: Optional[str] = None,
+        not_applicable_value=None,
     ) -> bool:
         return self.applicable(
             *responses,
@@ -44,6 +59,9 @@ class ApplicableFieldValidator(BaseFormValidator):
             inverse=inverse,
             is_instance_field=is_instance_field,
             msg=msg,
+            applicable_msg=applicable_msg,
+            not_applicable_msg=not_applicable_msg,
+            not_applicable_value=not_applicable_value,
         )
 
     def not_applicable_if(
@@ -54,6 +72,9 @@ class ApplicableFieldValidator(BaseFormValidator):
         inverse: Optional[bool] = None,
         is_instance_field: Optional[bool] = None,
         msg: Optional[str] = None,
+        applicable_msg: Optional[str] = None,
+        not_applicable_msg: Optional[str] = None,
+        not_applicable_value=None,
     ) -> bool:
         return self.not_applicable(
             *responses,
@@ -62,6 +83,9 @@ class ApplicableFieldValidator(BaseFormValidator):
             inverse=inverse,
             is_instance_field=is_instance_field,
             msg=msg,
+            applicable_msg=applicable_msg,
+            not_applicable_msg=not_applicable_msg,
+            not_applicable_value=not_applicable_value,
         )
 
     def not_applicable_only_if(
@@ -87,12 +111,16 @@ class ApplicableFieldValidator(BaseFormValidator):
         inverse: Optional[bool] = None,
         is_instance_field: Optional[bool] = None,
         msg: Optional[str] = None,
+        applicable_msg: Optional[str] = None,
+        not_applicable_msg: Optional[str] = None,
+        not_applicable_value=None,
     ) -> bool:
         """Returns False or raises a validation error for field
         pattern where response to question 1 makes
         question 2 applicable.
         """
         inverse = True if inverse is None else inverse
+        not_applicable = not_applicable_value or NOT_APPLICABLE
         if is_instance_field:
             self.update_cleaned_data_from_instance(field)
         if field in self.cleaned_data and field_applicable in self.cleaned_data:
@@ -100,15 +128,17 @@ class ApplicableFieldValidator(BaseFormValidator):
             field_applicable_value = self.get(field_applicable)
 
             if field_value in responses and (
-                field_applicable_value is None or field_applicable_value == NOT_APPLICABLE
+                field_applicable_value is None or field_applicable_value == not_applicable
             ):
-                self.raise_applicable(field_applicable, msg=msg)
+                self.raise_applicable(field_applicable, msg=msg, applicable_msg=applicable_msg)
             elif (
                 field_value not in responses
-                and field_applicable_value != NOT_APPLICABLE
+                and field_applicable_value != not_applicable
                 and inverse
             ):
-                self.raise_not_applicable(field_applicable, msg=msg)
+                self.raise_not_applicable(
+                    field_applicable, msg=msg, not_applicable_msg=not_applicable_msg
+                )
         return False
 
     def not_applicable(
@@ -119,22 +149,28 @@ class ApplicableFieldValidator(BaseFormValidator):
         inverse: Optional[bool] = None,
         is_instance_field: Optional[bool] = None,
         msg: Optional[str] = None,
+        applicable_msg: Optional[str] = None,
+        not_applicable_msg: Optional[str] = None,
+        not_applicable_value=None,
     ) -> bool:
         """Returns False or raises a validation error for field
         pattern where response to question 1 makes
         question 2 NOT applicable.
         """
         inverse = True if inverse is None else inverse
+        not_applicable = not_applicable_value or NOT_APPLICABLE
         if is_instance_field:
             self.update_cleaned_data_from_instance(field)
         if field in self.cleaned_data and field_applicable in self.cleaned_data:
-            if self.get(field) in responses and self.get(field_applicable) != NOT_APPLICABLE:
-                self.raise_not_applicable(field_applicable, msg=msg)
+            if self.get(field) in responses and self.get(field_applicable) != not_applicable:
+                self.raise_not_applicable(
+                    field_applicable, msg=msg, not_applicable_msg=not_applicable_msg
+                )
             elif inverse and (
                 self.get(field) not in responses
-                and self.get(field_applicable) == NOT_APPLICABLE
+                and self.get(field_applicable) == not_applicable
             ):
-                self.raise_applicable(field_applicable)
+                self.raise_applicable(field_applicable, msg=msg, applicable_msg=applicable_msg)
         return False
 
     def applicable_if_true(
@@ -144,12 +180,14 @@ class ApplicableFieldValidator(BaseFormValidator):
         applicable_msg: Optional[str] = None,
         not_applicable_msg: Optional[str] = None,
         inverse: Optional[bool] = None,
+        not_applicable_value=None,
     ) -> bool:
         inverse = True if inverse is None else inverse
+        not_applicable = not_applicable_value or NOT_APPLICABLE
         if field_applicable in self.cleaned_data:
-            if condition and self.get(field_applicable) == NOT_APPLICABLE:
+            if condition and self.get(field_applicable) == not_applicable:
                 self.raise_applicable(field_applicable, msg=applicable_msg)
-            elif not condition and self.get(field_applicable) != NOT_APPLICABLE:
+            elif not condition and self.get(field_applicable) != not_applicable:
                 if inverse:
                     self.raise_not_applicable(field_applicable, msg=not_applicable_msg)
         return False

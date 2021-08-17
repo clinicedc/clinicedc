@@ -1,7 +1,7 @@
-import pdb
 from copy import copy
-from typing import Any, Union
+from typing import Any
 
+from django.core.exceptions import NON_FIELD_ERRORS
 from django.db.models import Model
 from django.forms import ValidationError, forms
 
@@ -116,9 +116,9 @@ class BaseFormValidator:
             self._errors.update(**e.error_dict)
         except AttributeError:
             try:
-                self._errors.update(__all__=e.error_list)
+                self._errors.update({NON_FIELD_ERRORS: e.error_list})
             except AttributeError:
-                self._errors.update(__all__=str(e))
+                self._errors.update({NON_FIELD_ERRORS: str(e)})
 
     def capture_error_code(self, e: forms.ValidationError) -> None:
         try:
