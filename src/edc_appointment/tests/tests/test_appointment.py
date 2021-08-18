@@ -4,7 +4,7 @@ from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
 from django.core.exceptions import ImproperlyConfigured
 from django.db import transaction
 from django.db.models.deletion import ProtectedError
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
 from edc_utils import get_utcnow
@@ -473,31 +473,48 @@ class TestAppointment(TestCase):
             appointment,
         )
 
+    @override_settings(
+        EDC_APPOINTMENT_APPT_REASON_CHOICES=((UNSCHEDULED_APPT, "Unscheduled"),)
+    )
     def test_setting_reason_choices_invalid(self):
-        self.assertRaises(
-            ImproperlyConfigured,
-            get_appt_reason_choices,
-            ((UNSCHEDULED_APPT, "Unscheduled"),),
-        )
+        self.assertRaises(ImproperlyConfigured, get_appt_reason_choices)
 
+    @override_settings(
+        EDC_APPOINTMENT_APPT_REASON_CHOICES=(
+            (SCHEDULED_APPT, "Routine / Scheduled"),
+            (UNSCHEDULED_APPT, "Unscheduled"),
+        )
+    )
     def test_setting_reason_choices_valid(self):
         try:
-            get_appt_reason_choices(
-                (
-                    (SCHEDULED_APPT, "Routine / Scheduled"),
-                    (UNSCHEDULED_APPT, "Unscheduled"),
-                ),
-            )
+            choices = get_appt_reason_choices()
         except ImproperlyConfigured:
             self.fail("ImproperlyConfigured unexpectedly raised")
+        self.assertEqual(
+            choices,
+            (
+                (SCHEDULED_APPT, "Routine / Scheduled"),
+                (UNSCHEDULED_APPT, "Unscheduled"),
+            ),
+        )
 
+    @override_settings(
+        EDC_APPOINTMENT_APPT_REASON_CHOICES=(
+            (SCHEDULED_APPT, "Routine / Scheduled"),
+            (UNSCHEDULED_APPT, "Unscheduled"),
+            ("blah", "Blah"),
+        )
+    )
+    def test_setting_reason_choices_valid(self):
         try:
-            get_appt_reason_choices(
-                (
-                    (SCHEDULED_APPT, "Routine / Scheduled"),
-                    (UNSCHEDULED_APPT, "Unscheduled"),
-                    ("blah", "Blah"),
-                ),
-            )
+            choices = get_appt_reason_choices()
         except ImproperlyConfigured:
             self.fail("ImproperlyConfigured unexpectedly raised")
+        self.assertEqual(
+            choices,
+            (
+                (SCHEDULED_APPT, "Routine / Scheduled"),
+                (UNSCHEDULED_APPT, "Unscheduled"),
+                ("blah", "Blah"),
+            ),
+        )
