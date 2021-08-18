@@ -1,11 +1,4 @@
 from django.conf import settings
-from edc_vitals.models import (  # noqa
-    DiastolicPressureField,
-    HeightField,
-    SystolicPressureField,
-    WaistCircumferenceField,
-    WeightField,
-)
 
 from .address_mixin import AddressMixin
 from .base_model import BaseModel
@@ -38,6 +31,3 @@ from .validators import (
     telephone_number,
     ymd_validator,
 )
-
-if settings.APP_NAME == "edc_model":
-    from ..tests.models import *  # noqa
