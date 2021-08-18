@@ -1,5 +1,3 @@
-import pdb
-
 from django import forms
 from edc_constants.constants import CHOL, DM, HIV, HTN, YES
 from edc_crf.forms.crf_form_validator_mixin import CrfFormValidatorMixin
