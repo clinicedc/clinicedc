@@ -1,4 +1,3 @@
-import pdb
 from unittest import skip
 
 from django.apps import apps as django_apps

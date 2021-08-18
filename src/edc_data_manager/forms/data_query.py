@@ -1,5 +1,3 @@
-import pdb
-
 from django import forms
 from edc_action_item.forms.action_item_form_mixin import ActionItemFormMixin
 from edc_constants.constants import CLOSED, FEEDBACK, HIGH_PRIORITY, NEW, OPEN, RESOLVED
