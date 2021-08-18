@@ -1,11 +1,3 @@
-from edc_vitals.models import (  # noqa
-    DiastolicPressureField,
-    HeightField,
-    SystolicPressureField,
-    WaistCircumferenceField,
-    WeightField,
-)
-
 from .date_estimated import IsDateEstimatedField, IsDateEstimatedFieldNa
 from .duration import DurationYMDField
 from .hostname_modification_field import HostnameModificationField
