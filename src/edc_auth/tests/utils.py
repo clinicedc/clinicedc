@@ -1,9 +1,7 @@
 import csv
 import os
-import pdb
 from tempfile import mkdtemp
 
-import mempass
 from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
