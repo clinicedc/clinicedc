@@ -6,7 +6,7 @@ from ..models import HeightField, WeightField
 
 class WeightHeightBmiModelMixin(models.Model):
 
-    lower_bmi_value = 15.0
+    lower_bmi_value = 5.0
 
     upper_bmi_value = 60.0
 
@@ -24,12 +24,7 @@ class WeightHeightBmiModelMixin(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        bmi = self.calculate_bmi()
-        self.calculated_bmi_value = bmi.value if bmi else None
-        super().save(*args, **kwargs)
-
-    def calculate_bmi(self):
-        return calculate_bmi(
+        bmi = calculate_bmi(
             weight_kg=self.weight,
             height_cm=self.height,
             lower_bmi_value=self.lower_bmi_value,
@@ -37,6 +32,8 @@ class WeightHeightBmiModelMixin(models.Model):
             report_datetime=self.report_datetime,
             dob=self.get_dob(),
         )
+        self.calculated_bmi_value = bmi.value if bmi else None
+        super().save(*args, **kwargs)
 
     def get_dob(self):
         """Override to provides DoB if not on the model"""
