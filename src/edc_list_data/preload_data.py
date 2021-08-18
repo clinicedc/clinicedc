@@ -1,4 +1,3 @@
-import pdb
 from typing import Optional
 
 from django.apps import AppConfig
