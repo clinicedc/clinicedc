@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from django import forms
 from django.conf import settings
+from django.core.exceptions import NON_FIELD_ERRORS
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
 from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
@@ -273,7 +274,9 @@ class TestForms2(TestCase):
         data = {"received": True}
         form = self.form_cls(data=data, instance=obj)
         form.is_valid()
-        self.assertIn("Requisition may not be changed", "".join(form.errors.get("__all__")))
+        self.assertIn(
+            "Requisition may not be changed", "".join(form.errors.get(NON_FIELD_ERRORS))
+        )
 
     def test_requisition_form_dates(self):
         class RequisitionForm(RequisitionFormMixin, FormValidatorMixin, forms.ModelForm):

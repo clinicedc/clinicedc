@@ -33,7 +33,7 @@ class PanelModelMixin(models.Model):
             except KeyError as e:
                 raise PanelModelError(
                     "Undefined `panel` name or `panel group` name. "
-                    f"Got {panel_name}. See AppConfig. Got {e}"
+                    f"Got {panel_name}. See LabProfile and model Panel. Got {e}"
                 )
         return panel_object
 
