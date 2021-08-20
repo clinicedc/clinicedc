@@ -1,13 +1,9 @@
+from .action_items import action_items
 from .ae_review import ae_review
 from .tmg_review import tmg_review
 
 auditor = [
-    "edc_action_item.view_actionitem",
-    "edc_action_item.view_actiontype",
-    "edc_action_item.view_historicalactionitem",
-    "edc_action_item.view_historicalreference",
     "edc_action_item.view_reference",
-    "edc_navbar.nav_action_item_section",
     "edc_adverse_event.view_aeclassification",
     "edc_adverse_event.view_saereason",
     "edc_appointment.view_appointment",
@@ -54,6 +50,9 @@ auditor = [
     "edc_offstudy.view_subjectoffstudy",
 ]
 
+auditor.extend(
+    c for c in action_items if ("view_" in c or "edc_nav" in c or "edc_dashboard" in c)
+)
 auditor.extend(ae_review)
 auditor.extend(tmg_review)
 auditor = list(set(auditor))

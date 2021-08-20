@@ -21,6 +21,7 @@ from .codenames import (
     pii_view,
     review,
     site_data_manager,
+    statistician,
     tmg,
     tmg_review,
 )
@@ -47,6 +48,7 @@ from .group_names import (
     RANDO,
     REVIEW,
     SITE_DATA_MANAGER,
+    STATISTICIAN,
     TMG,
     TMG_REVIEW,
 )
@@ -76,6 +78,7 @@ def get_default_codenames_by_group():
         RANDO: get_rando,
         REVIEW: review,
         SITE_DATA_MANAGER: site_data_manager,
+        STATISTICIAN: statistician,
         TMG: tmg,
         TMG_REVIEW: tmg_review,
     }

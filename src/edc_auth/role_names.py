@@ -14,6 +14,7 @@ from .constants import (
     SITE_DATA_MANAGER_ROLE,
     SITE_PHARMACIST_ROLE,
     STAFF_ROLE,
+    STATISTICIAN_ROLE,
     TMG_ROLE,
 )
 from .group_names import (
@@ -39,6 +40,7 @@ from .group_names import (
     REVIEW,
     SCREENING,
     SITE_DATA_MANAGER,
+    STATISTICIAN,
     TMG,
     TMG_REVIEW,
     UNBLINDING_REQUESTORS,
@@ -60,6 +62,7 @@ role_names = {
     SITE_COORDINATOR: "Site Coordinator",
     SITE_DATA_MANAGER_ROLE: "Site Data Manager",
     SITE_PHARMACIST_ROLE: "Site Pharmacist",
+    STATISTICIAN_ROLE: "Statistician",
     STAFF_ROLE: "Staff",
     TMG_ROLE: "TMG (External Review)",
 }
@@ -128,5 +131,17 @@ groups_by_role_name = {
     SITE_PHARMACIST_ROLE: [ADMINISTRATION, EVERYONE, DISPENSING, RANDO],
     SITE_COORDINATOR: [ADMINISTRATION, EVERYONE],
     SITE_DATA_MANAGER_ROLE: [ADMINISTRATION, EVERYONE, REVIEW, SITE_DATA_MANAGER],
+    STATISTICIAN_ROLE: [
+        ADMINISTRATION,
+        AE_REVIEW,
+        AUDITOR,
+        DATA_MANAGER,
+        EVERYONE,
+        EXPORT,
+        LAB_VIEW,
+        REVIEW,
+        STATISTICIAN,
+        TMG_REVIEW,
+    ],
     TMG_ROLE: [ADMINISTRATION, EVERYONE, REVIEW, TMG, UNBLINDING_REVIEWERS],
 }
