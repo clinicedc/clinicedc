@@ -23,5 +23,6 @@ from .pii_view import pii_view
 from .review import review
 from .screening import screening
 from .site_data_manager import site_data_manager
+from .statistician import statistician
 from .tmg import tmg
 from .tmg_review import tmg_review
