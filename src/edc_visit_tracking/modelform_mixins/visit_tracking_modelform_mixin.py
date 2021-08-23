@@ -30,21 +30,26 @@ class VisitTrackingModelFormMixin:
         """
         cleaned_data = super().clean()  # type: ignore
 
+        self.validate_visit_tracking()
+
+        return cleaned_data
+
+    def validate_visit_tracking(self) -> None:
         # trigger a validation error if visit field is None
         # no comment needed since django will catch it as
         # a required field.
         if not self.subject_visit:
-            if self.subject_visit_attr in cleaned_data:
+            if self.subject_visit_attr in self.cleaned_data:
                 raise forms.ValidationError({self.subject_visit_attr: ""})
             else:
                 raise forms.ValidationError(
                     f"Field `{self.subject_visit_attr}` is required (1)."
                 )
-        elif cleaned_data.get("report_datetime"):
+        elif self.cleaned_data.get("report_datetime"):
             try:
                 self.crf_date_validator_cls(
                     report_datetime_allowance=self.report_datetime_allowance,
-                    report_datetime=cleaned_data.get("report_datetime"),
+                    report_datetime=self.cleaned_data.get("report_datetime"),
                     visit_report_datetime=self.subject_visit.report_datetime,
                 )
             except (
@@ -53,7 +58,6 @@ class VisitTrackingModelFormMixin:
                 CrfReportDateIsFuture,
             ) as e:
                 raise forms.ValidationError({"report_datetime": str(e)})
-        return cleaned_data
 
     @property
     def subject_visit(self: Union["VisitTrackingModelFormMixin", CrfModelFormStub]):
