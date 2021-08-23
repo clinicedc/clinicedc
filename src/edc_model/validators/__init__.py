@@ -1,4 +1,3 @@
-from .bp import bp_validator
 from .date import (
     date_is_future,
     date_is_not_now,

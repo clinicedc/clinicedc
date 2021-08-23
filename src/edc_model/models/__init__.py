@@ -1,5 +1,3 @@
-from django.conf import settings
-
 from .address_mixin import AddressMixin
 from .base_model import BaseModel
 from .base_uuid_model import BaseUuidModel
@@ -18,7 +16,6 @@ from .historical_records import HistoricalRecords
 from .report_status_model_mixin import ReportStatusModelMixin
 from .url_model_mixin import UrlModelMixin, UrlModelMixinNoReverseMatch
 from .validators import (
-    bp_validator,
     cell_number,
     date_is_future,
     date_is_not_now,
