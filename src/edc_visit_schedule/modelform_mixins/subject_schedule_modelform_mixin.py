@@ -13,7 +13,11 @@ class SubjectScheduleModelFormMixin:
 
     def clean(self):
         cleaned_data = super().clean()
-        subject_visit = cleaned_data.get(self._meta.model.visit_model_attr())
+        self.validate_subject_schedule()
+        return cleaned_data
+
+    def validate_subject_schedule(self) -> None:
+        subject_visit = self.cleaned_data.get(self._meta.model.visit_model_attr())
         if subject_visit:
             visit_schedule = subject_visit.appointment.visit_schedule
             schedule = subject_visit.appointment.schedule
@@ -28,7 +32,6 @@ class SubjectScheduleModelFormMixin:
                 )
             except (NotOnScheduleError, NotOnScheduleForDateError) as e:
                 raise forms.ValidationError(str(e))
-        return cleaned_data
 
     def get_subject_schedule(self, visit_schedule, schedule):
         try:
