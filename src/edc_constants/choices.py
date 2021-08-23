@@ -28,6 +28,7 @@ from .constants import (
     NOT_APPLICABLE,
     NOT_DONE,
     NOT_ESTIMATED,
+    NOT_EXAMINED,
     NOT_RECORDED,
     NOT_REQUIRED,
     NOT_SURE,
@@ -46,7 +47,6 @@ from .constants import (
     WEEKDAYS,
     WEEKENDS,
     YES,
-    NOT_EXAMINED,
 )
 
 BLANK_CHOICE_DASH = [("", "---------")]
@@ -317,6 +317,13 @@ IDENTITY_TYPE = (
     (OTHER, "Other"),
 )
 
+MARITAL_STATUS = (
+    ("never_married", "Never married"),
+    ("married", "Currently married"),
+    ("separated", "Separated"),
+    ("divorced", "Divorced"),
+    ("widowed", "Widow / Spinster"),
+)
 
 NORMAL_ABNORMAL = ((NORMAL, "Normal"), (ABNORMAL, "Abnormal"))
 
