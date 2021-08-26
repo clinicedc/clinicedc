@@ -17,8 +17,8 @@ from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
 
-from ..constants import DEATH_REPORT_ACTION
-from ..models import CauseOfDeath
+from ...constants import DEATH_REPORT_ACTION
+from ...models import CauseOfDeath
 
 
 class DeathReportModelMixin(

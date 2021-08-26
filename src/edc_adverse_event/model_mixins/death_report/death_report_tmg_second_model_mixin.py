@@ -4,7 +4,7 @@ from edc_action_item.managers import (
     ActionIdentifierSiteManager,
 )
 
-from ..constants import DEATH_REPORT_TMG_SECOND_ACTION
+from ...constants import DEATH_REPORT_TMG_SECOND_ACTION
 from .death_report_tmg_model_mixin import DeathReportTmgModelMixin
 
 

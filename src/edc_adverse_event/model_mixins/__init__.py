@@ -16,11 +16,12 @@ from .ae_susar import (
     AeSusarModelMixin,
 )
 from .ae_tmg import AeTmgFieldsModelMixin, AeTmgMethodsModelMixin, AeTmgModelMixin
-from .death_report_model_mixin import DeathReportModelMixin
-from .death_report_tmg_model_mixin import (
+from .death_report import (
+    DeathReportExtraFieldsModelMixin,
+    DeathReportModelMixin,
     DeathReportTmgModelMixin,
     DeathReportTmgSecondManager,
     DeathReportTmgSecondModelMixin,
     DeathReportTmgSecondSiteManager,
+    SimpleDeathReportModelMixin,
 )
-from .simple_death_report_model_mixin import SimpleDeathReportModelMixin
