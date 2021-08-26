@@ -58,7 +58,7 @@ class TestClinicalReview(TestCaseMixin, TestCase):
         }
 
     @tag("1")
-    @override_settings(EDC_DIAGNOSIS_LABELS={HIV: "HIV"})
+    @override_settings(EDC_DX_LABELS={HIV: "HIV"})
     def test_baseline_form_ok(self):
         """Tests validation respects DIAGNOSIS LABELS"""
         form = ClinicalReviewBaselineForm(data=self.baseline_data)
@@ -71,7 +71,7 @@ class TestClinicalReview(TestCaseMixin, TestCase):
         self.assertIsNone(obj.chol_test_estimated_date)
 
     @tag("1")
-    @override_settings(EDC_DIAGNOSIS_LABELS={HIV: "HIV"})
+    @override_settings(EDC_DX_LABELS={HIV: "HIV"})
     def test_baseline_unknown_label_raises(self):
         data = deepcopy(self.baseline_data)
         data.update(
@@ -88,7 +88,7 @@ class TestClinicalReview(TestCaseMixin, TestCase):
         self.assertRaises(DiagnosisLabelError, form.save)
 
     @tag("1")
-    @override_settings(EDC_DIAGNOSIS_LABELS={HIV: "HIV", HTN: "htn"})
+    @override_settings(EDC_DX_LABELS={HIV: "HIV", HTN: "htn"})
     def test_baseline_known_label_does_not_raise(self):
         data = deepcopy(self.baseline_data)
         data.update(
@@ -108,7 +108,7 @@ class TestClinicalReview(TestCaseMixin, TestCase):
 
     @tag("1")
     @override_settings(
-        EDC_DIAGNOSIS_LABELS={
+        EDC_DX_LABELS={
             HIV: "HIV",
             HTN: "Hypertensive",
             DM: "diabetic",
@@ -136,7 +136,7 @@ class TestClinicalReview(TestCaseMixin, TestCase):
 
     @tag("1")
     @override_settings(
-        EDC_DIAGNOSIS_LABELS={
+        EDC_DX_LABELS={
             HIV: "HIV",
             HTN: "Hypertensive",
         }
@@ -158,7 +158,7 @@ class TestClinicalReview(TestCaseMixin, TestCase):
 
     @tag("1")
     @override_settings(
-        EDC_DIAGNOSIS_LABELS={
+        EDC_DX_LABELS={
             HIV: "HIV",
         }
     )
@@ -178,7 +178,7 @@ class TestClinicalReview(TestCaseMixin, TestCase):
         )
 
     @tag("1")
-    @override_settings(EDC_DIAGNOSIS_LABELS={HIV: "HIV"})
+    @override_settings(EDC_DX_LABELS={HIV: "HIV"})
     def test_followup_requires_baseline_review(self):
         form = ClinicalReviewFollowupForm(data=self.followup_data)
         form.is_valid()
@@ -188,7 +188,7 @@ class TestClinicalReview(TestCaseMixin, TestCase):
         )
 
     @tag("1")
-    @override_settings(EDC_DIAGNOSIS_LABELS={HIV: "HIV"})
+    @override_settings(EDC_DX_LABELS={HIV: "HIV"})
     def test_followup_ok(self):
         form = ClinicalReviewBaselineForm(data=self.baseline_data)
         form.is_valid()
