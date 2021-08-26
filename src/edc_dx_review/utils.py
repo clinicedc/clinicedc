@@ -1,7 +1,10 @@
+from datetime import date, datetime
+
 from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from edc_constants.constants import HIV, YES
 from edc_model.utils import model_exists_or_raise
 from edc_visit_schedule.utils import is_baseline
 
@@ -78,3 +81,44 @@ def raise_if_review_does_not_exist(subject_visit, prefix):
         subject_visit=subject_visit,
         model_cls=get_review_model_cls(prefix),
     )
+
+
+def medications_exists_or_raise(subject_visit) -> bool:
+    if subject_visit:
+        try:
+            get_medication_model_cls().objects.get(subject_visit=subject_visit)
+        except ObjectDoesNotExist:
+            raise forms.ValidationError(
+                f"Complete the `{get_medication_model_cls()._meta.verbose_name}` CRF first."
+            )
+    return True
+
+
+def art_initiation_date(subject_identifier: str, report_datetime: datetime) -> date:
+    """Returns date initiated on ART or None by querying
+    the HIV Initial Review and then the HIV Review.
+    """
+    art_date = None
+    try:
+        initial_review = get_initial_review_model_cls(HIV).objects.get(
+            subject_visit__subject_identifier=subject_identifier,
+            report_datetime__lte=report_datetime,
+        )
+    except ObjectDoesNotExist:
+        pass
+    else:
+        if initial_review.arv_initiated == YES:
+            art_date = initial_review.best_art_initiation_date
+        else:
+            for review in (
+                get_review_model_cls(HIV)
+                .objects.filter(
+                    subject_visit__subject_identifier=subject_identifier,
+                    report_datetime__lte=report_datetime,
+                )
+                .order_by("-report_datetime")
+            ):
+                if review.arv_initiated == YES:
+                    art_date = review.arv_initiation_actual_date
+                    break
+    return art_date
