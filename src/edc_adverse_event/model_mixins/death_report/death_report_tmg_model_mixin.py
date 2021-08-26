@@ -18,7 +18,7 @@ from edc_utils import get_utcnow
 
 from edc_adverse_event.models import CauseOfDeath
 
-from ..constants import DEATH_REPORT_TMG_ACTION, DEATH_REPORT_TMG_SECOND_ACTION
+from ...constants import DEATH_REPORT_TMG_ACTION, DEATH_REPORT_TMG_SECOND_ACTION
 
 
 class DeathReportTmgManager(ActionIdentifierManager):
