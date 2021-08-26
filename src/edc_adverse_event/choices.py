@@ -1,4 +1,4 @@
-from edc_constants.constants import DEAD, NOT_APPLICABLE
+from edc_constants.constants import DEAD, NOT_APPLICABLE, OTHER
 from edc_ltfu.constants import LOST_TO_FOLLOWUP
 from edc_reportable import (
     GRADE3,
@@ -48,6 +48,28 @@ AE_OUTCOME = (
     (LOST_TO_FOLLOWUP, "Unknown/Lost to follow-up"),
     (RECOVERED_WITH_SEQUELAE, "Recovered with sequelae"),
     (DEAD, "Death"),
+)
+
+CONTACT = (
+    ("tel", "Telephone conversation"),
+    ("home", "Home visIt"),
+    ("relative_at_clinic", "Relative visited the health facility"),
+    ("patient_record", "Patient record / document"),
+    (OTHER, "Other"),
+)
+
+DEATH_LOCATIONS = (
+    ("home", "At home"),
+    ("hospital_clinic", "Hospital/clinic"),
+    (OTHER, "Elsewhere, please specify"),
+)
+
+INFORMANT = (
+    ("spouse", "Spouse"),
+    ("Parent", "Parent"),
+    ("child", "Child"),
+    ("healthcare_worker", "Healthcare Worker"),
+    (OTHER, "Other"),
 )
 
 SAE_REASONS = (
