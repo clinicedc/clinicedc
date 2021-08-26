@@ -5,10 +5,10 @@ from edc_dx import get_diagnosis_labels_prefixes
 
 
 class TestLabels(TestCase):
-    @override_settings(EDC_DIAGNOSIS_LABELS={HIV: "HIV"})
+    @override_settings(EDC_DX_LABELS={HIV: "HIV"})
     def test_diagnosis_labels_hiv_only(self):
         self.assertEqual([x.lower() for x in [HIV]], get_diagnosis_labels_prefixes())
 
-    @override_settings(EDC_DIAGNOSIS_LABELS={HIV: "HIV", DM: "Diabetes"})
+    @override_settings(EDC_DX_LABELS={HIV: "HIV", DM: "Diabetes"})
     def test_diagnosis_labels_hiv_dm_only(self):
         self.assertEqual([x.lower() for x in [HIV, DM]], get_diagnosis_labels_prefixes())

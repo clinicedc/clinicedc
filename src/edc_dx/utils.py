@@ -8,10 +8,10 @@ class DiagnosisLabelError(Exception):
 
 
 try:
-    getattr(settings, "EDC_DIAGNOSIS_LABELS")
+    getattr(settings, "EDC_DX_LABELS")
 except AttributeError as e:
     raise AttributeError(
-        f"{e}. Expected something like `EDC_DIAGNOSIS_LABELS=dict"
+        f"{e}. Expected something like `EDC_DX_LABELS=dict"
         "(hiv=HIV,dm=Diabetes,htn=Hypertension,chol=High Cholesterol)`"
     )
 
@@ -32,10 +32,10 @@ def calculate_dx_date_if_estimated(
 
 def get_diagnosis_labels():
     try:
-        diagnosis_labels = getattr(settings, "EDC_DIAGNOSIS_LABELS")
+        diagnosis_labels = getattr(settings, "EDC_DX_LABELS")
     except AttributeError as e:
         raise AttributeError(
-            f"{e}. Expected something like `EDC_DIAGNOSIS_LABELS=dict"
+            f"{e}. Expected something like `EDC_DX_LABELS=dict"
             "(hiv=HIV,dm=Diabetes,htn=Hypertension,chol=High Cholesterol)`"
         )
 
@@ -50,7 +50,7 @@ def raise_on_unknown_diagnosis_labels(obj, fld_suffix, fld_value):
     """Raises an exception if a diagnosis field has a response
     but is not an expected condition.
 
-    See also EDC_DIAGNOSIS_LABELS.
+    See also EDC_DX_LABELS.
     """
     labels = [
         fld.name.split(fld_suffix)[0]
@@ -61,7 +61,7 @@ def raise_on_unknown_diagnosis_labels(obj, fld_suffix, fld_value):
     ]
     if labels:
         raise DiagnosisLabelError(
-            "Diagnosis prefix not expected. See settings.EDC_DIAGNOSIS_LABELS. "
+            "Diagnosis prefix not expected. See settings.EDC_DX_LABELS. "
             f"Expected one of {get_diagnosis_labels_prefixes()}. Got {labels}."
         )
 
