@@ -1,12 +1,13 @@
 from django import forms
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
+from edc_form_validators import FormValidator
 
-from ..constants import LOST_TO_FOLLOWUP
+from ..constants import LTFU
 from ..utils import get_ltfu_model_name
 
 
-class LtfuFormValidatorMixin:
+class LtfuFormValidatorMixin(FormValidator):
 
     ltfu_model = get_ltfu_model_name()
     offschedule_reason_field = "offschedule_reason"
@@ -30,7 +31,7 @@ class LtfuFormValidatorMixin:
                     f"Got '{self.offschedule_reason_field}'. "
                     f"See form {self.__class__.__name__}"
                 )
-            if self.cleaned_data.get(self.offschedule_reason_field) == LOST_TO_FOLLOWUP:
+            if self.cleaned_data.get(self.offschedule_reason_field) == LTFU:
                 raise forms.ValidationError(
                     {
                         self.offschedule_reason_field: (
