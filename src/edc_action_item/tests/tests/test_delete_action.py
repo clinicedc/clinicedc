@@ -19,7 +19,6 @@ from ..models import FormOne
 from ..test_case_mixin import TestCaseMixin
 
 
-@tag("1")
 class TestAction(TestCaseMixin, TestCase):
     def setUp(self):
         register_actions()
