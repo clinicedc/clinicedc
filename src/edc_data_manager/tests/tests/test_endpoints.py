@@ -1,12 +1,10 @@
 from unittest import skip
 
-from django.apps import apps as django_apps
 from django.contrib.auth import get_user_model
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_action_item.models.action_item import ActionItem
-from edc_auth import CLINIC, DATA_MANAGER, EVERYONE
-from edc_auth.group_permissions_updater import GroupPermissionsUpdater
+from edc_auth import CLINIC, EVERYONE
 from edc_lab.site_labs import site_labs
 from edc_registration.models import RegisteredSubject
 from edc_test_utils.webtest import login
@@ -16,6 +14,7 @@ from model_bakery import baker
 from data_manager_app.lab_profiles import lab_profile
 from data_manager_app.reference_model_configs import register_to_site_reference_configs
 from data_manager_app.visit_schedules import visit_schedule
+from edc_data_manager.auth_objects import DATA_MANAGER
 from edc_data_manager.models import CrfDataDictionary, DataQuery
 from edc_data_manager.models.user import DataManagerUser
 
@@ -33,10 +32,6 @@ class AdminSiteTest(WebTest):
             is_staff=True,
         )
 
-        GroupPermissionsUpdater(
-            excluded_app_labels=["django_celery_beat", "django_celery_results"],
-            apps=django_apps,
-        )
         site_labs._registry = {}
         site_labs.loaded = False
         site_labs.register(lab_profile=lab_profile)
