@@ -1,4 +1,3 @@
-import pdb
 import sys
 
 from edc_auth.default_role_names import PHARMACIST_ROLE, SITE_PHARMACIST_ROLE
