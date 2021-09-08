@@ -2,13 +2,13 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models.signals import m2m_changed, post_delete, post_save
 from django.dispatch.dispatcher import receiver
-from edc_auth import TMG
 from edc_constants.constants import NO, YES
 from edc_notification.models import Notification
 from edc_utils import get_utcnow
 
 from edc_adverse_event.constants import DEATH_REPORT_TMG_ACTION
 
+from .auth_objects import TMG
 from .constants import AE_TMG_ACTION
 from .get_ae_model import get_ae_model
 

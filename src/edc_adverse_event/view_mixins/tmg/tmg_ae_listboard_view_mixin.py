@@ -1,7 +1,6 @@
 import arrow
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from edc_auth import TMG
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_dashboard.view_mixins import (
     EdcViewMixin,
@@ -14,6 +13,7 @@ from edc_navbar.get_default_navbar import get_default_navbar
 
 from edc_adverse_event.constants import AE_TMG_ACTION
 
+from ...auth_objects import TMG
 from ...model_wrappers import TmgActionItemModelWrapper
 
 
