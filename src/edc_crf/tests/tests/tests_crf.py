@@ -1,9 +1,11 @@
+from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_constants.constants import COMPLETE, INCOMPLETE
 from edc_facility import import_holidays
+from edc_form_validators import FormValidator, FormValidatorMixin
 from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
@@ -12,12 +14,18 @@ from edc_visit_tracking.tests.helper import Helper
 from visit_schedule_app.consents import v1_consent
 from visit_schedule_app.models import SubjectConsent, SubjectVisit
 
+from edc_crf.forms import CrfFormValidatorMixin
+from edc_crf.modelform_mixins import CrfModelFormMixin
 from edc_crf.models import CrfStatus
 
 from ..models import Crf
 from ..visit_schedule import visit_schedule
 
 
+@override_settings(
+    SUBJECT_CONSENT_MODEL="visit_schedule_app.subjectconsent",
+    SUBJECT_SCREENING_MODEL="visit_schedule_app.subjectscreening",
+)
 class EdcCrfTestCase(TestCase):
     helper_cls = Helper
 
@@ -77,3 +85,62 @@ class EdcCrfTestCase(TestCase):
             subject_identifier=crf_obj.subject_visit.subject_identifier,
             label_lower="edc_crf.crf",
         )
+
+    def test_form_validator_with_crf(self):
+        class MyFormValidator(CrfFormValidatorMixin, FormValidator):
+            def clean(self) -> None:
+                """test all methods"""
+                _ = self.subject_visit
+                _ = self.subject_consent
+                _ = self.subject_identifier
+                _ = self.report_datetime
+
+        class MyForm(CrfModelFormMixin, FormValidatorMixin, forms.ModelForm):
+
+            form_validator_cls = MyFormValidator
+
+            def validate_against_consent(self):
+                pass
+
+            class Meta:
+                model = Crf
+                fields = "__all__"
+
+        # crf_obj = Crf.objects.create(subject_visit=self.subject_visit)
+        data = dict(
+            report_datetime=self.subject_visit.report_datetime,
+            subject_visit=self.subject_visit,
+            crf_status=INCOMPLETE,
+        )
+        form = MyForm(data=data)
+        form.is_valid()
+        self.assertEqual({}, form._errors)
+
+    def test_form_validator_with_prn(self):
+        class MyFormValidator(CrfFormValidatorMixin, FormValidator):
+            def clean(self) -> None:
+                """test all methods"""
+                _ = self.subject_consent
+                _ = self.subject_identifier
+                _ = self.report_datetime
+
+        class MyForm(CrfModelFormMixin, FormValidatorMixin, forms.ModelForm):
+
+            form_validator_cls = MyFormValidator
+
+            def validate_against_consent(self):
+                pass
+
+            class Meta:
+                model = Crf
+                fields = "__all__"
+
+        # crf_obj = Crf.objects.create(subject_visit=self.subject_visit)
+        data = dict(
+            report_datetime=self.subject_visit.report_datetime,
+            subject_visit=self.subject_visit,
+            crf_status=INCOMPLETE,
+        )
+        form = MyForm(data=data)
+        form.is_valid()
+        self.assertEqual({}, form._errors)
