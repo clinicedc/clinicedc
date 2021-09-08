@@ -8,8 +8,8 @@ from .constants import UNBLINDING_REQUEST_ACTION, UNBLINDING_REVIEW_ACTION
 
 class UnblindingRequestAction(ActionWithNotification):
 
-    reference_model = None  # "inte_prn.unblindingrequest"
-    admin_site_name = None  # "inte_prn_admin"
+    reference_model = "edc_unblinding.unblindingrequest"  # or inte_prn.unblindingrequest
+    admin_site_name = "edc_unblinding_admin"  # or inte_prn_admin
 
     name = UNBLINDING_REQUEST_ACTION
     display_name = "Unblinding request"
@@ -31,8 +31,8 @@ class UnblindingRequestAction(ActionWithNotification):
 
 class UnblindingReviewAction(ActionWithNotification):
 
-    reference_model = None  # "inte_prn.unblindingreview"
-    admin_site_name = None  # "inte_prn_admin"
+    reference_model = "edc_unblinding.unblindingreview"  # or inte_prn.unblindingreview
+    admin_site_name = "edc_unblinding_admin"  # or inte_prn_admin
 
     name = UNBLINDING_REVIEW_ACTION
     display_name = "Unblinding review pending"

@@ -1,39 +1,20 @@
-from edc_auth.constants import CLINICIAN_ROLE, NURSE_ROLE, TMG_ROLE
+from edc_adverse_event.auth_objects import TMG_ROLE
+from edc_auth.default_role_names import CLINICIAN_ROLE, NURSE_ROLE
 from edc_auth.site_auths import site_auths
 
-UNBLINDING_REQUESTORS = "UNBLINDING_REQUESTORS"
-UNBLINDING_REVIEWERS = "UNBLINDING_REVIEWERS"
+from .auth_objects import (
+    UNBLINDING_REQUESTORS,
+    UNBLINDING_REQUESTORS_ROLE,
+    UNBLINDING_REVIEWERS,
+    UNBLINDING_REVIEWERS_ROLE,
+    unblinding_requestors,
+    unblinding_reviewers,
+)
 
-unblinding_requestors = [
-    "edc_unblinding.add_unblindingrequest",
-    "edc_unblinding.change_unblindingrequest",
-    "edc_unblinding.delete_unblindingrequest",
-    "edc_unblinding.view_unblindingrequest",
-    "edc_unblinding.view_historicalunblindingrequest",
-    "edc_unblinding.view_unblindingrequestoruser",
-]
-
-
-unblinding_reviewers = [
-    "edc_unblinding.add_unblindingreview",
-    "edc_unblinding.change_unblindingreview",
-    "edc_unblinding.delete_unblindingreview",
-    "edc_unblinding.view_unblindingreview",
-    "edc_unblinding.view_historicalunblindingreview",
-    "edc_unblinding.view_unblindingrevieweruser",
-]
-
-groups_by_role_name = {
-    UNBLINDING_REQUESTORS: unblinding_requestors,
-    UNBLINDING_REVIEWERS: unblinding_reviewers,
-}
-
-role_names = {
-    UNBLINDING_REQUESTORS: "Unblinding requestors",
-    UNBLINDING_REVIEWERS: "Unblinding reviewers",
-}
-
-site_auths.register(groups_by_role_name=groups_by_role_name, role_names=role_names)
-site_auths.add_to_role(CLINICIAN_ROLE, unblinding_requestors)
-site_auths.add_to_role(NURSE_ROLE, unblinding_requestors)
-site_auths.add_to_role(TMG_ROLE, unblinding_reviewers)
+site_auths.add_group(*unblinding_requestors, name=UNBLINDING_REQUESTORS)
+site_auths.add_group(*unblinding_reviewers, name=UNBLINDING_REVIEWERS)
+site_auths.add_role(UNBLINDING_REQUESTORS, name=UNBLINDING_REQUESTORS_ROLE)
+site_auths.add_role(UNBLINDING_REVIEWERS, name=UNBLINDING_REVIEWERS_ROLE)
+site_auths.update_role(UNBLINDING_REQUESTORS, name=CLINICIAN_ROLE)
+site_auths.update_role(UNBLINDING_REQUESTORS, name=NURSE_ROLE)
+site_auths.update_role(UNBLINDING_REQUESTORS, name=TMG_ROLE)
