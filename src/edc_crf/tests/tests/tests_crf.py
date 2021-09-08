@@ -135,7 +135,6 @@ class EdcCrfTestCase(TestCase):
                 model = Crf
                 fields = "__all__"
 
-        # crf_obj = Crf.objects.create(subject_visit=self.subject_visit)
         data = dict(
             report_datetime=self.subject_visit.report_datetime,
             subject_visit=self.subject_visit,
