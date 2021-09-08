@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.core import mail
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
-from django.test import TestCase, tag
+from django.test import TestCase
 from django.test.utils import override_settings
 from edc_utils import get_utcnow
 
@@ -32,7 +32,6 @@ from ..models import AE, AnyModel, Condition, Death
 style = color_style()
 
 
-@tag("22")
 class TestNotification(TestCase):
     def setUp(self):
         Condition.objects.create()
@@ -466,7 +465,6 @@ class TestNotification(TestCase):
         death.delete()
         self.assertEqual(len(mail.outbox), 2)
 
-    @tag("11")
     @override_settings(EDC_PROTOCOL_PROJECT_NAME="Mashi Trial")
     def test_model_notification_mail_subject(self):
 
@@ -598,7 +596,6 @@ class TestNotification(TestCase):
             enabled=True,
         )
 
-    @tag("1")
     def test_graded_event_grade3_as_test_email_message(self):
 
         site_notifications._registry = {}
