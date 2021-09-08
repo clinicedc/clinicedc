@@ -1,14 +1,8 @@
+from django.apps import apps as django_apps
 from edc_constants.constants import NEW
-from edc_crf.models import CrfStatus
 from edc_metadata import REQUIRED
-from edc_metadata.models import CrfMetadata
 
-from edc_appointment.constants import (
-    COMPLETE_APPT,
-    IN_PROGRESS_APPT,
-    INCOMPLETE_APPT,
-    NEW_APPT,
-)
+from .constants import COMPLETE_APPT, IN_PROGRESS_APPT, INCOMPLETE_APPT, NEW_APPT
 
 
 def appointment_mark_as_done(modeladmin, request, queryset):
@@ -16,10 +10,13 @@ def appointment_mark_as_done(modeladmin, request, queryset):
 
     If a record exists in CrfStatus, set to INCOMPLETE.
     """
+    crfstatus_model_cls = django_apps.get_model("edc_crf.crfstatus")
+    crfmetadata_model_cls = django_apps.get_model("edc_metadata.crfmetadata")
+
     for obj in queryset.filter(
         appt_status__in=[COMPLETE_APPT, INCOMPLETE_APPT, IN_PROGRESS_APPT]
     ):
-        if CrfStatus.objects.filter(
+        if crfstatus_model_cls.objects.filter(
             subject_identifier=obj.subject_identifier,
             visit_schedule_name=obj.visit_schedule_name,
             schedule_name=obj.schedule_name,
@@ -29,7 +26,7 @@ def appointment_mark_as_done(modeladmin, request, queryset):
             obj.appt_status = INCOMPLETE_APPT
             obj.save(update_fields=["appt_status"])
         else:
-            if CrfMetadata.objects.filter(
+            if crfmetadata_model_cls.objects.filter(
                 subject_identifier=obj.subject_identifier,
                 visit_schedule_name=obj.visit_schedule_name,
                 schedule_name=obj.schedule_name,
@@ -49,8 +46,9 @@ appointment_mark_as_done.short_description = "Mark as DONE (if allowed)"  # type
 
 def appointment_mark_as_new(modeladmin, request, queryset):
     """Update appointment to NEW."""
+    crfmetadata_model_cls = django_apps.get_model("edc_metadata.crfmetadata")
     for obj in queryset.filter(appt_status__in=[NEW, COMPLETE_APPT]):
-        if not CrfMetadata.objects.filter(
+        if not crfmetadata_model_cls.objects.filter(
             subject_identifier=obj.subject_identifier,
             visit_schedule_name=obj.visit_schedule_name,
             schedule_name=obj.schedule_name,
