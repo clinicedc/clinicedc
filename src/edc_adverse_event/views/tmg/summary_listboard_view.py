@@ -1,7 +1,6 @@
 import arrow
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from edc_auth import TMG
 from edc_dashboard.view_mixins import (
     EdcViewMixin,
     ListboardFilterViewMixin,
@@ -19,6 +18,8 @@ from edc_adverse_event.constants import (
 from edc_adverse_event.model_wrappers import (
     TmgActionItemModelWrapper as BaseTmgActionItemModelWrapper,
 )
+
+from ...auth_objects import TMG
 
 
 class TmgActionItemModelWrapper(BaseTmgActionItemModelWrapper):
