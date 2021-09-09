@@ -1,4 +1,3 @@
-import pdb
 import sys
 from typing import Optional
 from warnings import warn
@@ -30,7 +29,6 @@ class CodenameDoesNotExist(Exception):
 
 
 INVALID_APP_LABEL = "invalid_app_label"
-EDC_AUTH_CODENAMES_WARN_ONLY = getattr(settings, "EDC_AUTH_CODENAMES_WARN_ONLY", False)
 
 
 class GroupUpdater:
@@ -39,17 +37,20 @@ class GroupUpdater:
         groups: Optional[dict] = None,
         apps=None,
         verbose=None,
-        pii_models=None,
-        **kwargs,
+        pii_models: Optional[list] = None,
+        custom_permissions_tuples: Optional[dict] = None,
+        warn_only=None,
     ):
         self.apps = apps or django_apps
-        self.groups = groups
-        self.group_names = list(self.groups.keys())
-        self.verbose = verbose
-        self.pii_models = pii_models or []
-        self.group_model_cls = self.apps.get_model("auth.group")
-        self.permission_model_cls = self.apps.get_model("auth.permission")
         self.content_type_model_cls = self.apps.get_model("contenttypes.contenttype")
+        self.custom_permissions_tuples = custom_permissions_tuples
+        self.group_model_cls = self.apps.get_model("auth.group")
+        self.group_names = list(groups.keys())
+        self.groups = groups
+        self.permission_model_cls = self.apps.get_model("auth.permission")
+        self.pii_models = pii_models or []
+        self.verbose = verbose
+        self.warn_only = getattr(settings, "EDC_AUTH_CODENAMES_WARN_ONLY", warn_only)
 
     def update_groups(self):
         if self.verbose:
@@ -111,7 +112,7 @@ class GroupUpdater:
                     )
                 except ObjectDoesNotExist as e:
                     errmsg = f"{e} Got codename={codename},app_label={app_label}"
-                    if EDC_AUTH_CODENAMES_WARN_ONLY:
+                    if self.warn_only:
                         warn(style.ERROR(errmsg))
                     else:
                         raise CodenameDoesNotExist(errmsg)
@@ -176,8 +177,12 @@ class GroupUpdater:
             ):
                 group.permissions.remove(permission)
 
+    def create_custom_permissions_from_tuples(self):
+        for model, codename_tuples in self.custom_permissions_tuples.items():
+            self.create_permissions_from_tuples(model, codename_tuples)
+
     def create_permissions_from_tuples(self, model=None, codename_tuples=None):
-        """Creates custom permissions on model "model"."""
+        """Creates custom permissions on model `model`."""
         if codename_tuples:
             try:
                 model_cls = self.apps.get_model(model)

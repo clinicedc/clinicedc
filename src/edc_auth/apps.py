@@ -27,6 +27,11 @@ def post_migrate_user_groups_and_roles(sender=None, **kwargs):  # noqa
         )
         sys.stdout.write(
             style.ERROR(
+                "\nPut `edc_auth` as close to last as possible in INSTALLED_APPS.\n\n"
+            )
+        )
+        sys.stdout.write(
+            style.ERROR(
                 "\nIf this is happening in a migration that is creating a new model,\n"
                 "the post_migrate signal that creates the new model's permissions\n"
                 "might be queued to run AFTER edc_auth's post_migrate signal. Let this\n"

@@ -25,10 +25,15 @@ class AuthUpdater:
         pii_models: Optional[list] = None,
         pre_update_funcs: Optional[list] = None,
         post_update_funcs: Optional[list] = None,
+        custom_permissions_tuples: Optional[dict] = None,
         verbose=None,
         apps=None,
-        **kwargs,
+        warn_only=None,
     ):
+        site_auths.verify_and_populate()
+        custom_permissions_tuples = (
+            custom_permissions_tuples or site_auths.custom_permissions_tuples
+        )
         groups = groups or site_auths.groups
         pii_models = pii_models or site_auths.pii_models
         post_update_funcs = post_update_funcs or site_auths.post_update_funcs
@@ -51,22 +56,22 @@ class AuthUpdater:
             self.group_updater = self.group_updater_cls(
                 groups=groups,
                 pii_models=pii_models,
+                custom_permissions_tuples=custom_permissions_tuples,
                 verbose=self.verbose,
                 apps=self.apps,
-                **kwargs,
+                warn_only=warn_only,
             )
             self.role_updater = self.role_updater_cls(
                 roles=roles,
                 verbose=self.verbose,
-                apps=self.apps,
-                **kwargs,
             )
             self.run_pre_updates(pre_update_funcs)
+            self.group_updater.create_custom_permissions_from_tuples()
             self.groups = self.group_updater.update_groups()
             self.roles = self.role_updater.update_roles()
             self.run_post_updates(post_update_funcs)
             if verbose:
-                sys.stdout.write(style.MIGRATE_HEADING("Done\n"))
+                sys.stdout.write(style.MIGRATE_HEADING("Done.\n"))
                 sys.stdout.flush()
 
     def run_pre_updates(self, pre_updates):
@@ -80,7 +85,7 @@ class AuthUpdater:
         else:
             sys.stdout.write("   * nothing to do\n")
         if self.verbose:
-            sys.stdout.write("   Done\n")
+            sys.stdout.write("   Done.\n")
 
     def run_post_updates(self, post_updates):
         """Custom funcs that operate after all groups and roles have been created"""
@@ -93,7 +98,7 @@ class AuthUpdater:
         else:
             sys.stdout.write("   * nothing to do\n")
         if self.verbose:
-            sys.stdout.write("   Done\n")
+            sys.stdout.write("   Done.\n")
 
     def create_permissions_from_tuples(self, **kwargs):
         return self.group_updater.create_permissions_from_tuples(**kwargs)

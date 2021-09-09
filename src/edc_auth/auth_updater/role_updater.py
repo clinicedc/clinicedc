@@ -9,7 +9,11 @@ style = color_style()
 
 
 class RoleUpdater:
-    def __init__(self, roles: Optional[dict] = None, verbose=None, **kwargs):
+    def __init__(
+        self,
+        roles: Optional[dict] = None,
+        verbose=None,
+    ):
         self.roles = roles
         self.verbose = verbose
 
