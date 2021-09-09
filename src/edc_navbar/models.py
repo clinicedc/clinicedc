@@ -11,3 +11,6 @@ class Navbar(models.Model):
     """
 
     id = models.BigAutoField(primary_key=True)
+
+    class Meta:
+        verbose_name = "Navbar"
