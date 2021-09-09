@@ -16,12 +16,7 @@ from edc_unblinding.auth_objects import (
     UNBLINDING_REQUESTORS_ROLE,
     UNBLINDING_REVIEWERS_ROLE,
 )
-from edc_unblinding.models import (
-    UnblindingRequest,
-    UnblindingRequestorUser,
-    UnblindingReview,
-    UnblindingReviewerUser,
-)
+from edc_unblinding.models import UnblindingRequest, UnblindingRequestorUser
 
 
 @override_settings(
