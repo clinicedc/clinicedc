@@ -81,3 +81,8 @@ tmg = [
 
 tmg_review = [c for c in tmg if ("view_" in c or "edc_nav" in c or "edc_dashboard" in c)]
 tmg_role_group_names = [ADMINISTRATION, EVERYONE, REVIEW, AE_REVIEW, TMG]
+
+ae_dashboard_tuples = (
+    ("edc_dashboard.view_ae_listboard", "Can view AE listboard"),
+    ("edc_dashboard.view_tmg_listboard", "Can view TMG Listboard"),
+)

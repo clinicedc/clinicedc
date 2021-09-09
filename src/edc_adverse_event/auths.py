@@ -14,6 +14,7 @@ from .auth_objects import (
     TMG_REVIEW,
     TMG_ROLE,
     ae,
+    ae_dashboard_tuples,
     ae_review,
     tmg,
     tmg_review,
@@ -30,3 +31,6 @@ site_auths.update_role(AE, name=NURSE_ROLE)
 site_auths.update_role(AE_REVIEW, TMG_REVIEW, name=STATISTICIAN_ROLE)
 site_auths.update_role(AE_REVIEW, TMG_REVIEW, name=AUDITOR_ROLE)
 site_auths.update_role(AE, TMG, name=DATA_MANAGER_ROLE)
+site_auths.add_custom_permissions_tuples(
+    model="edc_dashboard.dashboard", codename_tuples=ae_dashboard_tuples
+)
