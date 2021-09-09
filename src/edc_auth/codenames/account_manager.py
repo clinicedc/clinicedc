@@ -15,8 +15,4 @@ account_manager = [
     "edc_auth.change_role",
     "edc_auth.delete_role",
     "edc_auth.view_role",
-    "edc_notification.add_notification",
-    "edc_notification.change_notification",
-    "edc_notification.delete_notification",
-    "edc_notification.view_notification",
 ]

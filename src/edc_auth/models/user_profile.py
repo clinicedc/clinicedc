@@ -9,7 +9,7 @@ from edc_export.choices import EXPORT_FORMATS
 from edc_export.constants import CSV
 from edc_notification.model_mixins import NotificationUserProfileModelMixin
 
-from ..constants import CUSTOM_ROLE, STAFF_ROLE
+from ..default_role_names import CUSTOM_ROLE, STAFF_ROLE
 from .role import Role
 
 
