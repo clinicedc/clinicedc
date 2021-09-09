@@ -49,6 +49,7 @@ class SiteAuths:
             "roles": default_roles,
             "update_groups": {},
             "update_roles": {},
+            "custom_permissions_tuples": {},
             "pre_update_funcs": [],
             "post_update_funcs": [],
             "pii_models": default_pii_models,
@@ -100,6 +101,15 @@ class SiteAuths:
         existing_group_names = list(set(existing_group_names))
         self.registry[key].update({name: existing_group_names})
 
+    def add_custom_permissions_tuples(self, model: str, codename_tuples: tuple):
+        try:
+            self.registry["custom_permissions_tuples"][model]
+        except KeyError:
+            self.registry["custom_permissions_tuples"].update({model: []})
+        for codename_tuple in codename_tuples:
+            if codename_tuple not in self.registry["custom_permissions_tuples"][model]:
+                self.registry["custom_permissions_tuples"][model].append(codename_tuple)
+
     @property
     def roles(self):
         return self.registry["roles"]
@@ -119,6 +129,10 @@ class SiteAuths:
     @property
     def post_update_funcs(self):
         return self.registry["post_update_funcs"]
+
+    @property
+    def custom_permissions_tuples(self):
+        return self.registry["custom_permissions_tuples"]
 
     def verify_and_populate(self):
         """Verifies that updates refer to existing group
