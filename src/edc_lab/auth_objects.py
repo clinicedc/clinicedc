@@ -8,6 +8,19 @@ lab_requisition = []
 for action in ["view_", "add_", "change_", "delete_", "view_historical"]:
     lab_requisition.append(f".{action}".join(get_requisition_model_name().split(".")))
 
+lab_dashboard_tuples = (
+    (
+        "edc_dashboard.view_lab_requisition_listboard",
+        "Can view Lab requisition listboard",
+    ),
+    ("edc_dashboard.view_lab_receive_listboard", "Can view Lab receive listboard"),
+    ("edc_dashboard.view_lab_process_listboard", "Can view Lab process listboard"),
+    ("edc_dashboard.view_lab_pack_listboard", "Can view Lab pack listboard"),
+    ("edc_dashboard.view_lab_aliquot_listboard", "Can view Lab aliquot listboard"),
+    ("edc_dashboard.view_lab_box_listboard", "Can view Lab box listboard"),
+    ("edc_dashboard.view_lab_result_listboard", "Can view Lab result listboard"),
+    ("edc_dashboard.view_lab_manifest_listboard", "Can view Lab manifest listboard"),
+)
 
 lab_dashboard = [
     "edc_dashboard.view_lab_aliquot_listboard",
