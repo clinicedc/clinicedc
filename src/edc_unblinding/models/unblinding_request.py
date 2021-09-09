@@ -52,7 +52,7 @@ class UnblindingRequest(
         related_name="+",
         on_delete=models.PROTECT,
         verbose_name="Unblinding requested by",
-        help_text="Select a name from the list",
+        help_text="Choose a name from the list",
     )
 
     unblinding_reason = models.TextField(verbose_name="Reason for unblinding")

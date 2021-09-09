@@ -36,7 +36,7 @@ class UnblindingReview(
         related_name="+",
         on_delete=models.PROTECT,
         verbose_name="Unblinding request reviewed by",
-        help_text="Select a name from the list",
+        help_text="Choose a name from the list",
     )
 
     approved = models.CharField(max_length=15, default=TBD, choices=YES_NO_TBD)

@@ -3,7 +3,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from edc_auth.admin import UserAdmin as BaseUserAdmin
 
 from ..admin_site import edc_unblinding_admin
-from ..auth import UNBLINDING_REQUESTORS, UNBLINDING_REVIEWERS
+from ..auth_objects import UNBLINDING_REQUESTORS, UNBLINDING_REVIEWERS
 from ..models import UnblindingRequestorUser, UnblindingReviewerUser
 
 
