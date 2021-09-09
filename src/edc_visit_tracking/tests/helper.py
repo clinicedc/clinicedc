@@ -31,3 +31,4 @@ class Helper:
             subject_identifier=subject_consent.subject_identifier,
             onschedule_datetime=subject_consent.consent_datetime,
         )
+        return subject_consent
