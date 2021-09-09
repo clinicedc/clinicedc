@@ -4,7 +4,6 @@ from edc_auth import (
     CELERY_MANAGER,
     CLINIC,
     EVERYONE,
-    LAB,
     PII,
     REVIEW,
     SCREENING,
@@ -49,6 +48,7 @@ data_manager.extend([tpl[0] for tpl in dashboard_tuples])
 
 
 data_query = [
+    "edc_crf.view_crfstatus",
     "edc_data_manager.change_dataquery",
     "edc_data_manager.view_crfdatadictionary",
     "edc_data_manager.view_queryrule",
@@ -81,7 +81,6 @@ data_manager_role_group_names = [
     CLINIC,
     DATA_MANAGER,
     EVERYONE,
-    LAB,
     PII,
     REVIEW,
     SCREENING,
