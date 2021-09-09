@@ -9,7 +9,6 @@ from django.utils.safestring import mark_safe
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_action_item.fieldsets import action_fields, action_fieldset_tuple
 from edc_appointment.models import Appointment
-from edc_auth import DATA_MANAGER
 from edc_constants.constants import (
     CLOSED,
     FEEDBACK,
@@ -25,6 +24,7 @@ from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_utils import formatted_datetime
 
 from ..admin_site import edc_data_manager_admin
+from ..auth_objects import DATA_MANAGER
 from ..constants import CLOSED_WITH_ACTION
 from ..forms import DataQueryForm
 from ..models import DataDictionary, DataQuery
