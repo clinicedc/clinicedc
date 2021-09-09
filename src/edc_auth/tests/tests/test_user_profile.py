@@ -5,11 +5,11 @@ from django.test import tag
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
 
+from edc_auth.auth_updater import AuthUpdater
+from edc_auth.default_role_names import CLINICIAN_ROLE
 from edc_auth.tests.utils import EdcAuthTestCase
 
 from ...backends import ModelBackendWithSite
-from ...constants import CLINICIAN_ROLE
-from ...group_permissions_updater import GroupPermissionsUpdater
 from ...models.role import Role
 
 
@@ -17,7 +17,7 @@ class TestUserProfile(EdcAuthTestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        GroupPermissionsUpdater(verbose=True, apps=django_apps)
+        AuthUpdater(verbose=True, apps=django_apps)
 
     def test_default_user_profile_created_by_signal(self):
         """Assert creates userprofile instance."""

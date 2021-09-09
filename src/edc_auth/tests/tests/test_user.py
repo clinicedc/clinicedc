@@ -5,10 +5,11 @@ from django.core import mail
 from edc_protocol import Protocol
 from faker import Faker
 
-from ...group_names import CLINIC
+from edc_auth.default_group_names import CLINIC
+from edc_auth.default_role_names import CLINICIAN_ROLE
+
 from ...import_users import UserImporter, UserImporterError, import_users
 from ...password_setter import PasswordSetter
-from ...role_names import CLINICIAN_ROLE
 from ..utils import EdcAuthTestCase, create_user_csv_file, create_users
 
 fake = Faker()

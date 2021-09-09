@@ -12,12 +12,12 @@ from django.core.mail import EmailMessage
 from edc_protocol import Protocol
 from mempass import PasswordGenerator
 
-from edc_auth.constants import ACCOUNT_MANAGER_ROLE
 from edc_auth.export_users import export_users
 
-from .constants import STAFF_ROLE
+from .default_role_names import ACCOUNT_MANAGER_ROLE, STAFF_ROLE
 from .models import Role
-from .role_names import required_role_names
+
+required_role_names = {STAFF_ROLE: "Staff"}
 
 
 class UserImporterError(Exception):

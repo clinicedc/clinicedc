@@ -1,5 +1,3 @@
-from .action_items import action_items
-
 clinic = [
     "edc_appointment.add_appointment",
     "edc_appointment.change_appointment",
@@ -15,5 +13,3 @@ clinic = [
     "edc_offstudy.view_historicalsubjectoffstudy",
     "edc_offstudy.view_subjectoffstudy",
 ]
-
-clinic.extend(action_items)
