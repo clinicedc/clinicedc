@@ -1,14 +1,14 @@
 from datetime import datetime
 
 import arrow
-from django.apps import apps as django_apps
 from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
 from django.test import TestCase, tag
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
-from edc_auth import CLINIC, get_default_codenames_by_group
-from edc_auth.group_permissions_updater import GroupPermissionsUpdater
+from edc_auth import CLINIC
+from edc_auth.auth_updater import AuthUpdater
+from edc_auth.site_auths import site_auths
 from edc_model_wrapper import ModelWrapper
 from edc_utils import get_utcnow
 
@@ -22,23 +22,18 @@ from edc_dashboard.views import ListboardView
 
 from ..models import SubjectVisit
 
-codenames_by_group = get_default_codenames_by_group()
-codenames_by_group[CLINIC].append("edc_dashboard.view_my_listboard")
-
 
 class TestViewMixins(TestCase):
     @classmethod
     def setUpClass(cls):
         url_names.register("dashboard_url", "dashboard_url", "edc_dashboard")
-        GroupPermissionsUpdater(
-            verbose=True,
-            apps=django_apps,
-            create_codename_tuples={
-                "edc_dashboard.dashboard": [
-                    ("edc_dashboard.view_my_listboard", "View my listboard")
-                ]
-            },
+
+        site_auths.add_custom_permissions_tuples(
+            model="edc_dashboard.dashboard",
+            codename_tuples=(("edc_dashboard.view_my_listboard", "View my listboard"),),
         )
+        site_auths.update_group("edc_dashboard.view_my_listboard", name=CLINIC)
+        AuthUpdater(verbose=False, warn_only=True)
         return super(TestViewMixins, cls).setUpClass()
 
     def setUp(self):
@@ -49,6 +44,7 @@ class TestViewMixins(TestCase):
         self.request = RequestFactory().get("/")
         self.request.user = self.user
 
+    @tag("1")
     def test_querystring_mixin(self):
         class MyView(QueryStringViewMixin, ContextMixin, View):
             pass
