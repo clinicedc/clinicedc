@@ -1,5 +1,4 @@
 import copy
-import pdb
 import sys
 
 from django.apps import apps as django_apps
@@ -59,7 +58,12 @@ class SiteRandomizers:
                 f"Got '{name}'. See site_randomizer."
             )
 
-    def get_by_model(self, model):
+    def get_by_model(self, model=None):
+        """Returns the randomizer class for this model label_lower.
+
+        Default: `edc_randomization.randomizationlist`.
+        """
+        model = model or "edc_randomization.randomizationlist"
         for randomizer_cls in self._registry.values():
             if randomizer_cls.model == model:
                 return randomizer_cls
