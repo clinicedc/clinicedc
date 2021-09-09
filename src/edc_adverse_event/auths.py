@@ -5,6 +5,7 @@ from edc_auth.default_role_names import (
     STATISTICIAN_ROLE,
 )
 from edc_auth.site_auths import site_auths
+from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
 
 from .auth_objects import (
     AE,
@@ -28,3 +29,4 @@ site_auths.update_role(AE, name=CLINICIAN_ROLE)
 site_auths.update_role(AE, name=NURSE_ROLE)
 site_auths.update_role(AE_REVIEW, TMG_REVIEW, name=STATISTICIAN_ROLE)
 site_auths.update_role(AE_REVIEW, TMG_REVIEW, name=AUDITOR_ROLE)
+site_auths.update_role(AE, TMG, name=DATA_MANAGER_ROLE)

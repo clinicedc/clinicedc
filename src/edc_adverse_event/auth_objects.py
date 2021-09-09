@@ -1,5 +1,4 @@
 from django.conf import settings
-from edc_action_item.auth_objects import action_items_codenames
 from edc_auth.default_group_names import ADMINISTRATION, EVERYONE, REVIEW
 
 AE = "AE"
@@ -42,7 +41,6 @@ ae = [
     f"{settings.ADVERSE_EVENT_APP_LABEL}.view_historicaldeathreporttmgsecond",
 ]
 
-ae.extend(action_items_codenames)
 
 ae_review = [c for c in ae if ("view_" in c or "edc_nav" in c or "edc_dashboard" in c)]
 
@@ -81,7 +79,5 @@ tmg = [
     f"{settings.ADVERSE_EVENT_APP_LABEL}.view_historicaldeathreporttmgsecond",
 ]
 
-tmg.extend([c for c in ae_review])
-tmg.extend(action_items_codenames)
 tmg_review = [c for c in tmg if ("view_" in c or "edc_nav" in c or "edc_dashboard" in c)]
-tmg_role_group_names = [ADMINISTRATION, EVERYONE, REVIEW, TMG]
+tmg_role_group_names = [ADMINISTRATION, EVERYONE, REVIEW, AE_REVIEW, TMG]
