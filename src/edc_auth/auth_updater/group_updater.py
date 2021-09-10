@@ -40,6 +40,7 @@ class GroupUpdater:
         pii_models: Optional[list] = None,
         custom_permissions_tuples: Optional[dict] = None,
         warn_only=None,
+        codename_prefixes: Optional[list] = None,
     ):
         self.apps = apps or django_apps
         self.content_type_model_cls = self.apps.get_model("contenttypes.contenttype")
@@ -51,6 +52,18 @@ class GroupUpdater:
         self.pii_models = pii_models or []
         self.verbose = verbose
         self.warn_only = getattr(settings, "EDC_AUTH_CODENAMES_WARN_ONLY", warn_only)
+
+        # TODO: perhaps change edc_navbar codenames to have a prefix such as `access`
+        self.codename_prefixes = codename_prefixes or [
+            "view",
+            "add",
+            "change",
+            "delete",
+            "import",
+            "export",
+            "nav",
+            "display",
+        ]
 
     def update_groups(self):
         if self.verbose:
@@ -125,7 +138,8 @@ class GroupUpdater:
     def get_from_dotted_codename(self, codename=None):
         """Returns a tuple of app_label, codename.
 
-        Validates given codename.
+        Validates the codename format, '<app_label>.<some_codename>',
+        and the `app_label` in a given codename.
         """
         if not codename:
             raise PermissionsCodenameError("Invalid codename. May not be None.")
@@ -143,6 +157,12 @@ class GroupUpdater:
                     f"Invalid app_label in codename. Expected format "
                     f"'<app_label>.<some_codename>'. Got {codename}."
                 )
+        prefix = _codename.split("_")[0]
+        if prefix not in self.codename_prefixes:
+            raise PermissionsCodenameError(
+                f"Invalid codename prefix. Expected one of {self.codename_prefixes}. "
+                f"Got {_codename}."
+            )
         return app_label, _codename
 
     def remove_pii_permissions_from_group(self, group):
