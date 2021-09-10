@@ -21,3 +21,19 @@ class Crf(CrfModelMixin, CrfStatusModelMixin, BaseUuidModel):
 
     class Meta(BaseUuidModel.Meta):
         pass
+
+
+class Prn(BaseUuidModel):
+
+    subject_identifier = models.CharField(max_length=50, null=True, blank=True)
+
+    report_datetime = models.DateTimeField(default=get_utcnow)
+
+    f1 = models.CharField(max_length=50, null=True, blank=True)
+
+    f2 = models.CharField(max_length=50, null=True, blank=True)
+
+    f3 = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta(BaseUuidModel.Meta):
+        pass
