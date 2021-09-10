@@ -2,7 +2,7 @@ from edc_action_item import ActionWithNotification
 from edc_adverse_event.constants import DEATH_REPORT_ACTION
 from edc_constants.constants import HIGH_PRIORITY
 from edc_ltfu.constants import LTFU_ACTION
-from edc_prn.constants import UNBLINDING_REVIEW_ACTION
+from edc_unblinding.constants import UNBLINDING_REVIEW_ACTION
 
 from .constants import END_OF_STUDY_ACTION
 
