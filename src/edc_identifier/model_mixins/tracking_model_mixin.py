@@ -18,7 +18,7 @@ class TrackingModelMixin(models.Model):
     tracking_identifier_cls = TrackingIdentifier
     tracking_identifier_prefix = ""
 
-    tracking_identifier = models.CharField(max_length=30, unique=True)
+    tracking_identifier = models.CharField(max_length=32, unique=True)
 
     objects = TrackingIdentifierManager()
 
