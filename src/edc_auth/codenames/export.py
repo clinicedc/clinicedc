@@ -1,6 +1,6 @@
 export = [
     "edc_dashboard.view_export_dashboard",
-    "edc_export.show_export_admin_action",
+    "edc_export.display_export_admin_action",
     "edc_export.add_datarequest",
     "edc_export.add_datarequesthistory",
     "edc_export.add_exportreceipt",
