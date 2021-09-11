@@ -26,6 +26,7 @@ class SiteActionError(Exception):
 class SiteActionItemCollection:
     def __init__(self):
         self.registry = {}
+        self.updated_action_types = None
         prn = Prn(model="edc_action_item.actionitem", url_namespace="edc_action_item_admin")
         site_prn_forms.register(prn)
 
@@ -62,7 +63,8 @@ class SiteActionItemCollection:
         else:
             self.register_notifications(action_cls)
 
-    def register_notifications(self, action_cls):
+    @staticmethod
+    def register_notifications(action_cls):
         """Registers a new model notification and an updated model
         notification for this action cls.
 
@@ -106,7 +108,9 @@ class SiteActionItemCollection:
             create_or_update_action_type(**action_cls.as_dict())
         self.updated_action_types = True
 
-    def autodiscover(self, module_name=None, verbose=True):
+    @staticmethod
+    def autodiscover(module_name=None, verbose=True):
+        before_import_registry = {}
         module_name = module_name or "action_items"
         writer = sys.stdout.write if verbose else lambda x: x
         style = color_style()
