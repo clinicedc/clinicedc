@@ -1,6 +1,6 @@
 from django import forms
 from django.test import TestCase, tag
-from edc_crf.forms.crf_form_validator_mixin import CrfFormValidatorMixin
+from edc_crf.forms import CrfFormValidatorMixin
 
 from edc_dx import get_diagnosis_labels
 from edc_dx.form_validators import DiagnosisFormValidatorMixin
@@ -25,7 +25,6 @@ class TestDiagnosisFormValidator(TestCaseMixin, TestCase):
         self.subject_identifier = self.enroll()
         self.create_visits(self.subject_identifier)
 
-    @tag("1")
     def test_ok(self):
         data = dict(subject_visit=self.subject_visit_followup)
         form_validator = DiagnosisFormValidator(cleaned_data=data)
@@ -35,7 +34,6 @@ class TestDiagnosisFormValidator(TestCaseMixin, TestCase):
             str(form_validator._errors.get("__all__")),
         )
 
-    @tag("1")
     def test_ok2(self):
 
         data = dict(subject_visit=self.subject_visit_followup)

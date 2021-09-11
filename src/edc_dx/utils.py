@@ -64,6 +64,3 @@ def raise_on_unknown_diagnosis_labels(obj, fld_suffix, fld_value):
             "Diagnosis prefix not expected. See settings.EDC_DX_LABELS. "
             f"Expected one of {get_diagnosis_labels_prefixes()}. Got {labels}."
         )
-
-
-# EDC_DX_REVIEW_SUBJECT_MODEL_APP_LABEL
