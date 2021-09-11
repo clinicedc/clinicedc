@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.db import models
 from django.db.models.deletion import PROTECT
 from django_crypto_fields.fields import EncryptedCharField
@@ -43,6 +45,8 @@ class SubjectConsent(BaseUuidModel, SiteModelMixin, UniqueSubjectIdentifierModel
     consent_datetime = models.DateTimeField(default=get_utcnow)
 
     dob = models.DateField(null=True)
+
+    identity = models.CharField(max_length=32, default=uuid4().hex)
 
     citizen = models.CharField(max_length=25, default=YES)
 
