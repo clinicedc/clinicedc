@@ -2,11 +2,14 @@ import sys
 from copy import deepcopy
 
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.utils.module_loading import import_module, module_has_submodule
 
 from .default_groups import default_groups
 from .default_pii_models import default_pii_models
 from .default_roles import default_roles
+
+edc_auth_skip_site_auths = getattr(settings, "EDC_AUTH_SKIP_SITE_AUTHS", False)
 
 
 class AlreadyRegistered(Exception):
@@ -156,25 +159,26 @@ class SiteAuths:
 
     def autodiscover(self, module_name=None, verbose=True):
         """Autodiscovers in the auths.py file of any INSTALLED_APP."""
-        before_import_registry = None
-        module_name = module_name or "auths"
-        writer = sys.stdout.write if verbose else lambda x: x
-        writer(f" * checking for site {module_name} ...\n")
-        for app in django_apps.app_configs:
-            writer(f" * searching {app}           \r")
-            try:
-                mod = import_module(app)
+        if not edc_auth_skip_site_auths:
+            before_import_registry = None
+            module_name = module_name or "auths"
+            writer = sys.stdout.write if verbose else lambda x: x
+            writer(f" * checking for site {module_name} ...\n")
+            for app in django_apps.app_configs:
+                writer(f" * searching {app}           \r")
                 try:
-                    before_import_registry = deepcopy(site_auths.registry)
-                    import_module(f"{app}.{module_name}")
-                    writer(f" * registered '{module_name}' from '{app}'\n")
-                except ImportError as e:
-                    site_auths.registry = before_import_registry
-                    if module_has_submodule(mod, module_name):
-                        raise SiteAuthError(str(e))
-            except ImportError:
-                pass
-        self.verify_and_populate()
+                    mod = import_module(app)
+                    try:
+                        before_import_registry = deepcopy(site_auths.registry)
+                        import_module(f"{app}.{module_name}")
+                        writer(f" * registered '{module_name}' from '{app}'\n")
+                    except ImportError as e:
+                        site_auths.registry = before_import_registry
+                        if module_has_submodule(mod, module_name):
+                            raise SiteAuthError(str(e))
+                except ImportError:
+                    pass
+            self.verify_and_populate()
 
 
 site_auths = SiteAuths()
