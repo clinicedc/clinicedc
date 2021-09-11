@@ -39,7 +39,6 @@ export = [
     "edc_adverse_event.export_aeclassification",
     "edc_adverse_event.export_causeofdeath",
     "edc_adverse_event.export_saereason",
-    "edc_appointment.export_appointment",
     "edc_crf.export_crfstatus",
     "edc_data_manager.export_datadictionary",
     "edc_data_manager.export_dataquery",
