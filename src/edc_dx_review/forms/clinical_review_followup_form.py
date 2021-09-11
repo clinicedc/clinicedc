@@ -1,8 +1,8 @@
 from django import forms
-from edc_constants.constants import DM, HIV, HTN, NO, YES
-from edc_crf.forms.crf_form_validator_mixin import CrfFormValidatorMixin
+from edc_constants.constants import YES
+from edc_crf.forms import CrfFormValidatorMixin
 from edc_crf.modelform_mixins import CrfModelFormMixin
-from edc_dx import get_diagnosis_labels, get_diagnosis_labels_prefixes
+from edc_dx import get_diagnosis_labels
 from edc_dx.form_validators import DiagnosisFormValidatorMixin
 from edc_form_validators.form_validator import FormValidator
 from edc_visit_schedule.utils import raise_if_baseline

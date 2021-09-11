@@ -1,6 +1,6 @@
 from django import forms
 from edc_constants.constants import CHOL, DM, HIV, HTN, YES
-from edc_crf.forms.crf_form_validator_mixin import CrfFormValidatorMixin
+from edc_crf.forms import CrfFormValidatorMixin
 from edc_crf.modelform_mixins import CrfModelFormMixin
 from edc_dx import get_diagnosis_labels_prefixes
 from edc_form_validators.form_validator import FormValidator

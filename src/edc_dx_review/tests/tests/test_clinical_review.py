@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_constants.constants import (
     CHOL,
     DM,
@@ -57,7 +57,6 @@ class TestClinicalReview(TestCaseMixin, TestCase):
             "complications": NO,
         }
 
-    @tag("1")
     @override_settings(EDC_DX_LABELS={HIV: "HIV"})
     def test_baseline_form_ok(self):
         """Tests validation respects DIAGNOSIS LABELS"""
@@ -70,7 +69,6 @@ class TestClinicalReview(TestCaseMixin, TestCase):
         self.assertIsNone(obj.dm_test_estimated_date)
         self.assertIsNone(obj.chol_test_estimated_date)
 
-    @tag("1")
     @override_settings(EDC_DX_LABELS={HIV: "HIV"})
     def test_baseline_unknown_label_raises(self):
         data = deepcopy(self.baseline_data)
@@ -87,7 +85,6 @@ class TestClinicalReview(TestCaseMixin, TestCase):
         # response to htn fields is unexpected
         self.assertRaises(DiagnosisLabelError, form.save)
 
-    @tag("1")
     @override_settings(EDC_DX_LABELS={HIV: "HIV", HTN: "htn"})
     def test_baseline_known_label_does_not_raise(self):
         data = deepcopy(self.baseline_data)
@@ -106,7 +103,6 @@ class TestClinicalReview(TestCaseMixin, TestCase):
         except DiagnosisLabelError:
             self.fail("DiagnosisLabelError unexpectedly raised")
 
-    @tag("1")
     @override_settings(
         EDC_DX_LABELS={
             HIV: "HIV",
@@ -134,7 +130,6 @@ class TestClinicalReview(TestCaseMixin, TestCase):
         form.is_valid()
         self.assertEqual(form._errors, {})
 
-    @tag("1")
     @override_settings(
         EDC_DX_LABELS={
             HIV: "HIV",
@@ -156,7 +151,6 @@ class TestClinicalReview(TestCaseMixin, TestCase):
         form.is_valid()
         self.assertIn("Htn: When was the ", str([form._errors.get("__all__")]))
 
-    @tag("1")
     @override_settings(
         EDC_DX_LABELS={
             HIV: "HIV",
@@ -177,7 +171,6 @@ class TestClinicalReview(TestCaseMixin, TestCase):
             str([form._errors.get("__all__")]),
         )
 
-    @tag("1")
     @override_settings(EDC_DX_LABELS={HIV: "HIV"})
     def test_followup_requires_baseline_review(self):
         form = ClinicalReviewFollowupForm(data=self.followup_data)
@@ -187,7 +180,6 @@ class TestClinicalReview(TestCaseMixin, TestCase):
             str([form._errors.get("__all__")]),
         )
 
-    @tag("1")
     @override_settings(EDC_DX_LABELS={HIV: "HIV"})
     def test_followup_ok(self):
         form = ClinicalReviewBaselineForm(data=self.baseline_data)
