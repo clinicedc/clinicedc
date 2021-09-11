@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
-                "permissions": (("show_export_admin_action", "Show export action"),),
+                "permissions": (("display_export_admin_action", "Display export action"),),
             },
         ),
         migrations.CreateModel(

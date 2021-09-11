@@ -5,11 +5,11 @@ class ExportData(models.Model):
     """Dummy model for permissions"""
 
     class Meta:
-        permissions = [("show_export_admin_action", "Show export action")]
+        permissions = [("display_export_admin_action", "Display export action")]
 
 
 class ImportData(models.Model):
     """Dummy model for permissions"""
 
     class Meta:
-        permissions = [("show_import_admin_action", "Show import action")]
+        permissions = [("display_import_admin_action", "Display import action")]
