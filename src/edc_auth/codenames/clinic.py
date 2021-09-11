@@ -1,8 +1,4 @@
 clinic = [
-    "edc_appointment.add_appointment",
-    "edc_appointment.change_appointment",
-    "edc_appointment.view_appointment",
-    "edc_appointment.view_historicalappointment",
     "edc_crf.view_crfstatus",
     "edc_dashboard.view_subject_listboard",
     "edc_dashboard.view_subject_review_listboard",

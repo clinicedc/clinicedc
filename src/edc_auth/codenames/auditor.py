@@ -1,11 +1,7 @@
-from edc_adverse_event.auth_objects import ae_review, tmg_review
-
 auditor = [
     "edc_action_item.view_reference",
     "edc_adverse_event.view_aeclassification",
     "edc_adverse_event.view_saereason",
-    "edc_appointment.view_appointment",
-    "edc_appointment.view_historicalappointment",
     "edc_crf.view_crfstatus",
     "edc_dashboard.view_lab_aliquot_listboard",
     "edc_dashboard.view_lab_box_listboard",
