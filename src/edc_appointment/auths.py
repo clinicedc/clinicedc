@@ -17,6 +17,6 @@ site_auths.update_group(
 
 site_auths.update_group(
     "edc_appointment.export_appointment",
-    "edc_appointment.export_historicalappointment",
+    # "edc_appointment.export_historicalappointment",
     name=EXPORT,
 )
