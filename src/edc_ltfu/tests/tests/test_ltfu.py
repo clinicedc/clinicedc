@@ -17,8 +17,8 @@ from edc_metadata.tests.models import (
 )
 from edc_metadata.tests.visit_schedule import visit_schedule
 from edc_offstudy.action_items import EndOfStudyAction as BaseEndOfStudyAction
-from edc_prn.constants import UNBLINDING_REVIEW_ACTION
 from edc_reference import site_reference_configs
+from edc_unblinding.constants import UNBLINDING_REVIEW_ACTION
 from edc_utils import get_dob, get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.action_items import VisitMissedAction
