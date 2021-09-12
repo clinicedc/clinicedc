@@ -1,21 +1,14 @@
-from django import forms
 from django.core.exceptions import ValidationError
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_appointment.models import Appointment
-from edc_constants.constants import NO, NOT_APPLICABLE, YES
+from edc_constants.constants import NOT_APPLICABLE, YES
 from edc_lab.constants import EQ
 from edc_reportable import MILLIMOLES_PER_LITER
 from edc_utils import get_utcnow
 
 from edc_glucose.form_validators import GlucoseFormValidator
 
-from ..models import (
-    Appointment,
-    ClinicalReview,
-    ClinicalReviewBaseline,
-    DmInitialReview,
-    SubjectVisit,
-)
+from ..models import Appointment, SubjectVisit
 
 
 class TestGlucose(TestCase):
