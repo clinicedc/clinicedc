@@ -28,7 +28,7 @@ def get_rando_permissions_codenames() -> list:
 # codenames
 export_rando = [
     "edc_dashboard.view_export_dashboard",
-    "edc_export.show_export_admin_action",
+    "edc_export.display_export_admin_action",
     "edc_randomization.export_randomizationlist",
 ]
 
