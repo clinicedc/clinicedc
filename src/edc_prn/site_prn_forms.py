@@ -49,7 +49,7 @@ class PrnFormsCollection:
         style = color_style()
         writer(f" * checking for site {module_name} ...\n")
         for app in django_apps.app_configs:
-            writer(f" * searching {app}           \r")
+            writer(f" * searching {app}                      \r")
             try:
                 mod = import_module(app)
                 try:

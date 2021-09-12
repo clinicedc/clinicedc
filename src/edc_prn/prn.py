@@ -1,3 +1,5 @@
+import pdb
+
 from django.apps import apps as django_apps
 from django.core.exceptions import FieldError
 
@@ -83,5 +85,5 @@ class Prn:
             attr = self.model_cls.visit_model_attr()
             opts = {f"{attr}__subject_identifier": subject_identifier}
         except AttributeError:
-            opts = {f"registered_subject__subject_identifier": subject_identifier}
+            opts = {"registered_subject__subject_identifier": subject_identifier}
         return opts

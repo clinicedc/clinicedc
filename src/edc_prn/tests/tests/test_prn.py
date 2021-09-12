@@ -1,11 +1,11 @@
 from django.test.testcases import TestCase
 from django.urls.base import reverse
 
-from ..prn import Prn
-from ..site_prn_forms import AlreadyRegistered, site_prn_forms
+from edc_prn.prn import Prn
+from edc_prn.site_prn_forms import AlreadyRegistered, site_prn_forms
 
 # required for admin to load
-from .models import TestModel
+from ..models import TestModel  # noqa
 
 
 class TestPrn(TestCase):
