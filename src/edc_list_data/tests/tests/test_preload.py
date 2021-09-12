@@ -1,7 +1,7 @@
 from importlib import import_module
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 
 from edc_list_data import site_list_data
 from edc_list_data.preload_data import PreloadData, PreloadDataError
@@ -18,7 +18,6 @@ from ..models import (
 
 
 class TestPreload(TestCase):
-    @tag("4")
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=True)
     def test_autodiscover_default(self):
         site_list_data.autodiscover()
@@ -90,14 +89,12 @@ class TestPreload(TestCase):
         site_list_data._import_and_register(app_name="my_list_app")
         self.assertRaises(PreloadDataError, site_list_data.load_data)
 
-    @tag("1")
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_load_model_data_no_unique_field2(self):
         site_list_data.initialize(module_name="model_data2")
         site_list_data._import_and_register(app_name="my_list_app")
         self.assertRaises(PreloadDataError, site_list_data.load_data)
 
-    @tag("1")
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_load_model_data_with_unique_field(self):
         site_list_data.initialize(module_name="model_data3")
@@ -107,7 +104,6 @@ class TestPreload(TestCase):
         except PreloadDataError:
             self.fail("PreloadDataError exception unexpectedly raised")
 
-    @tag("1")
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_load_model_data_with_unique_field2(self):
         site_list_data.initialize(module_name="model_data4")
@@ -117,7 +113,6 @@ class TestPreload(TestCase):
         except PreloadDataError:
             self.fail("PreloadDataError exception unexpectedly raised")
 
-    @tag("2")
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_load_model_data_with_unique_field3(self):
         site_list_data.initialize(module_name="model_data3")
