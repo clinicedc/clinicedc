@@ -48,6 +48,10 @@ class SiteAuths:
     """
 
     def __init__(self):
+        self.registry = {}
+        self.initialize()
+
+    def initialize(self):
         self.registry = {
             "groups": default_groups,
             "roles": default_roles,
@@ -59,7 +63,7 @@ class SiteAuths:
             "pii_models": default_pii_models,
         }
 
-    def empty_registry(self):
+    def clear(self):
         self.registry = {
             "groups": {},
             "roles": {},
