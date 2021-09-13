@@ -12,10 +12,17 @@ action_items_codenames = [
     "edc_action_item.view_historicalactionitem",
     "edc_action_item.view_historicalreference",
     "edc_action_item.view_reference",
-    "edc_navbar.nav_action_item_section",
 ]
-
 
 action_items_view_only_codenames = [
     c for c in action_items_codenames if ("view_" in c or "edc_navbar" in c)
 ]
+
+navbar_codenames = ["edc_navbar.nav_action_item_section"]
+
+navbar_tuples = []
+for codename in navbar_codenames:
+    navbar_tuples.append((codename, f"Can access {codename.split('.')[1]}"))
+
+action_items_codenames.extend(navbar_codenames)
+action_items_view_only_codenames.extend(navbar_codenames)
