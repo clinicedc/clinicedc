@@ -1,12 +1,11 @@
 from django import forms
-from edc_form_validators import FormValidator
 
 from ..utils import validate_glucose_as_millimoles_per_liter
 from .ifg_form_validator_mixin import IfgFormValidatorMixin
 from .ogtt_form_validator_mixin import OgttFormValidatorMixin
 
 
-class IfgOgttFormValidatorMixin(IfgFormValidatorMixin, OgttFormValidatorMixin, FormValidator):
+class IfgOgttFormValidatorMixin(IfgFormValidatorMixin, OgttFormValidatorMixin):
     def validate_glucose_testing_matrix(self):
         self.validate_ifg_required_fields()
         validate_glucose_as_millimoles_per_liter("ifg", self.cleaned_data)

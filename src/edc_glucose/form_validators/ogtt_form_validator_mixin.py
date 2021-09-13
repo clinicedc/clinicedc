@@ -1,9 +1,8 @@
 from django import forms
 from edc_constants.constants import NO
-from edc_form_validators import FormValidator
 
 
-class OgttFormValidatorMixin(FormValidator):
+class OgttFormValidatorMixin:
     def validate_ogtt_required_fields(self):
         """Uses fields `fasting`, `ogtt_base_datetime`, `ogtt_datetime`,
         `ogtt_value`, `ogtt_units`

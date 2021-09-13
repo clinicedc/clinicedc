@@ -1,8 +1,7 @@
 from edc_constants.constants import YES
-from edc_form_validators import FormValidator
 
 
-class IfgFormValidatorMixin(FormValidator):
+class IfgFormValidatorMixin:
     def validate_ifg_required_fields(self):
         """Uses fields `fasting`,`fasting_duration_str`, `ifg_value`,
         `ifg_datetime`, `ifg_units`
