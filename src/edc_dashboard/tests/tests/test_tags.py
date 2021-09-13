@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.core.paginator import Paginator
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_utils.date import get_utcnow
 
 from edc_dashboard.templatetags.edc_dashboard_extras import (

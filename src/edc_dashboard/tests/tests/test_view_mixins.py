@@ -3,7 +3,7 @@ from datetime import datetime
 import arrow
 from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
-from django.test import TestCase, tag
+from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
 from edc_auth import CLINIC
@@ -23,28 +23,27 @@ from edc_dashboard.views import ListboardView
 from ..models import SubjectVisit
 
 
+@override_settings(EDC_AUTH_SKIP_SITE_AUTHS=True, EDC_AUTH_SKIP_AUTH_UPDATER=False)
 class TestViewMixins(TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         url_names.register("dashboard_url", "dashboard_url", "edc_dashboard")
-
+        site_auths.clear()
+        site_auths.add_group("edc_dashboard.view_my_listboard", name=CLINIC)
         site_auths.add_custom_permissions_tuples(
             model="edc_dashboard.dashboard",
             codename_tuples=(("edc_dashboard.view_my_listboard", "View my listboard"),),
         )
-        site_auths.update_group("edc_dashboard.view_my_listboard", name=CLINIC)
         AuthUpdater(verbose=False, warn_only=True)
-        return super(TestViewMixins, cls).setUpClass()
+        return super().setUpTestData()
 
     def setUp(self):
-
         self.user = User.objects.create(username="erik")
         group = Group.objects.get(name=CLINIC)
         self.user.groups.add(group)
         self.request = RequestFactory().get("/")
         self.request.user = self.user
 
-    @tag("1")
     def test_querystring_mixin(self):
         class MyView(QueryStringViewMixin, ContextMixin, View):
             pass
