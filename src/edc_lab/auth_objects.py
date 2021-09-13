@@ -8,45 +8,60 @@ lab_requisition = []
 for action in ["view_", "add_", "change_", "delete_", "view_historical"]:
     lab_requisition.append(f".{action}".join(get_requisition_model_name().split(".")))
 
-lab_dashboard_tuples = (
-    (
-        "edc_dashboard.view_lab_requisition_listboard",
-        "Can view Lab requisition listboard",
-    ),
-    ("edc_dashboard.view_lab_receive_listboard", "Can view Lab receive listboard"),
-    ("edc_dashboard.view_lab_process_listboard", "Can view Lab process listboard"),
-    ("edc_dashboard.view_lab_pack_listboard", "Can view Lab pack listboard"),
-    ("edc_dashboard.view_lab_aliquot_listboard", "Can view Lab aliquot listboard"),
-    ("edc_dashboard.view_lab_box_listboard", "Can view Lab box listboard"),
-    ("edc_dashboard.view_lab_result_listboard", "Can view Lab result listboard"),
-    ("edc_dashboard.view_lab_manifest_listboard", "Can view Lab manifest listboard"),
-)
+# lab_dashboard_tuples = (
+#     (
+#         "edc_dashboard.view_lab_requisition_listboard",
+#         "Can view Lab requisition listboard",
+#     ),
+#     ("edc_dashboard.view_lab_receive_listboard", "Can view Lab receive listboard"),
+#     ("edc_dashboard.view_lab_process_listboard", "Can view Lab process listboard"),
+#     ("edc_dashboard.view_lab_pack_listboard", "Can view Lab pack listboard"),
+#     ("edc_dashboard.view_lab_aliquot_listboard", "Can view Lab aliquot listboard"),
+#     ("edc_dashboard.view_lab_box_listboard", "Can view Lab box listboard"),
+#     ("edc_dashboard.view_lab_result_listboard", "Can view Lab result listboard"),
+#     ("edc_dashboard.view_lab_manifest_listboard", "Can view Lab manifest listboard"),
+# )
+#
+# navbars = [
+#     "edc_navbar.nav_lab_aliquot",
+#     "edc_navbar.nav_lab_manifest",
+#     "edc_navbar.nav_lab_pack",
+#     "edc_navbar.nav_lab_process",
+#     "edc_navbar.nav_lab_receive",
+#     "edc_navbar.nav_lab_requisition",
+#     "edc_navbar.nav_lab_section",
+# ]
+#
+# navbar_tuples = []
+# for codename in navbars:
+#     navbar_tuples.append((codename, f"Can access {codename.split('.')[1]}"))
+#
 
-lab_dashboard = [
-    "edc_dashboard.view_lab_aliquot_listboard",
-    "edc_dashboard.view_lab_box_listboard",
-    "edc_dashboard.view_lab_manifest_listboard",
-    "edc_dashboard.view_lab_pack_listboard",
-    "edc_dashboard.view_lab_process_listboard",
-    "edc_dashboard.view_lab_receive_listboard",
-    "edc_dashboard.view_lab_requisition_listboard",
-    "edc_dashboard.view_lab_result_listboard",
-    "edc_dashboard.view_screening_listboard",
-    "edc_dashboard.view_subject_listboard",
-    "edc_dashboard.view_subject_review_listboard",
-]
+# lab_dashboard = [
+#     "edc_dashboard.view_lab_aliquot_listboard",
+#     "edc_dashboard.view_lab_box_listboard",
+#     "edc_dashboard.view_lab_manifest_listboard",
+#     "edc_dashboard.view_lab_pack_listboard",
+#     "edc_dashboard.view_lab_process_listboard",
+#     "edc_dashboard.view_lab_receive_listboard",
+#     "edc_dashboard.view_lab_requisition_listboard",
+#     "edc_dashboard.view_lab_result_listboard",
+#     "edc_dashboard.view_screening_listboard",
+#     "edc_dashboard.view_subject_listboard",
+#     "edc_dashboard.view_subject_review_listboard",
+# ]
+#
+# lab_navbar = [
+#     "edc_navbar.nav_lab_aliquot",
+#     "edc_navbar.nav_lab_manifest",
+#     "edc_navbar.nav_lab_pack",
+#     "edc_navbar.nav_lab_process",
+#     "edc_navbar.nav_lab_receive",
+#     "edc_navbar.nav_lab_requisition",
+#     "edc_navbar.nav_lab_section",
+# ]
 
-lab_navbar = [
-    "edc_navbar.nav_lab_aliquot",
-    "edc_navbar.nav_lab_manifest",
-    "edc_navbar.nav_lab_pack",
-    "edc_navbar.nav_lab_process",
-    "edc_navbar.nav_lab_receive",
-    "edc_navbar.nav_lab_requisition",
-    "edc_navbar.nav_lab_section",
-]
-
-lab = [
+lab_codenames = [
     "edc_lab.add_aliquot",
     "edc_lab.add_box",
     "edc_lab.add_boxitem",
@@ -104,18 +119,13 @@ lab = [
     "edc_lab.view_result",
     "edc_lab.view_resultitem",
     "edc_lab.view_shipper",
-    "edc_navbar.nav_lab_aliquot",
-    "edc_navbar.nav_lab_manifest",
-    "edc_navbar.nav_lab_pack",
-    "edc_navbar.nav_lab_process",
-    "edc_navbar.nav_lab_receive",
-    "edc_navbar.nav_lab_requisition",
-    "edc_navbar.nav_lab_section",
 ]
 
-lab.extend(lab_requisition)
-lab.extend(lab_dashboard)
-lab.extend(lab_navbar)
+lab_codenames.extend(lab_requisition)
+# lab_codenames.extend(lab_dashboard)
+# lab_codenames.extend(lab_navbar)
 
 
-lab_view = [c for c in lab if ("view_" in c or "edc_nav" in c or "edc_dashboard" in c)]
+lab_view_codenames = [
+    c for c in lab_codenames if ("view_" in c or "edc_nav" in c or "edc_dashboard" in c)
+]
