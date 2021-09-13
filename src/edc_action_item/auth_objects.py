@@ -17,5 +17,5 @@ action_items_codenames = [
 
 
 action_items_view_only_codenames = [
-    c for c in action_items_codenames if "view_" in c or "edc_navbar" in c
+    c for c in action_items_codenames if ("view_" in c or "edc_navbar" in c)
 ]
