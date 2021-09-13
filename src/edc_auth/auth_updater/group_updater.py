@@ -11,7 +11,7 @@ from django.core.exceptions import (
 )
 from django.core.management.color import color_style
 
-from ..default_group_names import PII, PII_VIEW
+from ..auth_objects import PII, PII_VIEW
 
 style = color_style()
 

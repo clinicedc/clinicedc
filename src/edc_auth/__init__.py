@@ -1,5 +1,4 @@
-from .codenames import screening
-from .default_group_names import (
+from .auth_objects import (
     ACCOUNT_MANAGER,
     ADMINISTRATION,
     AUDITOR,
@@ -15,4 +14,3 @@ from .default_group_names import (
     REVIEW,
     SCREENING,
 )
-from .default_groups import default_groups

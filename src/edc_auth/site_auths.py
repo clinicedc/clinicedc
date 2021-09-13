@@ -1,4 +1,3 @@
-import pdb
 import sys
 from copy import deepcopy
 
@@ -6,11 +5,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.utils.module_loading import import_module, module_has_submodule
 
-from .default_groups import default_groups
-from .default_pii_models import default_pii_models
-from .default_roles import default_roles
-
-edc_auth_skip_site_auths = getattr(settings, "EDC_AUTH_SKIP_SITE_AUTHS", False)
+from .auth_objects import default_groups, default_pii_models, default_roles
 
 
 class AlreadyRegistered(Exception):
@@ -74,6 +69,10 @@ class SiteAuths:
             "post_update_funcs": [],
             "pii_models": [],
         }
+
+    @property
+    def edc_auth_skip_site_auths(self):
+        return getattr(settings, "EDC_AUTH_SKIP_SITE_AUTHS", False)
 
     def add_pre_update_func(self, func):
         self.registry["pre_update_funcs"].append(func)
@@ -178,7 +177,7 @@ class SiteAuths:
 
     def autodiscover(self, module_name=None, verbose=True):
         """Autodiscovers in the auths.py file of any INSTALLED_APP."""
-        if not edc_auth_skip_site_auths:
+        if not self.edc_auth_skip_site_auths:
             before_import_registry = None
             module_name = module_name or "auths"
             writer = sys.stdout.write if verbose else lambda x: x

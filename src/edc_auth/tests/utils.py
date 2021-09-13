@@ -12,7 +12,7 @@ from faker import Faker
 from mempass import mkpassword
 from secrets import choice
 
-from edc_auth.default_role_names import CLINICIAN_ROLE
+from edc_auth.auth_objects import CLINICIAN_ROLE
 
 from ..import_users import fieldnames
 

@@ -7,7 +7,7 @@ from edc_data_manager.auth_objects import (
 )
 from faker import Faker
 
-from edc_auth.default_role_names import CLINICIAN_ROLE, default_role_names
+from edc_auth.auth_objects import CLINICIAN_ROLE, default_role_names
 from edc_auth.site_auths import site_auths
 
 from ...models import Role

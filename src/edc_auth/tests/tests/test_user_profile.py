@@ -5,8 +5,8 @@ from django.test import tag
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
 
+from edc_auth.auth_objects import CLINICIAN_ROLE
 from edc_auth.auth_updater import AuthUpdater
-from edc_auth.default_role_names import CLINICIAN_ROLE
 from edc_auth.tests.utils import EdcAuthTestCase
 
 from ...backends import ModelBackendWithSite

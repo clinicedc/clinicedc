@@ -5,8 +5,7 @@ from django.core import mail
 from edc_protocol import Protocol
 from faker import Faker
 
-from edc_auth.default_group_names import CLINIC
-from edc_auth.default_role_names import CLINICIAN_ROLE
+from edc_auth.auth_objects import CLINIC, CLINICIAN_ROLE
 
 from ...import_users import UserImporter, UserImporterError, import_users
 from ...password_setter import PasswordSetter

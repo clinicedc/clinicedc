@@ -4,8 +4,7 @@ from django.contrib.auth.forms import UserChangeForm as BaseForm
 from django.utils.safestring import mark_safe
 from edc_randomization.blinding import is_blinded_user
 
-from .default_group_names import PHARMACY
-from .default_role_names import PHARMACIST_ROLE
+from .auth_objects import PHARMACIST_ROLE, PHARMACY
 from .models import UserProfile
 
 
