@@ -11,8 +11,6 @@ from .role_updater import RoleUpdater
 
 style = color_style()
 
-edc_auth_skip_auth_updater = getattr(settings, "EDC_AUTH_SKIP_AUTH_UPDATER", False)
-
 
 class AuthUpdater:
     group_updater_cls = GroupUpdater
@@ -39,14 +37,7 @@ class AuthUpdater:
         post_update_funcs = post_update_funcs or site_auths.post_update_funcs
         pre_update_funcs = pre_update_funcs or site_auths.pre_update_funcs
         roles = roles or site_auths.roles
-        if edc_auth_skip_auth_updater:
-            sys.stdout.write(
-                style.ERROR(
-                    "Skipping `Updating groups and permissions`! "
-                    "See settings.EDC_AUTH_SKIP_AUTH_UPDATER.\n"
-                )
-            )
-        else:
+        if not self.edc_auth_skip_auth_updater:
             self.verbose = verbose
             self.apps = apps
             if self.verbose:
@@ -73,6 +64,16 @@ class AuthUpdater:
             if verbose:
                 sys.stdout.write(style.MIGRATE_HEADING("Done.\n"))
                 sys.stdout.flush()
+
+    def __repr__(self):
+        return (
+            f"{self.__class__.__name__}(edc_auth_skip_auth_updater="
+            f"{self.edc_auth_skip_auth_updater})"
+        )
+
+    @property
+    def edc_auth_skip_auth_updater(self):
+        return getattr(settings, "EDC_AUTH_SKIP_AUTH_UPDATER", False)
 
     def run_pre_updates(self, pre_updates):
         """Custom funcs that operate after all groups and roles have been created"""
