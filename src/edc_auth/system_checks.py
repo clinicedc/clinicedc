@@ -13,6 +13,8 @@ def edc_check(app_configs, **kwargs):  # noqa
     errors = check_etc_dir(errors)
     errors = check_key_path(errors)
     errors = check_static_root(errors)
+    errors = check_site_auths(errors)
+    errors = check_auth_updater(errors)
     return errors
 
 
@@ -82,4 +84,42 @@ def check_key_path(errors):
                 )
             )
     sys.stdout.write(style.SQL_KEYWORD("check_key_path ... done.\n"))
+    return errors
+
+
+def check_auth_updater(errors):
+    sys.stdout.write(style.SQL_KEYWORD("check_auth_updater ...\r"))
+    try:
+        settings.EDC_AUTH_SKIP_AUTH_UPDATER
+    except AttributeError:
+        pass
+    else:
+        if settings.EDC_AUTH_SKIP_AUTH_UPDATER:
+            errors.append(
+                Warning(
+                    "AuthUpdater did not load. Groups and permissions have not been updated. "
+                    "See settings.EDC_AUTH_SKIP_AUTH_UPDATER.",
+                    id="settings.EDC_AUTH_SKIP_AUTH_UPDATER",
+                )
+            )
+    sys.stdout.write(style.SQL_KEYWORD("check_auth_updater ... done.\n"))
+    return errors
+
+
+def check_site_auths(errors):
+    sys.stdout.write(style.SQL_KEYWORD("check_site_auths ...\r"))
+    try:
+        settings.EDC_AUTH_SKIP_AUTH_UPDATER
+    except AttributeError:
+        pass
+    else:
+        if settings.EDC_AUTH_SKIP_AUTH_UPDATER:
+            errors.append(
+                Warning(
+                    "SiteAuths did not autodiscover. Groups and permissions data not ready "
+                    "for AuthUpdater. See settings.EDC_AUTH_SKIP_SITE_AUTHS.",
+                    id="settings.EDC_AUTH_SKIP_SITE_AUTHS",
+                )
+            )
+    sys.stdout.write(style.SQL_KEYWORD("check_site_auths ... done.\n"))
     return errors

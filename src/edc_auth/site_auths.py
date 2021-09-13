@@ -1,3 +1,4 @@
+import pdb
 import sys
 from copy import deepcopy
 
@@ -58,6 +59,18 @@ class SiteAuths:
             "pii_models": default_pii_models,
         }
 
+    def empty_registry(self):
+        self.registry = {
+            "groups": {},
+            "roles": {},
+            "update_groups": {},
+            "update_roles": {},
+            "custom_permissions_tuples": {},
+            "pre_update_funcs": [],
+            "post_update_funcs": [],
+            "pii_models": [],
+        }
+
     def add_pre_update_func(self, func):
         self.registry["pre_update_funcs"].append(func)
 
@@ -92,6 +105,7 @@ class SiteAuths:
         key = key or "update_groups"
         codenames = list(set(codenames))
         existing_codenames = deepcopy(self.registry[key].get(name)) or []
+        existing_codenames = list(set(existing_codenames))
         existing_codenames.extend(codenames)
         existing_codenames = list(set(existing_codenames))
         self.registry[key].update({name: existing_codenames})
@@ -100,6 +114,7 @@ class SiteAuths:
         key = key or "update_roles"
         group_names = list(set(group_names))
         existing_group_names = deepcopy(self.registry[key].get(name)) or []
+        existing_group_names = list(set(existing_group_names))
         existing_group_names.extend(group_names)
         existing_group_names = list(set(existing_group_names))
         self.registry[key].update({name: existing_group_names})
