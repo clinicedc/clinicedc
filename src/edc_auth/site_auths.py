@@ -1,4 +1,3 @@
-import pdb
 import sys
 from copy import deepcopy
 
@@ -125,7 +124,6 @@ class SiteAuths:
         try:
             existing_codenames = list(set(existing_codenames))
         except TypeError as e:
-            pdb.set_trace()
             raise TypeError(f"{e}. Got {name}")
         existing_codenames.extend(codenames)
         existing_codenames = list(set(existing_codenames))
