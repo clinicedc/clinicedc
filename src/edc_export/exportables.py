@@ -5,10 +5,10 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin import sites
 from django.core.exceptions import ObjectDoesNotExist
-from edc_auth import EXPORT
 from edc_randomization.blinding import is_blinded_user
 from edc_randomization.site_randomizers import site_randomizers
 
+from .auth_objects import EXPORT
 from .model_options import ModelOptions
 
 
