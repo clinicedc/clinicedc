@@ -7,12 +7,10 @@ from .codenames import (
     clinic_super,
     dispensing,
     everyone,
-    export,
     pharmacy,
-    pii,
-    pii_view,
+    pii_codenames,
+    pii_view_codenames,
     review,
-    screening,
     statistician,
 )
 from .default_group_names import (
@@ -24,12 +22,10 @@ from .default_group_names import (
     CLINIC_SUPER,
     DISPENSING,
     EVERYONE,
-    EXPORT,
     PHARMACY,
     PII,
     PII_VIEW,
     REVIEW,
-    SCREENING,
 )
 from .default_groups import default_groups
 from .default_pii_models import default_pii_models
@@ -39,13 +35,10 @@ from .default_role_names import (
     CLINICIAN_ROLE,
     CLINICIAN_SUPER_ROLE,
     CUSTOM_ROLE,
-    DATA_EXPORTER_ROLE,
     NURSE_ROLE,
     PHARMACIST_ROLE,
-    SITE_COORDINATOR,
     SITE_PHARMACIST_ROLE,
     STAFF_ROLE,
-    STATISTICIAN_ROLE,
     default_role_names,
 )
 from .default_roles import default_roles

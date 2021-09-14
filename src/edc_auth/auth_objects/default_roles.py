@@ -6,13 +6,10 @@ from .default_group_names import (
     CLINIC_SUPER,
     DISPENSING,
     EVERYONE,
-    EXPORT,
     PHARMACY,
     PII,
     PII_VIEW,
     REVIEW,
-    SCREENING,
-    STATISTICIAN,
 )
 from .default_role_names import (
     ACCOUNT_MANAGER_ROLE,
@@ -20,60 +17,40 @@ from .default_role_names import (
     CLINICIAN_ROLE,
     CLINICIAN_SUPER_ROLE,
     CUSTOM_ROLE,
-    DATA_EXPORTER_ROLE,
     NURSE_ROLE,
     PHARMACIST_ROLE,
-    SITE_COORDINATOR,
     SITE_PHARMACIST_ROLE,
     STAFF_ROLE,
-    STATISTICIAN_ROLE,
 )
 
 # Format {ROLE_NAME: [GROUP_NAME, GROUP_NAME, ...]
 default_roles = {
-    ACCOUNT_MANAGER_ROLE: [ACCOUNT_MANAGER, ADMINISTRATION, EVERYONE],
+    ACCOUNT_MANAGER_ROLE: [ACCOUNT_MANAGER],
     AUDITOR_ROLE: [
-        ADMINISTRATION,
         AUDITOR,
-        EVERYONE,
         PII_VIEW,
         REVIEW,
     ],
     CLINICIAN_ROLE: [
-        ADMINISTRATION,
         CLINIC,
-        EVERYONE,
         PII,
         REVIEW,
-        SCREENING,
     ],
     CLINICIAN_SUPER_ROLE: [
         CLINIC_SUPER,
-    ],
-    CUSTOM_ROLE: [],
-    DATA_EXPORTER_ROLE: [ADMINISTRATION, EVERYONE, EXPORT],
-    NURSE_ROLE: [
-        ADMINISTRATION,
         CLINIC,
-        EVERYONE,
         PII,
         REVIEW,
-        SCREENING,
+    ],
+    CUSTOM_ROLE: [],
+    NURSE_ROLE: [
+        CLINIC,
+        PII,
+        REVIEW,
     ],
     PHARMACIST_ROLE: [ADMINISTRATION, EVERYONE, PHARMACY],
     STAFF_ROLE: [ADMINISTRATION, EVERYONE],
     SITE_PHARMACIST_ROLE: [
-        ADMINISTRATION,
-        EVERYONE,
         DISPENSING,
-    ],
-    SITE_COORDINATOR: [ADMINISTRATION, EVERYONE],
-    STATISTICIAN_ROLE: [
-        ADMINISTRATION,
-        AUDITOR,
-        EVERYONE,
-        EXPORT,
-        REVIEW,
-        STATISTICIAN,
     ],
 }

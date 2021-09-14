@@ -1,3 +1,3 @@
-from .pii import pii
+from .pii import pii_codenames
 
-pii_view = [codename for codename in pii if "view_" in codename]
+pii_view_codenames = [codename for codename in pii_codenames if "view_" in codename]

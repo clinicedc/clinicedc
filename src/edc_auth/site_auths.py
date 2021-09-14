@@ -1,3 +1,4 @@
+import pdb
 import sys
 from copy import deepcopy
 
@@ -39,7 +40,7 @@ class SiteAuthError(Exception):
 class SiteAuths:
     """A global to hold the intended group and role data.
 
-    Data will be used by AuthUpdater.
+    Data will be used by `AuthUpdater`.
     """
 
     def __init__(self):
@@ -62,6 +63,19 @@ class SiteAuths:
         self.registry = {
             "groups": {},
             "roles": {},
+            "update_groups": {},
+            "update_roles": {},
+            "custom_permissions_tuples": {},
+            "pre_update_funcs": [],
+            "post_update_funcs": [],
+            "pii_models": [],
+        }
+
+    def clear_values(self):
+        registry = deepcopy(self.registry)
+        self.registry = {
+            "groups": {k: [] for k in registry.get("groups")},
+            "roles": {k: [] for k in self.registry.get("roles")},
             "update_groups": {},
             "update_roles": {},
             "custom_permissions_tuples": {},
@@ -108,7 +122,11 @@ class SiteAuths:
         key = key or "update_groups"
         codenames = list(set(codenames))
         existing_codenames = deepcopy(self.registry[key].get(name)) or []
-        existing_codenames = list(set(existing_codenames))
+        try:
+            existing_codenames = list(set(existing_codenames))
+        except TypeError as e:
+            pdb.set_trace()
+            raise TypeError(f"{e}. Got {name}")
         existing_codenames.extend(codenames)
         existing_codenames = list(set(existing_codenames))
         self.registry[key].update({name: existing_codenames})

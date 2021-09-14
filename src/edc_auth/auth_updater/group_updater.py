@@ -189,7 +189,7 @@ class GroupUpdater:
         try:
             model_cls = self.apps.get_model(model)
         except LookupError as e:
-            warn(f"{e}. Got {model}")
+            warn(f"Unable to remove permissions. {e}. Got {model}")
         else:
             content_type = self.content_type_model_cls.objects.get_for_model(model_cls)
             for permission in self.permission_model_cls.objects.filter(
