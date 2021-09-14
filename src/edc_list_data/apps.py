@@ -28,14 +28,7 @@ def post_migrate_list_data(sender=None, **kwargs):
 
     sys.stdout.write(style.MIGRATE_HEADING("Updating list data:\n"))
 
-    # try:
     site_list_data.autodiscover()
-    # except SiteListDataError as e:
-    #     sys.stdout.write(
-    #         style.ERROR(
-    #             f" Failed to update list data! Fix the issue " f"and restart. \n '{e}'.\n"
-    #         )
-    #     )
     site_list_data.load_data()
     sys.stdout.write("Done.\n")
     sys.stdout.flush()
