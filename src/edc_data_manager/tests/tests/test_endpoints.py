@@ -1,10 +1,14 @@
 from unittest import skip
 
 from django.contrib.auth import get_user_model
+from django.test import override_settings, tag
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_action_item.models.action_item import ActionItem
-from edc_auth import CLINIC, EVERYONE
+from edc_auth.auth_objects import CLINIC, EVERYONE
+from edc_auth.auth_updater import AuthUpdater
+from edc_auth.models import Role
+from edc_auth.site_auths import site_auths
 from edc_lab.site_labs import site_labs
 from edc_registration.models import RegisteredSubject
 from edc_test_utils.webtest import login
@@ -14,14 +18,23 @@ from model_bakery import baker
 from data_manager_app.lab_profiles import lab_profile
 from data_manager_app.reference_model_configs import register_to_site_reference_configs
 from data_manager_app.visit_schedules import visit_schedule
-from edc_data_manager.auth_objects import DATA_MANAGER
+from edc_data_manager.auth_objects import DATA_MANAGER, DATA_MANAGER_ROLE
 from edc_data_manager.models import CrfDataDictionary, DataQuery
 from edc_data_manager.models.user import DataManagerUser
 
 User = get_user_model()
 
 
+@override_settings(
+    EDC_AUTH_SKIP_SITE_AUTHS=False,
+    EDC_AUTH_SKIP_AUTH_UPDATER=False,
+)
 class AdminSiteTest(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        site_auths.autodiscover(verbose=False)
+        AuthUpdater(verbose=False)
+
     def setUp(self):
         self.subject_identifier = "101-123456789"
         self.user = User.objects.create(
@@ -31,6 +44,10 @@ class AdminSiteTest(WebTest):
             is_active=True,
             is_staff=True,
         )
+        role = Role.objects.get(name=DATA_MANAGER_ROLE)
+        self.user.userprofile.roles.add(role)
+        self.user.save()
+        self.user.refresh_from_db()
 
         site_labs._registry = {}
         site_labs.loaded = False
@@ -41,14 +58,10 @@ class AdminSiteTest(WebTest):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
 
+    @tag("webtest")
     def test_default_rule_handler_names(self):
         """Assert default rule handler names on queryrule ADD form"""
-        login(
-            self,
-            user=self.user,
-            groups=[EVERYONE, DATA_MANAGER],
-            redirect_url="admin:index",
-        )
+        login(self, redirect_url="admin:index")
         url = reverse("data_manager_app:home_url")
         response = self.app.get(url, user=self.user, status=200)
         self.assertIn("You are home", response)
@@ -59,14 +72,9 @@ class AdminSiteTest(WebTest):
         self.assertIn('<option value="do_nothing"', response)
         self.assertIn('<option value="default"', response)
 
-    @skip("need to fix permissions")
+    @skip("webtest1")
     def test_query_rule_questions_from_single_form(self):
-        login(
-            self,
-            superuser=False,
-            groups=[EVERYONE, DATA_MANAGER],
-            redirect_url="admin:index",
-        )
+        login(self, redirect_url="admin:index")
 
         query_rule = baker.make_recipe(
             "edc_data_manager.queryrule",
@@ -81,13 +89,11 @@ class AdminSiteTest(WebTest):
         url = reverse(
             "edc_data_manager_admin:edc_data_manager_queryrule_change", args=(query_rule.pk,)
         )
-        res = self.app.get(url, user=self.user)
+        form = self.app.get(url, user=self.user).form
+        response = form.submit().follow()
+        self.assertIn("Invalid. Select questions from one CRF only", str(response.content))
 
-        form = res.form
-        res = form.submit()
-        self.assertIn("Invalid. Select questions from one CRF only", str(res))
-
-    @skip("need to fix permissions")
+    @skip("webtest1")
     def test_data_query_questions_from_single_form(self):
         login(
             self,
@@ -114,19 +120,13 @@ class AdminSiteTest(WebTest):
         url = reverse(
             "edc_data_manager_admin:edc_data_manager_dataquery_change", args=(data_query.pk,)
         )
-        res = self.app.get(url, user=self.user, status=200)
+        form = self.app.get(url, user=self.user).form
+        response = form.submit().follow()
+        self.assertIn("Invalid. Select questions from one CRF only", response)
 
-        form = res.form
-        res = form.submit()
-        self.assertIn("Invalid. Select questions from one CRF only", res)
-
+    @tag("webtest")
     def test_data_query(self):
-        login(
-            self,
-            superuser=False,
-            groups=[EVERYONE, DATA_MANAGER],
-            redirect_url="admin:index",
-        )
+        login(self, redirect_url="admin:index")
 
         registered_subject = RegisteredSubject.objects.create(
             subject_identifier=self.subject_identifier
@@ -162,13 +162,9 @@ class AdminSiteTest(WebTest):
         response = form.submit().follow()
         self.assertIn("was changed successfully", str(response.content))
 
+    @tag("webtest")
     def test_data_query_add_and_permissions(self):
-        login(
-            self,
-            superuser=False,
-            groups=[EVERYONE, DATA_MANAGER],
-            redirect_url="admin:index",
-        )
+        login(self, redirect_url="admin:index")
 
         registered_subject = RegisteredSubject.objects.create(
             subject_identifier=self.subject_identifier
@@ -205,13 +201,9 @@ class AdminSiteTest(WebTest):
         response = form.submit().follow()
         self.assertIn("was changed successfully", str(response))
 
+    @tag("webtest")
     def test_data_query_action_attrs(self):
-        login(
-            self,
-            superuser=False,
-            groups=[EVERYONE, DATA_MANAGER, CLINIC],
-            redirect_url="admin:index",
-        )
+        login(self, redirect_url="admin:index")
 
         registered_subject = RegisteredSubject.objects.create(
             subject_identifier=self.subject_identifier
