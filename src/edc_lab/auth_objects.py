@@ -1,3 +1,5 @@
+from django.apps import apps as django_apps
+
 from edc_lab.utils import get_requisition_model_name
 
 LAB = "LAB"
@@ -61,69 +63,78 @@ for action in ["view_", "add_", "change_", "delete_", "view_historical"]:
 #     "edc_navbar.nav_lab_section",
 # ]
 
-lab_codenames = [
-    "edc_lab.add_aliquot",
-    "edc_lab.add_box",
-    "edc_lab.add_boxitem",
-    "edc_lab.add_boxtype",
-    "edc_lab.add_consignee",
-    "edc_lab.add_manifest",
-    "edc_lab.add_manifestitem",
-    "edc_lab.add_order",
-    "edc_lab.add_panel",
-    "edc_lab.add_result",
-    "edc_lab.add_resultitem",
-    "edc_lab.add_shipper",
-    "edc_lab.change_aliquot",
-    "edc_lab.change_box",
-    "edc_lab.change_boxitem",
-    "edc_lab.change_boxtype",
-    "edc_lab.change_consignee",
-    "edc_lab.change_manifest",
-    "edc_lab.change_manifestitem",
-    "edc_lab.change_order",
-    "edc_lab.change_panel",
-    "edc_lab.change_result",
-    "edc_lab.change_resultitem",
-    "edc_lab.change_shipper",
-    "edc_lab.delete_aliquot",
-    "edc_lab.delete_box",
-    "edc_lab.delete_boxitem",
-    "edc_lab.delete_boxtype",
-    "edc_lab.delete_consignee",
-    "edc_lab.delete_manifest",
-    "edc_lab.delete_manifestitem",
-    "edc_lab.delete_order",
-    "edc_lab.delete_panel",
-    "edc_lab.delete_result",
-    "edc_lab.delete_resultitem",
-    "edc_lab.delete_shipper",
-    "edc_lab.view_aliquot",
-    "edc_lab.view_box",
-    "edc_lab.view_boxitem",
-    "edc_lab.view_boxtype",
-    "edc_lab.view_consignee",
-    "edc_lab.view_historicalaliquot",
-    "edc_lab.view_historicalbox",
-    "edc_lab.view_historicalboxitem",
-    "edc_lab.view_historicalconsignee",
-    "edc_lab.view_historicalmanifest",
-    "edc_lab.view_historicalorder",
-    "edc_lab.view_historicalresult",
-    "edc_lab.view_historicalresultitem",
-    "edc_lab.view_historicalshipper",
-    "edc_lab.view_manifest",
-    "edc_lab.view_manifestitem",
-    "edc_lab.view_order",
-    "edc_lab.view_panel",
-    "edc_lab.view_result",
-    "edc_lab.view_resultitem",
-    "edc_lab.view_shipper",
-]
+
+lab_codenames = []
+for app_config in django_apps.get_app_configs():
+    if app_config.name in ["edc_lab"]:
+        for model_cls in app_config.get_models():
+            for prefix in ["add", "change", "delete", "view"]:
+                lab_codenames.append(
+                    f"{app_config.name}.{prefix}_{model_cls._meta.model_name}"
+                )
+lab_codenames.sort()
+#
+# lab_codenames = [
+#     "edc_lab.add_aliquot",
+#     "edc_lab.add_box",
+#     "edc_lab.add_boxitem",
+#     "edc_lab.add_boxtype",
+#     "edc_lab.add_consignee",
+#     "edc_lab.add_manifest",
+#     "edc_lab.add_manifestitem",
+#     "edc_lab.add_order",
+#     "edc_lab.add_panel",
+#     "edc_lab.add_result",
+#     "edc_lab.add_resultitem",
+#     "edc_lab.add_shipper",
+#     "edc_lab.change_aliquot",
+#     "edc_lab.change_box",
+#     "edc_lab.change_boxitem",
+#     "edc_lab.change_boxtype",
+#     "edc_lab.change_consignee",
+#     "edc_lab.change_manifest",
+#     "edc_lab.change_manifestitem",
+#     "edc_lab.change_order",
+#     "edc_lab.change_panel",
+#     "edc_lab.change_result",
+#     "edc_lab.change_resultitem",
+#     "edc_lab.change_shipper",
+#     "edc_lab.delete_aliquot",
+#     "edc_lab.delete_box",
+#     "edc_lab.delete_boxitem",
+#     "edc_lab.delete_boxtype",
+#     "edc_lab.delete_consignee",
+#     "edc_lab.delete_manifest",
+#     "edc_lab.delete_manifestitem",
+#     "edc_lab.delete_order",
+#     "edc_lab.delete_panel",
+#     "edc_lab.delete_result",
+#     "edc_lab.delete_resultitem",
+#     "edc_lab.delete_shipper",
+#     "edc_lab.view_aliquot",
+#     "edc_lab.view_box",
+#     "edc_lab.view_boxitem",
+#     "edc_lab.view_boxtype",
+#     "edc_lab.view_consignee",
+#     "edc_lab.view_historicalaliquot",
+#     "edc_lab.view_historicalbox",
+#     "edc_lab.view_historicalboxitem",
+#     "edc_lab.view_historicalconsignee",
+#     "edc_lab.view_historicalmanifest",
+#     "edc_lab.view_historicalorder",
+#     "edc_lab.view_historicalresult",
+#     "edc_lab.view_historicalresultitem",
+#     "edc_lab.view_historicalshipper",
+#     "edc_lab.view_manifest",
+#     "edc_lab.view_manifestitem",
+#     "edc_lab.view_order",
+#     "edc_lab.view_panel",
+#     "edc_lab.view_result",
+#     "edc_lab.view_resultitem",
+#     "edc_lab.view_shipper",
+# ]
 
 lab_codenames.extend(lab_requisition)
-# lab_codenames.extend(lab_dashboard)
-# lab_codenames.extend(lab_navbar)
 
 
 lab_view_codenames = [

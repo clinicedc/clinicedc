@@ -1,5 +1,11 @@
-from edc_auth import ADMINISTRATION, EVERYONE, PII_VIEW
-from edc_auth.auth_objects import AUDITOR_ROLE, CLINICIAN_ROLE, NURSE_ROLE
+from edc_auth.auth_objects import (
+    ADMINISTRATION,
+    AUDITOR_ROLE,
+    CLINICIAN_ROLE,
+    EVERYONE,
+    NURSE_ROLE,
+    PII_VIEW,
+)
 from edc_auth.site_auths import site_auths
 from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
 from edc_export.auth_objects import EXPORT
