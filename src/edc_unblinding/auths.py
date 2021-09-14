@@ -1,5 +1,5 @@
 from edc_adverse_event.auth_objects import TMG_ROLE
-from edc_auth.default_role_names import CLINICIAN_ROLE, NURSE_ROLE
+from edc_auth.auth_objects import CLINICIAN_ROLE, NURSE_ROLE
 from edc_auth.site_auths import site_auths
 
 from .auth_objects import (

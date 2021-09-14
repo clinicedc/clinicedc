@@ -1,6 +1,6 @@
 from django.apps import AppConfig as DjangoAppConfig
 
-# from edc_auth.default_role_names import CLINICIAN_ROLE
+# from edc_auth.auth_objects import CLINICIAN_ROLE
 # from edc_auth.update_roles import update_roles
 
 # def post_migrate_user_roles(sender=None, **kwargs):  # noqa
