@@ -7,12 +7,10 @@ from .codenames import (
     clinic_super,
     dispensing,
     everyone,
-    export,
     pharmacy,
-    pii,
-    pii_view,
+    pii_codenames,
+    pii_view_codenames,
     review,
-    statistician,
 )
 from .default_group_names import (
     ACCOUNT_MANAGER,
@@ -23,12 +21,10 @@ from .default_group_names import (
     CLINIC_SUPER,
     DISPENSING,
     EVERYONE,
-    EXPORT,
     PHARMACY,
     PII,
     PII_VIEW,
     REVIEW,
-    STATISTICIAN,
 )
 
 default_groups = {
@@ -40,10 +36,8 @@ default_groups = {
     CLINIC_SUPER: clinic_super,
     DISPENSING: dispensing,
     EVERYONE: everyone,
-    EXPORT: export,
     PHARMACY: pharmacy,
-    PII: pii,
-    PII_VIEW: pii_view,
+    PII: pii_codenames,
+    PII_VIEW: pii_view_codenames,
     REVIEW: review,
-    STATISTICIAN: statistician,
 }

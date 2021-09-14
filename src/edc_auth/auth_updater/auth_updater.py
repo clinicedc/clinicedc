@@ -1,7 +1,9 @@
 import sys
 from typing import Optional
 
+from django.apps import apps as django_apps
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
 
 from edc_auth.site_auths import site_auths
@@ -37,6 +39,7 @@ class AuthUpdater:
         post_update_funcs = post_update_funcs or site_auths.post_update_funcs
         pre_update_funcs = pre_update_funcs or site_auths.pre_update_funcs
         roles = roles or site_auths.roles
+        self.apps = apps
         if not self.edc_auth_skip_auth_updater:
             self.verbose = verbose
             self.apps = apps
@@ -110,3 +113,41 @@ class AuthUpdater:
 
     def remove_permissions_by_codenames(self, **kwargs):
         return self.group_updater.remove_permissions_by_codenames(**kwargs)
+
+    @classmethod
+    def add_empty_groups_for_tests(cls, *extra_names, apps=None):
+        """Adds group names without codenames.
+
+        For tests
+        """
+        apps = apps or django_apps
+        groups_names = extra_names + tuple(site_auths.groups)
+        for name in groups_names:
+            try:
+                apps.get_model("auth.group").objects.get(name=name)
+            except ObjectDoesNotExist as e:
+                apps.get_model("auth.group").objects.create(name=name)
+                site_auths.groups.update({name: []})
+        return groups_names
+
+    @classmethod
+    def add_empty_roles_for_tests(cls, *extra_names, apps=None):
+        """Adds roles names without groups.
+
+        For tests
+        """
+        apps = apps or django_apps
+        role_names = extra_names + tuple(site_auths.roles)
+        for name in role_names:
+            display_name = name.replace("_", " ").lower().title()
+            try:
+                role_obj = apps.get_model("edc_auth.role").objects.get(name=name)
+            except ObjectDoesNotExist as e:
+                apps.get_model("edc_auth.role").objects.create(
+                    name=name, display_name=display_name
+                )
+                site_auths.roles.update({name: []})
+            else:
+                role_obj.display_name = display_name
+                role_obj.save()
+        return role_names

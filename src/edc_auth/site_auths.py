@@ -6,11 +6,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.utils.module_loading import import_module, module_has_submodule
 
-from .default_groups import default_groups
-from .default_pii_models import default_pii_models
-from .default_roles import default_roles
-
-edc_auth_skip_site_auths = getattr(settings, "EDC_AUTH_SKIP_SITE_AUTHS", False)
+from .auth_objects import default_groups, default_pii_models, default_roles
 
 
 class AlreadyRegistered(Exception):
@@ -44,7 +40,7 @@ class SiteAuthError(Exception):
 class SiteAuths:
     """A global to hold the intended group and role data.
 
-    Data will be used by AuthUpdater.
+    Data will be used by `AuthUpdater`.
     """
 
     def __init__(self):
@@ -74,6 +70,23 @@ class SiteAuths:
             "post_update_funcs": [],
             "pii_models": [],
         }
+
+    def clear_values(self):
+        registry = deepcopy(self.registry)
+        self.registry = {
+            "groups": {k: [] for k in registry.get("groups")},
+            "roles": {k: [] for k in self.registry.get("roles")},
+            "update_groups": {},
+            "update_roles": {},
+            "custom_permissions_tuples": {},
+            "pre_update_funcs": [],
+            "post_update_funcs": [],
+            "pii_models": [],
+        }
+
+    @property
+    def edc_auth_skip_site_auths(self):
+        return getattr(settings, "EDC_AUTH_SKIP_SITE_AUTHS", False)
 
     def add_pre_update_func(self, func):
         self.registry["pre_update_funcs"].append(func)
@@ -109,7 +122,11 @@ class SiteAuths:
         key = key or "update_groups"
         codenames = list(set(codenames))
         existing_codenames = deepcopy(self.registry[key].get(name)) or []
-        existing_codenames = list(set(existing_codenames))
+        try:
+            existing_codenames = list(set(existing_codenames))
+        except TypeError as e:
+            pdb.set_trace()
+            raise TypeError(f"{e}. Got {name}")
         existing_codenames.extend(codenames)
         existing_codenames = list(set(existing_codenames))
         self.registry[key].update({name: existing_codenames})
@@ -178,7 +195,7 @@ class SiteAuths:
 
     def autodiscover(self, module_name=None, verbose=True):
         """Autodiscovers in the auths.py file of any INSTALLED_APP."""
-        if not edc_auth_skip_site_auths:
+        if not self.edc_auth_skip_site_auths:
             before_import_registry = None
             module_name = module_name or "auths"
             writer = sys.stdout.write if verbose else lambda x: x

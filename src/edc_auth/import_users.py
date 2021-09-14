@@ -14,7 +14,7 @@ from mempass import PasswordGenerator
 
 from edc_auth.export_users import export_users
 
-from .default_role_names import ACCOUNT_MANAGER_ROLE, STAFF_ROLE
+from .auth_objects import ACCOUNT_MANAGER_ROLE, STAFF_ROLE
 from .models import Role
 
 required_role_names = {STAFF_ROLE: "Staff"}
