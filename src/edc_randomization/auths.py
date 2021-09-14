@@ -1,4 +1,4 @@
-from edc_auth.default_role_names import PHARMACIST_ROLE, SITE_PHARMACIST_ROLE
+from edc_auth.auth_objects import PHARMACIST_ROLE, SITE_PHARMACIST_ROLE
 from edc_auth.site_auths import site_auths
 
 from .auth_objects import (
