@@ -4,10 +4,17 @@ from django.test import override_settings
 from faker import Faker
 
 from edc_auth.auth_objects import (
+    ACCOUNT_MANAGER_ROLE,
+    AUDITOR_ROLE,
     CLINICIAN_ROLE,
     CLINICIAN_SUPER_ROLE,
-    default_role_names,
+    CUSTOM_ROLE,
+    NURSE_ROLE,
+    PHARMACIST_ROLE,
+    SITE_PHARMACIST_ROLE,
+    STAFF_ROLE,
 )
+from edc_auth.auth_objects.default_role_names import STATISTICIAN
 from edc_auth.auth_updater import AuthUpdater
 from edc_auth.site_auths import site_auths
 
@@ -29,7 +36,18 @@ class TestRoles(EdcAuthTestCase):
         """Assert post-migrate updated defaults for model Role."""
         AuthUpdater(verbose=False)
         self.assertGreater(Role.objects.all().count(), 0)
-        for role_name in default_role_names:
+        for role_name in [
+            ACCOUNT_MANAGER_ROLE,
+            AUDITOR_ROLE,
+            CLINICIAN_ROLE,
+            CLINICIAN_SUPER_ROLE,
+            CUSTOM_ROLE,
+            NURSE_ROLE,
+            PHARMACIST_ROLE,
+            SITE_PHARMACIST_ROLE,
+            STAFF_ROLE,
+            STATISTICIAN,
+        ]:
             try:
                 Role.objects.get(name=role_name)
             except ObjectDoesNotExist as e:
