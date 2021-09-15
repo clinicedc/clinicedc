@@ -19,7 +19,12 @@ class AuditorModel(models.Model):
         permissions = (("be_sad", "Can be sad"),)
 
 
-class SubjectRequisition(models.Model):
+class TestModel(BaseUuidModel):
+
+    name = models.CharField(max_length=50, null=True)
+
+
+class SubjectRequisition(BaseUuidModel):
 
     name = models.CharField(max_length=50, null=True)
 

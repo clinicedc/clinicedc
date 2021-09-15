@@ -36,6 +36,49 @@ class SiteAuthError(Exception):
     pass
 
 
+def is_view_codename(codename):
+    return (
+        "view_" in codename
+        or "view_historical" in codename
+        or "navbar" in codename
+        or "dashboard" in codename
+    )
+
+
+def view_only_wrapper(func):
+    codenames = func()
+    return [codename for codename in codenames if is_view_codename(codename)]
+
+
+def convert_view_to_export_wrapper(codename_or_callables):
+    codenames = []
+    export_codenames = []
+    for codename in codename_or_callables:
+        try:
+            codenames.extend(codename())
+        except TypeError:
+            codenames.append(codename)
+    for codename in codenames:
+        if is_view_codename(codename) and "historical" not in codename:
+            try:
+                django_apps.get_model(codename.replace("view_", ""))
+            except LookupError:
+                pass
+            else:
+                export_codenames.append(codename.replace("view_", "export_"))
+    return export_codenames
+
+
+def remove_delete_wrapper(codename_or_callables):
+    codenames = []
+    for codename in codename_or_callables:
+        try:
+            codenames.extend(codename())
+        except TypeError:
+            codenames.append(codename)
+    return [c for c in codenames if "delete_" not in c]
+
+
 class SiteAuths:
     """A global to hold the intended group and role data.
 
@@ -106,9 +149,22 @@ class SiteAuths:
         for name, group_names in data.items():
             self.add_role(group_names, name=name)
 
-    def add_group(self, *codenames_or_func, name=None):
+    def add_group(
+        self,
+        *codenames_or_func,
+        name=None,
+        view_only=None,
+        convert_to_export=None,
+        no_delete=None
+    ):
         if name in self.registry["groups"]:
             raise GroupAlreadyExists(f"Group name already exists. Got {name}.")
+        if no_delete:
+            codenames_or_func = self.remove_delete_codenames(codenames_or_func)
+        if view_only:
+            codenames_or_func = self.get_view_only_codenames(codenames_or_func)
+        if convert_to_export:
+            codenames_or_func = self.convert_to_export_codenames(codenames_or_func)
         self.registry["groups"].update({name: codenames_or_func})
 
     def add_role(self, *group_names, name=None):
@@ -117,15 +173,21 @@ class SiteAuths:
         group_names = list(set(group_names))
         self.registry["roles"].update({name: group_names})
 
-    def update_group(self, *codenames, name=None, key=None) -> None:
+    def update_group(
+        self, *codenames_or_func, name=None, key=None, view_only=None, no_delete=None
+    ) -> None:
         key = key or "update_groups"
-        codenames = list(set(codenames))
+        if no_delete:
+            codenames_or_func = self.remove_delete_codenames(codenames_or_func)
+        if view_only:
+            codenames_or_func = self.get_view_only_codenames(codenames_or_func)
+        codenames_or_func = list(set(codenames_or_func))
         existing_codenames = deepcopy(self.registry[key].get(name)) or []
         try:
             existing_codenames = list(set(existing_codenames))
         except TypeError as e:
             raise TypeError(f"{e}. Got {name}")
-        existing_codenames.extend(codenames)
+        existing_codenames.extend(codenames_or_func)
         existing_codenames = list(set(existing_codenames))
         self.registry[key].update({name: existing_codenames})
 
@@ -146,6 +208,50 @@ class SiteAuths:
         for codename_tuple in codename_tuples:
             if codename_tuple not in self.registry["custom_permissions_tuples"][model]:
                 self.registry["custom_permissions_tuples"][model].append(codename_tuple)
+
+    @staticmethod
+    def get_view_only_codenames(codenames):
+        """Returns a list of view only codenames.
+
+        If codename is a callable, wraps for a later call.
+
+        Does not remove `edc_navbar` and `edc_dashboard` codenames.
+        """
+        callables = [lambda: view_only_wrapper(c) for c in codenames if callable(c)]
+        view_only_codenames = [
+            codename
+            for codename in codenames
+            if not callable(codename) and is_view_codename(codename)
+        ]
+        view_only_codenames.extend(callables)
+        return view_only_codenames
+
+    @staticmethod
+    def convert_to_export_codenames(codenames):
+        """Returns a list of export only codenames by
+        replacing `view` codenames with `export`.
+
+        If codename is a callable, wraps for a later call.
+        """
+        export_codenames = []
+        callables = [codename for codename in codenames if callable(codename)]
+        codenames = [codename for codename in codenames if not callable(codename)]
+        if callables:
+            export_codenames.append(lambda: convert_view_to_export_wrapper(callables))
+        if codenames:
+            export_codenames.extend(convert_view_to_export_wrapper(codenames))
+        return export_codenames
+
+    @staticmethod
+    def remove_delete_codenames(codenames):
+        export_codenames = []
+        callables = [codename for codename in codenames if callable(codename)]
+        codenames = [codename for codename in codenames if not callable(codename)]
+        if callables:
+            export_codenames.append(lambda: remove_delete_wrapper(callables))
+        if codenames:
+            export_codenames.extend(remove_delete_wrapper(codenames))
+        return export_codenames
 
     @property
     def roles(self):

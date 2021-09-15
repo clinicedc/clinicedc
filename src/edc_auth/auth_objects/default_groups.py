@@ -8,9 +8,6 @@ from .codenames import (
     dispensing,
     everyone,
     pharmacy,
-    pii_codenames,
-    pii_view_codenames,
-    review,
 )
 from .default_group_names import (
     ACCOUNT_MANAGER,
@@ -24,7 +21,6 @@ from .default_group_names import (
     PHARMACY,
     PII,
     PII_VIEW,
-    REVIEW,
 )
 
 default_groups = {
@@ -37,7 +33,6 @@ default_groups = {
     DISPENSING: dispensing,
     EVERYONE: everyone,
     PHARMACY: pharmacy,
-    PII: pii_codenames,
-    PII_VIEW: pii_view_codenames,
-    REVIEW: review,
+    PII: [],
+    PII_VIEW: [],
 }
