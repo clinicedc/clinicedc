@@ -1,3 +1,5 @@
+from edc_auth.auth_objects.default_role_names import STATISTICIAN
+
 from .default_group_names import (
     ACCOUNT_MANAGER,
     ADMINISTRATION,
@@ -48,4 +50,5 @@ default_roles = {
     SITE_PHARMACIST_ROLE: [
         DISPENSING,
     ],
+    STATISTICIAN: [],
 }
