@@ -1,4 +1,16 @@
+from edc_auth.auth_objects import PII, PII_VIEW
 from edc_auth.site_auths import site_auths
-from edc_export.auth_objects import EXPORT
 
-site_auths.update_group("edc_locator.export_subjectlocator", name=EXPORT)
+site_auths.update_group(
+    "edc_locator.add_subjectlocator",
+    "edc_locator.change_subjectlocator",
+    "edc_locator.view_historicalsubjectlocator",
+    "edc_locator.view_subjectlocator",
+    name=PII,
+)
+
+site_auths.update_group(
+    "edc_locator.view_historicalsubjectlocator",
+    "edc_locator.view_subjectlocator",
+    name=PII_VIEW,
+)
