@@ -1,11 +1,10 @@
 from django.conf import settings
-from edc_auth.auth_objects import ADMINISTRATION, EVERYONE, REVIEW
 
 AE = "AE"
+AE_EXPORT = "AE_EXPORT"
 AE_REVIEW = "AE_REVIEW"
 AE_ROLE = "ae_role"
-
-ae_role_group_names = [ADMINISTRATION, EVERYONE, REVIEW, AE]
+AE_SUPER = "AE_SUPER"
 ae_codenames = [
     "edc_adverse_event.view_aeclassification",
     "edc_adverse_event.view_causeofdeath",
@@ -37,6 +36,5 @@ ae_codenames = [
     f"{settings.ADVERSE_EVENT_APP_LABEL}.view_historicaldeathreporttmg",
     f"{settings.ADVERSE_EVENT_APP_LABEL}.view_historicaldeathreporttmgsecond",
 ]
-ae_view_codenames = [c for c in ae_codenames if "view_" in c]
 ae_dashboard_tuples = (("edc_dashboard.view_ae_listboard", "Can view AE listboard"),)
 ae_navbar_tuples = (("edc_navbar.nav_ae_section", "Can view AE navbar"),)
