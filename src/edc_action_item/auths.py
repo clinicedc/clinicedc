@@ -10,7 +10,8 @@ from .auth_objects import (
 
 site_auths.add_group(*action_items_codenames, name=ACTION_ITEM)
 site_auths.add_group(*action_items_codenames, name=ACTION_ITEM_VIEW_ONLY, view_only=True)
-site_auths.add_group(*action_items_codenames, name=ACTION_ITEM_EXPORT, convert_to_export=True)
+# site_auths.add_group(*action_items_codenames, name=ACTION_ITEM_EXPORT,
+# convert_to_export=True)
 
 site_auths.add_custom_permissions_tuples(
     model="edc_navbar.navbar", codename_tuples=navbar_tuples
