@@ -2,6 +2,10 @@ import sys
 
 from .site_randomizers import site_randomizers
 
+RANDO = "RANDO"
+RANDO_VIEW = "RANDO_VIEW"
+RANDO_ROLE = "RANDO_ROLE"
+
 
 def get_rando_permissions_tuples() -> list:
     """Returns a list of tuples, [(codename, description), ...]"""
@@ -27,8 +31,6 @@ def get_rando_permissions_codenames() -> list:
 
 # codenames
 export_rando = [
-    "edc_dashboard.view_export_dashboard",
-    "edc_export.display_export_admin_action",
     "edc_randomization.export_randomizationlist",
 ]
 
