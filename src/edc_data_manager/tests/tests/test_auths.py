@@ -11,5 +11,8 @@ from edc_auth.site_auths import site_auths
 )
 class TestAuths(TestCase):
     def test_load(self):
-        site_auths.autodiscover(verbose=False)
+        site_auths.initialize()
+        import_module("edc_data_manager.auths")
+        import_module("edc_dashboard.auths")
+        import_module("edc_navbar.auths")
         AuthUpdater(verbose=False)

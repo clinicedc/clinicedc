@@ -2,12 +2,12 @@ from edc_dashboard.auth_objects import dashboard_tuples
 
 # group names
 DATA_MANAGER = "DATA_MANAGER"
+DATA_MANAGER_EXPORT = "DATA_MANAGER_EXPORT"
 DATA_QUERY = "DATA_QUERY"
 SITE_DATA_MANAGER = "SITE_DATA_MANAGER"
 
 # codenames
 data_manager = [
-    "edc_crf.view_crfstatus",
     "edc_data_manager.add_dataquery",
     "edc_data_manager.add_queryrule",
     "edc_data_manager.change_dataquery",
