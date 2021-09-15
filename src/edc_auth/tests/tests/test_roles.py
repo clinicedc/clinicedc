@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import tag  # noqa
-from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
+from django.test import override_settings
 from faker import Faker
 
 from edc_auth.auth_objects import (
@@ -9,6 +8,7 @@ from edc_auth.auth_objects import (
     CLINICIAN_SUPER_ROLE,
     default_role_names,
 )
+from edc_auth.auth_updater import AuthUpdater
 from edc_auth.site_auths import site_auths
 
 from ...models import Role
@@ -20,9 +20,14 @@ site_names = ["harare", "gaborone", "kampala"]
 user_model = get_user_model()
 
 
+@override_settings(
+    EDC_AUTH_SKIP_SITE_AUTHS=False,
+    EDC_AUTH_SKIP_AUTH_UPDATER=False,
+)
 class TestRoles(EdcAuthTestCase):
     def test_post_migrate(self):
         """Assert post-migrate updated defaults for model Role."""
+        AuthUpdater(verbose=False)
         self.assertGreater(Role.objects.all().count(), 0)
         for role_name in default_role_names:
             try:
@@ -38,6 +43,7 @@ class TestRoles(EdcAuthTestCase):
         self.assertEqual(groups_from_role, groups_from_site_auths)
 
     def test_add_roles_to_user(self):
+        AuthUpdater(verbose=False)
         create_users()
         user = user_model.objects.all()[0]
         self.assertEqual(user.groups.all().count(), 0)
@@ -53,6 +59,7 @@ class TestRoles(EdcAuthTestCase):
         )
 
     def test_remove_roles_to_user(self):
+        AuthUpdater(verbose=False)
         create_users()
         user = user_model.objects.all()[0]
         self.assertEqual(user.groups.all().count(), 0)

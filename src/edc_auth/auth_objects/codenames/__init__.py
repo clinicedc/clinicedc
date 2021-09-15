@@ -7,6 +7,3 @@ from .clinic_super import clinic_super
 from .dispensing import dispensing
 from .everyone import everyone
 from .pharmacy import pharmacy
-from .pii import pii_codenames
-from .pii_view import pii_view_codenames
-from .review import review

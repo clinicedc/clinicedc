@@ -1,5 +1,6 @@
 import csv
 import os
+from importlib import import_module
 from tempfile import mkdtemp
 
 from django.contrib.auth.models import Group, User
@@ -7,12 +8,16 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from edc_lab.auth_objects import LAB_TECHNICIAN_ROLE
+from edc_randomization import Randomizer
+from edc_randomization.site_randomizers import site_randomizers
 from edc_sites.models import SiteProfile
 from faker import Faker
 from mempass import mkpassword
 from secrets import choice
 
 from edc_auth.auth_objects import CLINICIAN_ROLE
+from edc_auth.site_auths import site_auths
+from edc_auth.tests.randomizers import CustomRandomizer
 
 from ..import_users import fieldnames
 
@@ -30,6 +35,14 @@ class EdcAuthTestCase(TestCase):
             Site.objects.create(
                 id=site_id, name=site_name, domain=f"{site_name}.example.com"
             )
+        site_randomizers._registry = {}
+        site_randomizers.register(Randomizer)
+        site_randomizers.register(CustomRandomizer)
+        site_auths.initialize()
+        import_module("edc_navbar.auths")
+        import_module("edc_dashboard.auths")
+        import_module("edc_review_dashboard.auths")
+        import_module("edc_randomization.auths")
 
 
 def create_users(count=None, group_name=None, site_name=None):

@@ -1,9 +1,7 @@
-from django.apps import apps as django_apps
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
-from django.test import tag
+from django.test import override_settings, tag
 from django.test.client import RequestFactory
-from django.test.utils import override_settings
 
 from edc_auth.auth_objects import CLINICIAN_ROLE
 from edc_auth.auth_updater import AuthUpdater
@@ -13,12 +11,11 @@ from ...backends import ModelBackendWithSite
 from ...models.role import Role
 
 
+@override_settings(
+    EDC_AUTH_SKIP_SITE_AUTHS=False,
+    EDC_AUTH_SKIP_AUTH_UPDATER=False,
+)
 class TestUserProfile(EdcAuthTestCase):
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-        AuthUpdater(verbose=True, apps=django_apps)
-
     def test_default_user_profile_created_by_signal(self):
         """Assert creates userprofile instance."""
         self.user = User.objects.create(username="noam")
@@ -71,6 +68,7 @@ class TestUserProfile(EdcAuthTestCase):
 
     @tag("2")
     def test_add_groups_for_role(self):
+        AuthUpdater(verbose=False)
         user = User.objects.create(
             username="erik", is_superuser=False, is_active=True, is_staff=True
         )

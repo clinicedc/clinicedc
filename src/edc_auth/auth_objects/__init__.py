@@ -8,10 +8,6 @@ from .codenames import (
     dispensing,
     everyone,
     pharmacy,
-    pii_codenames,
-    pii_view_codenames,
-    review,
-    statistician,
 )
 from .default_group_names import (
     ACCOUNT_MANAGER,
@@ -25,7 +21,6 @@ from .default_group_names import (
     PHARMACY,
     PII,
     PII_VIEW,
-    REVIEW,
 )
 from .default_groups import default_groups
 from .default_pii_models import default_pii_models
@@ -39,6 +34,5 @@ from .default_role_names import (
     PHARMACIST_ROLE,
     SITE_PHARMACIST_ROLE,
     STAFF_ROLE,
-    default_role_names,
 )
 from .default_roles import default_roles

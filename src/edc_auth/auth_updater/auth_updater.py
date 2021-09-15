@@ -87,7 +87,8 @@ class AuthUpdater:
                 sys.stdout.write(f"   * {func.__name__}\n")
                 func(self)
         else:
-            sys.stdout.write("   * nothing to do\n")
+            if self.verbose:
+                sys.stdout.write("   * nothing to do\n")
         if self.verbose:
             sys.stdout.write("   Done.\n")
 
@@ -100,7 +101,8 @@ class AuthUpdater:
                 sys.stdout.write(f"   * {func.__name__}\n")
                 func(self)
         else:
-            sys.stdout.write("   * nothing to do\n")
+            if self.verbose:
+                sys.stdout.write("   * nothing to do\n")
         if self.verbose:
             sys.stdout.write("   Done.\n")
 
@@ -125,7 +127,7 @@ class AuthUpdater:
         for name in groups_names:
             try:
                 apps.get_model("auth.group").objects.get(name=name)
-            except ObjectDoesNotExist as e:
+            except ObjectDoesNotExist:
                 apps.get_model("auth.group").objects.create(name=name)
                 site_auths.groups.update({name: []})
         return groups_names
@@ -142,7 +144,7 @@ class AuthUpdater:
             display_name = name.replace("_", " ").lower().title()
             try:
                 role_obj = apps.get_model("edc_auth.role").objects.get(name=name)
-            except ObjectDoesNotExist as e:
+            except ObjectDoesNotExist:
                 apps.get_model("edc_auth.role").objects.create(
                     name=name, display_name=display_name
                 )
