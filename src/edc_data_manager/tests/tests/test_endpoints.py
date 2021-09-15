@@ -1,3 +1,4 @@
+from importlib import import_module
 from unittest import skip
 
 from django.contrib.auth import get_user_model
@@ -5,7 +6,7 @@ from django.test import override_settings, tag
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_action_item.models.action_item import ActionItem
-from edc_auth.auth_objects import CLINIC, EVERYONE
+from edc_auth.auth_objects import EVERYONE
 from edc_auth.auth_updater import AuthUpdater
 from edc_auth.models import Role
 from edc_auth.site_auths import site_auths
@@ -32,7 +33,10 @@ User = get_user_model()
 class AdminSiteTest(WebTest):
     @classmethod
     def setUpTestData(cls):
-        site_auths.autodiscover(verbose=False)
+        site_auths.initialize()
+        import_module("edc_data_manager.auths")
+        import_module("edc_dashboard.auths")
+        import_module("edc_navbar.auths")
         AuthUpdater(verbose=False)
 
     def setUp(self):
@@ -92,37 +96,6 @@ class AdminSiteTest(WebTest):
         form = self.app.get(url, user=self.user).form
         response = form.submit().follow()
         self.assertIn("Invalid. Select questions from one CRF only", str(response.content))
-
-    @skip("webtest1")
-    def test_data_query_questions_from_single_form(self):
-        login(
-            self,
-            superuser=False,
-            groups=[EVERYONE, DATA_MANAGER],
-            redirect_url="admin:index",
-        )
-
-        registered_subject = RegisteredSubject.objects.create(
-            subject_identifier=self.subject_identifier
-        )
-
-        data_query = baker.make_recipe(
-            "edc_data_manager.dataquery",
-            registered_subject=registered_subject,
-            sender=DataManagerUser.objects.get(username=self.user.username),
-        )
-
-        crf = CrfDataDictionary.objects.all()[0]
-        data_query.data_dictionaries.add(crf)
-        crf = CrfDataDictionary.objects.all()[1]
-        data_query.data_dictionaries.add(crf)
-
-        url = reverse(
-            "edc_data_manager_admin:edc_data_manager_dataquery_change", args=(data_query.pk,)
-        )
-        form = self.app.get(url, user=self.user).form
-        response = form.submit().follow()
-        self.assertIn("Invalid. Select questions from one CRF only", response)
 
     @tag("webtest")
     def test_data_query(self):
@@ -189,7 +162,6 @@ class AdminSiteTest(WebTest):
         login(
             self,
             superuser=False,
-            groups=[EVERYONE, CLINIC],
             redirect_url="admin:index",
         )
 
