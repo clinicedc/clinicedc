@@ -43,7 +43,7 @@ site_auths.update_group(
     *[c[0] for c in tmg_dashboard_tuples], *[c[0] for c in tmg_navbar_tuples], name=TMG_REVIEW
 )
 
-site_auths.add_group(*ae_codenames, *tmg_codenames, name=AE_EXPORT, convert_to_export=True)
+# site_auths.add_group(*ae_codenames, *tmg_codenames, name=AE_EXPORT, convert_to_export=True)
 
 
 # add roles
