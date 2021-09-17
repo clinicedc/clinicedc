@@ -35,7 +35,7 @@ class MetaDataInspector:
 
     @property
     def required(self):
-        """Returns a list of subject identifiers."""
+        """Returns subject_identifiers as a values queryset."""
         opts = dict(
             visit_schedule_name=self.visit_schedule_name,
             schedule_name=self.schedule_name,
@@ -45,12 +45,16 @@ class MetaDataInspector:
             model=self.model_cls._meta.label_lower,
             entry_status=REQUIRED,
         )
-        qs = self.metadata_model_cls.objects.values("subject_identifier").filter(**opts)
-        return [value_obj.get("subject_identifier") for value_obj in qs]
+        return (
+            self.metadata_model_cls.objects.filter(**opts)
+            .values("subject_identifier")
+            .order_by("subject_identifier")
+            .distinct()
+        )
 
     @property
     def keyed(self):
-        """Returns a list of subject identifiers."""
+        """Returns subject_identifiers as a values queryset."""
         opts = dict(
             visit_schedule_name=self.visit_schedule_name,
             schedule_name=self.schedule_name,
@@ -60,5 +64,9 @@ class MetaDataInspector:
             model=self.model_cls._meta.label_lower,
             entry_status=KEYED,
         )
-        qs = self.metadata_model_cls.objects.values("subject_identifier").filter(**opts)
-        return [value_obj.get("subject_identifier") for value_obj in qs]
+        return (
+            self.metadata_model_cls.objects.filter(**opts)
+            .values("subject_identifier")
+            .order_by("subject_identifier")
+            .distinct()
+        )
