@@ -181,7 +181,7 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
     objects = models.Manager()
 
     def __str__(self):
-        return f"{self.action_identifier[-9:]}"
+        return f"{self.action_identifier[-9:]}, {self.status}"
 
     def save(self, *args, **kwargs):
         self.subject_identifier = self.registered_subject.subject_identifier
@@ -198,17 +198,19 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
     def form_and_numbers_to_string(self):
         ret = []
-        models = [o.model_verbose_name for o in self.data_dictionaries.all().order_by("model")]
-        models = list(set(models))
-        for model in models:
+        model_verbose_names = [
+            o.model_verbose_name for o in self.data_dictionaries.all().order_by("model")
+        ]
+        model_verbose_names = list(set(model_verbose_names))
+        for model_verbose_name in model_verbose_names:
             numbers = [
                 str(o.number)
-                for o in self.data_dictionaries.filter(model_verbose_name=model).order_by(
-                    "number"
-                )
+                for o in self.data_dictionaries.filter(
+                    model_verbose_name=model_verbose_name
+                ).order_by("number")
             ]
             numbers = ", ".join(numbers)
-            ret.append((model, numbers))
+            ret.append((model_verbose_name, numbers))
         return ret
 
     def get_action_item_display_name(self):

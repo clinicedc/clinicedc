@@ -253,6 +253,7 @@ class TestQueryRules(TestCase):
             0,
         )
 
+    @tag("5")
     def test_crf_rule_with_requisition(self):
 
         # create a rule
@@ -288,6 +289,7 @@ class TestQueryRules(TestCase):
             0,
         )
 
+        # create a visit report
         appointment = Appointment.objects.get(visit_code="1000", visit_code_sequence=0)
         subject_visit = self.create_subject_visit(
             "1000",
@@ -307,16 +309,34 @@ class TestQueryRules(TestCase):
             1,
         )
 
+        # Enter requisition BUT set is_drawn=NO
         panel = Panel.objects.get(name=requisition_panel.name)
-        subject_requisition = SubjectRequisition.objects.create(
+        subject_requisition = SubjectRequisition(
             subject_visit=subject_visit,
             requisition_datetime=subject_visit.report_datetime,
             panel=panel,
             is_drawn=NO,
             reason_not_drawn="failed",
         )
+        # rule will run in post_save signal
+        subject_requisition.save()
 
         # assert DataQuery closed since specimen not drawn.
+        self.assertEqual(
+            DataQuery.objects.filter(
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
+            ).count(),
+            0,
+        )
+
+        # create the CRF, field value missing => query when DUE.
+        crf_one = CrfOne(
+            subject_visit=subject_visit,
+            report_datetime=subject_visit.report_datetime,
+            f1=None,
+        )
+        crf_one.save()
+
         self.assertEqual(
             DataQuery.objects.filter(
                 rule_generated=True, rule_reference=query_rule.reference, status=OPEN
@@ -331,6 +351,7 @@ class TestQueryRules(TestCase):
         subject_requisition.item_type = TUBE
         subject_requisition.item_count = 1
         subject_requisition.estimated_volume = 5
+        # rule will run in post_save signal
         subject_requisition.save()
 
         # assert DataQuery re-opens.
@@ -341,20 +362,20 @@ class TestQueryRules(TestCase):
             1,
         )
 
-        # create the CRF, field value missing => query when DUE.
-        crf_one = CrfOne.objects.create(
-            subject_visit=subject_visit,
-            report_datetime=subject_visit.report_datetime,
-            f1=None,
-        )
+        # # create the CRF, field value missing => query when DUE.
+        # crf_one = CrfOne.objects.create(
+        #     subject_visit=subject_visit,
+        #     report_datetime=subject_visit.report_datetime,
+        #     f1=None,
+        # )
 
-        # assert DataQuery stays opens.
-        self.assertEqual(
-            DataQuery.objects.filter(
-                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
-            ).count(),
-            1,
-        )
+        # # assert DataQuery stays opens.
+        # self.assertEqual(
+        #     DataQuery.objects.filter(
+        #         rule_generated=True, rule_reference=query_rule.reference, status=OPEN
+        #     ).count(),
+        #     1,
+        # )
 
         crf_one.f1 = "erik"
         crf_one.save()

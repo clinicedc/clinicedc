@@ -1,4 +1,7 @@
+import sys
+
 import arrow
+from edc_metadata import KEYED, REQUIRED
 from edc_metadata.metadata_inspector import MetaDataInspector
 
 from ..models import QueryVisitSchedule
@@ -6,9 +9,10 @@ from .query_rule_wrapper import QueryRuleWrapper
 
 
 class RuleRunner:
-    def __init__(self, query_rule_obj=None, now=None):
+    def __init__(self, query_rule_obj=None, now=None, verbose=None):
         self.query_rule_obj = query_rule_obj  # query rule model instance
         self.now = now or arrow.utcnow().datetime
+        self.verbose = verbose
 
     @property
     def reference(self):
@@ -22,9 +26,15 @@ class RuleRunner:
         created_counter = 0
         resolved_counter = 0
         query_rules_data = query_rules_data or self.query_rules_data
-        for _, wrapped_query_rules in query_rules_data.items():
+        for key, wrapped_query_rules in query_rules_data.items():
             for wrapped_query_rule in wrapped_query_rules:
+                if self.verbose:
+                    sys.stdout.write(f"     - running {wrapped_query_rule}\n")
                 created, resolved = wrapped_query_rule.run_handler()
+                if self.verbose:
+                    sys.stdout.write(
+                        f"       (queries created: {created}, queries resolved: {resolved})\n"
+                    )
                 created_counter += created
                 resolved_counter += resolved
         return created_counter, resolved_counter
@@ -56,14 +66,20 @@ class RuleRunner:
             }
         )
 
-    def get_timepoints(self, visit_schedule_obj):
-        """Returns the timepoints for which there is metadata."""
-        qs = MetaDataInspector.metadata_model_cls.objects.values("timepoint").filter(
-            visit_schedule_name=visit_schedule_obj.visit_schedule_name,
-            schedule_name=visit_schedule_obj.schedule_name,
-            visit_code=visit_schedule_obj.visit_code,
-        )
-        return [obj.get("timepoint") for obj in qs]
+    # @staticmethod
+    # def get_timepoints(visit_schedule_obj):
+    #     """Returns the timepoints for which there is metadata."""
+    #     qs = (
+    #         MetaDataInspector.metadata_model_cls.objects.values("timepoint")
+    #         .filter(
+    #             visit_schedule_name=visit_schedule_obj.visit_schedule_name,
+    #             schedule_name=visit_schedule_obj.schedule_name,
+    #             visit_code=visit_schedule_obj.visit_code,
+    #             visit_code_sequence=0,
+    #         )
+    #         .distinct()
+    #     )
+    #     return list(set([obj.get("timepoint") for obj in qs]))
 
     @property
     def query_rules_data(self):
@@ -73,34 +89,43 @@ class RuleRunner:
         query_rules = {}
         for visit_schedule_obj in self.query_rule_obj.visit_schedule.all():
             wrapped_query_rules = []
-            for timepoint in self.get_timepoints(visit_schedule_obj):
-                metadata_inspector = MetaDataInspector(
-                    model_cls=self.query_rule_obj.model_cls,
-                    visit_schedule_name=visit_schedule_obj.visit_schedule_name,
-                    schedule_name=visit_schedule_obj.schedule_name,
-                    visit_code=visit_schedule_obj.visit_code,
-                    timepoint=timepoint,
+            if self.verbose:
+                sys.stdout.write(
+                    f"     - query {visit_schedule_obj.visit_schedule_name}."
+                    f"{visit_schedule_obj.schedule_name}.{visit_schedule_obj.visit_code}"
+                    f" (timepoint {visit_schedule_obj.timepoint})\n"
                 )
-                if metadata_inspector.required:
-                    wrapped_query_rules.append(
-                        QueryRuleWrapper(
-                            query_rule_obj=self.query_rule_obj,
-                            subject_identifiers=metadata_inspector.required,
-                            visit_schedule_obj=visit_schedule_obj,
-                            timepoint=timepoint,
-                            now=self.now,
-                        )
+            metadata_inspector = MetaDataInspector(
+                model_cls=self.query_rule_obj.model_cls,
+                visit_schedule_name=visit_schedule_obj.visit_schedule_name,
+                schedule_name=visit_schedule_obj.schedule_name,
+                visit_code=visit_schedule_obj.visit_code,
+                timepoint=visit_schedule_obj.timepoint,
+            )
+            if metadata_inspector.required:
+                wrapped_query_rules.append(
+                    QueryRuleWrapper(
+                        query_rule_obj=self.query_rule_obj,
+                        subject_identifiers=metadata_inspector.required,
+                        visit_schedule_obj=visit_schedule_obj,
+                        timepoint=visit_schedule_obj.timepoint,
+                        now=self.now,
+                        entry_status=REQUIRED,
+                        verbose=self.verbose,
                     )
-                if metadata_inspector.keyed:
-                    wrapped_query_rules.append(
-                        QueryRuleWrapper(
-                            query_rule_obj=self.query_rule_obj,
-                            subject_identifiers=metadata_inspector.keyed,
-                            visit_schedule_obj=visit_schedule_obj,
-                            timepoint=timepoint,
-                            now=self.now,
-                        )
+                )
+            if metadata_inspector.keyed:
+                wrapped_query_rules.append(
+                    QueryRuleWrapper(
+                        query_rule_obj=self.query_rule_obj,
+                        subject_identifiers=metadata_inspector.keyed,
+                        visit_schedule_obj=visit_schedule_obj,
+                        timepoint=visit_schedule_obj.timepoint,
+                        now=self.now,
+                        entry_status=KEYED,
+                        verbose=self.verbose,
                     )
+                )
             if wrapped_query_rules:
                 query_rules.update({visit_schedule_obj.visit_code: wrapped_query_rules})
         return query_rules

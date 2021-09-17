@@ -1,4 +1,5 @@
 from edc_registration.models import RegisteredSubject
+from tqdm import tqdm
 
 from ..site_data_manager import site_data_manager
 
@@ -11,7 +12,9 @@ class QueryRuleWrapper:
         visit_schedule_obj=None,
         timepoint=None,
         visit_code_sequence=None,
+        entry_status=None,
         now=None,
+        verbose=None,
     ):
         self.now = now
         self.query_rule_obj = query_rule_obj
@@ -21,18 +24,24 @@ class QueryRuleWrapper:
         self.visit_code_sequence = (
             visit_code_sequence or str(self.timepoint).split(".")[1] or 0
         )
+        self.entry_status = entry_status
+        self.verbose = verbose
 
     def __repr__(self):
         return (
             f"{self.__class__.__name__}("
             f"model={self.query_rule_obj.model_cls._meta.label_lower}, "
-            f"query_rule={self.query_rule_obj.title}, timepoint={self.timepoint})"
+            f"query_rule={self.query_rule_obj.title}, timepoint={self.timepoint}, "
+            f"{self.entry_status}, "
+            f"subject_identifiers={self.count(self.subject_identifiers)})"
         )
 
     def __str__(self):
         return (
             f"model={self.query_rule_obj.model_cls._meta.label_lower}, "
-            f"query_rule={self.query_rule_obj.title}, timepoint={self.timepoint}"
+            f"query_rule={self.query_rule_obj.title}, timepoint={self.timepoint}, "
+            f"{self.entry_status}, "
+            f"subject_identifiers={self.count(self.subject_identifiers)})"
         )
 
     @property
@@ -46,9 +55,12 @@ class QueryRuleWrapper:
         """
         created = 0
         resolved = 0
-        for subject_identifier in self.subject_identifiers:
+        total = self.count(self.subject_identifiers)
+        for value in tqdm(
+            self.get_subject_identifiers(), total=total, disable=not self.verbose
+        ):
             registered_subject = RegisteredSubject.objects.get(
-                subject_identifier=subject_identifier
+                subject_identifier=value["subject_identifier"]
             )
             handler = self.handler(
                 query_rule_obj=self.query_rule_obj,
@@ -61,3 +73,22 @@ class QueryRuleWrapper:
             created += handler.created_counter
             resolved += handler.resolved_counter
         return created, resolved
+
+    @property
+    def get_subject_identifiers(self):
+        """Returns an iterable of dictionaries of
+        {subject_identifier: value, ...}.
+        """
+        return getattr(
+            self.subject_identifiers,
+            "all",
+            lambda: [{"subject_identifier": s for s in self.subject_identifiers}],
+        )
+
+    @staticmethod
+    def count(qs_or_list):
+        try:
+            cnt = qs_or_list.count()
+        except (TypeError, AttributeError):
+            cnt = len(qs_or_list)
+        return cnt
