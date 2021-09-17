@@ -66,6 +66,7 @@ class QueryRuleHandler:
         self._requisition_obj = None
         self.created_counter = 0
         self.data_dictionaries = query_rule_obj.data_dictionaries.all()
+        self.data_query = None
         self.model_cls = query_rule_obj.model_cls
         self.now = now
         self.query_rule_obj = query_rule_obj
@@ -244,12 +245,14 @@ class QueryRuleHandler:
             site_response_text = (self.data_query.site_response_text or "").replace(
                 "[auto-resolved]", ""
             )
+            # status = CLOSED if self.data_query.rule_generated else RESOLVED
+            status = RESOLVED
             self.data_query.site_response_text = f"{site_response_text} [auto-resolved]"
             self.data_query.site_resolved_datetime = self.resolved_datetime
-            self.data_query.site_response_status = RESOLVED
+            self.data_query.site_response_status = status
             self.data_query.resolved_datetime = self.resolved_datetime
             self.data_query.dm_user = self.query_rule_obj.sender
-            self.data_query.status = RESOLVED
+            self.data_query.status = status
             self.data_query.save()
             self.data_query.refresh_from_db()
             self.resolved_counter = 1

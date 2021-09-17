@@ -1,6 +1,8 @@
 from __future__ import absolute_import, unicode_literals
 
-from celery import shared_task
+import sys
+
+# from celery import shared_task
 from django.conf import settings
 
 from ..models import QueryRule
@@ -9,19 +11,33 @@ from .rule_runner import RuleRunner
 DATA_MANAGER_ENABLED = getattr(settings, "DATA_MANAGER_ENABLED", True)
 
 
-@shared_task(name="update_query_rules")
-def update_query_rules(pks=None):
-    if DATA_MANAGER_ENABLED:
+# @shared_task(name="update_query_rules")
+def update_query_rules(pks=None, verbose=None):
+    total_created = 0
+    total_resolved = 0
+    if verbose:
+        sys.stdout.write("\nRunning query rules:\n")
+    if not DATA_MANAGER_ENABLED:
+        sys.stdout.write(
+            "Disabled. To enable, set settings.DATA_MANAGER_ENABLED = True. Done\n"
+        )
+    else:
+        opts = dict(active=True)
         if pks:
-            query_rules = QueryRule.objects.filter(id__in=pks, active=True)
-        else:
-            query_rules = QueryRule.objects.filter(active=True)
-        total_created = 0
-        total_resolved = 0
-        for query_rule_obj in query_rules:
-            rule_runner = RuleRunner(query_rule_obj)
+            opts.update(id__in=pks)
+        query_rules = QueryRule.objects.filter(**opts)
+        sys.stdout.write(
+            f"  Found {query_rules.count()} rule{'s'[:query_rules.count()^1]} to run.\n"
+        )
+        for index, query_rule_obj in enumerate(query_rules.all()):
+            if verbose:
+                sys.stdout.write(f"  {index + 1}. {query_rule_obj}\n")
+            rule_runner = RuleRunner(query_rule_obj, verbose=verbose)
             created, resolved = rule_runner.run()
             total_created += created
             total_resolved += resolved
-        return {"created": total_created, "resolved": total_resolved}
-    return {"created": 0, "resolved": 0}
+        if verbose:
+            sys.stdout.write(f"  total queries created {total_created}\n")
+            sys.stdout.write(f"  total queries resolved {total_resolved}\n")
+    sys.stdout.write("Done.\n")
+    return {"created": total_created, "resolved": total_resolved}

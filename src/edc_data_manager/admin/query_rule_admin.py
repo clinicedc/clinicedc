@@ -1,4 +1,3 @@
-from django import forms
 from django.contrib import admin
 from django.contrib.admin.decorators import register
 from django_audit_fields.admin import ModelAdminAuditFieldsMixin, audit_fieldset_tuple
@@ -23,29 +22,36 @@ class QueryRuleModelAdminMixin:
             kwargs["choices"] = get_rule_handler_choices()
         return super().formfield_for_choice_field(db_field, request, **kwargs)
 
-    def form_name(self, obj=None):
+    @staticmethod
+    def form_name(obj=None):
         data_dictionaries = [dd for dd in obj.data_dictionaries.all().order_by("number")]
         return ", ".join(list(set([dd.model_verbose_name for dd in data_dictionaries])))
 
-    def questions(self, obj=None):
+    @staticmethod
+    def questions(obj=None):
         numbers = [str(dd.number) for dd in obj.data_dictionaries.all().order_by("number")]
         return ", ".join(numbers)
 
-    def field_names(self, obj=None):
+    @staticmethod
+    def field_names(obj=None):
         fields = [dd.field_name for dd in obj.data_dictionaries.all().order_by("field_name")]
         return ", ".join(fields)
 
-    def timepoints(self, obj=None):
+    @staticmethod
+    def timepoints(obj=None):
         fields = [v.visit_code for v in obj.visit_schedule.all().order_by("timepoint")]
         return ", ".join(fields)
 
-    def query_timing(self, obj=None):
+    @staticmethod
+    def query_timing(obj=None):
         return f"{obj.timing} {obj.get_timing_units_display()} " f"from {obj.reference_date}"
 
-    def requisition(self, obj=None):
+    @staticmethod
+    def requisition(obj=None):
         return obj.requisition_panel
 
-    def rule(self, obj=None):
+    @staticmethod
+    def rule(obj=None):
         return obj.rule_handler_name
 
 
