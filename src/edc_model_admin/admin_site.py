@@ -44,10 +44,11 @@ class EdcAdminSite(DjangoAdminSite):
     final_catch_all_view = True  # DJ 3.2
     site_url = "/administration/"
 
-    def __init__(self, name="admin", app_label=None):
+    def __init__(self, name="admin", app_label=None, keep_delete_action=None):
         self.app_label = app_label
         super().__init__(name)
-        del self._actions["delete_selected"]
+        if not keep_delete_action:
+            del self._actions["delete_selected"]
 
     def each_context(self, request):
         context = super().each_context(request)
