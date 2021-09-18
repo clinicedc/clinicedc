@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 
+from edc_data_manager.models import QueryRule
 from edc_data_manager.rule import update_query_rules
 
 
@@ -15,14 +16,21 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
-            "--rule_ids",
+            "--title",
             type=str,
-            help="Rule IDs. Separate by comma. Default is all rule IDs",
+            help="Titles. Separate by comma. Default is all rules",
             default="",
         )
 
     def handle(self, *args, **options):
         opts = dict(verbose=options["verbose"])
-        if options["rule_ids"]:
-            opts.update(pks=options["rule_ids"].strip().split(","))
+        if options["title"]:
+            opts.update(
+                pks=[
+                    o.pk
+                    for o in QueryRule.objects.filter(
+                        title__in=options["title"].strip().split(",")
+                    )
+                ]
+            )
         update_query_rules(**opts)
