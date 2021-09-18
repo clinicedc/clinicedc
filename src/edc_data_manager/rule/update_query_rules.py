@@ -1,8 +1,5 @@
-from __future__ import absolute_import, unicode_literals
-
 import sys
 
-# from celery import shared_task
 from django.conf import settings
 
 from ..models import QueryRule
@@ -11,7 +8,6 @@ from .rule_runner import RuleRunner
 DATA_MANAGER_ENABLED = getattr(settings, "DATA_MANAGER_ENABLED", True)
 
 
-# @shared_task(name="update_query_rules")
 def update_query_rules(pks=None, verbose=None):
     total_created = 0
     total_resolved = 0

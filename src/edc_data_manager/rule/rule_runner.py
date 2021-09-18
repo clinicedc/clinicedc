@@ -1,3 +1,4 @@
+import pdb
 import sys
 
 import arrow
@@ -66,25 +67,12 @@ class RuleRunner:
             }
         )
 
-    # @staticmethod
-    # def get_timepoints(visit_schedule_obj):
-    #     """Returns the timepoints for which there is metadata."""
-    #     qs = (
-    #         MetaDataInspector.metadata_model_cls.objects.values("timepoint")
-    #         .filter(
-    #             visit_schedule_name=visit_schedule_obj.visit_schedule_name,
-    #             schedule_name=visit_schedule_obj.schedule_name,
-    #             visit_code=visit_schedule_obj.visit_code,
-    #             visit_code_sequence=0,
-    #         )
-    #         .distinct()
-    #     )
-    #     return list(set([obj.get("timepoint") for obj in qs]))
-
     @property
     def query_rules_data(self):
         """Returns a dictionary of QueryRuleWrappers format
         {visit_code: [wrappper, ...]}.
+
+        Important: Metadata must be up-to-date
         """
         query_rules = {}
         for visit_schedule_obj in self.query_rule_obj.visit_schedule.all():
