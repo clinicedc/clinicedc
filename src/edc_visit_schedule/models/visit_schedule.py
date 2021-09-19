@@ -1,6 +1,8 @@
 from django.db import models
 from edc_model import models as edc_models
 
+from ..model_mixins import VisitScheduleMethodsModelMixin
+
 
 class VisitScheduleManager(models.Manager):
     def get_by_natural_key(self, visit_schedule_name, schedule_name, visit_code):
@@ -11,7 +13,7 @@ class VisitScheduleManager(models.Manager):
         )
 
 
-class VisitSchedule(edc_models.BaseUuidModel):
+class VisitSchedule(VisitScheduleMethodsModelMixin, edc_models.BaseUuidModel):
 
     visit_schedule_name = models.CharField(max_length=150)
 
@@ -38,7 +40,11 @@ class VisitSchedule(edc_models.BaseUuidModel):
         )
 
     def natural_key(self):
-        return (self.visit_schedule_name, self.schedule_name, self.visit_code)
+        return (
+            self.visit_schedule_name,
+            self.schedule_name,
+            self.visit_code,
+        )
 
     class Meta(edc_models.BaseUuidModel.Meta):
         ordering = ("visit_schedule_name", "schedule_name", "visit_code")
