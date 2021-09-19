@@ -1,6 +1,3 @@
-from django.conf import settings
-from django.contrib.sites.models import Site
-
 from .constants import KEYED, REQUIRED
 from .models import CrfMetadata
 
@@ -41,7 +38,6 @@ class MetaDataInspector:
             schedule_name=self.schedule_name,
             visit_code=self.visit_code,
             timepoint=self.timepoint,
-            site=Site.objects.get(id=settings.SITE_ID),
             model=self.model_cls._meta.label_lower,
             entry_status=REQUIRED,
         )
@@ -60,7 +56,6 @@ class MetaDataInspector:
             schedule_name=self.schedule_name,
             visit_code=self.visit_code,
             timepoint=self.timepoint,
-            site=Site.objects.get(id=settings.SITE_ID),
             model=self.model_cls._meta.label_lower,
             entry_status=KEYED,
         )

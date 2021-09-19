@@ -1,3 +1,5 @@
+import sys
+
 from .site import site_metadata_rules
 
 

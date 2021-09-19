@@ -14,9 +14,10 @@ def metadata_create_on_post_save(
     """
     if not raw:
         try:
-            instance.reference_creator_cls(model_obj=instance)
+            # instance.reference_creator_cls(model_obj=instance)
+            instance.update_reference_on_save()
         except AttributeError as e:
-            if "reference_creator_cls" not in str(e):
+            if "update_reference_on_save" not in str(e):
                 raise
         try:
             instance.metadata_create()
