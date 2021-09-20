@@ -15,6 +15,8 @@ def metadata_create_on_post_save(
     if not raw:
         try:
             # instance.reference_creator_cls(model_obj=instance)
+            # update_reference_on_save (from edc-reference) called here
+            # to ensure called before metadata funcs below
             instance.update_reference_on_save()
         except AttributeError as e:
             if "update_reference_on_save" not in str(e):
