@@ -2,6 +2,7 @@ from django.db import models
 
 from . import crf_status_default
 from .choices import CRF_STATUS
+from .update_crf_status_for_instance import update_crf_status_for_instance
 
 
 class CrfStatusModelMixin(models.Model):
@@ -19,6 +20,9 @@ class CrfStatusModelMixin(models.Model):
         blank=True,
         help_text="for example, why some data is still pending",
     )
+
+    def update_crf_status_for_instance(self):
+        return update_crf_status_for_instance(self)
 
     class Meta:
         abstract = True

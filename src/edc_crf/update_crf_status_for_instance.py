@@ -3,7 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from edc_constants.constants import COMPLETE, INCOMPLETE
 
 
-def update_crf_status_for_instance(instance, crf_status):
+def update_crf_status_for_instance(instance):
     """Only works for CRFs, e.g. have subject_visit."""
     if hasattr(instance, "subject_visit"):
         crf_status_model_cls = django_apps.get_model("edc_crf.crfstatus")
@@ -15,9 +15,9 @@ def update_crf_status_for_instance(instance, crf_status):
             visit_code_sequence=instance.subject_visit.visit_code_sequence,
             label_lower=instance._meta.label_lower,
         )
-        if crf_status == COMPLETE:
+        if instance.crf_status == COMPLETE:
             crf_status_model_cls.objects.filter(**opts).delete()
-        elif crf_status == INCOMPLETE:
+        elif instance.crf_status == INCOMPLETE:
             try:
                 crf_status_model_cls.objects.get(**opts)
             except ObjectDoesNotExist:
