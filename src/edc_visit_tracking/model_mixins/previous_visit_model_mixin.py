@@ -27,6 +27,10 @@ class PreviousVisitModelMixin(models.Model):
         *args,
         **kwargs
     ):
+        self.validate_visit_sequence()
+        super().save(*args, **kwargs)  # type: ignore
+
+    def validate_visit_sequence(self):
         try:
             appointment = self.subject_visit.appointment
         except AttributeError:
@@ -36,7 +40,6 @@ class PreviousVisitModelMixin(models.Model):
             visit_sequence.enforce_sequence()
         except VisitSequenceError as e:
             raise PreviousVisitError(e)
-        super().save(*args, **kwargs)  # type: ignore
 
     @property
     def previous_visit(
