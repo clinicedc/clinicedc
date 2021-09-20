@@ -14,7 +14,7 @@ class SubjectScheduleModelMixin(models.Model):
     offschedule_compare_dates_as_datetimes = False
     subject_schedule_cls = SubjectSchedule
 
-    def save(self, *args, **kwargs):
+    def validate_subject_schedule_status(self):
         visit_schedule = self.visit.appointment.visit_schedule
         schedule = self.visit.appointment.schedule
         subject_identifier = self.visit.subject_identifier
@@ -26,6 +26,9 @@ class SubjectScheduleModelMixin(models.Model):
             report_datetime=self.visit.report_datetime,
             compare_as_datetimes=self.offschedule_compare_dates_as_datetimes,
         )
+
+    def save(self, *args, **kwargs):
+        self.validate_subject_schedule_status()
         super().save(*args, **kwargs)
 
     class Meta:
