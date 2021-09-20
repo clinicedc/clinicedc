@@ -1,3 +1,4 @@
+import pdb
 import sys
 from copy import deepcopy
 
@@ -20,6 +21,10 @@ class SiteDataManager:
         self.loaded = False
 
     def register(self, rule_handler=None):
+        if "makemigrations" not in sys.argv:
+            self._register(rule_handler=rule_handler)
+
+    def _register(self, rule_handler=None):
         if rule_handler.name in self.registry:
             raise AlreadyRegistered(
                 f"Query rule_handler already registered. Got {rule_handler}."
@@ -36,10 +41,7 @@ class SiteDataManager:
         rule_handlers = []
         if model_name:
             for k, v in self.registry.items():
-                try:
-                    if v.model_name == model_name:
-                        rule_handlers.update({k: v})
-                except AttributeError:
+                if v.model_name == model_name:
                     rule_handlers.append(v)
         else:
             return list(self.registry.values())
