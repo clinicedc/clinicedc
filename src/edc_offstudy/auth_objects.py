@@ -1,6 +1,6 @@
 OFFSTUDY = "OFFSTUDY"
 OFFSTUDY_VIEW = "OFFSTUDY_VIEW"
-OFFSTUDY_EXPORT = "OFFSTUDY_EXPORT"
+OFFSTUDY_SUPER = "OFFSTUDY_SUPER"
 codenames = [
     "edc_offstudy.add_subjectoffstudy",
     "edc_offstudy.change_subjectoffstudy",
