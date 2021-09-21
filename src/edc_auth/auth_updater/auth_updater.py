@@ -3,6 +3,7 @@ from typing import Optional
 
 from django.apps import apps as django_apps
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
 
@@ -64,6 +65,7 @@ class AuthUpdater:
             self.groups = self.group_updater.update_groups()
             self.roles = self.role_updater.update_roles()
             self.run_post_updates(post_update_funcs)
+            self.refresh_groups_in_roles_per_user()
             if verbose:
                 sys.stdout.write(style.MIGRATE_HEADING("Done.\n"))
                 sys.stdout.flush()
@@ -153,3 +155,15 @@ class AuthUpdater:
                 role_obj.display_name = display_name
                 role_obj.save()
         return role_names
+
+    @staticmethod
+    def refresh_groups_in_roles_per_user():
+        """Clear then add back roles to trigger post-save signal."""
+        for user in get_user_model().objects.all():
+            roles = [obj for obj in user.userprofile.roles.all()]
+            user.userprofile.roles.clear()
+            user.groups.clear()
+            for role in roles:
+                user.userprofile.roles.add(role)
+            user.userprofile.save()
+            user.save()
