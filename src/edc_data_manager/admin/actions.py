@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls.base import reverse
 from django.utils.safestring import mark_safe
+from edc_constants.constants import CLOSED, OPEN
 from edc_utils import formatted_datetime, get_utcnow
 
 from ..models import QueryRule
@@ -22,6 +23,15 @@ def toggle_active_flag(modeladmin, request, queryset):
 toggle_active_flag.short_description = (
     f"Toggle Active/Inactive {QueryRule._meta.verbose_name_plural}"
 )
+
+
+def toggle_dm_status(modeladmin, request, queryset):
+    for obj in queryset:
+        obj.status = OPEN if obj.status != OPEN else CLOSED
+        obj.save()
+
+
+toggle_dm_status.short_description = f"Toggle DM Status (OPEN/CLOSED)"
 
 
 def copy_query_rule_action(modeladmin, request, queryset):

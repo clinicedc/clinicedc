@@ -7,6 +7,7 @@ from edc_metadata.constants import KEYED, REQUIRED
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 from edc_visit_tracking.models import get_subject_visit_model_cls
 
+from ..constants import AUTO_RESOLVED
 from ..models import DataQuery
 
 
@@ -243,7 +244,7 @@ class QueryRuleHandler:
         """Resolves a data query model instance."""
         if self.data_query:
             site_response_text = (self.data_query.site_response_text or "").replace(
-                "[auto-resolved]", ""
+                AUTO_RESOLVED, ""
             )
             # status = CLOSED if self.data_query.rule_generated else RESOLVED
             status = RESOLVED
@@ -260,7 +261,7 @@ class QueryRuleHandler:
     def reopen_existing_data_query(self):
         """Re-opens a data query model instance unless locked."""
         if self.data_query and not self.data_query.locked:
-            self.data_query.site_response_text.replace("[auto-resolved]", "")
+            self.data_query.site_response_text.replace(AUTO_RESOLVED, "")
             self.data_query.site_resolved_datetime = None
             self.data_query.site_response_status = OPEN
             self.data_query.resolved_datetime = None

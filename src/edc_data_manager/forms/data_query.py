@@ -70,6 +70,7 @@ class DataQueryFormValidator(FormValidator):
             field_required="plan_of_action",
             inverse=False,
         )
+        self.required_if(True, field="locked", field_required="locked_reason")
 
 
 class DataQueryForm(FormValidatorMixin, ActionItemFormMixin, forms.ModelForm):

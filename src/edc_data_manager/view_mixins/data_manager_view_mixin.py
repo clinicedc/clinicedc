@@ -1,7 +1,9 @@
 from django.views.generic.base import ContextMixin
 from edc_action_item.model_wrappers import ActionItemModelWrapper
 from edc_action_item.models import ActionItem
-from edc_constants.constants import NEW, OPEN
+from edc_constants.constants import NEW, OPEN, RESOLVED
+
+from edc_data_manager.models import DataQuery
 
 
 class DataManagerViewMixin(ContextMixin):
@@ -18,10 +20,10 @@ class DataManagerViewMixin(ContextMixin):
         """Returns a list of wrapped ActionItem instances
         where status is NEW or OPEN.
         """
-        qs = ActionItem.on_site.filter(
+        data_queries = DataQuery.objects.filter(
             subject_identifier=self.kwargs.get("subject_identifier"),
-            reference_model="edc_data_manager.dataquery",
-            action_type__show_on_dashboard=True,
-            status__in=[NEW, OPEN],
-        ).order_by("-report_datetime")
+        ).exclude(site_response_status=RESOLVED)
+        qs = ActionItem.on_site.filter(
+            pk__in=[obj.action_item.id for obj in data_queries], status__in=[NEW, OPEN]
+        )
         return [self.action_item_model_wrapper_cls(model_obj=obj) for obj in qs]

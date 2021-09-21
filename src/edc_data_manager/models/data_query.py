@@ -24,7 +24,7 @@ from edc_utils.date import get_utcnow
 from edc_visit_tracking.models import get_subject_visit_model_cls
 
 from ..action_items import DATA_QUERY_ACTION
-from ..constants import CLOSED_WITH_ACTION
+from ..constants import AUTO_RESOLVED, CLOSED_WITH_ACTION
 from .data_dictionary import DataDictionary
 from .query_subject import QuerySubject
 from .query_visit_schedule import QueryVisitSchedule
@@ -165,7 +165,15 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
     )
 
     locked = models.BooleanField(
-        default=False, help_text="If locked, this query will NEVER be reopened."
+        default=False,
+        help_text="If locked, this query will NEVER be reopened.",
+    )
+
+    locked_reason = models.TextField(
+        verbose_name="Reason query locked",
+        null=True,
+        blank=True,
+        help_text="If required, the reason the query cannot be resolved.",
     )
 
     rule_generated = models.BooleanField(
@@ -185,8 +193,20 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
     def save(self, *args, **kwargs):
         self.subject_identifier = self.registered_subject.subject_identifier
-
+        self.try_to_resolve_auto_generated_query()
         super().save(*args, **kwargs)
+
+    def try_to_resolve_auto_generated_query(self):
+        if (
+            not self.dm_resolved
+            and self.rule_generated
+            and self.site_response_status == RESOLVED
+            and self.site_response_text
+            and self.site_response_text.strip() == AUTO_RESOLVED
+        ):
+            self.status = CLOSED
+            self.resolved_datetime = get_utcnow()
+            self.dm_user = self.sender
 
     @property
     def dm_resolved(self):
@@ -194,7 +214,7 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
     @property
     def site_resolved(self):
-        return self.status in [RESOLVED]
+        return self.site_response_status == RESOLVED
 
     def form_and_numbers_to_string(self):
         ret = []
