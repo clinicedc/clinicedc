@@ -10,10 +10,10 @@ from .query_rule import QueryRule
 DATA_MANAGER_ENABLED = getattr(settings, "DATA_MANAGER_ENABLED", True)
 
 
-@receiver(post_save, weak=False, dispatch_uid="update_query_text")
+@receiver(post_save, sender=QueryRule, weak=False, dispatch_uid="update_query_text")
 def update_query_text(sender, instance, raw, **kwargs):
     if not raw:
-        if sender in [QueryRule] and not instance.query_text:
+        if not instance.query_text:
             instance.query_text = instance.rendered_query_text or "query not described"
             instance.save_base(update_fields=["query_text"])
 

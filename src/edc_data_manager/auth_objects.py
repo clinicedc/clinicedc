@@ -4,6 +4,7 @@ from edc_dashboard.auth_objects import dashboard_tuples
 DATA_MANAGER = "DATA_MANAGER"
 DATA_MANAGER_EXPORT = "DATA_MANAGER_EXPORT"
 DATA_QUERY = "DATA_QUERY"
+DATA_QUERY_VIEW = "DATA_QUERY_VIEW"
 SITE_DATA_MANAGER = "SITE_DATA_MANAGER"
 
 # codenames

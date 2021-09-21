@@ -28,6 +28,7 @@ from ..auth_objects import DATA_MANAGER
 from ..constants import CLOSED_WITH_ACTION
 from ..forms import DataQueryForm
 from ..models import DataDictionary, DataQuery
+from .actions import toggle_dm_status
 
 
 @register(DataQuery, site=edc_data_manager_admin)
@@ -43,11 +44,15 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/columns/query_text.html"
     )
     query_recipients_column_template_name = (
-        f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/columns/" f"query_recipients.html"
+        f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/columns/query_recipients.html"
     )
 
     rule_generated_column_template_name = (
-        f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/columns/" f"rule_generated.html"
+        f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/columns/rule_generated.html"
+    )
+
+    locked_column_template_name = (
+        f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/columns/locked.html"
     )
 
     status_column_context = {
@@ -63,6 +68,8 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
     show_object_tools = True
 
     form = DataQueryForm
+
+    actions = [toggle_dm_status]
 
     radio_fields = {
         "status": admin.VERTICAL,
@@ -87,6 +94,7 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         "sent_to",
         "query",
         "generated",
+        "lock",
         "created",
         "modified",
         "reference",
@@ -100,6 +108,7 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         "site_resolved_datetime",
         "resolved_datetime",
         "rule_generated",
+        "locked",
         "title",
         "created",
         "modified",
@@ -166,7 +175,16 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         ],
         [
             "For Data Manager Only",
-            {"fields": ("status", "resolved_datetime", "dm_user", "plan_of_action")},
+            {
+                "fields": (
+                    "status",
+                    "resolved_datetime",
+                    "dm_user",
+                    "plan_of_action",
+                    "locked",
+                    "locked_reason",
+                )
+            },
         ],
         [
             "Rules",
@@ -235,7 +253,8 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         )
         return self.render_query_text_to_string(context)
 
-    def dm(self, obj):
+    @staticmethod
+    def dm(obj):
         return obj.sender.first_name
 
     def generated(self, obj):
@@ -247,12 +266,14 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         context = {"recipients": obj.recipients.all()}
         return self.render_query_recipients_to_string(context)
 
-    def resolved_by(self, obj):
+    @staticmethod
+    def resolved_by(obj):
         if obj.dm_user:
             return f"{obj.dm_user.first_name} {obj.dm_user.last_name}"
         return None
 
-    def reference(self, obj):
+    @staticmethod
+    def reference(obj):
         return obj.action_identifier[-9:]
 
     def query_status(self, obj):
@@ -266,9 +287,18 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
 
     query_status.short_description = "Status"
 
+    def lock(self, obj):
+        context = {"locked": obj.locked}
+        return self.render_locked_to_string(context)
+
+    lock.short_description = "Locked"
+
     def render_status_to_string(self, context):
         context.update(self.status_column_context)
         return render_to_string(self.status_column_template_name, context=context)
+
+    def render_locked_to_string(self, context):
+        return render_to_string(self.locked_column_template_name, context=context)
 
     def render_rule_generated_to_string(self, context):
         return render_to_string(self.rule_generated_column_template_name, context=context)

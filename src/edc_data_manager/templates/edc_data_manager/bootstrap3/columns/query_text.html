@@ -16,7 +16,7 @@
 
 {% else %}
 
-	{% if query_priority %}<B>Priority: </B>{{ query_priority_display }}{% if query_priority == HIGH_PRIORITY %}&nbsp;<font color='red'><i class='fas fa-tag fa-1x"'></i></font>{% endif %}<BR>{% endif %}
+	{% if query_priority %}<B>Priority: </B>{{ query_priority_display }}{% if query_priority == HIGH_PRIORITY %}&nbsp;<span style='color:red'><i class='fas fa-tag fa-1x"'></i></span>{% endif %}<BR>{% endif %}
 
 	{% if visit_schedule %}
 		{% if visit_href %}
@@ -24,13 +24,13 @@
 		{% else %}
 			<B>Visit{{ visit_schedules|pluralize }}:</B> {{ visit_schedule }} <BR>
 		{% endif %}
-	{% endif %} 
+	{% endif %}
 
 	<B>Query text: </B><BR>
 	{{ query_text }}<BR>
 
 	{% if site_response_status %}
-		<B>Site status: </B>{{ site_response_status }}</BR>
+		<B>Site status: </B>{{ site_response_status }}<BR>
 	{% endif %}
 	{% if site_response_text %}
 	<B>Site response: </B><BR>
@@ -42,10 +42,10 @@
 		{% for form, numbers in form_and_numbers %}
 			{{ form }} - {{ numbers }}<br>
 		{% endfor %}
-	{% endif %} 
+	{% endif %}
 	{% if requisition_panel %}
 		<B>Requisition: </B>{{ requisition_panel.display_name|title }}<br>
-	{% endif %} 
+	{% endif %}
 {% endif %}
 
 </small>
