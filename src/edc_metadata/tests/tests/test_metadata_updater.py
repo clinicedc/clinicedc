@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_visit_tracking.constants import SCHEDULED
 
 from ...constants import KEYED, NOT_REQUIRED, REQUIRED
@@ -11,7 +11,6 @@ from ..models import CrfOne, CrfThree, CrfTwo, SubjectRequisition, SubjectVisit
 from .metadata_test_mixin import TestMetadataMixin
 
 
-@tag("12")
 class TestMetadataUpdater(TestMetadataMixin, TestCase):
     def test_updates_crf_metadata_as_keyed(self):
         subject_visit = SubjectVisit.objects.create(
