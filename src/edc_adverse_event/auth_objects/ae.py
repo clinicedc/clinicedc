@@ -1,7 +1,6 @@
 from django.conf import settings
 
 AE = "AE"
-AE_EXPORT = "AE_EXPORT"
 AE_REVIEW = "AE_REVIEW"
 AE_ROLE = "ae_role"
 AE_SUPER = "AE_SUPER"
