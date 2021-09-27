@@ -85,10 +85,19 @@ class ReportablesEvaluator:
         """Validate the "results_reportable" field."""
         self._validate_final_assessment(
             field=field or "results_reportable",
-            responses=responses or [GRADE2, GRADE3, GRADE4],
+            responses=responses,
             suffix=suffix or "_reportable",
             word=word or "reportable",
         )
+
+    def reportable_grades_for_utest_id(self, utest_id):
+        try:
+            reportable_grades = (
+                self.reference_range_collection.reportable_grades_exceptions.get(utest_id)
+            )
+        except KeyError:
+            pass
+        return reportable_grades or self.reference_range_collection.reportable_grades
 
     def _evaluate_reportable(self, utest_id, value, field):
         """Evaluate a single result value.
@@ -121,6 +130,7 @@ class ReportablesEvaluator:
         if (
             grade
             and grade.grade
+            and str(grade.grade) in self.reportable_grades_for_utest_id(utest_id)
             and response.reportable
             not in [str(grade.grade), ALREADY_REPORTED, PRESENT_AT_BASELINE]
         ):
@@ -186,6 +196,7 @@ class ReportablesEvaluator:
         """Common code to validate fields `results_abnormal`
         and `results_reportable`.
         """
+        responses = responses or self.reference_range_collection.reportable_grades
         answers = list(
             {k: v for k, v in self.cleaned_data.items() if k.endswith(suffix)}.values()
         )

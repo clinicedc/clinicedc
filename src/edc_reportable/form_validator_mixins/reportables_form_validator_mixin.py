@@ -10,7 +10,6 @@ from ..reportables_evaluator import ReportablesEvaluator
 class ReportablesFormValidatorMixin:
 
     reportables_cls = ReportablesEvaluator
-    reportable_grades = [GRADE3, GRADE4]
     value_field_suffix = "_value"
 
     @property
@@ -55,4 +54,4 @@ class ReportablesFormValidatorMixin:
         self.applicable_if(
             YES, field="results_abnormal", field_applicable="results_reportable"
         )
-        reportables.validate_results_reportable_field(responses=self.reportable_grades)
+        reportables.validate_results_reportable_field()
