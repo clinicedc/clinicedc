@@ -34,10 +34,10 @@ class SiteReportables:
     def register(
         self,
         name: str = Optional[None],
-        normal_data: dict = Optional[None],
-        grading_data: dict = Optional[None],
-        reportable_grades: list = Optional[None],
-        reportable_grades_exceptions: dict = Optional[None],
+        normal_data: Optional[dict] = None,
+        grading_data: Optional[dict] = None,
+        reportable_grades: Optional[list] = None,
+        reportable_grades_exceptions: Optional[dict] = None,
     ):
         if name in self._registry:
             reference_range_collection = self._registry.get(name)
