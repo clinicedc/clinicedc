@@ -18,6 +18,8 @@ class UserProfileInline(admin.StackedInline):
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
 
+    add_form = ""
+
     filter_horizontal = ("email_notifications", "sms_notifications", "sites")
 
     list_display = (
@@ -28,6 +30,16 @@ class UserProfileAdmin(admin.ModelAdmin):
         "mobile",
         "export_format",
     )
+
+    def get_form(self, request, obj=None, **kwargs):
+        """
+        Use special form during user creation
+        """
+        defaults = {}
+        if obj is None:
+            defaults["form"] = self.add_form
+        defaults.update(kwargs)
+        return super().get_form(request, obj, **defaults)
 
     @staticmethod
     def user_sites(obj=None):

@@ -48,6 +48,17 @@ class UserAdmin(BaseUserAdmin):
         "groups",
     )
 
+    def get_inline_instances(self, request, obj=None):
+        """Dont load inlines on add.
+
+        Wait until after first post_save signal creates
+        UserProfile.
+        """
+        inline_instances = []
+        if obj is None:
+            return inline_instances
+        return super().get_inline_instances(request, obj=obj)
+
     @staticmethod
     def role(obj=None):
         roles = []
