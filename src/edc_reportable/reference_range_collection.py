@@ -1,4 +1,13 @@
+from typing import Optional
+
+from edc_reportable import GRADE3, GRADE4
+
+
 class AlreadyRegistered(Exception):
+    pass
+
+
+class ReferenceRangeCollectionError(Exception):
     pass
 
 
@@ -10,9 +19,22 @@ class ReferenceRangeCollection:
     name can be the project name.
     """
 
-    def __init__(self, name=None):
+    def __init__(
+        self,
+        name=None,
+        reportable_grades: Optional[list] = None,
+        reportable_grades_exceptions: Optional[dict] = None,
+    ):
         self.registry = {}
         self.name = name
+        self.reportable_grades = reportable_grades or [GRADE3, GRADE4]
+        self.reportable_grades_exceptions = reportable_grades_exceptions or {}
+        for k in self.reportable_grades_exceptions:
+            if k not in self.reportable_grades:
+                raise ReferenceRangeCollectionError(
+                    "Invalid reportable grades exception. UTEST_ID not found "
+                    f"in grading table. Got {k}"
+                )
 
     def __repr__(self):
         return f"{self.__class__.__name__}('{self.name}')"

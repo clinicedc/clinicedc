@@ -3,6 +3,7 @@ import csv
 import os
 import sys
 from importlib import import_module
+from typing import Optional
 
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
@@ -30,11 +31,22 @@ class SiteReportables:
     def __iter__(self):
         return iter(self._registry.items())
 
-    def register(self, name=None, normal_data=None, grading_data=None):
+    def register(
+        self,
+        name: str = Optional[None],
+        normal_data: Optional[dict] = None,
+        grading_data: Optional[dict] = None,
+        reportable_grades: Optional[list] = None,
+        reportable_grades_exceptions: Optional[dict] = None,
+    ):
         if name in self._registry:
             reference_range_collection = self._registry.get(name)
         else:
-            reference_range_collection = ReferenceRangeCollection(name=name)
+            reference_range_collection = ReferenceRangeCollection(
+                name=name,
+                reportable_grades=reportable_grades,
+                reportable_grades_exceptions=reportable_grades_exceptions,
+            )
         for name, datas in normal_data.items():
             grp = ValueReferenceGroup(name=name)
             for data in datas:
@@ -64,6 +76,9 @@ class SiteReportables:
 
     def get_grading(self, name):
         return self._registry.get(name)[GRADING]
+
+    def get_reportable_grades(self, name):
+        return self._registry.get(name).reportable_grades
 
     def read_csv(self, name=None, path=None):
         pass

@@ -48,17 +48,29 @@ normal_data = {
     ],
     "creatinine": [
         p(
+            "63.6<=x<=110.5",
+            units=MICROMOLES_PER_LITER,
+            gender=[MALE],
+            **adult_age_options,
+        ),
+        p(
+            "50.4<=x<=98.1",
+            units=MICROMOLES_PER_LITER,
+            gender=[FEMALE],
+            **adult_age_options,
+        ),
+        p(
             "0.6<=x<=1.3",
             units=MILLIGRAMS_PER_DECILITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
-            "53<=x<=115",
-            units=MICROMOLES_PER_LITER,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-        ),
+        # p(
+        #     "53<=x<=115",
+        #     units=MICROMOLES_PER_LITER,
+        #     gender=[MALE, FEMALE],
+        #     **adult_age_options,
+        # ),
     ],
     "glucose": [
         p(
