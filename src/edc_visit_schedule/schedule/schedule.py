@@ -100,6 +100,30 @@ class Schedule:
     def field_value(self):
         return self.name
 
+    def crf_required_at(self, label_lower: str) -> list:
+        """Returns a list of visit codes where the CRF is required
+        by default.
+        """
+        visit_codes = []
+        for visit_code, visit in self.visits.items():
+            if label_lower in [form.model for form in visit.crfs if form.required]:
+                visit_codes.append(visit_code)
+        return visit_codes
+
+    def requisition_required_at(self, requisition_panel) -> list:
+        """Returns a list of visit codes where the requisition is
+        required by default.
+
+        A requisition is found by its panel.
+        """
+        visit_codes = []
+        for visit_code, visit in self.visits.items():
+            if requisition_panel in [
+                form.panel for form in visit.requisitions if form.required
+            ]:
+                visit_codes.append(visit_code)
+        return visit_codes
+
     @property
     def subject(self):
         """Returns a SubjectSchedule instance.
