@@ -21,7 +21,7 @@ class MetadataRefresher:
     def run(self):
         if self.verbose:
             sys.stdout.write(
-                f"Updating references, running metadatarules, updating metadata ...\n"
+                "Updating references, running metadatarules, updating metadata ...\n"
             )
         for index, source_model in enumerate(self.source_models):
             if self.verbose:

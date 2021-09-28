@@ -1,4 +1,5 @@
 from django.contrib import admin
+from edc_appointment.models import Appointment
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
 from ..admin_site import edc_metadata_admin
@@ -14,6 +15,19 @@ class RequisitionMetadataAdmin(
     @staticmethod
     def seq(obj=None):
         return obj.visit_code_sequence
+
+    def get_subject_dashboard_url_kwargs(self, obj):
+        appointment = Appointment.objects.get(
+            subject_identifier=obj.subject_identifier,
+            schedule_name=obj.schedule_name,
+            visit_schedule_name=obj.visit_schedule_name,
+            visit_code=obj.visit_code,
+            visit_code_sequence=obj.visit_code_sequence,
+        )
+        return dict(
+            subject_identifier=obj.subject_identifier,
+            appointment=appointment.id,
+        )
 
     @staticmethod
     def panel(obj=None):
