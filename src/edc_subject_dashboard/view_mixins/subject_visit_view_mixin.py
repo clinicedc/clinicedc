@@ -49,7 +49,8 @@ class SubjectVisitViewMixin(ContextMixin):
 
         return context
 
-    def get_visit_schedule_pk(self, appointment):
+    @staticmethod
+    def get_visit_schedule_pk(appointment):
         """Returns a str(pk) from the VisitSchedule model."""
         visit_schedule_pk = ""
         opts = dict(
