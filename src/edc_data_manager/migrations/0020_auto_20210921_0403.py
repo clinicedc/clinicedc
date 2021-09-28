@@ -6,18 +6,28 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('edc_data_manager', '0019_auto_20210510_2036'),
+        ("edc_data_manager", "0019_auto_20210510_2036"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='dataquery',
-            name='locked_reason',
-            field=models.TextField(blank=True, help_text='If required, the reason the query cannot be resolved.', null=True, verbose_name='Reason query locked'),
+            model_name="dataquery",
+            name="locked_reason",
+            field=models.TextField(
+                blank=True,
+                help_text="If required, the reason the query cannot be resolved.",
+                null=True,
+                verbose_name="Reason query locked",
+            ),
         ),
         migrations.AddField(
-            model_name='historicaldataquery',
-            name='locked_reason',
-            field=models.TextField(blank=True, help_text='If required, the reason the query cannot be resolved.', null=True, verbose_name='Reason query locked'),
+            model_name="historicaldataquery",
+            name="locked_reason",
+            field=models.TextField(
+                blank=True,
+                help_text="If required, the reason the query cannot be resolved.",
+                null=True,
+                verbose_name="Reason query locked",
+            ),
         ),
     ]
