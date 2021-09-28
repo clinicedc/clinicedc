@@ -25,7 +25,7 @@ hba1c_poc_panel = RequisitionPanel(
     verbose_name="HbA1c (POC)",
     abbreviation="HBA1C_POC",
     processing_profile=poc_processing,
-    utest_ids=["hba1c"],
+    utest_ids=[("hba1c", "HbA1c")],
 )
 
 
