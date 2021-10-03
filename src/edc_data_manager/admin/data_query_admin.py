@@ -26,13 +26,16 @@ from edc_utils import formatted_datetime
 from ..admin_site import edc_data_manager_admin
 from ..auth_objects import DATA_MANAGER
 from ..constants import CLOSED_WITH_ACTION
+from ..data_manager_modeladmin_mixin import DataManagerModelAdminMixin
 from ..forms import DataQueryForm
 from ..models import DataDictionary, DataQuery
 from .actions import toggle_dm_status
 
 
 @register(DataQuery, site=edc_data_manager_admin)
-class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
+class DataQueryAdmin(
+    DataManagerModelAdminMixin, ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin
+):
 
     status_column_template_name = (
         f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/columns/status.html"
@@ -108,10 +111,13 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         "site_resolved_datetime",
         "resolved_datetime",
         "rule_generated",
+        "auto_resolved",
+        "missed_visit",
         "locked",
         "title",
         "created",
         "modified",
+        "site",
     )
 
     search_fields = (
@@ -147,6 +153,7 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
                     "sender",
                     "query_priority",
                     "recipients",
+                    "rule_generated",
                 )
             },
         ],
@@ -170,6 +177,8 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
                     "site_response_status",
                     "site_response_text",
                     "site_resolved_datetime",
+                    "missed_visit",
+                    "auto_resolved",
                 )
             },
         ],
@@ -188,7 +197,7 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         ],
         [
             "Rules",
-            {"classes": ("collapse",), "fields": ("rule_generated", "rule_reference")},
+            {"classes": ("collapse",), "fields": ("rule_reference",)},
         ],
         action_fieldset_tuple,
         audit_fieldset_tuple,
@@ -326,7 +335,13 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         fields = super().get_readonly_fields(request, obj=obj)
-        extra_fields = ["rule_generated", "rule_reference", *action_fields]
+        extra_fields = [
+            "rule_generated",
+            "rule_reference",
+            "missed_visit",
+            "auto_resolved",
+            *action_fields,
+        ]
         if not request.user.groups.filter(name=DATA_MANAGER):
             extra_fields = [
                 "data_dictionaries",

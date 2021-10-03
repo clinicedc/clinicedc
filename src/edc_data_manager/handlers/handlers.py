@@ -5,7 +5,11 @@ from edc_constants.constants import NO, OPEN, RESOLVED
 from edc_lab.utils import get_requisition_model
 from edc_metadata.constants import KEYED, REQUIRED
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
-from edc_visit_tracking.models import get_subject_visit_model_cls
+from edc_utils import get_utcnow
+from edc_visit_tracking.utils import (
+    get_subject_visit_missed_model_cls,
+    get_subject_visit_model_cls,
+)
 
 from ..constants import AUTO_RESOLVED
 from ..models import DataQuery
@@ -94,6 +98,7 @@ class QueryRuleHandler:
                 self.data_query = self.get_or_create_data_query()
                 if self.data_query.site_resolved:
                     self.reopen_existing_data_query()
+            self.resolve_if_missed_visit()
 
     @property
     def resolved(self):
@@ -122,6 +127,17 @@ class QueryRuleHandler:
                         except CrfInspectionFailed:
                             resolved = False
         return resolved
+
+    def resolve_if_missed_visit(self):
+        if self.data_query:
+            try:
+                missed_visit_obj = get_subject_visit_missed_model_cls().objects.get(
+                    subject_visit=self.visit_obj
+                )
+            except ObjectDoesNotExist:
+                pass
+            else:
+                self.resolve_existing_data_query(missed_visit_obj=missed_visit_obj)
 
     def inspect_requisition(self):
         """Raises a RequisitionNotKeyed or SpecimenNotDrawn exception
@@ -234,26 +250,24 @@ class QueryRuleHandler:
 
     @property
     def resolved_datetime(self):
-        try:
-            resolved_datetime = self.model_obj.modified
-        except AttributeError:
-            resolved_datetime = self.requisition_obj.modified
-        return resolved_datetime
+        return getattr(
+            self.model_obj, "modified", getattr(self.requisition_obj, "modified", get_utcnow())
+        )
 
-    def resolve_existing_data_query(self):
+    def resolve_existing_data_query(self, missed_visit_obj=None):
         """Resolves a data query model instance."""
         if self.data_query:
             site_response_text = (self.data_query.site_response_text or "").replace(
                 AUTO_RESOLVED, ""
             )
-            # status = CLOSED if self.data_query.rule_generated else RESOLVED
-            status = RESOLVED
+            self.data_query.missed_visit = missed_visit_obj is not None
             self.data_query.site_response_text = f"{site_response_text} [auto-resolved]"
+            self.data_query.auto_resolved = True
             self.data_query.site_resolved_datetime = self.resolved_datetime
-            self.data_query.site_response_status = status
+            self.data_query.site_response_status = RESOLVED
             self.data_query.resolved_datetime = self.resolved_datetime
             self.data_query.dm_user = self.query_rule_obj.sender
-            self.data_query.status = status
+            self.data_query.status = RESOLVED
             self.data_query.save()
             self.data_query.refresh_from_db()
             self.resolved_counter = 1
@@ -265,6 +279,8 @@ class QueryRuleHandler:
             self.data_query.site_resolved_datetime = None
             self.data_query.site_response_status = OPEN
             self.data_query.resolved_datetime = None
+            self.data_query.missed_visit = False
+            self.data_query.auto_resolved = False
             self.data_query.status = OPEN
             self.data_query.dm_user = None
             self.data_query.save()
