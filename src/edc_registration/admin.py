@@ -1,4 +1,5 @@
 from django.contrib import admin
+from edc_data_manager.data_manager_modeladmin_mixin import DataManagerModelAdminMixin
 from edc_model_admin import SimpleHistoryAdmin, audit_fieldset_tuple
 
 from .admin_site import edc_registration_admin
@@ -7,12 +8,25 @@ from .utils import get_registered_subject_model_cls
 
 
 @admin.register(get_registered_subject_model_cls(), site=edc_registration_admin)
-class RegisteredSubjectAdmin(RegisteredSubjectModelAdminMixin, SimpleHistoryAdmin):
+class RegisteredSubjectAdmin(
+    DataManagerModelAdminMixin, RegisteredSubjectModelAdminMixin, SimpleHistoryAdmin
+):
 
     ordering = ("subject_identifier",)
 
     fieldsets = (
-        ("Subject", {"fields": ("subject_identifier", "sid", "subject_type")}),
+        (
+            "Subject",
+            {
+                "fields": (
+                    "subject_identifier",
+                    "sid",
+                    "subject_type",
+                    "registration_status",
+                    "registration_datetime",
+                )
+            },
+        ),
         (
             "Personal Details",
             {
@@ -27,15 +41,25 @@ class RegisteredSubjectAdmin(RegisteredSubjectModelAdminMixin, SimpleHistoryAdmi
             },
         ),
         (
+            "Screening Details",
+            {
+                "fields": (
+                    "screening_identifier",
+                    "screening_datetime",
+                )
+            },
+        ),
+        (
+            "Consent Details",
+            {"fields": ("consent_datetime", "subject_consent_id")},
+        ),
+        (
             "Registration Details",
             {
                 "fields": (
-                    "registration_status",
-                    "screening_identifier",
-                    "screening_datetime",
-                    "registration_datetime",
+                    "randomization_list_model",
                     "randomization_datetime",
-                    "consent_datetime",
+                    # "sid",
                 )
             },
         ),
@@ -43,16 +67,25 @@ class RegisteredSubjectAdmin(RegisteredSubjectModelAdminMixin, SimpleHistoryAdmi
     )
 
     fieldsets_no_pii = (
-        ("Subject", {"fields": ("subject_identifier", "sid", "subject_type")}),
+        (
+            "Subject",
+            {
+                "fields": (
+                    "subject_identifier",
+                    "sid",
+                    "subject_type",
+                    "registration_status",
+                    "registration_datetime",
+                )
+            },
+        ),
         ("Personal Details", {"fields": ("gender",)}),
         (
             "Registration Details",
             {
                 "fields": (
-                    "registration_status",
                     "screening_identifier",
                     "screening_datetime",
-                    "registration_datetime",
                     "randomization_datetime",
                     "consent_datetime",
                 )
