@@ -21,7 +21,7 @@ from edc_dashboard.url_names import InvalidUrlName, url_names
 from edc_model.models import BaseUuidModel
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 from edc_utils.date import get_utcnow
-from edc_visit_tracking.models import get_subject_visit_model_cls
+from edc_visit_tracking.utils import get_subject_visit_model_cls
 
 from ..action_items import DATA_QUERY_ACTION
 from ..constants import AUTO_RESOLVED, CLOSED_WITH_ACTION
@@ -160,8 +160,16 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
         verbose_name="DM resolved on", null=True, blank=True
     )
 
+    auto_resolved = models.BooleanField(default=False)
+
     plan_of_action = models.TextField(
         null=True, blank=True, help_text="If required, provide a plan of action"
+    )
+
+    missed_visit = models.BooleanField(
+        verbose_name="Visit reported as missed",
+        default=False,
+        help_text="If visit/timepoint was missed, data is not expected",
     )
 
     locked = models.BooleanField(
