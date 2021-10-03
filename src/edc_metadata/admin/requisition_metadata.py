@@ -1,5 +1,6 @@
 from django.contrib import admin
 from edc_appointment.models import Appointment
+from edc_data_manager.data_manager_modeladmin_mixin import DataManagerModelAdminMixin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
 from ..admin_site import edc_metadata_admin
@@ -9,6 +10,7 @@ from ..models import RequisitionMetadata
 
 @admin.register(RequisitionMetadata, site=edc_metadata_admin)
 class RequisitionMetadataAdmin(
+    DataManagerModelAdminMixin,
     ModelAdminSubjectDashboardMixin,
     admin.ModelAdmin,
 ):
@@ -61,6 +63,7 @@ class RequisitionMetadataAdmin(
         "created",
         "user_created",
         "hostname_created",
+        "site",
     )
     readonly_fields = (
         "subject_identifier",

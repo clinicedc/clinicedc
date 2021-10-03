@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from edc_appointment.models import Appointment
+from edc_data_manager.data_manager_modeladmin_mixin import DataManagerModelAdminMixin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
 from edc_metadata import KEYED, REQUIRED
@@ -11,7 +12,9 @@ from ..models import CrfMetadata
 
 
 @admin.register(CrfMetadata, site=edc_metadata_admin)
-class CrfMetadataAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
+class CrfMetadataAdmin(
+    DataManagerModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.ModelAdmin
+):
     @staticmethod
     def seq(obj=None):
         return obj.visit_code_sequence
@@ -56,6 +59,7 @@ class CrfMetadataAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
         "created",
         "user_created",
         "hostname_created",
+        "site",
     )
     readonly_fields = (
         "subject_identifier",
