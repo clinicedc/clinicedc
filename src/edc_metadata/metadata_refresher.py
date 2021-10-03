@@ -1,7 +1,7 @@
 import sys
 
 from django.apps import apps as django_apps
-from edc_visit_tracking.models import get_subject_visit_model_cls
+from edc_visit_tracking.utils import get_subject_visit_model_cls
 from tqdm import tqdm
 
 from .metadata_rules import site_metadata_rules

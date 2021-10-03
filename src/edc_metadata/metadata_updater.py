@@ -1,3 +1,9 @@
+from typing import Optional, Type
+
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
+from edc_visit_tracking.utils import get_subject_visit_missed_model_cls
+
 from .constants import KEYED
 from .target_handler import TargetHandler
 
@@ -17,6 +23,7 @@ class MetadataUpdater:
         self._metadata_obj = None
         self.visit_model_instance = visit_model_instance
         self.target_model = target_model
+        self._missed_visit_model_instance = None
 
     def __repr__(self):
         return (
@@ -25,11 +32,13 @@ class MetadataUpdater:
             f"target_model={self.target_model})"
         )
 
-    def update(self, entry_status=None):
+    def update(self, entry_status: Optional[str] = None) -> Type[models.Model]:
+        metadata_obj = self.target.metadata_obj
         if self.target.object:
             entry_status = KEYED
-        metadata_obj = self.target.metadata_obj
-        if entry_status and metadata_obj and metadata_obj.entry_status != entry_status:
+        if not metadata_obj and self.missed_visit_model_instance:
+            pass
+        elif entry_status and metadata_obj.entry_status != entry_status:
             metadata_obj.entry_status = entry_status
             metadata_obj.save()
             metadata_obj.refresh_from_db()
@@ -40,3 +49,15 @@ class MetadataUpdater:
         return self.target_handler(
             model=self.target_model, visit_model_instance=self.visit_model_instance
         )
+
+    def missed_visit_model_instance(self):
+        if not self._missed_visit_model_instance:
+            try:
+                self._missed_visit_model_instance = (
+                    get_subject_visit_missed_model_cls().objects.get(
+                        subject_visit=self.visit_model_instance
+                    )
+                )
+            except ObjectDoesNotExist:
+                self._missed_visit_model_instance = None
+        return self._missed_visit_model_instance

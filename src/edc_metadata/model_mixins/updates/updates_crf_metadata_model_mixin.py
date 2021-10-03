@@ -8,7 +8,7 @@ class UpdatesCrfMetadataModelMixin(UpdatesMetadataModelMixin):
     update `metadata` upon save and delete.
     """
 
-    updater_cls = MetadataUpdater
+    metadata_updater_cls = MetadataUpdater
     metadata_category = CRF
 
     class Meta:

@@ -10,7 +10,7 @@ class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
     update metadata upon save and delete.
     """
 
-    updater_cls = RequisitionMetadataUpdater
+    metadata_updater_cls = RequisitionMetadataUpdater
     metadata_category = REQUISITION
 
     @property
@@ -21,7 +21,7 @@ class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
             target_model=self._meta.label_lower,
             target_panel=self.panel,
         )
-        return self.updater_cls(**opts)
+        return self.metadata_updater_cls(**opts)
 
     @property
     def metadata_query_options(self: RequisitionMetadataModelStub) -> dict:

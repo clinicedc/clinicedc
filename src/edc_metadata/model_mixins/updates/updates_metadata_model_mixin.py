@@ -11,7 +11,7 @@ class MetadataError(Exception):
 
 class UpdatesMetadataModelMixin(models.Model):
 
-    updater_cls = None
+    metadata_updater_cls = None
     metadata_category = None
 
     def metadata_update(self, entry_status=None):
@@ -25,7 +25,7 @@ class UpdatesMetadataModelMixin(models.Model):
     @property
     def metadata_updater(self):
         """Returns an instance of MetadataUpdater."""
-        return self.updater_cls(
+        return self.metadata_updater_cls(
             visit_model_instance=self.visit, target_model=self._meta.label_lower
         )
 

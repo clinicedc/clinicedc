@@ -1,8 +1,6 @@
-from copy import deepcopy
-
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_visit_schedule import (
     Crf,
     FormsCollection,
@@ -21,7 +19,6 @@ from ..models import CrfFive, CrfOne, SubjectVisit
 from .metadata_test_mixin import TestMetadataMixin
 
 
-@tag("1")
 class TestMetadataRefresher(TestMetadataMixin, TestCase):
     def check(self, expected, subject_visit=None):
         for model, entry_status in expected.items():
@@ -93,7 +90,8 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
         metadata_refresher.run()
         self.check(expected, subject_visit=subject_visit)
 
-    def register_new_visit_schedule(self, crfs):
+    @staticmethod
+    def register_new_visit_schedule(crfs):
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
 
