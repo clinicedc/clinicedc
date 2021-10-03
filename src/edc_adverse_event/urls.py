@@ -42,5 +42,5 @@ urlpatterns += [
     path("tmg/", TmgHomeView.as_view(), name="tmg_home_url"),
     path("ae/", AeHomeView.as_view(), name="ae_home_url"),
     path("admin/", edc_adverse_event_admin.urls),
-    path("", RedirectView.as_view(url="/edc_adverse_event/admin/"), name="home_url"),
+    path("", AeHomeView.as_view(), name="home_url"),
 ]
