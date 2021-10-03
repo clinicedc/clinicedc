@@ -6,7 +6,7 @@ from edc_constants.constants import NO, YES
 from edc_form_validators import FormValidator
 from edc_utils import convert_php_dateformat
 from edc_visit_tracking.constants import MISSED_VISIT
-from edc_visit_tracking.models import get_subject_visit_model_cls
+from edc_visit_tracking.utils import get_subject_visit_model_cls
 
 from .constants import LOST_TO_FOLLOWUP
 
