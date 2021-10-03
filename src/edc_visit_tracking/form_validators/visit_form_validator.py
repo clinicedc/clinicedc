@@ -7,7 +7,7 @@ from edc_form_validators import INVALID_ERROR, REQUIRED_ERROR, FormValidator
 from edc_metadata.constants import KEYED
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 
-from edc_visit_tracking.models import get_subject_visit_missed_model
+from edc_visit_tracking.utils import get_subject_visit_missed_model_cls
 
 from ..constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 from ..visit_sequence import VisitSequence, VisitSequenceError
@@ -62,7 +62,7 @@ class VisitFormValidator(FormValidator):
             # raise if CRF metadata exist
             if reason == MISSED_VISIT and self.metadata_exists_for(
                 entry_status=KEYED,
-                exclude_models=[get_subject_visit_missed_model()._meta.label_lower],
+                exclude_models=[get_subject_visit_missed_model_cls()._meta.label_lower],
             ):
                 raise forms.ValidationError(
                     {"reason": "Invalid. Some CRF data has already been submitted."},
@@ -71,7 +71,7 @@ class VisitFormValidator(FormValidator):
             # raise if SubjectVisitMissed CRF metadata exist
             if reason in [UNSCHEDULED, SCHEDULED] and self.metadata_exists_for(
                 entry_status=KEYED,
-                filter_models=[get_subject_visit_missed_model()._meta.label_lower],
+                filter_models=[get_subject_visit_missed_model_cls()._meta.label_lower],
             ):
                 raise forms.ValidationError(
                     {"reason": "Invalid. A missed visit report has already been submitted."},

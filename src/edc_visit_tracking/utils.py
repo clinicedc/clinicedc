@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 
-from ..stubs import TSubjectVisitModelStub
+from edc_visit_tracking.stubs import TSubjectVisitModelStub
 
 
 def get_subject_visit_model_cls() -> TSubjectVisitModelStub:
@@ -29,7 +29,7 @@ def get_subject_visit_missed_reasons_model() -> Type[models.Model]:
     return model
 
 
-def get_subject_visit_missed_model() -> Type[models.Model]:
+def get_subject_visit_missed_model() -> str:
     error_msg = (
         "Settings attribute `SUBJECT_VISIT_MISSED_MODEL` not set. Update settings. "
         "For example, `SUBJECT_VISIT_MISSED_MODEL=meta_subject.subjectvisitmissed`. "
@@ -42,4 +42,8 @@ def get_subject_visit_missed_model() -> Type[models.Model]:
     else:
         if not model:
             raise ImproperlyConfigured(f"{error_msg} Got None.")
-    return django_apps.get_model(model)
+    return model
+
+
+def get_subject_visit_missed_model_cls() -> Type[models.Model]:
+    return django_apps.get_model(get_subject_visit_missed_model())
