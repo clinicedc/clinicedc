@@ -1,73 +1,27 @@
 {% extends edc_base_template %}
-
 {% load static %}
 
 {% block main %}
 
-    <div class="container">
-        <div><a href="{% url 'edc_visit_schedule_admin:index' %}" class="pull-right clearfix">Go to Admin</a></div>
-        <div class="panel-group" id="accordion">
-            {% for visit_schedule in visit_schedules.values %}
-                <div class="panel panel-info">
-                    <div class="panel-heading">
-                        <h6 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#{{ visit_schedule.name }}">
-                                {{ visit_schedule.verbose_name }}
-                            </a>
-                        </h6>
-                    </div>
-                    <div id="{{ visit_schedule.name }}" class="panel-collapse collapse">
-                        <div class="panel-group" id="accordion1">
-                            {% for schedule in visit_schedule.schedules.values %}
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h6 class="panel-title">
-                                            <a data-toggle="collapse" data-parent="#accordion1"
-                                               href="#{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}">
-                                                Schedule {{ schedule.title }}
-                                            </a>
-                                        </h6>
-                                    </div>
-                                    <div id="{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}" class="panel-collapse collapse in">
-                                        <div class="panel-group" id="accordion2">
-                                            {% for visit in schedule.visits.values %}
-                                                <div class="panel panel-default">
-                                                    <div class="panel-heading">
-                                                        <h6 class="panel-title">
-                                                            <a data-toggle="collapse" data-parent="#accordion2"
-                                                               href="#{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}-{{ visit|slugify }}">
-                                                                Visit {{ visit.title }}
-                                                            </a>
-                                                        </h6>
-                                                    </div>
-                                                    <div id="{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}-{{ visit|slugify }}" class="panel-collapse collapse">
-                                                        <div class="table-responsive">
-                                                            <table class="table table-hover">
-                                                                <thead></thead>
-                                                                <tbody>
-                                                                {% for crf in visit.crfs %}
-                                                                    <tr>
-                                                                        <td>{{ crf.show_order }}</td>
-                                                                        <td>{{ crf.verbose_name }}</td>
-                                                                        <td>
-                                                                            {% if crf.required %}Required{% endif %}
-                                                                        </td>
-                                                                    </tr>
-                                                                {% endfor %}
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
+{{ block.super }}
+
+  <div class="col-sm-4">&nbsp;
+  </div>
+
+  <div class="col-sm-4">
+    <div class="panel panel-default">
+      <div class="panel-heading">Visit Schedule</div>
+      <div class="list-group">
+        <a id="home_list_group_home" href="{% url 'administration_url' %}" class="list-group-item"><i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i> Home</a>
+        <a id="home_list_group_visit_schedule" href="{% url 'edc_visit_schedule:visit_schedule_url' %}" class="list-group-item">Visit schedules</a>
+        <a id="home_list_group_subject_schedule_history" href="{% url 'edc_visit_schedule_admin:edc_visit_schedule_subjectschedulehistory_changelist' %}" class="list-group-item">Subject schedule history</a>
+        {% if perms.edc_visit_schedule %}
+          <a id="home_edc_visit_schedule_admin" href="{% url 'edc_visit_schedule_admin:app_list' 'edc_visit_schedule' %}" class="list-group-item">Admin</a>
+        {% endif %}
+      </div>
     </div>
-{% endblock %}
+  </div>
+
+  <div class="col-sm-4">&nbsp;
+  </div>
+{% endblock main %}
