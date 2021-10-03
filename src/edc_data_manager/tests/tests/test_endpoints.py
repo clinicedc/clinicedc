@@ -6,7 +6,7 @@ from django.test import override_settings, tag
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_action_item.models.action_item import ActionItem
-from edc_auth.auth_objects import EVERYONE
+from edc_auth.auth_objects import EVERYONE, STAFF_ROLE
 from edc_auth.auth_updater import AuthUpdater
 from edc_auth.models import Role
 from edc_auth.site_auths import site_auths
@@ -48,8 +48,8 @@ class AdminSiteTest(WebTest):
             is_active=True,
             is_staff=True,
         )
-        role = Role.objects.get(name=DATA_MANAGER_ROLE)
-        self.user.userprofile.roles.add(role)
+        for role in Role.objects.filter(name__in=[STAFF_ROLE, DATA_MANAGER_ROLE]):
+            self.user.userprofile.roles.add(role)
         self.user.save()
         self.user.refresh_from_db()
 
@@ -65,7 +65,7 @@ class AdminSiteTest(WebTest):
     @tag("webtest")
     def test_default_rule_handler_names(self):
         """Assert default rule handler names on queryrule ADD form"""
-        login(self, redirect_url="admin:index")
+        login(self, superuser=False, redirect_url="admin:index")
         url = reverse("data_manager_app:home_url")
         response = self.app.get(url, user=self.user, status=200)
         self.assertIn("You are home", response)
@@ -78,7 +78,7 @@ class AdminSiteTest(WebTest):
 
     @skip("webtest1")
     def test_query_rule_questions_from_single_form(self):
-        login(self, redirect_url="admin:index")
+        login(self, superuser=False, redirect_url="admin:index")
 
         query_rule = baker.make_recipe(
             "edc_data_manager.queryrule",
@@ -97,9 +97,9 @@ class AdminSiteTest(WebTest):
         response = form.submit().follow()
         self.assertIn("Invalid. Select questions from one CRF only", str(response.content))
 
-    @tag("webtest")
+    @tag("webtest1")
     def test_data_query(self):
-        login(self, redirect_url="admin:index")
+        login(self, superuser=False, redirect_url="admin:index")
 
         registered_subject = RegisteredSubject.objects.create(
             subject_identifier=self.subject_identifier
@@ -137,7 +137,7 @@ class AdminSiteTest(WebTest):
 
     @tag("webtest")
     def test_data_query_add_and_permissions(self):
-        login(self, redirect_url="admin:index")
+        login(self, superuser=False, redirect_url="admin:index")
 
         registered_subject = RegisteredSubject.objects.create(
             subject_identifier=self.subject_identifier
@@ -175,7 +175,7 @@ class AdminSiteTest(WebTest):
 
     @tag("webtest")
     def test_data_query_action_attrs(self):
-        login(self, redirect_url="admin:index")
+        login(self, superuser=False, redirect_url="admin:index")
 
         registered_subject = RegisteredSubject.objects.create(
             subject_identifier=self.subject_identifier

@@ -340,6 +340,7 @@ class DataQueryAdmin(
             "rule_reference",
             "missed_visit",
             "auto_resolved",
+            "registered_subject",
             *action_fields,
         ]
         if not request.user.groups.filter(name=DATA_MANAGER):
@@ -349,8 +350,8 @@ class DataQueryAdmin(
                 "plan_of_action",
                 "query_priority",
                 "query_text",
-                "recipients",
                 "registered_subject",
+                "recipients",
                 "report_datetime",
                 "requisition_panel",
                 "resolved_datetime",
@@ -360,6 +361,8 @@ class DataQueryAdmin(
                 "visit_code_sequence",
                 "visit_schedule",
             ]
+        if not obj:
+            extra_fields.remove("registered_subject")
         return list(fields) + extra_fields
 
     def get_subject_dashboard_url_kwargs(self, obj):
