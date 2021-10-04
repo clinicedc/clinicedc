@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load tz %}
     <div class="panel panel-success">
-            
+
             <div class="panel-heading">
                  <span class="text text-muted">
                     <i class="fas fa-list-alt fa-fw" aria-hidden="true"></i> CRFs</span>
@@ -30,17 +30,17 @@
                                         </p>
                                     {% endif %}
                                 {% endif %}
-                            </td>                
+                            </td>
                             <td>
                               <span class="btn-group pull-right">
                               {% if crf.entry_status != NOT_REQUIRED %}
                                 <a id="{{ crf.object.html_id }}" name="{{ crf.object.html_id }}" role="button" class="btn btn-sm {% if crf.object.id %}btn-success{% else %}{% if crf.entry_status == NOT_REQUIRED %} disabled btn-default{% else %}btn-warning{% endif %}{% endif %}"
                                         {% if crf.object.id and crf.object.has_change_permission %}
-                                            href="{{ crf.object.href }}"><span class="fas fa-pen"></span> Change
+                                            {%  if request.site.id == crf.site.id %}href="{{ crf.object.href }}"{% else %} disabled {% endif %}><span class="fas fa-pen"></span> Change
                                         {% elif not crf.object.id and crf.object.has_add_permission %}
-                                            href="{{ crf.object.href }}"><span class="fas fa-plus"></span> Add
+                                            {%  if request.site.id == crf.site.id %}href="{{ crf.object.href }}"{% else %} disabled {% endif %}><span class="fas fa-plus"></span> Add
                                         {% elif crf.object.id and crf.object.has_view_permission %}
-                                            href="{{ crf.object.href }}"><span class="fas fa-eye"></span> View
+                                            {%  if request.site.id == crf.site.id %}href="{{ crf.object.href }}"{% else %} disabled {% endif %}><span class="fas fa-eye"></span> View
                                         {% else %}
                                             disabled >{% if crf.object.id %}<span class="fas fa-pen"></span> Change{% else %}<span class="fas fa-plus"></span> Add{% endif %}
                                         {% endif %}

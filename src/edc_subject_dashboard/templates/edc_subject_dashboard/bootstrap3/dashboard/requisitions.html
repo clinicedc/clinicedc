@@ -4,21 +4,21 @@
 {% load i18n %}
 
 <a name="verify_requisition_identifier"></a>
-	
+
 <div class="panel-group">
 	<div class="panel panel-success">
 		<div class="panel-heading clearfix"><i class="fas fa-flask fa-fw" aria-hidden="true"></i> Requisitions
 		<label class="small pull-right" title="visit report datetime">{{ appointment.object.visit.report_datetime|localtime|date:"SHORT_DATETIME_FORMAT" }}</label>
-		</div>			
-		
+		</div>
+
 		{% requisition_panel_actions requisitions %}
- 		
+
  		<div class="table-responsive">
 			<table class="table table-striped table-hover">
 				<tbody>
 
 					{% for requisition in requisitions %}
-					
+
 				    	<tr>
 				    		<td>
 								<span class="text{% if requisition.entry_status == NOT_REQUIRED %} text-muted small{% endif %}">
@@ -61,20 +61,20 @@
 
 								<span class="btn-group pull-right">
 	                            {% if requisition.entry_status != NOT_REQUIRED %}
-	    							<a role="button" class="btn btn-sm {% if requisition.entry_status == KEYED %}btn-success{% else %}{% if requisition.entry_status == NOT_REQUIRED %} disabled btn-default{% else %}btn-warning{% endif %}{% endif %}" 
+	    							<a role="button" class="btn btn-sm {% if requisition.entry_status == KEYED %}btn-success{% else %}{% if requisition.entry_status == NOT_REQUIRED %} disabled btn-default{% else %}btn-warning{% endif %}{% endif %}"
 										{% if requisition.entry_status == KEYED and requisition.object.has_change_permission %}
-											id="{{ requisition.object.html_id }}" name="{{ requisition.object.html_id }}" 
-											href="{{ requisition.object.href }}"><span class="fas fa-pencil-alt fa-fw"></span> Change
-                                        {% elif requisition.entry_status != KEYED and requisition.object.has_add_permission %}
-											id="add-{{requisition.panel_name}}" 
-											href="{{ requisition.object.href }}"><span class="fas fa-plus fa-fw"></span> Add
-                                        {% elif requisition.entry_status == KEYED and requisition.object.has_view_permission %}
-											id="{{ requisition.object.html_id }}" name="{{ requisition.object.html_id }}" 
-											href="{{ requisition.object.href }}"><span class="fas fa-eye fa-fw"></span> View                                        
-                                        {% else %}
-                                            disabled >{% if requisition.entry_status == KEYED %}<span class="fas fa-pen"></span> Change{% else %}<span class="fas fa-plus"></span> Add{% endif %}
+											 id="{{ requisition.object.html_id }}" name="{{ requisition.object.html_id }}"
+											 {%  if request.site.id == requisition.site.id %}href="{{ requisition.object.href }}"{% else %} disabled {% endif %}><span class="fas fa-pencil-alt fa-fw"></span> Change
+                    {% elif requisition.entry_status != KEYED and requisition.object.has_add_permission %}
+											 id="add-{{requisition.panel_name}}"
+											 {%  if request.site.id == requisition.site.id %}href="{{ requisition.object.href }}"{% else %} disabled {% endif %}><span class="fas fa-plus fa-fw"></span> Add
+                    {% elif requisition.entry_status == KEYED and requisition.object.has_view_permission %}
+											 id="{{ requisition.object.html_id }}" name="{{ requisition.object.html_id }}"
+											 {%  if request.site.id == requisition.site.id %}href="{{ requisition.object.href }}"{% else %} disabled {% endif %}><span class="fas fa-eye fa-fw"></span> View
+                    {% else %}
+                       disabled >{% if requisition.entry_status == KEYED %}<span class="fas fa-pen"></span> Change{% else %}<span class="fas fa-plus"></span> Add{% endif %}
 										{% endif %}
-		       						</a> 
+		       						</a>
 	                               {% if requisition.object.history_url %}
 	                                   <a href="{{ requisition.object.history_url }}" role="button" class="btn btn-sm btn-default">{% trans 'History' %}</a>
 	                               {% else %}
@@ -87,7 +87,7 @@
 						    </td>
 				    	</tr>
 				    {% endfor %}
-	
+
                     {% if not requisitions %}
                         <tr>
                             <td colspan="4">
