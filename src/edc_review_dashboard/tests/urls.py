@@ -5,6 +5,7 @@ from edc_appointment.admin_site import edc_appointment_admin
 from edc_data_manager.admin_site import edc_data_manager_admin
 from edc_lab.admin_site import edc_lab_admin
 from edc_locator.admin_site import edc_locator_admin
+from edc_visit_schedule.admin_site import edc_visit_schedule_admin
 
 from review_dashboard_app.admin_site import review_dashboard_app_admin
 
@@ -40,6 +41,7 @@ urlpatterns += [
     path("admin/", edc_lab_admin.urls),
     path("admin/", edc_appointment_admin.urls),
     path("admin/", edc_locator_admin.urls),
+    path("admin/", edc_visit_schedule_admin.urls),
     path("admin/", edc_data_manager_admin.urls),
     path("review_dashboard_app/", include("review_dashboard_app.urls")),
     path("", HomeView.as_view(), name="logout"),

@@ -23,6 +23,7 @@
 {% endif %}
 
 <span class="pull-right">
+    <a id="home_list_group_subject_schedule_history" href="{% url 'edc_visit_schedule_admin:edc_visit_schedule_subjectschedulehistory_changelist' %}?q={% if search_term %}{{ search_term }}{% else %}{{ subject_identifier }}{% endif %}" role="button" class="btn btn-default btn-sm">Subject on/off schedule history</a>
     {% include 'edc_dashboard/bootstrap3/search_form.html' %}
 </span>
 
@@ -30,14 +31,14 @@
 
 <div class="list-group">
 
-    {% for result in results %}        
+    {% for result in results %}
 
         <a id="{{ result.object.appointment.subject_identifier }}-{{ result.object.visit_code }}-{{ result.object.visit_code_sequence }}"></a>
 
         {% if search_term %}
 
             <a id="id-reported-visits-{{ result.object.appointment.subject_identifier }}-{{ result.object.visit_code }}-{{ result.object.visit_code_sequence }}" href="{{ result.subject_dashboard_href }}" class="list-group-item list-group-item-info" title="click to go to subject dashboard for visit">{% appointment_status_icon appt_status=result.object.appointment.appt_status %} {{ forloop.counter|add:page_obj.start_index|add:-1 }}. <b>{{ result.object.visit_code }}.{{ result.object.visit_code_sequence }}</b> on {{ result.object.report_datetime|date:"SHORT_DATE_FORMAT" }} {{ result.metadata_summary }}</a>
-            
+
             {% for crf in result.crf_metadata %}
                 <a id="id-report-{{ crf.model }}-{{ result.object.appointment.subject_identifier }}-{{ result.object.appointment.visit_code }}" href="{{ result.subject_dashboard_href }}" class="list-group-item {% if result.object.appointment.appt_status == IN_PROGRESS_APPT %}list-group-item-warning{% else %}list-group-item-default{% endif %}">{% if crf.entry_status == KEYED %}<span class="text text-muted text-success">{% else %}<span class="text text-danger">{% endif %}<i class="fas fa-list-alt fa-fw"></i> {{ crf.verbose_name }}</span><span class="pull-right">{{ result.object.visit_code }}.{{ result.object.visit_code_sequence }}</span></a>
             {% endfor %}
@@ -47,10 +48,10 @@
 
         {% else %}
             <a id="id-reported-visit-list-{{ result.subject_identifier }}" href="{% url paginator_url|default:'paginator_url_cannot_be_none' %}?q={{ result.subject_identifier}}" class="list-group-item" title="click to list reported visits for this subject">{{ forloop.counter|add:page_obj.start_index|add:-1 }}. <b>{{ result.subject_identifier }}</b> <span class="text text-muted">{{ result.visit_count }} visits</span></a>
-            
+
         {% endif %}
     {% endfor %}
-    
+
 </div>
 </div>
 <div class="well">{% paginator_row %}</div>
