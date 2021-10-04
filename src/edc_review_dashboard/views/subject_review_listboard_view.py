@@ -18,7 +18,7 @@ from edc_subject_dashboard.view_mixins import (
 )
 from edc_subject_model_wrappers import SubjectVisitModelWrapper
 from edc_visit_schedule.view_mixins import VisitScheduleViewMixin
-from edc_visit_tracking.models import get_subject_visit_model_cls
+from edc_visit_tracking.utils import get_subject_visit_model_cls
 
 
 class SubjectReviewListboardView(
