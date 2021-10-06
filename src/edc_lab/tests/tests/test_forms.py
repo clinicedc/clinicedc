@@ -3,7 +3,7 @@ from datetime import timedelta
 from django import forms
 from django.conf import settings
 from django.core.exceptions import NON_FIELD_ERRORS
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
 from edc_facility.import_holidays import import_holidays

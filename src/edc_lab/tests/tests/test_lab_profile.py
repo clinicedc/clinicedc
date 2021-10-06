@@ -1,4 +1,4 @@
-from django.test import TestCase, tag
+from django.test import TestCase
 
 from edc_lab.lab import (
     AliquotType,
@@ -120,10 +120,11 @@ class TestBuildProfile(EdcLabTestMixin, TestCase):
             name="profile",
             requisition_model="edc_lab.subjectrequisition",
         )
-        lab_profile.add_panel_group(panel_group)
-        self.assertIsNotNone(lab_profile.panel_groups.get(panel_group.name))
-        self.assertEqual(len(lab_profile.panels), 4)
-        self.assertRaises(PanelAlreadyRegistered, lab_profile.add_panel_group, panel_group)
+        lab_profile.add_panel(panel_group)
+        panel = lab_profile.panels.get(panel_group.name)
+        self.assertIsNotNone(panel)
+        self.assertEqual(len(panel.utest_ids), 13)
+        self.assertRaises(PanelAlreadyRegistered, lab_profile.add_panel, panel_group)
 
     def test_added_panel_group_knows_requisition_model(self):
         """Assert same panel cannot be added twice."""
@@ -131,8 +132,7 @@ class TestBuildProfile(EdcLabTestMixin, TestCase):
         lab_profile = LabProfile(
             name="profile", requisition_model="edc_lab.subjectrequisition"
         )
-        lab_profile.add_panel_group(panel_group)
-        for panel in panel_group.panels:
-            panel = lab_profile.panels.get(panel.name)
-            self.assertEqual(panel.requisition_model, "edc_lab.subjectrequisition")
-            self.assertEqual(panel.requisition_model_cls, SubjectRequisition)
+        lab_profile.add_panel(panel_group)
+        panel = lab_profile.panels.get(panel_group.name)
+        self.assertEqual(panel.requisition_model, "edc_lab.subjectrequisition")
+        self.assertEqual(panel.requisition_model_cls, SubjectRequisition)

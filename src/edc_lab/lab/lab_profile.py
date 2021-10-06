@@ -22,7 +22,6 @@ class LabProfile:
         self.aliquot_types = {}
         self.processing_profiles = {}
         self.panels = {}
-        self.panel_groups = {}
         self.name = name
         if not requisition_model:
             raise LabProfileRequisitionModelError("Invalid requisition model. Got None")
@@ -36,23 +35,10 @@ class LabProfile:
     def __str__(self):
         return self.name
 
-    def add_panel_group(self, panel_group):
-        panel_group.requisition_model = self.requisition_model
-        panel_group.lab_profile_name = self.name
-        if panel_group.name in self.panel_groups:
-            raise PanelAlreadyRegistered(
-                f"Panel Group already registered. Got {panel_group.name}"
-            )
-        self.panel_groups.update({panel_group.name: panel_group})
-        self.panels.update({panel_group.name: panel_group})
-        for panel in panel_group.panels:
-            try:
-                self.add_panel(panel)
-            except PanelAlreadyRegistered:
-                pass
-
     def add_panel(self, panel):
-        """Adds a panel instance to the profile"""
+        """Adds a requisition panel or reuqisition panel group
+        instance to the profile.
+        """
 
         panel.requisition_model = self.requisition_model
         panel.lab_profile_name = self.name

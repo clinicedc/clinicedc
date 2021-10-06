@@ -1,55 +1,54 @@
+from .processing_profile import ProcessingProfile
+from .requisition_panel import RequisitionPanel
+
+
 class RequisitionPanelGroupError(Exception):
     pass
 
 
-class RequisitionPanelGroup:
-    requisition_model = None
-    lab_profile_name = None
-
+class RequisitionPanelGroup(RequisitionPanel):
     def __init__(
         self,
         *panels,
         name: str = None,
         verbose_name: str = None,
-        reference_range_collection_name=None,
+        abbreviation: str = None,
+        is_poc=None,
+        reference_range_collection_name=None
     ):
-        self.aliquot_type = None
-        self.reference_range_collection_name = None
-        self.utest_ids = []
-
-        self.name = name
-        self.panels = panels
-        self.reference_range_collection_name = reference_range_collection_name
-        self.verbose_name = verbose_name
-        if not reference_range_collection_name:
-            raise RequisitionPanelGroupError(
-                "Expected `reference_range_collection_name`. Got None"
-            )
+        processing_profile = ProcessingProfile(
+            name=f"{name} group", aliquot_type=panels[0].aliquot_type
+        )
+        utest_ids = []
         for panel in panels:
-            self.utest_ids.extend(panel.utest_ids)
+            utest_ids.extend(panel.utest_ids)
             if (
                 panel.reference_range_collection_name
-                and self.reference_range_collection_name
-                != panel.reference_range_collection_name
+                and reference_range_collection_name != panel.reference_range_collection_name
             ):
                 raise RequisitionPanelGroupError(
                     "Panels in a panel group must use the same reference range "
                     f"collection name. Got "
-                    f"{self.reference_range_collection_name} != "
+                    f"{reference_range_collection_name} != "
                     f"{panel.reference_range_collection_name}. "
                     f"See {self}."
                 )
-            panel.reference_range_collection_name = self.reference_range_collection_name
-            if not self.aliquot_type:
-                self.aliquot_type = panel.processing_profile.aliquot_type
-            else:
-                if self.aliquot_type != panel.processing_profile.aliquot_type:
-                    raise RequisitionPanelGroupError(
-                        "Panels in a panel group must use the same aliquot_type "
-                        f"Got {self.aliquot_type} != "
-                        f"{panel.processing_profile.aliquot_type}. "
-                        f"See {self}."
-                    )
+            if panel.aliquot_type and panel.aliquot_type != processing_profile.aliquot_type:
+                raise RequisitionPanelGroupError(
+                    "Panels in a panel group must use the same aliquot_type "
+                    f"Got {panel.aliquot_type} != "
+                    f"{panel.processing_profile.aliquot_type}. "
+                    f"See {self}."
+                )
+        super().__init__(
+            utest_ids=utest_ids,
+            processing_profile=processing_profile,
+            name=name,
+            verbose_name=verbose_name,
+            abbreviation=abbreviation,
+            is_poc=is_poc,
+            reference_range_collection_name=reference_range_collection_name,
+        )
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.name})"

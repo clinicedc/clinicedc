@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_sites import add_or_update_django_sites
 from edc_sites.single_site import SingleSite
 

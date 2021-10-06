@@ -2,7 +2,7 @@ import re
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
-from django.test import TestCase, tag  # noqa
+from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_constants.constants import NO, NOT_APPLICABLE, YES
 from edc_facility import import_holidays
@@ -60,7 +60,6 @@ class TestSiteLab(TestCase):
         self.assertFalse(site_lab.loaded)
 
 
-@tag("2")
 class TestSiteLab2(TestCase):
 
     lab_helper = SiteLabsTestHelper()

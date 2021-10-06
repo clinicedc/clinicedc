@@ -2,7 +2,7 @@ from copy import copy
 from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_constants.constants import YES
 from edc_facility.import_holidays import import_holidays

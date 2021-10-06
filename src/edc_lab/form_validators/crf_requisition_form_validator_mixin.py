@@ -33,7 +33,15 @@ class CrfRequisitionFormValidatorMixin:
         assay_datetime_field = assay_datetime_field or self.assay_datetime_field
         requisition = self.cleaned_data.get(requisition_field)
         if requisition and requisition.panel_object not in panels:
-            raise forms.ValidationError({requisition_field: "Incorrect requisition."})
+            raise forms.ValidationError(
+                {
+                    requisition_field: (
+                        "Incorrect requisition. Unknown panel. "
+                        f"Expected one of {[p.name for p in panels]}. "
+                        f"Got {requisition.panel_object.name}"
+                    )
+                }
+            )
 
         self.required_if_true(requisition, field_required=assay_datetime_field)
 

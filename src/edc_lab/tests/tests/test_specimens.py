@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.test import TestCase, override_settings, tag  # noqa
+from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_constants.constants import NO, YES
 from edc_facility import import_holidays
@@ -10,7 +10,6 @@ from edc_sites.tests import SiteTestCaseMixin
 from edc_utils.date import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
-from multisite import SiteID
 
 from edc_lab.identifiers import AliquotIdentifier as AliquotIdentifierBase
 from edc_lab.lab import AliquotCreator as AliquotCreatorBase

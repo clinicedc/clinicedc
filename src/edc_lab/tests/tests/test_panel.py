@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, tag
+from django.test import TestCase
 
 from edc_lab.lab import (
     AliquotType,

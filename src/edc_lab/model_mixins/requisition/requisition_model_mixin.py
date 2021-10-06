@@ -57,7 +57,7 @@ class RequisitionModelMixin(
         validators=[datetime_not_before_study_start, datetime_not_future],
         null=True,
         blank=True,
-        help_text=("If not drawn, leave blank."),
+        help_text="If not drawn, leave blank.",
     )
 
     is_drawn = models.CharField(
