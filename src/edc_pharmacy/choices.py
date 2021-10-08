@@ -1,7 +1,6 @@
-from edc_constants.constants import NOT_APPLICABLE, OTHER, NEW
+from edc_constants.constants import NEW, NOT_APPLICABLE, OTHER
 
-from .constants import PARTIAL, FILLED, CANCELLED, DISPENSED
-
+from .constants import CANCELLED, DISPENSED, FILLED, PARTIAL
 
 PRESCRIPTION_STATUS = (
     (NEW, "New"),
@@ -11,7 +10,7 @@ PRESCRIPTION_STATUS = (
 )
 
 
-DISPENSE_STATUS = ((NEW, "New"), (DISPENSED, "Dispensed"), (CANCELLED, "Cancelled"))
+DISPENSE_STATUS = ((DISPENSED, "Dispensed"), (CANCELLED, "Cancelled"))
 
 
 DRUG_FORMULATION = (

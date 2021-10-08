@@ -2,7 +2,7 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.aggregates import Sum
 from django.db.models.deletion import PROTECT
-from edc_model.models import BaseUuidModel
+from edc_model import models as edc_models
 
 from ..choices import TIMING
 from .dosage_guideline import DosageGuideline
@@ -10,7 +10,15 @@ from .medication import Medication
 from .prescription import Prescription
 
 
-class PrescriptionItem(BaseUuidModel):
+class Manager(models.Manager):
+
+    use_in_migrations = True
+
+    def get_by_natural_key(self, prescription, medication, start_date):
+        return self.get(prescription, medication, start_date)
+
+
+class PrescriptionItem(edc_models.BaseUuidModel):
 
     prescription = models.ForeignKey(Prescription, on_delete=PROTECT)
 
@@ -67,11 +75,22 @@ class PrescriptionItem(BaseUuidModel):
 
     as_string = models.CharField(max_length=150, editable=False)
 
+    objects = Manager()
+
+    history = edc_models.HistoricalRecords()
+
     def __str__(self):
         return (
             f"{str(self.medication)} * {self.dose} "
             f"{self.medication.get_formulation_display()}(s) "
             f"{self.frequency} {self.get_frequency_units_display()}"
+        )
+
+    def natural_key(self):
+        return (
+            self.prescription,
+            self.medication,
+            self.start_date,
         )
 
     def save(self, *args, **kwargs):
@@ -100,14 +119,25 @@ class PrescriptionItem(BaseUuidModel):
         return display.split(",")[0]
 
     def get_remaining(self, exclude_id=None):
-        options = {}
         remaining = 0
+        if self.total:
+            remaining = float(self.total) - float(
+                self.total_dispensed(exclude_id=exclude_id)
+            )
+        return remaining
+
+    def total_dispensed(self, exclude_id=None):
+        options = {}
         if self.total:
             if exclude_id:
                 options = dict(id=exclude_id)
-            aggregate = self.dispenseditem_set.filter(**options).aggregate(
+            aggregate = self.dispensinghistory_set.filter(**options).aggregate(
                 Sum("dispensed")
             )
-            total_dispensed = float(aggregate.get("dispensed__sum") or 0.0)
-            remaining = float(self.total) - float(total_dispensed)
-        return remaining
+            return float(aggregate.get("dispensed__sum") or 0.0)
+        return 0.0
+
+    class Meta(edc_models.BaseUuidModel.Meta):
+        verbose_name = "Prescription item"
+        verbose_name_plural = "Prescription items"
+        unique_together = ["prescription", "medication", "start_date"]

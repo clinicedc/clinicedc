@@ -1,15 +1,22 @@
 from django.core.validators import MinValueValidator
 from django.db import models
-from edc_model.models import BaseUuidModel
+from edc_model import models as edc_models
 
-from ..choices import UNITS, FREQUENCY
+from ..choices import FREQUENCY, UNITS
 from ..dosage_calculator import DosageCalculator
 
 
-class DosageGuideline(BaseUuidModel):
+class Manager(models.Manager):
 
-    """Dosage guidelines.
-    """
+    use_in_migrations = True
+
+    def get_by_natural_key(self, medication_name, dose, dose_units, dose_per_kg):
+        return self.get(medication_name, dose, dose_units, dose_per_kg)
+
+
+class DosageGuideline(edc_models.BaseUuidModel):
+
+    """Dosage guidelines."""
 
     dose_calculator_cls = DosageCalculator
 
@@ -48,6 +55,10 @@ class DosageGuideline(BaseUuidModel):
         help_text="factor to convert weight to kg",
     )
 
+    objects = Manager()
+
+    history = edc_models.HistoricalRecords()
+
     def __str__(self):
         if self.dose_per_kg:
             return (
@@ -60,16 +71,19 @@ class DosageGuideline(BaseUuidModel):
                 f"{self.get_dose_frequency_units_display()}"
             )
 
+    def natural_key(self):
+        return (self.medication_name, self.dose, self.dose_units, self.dose_per_kg)
+
     @property
     def dosage_per_kg_per_day(self):
-        """Returns a decimal value or raises an exception.
-        """
+        """Returns a decimal value or raises an exception."""
         return self.dose_calculator_cls(**self.__dict__).dosage_per_kg_per_day
 
     def dosage_per_day(self, **kwargs):
-        """Returns a decimal value or raises an exception.
-        """
+        """Returns a decimal value or raises an exception."""
         return self.dose_calculator_cls(**self.__dict__).dosage_per_day(**kwargs)
 
-    class Meta:
-        unique_together = ["medication_name", "dose_units"]
+    class Meta(edc_models.BaseUuidModel.Meta):
+        verbose_name = "Dosage Guideline"
+        verbose_name_plural = "Dosage Guidelines"
+        unique_together = ["medication_name", "dose", "dose_units", "dose_per_kg"]

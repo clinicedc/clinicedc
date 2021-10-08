@@ -1,7 +1,8 @@
-from .appointment import Appointment
-from .dispensed_item import DispensedItem, DispenseError
+from .dispensing_history import DispenseError, DispensingHistory
 from .dosage_guideline import DosageGuideline
 from .medication import Medication
 from .prescription import Prescription
 from .prescription_item import PrescriptionItem
-from .signals import dispense_item_on_post_save
+from .return_history import ReturnError, ReturnHistory
+from .signals import dispensing_history_on_post_save
+from .subject import Subject

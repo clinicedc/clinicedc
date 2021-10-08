@@ -1,28 +1,21 @@
 from django import forms
+from edc_randomization.site_randomizers import site_randomizers
 
 from ..models import Prescription
 
 
+def get_last_weight():
+    return 100
+
+
 class PrescriptionForm(forms.ModelForm):
-
-    #     subject_identifier = forms.CharField(
-    #         label='Subject identifier',
-    #         help_text='(Read only)',
-    #         widget=forms.TextInput(attrs={'readonly': 'readonly'}))
-    #
-    #     rando_sid = forms.CharField(
-    #         label='Randomization ID',
-    #         help_text='(Read only)',
-    #         widget=forms.TextInput(attrs={'readonly': 'readonly'}))
-    #
-    #     rando_arm = forms.CharField(
-    #         label='Randomization Arm',
-    #         help_text='(Read only)',
-    #         widget=forms.TextInput(attrs={'readonly': 'readonly'}))
-
-    #     result = forms.CharField(
-    #         label='Auto calculated required quantity',
-    #         widget=forms.TextInput(attrs={'readonly': 'readonly'}))
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["randomizer_name"] = forms.ChoiceField(
+            label="Randomizer name",
+            choices=site_randomizers.get_as_choices(),
+            required=False,
+        )
 
     class Meta:
         model = Prescription

@@ -3,8 +3,8 @@ from django.test import TestCase
 from edc_utils import get_utcnow
 
 from ..models import (
-    DispensedItem,
     DispenseError,
+    DispensingHistory,
     DosageGuideline,
     Medication,
     Prescription,
@@ -101,7 +101,7 @@ class TestPrescription(TestCase):
             start_date=get_utcnow(),
             end_date=get_utcnow() + relativedelta(days=7),
         )
-        obj = DispensedItem.objects.create(
+        obj = DispensingHistory.objects.create(
             prescription=self.prescription,
             prescription_item=prescription_item,
             dispensed=8,
@@ -123,7 +123,7 @@ class TestPrescription(TestCase):
         dispensed = 0
         for amount in [8, 8, 8]:
             dispensed += amount
-            obj = DispensedItem.objects.create(
+            obj = DispensingHistory.objects.create(
                 prescription=self.prescription,
                 prescription_item=prescription_item,
                 dispensed=8,
@@ -145,7 +145,7 @@ class TestPrescription(TestCase):
         dispensed = 0
         for amount in [8, 8, 8, 8, 8, 8, 8]:
             dispensed += amount
-            obj = DispensedItem.objects.create(
+            obj = DispensingHistory.objects.create(
                 prescription=self.prescription,
                 prescription_item=prescription_item,
                 dispensed=8,
@@ -157,7 +157,7 @@ class TestPrescription(TestCase):
         self.assertEqual(prescription_item.remaining, 0)
         self.assertRaises(
             DispenseError,
-            DispensedItem.objects.create,
+            DispensingHistory.objects.create,
             prescription=self.prescription,
             prescription_item=prescription_item,
             dispensed=8,

@@ -1,15 +1,15 @@
 from django import forms
 
-from ..models import DispensedItem
+from ..models import DispensingHistory
 
 
-class DispensedItemForm(forms.ModelForm):
+class DispensingHistoryForm(forms.ModelForm):
     class Meta:
-        model = DispensedItem
+        model = DispensingHistory
         fields = "__all__"
 
 
-class DispensedItemReadonlyForm(forms.ModelForm):
+class DispensingHistoryReadonlyForm(forms.ModelForm):
 
     count = forms.DecimalField(
         label="Count", widget=forms.TextInput(attrs={"readonly": "readonly"})
@@ -25,7 +25,7 @@ class DispensedItemReadonlyForm(forms.ModelForm):
     )
 
     class Meta:
-        model = DispensedItem
+        model = DispensingHistory
         # ['medication', 'count', 'status', 'dispensed_datetime']
         # fields = '__all__'
         exclude = ["medication"]
