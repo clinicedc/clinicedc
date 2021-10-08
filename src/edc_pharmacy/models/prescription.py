@@ -67,7 +67,10 @@ class Prescription(
         return f"{items}"
 
     def natural_key(self):
-        return (self.subject_identifier, self.report_datetime)
+        return (
+            self.subject_identifier,
+            self.report_datetime,
+        )
 
     def save(self, *args, **kwargs):
         self.subject_identifier = self.registered_subject.subject_identifier

@@ -61,6 +61,7 @@ class PrescriptionItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     search_fields = [
         "id",
         "prescription__id",
+        "prescription__rando_sid",
         "prescription__subject_identifier",
         "medication__name",
     ]

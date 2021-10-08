@@ -1,7 +1,8 @@
 from django.db import models
+from django.db.models import PROTECT
 from edc_model import models as edc_models
 
-from ..choices import DRUG_FORMULATION, DRUG_ROUTE, UNITS
+from .list_models import Formulation, Route, Units
 
 
 class Manager(models.Manager):
@@ -18,11 +19,11 @@ class Medication(edc_models.BaseUuidModel):
 
     strength = models.DecimalField(max_digits=6, decimal_places=1)
 
-    units = models.CharField(max_length=25, choices=UNITS)
+    units = models.ForeignKey(Units, on_delete=PROTECT)
 
-    formulation = models.CharField(max_length=25, choices=DRUG_FORMULATION)
+    formulation = models.ForeignKey(Formulation, on_delete=PROTECT)
 
-    route = models.CharField(max_length=25, choices=DRUG_ROUTE)
+    route = models.ForeignKey(Route, on_delete=PROTECT)
 
     notes = models.TextField(max_length=250, null=True, blank=True)
 
@@ -31,14 +32,32 @@ class Medication(edc_models.BaseUuidModel):
     history = edc_models.HistoricalRecords()
 
     def __str__(self):
+        return self.description
+
+    def natural_key(self):
+        return (
+            self.name,
+            self.strength,
+            self.units,
+            self.formulation,
+        )
+
+    @property
+    def description(self):
         return (
             f"{self.name} {self.strength}{self.get_units_display()}. "
             f"{self.get_formulation_display()} "
             f"{self.get_route_display()}"
         )
 
-    def natural_key(self):
-        return (self.name, self.strength, self.units, self.formulation)
+    def get_formulation_display(self):
+        return self.formulation.display_name
+
+    def get_units_display(self):
+        return self.units.display_name
+
+    def get_route_display(self):
+        return self.route.display_name
 
     class Meta(edc_models.BaseUuidModel.Meta):
         verbose_name = "Medication"

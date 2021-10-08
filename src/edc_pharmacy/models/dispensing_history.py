@@ -1,7 +1,5 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_constants.constants import NEW
-from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model import models as edc_models
 from edc_pharmacy.constants import DISPENSED
 from edc_utils import get_utcnow

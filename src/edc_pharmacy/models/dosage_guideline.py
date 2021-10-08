@@ -1,9 +1,10 @@
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models import PROTECT
 from edc_model import models as edc_models
 
-from ..choices import FREQUENCY, UNITS
 from ..dosage_calculator import DosageCalculator
+from .list_models import FrequencyUnits, Units
 
 
 class Manager(models.Manager):
@@ -38,14 +39,14 @@ class DosageGuideline(edc_models.BaseUuidModel):
         help_text="dose per frequency if considering weight",
     )
 
-    dose_units = models.CharField(max_length=25, choices=UNITS)
+    dose_units = models.ForeignKey(Units, on_delete=PROTECT)
 
     dose_frequency_factor = models.DecimalField(
         max_digits=6, decimal_places=1, validators=[MinValueValidator(1.0)], default=1
     )
 
-    dose_frequency_units = models.CharField(
-        verbose_name="per", max_length=10, choices=FREQUENCY, default="day"
+    dose_frequency_units = models.ForeignKey(
+        FrequencyUnits, verbose_name="per", on_delete=PROTECT
     )
 
     subject_weight_factor = models.DecimalField(
@@ -72,7 +73,18 @@ class DosageGuideline(edc_models.BaseUuidModel):
             )
 
     def natural_key(self):
-        return (self.medication_name, self.dose, self.dose_units, self.dose_per_kg)
+        return (
+            self.medication_name,
+            self.dose,
+            self.dose_units,
+            self.dose_per_kg,
+        )
+
+    def get_dose_units_display(self):
+        return self.dose_units.display_name
+
+    def get_dose_frequency_units_display(self):
+        return self.dose_frequency_units.display_name
 
     @property
     def dosage_per_kg_per_day(self):

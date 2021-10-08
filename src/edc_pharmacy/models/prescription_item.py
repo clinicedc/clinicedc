@@ -4,8 +4,8 @@ from django.db.models.aggregates import Sum
 from django.db.models.deletion import PROTECT
 from edc_model import models as edc_models
 
-from ..choices import TIMING
 from .dosage_guideline import DosageGuideline
+from .list_models import FrequencyUnits
 from .medication import Medication
 from .prescription import Prescription
 
@@ -38,9 +38,7 @@ class PrescriptionItem(edc_models.BaseUuidModel):
 
     frequency = models.IntegerField(validators=[MinValueValidator(1)])
 
-    frequency_units = models.CharField(
-        verbose_name="per", max_length=10, default="day", choices=TIMING
-    )
+    frequency_units = models.ForeignKey(FrequencyUnits, on_delete=PROTECT)
 
     start_date = models.DateField(verbose_name="start", help_text="")
 
@@ -104,6 +102,9 @@ class PrescriptionItem(edc_models.BaseUuidModel):
         self.remaining = self.get_remaining()
         self.as_string = str(self)
         super().save(*args, **kwargs)
+
+    def get_frequency_units_display(self):
+        return self.frequency_units.display_name
 
     @property
     def subject_identifier(self):
