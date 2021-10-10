@@ -1,28 +1,25 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_model import models as edc_models
-from edc_pharmacy.constants import DISPENSED
 from edc_utils import get_utcnow
 
 from ..choices import DISPENSE_STATUS
-from .prescription_item import PrescriptionItem
+from ..constants import DISPENSED
+from ..dispensing import Dispensing
+from .rx_refill import RxRefill
 
 
 class Manager(models.Manager):
 
     use_in_migrations = True
 
-    def get_by_natural_key(self, prescription_item, dispensed_datetime):
-        return self.get(prescription_item, dispensed_datetime)
-
-
-class DispenseError(Exception):
-    pass
+    def get_by_natural_key(self, rx_refill, dispensed_datetime):
+        return self.get(rx_refill, dispensed_datetime)
 
 
 class DispensingHistory(edc_models.BaseUuidModel):
 
-    prescription_item = models.ForeignKey(PrescriptionItem, on_delete=PROTECT)
+    rx_refill = models.ForeignKey(RxRefill, on_delete=PROTECT)
 
     dispensed_datetime = models.DateTimeField(default=get_utcnow)
 
@@ -37,17 +34,18 @@ class DispensingHistory(edc_models.BaseUuidModel):
     history = edc_models.HistoricalRecords()
 
     def __str__(self):
-        return f"{str(self.prescription_item)}"
+        return f"{str(self.rx_refill)}"
 
     def natural_key(self):
         return (
-            self.prescription_item,
+            self.rx_refill,
             self.dispensed_datetime,
         )
 
     def save(self, *args, **kwargs):
-        if self.prescription_item.get_remaining(exclude_id=self.id) < self.dispensed:
-            raise DispenseError("Attempt to dispense more than prescribed.")
+        Dispensing(
+            rx_refill=self.rx_refill, dispensed=self.dispensed, exclude_id=self.id
+        )
         super().save(*args, **kwargs)
 
     @property
@@ -57,4 +55,4 @@ class DispensingHistory(edc_models.BaseUuidModel):
     class Meta(edc_models.BaseUuidModel.Meta):
         verbose_name = "Dispensing history"
         verbose_name_plural = "Dispensing history"
-        unique_together = ["prescription_item", "dispensed_datetime"]
+        unique_together = ["rx_refill", "dispensed_datetime"]

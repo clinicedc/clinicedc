@@ -1,16 +1,22 @@
 from edc_list_data.model_mixins import ListModelMixin
 
 
-class Formulation(ListModelMixin):
+class Container(ListModelMixin):
     class Meta(ListModelMixin.Meta):
-        verbose_name = "Formulation"
-        verbose_name_plural = "Formulations"
+        verbose_name = "Container"
+        verbose_name_plural = "Containers"
 
 
-class Units(ListModelMixin):
+class FormulationType(ListModelMixin):
     class Meta(ListModelMixin.Meta):
-        verbose_name = "Units"
-        verbose_name_plural = "Units"
+        verbose_name = "FormulationType"
+        verbose_name_plural = "FormulationTypes"
+
+
+class FrequencyUnits(ListModelMixin):
+    class Meta(ListModelMixin.Meta):
+        verbose_name = "Frequency units"
+        verbose_name_plural = "Frequency units"
 
 
 class Route(ListModelMixin):
@@ -19,7 +25,7 @@ class Route(ListModelMixin):
         verbose_name_plural = "Routes"
 
 
-class FrequencyUnits(ListModelMixin):
+class Units(ListModelMixin):
     class Meta(ListModelMixin.Meta):
-        verbose_name = "Frequency units"
-        verbose_name_plural = "Frequency units"
+        verbose_name = "Units"
+        verbose_name_plural = "Units"

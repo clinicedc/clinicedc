@@ -3,8 +3,8 @@ from django.db import models
 from django.db.models import PROTECT
 from edc_model import models as edc_models
 
-from ..dosage_calculator import DosageCalculator
 from .list_models import FrequencyUnits, Units
+from .medication import Medication
 
 
 class Manager(models.Manager):
@@ -19,41 +19,41 @@ class DosageGuideline(edc_models.BaseUuidModel):
 
     """Dosage guidelines."""
 
-    dose_calculator_cls = DosageCalculator
-
-    medication_name = models.CharField(max_length=25)
+    medication = models.ForeignKey(
+        Medication, on_delete=PROTECT, null=True, blank=False
+    )
 
     dose = models.DecimalField(
-        max_digits=6,
-        decimal_places=1,
+        max_digits=8,
+        decimal_places=2,
         null=True,
         blank=True,
-        help_text="dose per frequency if NOT considering weight",
+        help_text="dose per 'frequency unit' if NOT considering subject's weight",
     )
 
     dose_per_kg = models.DecimalField(
-        max_digits=6,
-        decimal_places=1,
+        max_digits=8,
+        decimal_places=2,
         null=True,
         blank=True,
-        help_text="dose per frequency if considering weight",
+        help_text="dose per 'frequency unit' if considering subject's weight",
     )
 
     dose_units = models.ForeignKey(Units, on_delete=PROTECT)
 
-    dose_frequency_factor = models.DecimalField(
-        max_digits=6, decimal_places=1, validators=[MinValueValidator(1.0)], default=1
-    )
-
-    dose_frequency_units = models.ForeignKey(
-        FrequencyUnits, verbose_name="per", on_delete=PROTECT
-    )
-
-    subject_weight_factor = models.DecimalField(
+    frequency = models.DecimalField(
+        verbose_name="Frequency",
         max_digits=6,
-        decimal_places=1,
+        decimal_places=2,
+        validators=[MinValueValidator(1.0)],
         default=1,
-        help_text="factor to convert weight to kg",
+        help_text="number of times per 'frequency unit'",
+    )
+
+    frequency_units = models.ForeignKey(
+        FrequencyUnits,
+        verbose_name="Frequency unit",
+        on_delete=PROTECT,
     )
 
     objects = Manager()
@@ -61,20 +61,15 @@ class DosageGuideline(edc_models.BaseUuidModel):
     history = edc_models.HistoricalRecords()
 
     def __str__(self):
-        if self.dose_per_kg:
-            return (
-                f"{self.medication_name} {self.dose_per_kg}{self.dose_units}"
-                f"/per kg/{self.get_dose_frequency_units_display()}"
-            )
-        else:
-            return (
-                f"{self.medication_name} {self.dose}{self.dose_units}/"
-                f"{self.get_dose_frequency_units_display()}"
-            )
+        return (
+            f"{self.medication.name} {round(self.dose, 0)}{self.dose_units} "
+            f"{round(self.frequency, 0)} "
+            f"{self.get_frequency_units_display()}{' (per kg)' if self.dose_per_kg else ''}"
+        )
 
     def natural_key(self):
         return (
-            self.medication_name,
+            self.medication,
             self.dose,
             self.dose_units,
             self.dose_per_kg,
@@ -83,19 +78,10 @@ class DosageGuideline(edc_models.BaseUuidModel):
     def get_dose_units_display(self):
         return self.dose_units.display_name
 
-    def get_dose_frequency_units_display(self):
-        return self.dose_frequency_units.display_name
-
-    @property
-    def dosage_per_kg_per_day(self):
-        """Returns a decimal value or raises an exception."""
-        return self.dose_calculator_cls(**self.__dict__).dosage_per_kg_per_day
-
-    def dosage_per_day(self, **kwargs):
-        """Returns a decimal value or raises an exception."""
-        return self.dose_calculator_cls(**self.__dict__).dosage_per_day(**kwargs)
+    def get_frequency_units_display(self):
+        return self.frequency_units.display_name
 
     class Meta(edc_models.BaseUuidModel.Meta):
         verbose_name = "Dosage Guideline"
         verbose_name_plural = "Dosage Guidelines"
-        unique_together = ["medication_name", "dose", "dose_units", "dose_per_kg"]
+        unique_together = ["medication", "dose", "dose_units", "dose_per_kg"]

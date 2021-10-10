@@ -1,9 +1,20 @@
 from django import forms
 
+from ..dispensing import DispenseError, Dispensing
 from ..models import DispensingHistory
 
 
 class DispensingHistoryForm(forms.ModelForm):
+    def clean(self):
+        try:
+            Dispensing(
+                self.cleaned_data.get("rx_refill"),
+                dispensed=self.cleaned_data.get("dispensed"),
+                exclude_id=self.cleaned_data.get("id"),
+            )
+        except DispenseError as e:
+            raise forms.ValidationError(e)
+
     class Meta:
         model = DispensingHistory
         fields = "__all__"

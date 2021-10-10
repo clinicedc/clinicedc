@@ -1,14 +1,14 @@
 from django import forms
 from edc_randomization.site_randomizers import site_randomizers
 
-from ..models import Prescription
+from ..models import Rx
 
 
 def get_last_weight():
     return 100
 
 
-class PrescriptionForm(forms.ModelForm):
+class RxForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["randomizer_name"] = forms.ChoiceField(
@@ -18,5 +18,5 @@ class PrescriptionForm(forms.ModelForm):
         )
 
     class Meta:
-        model = Prescription
+        model = Rx
         fields = "__all__"

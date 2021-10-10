@@ -1,10 +1,9 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model import models as edc_models
 from edc_utils import get_utcnow
 
-from .prescription_item import PrescriptionItem
+from .rx_refill import RxRefill
 
 
 class ReturnError(Exception):
@@ -21,7 +20,7 @@ class Manager(models.Manager):
 
 class ReturnHistory(edc_models.BaseUuidModel):
 
-    prescription_item = models.ForeignKey(PrescriptionItem, on_delete=PROTECT)
+    rx_refill = models.ForeignKey(RxRefill, on_delete=PROTECT)
 
     return_datetime = models.DateTimeField(default=get_utcnow)
 
@@ -32,11 +31,11 @@ class ReturnHistory(edc_models.BaseUuidModel):
     history = edc_models.HistoricalRecords()
 
     def __str__(self):
-        return f"{str(self.prescription_item)}"
+        return f"{str(self.rx_refill)}"
 
     def natural_key(self):
         return (
-            self.prescription_item,
+            self.rx_refill,
             self.return_datetime,
         )
 
@@ -53,4 +52,4 @@ class ReturnHistory(edc_models.BaseUuidModel):
     class Meta(edc_models.BaseUuidModel.Meta):
         verbose_name = "Return history"
         verbose_name_plural = "Return history"
-        unique_together = ["prescription_item", "return_datetime"]
+        unique_together = ["rx_refill", "return_datetime"]

@@ -1,7 +1,7 @@
 from edc_constants.constants import NOT_APPLICABLE, OTHER
 
 list_data = {
-    "edc_pharmacy.formulation": [
+    "edc_pharmacy.formulationtype": [
         ("11", "Tablet"),
         ("12", "Capsule"),
         ("13", "Vial"),
@@ -22,7 +22,7 @@ list_data = {
         (OTHER, "Other ..."),
         (NOT_APPLICABLE, "Not applicable"),
     ],
-    "edc_pharmacy:route": [
+    "edc_pharmacy.route": [
         ("10", "Intramuscular"),
         ("20", "Intravenous"),
         ("30", "Oral"),

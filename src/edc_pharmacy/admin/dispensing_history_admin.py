@@ -19,7 +19,7 @@ class DispensingHistoryAdmin(ModelAdminMixin, admin.ModelAdmin):
             None,
             {
                 "fields": (
-                    "prescription_item",
+                    "rx_refill",
                     "dispensed",
                     "status",
                     "dispensed_datetime",
@@ -31,29 +31,33 @@ class DispensingHistoryAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     list_display = [
         "subject_identifier",
-        "rx_item",
-        "prescription_item",
+        "refill",
+        "description",
         "dispensed",
         "dispensed_date",
     ]
     list_filter = ["dispensed_datetime", "status"]
     search_fields = [
-        "prescription_item__id",
-        "prescription_item__prescription__subject_identifier",
-        "prescription_item__medication__name",
+        "rx_refill__id",
+        "rx_refill__rx__subject_identifier",
+        "rx_refill__medication__name",
     ]
     ordering = ["dispensed_datetime"]
 
     @admin.display(description="Subject identifier")
     def subject_identifier(self, obj=None):
-        return obj.prescription_item.prescription.subject_identifier
+        return obj.rx_refill.rx.subject_identifier
 
-    @admin.display(description="Item")
-    def rx_item(self, obj=None):
-        url = reverse("edc_pharmacy_admin:edc_pharmacy_prescriptionitem_changelist")
-        url = f"{url}?q={obj.prescription_item.id}"
-        context = dict(title="Back to prescription item", url=url, label="Item")
+    @admin.display(description="Refill")
+    def refill(self, obj=None):
+        url = reverse("edc_pharmacy_admin:edc_pharmacy_rxrefill_changelist")
+        url = f"{url}?q={obj.rx_refill.id}"
+        context = dict(title="Back to RX refill", url=url, label="Refill")
         return render_to_string("dashboard_button.html", context=context)
+
+    @admin.display(description="description")
+    def description(self, obj=None):
+        return obj.rx_refill
 
 
 class DispensingHistoryInlineAdmin(admin.TabularInline):
