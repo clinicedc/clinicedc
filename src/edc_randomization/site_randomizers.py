@@ -69,6 +69,12 @@ class SiteRandomizers:
                 return randomizer_cls
         return None
 
+    def get_as_choices(self):
+        choices = []
+        for randomizer_cls in self._registry.values():
+            choices.append((randomizer_cls.name, randomizer_cls.name))
+        return tuple(choices)
+
     def randomize(
         self,
         name,
