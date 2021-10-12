@@ -147,7 +147,7 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
                 raise forms.ValidationError(
                     {
                         "appt_datetime": (
-                            f"Invalid. Expected a date between {lower} and {upper}."
+                            f"Invalid. Expected a date between {lower} and {upper} (U)."
                         )
                     }
                 )
@@ -156,7 +156,7 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
                 raise forms.ValidationError(
                     {
                         "appt_datetime": (
-                            f"Invalid. Expected a date between {lower} and {upper}."
+                            f"Invalid. Expected a date between {lower} and {upper} (S)."
                         )
                     }
                 )
