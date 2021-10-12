@@ -76,7 +76,9 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
         return f"{self.get_subject_identifier()} v{self.version}"
 
     def natural_key(self):
-        return tuple([self.get_subject_identifier_as_pk()])
+        return tuple(
+            self.get_subject_identifier_as_pk(),
+        )
 
     def save(self, *args, **kwargs):
         self.report_datetime = self.consent_datetime
