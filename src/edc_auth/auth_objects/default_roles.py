@@ -6,9 +6,7 @@ from .default_group_names import (
     AUDITOR,
     CLINIC,
     CLINIC_SUPER,
-    DISPENSING,
     EVERYONE,
-    PHARMACY,
     PII,
     PII_VIEW,
 )
@@ -19,8 +17,6 @@ from .default_role_names import (
     CLINICIAN_SUPER_ROLE,
     CUSTOM_ROLE,
     NURSE_ROLE,
-    PHARMACIST_ROLE,
-    SITE_PHARMACIST_ROLE,
     STAFF_ROLE,
 )
 
@@ -45,10 +41,6 @@ default_roles = {
         CLINIC,
         PII,
     ],
-    PHARMACIST_ROLE: [ADMINISTRATION, EVERYONE, PHARMACY],
     STAFF_ROLE: [ADMINISTRATION, EVERYONE],
-    SITE_PHARMACIST_ROLE: [
-        DISPENSING,
-    ],
     STATISTICIAN: [],
 }

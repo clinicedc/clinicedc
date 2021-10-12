@@ -2,9 +2,9 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.forms import UserChangeForm as BaseForm
 from django.utils.safestring import mark_safe
+from edc_randomization.auth_objects import RANDO_UNBLINDED
 from edc_randomization.blinding import is_blinded_user
 
-from .auth_objects import PHARMACIST_ROLE, PHARMACY
 from .models import UserProfile
 
 
@@ -19,14 +19,14 @@ class UserChangeForm(BaseForm):
             raise forms.ValidationError({"email": "Required"})
         qs = self.cleaned_data.get("groups")
         if qs and qs.count() > 0:
-            if PHARMACY in [obj.name for obj in qs] and is_blinded_user(
+            if RANDO_UNBLINDED in [obj.name for obj in qs] and is_blinded_user(
                 self.instance.username
             ):
                 raise forms.ValidationError(
                     {
                         "groups": mark_safe(
                             "This user is not unblinded and may not added "
-                            "to the <U>Pharmacy</U> group."
+                            "to the <U>RANDO_UNBLINDED</U> group."
                         )
                     }
                 )
@@ -59,17 +59,18 @@ class UserProfileForm(forms.ModelForm):
                 )
         qs = self.cleaned_data.get("roles")
         if qs and qs.count() > 0:
-            if PHARMACIST_ROLE in [obj.name for obj in qs] and is_blinded_user(
-                self.instance.user.username
-            ):
-                raise forms.ValidationError(
-                    {
-                        "roles": mark_safe(
-                            "This user is not unblinded and may not be assigned "
-                            "the role of <U>Pharmacist</U>."
-                        )
-                    }
-                )
+            for role in qs:
+                if RANDO_UNBLINDED in [
+                    obj.name for obj in role.groups.all()
+                ] and is_blinded_user(self.instance.user.username):
+                    raise forms.ValidationError(
+                        {
+                            "roles": mark_safe(
+                                "This user is not unblinded and may not be assigned "
+                                f"the role of <U>{role.name.title()}</U>."
+                            )
+                        }
+                    )
         return cleaned_data
 
     class Meta:

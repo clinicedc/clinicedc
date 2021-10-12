@@ -5,9 +5,7 @@ from .codenames import (
     celery_manager,
     clinic,
     clinic_super,
-    dispensing,
     everyone,
-    pharmacy,
 )
 from .default_group_names import (
     ACCOUNT_MANAGER,
@@ -16,9 +14,7 @@ from .default_group_names import (
     CELERY_MANAGER,
     CLINIC,
     CLINIC_SUPER,
-    DISPENSING,
     EVERYONE,
-    PHARMACY,
     PII,
     PII_VIEW,
 )
@@ -30,9 +26,7 @@ default_groups = {
     CELERY_MANAGER: celery_manager,
     CLINIC: clinic,
     CLINIC_SUPER: clinic_super,
-    DISPENSING: dispensing,
     EVERYONE: everyone,
-    PHARMACY: pharmacy,
     PII: [],
     PII_VIEW: [],
 }

@@ -4,6 +4,4 @@ from .auditor import auditor
 from .celery_manager import celery_manager
 from .clinic import clinic
 from .clinic_super import clinic_super
-from .dispensing import dispensing
 from .everyone import everyone
-from .pharmacy import pharmacy
