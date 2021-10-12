@@ -2,6 +2,9 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path, re_path
 
+from edc_label.admin_site import edc_label_admin
+from edc_label.views.print_setup_view import PrinterSetupView
+
 from .views import BrowserPrintLabelsView, ChangePrinterView, HomeView, PrintLabelView
 
 app_name = "edc_label"
@@ -38,6 +41,7 @@ urlpatterns = [
         name="print-test-label",
     ),
     re_path(r"print/(?P<label_name>\w+)/$", HomeView.as_view(), name="print-test-label"),
+    path("printer_setup/", PrinterSetupView.as_view(), name="printer_setup_url"),
     path("", HomeView.as_view(), name="home_url"),
 ]
 
