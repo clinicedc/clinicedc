@@ -174,7 +174,9 @@ class ActionItem(
         super().save(*args, **kwargs)
 
     def natural_key(self) -> tuple:
-        return tuple(self.action_identifier)
+        return tuple(
+            self.action_identifier,
+        )
 
     @property
     def last_updated(self) -> Optional[datetime]:
