@@ -34,7 +34,9 @@ class TrackingModelMixin(models.Model):
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return tuple([self.tracking_identifier])
+        return tuple(
+            self.tracking_identifier,
+        )
 
     @property
     def identifier(self):
