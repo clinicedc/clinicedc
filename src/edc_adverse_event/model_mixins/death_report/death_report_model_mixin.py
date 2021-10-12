@@ -92,7 +92,9 @@ class DeathReportModelMixin(
     history = HistoricalRecords(inherit=True)
 
     def natural_key(self):
-        return tuple([self.action_identifier])
+        return tuple(
+            self.action_identifier,
+        )
 
     natural_key.dependencies = ["edc_adverse_event.causeofdeath"]
 

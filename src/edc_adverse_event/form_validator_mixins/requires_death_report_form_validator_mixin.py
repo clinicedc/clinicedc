@@ -25,7 +25,8 @@ class RequiresDeathReportFormValidatorMixin:
     """
 
     offschedule_reason_field = "termination_reason"
-    death_date_field = "death_date"
+    death_date_field = "death_date"  # on this form, e.g offschedule
+    death_report_death_date_field = "death_datetime"  # on death report
 
     def validate_death_report_if_deceased(self):
         """Validates death report exists of termination_reason
@@ -89,12 +90,12 @@ class RequiresDeathReportFormValidatorMixin:
     def death_report_date(self):
         """Returns the localized death date from the death report"""
         try:
-            death_report_date = getattr(self.death_report, self.death_date_field)
-        except AttributeError:
             death_report_date = arrow.get(
-                getattr(self.death_report, self.death_date_field),
+                getattr(self.death_report, self.death_report_death_date_field),
                 tz.gettz(settings.TIME_ZONE),
             ).date()
+        except AttributeError:
+            death_report_date = getattr(self.death_report, self.death_report_death_date_field)
         except ValueError:
             death_report_date = None
         return death_report_date
