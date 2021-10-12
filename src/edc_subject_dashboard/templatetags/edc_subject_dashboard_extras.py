@@ -138,7 +138,7 @@ def appointment_status_icon(appt_status=None):
 @register.inclusion_tag(
     f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/dashboard/visit_button.html"
 )
-def show_dashboard_visit_button(wrapped_appointment=None):
+def show_dashboard_visit_button(wrapped_appointment=None, request=None):
     title = None
     label = None
     if wrapped_appointment.appt_status == NEW_APPT:
@@ -158,4 +158,6 @@ def show_dashboard_visit_button(wrapped_appointment=None):
         title = _("Cancelled.")
     elif wrapped_appointment.appt_status == COMPLETE_APPT:
         pass
-    return dict(wrapped_appointment=wrapped_appointment, title=title, label=label)
+    return dict(
+        wrapped_appointment=wrapped_appointment, title=title, label=label, request=request
+    )

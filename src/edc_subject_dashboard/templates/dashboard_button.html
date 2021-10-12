@@ -1,5 +1,5 @@
 {% load i18n %}
 <!-- start dashboard_button -->
-<div><a class="button" title="{{ title |default:"Go to subject's dashboard"}}" href="{{ url }}">{{ label|default:"Dashboard" }}</a></div>
+<div><a class="button" title="{{ title |default:"Go to subject's dashboard"}}" href="{{ url }}" {{ disabled|default:'' }} >{{ label|default:"Dashboard" }}</a></div>
 <!-- end dashboard_button -->
 
