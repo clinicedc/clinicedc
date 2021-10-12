@@ -2,11 +2,16 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path, re_path
 
-from .views import ChangePrinterView, HomeView, PrintLabelView
+from .views import BrowserPrintLabelsView, ChangePrinterView, HomeView, PrintLabelView
 
 app_name = "edc_label"
 
 urlpatterns = [
+    path(
+        "browser_print_labels",
+        BrowserPrintLabelsView.as_view(),
+        name="browser_print_labels_url",
+    ),
     re_path(
         "printer/change/(?P<printer_type>\w+)/",
         ChangePrinterView.as_view(),
@@ -25,10 +30,10 @@ urlpatterns = [
     ),
     re_path(
         r"print/(?P<label_name>\w+)/"
-        "(?P<copies>\d+)/(?P<app_label>\w+)/"
-        "(?P<model_name>\w+)/"
-        "(?P<pk>[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?"
-        "[89ab][a-f0-9]{3}-?[a-f0-9]{12})/$",
+        r"(?P<copies>\d+)/(?P<app_label>\w+)/"
+        r"(?P<model_name>\w+)/"
+        r"(?P<pk>[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?"
+        r"[89ab][a-f0-9]{3}-?[a-f0-9]{12})/$",
         HomeView.as_view(),
         name="print-test-label",
     ),
