@@ -2,9 +2,8 @@ import sys
 
 from .site_randomizers import site_randomizers
 
-RANDO = "RANDO"
 RANDO_VIEW = "RANDO_VIEW"
-RANDO_ROLE = "RANDO_ROLE"
+RANDO_UNBLINDED = "RANDO_UNBLINDED"
 
 
 def get_rando_permissions_tuples() -> list:
