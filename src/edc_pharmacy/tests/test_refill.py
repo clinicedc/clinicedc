@@ -1,40 +1,51 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase
+from edc_pharmacy.dispensing import DispenseError
+from edc_pharmacy.models import FormulationType, Route, Units
 from edc_utils import get_utcnow
 
 from ..models import (
-    DispensedItem,
-    DispenseError,
+    DispensingHistory,
     DosageGuideline,
+    Formulation,
     Medication,
-    Prescription,
-    PrescriptionItem,
+    Rx,
+    RxRefill,
 )
 
 
-class TestPrescription(TestCase):
+class TestRefill(TestCase):
     def setUp(self):
         self.subject_identifier = "12345"
         self.medication = Medication.objects.create(
-            name="Flucytosine", strength=500, units="mg", route="30", formulation="12"
+            name="Flucytosine",
         )
+
+        self.formulation = Formulation.objects.create(
+            strength=500,
+            units=Units.objects.get(name="mg"),
+            route=Route.objects.get(display_name="Oral"),
+            formulation=FormulationType.objects.get(display_name__iexact="Tablet"),
+        )
+
         self.dosage_guideline = DosageGuideline.objects.create(
-            medication_name="Flucytosine",
+            medication=self.medication,
             dose_per_kg=100,
             dose_units="mg",
-            dose_frequency_factor=1,
-            dose_frequency_units="per_day",
+            frequency=1,
+            frequency_units="per_day",
             subject_weight_factor=1,
         )
-        self.prescription = Prescription.objects.create(
+        self.rx = Rx.objects.create(
             subject_identifier=self.subject_identifier,
             weight_in_kgs=40,
             report_datetime=get_utcnow(),
+            medication=self.medication,
         )
 
-    def test_prescription_item_duration(self):
-        obj = PrescriptionItem.objects.create(
-            prescription=self.prescription,
+    def test_rx_refill_duration(self):
+        obj = RxRefill.objects.create(
+            rx=self.rx,
             medication=self.medication,
             dosage_guideline=self.dosage_guideline,
             frequency=1,
@@ -44,8 +55,8 @@ class TestPrescription(TestCase):
         self.assertEqual(obj.rduration.days, 10)
 
     def test_prescription_str(self):
-        obj = PrescriptionItem.objects.create(
-            prescription=self.prescription,
+        obj = RxRefill.objects.create(
+            rx=self.rx,
             medication=self.medication,
             dosage_guideline=self.dosage_guideline,
             frequency=1,
@@ -55,8 +66,8 @@ class TestPrescription(TestCase):
         self.assertTrue(str(obj))
 
     def test_prescription_accepts_explicit_dose(self):
-        obj = PrescriptionItem.objects.create(
-            prescription=self.prescription,
+        obj = RxRefill.objects.create(
+            rx=self.rx,
             medication=self.medication,
             dosage_guideline=self.dosage_guideline,
             frequency=1,
@@ -67,8 +78,8 @@ class TestPrescription(TestCase):
         self.assertEqual(obj.dose, 3)
 
     def test_prescription_calculates_dose(self):
-        obj = PrescriptionItem.objects.create(
-            prescription=self.prescription,
+        obj = RxRefill.objects.create(
+            rx=self.rx,
             medication=self.medication,
             dosage_guideline=self.dosage_guideline,
             frequency=1,
@@ -80,8 +91,8 @@ class TestPrescription(TestCase):
         self.assertEqual(obj.medication.units, "mg")
 
     def test_prescription_total(self):
-        obj = PrescriptionItem.objects.create(
-            prescription=self.prescription,
+        obj = RxRefill.objects.create(
+            rx=self.rx,
             medication=self.medication,
             dosage_guideline=self.dosage_guideline,
             frequency=1,
@@ -92,8 +103,8 @@ class TestPrescription(TestCase):
         self.assertEqual(obj.total, 56)
 
     def test_dispense(self):
-        prescription_item = PrescriptionItem.objects.create(
-            prescription=self.prescription,
+        rx_refill = RxRefill.objects.create(
+            rx=self.rx,
             medication=self.medication,
             dosage_guideline=self.dosage_guideline,
             frequency=1,
@@ -101,18 +112,18 @@ class TestPrescription(TestCase):
             start_date=get_utcnow(),
             end_date=get_utcnow() + relativedelta(days=7),
         )
-        obj = DispensedItem.objects.create(
-            prescription=self.prescription,
-            prescription_item=prescription_item,
+        obj = DispensingHistory.objects.create(
+            rx=self.rx,
+            rx_refill=rx_refill,
             dispensed=8,
         )
         self.assertEqual(obj.dispensed, 8)
-        prescription_item = PrescriptionItem.objects.get(id=prescription_item.id)
-        self.assertEqual(prescription_item.remaining, 56 - 8)
+        rx_refill = RxRefill.objects.get(id=rx_refill.id)
+        self.assertEqual(rx_refill.remaining, 56 - 8)
 
     def test_dispense_many(self):
-        prescription_item = PrescriptionItem.objects.create(
-            prescription=self.prescription,
+        rx_refill = RxRefill.objects.create(
+            rx=self.rx,
             medication=self.medication,
             dosage_guideline=self.dosage_guideline,
             frequency=1,
@@ -123,18 +134,18 @@ class TestPrescription(TestCase):
         dispensed = 0
         for amount in [8, 8, 8]:
             dispensed += amount
-            obj = DispensedItem.objects.create(
-                prescription=self.prescription,
-                prescription_item=prescription_item,
+            obj = DispensingHistory.objects.create(
+                rx=self.rx,
+                rx_refill=rx_refill,
                 dispensed=8,
             )
             self.assertEqual(obj.dispensed, 8)
-            prescription_item = PrescriptionItem.objects.get(id=prescription_item.id)
-            self.assertEqual(prescription_item.remaining, 56 - dispensed)
+            rx_refill = RxRefill.objects.get(id=rx_refill.id)
+            self.assertEqual(rx_refill.remaining, 56 - dispensed)
 
     def test_attempt_to_over_dispense(self):
-        prescription_item = PrescriptionItem.objects.create(
-            prescription=self.prescription,
+        rx_refill = RxRefill.objects.create(
+            rx=self.rx,
             medication=self.medication,
             dosage_guideline=self.dosage_guideline,
             frequency=1,
@@ -145,20 +156,20 @@ class TestPrescription(TestCase):
         dispensed = 0
         for amount in [8, 8, 8, 8, 8, 8, 8]:
             dispensed += amount
-            obj = DispensedItem.objects.create(
-                prescription=self.prescription,
-                prescription_item=prescription_item,
+            obj = DispensingHistory.objects.create(
+                rx=self.rx,
+                rx_refill=rx_refill,
                 dispensed=8,
             )
             self.assertEqual(obj.dispensed, 8)
-            prescription_item = PrescriptionItem.objects.get(id=prescription_item.id)
-            self.assertEqual(prescription_item.remaining, 56 - dispensed)
-        prescription_item = PrescriptionItem.objects.get(id=prescription_item.id)
-        self.assertEqual(prescription_item.remaining, 0)
+            rx_refill = RxRefill.objects.get(id=rx_refill.id)
+            self.assertEqual(rx_refill.remaining, 56 - dispensed)
+        rx_refill = RxRefill.objects.get(id=rx_refill.id)
+        self.assertEqual(rx_refill.remaining, 0)
         self.assertRaises(
             DispenseError,
-            DispensedItem.objects.create,
-            prescription=self.prescription,
-            prescription_item=prescription_item,
+            DispensingHistory.objects.create,
+            rx=self.rx,
+            rx_refill=rx_refill,
             dispensed=8,
         )

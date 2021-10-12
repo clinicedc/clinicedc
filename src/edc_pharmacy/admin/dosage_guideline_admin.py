@@ -10,6 +10,10 @@ from .model_admin_mixin import ModelAdminMixin
 @admin.register(DosageGuideline, site=edc_pharmacy_admin)
 class DosageGuidelineAdmin(ModelAdminMixin, admin.ModelAdmin):
 
+    show_object_tools = True
+
+    autocomplete_fields = ["medication"]
+
     form = DosageGuidelineForm
 
     fieldsets = (
@@ -17,13 +21,12 @@ class DosageGuidelineAdmin(ModelAdminMixin, admin.ModelAdmin):
             None,
             {
                 "fields": (
-                    "medication_name",
+                    "medication",
                     "dose",
                     "dose_per_kg",
                     "dose_units",
-                    "dose_frequency_factor",
-                    "dose_frequency_units",
-                    "subject_weight_factor",
+                    "frequency",
+                    "frequency_units",
                 )
             },
         ),
@@ -31,4 +34,4 @@ class DosageGuidelineAdmin(ModelAdminMixin, admin.ModelAdmin):
     )
 
     list_display = ["__str__", "modified", "user_modified"]
-    search_fields = ["medication_name"]
+    search_fields = ["medication__name"]

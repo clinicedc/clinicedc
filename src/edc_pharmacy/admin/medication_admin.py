@@ -10,21 +10,17 @@ from .model_admin_mixin import ModelAdminMixin
 @admin.register(Medication, site=edc_pharmacy_admin)
 class MedicationAdmin(ModelAdminMixin, admin.ModelAdmin):
 
+    show_object_tools = True
+
     form = MedicationForm
 
     fieldsets = (
         (
             None,
-            {"fields": ("name", "strength", "units", "formulation", "route", "notes")},
+            {"fields": ("name", "notes")},
         ),
         audit_fieldset_tuple,
     )
-
-    radio_fields = {
-        "units": admin.VERTICAL,
-        "formulation": admin.VERTICAL,
-        "route": admin.VERTICAL,
-    }
 
     search_fields = ["name"]
     ordering = ["name"]

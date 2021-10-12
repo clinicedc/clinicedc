@@ -1,15 +1,26 @@
 from django import forms
 
-from ..models import DispensedItem
+from ..dispensing import DispenseError, Dispensing
+from ..models import DispensingHistory
 
 
-class DispensedItemForm(forms.ModelForm):
+class DispensingHistoryForm(forms.ModelForm):
+    def clean(self):
+        try:
+            Dispensing(
+                self.cleaned_data.get("rx_refill"),
+                dispensed=self.cleaned_data.get("dispensed"),
+                exclude_id=self.cleaned_data.get("id"),
+            )
+        except DispenseError as e:
+            raise forms.ValidationError(e)
+
     class Meta:
-        model = DispensedItem
+        model = DispensingHistory
         fields = "__all__"
 
 
-class DispensedItemReadonlyForm(forms.ModelForm):
+class DispensingHistoryReadonlyForm(forms.ModelForm):
 
     count = forms.DecimalField(
         label="Count", widget=forms.TextInput(attrs={"readonly": "readonly"})
@@ -25,7 +36,7 @@ class DispensedItemReadonlyForm(forms.ModelForm):
     )
 
     class Meta:
-        model = DispensedItem
+        model = DispensingHistory
         # ['medication', 'count', 'status', 'dispensed_datetime']
         # fields = '__all__'
         exclude = ["medication"]

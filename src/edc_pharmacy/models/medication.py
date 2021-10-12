@@ -1,30 +1,31 @@
 from django.db import models
-from edc_model.models import BaseUuidModel
-
-from ..choices import DRUG_FORMULATION, DRUG_ROUTE, UNITS
+from edc_model import models as edc_models
 
 
-class Medication(BaseUuidModel):
+class Manager(models.Manager):
 
-    name = models.CharField(max_length=35)
+    use_in_migrations = True
 
-    strength = models.DecimalField(max_digits=6, decimal_places=1)
+    def get_by_natural_key(self, name):
+        return self.get(name)
 
-    units = models.CharField(max_length=25, choices=UNITS)
 
-    formulation = models.CharField(max_length=25, choices=DRUG_FORMULATION)
+class Medication(edc_models.BaseUuidModel):
 
-    route = models.CharField(max_length=25, choices=DRUG_ROUTE)
+    name = models.CharField(max_length=35, unique=True)
 
     notes = models.TextField(max_length=250, null=True, blank=True)
 
-    def __str__(self):
-        return (
-            f"{self.name} {self.strength}{self.get_units_display()}. "
-            f"{self.get_formulation_display()} "
-            f"{self.get_route_display()}"
-        )
+    objects = Manager()
 
-    class Meta:
-        unique_together = ["name", "strength", "units", "formulation"]
-        verbose_name_plural = "Medication"
+    history = edc_models.HistoricalRecords()
+
+    def __str__(self):
+        return self.name
+
+    def natural_key(self):
+        return self.name
+
+    class Meta(edc_models.BaseUuidModel.Meta):
+        verbose_name = "Medication"
+        verbose_name_plural = "Medications"
