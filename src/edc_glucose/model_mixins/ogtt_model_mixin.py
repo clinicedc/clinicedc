@@ -23,7 +23,7 @@ class OgttModelMixin(models.Model):
         decimal_places=2,
         null=True,
         blank=True,
-        help_text="A `HIGH` reading may be entered as 9999.99",
+        help_text=f"A `HIGH` reading may be entered as {GLUCOSE_HIGH_READING}",
     )
 
     ogtt_quantifier = models.CharField(

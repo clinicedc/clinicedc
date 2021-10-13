@@ -4,6 +4,8 @@ from django.utils.safestring import mark_safe
 from edc_lab.constants import EQ
 from edc_reportable import PERCENT
 
+from ..constants import GLUCOSE_HIGH_READING
+
 
 class Hba1cModelMixin(models.Model):
     """A model mixin of fields for the IFG"""
@@ -14,7 +16,7 @@ class Hba1cModelMixin(models.Model):
         decimal_places=2,
         null=True,
         blank=True,
-        help_text="A `HIGH` reading may be entered as 9999.99",
+        help_text=f"A `HIGH` reading may be entered as {GLUCOSE_HIGH_READING}",
     )
 
     hba1c_quantifier = models.CharField(

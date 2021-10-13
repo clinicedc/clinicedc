@@ -3,11 +3,13 @@ from decimal import Decimal
 from django import forms
 from edc_reportable import MILLIMOLES_PER_LITER, ConversionNotHandled, convert_units
 
+from .contants import GLUCOSE_HIGH_READING
+
 
 def validate_glucose_as_millimoles_per_liter(prefix, cleaned_data=None) -> None:
     min_val = Decimal("0.00")
     max_val = Decimal("30.00")
-    high_value = Decimal("9999.99")
+    high_value = Decimal(f"{GLUCOSE_HIGH_READING}")
     value = cleaned_data.get(f"{prefix}_value")
     units = cleaned_data.get(f"{prefix}_units")
     if value and units:
