@@ -5,7 +5,7 @@ from edc_constants.constants import NOT_APPLICABLE
 from edc_lab.choices import GLUCOSE_UNITS_NA, RESULT_QUANTIFIER
 from edc_lab.constants import EQ
 
-from ..contants import GLUCOSE_HIGH_READING
+from ..constants import GLUCOSE_HIGH_READING
 
 
 class IfgModelMixin(models.Model):

@@ -3,7 +3,7 @@ from decimal import Decimal
 from django import forms
 from edc_reportable import MILLIMOLES_PER_LITER, ConversionNotHandled, convert_units
 
-from .contants import GLUCOSE_HIGH_READING
+from .constants import GLUCOSE_HIGH_READING
 
 
 def validate_glucose_as_millimoles_per_liter(prefix, cleaned_data=None) -> None:
