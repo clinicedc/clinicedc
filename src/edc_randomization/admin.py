@@ -126,19 +126,19 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
         return fields
 
     def get_list_filter(self, request):
-        list_filter = (
+        list_filter = [
             "assignment",
             "allocated_datetime",
             "allocated_site",
             "site_name",
             "randomizer_name",
-        )
+        ]
         if is_blinded_user(request.user.username) or (
             not is_blinded_user(request.user.username)
             and RANDO_UNBLINDED not in [g.name for g in request.user.groups.all()]
         ):
             list_filter.remove("assignment")
-        return list_filter
+        return tuple(list_filter)
 
 
 def register_admin():
