@@ -17,7 +17,7 @@
     });
     });
     $(document).ready(setTimeout(function() {
-         window.history.back();
+      {% if browser_print_page_auto_back %}window.history.back();{% endif %}
       }, 1000));
   </script>
 {% endblock %}
