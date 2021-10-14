@@ -1,3 +1,4 @@
+import pdb
 from typing import Optional, Type, Union
 
 from django.apps import apps as django_apps
@@ -96,13 +97,31 @@ class CrfCreator:
     @property
     def is_keyed(self) -> bool:
         """Returns True if CRF is keyed determined by
-        querying the reference mode.
+        querying the reference model.
+
+        If model instance actually exists, warns then returns True
+        regardless of `reference` data.
 
         See also edc_reference.
         """
-        return self.reference_model_cls.objects.filter_crf_for_visit(
+        exists_instance = (
+            django_apps.get_model(self.crf.model)
+            .objects.filter(subject_visit=self.visit_model_instance)
+            .exists()
+        )
+        exists_reference = self.reference_model_cls.objects.filter_crf_for_visit(
             name=self.crf.model, visit=self.visit_model_instance
         ).exists()
+        if exists_reference != exists_instance:
+            print(
+                f"is_keyed mismatch: {self.crf.model}, {self.visit_model_instance}, "
+                f"ref={exists_reference}, instance={exists_instance}. Fixed"
+            )
+        return (
+            django_apps.get_model(self.crf.model)
+            .objects.filter(subject_visit=self.visit_model_instance)
+            .exists()
+        )
 
 
 class RequisitionCreator(CrfCreator):
