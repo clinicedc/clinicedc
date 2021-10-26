@@ -83,7 +83,7 @@ class RandomizationListModelMixin(models.Model):
         super().save(*args, **kwargs)
 
     @property
-    def short_label(self):
+    def short_label(self) -> str:
         return f"{self.assignment} SID:{self.site_name}.{self.sid}"
 
     @property
@@ -92,7 +92,7 @@ class RandomizationListModelMixin(models.Model):
 
     # customize if approriate
     @property
-    def assignment_description(self):
+    def assignment_description(self) -> str:
         """May be overridden."""
         if self.assignment not in self.randomizer_cls.assignment_map:
             raise RandomizationError(
