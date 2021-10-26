@@ -34,7 +34,7 @@ def print_pharmacy_labels(modeladmin, request, queryset):
             sid=obj.sid,
         )
         keys = [k for k in context]
-        for fld in obj._meta.fields():
+        for fld in obj._meta.get_fields():
             if fld.name not in keys and fld.name != "assignment":
                 context.update({fld.name: getattr(obj, fld.name)})
         zpl_data.append(
