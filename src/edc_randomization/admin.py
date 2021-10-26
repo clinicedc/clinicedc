@@ -33,7 +33,7 @@ def print_pharmacy_labels(modeladmin, request, queryset):
             sid=obj.sid,
         )
         zpl_data.append(
-            str(label.render_as_zpl_data(copies=1, context=context, encode=False))
+            str(label.render_as_zpl_data(copies=1, context=context, encoding=False))
             .strip("\n")
             .replace("\n", "")
         )
