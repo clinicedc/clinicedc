@@ -27,6 +27,7 @@ def print_pharmacy_labels(modeladmin, request, queryset):
     for obj in queryset:
         context = dict(
             protocol=Protocol().protocol,
+            protocol_title=Protocol().protocol_title,
             site=obj.site_name.upper(),
             subject_identifier=obj.subject_identifier,
             barcode_value=obj.sid,
