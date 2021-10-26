@@ -43,12 +43,11 @@ class LabelTemplate:
             with open(path, "r") as f:
                 self.template = f.read()
         else:
-            self.template = (
-                zpl_label_template.zpl_data.strip().replace("\n", "").replace("\r", "")
-            )
+            self.template = zpl_label_template.zpl_data.strip()
 
     def __str__(self):
         return self.template_name
 
     def render(self, context):
-        return Template(self.template).safe_substitute(context)
+        zpl_string = Template(self.template).safe_substitute(context)
+        return zpl_string.replace("\n", "").replace("\r", "")
