@@ -1,3 +1,5 @@
+import pdb
+
 from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -69,8 +71,9 @@ class SubjectConsentFormValidatorMixin(FormValidator):
 
     @property
     def screening_age_in_years(self):
+        pdb.set_trace()
         try:
-            return age(self.dob, self.subject_screening.report_datetime.date())
+            return age(self.dob, self.subject_screening.report_datetime.date()).years
         except AgeValueError as e:
             raise forms.ValidationError(str(e))
 
