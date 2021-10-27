@@ -138,6 +138,11 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
             "site_name",
             "randomizer_name",
         ]
+        if flds := site_randomizers.get_by_model(
+            self.model._meta.label_lower
+        ).get_extra_list_filter():
+            for pos, fldname in flds:
+                list_filter.insert(pos, fldname)
         if is_blinded_user(request.user.username) or (
             not is_blinded_user(request.user.username)
             and RANDO_UNBLINDED not in [g.name for g in request.user.groups.all()]

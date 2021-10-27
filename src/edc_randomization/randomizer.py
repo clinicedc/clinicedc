@@ -251,6 +251,11 @@ class Randomizer:
         return []
 
     @classmethod
+    def get_extra_list_filter(cls):
+        """Returns a list of tuples of (pos, field name) for ModelAdmin."""
+        return cls.get_extra_list_display()
+
+    @classmethod
     def verify_list(cls):
         randomization_list_verifier = RandomizationListVerifier(randomizer_name=cls.name)
         return randomization_list_verifier.messages
