@@ -12,6 +12,10 @@ def get_utcnow():
     return arrow.utcnow().datetime
 
 
+def get_utcnow_as_date():
+    return arrow.utcnow().date
+
+
 def to_arrow_utc(dt, timezone=None):
     """Returns a datetime in UTC after converting date or datetime from
     the given timezone string to \'UTC\'.
