@@ -8,6 +8,10 @@ from django.db import models
 from edc_visit_tracking.stubs import TSubjectVisitModelStub
 
 
+def get_subject_visit_model() -> str:
+    return settings.SUBJECT_VISIT_MODEL
+
+
 def get_subject_visit_model_cls() -> TSubjectVisitModelStub:
     return django_apps.get_model(settings.SUBJECT_VISIT_MODEL)
 
