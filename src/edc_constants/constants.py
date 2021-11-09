@@ -90,6 +90,7 @@ ON_STUDY = "on study"
 OPEN = "open"
 OPTIONAL = True
 OTHER = "OTHER"
+OTHER_PLEASE_SPECIFY_TEXT = "Other, please specify below ..."
 PARTIAL = "PARTIAL"
 PARTICIPANT = "participant"
 PENDING = "PENDING"
