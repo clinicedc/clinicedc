@@ -399,7 +399,7 @@ POS_NEG_UNTESTED_REFUSAL = (
 PREG_YES_NO_NA = (
     (YES, "Yes"),
     (NO, "No"),
-    (NOT_APPLICABLE, "Not Applicable: e.g. male"),
+    (NOT_APPLICABLE, "Not Applicable: e.g. male or post-menopausal"),
 )
 
 PRESENT_ABSENT = ((PRESENT, "Present"), (ABSENT, "Absent"))
