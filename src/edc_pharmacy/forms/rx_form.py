@@ -17,6 +17,12 @@ class RxForm(forms.ModelForm):
             required=False,
         )
 
+    subject_identifier = forms.CharField(
+        label="Subject Identifier",
+        required=False,
+        widget=forms.TextInput(attrs={"readonly": "readonly"}),
+    )
+
     class Meta:
         model = Rx
         fields = "__all__"

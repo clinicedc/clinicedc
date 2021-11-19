@@ -1,9 +1,15 @@
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_list_data import site_list_data
-from edc_pharmacy.models import Formulation, FrequencyUnits, Route, Units
-
-from ..dosage_per_day import DosageError, dosage_per_day
-from ..models import DosageGuideline, FormulationType, Medication
+from edc_pharmacy.dosage_per_day import DosageError, dosage_per_day
+from edc_pharmacy.models import (
+    DosageGuideline,
+    Formulation,
+    FormulationType,
+    FrequencyUnits,
+    Medication,
+    Route,
+    Units,
+)
 
 
 class TestDoseCalculator(TestCase):
@@ -46,6 +52,7 @@ class TestDoseCalculator(TestCase):
             formulation_type=FormulationType.objects.all()[0],
         )
 
+    @tag("14")
     def test_dosage_flucytosine(self):
         medication = Medication.objects.get(name="Flucytosine")
         dosage_guideline = DosageGuideline.objects.create(

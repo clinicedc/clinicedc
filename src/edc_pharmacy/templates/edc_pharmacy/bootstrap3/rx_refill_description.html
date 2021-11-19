@@ -4,9 +4,8 @@
 
 {{ rx_refill.dosage_guideline.medication.name }} {{ rx_refill.formulation.strength }}{{ rx_refill.formulation.units.display_name }}
 <BR>{{ rx_refill.dose }} {{ rx_refill.formulation.formulation_type.display_name }} {{ rx_refill.frequency }} {{ rx_refill.frequency_units.display_name }}
-<BR><BR>Written: {{ start_date|date:SHORT_DATE_FORMAT}}
-<BR>Expires: {{ end_date|date:SHORT_DATE_FORMAT}}
-<BR>Duration: {{ duration}}
+<BR><BR>Refill date: {{ refill_date|date:SHORT_DATE_FORMAT}}
+<BR>Visit: {{ rx_refill.visit_code }}.{{ rx_refill.visit_code_sequence }}
 <BR>
 <BR>Total: {{ total}}
 <BR>Remaining: {{remaining}}

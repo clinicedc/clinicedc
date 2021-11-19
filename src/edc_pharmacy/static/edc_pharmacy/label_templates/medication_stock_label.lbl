@@ -1,0 +1,7 @@
+^XA^PR4
+^FO200,15^A0N,30,25^FD${protocol}^FS
+^FO200,55^A0N,30,25^FD${medication_name} ${medication_strength} ${medication_units}^FS
+^FO200,95^A0N,20,20^FD${stock_identifier}^FS
+^FO200,135^BY1^BCN,75,N,N,N,A
+^FD${barcode_value}^FS
+^XZ

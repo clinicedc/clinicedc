@@ -19,3 +19,4 @@ DISPENSED = "dispensed"
 # MILLIGRAM = 'mg'
 # MONTHS = 'months'
 # WEEKS = 'weeks'
+PRESCRIPTION_ACTION = "prescription"

@@ -1,14 +1,17 @@
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models.aggregates import Sum
 from django.db.models.deletion import PROTECT
 from edc_model import models as edc_models
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
+from edc_utils.date import get_utcnow_as_date
+from edc_visit_schedule.model_mixins import VisitCodeFieldsModelMixin
 
 from ..dosage_per_day import dosage_per_day
+from ..exceptions import ActivePrescriptionRefillExists
 from .dosage_guideline import DosageGuideline
 from .formulation import Formulation
 from .list_models import FrequencyUnits
+from .model_mixins import MedicationOrderModelMixin
 from .rx import Rx
 
 
@@ -16,11 +19,16 @@ class Manager(models.Manager):
 
     use_in_migrations = True
 
-    def get_by_natural_key(self, prescription, medication, start_date):
-        return self.get(prescription, medication, start_date)
+    def get_by_natural_key(self, prescription, medication, refill_date):
+        return self.get(prescription, medication, refill_date)
 
 
-class RxRefill(SiteModelMixin, edc_models.BaseUuidModel):
+class RxRefill(
+    MedicationOrderModelMixin,
+    VisitCodeFieldsModelMixin,
+    SiteModelMixin,
+    edc_models.BaseUuidModel,
+):
 
     rx = models.ForeignKey(Rx, on_delete=PROTECT)
 
@@ -56,9 +64,11 @@ class RxRefill(SiteModelMixin, edc_models.BaseUuidModel):
         max_digits=6, decimal_places=1, null=True, blank=True
     )
 
-    start_date = models.DateField(verbose_name="start", help_text="")
+    refill_date = models.DateField(
+        verbose_name="Refill date", default=get_utcnow_as_date, help_text=""
+    )
 
-    end_date = models.DateField(verbose_name="end", help_text="inclusive")
+    number_of_days = models.IntegerField(null=True)
 
     total = models.DecimalField(
         max_digits=6,
@@ -83,8 +93,9 @@ class RxRefill(SiteModelMixin, edc_models.BaseUuidModel):
         help_text="Additional information for patient",
     )
 
-    verified = models.BooleanField(default=False)
+    active = models.BooleanField(default=False)
 
+    verified = models.BooleanField(default=False)
     verified_datetime = models.DateTimeField(null=True, blank=True)
 
     as_string = models.CharField(max_length=150, editable=False)
@@ -106,39 +117,49 @@ class RxRefill(SiteModelMixin, edc_models.BaseUuidModel):
         return (
             self.rx,
             self.medication,
-            self.start_date,
+            self.refill_date,
         )
 
     def save(self, *args, **kwargs):
-        if not kwargs.get("update_fields"):
-            self.medication = self.dosage_guideline.medication
-            # if not self.dose and self.calculate_dose:
-            self.dose = dosage_per_day(
-                self.dosage_guideline,
-                weight_in_kgs=self.weight_in_kgs,
-                strength=self.formulation.strength,
-                strength_units=self.formulation.units.name,
-            )
-            self.frequency = self.dosage_guideline.frequency
-            self.frequency_units = self.dosage_guideline.frequency_units
-            self.total = float(self.dose) * float(self.rduration.days)
-            self.as_string = str(self)
+        if self.active:
+            opts = dict(id=self.id) if self.id else {}
+            if (
+                self.__class__.objects.filter(
+                    rx__subject_identifier=self.rx.subject_identifier,
+                    dosage_guideline=self.dosage_guideline,
+                    active=True,
+                )
+                .exclude(**opts)
+                .exists()
+            ):
+                raise ActivePrescriptionRefillExists(
+                    f"Unable to save as an active refill. An active refill already exists."
+                )
+
+        self.medication = self.dosage_guideline.medication
+        # if not self.dose and self.calculate_dose:
+        self.dose = dosage_per_day(
+            self.dosage_guideline,
+            weight_in_kgs=self.weight_in_kgs,
+            strength=self.formulation.strength,
+            strength_units=self.formulation.units.name,
+        )
+        self.frequency = self.dosage_guideline.frequency
+        self.frequency_units = self.dosage_guideline.frequency_units
+        self.total = float(self.dose) * float(self.number_of_days)
+        if not self.id:
+            self.remaining = self.total
+        self.as_string = str(self)
         super().save(*args, **kwargs)
 
     @property
     def subject_identifier(self):
         return self.rx.subject_identifier
 
-    @property
-    def rduration(self):
-        return self.end_date - self.start_date
-
-    @property
-    def duration(self):
-        display = str(self.rduration)
-        return display.split(",")[0]
-
     class Meta(edc_models.BaseUuidModel.Meta):
         verbose_name = "RX refill"
         verbose_name_plural = "RX refills"
-        unique_together = ["rx", "dosage_guideline", "start_date"]
+        unique_together = [
+            ["rx", "dosage_guideline", "refill_date"],
+            ["rx", "visit_code", "visit_code_sequence"],
+        ]
