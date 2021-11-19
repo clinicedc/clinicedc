@@ -1,3 +1,5 @@
+from typing import Optional
+
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.forms import BaseModelForm
@@ -63,7 +65,7 @@ class ConsentModelFormMixin(BaseModelForm):
         return consent_config
 
     @property
-    def age(self):
+    def age(self) -> Optional[relativedelta]:
         consent_datetime = self.cleaned_data.get(
             "consent_datetime", self.instance.consent_datetime
         )
@@ -76,14 +78,14 @@ class ConsentModelFormMixin(BaseModelForm):
         return None
 
     @staticmethod
-    def unique_together_string(first_name, initials, dob):
+    def unique_together_string(first_name, initials, dob) -> str:
         try:
             dob = dob.isoformat()
         except AttributeError:
             dob = ""
         return f"{first_name}{dob}{initials}"
 
-    def validate_min_age(self):
+    def validate_min_age(self) -> None:
         if self.age:
             if self.age.years < self.consent_config.age_min:
                 raise forms.ValidationError(
@@ -93,7 +95,7 @@ class ConsentModelFormMixin(BaseModelForm):
                     code="invalid",
                 )
 
-    def validate_max_age(self):
+    def validate_max_age(self) -> None:
         if self.age:
             if self.age.years > self.consent_config.age_max:
                 raise forms.ValidationError(
@@ -103,7 +105,7 @@ class ConsentModelFormMixin(BaseModelForm):
                     code="invalid",
                 )
 
-    def clean_with_registered_subject(self):
+    def clean_with_registered_subject(self) -> None:
         cleaned_data = self.cleaned_data
         identity = cleaned_data.get("identity")
         dob = cleaned_data.get("dob")
@@ -120,7 +122,7 @@ class ConsentModelFormMixin(BaseModelForm):
                     }
                 )
 
-    def clean_identity_and_confirm_identity(self):
+    def clean_identity_and_confirm_identity(self) -> None:
         cleaned_data = self.cleaned_data
         identity = cleaned_data.get("identity")
         confirm_identity = cleaned_data.get("confirm_identity")
@@ -132,7 +134,7 @@ class ConsentModelFormMixin(BaseModelForm):
                 }
             )
 
-    def clean_identity_with_unique_fields(self):
+    def clean_identity_with_unique_fields(self) -> None:
         cleaned_data = self.cleaned_data
         identity = cleaned_data.get("identity")
         first_name = cleaned_data.get("first_name")
@@ -161,7 +163,7 @@ class ConsentModelFormMixin(BaseModelForm):
                     }
                 )
 
-    def clean_initials_with_full_name(self):
+    def clean_initials_with_full_name(self) -> None:
         cleaned_data = self.cleaned_data
         first_name = cleaned_data.get("first_name")
         last_name = cleaned_data.get("last_name")
@@ -180,7 +182,7 @@ class ConsentModelFormMixin(BaseModelForm):
         except (IndexError, TypeError):
             raise forms.ValidationError("Initials do not match fullname.")
 
-    def clean_guardian_and_dob(self):
+    def clean_guardian_and_dob(self) -> None:
         """Validates if guardian is required based in AGE_IS_ADULT
         set on the model.
         """
@@ -209,7 +211,7 @@ class ConsentModelFormMixin(BaseModelForm):
                     code="invalid",
                 )
 
-    def clean_dob_relative_to_consent_datetime(self):
+    def clean_dob_relative_to_consent_datetime(self) -> None:
         """Validates that the dob is within the bounds of MIN and
         MAX set on the model.
         """
@@ -223,7 +225,7 @@ class ConsentModelFormMixin(BaseModelForm):
         self.validate_min_age()
         self.validate_max_age()
 
-    def clean_is_literate_and_witness(self):
+    def clean_is_literate_and_witness(self) -> None:
         cleaned_data = self.cleaned_data
         is_literate = cleaned_data.get("is_literate")
         witness_name = cleaned_data.get("witness_name")
@@ -236,9 +238,8 @@ class ConsentModelFormMixin(BaseModelForm):
             )
         if is_literate == YES and witness_name:
             raise forms.ValidationError({"witness_name": "This field is not required"})
-        return is_literate
 
-    def clean_consent_reviewed(self):
+    def clean_consent_reviewed(self) -> str:
         consent_reviewed = self.cleaned_data.get("consent_reviewed")
         if consent_reviewed != YES:
             raise forms.ValidationError(
@@ -247,7 +248,7 @@ class ConsentModelFormMixin(BaseModelForm):
             )
         return consent_reviewed
 
-    def clean_study_questions(self):
+    def clean_study_questions(self) -> str:
         study_questions = self.cleaned_data.get("study_questions")
         if study_questions != YES:
             raise forms.ValidationError(
@@ -256,7 +257,7 @@ class ConsentModelFormMixin(BaseModelForm):
             )
         return study_questions
 
-    def clean_assessment_score(self):
+    def clean_assessment_score(self) -> str:
         assessment_score = self.cleaned_data.get("assessment_score")
         if assessment_score != YES:
             raise forms.ValidationError(
@@ -265,7 +266,7 @@ class ConsentModelFormMixin(BaseModelForm):
             )
         return assessment_score
 
-    def clean_consent_copy(self):
+    def clean_consent_copy(self) -> str:
         consent_copy = self.cleaned_data.get("consent_copy")
         if consent_copy == NO:
             raise forms.ValidationError(
@@ -274,7 +275,7 @@ class ConsentModelFormMixin(BaseModelForm):
             )
         return consent_copy
 
-    def clean_consent_signature(self):
+    def clean_consent_signature(self) -> str:
         consent_signature = self.cleaned_data.get("consent_signature")
         if consent_signature != YES:
             raise forms.ValidationError(
@@ -283,7 +284,7 @@ class ConsentModelFormMixin(BaseModelForm):
             )
         return consent_signature
 
-    def clean_gender_of_consent(self):
+    def clean_gender_of_consent(self) -> str:
         """Validates gender is a gender of consent."""
         gender = self.cleaned_data.get("gender")
         if gender not in self.consent_config.gender:

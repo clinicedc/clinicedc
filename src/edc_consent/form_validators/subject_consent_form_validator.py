@@ -1,5 +1,3 @@
-import pdb
-
 from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -70,16 +68,18 @@ class SubjectConsentFormValidatorMixin(FormValidator):
         return self._subject_screening
 
     @property
-    def screening_age_in_years(self):
-        pdb.set_trace()
+    def screening_age_in_years(self) -> int:
+        """Returns age in years calculated from dob relative to
+        screening datetime"""
         try:
-            return age(self.dob, self.subject_screening.report_datetime.date()).years
+            rdelta = age(self.dob, self.subject_screening.report_datetime.date())
         except AgeValueError as e:
             raise forms.ValidationError(str(e))
+        return rdelta.years
 
-    def validate_age(self):
+    def validate_age(self) -> None:
         """Validate age matches that on the screening form."""
-        if self.screening_age_in_years != self.subject_screening.age_in_years:
+        if self.dob and self.screening_age_in_years != self.subject_screening.age_in_years:
             raise forms.ValidationError(
                 {
                     "dob": "Age mismatch. The date of birth entered does "
@@ -89,7 +89,7 @@ class SubjectConsentFormValidatorMixin(FormValidator):
                 }
             )
 
-    def validate_gender(self):
+    def validate_gender(self) -> None:
         """Validate gender matches that on the screening form."""
         if self.gender != self.subject_screening.gender:
             raise forms.ValidationError(
@@ -100,7 +100,7 @@ class SubjectConsentFormValidatorMixin(FormValidator):
                 }
             )
 
-    def validate_consent_datetime(self):
+    def validate_consent_datetime(self) -> None:
         """Validate consent datetime with the eligibility datetime.
 
         Eligibility datetime must come first.
@@ -124,5 +124,5 @@ class SubjectConsentFormValidatorMixin(FormValidator):
                 },
             )
 
-    def validate_identity(self):
+    def validate_identity(self) -> None:
         pass
