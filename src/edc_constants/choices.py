@@ -28,6 +28,7 @@ from .constants import (
     NOT_APPLICABLE,
     NOT_DONE,
     NOT_ESTIMATED,
+    NOT_EVALUATED,
     NOT_EXAMINED,
     NOT_RECORDED,
     NOT_REQUIRED,
@@ -348,6 +349,13 @@ POS_NEG_REFUSED = (
     ("REF", "Refused to disclose"),
 )
 
+POS_NEG_IND_NA = (
+    (POS, "Positive"),
+    (NEG, "Negative"),
+    (IND, "Indeterminate"),
+    (NOT_APPLICABLE, "Not applicable"),
+)
+
 POS_NEG_ANY = ((POS, "Positive"), (NEG, "Negative"), ("ANY", "Any"))
 
 POS_NEG_NA = (
@@ -386,6 +394,12 @@ POS_NEG_NOT_DONE = (
     (NOT_DONE, "Not done"),
 )
 
+POS_NEG_NOT_DONE_NOT_EVALUATED = (
+    (POS, "Positive"),
+    (NEG, "Negative"),
+    (NOT_DONE, "Not done"),
+    (NOT_EVALUATED, "Not evaluated"),
+)
 
 POS_NEG_UNTESTED_REFUSAL = (
     (POS, "Positive"),
@@ -400,6 +414,13 @@ PREG_YES_NO_NA = (
     (YES, "Yes"),
     (NO, "No"),
     (NOT_APPLICABLE, "Not Applicable: e.g. male or post-menopausal"),
+)
+
+PREG_YES_NO_NA_NOT_EVALUATED = (
+    (YES, "Yes"),
+    (NO, "No"),
+    (NOT_APPLICABLE, "Not Applicable: e.g. male or post-menopausal"),
+    (NOT_EVALUATED, "Not evaluated"),
 )
 
 PRESENT_ABSENT = ((PRESENT, "Present"), (ABSENT, "Absent"))
@@ -505,13 +526,13 @@ YES_NO_NA_DWTA = (
     (NOT_APPLICABLE, "Not applicable"),
 )
 
-YES_NO_NOT_EVALUATED = ((YES, YES), (NO, NO), ("Not_evaluated", "Not evaluated"))
+YES_NO_NOT_EVALUATED = ((YES, YES), (NO, NO), (NOT_EVALUATED, "Not evaluated"))
 
 YES_NO_NOT_EVALUATED_NA = (
     (YES, YES),
     (NO, NO),
-    ("Not_evaluated", "Not evaluated"),
     (NOT_APPLICABLE, "Not applicable"),
+    (NOT_EVALUATED, "Not evaluated"),
 )
 
 YES_NO_NOT_EXAMINED = (
