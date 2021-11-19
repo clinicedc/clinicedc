@@ -17,10 +17,11 @@ class MedicationAdmin(ModelAdminMixin, admin.ModelAdmin):
     fieldsets = (
         (
             None,
-            {"fields": ("name", "notes")},
+            {"fields": ("name", "display_name", "notes")},
         ),
         audit_fieldset_tuple,
     )
 
+    list_display = ["name", "display_name", "created", "modified"]
     search_fields = ["name"]
     ordering = ["name"]

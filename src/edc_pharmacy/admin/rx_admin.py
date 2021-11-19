@@ -16,14 +16,14 @@ class RxAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     form = RxForm
 
-    autocomplete_fields = ["registered_subject", "medication"]
+    autocomplete_fields = ["medication"]
 
     fieldsets = (
         (
             None,
             {
                 "fields": (
-                    "registered_subject",
+                    "subject_identifier",
                     "report_datetime",
                     "rx_date",
                     "medication",

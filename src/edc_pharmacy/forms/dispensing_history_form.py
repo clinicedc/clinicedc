@@ -1,5 +1,6 @@
 from django import forms
 
+from ..constants import DISPENSED
 from ..dispensing import DispenseError, Dispensing
 from ..models import DispensingHistory
 
@@ -26,8 +27,9 @@ class DispensingHistoryReadonlyForm(forms.ModelForm):
         label="Count", widget=forms.TextInput(attrs={"readonly": "readonly"})
     )
 
-    status = forms.ChoiceField(
-        label="Status", widget=forms.TextInput(attrs={"readonly": "readonly"})
+    status = forms.CharField(
+        label="Status",
+        widget=forms.TextInput(attrs={"readonly": "readonly"}),
     )
 
     dispensed_datetime = forms.DateTimeField(

@@ -61,10 +61,14 @@ class DispensingHistoryAdmin(ModelAdminMixin, admin.ModelAdmin):
 
 
 class DispensingHistoryInlineAdmin(admin.TabularInline):
+    def has_add_permission(self, request, obj):
+        return False
 
-    form = DispensingHistoryReadonlyForm
+    form = DispensingHistoryForm
     model = DispensingHistory
+    can_delete = False
 
     fields = ["dispensed", "status", "dispensed_datetime"]
     ordering = ["dispensed_datetime"]
+    readonly_fields = ["dispensed", "status", "dispensed_datetime"]
     extra = 0

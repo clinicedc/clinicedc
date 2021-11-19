@@ -62,8 +62,8 @@ class DosageGuideline(edc_models.BaseUuidModel):
 
     def __str__(self):
         return (
-            f"{self.medication.name} {round(self.dose, 0)}{self.dose_units} "
-            f"{round(self.frequency, 0)} "
+            f"{self.medication.name} {round(self.dose or 0, 0)}{self.dose_units} "
+            f"{round((self.frequency or 0), 0)} "
             f"{self.get_frequency_units_display()}{' (per kg)' if self.dose_per_kg else ''}"
         )
 
