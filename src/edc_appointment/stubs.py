@@ -32,7 +32,6 @@ class AppointmentModelStub(Protocol):
     visit: VisitModelStub
 
     last_visit_code_sequence: Optional[int]
-    is_baseline_appt: bool
     next: "AppointmentModelStub"
     previous: "AppointmentModelStub"
 
@@ -47,9 +46,6 @@ class AppointmentModelStub(Protocol):
 
     @classmethod
     def related_visit_model_attr(cls) -> str:
-        ...
-
-    def raise_on_not_datetime_in_window(self) -> None:
         ...
 
 

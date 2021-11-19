@@ -31,7 +31,6 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
     appointment_model = "edc_appointment.appointment"
 
     def clean(self):
-
         self.validate_visit_report_sequence()
         self.validate_appt_sequence()
         self.validate_not_future_appt_datetime()
@@ -162,7 +161,9 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
                 )
 
     def validate_appt_new_or_cancelled(self):
-        """Don't allow new or cancelled if form data exists."""
+        """Don't allow new or cancelled if form data exists
+        and don't allow cancelled if visit_code_sequence == 0.
+        """
         appt_status = self.cleaned_data.get("appt_status")
         if appt_status in [NEW_APPT, CANCELLED_APPT] and self.crf_metadata_required_exists:
             raise forms.ValidationError(
@@ -174,6 +175,10 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
         ):
             raise forms.ValidationError(
                 {"appt_status": "Invalid. requisition data has already been entered."}
+            )
+        elif self.instance.visit_code_sequence == 0 and appt_status == CANCELLED_APPT:
+            raise forms.ValidationError(
+                {"appt_status": "Invalid. Appointment may not be cancelled."}
             )
 
     def validate_appt_inprogress_or_incomplete(self):

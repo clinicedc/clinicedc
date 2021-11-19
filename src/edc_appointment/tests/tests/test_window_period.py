@@ -8,9 +8,9 @@ from edc_visit_tracking.constants import SCHEDULED
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.forms import AppointmentForm
+from edc_appointment.model_mixins import AppointmentWindowError
 from edc_appointment.tests.models import SubjectVisit
 
-from ...model_mixins import AppointmentWindowError
 from ...models import Appointment
 from ..helper import Helper
 from ..visit_schedule import visit_schedule3
