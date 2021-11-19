@@ -5,6 +5,10 @@ from django.db import models
 from django.utils.html import format_html
 
 
+class ScreeningEligibilityError(Exception):
+    pass
+
+
 class ScreeningEligibility(ABC):
     def __init__(self, model_obj: models.Model = None, allow_none: Optional[bool] = None):
         self.model_obj = model_obj
@@ -30,5 +34,6 @@ class ScreeningEligibility(ABC):
             reasons = format_html(str_values.replace("|", "<BR>"))
         return reasons
 
+    @property
     def eligibility_display_label(self) -> str:
         return "ELIGIBLE" if self.eligible else "not eligible"
