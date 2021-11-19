@@ -48,6 +48,7 @@ from .constants import (
     WEEKDAYS,
     WEEKENDS,
     YES,
+    NOT_ANSWERED,
 )
 
 BLANK_CHOICE_DASH = [("", "---------")]
@@ -414,13 +415,6 @@ PREG_YES_NO_NA = (
     (YES, "Yes"),
     (NO, "No"),
     (NOT_APPLICABLE, "Not Applicable: e.g. male or post-menopausal"),
-)
-
-PREG_YES_NO_NA_NOT_EVALUATED = (
-    (YES, "Yes"),
-    (NO, "No"),
-    (NOT_APPLICABLE, "Not Applicable: e.g. male or post-menopausal"),
-    (NOT_EVALUATED, "Not evaluated"),
 )
 
 PRESENT_ABSENT = ((PRESENT, "Present"), (ABSENT, "Absent"))
