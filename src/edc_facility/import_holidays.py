@@ -1,7 +1,9 @@
 import csv
 import os
+import pdb
 import sys
 from datetime import datetime
+from warnings import warn
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -85,6 +87,11 @@ def import_for_tests(model_cls):
     COUNTRY = 2
     year = get_utcnow().year
     country = get_current_country()
+    if not country:
+        raise HolidayImportError(
+            "Cannot determine default country when importing "
+            "holidays for tests. Confirm SITE_ID is valid. See `import_for_tests`"
+        )
     rows = [
         [f"{year}-01-02", "Public Holiday", country],
         [f"{year}-01-01", "New Year", country],
