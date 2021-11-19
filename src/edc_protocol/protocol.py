@@ -26,6 +26,7 @@ class Protocol:
     def __init__(self):
         """Set with example defaults, you will need to change from your project"""
 
+        self.trial_group = getattr(settings, "EDC_PROTOCOL_TRIAL_GROUP", "-")
         self.protocol = getattr(settings, "EDC_PROTOCOL", "AAA000")
 
         # 3 digits, used for identifiers, required for live systems
