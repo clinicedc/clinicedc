@@ -93,3 +93,7 @@ def select_edc_template(relative_path, default_app_label):
             os.path.join(default_path, relative_path),
         ]
     )
+
+
+def get_dashboard_app_label():
+    return getattr(settings, "EDC_DASHBOARD_APP_LABEL", None)
