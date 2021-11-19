@@ -95,16 +95,6 @@ class ScreeningFieldsModeMixin(SiteModelMixin, models.Model):
         default=NOT_APPLICABLE,
     )
 
-    eligible = models.BooleanField(default=False, editable=False)
-
-    reasons_ineligible = models.TextField(
-        verbose_name="Reason not eligible", max_length=150, null=True, editable=False
-    )
-
-    eligibility_datetime = models.DateTimeField(
-        null=True, editable=False, help_text="Date and time eligibility was determined"
-    )
-
     consented = models.BooleanField(default=False, editable=False)
 
     refused = models.BooleanField(default=False, editable=False)
