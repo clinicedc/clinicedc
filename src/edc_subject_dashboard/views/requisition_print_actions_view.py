@@ -30,6 +30,7 @@ class RequisitionPrintActionsView(BaseRequisitionView):
         self._selected_panel_names = []
         self._requisition_metadata = None
         self._requisition_model_cls = None
+        self.consignee = None
         super().__init__(**kwargs)
 
     def get(self, request, *args, **kwargs):
