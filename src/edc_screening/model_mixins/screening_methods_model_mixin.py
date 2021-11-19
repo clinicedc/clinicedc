@@ -20,7 +20,7 @@ class ScreeningMethodsModeMixin(models.Model):
 
     @property
     def estimated_dob(self: SubjectScreeningModelStub) -> date:
-        return get_utcnow().date() - relativedelta(years=self.age_in_years)
+        return self.report_datetime.date() - relativedelta(years=self.age_in_years)
 
     class Meta:
         abstract = True

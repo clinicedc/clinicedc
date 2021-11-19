@@ -24,6 +24,10 @@ def if_normal(value) -> bool:
     return value == NORMAL
 
 
+def get_subject_screening_app_label() -> Optional[str]:
+    return get_subject_screening_model_name().split(".")[0]
+
+
 def get_subject_screening_model_name() -> Optional[str]:
     return getattr(settings, "SUBJECT_SCREENING_MODEL", None)
 

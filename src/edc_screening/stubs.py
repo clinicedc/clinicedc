@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any, Protocol
 from uuid import UUID
 
@@ -16,6 +17,7 @@ class SubjectScreeningModelStub(ModelStub, Protocol):
     screening_identifier: str
     subject_identifier: str
     subject_identifier_as_pk: UUID
+    report_datetime: datetime
     gender: str
     age_in_years: int
     eligible: bool
