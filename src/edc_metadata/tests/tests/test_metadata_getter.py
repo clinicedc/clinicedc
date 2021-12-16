@@ -1,5 +1,7 @@
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_visit_tracking.constants import SCHEDULED
+
+from edc_metadata.metadata.metadata_getter import MetadataGetterError
 
 from ...constants import REQUIRED
 from ...metadata import CrfMetadataGetter
@@ -8,7 +10,6 @@ from ..models import CrfOne, CrfThree, CrfTwo, SubjectVisit
 from .metadata_test_mixin import TestMetadataMixin
 
 
-@tag("12")
 class TestMetadataGetter(TestMetadataMixin, TestCase):
     def setUp(self):
         super().setUp()
@@ -21,10 +22,12 @@ class TestMetadataGetter(TestMetadataMixin, TestCase):
     def test_objects_none_no_appointment(self):
         subject_identifier = None
         visit_code = None
-        getter = CrfMetadataGetter(
-            subject_identifier=subject_identifier, visit_code=visit_code
+        self.assertRaises(
+            MetadataGetterError,
+            CrfMetadataGetter,
+            subject_identifier=subject_identifier,
+            visit_code=visit_code,
         )
-        self.assertEqual(getter.metadata_objects.count(), 0)
 
     def test_objects_not_none_without_appointment(self):
         getter = CrfMetadataGetter(

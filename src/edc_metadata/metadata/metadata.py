@@ -1,7 +1,10 @@
 import pdb
-from typing import Optional, Type, Union
+from typing import Type, Union
+from warnings import warn
 
 from django.apps import apps as django_apps
+from django.conf import settings
+from django.contrib.admin.sites import all_sites
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Model
 from edc_reference import site_reference_configs
@@ -11,6 +14,10 @@ from edc_visit_tracking.constants import MISSED_VISIT
 from ..constants import KEYED, NOT_REQUIRED, REQUIRED
 from ..stubs import CrfMetadataModelStub, RequisitionMetadataModelStub, VisitModel
 
+verify_model_cls_registered_with_admin: bool = getattr(
+    settings, "EDC_METADATA_VERIFY_MODELS_REGISTERED_WITH_ADMIN", False
+)
+
 
 class CreatesMetadataError(Exception):
     pass
@@ -18,6 +25,21 @@ class CreatesMetadataError(Exception):
 
 class DeleteMetadataError(Exception):
     pass
+
+
+def model_cls_registered_with_admin_site(model_cls) -> bool:
+    """Returns True if model cls is registered in Admin.
+
+    See also settings.EDC_METADATA_VERIFY_MODELS_REGISTERED_WITH_ADMIN
+    """
+    registered = False
+    if not verify_model_cls_registered_with_admin:
+        registered = True
+    else:
+        for admin_site in all_sites:
+            if model_cls in admin_site._registry:
+                registered = True
+    return registered
 
 
 class CrfCreator:
@@ -29,7 +51,7 @@ class CrfCreator:
         update_keyed: bool,
         crf: Union[Crf, Requisition],
     ) -> None:
-        self._metadata_obj: Optional[Model] = None
+        self._metadata_obj = None
         self.update_keyed = update_keyed
         self.visit_model_instance = visit_model_instance
         self.crf = crf
@@ -42,56 +64,50 @@ class CrfCreator:
 
     @property
     def reference_model_cls(self) -> Type[Model]:
+        """Returns an the model cls edc_reference.reference by default"""
         reference_model = site_reference_configs.get_reference_model(name=self.crf.model)
         return django_apps.get_model(reference_model)
 
     @property
-    def options(self) -> dict:
-        options = self.visit_model_instance.metadata_query_options
-        options.update(
+    def query_options(self) -> dict:
+        query_options = self.visit_model_instance.metadata_query_options
+        query_options.update(
             {
                 "subject_identifier": self.visit_model_instance.subject_identifier,
                 "model": self.crf.model,
             }
         )
-        return options
+        return query_options
 
     @property
     def metadata_obj(self) -> Union[CrfMetadataModelStub, RequisitionMetadataModelStub]:
         """Returns a metadata model instance.
 
-        Creates the metadata model instance to represent a
+        Gets or creates the metadata model instance to represent a
         CRF, if it does not already exist.
         """
         if not self._metadata_obj:
             try:
-                metadata_obj = self.metadata_model_cls.objects.get(**self.options)
+                metadata_obj = self.metadata_model_cls.objects.get(**self.query_options)
             except ObjectDoesNotExist:
                 metadata_obj = self.metadata_model_cls.objects.create(
                     entry_status=REQUIRED if self.crf.required else NOT_REQUIRED,
                     show_order=self.crf.show_order,
                     site=self.visit_model_instance.site,
-                    **self.options,
+                    **self.query_options,
                 )
+            if not model_cls_registered_with_admin_site(self.crf.model_cls):
+                metadata_obj.delete()
+                metadata_obj = None
             else:
-                if metadata_obj.entry_status in [REQUIRED, NOT_REQUIRED]:
-                    if self.crf.required and metadata_obj.entry_status == NOT_REQUIRED:
-                        metadata_obj.entry_status = REQUIRED
-                        metadata_obj.save()
-                    elif (not self.crf.required) and (metadata_obj.entry_status == REQUIRED):
-                        metadata_obj.entry_status = NOT_REQUIRED
-                        metadata_obj.save()
+                metadata_obj = self._verify_entry_status_with_model_obj(metadata_obj)
             self._metadata_obj = metadata_obj
         return self._metadata_obj
 
     def create(self) -> Union[CrfMetadataModelStub, RequisitionMetadataModelStub]:
         """Creates a metadata model instance to represent a
-        CRF, if it does not already exist.
+        CRF, if it does not already exist (get_or_create).
         """
-        if self.update_keyed and self.metadata_obj.entry_status != KEYED:
-            if self.is_keyed:
-                self.metadata_obj.entry_status = KEYED
-                self.metadata_obj.save()
         return self.metadata_obj
 
     @property
@@ -123,6 +139,27 @@ class CrfCreator:
             .exists()
         )
 
+    def _verify_entry_status_with_model_obj(self, metadata_obj):
+        if metadata_obj.entry_status != KEYED and self.is_keyed:
+            warn(
+                "Incorrect metadata entry_status. Model instance exists! "
+                f"Got {metadata_obj._meta.label_lower}.entry_status="
+                f"{metadata_obj.entry_status} for model {metadata_obj.model}. Fixed"
+            )
+            metadata_obj.entry_status = KEYED
+            metadata_obj.save()
+            metadata_obj.refresh_from_db()
+        elif metadata_obj.entry_status in [REQUIRED, NOT_REQUIRED]:
+            if self.crf.required and metadata_obj.entry_status == NOT_REQUIRED:
+                metadata_obj.entry_status = REQUIRED
+                metadata_obj.save()
+                metadata_obj.refresh_from_db()
+            elif (not self.crf.required) and (metadata_obj.entry_status == REQUIRED):
+                metadata_obj.entry_status = NOT_REQUIRED
+                metadata_obj.save()
+                metadata_obj.refresh_from_db()
+        return metadata_obj
+
 
 class RequisitionCreator(CrfCreator):
     metadata_model: str = "edc_metadata.requisitionmetadata"
@@ -150,10 +187,10 @@ class RequisitionCreator(CrfCreator):
         return self.crf
 
     @property
-    def options(self) -> dict:
-        options = super().options
-        options.update({"panel_name": self.requisition.panel.name})
-        return options
+    def query_options(self) -> dict:
+        query_options = super().query_options
+        query_options.update({"panel_name": self.requisition.panel.name})
+        return query_options
 
     @property
     def is_keyed(self) -> bool:

@@ -1,6 +1,8 @@
+import pdb
+
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_visit_schedule import (
     Crf,
     FormsCollection,

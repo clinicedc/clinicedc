@@ -1,5 +1,6 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
+from edc_visit_tracking.constants import MISSED_VISIT
 
 from .metadata import Creator
 
@@ -44,8 +45,19 @@ class MetadataHandler:
 
     def _create(self):
         """Returns a new metadata model instance for this CRF."""
-        crf_object = [crf for crf in self.creator.visit.all_crfs if crf.model == self.model][0]
-        return self.creator.create_crf(crf_object)
+        metadata_obj = None
+        try:
+            crf_object = [
+                crf for crf in self.creator.visit.all_crfs if crf.model == self.model
+            ][0]
+        except IndexError as e:
+            if self.visit_model_instance.reason != MISSED_VISIT:
+                raise MetadataHandlerError(
+                    f"Model not found. Not in visit.all_crfs. Model {self.model}. Got {e}"
+                )
+        else:
+            metadata_obj = self.creator.create_crf(crf_object)
+        return metadata_obj
 
     @property
     def query_options(self):

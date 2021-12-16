@@ -1,11 +1,10 @@
-from typing import ClassVar, Optional, Type, Union
+from typing import ClassVar
 
-from ..stubs import (
-    MetadataGetterStub,
-    MetadataWrapperStub,
-    RequisitionMetadataWrapperStub,
-)
-from .metadata_wrapper import DeletedInvalidMetadata
+from django.core.management.color import color_style
+
+from ..stubs import MetadataGetterStub, MetadataWrapperStub
+
+style = color_style()
 
 
 class MetadataWrappers:
@@ -20,20 +19,15 @@ class MetadataWrappers:
     metadata_wrapper_cls: ClassVar[MetadataWrapperStub] = None
 
     def __init__(self, **kwargs):
-        self.metadata = self.metadata_getter_cls(**kwargs)
+        metadata_getter = self.metadata_getter_cls(**kwargs)
         self.objects = []
-        if self.metadata.visit:
-            for metadata_obj in self.metadata.metadata_objects:
-                try:
-                    metadata_wrapper = self.metadata_wrapper_cls(
-                        metadata_obj=metadata_obj,
-                        visit=self.metadata.visit,
-                        **metadata_obj.__dict__,
-                    )
-                except DeletedInvalidMetadata:
-                    pass
-                else:
-                    self.objects.append(metadata_wrapper)
+        if metadata_getter.visit_model_instance:
+            for metadata_obj in metadata_getter.metadata_objects:
+                metadata_wrapper = self.metadata_wrapper_cls(
+                    metadata_obj=metadata_obj,
+                    visit=metadata_getter.visit_model_instance,
+                )
+                self.objects.append(metadata_wrapper)
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.objects})"

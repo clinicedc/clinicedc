@@ -16,6 +16,9 @@ class RuleEvaluatorRegisterSubjectError(Exception):
     pass
 
 
+show_edc_metadata_warnings = getattr(settings, "EDC_METADATA_SHOW_NOVALUEERROR_WARNING", False)
+
+
 class RuleEvaluator:
 
     """A class to evaluate a rule.
@@ -37,8 +40,11 @@ class RuleEvaluator:
         try:
             predicate = self.logic.predicate(**options)
         except NoValueError as e:
-            if settings.DEBUG:
-                warn(f"{str(e)} To ignore set settings.DEBUG=False.")
+            if show_edc_metadata_warnings:
+                warn(
+                    f"{str(e)} To ignore set settings."
+                    "EDC_METADATA_SHOW_NOVALUEERROR_WARNING=False."
+                )
             pass
         else:
             if predicate:

@@ -47,6 +47,9 @@ class CrfMetadataModelStub(Protocol):
     def metadata_visit_object(self) -> Visit:
         ...
 
+    def refresh_from_db(self) -> None:
+        ...
+
 
 class PanelStub(Protocol):
     name: str

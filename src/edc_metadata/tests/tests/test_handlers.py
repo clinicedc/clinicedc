@@ -7,6 +7,8 @@ from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 
+from edc_metadata.metadata_handler import MetadataHandlerError
+
 from ...models import CrfMetadata, RequisitionMetadata
 from ...requisition import (
     InvalidTargetPanel,
@@ -23,7 +25,7 @@ from ..reference_configs import register_to_site_reference_configs
 from ..visit_schedule import visit_schedule
 
 
-@tag("12")
+@tag("123")
 class TestHandlers(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -119,3 +121,5 @@ class TestHandlers(TestCase):
             )
         except TargetModelNotScheduledForVisit:
             self.fail("TargetModelNotScheduledForVisit unexpectedly raised")
+        except MetadataHandlerError:
+            self.fail("MetadataHandlerError unexpectedly raised")

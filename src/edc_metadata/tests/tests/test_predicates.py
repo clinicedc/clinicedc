@@ -1,4 +1,4 @@
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
@@ -18,7 +18,6 @@ from ..visit_schedule import visit_schedule
 fake = Faker()
 
 
-@tag("12")
 class TestPredicates(TestCase):
     @classmethod
     def setUpClass(cls):

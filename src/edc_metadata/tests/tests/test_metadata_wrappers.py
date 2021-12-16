@@ -1,4 +1,4 @@
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
@@ -20,7 +20,6 @@ from ..reference_configs import register_to_site_reference_configs
 from ..visit_schedule import visit_schedule
 
 
-@tag("12")
 class TestMetadataWrapperObjects(TestCase):
     @classmethod
     def setUpTestData(cls):

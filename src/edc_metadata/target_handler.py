@@ -1,3 +1,5 @@
+import pdb
+
 from django.apps import apps as django_apps
 from edc_reference import site_reference_configs
 from edc_visit_tracking.constants import MISSED_VISIT
@@ -22,12 +24,14 @@ class TargetModelLookupError(Exception):
     pass
 
 
+class TargetModelMissingMetadata(Exception):
+    pass
+
+
 class TargetHandler:
 
     """A class that gets the target model "model instance"
     for a given visit, if it exists.
-
-    If visit reason is MISSED_VISIT, returns None.
 
     If target model is not scheduled for this visit a
     TargetModelNotScheduledForVisit exception will be raised.
@@ -44,7 +48,6 @@ class TargetHandler:
         self.metadata_model_cls = django_apps.get_model(
             self.metadata_model
         )  # .get_metadata_model(self.metadata_category)
-
         if self.model == self.visit_model_instance._meta.label_lower:
             raise TargetModelConflict(
                 f"Target model and visit model are the same! "
@@ -57,12 +60,15 @@ class TargetHandler:
             raise TargetModelLookupError(
                 f"{self.metadata_category} target model name is invalid. Got {e}"
             )
-
-        if self.visit_model_instance.reason == MISSED_VISIT:
-            self.metadata_obj = None
-        else:
+        if self.visit_model_instance.reason != MISSED_VISIT:
             self.raise_on_not_scheduled_for_visit()
-            self.metadata_obj = self.metadata_handler.metadata_obj
+        self.metadata_obj = self.metadata_handler.metadata_obj
+        if not self.metadata_obj and visit_model_instance.reason != MISSED_VISIT:
+            raise TargetModelMissingMetadata(
+                f"{self.metadata_model} model instance unexpectedly does not exist! "
+                f"Got model: `{model}` visit: `{visit_model_instance}`. "
+                f"visit reason={visit_model_instance.reason}`."
+            )
 
     def __repr__(self):
         return (
@@ -121,5 +127,7 @@ class TargetHandler:
         if self.model not in self.models:
             raise TargetModelNotScheduledForVisit(
                 f"Target model `{self.model}` is not scheduled "
-                f"(nor a PRN) for visit '{self.visit_model_instance.visit_code}'."
+                f"(nor a PRN) for visit '{self.visit_model_instance.visit_code}."
+                f"{self.visit_model_instance.visit_code_sequence}' "
+                f"subject '{self.visit_model_instance.subject_identifier}'."
             )

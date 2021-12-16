@@ -1,3 +1,5 @@
+import pdb
+
 from django.apps import apps as django_apps
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
@@ -6,8 +8,6 @@ from django.views.generic.base import ContextMixin
 from edc_appointment.constants import IN_PROGRESS_APPT
 from edc_dashboard.view_mixins import MessageViewMixin
 from edc_subject_model_wrappers import CrfModelWrapper, RequisitionModelWrapper
-
-from edc_metadata.metadata_wrappers.metadata_wrapper import DeletedInvalidMetadata
 
 from ..constants import CRF, KEYED, NOT_REQUIRED, REQUIRED, REQUISITION
 from ..metadata_wrappers import CrfMetadataWrappers, RequisitionMetadataWrappers
@@ -39,10 +39,7 @@ class MetaDataViewMixin(MessageViewMixin, ContextMixin):
                 )
                 self.message_user(message, level=messages.WARNING)
 
-            try:
-                crf_model_wrappers = self.get_crf_model_wrappers()
-            except DeletedInvalidMetadata:
-                crf_model_wrappers = self.get_crf_model_wrappers()
+            crf_model_wrappers = self.get_crf_model_wrappers()
             context.update(
                 report_datetime=self.appointment.visit.report_datetime,
                 crfs=crf_model_wrappers,
