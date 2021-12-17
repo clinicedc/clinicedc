@@ -50,7 +50,6 @@ class ModelToDataframe:
         self.drop_sys_columns = drop_sys_columns
         self.decrypt = decrypt
         self.m2m_columns = []
-        # self.add_columns_for = add_columns_for or []
         self.query_filter = query_filter or {}
         self.verbose = verbose
         if queryset:
@@ -98,8 +97,8 @@ class ModelToDataframe:
                     self._dataframe[column] = self._dataframe[column].astype("datetime64[ns]")
                 for column in list(self._dataframe.select_dtypes(include=["O"]).columns):
                     self._dataframe[column] = self._dataframe[column].astype(str)
-            if self.drop_sys_columns:
-                self._dataframe = self._dataframe.drop(self.edc_sys_columns, axis=1)
+                if self.drop_sys_columns:
+                    self._dataframe = self._dataframe.drop(self.edc_sys_columns, axis=1)
         return self._dataframe
 
     def merge_dataframe_with_pivoted_m2ms(self):
