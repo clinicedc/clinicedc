@@ -103,7 +103,7 @@ class RandomizationListModelMixin(models.Model):
         return self.assignment
 
     def natural_key(self):
-        return (self.sid,)
+        return tuple([self.sid])
 
     class Meta:
         abstract = True

@@ -14,6 +14,10 @@ class RandomizationListImportError(Exception):
     pass
 
 
+class RandomizationListAlreadyImported(Exception):
+    pass
+
+
 class RandomizationListImporter:
     """Imports upon instantiation a formatted randomization CSV file
     into model RandomizationList.
@@ -51,22 +55,22 @@ class RandomizationListImporter:
     def __init__(
         self,
         randomizer_cls=None,
-        verbose=None,
-        overwrite=None,
-        add=None,
-        dryrun=None,
-        user=None,
-        revision=None,
-        sid_count_for_tests=None,
+        verbose: bool = None,
+        overwrite: bool = None,
+        add: bool = None,
+        dryrun: bool = None,
+        username: str = None,
+        revision: str = None,
+        sid_count_for_tests: int = None,
     ):
         self.sid_count = 0
         self.randomizer_cls = randomizer_cls
         self.add = add
         self.overwrite = overwrite
         self.verbose = True if verbose is None else verbose
-        self.dryrun = True if dryrun and dryrun.lower() == "yes" else False
+        self.dryrun = dryrun
         self.revision = revision
-        self.user = user
+        self.user = username
         self.sid_count_for_tests = sid_count_for_tests
 
         if self.dryrun:
@@ -144,7 +148,7 @@ class RandomizationListImporter:
             if self.overwrite:
                 self.randomizer_cls.model_cls().objects.all().delete()
             if self.randomizer_cls.model_cls().objects.all().count() > 0 and not self.add:
-                raise RandomizationListImportError(
+                raise RandomizationListAlreadyImported(
                     f"Not importing CSV. "
                     f"{self.randomizer_cls.model_cls()._meta.label_lower} model is not empty!"
                 )

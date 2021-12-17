@@ -7,7 +7,5 @@ PLACEBO_NAME = "Placebo: "
 DEFAULT = "default"
 DEFAULT_ASSIGNMENT_MAP = {ACTIVE: 1, PLACEBO: 2}
 EXPORT_RANDO = "EXPORT_RANDO"
-RANDO = "RANDO"
-RANDO_VIEW_ROLE = "rando_view_role"
 CONTROL = "control"
 INTERVENTION = "intervention"
