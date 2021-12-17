@@ -17,7 +17,7 @@ class ReportablesFormValidatorMixin:
         return {}
 
     def validate_reportable_fields(
-        self, reference_range_collection_name=None, **reportables_evaluator_options
+        self, reference_range_collection_name: str, **reportables_evaluator_options
     ):
         """Called in clean() method of the FormValidator.
 
@@ -40,7 +40,7 @@ class ReportablesFormValidatorMixin:
 
         # check normal ranges and grade result values
         reportables = self.reportables_cls(
-            reference_range_collection_name=reference_range_collection_name,
+            reference_range_collection_name,
             cleaned_data=copy(self.cleaned_data),
             gender=registered_subject.gender,
             dob=registered_subject.dob,
