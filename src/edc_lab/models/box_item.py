@@ -11,6 +11,8 @@ from .box import Box
 
 
 class BoxItemManager(SearchSlugManager, models.Manager):
+    use_in_migrations = True
+
     def get_by_natural_key(self, position, identifier, box_identifier):
         return self.get(
             position=position, identifier=identifier, box_identifier=box_identifier

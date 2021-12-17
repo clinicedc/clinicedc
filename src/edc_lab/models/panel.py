@@ -3,6 +3,9 @@ from edc_model import models as edc_models
 
 
 class PanelManager(models.Manager):
+
+    use_in_migrations = True
+
     def get_by_natural_key(self, name, lab_profile_name):
         return self.get(name=name, lab_profile_name=lab_profile_name)
 

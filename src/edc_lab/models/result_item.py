@@ -8,6 +8,8 @@ from .result import Result
 
 
 class ResultItemManager(models.Manager):
+    use_in_migrations = True
+
     def get_by_natural_key(self, report_datetime, requisition_identifier):
         return self.get(
             report_datetime=report_datetime,

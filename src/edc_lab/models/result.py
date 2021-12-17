@@ -8,6 +8,8 @@ from .order import Order
 
 
 class ResultManager(models.Manager):
+    use_in_migrations = True
+
     def get_by_natural_key(self, report_datetime, order_identifier):
         return self.get(
             report_datetime=report_datetime, order__order_identifier=order_identifier

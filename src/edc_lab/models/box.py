@@ -30,6 +30,8 @@ class BoxIsFullError(Exception):
 
 
 class BoxManager(SearchSlugManager, models.Manager):
+    use_in_migrations = True
+
     def get_by_natural_key(self, box_identifier):
         return self.get(box_identifier=box_identifier)
 

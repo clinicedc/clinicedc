@@ -6,6 +6,8 @@ from ..constants import FILL_ACROSS
 
 
 class BoxTypeManager(models.Manager):
+    use_in_migrations = True
+
     def get_by_natural_key(self, name):
         return self.get(name=name)
 

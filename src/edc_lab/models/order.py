@@ -9,6 +9,8 @@ from .aliquot import Aliquot
 
 
 class OrderManager(models.Manager):
+    use_in_migrations = True
+
     def get_by_natural_key(self, report_datetime, aliquot_identifier):
         return self.get(
             report_datetime=report_datetime,
