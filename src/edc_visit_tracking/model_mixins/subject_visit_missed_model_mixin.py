@@ -64,7 +64,10 @@ class SubjectVisitMissedModelMixin(models.Model):
             "since the expected appointment date"
         ),
         validators=[MinValueValidator(1)],
-        help_text="Not including pre-appointment reminders",
+        help_text=(
+            "Not including pre-appointment reminders. Multiple attempts "
+            "on the same day count as a single attempt."
+        ),
         null=True,
         blank=True,
     )
