@@ -17,7 +17,7 @@ class ReviewFieldsMixin(models.Model):
     )
 
     study_questions = models.CharField(
-        verbose_name=("I have answered all questions the participant had about the study"),
+        verbose_name="I have answered all questions the participant had about the study",
         max_length=3,
         choices=YES_NO,
         validators=[eligible_if_yes],

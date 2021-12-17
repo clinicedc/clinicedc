@@ -30,7 +30,7 @@ class ScoredReviewFieldsMixin(models.Model):
         # TODO: i have asked the client questions about this study
         # and they have demonstrated understanding
         verbose_name=(
-            "The client has completed the assessment of understanding with a" " passing score"
+            "The client has completed the assessment of understanding with a passing score"
         ),
         max_length=3,
         choices=YES_NO,
