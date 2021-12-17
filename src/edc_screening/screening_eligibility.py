@@ -3,6 +3,7 @@ from typing import Optional
 
 from django.db import models
 from django.utils.html import format_html
+from edc_constants.constants import NO, TBD, YES
 
 
 class ScreeningEligibilityError(Exception):
@@ -12,19 +13,44 @@ class ScreeningEligibilityError(Exception):
 class ScreeningEligibility(ABC):
     def __init__(self, model_obj: models.Model = None, allow_none: Optional[bool] = None):
         self.model_obj = model_obj
-        self.allow_none = allow_none
+        self.eligible: Optional[str] = None
+        self.reasons_ineligible: dict = {}
+        self.allow_none = allow_none  # TODO: allow_none ??
+        self.pre_assess_eligibility()
+        self.assess_eligibility()
+        # self.update_model()
+        if self.eligible == YES and not self.reasons_ineligible:
+            raise ScreeningEligibilityError(
+                "Inconsistent result. Got eligible where reasons_ineligible is not none"
+            )
 
-    @property
-    @abstractmethod
-    def eligible(self) -> bool:
-        """Returns True or False."""
-        return False
-
-    @property
-    @abstractmethod
-    def reasons_ineligible(self) -> Optional[dict]:
-        """Returns a dictionary of reasons ineligible or None."""
+    def pre_assess_eligibility(self) -> None:
         return None
+
+    @abstractmethod
+    def assess_eligibility(self):
+        raise NotImplemented
+
+    @abstractmethod
+    def update_model(self) -> None:
+        raise NotImplemented
+
+    @property
+    def is_eligible(self) -> bool:
+        """Returns True if eligible else False"""
+        return True if self.eligible == YES else False
+
+    # @property
+    # @abstractmethod
+    # def eligible(self) -> str:
+    #     """Returns YES, NO or TBD."""
+    #     return TBD
+
+    # @property
+    # @abstractmethod
+    # def reasons_ineligible(self) -> dict:
+    #     """Returns a dictionary of reasons ineligible or None."""
+    #     return {}
 
     def format_reasons_ineligible(*values: str) -> str:
         reasons = None
@@ -36,4 +62,8 @@ class ScreeningEligibility(ABC):
 
     @property
     def eligibility_display_label(self) -> str:
-        return "ELIGIBLE" if self.eligible else "not eligible"
+        if self.eligible == YES:
+            return "ELIGIBLE"
+        elif self.eligible == NO:
+            return "INELIGIBLE"
+        return TBD
