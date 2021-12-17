@@ -5,8 +5,11 @@ from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
 from edc_randomization import Randomizer
-from edc_randomization.auth_objects import get_rando_permissions_tuples
-from edc_randomization.constants import RANDO
+from edc_randomization.auth_objects import (
+    RANDO_BLINDED,
+    RANDO_UNBLINDED,
+    get_rando_permissions_tuples,
+)
 from edc_randomization.site_randomizers import site_randomizers
 
 from edc_auth.auth_updater import AuthUpdater
@@ -281,7 +284,11 @@ class TestAuthUpdater(TestCase):
         others perms are removed.
         """
         AuthUpdater(verbose=False)
-        group = Group.objects.get(name=RANDO)
+        group = Group.objects.get(name=RANDO_BLINDED)
+        qs = group.permissions.all()
+        self.assertGreater(qs.count(), 0)
+        self.assertIn("view_randomizationlist", "|".join([o.codename for o in qs]))
+        group = Group.objects.get(name=RANDO_UNBLINDED)
         qs = group.permissions.all()
         self.assertGreater(qs.count(), 0)
         self.assertIn("view_randomizationlist", "|".join([o.codename for o in qs]))
@@ -325,7 +332,7 @@ class TestAuthUpdater(TestCase):
                 self.assertNotIn(
                     f"delete_{model_name}", "|".join([o.codename for o in qs])
                 )
-                if group.name == RANDO:
+                if group.name in [RANDO_UNBLINDED, RANDO_BLINDED]:
                     self.assertIn(
                         f"view_{model_name}", "|".join([o.codename for o in qs])
                     )

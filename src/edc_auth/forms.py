@@ -3,7 +3,10 @@ from django.conf import settings
 from django.contrib.auth.forms import UserChangeForm as BaseForm
 from django.utils.safestring import mark_safe
 from edc_randomization.auth_objects import RANDO_UNBLINDED
-from edc_randomization.blinding import is_blinded_user
+from edc_randomization.blinding import (
+    is_blinded_user,
+    raise_if_prohibited_from_unblinded_rando_group,
+)
 
 from .models import UserProfile
 
@@ -19,17 +22,7 @@ class UserChangeForm(BaseForm):
             raise forms.ValidationError({"email": "Required"})
         qs = self.cleaned_data.get("groups")
         if qs and qs.count() > 0:
-            if RANDO_UNBLINDED in [obj.name for obj in qs] and is_blinded_user(
-                self.instance.username
-            ):
-                raise forms.ValidationError(
-                    {
-                        "groups": mark_safe(
-                            "This user is not unblinded and may not added "
-                            "to the <U>RANDO_UNBLINDED</U> group."
-                        )
-                    }
-                )
+            raise_if_prohibited_from_unblinded_rando_group(self.instance.username, qs)
         return cleaned_data
 
 

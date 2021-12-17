@@ -10,8 +10,6 @@ from edc_auth.auth_objects import (
     CLINICIAN_SUPER_ROLE,
     CUSTOM_ROLE,
     NURSE_ROLE,
-    PHARMACIST_ROLE,
-    SITE_PHARMACIST_ROLE,
     STAFF_ROLE,
 )
 from edc_auth.auth_objects.default_role_names import STATISTICIAN
@@ -43,14 +41,12 @@ class TestRoles(EdcAuthTestCase):
             CLINICIAN_SUPER_ROLE,
             CUSTOM_ROLE,
             NURSE_ROLE,
-            PHARMACIST_ROLE,
-            SITE_PHARMACIST_ROLE,
             STAFF_ROLE,
             STATISTICIAN,
         ]:
             try:
                 Role.objects.get(name=role_name)
-            except ObjectDoesNotExist as e:
+            except ObjectDoesNotExist:
                 self.fail(f"Role name unexpectedly does not exist. Got {role_name}")
 
         role = Role.objects.get(name=CLINICIAN_ROLE)
