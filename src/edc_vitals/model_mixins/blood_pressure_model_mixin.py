@@ -66,6 +66,10 @@ class BloodPressureModelMixin(models.Model):
         blank=True,
     )
 
+    # TODO: is this being validated
+    # TODO: National guidance has severe hypertension as >180/110.
+    # TODO: Do we want to change this to be in line with that or keep as is?
+
     # META PHASE THREE ONLY
     severe_htn = models.CharField(
         verbose_name="Does the patient have severe hypertension?",
