@@ -15,7 +15,7 @@ class LtfuAction(ActionWithNotification):
 
     name = LTFU_ACTION
     display_name = "Submit Loss to Follow Up Report"
-    notification_display_name = " Loss to Follow Up Report"
+    notification_display_name = "Loss to Follow Up Report"
     parent_action_names = [VISIT_MISSED_ACTION]
     show_link_to_changelist = True
     priority = HIGH_PRIORITY
