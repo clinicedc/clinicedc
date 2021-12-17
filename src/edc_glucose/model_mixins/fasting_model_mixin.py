@@ -15,6 +15,7 @@ class FastingModelMixin(models.Model):
         choices=YES_NO,
         null=True,
         blank=False,
+        help_text="As reported by patient",
     )
 
     fasting_duration_str = models.CharField(
@@ -23,7 +24,10 @@ class FastingModelMixin(models.Model):
         validators=[hm_validator],
         null=True,
         blank=True,
-        help_text="Duration of fast. Format is `HHhMMm`. For example 1h23m, 12h7m, etc",
+        help_text=(
+            "As reported by patient. Duration of fast. Format is `HHhMMm`. "
+            "For example 1h23m, 12h7m, etc"
+        ),
     )
 
     fasting_duration_minutes = models.IntegerField(

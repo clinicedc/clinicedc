@@ -1,3 +1,5 @@
+import pdb
+
 from django import forms
 from edc_constants.constants import NO
 
@@ -39,16 +41,16 @@ class OgttFormValidatorMixin:
         ogtt_base_dte = self.cleaned_data.get("ogtt_base_datetime")
         ogtt_dte = self.cleaned_data.get("ogtt_datetime")
         if ogtt_base_dte and ogtt_dte:
-            dt1 = ogtt_base_dte.date()
-            dt2 = ogtt_dte.date()
-            if dt1.year != dt2.year or dt1.month != dt2.month or dt1.day != dt2.day:
-                raise forms.ValidationError(
-                    {
-                        "ogtt_datetime": (
-                            "Invalid date. Expected same day as OGTT initial date."
-                        )
-                    }
-                )
+            # dt1 = ogtt_base_dte.date()
+            # dt2 = ogtt_dte.date()
+            # if dt1.year != dt2.year or dt1.month != dt2.month or dt1.day != dt2.day:
+            #     raise forms.ValidationError(
+            #         {
+            #             "ogtt_datetime": (
+            #                 "Invalid date. Expected same day as OGTT initial date."
+            #             )
+            #         }
+            #     )
             tdelta = ogtt_dte - ogtt_base_dte
             if tdelta.total_seconds() < 3600:
                 raise forms.ValidationError(
