@@ -7,13 +7,11 @@ from ..model_mixins import ScreeningModelMixin
 
 
 class MyScreeningEligibility(ScreeningEligibility):
-    @property
-    def eligible(self):
+    def assess_eligibility(self):
         return True
 
-    @property
-    def reasons_ineligible(self):
-        return {}
+    def update_model(self) -> None:
+        pass
 
 
 class SubjectScreening(ScreeningModelMixin, BaseUuidModel):
