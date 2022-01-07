@@ -1,5 +1,5 @@
 import sys
-from typing import Optional
+from typing import Any, List, Optional
 from warnings import warn
 
 from django.apps import apps as django_apps
@@ -96,7 +96,9 @@ class GroupUpdater:
             for permission in permissions:
                 group.permissions.add(permission)
 
-    def get_permissions_qs_from_codenames(self, codenames):
+    def get_permissions_qs_from_codenames(
+        self, codenames: List[Any], allow_multiple_objects: Optional[bool] = None
+    ):
         """Returns a list of permission model instances for the given
         codenames.
 
@@ -130,9 +132,19 @@ class GroupUpdater:
                     else:
                         raise CodenameDoesNotExist(errmsg)
                 except MultipleObjectsReturned as e:
-                    raise MultipleObjectsReturned(
-                        f"{str(e)} See `{app_label}.{codename}`."
-                    )
+                    if allow_multiple_objects:
+                        permissions.extend(
+                            [
+                                obj
+                                for obj in self.permission_model_cls.objects.filter(
+                                    codename=codename, content_type__app_label=app_label
+                                )
+                            ]
+                        )
+                    else:
+                        raise MultipleObjectsReturned(
+                            f"{str(e)} See `{app_label}.{codename}`."
+                        )
         return permissions
 
     def get_from_dotted_codename(self, codename=None):
@@ -254,8 +266,12 @@ class GroupUpdater:
             )
         return _app_label, codename, name
 
-    def remove_permissions_by_codenames(self, group=None, codenames=None):
+    def remove_permissions_by_codenames(
+        self, group=None, codenames=None, allow_multiple_objects: Optional[bool] = None
+    ):
         """Remove the given codenames from the given group."""
-        permissions = self.get_permissions_qs_from_codenames(codenames)
+        permissions = self.get_permissions_qs_from_codenames(
+            codenames, allow_multiple_objects=allow_multiple_objects
+        )
         for permission in permissions:
             group.permissions.remove(permission)

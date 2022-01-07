@@ -1,12 +1,4 @@
-from .codenames import (
-    account_manager,
-    administration,
-    auditor,
-    celery_manager,
-    clinic,
-    clinic_super,
-    everyone,
-)
+from .codenames import account_manager, administration, celery_manager, everyone
 from .default_group_names import (
     ACCOUNT_MANAGER,
     ADMINISTRATION,
@@ -22,10 +14,10 @@ from .default_group_names import (
 default_groups = {
     ACCOUNT_MANAGER: account_manager,
     ADMINISTRATION: administration,
-    AUDITOR: auditor,
+    AUDITOR: [],
     CELERY_MANAGER: celery_manager,
-    CLINIC: clinic,
-    CLINIC_SUPER: clinic_super,
+    CLINIC: [],
+    CLINIC_SUPER: [],
     EVERYONE: everyone,
     PII: [],
     PII_VIEW: [],
