@@ -1,3 +1,4 @@
+import pdb
 from abc import ABC, abstractmethod
 from typing import Optional
 
@@ -13,16 +14,16 @@ class ScreeningEligibilityError(Exception):
 class ScreeningEligibility(ABC):
     def __init__(self, model_obj: models.Model = None, allow_none: Optional[bool] = None):
         self.model_obj = model_obj
-        self.eligible: Optional[str] = None
+        self.eligible: str = NO  # YES, NO or TBD
         self.reasons_ineligible: dict = {}
         self.allow_none = allow_none  # TODO: allow_none ??
         self.pre_assess_eligibility()
         self.assess_eligibility()
-        # self.update_model()
-        if self.eligible == YES and not self.reasons_ineligible:
+        if self.eligible == YES and self.reasons_ineligible:
             raise ScreeningEligibilityError(
                 "Inconsistent result. Got eligible where reasons_ineligible is not none"
             )
+        self.update_model()
 
     def pre_assess_eligibility(self) -> None:
         return None
