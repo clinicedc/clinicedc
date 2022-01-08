@@ -164,10 +164,13 @@ class QueryRule(BaseUuidModel):
 
     reference_model = models.CharField(max_length=150, null=True, editable=False)
 
+    # TODO: is this the CRF report datetime, for example?
     reference_date = models.CharField(
         max_length=25, choices=DATE_CHOICES, default=REPORT_DATE, editable=False
     )
 
+    # TODO: Does this work? Does this value suggest when to run the ...
+    # TODO: ... query relative to the report datetime
     timing = models.IntegerField(verbose_name="Timing", default=48)
 
     timing_units = models.CharField(
