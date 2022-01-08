@@ -6,8 +6,8 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from edc_registration.utils import get_registered_subject_model_cls
 
 from edc_randomization.randomization_list_importer import (
+    RandomizationListAlreadyImported,
     RandomizationListImporter,
-    RandomizationListImportError,
 )
 
 from .constants import DEFAULT_ASSIGNMENT_MAP
@@ -171,11 +171,16 @@ class Randomizer:
     def check_loaded(cls):
         try:
             cls.import_list(overwrite=False)
-        except RandomizationListImportError:
+        except RandomizationListAlreadyImported:
             pass
+        # except RandomizationListImportError as e:
+        #     sys.stdout.write(f"RandomizationListImportError. {e}\n")
         if cls.model_cls().objects.all().count() == 0:
             raise RandomizationListNotLoaded(
-                "Randomization list has not been loaded. " "Run the management command."
+                "Randomization list has not been loaded. "
+                "You may need to run the management command or check "
+                "the path or format of the `randomization list` file. "
+                f"See {repr(cls)}."
             )
 
     @property

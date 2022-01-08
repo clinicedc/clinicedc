@@ -2,8 +2,8 @@ import sys
 
 from .site_randomizers import site_randomizers
 
-RANDO_VIEW = "RANDO_VIEW"
 RANDO_UNBLINDED = "RANDO_UNBLINDED"
+RANDO_BLINDED = "RANDO_BLINDED"
 
 
 def get_rando_permissions_tuples() -> list:
@@ -76,4 +76,5 @@ def make_randomizationlist_view_only(auth_updater):
             auth_updater.group_updater.remove_permissions_by_codenames(
                 group=group,
                 codenames=codenames,
+                allow_multiple_objects=True,
             )

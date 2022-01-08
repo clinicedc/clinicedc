@@ -1,7 +1,9 @@
 from random import shuffle
+from tempfile import mkdtemp
 
+from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
-from django.test import TestCase, tag
+from django.test import TestCase
 from django.test.utils import override_settings
 from edc_constants.constants import FEMALE
 from edc_registration.models import RegisteredSubject
@@ -11,7 +13,10 @@ from multisite import SiteID
 
 from edc_randomization.constants import ACTIVE
 from edc_randomization.models import RandomizationList
-from edc_randomization.randomization_list_importer import RandomizationListImportError
+from edc_randomization.randomization_list_importer import (
+    RandomizationListAlreadyImported,
+    RandomizationListImporter,
+)
 from edc_randomization.randomization_list_verifier import (
     RandomizationListError,
     RandomizationListVerifier,
@@ -23,7 +28,11 @@ from edc_randomization.randomizer import (
     RandomizationError,
     Randomizer,
 )
-from edc_randomization.site_randomizers import site_randomizers
+from edc_randomization.site_randomizers import NotRegistered, site_randomizers
+from edc_randomization.utils import (
+    RandomizationListExporterError,
+    export_randomization_list,
+)
 
 from ..make_test_list import make_test_list
 from ..models import SubjectConsent
@@ -41,6 +50,10 @@ all_sites = (
 )
 
 
+@override_settings(
+    EDC_AUTH_SKIP_SITE_AUTHS=True,
+    EDC_AUTH_SKIP_AUTH_UPDATER=True,
+)
 class TestRandomizer(TestCase):
     import_randomization_list = False
     site_names = [x.name for x in all_sites]
@@ -316,6 +329,7 @@ class TestRandomizer(TestCase):
     def test_for_sites(self):
         """Assert that allocates by site correctly."""
 
+        site = None
         site_randomizers._registry = {}
         site_randomizers.register(MyRandomizer)
 
@@ -396,7 +410,7 @@ class TestRandomizer(TestCase):
         )
         randomizer = site_randomizers.get(MyRandomizer.name)
         randomizer.import_list()
-        self.assertRaises(RandomizationListImportError, randomizer.import_list)
+        self.assertRaises(RandomizationListAlreadyImported, randomizer.import_list)
 
     @override_settings(SITE_ID=SiteID(40))
     def test_can_overwrite_explicit(self):
@@ -410,7 +424,7 @@ class TestRandomizer(TestCase):
         randomizer = site_randomizers.get(MyRandomizer.name)
         try:
             randomizer.import_list(overwrite=True)
-        except RandomizationListImportError:
+        except RandomizationListAlreadyImported:
             self.fail("RandomizationListImportError unexpectedly raised")
 
     @override_settings(SITE_ID=SiteID(40))
@@ -450,3 +464,61 @@ class TestRandomizer(TestCase):
         with self.assertRaises(RandomizationListError) as cm:
             RandomizationListVerifier(randomizer_name=Randomizer.name)
         self.assertIn("Randomization list count is off", str(cm.exception))
+
+    @override_settings(SITE_ID=SiteID(40))
+    def test_get_randomizer_cls(self):
+        site_randomizers._registry = {}
+        self.assertRaises(NotRegistered, site_randomizers.get, MyRandomizer.name)
+        site_randomizers.register(MyRandomizer)
+        try:
+            site_randomizers.get(MyRandomizer.name)
+        except NotRegistered:
+            self.fail("NotRegistered unexpectedly raised")
+
+    @override_settings(SITE_ID=SiteID(40))
+    def test_randomization_list_importer(self):
+        randomizer_cls = site_randomizers.get("default")
+
+        make_test_list(
+            full_path=randomizer_cls.get_randomization_list_fullpath(),
+            site_names=self.site_names,
+        )
+
+        importer = RandomizationListImporter(randomizer_cls, dryrun=True, verbose=True)
+        importer.import_list()
+        self.assertEqual(randomizer_cls.model_cls().objects.all().count(), 0)
+
+        importer = RandomizationListImporter(randomizer_cls, verbose=True)
+        importer.import_list()
+        self.assertGreater(randomizer_cls.model_cls().objects.all().count(), 0)
+
+    @override_settings(SITE_ID=SiteID(40), EXPORT_FOLDER=mkdtemp())
+    def test_randomization_list_exporter(self):
+        user = get_user_model().objects.create(
+            username="me", is_superuser=False, is_staff=True
+        )
+        randomizer_cls = site_randomizers.get("default")
+        make_test_list(
+            full_path=randomizer_cls.get_randomization_list_fullpath(),
+            site_names=self.site_names,
+        )
+        importer = RandomizationListImporter(randomizer_cls, verbose=True)
+        importer.import_list()
+        self.assertRaises(RandomizationListExporterError, export_randomization_list, "default")
+        self.assertRaises(
+            RandomizationListExporterError,
+            export_randomization_list,
+            "default",
+            username=user.username,
+        )
+        user = get_user_model().objects.create(
+            username="you", is_superuser=True, is_staff=True
+        )
+        path = export_randomization_list("default", username=user.username)
+        with open(path) as f:
+            n = 0
+            for line in f:
+                n += 1
+                if "str" in line:
+                    break
+        self.assertEqual(n, 51)

@@ -1,6 +1,9 @@
 from django.core.management.base import BaseCommand, CommandError
 
+from edc_randomization.site_randomizers import site_randomizers
+
 from ...randomization_list_importer import (
+    RandomizationListAlreadyImported,
     RandomizationListImporter,
     RandomizationListImportError,
 )
@@ -40,14 +43,29 @@ class Command(BaseCommand):
         parser.add_argument("--revision", dest="revision", default=None, help="revision")
 
     def handle(self, *args, **options):
-        add = options["add"] if options["add"] == "YES" else None
-        dryrun = options["dryrun"]
+        """Note: You may not need to do this.
+
+        `import_list()` is usually called when the `randomizer` class
+        is first instantiated.
+        """
+        add = True if options["add"] and options["add"].lower() == "yes" else False
+        dryrun = True if options["dryrun"] and options["dryrun"].lower() == "yes" else False
         name = options["name"]
-        user = options["user"]
+        username = options["user"]
         revision = options["revision"]
+        randomizer_cls = site_randomizers.get(name)
+        importer = RandomizationListImporter(
+            randomizer_cls=randomizer_cls,
+            add=add,
+            dryrun=dryrun,
+            username=username,
+            revision=revision,
+        )
         try:
-            RandomizationListImporter(
-                name=name, add=add, dryrun=dryrun, user=user, revision=revision
-            )
-        except (RandomizationListImportError, FileNotFoundError) as e:
+            importer.import_list()
+        except (
+            RandomizationListImportError,
+            RandomizationListAlreadyImported,
+            FileNotFoundError,
+        ) as e:
             raise CommandError(e)
