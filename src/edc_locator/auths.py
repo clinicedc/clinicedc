@@ -14,3 +14,4 @@ site_auths.update_group(
     "edc_locator.view_subjectlocator",
     name=PII_VIEW,
 )
+site_auths.add_pii_model("edc_locator.subjectlocator")
