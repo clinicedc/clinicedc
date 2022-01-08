@@ -57,6 +57,21 @@ def raise_if_clinical_review_does_not_exist(subject_visit) -> None:
         )
 
 
+def raise_if_both_ago_and_actual_date(dx_ago: str, dx_date: date, cleaned_data=None) -> None:
+    if cleaned_data:
+        dx_ago = cleaned_data.get("dx_ago")
+        dx_date = cleaned_data.get("dx_date")
+    if dx_ago and dx_date:
+        raise forms.ValidationError(
+            {
+                "dx_ago": (
+                    "Date conflict. Do not provide a response "
+                    "here if the exact data of diagnosis is available."
+                )
+            }
+        )
+
+
 def requires_clinical_review_at_baseline(subject_visit):
     try:
         get_clinical_review_baseline_model_cls().objects.get(
