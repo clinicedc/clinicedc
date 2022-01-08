@@ -3,8 +3,9 @@ from importlib import import_module
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
 
-from edc_list_data import site_list_data
-from edc_list_data.preload_data import PreloadData, PreloadDataError
+from edc_list_data import LoadListDataError, site_list_data
+from edc_list_data.load_model_data import LoadModelDataError
+from edc_list_data.preload_data import PreloadData
 from edc_list_data.site_list_data import AlreadyRegistered, SiteListDataError
 
 from ..list_data import list_data
@@ -87,13 +88,13 @@ class TestPreload(TestCase):
     def test_load_model_data_no_unique_field(self):
         site_list_data.initialize(module_name="model_data")
         site_list_data._import_and_register(app_name="my_list_app")
-        self.assertRaises(PreloadDataError, site_list_data.load_data)
+        self.assertRaises(LoadModelDataError, site_list_data.load_data)
 
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_load_model_data_no_unique_field2(self):
         site_list_data.initialize(module_name="model_data2")
         site_list_data._import_and_register(app_name="my_list_app")
-        self.assertRaises(PreloadDataError, site_list_data.load_data)
+        self.assertRaises(LoadModelDataError, site_list_data.load_data)
 
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_load_model_data_with_unique_field(self):
@@ -101,7 +102,7 @@ class TestPreload(TestCase):
         site_list_data._import_and_register(app_name="my_list_app")
         try:
             site_list_data.load_data()
-        except PreloadDataError:
+        except LoadListDataError:
             self.fail("PreloadDataError exception unexpectedly raised")
 
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
@@ -110,7 +111,7 @@ class TestPreload(TestCase):
         site_list_data._import_and_register(app_name="my_list_app")
         try:
             site_list_data.load_data()
-        except PreloadDataError:
+        except LoadListDataError:
             self.fail("PreloadDataError exception unexpectedly raised")
 
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
