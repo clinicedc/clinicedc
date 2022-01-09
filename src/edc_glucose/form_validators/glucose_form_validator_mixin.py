@@ -10,4 +10,4 @@ class GlucoseFormValidatorMixin:
         self.required_if(YES, field="glucose_performed", field_required="glucose_value")
         validate_glucose_as_millimoles_per_liter("glucose", self.cleaned_data)
         self.required_if(YES, field="glucose_performed", field_required="glucose_quantifier")
-        self.applicable_if(YES, field="glucose_performed", field_applicable="glucose_units")
+        self.required_if(YES, field="glucose_performed", field_required="glucose_units")
