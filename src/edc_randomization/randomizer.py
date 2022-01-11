@@ -22,7 +22,7 @@ class RandomizationError(Exception):
     pass
 
 
-class RandomizationListNotFound(Exception):
+class RandomizationListFileNotFound(Exception):
     pass
 
 
@@ -74,8 +74,8 @@ class Randomizer:
         self.site = site
         self.user = user
         if not os.path.exists(self.get_randomization_list_fullpath()):
-            raise RandomizationListNotFound(
-                "RandomizationListNotFound. "
+            raise RandomizationListFileNotFound(
+                "Randomization list file not found. "
                 f"Got {self.get_randomization_list_fullpath()}. See {self}."
             )
         self.check_loaded()
