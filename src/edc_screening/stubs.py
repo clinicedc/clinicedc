@@ -23,3 +23,6 @@ class SubjectScreeningModelStub(ModelStub, Protocol):
     eligible: bool
     reasons_ineligible: str
     ...
+
+    def get_report_datetime_for_eligibility_datetime(self) -> datetime:
+        ...

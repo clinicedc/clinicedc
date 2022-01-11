@@ -50,16 +50,6 @@ class EligibilityModelMixin(EligibilityFieldsModelMixin, models.Model):
         """
         eligibility_obj = self.eligibility_cls(model_obj=self, allow_none=True)
         self.eligible = eligibility_obj.is_eligible
-        # self.reasons_ineligible = eligibility_obj.reasons_ineligible
-        #
-        # if (not self.eligible and not self.reasons_ineligible) or (
-        #     self.eligible and self.reasons_ineligible
-        # ):
-        #     raise ScreeningEligibilityError(
-        #         f"Invalid combination. Cannot have eligible={self.eligible} "
-        #         f"and reasons_ineligible={self.reasons_ineligible}."
-        #     )
-        # elif not self.eligible and self.reasons_ineligible:
         if eligibility_obj.reasons_ineligible:
             reasons_ineligible = [v for v in eligibility_obj.reasons_ineligible.values() if v]
             reasons_ineligible.sort()
