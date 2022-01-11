@@ -1,3 +1,4 @@
+from edc_constants.constants import YES
 from edc_model.models import BaseUuidModel
 
 from edc_screening.model_mixins import EligibilityModelMixin
@@ -8,10 +9,9 @@ from ..model_mixins import ScreeningModelMixin
 
 class MyScreeningEligibility(ScreeningEligibility):
     def assess_eligibility(self):
+        self.eligible = YES
+        self.reasons_ineligible = {}
         return True
-
-    def update_model(self) -> None:
-        pass
 
 
 class SubjectScreening(ScreeningModelMixin, BaseUuidModel):

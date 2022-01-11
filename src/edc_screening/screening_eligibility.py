@@ -1,4 +1,3 @@
-import pdb
 from abc import ABC, abstractmethod
 from typing import Optional
 
@@ -12,16 +11,35 @@ class ScreeningEligibilityError(Exception):
 
 
 class ScreeningEligibility(ABC):
-    def __init__(self, model_obj: models.Model = None, allow_none: Optional[bool] = None):
+    def __init__(
+        self,
+        model_obj: models.Model,
+        allow_none: Optional[bool] = None,
+    ):
         self.model_obj = model_obj
-        self.eligible: str = NO  # YES, NO or TBD
-        self.reasons_ineligible: dict = {}
+        self.eligible: Optional[str] = None
+        self.reasons_ineligible: Optional[dict] = None
         self.allow_none = allow_none  # TODO: allow_none ??
         self.pre_assess_eligibility()
         self.assess_eligibility()
+        if (
+            not self.eligible
+            or self.eligible not in [YES, NO, TBD]
+            or self.reasons_ineligible is None
+        ):
+            raise ScreeningEligibilityError(
+                "Eligiblility or `reasons ineligible` not set. "
+                f"Got eligible={self.eligible}, reasons_ineligible={self.reasons_ineligible}. "
+                "See method `assess_eligibility`."
+            )
         if self.eligible == YES and self.reasons_ineligible:
             raise ScreeningEligibilityError(
-                "Inconsistent result. Got eligible where reasons_ineligible is not none"
+                "Inconsistent result. Got eligible==YES where reasons_ineligible"
+                f"is not None. Got reasons_ineligible={self.reasons_ineligible}"
+            )
+        if self.eligible == NO and not self.reasons_ineligible:
+            raise ScreeningEligibilityError(
+                "Inconsistent result. Got eligible==NO where reasons_ineligible is None"
             )
         self.update_model()
 
@@ -30,28 +48,24 @@ class ScreeningEligibility(ABC):
 
     @abstractmethod
     def assess_eligibility(self):
+        """Asseses eligibility and finally sets the values of
+        attrs `eligible` and `reasons ineligible`.
+        """
         raise NotImplemented
 
-    @abstractmethod
     def update_model(self) -> None:
-        raise NotImplemented
+        """Updates the screening model.
+
+        Since this class is instantiated in the model's save()
+        method, no need to call save.
+        """
+        self.model_obj.eligible = self.is_eligible
+        self.model_obj.reasons_ineligible = self.reasons_ineligible
 
     @property
     def is_eligible(self) -> bool:
         """Returns True if eligible else False"""
         return True if self.eligible == YES else False
-
-    # @property
-    # @abstractmethod
-    # def eligible(self) -> str:
-    #     """Returns YES, NO or TBD."""
-    #     return TBD
-
-    # @property
-    # @abstractmethod
-    # def reasons_ineligible(self) -> dict:
-    #     """Returns a dictionary of reasons ineligible or None."""
-    #     return {}
 
     def format_reasons_ineligible(*values: str) -> str:
         reasons = None
