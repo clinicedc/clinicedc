@@ -21,9 +21,10 @@ class PersonalFieldsMixin(CryptoMixin, models.Model):
         validators=[
             RegexValidator(
                 regex=r"^([A-Z]+$|[A-Z]+\ [A-Z]+)$",
-                message="Ensure name consist of letters " "only in upper case",
+                message="Ensure name consist of letters only in upper case",
             )
         ],
+        help_text="Use UPPERCASE letters only.",
     )
 
     last_name = LastnameField(
@@ -33,18 +34,17 @@ class PersonalFieldsMixin(CryptoMixin, models.Model):
         validators=[
             RegexValidator(
                 regex=r"^([A-Z]+$|[A-Z]+\ [A-Z]+)$",
-                message="Ensure name consist of letters " "only in upper case",
+                message="Ensure name consist of letters only in upper case",
             )
         ],
+        help_text="Use UPPERCASE letters only.",
     )
 
     initials = EncryptedCharField(
         validators=[
             RegexValidator(
                 regex=r"^[A-Z]{2,3}$",
-                message=(
-                    "Ensure initials consist of letters " "only in upper case, no spaces."
-                ),
+                message="Ensure initials consist of letters only in upper case, no spaces.",
             )
         ],
         null=True,
