@@ -1,16 +1,16 @@
 import re
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_constants.constants import UUID_PATTERN
 from edc_identifier.models import IdentifierModel
 
-from .models import SubjectScreening, SubjectScreeningWithEligibility
+from .models import SubjectScreening, SubjectScreeningWithEligibilitySimple
 
 
 class TestScreening(TestCase):
     def test_model(self):
-        for model_cls in [SubjectScreening, SubjectScreeningWithEligibility]:
+        for model_cls in [SubjectScreening, SubjectScreeningWithEligibilitySimple]:
             with self.subTest(model_cls=model_cls):
                 obj = model_cls.objects.create(age_in_years=25)
 
