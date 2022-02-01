@@ -6,5 +6,5 @@ from .date import (
     datetime_is_future,
     datetime_not_future,
 )
-from .duration import hm_validator, hm_validator2, ymd_validator
+from .duration import dh_validator, hm_validator, hm_validator2, ymd_validator
 from .phone import cell_number, telephone_number

@@ -10,6 +10,8 @@ from django.db.models import CharField, DateField, DateTimeField
 
 from .constants import REPORT_DATETIME_FIELD_NAME
 
+dh_pattern = r"^(([0-9]{1,3}d)?((2[0-3]|[01]?[0-9])h)?)$"
+
 ymd_pattern = (
     r"^([0-9]{1,3}y([0-1]?[0-2]m)?([0-9]m)?)$|^([0-1]?"
     r"[0-2]m)$|^([0-9]m)$|^([1-3]?[1-9]d)$|^(0d)$"
