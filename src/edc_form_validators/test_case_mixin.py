@@ -13,3 +13,39 @@ class FormValidatorTestCaseMixin:
         except ValidationError:
             pass
         return form_validator
+
+    def assertFormValidatorNoError(self, form_validator):
+        self.assertDictEqual({}, form_validator._errors)
+
+    def assertFormValidatorError(
+        self,
+        field: str,
+        expected_msg: str,
+        form_validator,
+        expected_errors: int = 1,
+    ):
+        self.assertIn(
+            field,
+            form_validator._errors,
+            msg=(
+                f"Expected field '{field}' in form validation errors. "
+                f"Got '{form_validator._errors}'."
+            ),
+        )
+        self.assertIn(
+            expected_msg,
+            str(form_validator._errors.get(field)),
+            msg=(
+                f"Expected error message '{expected_msg}' for field '{field}' "
+                f"in form validation errors.  Got '{form_validator._errors}'"
+            ),
+        )
+        self.assertEqual(
+            len(form_validator._errors),
+            expected_errors,
+            msg=(
+                f"Expected {expected_errors} error message(s) in form validator. "
+                f"Got {len(form_validator._errors)} errors "
+                f"as follows: '{form_validator._errors}'"
+            ),
+        )
