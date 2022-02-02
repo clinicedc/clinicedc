@@ -1,17 +1,17 @@
+from edc_action_item import site_action_items
 from edc_action_item.action_with_notification import ActionWithNotification
 from edc_constants.constants import HIGH_PRIORITY
 from edc_offstudy.constants import END_OF_STUDY_ACTION
 from edc_visit_tracking.constants import VISIT_MISSED_ACTION
 
-from .admin_site import edc_ltfu_admin
 from .constants import LTFU_ACTION
-from .utils import get_ltfu_model_cls
+from .utils import get_ltfu_model_name
 
 
 class LtfuAction(ActionWithNotification):
 
-    reference_model = get_ltfu_model_cls()
-    admin_site_name = edc_ltfu_admin
+    reference_model = get_ltfu_model_name()
+    admin_site_name = "edc_ltfu_admin"
 
     name = LTFU_ACTION
     display_name = "Submit Loss to Follow Up Report"
@@ -23,3 +23,6 @@ class LtfuAction(ActionWithNotification):
     def get_next_actions(self):
         next_actions = [END_OF_STUDY_ACTION]
         return next_actions
+
+
+site_action_items.register(LtfuAction)
