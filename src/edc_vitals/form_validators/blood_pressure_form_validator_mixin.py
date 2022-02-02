@@ -11,7 +11,7 @@ class BloodPressureFormValidatorMixin:
     def raise_on_avg_blood_pressure_suggests_severe_htn(
         use_avg=None, severe_htn_field_name=None, errmsg=None, **kwargs
     ):
-        """Raise if BP is >= 180/120"""
+        """Raise if BP is >= 180/110, See settings"""
         severe_htn_field_name = severe_htn_field_name or "severe_htn"
         severe_htn_reponse = kwargs.get(severe_htn_field_name)
         errmsg = {

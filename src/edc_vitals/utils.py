@@ -1,3 +1,6 @@
+from django.conf import settings
+
+
 def calculate_avg_bp(
     sys_blood_pressure_one=None,
     sys_blood_pressure_two=None,
@@ -16,5 +19,13 @@ def calculate_avg_bp(
 
 def has_severe_htn(sys=None, dia=None):
     if sys is not None and dia is not None:
-        return sys >= 180 or dia >= 120
+        return sys >= get_sys_upper() or dia >= get_dia_upper()
     return None
+
+
+def get_sys_upper():
+    return getattr(settings, "EDC_VITALS_SYS_UPPER", 180)
+
+
+def get_dia_upper():
+    return getattr(settings, "EDC_VITALS_DIA_UPPER", 110)

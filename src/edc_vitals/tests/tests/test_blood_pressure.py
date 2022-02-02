@@ -62,10 +62,10 @@ class TestBloodPressure(TestCase):
         self.assertIsNone(has_severe_htn())
         self.assertIsNone(has_severe_htn(sys=120))
         self.assertFalse(has_severe_htn(sys=120, dia=80))
-        self.assertFalse(has_severe_htn(sys=179, dia=119))
-        self.assertTrue(has_severe_htn(sys=180, dia=119))
-        self.assertTrue(has_severe_htn(sys=179, dia=120))
-        self.assertTrue(has_severe_htn(sys=180, dia=120))
+        self.assertFalse(has_severe_htn(sys=179, dia=109))
+        self.assertTrue(has_severe_htn(sys=180, dia=109))
+        self.assertTrue(has_severe_htn(sys=179, dia=110))
+        self.assertTrue(has_severe_htn(sys=180, dia=110))
 
     def test_bp_suggest_severe_htn_form_validator(self):
         cleaned_data = dict(
