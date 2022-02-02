@@ -2,6 +2,7 @@ from .address_mixin import AddressMixin
 from .base_model import BaseModel
 from .base_uuid_model import BaseUuidModel
 from .fields import (
+    DurationDHField,
     DurationYMDField,
     HostnameModificationField,
     IdentityTypeField,
@@ -23,6 +24,7 @@ from .validators import (
     date_not_future,
     datetime_is_future,
     datetime_not_future,
+    dh_validator,
     hm_validator,
     hm_validator2,
     telephone_number,

@@ -1,10 +1,18 @@
 from django.core.validators import RegexValidator
 
-from ...utils import ymd_pattern
+from ...utils import dh_pattern, ymd_pattern
 
 """
 expect 1h20m, 11h5m, etc
 """
+
+dh_validator = RegexValidator(
+    dh_pattern,
+    message=(
+        "Invalid format. Expected combinations of days and hours (dh): "
+        "Something like 3d2h, 7d, 12h, etc. No spaces allowed."
+    ),
+)
 
 hm_validator = RegexValidator(
     r"^([0-9]{1,3}h([0-5]?[0-9]m)?)$",

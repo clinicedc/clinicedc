@@ -6,6 +6,7 @@ from edc_sites.models import SiteModelMixin
 from ..models import (
     BaseModel,
     BaseUuidModel,
+    DurationDHField,
     HistoricalRecords,
     ReportStatusModelMixin,
     cell_number,
@@ -60,6 +61,10 @@ class ModelWithDateValidators(BaseModel):
     )
 
     date_is_future = models.DateField(validators=[date_is_future], default=get_future_date)
+
+
+class ModelWithDHDurationValidators(BaseModel):
+    duration_dh = DurationDHField()
 
 
 class ModelWithPhoneValidators(BaseModel):
