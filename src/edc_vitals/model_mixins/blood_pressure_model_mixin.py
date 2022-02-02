@@ -7,13 +7,11 @@ from ..utils import calculate_avg_bp
 
 class SimpleBloodPressureModelMixin(models.Model):
 
-    # META PHASE TWO ONLY
     sys_blood_pressure = SystolicPressureField(
         null=True,
         blank=True,
     )
 
-    # META PHASE TWO ONLY
     dia_blood_pressure = DiastolicPressureField(
         null=True,
         blank=True,
@@ -24,42 +22,36 @@ class SimpleBloodPressureModelMixin(models.Model):
 
 
 class BloodPressureModelMixin(models.Model):
-    # META PHASE THREE ONLY
     sys_blood_pressure_one = SystolicPressureField(
         verbose_name="Blood pressure: systolic (first reading)",
         null=True,
         blank=True,
     )
 
-    # META PHASE THREE ONLY
     dia_blood_pressure_one = DiastolicPressureField(
         verbose_name="Blood pressure: diastolic (first reading)",
         null=True,
         blank=True,
     )
 
-    # META PHASE THREE ONLY
     sys_blood_pressure_two = SystolicPressureField(
         verbose_name="Blood pressure: systolic (second reading)",
         null=True,
         blank=True,
     )
 
-    # META PHASE THREE ONLY
     dia_blood_pressure_two = DiastolicPressureField(
         verbose_name="Blood pressure: diastolic (second reading)",
         null=True,
         blank=True,
     )
 
-    # META PHASE THREE ONLY
     sys_blood_pressure_avg = models.IntegerField(
         verbose_name="Blood pressure: systolic (average)",
         null=True,
         blank=True,
     )
 
-    # META PHASE THREE ONLY
     dia_blood_pressure_avg = models.IntegerField(
         verbose_name="Blood pressure: diastolic (average)",
         null=True,
@@ -70,7 +62,6 @@ class BloodPressureModelMixin(models.Model):
     # TODO: National guidance has severe hypertension as >180/110.
     # TODO: Do we want to change this to be in line with that or keep as is?
 
-    # META PHASE THREE ONLY
     severe_htn = models.CharField(
         verbose_name="Does the patient have severe hypertension?",
         max_length=15,
