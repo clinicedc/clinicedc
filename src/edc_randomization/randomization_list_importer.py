@@ -77,17 +77,6 @@ class RandomizationListImporter:
             sys.stdout.write(
                 style.MIGRATE_HEADING("\n ->> Dry run. No changes will be made.\n")
             )
-        sys.stdout.write(
-            style.SUCCESS(
-                f"(*) Loaded randomizer {self.randomizer_cls}.\n"
-                f"    -  Name: {self.randomizer_cls.name}\n"
-                f"    -  Assignments: {self.randomizer_cls.assignment_map}\n"
-                f"    -  Blinded trial:  {self.randomizer_cls.is_blinded_trial}\n"
-                f"    -  CSV file:  {self.randomizer_cls.filename}\n"
-                f"    -  Model: {self.randomizer_cls.model}\n"
-                f"    -  Path: {self.randomizer_cls.randomization_list_path}\n"
-            )
-        )
         if not self.get_site_names():
             raise RandomizationListImportError(
                 "No sites have been imported. See sites module and ."
@@ -105,6 +94,17 @@ class RandomizationListImporter:
         self._raise_on_duplicates()
         self._import_to_model()
         self._summarize_results()
+        sys.stdout.write(
+            style.SUCCESS(
+                f"(*) Loaded randomizer {self.randomizer_cls}.\n"
+                f"    -  Name: {self.randomizer_cls.name}\n"
+                f"    -  Assignments: {self.randomizer_cls.assignment_map}\n"
+                f"    -  Blinded trial:  {self.randomizer_cls.is_blinded_trial}\n"
+                f"    -  CSV file:  {self.randomizer_cls.filename}\n"
+                f"    -  Model: {self.randomizer_cls.model}\n"
+                f"    -  Path: {self.randomizer_cls.randomization_list_path}\n"
+            )
+        )
         return self.randomizer_cls.get_randomization_list_fullpath()
 
     def _summarize_results(self):
@@ -166,7 +166,14 @@ class RandomizationListImporter:
         objs = []
         with open(self.randomizer_cls.get_randomization_list_fullpath(), "r") as csvfile:
             reader = csv.DictReader(csvfile)
-            for row in tqdm(reader, total=self.sid_count_for_tests or self.sid_count):
+            if self.sid_count_for_tests:
+                sys.stdout.write(
+                    style.WARNING(
+                        "\nNote: Importing a `subset` of the randomization list for tests\n"
+                    )
+                )
+            sid_count = self.sid_count_for_tests or self.sid_count
+            for row in tqdm(reader, total=sid_count):
                 row = {k: v.strip() for k, v in row.items()}
                 try:
                     self.randomizer_cls.model_cls().objects.get(sid=row["sid"])
@@ -179,6 +186,8 @@ class RandomizationListImporter:
                         opts.update(revision=self.revision)
                     obj = self.randomizer_cls.model_cls()(**opts)
                     objs.append(obj)
+                if len(objs) == sid_count:
+                    break
             if not self.dryrun:
                 sys.stdout.write(
                     style.SUCCESS(
@@ -193,7 +202,12 @@ class RandomizationListImporter:
                         "model instances ... done\n"
                     )
                 )
-                assert self.sid_count == self.randomizer_cls.model_cls().objects.all().count()
+                rec_count = self.randomizer_cls.model_cls().objects.all().count()
+                if not sid_count == rec_count:
+                    raise RandomizationListImportError(
+                        "Incorrect record count on import. "
+                        f"Expected {sid_count}. Got {rec_count}."
+                    )
                 sys.stdout.write(
                     style.SUCCESS(
                         "    Important: You may wish to run the randomization list "
