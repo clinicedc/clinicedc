@@ -1,4 +1,3 @@
-from abc import ABC
 from typing import Optional, Union
 
 from django.db import models
@@ -54,7 +53,7 @@ class RequiredFieldValueMissing(Exception):
     pass
 
 
-class ScreeningEligibility(ABC):
+class ScreeningEligibility:
     """A class to calculate eligibility criteria."""
 
     eligible_display_label: str = "ELIGIBLE"
@@ -77,10 +76,11 @@ class ScreeningEligibility(ABC):
         eligible_display_label: Optional[str] = None,
         ineligible_display_label: Optional[str] = None,
         verbose: Optional[bool] = None,
+        update_model: Optional[bool] = None,
     ) -> None:
 
-        self._missing_data = {}
         self.verbose = verbose
+        self.update_model = True if update_model is None else update_model
         self.cleaned_data = cleaned_data
         self.eligible = self.eligible_value_default
         if eligible_value_default:
@@ -123,7 +123,7 @@ class ScreeningEligibility(ABC):
                 f"Inconsistent result. Got eligible=={self.eligible} "
                 "where reasons_ineligible is None"
             )
-        if self.model_obj:
+        if self.model_obj and self.update_model:
             self._set_fld_attrs_on_model()
 
     def __repr__(self) -> str:
@@ -163,24 +163,26 @@ class ScreeningEligibility(ABC):
     def _assess_eligibility(self) -> None:
         self.set_fld_attrs_on_self()
         self.eligible = self.is_eligible_value
-        if self.missing_data:
-            self.reasons_ineligible.update(**self.missing_data)
+        missing_data = self.get_missing_data()
+        if missing_data:
+            self.reasons_ineligible.update(**missing_data)
             self.eligible = self.eligible_value_default  # probably TBD
         for fldattr, fc in self.get_required_fields().items():
-            if fldattr not in self.missing_data:
+            if fldattr not in missing_data:
                 if fc and fc.value:
                     msg = fc.msg if fc.msg else fldattr.title().replace("_", " ")
                     if self.verbose:
                         msg = f"{msg}. Got {fldattr}={getattr(self, fldattr)}"
-                    if (type(fc.value) == str and getattr(self, fldattr) != fc.value) or (
-                        type(fc.value) in (list, tuple, range)
-                        and getattr(self, fldattr) not in fc.value
-                    ):
-                        self.reasons_ineligible.update({fldattr: msg})
-                        self.eligible = self.is_ineligible_value  # probably NO
-                    if (type(fc.value) == str and getattr(self, fldattr) != fc.value) or (
-                        type(fc.value) in (list, tuple, range)
-                        and getattr(self, fldattr) not in fc.value
+                    if (
+                        (type(fc.value) == str and getattr(self, fldattr) != fc.value)
+                        or (
+                            type(fc.value) in (list, tuple)
+                            and getattr(self, fldattr) not in fc.value
+                        )
+                        or (
+                            type(fc.value) in (range,)
+                            and not (min(fc.value) <= getattr(self, fldattr) <= max(fc.value))
+                        )
                     ):
                         self.reasons_ineligible.update({fldattr: msg})
                         self.eligible = self.is_ineligible_value  # probably NO
@@ -234,24 +236,21 @@ class ScreeningEligibility(ABC):
                     )
             setattr(self, fldattr, value)
 
-    @property
-    def missing_data(self) -> dict:
-        if not self._missing_data:
-            missing_responses = {}
-            for fldattr, fc in self.get_required_fields().items():
-                if not fc.ignore_if_missing:
-                    value = getattr(self, fldattr)
-                    if value:
-                        if fc.missing_value and value == fc.missing_value:
-                            missing_responses.update({fldattr: None})
-                    else:
-                        missing_responses.update({fldattr: value})
-            self._missing_data = {
-                k: f"`{k.replace('_', ' ').title()}` not answered"
-                for k, v in missing_responses.items()
-                if not v
-            }
-        return self._missing_data
+    def get_missing_data(self) -> dict:
+        missing_responses = {}
+        for fldattr, fc in self.get_required_fields().items():
+            if not fc.ignore_if_missing:
+                value = getattr(self, fldattr)
+                if value:
+                    if fc.missing_value and value == fc.missing_value:
+                        missing_responses.update({fldattr: None})
+                else:
+                    missing_responses.update({fldattr: value})
+        return {
+            k: f"`{k.replace('_', ' ').title()}` not answered"
+            for k, v in missing_responses.items()
+            if not v
+        }
 
     def formatted_reasons_ineligible(self) -> str:
         str_values = "<BR>".join(
