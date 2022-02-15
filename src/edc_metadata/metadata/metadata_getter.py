@@ -3,7 +3,11 @@ from warnings import warn
 
 from django.apps import apps as django_apps
 from django.contrib.admin.sites import all_sites
-from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
+from django.core.exceptions import (
+    ImproperlyConfigured,
+    MultipleObjectsReturned,
+    ObjectDoesNotExist,
+)
 from edc_appointment.stubs import AppointmentModelStub
 from edc_visit_tracking.stubs import SubjectVisitModelStub
 from edc_visit_tracking.utils import get_subject_visit_model_cls
@@ -22,6 +26,10 @@ class MetadataValidator:
         self.metadata_obj = metadata_obj
         self.visit_model_instance = visit_model_instance
         self.validate_metadata_object()
+
+    @property
+    def extra_query_attrs(self):
+        return {}
 
     def validate_metadata_object(self) -> None:
         if self.metadata_obj:
@@ -43,10 +51,12 @@ class MetadataValidator:
                 else:
                     # confirm metadata.entry_status is correct
                     model_obj = None
+                    query_attrs = {
+                        f"{model_cls.visit_model_attr()}": self.visit_model_instance
+                    }
+                    query_attrs.update(**self.extra_query_attrs)
                     try:
-                        model_obj = model_cls.objects.get(
-                            **{f"{model_cls.visit_model_attr()}": self.visit_model_instance}
-                        )
+                        model_obj = model_cls.objects.get(**query_attrs)
                     except AttributeError as e:
                         if "visit_model_attr" not in str(e):
                             raise ImproperlyConfigured(f"{e} See {repr(model_cls)}")
@@ -55,6 +65,8 @@ class MetadataValidator:
                         # metadata_obj = None
                     except ObjectDoesNotExist:
                         pass
+                    except MultipleObjectsReturned:
+                        raise
                     self.metadata_obj = self.verify_entry_status_with_model_obj(model_obj)
 
     def verify_entry_status_with_model_obj(self, model_obj):
@@ -98,6 +110,8 @@ class MetadataGetter:
     """
 
     metadata_model: Optional[str] = None
+
+    metadata_validator_cls = MetadataValidator
 
     def __init__(
         self,
@@ -154,5 +168,5 @@ class MetadataGetter:
     def validate_metadata_objects(self, query_options) -> None:
         qs = self.metadata_model_cls.objects.filter(**query_options)
         for metadata_obj in qs:
-            MetadataValidator(metadata_obj, self.visit_model_instance)
+            self.metadata_validator_cls(metadata_obj, self.visit_model_instance)
             # validate_metadata_object(metadata_obj, visit=self.visit_model_instance)
