@@ -1,5 +1,6 @@
 from django.apps import apps as django_apps
 from edc_constants.constants import CLOSED, NEW
+from tqdm import tqdm
 
 from .create_or_update_action_type import create_or_update_action_type
 from .identifiers import ActionIdentifier
@@ -25,11 +26,12 @@ def update_action_identifier(model=None, action_cls=None, apps=None, status=None
     action_item_cls = apps.get_model("edc_action_item.actionitem")
     model_cls = apps.get_model(model)
     action_type = create_or_update_action_type(apps=apps, **action_cls.as_dict())
-    for obj in model_cls.objects.filter(action_identifier__isnull=True):
+    for obj in tqdm(model_cls.objects.filter(action_identifier__isnull=True)):
         action_item = action_item_cls(
             subject_identifier=obj.subject_visit.subject_identifier,
             action_type=action_type,
             action_identifier=ActionIdentifier().identifier,
+            site=obj.subject_visit.site,
         )
         action_item.linked_to_reference = True
         action_item.status = status or CLOSED
