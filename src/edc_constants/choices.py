@@ -6,6 +6,7 @@ from .constants import (
     AFTERNOON,
     ALIVE,
     ANYTIME,
+    AWAITING_RESULTS,
     DEAD,
     DECLINED,
     DONT_KNOW,
@@ -15,7 +16,9 @@ from .constants import (
     FASTING,
     FEMALE,
     FORMER_SMOKER,
+    HIGH,
     IND,
+    LOW,
     MALE,
     MORNING,
     NAIVE,
@@ -48,7 +51,6 @@ from .constants import (
     WEEKDAYS,
     WEEKENDS,
     YES,
-    NOT_ANSWERED,
 )
 
 BLANK_CHOICE_DASH = [("", "---------")]
@@ -276,7 +278,6 @@ GENDER_UNDETERMINED = (
     ("U", _("Undetermined")),
 )
 
-
 GRADING_SCALE = (
     (1, "Grade 1"),
     (2, "Grade 2"),
@@ -284,7 +285,6 @@ GRADING_SCALE = (
     (4, "Grade 4"),
     (5, "Grade 5"),
 )
-
 
 GRADING_SCALE_WITH_NOT_GRADED = (
     (0, "Not graded"),
@@ -298,6 +298,12 @@ GRADING_SCALE_WITH_NOT_GRADED = (
 GRADING_SCALE_234 = ((2, "Grade 2"), (3, "Grade 3"), (4, "Grade 4"))
 
 GRADING_SCALE_34 = ((3, "Grade 3"), (4, "Grade 4"))
+
+HIGH_LOW_NA = (
+    (HIGH, "High"),
+    (LOW, "Low"),
+    (NOT_APPLICABLE, "Not applicable"),
+)
 
 HIV_RESULT = (
     (POS, "HIV Positive (Reactive)"),
@@ -395,6 +401,13 @@ POS_NEG_NOT_DONE = (
     (NOT_DONE, "Not done"),
 )
 
+POS_NEG_NOT_DONE_NA = (
+    (POS, "Positive"),
+    (NEG, "Negative"),
+    (NOT_DONE, "Not done"),
+    (NOT_APPLICABLE, "Not applicable"),
+)
+
 POS_NEG_NOT_DONE_NOT_EVALUATED = (
     (POS, "Positive"),
     (NEG, "Negative"),
@@ -489,6 +502,27 @@ YES_NO = ((YES, _(YES)), (NO, _(NO)))
 
 YESDEFAULT_NO = ((YES, _("Yes (default)")), (NO, _(NO)))
 
+YES_NO_AWAITING_RESULTS = (
+    (YES, YES),
+    (NO, NO),
+    (AWAITING_RESULTS, "Awaiting results"),
+)
+
+YES_NO_NOT_DONE_AWAITING_RESULTS = (
+    (YES, YES),
+    (NO, NO),
+    (AWAITING_RESULTS, "Awaiting results"),
+    (NOT_DONE, "Not done"),
+)
+
+YES_NO_NOT_DONE_AWAITING_RESULTS_NA = (
+    (YES, YES),
+    (NO, NO),
+    (AWAITING_RESULTS, "Awaiting results"),
+    (NOT_DONE, "Not done"),
+    (NOT_APPLICABLE, "Not applicable"),
+)
+
 YES_NO_DECLINED = ((YES, YES), (NO, NO), (DECLINED, "Yes, but subject declined copy"))
 
 YES_NO_OPTIONAL = ((YES, YES), (NO, NO), ("Optional", "Optional"))
@@ -504,6 +538,12 @@ YES_NO_NA_SPECIFY = (
 )
 
 YES_NO_NA = ((YES, YES), (NO, NO), (NOT_APPLICABLE, "Not applicable"))
+
+YES_NO_PENDING = (
+    (YES, YES),
+    (NO, NO),
+    (PENDING, "Pending"),
+)
 
 YES_NO_PENDING_NA = (
     (YES, YES),
