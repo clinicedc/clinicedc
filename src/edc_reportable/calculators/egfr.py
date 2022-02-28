@@ -1,8 +1,11 @@
 from edc_constants.constants import BLACK, FEMALE, MALE, OTHER
 
 from ..convert_units import convert_units
-from ..units import MICROMOLES_PER_LITER, MILLIGRAMS_PER_DECILITER
+from ..units import MILLIGRAMS_PER_DECILITER
 from .exceptions import CalculatorError
+
+# TODO: https://www.rcpa.edu.au/Manuals/RCPA-Manual/
+#  Pathology-Tests/C/Creatinine-clearance-Cockcroft-and-Gault
 
 
 class eGFR:

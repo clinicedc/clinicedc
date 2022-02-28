@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_constants.constants import FEMALE, NO, NOT_APPLICABLE, YES
 from edc_utils import get_utcnow
 
