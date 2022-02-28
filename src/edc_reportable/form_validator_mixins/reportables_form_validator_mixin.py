@@ -3,7 +3,6 @@ from copy import copy
 from django.apps import apps as django_apps
 from edc_constants.constants import YES
 
-from ..constants import GRADE3, GRADE4
 from ..reportables_evaluator import ReportablesEvaluator
 
 
