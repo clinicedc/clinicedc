@@ -9,6 +9,7 @@ from .processing_profiles import (
     lipids_processing,
     poc_processing,
     rft_processing,
+    sputum_processing,
 )
 
 hba1c_panel = RequisitionPanel(
@@ -93,4 +94,12 @@ insulin_panel = RequisitionPanel(
     abbreviation="INS",
     processing_profile=insulin_processing,
     utest_ids=["ins"],
+)
+
+sputum_panel = RequisitionPanel(
+    name="sputum",
+    verbose_name="Sputum",
+    abbreviation="SPM",
+    processing_profile=sputum_processing,
+    utest_ids=[],
 )
