@@ -5,16 +5,16 @@ from edc_blood_results.model_mixins import (
     HctModelMixin,
     PlateletsModelMixin,
     RbcModelMixin,
-    RequisitionModelMixin,
     WbcModelMixin,
 )
 from edc_crf.crf_with_action_model_mixin import CrfWithActionModelMixin
+from edc_lab.model_mixins import CrfWithRequisitionModelMixin
 from edc_model import models as edc_models
 
 
 class BloodResultsFbc(
     CrfWithActionModelMixin,
-    RequisitionModelMixin,
+    CrfWithRequisitionModelMixin,
     HaemoglobinModelMixin,
     HctModelMixin,
     RbcModelMixin,
