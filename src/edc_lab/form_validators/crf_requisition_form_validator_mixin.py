@@ -1,4 +1,5 @@
 from django import forms
+from edc_form_validators import FormValidator
 from edc_utils import formatted_datetime, to_utc
 
 
@@ -25,7 +26,9 @@ class CrfRequisitionFormValidatorMixin:
     assay_datetime_field = "assay_datetime"
     requisition_field = "requisition"
 
-    def validate_requisition(self, *panels, requisition_field=None, assay_datetime_field=None):
+    def validate_requisition(
+        self: FormValidator, *panels, requisition_field=None, assay_datetime_field=None
+    ):
         """Validates that the requisition model instance exists
         and assay datetime provided.
         """
@@ -48,7 +51,7 @@ class CrfRequisitionFormValidatorMixin:
         self.validate_assay_datetime(requisition, assay_datetime_field)
         return requisition
 
-    def validate_assay_datetime(self, requisition, assay_datetime_field=None):
+    def validate_assay_datetime(self: FormValidator, requisition, assay_datetime_field=None):
         assay_datetime_field = assay_datetime_field or self.assay_datetime_field
         assay_datetime = self.cleaned_data.get(assay_datetime_field)
         if assay_datetime:

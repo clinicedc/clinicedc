@@ -19,6 +19,7 @@ csf_supernatant = AliquotType(
     name="CSF Supernatant", alpha_code="SUPERNATANT", numeric_code="68"
 )
 csf = AliquotType(name="Cerebro Spinal Fluid", alpha_code="CSF", numeric_code="56")
+tissue_biopsy = AliquotType(name="Tissue biopsy", alpha_code="TISSUE", numeric_code="44")
 
 
 # dummy
