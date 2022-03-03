@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_constants.constants import NO, TBD, YES
 
 from ..screening_eligibility import FC
@@ -474,25 +474,6 @@ class TestScreening(TestCase):
         )
 
     def test_invalid_assess_eligibility(self):
-        class ScreeningEligibility(BaseScreeningEligibility):
-            def __init__(self, **kwargs):
-                self.thing_one = None
-                super().__init__(**kwargs)
-
-            def get_required_fields(self):
-                return {"thing_one": FC(YES, "thing one must be YES")}
-
-            def assess_eligibility(self) -> None:
-                self.reasons_ineligible = None
-
-        cleaned_data = dict(thing_one=YES)
-        self.assertRaises(
-            ScreeningEligibilityError,
-            ScreeningEligibility,
-            cleaned_data=cleaned_data,
-        )
-
-    def test_invalid_assess_eligibility2(self):
         class ScreeningEligibility(BaseScreeningEligibility):
             def __init__(self, **kwargs):
                 self.thing_one = None

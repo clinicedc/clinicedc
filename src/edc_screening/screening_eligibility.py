@@ -79,46 +79,36 @@ class ScreeningEligibility:
         update_model: Optional[bool] = None,
     ) -> None:
 
+        self.eligible: str = ""
         self.verbose = verbose
         self.update_model = True if update_model is None else update_model
         self.cleaned_data = cleaned_data
-        self.eligible = self.eligible_value_default
         if eligible_value_default:
-            self.eligible_value_default = eligible_value_default
+            self.eligible_value_default: str = eligible_value_default
         if eligible_values_list:
-            self.eligible_values_list = eligible_values_list
+            self.eligible_values_list: list = eligible_values_list
         if is_eligible_value:
-            self.is_eligible_value = is_eligible_value
+            self.is_eligible_value: str = is_eligible_value
         if is_ineligible_value:
-            self.is_ineligible_value = is_ineligible_value
+            self.is_ineligible_value: str = is_ineligible_value
         if eligible_display_label:
-            self.eligible_display_label = eligible_display_label
+            self.eligible_display_label: str = eligible_display_label
         if ineligible_display_label:
-            self.ineligible_display_label = ineligible_display_label
+            self.ineligible_display_label: str = ineligible_display_label
         self.model_obj = model_obj
-        self.reasons_ineligible = {}
+        self.reasons_ineligible: dict = {}
         self._assess_eligibility()
         if self.eligible not in self.eligible_values_list:
             raise ScreeningEligibilityError(
                 f"Invalid value. See attr `eligible`. Expected one of "
                 f"{self.eligible_values_list}. Got {self.eligible}."
             )
-        if (
-            not self.eligible
-            or self.eligible not in self.eligible_values_list
-            or self.reasons_ineligible is None
-        ):
-            raise ScreeningEligibilityError(
-                "Eligiblility or `reasons ineligible` not set. "
-                f"Got eligible={self.eligible}, reasons_ineligible={self.reasons_ineligible}. "
-                "See method `assess_eligibility`."
-            )
         if self.eligible == self.is_eligible_value and self.reasons_ineligible:
             raise ScreeningEligibilityInvalidCombination(
                 "Inconsistent result. Got eligible==YES where reasons_ineligible"
                 f"is not None. Got reasons_ineligible={self.reasons_ineligible}"
             )
-        if self.eligible != self.is_eligible_value and not self.reasons_ineligible:
+        if self.eligible == self.is_ineligible_value and not self.reasons_ineligible:
             raise ScreeningEligibilityInvalidCombination(
                 f"Inconsistent result. Got eligible=={self.eligible} "
                 "where reasons_ineligible is None"
@@ -200,7 +190,7 @@ class ScreeningEligibility:
             self.reasons_ineligible_fld_name,
             "|".join(self.reasons_ineligible.values()) or None,
         )
-        setattr(self.model_obj, self.eligible_fld_name, self.eligible)
+        setattr(self.model_obj, self.eligible_fld_name, self.is_eligible)
         self.set_fld_attrs_on_model()
 
     def set_fld_attrs_on_self(self) -> None:
