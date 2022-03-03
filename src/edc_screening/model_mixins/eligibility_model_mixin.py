@@ -48,17 +48,10 @@ class EligibilityModelMixin(EligibilityFieldsModelMixin, models.Model):
         * If not eligible, updates reasons_ineligible.
         * Screening Identifier is always allocated.
         """
-        if self.eligibility_cls:
-            eligibility_obj = self.eligibility_cls(model_obj=self)
-            self.eligible = eligibility_obj.is_eligible
-            if eligibility_obj.reasons_ineligible:
-                reasons_ineligible = [
-                    v for v in eligibility_obj.reasons_ineligible.values() if v
-                ]
-                reasons_ineligible.sort()
-                self.reasons_ineligible = "|".join(reasons_ineligible)
-            else:
-                self.reasons_ineligible = None
+        # if self.eligibility_cls:
+        self.eligibility_cls(model_obj=self)
+        # self.eligible = eligibility_obj.is_eligible
+        # self.reasons_ineligible = eligibility_obj.reasons_ineligible
         if not self.id:
             self.screening_identifier = self.identifier_cls().identifier
         if self.eligible:
