@@ -14,6 +14,7 @@ def get_field_attrs_for_utestid(
     decimal_places: Optional[int] = None,
     max_digits: Optional[int] = None,
     validators: Optional[list] = None,
+    help_text: Optional[list] = None,
 ) -> dict:
     """Returns a dictionary of field classes for the model"""
     value_options = dict(
@@ -24,6 +25,8 @@ def get_field_attrs_for_utestid(
         null=True,
         blank=True,
     )
+    if help_text:
+        value_options.update(help_text=help_text)
     units_options = dict(
         verbose_name="units",
         max_length=15,
