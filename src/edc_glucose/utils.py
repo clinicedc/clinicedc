@@ -6,7 +6,7 @@ from edc_reportable import MILLIMOLES_PER_LITER, ConversionNotHandled, convert_u
 from .constants import GLUCOSE_HIGH_READING
 
 
-def validate_glucose_as_millimoles_per_liter(prefix, cleaned_data=None) -> None:
+def validate_glucose_as_millimoles_per_liter(prefix: str, cleaned_data=None) -> None:
     min_val = Decimal("0.00")
     max_val = Decimal("30.00")
     high_value = Decimal(f"{GLUCOSE_HIGH_READING}")

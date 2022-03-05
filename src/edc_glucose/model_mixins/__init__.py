@@ -1,4 +1,4 @@
-from .fasting_model_mixin import FastingModelMixin
+from .fasting_model_mixin import FastingModelMixin, fasting_model_mixin_factory
+from .fbg_model_mixin import FbgModelMixin, fbg_model_mixin_factory
 from .hba1c_model_mixin import Hba1cModelMixin
-from .ifg_model_mixin import IfgModelMixin
-from .ogtt_model_mixin import OgttModelMixin
+from .ogtt_model_mixin import OgttModelMixin, ogtt_model_mixin_factory
