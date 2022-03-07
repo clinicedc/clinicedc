@@ -1,4 +1,3 @@
-from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 from edc_pharmacy.dispensing import DispenseError
 from edc_pharmacy.models import (
@@ -24,7 +23,8 @@ class TestDispense(TestCase):
         RegisteredSubject.objects.create(subject_identifier="12345")
 
         self.medication = Medication.objects.create(
-            name="Flucytosine",
+            name="flucytosine",
+            display_name="Flucytosine",
         )
 
         self.formulation = Formulation.objects.create(
@@ -61,6 +61,9 @@ class TestDispense(TestCase):
             refill_date=get_utcnow(),
             number_of_days=7,
         )
+        from pprint import pprint
+
+        pprint(rx_refill.__dict__)
         obj = DispensingHistory.objects.create(
             rx_refill=rx_refill,
             dispensed=8,
@@ -90,6 +93,7 @@ class TestDispense(TestCase):
             rx_refill = RxRefill.objects.get(id=rx_refill.id)
             self.assertEqual(rx_refill.remaining, 56 - dispensed)
 
+    @tag("1")
     def test_attempt_to_over_dispense(self):
         rx_refill = RxRefill.objects.create(
             rx=self.rx,
@@ -109,7 +113,7 @@ class TestDispense(TestCase):
             )
             self.assertEqual(obj.dispensed, 8)
             rx_refill = RxRefill.objects.get(id=rx_refill.id)
-            self.assertEqual(rx_refill.remaining, 56 - dispensed)
+            self.assertEqual(rx_refill.remaining, 48 - dispensed)
         rx_refill = RxRefill.objects.get(id=rx_refill.id)
         self.assertEqual(rx_refill.remaining, 0)
         self.assertRaises(

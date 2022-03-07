@@ -17,7 +17,7 @@ from edc_pharmacy.models import (
     RxRefill,
     Units,
 )
-from edc_pharmacy.refill_creator import RefillCreator
+from edc_pharmacy.refill import RefillCreator
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 
@@ -34,6 +34,7 @@ class TestRefill(TestCase):
 
         self.medication = Medication.objects.create(
             name="Flucytosine",
+            display_name="flucytosine",
         )
 
         self.formulation = Formulation.objects.create(

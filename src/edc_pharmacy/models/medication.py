@@ -35,3 +35,4 @@ class Medication(edc_models.BaseUuidModel):
     class Meta(edc_models.BaseUuidModel.Meta):
         verbose_name = "Medication"
         verbose_name_plural = "Medications"
+        unique_together = ["name", "display_name"]

@@ -84,4 +84,6 @@ class DosageGuideline(edc_models.BaseUuidModel):
     class Meta(edc_models.BaseUuidModel.Meta):
         verbose_name = "Dosage Guideline"
         verbose_name_plural = "Dosage Guidelines"
-        unique_together = ["medication", "dose", "dose_units", "dose_per_kg"]
+        unique_together = [
+            ["medication", "dose", "dose_units", "dose_per_kg"],
+        ]

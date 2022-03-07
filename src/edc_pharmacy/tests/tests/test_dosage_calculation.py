@@ -17,7 +17,8 @@ class TestDoseCalculator(TestCase):
         site_list_data.initialize()
         site_list_data.autodiscover()
         medication = Medication.objects.create(
-            name="Flucytosine",
+            name="flucytosine",
+            display_name="Flucytosine",
         )
 
         Formulation.objects.create(
@@ -29,7 +30,8 @@ class TestDoseCalculator(TestCase):
         )
 
         medication = Medication.objects.create(
-            name="Flucanazole",
+            name="flucanazole",
+            display_name="Flucanazole",
         )
 
         Formulation.objects.create(
@@ -41,7 +43,8 @@ class TestDoseCalculator(TestCase):
         )
 
         medication = Medication.objects.create(
-            name="Ambisome",
+            name="ambisome",
+            display_name="Ambisome",
         )
 
         Formulation.objects.create(
@@ -54,7 +57,7 @@ class TestDoseCalculator(TestCase):
 
     @tag("14")
     def test_dosage_flucytosine(self):
-        medication = Medication.objects.get(name="Flucytosine")
+        medication = Medication.objects.get(name="flucytosine")
         dosage_guideline = DosageGuideline.objects.create(
             medication=medication,
             dose_per_kg=100.0,
@@ -78,7 +81,7 @@ class TestDoseCalculator(TestCase):
         )
 
     def test_dosage_ambisome(self):
-        medication = Medication.objects.get(name="Ambisome")
+        medication = Medication.objects.get(name="ambisome")
         dosage_guideline = DosageGuideline.objects.create(
             medication=medication,
             dose_per_kg=10.0,
@@ -100,7 +103,7 @@ class TestDoseCalculator(TestCase):
         )
 
     def test_dosage_flucanazole(self):
-        medication = Medication.objects.get(name="Flucanazole")
+        medication = Medication.objects.get(name="flucanazole")
         dosage_guideline = DosageGuideline.objects.create(
             medication=medication,
             dose=1200.0,
@@ -118,7 +121,7 @@ class TestDoseCalculator(TestCase):
         )
 
     def test_dosage_exceptions(self):
-        medication = Medication.objects.get(name="Flucytosine")
+        medication = Medication.objects.get(name="flucytosine")
         dosage_guideline = DosageGuideline.objects.create(
             medication=medication,
             dose_per_kg=100,
