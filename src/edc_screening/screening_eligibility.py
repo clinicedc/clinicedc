@@ -119,6 +119,9 @@ class ScreeningEligibility:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"
 
+    def __str__(self) -> str:
+        return f"{self.__class__.__name__}()"
+
     def assess_eligibility(self) -> None:
         """Override to add additional assessments after the default
         assessment is complete.
@@ -190,8 +193,11 @@ class ScreeningEligibility:
             self.reasons_ineligible_fld_name,
             "|".join(self.reasons_ineligible.values()) or None,
         )
-        setattr(self.model_obj, self.eligible_fld_name, self.is_eligible)
+        self.set_eligible_model_field()
         self.set_fld_attrs_on_model()
+
+    def set_eligible_model_field(self):
+        setattr(self.model_obj, self.eligible_fld_name, self.is_eligible)
 
     def set_fld_attrs_on_self(self) -> None:
         """Adds fld attrs from the model / cleaned_data to self"""
