@@ -70,6 +70,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
         "dispense",
         "returns",
         "prescription",
+        "active",
         "packed",
         "shipped",
         "received_at_site",
@@ -77,6 +78,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
         "verified_datetime",
     )
     list_filter = (
+        "active",
         "refill_date",
         "visit_code",
         "visit_code_sequence",
@@ -127,7 +129,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_dispensinghistory_changelist")
         url = f"{url}?rx_refill={obj.id}"
         context = dict(
-            title="Dispense history for this RX item", url=url, label="Dispense History"
+            title="Dispense history for this RX item", url=url, label="History"
         )
         dispense_history_html = render_to_string(
             "dashboard_button.html", context=context
@@ -143,7 +145,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_returnhistory_changelist")
         url = f"{url}?rx_refill={obj.id}"
         context = dict(
-            title="Returns history for this RX item", url=url, label="Returns history"
+            title="Returns history for this RX item", url=url, label="History"
         )
         returns_history_html = render_to_string(
             "dashboard_button.html", context=context

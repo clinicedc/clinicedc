@@ -50,21 +50,31 @@ class RefillCreator:
                 obj.active = False
                 obj.save()
             active = True
-        opts = dict(
+        get_opts = dict(
             rx=self.rx,
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             refill_date=self.refill_date,
+        )
+        create_opts = dict(
             visit_code=self.visit_code,
             visit_code_sequence=self.visit_code_sequence,
             number_of_days=self.number_of_days,
+            **get_opts,
         )
         try:
-            with transaction.atomic():
-                obj = RxRefill.objects.create(**opts)
-        except IntegrityError as e:
-            raise PrescriptionRefillError(e)
+            obj = RxRefill.objects.get(**get_opts)
+        except ObjectDoesNotExist:
+            try:
+                with transaction.atomic():
+                    obj = RxRefill.objects.create(**create_opts)
+            except IntegrityError as e:
+                raise PrescriptionRefillError(e)
         else:
+            obj.visit_code = self.visit_code
+            obj.visit_code_sequence = self.visit_code_sequence
+            obj.number_of_days = self.number_of_days
+        finally:
             obj.active = active
             obj.save()
         return obj

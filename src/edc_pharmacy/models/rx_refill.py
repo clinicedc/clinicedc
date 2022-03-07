@@ -122,6 +122,7 @@ class RxRefill(
 
     def save(self, *args, **kwargs):
         if self.active:
+            # TODO: does this matter?
             opts = dict(id=self.id) if self.id else {}
             if (
                 self.__class__.objects.filter(
@@ -138,19 +139,25 @@ class RxRefill(
 
         self.medication = self.dosage_guideline.medication
         # if not self.dose and self.calculate_dose:
-        self.dose = dosage_per_day(
+        self.frequency = self.dosage_guideline.frequency
+        self.frequency_units = self.dosage_guideline.frequency_units
+        self.dose = self.get_dose()
+        self.total = self.get_total()
+        if not self.id:
+            self.remaining = self.total
+        self.as_string = str(self)
+        super().save(*args, **kwargs)
+
+    def get_dose(self):
+        return dosage_per_day(
             self.dosage_guideline,
             weight_in_kgs=self.weight_in_kgs,
             strength=self.formulation.strength,
             strength_units=self.formulation.units.name,
         )
-        self.frequency = self.dosage_guideline.frequency
-        self.frequency_units = self.dosage_guideline.frequency_units
-        self.total = float(self.dose) * float(self.number_of_days)
-        if not self.id:
-            self.remaining = self.total
-        self.as_string = str(self)
-        super().save(*args, **kwargs)
+
+    def get_total(self):
+        return float(self.dose) * float(self.number_of_days)
 
     @property
     def subject_identifier(self):
