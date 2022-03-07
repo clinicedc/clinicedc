@@ -1,5 +1,3 @@
-import pdb
-
 from django.apps import apps as django_apps
 from edc_reference import site_reference_configs
 from edc_visit_tracking.constants import MISSED_VISIT

@@ -1,5 +1,3 @@
-import pdb
-
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
