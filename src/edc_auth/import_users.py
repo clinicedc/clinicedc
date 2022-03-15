@@ -31,7 +31,7 @@ add_user_template = Template(
     "Your password is:\n\n$password\n\n"
     "(Yes, that is your password)\n\n"
     "You are authorized to log into the following sites:\n\n  - $site_names.\n\n"
-    "As a $job_title, you have been assigned the following roles:\n\n  - $role_names\n\n"
+    "As a $job_title, you have been assigned the following roles:\n\n  - $role_names.\n\n"
     "Thanks.\n\n"
     "$project_name"
 )
@@ -42,7 +42,7 @@ change_user_template = Template(
     "Your username is `$username`.\n\n"
     "Your new password is:\n\n$password\n\n"
     "You are authorized to log into the following sites:\n\n  - $site_names.\n\n"
-    "As a $job_title, you have been assigned the following roles:\n\n  - $role_names\n\n"
+    "As a $job_title, you have been assigned the following roles:\n\n  - $role_names.\n\n"
     "Thanks.\n\n"
     "$project_name"
 )

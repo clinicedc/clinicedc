@@ -19,8 +19,8 @@ def change_password(user, nwords: Optional[int] = None) -> str:
 
 def send_new_credentials_to_user(user, nwords: Optional[int] = None) -> EmailMessage:
     body = change_user_template
-    site_names = "\n".join([s.name for s in user.userprofile.sites.all()])
-    role_names = "\n".join([r.display_name for r in user.userprofile.roles.all()])
+    site_names = "\n - ".join([s.name for s in user.userprofile.sites.all()])
+    role_names = "\n - ".join([r.display_name for r in user.userprofile.roles.all()])
     resource_name = urlparse(settings.INDEX_PAGE).netloc
     password = change_password(user, nwords)
     opts = {
