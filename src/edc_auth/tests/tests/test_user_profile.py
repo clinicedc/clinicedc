@@ -66,7 +66,6 @@ class TestUserProfile(EdcAuthTestCase):
             backend.authenticate(request, username="erik", password="password")
         )
 
-    @tag("2")
     def test_add_groups_for_role(self):
         AuthUpdater(verbose=False)
         user = User.objects.create(
