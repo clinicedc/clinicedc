@@ -4,7 +4,7 @@ from edc_crf.crf_model_mixin import CrfModelMixin
 from edc_model import models as edc_models
 
 from ..model_mixins import SubjectVisitMissedModelMixin
-from .subject_visit_mised_reasons import SubjectVisitMissedReasons
+from .subject_visit_missed_reasons import SubjectVisitMissedReasons
 
 
 class SubjectVisitMissed(
