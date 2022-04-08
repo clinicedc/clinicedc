@@ -14,12 +14,11 @@ def update_action_identifier(model=None, action_cls=None, apps=None, status=None
 
     For example, in a migration (RunPython):
         def update_followup_examination_action_identifier(apps, schema_editor):
-            if get_meta_version() == PHASE_TWO:
-                update_action_identifier(
+            update_action_identifier(
                     model="meta_subject.followupexamination",
                     action_cls=FollowupExaminationAction,
                     apps=apps,
-                )
+            )
     """
 
     apps = apps or django_apps
