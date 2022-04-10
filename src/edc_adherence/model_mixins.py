@@ -2,6 +2,8 @@ from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.html import format_html
+from edc_constants.choices import YES_NO
+from edc_constants.constants import YES
 from edc_model import models as edc_models
 
 from .choices import MISSED_PILLS
@@ -26,6 +28,10 @@ class MedicationAdherenceModelMixin(models.Model):
         verbose_name="When was the last time you missed your study pill?",
         max_length=25,
         choices=MISSED_PILLS,
+    )
+
+    pill_count_performed = models.CharField(
+        verbose_name="Was a pill count performed", max_length=5, choices=YES_NO, default=YES
     )
 
     pill_count = models.IntegerField(

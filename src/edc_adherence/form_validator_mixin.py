@@ -1,10 +1,11 @@
 from django import forms
-from edc_constants.constants import NEVER, OTHER
+from edc_constants.constants import NEVER, OTHER, YES
 
 
 class MedicationAdherenceFormValidatorMixin:
     def clean(self):
         self.confirm_visual_scores_match()
+        self.required_if(YES, field="pill_count_performed", field_required="pill_count")
         self.require_m2m_if_missed_any_pills()
         self.missed_pill_reason_other_specify()
 
