@@ -1,7 +1,7 @@
 from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_appointment.tests.helper import Helper
-from edc_constants.constants import NEVER, OTHER
+from edc_constants.constants import NEVER, OTHER, YES
 from edc_facility import import_holidays
 from edc_list_data import site_list_data
 from edc_reference import site_reference_configs
@@ -44,6 +44,7 @@ class TestAdherence(TestCase):
             visual_score_slider=90,
             visual_score_confirmed=90,
             last_missed_pill=NEVER,
+            pill_count_performed=YES,
             pill_count=30,
             other_missed_pill_reason=None,
         )
@@ -56,6 +57,7 @@ class TestAdherence(TestCase):
             visual_score_slider=90,
             visual_score_confirmed=90,
             last_missed_pill="today",
+            pill_count_performed=YES,
             pill_count=20,
             other_missed_pill_reason=None,
         )
@@ -68,6 +70,7 @@ class TestAdherence(TestCase):
             visual_score_slider=90,
             visual_score_confirmed=90,
             last_missed_pill=NEVER,
+            pill_count_performed=YES,
             pill_count=30,
             other_missed_pill_reason=None,
             subject_visit=self.subject_visit,
@@ -102,4 +105,4 @@ class TestAdherence(TestCase):
 
     def test_admin(self):
         my_admin_site.register(MedicationAdherence, MedicationAdherenceAdmin)
-        MedicationAdherenceAdmin(MedicationAdherence, admin_site=my_admin_site)
+        MedicationAdherenceAdmin(MedicationAdherence, my_admin_site)
