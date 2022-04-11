@@ -57,7 +57,7 @@ class SiteVisitSchedules:
     def visit_schedules(self):
         return self.registry
 
-    def get_visit_schedule(self, visit_schedule_name=None, **kwargs):
+    def get_visit_schedule(self, visit_schedule_name=None):
         """Returns a visit schedule instance or raises."""
         try:
             visit_schedule_name = visit_schedule_name.split(".")[0]
@@ -167,7 +167,21 @@ class SiteVisitSchedules:
                     errors["visits"].extend(visit.check())
         return errors
 
-    def to_model(self, model_cls):
+    @staticmethod
+    def to_model(model_cls):
+        """Updates the VisitSchedule model with the current visit
+        schedule, schedule and visits.
+
+        Note: The VisitSchedule model is just for reference and does
+        not replace information gathered from -this- class.
+
+        Note: in addition to other attrs, such as visit code,
+        timepoint must be unique across all schedules. Timepoint
+        will not be updated for an existing record and may raise
+        an integrity error. If you change a timepoint value within
+        an existing schedule, you may need to change it manually via
+        the database client.
+        """
         model_cls.objects.update(active=False)
         for visit_schedule in site_visit_schedules.visit_schedules.values():
             for schedule in visit_schedule.schedules.values():
@@ -199,6 +213,7 @@ class SiteVisitSchedules:
         any INSTALLED_APP.
         """
         self.loaded = True
+        before_import_registry = None
         module_name = module_name or "visit_schedules"
         verbose = True if verbose is None else verbose
         if verbose:

@@ -30,6 +30,7 @@ class OffScheduleModelFormMixin(ModelForm):
             )
         except InvalidOffscheduleDate as e:
             raise ValidationError(e)
+        self.validate_visit_tracking_reports()
         return cleaned_data
 
     @property
@@ -40,3 +41,10 @@ class OffScheduleModelFormMixin(ModelForm):
         except AttributeError:
             offschedule_datetime_field = "offschedule_datetime"
         return offschedule_datetime_field
+
+    # TODO: validate_visit_tracking_reports before taking off schedule
+    def validate_visit_tracking_reports(self):
+        """Asserts that all visit tracking reports
+        have been submitted.
+        """
+        pass

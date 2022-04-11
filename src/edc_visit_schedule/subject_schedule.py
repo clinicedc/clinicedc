@@ -28,6 +28,10 @@ class OnScheduleForDateError(Exception):
     pass
 
 
+class OnScheduleFirstAppointmentDateError(Exception):
+    pass
+
+
 class NotConsentedError(Exception):
     pass
 
@@ -85,7 +89,9 @@ class SubjectSchedule:
     def consent_model_cls(self):
         return django_apps.get_model(self.consent_model)
 
-    def put_on_schedule(self, subject_identifier=None, onschedule_datetime=None):
+    def put_on_schedule(
+        self, subject_identifier=None, onschedule_datetime=None, first_appt_datetime=None
+    ):
         """Puts a subject on-schedule.
 
         A person is put on schedule by creating an instance
@@ -127,7 +133,12 @@ class SubjectSchedule:
                 visit_schedule=self.visit_schedule,
                 appointment_model=self.appointment_model,
             )
-            creator.create_appointments(onschedule_datetime)
+            if first_appt_datetime and first_appt_datetime < onschedule_datetime:
+                raise OnScheduleFirstAppointmentDateError(
+                    "First appt datetime cannot be before onschedule datetime. "
+                    f"Got {first_appt_datetime} < {onschedule_datetime}"
+                )
+            creator.create_appointments(first_appt_datetime or onschedule_datetime)
 
     def take_off_schedule(self, subject_identifier=None, offschedule_datetime=None):
         """Takes a subject off-schedule.
