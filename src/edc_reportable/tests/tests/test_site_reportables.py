@@ -36,7 +36,6 @@ class TestSiteReportables(TestCase):
                 ),
             )
 
-    @tag("1")
     def test_haemoglobin(self):
         reportables = site_reportables.get("my_reference_list")
         haemoglobin = reportables.get("haemoglobin")
