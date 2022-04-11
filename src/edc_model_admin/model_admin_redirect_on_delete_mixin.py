@@ -12,7 +12,11 @@ class ModelAdminRedirectOnDeleteMixin:
     If `post_url_on_delete_name` is not set, does nothing.
     """
 
-    post_url_on_delete_name = None  # lookup key for url_names dict
+    post_url_on_delete_name = "subject_dashboard_url"  # lookup key for url_names dict
+
+    def __init__(self, *args):
+        self.post_url_on_delete = None
+        super().__init__(*args)
 
     def get_post_url_on_delete(self, request, obj):
         try:
