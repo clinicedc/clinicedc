@@ -1,13 +1,22 @@
-from typing import Optional
-
-from edc_constants.constants import YES
+from edc_form_validators import FormValidator
 
 
 class FbgFormValidatorMixin:
-    def validate_fbg_required_fields(self, fbg_prefix: Optional[str] = None):
-        """Uses fields `fbg_value`, `fbg_datetime`, `fbg_units`"""
-        fbg_prefix = fbg_prefix or "fbg"
+    """Declare with FormValidatorMixin"""
 
+    def validate_fbg_required_fields(
+        self: FormValidator, fbg_prefix: str, report_datetime_fld: str
+    ):
+        """Uses fields `fbg_value`, `fbg_datetime`, `fbg_units`.
+
+        Args:
+            :param fbg_prefix: e.g. fbg, fbg2, etc
+            :param report_datetime_fld:
+        """
+
+        self.invalid_if_before_report_datetime(
+            f"{fbg_prefix}_datetime", report_datetime_field=report_datetime_fld
+        )
         self.required_if_true(
             self.cleaned_data.get(f"{fbg_prefix}_datetime"),
             field_required=f"{fbg_prefix}_value",

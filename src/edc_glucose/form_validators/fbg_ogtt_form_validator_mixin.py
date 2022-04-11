@@ -10,6 +10,7 @@ from .ogtt_form_validator_mixin import OgttFormValidatorMixin
 class FbgOgttFormValidatorMixin(FbgFormValidatorMixin, OgttFormValidatorMixin):
     def validate_glucose_testing_matrix(
         self,
+        report_datetime_fld: str,
         ogtt_prefix: Optional[str] = None,
         fbg_prefix: Optional[str] = None,
         include_fbg=None,
@@ -19,7 +20,7 @@ class FbgOgttFormValidatorMixin(FbgFormValidatorMixin, OgttFormValidatorMixin):
 
         include_fbg = True if include_fbg is None else include_fbg
         if include_fbg:
-            self.validate_fbg_required_fields(fbg_prefix=fbg_prefix)
+            self.validate_fbg_required_fields(fbg_prefix, report_datetime_fld)
             validate_glucose_as_millimoles_per_liter(fbg_prefix, self.cleaned_data)
         self.validate_ogtt_required_fields(ogtt_prefix=ogtt_prefix)
         validate_glucose_as_millimoles_per_liter(ogtt_prefix, self.cleaned_data)
@@ -41,7 +42,7 @@ class FbgOgttFormValidatorMixin(FbgFormValidatorMixin, OgttFormValidatorMixin):
                 raise forms.ValidationError(
                     {
                         f"{ogtt_prefix}_base_datetime": (
-                            "Invalid date. Expected to be after time " "FBG level was measured"
+                            "Invalid date. Expected to be after time FBG level was measured"
                         )
                     }
                 )
