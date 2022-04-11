@@ -1,5 +1,6 @@
 from django.conf import settings
 from edc_constants.constants import (
+    ABNORMAL,
     CANCELLED,
     CLOSED,
     COMPLETE,
@@ -11,6 +12,7 @@ from edc_constants.constants import (
     NOT_APPLICABLE,
     OPEN,
     OTHER,
+    PENDING,
     YES,
 )
 
@@ -49,6 +51,7 @@ class DashboardMiddleware:
     def process_template_response(self, request, response):
         if response.context_data:
             response.context_data.update(
+                ABNORMAL=ABNORMAL,
                 CANCELLED=CANCELLED,
                 CLOSED=CLOSED,
                 COMPLETE=COMPLETE,
@@ -61,6 +64,7 @@ class DashboardMiddleware:
                 NOT_APPLICABLE=NOT_APPLICABLE,
                 OPEN=OPEN,
                 OTHER=OTHER,
+                PENDING=PENDING,
                 SITE_ID=settings.SITE_ID,
                 YES=YES,
             )
