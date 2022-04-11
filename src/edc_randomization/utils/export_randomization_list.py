@@ -19,17 +19,15 @@ def export_randomization_list(
 ):
     randomizer_cls = site_randomizers.get(randomizer_name)
 
-    msg = (
-        f"User `{username}` does not exist or does not have "
-        f"permission to access '{randomizer_cls.model_cls()}'"
-    )
     try:
         user = get_user_model().objects.get(username=username)
     except ObjectDoesNotExist:
-        raise RandomizationListExporterError(msg)
-    if not user.has_perms([randomizer_cls.model_cls()._meta.label_lower]):
-        raise RandomizationListExporterError(msg)
-
+        raise RandomizationListExporterError(f"User `{username}` does not exist")
+    if not user.has_perm(randomizer_cls.model_cls()._meta.label_lower.replace(".", ".view_")):
+        raise RandomizationListExporterError(
+            f"User `{username}` does not have "
+            f"permission to view '{randomizer_cls.model_cls()._meta.label_lower}'"
+        )
     path = path or settings.EXPORT_FOLDER
     timestamp = get_utcnow().strftime("%Y%m%d%H%M")
     filename = os.path.expanduser(
