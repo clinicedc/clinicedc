@@ -552,6 +552,12 @@ YES_NO_PENDING_NA = (
     (NOT_APPLICABLE, "Not applicable"),
 )
 
+YES_NO_PENDING_NA_GLUCOSE_SCREENING = (
+    (PENDING, "Pending (scheduled for 3 days from first)"),
+    (YES, YES),
+    (NOT_APPLICABLE, "Not applicable"),
+)
+
 
 YES_NO_NA_DWTA = (
     (YES, _(YES)),
