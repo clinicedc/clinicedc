@@ -68,7 +68,7 @@ class VisitModelFieldsMixin(models.Model):
     )
 
     info_source = models.CharField(
-        verbose_name="What is the main source of this information?", max_length=25
+        verbose_name="What is the MAIN source of this information?", max_length=25
     )
 
     info_source_other = OtherCharField(
@@ -81,6 +81,7 @@ class VisitModelFieldsMixin(models.Model):
         choices=ALIVE_DEAD_UNKNOWN,
         null=True,
         default=ALIVE,
+        help_text="If YES, submit Death report",
     )
 
     last_alive_date = models.DateField(
@@ -88,6 +89,7 @@ class VisitModelFieldsMixin(models.Model):
         validators=[date_not_before_study_start, date_not_future],
         null=True,
         blank=True,
+        help_text="Will be validated on the Death report",
     )
 
     comments = models.TextField(
