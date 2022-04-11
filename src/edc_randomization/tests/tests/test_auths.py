@@ -6,7 +6,6 @@ from edc_auth.site_auths import site_auths
 
 
 class TestAuths(TestCase):
-    @tag("1")
     @override_settings(
         EDC_AUTH_SKIP_SITE_AUTHS=True,
         EDC_AUTH_SKIP_AUTH_UPDATER=False,
