@@ -3,7 +3,7 @@ from typing import Optional
 
 from edc_consent.utils import get_consent_model_cls
 from edc_screening.utils import get_subject_screening_model_cls
-from edc_utils import age
+from edc_utils import age, to_utc
 from edc_visit_tracking.stubs import SubjectVisitModelStub
 
 
@@ -37,7 +37,7 @@ class PrnFormValidatorMixin:
 
     @property
     def age_in_years(self) -> int:
-        return age(self.subject_consent.dob, self.report_datetime).years
+        return age(self.subject_consent.dob, to_utc(self.report_datetime)).years
 
 
 class CrfFormValidatorMixin(PrnFormValidatorMixin):
