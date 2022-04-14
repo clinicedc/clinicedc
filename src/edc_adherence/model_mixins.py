@@ -35,7 +35,7 @@ class MedicationAdherenceModelMixin(models.Model):
     )
 
     pill_count = models.IntegerField(
-        verbose_name="Number of pills left in the bottle", null=True
+        verbose_name="Number of pills left in the bottle", null=True, blank=True
     )
 
     missed_pill_reason = models.ManyToManyField(

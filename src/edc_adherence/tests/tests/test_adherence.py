@@ -1,7 +1,7 @@
 from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_appointment.tests.helper import Helper
-from edc_constants.constants import NEVER, OTHER, YES
+from edc_constants.constants import NEVER, NO, OTHER, YES
 from edc_facility import import_holidays
 from edc_list_data import site_list_data
 from edc_reference import site_reference_configs
@@ -106,3 +106,35 @@ class TestAdherence(TestCase):
     def test_admin(self):
         my_admin_site.register(MedicationAdherence, MedicationAdherenceAdmin)
         MedicationAdherenceAdmin(MedicationAdherence, my_admin_site)
+
+    def test_pill_count(self):
+        data = dict(
+            visual_score_slider=90,
+            visual_score_confirmed=90,
+            last_missed_pill=NEVER,
+            other_missed_pill_reason=None,
+            subject_visit=self.subject_visit,
+            report_datetime=self.subject_visit.report_datetime,
+        )
+        data.update(
+            pill_count_performed=YES,
+            pill_count=0,
+        )
+        form = MedicationAdherenceForm(data=data)
+        form.is_valid()
+        self.assertEqual({}, form._errors)
+
+        data.update(pill_count=1)
+        form = MedicationAdherenceForm(data=data)
+        form.is_valid()
+        self.assertEqual({}, form._errors)
+
+        data.update(pill_count_performed=NO, pill_count=0)
+        form = MedicationAdherenceForm(data=data)
+        form.is_valid()
+        self.assertIn("pill_count", form._errors)
+
+        data.update(pill_count_performed=NO, pill_count=None)
+        form = MedicationAdherenceForm(data=data)
+        form.is_valid()
+        self.assertEqual({}, form._errors)
