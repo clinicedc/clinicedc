@@ -1,7 +1,7 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 from edc_constants.constants import FEMALE
-from edc_pharmacy.exceptions import PrescriptionError
+from edc_pharmacy.exceptions import PrescriptionError, PrescriptionNotStarted
 from edc_pharmacy.models import (
     DosageGuideline,
     Formulation,
@@ -130,12 +130,12 @@ class TestRefill(TestCase):
     def test_refill_raises_on_gets_rx(self):
         """Assert raises if refill date before Rx"""
         self.assertRaises(
-            PrescriptionError,
+            PrescriptionNotStarted,
             RefillCreator,
             subject_identifier=self.subject_identifier,
             visit_code="1000",
             visit_code_sequence=0,
-            refill_date=get_utcnow() - relativedelta(years=1),
+            refill_date=(get_utcnow() - relativedelta(years=1)).date(),
             number_of_days=32,
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,

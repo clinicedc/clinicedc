@@ -13,7 +13,7 @@ class StudyMedicationRefillModelMixin(models.Model):
 
     """Declare with field subject_visit using a CRF model mixin"""
 
-    refill_date = models.DateField(null=True, blank=False)
+    refill_date = models.DateField()
 
     dosage_guideline = models.ForeignKey(
         DosageGuideline, on_delete=PROTECT, null=True, blank=False

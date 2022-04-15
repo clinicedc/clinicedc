@@ -2,6 +2,14 @@ class PrescriptionError(Exception):
     pass
 
 
+class PrescriptionNotStarted(Exception):
+    pass
+
+
+class PrescriptionExpired(Exception):
+    pass
+
+
 class PrescriptionAlreadyExists(Exception):
     pass
 
