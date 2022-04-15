@@ -12,7 +12,7 @@ from .medication_stock_receiving import MedicationStockReceiving
 from .model_mixins import (
     MedicationOrderModelMixin,
     StudyMedicationCrfModelMixin,
-    StudyMedicationModelMixin,
+    StudyMedicationRefillModelMixin,
 )
 from .proxy_models import VisitSchedule
 from .return_history import ReturnError, ReturnHistory

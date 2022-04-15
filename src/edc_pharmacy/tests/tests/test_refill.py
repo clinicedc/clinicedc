@@ -1,11 +1,7 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 from edc_constants.constants import FEMALE
-from edc_pharmacy.exceptions import (
-    ActivePrescriptionRefillExists,
-    PrescriptionError,
-    PrescriptionRefillError,
-)
+from edc_pharmacy.exceptions import PrescriptionError
 from edc_pharmacy.models import (
     DosageGuideline,
     Formulation,
@@ -17,11 +13,13 @@ from edc_pharmacy.models import (
     RxRefill,
     Units,
 )
-from edc_pharmacy.refill import RefillCreator
+from edc_pharmacy.refill import RefillCreator, get_active_refill
+from edc_pharmacy.refill.refill_creator import RefillAlreadyExists
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 
 
+@tag("refill")
 class TestRefill(TestCase):
     def setUp(self):
         self.subject_identifier = "12345"
@@ -36,6 +34,14 @@ class TestRefill(TestCase):
             name="Flucytosine",
             display_name="flucytosine",
         )
+
+        # create prescription for this subject
+        self.rx = Rx.objects.create(
+            subject_identifier=self.subject_identifier,
+            weight_in_kgs=40,
+            report_datetime=get_utcnow(),
+        )
+        self.rx.medications.add(self.medication)
 
         self.formulation = Formulation.objects.create(
             medication=self.medication,
@@ -53,16 +59,11 @@ class TestRefill(TestCase):
             frequency_units=FrequencyUnits.objects.get(name="day"),
         )
 
-        self.rx = Rx.objects.create(
-            subject_identifier=self.subject_identifier,
-            weight_in_kgs=40,
-            report_datetime=get_utcnow(),
-            medication=self.medication,
-        )
-
     def test_rx_refill_str(self):
         obj = RxRefill.objects.create(
             rx=self.rx,
+            visit_code="1000",
+            visit_code_sequence=0,
             formulation=self.formulation,
             dosage_guideline=self.dosage_guideline,
             frequency=1,
@@ -74,6 +75,8 @@ class TestRefill(TestCase):
     def test_prescription_accepts_explicit_dose(self):
         obj = RxRefill.objects.create(
             rx=self.rx,
+            visit_code="1000",
+            visit_code_sequence=0,
             formulation=self.formulation,
             dosage_guideline=self.dosage_guideline,
             frequency=1,
@@ -86,6 +89,8 @@ class TestRefill(TestCase):
     def test_prescription_calculates_dose(self):
         obj = RxRefill.objects.create(
             rx=self.rx,
+            visit_code="1000",
+            visit_code_sequence=0,
             formulation=self.formulation,
             dosage_guideline=self.dosage_guideline,
             frequency=1,
@@ -99,6 +104,8 @@ class TestRefill(TestCase):
     def test_prescription_total(self):
         obj = RxRefill.objects.create(
             rx=self.rx,
+            visit_code="1000",
+            visit_code_sequence=0,
             formulation=self.formulation,
             dosage_guideline=self.dosage_guideline,
             frequency=1,
@@ -108,145 +115,177 @@ class TestRefill(TestCase):
         )
         self.assertEqual(obj.total, 56)
 
-    @tag("35")
     def test_refill_gets_rx(self):
         refill_creator = RefillCreator(
-            self.subject_identifier,
+            subject_identifier=self.subject_identifier,
+            visit_code="1000",
+            visit_code_sequence=0,
             refill_date=get_utcnow(),
             number_of_days=32,
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
         )
-        self.assertTrue(refill_creator.rx)
+        self.assertTrue(refill_creator.refill.rx)
 
-    @tag("35")
     def test_refill_raises_on_gets_rx(self):
         """Assert raises if refill date before Rx"""
         self.assertRaises(
             PrescriptionError,
             RefillCreator,
-            self.subject_identifier,
+            subject_identifier=self.subject_identifier,
+            visit_code="1000",
+            visit_code_sequence=0,
             refill_date=get_utcnow() - relativedelta(years=1),
             number_of_days=32,
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
         )
 
-    @tag("35")
     def test_refill_create_and_no_active_refill(self):
         refill_creator = RefillCreator(
-            self.subject_identifier,
+            subject_identifier=self.subject_identifier,
+            visit_code="1000",
+            visit_code_sequence=0,
             refill_date=get_utcnow(),
             number_of_days=32,
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             make_active=False,
         )
-        self.assertIsNone(refill_creator.active_refill)
+        self.assertIsNone(get_active_refill(refill_creator.refill.rx))
 
-    @tag("35")
     def test_refill_create_and_gets_active_refill(self):
         refill_creator = RefillCreator(
-            self.subject_identifier,
+            subject_identifier=self.subject_identifier,
+            visit_code="1000",
+            visit_code_sequence=0,
             refill_date=get_utcnow(),
             number_of_days=32,
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
         )
-        self.assertTrue(refill_creator.active_refill)
-        self.assertTrue(refill_creator.active_refill.active)
-        self.assertEqual(refill_creator.object, refill_creator.active_refill)
+        self.assertEqual(
+            get_active_refill(refill_creator.refill.rx),
+            refill_creator.refill,
+        )
 
-    @tag("35")
     def test_refill_create_activates_by_default(self):
-        refill = RefillCreator(
-            self.subject_identifier,
+        refill_creator = RefillCreator(
+            subject_identifier=self.subject_identifier,
+            visit_code="1000",
+            visit_code_sequence=0,
             refill_date=get_utcnow().date(),
             number_of_days=32,
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
         )
-        self.assertTrue(refill.object.active)
+        self.assertTrue(get_active_refill(refill_creator.refill.rx).active)
 
-    @tag("35")
     def test_refill_create_does_not_activate_if_false(self):
-        refill = RefillCreator(
-            self.subject_identifier,
+        refill_creator = RefillCreator(
+            subject_identifier=self.subject_identifier,
+            visit_code="1000",
+            visit_code_sequence=0,
             refill_date=get_utcnow().date(),
             number_of_days=32,
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             make_active=False,
         )
-        self.assertFalse(refill.object.active)
+        self.assertIsNone(get_active_refill(refill_creator.refill.rx))
 
-    @tag("35")
     def test_refill_create_duplicate_raises(self):
         RefillCreator(
-            self.subject_identifier,
-            refill_date=get_utcnow(),
-            number_of_days=32,
-            dosage_guideline=self.dosage_guideline,
-            formulation=self.formulation,
-        )
-        self.assertRaises(
-            PrescriptionRefillError,
-            RefillCreator,
-            self.subject_identifier,
+            subject_identifier=self.subject_identifier,
+            visit_code="1000",
+            visit_code_sequence=0,
             refill_date=get_utcnow(),
             number_of_days=32,
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
         )
 
-    @tag("35")
+        self.assertRaises(
+            RefillAlreadyExists,
+            RefillCreator,
+            subject_identifier=self.subject_identifier,
+            visit_code="1000",
+            visit_code_sequence=0,
+            refill_date=get_utcnow(),
+            number_of_days=32,
+            dosage_guideline=self.dosage_guideline,
+            formulation=self.formulation,
+        )
+
     def test_refill_create_finds_active(self):
         refill_creator = RefillCreator(
-            self.subject_identifier,
+            subject_identifier=self.subject_identifier,
+            visit_code="1000",
+            visit_code_sequence=0,
             refill_date=get_utcnow(),
             number_of_days=32,
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             make_active=True,
         )
-        self.assertIsNotNone(refill_creator.active_refill)
-        refill_creator.object.active = False
-        refill_creator.object.save()
-        refill_creator.object.refresh_from_db()
-        self.assertIsNone(refill_creator.active_refill)
+        self.assertIsNotNone(get_active_refill(refill_creator.refill.rx))
+        refill_creator.refill.deactivate()
+        self.assertIsNone(get_active_refill(refill_creator.refill.rx))
 
-    @tag("35")
     def test_refill_create_activates_next(self):
-        refill_creator1 = RefillCreator(
-            self.subject_identifier,
+        refill_creator = RefillCreator(
+            subject_identifier=self.subject_identifier,
+            visit_code="1000",
+            visit_code_sequence=0,
             refill_date=get_utcnow(),
             number_of_days=32,
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
         )
-        refill_creator2 = RefillCreator(
-            self.subject_identifier,
+        self.assertIsNotNone(get_active_refill(refill_creator.refill.rx))
+
+        refill_creator = RefillCreator(
+            subject_identifier=self.subject_identifier,
+            visit_code="1010",
+            visit_code_sequence=0,
             refill_date=get_utcnow() + relativedelta(months=1),
             number_of_days=32,
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             make_active=True,
         )
-        refill_creator1.object.refresh_from_db()
-        self.assertFalse(refill_creator1.object.active)
-        self.assertTrue(refill_creator2.object.active)
-        refill_creator1.object.active = True
-        self.assertRaises(ActivePrescriptionRefillExists, refill_creator1.object.save)
+        self.assertIsNotNone(get_active_refill(refill_creator.refill.rx))
+        self.assertEqual(
+            get_active_refill(refill_creator.refill.rx), refill_creator.refill
+        )
 
-    @tag("35")
     def test_refill_create_refill_date(self):
         refill_date = get_utcnow().date()
         refill_creator = RefillCreator(
-            self.subject_identifier,
+            subject_identifier=self.subject_identifier,
+            visit_code="1000",
+            visit_code_sequence=0,
             refill_date=refill_date,
             number_of_days=32,
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
         )
 
-        self.assertEqual(refill_creator.object.refill_date, refill_date)
+        self.assertEqual(refill_creator.refill.refill_date, refill_date)
+
+    def test_refill_create_and_make_active(self):
+        refill_date = get_utcnow().date()
+        refill_creator = RefillCreator(
+            subject_identifier=self.subject_identifier,
+            visit_code="1000",
+            visit_code_sequence=0,
+            refill_date=refill_date,
+            number_of_days=32,
+            dosage_guideline=self.dosage_guideline,
+            formulation=self.formulation,
+            make_active=False,
+        )
+        self.assertFalse(refill_creator.refill.active)
+        refill_creator.refill.activate()
+        self.assertTrue(refill_creator.refill.active)
+        self.assertEqual(RxRefill.objects.all().count(), 1)

@@ -65,6 +65,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     list_display = (
         "subject_identifier",
+        "visit",
         "refill_date",
         "description",
         "dispense",
@@ -97,6 +98,10 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
         "dosage_guideline__medication__name",
     ]
     ordering = ["rx__subject_identifier", "-refill_date"]
+
+    @admin.display
+    def visit(self, obj):
+        return f"{obj.visit_code}.{obj.visit_code_sequence}"
 
     @admin.display(description="Subject identifier")
     def subject_identifier(self, obj=None):
@@ -161,9 +166,6 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
             "age_in_years": formatted_age(
                 born=obj.rx.registered_subject.dob, reference_dt=get_utcnow()
             ),
-            "refill_date": obj.refill_date,
-            "visit_code": obj.visit_code,
-            "visit_code_sequence": obj.visit_code_sequence,
             "number_of_days": obj.number_of_days,
             "remaining": obj.remaining,
             "total": obj.total,

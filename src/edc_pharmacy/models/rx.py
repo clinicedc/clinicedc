@@ -1,17 +1,21 @@
+from uuid import uuid4
+
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import PROTECT
 from edc_action_item.models import ActionModelMixin
+from edc_action_item.models.action_model_mixin import ActionItemModelManager
 from edc_constants.constants import NEW
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model import models as edc_models
 from edc_randomization.site_randomizers import site_randomizers
 from edc_registration.models import RegisteredSubject
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
-from edc_utils import convert_php_dateformat, formatted_age, get_utcnow
-from edc_utils.text import formatted_date
+from edc_utils import formatted_age, get_utcnow
 
 from ..choices import PRESCRIPTION_STATUS
 from ..constants import PRESCRIPTION_ACTION
+from ..exceptions import PrescriptionError
 from .medication import Medication
 from .search_slug_model_mixin import SearchSlugModelMixin
 from .subject import Subject
@@ -25,9 +29,20 @@ class Rx(
     edc_models.BaseUuidModel,
 ):
 
+    """A model for the prescription.
+
+    In this context the `prescription` specifies only the medication.
+    The formulation and doseage guidelines are specified
+    on each Refill.
+    """
+
     action_name = PRESCRIPTION_ACTION
 
     action_identifier = models.CharField(max_length=50, unique=True, null=True)
+
+    rx_identifier = models.CharField(max_length=36, default=uuid4)
+
+    rx_name = models.CharField(max_length=36, default="study prescription")
 
     registered_subject = models.ForeignKey(
         Subject,
@@ -50,7 +65,7 @@ class Rx(
 
     status = models.CharField(max_length=25, default=NEW, choices=PRESCRIPTION_STATUS)
 
-    medication = models.ForeignKey(Medication, on_delete=PROTECT, null=True)
+    medications = models.ManyToManyField(Medication, blank=False)
 
     refill = models.IntegerField(
         null=True,
@@ -78,13 +93,10 @@ class Rx(
     on_site = CurrentSiteManager()
 
     def __str__(self):
-        return (
-            f"{self.medication} "
-            f"{self.registered_subject.subject_identifier} {self.registered_subject.initials} "
-            f"{formatted_age(born=self.registered_subject.dob, reference_dt=get_utcnow())} "
-            f"{self.registered_subject.gender} "
-            f"Written: {self.rx_date}"
-        )
+        return f"{self.subject_identifier}"
+
+    def natural_key(self):
+        return tuple(self.rx_identifier)
 
     def save(self, *args, **kwargs):
         self.registered_subject = RegisteredSubject.objects.get(
@@ -92,12 +104,27 @@ class Rx(
         )
         if self.randomizer_name:
             randomizer = site_randomizers.get(self.randomizer_name)
-            self.rando_sid = (
-                randomizer.model_cls()
-                .objects.get(subject_identifier=self.subject_identifier)
-                .sid
-            )
+            try:
+                self.rando_sid = (
+                    randomizer.model_cls()
+                    .objects.get(subject_identifier=self.subject_identifier)
+                    .sid
+                )
+            except ObjectDoesNotExist:
+                raise PrescriptionError(
+                    "Unable to create prescription. Subject has not been "
+                    f"randomized (randomizer={self.randomizer_name}"
+                )
         super().save(*args, **kwargs)
+
+    def description(self):
+        return (
+            f"{','.join([o.display_name for o in self.medications.all()])} "
+            f"{self.registered_subject.subject_identifier} {self.registered_subject.initials} "
+            f"{formatted_age(born=self.registered_subject.dob, reference_dt=get_utcnow())} "
+            f"{self.registered_subject.gender} "
+            f"Written: {self.rx_date}"
+        )
 
     class Meta(edc_models.BaseUuidModel.Meta):
         verbose_name = "Prescription"

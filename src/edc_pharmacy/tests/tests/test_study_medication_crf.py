@@ -4,10 +4,7 @@ from edc_appointment.creators import AppointmentsCreator
 from edc_appointment.models import Appointment
 from edc_constants.constants import NO, YES
 from edc_facility import import_holidays
-from edc_pharmacy.exceptions import (
-    ActivePrescriptionRefillExists,
-    NextPrescriptionRefillError,
-)
+from edc_pharmacy.exceptions import NextRefillError
 from edc_pharmacy.models import (
     DosageGuideline,
     Formulation,
@@ -90,10 +87,9 @@ class TestMedicationCrf(TestCase):
             subject_identifier=self.subject_identifier,
             weight_in_kgs=40,
             report_datetime=report_datetime,
-            medication=self.medication,
         )
+        self.rx.medications.add(self.medication)
 
-    @tag("35")
     def test_ok(self):
         appointment = Appointment.objects.all().order_by("timepoint")[0]
         subject_visit = SubjectVisit.objects.create(
@@ -110,7 +106,6 @@ class TestMedicationCrf(TestCase):
         self.assertIsNotNone(obj.number_of_days)
         self.assertEqual(obj.number_of_days, 7)
 
-    @tag("35")
     def test_for_all_appts(self):
         """Assert for all appointments.
 
@@ -124,7 +119,7 @@ class TestMedicationCrf(TestCase):
             )
             if not appointment.next:
                 self.assertRaises(
-                    NextPrescriptionRefillError,
+                    NextRefillError,
                     StudyMedication.objects.create,
                     subject_visit=subject_visit,
                     dosage_guideline=self.dosage_guideline_100,
@@ -151,7 +146,6 @@ class TestMedicationCrf(TestCase):
                     next_formulation=self.formulation,
                 )
 
-    @tag("35")
     def test_refill_creates_next_refill(self):
         appointment = Appointment.objects.all().order_by("timepoint")[0]
         subject_visit = SubjectVisit.objects.create(
@@ -168,7 +162,6 @@ class TestMedicationCrf(TestCase):
         )
         self.assertEqual(RxRefill.objects.all().count(), 2)
 
-    @tag("35")
     def test_refill_creates_next_refill_for_next_dosage(self):
         appointment = Appointment.objects.all().order_by("timepoint")[0]
         subject_visit = SubjectVisit.objects.create(
