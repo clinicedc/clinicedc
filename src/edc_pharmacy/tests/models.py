@@ -8,18 +8,39 @@ from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleMod
 from edc_visit_tracking.model_mixins import VisitModelMixin
 
 
+class SubjectConsent(edc_models.BaseUuidModel):
+    subject_identifier = models.CharField(max_length=25)
+
+    consent_datetime = models.DateTimeField()
+
+    class Meta:
+        pass
+
+
 class SubjectVisit(VisitModelMixin, edc_models.BaseUuidModel):
     class Meta(VisitModelMixin.Meta, edc_models.BaseUuidModel.Meta):
         app_label = "edc_pharmacy"
 
 
 class StudyMedication(
-    StudyMedicationCrfModelMixin, SiteModelMixin, edc_models.BaseUuidModel
+    StudyMedicationCrfModelMixin,
+    CrfModelMixin,
+    SiteModelMixin,
+    edc_models.BaseUuidModel,
 ):
 
     subject_visit = models.OneToOneField(SubjectVisit, on_delete=models.PROTECT)
 
     report_datetime = models.DateTimeField(default=get_utcnow)
+
+    def run_metadata_rules_for_crf(self):
+        pass
+
+    def metadata_update(self, **kwargs):
+        pass
+
+    def update_reference_on_save(self):
+        return None
 
     class Meta(CrfModelMixin.Meta, edc_models.BaseUuidModel.Meta):
         app_label = "edc_pharmacy"
