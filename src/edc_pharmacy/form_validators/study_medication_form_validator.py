@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from edc_constants.constants import NO, YES
 from edc_form_validators import INVALID_ERROR, FormValidator
 
@@ -35,9 +36,12 @@ class StudyMedicationFormValidator(FormValidator):
 
     @property
     def rx(self):
-        return Rx.objects.get(
-            subject_identifier=self.cleaned_data.get(
-                "subject_visit"
-            ).subject_identifier,
-            medications__in=[self.cleaned_data.get("formulation").medication],
-        )
+        try:
+            return Rx.objects.get(
+                subject_identifier=self.cleaned_data.get(
+                    "subject_visit"
+                ).subject_identifier,
+                medications__in=[self.cleaned_data.get("formulation").medication],
+            )
+        except ObjectDoesNotExist:
+            self.raise_validation_error("Prescription does not exist", INVALID_ERROR)
