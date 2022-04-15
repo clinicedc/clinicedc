@@ -44,4 +44,6 @@ class StudyMedicationFormValidator(FormValidator):
                 medications__in=[self.cleaned_data.get("formulation").medication],
             )
         except ObjectDoesNotExist:
-            self.raise_validation_error("Prescription does not exist", INVALID_ERROR)
+            self.raise_validation_error(
+                {"__all__": "Prescription does not exist"}, INVALID_ERROR
+            )
