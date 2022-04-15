@@ -4,6 +4,7 @@ from typing import Any, Optional
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.management import CommandError
 from edc_pharmacy.exceptions import PrescriptionAlreadyExists, PrescriptionError
 
 
@@ -37,7 +38,10 @@ def create_prescription(
         )
         if site:
             opts.update(site=site)
-        rx = rx_model_cls.objects.create(**opts)
+        try:
+            rx = rx_model_cls.objects.create(**opts)
+        except ObjectDoesNotExist as e:
+            raise CommandError(f"Site does not exists. site={site}. Got {e}")
         for obj in medication_model_cls.objects.filter(name__in=medications):
             rx.medications.add(obj)
     else:
