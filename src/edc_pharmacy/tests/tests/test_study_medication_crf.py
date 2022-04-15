@@ -1,8 +1,9 @@
 from dateutil.relativedelta import relativedelta
 from django.db.models.signals import pre_save
-from django.test import TestCase
+from django.test import TestCase, override_settings, tag
 from edc_appointment.creators import AppointmentsCreator
 from edc_appointment.models import Appointment
+from edc_appointment.tests.helper import Helper
 from edc_constants.constants import NO, YES
 from edc_facility import import_holidays
 from edc_pharmacy.exceptions import (
@@ -16,7 +17,6 @@ from edc_pharmacy.models import (
     FormulationType,
     FrequencyUnits,
     Medication,
-    MedicationOrder,
     Route,
     Rx,
     RxRefill,
@@ -28,10 +28,15 @@ from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
+from ..forms import StudyMedicationForm
 from ..visit_schedule import schedule, visit_schedule
 
 
+@override_settings(SUBJECT_CONSENT_MODEL="edc_pharmacy.subjectconsent")
 class TestMedicationCrf(TestCase):
+
+    helper_cls = Helper
+
     @classmethod
     def setUpTestData(cls):
         import_holidays()
@@ -46,6 +51,15 @@ class TestMedicationCrf(TestCase):
         RegisteredSubject.objects.create(
             subject_identifier=self.subject_identifier,
             registration_datetime=get_utcnow() - relativedelta(years=5),
+        )
+        self.helper = self.helper_cls(
+            subject_identifier=self.subject_identifier,
+            now=get_utcnow() - relativedelta(years=6),
+        )
+        self.helper.consent_and_put_on_schedule(
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
         )
         self.registration_datetime = get_utcnow() - relativedelta(years=5)
         creator = AppointmentsCreator(
@@ -109,6 +123,7 @@ class TestMedicationCrf(TestCase):
 
         obj = StudyMedication(
             subject_visit=subject_visit,
+            report_datetime=subject_visit.report_datetime,
             refill_date=subject_visit.report_datetime,
             dosage_guideline=self.dosage_guideline_100,
             formulation=self.formulation,
@@ -138,6 +153,7 @@ class TestMedicationCrf(TestCase):
 
         obj = StudyMedication(
             subject_visit=subject_visit,
+            report_datetime=subject_visit.report_datetime,
             refill_date=self.rx.rx_date - relativedelta(years=1),
             dosage_guideline=self.dosage_guideline_100,
             formulation=self.formulation,
@@ -161,6 +177,7 @@ class TestMedicationCrf(TestCase):
 
         obj = StudyMedication(
             subject_visit=subject_visit,
+            report_datetime=subject_visit.report_datetime,
             refill_date=subject_visit.report_datetime + relativedelta(years=1),
             dosage_guideline=self.dosage_guideline_100,
             formulation=self.formulation,
@@ -187,6 +204,7 @@ class TestMedicationCrf(TestCase):
                     NextRefillError,
                     StudyMedication.objects.create,
                     subject_visit=subject_visit,
+                    report_datetime=subject_visit.report_datetime,
                     refill_date=subject_visit.report_datetime,
                     dosage_guideline=self.dosage_guideline_100,
                     formulation=self.formulation,
@@ -196,6 +214,7 @@ class TestMedicationCrf(TestCase):
                 )
                 StudyMedication.objects.create(
                     subject_visit=subject_visit,
+                    report_datetime=subject_visit.report_datetime,
                     refill_date=subject_visit.report_datetime,
                     dosage_guideline=self.dosage_guideline_100,
                     formulation=self.formulation,
@@ -206,6 +225,7 @@ class TestMedicationCrf(TestCase):
             else:
                 StudyMedication.objects.create(
                     subject_visit=subject_visit,
+                    report_datetime=subject_visit.report_datetime,
                     refill_date=subject_visit.report_datetime,
                     dosage_guideline=self.dosage_guideline_100,
                     formulation=self.formulation,
@@ -222,6 +242,7 @@ class TestMedicationCrf(TestCase):
         self.assertEqual(RxRefill.objects.all().count(), 0)
         StudyMedication.objects.create(
             subject_visit=subject_visit,
+            report_datetime=subject_visit.report_datetime,
             refill_date=subject_visit.report_datetime,
             dosage_guideline=self.dosage_guideline_100,
             formulation=self.formulation,
@@ -238,6 +259,7 @@ class TestMedicationCrf(TestCase):
         )
         StudyMedication.objects.create(
             subject_visit=subject_visit,
+            report_datetime=subject_visit.report_datetime,
             refill_date=subject_visit.report_datetime,
             dosage_guideline=self.dosage_guideline_100,
             formulation=self.formulation,
@@ -245,3 +267,55 @@ class TestMedicationCrf(TestCase):
             next_dosage_guideline=self.dosage_guideline_200,
             next_formulation=self.formulation,
         )
+
+    def test_study_medication_form_baseline(self):
+        appointment = Appointment.objects.all().order_by("timepoint")[0]
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+        )
+        data = dict(
+            subject_visit=subject_visit,
+            report_datetime=subject_visit.report_datetime,
+            refill_date=subject_visit.report_datetime,
+            dosage_guideline=self.dosage_guideline_100,
+            formulation=self.formulation,
+            refill_to_next_visit=YES,
+            order_next=YES,
+            next_dosage_guideline=self.dosage_guideline_200,
+            next_formulation=self.formulation,
+        )
+
+        form = StudyMedicationForm(data=data)
+        form.is_valid()
+        self.assertEqual({}, form._errors)
+
+    def test_study_medication_form_not_order_next(self):
+        appointment = Appointment.objects.all().order_by("timepoint")[0]
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+        )
+        data = dict(
+            subject_visit=subject_visit,
+            report_datetime=subject_visit.report_datetime,
+            refill_date=subject_visit.report_datetime,
+            dosage_guideline=self.dosage_guideline_100,
+            formulation=self.formulation,
+            refill_to_next_visit=YES,
+            order_next=NO,
+            next_dosage_guideline=self.dosage_guideline_200,
+            next_formulation=self.formulation,
+        )
+
+        form = StudyMedicationForm(data=data)
+        form.is_valid()
+        self.assertIn("next_dosage_guideline", form._errors)
+
+        data.update(next_dosage_guideline=None)
+        form = StudyMedicationForm(data=data)
+        form.is_valid()
+        self.assertIn("next_formulation", form._errors)
+
+        data.update(next_formulation=None)
+        form = StudyMedicationForm(data=data)
+        form.is_valid()
+        self.assertEqual({}, form._errors)
