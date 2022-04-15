@@ -2,21 +2,21 @@ from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
 from edc_model_admin import audit_fieldset_tuple
+from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
 from ..admin_site import edc_pharmacy_admin
 from ..forms import RxForm
 from ..models import Rx
-from .model_admin_mixin import ModelAdminMixin
 
 
 @admin.register(Rx, site=edc_pharmacy_admin)
-class RxAdmin(ModelAdminMixin, admin.ModelAdmin):
+class RxAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
 
     show_object_tools = True
 
     form = RxForm
 
-    autocomplete_fields = ["medication"]
+    # autocomplete_fields = ["medication"]
 
     fieldsets = (
         (
@@ -25,8 +25,9 @@ class RxAdmin(ModelAdminMixin, admin.ModelAdmin):
                 "fields": (
                     "subject_identifier",
                     "report_datetime",
+                    "rx_name",
                     "rx_date",
-                    "medication",
+                    "medications",
                     "clinician_initials",
                     "notes",
                 )
@@ -41,14 +42,18 @@ class RxAdmin(ModelAdminMixin, admin.ModelAdmin):
         audit_fieldset_tuple,
     )
 
+    filter_horizontal = ["medications"]
+
     list_display = [
-        "__str__",
-        "medication",
+        "subject_identifier",
+        "dashboard",
         "add_refill",
         "refills",
+        "rx_medications",
         "rando_sid",
         "rx_date",
         "weight_in_kgs",
+        "rx_name",
     ]
 
     list_filter = ("report_datetime", "site")
@@ -58,11 +63,12 @@ class RxAdmin(ModelAdminMixin, admin.ModelAdmin):
         "subject_identifier",
         "rando_sid",
         "registered_subject__initials",
-        "medication__name",
+        "medications__name",
         "site__id",
+        "rx_name",
     ]
 
-    readonly_fields = ["rando_sid", "weight_in_kgs"]
+    readonly_fields = ["rando_sid", "weight_in_kgs", "rx_name"]
 
     @admin.display
     def add_refill(self, obj=None, label=None):
@@ -77,3 +83,7 @@ class RxAdmin(ModelAdminMixin, admin.ModelAdmin):
         url = f"{url}?q={obj.id}"
         context = dict(title="RX items", url=url, label="Refills")
         return render_to_string("dashboard_button.html", context=context)
+
+    @admin.display
+    def rx_medications(self, obj):
+        return ", ".join([obj.display_name for obj in obj.medications.all()])

@@ -5,7 +5,7 @@ from edc_utils import get_utcnow
 
 from ..choices import DISPENSE_STATUS
 from ..constants import DISPENSED
-from ..dispensing import Dispensing
+from ..dispense import Dispensing
 from .rx_refill import RxRefill
 
 

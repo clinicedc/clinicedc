@@ -1,5 +1,5 @@
 from django.test import TestCase, tag
-from edc_pharmacy.dispensing import DispenseError
+from edc_pharmacy.dispense import DispenseError
 from edc_pharmacy.models import (
     DispensingHistory,
     DosageGuideline,
@@ -12,10 +12,12 @@ from edc_pharmacy.models import (
     RxRefill,
     Units,
 )
+from edc_pharmacy.refill import RefillCreator
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 
 
+@tag("disp")
 class TestDispense(TestCase):
     def setUp(self):
         self.subject_identifier = "12345"
@@ -47,34 +49,51 @@ class TestDispense(TestCase):
             subject_identifier=self.subject_identifier,
             weight_in_kgs=40,
             report_datetime=get_utcnow(),
-            medication=self.medication,
         )
+        self.rx.medications.add(self.medication)
 
-    @tag("disp")
+    @tag("12")
     def test_dispense(self):
-        rx_refill = RxRefill.objects.create(
-            rx=self.rx,
-            formulation=self.formulation,
-            dosage_guideline=self.dosage_guideline,
-            frequency=1,
-            dose=None,
+        refill_creator = RefillCreator(
+            subject_identifier=self.subject_identifier,
+            visit_code="1000",
+            visit_code_sequence=0,
             refill_date=get_utcnow(),
             number_of_days=7,
+            dosage_guideline=self.dosage_guideline,
+            formulation=self.formulation,
         )
+
+        # self.assertEqual(refill_creator.refill.dispensed, 0)
+        self.assertEqual(refill_creator.refill.remaining, 0)
+
+        # refill_creator = RefillCreator(
+        #     rx=self.rx,
+        #     visit_code="1000",
+        #     visit_code_sequence=0,
+        #     formulation=self.formulation,
+        #     dosage_guideline=self.dosage_guideline,
+        #     frequency=1,
+        #     dose=None,
+        #     refill_date=get_utcnow(),
+        #     number_of_days=7,
+        # )
         from pprint import pprint
 
-        pprint(rx_refill.__dict__)
-        obj = DispensingHistory.objects.create(
-            rx_refill=rx_refill,
-            dispensed=8,
-        )
-        self.assertEqual(obj.dispensed, 8)
-        rx_refill = RxRefill.objects.get(id=rx_refill.id)
-        self.assertEqual(rx_refill.remaining, 56 - 8)
+        # pprint(rx_refill.__dict__)
+        # obj = DispensingHistory.objects.create(
+        #     rx_refill=rx_refill,
+        #     dispensed=8,
+        # )
+        # self.assertEqual(obj.dispensed, 8)
+        # rx_refill = RxRefill.objects.get(id=rx_refill.id)
+        # self.assertEqual(rx_refill.remaining, 56 - 8)
 
     def test_dispense_many(self):
         rx_refill = RxRefill.objects.create(
             rx=self.rx,
+            visit_code="1000",
+            visit_code_sequence=0,
             formulation=self.formulation,
             dosage_guideline=self.dosage_guideline,
             frequency=1,
@@ -93,10 +112,11 @@ class TestDispense(TestCase):
             rx_refill = RxRefill.objects.get(id=rx_refill.id)
             self.assertEqual(rx_refill.remaining, 56 - dispensed)
 
-    @tag("1")
     def test_attempt_to_over_dispense(self):
         rx_refill = RxRefill.objects.create(
             rx=self.rx,
+            visit_code="1000",
+            visit_code_sequence=0,
             formulation=self.formulation,
             dosage_guideline=self.dosage_guideline,
             frequency=1,

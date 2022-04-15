@@ -1,3 +1,4 @@
+from ..models import RxRefill
 from .refill_creator import RefillCreator
 
 
@@ -7,7 +8,12 @@ def create_next_refill(instance):
 
     Called from signal.
     """
-    if instance.subject_visit.appointment.next:
+    if (
+        RxRefill.objects.filter(
+            rx__subject_identifier=instance.subject_visit.subject_identifier
+        ).exists()
+        and instance.subject_visit.appointment.next
+    ):
         number_of_days = 0
         if instance.subject_visit.appointment.next.next:
             number_of_days = (

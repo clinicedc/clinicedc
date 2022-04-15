@@ -3,10 +3,12 @@ from django.apps import apps as django_apps
 app_name = "edc_pharmacy"
 DISPENSING = "DISPENSING"
 PHARMACY = "PHARMACY"
+PRESCRIBER = "PRESCRIBER"
 PHARMACY_VIEW = "PHARMACY_VIEW"
 DISPENSING_VIEW = "DISPENSING_VIEW"
 PHARMACIST_ROLE = "pharmacist"
 SITE_PHARMACIST_ROLE = "site_pharmacist"
+PRESCRIBER_ROLE = "prescriber"
 
 pharmacy_codenames = []
 for app_config in django_apps.get_app_configs():
@@ -22,14 +24,18 @@ for app_config in django_apps.get_app_configs():
                     pharmacy_codenames.append(f"{app_name}.{prefix}_{model_name}")
 pharmacy_codenames.sort()
 
-# dispensing_models = [
-#     "dispenseditem",
-#     "dosageguideline",
-#     "medication",
-#     "prescription",
-#     "prescriptionitem",
-# ]
-# dispensing_codenames = []
-# for model_name in dispensing_models:
-#     dispensing_codenames.extend([c for c in pharmacy_codenames if model_name in c])
-# dispensing_models.sort()
+prescriber_codenames = []
+for model_name in [
+    "dosageguideline",
+    "medication",
+    "formulation",
+]:
+    prescriber_codenames.extend(
+        [c for c in pharmacy_codenames if model_name in c and c.startswith("view")]
+    )
+for model_name in [
+    "prescription",
+    "prescriptionitem",
+]:
+    prescriber_codenames.extend([c for c in pharmacy_codenames if model_name in c])
+prescriber_codenames.sort()

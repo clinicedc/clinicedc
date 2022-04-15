@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.deletion import PROTECT
@@ -7,7 +9,7 @@ from edc_utils.date import get_utcnow_as_date
 from edc_visit_schedule.model_mixins import VisitCodeFieldsModelMixin
 
 from ..dosage_per_day import dosage_per_day
-from ..exceptions import ActivePrescriptionRefillExists
+from ..exceptions import RefillError
 from .dosage_guideline import DosageGuideline
 from .formulation import Formulation
 from .list_models import FrequencyUnits
@@ -31,6 +33,8 @@ class RxRefill(
 ):
 
     rx = models.ForeignKey(Rx, on_delete=PROTECT)
+
+    refill_identifier = models.CharField(max_length=36, default=uuid4)
 
     dosage_guideline = models.ForeignKey(DosageGuideline, on_delete=PROTECT)
 
@@ -110,35 +114,17 @@ class RxRefill(
         return (
             f"{self.rx} "
             f"Take {self.dose} {self.formulation.formulation_type.display_name} {self.formulation.route.display_name} "
-            # f"{self.frequency} {self.frequency_units.display_name}"
         )
 
     def natural_key(self):
-        return (
-            self.rx,
-            self.medication,
-            self.refill_date,
-        )
+        return tuple(self.refill_identifier)
 
     def save(self, *args, **kwargs):
-        if self.active:
-            # TODO: does this matter?
-            opts = dict(id=self.id) if self.id else {}
-            if (
-                self.__class__.objects.filter(
-                    rx__subject_identifier=self.rx.subject_identifier,
-                    dosage_guideline=self.dosage_guideline,
-                    active=True,
-                )
-                .exclude(**opts)
-                .exists()
-            ):
-                raise ActivePrescriptionRefillExists(
-                    f"Unable to save as an active refill. An active refill already exists."
-                )
-
-        self.medication = self.dosage_guideline.medication
-        # if not self.dose and self.calculate_dose:
+        if not self.visit_code or self.visit_code_sequence is None:
+            raise RefillError(
+                f"Unable to create `{self._meta.verbose_name}` model instance. "
+                "`visit code` and/or `visit code sequence` may not be none"
+            )
         self.frequency = self.dosage_guideline.frequency
         self.frequency_units = self.dosage_guideline.frequency_units
         self.dose = self.get_dose()
@@ -147,6 +133,13 @@ class RxRefill(
             self.remaining = self.total
         self.as_string = str(self)
         super().save(*args, **kwargs)
+
+    def next(self, rx):
+        for obj in self.__class__.objects.filter(
+            rx=rx, refill_date__gt=self.refill_date
+        ).order_by("refill_date"):
+            return obj
+        return None
 
     def get_dose(self):
         return dosage_per_day(
@@ -167,6 +160,6 @@ class RxRefill(
         verbose_name = "RX refill"
         verbose_name_plural = "RX refills"
         unique_together = [
-            ["rx", "dosage_guideline", "refill_date"],
+            ["rx", "refill_date"],
             ["rx", "visit_code", "visit_code_sequence"],
         ]

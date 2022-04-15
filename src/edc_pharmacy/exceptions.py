@@ -2,7 +2,7 @@ class PrescriptionError(Exception):
     pass
 
 
-class PrescriptionRefillError(Exception):
+class PrescriptionAlreadyExists(Exception):
     pass
 
 
@@ -10,9 +10,17 @@ class ActivePrescriptionRefillOverlap(Exception):
     pass
 
 
-class ActivePrescriptionRefillExists(Exception):
+class RefillError(Exception):
     pass
 
 
-class NextPrescriptionRefillError(Exception):
+class RefillAlreadyExists(Exception):
+    pass
+
+
+class ActiveRefillAlreadyExists(Exception):
+    pass
+
+
+class NextRefillError(Exception):
     pass

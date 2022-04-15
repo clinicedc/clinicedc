@@ -3,15 +3,17 @@ from django.db.models import PROTECT
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES
 
-from ..exceptions import NextPrescriptionRefillError
+from ..exceptions import NextRefillError
 from .dosage_guideline import DosageGuideline
 from .formulation import Formulation
 from .medication_stock import MedicationStock
 
 
-class StudyMedicationModelMixin(models.Model):
+class StudyMedicationRefillModelMixin(models.Model):
 
     """Declare with field subject_visit using a CRF model mixin"""
+
+    refill_date = models.DateField(null=True, blank=False)
 
     dosage_guideline = models.ForeignKey(
         DosageGuideline, on_delete=PROTECT, null=True, blank=False
@@ -19,6 +21,13 @@ class StudyMedicationModelMixin(models.Model):
 
     formulation = models.ForeignKey(
         Formulation, on_delete=PROTECT, null=True, blank=False
+    )
+
+    refill_to_next_visit = models.CharField(
+        verbose_name="Refill to the next scheduled visit",
+        max_length=25,
+        choices=YES_NO,
+        default=YES,
     )
 
     number_of_days = models.IntegerField(
@@ -30,7 +39,7 @@ class StudyMedicationModelMixin(models.Model):
     special_instructions = models.TextField(null=True, blank=True)
 
     order_next = models.CharField(
-        verbose_name="Order medication for next visit?",
+        verbose_name="Order refill for next scheduled visit?",
         max_length=15,
         choices=YES_NO,
         default=YES,
@@ -58,7 +67,7 @@ class StudyMedicationModelMixin(models.Model):
         abstract = True
 
 
-class StudyMedicationCrfModelMixin(StudyMedicationModelMixin):
+class StudyMedicationCrfModelMixin(StudyMedicationRefillModelMixin):
 
     """Declare with a `subject_visit` field attr"""
 
@@ -71,7 +80,7 @@ class StudyMedicationCrfModelMixin(StudyMedicationModelMixin):
         if not self.number_of_days:
             self.number_of_days = self.calculate_number_of_days()
         if self.order_next == YES and not self.has_next_appointment:
-            raise NextPrescriptionRefillError(
+            raise NextRefillError(
                 "Cannot order next refill. This subject has no future appointments."
             )
         super().save(*args, **kwargs)
@@ -84,6 +93,9 @@ class StudyMedicationCrfModelMixin(StudyMedicationModelMixin):
         return self.subject_visit.subject_identifier
 
     def calculate_number_of_days(self) -> int:
+        """Returns the number of days between this appointment
+        and the next
+        """
         if self.subject_visit.appointment.next:
             tdelta = (
                 self.subject_visit.appointment.next.appt_datetime.date()
@@ -92,7 +104,7 @@ class StudyMedicationCrfModelMixin(StudyMedicationModelMixin):
             return tdelta.days
         return 0
 
-    class Meta(StudyMedicationModelMixin.Meta):
+    class Meta(StudyMedicationRefillModelMixin.Meta):
         abstract = True
 
 

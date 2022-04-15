@@ -1,7 +1,9 @@
 from dateutil.relativedelta import relativedelta
+from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
 from edc_constants.constants import FEMALE
 from edc_list_data import site_list_data
+from edc_pharmacy.exceptions import PrescriptionAlreadyExists, PrescriptionError
 from edc_pharmacy.models import (
     DosageGuideline,
     Formulation,
@@ -12,11 +14,13 @@ from edc_pharmacy.models import (
     Rx,
     Units,
 )
+from edc_pharmacy.prescribe import create_prescription
+from edc_randomization.site_randomizers import site_randomizers
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 
 
-@tag("35")
+@tag("rx")
 class TestPrescription(TestCase):
     def setUp(self):
         site_list_data.initialize()
@@ -26,6 +30,7 @@ class TestPrescription(TestCase):
             subject_identifier=self.subject_identifier,
             gender=FEMALE,
             dob=get_utcnow() - relativedelta(years=25),
+            registration_datetime=get_utcnow(),
         )
         self.medication = Medication.objects.create(
             name="Flucytosine",
@@ -50,17 +55,83 @@ class TestPrescription(TestCase):
         obj = Rx.objects.create(
             subject_identifier=self.subject_identifier,
             report_datetime=get_utcnow(),
-            medication=self.medication,
         )
+        obj.medications.add(self.medication)
         obj.save()
 
     def test_verify_prescription(self):
         obj = Rx.objects.create(
             subject_identifier=self.subject_identifier,
             report_datetime=get_utcnow(),
-            medication=self.medication,
         )
+        obj.medications.add(self.medication)
         obj.verified = True
         obj.verified = get_utcnow()
         obj.save()
         self.assertTrue(obj.verified)
+
+    def test_create_prescripition_from_func(self):
+        create_prescription(
+            subject_identifier=self.registered_subject.subject_identifier,
+            report_datetime=self.registered_subject.registration_datetime,
+            medications=[self.medication],
+        )
+        try:
+            Rx.objects.get(
+                subject_identifier=self.registered_subject.subject_identifier
+            )
+        except ObjectDoesNotExist:
+            self.fail("Rx unexpectedly does not exist")
+
+    def test_create_prescripition_already_exists(self):
+        create_prescription(
+            subject_identifier=self.registered_subject.subject_identifier,
+            report_datetime=self.registered_subject.registration_datetime,
+            medications=[self.medication],
+        )
+        rx = Rx.objects.get(
+            subject_identifier=self.registered_subject.subject_identifier
+        )
+        with self.assertRaises(PrescriptionAlreadyExists) as cm:
+            create_prescription(
+                subject_identifier=self.registered_subject.subject_identifier,
+                report_datetime=self.registered_subject.registration_datetime,
+                medications=[self.medication],
+            )
+        self.assertIn(rx.rx_identifier, str(cm.exception))
+
+    def test_create_prescripition_from_func_for_rct(self):
+        randomizer = site_randomizers.get("default")
+        randomizer.import_list(verbose=False, sid_count_for_tests=3)
+        site_randomizers.randomize(
+            "default",
+            subject_identifier=self.registered_subject.subject_identifier,
+            report_datetime=get_utcnow(),
+            site=self.registered_subject.site,
+            user="jasper",
+            gender=self.registered_subject.gender,
+        )
+        create_prescription(
+            subject_identifier=self.registered_subject.subject_identifier,
+            report_datetime=self.registered_subject.registration_datetime,
+            randomizer_name="default",
+            medications=[self.medication],
+        )
+        try:
+            Rx.objects.get(
+                subject_identifier=self.registered_subject.subject_identifier
+            )
+        except ObjectDoesNotExist:
+            self.fail("Rx unexpectedly does not exist")
+
+    def test_create_prescripition_from_func_bad_medication(self):
+        try:
+            create_prescription(
+                subject_identifier=self.registered_subject.subject_identifier,
+                report_datetime=self.registered_subject.registration_datetime,
+                medications=[self.medication, "blah blah"],
+            )
+        except PrescriptionError:
+            pass
+        else:
+            self.fail("PrescriptionError not raised")
