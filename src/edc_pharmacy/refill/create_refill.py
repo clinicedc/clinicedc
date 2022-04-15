@@ -14,7 +14,7 @@ def create_refill(instance):
         ).days
     RefillCreator(
         subject_identifier=instance.subject_visit.subject_identifier,
-        refill_date=instance.subject_visit.appointment.appt_datetime,
+        refill_date=instance.refill_date,
         visit_code=instance.subject_visit.appointment.visit_code,
         visit_code_sequence=instance.subject_visit.appointment.visit_code_sequence,
         number_of_days=number_of_days,

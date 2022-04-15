@@ -2,10 +2,17 @@ from datetime import date, datetime
 from typing import Any, Optional, Union
 
 import arrow
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError, models, transaction
+from edc_utils import convert_php_dateformat
 
-from ..exceptions import PrescriptionError, RefillAlreadyExists
+from ..exceptions import (
+    PrescriptionError,
+    PrescriptionExpired,
+    PrescriptionNotStarted,
+    RefillAlreadyExists,
+)
 from ..models import Rx, RxRefill
 from .refill import Refill
 
@@ -36,7 +43,8 @@ class RefillCreator:
         """Creates a refill.
 
         :type instance: model instance with other
-                        attrs (visit_code, ...)
+                        attrs (visit_code, ...),
+                        e.g. study medication CRF
         """
         super().__init__(**kwargs)
         if instance:
@@ -93,17 +101,31 @@ class RefillCreator:
         opts = dict(
             subject_identifier=self.subject_identifier,
             medications__in=[self.formulation.medication],
-            rx_date__lte=self.refill_date,
         )
         try:
             obj = Rx.objects.get(**opts)
         except ObjectDoesNotExist:
             raise PrescriptionError(
-                f"Subject does not have a valid prescription. Got {opts}."
+                f"Subject does not have a prescription. Got {opts}."
             )
         else:
-            if obj.rx_expiration_date and self.refill_date > obj.rx_expiration_date:
-                raise PrescriptionError(
-                    f"Subject prescription has expired. Got {self.subject_identifier} on {obj.rx_expiration_date}."
+            refill_date = self.refill_date.strftime(
+                convert_php_dateformat(settings.DATETIME_FORMAT)
+            )
+            if self.refill_date < obj.rx_date:
+                rx_date = obj.rx_date.strftime(
+                    convert_php_dateformat(settings.DATETIME_FORMAT)
+                )
+                raise PrescriptionNotStarted(
+                    f"Subject's prescription not started. Starts on {rx_date}. "
+                    f"Got {self.subject_identifier} attempting refill on {refill_date}."
+                )
+            elif obj.rx_expiration_date and self.refill_date > obj.rx_expiration_date:
+                rx_expiration_date = obj.rx_expiration_date.strftime(
+                    convert_php_dateformat(settings.DATETIME_FORMAT)
+                )
+                raise PrescriptionExpired(
+                    f"Subject prescription has expired. Expired on {rx_expiration_date}. "
+                    f"Got {self.subject_identifier} attempting refill on {refill_date}."
                 )
         return obj

@@ -92,13 +92,12 @@ class TestPrescription(TestCase):
         rx = Rx.objects.get(
             subject_identifier=self.registered_subject.subject_identifier
         )
-        with self.assertRaises(PrescriptionAlreadyExists) as cm:
+        with self.assertRaises(PrescriptionAlreadyExists):
             create_prescription(
                 subject_identifier=self.registered_subject.subject_identifier,
                 report_datetime=self.registered_subject.registration_datetime,
                 medications=[self.medication],
             )
-        self.assertIn(rx.rx_identifier, str(cm.exception))
 
     def test_create_prescripition_from_func_for_rct(self):
         randomizer = site_randomizers.get("default")
