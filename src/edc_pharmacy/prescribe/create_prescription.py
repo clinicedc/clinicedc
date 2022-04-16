@@ -4,6 +4,7 @@ from typing import Any, Optional
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.management import CommandError
 from edc_pharmacy.exceptions import PrescriptionAlreadyExists, PrescriptionError
 
 
@@ -12,6 +13,7 @@ def create_prescription(
     report_datetime: datetime,
     medications: list,
     randomizer_name: Optional[str] = None,
+    site: Optional[Any] = None,
     apps: Optional[Any] = None,
 ):
     """Creates a PrescriptionAction and Rx model instance"""
@@ -28,12 +30,18 @@ def create_prescription(
     try:
         rx = rx_model_cls.objects.get(subject_identifier=subject_identifier)
     except ObjectDoesNotExist:
-        rx = rx_model_cls.objects.create(
+        opts = dict(
             subject_identifier=subject_identifier,
             report_datetime=report_datetime,
             rx_date=report_datetime.date(),
             randomizer_name=randomizer_name,
         )
+        if site:
+            opts.update(site=site)
+        try:
+            rx = rx_model_cls.objects.create(**opts)
+        except ObjectDoesNotExist as e:
+            raise CommandError(f"Site does not exists. site={site}. Got {e}")
         for obj in medication_model_cls.objects.filter(name__in=medications):
             rx.medications.add(obj)
     else:
