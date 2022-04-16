@@ -42,7 +42,10 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
         (
             "Optional Customizations",
             {
-                "description": "This section is only required if customizing the dosage guideline from above.",
+                "description": (
+                    "This section is only required if customizing "
+                    "the dosage guideline from above."
+                ),
                 "fields": (
                     "dose",
                     "frequency",

@@ -113,7 +113,8 @@ class RxRefill(
     def __str__(self):
         return (
             f"{self.rx} "
-            f"Take {self.dose} {self.formulation.formulation_type.display_name} {self.formulation.route.display_name} "
+            f"Take {self.dose} {self.formulation.formulation_type.display_name} "
+            f"{self.formulation.route.display_name} "
         )
 
     def natural_key(self):

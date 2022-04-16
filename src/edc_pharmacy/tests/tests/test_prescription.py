@@ -89,9 +89,7 @@ class TestPrescription(TestCase):
             report_datetime=self.registered_subject.registration_datetime,
             medications=[self.medication],
         )
-        rx = Rx.objects.get(
-            subject_identifier=self.registered_subject.subject_identifier
-        )
+        Rx.objects.get(subject_identifier=self.registered_subject.subject_identifier)
         with self.assertRaises(PrescriptionAlreadyExists):
             create_prescription(
                 subject_identifier=self.registered_subject.subject_identifier,
