@@ -3,13 +3,12 @@ from uuid import uuid4
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from edc_constants.constants import YES
-from edc_pharmacy.models import MedicationStockCreateLabels
-from edc_pharmacy.models.medication_stock_create_labels import Labels
 
 from ..dispense import Dispensing
 from ..exceptions import RefillAlreadyExists
 from ..refill import create_next_refill, create_refill, delete_next_refill
 from .dispensing_history import DispensingHistory
+from .medication_stock_create_labels import Labels, MedicationStockCreateLabels
 
 
 @receiver(

@@ -22,13 +22,13 @@ from edc_pharmacy.models import (
     RxRefill,
     Units,
 )
-from edc_pharmacy.tests.models import StudyMedication, SubjectVisit
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
 from ..forms import StudyMedicationForm
+from ..models import StudyMedication, SubjectVisit
 from ..visit_schedule import schedule, visit_schedule
 
 

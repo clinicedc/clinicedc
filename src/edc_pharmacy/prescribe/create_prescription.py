@@ -1,11 +1,11 @@
-import pdb
 from datetime import datetime
 from typing import Any, Optional
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import CommandError
-from edc_pharmacy.exceptions import PrescriptionAlreadyExists, PrescriptionError
+
+from ..exceptions import PrescriptionAlreadyExists, PrescriptionError
 
 
 def create_prescription(
