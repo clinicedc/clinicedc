@@ -13,7 +13,7 @@ def get_utcnow():
 
 
 def get_utcnow_as_date():
-    return arrow.utcnow().date
+    return arrow.utcnow().date()
 
 
 def to_arrow_utc(dt, timezone=None):
