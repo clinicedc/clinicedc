@@ -1,4 +1,7 @@
+DAY01 = "1000"
+DAY03 = "1003"
 DAY1 = "1000"
+DAY14 = "1014"
 DAY3 = "1003"
 DAYS = "days"
 HOURS = "hours"
