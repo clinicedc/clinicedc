@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 from warnings import warn
 
 from django.apps import apps as django_apps
@@ -22,13 +22,13 @@ class MetadataGetterError(Exception):
 
 
 class MetadataValidator:
-    def __init__(self, metadata_obj, visit_model_instance):
+    def __init__(self, metadata_obj: Any, visit_model_instance: Any) -> None:
         self.metadata_obj = metadata_obj
         self.visit_model_instance = visit_model_instance
         self.validate_metadata_object()
 
     @property
-    def extra_query_attrs(self):
+    def extra_query_attrs(self) -> dict:
         return {}
 
     def validate_metadata_object(self) -> None:
@@ -61,15 +61,13 @@ class MetadataValidator:
                         if "visit_model_attr" not in str(e):
                             raise ImproperlyConfigured(f"{e} See {repr(model_cls)}")
                         raise
-                        # metadata_obj.delete()
-                        # metadata_obj = None
                     except ObjectDoesNotExist:
                         pass
                     except MultipleObjectsReturned:
                         raise
-                    self.metadata_obj = self.verify_entry_status_with_model_obj(model_obj)
+                    self.verify_entry_status_with_model_obj(model_obj)
 
-    def verify_entry_status_with_model_obj(self, model_obj):
+    def verify_entry_status_with_model_obj(self, model_obj: Any) -> None:
         """Verifies that entry_status is set to KEYED if the model
         instance exists, etc.
 
@@ -95,7 +93,7 @@ class MetadataValidator:
             raise MetadataGetterError(msg)
 
     @staticmethod
-    def model_cls_registered_with_admin_site(model_cls) -> bool:
+    def model_cls_registered_with_admin_site(model_cls: Any) -> bool:
         """Returns True if model cls is registered in Admin."""
         for admin_site in all_sites:
             if model_cls in admin_site._registry:
@@ -151,10 +149,10 @@ class MetadataGetter:
         ).order_by("show_order")
 
     @property
-    def metadata_model_cls(self):
+    def metadata_model_cls(self) -> Any:
         return django_apps.get_model(self.metadata_model)
 
-    def next_object(self, show_order=None, entry_status=None):
+    def next_object(self, show_order=None, entry_status=None) -> Any:
         """Returns the next model instance based on the show order."""
         if show_order is None:
             metadata_obj = None
@@ -169,4 +167,3 @@ class MetadataGetter:
         qs = self.metadata_model_cls.objects.filter(**query_options)
         for metadata_obj in qs:
             self.metadata_validator_cls(metadata_obj, self.visit_model_instance)
-            # validate_metadata_object(metadata_obj, visit=self.visit_model_instance)

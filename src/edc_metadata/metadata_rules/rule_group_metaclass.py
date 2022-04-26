@@ -1,5 +1,6 @@
 import copy
 import inspect
+from typing import Any
 
 from .rule import Rule
 from .rule_group_meta_options import RuleGroupMetaOptions
@@ -14,7 +15,7 @@ class RuleGroupMetaclass(type):
 
     rule_group_meta = RuleGroupMetaOptions
 
-    def __new__(mcs, name, bases, attrs):
+    def __new__(mcs, name: str, bases: tuple, attrs: dict) -> Any:
         try:
             abstract = attrs.get("Meta", False).abstract
         except AttributeError:
@@ -50,7 +51,7 @@ class RuleGroupMetaclass(type):
         return super().__new__(mcs, name, bases, attrs)
 
     @classmethod
-    def __get_rules(mcs, name, attrs, meta):
+    def __get_rules(mcs, name: str, attrs: dict, meta: Any) -> tuple:
         """Returns a list of rules after updating each rule's attrs
         with values from Meta.
 
@@ -70,7 +71,7 @@ class RuleGroupMetaclass(type):
         return tuple(rules)
 
     @classmethod
-    def __get_target_models(mcs, rule, meta):
+    def __get_target_models(mcs, rule: Any, meta: Any) -> Any:
         """Returns target models as a list of label_lowers.
 
         Target models are the models whose metadata is acted upon.

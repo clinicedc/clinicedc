@@ -1,6 +1,7 @@
 import copy
 import sys
 from collections import OrderedDict
+from typing import Any, Optional
 
 from django.apps import apps as django_apps
 from django.utils.module_loading import import_module, module_has_submodule
@@ -18,10 +19,10 @@ class SiteMetadataRules:
 
     """Main controller of :class:`MetadataRules` objects."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.registry = OrderedDict()
 
-    def register(self, rule_group_cls=None):
+    def register(self, rule_group_cls: Optional[Any] = None) -> None:
         """Register MetadataRules to a list per app_label
         for the module the rule groups were declared in.
         """
@@ -43,16 +44,16 @@ class SiteMetadataRules:
             self.registry.get(rule_group_cls._meta.app_label).append(rule_group_cls)
 
     @property
-    def rule_groups(self):
+    def rule_groups(self) -> Any:
         return self.registry
 
-    def validate(self):
+    def validate(self) -> None:
         for rule_groups in self.registry.values():
             for rule_group in rule_groups:
                 sys.stdout.write(f"{repr(rule_group)}\n")
                 rule_group.validate()
 
-    def autodiscover(self, module_name=None):
+    def autodiscover(self, module_name: Optional[str] = None) -> None:
         """Autodiscovers rules in the metadata_rules.py file
         of any INSTALLED_APP.
         """

@@ -1,4 +1,5 @@
 import sys
+from typing import Any, Optional
 
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
@@ -12,11 +13,11 @@ class RuleGroup:
     """Base class for CRF and Requisition rule groups."""
 
     @classmethod
-    def get_rules(cls):
+    def get_rules(cls) -> Any:
         return cls._meta.options.get("rules")
 
     @classmethod
-    def validate(cls):
+    def validate(cls) -> None:
         """Outputs to the console if a target model referenced in a rule
         does not exist.
         """
@@ -60,8 +61,9 @@ class RuleGroup:
                         )
 
     @classmethod
-    def _lookup_model(cls, model=None, category=None):
+    def _lookup_model(cls, model: Optional[str] = None, category: Optional[str] = None) -> Any:
         sys.stdout.write(f"  ( ) {model}\r")
+        model_cls = None
         try:
             model_cls = django_apps.get_model(model)
         except LookupError:

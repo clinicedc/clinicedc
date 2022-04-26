@@ -21,6 +21,11 @@ class MockPanel(DummyPanel):
         super().__init__(requisition_model="edc_metadata.subjectrequisition", name=name)
 
 
+crfs_prn = FormsCollection(
+    Crf(show_order=100, model=f"{app_label}.prnone"),
+    Crf(show_order=200, model=f"{app_label}.prntwo"),
+)
+
 crfs_missed = FormsCollection(
     Crf(show_order=1, model="edc_metadata.subjectvisitmissed", required=True),
 )
@@ -80,6 +85,7 @@ visit0 = Visit(
     requisitions=requisitions,
     crfs=crfs0,
     crfs_unscheduled=crfs_unscheduled,
+    crfs_prn=crfs_prn,
     requisitions_unscheduled=requisitions_unscheduled,
     allow_unscheduled=True,
     facility_name="5-day-clinic",
@@ -94,6 +100,7 @@ visit1 = Visit(
     rupper=relativedelta(days=6),
     requisitions=requisitions,
     crfs=crfs1,
+    crfs_prn=crfs_prn,
     crfs_missed=crfs_missed,
     facility_name="5-day-clinic",
 )
@@ -107,6 +114,7 @@ visit2 = Visit(
     rupper=relativedelta(days=6),
     requisitions=requisitions3000,
     crfs=crfs2,
+    crfs_prn=crfs_prn,
     facility_name="5-day-clinic",
 )
 

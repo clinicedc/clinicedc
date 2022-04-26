@@ -1,3 +1,5 @@
+from typing import Any, Optional
+
 from ..constants import DO_NOTHING, NOT_REQUIRED, REQUIRED
 
 
@@ -15,8 +17,13 @@ class Logic:
     valid_results = [REQUIRED, NOT_REQUIRED, DO_NOTHING]
 
     def __init__(
-        self, predicate=None, consequence=None, alternative=None, comment=None, **kwargs
-    ):
+        self,
+        predicate: Optional[Any] = None,
+        consequence: Optional[str] = None,
+        alternative: Optional[str] = None,
+        comment: Optional[str] = None,
+        **kwargs,
+    ) -> None:
         if not hasattr(predicate, "__call__"):
             raise RuleLogicError(
                 "Predicate must be a callable. For example a "
@@ -33,7 +40,7 @@ class Logic:
                     f"{self.valid_results}. Got {result}."
                 )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"{self.__class__.__name__}({self.predicate}, "
             f"{self.consequence}, {self.alternative})"

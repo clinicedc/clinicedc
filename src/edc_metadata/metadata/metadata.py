@@ -1,4 +1,4 @@
-from typing import Type, Union
+from typing import Any, Type, Union
 from warnings import warn
 
 from django.apps import apps as django_apps
@@ -26,7 +26,7 @@ class DeleteMetadataError(Exception):
     pass
 
 
-def model_cls_registered_with_admin_site(model_cls) -> bool:
+def model_cls_registered_with_admin_site(model_cls: Any) -> bool:
     """Returns True if model cls is registered in Admin.
 
     See also settings.EDC_METADATA_VERIFY_MODELS_REGISTERED_WITH_ADMIN
@@ -63,7 +63,7 @@ class CrfCreator:
 
     @property
     def reference_model_cls(self) -> Type[Model]:
-        """Returns an the model cls edc_reference.reference by default"""
+        """Returns model cls edc_reference.reference by default"""
         reference_model = site_reference_configs.get_reference_model(name=self.crf.model)
         return django_apps.get_model(reference_model)
 
@@ -271,7 +271,7 @@ class Destroyer:
     metadata_crf_model = "edc_metadata.crfmetadata"
     metadata_requisition_model = "edc_metadata.requisitionmetadata"
 
-    def __init__(self, visit_model_instance: VisitModel) -> None:
+    def __init__(self, visit_model_instance: Any) -> None:
         self.visit_model_instance: VisitModel = visit_model_instance
 
     @property
@@ -306,7 +306,7 @@ class Metadata:
 
     def __init__(
         self,
-        visit_model_instance: VisitModel,
+        visit_model_instance: Any,
         update_keyed: bool,
     ) -> None:
         self._reason = None

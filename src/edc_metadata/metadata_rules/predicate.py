@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 
 from edc_reference.reference import ReferenceObjectDoesNotExist
 
@@ -12,7 +12,13 @@ class NoValueError(Exception):
 
 
 class BasePredicate:
-    def get_value(self, attr=None, source_model=None, reference_getter_cls=None, **kwargs):
+    def get_value(
+        self,
+        attr: Optional[str] = None,
+        source_model: Optional[Any] = None,
+        reference_getter_cls: Optional[Any] = None,
+        **kwargs,
+    ) -> Any:
         """Returns a value by checking for the attr on each arg.
 
         Each arg in args may be a model instance, queryset, or None.
@@ -47,7 +53,7 @@ class BasePredicate:
         return value
 
     @staticmethod
-    def opts_from_visit(visit):
+    def opts_from_visit(visit: Any) -> dict:
         """Returns a dict of values from the visit model instance"""
         try:
             opts = dict(
@@ -56,6 +62,7 @@ class BasePredicate:
                 visit_schedule_name=visit.visit_schedule_name,
                 schedule_name=visit.schedule_name,
                 visit_code=visit.visit_code,
+                visit_code_sequence=visit.visit_code_sequence,
                 timepoint=visit.timepoint,
             )
         except AttributeError as e:
@@ -94,7 +101,7 @@ class P(BasePredicate):
         "in": lambda x, y: True if x in y else False,
     }
 
-    def __init__(self, attr, operator, expected_value):
+    def __init__(self, attr: str, operator: str, expected_value: str) -> None:
         self.attr = attr
         self.expected_value = expected_value
         self.func = self.funcs.get(operator)
@@ -102,7 +109,7 @@ class P(BasePredicate):
             raise PredicateError(f"Invalid operator. Got {operator}.")
         self.operator = operator
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"{self.__class__.__name__}({self.attr}, {self.operator}, "
             f"{self.expected_value})"
@@ -135,15 +142,15 @@ class PF(BasePredicate):
 
     """
 
-    def __init__(self, *attrs, func=None):
+    def __init__(self, *attrs, func: Optional[Any] = None) -> None:
         self.attrs = attrs
         self.func = func
 
-    def __call__(self, **kwargs):
+    def __call__(self, **kwargs) -> Any:
         values = []
         for attr in self.attrs:
             values.append(self.get_value(attr=attr, **kwargs))
         return self.func(*values)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.attrs}, {self.func})"

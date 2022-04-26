@@ -18,7 +18,7 @@ class MetadataWrappers:
     metadata_getter_cls: ClassVar[MetadataGetterStub] = None
     metadata_wrapper_cls: ClassVar[MetadataWrapperStub] = None
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         metadata_getter = self.metadata_getter_cls(**kwargs)
         self.objects = []
         if metadata_getter.visit_model_instance:
@@ -29,5 +29,5 @@ class MetadataWrappers:
                 )
                 self.objects.append(metadata_wrapper)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.objects})"

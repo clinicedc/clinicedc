@@ -7,7 +7,7 @@ class MetaDataFormValidatorMixin:
     """Always assumes instance exists."""
 
     @property
-    def crf_metadata_exists(self):
+    def crf_metadata_exists(self) -> bool:
         """Returns True if CRF metadata exists for this visit code."""
         return CrfMetadata.objects.filter(
             subject_identifier=self.instance.subject_identifier,
@@ -18,7 +18,7 @@ class MetaDataFormValidatorMixin:
         ).exists()
 
     @property
-    def crf_metadata_required_exists(self):
+    def crf_metadata_required_exists(self) -> bool:
         """Returns True if any required CRFs for this visit code have
         not yet been keyed.
         """
@@ -32,7 +32,7 @@ class MetaDataFormValidatorMixin:
         ).exists()
 
     @property
-    def requisition_metadata_exists(self):
+    def requisition_metadata_exists(self) -> bool:
         """Returns True if requisition metadata exists for this visit code."""
         return RequisitionMetadata.objects.filter(
             subject_identifier=self.instance.subject_identifier,
@@ -43,7 +43,7 @@ class MetaDataFormValidatorMixin:
         ).exists()
 
     @property
-    def requisition_metadata_required_exists(self):
+    def requisition_metadata_required_exists(self) -> bool:
         """Returns True if any required requisitions for this visit code
         have not yet been keyed.
         """

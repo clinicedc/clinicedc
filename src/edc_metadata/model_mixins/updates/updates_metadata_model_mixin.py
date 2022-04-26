@@ -1,8 +1,23 @@
+from typing import Any, Optional, Protocol
+
 from django.apps import apps as django_apps
 from django.db import models
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ...constants import CRF, NOT_REQUIRED, REQUIRED, REQUISITION
+
+
+class CrfLikeModelInstance(Protocol):
+    subject_visit: Any
+    visit: Any
+    metadata_query_options: Any
+    metadata_visit_object: Any
+    metadata_default_entry_status: Any
+    metadata_updater_cls: Any
+    metadata_category: Any
+    metadata_model: Any
+    metadata_update: Any
+    _meta: Any
 
 
 class MetadataError(Exception):
@@ -14,23 +29,25 @@ class UpdatesMetadataModelMixin(models.Model):
     metadata_updater_cls = None
     metadata_category = None
 
-    def metadata_update(self, entry_status=None):
+    def metadata_update(self, entry_status: Optional[str] = None) -> None:
         """Updates metatadata."""
         self.metadata_updater.update(entry_status=entry_status)
 
-    def run_metadata_rules_for_crf(self):
+    def run_metadata_rules_for_crf(self: CrfLikeModelInstance) -> None:
         """Runs all the metadata rules."""
         self.visit.run_metadata_rules()
 
     @property
-    def metadata_updater(self):
+    def metadata_updater(self: CrfLikeModelInstance) -> None:
         """Returns an instance of MetadataUpdater."""
         return self.metadata_updater_cls(
             visit_model_instance=self.visit, target_model=self._meta.label_lower
         )
 
-    def metadata_reset_on_delete(self):
-        """Sets the metadata instance to its original state."""
+    def metadata_reset_on_delete(self: CrfLikeModelInstance) -> None:
+        """Sets this model instance`s metadata model instance
+        to its original entry_status.
+        """
         obj = self.metadata_model.objects.get(**self.metadata_query_options)
         try:
             obj.entry_status = self.metadata_default_entry_status
@@ -45,7 +62,7 @@ class UpdatesMetadataModelMixin(models.Model):
             obj.save()
 
     @property
-    def metadata_default_entry_status(self):
+    def metadata_default_entry_status(self: CrfLikeModelInstance) -> str:
         """Returns a string that represents the default entry status
         of the CRF in the visit schedule.
         """
@@ -58,7 +75,7 @@ class UpdatesMetadataModelMixin(models.Model):
         return REQUIRED if crf.required else NOT_REQUIRED
 
     @property
-    def metadata_visit_object(self):
+    def metadata_visit_object(self: CrfLikeModelInstance) -> Any:
         visit_schedule = site_visit_schedules.get_visit_schedule(
             visit_schedule_name=self.visit.visit_schedule_name
         )
@@ -66,7 +83,7 @@ class UpdatesMetadataModelMixin(models.Model):
         return schedule.visits.get(self.visit.visit_code)
 
     @property
-    def metadata_query_options(self):
+    def metadata_query_options(self: CrfLikeModelInstance) -> dict:
         options = self.visit.metadata_query_options
         options.update(
             {
@@ -77,7 +94,7 @@ class UpdatesMetadataModelMixin(models.Model):
         return options
 
     @property
-    def metadata_model(self):
+    def metadata_model(self: CrfLikeModelInstance) -> Any:
         """Returns the metadata model associated with self."""
         if self.metadata_category == CRF:
             metadata_model = "edc_metadata.crfmetadata"

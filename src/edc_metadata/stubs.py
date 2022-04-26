@@ -1,10 +1,16 @@
-from typing import Any, Optional, Protocol, Type, Union
+from typing import Any, Optional, Protocol, Type
 
 from django.db.models import Manager, Model, QuerySet
-from edc_appointment.stubs import AppointmentModelStub
 from edc_model.stubs import ModelMetaStub
 from edc_visit_schedule import Visit, VisitSchedule
 from edc_visit_tracking.stubs import SubjectVisitModelStub
+
+
+class SubjectVisitLikeModelObject(Protocol):
+    appointment: Any
+    visits: Any
+    metadata: Any
+    metadata_destroyer_cls: Any
 
 
 class VisitModel(Protocol):
@@ -81,15 +87,6 @@ class RequisitionMetadataModelStub(Protocol):
 
 
 class MetadataGetterStub(Protocol):
-    def __init__(
-        self,
-        appointment: AppointmentModelStub = None,
-        subject_identifier: str = None,
-        visit_code: str = None,
-        visit_code_sequence: int = None,
-    ) -> None:
-        ...
-
     metadata_objects: QuerySet
     visit: Optional[SubjectVisitModelStub]
 
@@ -107,14 +104,6 @@ class RequisitionMetadataGetterStub(MetadataGetterStub, Protocol):
 
 
 class MetadataWrapperStub(Protocol):
-    def __init__(
-        self,
-        visit: SubjectVisitModelStub = None,
-        metadata_obj: Union[CrfMetadataModelStub, RequisitionMetadataModelStub] = None,
-        **kwargs
-    ) -> None:
-        ...
-
     options: dict
     model_obj: CrfMetadataModelStub
     model_cls: Type[CrfMetadataModelStub]

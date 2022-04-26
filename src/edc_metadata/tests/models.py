@@ -4,7 +4,6 @@ from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_appointment.models import Appointment
 from edc_consent.field_mixins import PersonalFieldsMixin
-from edc_consent.model_mixins import ConsentModelMixin
 from edc_constants.choices import YES_NO
 from edc_constants.constants import MALE
 from edc_crf.crf_with_action_model_mixin import CrfWithActionModelMixin
@@ -185,6 +184,20 @@ class Crfsix(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, B
 class CrfSeven(
     CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel
 ):
+
+    subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
+
+    f1 = models.CharField(max_length=50, null=True)
+
+
+class PrnOne(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
+
+    subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
+
+    f1 = models.CharField(max_length=50, null=True)
+
+
+class PrnTwo(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
 
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 

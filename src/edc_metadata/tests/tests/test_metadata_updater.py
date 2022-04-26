@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_visit_tracking.constants import SCHEDULED
 
 from ...constants import KEYED, NOT_REQUIRED, REQUIRED

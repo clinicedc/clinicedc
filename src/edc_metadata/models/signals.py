@@ -6,7 +6,7 @@ from django.dispatch import receiver
 @receiver(post_save, weak=False, dispatch_uid="metadata_create_on_post_save")
 def metadata_create_on_post_save(
     sender, instance, raw, created, using, update_fields, **kwargs
-):
+) -> None:
     """Creates all meta data on post save of model using
     CreatesMetaDataModelMixin.
 
@@ -34,7 +34,7 @@ def metadata_create_on_post_save(
 @receiver(post_save, weak=False, dispatch_uid="metadata_update_on_post_save")
 def metadata_update_on_post_save(
     sender, instance, raw, created, using, update_fields, **kwargs
-):
+) -> None:
     """Updates the single metadata record on post save of a CRF model.
 
     Does not "create" metadata.
@@ -57,7 +57,7 @@ def metadata_update_on_post_save(
 
 
 @receiver(post_delete, weak=False, dispatch_uid="metadata_reset_on_post_delete")
-def metadata_reset_on_post_delete(sender, instance, using, **kwargs):
+def metadata_reset_on_post_delete(sender, instance, using, **kwargs) -> None:
     """Deletes a single instance used by UpdatesMetadataMixin.
 
     Calls reference_deleter_cls in case this signal fires before

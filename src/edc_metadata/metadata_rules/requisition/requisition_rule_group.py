@@ -1,4 +1,5 @@
 from collections import OrderedDict, namedtuple
+from typing import Any, Optional
 
 from django.core.exceptions import ValidationError
 
@@ -15,7 +16,7 @@ class RequisitionRuleGroupMetaOptionsError(ValidationError):
 
 
 class RequisitionRuleGroupMetaOptions(RuleGroupMetaOptions):
-    def __init__(self, group_name, attrs):
+    def __init__(self, group_name: str, attrs: dict) -> None:
         super().__init__(group_name, attrs)
         self.requisition_model = self.options.get("requisition_model")
         if self.requisition_model:
@@ -48,7 +49,7 @@ class RequisitionRuleGroupMetaOptions(RuleGroupMetaOptions):
                         )
 
     @property
-    def default_meta_options(self):
+    def default_meta_options(self) -> dict:
         opts = super().default_meta_options
         opts.extend(["requisition_model"])
         return opts
@@ -64,7 +65,7 @@ class RequisitionRuleGroup(RuleGroup, metaclass=RequisitionMetaclass):
     metadata_updater_cls = RequisitionMetadataUpdater
 
     @classmethod
-    def requisitions_for_visit(cls, visit=None):
+    def requisitions_for_visit(cls, visit=None) -> Any:
         """Returns a list of scheduled or unscheduled
         Requisitions depending on visit_code_sequence.
         """
@@ -75,7 +76,7 @@ class RequisitionRuleGroup(RuleGroup, metaclass=RequisitionMetaclass):
         return requisitions
 
     @classmethod
-    def evaluate_rules(cls, visit=None):
+    def evaluate_rules(cls, visit: Optional[Any] = None) -> tuple:
         """Returns a tuple of (rule_results, metadata_objects) where
         rule_results ...
 

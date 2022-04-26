@@ -1,5 +1,7 @@
 from collections import OrderedDict
+from typing import Any, Optional
 
+from ... import NOT_REQUIRED, REQUIRED
 from ...metadata_updater import MetadataUpdater
 from ...target_handler import TargetModelConflict
 from ..rule_group import RuleGroup
@@ -20,7 +22,7 @@ class CrfRuleGroup(RuleGroup, metaclass=RuleGroupMetaclass):
     @classmethod
     def crfs_for_visit(cls, visit=None):
         """Returns a list of scheduled or unscheduled
-        CRFs depending on visit_code_sequence.
+        CRFs + PRNs depending on visit_code_sequence.
         """
         if visit.visit_code_sequence != 0:
             crfs = visit.visit.crfs_unscheduled + visit.visit.crfs_prn
@@ -29,7 +31,7 @@ class CrfRuleGroup(RuleGroup, metaclass=RuleGroupMetaclass):
         return crfs
 
     @classmethod
-    def evaluate_rules(cls, visit=None):
+    def evaluate_rules(cls, visit: Any = None) -> tuple:
         rule_results = OrderedDict()
         metadata_objects = OrderedDict()
         for rule in cls._meta.options.get("rules"):
@@ -40,11 +42,22 @@ class CrfRuleGroup(RuleGroup, metaclass=RuleGroupMetaclass):
                         f"Target model and visit model are the same! "
                         f"Got {target_model}=={visit._meta.label_lower}"
                     )
-                # only do something if target model is in visit.crfs
+                # only do something if target model is in visit.crfs (including PRNs)
                 if target_model in [c.model for c in cls.crfs_for_visit(visit)]:
                     metadata_updater = cls.metadata_updater_cls(
                         visit_model_instance=visit, target_model=target_model
                     )
-                    metadata_obj = metadata_updater.update(entry_status=entry_status)
+                    metadata_obj = metadata_updater.update(
+                        entry_status=entry_status
+                        or cls.default_entry_status(visit, target_model)
+                    )
                     metadata_objects.update({target_model: metadata_obj})
         return rule_results, metadata_objects
+
+    @classmethod
+    def default_entry_status(cls, visit: Any, target_model: Any) -> Optional[str]:
+        """Returns the default `entry_status` or None"""
+        for c in cls.crfs_for_visit(visit):
+            if c.model == target_model:
+                return REQUIRED if c.required else NOT_REQUIRED
+        return None

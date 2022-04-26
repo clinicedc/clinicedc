@@ -41,7 +41,7 @@ class MetadataWrapper:
                 f"{self.metadata_obj.visit_code_sequence}. Got {repr(metadata_obj)}."
             )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.visit}, {self.metadata_obj})"
 
     @property
@@ -62,7 +62,7 @@ class MetadataWrapper:
         return self._model_obj
 
     @model_obj.setter
-    def model_obj(self, value=None):
+    def model_obj(self, value=None) -> None:
         self._model_obj = value
 
     @property

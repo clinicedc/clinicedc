@@ -64,6 +64,20 @@ class CrfRuleGroupTwo(CrfRuleGroup):
         source_model = "edc_metadata.crfone"
 
 
+class CrfRuleGroupThree(CrfRuleGroup):
+
+    crfs_truck = CrfRule(
+        predicate=P("f1", "eq", "holden"),
+        consequence=REQUIRED,
+        alternative=NOT_REQUIRED,
+        target_models=["prnone"],
+    )
+
+    class Meta:
+        app_label = "edc_metadata"
+        source_model = "edc_metadata.crfone"
+
+
 class CrfRuleGroupTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -87,6 +101,7 @@ class CrfRuleGroupTestCase(TestCase):
         site_metadata_rules.registry = OrderedDict()
         site_metadata_rules.register(rule_group_cls=CrfRuleGroupOne)
         site_metadata_rules.register(rule_group_cls=CrfRuleGroupTwo)
+        site_metadata_rules.register(rule_group_cls=CrfRuleGroupThree)
 
     def enroll(self, gender=None):
         subject_identifier = fake.credit_card_number()
@@ -107,8 +122,23 @@ class CrfRuleGroupTestCase(TestCase):
             appointment=self.appointment,
             reason=SCHEDULED,
             subject_identifier=subject_identifier,
+            visit_code=self.appointment.visit_code,
+            visit_code_sequence=self.appointment.visit_code_sequence,
+            visit_schedule_name=self.appointment.visit_schedule_name,
+            schedule_name=self.appointment.schedule_name,
         )
         return subject_visit
+
+    def get_next_subject_visit(self, subject_visit):
+        return SubjectVisit.objects.create(
+            appointment=self.appointment.next,
+            reason=SCHEDULED,
+            subject_identifier=subject_visit.subject_identifier,
+            visit_schedule_name=self.appointment.next.visit_schedule_name,
+            schedule_name=self.appointment.next.schedule_name,
+            visit_code=self.appointment.next.visit_code,
+            visit_code_sequence=self.appointment.next.visit_code_sequence,
+        )
 
     def test_example1(self):
         """Asserts CrfTwo is REQUIRED if f1==\'car\' as specified."""
@@ -303,5 +333,134 @@ class CrfRuleGroupTestCase(TestCase):
 
         self.assertEqual(
             CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
+            NOT_REQUIRED,
+        )
+
+    def test_prn_is_created_as_not_required_by_default(self):
+        """Asserts handles PRNs correctly"""
+        # create both visits before going back to add crf_one
+        subject_visit = self.enroll(gender=MALE)
+        self.assertEqual(
+            CrfMetadata.objects.get(
+                model="edc_metadata.prnone",
+                visit_code=subject_visit.visit_code,
+                visit_code_sequence=subject_visit.visit_code_sequence,
+            ).entry_status,
+            NOT_REQUIRED,
+        )
+
+    def test_prn_rule_acts_on_correct_visit(self):
+        """Asserts handles PRNs correctly"""
+        # create both visits before going back to add crf_one
+        subject_visit = self.enroll(gender=MALE)
+        subject_visit_two = self.get_next_subject_visit(subject_visit)
+        crf_one = CrfOne.objects.create(subject_visit=subject_visit, f1="holden")
+        self.assertEqual(
+            CrfMetadata.objects.get(
+                model="edc_metadata.prnone",
+                visit_code=subject_visit.visit_code,
+                visit_code_sequence=subject_visit.visit_code_sequence,
+            ).entry_status,
+            REQUIRED,
+        )
+        self.assertEqual(
+            CrfMetadata.objects.get(
+                model="edc_metadata.prnone",
+                visit_code=subject_visit_two.visit_code,
+                visit_code_sequence=subject_visit_two.visit_code_sequence,
+            ).entry_status,
+            NOT_REQUIRED,
+        )
+        crf_one.f1 = "caufield"
+        crf_one.save()
+        self.assertEqual(
+            CrfMetadata.objects.get(
+                model="edc_metadata.prnone",
+                visit_code=subject_visit.visit_code,
+                visit_code_sequence=subject_visit.visit_code_sequence,
+            ).entry_status,
+            NOT_REQUIRED,
+        )
+        self.assertEqual(
+            CrfMetadata.objects.get(
+                model="edc_metadata.prnone",
+                visit_code=subject_visit_two.visit_code,
+                visit_code_sequence=subject_visit_two.visit_code_sequence,
+            ).entry_status,
+            NOT_REQUIRED,
+        )
+        crf_one.f1 = "holden"
+        crf_one.save()
+        self.assertEqual(
+            CrfMetadata.objects.get(
+                model="edc_metadata.prnone",
+                visit_code=subject_visit.visit_code,
+                visit_code_sequence=subject_visit.visit_code_sequence,
+            ).entry_status,
+            REQUIRED,
+        )
+        self.assertEqual(
+            CrfMetadata.objects.get(
+                model="edc_metadata.prnone",
+                visit_code=subject_visit_two.visit_code,
+                visit_code_sequence=subject_visit_two.visit_code_sequence,
+            ).entry_status,
+            NOT_REQUIRED,
+        )
+
+    def test_prn_rule_acts_on_correct_visit2(self):
+        """Asserts handles PRNs correctly"""
+        # create 1000 then add crf_one then create 2000
+        subject_visit = self.enroll(gender=MALE)
+        crf_one = CrfOne.objects.create(subject_visit=subject_visit, f1="caufield")
+        self.assertEqual(1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
+        self.assertEqual(
+            1,
+            CrfMetadata.objects.filter(
+                model="edc_metadata.prnone", entry_status=NOT_REQUIRED
+            ).count(),
+        )
+
+        self.get_next_subject_visit(subject_visit)
+
+        self.assertEqual(2, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
+        self.assertEqual(
+            2,
+            CrfMetadata.objects.filter(
+                model="edc_metadata.prnone", entry_status=NOT_REQUIRED
+            ).count(),
+        )
+        self.assertEqual(
+            0,
+            CrfMetadata.objects.filter(
+                model="edc_metadata.prnone", entry_status=REQUIRED
+            ).count(),
+        )
+
+        crf_one.f1 = "holden"
+        crf_one.save()
+        self.assertEqual(
+            1,
+            CrfMetadata.objects.filter(
+                model="edc_metadata.prnone", entry_status=REQUIRED
+            ).count(),
+        )
+        self.assertEqual(
+            1,
+            CrfMetadata.objects.filter(
+                model="edc_metadata.prnone", entry_status=NOT_REQUIRED
+            ).count(),
+        )
+
+    def test_prn_resets_on_delete(self):
+        subject_visit = self.enroll(gender=MALE)
+        crf_one = CrfOne.objects.create(subject_visit=subject_visit, f1="holden")
+        crf_one.delete()
+        self.assertEqual(
+            CrfMetadata.objects.get(
+                model="edc_metadata.prnone",
+                visit_code=subject_visit.visit_code,
+                visit_code_sequence=subject_visit.visit_code_sequence,
+            ).entry_status,
             NOT_REQUIRED,
         )

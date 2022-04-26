@@ -5,7 +5,6 @@ from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 from edc_metadata.metadata.metadata_getter import MetadataGetterError
 
 from ...constants import KEYED
-from ...metadata import DeleteMetadataError
 from ...models import CrfMetadata, RequisitionMetadata
 from ..models import SubjectVisit
 from .metadata_test_mixin import TestMetadataMixin

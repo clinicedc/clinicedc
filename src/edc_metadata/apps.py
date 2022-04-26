@@ -2,7 +2,6 @@ import sys
 
 from django.apps.config import AppConfig as DjangoAppConfig
 from django.core.management.color import color_style
-from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 
 from .metadata_rules import site_metadata_rules
 

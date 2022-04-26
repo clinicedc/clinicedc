@@ -1,3 +1,5 @@
+from typing import Any, Optional
+
 from django.apps import apps as django_apps
 from edc_reference import LongitudinalRefsets, site_reference_configs
 
@@ -23,18 +25,26 @@ class PredicateCollection:
     app_label = "edc_metadata"
     visit_model = None
 
-    def __init__(self):
+    def __init__(self) -> None:
         if not site_reference_configs.loaded:
             site_reference_configs.autodiscover()
         self.reference_model_cls = django_apps.get_model(
             site_reference_configs.get_reference_model(self.visit_model)
         )
 
-    def values(self, value=None, field_name=None, **kwargs):
+    def values(
+        self, value: Optional[Any] = None, field_name: Optional[str] = None, **kwargs
+    ) -> list:
         """Returns a list of matching values or an empty list."""
         return self.exists(value=value, field_name=field_name, **kwargs)
 
-    def exists(self, reference_name=None, value=None, field_name=None, **kwargs):
+    def exists(
+        self,
+        reference_name: Optional[str] = None,
+        value: Optional[Any] = None,
+        field_name: Optional[str] = None,
+        **kwargs,
+    ) -> list:
         """Returns a list of values, all or filtered, or an empty
         list.
         """
@@ -44,7 +54,7 @@ class PredicateCollection:
         else:
             return refsets.fieldset(field_name).all().values
 
-    def refsets(self, reference_name=None, **options):
+    def refsets(self, reference_name: Optional[str] = None, **options) -> Any:
         opts = dict(
             name=reference_name,
             visit_model=self.visit_model,

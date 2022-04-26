@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from typing import Any, Optional
 
 from .logic import Logic
 from .rule_evaluator import RuleEvaluator
@@ -13,7 +14,12 @@ class Rule:
     rule_evaluator_cls = RuleEvaluator
     logic_cls = Logic
 
-    def __init__(self, predicate=None, consequence=None, alternative=None):
+    def __init__(
+        self,
+        predicate: Optional[Any] = None,
+        consequence: Optional[str] = None,
+        alternative: Optional[str] = None,
+    ) -> None:
         self._logic = self.logic_cls(
             predicate=predicate, consequence=consequence, alternative=alternative
         )
@@ -32,17 +38,17 @@ class Rule:
             except AttributeError:
                 pass
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name='{self.name}', group='{self.group}')"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.group}.{self.name}"
 
-    def run(self, visit=None):
+    def run(self, visit: Optional[Any] = None) -> dict:
         """Returns a dictionary of {target_model: entry_status, ...} updated
         by running the rule for each target model given a visit.
 
-        Ensure the model.field is registered with `site_reference_configs`.
+        Ensure the `model.field` is registered with `site_reference_configs`.
         See `edc_reference`.
         """
         result = OrderedDict()

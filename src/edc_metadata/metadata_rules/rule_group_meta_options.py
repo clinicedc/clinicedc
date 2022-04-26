@@ -1,3 +1,5 @@
+from typing import List
+
 from edc_reference import ReferenceGetter
 
 
@@ -15,9 +17,9 @@ class RuleGroupMetaOptions:
 
     reference_getter_cls = ReferenceGetter
 
-    def __init__(self, group_name, attrs):
+    def __init__(self, group_name: str, attrs: dict) -> None:
         meta = attrs.pop("Meta", None)
-        # assert meta class was declared on the rule group
+        # assert metaclass was declared on the rule group
         if not meta:
             raise AttributeError(f"Missing Meta class. See {group_name}")
         # add default options if they do not exist
@@ -51,5 +53,5 @@ class RuleGroupMetaOptions:
             self.options.update(source_model=self.source_model)
 
     @property
-    def default_meta_options(self):
+    def default_meta_options(self) -> List[str]:
         return ["app_label", "source_model"]

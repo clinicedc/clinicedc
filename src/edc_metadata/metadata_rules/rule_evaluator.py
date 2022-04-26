@@ -1,3 +1,4 @@
+from typing import Any, Optional
 from warnings import warn
 
 from django.apps import apps as django_apps
@@ -23,15 +24,17 @@ class RuleEvaluator:
 
     """A class to evaluate a rule.
 
-    Sets self.result to REQUIRED, NOT_REQUIRED or None.
+    Sets `self.result` to REQUIRED, NOT_REQUIRED or None.
 
     Set as a class attribute on Rule.
 
-    Ensure the model.field is registered with `site_reference_configs`.
+    Ensure the `model.field` is registered with `site_reference_configs`.
     See `edc_reference`.
     """
 
-    def __init__(self, logic=None, visit=None, **kwargs):
+    def __init__(
+        self, logic: Optional[Any] = None, visit: Optional[Any] = None, **kwargs
+    ) -> None:
         self._registered_subject = None
         self.logic = logic
         self.result = None
@@ -55,12 +58,12 @@ class RuleEvaluator:
                     self.result = self.logic.alternative
 
     @property
-    def registered_subject_model(self):
+    def registered_subject_model(self) -> Any:
         app_config = django_apps.get_app_config("edc_registration")
         return app_config.model
 
     @property
-    def registered_subject(self):
+    def registered_subject(self) -> Any:
         """Returns a registered subject model instance or raises."""
         if not self._registered_subject:
             try:

@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 from django.contrib.auth.models import User
 from django.http.request import HttpRequest
-from django.test import TestCase, tag
+from django.test import TestCase
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
 from edc_appointment.constants import INCOMPLETE_APPT
