@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.test import TestCase, tag
+from django.test import TestCase
 from django.test.client import RequestFactory
 from edc_appointment.models import Appointment
 from edc_facility.import_holidays import import_holidays

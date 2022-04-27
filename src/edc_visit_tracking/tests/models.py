@@ -4,6 +4,7 @@ from edc_constants.constants import HOSPITALIZED, OTHER
 from edc_crf.crf_inline_model_mixin import CrfInlineModelMixin
 from edc_crf.crf_model_mixin import CrfModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
+from edc_lab.model_mixins import RequisitionModelMixin
 from edc_list_data.model_mixins import ListModelMixin
 from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
 from edc_model.models import BaseUuidModel
@@ -92,7 +93,55 @@ class SubjectVisit(
         pass
 
 
+class SubjectRequisition(RequisitionModelMixin, BaseUuidModel):
+    def update_reference_on_save(self):
+        pass
+
+    class Meta(RequisitionModelMixin.Meta):
+        pass
+
+
 class CrfOne(VisitTrackingCrfModelMixin, BaseUuidModel):
+    subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
+
+    f1 = models.CharField(max_length=50, null=True)
+
+    f2 = models.CharField(max_length=50, null=True)
+
+    f3 = models.CharField(max_length=50, null=True)
+
+
+class CrfTwo(VisitTrackingCrfModelMixin, BaseUuidModel):
+    subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
+
+    f1 = models.CharField(max_length=50, null=True)
+
+    f2 = models.CharField(max_length=50, null=True)
+
+    f3 = models.CharField(max_length=50, null=True)
+
+
+class CrfThree(VisitTrackingCrfModelMixin, BaseUuidModel):
+    subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
+
+    f1 = models.CharField(max_length=50, null=True)
+
+    f2 = models.CharField(max_length=50, null=True)
+
+    f3 = models.CharField(max_length=50, null=True)
+
+
+class CrfFour(VisitTrackingCrfModelMixin, BaseUuidModel):
+    subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
+
+    f1 = models.CharField(max_length=50, null=True)
+
+    f2 = models.CharField(max_length=50, null=True)
+
+    f3 = models.CharField(max_length=50, null=True)
+
+
+class CrfFive(VisitTrackingCrfModelMixin, BaseUuidModel):
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
