@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
-from django.test import TestCase, tag
+from django.test import TestCase
 
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules

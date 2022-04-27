@@ -111,10 +111,14 @@ class VisitSchedule:
 
     @property
     def all_post_consent_models(self):
-        """Returns a dictionary of models and the needed consent model.
+        """Returns a dictionary of models and the needed consent
+        model.
+
         These models may only be complete after the consent model.
 
-        {model_name1: consent_model_name, model_name2: consent_model_name, ...}
+        {model_name1:
+            consent_model_name, model_name2:
+                consent_model_name, ...}
         """
         if not self._all_post_consent_models:
             models = {}
@@ -131,7 +135,7 @@ class VisitSchedule:
                         models.update({crf.model: schedule.consent_model})
             if None in (list(models.keys())):
                 raise VisitScheduleError(
-                    f"One or more required models has not been defined. "
+                    "One or more required models has not been defined. "
                     f"Check the declaration for visit schedule '{self}'. "
                     f"Got {models}."
                 )

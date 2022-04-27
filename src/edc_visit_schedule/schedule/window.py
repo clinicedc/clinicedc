@@ -78,7 +78,7 @@ class Window:
 
     def raise_for_unscheduled_not_in_window(self):
         """Returns the datetime if it falls within the
-        window period for a unscheduled `visit` otherwise
+        window period for an unscheduled `visit` otherwise
         raises an exception.
 
         Window period for an unscheduled date is anytime

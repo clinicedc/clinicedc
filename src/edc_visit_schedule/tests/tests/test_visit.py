@@ -126,7 +126,7 @@ class TestVisit(TestCase):
                 rupper=relativedelta(days=6),
                 timepoint=1,
             )
-        except (VisitCodeError) as e:
+        except VisitCodeError as e:
             self.fail(f"VisitError unexpectedly raised. Got {e}")
         try:
             Visit(

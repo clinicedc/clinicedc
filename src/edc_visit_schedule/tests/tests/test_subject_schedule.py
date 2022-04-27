@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_consent import site_consents
 from edc_consent.consent import Consent
 from edc_constants.constants import FEMALE, MALE

@@ -32,6 +32,10 @@ class Crf:
         required = "Required" if self.required else ""
         return f"{self.model} {required}"
 
+    @property
+    def name(self) -> str:
+        return f"{self.model}.{'required' if self.required else 'not_required'}"
+
     def validate(self):
         """Raises an exception if the model class lookup fails."""
         try:

@@ -1,10 +1,13 @@
 import re
 from decimal import Decimal
+from typing import Optional
 
 import arrow
+from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.conf import settings
 
+from .forms_collection import FormsCollection
 from .window_period import WindowPeriod
 
 
@@ -49,34 +52,41 @@ class Visit:
 
     def __init__(
         self,
-        code=None,
-        timepoint=None,
-        rbase=None,
-        rlower=None,
-        rupper=None,
-        crfs=None,
-        requisitions=None,
-        crfs_unscheduled=None,
-        crfs_missed=None,
-        requisitions_unscheduled=None,
-        crfs_prn=None,
-        requisitions_prn=None,
-        title=None,
+        code: Optional[str] = None,
+        timepoint: Optional[int] = None,
+        rbase: Optional[relativedelta] = None,
+        rlower: Optional[relativedelta] = None,
+        rupper: Optional[relativedelta] = None,
+        crfs: Optional[FormsCollection] = None,
+        requisitions: Optional[FormsCollection] = None,
+        crfs_unscheduled: Optional[FormsCollection] = None,
+        crfs_missed: Optional[FormsCollection] = None,
+        requisitions_unscheduled: Optional[FormsCollection] = None,
+        crfs_prn: Optional[FormsCollection] = None,
+        requisitions_prn: Optional[FormsCollection] = None,
+        title: Optional[str] = None,
+        allow_unscheduled: Optional[bool] = None,
+        facility_name: Optional[str] = None,
         instructions=None,
         grouping=None,
-        allow_unscheduled=None,
-        facility_name=None,
     ):
 
-        self.crfs = crfs.forms if crfs else ()
+        self.crfs = crfs.forms if crfs else tuple()
         self.crfs_unscheduled = crfs_unscheduled.forms if crfs_unscheduled else ()
         self.crfs_missed = crfs_missed.forms if crfs_missed else ()
         self.crfs_prn = crfs_prn.forms if crfs_prn else ()
+        for prn in self.crfs_prn:
+            prn.required = False
+
         self.requisitions = requisitions.forms if requisitions else ()
         self.requisitions_unscheduled = (
             requisitions_unscheduled.forms if requisitions_unscheduled else ()
         )
         self.requisitions_prn = requisitions_prn.forms if requisitions_prn else ()
+        for prn in self.requisitions_prn:
+            prn.required = False
+        # self.requisitions = self.requisitions + self.requisitions_prn
+
         self.instructions = instructions
         self.timepoint = Decimal(str(timepoint))
         self.rbase = rbase
@@ -186,6 +196,7 @@ class Visit:
 
     def check(self):
         warnings = []
+        crf = None
         try:
             for crf in self.crfs:
                 django_apps.get_model(crf.model)

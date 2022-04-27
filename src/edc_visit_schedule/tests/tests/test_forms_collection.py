@@ -1,4 +1,4 @@
-from django.test import TestCase, tag
+from django.test import TestCase
 from django.test.utils import override_settings
 
 from edc_visit_schedule.visit import Crf, FormsCollection, FormsCollectionError
@@ -59,3 +59,20 @@ class TestFormsCollection(TestCase):
             crfs.append(Crf(show_order=i, model=f"x.{i}"))
         forms = FormsCollection(*crfs)
         self.assertEqual(len(forms.forms), 10)
+
+    @override_settings(SITE_ID=40)
+    def test_forms_collection_list_like_behaviour(self):
+        forms = FormsCollection()
+        for i in range(0, 5):
+            forms.append(Crf(show_order=i, model=f"x.{i}"))
+        for i in range(6, 11):
+            forms.append(Crf(show_order=i, model=f"x.{i}"))
+        self.assertEqual(len(forms), 10)
+        forms.remove(Crf(show_order=1, model="x.1"))
+        self.assertEqual(len(forms), 9)
+        max_show_order = max([item.show_order for item in forms])
+        forms.insert_last(Crf(show_order=1, model="x.1"))
+        self.assertGreater(max([item.show_order for item in forms]), max_show_order)
+        self.assertRaises(
+            FormsCollectionError, forms.insert_last, Crf(show_order=1, model="x.1")
+        )

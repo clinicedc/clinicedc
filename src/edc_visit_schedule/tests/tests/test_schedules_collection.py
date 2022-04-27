@@ -1,4 +1,4 @@
-from django.test import TestCase, tag
+from django.test import TestCase
 
 from edc_visit_schedule.visit_schedule import (
     SchedulesCollection,

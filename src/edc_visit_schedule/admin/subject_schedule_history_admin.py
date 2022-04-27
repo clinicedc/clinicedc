@@ -95,7 +95,10 @@ class SubjectScheduleHistoryAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAd
 
     def review(self, obj=None):
         try:
-            url = f"{reverse('edc_review_dashboard:subject_review_listboard_url')}?q={obj.subject_identifier}"
+            url = (
+                f"{reverse('edc_review_dashboard:subject_review_listboard_url')}?"
+                f"q={obj.subject_identifier}"
+            )
         except NoReverseMatch:
             context = {}
         else:

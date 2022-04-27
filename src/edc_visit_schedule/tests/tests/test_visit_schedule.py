@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 from dateutil.relativedelta import relativedelta
 from dateutil.tz import tzutc
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_consent.consent import Consent

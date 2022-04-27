@@ -41,7 +41,7 @@ class OrderedCollection(OrderedDict):
             seq = reversed(self.keys())
         else:
             seq = iter(self.keys())
-        keys = itertools.dropwhile(lambda k: k != key, seq)
+        keys = itertools.dropwhile(lambda x: x != key, seq)
         try:
             k = next(keys)
         except StopIteration:
