@@ -44,6 +44,14 @@ class SubjectConsent(
         return "subject_identifier"
 
 
+class OnSchedule(OnScheduleModelMixin, BaseUuidModel):
+    pass
+
+
+class OffSchedule(OffScheduleModelMixin, BaseUuidModel):
+    pass
+
+
 class OnScheduleOne(OnScheduleModelMixin, BaseUuidModel):
     pass
 

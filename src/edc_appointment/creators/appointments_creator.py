@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import Any, Optional
+
 import arrow
 from django.apps import apps as django_apps
 from django.db.models.deletion import ProtectedError
@@ -19,17 +22,19 @@ class AppointmentsCreator:
 
     def __init__(
         self,
-        subject_identifier=None,
-        visit_schedule=None,
-        schedule=None,
-        report_datetime=None,
-        appointment_model=None,
+        subject_identifier: Optional[str] = None,
+        visit_schedule: Optional[Any] = None,
+        schedule: Optional[Any] = None,
+        report_datetime: Optional[datetime] = None,
+        appointment_model: Optional[Any] = None,
+        skip_baseline: Optional[bool] = None,
     ):
         self.subject_identifier = subject_identifier
         self.visit_schedule = visit_schedule
         self.schedule = schedule
         self.report_datetime = report_datetime
         self.appointment_model = appointment_model
+        self.skip_baseline = skip_baseline
 
     def create_appointments(self, base_appt_datetime=None, taken_datetimes=None):
         """Creates appointments when called by post_save signal.
@@ -73,6 +78,7 @@ class AppointmentsCreator:
             visit_schedule_name=self.visit_schedule.name,
             schedule_name=self.schedule.name,
             appointment_model=self.appointment_model,
+            skip_baseline=self.skip_baseline,
             **kwargs,
         )
         return appointment_creator.appointment
@@ -89,3 +95,6 @@ class AppointmentsCreator:
             except ProtectedError:
                 pass
         return None
+
+    def recalulate_from_baseline(self):
+        pass

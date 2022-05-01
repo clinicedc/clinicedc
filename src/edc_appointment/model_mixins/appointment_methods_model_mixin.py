@@ -1,4 +1,4 @@
-from typing import Optional, Protocol, Type
+from typing import Optional, Type
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist

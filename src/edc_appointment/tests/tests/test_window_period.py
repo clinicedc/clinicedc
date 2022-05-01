@@ -5,7 +5,7 @@ from edc_protocol import Protocol
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
-from edc_appointment.constants import INCOMPLETE_APPT
+from edc_appointment.constants import INCOMPLETE_APPT, ONTIME_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.forms import AppointmentForm
 from edc_appointment.model_mixins import AppointmentWindowError
@@ -48,6 +48,7 @@ class TestAppointmentWindowPeriod(TestCase):
         return AppointmentForm(
             data={
                 "appt_datetime": appt_datetime,
+                "appt_timing": ONTIME_APPT,
                 "subject_identifier": appointment.subject_identifier,
                 "timepoint_status": appointment.timepoint_status,
                 "timepoint": appointment.timepoint,
@@ -147,7 +148,7 @@ class TestAppointmentWindowPeriod(TestCase):
         self.assertIn("appt_datetime", form._errors)
         self.assertIn("Invalid", form._errors.get("appt_datetime")[0])
 
-    @tag("appt")
+    @tag("1")
     def test_appointments_window_period_boundary_before_next_lower(self):
         appointment_1030, appointment_1060 = self.create_1030_and_1060()
 

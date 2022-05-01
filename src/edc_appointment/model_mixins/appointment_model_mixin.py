@@ -3,18 +3,22 @@ from datetime import datetime
 from typing import Union
 from uuid import UUID
 
+from django.apps import apps as django_apps
 from django.db import models
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_offstudy.model_mixins import OffstudyVisitModelMixin
 from edc_timepoint.model_mixins import TimepointModelMixin
+from edc_visit_schedule import site_visit_schedules
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
+from edc_visit_schedule.utils import is_baseline
 
-from ..choices import APPT_STATUS, APPT_TYPE, DEFAULT_APPT_REASON_CHOICES
-from ..constants import NEW_APPT
+from ..choices import APPT_STATUS, APPT_TIMING, APPT_TYPE, DEFAULT_APPT_REASON_CHOICES
+from ..constants import NEW_APPT, ONTIME_APPT
 from ..exceptions import UnknownVisitCode
 from ..managers import AppointmentManager
 from ..stubs import AppointmentModelStub
 from .appointment_methods_model_mixin import AppointmentMethodsModelMixin
+from .missed_appointment_model_mixin import MissedAppointmentModelMixin
 from .window_period_model_mixin import WindowPeriodModelMixin
 
 
@@ -22,6 +26,7 @@ class AppointmentModelMixin(
     NonUniqueSubjectIdentifierFieldMixin,
     AppointmentMethodsModelMixin,
     TimepointModelMixin,
+    MissedAppointmentModelMixin,
     WindowPeriodModelMixin,
     VisitScheduleModelMixin,
     OffstudyVisitModelMixin,
@@ -75,7 +80,8 @@ class AppointmentModelMixin(
         db_index=True,
         help_text=(
             "If the visit has already begun, only 'in progress', "
-            "'incomplete' or 'done' are valid options"
+            "'incomplete' or 'done' are valid options. Only unscheduled appointments "
+            "may be cancelled."
         ),
     )
 
@@ -85,7 +91,20 @@ class AppointmentModelMixin(
         choices=DEFAULT_APPT_REASON_CHOICES,
         help_text=(
             "The visit report's `reason for visit` will be validated against this. "
-            "Refer to the protocol's documentation for the definition of a `scheduled` visit."
+            "Refer to the protocol's documentation for the definition of a `scheduled` "
+            "appointment."
+        ),
+    )
+
+    appt_timing = models.CharField(
+        verbose_name="Timing",
+        max_length=25,
+        choices=APPT_TIMING,
+        default=ONTIME_APPT,
+        help_text=(
+            "If late, you may be required to complete a Protocol Deviation / Violation form. "
+            "Refer to the protocol/SOP for the definition of scheduled appointment "
+            "window periods."
         ),
     )
 
@@ -97,6 +116,25 @@ class AppointmentModelMixin(
 
     def __str__(self) -> str:
         return f"{self.visit_code}.{self.visit_code_sequence}"
+
+    def save(self, *args, **kwargs):
+        if self.id and is_baseline(self):
+            visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
+            schedule = visit_schedule.schedules.get(self.schedule_name)
+            onschedule_obj = django_apps.get_model(schedule.onschedule_model).objects.get(
+                subject_identifier=self.subject_identifier,
+                onschedule_datetime__lte=self.appt_datetime,
+            )
+            if self.appt_datetime == onschedule_obj.onschedule_datetime:
+                pass
+            elif self.appt_datetime > onschedule_obj.onschedule_datetime:
+                # update appointment timepoints
+                schedule.put_on_schedule(
+                    subject_identifier=self.subject_identifier,
+                    onschedule_datetime=self.appt_datetime,
+                    skip_baseline=True,
+                )
+        super().save(*args, **kwargs)
 
     def natural_key(self) -> tuple:
         return (
@@ -119,7 +157,7 @@ class AppointmentModelMixin(
             valid_visit_codes = [v for v in self.schedule.visits]
             raise UnknownVisitCode(
                 "Unknown visit code specified for existing apointment instance. "
-                "Has the visit schedule changed? Expected one of "
+                "Has the appointments schedule changed? Expected one of "
                 f"{valid_visit_codes}. Got {self.visit_code}. "
                 f"See {self}."
             )

@@ -31,9 +31,10 @@ class AppointmentAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         "appt_datetime",
         "appt_type",
         "appt_status",
+        "appt_timing",
         "schedule_name",
     )
-    list_filter = ("visit_code", "appt_datetime", "appt_type", "appt_status")
+    list_filter = ("visit_code", "appt_datetime", "appt_type", "appt_status", "appt_timing")
 
     additional_instructions = mark_safe(
         "To start or continue to edit FORMS for this subject, change the "
@@ -54,6 +55,7 @@ class AppointmentAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
                         "appt_type",
                         "appt_status",
                         "appt_reason",
+                        "appt_timing",
                         "comment",
                     )
                 }
@@ -81,6 +83,7 @@ class AppointmentAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         "appt_type": admin.VERTICAL,
         "appt_status": admin.VERTICAL,
         "appt_reason": admin.VERTICAL,
+        "appt_timing": admin.VERTICAL,
     }
 
     search_fields = ("subject_identifier",)

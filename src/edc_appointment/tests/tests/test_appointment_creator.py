@@ -5,7 +5,7 @@ from arrow.arrow import Arrow
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.conf import settings
-from django.test import TestCase, tag
+from django.test import TestCase
 from django.test.utils import override_settings
 from edc_facility.import_holidays import import_holidays
 from edc_utils import get_utcnow
@@ -13,6 +13,7 @@ from edc_visit_schedule import Schedule, Visit, VisitSchedule, site_visit_schedu
 
 from ...creators import AppointmentCreator
 from ...models import Appointment
+from ..models import OnSchedule
 
 
 class AppointmentCreatorTestCase(TestCase):
@@ -70,6 +71,11 @@ class AppointmentCreatorTestCase(TestCase):
 
         app_config = django_apps.get_app_config("edc_facility")
 
+        self.onschedule = OnSchedule.objects.create(
+            subject_identifier=self.subject_identifier,
+            onschedule_datetime=get_utcnow() - relativedelta(days=1),
+        )
+
         class Meta:
             label_lower = ""
 
@@ -120,10 +126,11 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
         )
         self.assertTrue(creator)
 
-    @tag("appt1")
     def test_create(self):
         """test create appointment, avoids new years holidays"""
         appt_datetime = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
+        self.onschedule.onschedule_datetime = appt_datetime
+        self.onschedule.save()
         creator = AppointmentCreator(
             subject_identifier=self.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
@@ -141,6 +148,8 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
     def test_create_appt_moves_forward(self):
         """Assert appt datetime moves forward to avoid holidays"""
         appt_datetime = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
+        self.onschedule.onschedule_datetime = appt_datetime
+        self.onschedule.save()
         creator = AppointmentCreator(
             subject_identifier=self.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
@@ -155,9 +164,10 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
             Arrow.fromdatetime(datetime(2017, 1, 3)).datetime,
         )
 
-    @tag("appt1")
     def test_create_appt_with_lower_greater_than_zero(self):
         appt_datetime = Arrow.fromdatetime(datetime(2017, 1, 10)).datetime
+        self.onschedule.onschedule_datetime = appt_datetime
+        self.onschedule.save()
 
         creator = AppointmentCreator(
             subject_identifier=self.subject_identifier,
@@ -176,9 +186,10 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
             Arrow.fromdatetime(datetime(2017, 1, 10)).datetime,
         )
 
-    @tag("appt1")
     def test_create_appt_with_lower_greater_than_zero2(self):
         appt_datetime = Arrow.fromdatetime(datetime(2017, 1, 10)).datetime
+        self.onschedule.onschedule_datetime = appt_datetime
+        self.onschedule.save()
 
         creator = AppointmentCreator(
             subject_identifier=self.subject_identifier,
@@ -199,6 +210,8 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
 
     def test_raise_on_naive_datetime(self):
         appt_datetime = datetime(2017, 1, 1)
+        self.onschedule.onschedule_datetime = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
+        self.onschedule.save()
         self.assertRaises(
             ValueError,
             AppointmentCreator,
@@ -211,6 +224,8 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
 
     def test_raise_on_naive_datetime2(self):
         appt_datetime = datetime(2017, 1, 1)
+        self.onschedule.onschedule_datetime = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
+        self.onschedule.save()
         self.assertRaises(
             ValueError,
             AppointmentCreator,
@@ -223,7 +238,6 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
 
 
 class TestAppointmentCreator2(AppointmentCreatorTestCase):
-    @tag("appt")
     @override_settings(
         HOLIDAY_FILE=os.path.join(
             settings.BASE_DIR, settings.APP_NAME, "tests", "no_holidays.csv"
@@ -233,6 +247,8 @@ class TestAppointmentCreator2(AppointmentCreatorTestCase):
         """test create appointment, no holiday to avoid after 1900"""
         import_holidays()
         appt_datetime = Arrow.fromdatetime(datetime(1900, 1, 1)).datetime
+        self.onschedule.onschedule_datetime = appt_datetime
+        self.onschedule.save()
         expected_appt_datetime = Arrow.fromdatetime(datetime(1900, 1, 2)).datetime
         creator = AppointmentCreator(
             subject_identifier=self.subject_identifier,
