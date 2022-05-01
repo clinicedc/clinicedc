@@ -5,7 +5,7 @@ import pytz
 from dateutil import tz
 from django.test import TestCase
 
-from .. import (
+from edc_utils import (
     AgeValueError,
     age,
     formatted_age,
