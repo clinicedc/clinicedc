@@ -5,7 +5,7 @@ from urllib.error import URLError
 from django.conf import settings
 
 
-def get_static_file(app_label, filename):
+def get_static_file(app_label: str, filename: str) -> str:
     path = os.path.join(settings.STATIC_ROOT or "", app_label, filename)
     if os.path.isfile(path):
         try:

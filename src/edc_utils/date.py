@@ -1,3 +1,6 @@
+from datetime import date, datetime
+from typing import Optional
+
 import arrow
 import pytz
 from arrow.arrow import Arrow
@@ -8,16 +11,16 @@ class EdcDatetimeError(Exception):
     pass
 
 
-def get_utcnow():
+def get_utcnow() -> datetime:
     return arrow.utcnow().datetime
 
 
-def get_utcnow_as_date():
-    return arrow.utcnow().date
+def get_utcnow_as_date() -> date:
+    return arrow.utcnow().date()
 
 
-def to_arrow_utc(dt, timezone=None):
-    """Returns a datetime in UTC after converting date or datetime from
+def to_arrow_utc(dt: datetime, timezone: Optional[str] = None):
+    """Returns an arrow instance in UTC after converting date or datetime from
     the given timezone string to \'UTC\'.
     """
     try:
@@ -34,6 +37,6 @@ def to_arrow_utc(dt, timezone=None):
     return r_utc
 
 
-def to_utc(dt):
+def to_utc(dt: datetime) -> datetime:
     """Returns UTC datetime from any aware datetime."""
     return Arrow.fromdatetime(dt, dt.tzinfo).to("utc").datetime

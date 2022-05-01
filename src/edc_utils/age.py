@@ -17,7 +17,7 @@ class AgeFormatError(Exception):
     pass
 
 
-def get_dob(age_in_years, now=None) -> date:
+def get_dob(age_in_years: int, now: Optional[Union[date, datetime]] = None) -> date:
     """Returns a DoB for the given age relative to now.
 
     Used in tests.
@@ -53,28 +53,28 @@ def age(
 
 
 def formatted_age(
-    born: Union[date, datetime],
+    born: Union[date, datetime, None],
     reference_dt: Union[date, datetime],
     timezone: Optional[str] = None,
 ) -> str:
-    formatted_age_ = "?"
+    age_as_str = "?"
     if born:
         timezone = timezone or getattr(settings, "TIME_ZONE", "UTC")
         born = arrow.Arrow.fromdate(born, tzinfo=pytz.timezone(timezone)).datetime
         reference_dt = reference_dt or get_utcnow()
         age_delta = age(born, reference_dt or get_utcnow())
         if age_delta.years == 0 and age_delta.months <= 0:
-            formatted_age_ = f"{age_delta.days}d"
+            age_as_str = f"{age_delta.days}d"
         elif age_delta.years == 0 and 0 < age_delta.months <= 2:
-            formatted_age_ = f"{age_delta.months}m{age_delta.days}d"
+            age_as_str = f"{age_delta.months}m{age_delta.days}d"
         elif age_delta.years == 0 and age_delta.months > 2:
-            formatted_age_ = f"{age_delta.months}m"
+            age_as_str = f"{age_delta.months}m"
         elif age_delta.years == 1:
             m = age_delta.months + 12
-            formatted_age_ = f"{m}m"
+            age_as_str = f"{m}m"
         else:
-            formatted_age_ = f"{age_delta.years}y"
-    return formatted_age_
+            age_as_str = f"{age_delta.years}y"
+    return age_as_str
 
 
 def get_age_in_days(

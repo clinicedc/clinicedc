@@ -62,14 +62,21 @@ def convert_from_camel(name):
     return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
 
-def formatted_datetime(aware_datetime, php_dateformat=None, tz=None):
-    """Returns a formatted datetime string, localized by default."""
+def formatted_datetime(aware_datetime, php_dateformat=None, tz=None, format_as_date=None):
+    """Returns a formatted datetime string, localized by default.
+
+    format_as_date: does not affect the calculation, just the formatted output.
+    """
     if aware_datetime:
-        php_dateformat = php_dateformat or settings.SHORT_DATETIME_FORMAT
         tz = tz or pytz.timezone(settings.TIME_ZONE)
         utc = Arrow.fromdatetime(aware_datetime)
         local = utc.to(tz)
-        return local.datetime.strftime(convert_php_dateformat(php_dateformat))
+        if format_as_date:
+            php_dateformat = php_dateformat or settings.SHORT_DATE_FORMAT
+            return local.datetime.date().strftime(convert_php_dateformat(php_dateformat))
+        else:
+            php_dateformat = php_dateformat or settings.SHORT_DATETIME_FORMAT
+            return local.datetime.strftime(convert_php_dateformat(php_dateformat))
     return ""
 
 
