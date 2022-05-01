@@ -2,18 +2,18 @@
 # https://github.com/django-extensions/django-extensions/blob/master/django_extensions/management/commands/show_urls.py
 
 from django.core.exceptions import ViewDoesNotExist
-from django.urls import URLPattern, URLResolver  # type: ignore
+from django.urls import URLPattern, URLResolver
 
 
-class RegexURLPattern:  # type: ignore
+class RegexURLPattern:
     pass
 
 
-class RegexURLResolver:  # type: ignore
+class RegexURLResolver:
     pass
 
 
-class LocaleRegexURLResolver:  # type: ignore
+class LocaleRegexURLResolver:
     pass
 
 

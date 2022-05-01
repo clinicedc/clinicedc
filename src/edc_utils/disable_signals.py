@@ -13,7 +13,7 @@ from django.db.models.signals import (
 )
 
 
-class DisableSignals(object):
+class DisableSignals:
     """
     Example usage:
     with DisableSignals():

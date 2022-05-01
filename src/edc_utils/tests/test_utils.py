@@ -3,9 +3,9 @@ from datetime import date, datetime
 import arrow
 import pytz
 from dateutil import tz
-from django.test import TestCase, tag  # noqa
+from django.test import TestCase
 
-from .. import (
+from edc_utils import (
     AgeValueError,
     age,
     formatted_age,
@@ -128,4 +128,4 @@ class TestUtils(TestCase):
     def get_datetime_from_env(self):
         dt = datetime(1990, 5, 2, 0, 0), tz.gettz("Africa/Gaborone")
 
-        self.assertEqual(dt, get_datetime_from_env(1990, 5, 2, 0, 0, "Africa/Gaborone"))
+        self.assertEqual(dt, get_datetime_from_env(1990, 5, 2, 0, 0, 0, "Africa/Gaborone"))
