@@ -1,7 +1,9 @@
+from typing import Optional
+
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_appointment.constants import COMPLETE_APPT, IN_PROGRESS_APPT
-from edc_constants.constants import NO, YES
+from edc_constants.constants import COMPLETE, NO, YES
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 
@@ -38,7 +40,10 @@ class VisitModelMixin(
     def __str__(self) -> str:
         return f"{self.subject_identifier} {self.visit_code}.{self.visit_code_sequence}"
 
-    def save(self: SubjectVisitModelStub, *args, **kwargs):
+    def save(
+        self: SubjectVisitModelStub, *args, update_fields: Optional[list] = None, **kwargs
+    ):
+        self.update_document_status_on_save(update_fields)
         self.subject_identifier = self.appointment.subject_identifier
         self.visit_schedule_name = self.appointment.visit_schedule_name
         self.schedule_name = self.appointment.schedule_name
@@ -57,7 +62,6 @@ class VisitModelMixin(
             self.visit_code_sequence,
         )
 
-    # noinspection PyTypeHints
     natural_key.dependencies = ["edc_appointment.appointment"]  # type:ignore
 
     @property
@@ -83,6 +87,18 @@ class VisitModelMixin(
             if self.appointment.appt_status != IN_PROGRESS_APPT:
                 self.appointment.appt_status = IN_PROGRESS_APPT
                 self.appointment.save()
+
+    def update_document_status_on_save(self, update_fields: Optional[list] = None) -> None:
+        """Updates `document_status` as complete unless field is listed
+        in update_fields.
+
+        Used when this instance (subject_visit) needs to be updated.
+        For example, after being auto-created and before moving on to CRFs.
+
+        See also: edc_subject_dashboard
+        """
+        if "document_status" not in (update_fields or []):
+            self.document_status = COMPLETE
 
     class Meta:
         abstract = True

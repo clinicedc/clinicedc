@@ -1,4 +1,7 @@
+from typing import Any
+
 from django.contrib import admin
+from edc_appointment.models import Appointment
 from edc_constants.constants import OTHER
 from edc_model_admin.model_admin_audit_fields_mixin import audit_fieldset_tuple
 from edc_visit_schedule.fieldsets import (
@@ -6,8 +9,10 @@ from edc_visit_schedule.fieldsets import (
     visit_schedule_fieldset_tuple,
 )
 
-from edc_visit_tracking.constants import UNSCHEDULED
+from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.stubs import SubjectVisitModelStub
+
+from .fieldsets import document_status_fieldset_tuple
 
 
 class VisitModelAdminMixin:
@@ -42,6 +47,7 @@ class VisitModelAdminMixin:
             },
         ),
         visit_schedule_fieldset_tuple,
+        document_status_fieldset_tuple,
         audit_fieldset_tuple,
     )
 
@@ -112,4 +118,21 @@ class VisitModelAdminMixin:
 
     def get_readonly_fields(self, request, obj=None) -> list:
         readonly_fields = super().get_readonly_fields(request, obj=obj)  # type: ignore
-        return list(readonly_fields) + list(visit_schedule_fields)
+        return list(readonly_fields) + list(visit_schedule_fields) + ["document_status"]
+
+    def get_changeform_initial_data(self, request: Any) -> dict:
+        """Sets initial data for the form.
+
+        Inherit from this add additional fields to set.
+
+        Gets report_datetime from the appointment.appt_datetime
+        and reason from the appointment.visit_code_sequence.
+        """
+        initial_data = super().get_changeform_initial_data(request)  # type: ignore
+        appointment_id = request.GET.get("appointment")
+        appointment = Appointment.objects.get(id=appointment_id)
+        initial_data.update(
+            report_datetime=appointment.appt_datetime,
+            reason=SCHEDULED if appointment.visit_code_sequence == 0 else UNSCHEDULED,
+        )
+        return initial_data

@@ -1,5 +1,15 @@
+from typing import Any, Optional
+
 from django.contrib.sites.managers import CurrentSiteManager as BaseCurrentSiteManager
-from django.db import models
+from django.db import IntegrityError, models, transaction
+from django_mock_queries.constants import ObjectDoesNotExist
+from edc_constants.constants import NOT_APPLICABLE
+
+from edc_visit_tracking.constants import MISSED_VISIT
+
+
+class MissedVisitError(Exception):
+    pass
 
 
 class CrfModelManager(models.Manager):
@@ -28,7 +38,7 @@ class CrfModelManager(models.Manager):
 
 
 class VisitModelManager(models.Manager):
-    """A manager class for visit models."""
+    """A manager class for visit models (e.g. subject_visit)."""
 
     use_in_migrations = True
 
@@ -47,6 +57,53 @@ class VisitModelManager(models.Manager):
             visit_code=visit_code,
             visit_code_sequence=visit_code_sequence,
         )
+
+    def create_missed_extras(self) -> dict:
+        """Extra options to use when auto-creating a visit
+        model instance with reason=missed.
+
+        See `create_missed_from_appointment`.
+        """
+        return {}
+
+    def create_missed_from_appointment(
+        self, appointment: Any, reason_missed: Optional[str] = None
+    ):
+        """Creates a subject visit model instance automatically
+        for a missed appointment (appt_timing=missed).
+
+        Raises if the visit model instance already exists and
+        has reason!=missed.
+        """
+        try:
+            subject_visit = self.get(appointment=appointment)
+        except ObjectDoesNotExist:
+            opts = dict(
+                appointment=appointment,
+                comments="[auto-created]",
+                info_source=NOT_APPLICABLE,
+                reason=MISSED_VISIT,
+                reason_missed=reason_missed or "past window period",
+                report_datetime=appointment.appt_datetime,
+                schedule_name=appointment.schedule_name,
+                subject_identifier=appointment.subject_identifier,
+                survival_status=NOT_APPLICABLE,
+                visit_code=appointment.visit_code,
+                visit_code_sequence=appointment.visit_code_sequence,
+                visit_schedule_name=appointment.visit_schedule_name,
+            )
+            opts.update(**self.create_missed_extras())
+            try:
+                with transaction.atomic():
+                    self.create(**opts)
+            except IntegrityError:
+                pass
+        else:
+            pass
+            if subject_visit.reason != MISSED_VISIT:
+                raise MissedVisitError(
+                    f"Subject visit already exists. Reason=`{subject_visit.reason}`"
+                )
 
 
 class CurrentSiteManager(BaseCurrentSiteManager, CrfModelManager):

@@ -44,5 +44,8 @@ class SubjectVisitModelStub(Protocol):
     def get_require_crfs_display(self) -> str:
         ...
 
+    def update_document_status_on_save(self, update_fields=None) -> None:
+        ...
+
 
 TSubjectVisitModelStub = TypeVar("TSubjectVisitModelStub", bound="SubjectVisitModelStub")

@@ -1,9 +1,9 @@
 from django import forms
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_appointment.models import Appointment
 from edc_constants.constants import ALIVE, OTHER, YES
 from edc_facility.import_holidays import import_holidays
-from edc_form_validators import REQUIRED_ERROR
+from edc_form_validators import APPLICABLE_ERROR, REQUIRED_ERROR
 from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -116,6 +116,7 @@ class TestSubjectVisitFormValidator(TestCase):
             pass
         self.assertIn("reason_missed", form_validator._errors)
 
+    @tag("1")
     def test_reason_unscheduled(self):
         SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
 
@@ -139,7 +140,7 @@ class TestSubjectVisitFormValidator(TestCase):
         except forms.ValidationError:
             pass
         self.assertIn("reason_unscheduled", form_validator._errors)
-        self.assertIn(REQUIRED_ERROR, form_validator._error_codes)
+        self.assertIn(APPLICABLE_ERROR, form_validator._error_codes)
 
     def test_reason_unscheduled_other(self):
         SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
