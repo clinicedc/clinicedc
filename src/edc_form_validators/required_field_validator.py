@@ -257,7 +257,7 @@ class RequiredFieldValidator(BaseFormValidator):
         required_msg: Optional[str] = None,
         is_instance_field: Optional[bool] = None,
     ) -> bool:
-        """Required b if a. Do not require b if not a"""
+        """Required `b` if `a`; do not require `b` if not `a`"""
         if is_instance_field:
             self.update_cleaned_data_from_instance(field)
         if (

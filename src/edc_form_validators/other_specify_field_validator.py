@@ -20,7 +20,6 @@ class OtherSpecifyFieldValidator(BaseFormValidator):
         other_stored_value: Optional[Any] = None,
         ref: Optional[str] = None,
         fk_stored_field_name: Optional[str] = None,
-        **kwargs,
     ) -> bool:
         """Returns False or raises a ValidationError.
 
