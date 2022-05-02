@@ -1,13 +1,7 @@
 from django import forms
-from django.test import TestCase, tag
-from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
+from django.test import TestCase
+from edc_constants.constants import OTHER
 
-from form_validators_app.models import Alphabet
-
-from ..base_form_validator import (
-    InvalidModelFormFieldValidator,
-    ModelFormFieldValidatorError,
-)
 from ..form_validator import FormValidator
 
 

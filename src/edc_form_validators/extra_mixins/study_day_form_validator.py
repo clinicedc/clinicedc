@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytz
 from arrow.arrow import Arrow
 from django import forms
@@ -10,7 +12,7 @@ from ..base_form_validator import INVALID_ERROR
 
 class StudyDayFormValidatorMixin:
     def validate_study_day_with_datetime(
-        self,
+        self: Any,
         subject_identifier=None,
         study_day=None,
         compare_date=None,

@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.forms import ValidationError
 
 
@@ -14,11 +16,11 @@ class FormValidatorTestCaseMixin:
             pass
         return form_validator
 
-    def assertFormValidatorNoError(self, form_validator):
+    def assertFormValidatorNoError(self: Any, form_validator):  # noqa
         self.assertDictEqual({}, form_validator._errors)
 
-    def assertFormValidatorError(
-        self,
+    def assertFormValidatorError(  # noqa
+        self: Any,
         field: str,
         expected_msg: str,
         form_validator,

@@ -1,5 +1,5 @@
 from django import forms
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_constants.constants import NO, NOT_APPLICABLE, YES
 
 from ..base_form_validator import (
@@ -116,13 +116,13 @@ class TestNotRequiredFieldValidator(TestCase):
                     YES, field="field_one", field_required="field_two", inverse=False
                 )
 
-        form_validator = MyFormValidator1(cleaned_data=dict(field_one=YES, field_two=None))
+        form_validator = MyFormValidator2(cleaned_data=dict(field_one=YES, field_two=None))
         try:
             form_validator.clean()
         except forms.ValidationError:
             self.fail("ValidationError unexpectedly raised")
 
-        form_validator = MyFormValidator1(cleaned_data=dict(field_one=NO, field_two="blah"))
+        form_validator = MyFormValidator2(cleaned_data=dict(field_one=NO, field_two="blah"))
         try:
             form_validator.clean()
         except forms.ValidationError:

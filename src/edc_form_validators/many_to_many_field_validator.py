@@ -5,7 +5,6 @@ from edc_constants.constants import NOT_APPLICABLE, OTHER
 
 from .base_form_validator import (
     APPLICABLE_ERROR,
-    INVALID_ERROR,
     NOT_APPLICABLE_ERROR,
     NOT_REQUIRED_ERROR,
     REQUIRED_ERROR,
