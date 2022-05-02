@@ -17,6 +17,9 @@ class ActionItemError(Exception):
 
 
 class ActionItemModelManager(models.Manager):
+
+    use_in_migrations = True
+
     def get_by_natural_key(self, action_identifier):
         return self.get(action_identifier=action_identifier)
 
