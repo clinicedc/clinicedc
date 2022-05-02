@@ -13,7 +13,6 @@ class TestFormsCollection(TestCase):
             self.fail(f"FormsCollectionError unexpectedly raised. Got {e}")
 
     def test_forms_collection_none1(self):
-        crfs = None
         try:
             FormsCollection()
         except FormsCollectionError as e:
