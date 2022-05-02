@@ -14,6 +14,7 @@ from .base_form_validator import (
 
 M2M_SELECTION_ONLY = "m2m_selection_only"
 M2M_INVALID_SELECTION = "m2m_invalid_selection"
+M2M_INVALID_COMBINATION = "m2m_invalid_combination"
 
 
 class ManyToManyFieldValidator(BaseFormValidator):
@@ -159,8 +160,8 @@ class ManyToManyFieldValidator(BaseFormValidator):
                         f"with other selections"
                     }
                     self._errors.update(message)
-                    self._error_codes.append(INVALID_ERROR)
-                    raise ValidationError(message, code=INVALID_ERROR)
+                    self._error_codes.append(M2M_INVALID_COMBINATION)
+                    raise ValidationError(message, code=M2M_INVALID_COMBINATION)
         return False
 
     def m2m_other_specify(

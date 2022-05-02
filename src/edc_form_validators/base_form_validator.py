@@ -1,5 +1,5 @@
 from copy import copy
-from typing import Any
+from typing import Any, Union
 
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.db.models import Model
@@ -63,6 +63,9 @@ class BaseFormValidator:
         """Override with logic normally in ModelForm.clean()"""
         pass
 
+    def _clean(self) -> None:
+        self.clean()
+
     def update_cleaned_data_from_instance(self, field: str) -> None:
         if field in self.original_cleaned_data:
             raise ModelFormFieldValidatorError(
@@ -83,10 +86,12 @@ class BaseFormValidator:
                 field_value = self.cleaned_data.get(field)
         return field_value
 
-    def raise_validation_error(self, message, error_code) -> None:
+    def raise_validation_error(self, message: Union[dict, str], error_code: str) -> None:
+        if isinstance(message, str):
+            message = {NON_FIELD_ERRORS: message}
         self._errors.update(message)
         self._error_codes.append(error_code)
-        raise ValidationError(message, code=error_code)
+        raise ValidationError(message, code=error_code or INVALID_ERROR)
 
     def validate(self) -> dict:
         """Call in ModelForm.clean.
@@ -104,7 +109,7 @@ class BaseFormValidator:
 
         """
         try:
-            self.clean()
+            self._clean()
         except forms.ValidationError as e:
             self.capture_error_message(e)
             self.capture_error_code(e)
