@@ -7,6 +7,7 @@ from django.db import transaction
 from django.db.utils import IntegrityError
 from django.utils.timezone import is_naive
 from edc_facility.facility import FacilityError
+from edc_visit_schedule.utils import is_baseline
 
 from ..constants import CLINIC, SCHEDULED_APPT
 
@@ -41,11 +42,13 @@ class AppointmentCreator:
         appt_status=None,
         appt_reason=None,
         suggested_datetime=None,
+        skip_baseline=None,
     ):
         self._appointment = None
         self._appointment_model_cls = None
         self._default_appt_type = default_appt_type
         self._default_appt_reason = default_appt_reason
+        self.skip_baseline = skip_baseline
         self.subject_identifier = subject_identifier
         self.visit_schedule_name = visit_schedule_name
         self.schedule_name = schedule_name
@@ -145,9 +148,13 @@ class AppointmentCreator:
 
     def _update(self, appointment=None):
         """Returns an updated appointment model instance."""
-        appointment.appt_datetime = self.appt_datetime
-        appointment.timepoint_datetime = self.timepoint_datetime
-        appointment.save()
+        if is_baseline(appointment) and self.skip_baseline:
+            pass
+        else:
+            appointment.appt_datetime = self.appt_datetime
+            appointment.timepoint_datetime = self.timepoint_datetime
+            appointment.save()
+            appointment.refresh_from_db()
         return appointment
 
     @property

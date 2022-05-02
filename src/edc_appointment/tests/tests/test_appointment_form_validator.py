@@ -12,7 +12,7 @@ from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.model_mixins import PreviousVisitError
 
 from ...constants import IN_PROGRESS_APPT
-from ...form_validators import AppointmentFormValidator
+from ...form_validators import INVALID_PREVIOUS_VISIT_MISSING, AppointmentFormValidator
 from ...models import Appointment
 from ..helper import Helper
 from ..models import SubjectVisit
@@ -84,7 +84,7 @@ class TestAppointmentFormValidator(TestCase):
         )
         with self.assertRaises(ValidationError) as cm:
             form_validator.validate_visit_report_sequence()
-        self.assertEqual(cm.exception.code, "previous_visit_missing")
+        self.assertIn(INVALID_PREVIOUS_VISIT_MISSING, form_validator._error_codes)
         self.assertIn("1000.0", str(cm.exception))
 
         # try to add second appt where first visit report is complete
@@ -150,8 +150,8 @@ class TestAppointmentFormValidator(TestCase):
         )
         with self.assertRaises(ValidationError) as cm:
             form_validator.validate_visit_report_sequence()
+        self.assertIn(INVALID_PREVIOUS_VISIT_MISSING, form_validator._error_codes)
         self.assertIn("1000.0", str(cm.exception))
-        self.assertEqual(cm.exception.code, "previous_visit_missing")
 
         SubjectVisit.objects.create(
             appointment=appointments[0],
@@ -169,7 +169,7 @@ class TestAppointmentFormValidator(TestCase):
         with self.assertRaises(ValidationError) as cm:
             form_validator.validate_visit_report_sequence()
         self.assertIn("1000.1", str(cm.exception))
-        self.assertEqual(cm.exception.code, "previous_visit_missing")
+        self.assertIn(INVALID_PREVIOUS_VISIT_MISSING, form_validator._error_codes)
 
         SubjectVisit.objects.create(
             appointment=appointments[1],

@@ -505,7 +505,7 @@ class TestAppointment(TestCase):
             ("blah", "Blah"),
         )
     )
-    def test_setting_reason_choices_valid(self):
+    def test_setting_reason_choices_valid2(self):
         try:
             choices = get_appt_reason_choices()
         except ImproperlyConfigured:

@@ -1,11 +1,7 @@
-import pdb
-from copy import copy
-from pprint import pprint
-
 from django.core.management.base import BaseCommand
 from edc_metadata.models import CrfMetadata
 
-from edc_appointment.constants import COMPLETE_APPT, INCOMPLETE_APPT, NEW_APPT
+from edc_appointment.constants import COMPLETE_APPT, INCOMPLETE_APPT
 from edc_appointment.forms import AppointmentForm
 from edc_appointment.models import Appointment
 
@@ -54,23 +50,8 @@ def close_appointments():
                 obj.appt_status,
                 CrfMetadata,
             )
-        #     obj.refresh_from_db()
-        #     obj.appt_status = COMPLETE_APPT
-        #     obj.save()
 
 
 class Command(BaseCommand):
-    def add_arguments(self, parser):
-
-        parser.add_argument(
-            "--dry-run",
-            action="store_true",
-            dest="dry-run",
-            default=False,
-            help="dry run",
-        )
-
     def handle(self, *args, **options):
-        self.dry_run = options["dry-run"]
-
         close_appointments()

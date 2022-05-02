@@ -3,7 +3,10 @@ from .constants import (
     COMPLETE_APPT,
     IN_PROGRESS_APPT,
     INCOMPLETE_APPT,
+    LATE_APPT,
+    MISSED_APPT,
     NEW_APPT,
+    ONTIME_APPT,
     SCHEDULED_APPT,
     UNSCHEDULED_APPT,
 )
@@ -15,12 +18,19 @@ DEFAULT_APPT_REASON_CHOICES = (
 )
 
 
+# EDC_APPOINTMENT_ALLOW_MISSED
 APPT_STATUS = (
     (NEW_APPT, "New"),
     (IN_PROGRESS_APPT, "In Progress"),
     (INCOMPLETE_APPT, "Incomplete"),
     (COMPLETE_APPT, "Done"),
     (CANCELLED_APPT, "Cancelled"),
+)
+
+APPT_TIMING = (
+    (ONTIME_APPT, "On time (within window period)"),
+    (LATE_APPT, "Late (outside of window period)"),
+    (MISSED_APPT, "Missed"),
 )
 
 APPT_TYPE = (
