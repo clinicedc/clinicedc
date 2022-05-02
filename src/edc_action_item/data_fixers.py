@@ -18,14 +18,14 @@ def fix_null_historical_action_identifier(app_label, models):
         for model in models:
             cursor.execute(
                 f"update {app_label}_historical{model} "
-                f"set action_identifier=id "
+                "set action_identifier=id "
                 "where action_identifier is null"
             )
 
 
 def fix_null_action_item_fk(apps, app_label, models):
     """Re-save instances to update action_item FKs."""
-    ActionItem = apps.get_model("edc_action_item", "ActionItem")
+    action_item_cls = apps.get_model("edc_action_item", "ActionItem")
     post_save.disconnect(dispatch_uid="serialize_on_save")
     pre_save.disconnect(dispatch_uid="requires_consent_on_pre_save")
 
@@ -44,11 +44,11 @@ def fix_null_action_item_fk(apps, app_label, models):
                 sys.stdout.write(f"fixing {model_cls.action_name} action_item for {obj}.\n")
                 if not obj.action_item:
                     try:
-                        obj.action_item_id = ActionItem.objects.get(
+                        obj.action_item_id = action_item_cls.objects.get(
                             action_identifier=obj.action_identifier
                         ).pk
                     except MultipleObjectsReturned as e:
-                        qs = ActionItem.objects.filter(
+                        qs = action_item_cls.objects.filter(
                             action_identifier=obj.action_identifier
                         ).order_by("created")
                         raise MultipleObjectsReturned(f"{e} {qs}.")
@@ -63,9 +63,9 @@ def fix_null_action_item_fk(apps, app_label, models):
 
 def fix_null_action_items(apps):
 
-    ActionItem = apps.get_model("edc_action_item", "ActionItem")
+    action_item_cls = apps.get_model("edc_action_item", "ActionItem")
     try:
-        action_items = ActionItem.objects.filter(
+        action_items = action_item_cls.objects.filter(
             parent_action_identifier__isnull=False, parent_action_item__isnull=True
         )
     except FieldError as e:
@@ -73,11 +73,11 @@ def fix_null_action_items(apps):
     else:
         for action_item in action_items:
             if not action_item.parent_action_item and action_item.parent_action_identifier:
-                parent_action_item = ActionItem.objects.get(
+                parent_action_item = action_item_cls.objects.get(
                     action_identifier=action_item.parent_action_identifier
                 )
                 updated = (
-                    ActionItem.objects.filter(
+                    action_item_cls.objects.filter(
                         parent_action_identifier=action_item.parent_action_identifier,
                         parent_action_item__isnull=True,
                         linked_to_reference=True,
@@ -89,7 +89,7 @@ def fix_null_action_items(apps):
                     f" setting parent_action_items for {parent_action_item}. Got {updated}\n"
                 )
     try:
-        action_items = ActionItem.objects.filter(
+        action_items = action_item_cls.objects.filter(
             related_action_identifier__isnull=False, related_action_item__isnull=True
         )
     except FieldError as e:
@@ -97,11 +97,11 @@ def fix_null_action_items(apps):
     else:
         for action_item in action_items:
             if not action_item.related_action_item and action_item.related_action_identifier:
-                related_action_item = ActionItem.objects.get(
+                related_action_item = action_item_cls.objects.get(
                     action_identifier=action_item.related_action_identifier
                 )
                 updated = (
-                    ActionItem.objects.filter(
+                    action_item_cls.objects.filter(
                         related_action_identifier=action_item.related_action_identifier,
                         related_action_item__isnull=True,
                     )
@@ -118,17 +118,18 @@ def fix_null_related_action_items(apps):  # noqa
     """"""
     post_save.disconnect(dispatch_uid="serialize_on_save")
     pre_save.disconnect(dispatch_uid="requires_consent_on_pre_save")
-    ActionItem = apps.get_model("edc_action_item", "ActionItem")
+    action_item_cls = apps.get_model("edc_action_item", "ActionItem")
 
     fix_null_action_items(apps)
 
     related_action_items = {}
     for action_cls in site_action_items.registry.values():
         if action_cls.related_reference_fk_attr:
-            for action_item in ActionItem.objects.filter(
+            for action_item in action_item_cls.objects.filter(
                 related_action_item__isnull=True, action_type__name=action_cls.name
             ):
                 related_action_item = None
+                reference_obj = None
                 try:
                     reference_obj = action_item.reference_obj
                 except ObjectDoesNotExist:
@@ -140,7 +141,6 @@ def fix_null_related_action_items(apps):  # noqa
                         )
                     except ObjectDoesNotExist:
                         print("related_reference_obj does not exist")
-                        related_reference_obj = None
                         if action_item.parent_action_item:
                             related_action_item = action_item.parent_action_item
                         elif reference_obj.parent_action_item:
@@ -155,19 +155,17 @@ def fix_null_related_action_items(apps):  # noqa
                         reference_obj.related_action_item = related_action_item  # noqa
                         reference_obj.save()
             if (
-                ActionItem.objects.filter(
+                action_item_cls.objects.filter(
                     related_action_item__isnull=True, action_type__name=action_cls.name
                 ).count()
                 > 0
             ):
-                #                 raise ValidationError(
-                #                     'Some related action identifiers are still `none`')
                 print("Some related action identifiers are still `none`")
 
     # verify sequence
     for related_action_item in related_action_items:
         fix_action_item_sequence(
-            ActionItem,
+            action_item_cls,
             action_identifier=related_action_item.action_identifier,
             subject_identifier=related_action_item.subject_identifier,
         )
@@ -200,37 +198,38 @@ def fix_duplicate_singleton_action_items(apps, name=None):
     post_save.disconnect(dispatch_uid="serialize_on_save")
     pre_save.disconnect(dispatch_uid="requires_consent_on_pre_save")
 
-    RegisteredSubject = apps.get_model("edc_registration", "RegisteredSubject")
-    ActionItem = apps.get_model("edc_action_item", "ActionItem")
+    registered_subject_cls = apps.get_model("edc_registration", "RegisteredSubject")
+    action_item_cls = apps.get_model("edc_action_item", "ActionItem")
 
     action_cls = site_action_items.get(name)
     if action_cls.singleton:
-        for obj in RegisteredSubject.objects.all():
+        for registered_subject in registered_subject_cls.objects.all():
             try:
-                ActionItem.objects.get(
-                    subject_identifier=obj.subject_identifier, action_type__name=name
+                action_item_cls.objects.get(
+                    subject_identifier=registered_subject.subject_identifier,
+                    action_type__name=name,
                 )
             except ObjectDoesNotExist:
                 pass
             except MultipleObjectsReturned:
                 try:
-                    ActionItem.objects.get(
-                        subject_identifier=obj.subject_identifier,
+                    action_item_cls.objects.get(
+                        subject_identifier=registered_subject.subject_identifier,
                         action_type__name=name,
                         status=CLOSED,
                     )
                 except (ObjectDoesNotExist, MultipleObjectsReturned):
-                    for index, obj in enumerate(
-                        ActionItem.objects.filter(
-                            subject_identifier=obj.subject_identifier,
+                    for index, action_item in enumerate(
+                        action_item_cls.objects.filter(
+                            subject_identifier=registered_subject.subject_identifier,
                             action_type__name=name,
                         )
                     ):
                         if index > 0:
-                            obj.delete()
+                            action_item.delete()
                 else:
-                    ActionItem.objects.filter(
-                        subject_identifier=obj.subject_identifier,
+                    action_item_cls.objects.filter(
+                        subject_identifier=registered_subject.subject_identifier,
                         action_type__name=name,
                         status=NEW,
                     ).delete()
@@ -252,10 +251,10 @@ def fix_null_related_action_items2(delete_orphans=None):  # noqa
 
     post_save.disconnect(dispatch_uid="serialize_on_save")
     pre_save.disconnect(dispatch_uid="requires_consent_on_pre_save")
-    ActionItem = django_apps.get_model("edc_action_item", "ActionItem")
+    action_item_cls = django_apps.get_model("edc_action_item", "ActionItem")
     for action_cls in site_action_items.registry.values():
         if action_cls.related_reference_fk_attr:
-            for action_item in ActionItem.objects.filter(
+            for action_item in action_item_cls.objects.filter(
                 related_action_item__isnull=True, action_type__name=action_cls.name
             ):
                 try:

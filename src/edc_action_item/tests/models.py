@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.db import models
 from django.db.models.deletion import CASCADE, PROTECT
 from edc_constants.choices import YES_NO
@@ -6,9 +8,6 @@ from edc_crf.crf_with_action_model_mixin import CrfWithActionModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.models import SiteModelMixin
-from edc_utils import get_utcnow
-from edc_visit_tracking.constants import SCHEDULED
-from edc_visit_tracking.model_mixins import VisitModelMixin
 
 from ..models import ActionModelMixin
 
@@ -162,7 +161,7 @@ class MyAction(
 class CrfOne(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
     subject_visit = models.OneToOneField(
-        "edc_metadata.subjectvisit",
+        "edc_metadata.subjectvisit",  # noqa
         on_delete=CASCADE,
         related_name="edc_action_item_test_visit_one",
     )
@@ -170,7 +169,7 @@ class CrfOne(ActionModelMixin, SiteModelMixin, BaseUuidModel):
     action_name = "submit-crf-one"
 
     @property
-    def subject_identifier(self):
+    def subject_identifier(self: Any) -> str:
         return self.subject_visit.subject_identifier
 
     @property
@@ -185,7 +184,7 @@ class CrfOne(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 class CrfTwo(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
     subject_visit = models.OneToOneField(
-        "edc_metadata.subjectvisit",
+        "edc_metadata.subjectvisit",  # noqa
         on_delete=CASCADE,
         related_name="edc_action_item_test_visit_two",
     )
@@ -193,7 +192,7 @@ class CrfTwo(ActionModelMixin, SiteModelMixin, BaseUuidModel):
     action_name = "submit-crf-two"
 
     @property
-    def subject_identifier(self):
+    def subject_identifier(self: Any) -> str:
         return self.subject_visit.subject_identifier
 
     @property

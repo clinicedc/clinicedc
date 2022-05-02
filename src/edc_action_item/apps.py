@@ -9,7 +9,7 @@ from .site_action_items import site_action_items
 style = color_style()
 
 
-def update_action_types(sender=None, verbose=None, **kwargs):
+def update_action_types(sender=None, verbose=None, **kwargs):  # noqa
 
     sys.stdout.write(style.MIGRATE_HEADING("Updating action types:\n"))
     site_action_items.create_or_update_action_types()
@@ -24,16 +24,7 @@ class AppConfig(DjangoApponfig):
     include_in_administration_section = True
 
     def ready(self):
-        # from .signals import (
-        #     action_item_notification_on_post_create_historical_record,
-        #     action_on_reference_model_post_delete,
-        #     update_action_item_reason_on_m2m_changed,
-        #     update_or_create_action_item_on_m2m_change,
-        #     update_or_create_action_item_on_post_save,
-        # )
-
         post_migrate.connect(update_action_types, sender=self)
-
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
         site_action_items.autodiscover()
         sys.stdout.write(f" Done loading {self.verbose_name}.\n")

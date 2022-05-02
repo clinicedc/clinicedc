@@ -1,6 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_constants.constants import CLOSED, NEW, OPEN
 
 from edc_action_item.action import Action

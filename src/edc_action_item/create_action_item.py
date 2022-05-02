@@ -19,7 +19,7 @@ def create_action_item(
     parent_action_item=None,
     priority=None,
     using=None,
-    **kwargs,
+    **kwargs,  # noqa
 ):
     action_item = None
     if action_cls.singleton:

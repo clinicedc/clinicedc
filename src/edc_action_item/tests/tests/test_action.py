@@ -44,7 +44,7 @@ class TestAction(TestCaseMixin, TestCase):
         self.assertEqual(ActionType.objects.all().count(), len(site_action_items.registry))
 
     def test_creates_own_action0(self):
-        """Asserts a form creates it's action item."""
+        """Asserts a form creates its action item."""
         form_zero = FormZero.objects.create(subject_identifier=self.subject_identifier)
         try:
             ActionItem.objects.get(action_identifier=form_zero.action_identifier)
@@ -305,7 +305,7 @@ class TestAction(TestCaseMixin, TestCase):
 
         # next_actions = [FormZeroAction]
         # should find the existing and NEW FormThreeAction
-        # instead of creating one,.
+        # instead of creating one.
         FormThree.objects.create(
             subject_identifier=self.subject_identifier,
             parent_action_item=form_one_obj.action_item,

@@ -4,7 +4,7 @@ from edc_action_item.site_action_items import site_action_items
 
 
 @register()
-def edc_notification_check(app_configs, **kwargs):
+def edc_notification_check(app_configs, **kwargs):  # noqa
     errors = []
 
     for action_cls in site_action_items.registry.items():
