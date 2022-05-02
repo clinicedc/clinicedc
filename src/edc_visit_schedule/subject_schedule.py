@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import Optional
+
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
@@ -90,7 +93,11 @@ class SubjectSchedule:
         return django_apps.get_model(self.consent_model)
 
     def put_on_schedule(
-        self, subject_identifier=None, onschedule_datetime=None, first_appt_datetime=None
+        self,
+        subject_identifier: Optional[str] = None,
+        onschedule_datetime: Optional[datetime] = None,
+        first_appt_datetime: Optional[datetime] = None,
+        skip_baseline: Optional[bool] = None,
     ):
         """Puts a subject on-schedule.
 
@@ -132,6 +139,7 @@ class SubjectSchedule:
                 schedule=self.schedule,
                 visit_schedule=self.visit_schedule,
                 appointment_model=self.appointment_model,
+                skip_baseline=skip_baseline,
             )
             if first_appt_datetime and first_appt_datetime < onschedule_datetime:
                 raise OnScheduleFirstAppointmentDateError(
