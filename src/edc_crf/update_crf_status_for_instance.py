@@ -1,9 +1,11 @@
+from typing import Any
+
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from edc_constants.constants import COMPLETE, INCOMPLETE
 
 
-def update_crf_status_for_instance(instance):
+def update_crf_status_for_instance(instance: Any) -> None:
     """Only works for CRFs, e.g. have subject_visit."""
     if hasattr(instance, "subject_visit"):
         crf_status_model_cls = django_apps.get_model("edc_crf.crfstatus")

@@ -1,10 +1,13 @@
+from typing import Optional
+
 from django.apps import apps as django_apps
 from edc_constants.constants import INCOMPLETE
 
 from .crf_status_model_mixin import CrfStatusModelMixin
+from .update_crf_status_for_instance import update_crf_status_for_instance
 
 
-def update_crf_status_command(app_label=None):
+def update_crf_status_command(app_label: Optional[str] = None) -> None:
     if app_label:
         app_configs = [django_apps.get_app_config(app_label)]
     else:
