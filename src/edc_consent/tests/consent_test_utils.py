@@ -1,5 +1,5 @@
-from ..consent import Consent
-from ..site_consents import site_consents
+from edc_consent.consent import Consent
+from edc_consent.site_consents import site_consents
 
 
 def consent_object_factory(

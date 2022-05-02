@@ -1,3 +1,7 @@
+from datetime import datetime
+from typing import Any
+from zoneinfo import ZoneInfo
+
 from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -7,7 +11,6 @@ from edc_screening.utils import get_subject_screening_model_name
 from edc_utils import AgeValueError, age
 from edc_utils.date import to_utc
 from edc_utils.text import convert_php_dateformat
-from pytz import timezone
 
 
 class SubjectConsentFormValidatorMixin(FormValidator):
@@ -16,7 +19,7 @@ class SubjectConsentFormValidatorMixin(FormValidator):
 
     subject_screening_model = get_subject_screening_model_name()
 
-    def __init__(self, **kwargs):
+    def __init__(self: Any, **kwargs):
         super().__init__(**kwargs)
         self._subject_screening = None
         self._consent_datetime = None
@@ -24,24 +27,21 @@ class SubjectConsentFormValidatorMixin(FormValidator):
         self.gender = self.cleaned_data.get("gender")
         self.guardian_name = self.cleaned_data.get("guardian_name")
         self.screening_identifier = self.cleaned_data.get("screening_identifier")
-        self.tz = timezone(settings.TIME_ZONE)
+        self.tz = ZoneInfo(settings.TIME_ZONE)
 
-    def clean(self):
-
+    def _clean(self) -> None:
         self.validate_consent_datetime()
-
         self.validate_age()
-
         self.validate_gender()
-
         self.validate_identity()
+        super()._clean()
 
     @property
-    def subject_screening_model_cls(self):
+    def subject_screening_model_cls(self: Any) -> Any:
         return django_apps.get_model(self.subject_screening_model)
 
     @property
-    def consent_datetime(self):
+    def consent_datetime(self: Any) -> datetime:
         if not self._consent_datetime:
             if "consent_datetime" in self.cleaned_data:
                 if self.add_form and not self.cleaned_data.get("consent_datetime"):
@@ -54,7 +54,7 @@ class SubjectConsentFormValidatorMixin(FormValidator):
         return self._consent_datetime
 
     @property
-    def subject_screening(self):
+    def subject_screening(self: Any) -> Any:
         if not self._subject_screening:
             try:
                 self._subject_screening = self.subject_screening_model_cls.objects.get(
@@ -68,7 +68,7 @@ class SubjectConsentFormValidatorMixin(FormValidator):
         return self._subject_screening
 
     @property
-    def screening_age_in_years(self) -> int:
+    def screening_age_in_years(self: Any) -> int:
         """Returns age in years calculated from dob relative to
         screening datetime"""
         try:
@@ -77,7 +77,7 @@ class SubjectConsentFormValidatorMixin(FormValidator):
             raise forms.ValidationError(str(e))
         return rdelta.years
 
-    def validate_age(self) -> None:
+    def validate_age(self: Any) -> None:
         """Validate age matches that on the screening form."""
         if self.dob and self.screening_age_in_years != self.subject_screening.age_in_years:
             raise forms.ValidationError(
@@ -89,7 +89,7 @@ class SubjectConsentFormValidatorMixin(FormValidator):
                 }
             )
 
-    def validate_gender(self) -> None:
+    def validate_gender(self: Any) -> None:
         """Validate gender matches that on the screening form."""
         if self.gender != self.subject_screening.gender:
             raise forms.ValidationError(
@@ -100,7 +100,7 @@ class SubjectConsentFormValidatorMixin(FormValidator):
                 }
             )
 
-    def validate_consent_datetime(self) -> None:
+    def validate_consent_datetime(self: Any) -> None:
         """Validate consent datetime with the eligibility datetime.
 
         Eligibility datetime must come first.
@@ -124,5 +124,5 @@ class SubjectConsentFormValidatorMixin(FormValidator):
                 },
             )
 
-    def validate_identity(self) -> None:
+    def validate_identity(self: Any) -> None:
         pass

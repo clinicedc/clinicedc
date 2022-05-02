@@ -8,14 +8,15 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from model_bakery import baker
 
-from ..consent import NaiveDatetimeError
-from ..consent_object_validator import (
+from edc_consent.consent import NaiveDatetimeError
+from edc_consent.consent_object_validator import (
     ConsentPeriodError,
     ConsentPeriodOverlapError,
     ConsentVersionSequenceError,
 )
-from ..exceptions import NotConsentedError
-from ..site_consents import SiteConsentError, site_consents
+from edc_consent.exceptions import NotConsentedError
+from edc_consent.site_consents import SiteConsentError, site_consents
+
 from .consent_test_utils import consent_object_factory
 from .models import CrfOne, SubjectVisit
 from .visit_schedules import visit_schedule

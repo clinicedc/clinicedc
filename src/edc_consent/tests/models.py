@@ -6,14 +6,14 @@ from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
 
-from ..field_mixins import (
+from edc_consent.field_mixins import (
     CitizenFieldsMixin,
     IdentityFieldsMixin,
     PersonalFieldsMixin,
     ReviewFieldsMixin,
     VulnerabilityFieldsMixin,
 )
-from ..model_mixins import ConsentModelMixin, RequiresConsentFieldsModelMixin
+from edc_consent.model_mixins import ConsentModelMixin, RequiresConsentFieldsModelMixin
 
 
 class SubjectConsent(

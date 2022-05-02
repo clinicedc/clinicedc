@@ -3,8 +3,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from edc_form_validators import FormValidator
 
-from edc_consent import site_consents
-from edc_consent.site_consents import SiteConsentError
+from ..site_consents import SiteConsentError, site_consents
 
 
 class ConsentFormValidatorMixin(FormValidator):

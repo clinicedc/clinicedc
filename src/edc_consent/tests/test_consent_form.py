@@ -9,9 +9,10 @@ from edc_utils import get_utcnow
 from faker import Faker
 from model_bakery import baker
 
-from ..consent import Consent
-from ..modelform_mixins import ConsentModelFormMixin
-from ..site_consents import site_consents
+from edc_consent.consent import Consent
+from edc_consent.modelform_mixins import ConsentModelFormMixin
+from edc_consent.site_consents import site_consents
+
 from .models import SubjectConsent
 
 fake = Faker()

@@ -7,8 +7,9 @@ from edc_protocol import Protocol
 from edc_utils import get_utcnow
 from model_bakery import baker
 
-from ..field_mixins import IdentityFieldsMixinError
-from ..site_consents import site_consents
+from edc_consent.field_mixins import IdentityFieldsMixinError
+from edc_consent.site_consents import site_consents
+
 from .consent_test_utils import consent_factory
 from .models import SubjectConsent
 

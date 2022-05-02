@@ -1,4 +1,5 @@
 import string
+from secrets import choice
 
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
@@ -8,11 +9,10 @@ from edc_protocol import Protocol
 from edc_utils import get_utcnow
 from faker import Faker
 from model_bakery import baker
-from secrets import choice
 
-from edc_consent import site_consents
+from edc_consent.actions import unverify_consent, verify_consent
+from edc_consent.site_consents import site_consents
 
-from ..actions import unverify_consent, verify_consent
 from .consent_test_utils import consent_object_factory
 from .models import SubjectConsent
 
