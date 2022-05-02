@@ -6,7 +6,7 @@ class RegisterNotificationError(Exception):
     pass
 
 
-def register(**kwargs):
+def register(**kwargs):  # noqa
     """Registers a action_cls."""
 
     def _wrapper(action_cls):

@@ -19,5 +19,5 @@ class TestAuths(TestCase):
         AuthUpdater.add_empty_roles_for_tests(
             TMG_ROLE, DATA_MANAGER_ROLE, SITE_DATA_MANAGER_ROLE
         )
-        import_module(f"edc_action_item.auths")
+        import_module("edc_action_item.auths")
         AuthUpdater(verbose=True)

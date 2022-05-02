@@ -13,7 +13,6 @@ from django.db import models
 from django.utils.formats import localize
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_model.constants import DEFAULT_BASE_FIELDS
-from edc_model.stubs import BaseUuidModelStub
 
 from edc_action_item.stubs import ActionItemStub
 

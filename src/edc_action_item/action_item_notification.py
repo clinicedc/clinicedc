@@ -40,6 +40,9 @@ class ActionItemNotification(Notification):
     # the action_item.reference_obj
     notification_fields: List[str] = []
 
+    # TODO: not sure what this does?
+    notify_on_new: bool = False
+
     # action_item created before the reference obj
     notify_on_new_and_no_reference_obj: bool = True
     # reference obj creates action_item and status set to OPEN
@@ -48,7 +51,7 @@ class ActionItemNotification(Notification):
     notify_on_closed: bool = False
     # reference obj changed, action item status set to OPEN
     notify_on_changed_reference_obj: bool = True
-    # set by default to the the Action's reference_model
+    # set by default to the Action's reference_model
     model: str = None
 
     email_subject_template: str = (
@@ -90,8 +93,8 @@ class ActionItemNotification(Notification):
         "{message_datetime} (UTC)"
     )
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self):
+        super().__init__()
         self.updated_subject_line = ""
         self.updated_body_line = ""
 
@@ -186,14 +189,16 @@ class ActionItemNotification(Notification):
             notify_on_condition = True
         return notify_on_condition
 
-    def get_reference_obj(self, action_item):
+    @staticmethod
+    def get_reference_obj(action_item):
         try:
             reference_obj = action_item.reference_obj
         except ObjectDoesNotExist:
             reference_obj = None
         return reference_obj
 
-    def get_action_name(self, instance):
+    @staticmethod
+    def get_action_name(instance):
         """Returns that action_name."""
         try:
             action_name = instance.action_item.action_cls.name

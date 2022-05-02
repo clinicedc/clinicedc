@@ -1,5 +1,5 @@
 from django.apps import apps as django_apps
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_visit_tracking.constants import SCHEDULED
 

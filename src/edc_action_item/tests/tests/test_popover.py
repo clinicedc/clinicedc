@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.test import TestCase
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_model_wrapper import ModelWrapper
@@ -32,7 +34,7 @@ class TestPopover(TestCaseMixin, TestCase):
             next_url_name = "subject_dashboard_url"
 
             @property
-            def subject_identifier(self):
+            def subject_identifier(self: Any):
                 return self.object.subject_identifier
 
         form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
@@ -68,7 +70,7 @@ class TestPopover(TestCaseMixin, TestCase):
             next_url_name = "subject_dashboard_url"
 
             @property
-            def subject_identifier(self):
+            def subject_identifier(self: Any) -> str:
                 return self.object.subject_identifier
 
         form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
@@ -96,7 +98,7 @@ class TestPopover(TestCaseMixin, TestCase):
             next_url_name = "subject_dashboard_url"
 
             @property
-            def subject_identifier(self):
+            def subject_identifier(self: Any) -> str:
                 return self.object.subject_identifier
 
         Initial.objects.create(subject_identifier=self.subject_identifier)
@@ -170,7 +172,7 @@ class TestPopover(TestCaseMixin, TestCase):
             next_url_name = "subject_dashboard_url"
 
             @property
-            def subject_identifier(self):
+            def subject_identifier(self: Any) -> str:
                 return self.object.subject_identifier
 
         Initial.objects.create(subject_identifier=self.subject_identifier)
@@ -205,7 +207,7 @@ class TestPopover(TestCaseMixin, TestCase):
             next_url_name = "subject_dashboard_url"
 
             @property
-            def subject_identifier(self):
+            def subject_identifier(self: Any) -> str:
                 return self.object.subject_identifier
 
         Initial.objects.create(subject_identifier=self.subject_identifier)
