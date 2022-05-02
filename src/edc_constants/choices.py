@@ -7,6 +7,7 @@ from .constants import (
     ALIVE,
     ANYTIME,
     AWAITING_RESULTS,
+    COMPLETE,
     DEAD,
     DECLINED,
     DONT_KNOW,
@@ -17,6 +18,7 @@ from .constants import (
     FEMALE,
     FORMER_SMOKER,
     HIGH,
+    INCOMPLETE,
     IND,
     LOW,
     MALE,
@@ -68,13 +70,24 @@ ACU_EST_NEG = (
 
 ALIVE_DEAD = ((ALIVE, "Alive"), (DEAD, "Dead"))
 
-ALIVE_DEAD_UNKNOWN = ((ALIVE, "Alive"), (DEAD, "Deceased"), (UNKNOWN, "Unknown"))
+ALIVE_DEAD_UNKNOWN = (
+    (ALIVE, "Alive"),
+    (DEAD, "Deceased"),
+    (UNKNOWN, "Unknown"),
+)
 
 ALIVE_DEAD_UNKNOWN_NA = (
     (ALIVE, "Alive"),
     (DEAD, "Deceased"),
     (UNKNOWN, "Unknown"),
     (NOT_APPLICABLE, "Not applicable"),
+)
+
+ALIVE_DEAD_UNKNOWN_NA_MISSED = (
+    (ALIVE, "Alive"),
+    (DEAD, "Deceased"),
+    (UNKNOWN, "Unknown"),
+    (NOT_APPLICABLE, "Not applicable (if missed)"),
 )
 
 
@@ -255,6 +268,11 @@ DEATH_RELATIONSIP_TO_STUDY = (
     ("Possible related", "Possible related"),
     ("Probably related", "Probably related"),
     ("Definitely related", "Definitely related"),
+)
+
+DOCUMENT_STATUS = (
+    (INCOMPLETE, "Incomplete (some data pending)"),
+    (COMPLETE, "Complete"),
 )
 
 DOSE_STATUS = (
@@ -600,6 +618,13 @@ YES_NO_UNKNOWN_NA = (
     (NO, NO),
     (UNKNOWN, "Unknown"),
     (NOT_APPLICABLE, "Not applicable"),
+)
+
+YES_NO_UNKNOWN_NA_MISSED = (
+    (YES, YES),
+    (NO, NO),
+    (UNKNOWN, "Unknown"),
+    (NOT_APPLICABLE, "Not applicable (if missed)"),
 )
 
 YES_NO_UNSURE = ((YES, YES), (NO, NO), (NOT_SURE, "Not sure"))
