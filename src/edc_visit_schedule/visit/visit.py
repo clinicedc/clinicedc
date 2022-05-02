@@ -70,14 +70,12 @@ class Visit:
         instructions=None,
         grouping=None,
     ):
-
         self.crfs = crfs.forms if crfs else tuple()
         self.crfs_unscheduled = crfs_unscheduled.forms if crfs_unscheduled else ()
         self.crfs_missed = crfs_missed.forms if crfs_missed else ()
         self.crfs_prn = crfs_prn.forms if crfs_prn else ()
         for prn in self.crfs_prn:
             prn.required = False
-
         self.requisitions = requisitions.forms if requisitions else ()
         self.requisitions_unscheduled = (
             requisitions_unscheduled.forms if requisitions_unscheduled else ()
@@ -85,8 +83,6 @@ class Visit:
         self.requisitions_prn = requisitions_prn.forms if requisitions_prn else ()
         for prn in self.requisitions_prn:
             prn.required = False
-        # self.requisitions = self.requisitions + self.requisitions_prn
-
         self.instructions = instructions
         self.timepoint = Decimal(str(timepoint))
         self.rbase = rbase

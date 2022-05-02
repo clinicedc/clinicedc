@@ -10,11 +10,13 @@ class OnScheduleError(Exception):
     pass
 
 
-def is_baseline(subject_visit) -> bool:
-    return (
-        subject_visit.appointment.visit_code == DAY1
-        and subject_visit.appointment.visit_code_sequence == 0
-    )
+def is_baseline(instance) -> bool:
+    try:
+        appointment = instance.appointment
+    except AttributeError:
+        appointment = instance
+
+    return appointment.visit_code == DAY1 and appointment.visit_code_sequence == 0
 
 
 def raise_if_baseline(subject_visit) -> None:
