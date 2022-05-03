@@ -299,7 +299,7 @@ class ModelAdminSiteTest(WebTest):
         response = self.app.get(url, user=self.user)
         for key, value in form_data.items():
             response.form[key] = value
-        response = response.form.submit(name="_save").follow()
+        response.form.submit(name="_save").follow()
 
         # delete
         crffour = CrfFour.objects.all()[0]
