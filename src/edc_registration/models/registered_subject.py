@@ -16,7 +16,6 @@ from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
 from edc_model import models as edc_models
 from edc_model_fields.fields import IdentityTypeField, IsDateEstimatedField
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
-from edc_utils import get_uuid
 
 from .managers import RegisteredSubjectManager
 
@@ -241,6 +240,7 @@ class RegisteredSubject(
 
     class Meta(edc_models.BaseUuidModel.Meta):
         verbose_name = "Registered Subject"
+        verbose_name_plural = "Registered Subjects"
         ordering = ["subject_identifier"]
         unique_together = ("first_name", "dob", "initials", "additional_key")
         indexes = [
