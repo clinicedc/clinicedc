@@ -52,16 +52,16 @@ visit_schedule2 = VisitSchedule(
 
 schedule1 = Schedule(
     name="schedule1",
-    onschedule_model="edc_visit_tracking.onscheduleone",
-    offschedule_model="edc_visit_tracking.offscheduleone",
+    onschedule_model="edc_subject_dashboard.onscheduleone",
+    offschedule_model="edc_subject_dashboard.offscheduleone",
     consent_model="edc_visit_tracking.subjectconsent",
     appointment_model="edc_appointment.appointment",
 )
 
 schedule2 = Schedule(
     name="schedule2",
-    onschedule_model="edc_visit_tracking.onscheduletwo",
-    offschedule_model="edc_visit_tracking.offscheduletwo",
+    onschedule_model="edc_subject_dashboard.onscheduletwo",
+    offschedule_model="edc_subject_dashboard.offscheduletwo",
     consent_model="edc_visit_tracking.subjectconsent",
     appointment_model="edc_appointment.appointment",
 )
@@ -79,7 +79,7 @@ for index in range(0, 4):
             rupper=relativedelta(days=6),
             requisitions=requisitions,
             crfs=crfs,
-            facility_name="default",
+            facility_name="7-day-clinic",
             allow_unscheduled=True,
         )
     )
@@ -98,7 +98,7 @@ for index in range(4, 8):
             rupper=relativedelta(days=6),
             requisitions=requisitions,
             crfs=crfs,
-            facility_name="default",
+            facility_name="7-day-clinic",
         )
     )
 for visit in visits:

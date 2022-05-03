@@ -37,14 +37,15 @@
                         {% if wrapped.appt_status == IN_PROGRESS_APPT %}
                             {% with wrapped.wrapped_visit as visit %}
                                 {% if visit.id %}
-                                    <a id="visit_report_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" class="btn btn-sm btn-default"
+                                    <a id="visit_report_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" class="btn btn-sm btn-{% if wrapped.wrapped_visit.object.document_status == INCOMPLETE%}success{% else %}default{% endif %}"
                                        {% if wrapped.object.site.id != request.site.id %} disabled {% endif %}
                                        href="{% if wrapped.object.site.id != request.site.id %}#{% else %}{{ visit.href }}{% endif %}" data-toggle="tooltip" title="Add/edit visit report">
                                         <i class="fas fa-pencil-alt fa-sm" aria-hidden="true"></i> Visit Report
                                     </a>
                                 {% endif %}
-
-                                {% forms_button wrapper=wrapped visit=visit %}
+                                {% if wrapped.wrapped_visit.object.document_status == COMPLETE%}
+                                    {% forms_button wrapper=wrapped visit=visit %}
+                                {% endif %}
 
                             {% endwith %}
                         {% else %}

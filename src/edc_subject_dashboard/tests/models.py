@@ -3,6 +3,7 @@ from django.db.models.deletion import PROTECT
 from edc_appointment.models import Appointment
 from edc_model.models import BaseUuidModel
 from edc_utils import get_utcnow
+from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
 from edc_visit_tracking.model_mixins import VisitModelMixin
 
 
@@ -34,3 +35,21 @@ class BadSubjectVisit(models.Model):
     subject_identifier = models.CharField(max_length=25)
 
     report_datetime = models.DateTimeField(default=get_utcnow)
+
+
+class OnScheduleOne(OnScheduleModelMixin, BaseUuidModel):
+    pass
+
+
+class OffScheduleOne(OffScheduleModelMixin, BaseUuidModel):
+
+    pass
+
+
+class OnScheduleTwo(OnScheduleModelMixin, BaseUuidModel):
+    pass
+
+
+class OffScheduleTwo(OffScheduleModelMixin, BaseUuidModel):
+
+    pass
