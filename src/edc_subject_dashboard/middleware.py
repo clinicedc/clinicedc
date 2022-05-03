@@ -5,6 +5,14 @@ from edc_appointment.constants import (
     INCOMPLETE_APPT,
     NEW_APPT,
 )
+from edc_constants.constants import (
+    COMPLETE,
+    INCOMPLETE,
+    NO,
+    NOT_APPLICABLE,
+    UNKNOWN,
+    YES,
+)
 from edc_dashboard import insert_bootstrap_version, url_names
 from edc_visit_tracking.constants import MISSED_VISIT
 
@@ -68,5 +76,11 @@ class DashboardMiddleware:
                 IN_PROGRESS_APPT=IN_PROGRESS_APPT,
                 MISSED_VISIT=MISSED_VISIT,
                 NEW_APPT=NEW_APPT,
+                INCOMPLETE=INCOMPLETE,
+                COMPLETE=COMPLETE,
+                YES=YES,
+                NO=NO,
+                NOT_APPLICABLE=NOT_APPLICABLE,
+                UNKNOWN=UNKNOWN,
             )
         return response
