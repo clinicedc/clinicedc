@@ -1,5 +1,5 @@
 from django.contrib import admin
-from edc_model_admin import audit_fields, audit_fieldset_tuple
+from edc_model_admin import audit_fieldset_tuple
 
 from ..admin_site import edc_lab_admin
 from ..forms import BoxForm
