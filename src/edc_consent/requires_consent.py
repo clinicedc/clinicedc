@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import Optional
+
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from edc_utils import convert_php_dateformat
@@ -9,11 +12,11 @@ from .site_consents import SiteConsentError, site_consents
 class RequiresConsent:
     def __init__(
         self,
-        model=None,
-        subject_identifier=None,
-        report_datetime=None,
-        consent_model=None,
-        consent_group=None,
+        model: Optional[str] = None,
+        subject_identifier: Optional[str] = None,
+        report_datetime: Optional[datetime] = None,
+        consent_model: Optional[str] = None,
+        consent_group: Optional[str] = None,
     ):
 
         self.version = None

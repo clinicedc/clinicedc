@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import Any
+
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -14,19 +17,19 @@ class RequiresConsentModelFormMixin:
         return cleaned_data
 
     @property
-    def report_datetime(self):
+    def report_datetime(self: Any) -> datetime:
         """Returns the report_datetime from directly from
         cleaned_data or via the subject_visit.
         """
         report_datetime = self.cleaned_data.get("report_datetime")
         subject_visit = get_subject_visit(
-            self, subject_visit_attr=self._meta.model.visit_model_attr()
+            self, visit_model_attr=self._meta.model.visit_model_attr()
         )
         if subject_visit and not report_datetime:
             report_datetime = subject_visit.report_datetime
         return report_datetime
 
-    def validate_against_consent(self):
+    def validate_against_consent(self: Any) -> None:
         """Raise an exception if the report datetime doesn't make
         sense relative to the consent.
         """
@@ -34,7 +37,7 @@ class RequiresConsentModelFormMixin:
             subject_identifier = self.cleaned_data["appointment"].subject_identifier
         except KeyError:
             subject_visit = get_subject_visit(
-                self, subject_visit_attr=self._meta.model.visit_model_attr()
+                self, visit_model_attr=self._meta.model.visit_model_attr()
             )
             subject_identifier = subject_visit.appointment.subject_identifier
         consent = self.get_consent(subject_identifier, self.report_datetime)
@@ -44,7 +47,7 @@ class RequiresConsentModelFormMixin:
             raise forms.ValidationError("Report datetime cannot be before DOB")
 
     @property
-    def consent_group(self):
+    def consent_group(self: Any) -> Any:
         try:
             consent_group = self._meta.model._meta.consent_group
         except AttributeError:
@@ -52,14 +55,14 @@ class RequiresConsentModelFormMixin:
         return consent_group
 
     @property
-    def consent_model(self):
+    def consent_model(self: Any) -> Any:
         try:
             consent_model = self._meta.model._meta.consent_model
         except AttributeError:
             consent_model = settings.SUBJECT_CONSENT_MODEL
         return consent_model
 
-    def get_consent(self, subject_identifier, report_datetime):
+    def get_consent(self: Any, subject_identifier: str, report_datetime: datetime) -> Any:
         """Return an instance of the consent model"""
         consent_object = site_consents.get_consent(
             report_datetime=report_datetime,

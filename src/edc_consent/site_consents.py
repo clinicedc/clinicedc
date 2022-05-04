@@ -1,5 +1,7 @@
 import sys
 from copy import deepcopy
+from datetime import datetime
+from typing import Any, Optional
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -50,7 +52,12 @@ class SiteConsents:
         """
         return [consent for consent in self.consents if consent.model == model]
 
-    def get_consent_for_period(self, model=None, report_datetime=None, consent_group=None):
+    def get_consent_for_period(
+        self,
+        model: Optional[str] = None,
+        report_datetime: Optional[datetime] = None,
+        consent_group: Optional[str] = None,
+    ) -> Any:
         """Returns a consent object with a date range that the
         given report_datetime falls within.
         """
