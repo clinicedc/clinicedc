@@ -1,4 +1,15 @@
-from edc_constants.constants import NOT_APPLICABLE, OTHER
+from edc_constants.constants import (
+    HOSPITAL_NOTES,
+    IN_PERSON,
+    NEXT_OF_KIN,
+    NOT_APPLICABLE,
+    OTHER,
+    OTHER_PLEASE_SPECIFY_TEXT,
+    OUTPATIENT_CARDS,
+    PATIENT,
+    PATIENT_REPRESENTATIVE,
+    TELEPHONE,
+)
 
 from .constants import (
     CHART,
@@ -8,6 +19,20 @@ from .constants import (
     MISSED_VISIT,
     SCHEDULED,
     UNSCHEDULED,
+)
+
+ASSESSMENT_WHO_CHOICES = (
+    (PATIENT, "Patient"),
+    (NEXT_OF_KIN, "Next of kin"),
+    (NOT_APPLICABLE, "Not applicable (if missed)"),
+    (OTHER, OTHER_PLEASE_SPECIFY_TEXT),
+)
+
+ASSESSMENT_TYPES = (
+    (TELEPHONE, "Telephone"),
+    (IN_PERSON, "In person"),
+    (NOT_APPLICABLE, "Not applicable (if missed)"),
+    (OTHER, OTHER_PLEASE_SPECIFY_TEXT),
 )
 
 VISIT_REASON = (
@@ -29,6 +54,19 @@ VISIT_INFO_SOURCE = (
     ),
     (CHART, "5. Hospital chart or other medical record"),
     (OTHER, "9. Other"),
+)
+
+# another option for VISIT_INFO_SOURCE
+VISIT_INFO_SOURCE2 = (
+    (PATIENT, "Patient"),
+    (
+        PATIENT_REPRESENTATIVE,
+        "Patient representative (e.g., next of kin, relative, guardian)",
+    ),
+    (HOSPITAL_NOTES, "Hospital notes"),
+    (OUTPATIENT_CARDS, "Outpatient cards"),
+    (NOT_APPLICABLE, "Not applicable (if missed)"),
+    (OTHER, "Other"),
 )
 
 # these defaults are not intended for production

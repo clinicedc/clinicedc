@@ -10,8 +10,12 @@ from edc_appointment.form_validators import WindowPeriodFormValidatorMixin
 from edc_constants.constants import OTHER
 from edc_form_validators import INVALID_ERROR, REQUIRED_ERROR, FormValidator
 from edc_metadata.constants import KEYED
-from edc_metadata.models import CrfMetadata, RequisitionMetadata
+from edc_metadata.utils import (
+    get_crf_metadata_model_cls,
+    get_requisition_metadata_model_cls,
+)
 from edc_utils import formatted_datetime
+from edc_visit_schedule.utils import is_baseline
 
 from edc_visit_tracking.utils import get_subject_visit_missed_model_cls
 
@@ -47,6 +51,8 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
 
         self.validate_visit_datetime_not_before_appointment()
 
+        self.validate_visit_datetime_matches_appt_datetime_at_baseline()
+
         self.validate_visit_datetime_in_window_period()
 
         self.validate_visits_completed_in_order()
@@ -81,6 +87,31 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
                     },
                     INVALID_ERROR,
                 )
+
+    def validate_visit_datetime_matches_appt_datetime_at_baseline(self) -> None:
+        """Asserts the report_datetime matches the appt_datetime
+        as baseline.
+        """
+        if is_baseline(self.cleaned_data.get("appointment")):
+            if report_datetime := self.cleaned_data.get("report_datetime"):
+                tz = ZoneInfo(settings.TIME_ZONE)
+                appt_datetime_local = Arrow.fromdatetime(
+                    self.cleaned_data.get("appointment").appt_datetime
+                ).to(tz)
+                if report_datetime.date() != appt_datetime_local.date():
+                    appt_datetime_str = formatted_datetime(
+                        appt_datetime_local, format_as_date=True
+                    )
+                    self.raise_validation_error(
+                        {
+                            "report_datetime": (
+                                "Invalid. Must match appointment date at baseline. "
+                                "If necessary, change the appointment date and try again. "
+                                f"Got appointment date {appt_datetime_str}"
+                            )
+                        },
+                        INVALID_ERROR,
+                    )
 
     def validate_visit_datetime_in_window_period(self):
         """Asserts the report_datetime is within the visits lower and
@@ -191,8 +222,14 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
         if exclude_models:
             exclude_opts.update(model__in=exclude_models)
         return (
-            CrfMetadata.objects.filter(**filter_opts).exclude(**exclude_opts).count()
-            + RequisitionMetadata.objects.filter(**filter_opts).exclude(**exclude_opts).count()
+            get_crf_metadata_model_cls()
+            .objects.filter(**filter_opts)
+            .exclude(**exclude_opts)
+            .count()
+            + get_requisition_metadata_model_cls()
+            .objects.filter(**filter_opts)
+            .exclude(**exclude_opts)
+            .count()
         )
 
     @property
