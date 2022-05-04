@@ -142,6 +142,16 @@ class SiteVisitSchedules:
             )
         return visit_schedules
 
+    def get_consent_model(self, visit_schedule_name: str, schedule_name: str) -> str:
+        """Returns the consent model name"""
+        schedule = self.get_visit_schedule(visit_schedule_name).schedules.get(schedule_name)
+        return schedule.consent_model
+
+    def get_onschedule_model(self, visit_schedule_name: str, schedule_name: str) -> str:
+        """Returns the onschedule model name"""
+        schedule = self.get_visit_schedule(visit_schedule_name).schedules.get(schedule_name)
+        return schedule.onschedule_model
+
     @property
     def all_post_consent_models(self):
         """Returns a dictionary of models that require consent before save.

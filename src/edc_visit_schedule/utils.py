@@ -1,13 +1,14 @@
+from datetime import datetime
+from typing import Any, List, Optional
+
 from django import forms
 from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
 from edc_utils import formatted_datetime
 
 from .constants import DAY1
+from .exceptions import NotOnScheduleError, OnScheduleError
 from .site_visit_schedules import site_visit_schedules
-
-
-class OnScheduleError(Exception):
-    pass
 
 
 def is_baseline(instance) -> bool:
@@ -20,16 +21,18 @@ def is_baseline(instance) -> bool:
 
 
 def raise_if_baseline(subject_visit) -> None:
-    if subject_visit and is_baseline(subject_visit=subject_visit):
+    if subject_visit and is_baseline(subject_visit):
         raise forms.ValidationError("This form is not available for completion at baseline.")
 
 
 def raise_if_not_baseline(subject_visit) -> None:
-    if subject_visit and not is_baseline(subject_visit=subject_visit):
+    if subject_visit and not is_baseline(subject_visit):
         raise forms.ValidationError("This form is only available for completion at baseline.")
 
 
-def get_onschedule_models(subject_identifier=None, report_datetime=None):
+def get_onschedule_models(
+    subject_identifier: Optional[str] = None, report_datetime: Optional[datetime] = None
+) -> List[str]:
     """Returns a list of onschedule models, in label_lower format,
     for this subject and date.
     """
@@ -92,3 +95,28 @@ def off_schedule_or_raise(
             f"{formatted_datetime(report_datetime)}. "
             f"See model '{schedule.offschedule_model_cls().verbose_name}'"
         )
+
+
+def get_onschedule_model_instance(
+    subject_identifier: str,
+    reference_datetime: datetime,
+    visit_schedule_name: str,
+    schedule_name: str,
+) -> Any:
+    """Returns the onschedule model instance"""
+    schedule = site_visit_schedules.get_visit_schedule(visit_schedule_name).schedules.get(
+        schedule_name
+    )
+    model_cls = django_apps.get_model(schedule.onschedule_model)
+    try:
+        onschedule_obj = model_cls.objects.get(
+            subject_identifier=subject_identifier,
+            onschedule_datetime__lte=reference_datetime,
+        )
+    except ObjectDoesNotExist as e:
+        dte_as_str = formatted_datetime(reference_datetime)
+        raise NotOnScheduleError(
+            "Subject is not on a schedule. Using subject_identifier="
+            f"`{subject_identifier}` and appt_datetime=`{dte_as_str}`. Got {e}"
+        )
+    return onschedule_obj

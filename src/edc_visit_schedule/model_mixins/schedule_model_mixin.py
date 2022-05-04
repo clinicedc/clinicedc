@@ -25,10 +25,10 @@ class ScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, mode
     objects = SubjectIdentifierManager()
 
     def __str__(self):
-        formatted_date = timezone.localtime(self.report_datetime).strftime(
-            convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+        formatted_datetime = timezone.localtime(self.report_datetime).strftime(
+            convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
         )
-        return f"{self.subject_identifier} {formatted_date}"
+        return f"{self.subject_identifier} {formatted_datetime}"
 
     def natural_key(self):
         return (self.subject_identifier,)

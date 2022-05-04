@@ -6,45 +6,18 @@ from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from edc_appointment.constants import COMPLETE_APPT, IN_PROGRESS_APPT
 from edc_appointment.creators import AppointmentsCreator
+from edc_consent import NotConsentedError
 from edc_utils import convert_php_dateformat, formatted_datetime, get_utcnow
 
 from .constants import OFF_SCHEDULE, ON_SCHEDULE
-
-
-class SubjectScheduleError(Exception):
-    pass
-
-
-class NotOnScheduleError(Exception):
-    pass
-
-
-class NotOffScheduleError(Exception):
-    pass
-
-
-class NotOnScheduleForDateError(Exception):
-    pass
-
-
-class OnScheduleForDateError(Exception):
-    pass
-
-
-class OnScheduleFirstAppointmentDateError(Exception):
-    pass
-
-
-class NotConsentedError(Exception):
-    pass
-
-
-class UnknownSubjectError(Exception):
-    pass
-
-
-class InvalidOffscheduleDate(Exception):
-    pass
+from .exceptions import (
+    InvalidOffscheduleDate,
+    NotOnScheduleError,
+    NotOnScheduleForDateError,
+    OnScheduleFirstAppointmentDateError,
+    SubjectScheduleError,
+    UnknownSubjectError,
+)
 
 
 class SubjectSchedule:
