@@ -1,10 +1,10 @@
 from datetime import datetime
 from typing import Any
 
+from django.apps import apps as django_apps
 from edc_appointment.form_validators import WindowPeriodFormValidatorMixin
 from edc_consent.form_validators import ConsentFormValidatorMixin
 from edc_form_validators import FormValidator
-from edc_registration.models import RegisteredSubject
 from edc_utils import formatted_datetime
 
 
@@ -20,7 +20,7 @@ class CrfFormValidator(
         self.validate_crf_report_datetime()
         super()._clean()
 
-    def validate_crf_report_datetime(self):
+    def validate_crf_report_datetime(self: Any) -> None:
         if self.cleaned_data.get("report_datetime"):
             # falls within appointment's window period
             self.validate_crf_datetime_in_window_period(
@@ -29,9 +29,7 @@ class CrfFormValidator(
                 "report_datetime",
             )
             # falls within a valid consent period
-            self.get_consent_for_period_or_raise(
-                self.cleaned_data.get("report_datetime"), form_field="report_datetime"
-            )
+            self.get_consent_for_period_or_raise(self.cleaned_data.get("report_datetime"))
             # not before consent date
             if self.cleaned_data.get("report_datetime") < self.consent_datetime:
                 self.raise_validation_error(
@@ -45,11 +43,11 @@ class CrfFormValidator(
                 )
 
     @property
-    def appointment(self) -> Any:
+    def appointment(self: Any) -> Any:
         return self.subject_visit.appointment
 
     @property
-    def subject_visit(self) -> Any:
+    def subject_visit(self: Any) -> Any:
         """Returns a subject visit model instance or None"""
         try:
             subject_visit = self.instance.subject_visit
@@ -63,6 +61,9 @@ class CrfFormValidator(
 
     @property
     def consent_datetime(self) -> datetime:
-        return RegisteredSubject.objects.get(
+        registered_subject_model_cls = django_apps.get_model(
+            "edc_registration.registeredsubject"
+        )
+        return registered_subject_model_cls.objects.get(
             subject_identifier=self.subject_identifier
         ).consent_datetime
