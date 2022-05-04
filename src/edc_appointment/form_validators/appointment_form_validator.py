@@ -17,7 +17,9 @@ from edc_form_validators.form_validator import FormValidator
 from edc_metadata.form_validators import MetaDataFormValidatorMixin
 from edc_registration import get_registered_subject_model_cls
 from edc_utils import formatted_datetime, get_utcnow
-from edc_visit_schedule.utils import is_baseline
+from edc_visit_schedule import site_visit_schedules
+from edc_visit_schedule.subject_schedule import NotOnScheduleError
+from edc_visit_schedule.utils import get_onschedule_model_instance, is_baseline
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 
 from ..constants import (
@@ -60,6 +62,7 @@ class AppointmentFormValidator(
             self.cleaned_data.get("appt_datetime"),
             "appt_datetime",
         )
+        self.validate_subject_on_schedule()
         self.validate_appt_reason()
         self.validate_appointment_timing()
         self.validate_appt_new_or_cancelled()
@@ -68,6 +71,12 @@ class AppointmentFormValidator(
         self.validate_appt_new_or_complete()
 
         self.validate_facility_name()
+
+        rappt_datetime = Arrow.fromdatetime(
+            self.cleaned_data.get("appt_datetime"), self.instance.appt_datetime.tzinfo
+        )
+        if rappt_datetime.to("UTC").date() != self.instance.appt_datetime:
+            self.update_subject_visit_document_status(INCOMPLETE)
 
     @property
     def appointment_model_cls(self) -> Any:
@@ -392,11 +401,16 @@ class AppointmentFormValidator(
         return url
 
     def consent_datetime_or_raise(self: Any, appt_datetime: datetime) -> datetime:
+        consent_model = site_visit_schedules.get_consent_model(
+            visit_schedule_name=self.instance.visit_schedule_name,
+            schedule_name=self.instance.schedule_name,
+        )
         try:
-            # site_consents.get_consent_for_period(report_datetime=appt_datetime)
             RequiresConsent(
+                model=self.instance._meta.label_lower,
                 subject_identifier=self.instance.subject_identifier,
                 report_datetime=appt_datetime,
+                consent_model=consent_model,
             )
         except SiteConsentError:
             self.raise_validation_error(
@@ -446,8 +460,48 @@ class AppointmentFormValidator(
                 # TODO: should have to check for CRFs before changing
                 subject_visit.reason = MISSED_VISIT
                 subject_visit.document_status = INCOMPLETE
-                # if subject_visit.comments:
-                #     subject_visit.comments = subject_visit.comments.replace(
-                #         "[auto-created]", ""
-                #     )
                 subject_visit.save(update_fields=["reason", "document_status"])
+
+    def validate_subject_on_schedule(self):
+        appt_datetime = self.cleaned_data.get("appt_datetime")
+        subject_identifier = self.instance.subject_identifier
+        onschedule_model = site_visit_schedules.get_onschedule_model(
+            visit_schedule_name=self.instance.visit_schedule_name,
+            schedule_name=self.instance.schedule_name,
+        )
+        qs = django_apps.get_model(onschedule_model).objects.filter(
+            subject_identifier=subject_identifier,
+        )
+
+        try:
+            get_onschedule_model_instance(
+                subject_identifier=subject_identifier,
+                visit_schedule_name=self.instance.visit_schedule_name,
+                schedule_name=self.instance.schedule_name,
+                reference_datetime=appt_datetime,
+            )
+        except NotOnScheduleError:
+            self.raise_validation_error(
+                (
+                    "Subject is not on a schedule for the given date and time. "
+                    f"Expected one of {[str(obj) for obj in qs.all()]}. "
+                    "Check the appointment date and/or time"
+                ),
+                INVALID_APPT_DATE,
+            )
+
+    def update_subject_visit_document_status(self, document_status):
+        """Updates the subject visit document status.
+
+        Changing document status to incomplete forces the
+        user to edit the subject visit on the dashboard
+        before proceeding to the CRFs.
+        """
+        try:
+            subject_visit = getattr(self.instance, self.instance.related_visit_model_attr())
+        except ObjectDoesNotExist:
+            pass
+        else:
+            if subject_visit.document_status != document_status:
+                subject_visit.document_status = document_status
+                subject_visit.save(update_fields=["document_status"])
