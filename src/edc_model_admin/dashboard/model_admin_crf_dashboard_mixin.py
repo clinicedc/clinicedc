@@ -29,6 +29,7 @@ class ModelAdminCrfDashboardMixin(
                 id=request.GET.get(self.model.visit_model_attr())
             )
         except ObjectDoesNotExist:
+            # TODO: how do we get here?
             pass
         else:
             initial_data.update(
