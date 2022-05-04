@@ -1,8 +1,8 @@
 from typing import Any, Optional
 
 from django.contrib.sites.managers import CurrentSiteManager as BaseCurrentSiteManager
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError, models, transaction
-from django_mock_queries.constants import ObjectDoesNotExist
 from edc_constants.constants import NOT_APPLICABLE
 
 from edc_visit_tracking.constants import MISSED_VISIT
