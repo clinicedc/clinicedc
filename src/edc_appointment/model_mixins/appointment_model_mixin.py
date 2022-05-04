@@ -4,12 +4,15 @@ from typing import Union
 from uuid import UUID
 
 from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_offstudy.model_mixins import OffstudyVisitModelMixin
 from edc_timepoint.model_mixins import TimepointModelMixin
+from edc_utils import formatted_datetime
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
+from edc_visit_schedule.subject_schedule import NotOnScheduleError
 from edc_visit_schedule.utils import is_baseline
 
 from ..choices import APPT_STATUS, APPT_TIMING, APPT_TYPE, DEFAULT_APPT_REASON_CHOICES
@@ -121,10 +124,17 @@ class AppointmentModelMixin(
         if self.id and is_baseline(self):
             visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
             schedule = visit_schedule.schedules.get(self.schedule_name)
-            onschedule_obj = django_apps.get_model(schedule.onschedule_model).objects.get(
-                subject_identifier=self.subject_identifier,
-                onschedule_datetime__lte=self.appt_datetime,
-            )
+            try:
+                onschedule_obj = django_apps.get_model(schedule.onschedule_model).objects.get(
+                    subject_identifier=self.subject_identifier,
+                    onschedule_datetime__lte=self.appt_datetime,
+                )
+            except ObjectDoesNotExist as e:
+                dte_as_str = formatted_datetime(self.appt_datetime)
+                raise NotOnScheduleError(
+                    "Subject is not on a schedule. Using subject_identifier="
+                    f"`{self.subject_identifier}` and appt_datetime=`{dte_as_str}`. Got {e}"
+                )
             if self.appt_datetime == onschedule_obj.onschedule_datetime:
                 pass
             elif self.appt_datetime > onschedule_obj.onschedule_datetime:
