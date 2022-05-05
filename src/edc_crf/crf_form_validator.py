@@ -4,7 +4,7 @@ from typing import Any
 from django.apps import apps as django_apps
 from edc_appointment.form_validators import WindowPeriodFormValidatorMixin
 from edc_consent.form_validators import ConsentFormValidatorMixin
-from edc_form_validators import FormValidator
+from edc_form_validators import INVALID_ERROR, FormValidator
 from edc_utils import formatted_datetime
 
 
@@ -44,7 +44,10 @@ class CrfFormValidator(
 
     @property
     def appointment(self: Any) -> Any:
-        return self.subject_visit.appointment
+        try:
+            return self.subject_visit.appointment
+        except AttributeError:
+            self.raise_validation_error("Subject visit is required.", INVALID_ERROR)
 
     @property
     def subject_visit(self: Any) -> Any:
@@ -67,3 +70,25 @@ class CrfFormValidator(
         return registered_subject_model_cls.objects.get(
             subject_identifier=self.subject_identifier
         ).consent_datetime
+
+    def validate_datetime_against_report_datetime(self, field):
+        """Datetime cannot be after report_datetime"""
+        if (
+            self.cleaned_data.get(field)
+            and self.cleaned_data.get("report_datetime")
+            and self.cleaned_data.get(field) > self.cleaned_data.get("report_datetime")
+        ):
+            self.raise_validation_error(
+                {field: "Cannot to after report datetime"}, INVALID_ERROR
+            )
+
+    def validate_date_against_report_datetime(self, field):
+        """Date cannot be after report_datetime"""
+        if (
+            self.cleaned_data.get(field)
+            and self.cleaned_data.get("report_datetime")
+            and self.cleaned_data.get(field) > self.cleaned_data.get("report_datetime").date()
+        ):
+            self.raise_validation_error(
+                {field: "Cannot to after report datetime"}, INVALID_ERROR
+            )
