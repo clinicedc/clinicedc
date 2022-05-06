@@ -16,6 +16,7 @@ from edc_reportable.units import (
     EGFR_UNITS,
     GRAMS_PER_LITER,
     PERCENT,
+    PLUS,
 )
 
 normal_data = {
@@ -65,12 +66,9 @@ normal_data = {
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        # p(
-        #     "53<=x<=115",
-        #     units=MICROMOLES_PER_LITER,
-        #     gender=[MALE, FEMALE],
-        #     **adult_age_options,
-        # ),
+    ],
+    "crp": [
+        p("0.0<=x<1.0", units=PLUS, gender=[MALE, FEMALE], **adult_age_options),
     ],
     "glucose": [
         p(
@@ -218,6 +216,15 @@ normal_data = {
         p(
             "3500<=x<=5500",
             units=CELLS_PER_MILLIMETER_CUBED,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+    ],
+    # TODO: tbil normal range is not set. range needed
+    "tbil": [
+        p(
+            "0.0<=x<9999.0",
+            units=MILLIGRAMS_PER_DECILITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),

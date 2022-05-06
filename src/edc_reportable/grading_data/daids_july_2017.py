@@ -17,6 +17,7 @@ from ..units import (
     MILLIGRAMS_PER_DECILITER,
     MILLIMOLES_PER_LITER,
     PERCENT,
+    PLUS,
     TEN_X_9_PER_LITER,
 )
 
@@ -96,6 +97,15 @@ dummies = {
         ),
     ],
     "urea": [
+        p(
+            "x<0",
+            grade=GRADE0,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        )
+    ],
+    "crp": [
         p(
             "x<0",
             grade=GRADE0,
@@ -452,6 +462,36 @@ chemistries = dict(
             **adult_age_options,
         ),
     ],
+    tbil=[
+        p(
+            "1.00*ULN<=x<1.60*ULN",
+            grade=GRADE1,
+            units=MILLIGRAMS_PER_DECILITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "1.60*ULN<=x<2.60*ULN",
+            grade=GRADE2,
+            units=MILLIGRAMS_PER_DECILITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "2.60*ULN<=x<5.00*ULN",
+            grade=GRADE3,
+            units=MILLIGRAMS_PER_DECILITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "5.00*ULN<=x",
+            grade=GRADE4,
+            units=MILLIGRAMS_PER_DECILITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+    ],
     trig=[
         p(
             "5.7<=x<=11.4",
@@ -597,6 +637,31 @@ hematology = {
     ],
 }
 
+urinalysis = {
+    "proteinuria": [
+        p(
+            "1<=x<2",
+            grade=GRADE1,
+            units=TEN_X_9_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "2<=x<3",
+            grade=GRADE1,
+            units=TEN_X_9_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "3<=x",
+            grade=GRADE3,
+            units=PLUS,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+    ],
+}
 
 hba1c = {
     "hba1c": [
@@ -615,3 +680,4 @@ grading_data.update(**dummies)
 grading_data.update(**chemistries)
 grading_data.update(**hematology)
 grading_data.update(**hba1c)
+grading_data.update(**urinalysis)
