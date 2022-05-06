@@ -2,14 +2,7 @@ from django import forms
 from edc_constants.constants import NO, NOT_APPLICABLE, YES
 from edc_metadata.constants import REQUIRED
 
-from .constants import (
-    ALREADY_REPORTED,
-    GRADE2,
-    GRADE3,
-    GRADE4,
-    INVALID_REFERENCE,
-    PRESENT_AT_BASELINE,
-)
+from .constants import ALREADY_REPORTED, INVALID_REFERENCE, PRESENT_AT_BASELINE
 from .site_reportables import site_reportables
 from .value_reference_group import NotEvaluated
 

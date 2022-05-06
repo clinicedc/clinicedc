@@ -1,4 +1,4 @@
-from django.test import TestCase, tag
+from django.test import TestCase
 
 from edc_reportable import convert_units
 from edc_reportable.units import (
