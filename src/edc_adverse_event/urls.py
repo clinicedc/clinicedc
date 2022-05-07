@@ -1,5 +1,4 @@
 from django.urls.conf import path
-from django.views.generic.base import RedirectView
 from edc_protocol.protocol import Protocol
 
 from edc_adverse_event.admin_site import edc_adverse_event_admin

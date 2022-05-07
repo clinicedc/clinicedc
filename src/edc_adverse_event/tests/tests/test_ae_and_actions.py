@@ -221,9 +221,9 @@ class TestAeAndActions(TestCase):
                 reference_model="adverse_event_app.aeinitial",
             )
         except ObjectDoesNotExist:
-            self.fail(f"action item unexpectedly does not exist.")
+            self.fail("action item unexpectedly does not exist.")
         except MultipleObjectsReturned:
-            self.fail(f"action item unexpectedly returned multiple objects.")
+            self.fail("action item unexpectedly returned multiple objects.")
         self.assertEqual(
             ActionItem.objects.filter(
                 subject_identifier=self.subject_identifier,
