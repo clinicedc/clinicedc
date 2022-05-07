@@ -167,6 +167,14 @@ normal_data = {
             **adult_age_options,
         )
     ],
+    "proteinuria": [
+        p(
+            "0.0<=x<1.0",
+            units=PLUS,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+    ],
     "sodium": [
         p(
             "135<=x<=145",

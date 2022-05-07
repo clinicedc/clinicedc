@@ -642,14 +642,14 @@ urinalysis = {
         p(
             "1<=x<2",
             grade=GRADE1,
-            units=TEN_X_9_PER_LITER,
+            units=PLUS,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
         p(
             "2<=x<3",
-            grade=GRADE1,
-            units=TEN_X_9_PER_LITER,
+            grade=GRADE2,
+            units=PLUS,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
