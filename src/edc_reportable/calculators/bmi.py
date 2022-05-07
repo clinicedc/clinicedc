@@ -25,10 +25,11 @@ class BMI:
         self.upper = float(upper_bmi_value or 60.0)
         self.weight = float(weight_kg)
         self.height = float(height_cm) / 100.0
-        self.raw_bmi_value = self.weight / (self.height ** 2)
+        self.raw_bmi_value = self.weight / (self.height**2)
         if not (self.lower <= self.raw_bmi_value <= self.upper):
             raise CalculatorError(
-                f"BMI value is absurd. Using {self.weight}kg, {self.height}m. Got {self.value}."
+                "BMI value is absurd. "
+                f"Using {self.weight}kg, {self.height}m. Got {self.value}."
             )
 
     @property

@@ -2,7 +2,7 @@ import os
 from tempfile import mkdtemp
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_constants.constants import MALE
 from edc_utils import get_utcnow
 
@@ -36,7 +36,6 @@ class TestSiteReportables(TestCase):
                 ),
             )
 
-    @tag("1")
     def test_haemoglobin(self):
         reportables = site_reportables.get("my_reference_list")
         haemoglobin = reportables.get("haemoglobin")

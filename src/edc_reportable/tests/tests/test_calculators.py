@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django import forms
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_constants.constants import BLACK, FEMALE, MALE
 from edc_form_validators import FormValidator
 from edc_utils import get_utcnow

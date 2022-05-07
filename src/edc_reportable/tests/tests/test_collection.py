@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_constants.constants import FEMALE, MALE
 from edc_utils import get_utcnow
 from pytz import utc

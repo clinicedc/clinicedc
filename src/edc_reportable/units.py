@@ -24,3 +24,4 @@ TEN_X_3_PER_LITER = "10^3/L"
 TEN_X_3_PER_LITER_DISPLAY = mark_safe("10<sup>3</sup>/L")
 TEN_X_9_PER_LITER = "10^9/L"
 TEN_X_9_PER_LITER_DISPLAY = mark_safe("10<sup>9</sup>/L")
+PLUS = "+"

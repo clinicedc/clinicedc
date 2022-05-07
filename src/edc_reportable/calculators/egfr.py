@@ -1,3 +1,5 @@
+from typing import Any, Optional, Union
+
 from edc_constants.constants import BLACK, FEMALE, MALE, OTHER
 
 from ..convert_units import convert_units
@@ -8,21 +10,21 @@ from .exceptions import CalculatorError
 #  Pathology-Tests/C/Creatinine-clearance-Cockcroft-and-Gault
 
 
-class eGFR:
+class eGFR:  # noqa
 
-    """Reference http://nephron.com/epi_equation
+    """Reference https://nephron.com/epi_equation
 
     Levey AS, Stevens LA, et al. A New Equation to Estimate Glomerular
     Filtration Rate. Ann Intern Med. 2009; 150:604-612.
     """
 
     def __init__(
-        self,
-        gender=None,
-        age=None,
-        ethnicity=None,
-        creatinine_value=None,
-        creatinine_units=None,
+        self: Any,
+        gender: Optional[str] = None,
+        age: Optional[int] = None,
+        ethnicity: Optional[str] = None,
+        creatinine_value: Optional[Union[float, int]] = None,
+        creatinine_units: Optional[str] = None,
     ):
         """Expects creatinine (scr) in umols/L.
 
@@ -73,16 +75,16 @@ class eGFR:
 
     @property
     def age_factor(self):
-        return 0.993 ** self.age
+        return 0.993**self.age
 
 
 def calculate_egfr(
-    gender=None,
-    age_in_years=None,
-    ethnicity=None,
-    creatinine_value=None,
-    creatinine_units=None,
-    **kwargs
+    gender: Optional[str] = None,
+    age_in_years: Optional[int] = None,
+    ethnicity: Optional[str] = None,
+    creatinine_value: Optional[Union[float, int]] = None,
+    creatinine_units: Optional[str] = None,
+    **kwargs,  # noqa
 ):
     calculated_egfr_value = None
     if gender and age_in_years and ethnicity and creatinine_value and creatinine_units:
