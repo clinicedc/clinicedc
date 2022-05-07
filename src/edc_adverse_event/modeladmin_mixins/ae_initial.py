@@ -20,7 +20,7 @@ from ..templatetags.edc_adverse_event_extras import (
 from .modeladmin_mixins import AdverseEventModelAdminMixin
 
 fieldset_part_one = (
-    "Part 1: Descripiton",
+    "Part 1: Description",
     {
         "fields": (
             "ae_classification",
