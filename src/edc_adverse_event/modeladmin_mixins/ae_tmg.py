@@ -94,9 +94,9 @@ class AeTmgModelAdminMixin(
         original AE.
         """
         initial = super().get_changeform_initial_data(request)
-        AeInitial = get_ae_model("aeinitial")
+        ae_initial_model_cls = get_ae_model("aeinitial")
         try:
-            ae_initial = AeInitial.objects.get(pk=request.GET.get("ae_initial"))
+            ae_initial = ae_initial_model_cls.objects.get(pk=request.GET.get("ae_initial"))
         except ObjectDoesNotExist:
             pass
         else:
@@ -108,11 +108,11 @@ class AeTmgModelAdminMixin(
                 if ae_initial.ae_classification.name == OTHER:
                     other = ae_initial.ae_classification_other.rstrip()
                     ae_classification = f"{ae_classification}: {other}"
-                report_datetime = ae_initial.report_datetime.strftime(
-                    convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
-                )
+            report_datetime = ae_initial.report_datetime.strftime(
+                convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
+            )
             initial.update(
                 ae_classification=ae_classification,
-                ae_description=(f"{ae_initial.ae_description} (reported: {report_datetime})"),
+                ae_description=f"{ae_initial.ae_description} (reported: {report_datetime})",
             )
         return initial
