@@ -1,0 +1,1 @@
+from .blood_results_modeladmin_mixin import BloodResultsModelAdminMixin
