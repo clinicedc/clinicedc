@@ -3,8 +3,8 @@
 # from edc_model_admin.dashboard import ModelAdminCrfDashboardMixin
 # from respond_labs.panels import fbc_panel
 #
-# from edc_blood_results.admin import BloodResultsModelAdminMixin
-# from edc_blood_results.fieldsets import BloodResultFieldset
+# from edc_lab_results.admin import BloodResultsModelAdminMixin
+# from edc_lab_results.fieldsets import BloodResultFieldset
 #
 # from .forms import BloodResultsFbcForm
 # from .models import BloodResultsFbc

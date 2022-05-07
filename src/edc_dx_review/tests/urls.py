@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path
 from django.views.generic import RedirectView
 
-app_name = "edc_blood_results"
+app_name = "edc_lab_results"
 
 urlpatterns = [
     path("admin/", admin.site.urls),
