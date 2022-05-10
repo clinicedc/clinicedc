@@ -6,7 +6,7 @@ from uuid import uuid4
 from dateutil.tz import gettz
 
 from .age import AgeValueError, age, formatted_age, get_age_in_days, get_dob
-from .date import get_utcnow, to_arrow_utc, to_utc
+from .date import get_utcnow, get_utcnow_as_date, to_arrow_utc, to_utc
 from .disable_signals import DisableSignals
 from .get_static_file import get_static_file
 from .show_urls import show_url_names, show_urls
