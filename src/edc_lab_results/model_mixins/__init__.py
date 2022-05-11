@@ -10,6 +10,7 @@ from .fbc_model_mixins import (
     MchcModelMixin,
     MchModelMixin,
     McvModelMixin,
+    NeutrophilModelMixin,
     PlateletsModelMixin,
     RbcModelMixin,
     WbcModelMixin,

@@ -70,6 +70,20 @@ class McvModelMixin(
         abstract = True
 
 
+class NeutrophilModelMixin(
+    reportable_result_model_mixin_factory(
+        utest_id="neutrophil",
+        verbose_name="Neutrophils",
+        units_choices=((TEN_X_9_PER_LITER, TEN_X_9_PER_LITER),),
+        decimal_places=0,
+        validators=[MinValueValidator(1), MaxValueValidator(9999)],
+    ),
+    models.Model,
+):
+    class Meta:
+        abstract = True
+
+
 class PlateletsModelMixin(
     reportable_result_model_mixin_factory(
         utest_id="platelets",
