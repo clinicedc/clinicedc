@@ -84,6 +84,48 @@ class NeutrophilModelMixin(
         abstract = True
 
 
+class NeutrophilDiffModelMixin(
+    reportable_result_model_mixin_factory(
+        utest_id="neutrophil_diff",
+        verbose_name="Neutrophils",
+        units_choices=((PERCENT, PERCENT),),
+        decimal_places=0,
+        validators=[MinValueValidator(1), MaxValueValidator(9999)],
+    ),
+    models.Model,
+):
+    class Meta:
+        abstract = True
+
+
+class LymphocytesModelMixin(
+    reportable_result_model_mixin_factory(
+        utest_id="lymphocytes",
+        verbose_name="Lymphocytes (absolute)",
+        units_choices=((TEN_X_9_PER_LITER, TEN_X_9_PER_LITER),),
+        decimal_places=0,
+        validators=[MinValueValidator(1), MaxValueValidator(9999)],
+    ),
+    models.Model,
+):
+    class Meta:
+        abstract = True
+
+
+class LymphocytesDiffModelMixin(
+    reportable_result_model_mixin_factory(
+        utest_id="lymphocytes_diff",
+        verbose_name="Lymphocytes (differential)",
+        units_choices=((PERCENT, PERCENT),),
+        decimal_places=0,
+        validators=[MinValueValidator(1), MaxValueValidator(9999)],
+    ),
+    models.Model,
+):
+    class Meta:
+        abstract = True
+
+
 class PlateletsModelMixin(
     reportable_result_model_mixin_factory(
         utest_id="platelets",
