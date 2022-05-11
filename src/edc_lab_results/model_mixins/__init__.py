@@ -7,8 +7,8 @@ from .electrolytes_model_mixins import MagnesiumModelMixin, PotassiumModelMixin
 from .fbc_model_mixins import (
     HaemoglobinModelMixin,
     HctModelMixin,
-    LymphocytesDiffModelMixin,
-    LymphocytesModelMixin,
+    LymphocyteDiffModelMixin,
+    LymphocyteModelMixin,
     MchcModelMixin,
     MchModelMixin,
     McvModelMixin,
