@@ -3,13 +3,8 @@ from typing import Any, Optional
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from edc_appointment.appointment_status_updater import AppointmentStatusUpdater
-from edc_appointment.choices import APPT_STATUS, APPT_TIMING
-from edc_appointment.constants import (
-    IN_PROGRESS_APPT,
-    MISSED_APPT,
-    SCHEDULED_APPT,
-    UNSCHEDULED_APPT,
-)
+from edc_appointment.choices import APPT_TIMING
+from edc_appointment.constants import MISSED_APPT, SCHEDULED_APPT, UNSCHEDULED_APPT
 from edc_constants.constants import INCOMPLETE
 from edc_metadata.metadata_helper_mixin import MetaDataHelperMixin
 from edc_visit_schedule.utils import is_baseline
