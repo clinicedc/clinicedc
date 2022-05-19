@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 from django.apps import apps as django_apps
 from django.conf import settings
 from edc_utils import get_utcnow
@@ -52,6 +50,6 @@ class Helper:
             schedule_name=appointment.schedule_name,
             visit_code=appointment.visit_code,
             facility=appointment.facility,
-            timepoint=appointment.timepoint + Decimal("0.1"),
+            timepoint=appointment.timepoint,
         )
         return creator.appointment

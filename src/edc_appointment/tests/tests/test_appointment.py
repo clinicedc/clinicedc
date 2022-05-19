@@ -1,21 +1,27 @@
 from decimal import Context
 
 from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.db import transaction
 from django.db.models.deletion import ProtectedError
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
+from edc_constants.constants import INCOMPLETE
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
 from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
-from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
+from edc_visit_tracking.model_mixins.visit_model_mixin.visit_model_mixin import (
+    SubjectVisitMissedError,
+)
 
 from edc_appointment.utils import get_appt_reason_choices
 
 from ...constants import (
     IN_PROGRESS_APPT,
     INCOMPLETE_APPT,
+    MISSED_APPT,
+    ONTIME_APPT,
     SCHEDULED_APPT,
     UNSCHEDULED_APPT,
 )
@@ -518,3 +524,100 @@ class TestAppointment(TestCase):
                 ("blah", "Blah"),
             ),
         )
+
+    def test_appointment_creates_subject_visit_if_missed(self):
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
+        self.assertEqual(appointments.count(), 4)
+        # create report for baseline visit
+        SubjectVisit.objects.create(
+            appointment=appointments[0],
+            report_datetime=appointments[0].appt_datetime,
+            reason=SCHEDULED,
+        )
+        appointment = Appointment.objects.get(id=appointments[1].id)
+        appointment.appt_timing = MISSED_APPT
+        appointment.save()
+        appointment.refresh_from_db()
+        try:
+            subject_visit = SubjectVisit.objects.get(
+                appointment__visit_code=appointment.visit_code
+            )
+        except ObjectDoesNotExist:
+            self.fail("ObjectDoesNotExist unexpectedly raised")
+        self.assertEqual(subject_visit.reason, MISSED_VISIT)
+        self.assertIn("auto-created", subject_visit.comments)
+        self.assertEqual(subject_visit.document_status, INCOMPLETE)
+
+        # resave does not cause error
+        appointment.save()
+
+    @tag("6")
+    def test_raises_if_subject_visit_reason_out_of_sync_with_appt(self):
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
+        self.assertEqual(appointments.count(), 4)
+        # create report for baseline visit
+        SubjectVisit.objects.create(
+            appointment=appointments[0],
+            report_datetime=appointments[0].appt_datetime,
+            reason=SCHEDULED,
+        )
+        appointment = Appointment.objects.get(id=appointments[1].id)
+        appointment.appt_timing = MISSED_APPT
+        appointment.save()
+        appointment.refresh_from_db()
+
+        # change subject visit causes error
+        subject_visit = SubjectVisit.objects.get(
+            appointment__visit_code=appointment.visit_code
+        )
+        subject_visit.reason = SCHEDULED
+        self.assertRaises(SubjectVisitMissedError, subject_visit.save)
+
+        appointment.appt_timing = SCHEDULED_APPT
+        appointment.save()
+
+        subject_visit = SubjectVisit.objects.get(
+            appointment__visit_code=appointment.visit_code
+        )
+        self.assertEqual(subject_visit.reason, SCHEDULED)
+
+    @tag("6")
+    def test_raises_if_subject_visit_reason_out_of_sync_with_appt(self):
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
+        self.assertEqual(appointments.count(), 4)
+        # create report for baseline visit
+        SubjectVisit.objects.create(
+            appointment=appointments[0],
+            report_datetime=appointments[0].appt_datetime,
+            reason=SCHEDULED,
+        )
+        appointment = Appointment.objects.get(id=appointments[1].id)
+        appointment.appt_timing = MISSED_APPT
+        appointment.save()
+        appointment.refresh_from_db()
+
+        self.assertEqual(appointment.appt_status, IN_PROGRESS_APPT)
+
+        # change subject visit to scheduled is ignored, forces
+        # subject_visit.reason == MISSED_VISIT
+        # you need to go to the appt
+        self.assertEqual(appointment.appt_timing, MISSED_APPT)
+        subject_visit = SubjectVisit.objects.get(
+            appointment__visit_code=appointment.visit_code
+        )
+        subject_visit.reason = SCHEDULED
+        subject_visit.save()
+        self.assertEqual(subject_visit.reason, MISSED_VISIT)
+        self.assertEqual(appointment.appt_timing, MISSED_APPT)
+
+        # change appt to scheduled updates subject_visit
+        appointment.appt_timing = ONTIME_APPT
+        appointment.save()
+        appointment.refresh_from_db()
+        subject_visit.refresh_from_db()
+        self.assertEqual(appointment.appt_timing, ONTIME_APPT)
+        self.assertEqual(subject_visit.document_status, INCOMPLETE)
+        self.assertEqual(subject_visit.reason, SCHEDULED)

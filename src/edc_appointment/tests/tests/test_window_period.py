@@ -110,7 +110,6 @@ class TestAppointmentWindowPeriod(TestCase):
             ),
         )
 
-    @tag("appt")
     def test_appointments_window_period(self):
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule3",
@@ -128,7 +127,7 @@ class TestAppointmentWindowPeriod(TestCase):
         appointment_1030.appt_datetime = appointment_1060.appt_datetime
         self.assertRaises(AppointmentWindowError, appointment_1030.save)
 
-    @tag("appt")
+    @tag("22")
     def test_appointments_window_period_in_form(self):
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule3",
@@ -146,7 +145,7 @@ class TestAppointmentWindowPeriod(TestCase):
         )
         form.is_valid()
         self.assertIn("appt_datetime", form._errors)
-        self.assertIn("Invalid", form._errors.get("appt_datetime")[0])
+        self.assertIn("An appointment already exists", form._errors.get("appt_datetime")[0])
 
     @tag("1")
     def test_appointments_window_period_boundary_before_next_lower(self):

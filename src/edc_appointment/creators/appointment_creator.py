@@ -148,7 +148,7 @@ class AppointmentCreator:
 
     def _update(self, appointment=None):
         """Returns an updated appointment model instance."""
-        if is_baseline(appointment) and self.skip_baseline:
+        if is_baseline(instance=appointment) and self.skip_baseline:
             pass
         else:
             appointment.appt_datetime = self.appt_datetime

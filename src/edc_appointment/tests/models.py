@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
+from edc_list_data.model_mixins import ListModelMixin
 from edc_locator.model_mixins import LocatorModelMixin
 from edc_model.models import BaseUuidModel
 from edc_offstudy.model_mixins import (
@@ -11,7 +12,11 @@ from edc_offstudy.model_mixins import (
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_utils import get_dob, get_utcnow, get_uuid
 from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
-from edc_visit_tracking.model_mixins import VisitModelMixin
+from edc_visit_tracking.managers import VisitModelManager
+from edc_visit_tracking.model_mixins import (
+    SubjectVisitMissedModelMixin,
+    VisitModelMixin,
+)
 
 from edc_appointment.models import Appointment
 
@@ -76,10 +81,37 @@ class OffScheduleThree(OffScheduleModelMixin, BaseUuidModel):
     pass
 
 
+class SubjectVisitMissedReasons(ListModelMixin):
+    pass
+
+
 class SubjectVisit(VisitModelMixin, OffstudyVisitModelMixin, BaseUuidModel):
     appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
 
     report_datetime = models.DateTimeField(default=get_utcnow)
+
+    comments = models.TextField(null=True)
+
+    objects = VisitModelManager()
+
+    class Meta(BaseUuidModel.Meta):
+        verbose_name = "Subject Visit"
+        verbose_name_plural = "Subject Visit"
+
+
+class SubjectVisitMissed(SubjectVisitMissedModelMixin, BaseUuidModel):
+
+    subject_visit = models.OneToOneField(SubjectVisit, on_delete=PROTECT)
+
+    report_datetime = models.DateTimeField(default=get_utcnow)
+
+    missed_reasons = models.ManyToManyField(
+        SubjectVisitMissedReasons, blank=True, related_name="missed_reasons"
+    )
+
+    class Meta(BaseUuidModel.Meta):
+        verbose_name = "Missed Visit Report"
+        verbose_name_plural = "Missed Visit Report"
 
 
 class SubjectLocator(LocatorModelMixin, BaseUuidModel):
@@ -92,3 +124,10 @@ class SubjectOffstudy(OffstudyModelMixin, BaseUuidModel):
 
 class SubjectOffstudy2(OffstudyModelMixin, BaseUuidModel):
     objects = OffstudyModelManager()
+
+
+class CrfOne(BaseUuidModel):
+
+    subject_visit = models.OneToOneField(SubjectVisit, on_delete=PROTECT)
+
+    report_datetime = models.DateTimeField(default=get_utcnow)
