@@ -1,7 +1,6 @@
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_appointment.constants import IN_PROGRESS_APPT, MISSED_APPT
-from edc_appointment.models import Appointment
-from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
+from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 
 from ...metadata import CreatesMetadataError
 from ...metadata_updater import MetadataUpdater
