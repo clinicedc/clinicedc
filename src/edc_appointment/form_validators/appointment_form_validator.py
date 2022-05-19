@@ -328,14 +328,14 @@ class AppointmentFormValidator(
         appt_status = self.cleaned_data.get("appt_status")
         if appt_status == CANCELLED_APPT and self.crf_metadata_keyed_exists:
             self.raise_validation_error(
-                {"appt_status": format_html(f"Invalid. Some CRFs have already been keyed")},
+                {"appt_status": format_html("Invalid. Some CRFs have already been keyed")},
                 INVALID_APPT_STATUS,
             )
         elif appt_status == CANCELLED_APPT and self.requisition_metadata_keyed_exists:
             self.raise_validation_error(
                 {
                     "appt_status": format_html(
-                        f"Invalid. Some requisitions have already been keyed"
+                        "Invalid. Some requisitions have already been keyed"
                     )
                 },
                 INVALID_APPT_STATUS,

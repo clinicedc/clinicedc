@@ -584,7 +584,7 @@ class TestAppointment(TestCase):
         self.assertEqual(subject_visit.reason, SCHEDULED)
 
     @tag("6")
-    def test_raises_if_subject_visit_reason_out_of_sync_with_appt(self):
+    def test_raises_if_subject_visit_reason_out_of_sync_with_appt2(self):
         self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
         self.assertEqual(appointments.count(), 4)
