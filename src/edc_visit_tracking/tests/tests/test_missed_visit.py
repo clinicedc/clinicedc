@@ -42,11 +42,11 @@ class TestVisit(TestCase):
         self.subject_identifier = "12345"
         self.helper = self.helper_cls(subject_identifier=self.subject_identifier)
         crfs = FormsCollection(
-            Crf(show_order=1, model="edc_metadata.crfone", required=True),
-            Crf(show_order=2, model="edc_metadata.crftwo", required=True),
-            Crf(show_order=3, model="edc_metadata.crfthree", required=True),
-            Crf(show_order=4, model="edc_metadata.crffour", required=True),
-            Crf(show_order=5, model="edc_metadata.crffive", required=True),
+            Crf(show_order=1, model="edc_visit_tracking.crfone", required=True),
+            Crf(show_order=2, model="edc_visit_tracking.crftwo", required=True),
+            Crf(show_order=3, model="edc_visit_tracking.crfthree", required=True),
+            Crf(show_order=4, model="edc_visit_tracking.crffour", required=True),
+            Crf(show_order=5, model="edc_visit_tracking.crffive", required=True),
         )
         crfs_missed = FormsCollection(
             Crf(
@@ -79,7 +79,7 @@ class TestVisit(TestCase):
                     rbase=relativedelta(days=index),
                     rlower=relativedelta(days=0),
                     rupper=relativedelta(days=6),
-                    requisitions=[],
+                    requisitions=None,
                     crfs=crfs,
                     crfs_missed=crfs_missed,
                     allow_unscheduled=True,

@@ -3,7 +3,7 @@ from typing import Any, Optional
 from django.contrib.sites.managers import CurrentSiteManager as BaseCurrentSiteManager
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError, models, transaction
-from edc_constants.constants import NOT_APPLICABLE
+from edc_constants.constants import INCOMPLETE, NOT_APPLICABLE
 
 from edc_visit_tracking.constants import MISSED_VISIT
 
@@ -78,6 +78,7 @@ class VisitModelManager(models.Manager):
         try:
             subject_visit = self.get(appointment=appointment)
         except ObjectDoesNotExist:
+            # TODO: reason_missed or "past window period"??
             opts = dict(
                 appointment=appointment,
                 comments="[auto-created]",
@@ -95,11 +96,12 @@ class VisitModelManager(models.Manager):
             opts.update(**self.create_missed_extras())
             try:
                 with transaction.atomic():
-                    self.create(**opts)
+                    obj = self.create(**opts)
             except IntegrityError:
                 pass
+            obj.document_status = INCOMPLETE
+            obj.save(update_fields=["document_status"])
         else:
-            pass
             if subject_visit.reason != MISSED_VISIT:
                 raise MissedVisitError(
                     f"Subject visit already exists. Reason=`{subject_visit.reason}`"

@@ -5,6 +5,7 @@ from zoneinfo import ZoneInfo
 from arrow import Arrow
 from django import forms
 from django.conf import settings
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from edc_appointment.constants import MISSED_APPT
 from edc_appointment.form_validators import WindowPeriodFormValidatorMixin
 from edc_constants.constants import OTHER
@@ -49,6 +50,8 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
                 {"appointment": "This field is required"}, code=REQUIRED_ERROR
             )
 
+        self.validate_visit_datetime_unique()
+
         self.validate_visit_datetime_not_before_appointment()
 
         self.validate_visit_datetime_matches_appt_datetime_at_baseline()
@@ -62,6 +65,32 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
         self.validate_visit_reason()
 
         self.required_if(OTHER, field="info_source", field_required="info_source_other")
+
+    def validate_visit_datetime_unique(self):
+        """Assert one visit report per day"""
+        if self.cleaned_data.get("report_datetime"):
+            tz = ZoneInfo("utc")
+            report_date = (
+                Arrow.fromdatetime(self.cleaned_data.get("report_datetime")).to(tz).date()
+            )
+            try:
+                obj = self.instance.__class__.objects.get(report_datetime__date=report_date)
+            except ObjectDoesNotExist:
+                pass
+            except MultipleObjectsReturned:
+                raise self.raise_validation_error(
+                    {"report_datetime": "Visit reports already exist for this date"},
+                    INVALID_ERROR,
+                )
+            else:
+                if self.instance and obj.id != self.instance.id:
+                    raise self.raise_validation_error(
+                        {
+                            "report_datetime": "A visit report already exists for this date. "
+                            f"See {obj.visit_code}.{obj.visit_code_sequence}"
+                        },
+                        INVALID_ERROR,
+                    )
 
     def validate_visit_datetime_not_before_appointment(
         self,
@@ -92,7 +121,7 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
         """Asserts the report_datetime matches the appt_datetime
         as baseline.
         """
-        if is_baseline(self.cleaned_data.get("appointment")):
+        if is_baseline(instance=self.cleaned_data.get("appointment")):
             if report_datetime := self.cleaned_data.get("report_datetime"):
                 tz = ZoneInfo(settings.TIME_ZONE)
                 appt_datetime_local = Arrow.fromdatetime(

@@ -1,8 +1,8 @@
-from typing import Optional
+from typing import Any, Optional
 
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_appointment.constants import COMPLETE_APPT, IN_PROGRESS_APPT
+from edc_appointment.constants import COMPLETE_APPT, IN_PROGRESS_APPT, MISSED_APPT
 from edc_constants.constants import COMPLETE, NO, YES
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
@@ -11,8 +11,13 @@ from edc_visit_tracking.stubs import SubjectVisitModelStub
 
 from ...constants import MISSED_VISIT, NO_FOLLOW_UP_REASONS
 from ...managers import VisitModelManager
+from ...reason_updater import SubjectVisitReasonUpdater
 from ..previous_visit_model_mixin import PreviousVisitModelMixin
 from .visit_model_fields_mixin import VisitModelFieldsMixin
+
+
+class SubjectVisitMissedError(Exception):
+    pass
 
 
 class VisitModelMixin(
@@ -40,17 +45,17 @@ class VisitModelMixin(
     def __str__(self) -> str:
         return f"{self.subject_identifier} {self.visit_code}.{self.visit_code_sequence}"
 
-    def save(
-        self: SubjectVisitModelStub, *args, update_fields: Optional[list] = None, **kwargs
-    ):
+    def save(self: Any, *args, update_fields: Optional[list] = None, **kwargs):
         self.update_document_status_on_save(update_fields)
         self.subject_identifier = self.appointment.subject_identifier
         self.visit_schedule_name = self.appointment.visit_schedule_name
         self.schedule_name = self.appointment.schedule_name
         self.visit_code = self.appointment.visit_code
         self.visit_code_sequence = self.appointment.visit_code_sequence
-        # TODO: may be a problem with crfs_missed
         self.require_crfs = NO if self.reason == MISSED_VISIT else YES
+        if self.appointment.appt_timing == MISSED_APPT and self.reason != MISSED_VISIT:
+            reason_updater = SubjectVisitReasonUpdater(appointment=self.appointment)
+            reason_updater.update_or_raise()
         super().save(*args, **kwargs)  # type:ignore
 
     def natural_key(self) -> tuple:
@@ -114,7 +119,7 @@ class VisitModelMixin(
                 "subject_identifier",
                 "visit_schedule_name",
                 "schedule_name",
-                "report_datetime",
+                "report_datetime",  # implies one visit per day!
             ),
         )
         ordering = (

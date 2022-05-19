@@ -1,6 +1,8 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from edc_visit_tracking.constants import MISSED_VISIT
+
 
 @receiver(post_save, weak=False, dispatch_uid="visit_tracking_check_in_progress_on_post_save")
 def visit_tracking_check_in_progress_on_post_save(

@@ -44,21 +44,28 @@ class SubjectConsent(
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
+    class Meta(BaseUuidModel.Meta):
+        pass
+
 
 class OnScheduleOne(OnScheduleModelMixin, BaseUuidModel):
-    pass
+    class Meta(BaseUuidModel.Meta):
+        pass
 
 
 class OnScheduleTwo(OnScheduleModelMixin, BaseUuidModel):
-    pass
+    class Meta(BaseUuidModel.Meta):
+        pass
 
 
 class OffSchedule(OffScheduleModelMixin, BaseUuidModel):
-    pass
+    class Meta(BaseUuidModel.Meta):
+        pass
 
 
 class OffScheduleOne(OffScheduleModelMixin, BaseUuidModel):
-    pass
+    class Meta(BaseUuidModel.Meta):
+        pass
 
 
 class SubjectOffstudy(OffstudyModelMixin, BaseUuidModel):
@@ -110,6 +117,9 @@ class CrfOne(VisitTrackingCrfModelMixin, BaseUuidModel):
 
     f3 = models.CharField(max_length=50, null=True)
 
+    class Meta(BaseUuidModel.Meta):
+        pass
+
 
 class CrfTwo(VisitTrackingCrfModelMixin, BaseUuidModel):
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
@@ -119,6 +129,9 @@ class CrfTwo(VisitTrackingCrfModelMixin, BaseUuidModel):
     f2 = models.CharField(max_length=50, null=True)
 
     f3 = models.CharField(max_length=50, null=True)
+
+    class Meta(BaseUuidModel.Meta):
+        pass
 
 
 class CrfThree(VisitTrackingCrfModelMixin, BaseUuidModel):
@@ -130,6 +143,9 @@ class CrfThree(VisitTrackingCrfModelMixin, BaseUuidModel):
 
     f3 = models.CharField(max_length=50, null=True)
 
+    class Meta(BaseUuidModel.Meta):
+        pass
+
 
 class CrfFour(VisitTrackingCrfModelMixin, BaseUuidModel):
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
@@ -139,6 +155,9 @@ class CrfFour(VisitTrackingCrfModelMixin, BaseUuidModel):
     f2 = models.CharField(max_length=50, null=True)
 
     f3 = models.CharField(max_length=50, null=True)
+
+    class Meta(BaseUuidModel.Meta):
+        pass
 
 
 class CrfFive(VisitTrackingCrfModelMixin, BaseUuidModel):
@@ -150,9 +169,15 @@ class CrfFive(VisitTrackingCrfModelMixin, BaseUuidModel):
 
     f3 = models.CharField(max_length=50, null=True)
 
+    class Meta(BaseUuidModel.Meta):
+        pass
+
 
 class OtherModel(BaseUuidModel):
     f1 = models.CharField(max_length=10, default="erik")
+
+    class Meta(BaseUuidModel.Meta):
+        pass
 
 
 class CrfOneInline(CrfInlineModelMixin, BaseUuidModel):
