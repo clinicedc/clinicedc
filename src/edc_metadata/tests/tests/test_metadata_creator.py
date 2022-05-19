@@ -1,4 +1,5 @@
-from django.test import TestCase
+from django.test import TestCase, tag
+from edc_appointment.constants import IN_PROGRESS_APPT, MISSED_APPT
 from edc_appointment.models import Appointment
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 
@@ -25,21 +26,30 @@ class TestCreatesMetadata(TestMetadataMixin, TestCase):
         self.assertGreater(RequisitionMetadata.objects.all().count(), 0)
 
     def test_does_not_creates_metadata_on_missed_no_crfs_missed(self):
-        SubjectVisit.objects.create(appointment=self.appointment, reason=MISSED_VISIT)
-        self.assertEqual(CrfMetadata.objects.all().count(), 0)
-        self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
-
-    def test_does_not_creates_metadata_on_missed_unless_crfs_missed(self):
-        SubjectVisit.objects.create(appointment=self.appointment, reason=MISSED_VISIT)
-        appointment = Appointment.objects.get(
-            subject_identifier=self.subject_identifier,
-            visit_code="2000",
+        SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
+        self.appointment_2000.appt_timing = MISSED_APPT
+        self.appointment_2000.save_base(update_fields=["appt_timing"])
+        self.assertEqual(
+            CrfMetadata.objects.filter(visit_code=self.appointment_2000.visit_code).count(), 1
         )
-        SubjectVisit.objects.create(appointment=appointment, reason=MISSED_VISIT)
-        self.assertEqual(CrfMetadata.objects.all().count(), 1)
-        self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
+        self.assertEqual(
+            CrfMetadata.objects.filter(
+                visit_code=self.appointment_2000.visit_code,
+                model="edc_metadata.subjectvisitmissed",
+            ).count(),
+            1,
+        )
+        self.assertEqual(
+            RequisitionMetadata.objects.filter(
+                visit_code=self.appointment_2000.visit_code
+            ).count(),
+            0,
+        )
 
     def test_unknown_reason_raises(self):
+        self.appointment.appt_status = IN_PROGRESS_APPT
+        self.appointment.save()
+        self.appointment.refresh_from_db()
         self.assertRaises(
             CreatesMetadataError,
             SubjectVisit.objects.create,

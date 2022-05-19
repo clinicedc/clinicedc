@@ -1,11 +1,12 @@
-from django.test import TestCase, tag
+from django.test import TestCase
+from edc_appointment.constants import MISSED_APPT
 from edc_appointment.models import Appointment
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
 from edc_reference.site_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
-from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
+from edc_visit_tracking.constants import SCHEDULED
 
 from edc_metadata.metadata_handler import MetadataHandlerError
 
@@ -25,7 +26,6 @@ from ..reference_configs import register_to_site_reference_configs
 from ..visit_schedule import visit_schedule
 
 
-@tag("123")
 class TestHandlers(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -62,6 +62,11 @@ class TestHandlers(TestCase):
         self.appointment = Appointment.objects.get(
             subject_identifier=self.subject_identifier,
             visit_code=self.schedule.visits.first.code,
+        )
+
+        self.appointment_2000 = Appointment.objects.get(
+            subject_identifier=self.subject_identifier,
+            visit_code="2000",
         )
 
     def test_requisition_handler_invalid_target_panel(self):
@@ -111,9 +116,10 @@ class TestHandlers(TestCase):
         )
 
     def test_crf_handler_target_model_ignored_for_missed_visit(self):
-        visit_model_instance = SubjectVisit.objects.create(
-            appointment=self.appointment, reason=MISSED_VISIT
-        )
+        SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
+        self.appointment_2000.appt_timing = MISSED_APPT
+        self.appointment_2000.save_base(update_fields=["appt_timing"])
+        visit_model_instance = SubjectVisit.objects.get(appointment=self.appointment_2000)
         try:
             TargetHandler(
                 model="edc_metadata.crfseven",

@@ -1,6 +1,8 @@
 from collections import OrderedDict
 from typing import Any, Optional
 
+from edc_appointment.constants import MISSED_APPT
+
 from .logic import Logic
 from .rule_evaluator import RuleEvaluator
 
@@ -48,13 +50,16 @@ class Rule:
         """Returns a dictionary of {target_model: entry_status, ...} updated
         by running the rule for each target model given a visit.
 
+        Skips run if `appointment.appt_timing` == MISSED_APPT
+
         Ensure the `model.field` is registered with `site_reference_configs`.
         See `edc_reference`.
         """
         result = OrderedDict()
-        opts = {k: v for k, v in self.__dict__.items() if k.startswith != "_"}
-        rule_evaluator = self.rule_evaluator_cls(visit=visit, logic=self._logic, **opts)
-        entry_status = rule_evaluator.result
-        for target_model in self.target_models:
-            result.update({target_model: entry_status})
+        if visit.appointment.appt_timing != MISSED_APPT:
+            opts = {k: v for k, v in self.__dict__.items() if k.startswith != "_"}
+            rule_evaluator = self.rule_evaluator_cls(visit=visit, logic=self._logic, **opts)
+            entry_status = rule_evaluator.result
+            for target_model in self.target_models:
+                result.update({target_model: entry_status})
         return result

@@ -50,3 +50,8 @@ class TestMetadataMixin(TestCase):
             subject_identifier=self.subject_identifier,
             visit_code=self.schedule.visits.first.code,
         )
+
+        self.appointment_2000 = Appointment.objects.get(
+            subject_identifier=self.subject_identifier,
+            visit_code="2000",
+        )
