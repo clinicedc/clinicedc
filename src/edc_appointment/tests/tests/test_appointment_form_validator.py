@@ -3,23 +3,44 @@ from decimal import Decimal
 
 from arrow import arrow
 from dateutil.relativedelta import relativedelta
+from django.core.exceptions import ObjectDoesNotExist
 from django.forms import ValidationError
-from django.test import TestCase
+from django.test import TestCase, override_settings, tag
 from edc_facility.import_holidays import import_holidays
 from edc_form_validators import ModelFormFieldValidatorError
+from edc_metadata import KEYED, REQUIRED
+from edc_metadata.models import CrfMetadata, RequisitionMetadata
 from edc_visit_schedule import site_visit_schedules
+from edc_visit_schedule.constants import DAY01
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.model_mixins import PreviousVisitError
+from edc_visit_tracking.utils import get_subject_visit_missed_model_cls
 
-from ...constants import IN_PROGRESS_APPT
-from ...form_validators import INVALID_PREVIOUS_VISIT_MISSING, AppointmentFormValidator
+from ...constants import (
+    IN_PROGRESS_APPT,
+    MISSED_APPT,
+    ONTIME_APPT,
+    SCHEDULED_APPT,
+    UNSCHEDULED_APPT,
+)
+from ...form_validators import (
+    INVALID_APPT_TIMING_CRFS_EXIST,
+    INVALID_APPT_TIMING_REQUISITIONS_EXIST,
+    INVALID_PREVIOUS_VISIT_MISSING,
+    AppointmentFormValidator,
+)
+from ...form_validators.appointment_form_validator import (
+    INVALID_MISSED_APPT_NOT_ALLOWED,
+    INVALID_MISSED_APPT_NOT_ALLOWED_AT_BASELINE,
+)
 from ...models import Appointment
+from ..appointment_test_case_mixin import AppointmentTestCaseMixin
 from ..helper import Helper
 from ..models import SubjectVisit
 from ..visit_schedule import visit_schedule1, visit_schedule2
 
 
-class TestAppointmentFormValidator(TestCase):
+class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
 
     helper_cls = Helper
 
@@ -38,6 +59,7 @@ class TestAppointmentFormValidator(TestCase):
             now=arrow.Arrow.fromdatetime(datetime(2017, 1, 7), tzinfo="UTC").datetime,
         )
 
+    @tag("1")
     def test_get_previous(self):
         self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.all()
@@ -45,7 +67,7 @@ class TestAppointmentFormValidator(TestCase):
             Appointment.objects.create(
                 subject_identifier=appointments[i].subject_identifier,
                 appt_datetime=appointments[i].appt_datetime + relativedelta(hours=i + 1),
-                timepoint=appointments[i].timepoint + Decimal(str(i / 10)),
+                timepoint=appointments[i].timepoint,
                 visit_code=appointments[i].visit_code,
                 visit_code_sequence=i + 1,
                 visit_schedule_name=appointments[i].visit_schedule_name,
@@ -58,11 +80,15 @@ class TestAppointmentFormValidator(TestCase):
         )
 
         self.assertIsNone(appointments[0].get_previous())
+
+        self.assertEqual(appointments[4], appointments[5].get_previous(include_interim=True))
         self.assertEqual(appointments[4], appointments[5].get_previous())
-        self.assertEqual(appointments[0], appointments[3].get_previous())
-        self.assertEqual(appointments[0], appointments[1].get_previous(include_interim=True))
-        self.assertEqual(appointments[1], appointments[2].get_previous(include_interim=True))
+
         self.assertEqual(appointments[2], appointments[3].get_previous(include_interim=True))
+        self.assertEqual(appointments[0], appointments[3].get_previous())
+
+        self.assertEqual(appointments[3], appointments[4].get_previous(include_interim=True))
+        self.assertEqual(appointments[3], appointments[4].get_previous())
 
     def test_(self):
         try:
@@ -113,6 +139,7 @@ class TestAppointmentFormValidator(TestCase):
             reason=SCHEDULED,
         )
 
+    @tag("1")
     def test_visit_report_sequence2(self):
         """Asserts a sequence error is raised if previous visit
         not complete for an in progress appointment.
@@ -127,7 +154,7 @@ class TestAppointmentFormValidator(TestCase):
             Appointment.objects.create(
                 subject_identifier=appointments[i].subject_identifier,
                 appt_datetime=appointments[i].appt_datetime + relativedelta(hours=i + 1),
-                timepoint=appointments[i].timepoint + Decimal(str(i / 10)),
+                timepoint=appointments[i].timepoint,
                 visit_code=appointments[i].visit_code,
                 visit_code_sequence=i + 1,
                 visit_schedule_name=appointments[i].visit_schedule_name,
@@ -151,7 +178,7 @@ class TestAppointmentFormValidator(TestCase):
         with self.assertRaises(ValidationError) as cm:
             form_validator.validate_visit_report_sequence()
         self.assertIn(INVALID_PREVIOUS_VISIT_MISSING, form_validator._error_codes)
-        self.assertIn("1000.0", str(cm.exception))
+        self.assertIn("1000.2", str(cm.exception))
 
         SubjectVisit.objects.create(
             appointment=appointments[0],
@@ -198,3 +225,327 @@ class TestAppointmentFormValidator(TestCase):
             )
         )
         form_validator.validate_visit_report_sequence()
+
+    @tag("5")
+    def test_confirm_appt_field_attrs(self):
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        self.assertEqual(appointments[0].visit_code, DAY01)
+        self.assertEqual(appointments[0].visit_code_sequence, 0)
+        self.assertEqual(appointments[0].visit_schedule_name, "visit_schedule1")
+        self.assertEqual(appointments[0].schedule_name, "schedule1")
+        visit_schedule = site_visit_schedules.get_visit_schedule(
+            appointments[0].visit_schedule_name
+        )
+        schedule = visit_schedule.schedules.get(appointments[0].schedule_name)
+        self.assertEqual(schedule.visits.first.timepoint, Decimal("0.0"))
+        self.assertEqual(appointments[0].timepoint, Decimal("0.0"))
+
+    @tag("5")
+    def test_baseline_appt_ontime_ok(self):
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        form_validator = AppointmentFormValidator(
+            cleaned_data=dict(
+                subject_identifier=self.subject_identifier,
+                appt_timing=ONTIME_APPT,
+                appt_reason=SCHEDULED_APPT,
+            ),
+            instance=appointments[0],
+        )
+        try:
+            form_validator.validate_appointment_timing()
+        except ValidationError:
+            self.fail("ValidationError unexpectedly raised")
+
+    @tag("5")
+    def test_baseline_appt_cannot_be_missed(self):
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        form_validator = AppointmentFormValidator(
+            cleaned_data=dict(
+                subject_identifier=self.subject_identifier,
+                appt_timing=MISSED_APPT,
+                appt_reason=SCHEDULED_APPT,
+            ),
+            instance=appointments[0],
+        )
+        with self.assertRaises(ValidationError) as cm:
+            form_validator.validate_appointment_timing()
+        self.assertIsNotNone(cm.exception)
+        self.assertIn(INVALID_MISSED_APPT_NOT_ALLOWED_AT_BASELINE, form_validator._error_codes)
+
+    @tag("5")
+    def test_can_miss_scheduled_appt_if_not_baseline(self):
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        self.assertEqual(appointments[0].appt_timing, ONTIME_APPT)
+        # create report for baseline visit
+        SubjectVisit.objects.create(
+            appointment=appointments[0],
+            report_datetime=appointments[0].appt_datetime,
+            reason=SCHEDULED,
+        )
+        appointments[0].refresh_from_db()
+
+        self.assertEqual(appointments[1].visit_code_sequence, 0)
+        self.assertEqual(appointments[1].timepoint, Decimal("1.0"))
+        form_validator = AppointmentFormValidator(
+            cleaned_data=dict(
+                subject_identifier=self.subject_identifier,
+                appt_timing=MISSED_APPT,
+                appt_reason=SCHEDULED_APPT,
+            ),
+            instance=appointments[1],
+        )
+
+        try:
+            form_validator.validate_appointment_timing()
+        except ValidationError:
+            self.fail("ValidationError unexpectedly raised")
+
+    @tag("5")
+    def test_cannot_miss_unscheduled_appt(self):
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        self.assertEqual(appointments[0].appt_timing, ONTIME_APPT)
+        # create report for baseline visit
+        SubjectVisit.objects.create(
+            appointment=appointments[0],
+            report_datetime=appointments[0].appt_datetime,
+            reason=SCHEDULED,
+        )
+        appointments[0].refresh_from_db()
+
+        # create unscheduled off of baseline appt
+        appointment = self.create_unscheduled_appointment(appointments[0])
+        self.assertEqual(appointment.visit_code, DAY01)
+        self.assertEqual(appointment.visit_code_sequence, 1)
+        self.assertEqual(appointment.timepoint, Decimal("0.0"))
+        form_validator = AppointmentFormValidator(
+            cleaned_data=dict(
+                subject_identifier=self.subject_identifier,
+                appt_timing=MISSED_APPT,
+                appt_reason=UNSCHEDULED_APPT,
+            ),
+            instance=appointment,
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            form_validator.validate_appointment_timing()
+        self.assertIsNotNone(cm.exception)
+        self.assertIn(INVALID_MISSED_APPT_NOT_ALLOWED, form_validator._error_codes)
+
+    @tag("5")
+    @override_settings(EDC_VISIT_TRACKING_ALLOW_MISSED_UNSCHEDULED=True)
+    def test_can_miss_unscheduled_appt_if_allowed_in_settings(self):
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        self.assertEqual(appointments[0].appt_timing, ONTIME_APPT)
+        # create report for baseline visit
+        SubjectVisit.objects.create(
+            appointment=appointments[0],
+            report_datetime=appointments[0].appt_datetime,
+            reason=SCHEDULED,
+        )
+        appointments[0].refresh_from_db()
+
+        # create unscheduled off of baseline appt
+        appointment = self.create_unscheduled_appointment(appointments[0])
+        self.assertEqual(appointment.visit_code, DAY01)
+        self.assertEqual(appointment.visit_code_sequence, 1)
+        self.assertEqual(appointment.timepoint, Decimal("0.0"))
+        form_validator = AppointmentFormValidator(
+            cleaned_data=dict(
+                subject_identifier=self.subject_identifier,
+                appt_timing=MISSED_APPT,
+                appt_reason=UNSCHEDULED_APPT,
+            ),
+            instance=appointment,
+        )
+
+        try:
+            form_validator.validate_appointment_timing()
+        except ValidationError as e:
+            self.fail(f"ValidationError unexpectedly raised. Got {e}")
+
+    @tag("5")
+    @override_settings(
+        SUBJECT_VISIT_MISSED_MODEL="edc_appointment.subjectvisitmissed",
+        SUBJECT_VISIT_MISSED_REASONS_MODEL="edc_appointment.subjectvisitmissedreasons",
+    )
+    def test_change_from_missed_removes_missed_visit_report(self):
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        self.assertEqual(appointments[0].appt_timing, ONTIME_APPT)
+        # create report for baseline visit
+        SubjectVisit.objects.create(
+            appointment=appointments[0],
+            report_datetime=appointments[0].appt_datetime,
+            reason=SCHEDULED,
+        )
+        appointments[0].refresh_from_db()
+
+        self.assertEqual(appointments[1].visit_code_sequence, 0)
+        self.assertEqual(appointments[1].timepoint, Decimal("1.0"))
+        appointments[1].appt_timing = MISSED_APPT
+        appointments[1].appt_reason = SCHEDULED_APPT
+        appointments[1].save_base(update_fields=["appt_timing", "appt_reason"])
+        appointments[1].refresh_from_db()
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointments[1],
+            report_datetime=appointments[1].appt_datetime,
+            reason=SCHEDULED,
+        )
+
+        # enter missed visit report
+        get_subject_visit_missed_model_cls().objects.create(subject_visit=subject_visit)
+
+        form_validator = AppointmentFormValidator(
+            cleaned_data=dict(
+                subject_identifier=self.subject_identifier,
+                appt_timing=ONTIME_APPT,
+                appt_reason=SCHEDULED_APPT,
+            ),
+            instance=appointments[1],
+        )
+
+        try:
+            form_validator.validate_appointment_timing()
+        except ValidationError as e:
+            self.fail(f"ValidationError unexpectedly raised. Got {e}")
+
+        # assert missed visit report removed
+        try:
+            get_subject_visit_missed_model_cls().objects.get(subject_visit=subject_visit)
+        except ObjectDoesNotExist:
+            pass
+        else:
+            self.fail("ObjectDoesNotExist not raised")
+
+    @tag("5")
+    @override_settings(
+        SUBJECT_VISIT_MISSED_MODEL="edc_appointment.subjectvisitmissed",
+        SUBJECT_VISIT_MISSED_REASONS_MODEL="edc_appointment.subjectvisitmissedreasons",
+    )
+    def test_change_to_missed_not_allowed_if_crfs_exist(self):
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        self.assertEqual(appointments[0].appt_timing, ONTIME_APPT)
+        # create report for baseline visit
+        SubjectVisit.objects.create(
+            appointment=appointments[0],
+            report_datetime=appointments[0].appt_datetime,
+            reason=SCHEDULED,
+        )
+        appointments[0].refresh_from_db()
+
+        self.assertEqual(appointments[1].visit_code_sequence, 0)
+        self.assertEqual(appointments[1].timepoint, Decimal("1.0"))
+        appointments[1].appt_timing = ONTIME_APPT
+        appointments[1].appt_reason = SCHEDULED_APPT
+        appointments[1].save_base(update_fields=["appt_timing", "appt_reason"])
+        appointments[1].refresh_from_db()
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointments[1],
+            report_datetime=appointments[1].appt_datetime,
+            reason=SCHEDULED,
+        )
+
+        # enter CRF
+        crf_metadata = CrfMetadata.objects.create(
+            model="edc_appointment.crfone",
+            subject_identifier=subject_visit.subject_identifier,
+            visit_schedule_name=subject_visit.visit_schedule_name,
+            schedule_name=subject_visit.schedule_name,
+            visit_code=subject_visit.visit_code,
+            visit_code_sequence=subject_visit.visit_code_sequence,
+            entry_status=KEYED,
+            show_order=100,
+        )
+
+        form_validator = AppointmentFormValidator(
+            cleaned_data=dict(
+                subject_identifier=self.subject_identifier,
+                appt_timing=MISSED_APPT,
+                appt_reason=SCHEDULED_APPT,
+            ),
+            instance=appointments[1],
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            form_validator.validate_appointment_timing()
+        self.assertIsNotNone(cm.exception)
+        self.assertIn(INVALID_APPT_TIMING_CRFS_EXIST, form_validator._error_codes)
+
+        # reset CRF metadata
+        crf_metadata.entry_status = REQUIRED
+        crf_metadata.save()
+        try:
+            form_validator.validate_appointment_timing()
+        except ValidationError:
+            self.fail("ValidationError raised")
+
+    @tag("5")
+    @override_settings(
+        SUBJECT_VISIT_MISSED_MODEL="edc_appointment.subjectvisitmissed",
+        SUBJECT_VISIT_MISSED_REASONS_MODEL="edc_appointment.subjectvisitmissedreasons",
+    )
+    def test_change_to_missed_not_allowed_if_requisitions_exist(self):
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        self.assertEqual(appointments[0].appt_timing, ONTIME_APPT)
+        # create report for baseline visit
+        SubjectVisit.objects.create(
+            appointment=appointments[0],
+            report_datetime=appointments[0].appt_datetime,
+            reason=SCHEDULED,
+        )
+        appointments[0].refresh_from_db()
+
+        self.assertEqual(appointments[1].visit_code_sequence, 0)
+        self.assertEqual(appointments[1].timepoint, Decimal("1.0"))
+        appointments[1].appt_timing = ONTIME_APPT
+        appointments[1].appt_reason = SCHEDULED_APPT
+        appointments[1].save_base(update_fields=["appt_timing", "appt_reason"])
+        appointments[1].refresh_from_db()
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointments[1],
+            report_datetime=appointments[1].appt_datetime,
+            reason=SCHEDULED,
+        )
+
+        # enter Requisition
+        requisition_metadata = RequisitionMetadata.objects.create(
+            model="edc_appointment.subjectrequisition",
+            panel_name="panel1",
+            subject_identifier=subject_visit.subject_identifier,
+            visit_schedule_name=subject_visit.visit_schedule_name,
+            schedule_name=subject_visit.schedule_name,
+            visit_code=subject_visit.visit_code,
+            visit_code_sequence=subject_visit.visit_code_sequence,
+            entry_status=KEYED,
+            show_order=200,
+        )
+
+        form_validator = AppointmentFormValidator(
+            cleaned_data=dict(
+                subject_identifier=self.subject_identifier,
+                appt_timing=MISSED_APPT,
+                appt_reason=SCHEDULED_APPT,
+            ),
+            instance=appointments[1],
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            form_validator.validate_appointment_timing()
+        self.assertIsNotNone(cm.exception)
+        self.assertIn(INVALID_APPT_TIMING_REQUISITIONS_EXIST, form_validator._error_codes)
+
+        # reset Requisition metadata
+        requisition_metadata.entry_status = REQUIRED
+        requisition_metadata.save()
+        try:
+            form_validator.validate_appointment_timing()
+        except ValidationError:
+            self.fail("ValidationError raised")

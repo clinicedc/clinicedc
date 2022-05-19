@@ -3,6 +3,7 @@ from edc_visit_schedule.schedule.window import (
     ScheduledVisitWindowError,
     UnScheduledVisitWindowError,
 )
+from edc_visit_schedule.utils import is_baseline
 
 from ..stubs import AppointmentModelStub
 
@@ -51,7 +52,7 @@ class WindowPeriodModelMixin(models.Model):
 
     @property
     def is_baseline_appt(self: AppointmentModelStub) -> bool:
-        return self.timepoint == 0 and self.visit_code_sequence == 0
+        return is_baseline(instance=self)
 
     class Meta:
         abstract = True

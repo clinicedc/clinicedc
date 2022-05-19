@@ -121,7 +121,7 @@ class AppointmentModelMixin(
         return f"{self.visit_code}.{self.visit_code_sequence}"
 
     def save(self, *args, **kwargs):
-        if self.id and is_baseline(self):
+        if self.id and is_baseline(instance=self):
             visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
             schedule = visit_schedule.schedules.get(self.schedule_name)
             try:
@@ -144,6 +144,7 @@ class AppointmentModelMixin(
                     onschedule_datetime=self.appt_datetime,
                     skip_baseline=True,
                 )
+        self.update_subject_visit_reason_or_raise()
         super().save(*args, **kwargs)
 
     def natural_key(self) -> tuple:

@@ -3,7 +3,7 @@ from decimal import Decimal
 
 import arrow
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_facility.import_holidays import import_holidays
 from edc_utils import get_utcnow
 from edc_visit_schedule.schedule import ScheduleError
@@ -22,7 +22,6 @@ from ..models import SubjectVisit
 from ..visit_schedule import visit_schedule1, visit_schedule2
 
 
-@tag("uns")
 class TestUnscheduledAppointmentCreator(TestCase):
 
     helper_cls = Helper
@@ -97,7 +96,6 @@ class TestUnscheduledAppointmentCreator(TestCase):
             visit_code="5000",
         )
 
-    @tag("uns1")
     def test_add_subject_visits(self):
         self.helper.consent_and_put_on_schedule()
         schedule_name = "schedule1"

@@ -168,6 +168,7 @@ class AppointmentMethodsModelMixin(models.Model):
         if include_interim and self.visit_code_sequence != 0:
             opts.pop("timepoint__lt")
             opts.update(timepoint__lte=self.timepoint)
+            opts.update(visit_code_sequence__gt=0)
         elif not include_interim:
             opts.update(visit_code_sequence=0)
         appointments = (
