@@ -194,7 +194,7 @@ class AppointmentFormValidator(
     def validate_appt_datetime_unique(self):
         """Assert one visit report per day"""
         if self.cleaned_data.get("appt_datetime"):
-            tz = ZoneInfo("utc")
+            tz = ZoneInfo("UTC")
             appt_date = (
                 Arrow.fromdatetime(self.cleaned_data.get("appt_datetime")).to(tz).date()
             )

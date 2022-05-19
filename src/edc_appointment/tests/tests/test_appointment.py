@@ -11,9 +11,6 @@ from edc_protocol import Protocol
 from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
-from edc_visit_tracking.model_mixins.visit_model_mixin.visit_model_mixin import (
-    SubjectVisitMissedError,
-)
 
 from edc_appointment.utils import get_appt_reason_choices
 
@@ -554,37 +551,6 @@ class TestAppointment(TestCase):
 
     @tag("6")
     def test_raises_if_subject_visit_reason_out_of_sync_with_appt(self):
-        self.helper.consent_and_put_on_schedule()
-        appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
-        self.assertEqual(appointments.count(), 4)
-        # create report for baseline visit
-        SubjectVisit.objects.create(
-            appointment=appointments[0],
-            report_datetime=appointments[0].appt_datetime,
-            reason=SCHEDULED,
-        )
-        appointment = Appointment.objects.get(id=appointments[1].id)
-        appointment.appt_timing = MISSED_APPT
-        appointment.save()
-        appointment.refresh_from_db()
-
-        # change subject visit causes error
-        subject_visit = SubjectVisit.objects.get(
-            appointment__visit_code=appointment.visit_code
-        )
-        subject_visit.reason = SCHEDULED
-        self.assertRaises(SubjectVisitMissedError, subject_visit.save)
-
-        appointment.appt_timing = SCHEDULED_APPT
-        appointment.save()
-
-        subject_visit = SubjectVisit.objects.get(
-            appointment__visit_code=appointment.visit_code
-        )
-        self.assertEqual(subject_visit.reason, SCHEDULED)
-
-    @tag("6")
-    def test_raises_if_subject_visit_reason_out_of_sync_with_appt2(self):
         self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
         self.assertEqual(appointments.count(), 4)
