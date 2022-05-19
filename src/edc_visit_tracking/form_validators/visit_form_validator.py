@@ -69,7 +69,7 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
     def validate_visit_datetime_unique(self):
         """Assert one visit report per day"""
         if self.cleaned_data.get("report_datetime"):
-            tz = ZoneInfo("utc")
+            tz = ZoneInfo("UTC")
             report_date = (
                 Arrow.fromdatetime(self.cleaned_data.get("report_datetime")).to(tz).date()
             )
