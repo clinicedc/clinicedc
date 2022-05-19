@@ -568,37 +568,6 @@ class TestAppointment(TestCase):
         appointment.save()
         appointment.refresh_from_db()
 
-        # change subject visit causes error
-        subject_visit = SubjectVisit.objects.get(
-            appointment__visit_code=appointment.visit_code
-        )
-        subject_visit.reason = SCHEDULED
-        self.assertRaises(SubjectVisitMissedError, subject_visit.save)
-
-        appointment.appt_timing = SCHEDULED_APPT
-        appointment.save()
-
-        subject_visit = SubjectVisit.objects.get(
-            appointment__visit_code=appointment.visit_code
-        )
-        self.assertEqual(subject_visit.reason, SCHEDULED)
-
-    @tag("6")
-    def test_raises_if_subject_visit_reason_out_of_sync_with_appt2(self):
-        self.helper.consent_and_put_on_schedule()
-        appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
-        self.assertEqual(appointments.count(), 4)
-        # create report for baseline visit
-        SubjectVisit.objects.create(
-            appointment=appointments[0],
-            report_datetime=appointments[0].appt_datetime,
-            reason=SCHEDULED,
-        )
-        appointment = Appointment.objects.get(id=appointments[1].id)
-        appointment.appt_timing = MISSED_APPT
-        appointment.save()
-        appointment.refresh_from_db()
-
         self.assertEqual(appointment.appt_status, IN_PROGRESS_APPT)
 
         # change subject visit to scheduled is ignored, forces
