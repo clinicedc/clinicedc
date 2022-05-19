@@ -11,9 +11,6 @@ from edc_protocol import Protocol
 from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
-from edc_visit_tracking.model_mixins.visit_model_mixin.visit_model_mixin import (
-    SubjectVisitMissedError,
-)
 
 from edc_appointment.utils import get_appt_reason_choices
 
