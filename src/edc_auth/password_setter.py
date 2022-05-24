@@ -28,7 +28,7 @@ class PasswordSetter:
         super_username: str,
         alternate_email: Optional[str] = None,
         nwords: Optional[int] = None,
-        **kwargs
+        **kwargs,
     ) -> None:
         self.administrator_fullname = self.get_administrator_fullname(super_username)
         self.alternate_email = alternate_email
@@ -58,9 +58,7 @@ class PasswordSetter:
         self._reset(users)
 
     def reset_users(self, usernames: List[str]) -> None:
-        users = User.objects.filter(
-            username__in=usernames, is_active=True, is_staff=True
-        )
+        users = User.objects.filter(username__in=usernames, is_active=True, is_staff=True)
         self._reset(users)
 
     def reset_user(self, username: str) -> None:

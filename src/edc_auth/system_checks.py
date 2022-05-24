@@ -25,11 +25,7 @@ def check_etc_dir(errors):
     except AttributeError:
         pass
     else:
-        if (
-            not settings.DEBUG
-            and settings.ETC_DIR
-            and not settings.ETC_DIR.startswith("/etc")
-        ):
+        if not settings.DEBUG and settings.ETC_DIR and not settings.ETC_DIR.startswith("/etc"):
             errors.append(
                 Warning(
                     "Insecure configuration. Use root level etc folder. "

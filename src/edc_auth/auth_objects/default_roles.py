@@ -42,5 +42,5 @@ default_roles = {
         PII,
     ],
     STAFF_ROLE: [ADMINISTRATION, EVERYONE],
-    STATISTICIAN: [],
+    STATISTICIAN: [AUDITOR],
 }

@@ -15,6 +15,8 @@ from ..auth_objects import PII, PII_VIEW
 
 style = color_style()
 
+INVALID_APP_LABEL = "invalid_app_label"
+
 
 class PermissionsCodenameError(Exception):
     pass
@@ -26,9 +28,6 @@ class PermissionsCreatorError(ValidationError):
 
 class CodenameDoesNotExist(Exception):
     pass
-
-
-INVALID_APP_LABEL = "invalid_app_label"
 
 
 class GroupUpdater:
@@ -127,24 +126,22 @@ class GroupUpdater:
                     )
                 except ObjectDoesNotExist as e:
                     errmsg = f"{e} Got codename={codename},app_label={app_label}"
-                    if self.warn_only:
-                        warn(style.ERROR(errmsg))
-                    else:
+                    if not self.warn_only:
                         raise CodenameDoesNotExist(errmsg)
+                    warn(style.ERROR(errmsg))
                 except MultipleObjectsReturned as e:
-                    if allow_multiple_objects:
-                        permissions.extend(
-                            [
-                                obj
-                                for obj in self.permission_model_cls.objects.filter(
-                                    codename=codename, content_type__app_label=app_label
-                                )
-                            ]
-                        )
-                    else:
+                    if not allow_multiple_objects:
                         raise MultipleObjectsReturned(
                             f"{str(e)} See `{app_label}.{codename}`."
                         )
+                    permissions.extend(
+                        [
+                            obj
+                            for obj in self.permission_model_cls.objects.filter(
+                                codename=codename, content_type__app_label=app_label
+                            )
+                        ]
+                    )
         return permissions
 
     def get_from_dotted_codename(self, codename=None):
@@ -158,15 +155,13 @@ class GroupUpdater:
         try:
             app_label, _codename = codename.split(".")
         except ValueError as e:
-            raise PermissionsCodenameError(
-                f"Invalid dotted codename. {e} Got {codename}."
-            )
+            raise PermissionsCodenameError(f"Invalid dotted codename. {e} Got {codename}.")
         else:
             try:
                 self.apps.get_app_config(app_label)
             except LookupError:
                 raise PermissionsCodenameError(
-                    f"Invalid app_label in codename. Expected format "
+                    "Invalid app_label in codename. Expected format "
                     f"'<app_label>.<some_codename>'. Got {codename}."
                 )
         prefix = _codename.split("_")[0]
@@ -221,9 +216,7 @@ class GroupUpdater:
             except LookupError as e:
                 warn(f"{e}. Got {model}")
             else:
-                content_type = self.content_type_model_cls.objects.get_for_model(
-                    model_cls
-                )
+                content_type = self.content_type_model_cls.objects.get_for_model(model_cls)
                 for codename_tpl in codename_tuples:
                     app_label, codename, name = self.get_from_codename_tuple(
                         codename_tpl, model_cls._meta.app_label

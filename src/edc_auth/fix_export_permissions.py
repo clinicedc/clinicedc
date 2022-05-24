@@ -75,4 +75,3 @@ class ExportPermissionsFixer:
                     else:
                         obj.name = f"Can {action} {model._meta.verbose_name}"
                         obj.save()
-        obj.save()

@@ -8,9 +8,9 @@ from faker import Faker
 
 from edc_auth.auth_objects import CLINIC, CLINICIAN_ROLE
 from edc_auth.auth_updater import AuthUpdater
+from edc_auth.import_users import UserImporter, UserImporterError, import_users
+from edc_auth.password_setter import PasswordSetter
 
-from ...import_users import UserImporter, UserImporterError, import_users
-from ...password_setter import PasswordSetter
 from ..utils import EdcAuthTestCase, create_user_csv_file, create_users
 
 fake = Faker()
@@ -102,9 +102,7 @@ class TestUser(EdcAuthTestCase):
     def test_with_custom_templates(self):
         AuthUpdater(verbose=False)
         created_email_template = Template("Hi $first_name, \n\nStay Classy")
-        updated_email_template = Template(
-            "Hi $first_name, \n\nYou stay classy San Diego"
-        )
+        updated_email_template = Template("Hi $first_name, \n\nYou stay classy San Diego")
         first_name = fake.first_name()
         UserImporter(
             username="erik",

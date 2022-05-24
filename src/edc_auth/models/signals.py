@@ -6,9 +6,7 @@ from django.dispatch import receiver
 from .user_profile import UserProfile
 
 
-@receiver(
-    post_save, weak=False, sender=User, dispatch_uid="update_user_profile_on_post_save"
-)
+@receiver(post_save, weak=False, sender=User, dispatch_uid="update_user_profile_on_post_save")
 def update_user_profile_on_post_save(sender, instance, raw, **kwargs):
     if not raw:
         try:
@@ -17,9 +15,7 @@ def update_user_profile_on_post_save(sender, instance, raw, **kwargs):
             UserProfile.objects.create(user=instance)
 
 
-@receiver(
-    m2m_changed, weak=False, dispatch_uid="update_user_groups_on_role_m2m_changed"
-)
+@receiver(m2m_changed, weak=False, dispatch_uid="update_user_groups_on_role_m2m_changed")
 def update_user_groups_on_role_m2m_changed(sender, action, instance, pk_set, **kwargs):
 
     try:

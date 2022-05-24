@@ -7,8 +7,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
 
-from edc_auth.site_auths import site_auths
-
+from ..site_auths import site_auths
 from .group_updater import GroupUpdater
 from .role_updater import RoleUpdater
 
@@ -45,9 +44,7 @@ class AuthUpdater:
             self.verbose = verbose
             self.apps = apps
             if self.verbose:
-                sys.stdout.write(
-                    style.MIGRATE_HEADING("Updating groups and permissions:\n")
-                )
+                sys.stdout.write(style.MIGRATE_HEADING("Updating groups and permissions:\n"))
             self.group_updater = self.group_updater_cls(
                 groups=groups,
                 pii_models=pii_models,

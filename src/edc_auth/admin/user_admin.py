@@ -19,9 +19,7 @@ def send_new_credentials_to_user_action(modeladmin, request, queryset):
         messages.error(request, "You do not have permissions to run this action.")
 
 
-send_new_credentials_to_user_action.short_description = (
-    "Reset password and email to user"
-)
+send_new_credentials_to_user_action.short_description = "Reset password and email to user"
 
 
 @admin.register(User)
@@ -65,12 +63,8 @@ class UserAdmin(BaseUserAdmin):
         role_group_names = []
         for role in obj.userprofile.roles.all():
             roles.append(role)
-            role_group_names.extend(
-                [grp.name for grp in role.groups.all().order_by("name")]
-            )
-        extra_groups = [
-            obj for obj in obj.groups.all() if obj.name not in role_group_names
-        ]
+            role_group_names.extend([grp.name for grp in role.groups.all().order_by("name")])
+        extra_groups = [obj for obj in obj.groups.all() if obj.name not in role_group_names]
         context = dict(
             role_names=[role.display_name for role in roles],
             extra_group_names=[grp.name.replace("_", " ") for grp in extra_groups],
@@ -84,12 +78,8 @@ class UserAdmin(BaseUserAdmin):
         role_group_names = []
         for role in obj.userprofile.roles.all():
             roles.append(role)
-            role_group_names.extend(
-                [grp.name for grp in role.groups.all().order_by("name")]
-            )
-        extra_groups = [
-            obj for obj in obj.groups.all() if obj.name not in role_group_names
-        ]
+            role_group_names.extend([grp.name for grp in role.groups.all().order_by("name")])
+        extra_groups = [obj for obj in obj.groups.all() if obj.name not in role_group_names]
         context = dict(
             role_names=[role.display_name for role in roles],
             extra_group_names=[grp.name.replace("_", " ") for grp in extra_groups],

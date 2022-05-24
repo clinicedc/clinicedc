@@ -32,9 +32,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     @staticmethod
     def user_sites(obj=None):
 
-        return mark_safe(
-            "<BR>".join([o.name for o in obj.sites.all().order_by("name")])
-        )
+        return mark_safe("<BR>".join([o.name for o in obj.sites.all().order_by("name")]))
 
     @staticmethod
     def user_email_notifications(obj=None):
@@ -51,9 +49,6 @@ class UserProfileAdmin(admin.ModelAdmin):
     def user_sms_notifications(obj=None):
         return mark_safe(
             "<BR>".join(
-                [
-                    o.display_name
-                    for o in obj.sms_notifications.all().order_by("display_name")
-                ]
+                [o.display_name for o in obj.sms_notifications.all().order_by("display_name")]
             )
         )
