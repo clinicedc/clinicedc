@@ -1,5 +1,8 @@
+from unittest.mock import patch
+
+from dateutil.relativedelta import relativedelta
 from django import forms
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_constants.constants import ALIVE, OTHER, YES
 from edc_facility.import_holidays import import_holidays
@@ -59,7 +62,9 @@ class TestSubjectVisitFormValidator(TestCase):
             pass
         self.assertIn("reason", form_validator._errors)
 
-    def test_visit_code_reason_with_visit_code_sequence_1(self):
+    @patch("edc_appointment.form_validators.utils.get_appointment_url")
+    def test_visit_code_reason_with_visit_code_sequence_1(self, mock_urlnames):
+        mock_urlnames.return_value = ""
         SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
 
         opts = self.appointment.__dict__
@@ -67,7 +72,10 @@ class TestSubjectVisitFormValidator(TestCase):
         opts.pop("id")
         opts.pop("created")
         opts.pop("modified")
-        opts["visit_code_sequence"] = 1
+        opts.update(
+            visit_code_sequence=1,
+            appt_datetime=self.appointment.appt_datetime + relativedelta(days=1),
+        )
         appointment = Appointment.objects.create(**opts)
 
         cleaned_data = {"appointment": appointment, "reason": SCHEDULED}
@@ -86,9 +94,15 @@ class TestSubjectVisitFormValidator(TestCase):
         opts.pop("id")
         opts.pop("created")
         opts.pop("modified")
-        opts["visit_code_sequence"] = 1
+        opts.update(
+            visit_code_sequence=1,
+            appt_datetime=self.appointment.appt_datetime + relativedelta(days=1),
+        )
         Appointment.objects.create(**opts)
-        opts["visit_code_sequence"] = 2
+        opts.update(
+            visit_code_sequence=2,
+            appt_datetime=self.appointment.appt_datetime + relativedelta(days=2),
+        )
         appointment = Appointment.objects.create(**opts)
 
         cleaned_data = {"appointment": appointment, "reason": SCHEDULED}
@@ -116,8 +130,9 @@ class TestSubjectVisitFormValidator(TestCase):
             pass
         self.assertIn("reason_missed", form_validator._errors)
 
-    @tag("1")
-    def test_reason_unscheduled(self):
+    @patch("edc_appointment.form_validators.utils.get_appointment_url")
+    def test_reason_unscheduled(self, mock_urlnames):
+        mock_urlnames.return_value = ""
         SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
 
         # create unscheduled appointment (XXXX.1)
@@ -126,7 +141,10 @@ class TestSubjectVisitFormValidator(TestCase):
         opts.pop("id")
         opts.pop("created")
         opts.pop("modified")
-        opts["visit_code_sequence"] = 1
+        opts.update(
+            appt_datetime=self.appointment.appt_datetime + relativedelta(days=1),
+            visit_code_sequence=1,
+        )
         appointment = Appointment.objects.create(**opts)
         # start subject visit form with unscheduled appointment
         options = {
@@ -142,7 +160,9 @@ class TestSubjectVisitFormValidator(TestCase):
         self.assertIn("reason_unscheduled", form_validator._errors)
         self.assertIn(APPLICABLE_ERROR, form_validator._error_codes)
 
-    def test_reason_unscheduled_other(self):
+    @patch("edc_appointment.form_validators.utils.get_appointment_url")
+    def test_reason_unscheduled_other(self, mock_urlnames):
+        mock_urlnames.return_value = ""
         SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
 
         opts = self.appointment.__dict__
@@ -150,7 +170,10 @@ class TestSubjectVisitFormValidator(TestCase):
         opts.pop("id")
         opts.pop("created")
         opts.pop("modified")
-        opts["visit_code_sequence"] = 1
+        opts.update(
+            visit_code_sequence=1,
+            appt_datetime=self.appointment.appt_datetime + relativedelta(days=1),
+        )
         appointment = Appointment.objects.create(**opts)
 
         options = {

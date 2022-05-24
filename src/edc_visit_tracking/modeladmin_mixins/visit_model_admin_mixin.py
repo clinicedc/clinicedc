@@ -3,6 +3,8 @@ from typing import Any
 from django.contrib import admin
 from edc_appointment.models import Appointment
 from edc_constants.constants import OTHER
+from edc_document_status.fieldsets import document_status_fieldset_tuple
+from edc_document_status.modeladmin_mixins import DocumentStatusModelAdminMixin
 from edc_model_admin.model_admin_audit_fields_mixin import audit_fieldset_tuple
 from edc_visit_schedule.fieldsets import (
     visit_schedule_fields,
@@ -12,10 +14,8 @@ from edc_visit_schedule.fieldsets import (
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.stubs import SubjectVisitModelStub
 
-from .fieldsets import document_status_fieldset_tuple
 
-
-class VisitModelAdminMixin:
+class VisitModelAdminMixin(DocumentStatusModelAdminMixin):
 
     """ModelAdmin subclass for models with a ForeignKey to
     'appointment', such as your visit model(s).
@@ -118,7 +118,7 @@ class VisitModelAdminMixin:
 
     def get_readonly_fields(self, request, obj=None) -> list:
         readonly_fields = super().get_readonly_fields(request, obj=obj)  # type: ignore
-        return list(readonly_fields) + list(visit_schedule_fields) + ["document_status"]
+        return list(readonly_fields) + list(visit_schedule_fields)
 
     def get_changeform_initial_data(self, request: Any) -> dict:
         """Sets initial data for the form.
