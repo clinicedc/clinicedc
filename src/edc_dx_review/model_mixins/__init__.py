@@ -19,6 +19,7 @@ from .initial_review import (
     CholInitialReviewModelMixin,
     HivArvInitiationModelMixin,
     HivArvMonitoringModelMixin,
+    InitialReviewMethodsModelMixin,
     InitialReviewModelError,
     InitialReviewModelMixin,
     NcdInitialReviewModelMixin,
