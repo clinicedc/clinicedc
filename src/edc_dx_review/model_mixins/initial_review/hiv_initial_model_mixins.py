@@ -38,7 +38,7 @@ class HivArvInitiationModelMixin(models.Model):
         help_text="Calculated based on response to `arv_initiation_ago`",
     )
 
-    arv_initiation_date_estimated = models.CharField(
+    arv_initiation_date_is_estimated = models.CharField(
         verbose_name="Was the ART start date estimated?",
         max_length=15,
         choices=YES_NO,

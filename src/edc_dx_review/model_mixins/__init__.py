@@ -22,4 +22,5 @@ from .initial_review import (
     InitialReviewModelError,
     InitialReviewModelMixin,
     NcdInitialReviewModelMixin,
+    initial_dx_model_mixin_factory,
 )

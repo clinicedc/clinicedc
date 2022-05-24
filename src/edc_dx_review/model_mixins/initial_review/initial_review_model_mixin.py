@@ -12,37 +12,49 @@ class InitialReviewModelError(Exception):
     pass
 
 
-class InitialReviewModelMixin(models.Model):
+def initial_dx_model_mixin_factory(dx_field_prefix: str = None):
+    class AbstractModel(models.Model):
+        class Meta:
+            abstract = True
 
-    dx_ago = edc_models.DurationYMDField(
-        verbose_name="How long ago was the patient diagnosed?",
-        null=True,
-        blank=True,
-        help_text="If possible, provide the exact date below instead of estimating here.",
-    )
+    dx_field_prefix = f"{dx_field_prefix}_" if dx_field_prefix else ""
 
-    dx_date = models.DateField(
-        verbose_name="Date patient diagnosed",
-        null=True,
-        blank=True,
-        help_text="If possible, provide the exact date here instead of estimating above.",
-    )
+    opts = {
+        f"{dx_field_prefix}dx_ago": edc_models.DurationYMDField(
+            verbose_name="How long ago was the patient diagnosed?",
+            null=True,
+            blank=True,
+            help_text="If possible, provide the exact date below instead of estimating here.",
+        ),
+        f"{dx_field_prefix}dx_date": models.DateField(
+            verbose_name="Date patient diagnosed",
+            null=True,
+            blank=True,
+            validators=[edc_models.date_not_future],
+            help_text="If possible, provide the exact date here instead of estimating above.",
+        ),
+        f"{dx_field_prefix}dx_estimated_date": models.DateField(
+            verbose_name="Estimated diagnoses date",
+            null=True,
+            help_text="Calculated based on response to `dx_ago`",
+            editable=False,
+        ),
+        f"{dx_field_prefix}dx_date_is_estimated": models.CharField(
+            verbose_name="Was the diagnosis date estimated?",
+            max_length=15,
+            choices=YES_NO,
+            default=YES,
+            editable=False,
+        ),
+    }
 
-    dx_estimated_date = models.DateField(
-        verbose_name="Estimated diagnoses date",
-        null=True,
-        help_text="Calculated based on response to `dx_ago`",
-        editable=False,
-    )
+    for name, fld_cls in opts.items():
+        AbstractModel.add_to_class(name, fld_cls)
 
-    dx_date_estimated = models.CharField(
-        verbose_name="Was the diagnosis date estimated?",
-        max_length=15,
-        choices=YES_NO,
-        default=YES,
-        editable=False,
-    )
+    return AbstractModel
 
+
+class InitialReviewModelMixin(initial_dx_model_mixin_factory(), models.Model):
     def save(self, *args, **kwargs):
         diagnoses = Diagnoses(
             subject_identifier=self.subject_visit.subject_identifier,
@@ -54,7 +66,7 @@ class InitialReviewModelMixin(models.Model):
                 "No diagnosis has been recorded. See clinical review. "
                 "Perhaps catch this in the form."
             )
-        self.dx_estimated_date, self.dx_date_estimated = calculate_dx_date_if_estimated(
+        self.dx_estimated_date, self.dx_date_is_estimated = calculate_dx_date_if_estimated(
             self.dx_date,
             self.dx_ago,
             self.report_datetime,

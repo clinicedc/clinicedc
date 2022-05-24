@@ -24,7 +24,7 @@ class NcdInitialReviewModelMixin(models.Model):
         editable=False,
     )
 
-    med_start_date_estimated = models.CharField(
+    med_start_date_is_estimated = models.CharField(
         verbose_name="Was the medication start date estimated?",
         max_length=15,
         choices=YES_NO,
