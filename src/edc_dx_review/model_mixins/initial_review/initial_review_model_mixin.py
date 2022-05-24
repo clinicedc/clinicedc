@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Any, Optional
 
 from django.db import models
 from edc_constants.choices import YES_NO
@@ -12,7 +13,7 @@ class InitialReviewModelError(Exception):
     pass
 
 
-def initial_dx_model_mixin_factory(dx_field_prefix: str = None):
+def initial_dx_model_mixin_factory(dx_field_prefix: Optional[str] = None):
     class AbstractModel(models.Model):
         class Meta:
             abstract = True
@@ -54,8 +55,8 @@ def initial_dx_model_mixin_factory(dx_field_prefix: str = None):
     return AbstractModel
 
 
-class InitialReviewModelMixin(initial_dx_model_mixin_factory(), models.Model):
-    def save(self, *args, **kwargs):
+class InitialReviewMethodsModelMixin(models.Model):
+    def save(self: Any, *args, **kwargs):
         diagnoses = Diagnoses(
             subject_identifier=self.subject_visit.subject_identifier,
             report_datetime=self.subject_visit.report_datetime,
@@ -71,10 +72,17 @@ class InitialReviewModelMixin(initial_dx_model_mixin_factory(), models.Model):
             self.dx_ago,
             self.report_datetime,
         )
-        super().save(*args, **kwargs)  # type: ignore
+        super().save(*args, **kwargs)
 
-    def get_best_dx_date(self) -> date:
+    def get_best_dx_date(self: Any) -> date:
         return self.dx_date or self.dx_estimated_date
 
+    class Meta:
+        abstract = True
+
+
+class InitialReviewModelMixin(
+    initial_dx_model_mixin_factory(), InitialReviewMethodsModelMixin, models.Model
+):
     class Meta:
         abstract = True
