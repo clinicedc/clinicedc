@@ -24,7 +24,7 @@ class CrfInlineModelMixin(InlineVisitMethodsModelMixin, SiteModelMixin, models.M
         except AttributeError:
             fks = [
                 field
-                for field in self._meta.fields
+                for field in self._meta.get_fields()
                 if isinstance(field, (OneToOneField, ForeignKey))
             ]
             if len(fks) == 1:
