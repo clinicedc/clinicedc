@@ -22,7 +22,7 @@ class Logic:
         consequence: Optional[str] = None,
         alternative: Optional[str] = None,
         comment: Optional[str] = None,
-        **kwargs,
+        **kwargs,  # noqa
     ) -> None:
         if not hasattr(predicate, "__call__"):
             raise RuleLogicError(

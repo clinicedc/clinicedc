@@ -85,6 +85,9 @@ class RequisitionMetadataModelStub(Protocol):
     def metadata_visit_object(self) -> Visit:
         ...
 
+    def metadata_updater_cls(self, **opts: dict):
+        ...
+
 
 class MetadataGetterStub(Protocol):
     metadata_objects: QuerySet

@@ -1,8 +1,6 @@
 from django.test import TestCase
 from edc_visit_tracking.constants import SCHEDULED
 
-from edc_metadata.metadata.metadata_getter import MetadataGetterError
-
 from ...constants import REQUIRED
 from ...metadata import CrfMetadataGetter
 from ...next_form_getter import NextFormGetter
@@ -19,30 +17,12 @@ class TestMetadataGetter(TestMetadataMixin, TestCase):
             reason=SCHEDULED,
         )
 
-    def test_objects_none_no_appointment(self):
-        subject_identifier = None
-        visit_code = None
-        self.assertRaises(
-            MetadataGetterError,
-            CrfMetadataGetter,
-            subject_identifier=subject_identifier,
-            visit_code=visit_code,
-        )
-
-    def test_objects_not_none_without_appointment(self):
-        getter = CrfMetadataGetter(
-            subject_identifier=self.subject_identifier,
-            visit_code=self.appointment.visit_code,
-            visit_code_sequence=self.appointment.visit_code_sequence,
-        )
-        self.assertGreater(getter.metadata_objects.count(), 0)
-
     def test_objects_not_none_from_appointment(self):
-        getter = CrfMetadataGetter(appointment=self.appointment)
+        getter = CrfMetadataGetter(self.appointment)
         self.assertGreater(getter.metadata_objects.count(), 0)
 
     def test_next_object(self):
-        getter = CrfMetadataGetter(appointment=self.appointment)
+        getter = CrfMetadataGetter(self.appointment)
         visit = self.schedule.visits.get(getter.visit_code)
         objects = []
         for crf in visit.crfs:

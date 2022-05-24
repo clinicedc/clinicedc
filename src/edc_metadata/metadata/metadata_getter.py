@@ -8,12 +8,8 @@ from django.core.exceptions import (
     MultipleObjectsReturned,
     ObjectDoesNotExist,
 )
-from edc_appointment.stubs import AppointmentModelStub
-from edc_visit_tracking.stubs import SubjectVisitModelStub
-from edc_visit_tracking.utils import get_subject_visit_model_cls
 
-from edc_metadata import KEYED
-
+from ..constants import KEYED
 from .metadata import model_cls_registered_with_admin_site
 
 
@@ -72,25 +68,22 @@ class MetadataValidator:
         instance exists, etc.
 
         Fixes on the fly if model obj exists and entry status != KEYED."""
-        # TODO: add test, fixes on the fly
-        if model_obj and model_obj.id and self.metadata_obj.entry_status != KEYED:
-            msg = (
-                "Model instance exists but entry status=="
-                f"{self.metadata_obj.entry_status}. See {self.metadata_obj} and "
-                f"{model_obj.__class__.__name__}({model_obj}). Fixed."
-            )
-            warn(msg)
-            self.metadata_obj.entry_status = KEYED
-            self.metadata_obj.save()
-            self.metadata_obj.refresh_from_db()
-        # TODO: add test, how can the entry status be reset?
-        #  Do we need to recalculate the visit's metadata??
-        elif not model_obj and self.metadata_obj.entry_status == KEYED:
-            msg = (
-                "Model instance does not exist but entry status == "
-                f"{self.metadata_obj.entry_status}. See {self.metadata_obj}"
-            )
-            raise MetadataGetterError(msg)
+        for i in range(2):
+            # TODO: add test, fixes on the fly
+            if model_obj and model_obj.id and self.metadata_obj.entry_status != KEYED:
+                self.metadata_obj.entry_status = KEYED
+                self.metadata_obj.save()
+                self.metadata_obj.refresh_from_db()
+                break
+            # TODO: add test, how can the entry status be reset?
+            #  Do we need to recalculate the visit's metadata??
+            # what about metadata rules?
+            elif not model_obj and self.metadata_obj.entry_status == KEYED:
+                if self.visit_model_instance:
+                    # resave subject visit to recreate / calculate metadata
+                    self.visit_model_instance.save()
+                    self.metadata_obj.refresh_from_db()
+                    continue
 
     @staticmethod
     def model_cls_registered_with_admin_site(model_cls: Any) -> bool:
@@ -111,33 +104,14 @@ class MetadataGetter:
 
     metadata_validator_cls = MetadataValidator
 
-    def __init__(
-        self,
-        appointment: Optional[AppointmentModelStub] = None,
-        subject_identifier: Optional[str] = None,
-        visit_code: Optional[str] = None,
-        visit_code_sequence: Optional[int] = None,
-    ) -> None:
+    def __init__(self, appointment: Any) -> None:
         self.options = {}
-        self.visit_model_instance: Optional[SubjectVisitModelStub] = None
-        try:
-            self.visit_model_instance = appointment.visit  # type:ignore
-        except AttributeError:
-            self.subject_identifier = subject_identifier
-            self.visit_code = visit_code
-            self.visit_code_sequence = visit_code_sequence
-            try:
-                self.visit_model_instance = get_subject_visit_model_cls().objects.get(
-                    subject_identifier=self.subject_identifier,
-                    visit_code=self.visit_code,
-                    visit_code_sequence=self.visit_code_sequence,
-                )
-            except ObjectDoesNotExist as e:
-                raise MetadataGetterError(f"Unable to find visit model instance. Got {e}")
-        else:
-            self.subject_identifier = self.visit_model_instance.subject_identifier
-            self.visit_code = self.visit_model_instance.visit_code
-            self.visit_code_sequence = self.visit_model_instance.visit_code_sequence
+        self.appointment = appointment
+        self.visit_model_instance = getattr(self.appointment, "visit", None)
+        instance = self.visit_model_instance or self.appointment
+        self.subject_identifier = instance.subject_identifier
+        self.visit_code = instance.visit_code
+        self.visit_code_sequence = instance.visit_code_sequence
         query_options = dict(
             subject_identifier=self.subject_identifier,
             visit_code=self.visit_code,

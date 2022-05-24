@@ -1,3 +1,7 @@
+from typing import Any
+
+from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_visit_schedule.model_mixins import (
@@ -6,6 +10,7 @@ from edc_visit_schedule.model_mixins import (
 )
 
 from ..choices import ENTRY_STATUS, NOT_REQUIRED, REQUIRED
+from ..constants import KEYED
 
 
 class CrfMetadataModelMixin(
@@ -58,6 +63,47 @@ class CrfMetadataModelMixin(
 
     def is_not_required(self):
         return not self.is_required()
+
+    def model_instance_query_opts(self) -> dict:
+        models_cls = django_apps.get_model(self.model)
+        attr = models_cls.visit_model_attr()
+        return {
+            f"{attr}__subject_identifier": self.subject_identifier,
+            f"{attr}__visit_schedule_name": self.visit_schedule_name,
+            f"{attr}__schedule_name": self.schedule_name,
+            f"{attr}__visit_code": self.visit_code,
+            f"{attr}__visit_code_sequence": self.visit_code_sequence,
+        }
+
+    @property
+    def model_instance(self: Any) -> Any:
+        """Returns the CRF/Requisition model instance or None"""
+        instance = None
+        models_cls = django_apps.get_model(self.model)
+        try:
+            instance = models_cls.objects.get(**self.model_instance_query_opts())
+        except ObjectDoesNotExist:
+            pass
+        return instance
+
+    def refresh_entry_status(self) -> str:
+        """Resets entry_status to the original visit schedule value"""
+        if not self.model_instance:
+            if self.visit_code_sequence > 0:
+                self.entry_status = REQUIRED
+            else:
+                visit = self.visits.get(self.visit_code)
+                for required in [
+                    crf.required for crf in visit.crfs if crf.model == self.model
+                ]:
+                    self.entry_status = REQUIRED if required else NOT_REQUIRED
+        else:
+            self.entry_status = KEYED
+        self.save_base(update_fields=["entry_status"])
+        return self.entry_status
+
+    def get_entry_status(self) -> str:
+        return self.refresh_entry_status()
 
     class Meta:
         abstract = True

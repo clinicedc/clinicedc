@@ -1,5 +1,7 @@
 from typing import Any
 
+from edc_visit_tracking.utils import get_subject_visit_missed_model
+
 from .constants import KEYED, REQUIRED
 from .utils import get_crf_metadata_model_cls, get_requisition_metadata_model_cls
 
@@ -11,20 +13,26 @@ class MetaDataHelperMixin:
     Always assumes the model instance `instance_attr` exists.
     """
 
-    instance_attr = "instance"
+    metadata_helper_instance_attr = "instance"
+
+    @property
+    def metadata_helper_instance(self) -> Any:
+        if self.metadata_helper_instance_attr:
+            return getattr(self, self.metadata_helper_instance_attr)
+        else:
+            return self
 
     @property
     def crf_metadata_exists(self: Any) -> bool:
         """Returns True if CRF metadata exists for this visit code."""
-        instance = getattr(self, self.instance_attr)
         return (
             get_crf_metadata_model_cls()
             .objects.filter(
-                subject_identifier=instance.subject_identifier,
-                visit_schedule_name=instance.visit_schedule_name,
-                schedule_name=instance.schedule_name,
-                visit_code=instance.visit_code,
-                visit_code_sequence=instance.visit_code_sequence,
+                subject_identifier=self.metadata_helper_instance.subject_identifier,
+                visit_schedule_name=self.metadata_helper_instance.visit_schedule_name,
+                schedule_name=self.metadata_helper_instance.schedule_name,
+                visit_code=self.metadata_helper_instance.visit_code,
+                visit_code_sequence=self.metadata_helper_instance.visit_code_sequence,
             )
             .exists()
         )
@@ -44,32 +52,31 @@ class MetaDataHelperMixin:
         return self.get_crf_metadata_by(KEYED)
 
     def get_crf_metadata_by(self: Any, entry_status: str) -> Any:
-        instance = getattr(self, self.instance_attr)
         return (
             get_crf_metadata_model_cls()
             .objects.filter(
-                subject_identifier=instance.subject_identifier,
-                visit_schedule_name=instance.visit_schedule_name,
-                schedule_name=instance.schedule_name,
-                visit_code=instance.visit_code,
-                visit_code_sequence=instance.visit_code_sequence,
+                subject_identifier=self.metadata_helper_instance.subject_identifier,
+                visit_schedule_name=self.metadata_helper_instance.visit_schedule_name,
+                schedule_name=self.metadata_helper_instance.schedule_name,
+                visit_code=self.metadata_helper_instance.visit_code,
+                visit_code_sequence=self.metadata_helper_instance.visit_code_sequence,
                 entry_status=entry_status,
             )
+            .exclude(model=get_subject_visit_missed_model())
             .exists()
         )
 
     @property
     def requisition_metadata_exists(self: Any) -> bool:
         """Returns True if requisition metadata exists for this visit code."""
-        instance = getattr(self, self.instance_attr)
         return (
             get_requisition_metadata_model_cls()
             .objects.filter(
-                subject_identifier=instance.subject_identifier,
-                visit_schedule_name=instance.visit_schedule_name,
-                schedule_name=instance.schedule_name,
-                visit_code=instance.visit_code,
-                visit_code_sequence=instance.visit_code_sequence,
+                subject_identifier=self.metadata_helper_instance.subject_identifier,
+                visit_schedule_name=self.metadata_helper_instance.visit_schedule_name,
+                schedule_name=self.metadata_helper_instance.schedule_name,
+                visit_code=self.metadata_helper_instance.visit_code,
+                visit_code_sequence=self.metadata_helper_instance.visit_code_sequence,
             )
             .exists()
         )
@@ -89,15 +96,14 @@ class MetaDataHelperMixin:
         return self.get_requisition_metadata_by(KEYED)
 
     def get_requisition_metadata_by(self, entry_status: str) -> Any:
-        instance = getattr(self, self.instance_attr)
         return (
             get_requisition_metadata_model_cls()
             .objects.filter(
-                subject_identifier=instance.subject_identifier,
-                visit_schedule_name=instance.visit_schedule_name,
-                schedule_name=instance.schedule_name,
-                visit_code=instance.visit_code,
-                visit_code_sequence=instance.visit_code_sequence,
+                subject_identifier=self.metadata_helper_instance.subject_identifier,
+                visit_schedule_name=self.metadata_helper_instance.visit_schedule_name,
+                schedule_name=self.metadata_helper_instance.schedule_name,
+                visit_code=self.metadata_helper_instance.visit_code,
+                visit_code_sequence=self.metadata_helper_instance.visit_code_sequence,
                 entry_status=entry_status,
             )
             .exists()

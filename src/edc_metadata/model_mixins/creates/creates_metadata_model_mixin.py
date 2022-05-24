@@ -54,24 +54,24 @@ class CreatesMetadataModelMixin(models.Model):
         return options
 
     @property
-    def metadata(self: SubjectVisitLikeModelObject) -> Any:
+    def metadata(self: Any) -> Any:
         """Returns a dictionary of metadata querysets for each
         metadata category (CRF or REQUISITION).
         """
         metadata = {}
-        getter = CrfMetadataGetter(appointment=self.appointment)
+        getter = CrfMetadataGetter(self.appointment)
         metadata[CRF] = getter.metadata_objects
-        getter = RequisitionMetadataGetter(appointment=self.appointment)
+        getter = RequisitionMetadataGetter(self.appointment)
         metadata[REQUISITION] = getter.metadata_objects
         return metadata
 
-    def metadata_delete_for_visit(self: SubjectVisitLikeModelObject) -> None:
+    def metadata_delete_for_visit(self: Any) -> None:
         """Deletes metadata for a visit when the visit is deleted.
 
         See signals.
         """
         for key in [CRF, REQUISITION]:
-            if [obj for obj in self.metadata[key] if obj.entry_status == KEYED]:
+            if [obj for obj in self.metadata[key] if obj.get_entry_status() == KEYED]:
                 raise DeleteMetadataError(
                     f"Metadata cannot be deleted. {key}s have been "
                     f"keyed. Got {repr(self)}."

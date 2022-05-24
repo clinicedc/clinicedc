@@ -2,6 +2,7 @@ from django.db import models
 from edc_model import models as edc_models
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 
+from .. import KEYED, NOT_REQUIRED, REQUIRED
 from ..managers import RequisitionMetadataManager
 from .crf_metadata_model_mixin import CrfMetadataModelMixin
 
@@ -41,6 +42,29 @@ class RequisitionMetadata(CrfMetadataModelMixin, SiteModelMixin, edc_models.Base
 
     # noinspection PyTypeHints
     natural_key.dependencies = ["sites.Site"]  # type: ignore
+
+    def model_instance_query_opts(self) -> dict:
+        opts = super().model_instance_query_opts()
+        opts.update(panel__name=self.panel_name)
+        return opts
+
+    def refresh_entry_status(self) -> str:
+        """Resets entry_status to the original visit schedule value"""
+        if not self.model_instance:
+            if self.visit_code_sequence > 0:
+                self.entry_status = REQUIRED
+            else:
+                visit = self.visits.get(self.visit_code)
+                for required in [
+                    req.required
+                    for req in visit.requisitions
+                    if req.model == self.model and req.panel.name == self.panel_name
+                ]:
+                    self.entry_status = REQUIRED if required else NOT_REQUIRED
+        else:
+            self.entry_status = KEYED
+        self.save_base(update_fields=["entry_status"])
+        return self.entry_status
 
     class Meta(CrfMetadataModelMixin.Meta, edc_models.BaseUuidModel.Meta):
         app_label = "edc_metadata"

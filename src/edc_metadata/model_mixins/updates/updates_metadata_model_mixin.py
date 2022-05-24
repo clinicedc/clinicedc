@@ -29,7 +29,7 @@ class UpdatesMetadataModelMixin(models.Model):
     metadata_updater_cls = None
     metadata_category = None
 
-    def metadata_update(self, entry_status: Optional[str] = None) -> None:
+    def metadata_update(self: Any, entry_status: Optional[str] = None) -> None:
         """Updates metatadata."""
         self.metadata_updater.update(entry_status=entry_status)
 
