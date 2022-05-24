@@ -4,6 +4,7 @@ from .hiv_initial_model_mixins import (
     HivArvMonitoringModelMixin,
 )
 from .initial_review_model_mixin import (
+    InitialReviewMethodsModelMixin,
     InitialReviewModelError,
     InitialReviewModelMixin,
     initial_dx_model_mixin_factory,
