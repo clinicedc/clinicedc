@@ -155,7 +155,7 @@ class SiteAuths:
         name=None,
         view_only=None,
         convert_to_export=None,
-        no_delete=None
+        no_delete=None,
     ):
         if name in self.registry["groups"]:
             raise GroupAlreadyExists(f"Group name already exists. Got {name}.")
@@ -292,9 +292,7 @@ class SiteAuths:
             self.update_group(*codenames, name=name, key="groups")
         for name, group_names in self.registry["update_roles"].items():
             if name not in self.registry["roles"]:
-                raise InvalidRole(
-                    f"Cannot update role. Role name does not exist. Got {name}."
-                )
+                raise InvalidRole(f"Cannot update role. Role name does not exist. Got {name}.")
             self.update_role(*group_names, name=name, key="roles")
 
     def autodiscover(self, module_name=None, verbose=True):

@@ -1,6 +1,7 @@
 import csv
 import os
 from importlib import import_module
+from secrets import choice
 from tempfile import mkdtemp
 
 from django.contrib.auth.models import Group, User
@@ -13,7 +14,6 @@ from edc_randomization.site_randomizers import site_randomizers
 from edc_sites.models import SiteProfile
 from faker import Faker
 from mempass import mkpassword
-from secrets import choice
 
 from edc_auth.auth_objects import CLINICIAN_ROLE
 from edc_auth.site_auths import site_auths
@@ -32,9 +32,7 @@ class EdcAuthTestCase(TestCase):
         SiteProfile.objects.all().delete()
         Site.objects.all().delete()
         for site_id, site_name in sites.items():
-            Site.objects.create(
-                id=site_id, name=site_name, domain=f"{site_name}.example.com"
-            )
+            Site.objects.create(id=site_id, name=site_name, domain=f"{site_name}.example.com")
         site_randomizers._registry = {}
         site_randomizers.register(Randomizer)
         site_randomizers.register(CustomRandomizer)

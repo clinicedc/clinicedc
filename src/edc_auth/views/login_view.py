@@ -31,9 +31,7 @@ class LoginView(BaseLoginView):
         except AttributeError:
             allow_password_reset = None
         return {
-            "edc_base_template": get_template_path_with_bootstrap(
-                "edc_dashboard/base.html"
-            ),
+            "edc_base_template": get_template_path_with_bootstrap("edc_dashboard/base.html"),
             "DEBUG": settings.DEBUG,
             "ALLOW_PASSWORD_RESET": allow_password_reset,
             "copyright": protocol.copyright,

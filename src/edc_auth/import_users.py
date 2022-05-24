@@ -12,9 +12,8 @@ from django.core.mail import EmailMessage
 from edc_protocol import Protocol
 from mempass import PasswordGenerator
 
-from edc_auth.export_users import export_users
-
 from .auth_objects import ACCOUNT_MANAGER_ROLE, STAFF_ROLE
+from .export_users import export_users
 from .models import Role
 
 required_role_names = {STAFF_ROLE: "Staff"}
@@ -111,9 +110,7 @@ def import_users(
             opts.update(email=csv_data.get("email"))
             opts.update(alternate_email=csv_data.get("alternate_email"))
             opts.update(job_title=csv_data.get("job_title"))
-            opts.update(
-                is_active=True if csv_data.get("is_active") == "True" else False
-            )
+            opts.update(is_active=True if csv_data.get("is_active") == "True" else False)
             opts.update(is_staff=True if csv_data.get("is_staff") == "True" else False)
             UserImporter(
                 resource_name=resource_name,
@@ -177,12 +174,8 @@ class UserImporter:
         self.resend_as_newly_created = resend_as_new
         self.test_email_address = test_email_address
         self.username = username or self.get_username()
-        self.created_email_template = (
-            created_email_template or self.created_email_template
-        )
-        self.updated_email_template = (
-            updated_email_template or self.updated_email_template
-        )
+        self.created_email_template = created_email_template or self.created_email_template
+        self.updated_email_template = updated_email_template or self.updated_email_template
         self.validate_username()
         if ACCOUNT_MANAGER_ROLE in role_names:
             site_names = [s.name for s in Site.objects.all()]

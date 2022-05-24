@@ -14,9 +14,9 @@ from edc_auth.auth_objects import (
 )
 from edc_auth.auth_objects.default_role_names import STATISTICIAN
 from edc_auth.auth_updater import AuthUpdater
+from edc_auth.models import Role
 from edc_auth.site_auths import site_auths
 
-from ...models import Role
 from ..utils import EdcAuthTestCase, create_users
 
 fake = Faker()
@@ -68,9 +68,7 @@ class TestRoles(EdcAuthTestCase):
         self.assertGreater(user.groups.all().count(), 0)
         # see groups_by_role_name for expected group counts
         # note, count is the unique list count
-        self.assertEqual(
-            user.groups.all().count(), len(site_auths.roles.get(CLINICIAN_ROLE))
-        )
+        self.assertEqual(user.groups.all().count(), len(site_auths.roles.get(CLINICIAN_ROLE)))
 
     def test_remove_roles_to_user(self):
         AuthUpdater(verbose=False)

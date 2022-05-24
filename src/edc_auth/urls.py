@@ -27,9 +27,7 @@ if allow_password_reset:
             views.PasswordChangeDoneView.as_view(),
             name="password_change_done",
         ),
-        path(
-            "password_reset/", views.PasswordResetView.as_view(), name="password_reset"
-        ),
+        path("password_reset/", views.PasswordResetView.as_view(), name="password_reset"),
         path(
             "password_reset/done/",
             views.PasswordResetDoneView.as_view(),
