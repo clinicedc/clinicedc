@@ -1,6 +1,6 @@
 from django import forms
 from edc_utils.date import to_utc
-from edc_utils.text import formatted_date, formatted_datetime
+from edc_utils.text import formatted_datetime
 
 from .base_form_validator import BaseFormValidator
 
