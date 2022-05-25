@@ -32,6 +32,7 @@ from ..constants import (
     COMPLETE_APPT,
     IN_PROGRESS_APPT,
     INCOMPLETE_APPT,
+    LATE_APPT,
     NEW_APPT,
     UNSCHEDULED_APPT,
 )
@@ -60,6 +61,15 @@ class AppointmentFormValidator(
     def clean(self: Any):
         # TODO: do not allow a missed appt (in window) to be followed by an unscheduled appt
         #  that is also within window.
+        # TODO: handle LATE_APPT
+        # disable LATE_APPT for now
+        if (
+            self.cleaned_data.get("appt_timing")
+            and self.cleaned_data.get("appt_timing") == LATE_APPT
+        ):
+            self.raise_validation_error(
+                {"appt_timing": "Invalid. This option is not available."}
+            )
         if self.cleaned_data.get("appt_status") == CANCELLED_APPT:
             self.validate_appt_new_or_cancelled()
             self.validate_appt_inprogress_or_incomplete()
