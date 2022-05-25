@@ -29,31 +29,37 @@ class WindowPeriodFormValidatorMixin:
         proposed_datetime: datetime,
         form_field: str,
     ):
-        datestring = convert_php_dateformat(settings.SHORT_DATE_FORMAT)
-        appointment.visit_from_schedule.timepoint_datetime = appointment.timepoint_datetime
-        lower = appointment.visit_from_schedule.dates.lower.strftime(datestring)
-        try:
-            appointment.schedule.datetime_in_window(
-                timepoint_datetime=appointment.timepoint_datetime,
-                dt=proposed_datetime,
-                visit_code=appointment.visit_code,
-                visit_code_sequence=appointment.visit_code_sequence,
-                baseline_timepoint_datetime=self.baseline_timepoint_datetime(appointment),
-            )
-        except UnScheduledVisitWindowError:
-            upper = appointment.schedule.visits.next(
-                appointment.visit_code
-            ).dates.lower.strftime(datestring)
-            self.raise_validation_error(
-                {form_field: f"Invalid. Expected a date between {lower} and {upper} (U)."},
-                UNSCHEDULED_WINDOW_ERROR,
-            )
-        except ScheduledVisitWindowError:
-            upper = appointment.visit_from_schedule.dates.upper.strftime(datestring)
-            self.raise_validation_error(
-                {form_field: f"Invalid. Expected a date between {lower} and {upper} (S)."},
-                SCHEDULED_WINDOW_ERROR,
-            )
+        if proposed_datetime:
+            datestring = convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+            appointment.visit_from_schedule.timepoint_datetime = appointment.timepoint_datetime
+            lower = appointment.visit_from_schedule.dates.lower.strftime(datestring)
+            try:
+                appointment.schedule.datetime_in_window(
+                    timepoint_datetime=appointment.timepoint_datetime,
+                    dt=proposed_datetime,
+                    visit_code=appointment.visit_code,
+                    visit_code_sequence=appointment.visit_code_sequence,
+                    baseline_timepoint_datetime=self.baseline_timepoint_datetime(appointment),
+                )
+            except UnScheduledVisitWindowError as e:
+                upper = appointment.schedule.visits.next(
+                    appointment.visit_code
+                ).dates.lower.strftime(datestring)
+                self.raise_validation_error(
+                    {
+                        form_field: (
+                            f"Invalid. Expected a date between {lower} and {upper} (U). "
+                            f"Got {e}"
+                        )
+                    },
+                    UNSCHEDULED_WINDOW_ERROR,
+                )
+            except ScheduledVisitWindowError:
+                upper = appointment.visit_from_schedule.dates.upper.strftime(datestring)
+                self.raise_validation_error(
+                    {form_field: f"Invalid. Expected a date between {lower} and {upper} (S)."},
+                    SCHEDULED_WINDOW_ERROR,
+                )
 
     @staticmethod
     def baseline_timepoint_datetime(appointment) -> datetime:

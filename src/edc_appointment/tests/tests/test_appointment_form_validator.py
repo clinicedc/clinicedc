@@ -10,11 +10,15 @@ from edc_facility.import_holidays import import_holidays
 from edc_form_validators import ModelFormFieldValidatorError
 from edc_metadata import KEYED, REQUIRED
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
+from edc_reference import site_reference_configs
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_schedule.constants import DAY01
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.model_mixins import PreviousVisitError
 from edc_visit_tracking.utils import get_subject_visit_missed_model_cls
+
+from edc_appointment_app.models import SubjectVisit
+from edc_appointment_app.visit_schedule import visit_schedule1, visit_schedule2
 
 from ...constants import (
     IN_PROGRESS_APPT,
@@ -36,8 +40,6 @@ from ...form_validators.appointment_form_validator import (
 from ...models import Appointment
 from ..appointment_test_case_mixin import AppointmentTestCaseMixin
 from ..helper import Helper
-from ..models import SubjectVisit
-from ..visit_schedule import visit_schedule1, visit_schedule2
 
 
 class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
@@ -58,8 +60,10 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
             subject_identifier=self.subject_identifier,
             now=arrow.Arrow.fromdatetime(datetime(2017, 1, 7), tzinfo="UTC").datetime,
         )
+        site_reference_configs.register_from_visit_schedule(
+            visit_models={"edc_appointment.appointment": "edc_appointment_app.subjectvisit"}
+        )
 
-    @tag("1")
     def test_get_previous(self):
         self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.all()
@@ -139,7 +143,7 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
             reason=SCHEDULED,
         )
 
-    @tag("1")
+    @tag("15")
     def test_visit_report_sequence2(self):
         """Asserts a sequence error is raised if previous visit
         not complete for an in progress appointment.
@@ -226,7 +230,6 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
         )
         form_validator.validate_visit_report_sequence()
 
-    @tag("5")
     def test_confirm_appt_field_attrs(self):
         self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
@@ -241,7 +244,6 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
         self.assertEqual(schedule.visits.first.timepoint, Decimal("0.0"))
         self.assertEqual(appointments[0].timepoint, Decimal("0.0"))
 
-    @tag("5")
     def test_baseline_appt_ontime_ok(self):
         self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
@@ -258,7 +260,6 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
         except ValidationError:
             self.fail("ValidationError unexpectedly raised")
 
-    @tag("5")
     def test_baseline_appt_cannot_be_missed(self):
         self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
@@ -275,7 +276,6 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
         self.assertIsNotNone(cm.exception)
         self.assertIn(INVALID_MISSED_APPT_NOT_ALLOWED_AT_BASELINE, form_validator._error_codes)
 
-    @tag("5")
     def test_can_miss_scheduled_appt_if_not_baseline(self):
         self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
@@ -304,7 +304,6 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
         except ValidationError:
             self.fail("ValidationError unexpectedly raised")
 
-    @tag("5")
     def test_cannot_miss_unscheduled_appt(self):
         self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
@@ -336,7 +335,6 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
         self.assertIsNotNone(cm.exception)
         self.assertIn(INVALID_MISSED_APPT_NOT_ALLOWED, form_validator._error_codes)
 
-    @tag("5")
     @override_settings(EDC_VISIT_TRACKING_ALLOW_MISSED_UNSCHEDULED=True)
     def test_can_miss_unscheduled_appt_if_allowed_in_settings(self):
         self.helper.consent_and_put_on_schedule()
@@ -369,10 +367,9 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
         except ValidationError as e:
             self.fail(f"ValidationError unexpectedly raised. Got {e}")
 
-    @tag("5")
     @override_settings(
-        SUBJECT_VISIT_MISSED_MODEL="edc_appointment.subjectvisitmissed",
-        SUBJECT_VISIT_MISSED_REASONS_MODEL="edc_appointment.subjectvisitmissedreasons",
+        SUBJECT_VISIT_MISSED_MODEL="edc_appointment_app.subjectvisitmissed",
+        SUBJECT_VISIT_MISSED_REASONS_MODEL="edc_visit_tracking.subjectvisitmissedreasons",
     )
     def test_change_from_missed_removes_missed_visit_report(self):
         self.helper.consent_and_put_on_schedule()
@@ -423,10 +420,9 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
         else:
             self.fail("ObjectDoesNotExist not raised")
 
-    @tag("5")
     @override_settings(
-        SUBJECT_VISIT_MISSED_MODEL="edc_appointment.subjectvisitmissed",
-        SUBJECT_VISIT_MISSED_REASONS_MODEL="edc_appointment.subjectvisitmissedreasons",
+        SUBJECT_VISIT_MISSED_MODEL="edc_appointment_app.subjectvisitmissed",
+        SUBJECT_VISIT_MISSED_REASONS_MODEL="edc_viist_tracking.subjectvisitmissedreasons",
     )
     def test_change_to_missed_not_allowed_if_crfs_exist(self):
         self.helper.consent_and_put_on_schedule()
@@ -486,10 +482,9 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
         except ValidationError:
             self.fail("ValidationError raised")
 
-    @tag("5")
     @override_settings(
-        SUBJECT_VISIT_MISSED_MODEL="edc_appointment.subjectvisitmissed",
-        SUBJECT_VISIT_MISSED_REASONS_MODEL="edc_appointment.subjectvisitmissedreasons",
+        SUBJECT_VISIT_MISSED_MODEL="edc_appointment_app.subjectvisitmissed",
+        SUBJECT_VISIT_MISSED_REASONS_MODEL="edc_visit_tracking.subjectvisitmissedreasons",
     )
     def test_change_to_missed_not_allowed_if_requisitions_exist(self):
         self.helper.consent_and_put_on_schedule()
@@ -549,3 +544,17 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
             form_validator.validate_appointment_timing()
         except ValidationError:
             self.fail("ValidationError raised")
+
+    def test_baseline_visit_report_datetime_must_match_appt_datetime(self):
+        """Baseline appt date resets starting appointment, so visit
+        report must match.
+        """
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        self.assertEqual(appointments[0].appt_timing, ONTIME_APPT)
+        # create report for baseline visit
+        SubjectVisit.objects.create(
+            appointment=appointments[0],
+            report_datetime=appointments[0].appt_datetime,
+            reason=SCHEDULED,
+        )

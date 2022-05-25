@@ -27,6 +27,7 @@ class MissedAppointmentModelMixin(models.Model):
                 appointment=self,
                 appt_timing=self.appt_timing,
                 appt_reason=self.appt_reason,
+                commit=True,
             )
             reason_updater.update_or_raise()
 

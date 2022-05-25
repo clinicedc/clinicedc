@@ -1,3 +1,7 @@
+from datetime import datetime
+from decimal import Decimal
+from typing import Any, Optional, Union
+
 from edc_visit_tracking.constants import UNSCHEDULED
 
 from ..constants import IN_PROGRESS_APPT, INCOMPLETE_APPT
@@ -6,19 +10,39 @@ from ..models import Appointment
 
 
 class AppointmentTestCaseMixin:
+    def get_timepoint_from_visit_code(
+        self: Any,
+        instance: Any,
+        visit_code: str,
+    ) -> Optional[Union[float, Decimal]]:
+        timepoint = None
+        for v in instance.schedule.visits.timepoints:
+            if v.name == visit_code:
+                timepoint = v.timepoint
+                break
+        return timepoint
+
     def get_appointment(
         self,
-        subject_identifier=None,
-        visit_code=None,
-        visit_code_sequence=None,
-        reason=None,
-        appt_datetime=None,
+        subject_identifier: Optional[str] = None,
+        visit_code: Optional[str] = None,
+        visit_code_sequence: Optional[int] = None,
+        reason: Optional[str] = None,
+        appt_datetime: Optional[datetime] = None,
+        timepoint: Optional[Union[float, Decimal]] = None,
     ):
-        appointment = Appointment.objects.get(
-            subject_identifier=subject_identifier,
-            visit_code=visit_code,
-            visit_code_sequence=visit_code_sequence,
-        )
+        if timepoint is not None:
+            appointment = Appointment.objects.get(
+                subject_identifier=subject_identifier,
+                timepoint=timepoint,
+                visit_code_sequence=visit_code_sequence,
+            )
+        else:
+            appointment = Appointment.objects.get(
+                subject_identifier=subject_identifier,
+                visit_code=visit_code,
+                visit_code_sequence=visit_code_sequence,
+            )
         if appt_datetime:
             appointment.appt_datetime = appt_datetime
             appointment.save()

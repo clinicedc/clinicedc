@@ -4,15 +4,23 @@ from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.db import transaction
 from django.db.models.deletion import ProtectedError
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_constants.constants import INCOMPLETE
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
+from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 
 from edc_appointment.utils import get_appt_reason_choices
+from edc_appointment_app.models import (
+    OnScheduleOne,
+    OnScheduleTwo,
+    SubjectConsent,
+    SubjectVisit,
+)
+from edc_appointment_app.visit_schedule import visit_schedule1, visit_schedule2
 
 from ...constants import (
     IN_PROGRESS_APPT,
@@ -25,8 +33,6 @@ from ...constants import (
 from ...managers import AppointmentDeleteError
 from ...models import Appointment
 from ..helper import Helper
-from ..models import OnScheduleOne, OnScheduleTwo, SubjectConsent, SubjectVisit
-from ..visit_schedule import visit_schedule1, visit_schedule2
 
 
 class TestAppointment(TestCase):
@@ -45,6 +51,9 @@ class TestAppointment(TestCase):
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=Protocol().study_open_datetime,
+        )
+        site_reference_configs.register_from_visit_schedule(
+            visit_models={"edc_appointment.appointment": "edc_appointment_app.subjectvisit"}
         )
 
     def test_appointments_creation(self):
@@ -138,8 +147,12 @@ class TestAppointment(TestCase):
         )
 
         appointment = appointments[0]
+        appointment.refresh_from_db()
+        self.assertEqual(appointment.appt_status, IN_PROGRESS_APPT)
         appointment.appt_status = INCOMPLETE_APPT
         appointment.save()
+        appointment.refresh_from_db()
+        self.assertEqual(appointment.appt_status, INCOMPLETE_APPT)
 
         # raised by Django
         with transaction.atomic():
@@ -549,7 +562,6 @@ class TestAppointment(TestCase):
         # resave does not cause error
         appointment.save()
 
-    @tag("6")
     def test_raises_if_subject_visit_reason_out_of_sync_with_appt(self):
         self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)

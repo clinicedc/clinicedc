@@ -6,7 +6,9 @@ from uuid import UUID
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from edc_document_status.model_mixins import DocumentStatusModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
+from edc_metadata.metadata_helper_mixin import MetaDataHelperMixin
 from edc_offstudy.model_mixins import OffstudyVisitModelMixin
 from edc_timepoint.model_mixins import TimepointModelMixin
 from edc_utils import formatted_datetime
@@ -32,8 +34,12 @@ class AppointmentModelMixin(
     MissedAppointmentModelMixin,
     WindowPeriodModelMixin,
     VisitScheduleModelMixin,
+    DocumentStatusModelMixin,
+    MetaDataHelperMixin,
     OffstudyVisitModelMixin,
 ):
+
+    metadata_helper_instance_attr = None
 
     """Mixin for the appointment model only.
 

@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
+from edc_document_status.fieldsets import document_status_fieldset_tuple
+from edc_document_status.modeladmin_mixins import DocumentStatusModelAdminMixin
 from edc_model_admin import SimpleHistoryAdmin, audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_visit_schedule import OnScheduleError, off_schedule_or_raise
@@ -17,7 +19,9 @@ from .models import Appointment
 
 
 @admin.register(Appointment, site=edc_appointment_admin)
-class AppointmentAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
+class AppointmentAdmin(
+    ModelAdminSubjectDashboardMixin, DocumentStatusModelAdminMixin, SimpleHistoryAdmin
+):
 
     show_cancel = True
     form = AppointmentForm
@@ -75,6 +79,7 @@ class AppointmentAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
                 }
             ),
         ),
+        document_status_fieldset_tuple,
         visit_schedule_fieldset_tuple,
         audit_fieldset_tuple,
     )

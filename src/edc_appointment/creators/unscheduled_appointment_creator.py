@@ -2,7 +2,6 @@ from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ..constants import (
-    CANCELLED_APPT,
     COMPLETE_APPT,
     IN_PROGRESS_APPT,
     INCOMPLETE_APPT,
@@ -44,7 +43,7 @@ class UnscheduledAppointmentCreator:
         schedule_name=None,
         visit_code=None,
         facility=None,
-        **kwargs,
+        **kwargs,  # noqa
     ):
         self._parent_appointment = None
         self.appointment = None
@@ -66,7 +65,7 @@ class UnscheduledAppointmentCreator:
             )
         if visit.allow_unscheduled:
             # force lookup and parent_appointment exceptions
-            self.parent_appointment
+            self.parent_appointment  # noqa
             # do not allow if any appointments are IN_PROGRESS
             try:
                 obj = self.appointment_model_cls.objects.get(
@@ -85,14 +84,17 @@ class UnscheduledAppointmentCreator:
                     f"{obj.visit_code_sequence} is in progress."
                 )
 
-            # don't allow if next appointment is already started.
-            next_by_timepoint = self.parent_appointment.next_by_timepoint
-            if next_by_timepoint:
-                if next_by_timepoint.appt_status not in [NEW_APPT, CANCELLED_APPT]:
-                    raise UnscheduledAppointmentError(
-                        f"Not allowed. Visit {next_by_timepoint.visit_code} has "
-                        "already been started."
-                    )
+            # TODO: allowing unscheduled if next scheduled appointment is already started
+            #   becuase you may not be entering in realtime. But the dates still need to
+            #   fall within sensible boundaries
+            # don't allow unscheduled if next scheduled appointment is already started.
+            # next_by_timepoint = self.parent_appointment.next_by_timepoint
+            # if next_by_timepoint:
+            #     if next_by_timepoint.appt_status not in [NEW_APPT, CANCELLED_APPT]:
+            #         raise UnscheduledAppointmentError(
+            #             f"Not allowed. Visit {next_by_timepoint.visit_code} "
+            #             "has already been started."
+            #         )
             appointment_creator = self.appointment_creator_cls(
                 subject_identifier=self.subject_identifier,
                 visit_schedule_name=self.visit_schedule_name,
@@ -103,7 +105,7 @@ class UnscheduledAppointmentCreator:
                 timepoint_datetime=self.parent_appointment.timepoint_datetime,
                 visit_code_sequence=self.parent_appointment.next_visit_code_sequence,
                 facility=self.facility,
-                appt_status=IN_PROGRESS_APPT,
+                appt_status=NEW_APPT,
                 appt_reason=UNSCHEDULED_APPT,
             )
             self.appointment = appointment_creator.appointment
@@ -124,9 +126,7 @@ class UnscheduledAppointmentCreator:
                 visit_code_sequence=0,
             )
             self._parent_appointment = self.appointment_model_cls.objects.get(**options)
-            try:
-                self._parent_appointment.visit
-            except ObjectDoesNotExist:
+            if not self._parent_appointment.visit:
                 raise InvalidParentAppointmentMissingVisitError(
                     f"Unable to create unscheduled appointment. An unscheduled "
                     f"appointment cannot be created if the parent appointment "

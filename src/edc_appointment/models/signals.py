@@ -4,6 +4,11 @@ from django.dispatch import receiver
 from edc_utils import formatted_datetime, get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
+from ..appointment_status_updater import (
+    AppointmentStatusUpdater,
+    AppointmentStatusUpdaterError,
+)
+from ..constants import IN_PROGRESS_APPT
 from ..managers import AppointmentDeleteError
 from ..models import Appointment
 from ..utils import cancelled_appointment, missed_appointment
@@ -25,9 +30,6 @@ def create_appointments_on_post_save(sender, instance, raw, created, using, **kw
 
 @receiver(post_save, sender=Appointment, weak=False, dispatch_uid="appointment_post_save")
 def appointment_post_save(sender, instance, raw, created, using, **kwargs):
-    """Update the TimePointStatus in appointment if the
-    field is empty.
-    """
     if not raw:
         missed_appointment(instance)
         cancelled_appointment(instance)
@@ -71,3 +73,33 @@ def appointments_on_pre_delete(sender, instance, using, **kwargs):
                     f"Got appointment datetime "
                     f"{formatted_datetime(instance.appt_datetime)}. "
                 )
+
+
+@receiver(post_save, weak=False, dispatch_uid="update_appt_status_on_subject_visit_post_save")
+def update_appt_status_on_subject_visit_post_save(
+    sender, instance, raw, update_fields, **kwargs
+):
+    if not raw and not update_fields:
+        try:
+            AppointmentStatusUpdater(instance.appointment, change_to_in_progress=True)
+        except (AttributeError, AppointmentStatusUpdaterError):
+            pass
+
+
+@receiver(
+    post_save,
+    sender=Appointment,
+    weak=False,
+    dispatch_uid="update_appt_status_on_post_save",
+)
+def update_appt_status_on_post_save(sender, instance, raw, update_fields, **kwargs):
+    if not raw and not update_fields:
+        try:
+            AppointmentStatusUpdater(
+                instance,
+                clear_others_in_progress=True
+                if instance.appt_status == IN_PROGRESS_APPT
+                else False,
+            )
+        except (AttributeError, AppointmentStatusUpdaterError):
+            pass

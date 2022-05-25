@@ -2,6 +2,8 @@ from typing import Any
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
+from django.db import transaction
+from django.db.models import ProtectedError
 
 from .choices import DEFAULT_APPT_REASON_CHOICES
 from .constants import CANCELLED_APPT, MISSED_APPT, SCHEDULED_APPT, UNSCHEDULED_APPT
@@ -33,9 +35,15 @@ def cancelled_appointment(instance: Any):
             and "historical" not in instance._meta.label_lower
         ):
             try:
-                instance.visit_model_cls().objects.get(appointment=instance)
+                subject_visit = instance.visit_model_cls().objects.get(appointment=instance)
             except ObjectDoesNotExist:
                 instance.delete()
+            else:
+                with transaction.atomic():
+                    try:
+                        subject_visit.delete()
+                    except ProtectedError:
+                        pass
 
 
 def missed_appointment(instance: Any):
