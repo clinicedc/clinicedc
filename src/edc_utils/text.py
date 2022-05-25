@@ -1,7 +1,7 @@
 import random
 import re
+from zoneinfo import ZoneInfo
 
-import pytz
 from arrow.arrow import Arrow
 from django.conf import settings
 
@@ -68,7 +68,7 @@ def formatted_datetime(aware_datetime, php_dateformat=None, tz=None, format_as_d
     format_as_date: does not affect the calculation, just the formatted output.
     """
     if aware_datetime:
-        tz = tz or pytz.timezone(settings.TIME_ZONE)
+        tz = tz or ZoneInfo(settings.TIME_ZONE)
         utc = Arrow.fromdatetime(aware_datetime)
         local = utc.to(tz)
         if format_as_date:
