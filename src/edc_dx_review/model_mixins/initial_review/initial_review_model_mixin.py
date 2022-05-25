@@ -37,7 +37,7 @@ def initial_dx_model_mixin_factory(dx_field_prefix: Optional[str] = None):
         f"{dx_field_prefix}dx_estimated_date": models.DateField(
             verbose_name="Estimated diagnoses date",
             null=True,
-            help_text="Calculated based on response to `dx_ago`",
+            help_text=f"Calculated based on response to `{dx_field_prefix}dx_ago`",
             editable=False,
         ),
         f"{dx_field_prefix}dx_date_is_estimated": models.CharField(
