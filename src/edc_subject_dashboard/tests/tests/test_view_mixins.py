@@ -48,15 +48,13 @@ class TestViewMixins(TestCase):
             onschedule_datetime=onschedule_datetime,
         )
 
-        self.appointment = Appointment.objects.create(
+        self.appointment = Appointment.objects.get(visit_code="1000")
+        self.subject_visit = SubjectVisit.objects.create(
+            appointment=self.appointment,
             subject_identifier=self.subject_identifier,
-            visit_code="1000",
-            appt_datetime=onschedule_datetime + relativedelta(days=1),
             visit_schedule_name="visit_schedule1",
             schedule_name="schedule1",
-        )
-        self.subject_visit = SubjectVisit.objects.create(
-            appointment=self.appointment, subject_identifier=self.subject_identifier
+            visit_code="1000",
         )
         self.bad_subject_visit = BadSubjectVisit.objects.create(
             appointment=self.appointment, subject_identifier=self.subject_identifier

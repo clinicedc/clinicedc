@@ -13,19 +13,27 @@ from edc_appointment.constants import (
     NEW_APPT,
 )
 from edc_appointment.models import Appointment
+from edc_constants.constants import COMPLETE
 from edc_lab.models.manifest.consignee import Consignee
 
 register = template.Library()
 
 
+class SubjectDashboardExtrasError(Exception):
+    pass
+
+
 @register.inclusion_tag(
     f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/forms_button.html"
 )
-def forms_button(wrapper=None, visit=None):
+def forms_button(wrapper=None):
     """wrapper is an AppointmentModelWrapper."""
 
-    visit_pk = visit.id
-    if visit_pk:
+    try:
+        visit_pk = wrapper.wrapped_visit.object.id
+    except AttributeError:
+        visit_pk = None
+    if visit_pk and wrapper.appt_status == IN_PROGRESS_APPT:
         btn_color = "btn-primary"
         title = ""
         fa_icon = "fas fa-list-alt"
@@ -37,7 +45,7 @@ def forms_button(wrapper=None, visit=None):
         btn_color = "btn-warning"
         title = _("Click to update the visit report")
         fa_icon = "fas fa-plus"
-        href = visit.href
+        href = wrapper.wrapped_visit.href
         label = _("Start")
         label_fa_icon = None
     btn_id = f"{label.lower()}_btn_{wrapper.visit_code}_{wrapper.visit_code_sequence}"
@@ -52,11 +60,13 @@ def forms_button(wrapper=None, visit=None):
         visit_code=wrapper.visit_code,
         visit_code_sequence=wrapper.visit_code_sequence,
         visit_pk=visit_pk,
+        document_status=wrapper.wrapped_visit.object.document_status,
+        COMPLETE=COMPLETE,
     )
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/" "appointment_in_progress.html"
+    f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/appointment_in_progress.html"
 )
 def appointment_in_progress(subject_identifier=None, visit_schedule=None, schedule=None):
 
@@ -141,12 +151,10 @@ def appointment_status_icon(appt_status=None):
 def show_dashboard_visit_button(wrapped_appointment=None, request=None):
     title = None
     label = None
+    btn_class = None
     if wrapped_appointment.appt_status == NEW_APPT:
         label = _("Start visit")
         title = _("Start data collection for this timepoint.")
-    elif wrapped_appointment.appt_status == IN_PROGRESS_APPT:
-        label = _("Continue")
-        title = _("Continue data collection for this timepoint.")
     elif wrapped_appointment.appt_status == INCOMPLETE_APPT:
         incomplete = _("Incomplete")
         label = mark_safe(
@@ -157,7 +165,95 @@ def show_dashboard_visit_button(wrapped_appointment=None, request=None):
         label = _("Cancelled")
         title = _("Cancelled.")
     elif wrapped_appointment.appt_status == COMPLETE_APPT:
+        # this appt_status is handled by the subject visit button
+        label = _("Done")
+        label = mark_safe(
+            f'<i class="fas fa-pencil-alt fa-sm" aria-hidden="true"></i> {label}'
+        )
+        title = _("Done. Timepoint is complete")
+        btn_class = "success"
+
+    elif wrapped_appointment.appt_status == IN_PROGRESS_APPT:
+        # this appt_status is handled by the subject visit button
         pass
+    else:
+        raise SubjectDashboardExtrasError(
+            f"Unhandled appt_status. Got {wrapped_appointment.appt_status}"
+        )
     return dict(
-        wrapped_appointment=wrapped_appointment, title=title, label=label, request=request
+        wrapped_appointment=wrapped_appointment,
+        title=title,
+        label=label,
+        btn_class=btn_class,
+        request=request,
+    )
+
+
+@register.inclusion_tag(
+    f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/"
+    "dashboard/appointment_button.html"
+)
+def show_dashboard_appointment_button(
+    wrapped_appointment=None, view_appointment=None, request=None
+):
+    anchor_id = (
+        f"appointment_btn_{wrapped_appointment.visit_code }_"
+        f"{ wrapped_appointment.visit_code_sequence }"
+    )
+    if (
+        view_appointment
+        and wrapped_appointment.object.site.id == request.site.id
+        and wrapped_appointment.appt_status == IN_PROGRESS_APPT
+    ):
+        href = wrapped_appointment.href
+    else:
+        href = "#"
+    disabled = "disabled" if href == "#" else ""
+    if view_appointment and wrapped_appointment.object.site.id == request.site.id:
+        title = "" if disabled else "Edit appointment"
+    else:
+        title = "No permission to edit"
+    return dict(
+        wrapped_appointment=wrapped_appointment,
+        view_appointment=view_appointment,
+        href=href,
+        disabled=disabled,
+        title=title,
+        request=request,
+        IN_PROGRESS_APPT=IN_PROGRESS_APPT,
+        anchor_id=anchor_id,
+    )
+
+
+@register.inclusion_tag(
+    f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/"
+    "dashboard/unscheduled_appointment_button.html"
+)
+def show_dashboard_unscheduled_appointment_button(
+    wrapped_appointment=None, view_appointment=None, request=None
+):
+    anchor_id = (
+        f"unscheduled_appt_btn_{wrapped_appointment.visit_code }_"
+        f"{ wrapped_appointment.visit_code_sequence }"
+    )
+
+    if view_appointment and wrapped_appointment.object.site.id == request.site.id:
+        href = wrapped_appointment.unscheduled_appointment_url
+    else:
+        href = "#"
+    disabled = "disabled" if href == "#" else ""
+    if view_appointment and wrapped_appointment.object.site.id == request.site.id:
+        title = "" if disabled else "Edit appointment"
+    else:
+        title = "No permission to edit"
+    return dict(
+        anchor_id=anchor_id,
+        wrapped_appointment=wrapped_appointment,
+        view_appointment=view_appointment,
+        href=href,
+        disabled=disabled,
+        title=title,
+        request=request,
+        INCOMPLETE_APPT=INCOMPLETE_APPT,
+        COMPLETE_APPT=COMPLETE_APPT,
     )

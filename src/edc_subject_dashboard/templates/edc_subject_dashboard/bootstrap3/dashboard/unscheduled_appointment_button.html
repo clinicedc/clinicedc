@@ -1,0 +1,13 @@
+{% if wrapped_appointment.visit_code_sequence == 0 %}
+    {% if wrapped_appointment.appt_status == INCOMPLETE_APPT or wrapped_appointment.appt_status == COMPLETE_APPT %}
+        <a id="{{ anchor_id }}" role="button" class="btn btn-sm btn-default"
+           {% if wrapped_appointment.object.site.id != request.site.id %} disabled {% endif %}
+           href="{{ href }}">
+            <i class="far fa-address-book fa-lg" data-toggle="tooltip" title="Add continuation / unscheduled appointment" aria-hidden="true"></i>
+        </a>
+    {% endif %}
+{% else %}
+    <button class="btn btn-sm btn-default" disabled>
+        <i class="far fa-address-book fa-lg" aria-hidden="true"></i></button>
+{% endif %}
+
