@@ -79,6 +79,7 @@ class InitialReviewMethodsModelMixin(models.Model):
 
     class Meta:
         abstract = True
+        # TODO: add constraint on diagnosis, this is a singlton
 
 
 class InitialReviewModelMixin(
@@ -86,3 +87,4 @@ class InitialReviewModelMixin(
 ):
     class Meta:
         abstract = True
+        # TODO: add constraint on diagnosis, this is a singlton
