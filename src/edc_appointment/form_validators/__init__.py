@@ -7,4 +7,5 @@ from .appointment_form_validator import (
     INVALID_PREVIOUS_VISIT_MISSING,
     AppointmentFormValidator,
 )
+from .utils import validate_appt_datetime_unique
 from .window_period_form_validator_mixin import WindowPeriodFormValidatorMixin

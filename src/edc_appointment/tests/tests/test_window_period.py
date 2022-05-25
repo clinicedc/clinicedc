@@ -1,19 +1,21 @@
+from unittest.mock import patch
+
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
 from edc_visit_schedule import site_visit_schedules
-from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 
 from edc_appointment.constants import INCOMPLETE_APPT, ONTIME_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.forms import AppointmentForm
 from edc_appointment.model_mixins import AppointmentWindowError
-from edc_appointment.tests.models import SubjectVisit
+from edc_appointment.models import Appointment
+from edc_appointment_app.models import SubjectVisit
+from edc_appointment_app.visit_schedule import visit_schedule3
 
-from ...models import Appointment
 from ..helper import Helper
-from ..visit_schedule import visit_schedule3
 
 
 class TestAppointmentWindowPeriod(TestCase):
@@ -58,6 +60,7 @@ class TestAppointmentWindowPeriod(TestCase):
                 "appt_type": appointment.appt_type,
                 "appt_status": appointment.appt_status,
                 "appt_reason": appointment.appt_reason,
+                "document_status": appointment.document_status,
             },
             instance=appointment,
         )
@@ -68,7 +71,10 @@ class TestAppointmentWindowPeriod(TestCase):
         SubjectVisit.objects.create(
             appointment=appointment,
             report_datetime=appointment.appt_datetime,
-            reason=SCHEDULED,
+            reason=SCHEDULED if appointment.visit_code_sequence == 0 else UNSCHEDULED,
+            schedule_name=appointment.schedule_name,
+            visit_code=appointment.visit_code,
+            visit_code_sequence=appointment.visit_code_sequence,
         )
         appointment.appt_status = INCOMPLETE_APPT
         appointment.save()
@@ -127,8 +133,9 @@ class TestAppointmentWindowPeriod(TestCase):
         appointment_1030.appt_datetime = appointment_1060.appt_datetime
         self.assertRaises(AppointmentWindowError, appointment_1030.save)
 
-    @tag("22")
-    def test_appointments_window_period_in_form(self):
+    @patch("edc_appointment.form_validators.utils.url_names")
+    def test_appointments_window_period_in_form(self, mock_urlnames):
+        mock_urlnames.return_value = {"subject_dashboard_url": "subject_dashboard_url"}
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule3",
             schedule_name="three_monthly_schedule",
@@ -144,10 +151,17 @@ class TestAppointmentWindowPeriod(TestCase):
             instance=appointment_1030,
         )
         form.is_valid()
+        # conflicts on non-unique appointment date
+        self.assertIn("This appointment conflicts", form._errors.get("appt_datetime")[0])
+        form = AppointmentForm(
+            data={"appt_datetime": appointment_1060.appt_datetime - relativedelta(days=1)},
+            instance=appointment_1030,
+        )
+        form.is_valid()
+        # outside of window period
         self.assertIn("appt_datetime", form._errors)
-        self.assertIn("An appointment already exists", form._errors.get("appt_datetime")[0])
+        self.assertIn("Invalid. Expected a date between", form._errors.get("appt_datetime")[0])
 
-    @tag("1")
     def test_appointments_window_period_boundary_before_next_lower(self):
         appointment_1030, appointment_1060 = self.create_1030_and_1060()
 
@@ -166,7 +180,6 @@ class TestAppointmentWindowPeriod(TestCase):
         form.save()
         self.update_appt_as_incomplete(unscheduled_appointment)
 
-    @tag("appt")
     def test_appointments_window_period_boundary_on_next_lower(self):
         appointment_1030, appointment_1060 = self.create_1030_and_1060()
 
@@ -182,7 +195,6 @@ class TestAppointmentWindowPeriod(TestCase):
         form.is_valid()
         self.assertIn("appt_datetime", form._errors)
 
-    @tag("appt")
     def test_appointments_window_period_boundary_after_next_lower(self):
         appointment_1030, appointment_1060 = self.create_1030_and_1060()
 

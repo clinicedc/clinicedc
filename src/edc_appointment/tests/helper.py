@@ -20,7 +20,7 @@ class Helper:
         try:
             return django_apps.get_model(settings.SUBJECT_CONSENT_MODEL)
         except LookupError:
-            return django_apps.get_model("edc_appointment.subjectconsent")
+            return django_apps.get_model("edc_appointment_app.subjectconsent")
 
     def consent_and_put_on_schedule(
         self,

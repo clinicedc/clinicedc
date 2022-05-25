@@ -1,17 +1,18 @@
 from copy import deepcopy
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
-import arrow
 from dateutil._common import weekday
 from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_facility.import_holidays import import_holidays
 from edc_visit_schedule.schedule.visit_collection import VisitCollection
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from ...models import Appointment
+from edc_appointment.models import Appointment
+from edc_appointment_app.visit_schedule import visit_schedule1
+
 from ..helper import Helper
-from ..visit_schedule import visit_schedule1
 
 
 class TestApptDatetimes(TestCase):
@@ -51,7 +52,7 @@ class TestApptDatetimes(TestCase):
 
     def get_appt_datetimes(self, base_appt_datetime=None, subject_identifier=None):
         self.assertIsNotNone(base_appt_datetime)
-        now = arrow.Arrow.fromdatetime(base_appt_datetime, tzinfo="UTC").datetime
+        now = base_appt_datetime.astimezone(ZoneInfo("UTC"))
         self.helper = self.helper_cls(subject_identifier=subject_identifier, now=now)
         self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.filter(subject_identifier=subject_identifier)
@@ -66,8 +67,8 @@ class TestApptDatetimes(TestCase):
         self.register_visit_schedule(facility_name="7-day-clinic")
         for i in range(0, 7, 7):
             subject_identifier = f"12345{i}"
-            dt = datetime(2017, 1, 7) + relativedelta(days=i)
-            now = arrow.Arrow.fromdatetime(dt, tzinfo="UTC").datetime
+            dte = datetime(2017, 1, 7) + relativedelta(days=i)
+            now = dte.astimezone(ZoneInfo("UTC"))
             self.helper = self.helper_cls(subject_identifier=subject_identifier, now=now)
             self.helper.consent_and_put_on_schedule()
             appointments = Appointment.objects.filter(subject_identifier=subject_identifier)
@@ -78,11 +79,10 @@ class TestApptDatetimes(TestCase):
                     base_appt_datetime + relativedelta(days=index * 7), appt_datetime
                 )
 
-    @tag("appt")
     def test_appointments_creation_dates2(self):
         """Assert skips SA, SU."""
         self.register_visit_schedule(facility_name="5-day-clinic")
-        base_appt_datetime = datetime(2017, 1, 7)
+        base_appt_datetime = datetime(2017, 1, 7)  # noqa
         self.assertTrue(weekday(base_appt_datetime.weekday()), SA)
         appt_datetimes = self.get_appt_datetimes(
             base_appt_datetime=base_appt_datetime, subject_identifier="123456"
@@ -135,7 +135,7 @@ class TestApptDatetimes(TestCase):
     def test_appointments_creation_dates3(self):
         """Assert skips FR, SA, SU, MO."""
         self.register_visit_schedule(facility_name="3-day-clinic")
-        base_appt_datetime = datetime(2017, 1, 7)
+        base_appt_datetime = datetime(2017, 1, 7)  # noqa
         self.assertTrue(weekday(base_appt_datetime.weekday()), SA)
         appt_datetimes = self.get_appt_datetimes(
             base_appt_datetime=base_appt_datetime, subject_identifier="123456"

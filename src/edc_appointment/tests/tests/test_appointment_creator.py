@@ -11,9 +11,10 @@ from edc_facility.import_holidays import import_holidays
 from edc_utils import get_utcnow
 from edc_visit_schedule import Schedule, Visit, VisitSchedule, site_visit_schedules
 
+from edc_appointment.models import Appointment
+from edc_appointment_app.models import OnSchedule
+
 from ...creators import AppointmentCreator
-from ...models import Appointment
-from ..models import OnSchedule
 
 
 class AppointmentCreatorTestCase(TestCase):
@@ -23,16 +24,16 @@ class AppointmentCreatorTestCase(TestCase):
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="edc_offstudy.subjectoffstudy",
-            death_report_model="edc_appointment.deathreport",
+            offstudy_model="edc_appointment_app.subjectoffstudy",
+            death_report_model="edc_appointment_app.deathreport",
         )
 
         self.schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_appointment.onschedule",
-            offschedule_model="edc_appointment.offschedule",
+            onschedule_model="edc_appointment_app.onschedule",
+            offschedule_model="edc_appointment_app.offschedule",
             appointment_model="edc_appointment.appointment",
-            consent_model="edc_appointment.subjectconsent",
+            consent_model="edc_appointment_app.subjectconsent",
         )
 
         self.visit1000 = Visit(

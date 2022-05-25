@@ -2,7 +2,7 @@ from typing import Optional, Type
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import models
+from django.db import models, transaction
 from edc_facility import Facility
 from edc_visit_tracking.model_mixins import VisitModelMixin
 from edc_visit_tracking.stubs import SubjectVisitModelStub
@@ -20,8 +20,18 @@ class AppointmentMethodsModelMixin(models.Model):
 
     @property
     def visit(self: AppointmentModelStub) -> SubjectVisitModelStub:
-        """Returns the related visit model instance"""
-        return getattr(self, self.related_visit_model_attr())
+        """Returns the related visit model instance, or None"""
+        visit = None
+        for f in self._meta.get_fields():
+            if f.related_model:
+                if issubclass(f.related_model, VisitModelMixin):
+                    with transaction.atomic():
+                        try:
+                            visit = f.related_model.objects.get(appointment=self)
+                        except ObjectDoesNotExist:
+                            pass
+        # return getattr(self, self.related_visit_model_attr())
+        return visit
 
     @property
     def facility(self: AppointmentModelStub) -> Facility:
@@ -36,6 +46,7 @@ class AppointmentMethodsModelMixin(models.Model):
             if f.related_model:
                 if issubclass(f.related_model, VisitModelMixin):
                     fields.append(f)
+                    break
         if len(fields) > 1:
             raise AppointmentMethodsModelError(
                 f"More than one field on Appointment is related field to a visit model. "
