@@ -1,4 +1,3 @@
-from django.apps import apps as django_apps
 from django.conf import settings
 from django.urls import reverse
 from django.views.generic.base import TemplateView
