@@ -13,11 +13,11 @@ class RuleGroup:
     """Base class for CRF and Requisition rule groups."""
 
     @classmethod
-    def get_rules(cls) -> Any:
+    def get_rules(cls: Any) -> Any:
         return cls._meta.options.get("rules")
 
     @classmethod
-    def validate(cls) -> None:
+    def validate(cls: Any) -> None:
         """Outputs to the console if a target model referenced in a rule
         does not exist.
         """

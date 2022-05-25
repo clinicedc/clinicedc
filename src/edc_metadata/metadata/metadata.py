@@ -139,6 +139,7 @@ class CrfCreator:
         )
 
     def _verify_entry_status_with_model_obj(self, metadata_obj):
+        # TODO maybe just call metadata_obj.reset_entry_status() ?
         if metadata_obj.entry_status != KEYED and self.is_keyed:
             warn(
                 "Incorrect metadata entry_status. Model instance exists! "

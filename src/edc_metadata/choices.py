@@ -1,11 +1,11 @@
-from .constants import KEYED, NOT_REQUIRED, REQUIRED
+from .constants import KEYED, MISSED, NOT_REQUIRED, REQUIRED
 
 ENTRY_CATEGORY = (("CLINIC", "Clinic"), ("LAB", "Lab"), ("OTHER", "Other"))
 
 ENTRY_STATUS = (
     (REQUIRED, "New"),
     (KEYED, "Keyed"),
-    ("MISSED", "Missed"),
+    (MISSED, "Missed"),
     (NOT_REQUIRED, "Not required"),
 )
 

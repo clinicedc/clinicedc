@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from typing import Any, Optional
 
-from ... import NOT_REQUIRED, REQUIRED
+from ...constants import NOT_REQUIRED, REQUIRED
 from ...metadata_updater import MetadataUpdater
 from ...target_handler import TargetModelConflict
 from ..rule_group import RuleGroup
@@ -13,10 +13,10 @@ class CrfRuleGroup(RuleGroup, metaclass=RuleGroupMetaclass):
 
     metadata_updater_cls = MetadataUpdater
 
-    def __str__(self):
+    def __str__(self: Any):
         return f"{self.__class__.__name__}({self.name})"
 
-    def __repr__(self):
+    def __repr__(self: Any):
         return f"{self.__class__.__name__}({self.name})"
 
     @classmethod
@@ -31,7 +31,7 @@ class CrfRuleGroup(RuleGroup, metaclass=RuleGroupMetaclass):
         return crfs
 
     @classmethod
-    def evaluate_rules(cls, visit: Any = None) -> tuple:
+    def evaluate_rules(cls: Any, visit: Any = None) -> tuple:
         rule_results = OrderedDict()
         metadata_objects = OrderedDict()
         for rule in cls._meta.options.get("rules"):

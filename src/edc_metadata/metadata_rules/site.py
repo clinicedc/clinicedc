@@ -53,7 +53,8 @@ class SiteMetadataRules:
                 sys.stdout.write(f"{repr(rule_group)}\n")
                 rule_group.validate()
 
-    def autodiscover(self, module_name: Optional[str] = None) -> None:
+    @staticmethod
+    def autodiscover(module_name: Optional[str] = None) -> None:
         """Autodiscovers rules in the metadata_rules.py file
         of any INSTALLED_APP.
         """
@@ -61,6 +62,7 @@ class SiteMetadataRules:
         sys.stdout.write(f" * checking for {module_name} ...\n")
         for app in django_apps.app_configs:
             try:
+                before_import_registry = None
                 mod = import_module(app)
                 try:
                     before_import_registry = copy.copy(site_metadata_rules.registry)

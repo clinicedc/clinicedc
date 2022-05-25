@@ -9,7 +9,7 @@ class RegisterRuleGroupError(Exception):
     pass
 
 
-def register(site=None, **kwargs) -> Any:
+def register(site=None, **kwargs) -> Any:  # noqa
     """Registers a rule group."""
     site = site or site_metadata_rules
 
