@@ -7,6 +7,7 @@ from django.test import TestCase
 from django.test.client import RequestFactory
 from edc_appointment.models import Appointment
 from edc_constants.constants import NO
+from edc_facility import import_holidays
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
@@ -15,11 +16,16 @@ from ...custom_label_condition import CustomLabelCondition
 from ...form_label import FormLabel
 from ..admin import VISIT_ONE, VISIT_TWO
 from ..forms import MyForm
-from ..models import MyModel, SubjectVisit
+from ..models import MyModel, OnSchedule, SubjectVisit
 from ..visit_schedule import visit_schedule
 
 
 class TestFormLabel(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        import_holidays()
+        return super().setUpTestData()
+
     def setUp(self):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
@@ -31,31 +37,20 @@ class TestFormLabel(TestCase):
             self.user.user_permissions.add(permission)
         RegisteredSubject.objects.create(subject_identifier=self.subject_identifier)
 
-        self.appointment_one = Appointment.objects.create(
+        OnSchedule.objects.create(
             subject_identifier=self.subject_identifier,
-            appt_datetime=get_utcnow() - timedelta(days=1),
-            visit_code=VISIT_ONE,
-            visit_code_sequence=0,
-            visit_schedule_name="visit_schedule",
-            schedule_name="schedule",
-            timepoint=0,
-            timepoint_datetime=get_utcnow() - timedelta(days=1),
+            report_datetime=get_utcnow() - timedelta(days=15),
+            onschedule_datetime=get_utcnow() - timedelta(days=15),
         )
+        self.appointment_one = Appointment.objects.get(visit_code=VISIT_ONE)
+
         self.subject_visit_one = SubjectVisit.objects.create(appointment=self.appointment_one)
 
-        self.appointment_two = Appointment.objects.create(
-            subject_identifier=self.subject_identifier,
-            appt_datetime=get_utcnow(),
-            visit_code=VISIT_TWO,
-            visit_code_sequence=0,
-            visit_schedule_name="visit_schedule",
-            schedule_name="schedule",
-            timepoint=1,
-            timepoint_datetime=get_utcnow(),
-        )
+        self.appointment_two = Appointment.objects.get(visit_code=VISIT_TWO)
+
         self.subject_visit_two = SubjectVisit.objects.create(appointment=self.appointment_two)
 
-        for field in MyModel._meta.fields:
+        for field in MyModel._meta.get_fields():
             if field.name == "circumcised":
                 self.default_label = field.verbose_name
                 break

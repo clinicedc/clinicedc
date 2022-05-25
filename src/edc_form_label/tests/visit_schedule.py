@@ -1,7 +1,7 @@
 from dateutil.relativedelta import relativedelta
 from edc_visit_schedule import Crf, FormsCollection, Schedule, Visit, VisitSchedule
 
-crfs = FormsCollection(Crf(show_order=1, model=f"edc_fieldsets.mymodel", required=True))
+crfs = FormsCollection(Crf(show_order=1, model="edc_fieldsets.mymodel", required=True))
 
 
 visit0 = Visit(
@@ -12,7 +12,7 @@ visit0 = Visit(
     rlower=relativedelta(days=0),
     rupper=relativedelta(days=6),
     crfs=crfs,
-    facility_name="default",
+    facility_name="7-day-clinic",
 )
 
 visit1 = Visit(
@@ -23,7 +23,7 @@ visit1 = Visit(
     rlower=relativedelta(days=0),
     rupper=relativedelta(days=6),
     crfs=crfs,
-    facility_name="default",
+    facility_name="7-day-clinic",
 )
 
 schedule = Schedule(
