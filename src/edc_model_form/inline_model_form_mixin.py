@@ -1,6 +1,6 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
-import pytz
 from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -45,8 +45,11 @@ class InlineModelFormMixin:
         self.field_is_date_or_raise(field=field, inline_model=inline_model)
         inline_set = f"{inline_model.split('.')[1]}_set"
         dates = self.get_inline_field_values(field=field, inline_set=inline_set)
-        tzinfo = pytz.timezone(settings.TIME_ZONE)
-        dates = [datetime.fromisoformat(dte).replace(tzinfo=tzinfo) for dte in dates if dte]
+        dates = [
+            datetime.fromisoformat(dte).replace(tzinfo=ZoneInfo(settings.TIME_ZONE))
+            for dte in dates
+            if dte
+        ]
         for dte in dates:
             if dte > self.cleaned_data.get("report_datetime"):
                 raise forms.ValidationError(
@@ -55,12 +58,12 @@ class InlineModelFormMixin:
 
     def field_exists_or_raise(self, field, inline_model):
         model_cls = django_apps.get_model(inline_model)
-        if field not in [f.name for f in model_cls._meta.fields]:
+        if field not in [f.name for f in model_cls._meta.get_fields()]:
             raise InlineModelFormMixinError(
                 f"Field does not exist on model class. See {self.__class__.__name__}. "
                 f"Got {inline_model}.{field}."
             )
-        return [f for f in model_cls._meta.fields if f.name == field][0]
+        return [f for f in model_cls._meta.get_fields() if f.name == field][0]
 
     def field_is_date_or_raise(self, field, inline_model):
         """Raises if field class on model is not a date.
