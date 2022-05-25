@@ -1,9 +1,11 @@
-from typing import Any, Optional
+from typing import Any
 
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_appointment.constants import COMPLETE_APPT, IN_PROGRESS_APPT, MISSED_APPT
-from edc_constants.constants import COMPLETE, NO, YES
+from edc_appointment.appointment_status_updater import AppointmentStatusUpdater
+from edc_appointment.constants import MISSED_APPT
+from edc_constants.constants import NO, YES
+from edc_document_status.model_mixins import DocumentStatusModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 
@@ -25,6 +27,7 @@ class VisitModelMixin(
     VisitScheduleModelMixin,
     NonUniqueSubjectIdentifierFieldMixin,
     PreviousVisitModelMixin,
+    DocumentStatusModelMixin,
     models.Model,
 ):
 
@@ -45,8 +48,7 @@ class VisitModelMixin(
     def __str__(self) -> str:
         return f"{self.subject_identifier} {self.visit_code}.{self.visit_code_sequence}"
 
-    def save(self: Any, *args, update_fields: Optional[list] = None, **kwargs):
-        self.update_document_status_on_save(update_fields)
+    def save(self: Any, *args, **kwargs):
         self.subject_identifier = self.appointment.subject_identifier
         self.visit_schedule_name = self.appointment.visit_schedule_name
         self.schedule_name = self.appointment.schedule_name
@@ -83,27 +85,8 @@ class VisitModelMixin(
             dct.update({item: item})
         return dct
 
-    def check_appointment_in_progress(self: SubjectVisitModelStub) -> None:
-        if self.reason in self.get_visit_reason_no_follow_up_choices():
-            if self.appointment.appt_status != COMPLETE_APPT:
-                self.appointment.appt_status = COMPLETE_APPT
-                self.appointment.save()
-        else:
-            if self.appointment.appt_status != IN_PROGRESS_APPT:
-                self.appointment.appt_status = IN_PROGRESS_APPT
-                self.appointment.save()
-
-    def update_document_status_on_save(self, update_fields: Optional[list] = None) -> None:
-        """Updates `document_status` as complete unless field is listed
-        in update_fields.
-
-        Used when this instance (subject_visit) needs to be updated.
-        For example, after being auto-created and before moving on to CRFs.
-
-        See also: edc_subject_dashboard
-        """
-        if "document_status" not in (update_fields or []):
-            self.document_status = COMPLETE
+    def check_appointment_in_progress(self: Any) -> None:
+        AppointmentStatusUpdater(self.appointment)
 
     class Meta:
         abstract = True

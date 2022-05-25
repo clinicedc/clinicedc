@@ -73,7 +73,7 @@ for index in range(0, 4):
             code=f"{index + 1}000",
             title=f"Day {index + 1}",
             timepoint=index,
-            rbase=relativedelta(days=index),
+            rbase=relativedelta(months=index),
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
             requisitions=requisitions,

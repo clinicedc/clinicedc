@@ -30,7 +30,7 @@ class VisitMethodsModelMixin(models.Model):
         attribute.
         """
         visit = None
-        fields = {field.name: field for field in self._meta.fields}
+        fields = {field.name: field for field in self._meta.get_fields()}
         for name, field in fields.items():
             try:
                 assert field.related_model is not None
@@ -50,7 +50,7 @@ class VisitMethodsModelMixin(models.Model):
         foreign key.
         """
         visit_model_attr = None
-        fields = {field.name: field for field in cls._meta.fields}
+        fields = {field.name: field for field in cls._meta.get_fields()}
         for name, field in fields.items():
             try:
                 assert field.related_model is not None
@@ -71,7 +71,7 @@ class VisitMethodsModelMixin(models.Model):
     @classmethod
     def visit_model_cls(cls) -> Optional[TSubjectVisitModelStub]:
         """Returns the visit foreign key attribute model class."""
-        fields = {field.name: field for field in cls._meta.fields}
+        fields = {field.name: field for field in cls._meta.get_fields()}
         for name, field in fields.items():
             if name == cls.visit_model_attr():
                 return field.related_model

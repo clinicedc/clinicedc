@@ -1,3 +1,2 @@
 from .crf_model_admin_mixin import CrfModelAdminMixin
-from .fieldsets import document_status_fieldset_tuple
 from .visit_model_admin_mixin import VisitModelAdminMixin

@@ -1,6 +1,6 @@
 from django.db import models
-from edc_constants.choices import ALIVE_DEAD_UNKNOWN_NA_MISSED, DOCUMENT_STATUS, YES_NO
-from edc_constants.constants import ALIVE, COMPLETE, NOT_APPLICABLE, YES
+from edc_constants.choices import ALIVE_DEAD_UNKNOWN_NA_MISSED, YES_NO
+from edc_constants.constants import ALIVE, NOT_APPLICABLE, YES
 from edc_model.models import date_not_future, datetime_not_future
 from edc_model_fields.fields import OtherCharField
 from edc_protocol.validators import (
@@ -99,14 +99,6 @@ class VisitModelFieldsMixin(models.Model):
         max_length=250,
         blank=True,
         null=True,
-    )
-
-    document_status = models.CharField(
-        verbose_name="Document status",
-        max_length=25,
-        choices=DOCUMENT_STATUS,
-        default=COMPLETE,
-        help_text="If some data is still pending, flag as incomplete",
     )
 
     class Meta:

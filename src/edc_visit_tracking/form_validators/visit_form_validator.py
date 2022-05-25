@@ -1,13 +1,14 @@
 from copy import deepcopy
-from typing import List, Optional
+from typing import Any, List, Optional
 from zoneinfo import ZoneInfo
 
-from arrow import Arrow
 from django import forms
 from django.conf import settings
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from edc_appointment.constants import MISSED_APPT
-from edc_appointment.form_validators import WindowPeriodFormValidatorMixin
+from edc_appointment.form_validators import (
+    WindowPeriodFormValidatorMixin,
+    validate_appt_datetime_unique,
+)
 from edc_constants.constants import OTHER
 from edc_form_validators import INVALID_ERROR, REQUIRED_ERROR, FormValidator
 from edc_metadata.constants import KEYED
@@ -20,7 +21,7 @@ from edc_visit_schedule.utils import is_baseline
 
 from edc_visit_tracking.utils import get_subject_visit_missed_model_cls
 
-from ..constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
+from ..constants import MISSED_VISIT, UNSCHEDULED
 from ..visit_sequence import VisitSequence, VisitSequenceError
 
 EDC_VISIT_TRACKING_ALLOW_MISSED_UNSCHEDULED = getattr(
@@ -41,14 +42,18 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
     validate_unscheduled_visit_reason = True
 
     def _clean(self) -> None:
-        self.clean_defaults()
         super()._clean()
-
-    def clean_defaults(self) -> None:
         if not self.cleaned_data.get("appointment"):
             raise forms.ValidationError(
                 {"appointment": "This field is required"}, code=REQUIRED_ERROR
             )
+
+        validate_appt_datetime_unique(
+            form_validator=self,
+            appointment=self.cleaned_data.get("appointment"),
+            appt_datetime=self.cleaned_data.get("appointment").appt_datetime,
+            form_field="appointment",
+        )
 
         self.validate_visit_datetime_unique()
 
@@ -66,31 +71,42 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
 
         self.required_if(OTHER, field="info_source", field_required="info_source_other")
 
-    def validate_visit_datetime_unique(self):
+    @property
+    def appt_datetime_local(self):
+        """Returns appt datetime in local timezone"""
+        return self.cleaned_data.get("appointment").appt_datetime.astimezone(
+            ZoneInfo(settings.TIME_ZONE)
+        )
+
+    @property
+    def report_datetime_utc(self):
+        """Returns report datetime in UTC timezone"""
+        return self.cleaned_data.get("report_datetime").astimezone(ZoneInfo("UTC"))
+
+    def validate_visit_datetime_unique(self: Any):
         """Assert one visit report per day"""
         if self.cleaned_data.get("report_datetime"):
-            tz = ZoneInfo("UTC")
-            report_date = (
-                Arrow.fromdatetime(self.cleaned_data.get("report_datetime")).to(tz).date()
+            qs = self.instance.__class__.objects.filter(
+                subject_identifier=self.cleaned_data.get("appointment").subject_identifier,
+                report_datetime__date=self.report_datetime_utc.date(),
+                visit_schedule_name=self.instance.visit_schedule_name,
+                schedule_name=self.instance.schedule_name,
             )
-            try:
-                obj = self.instance.__class__.objects.get(report_datetime__date=report_date)
-            except ObjectDoesNotExist:
-                pass
-            except MultipleObjectsReturned:
+            if getattr(self.instance, "id"):
+                qs = qs.exclude(id=self.instance.id)
+            if qs.count() > 1:
                 raise self.raise_validation_error(
-                    {"report_datetime": "Visit reports already exist for this date"},
+                    {"report_datetime": "Visit report already exist for this date (M)"},
                     INVALID_ERROR,
                 )
-            else:
-                if self.instance and obj.id != self.instance.id:
-                    raise self.raise_validation_error(
-                        {
-                            "report_datetime": "A visit report already exists for this date. "
-                            f"See {obj.visit_code}.{obj.visit_code_sequence}"
-                        },
-                        INVALID_ERROR,
-                    )
+            elif qs.count() == 1:
+                raise self.raise_validation_error(
+                    {
+                        "report_datetime": "A visit report already exists for this date. "
+                        f"See {qs[0].visit_code}.{qs[0].visit_code_sequence}"
+                    },
+                    INVALID_ERROR,
+                )
 
     def validate_visit_datetime_not_before_appointment(
         self,
@@ -98,14 +114,10 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
         """Asserts the report_datetime is not before the
         appt_datetime.
         """
-        if report_datetime := self.cleaned_data.get("report_datetime"):
-            tz = ZoneInfo(settings.TIME_ZONE)
-            appt_datetime_local = Arrow.fromdatetime(
-                self.cleaned_data.get("appointment").appt_datetime
-            ).to(tz)
-            if report_datetime.date() < appt_datetime_local.date():
+        if report_datetime_local := self.cleaned_data.get("report_datetime"):
+            if report_datetime_local.date() < self.appt_datetime_local.date():
                 appt_datetime_str = formatted_datetime(
-                    appt_datetime_local, format_as_date=True
+                    self.appt_datetime_local, format_as_date=True
                 )
                 self.raise_validation_error(
                     {
@@ -122,14 +134,10 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
         as baseline.
         """
         if is_baseline(instance=self.cleaned_data.get("appointment")):
-            if report_datetime := self.cleaned_data.get("report_datetime"):
-                tz = ZoneInfo(settings.TIME_ZONE)
-                appt_datetime_local = Arrow.fromdatetime(
-                    self.cleaned_data.get("appointment").appt_datetime
-                ).to(tz)
-                if report_datetime.date() != appt_datetime_local.date():
+            if report_datetime_local := self.cleaned_data.get("report_datetime"):
+                if report_datetime_local.date() != self.appt_datetime_local.date():
                     appt_datetime_str = formatted_datetime(
-                        appt_datetime_local, format_as_date=True
+                        self.appt_datetime_local, format_as_date=True
                     )
                     self.raise_validation_error(
                         {
@@ -196,14 +204,15 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
                     code=INVALID_ERROR,
                 )
             # raise if SubjectVisitMissed CRF metadata exist
-            if reason in [UNSCHEDULED, SCHEDULED] and self.metadata_exists_for(
-                entry_status=KEYED,
-                filter_models=[get_subject_visit_missed_model_cls()._meta.label_lower],
-            ):
-                raise forms.ValidationError(
-                    {"reason": "Invalid. A missed visit report has already been submitted."},
-                    code=INVALID_ERROR,
-                )
+            # if reason in [UNSCHEDULED, SCHEDULED] and self.metadata_exists_for(
+            #     entry_status=KEYED,
+            #     filter_models=[get_subject_visit_missed_model_cls()._meta.label_lower],
+            #     exclude_models=[get_subject_visit_missed_model()],
+            # ):
+            #     raise forms.ValidationError(
+            #         {"reason": "Invalid. A missed visit report has already been submitted."},
+            #         code=INVALID_ERROR,
+            #     )
 
     def validate_visit_reason(self):
         """Asserts that reason=missed if appointment is missed"""
@@ -212,7 +221,7 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
             and self.cleaned_data.get("reason") != MISSED_VISIT
         ):
             self.raise_validation_error(
-                {"reason": "Invalid. This is a missed visit. See appointment"}, INVALID_ERROR
+                {"reason": "Invalid. This appointment was reported as missed"}, INVALID_ERROR
             )
 
         if self.validate_missed_visit_reason:

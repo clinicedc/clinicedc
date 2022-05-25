@@ -2,7 +2,6 @@ from typing import Any, Optional
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from edc_appointment.appointment_status_updater import AppointmentStatusUpdater
 from edc_appointment.choices import APPT_TIMING
 from edc_appointment.constants import MISSED_APPT, SCHEDULED_APPT, UNSCHEDULED_APPT
 from edc_constants.constants import INCOMPLETE
@@ -38,19 +37,21 @@ class SubjectVisitReasonUpdater(MetaDataHelperMixin):
     response from appointment timing and appointment reason.
     """
 
-    instance_attr = "appointment"
+    metadata_helper_instance_attr = "appointment"
 
     def __init__(
         self,
         appointment: Optional[Any] = None,
         appt_timing: Optional[str] = None,
         appt_reason: Optional[str] = None,
+        commit: Optional[bool] = None,
     ):
         self.appointment = appointment
         if not getattr(self.appointment, "id", None):
             raise SubjectVisitReasonUpdaterError(
                 "Appointment instance must exist. Got `id` is None"
             )
+        self.commit = commit
         self.appt_timing = appt_timing or self.appointment.appt_timing
         if self.appt_timing not in [a for a, b in APPT_TIMING]:
             raise SubjectVisitReasonUpdaterError(
@@ -93,18 +94,17 @@ class SubjectVisitReasonUpdater(MetaDataHelperMixin):
     def _update_visit_to_missed_or_raise(self):
         self.missed_visit_allowed_or_raise()
         if self.subject_visit:
-            AppointmentStatusUpdater(self.appointment)
             self.subject_visit.reason = MISSED_VISIT
             self.subject_visit.document_status = INCOMPLETE
-            self.subject_visit.save_base(update_fields=["reason", "document_status"])
-            self.subject_visit.refresh_from_db()
+            if self.commit:
+                self.subject_visit.save_base(update_fields=["reason", "document_status"])
+                self.subject_visit.refresh_from_db()
 
     def _update_visit_to_not_missed_or_raise(self):
         """Updates the subject visit instance from MISSED_VISIT
         to SCHEDULED or UNSCHEDULED.
         """
         if self.subject_visit:
-            AppointmentStatusUpdater(self.appointment)
             reason = self.get_reason_from_appt_reason(self.appt_reason)
             self.delete_subject_visit_missed_if_exists()
             self.subject_visit.reason = reason
@@ -113,10 +113,11 @@ class SubjectVisitReasonUpdater(MetaDataHelperMixin):
                 self.subject_visit.comments = self.subject_visit.comments.replace(
                     "[auto-created]", ""
                 )
-            self.subject_visit.save_base(
-                update_fields=["reason", "document_status", "comments"]
-            )
-            self.subject_visit.refresh_from_db()
+            if self.commit:
+                self.subject_visit.save_base(
+                    update_fields=["reason", "document_status", "comments"]
+                )
+                self.subject_visit.refresh_from_db()
 
     def missed_visit_allowed_or_raise(self) -> None:
         """Raises an exception if not allowed.
