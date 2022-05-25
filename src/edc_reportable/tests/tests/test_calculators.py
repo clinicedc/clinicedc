@@ -8,12 +8,13 @@ from edc_utils import get_utcnow
 from edc_reportable import (
     GRAMS_PER_DECILITER,
     BmiFormValidatorMixin,
-    EgfrFormValidatorMixin,
+    EgfrCkdEpiFormValidatorMixin,
+    EgfrCockcroftGaultFormValidatorMixin,
     calculate_bmi,
 )
-from edc_reportable.units import MICROMOLES_PER_LITER
+from edc_reportable.units import MICROMOLES_PER_LITER, MILLIGRAMS_PER_DECILITER
 
-from ...calculators import BMI, CalculatorError, eGFR
+from ...calculators import BMI, CalculatorError, EgfrCkdEpi
 
 
 class TestCalculators(TestCase):
@@ -44,14 +45,14 @@ class TestCalculators(TestCase):
                 else:
                     self.assertEqual(round(bmi.value, 2), 24.89)
 
-    def test_egfr_calculator(self):
+    def test_egfr_ckd_epi_calculator(self):
 
         # raises on invalid gender
         self.assertRaises(
             CalculatorError,
-            eGFR,
+            EgfrCkdEpi,
             gender="blah",
-            age=30,
+            age_in_years=30,
             creatinine_value=1.0,
             creatinine_units=MICROMOLES_PER_LITER,
         )
@@ -59,48 +60,60 @@ class TestCalculators(TestCase):
         # raises on low age
         self.assertRaises(
             CalculatorError,
-            eGFR,
+            EgfrCkdEpi,
             gender=FEMALE,
-            age=3,
+            age_in_years=3,
             creatinine_value=1.0,
             creatinine_units=MICROMOLES_PER_LITER,
         )
 
-        egfr = eGFR(
-            gender=FEMALE, age=30, creatinine_value=1.0, creatinine_units=MICROMOLES_PER_LITER
+        egfr = EgfrCkdEpi(
+            gender=FEMALE,
+            age_in_years=30,
+            creatinine_value=1.0,
+            creatinine_units=MICROMOLES_PER_LITER,
         )
         self.assertEqual(0.7, egfr.kappa)
 
-        egfr = eGFR(
-            gender=MALE, age=30, creatinine_value=1.0, creatinine_units=MICROMOLES_PER_LITER
+        egfr = EgfrCkdEpi(
+            gender=MALE,
+            age_in_years=30,
+            creatinine_value=1.0,
+            creatinine_units=MICROMOLES_PER_LITER,
         )
         self.assertEqual(0.9, egfr.kappa)
 
-        egfr = eGFR(
-            gender=FEMALE, age=30, creatinine_value=1.0, creatinine_units=MICROMOLES_PER_LITER
+        egfr = EgfrCkdEpi(
+            gender=FEMALE,
+            age_in_years=30,
+            creatinine_value=1.0,
+            creatinine_units=MICROMOLES_PER_LITER,
         )
         self.assertEqual(-0.329, egfr.alpha)
 
-        egfr = eGFR(
-            gender=MALE, age=30, creatinine_value=1.0, creatinine_units=MICROMOLES_PER_LITER
+        egfr = EgfrCkdEpi(
+            gender=MALE,
+            age_in_years=30,
+            creatinine_value=1.0,
+            creatinine_units=MICROMOLES_PER_LITER,
         )
         self.assertEqual(-0.411, egfr.alpha)
 
-        egfr1 = eGFR(
+        egfr1 = EgfrCkdEpi(
             gender=MALE,
             ethnicity=BLACK,
             creatinine_value=1.3,
-            age=30,
+            age_in_years=30,
             creatinine_units=MICROMOLES_PER_LITER,
         )
 
         self.assertEqual(round(egfr1.value, 2), 712.56)
 
-        egfr2 = eGFR(
+        egfr2 = EgfrCkdEpi(
             gender=MALE,
             ethnicity=BLACK,
             creatinine_value=0.9,
-            age=30,
+            age_in_years=30,
             creatinine_units=MICROMOLES_PER_LITER,
         )
 
@@ -142,14 +155,14 @@ class TestCalculators(TestCase):
         form_validator = BmiFormValidator(cleaned_data=data)
         self.assertRaises(forms.ValidationError, form_validator.validate_bmi)
 
-    def test_egfr_form_validator(self):
+    def test_egfr_ckd_epi_form_validator(self):
         data = dict(
             gender=MALE,
             ethnicity=BLACK,
             age_in_years=30,
         )
 
-        class EgfrFormValidator(EgfrFormValidatorMixin, FormValidator):
+        class EgfrFormValidator(EgfrCkdEpiFormValidatorMixin, FormValidator):
             pass
 
         # not enough data
@@ -167,3 +180,35 @@ class TestCalculators(TestCase):
         data.update(creatinine_units=GRAMS_PER_DECILITER)
         form_validator = EgfrFormValidator(cleaned_data=data)
         self.assertRaises(forms.ValidationError, form_validator.validate_egfr)
+
+    def test_egfr_cockcroft_gault_form_validator(self):
+        data = dict(
+            gender=MALE,
+            weight=72,
+            age_in_years=30,
+        )
+
+        class EgfrFormValidator(EgfrCockcroftGaultFormValidatorMixin, FormValidator):
+            pass
+
+        # not enough data
+        form_validator = EgfrFormValidator(cleaned_data=data)
+        egfr = form_validator.validate_egfr()
+        self.assertIsNone(egfr)
+
+        # calculation error: bad units
+        data.update(creatinine_value=1.3, creatinine_units=GRAMS_PER_DECILITER)
+        form_validator = EgfrFormValidator(cleaned_data=data)
+        self.assertRaises(forms.ValidationError, form_validator.validate_egfr)
+
+        # calculates
+        data.update(creatinine_value=1.30, creatinine_units=MILLIGRAMS_PER_DECILITER)
+        form_validator = EgfrFormValidator(cleaned_data=data)
+        egfr = form_validator.validate_egfr()
+        self.assertEqual(round(egfr, 2), 84.75)
+
+        # calculates
+        data.update(creatinine_value=114.94, creatinine_units=MICROMOLES_PER_LITER)
+        form_validator = EgfrFormValidator(cleaned_data=data)
+        egfr = form_validator.validate_egfr()
+        self.assertEqual(round(egfr, 2), 84.75)

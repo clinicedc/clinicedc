@@ -1,6 +1,12 @@
 from .adult_age_options import adult_age_options
 from .age_evaluator import AgeEvaluator
-from .calculators import BMI, CalculatorError, calculate_bmi, calculate_egfr, eGFR
+from .calculators import (
+    BMI,
+    CalculatorError,
+    EgfrCkdEpi,
+    EgfrCockcroftGault,
+    calculate_bmi,
+)
 from .constants import (
     ALREADY_REPORTED,
     GRADE0,
@@ -26,7 +32,8 @@ from .evaluator import (
 )
 from .form_validator_mixins import (
     BmiFormValidatorMixin,
-    EgfrFormValidatorMixin,
+    EgfrCkdEpiFormValidatorMixin,
+    EgfrCockcroftGaultFormValidatorMixin,
     ReportablesFormValidatorMixin,
 )
 from .grade_reference import GradeError, GradeReference
