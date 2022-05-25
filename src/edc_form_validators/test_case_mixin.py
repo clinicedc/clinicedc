@@ -7,9 +7,9 @@ class FormValidatorTestCaseMixin:
 
     form_validator_default_form_cls = None
 
-    def validate_form_validator(self, cleaned_data, form_cls=None):
+    def validate_form_validator(self, cleaned_data, form_cls=None, instance=None):
         form_cls = form_cls or self.form_validator_default_form_cls
-        form_validator = form_cls(cleaned_data=cleaned_data)
+        form_validator = form_cls(cleaned_data=cleaned_data, instance=instance)
         try:
             form_validator.validate()
         except ValidationError:
