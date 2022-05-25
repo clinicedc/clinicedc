@@ -1,6 +1,6 @@
 from edc_constants.constants import FEMALE
 
-from ...units import MICROMOLES_PER_LITER, MILLIMOLES_PER_LITER
+from ...units import MICROMOLES_PER_LITER
 from .base_egrfr import BaseEgfr
 
 
