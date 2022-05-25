@@ -59,14 +59,12 @@ class BloodPressureModelMixin(models.Model):
     )
 
     # TODO: is this being validated
-    # TODO: National guidance has severe hypertension as >180/110.
-    # TODO: Do we want to change this to be in line with that or keep as is?
 
     severe_htn = models.CharField(
         verbose_name="Does the patient have severe hypertension?",
         max_length=15,
         choices=YES_NO,
-        help_text="Based on the above readings. Severe HTN is any BP reading > 180/120mmHg",
+        help_text="Based on the above readings. Severe HTN is any BP reading > 180/110mmHg",
         null=True,
         blank=True,
     )
