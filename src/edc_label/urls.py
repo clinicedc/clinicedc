@@ -2,7 +2,6 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path, re_path
 
-from edc_label.admin_site import edc_label_admin
 from edc_label.views.print_setup_view import PrinterSetupView
 
 from .views import BrowserPrintLabelsView, ChangePrinterView, HomeView, PrintLabelView
