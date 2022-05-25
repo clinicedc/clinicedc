@@ -54,7 +54,7 @@ def raise_on_unknown_diagnosis_labels(obj, fld_suffix, fld_value):
     """
     labels = [
         fld.name.split(fld_suffix)[0]
-        for fld in obj._meta.fields
+        for fld in obj._meta.get_fields()
         if fld.name.endswith(fld_suffix)
         and fld.name.split(fld_suffix)[0] not in get_diagnosis_labels_prefixes()
         and getattr(obj, fld.name) == fld_value
