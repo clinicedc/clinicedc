@@ -37,3 +37,10 @@ class VisitCollection(OrderedCollection):
                 visit.timepoint_datetime = timepoint_datetime
             timepoint_dates.update({visit: visit.timepoint_datetime})
         return timepoint_dates
+
+    @property
+    def timepoints(self):
+        timepoints = {}
+        for visit in self.values():
+            timepoints.update({visit: visit.timepoint})
+        return timepoints

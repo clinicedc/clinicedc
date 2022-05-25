@@ -14,7 +14,7 @@ class TestVisit(TestCase):
             rbase=relativedelta(days=0),
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
-            timepoint=1,
+            timepoint=1.0,
         )
         self.assertIsNotNone(visit.__repr__())
 

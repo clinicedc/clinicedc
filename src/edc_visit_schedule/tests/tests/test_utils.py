@@ -15,7 +15,7 @@ from edc_visit_tracking.constants import SCHEDULED
 
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_schedule.utils import is_baseline
+from edc_visit_schedule.utils import VisitScheduleBaselineError, is_baseline
 from edc_visit_schedule.visit import Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
 from visit_schedule_app.models import SubjectConsent, SubjectVisit
@@ -100,7 +100,7 @@ class TestVisitSchedule4(SiteTestCaseMixin, TestCase):
         )
         self.appointments = Appointment.objects.all()
 
-    def test_is_baseline(self):
+    def test_is_baseline_with_instance(self):
         subject_visit_0 = SubjectVisit.objects.create(
             appointment=self.appointments[0],
             subject_identifier=self.subject_identifier,
@@ -114,5 +114,65 @@ class TestVisitSchedule4(SiteTestCaseMixin, TestCase):
             reason=SCHEDULED,
         )
 
-        self.assertTrue(is_baseline(subject_visit_0))
-        self.assertFalse(is_baseline(subject_visit_1))
+        self.assertTrue(is_baseline(instance=subject_visit_0))
+        self.assertFalse(is_baseline(instance=subject_visit_1))
+
+    def test_is_baseline_with_params(self):
+        subject_visit_0 = SubjectVisit.objects.create(
+            appointment=self.appointments[0],
+            subject_identifier=self.subject_identifier,
+            report_datetime=self.appointments[0].appt_datetime,
+            reason=SCHEDULED,
+        )
+        subject_visit_1 = SubjectVisit.objects.create(
+            appointment=self.appointments[1],
+            subject_identifier=self.subject_identifier,
+            report_datetime=self.appointments[1].appt_datetime,
+            reason=SCHEDULED,
+        )
+
+        # call with no required params raises
+        self.assertRaises(VisitScheduleBaselineError, is_baseline)
+
+        # call with all required params but visit_code_sequence raises
+        with self.assertRaises(VisitScheduleBaselineError) as cm:
+            is_baseline(
+                timepoint=subject_visit_0.appointment.timepoint,
+                visit_schedule_name=subject_visit_0.appointment.visit_schedule_name,
+                schedule_name=subject_visit_0.appointment.schedule_name,
+            )
+        self.assertIn("visit_code_sequence", str(cm.exception))
+
+        self.assertTrue(
+            is_baseline(
+                timepoint=subject_visit_0.appointment.timepoint,
+                visit_schedule_name=subject_visit_0.appointment.visit_schedule_name,
+                schedule_name=subject_visit_0.appointment.schedule_name,
+                visit_code_sequence=0,
+            )
+        )
+        self.assertFalse(
+            is_baseline(
+                timepoint=subject_visit_0.timepoint,
+                visit_schedule_name=subject_visit_0.visit_schedule_name,
+                schedule_name=subject_visit_0.schedule_name,
+                visit_code_sequence=1,
+            )
+        )
+        self.assertFalse(
+            is_baseline(
+                timepoint=subject_visit_1.timepoint,
+                visit_schedule_name=subject_visit_0.visit_schedule_name,
+                schedule_name=subject_visit_0.schedule_name,
+                visit_code_sequence=0,
+            )
+        )
+
+        with self.assertRaises(VisitScheduleBaselineError) as cm:
+            is_baseline(
+                timepoint=100,
+                visit_schedule_name=subject_visit_0.visit_schedule_name,
+                schedule_name=subject_visit_0.schedule_name,
+                visit_code_sequence=0,
+            )
+        self.assertIn("Unknown timepoint", str(cm.exception))

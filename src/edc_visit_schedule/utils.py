@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 from typing import Any, List, Optional
 
 from django import forms
@@ -6,27 +7,115 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from edc_utils import formatted_datetime
 
-from .constants import DAY1
 from .exceptions import NotOnScheduleError, OnScheduleError
-from .site_visit_schedules import site_visit_schedules
+from .site_visit_schedules import SiteVisitScheduleError, site_visit_schedules
 
 
-def is_baseline(instance) -> bool:
-    try:
-        appointment = instance.appointment
-    except AttributeError:
-        appointment = instance
+class VisitScheduleBaselineError(Exception):
+    pass
 
-    return appointment.visit_code == DAY1 and appointment.visit_code_sequence == 0
+
+class Baseline:
+    def __init__(
+        self,
+        instance: Optional[Any] = None,
+        timepoint: Optional[Decimal] = None,
+        visit_code_sequence: Optional[int] = None,
+        visit_schedule_name: Optional[str] = None,
+        schedule_name: Optional[str] = None,
+    ):
+        if instance:
+            try:
+                instance = instance.appointment
+            except AttributeError:
+                pass
+            self.visit_schedule_name = instance.visit_schedule_name
+            self.schedule_name = instance.schedule_name
+            self.visit_code_sequence = instance.visit_code_sequence
+            self.timepoint = instance.timepoint
+        else:
+            self.visit_schedule_name = visit_schedule_name
+            self.schedule_name = schedule_name
+            self.visit_code_sequence = visit_code_sequence
+            self.timepoint = timepoint
+            if self.timepoint is None:
+                raise VisitScheduleBaselineError("timpoint may not be None")
+        if not any([x == self.timepoint for x in self.timepoints.values()]):
+            raise VisitScheduleBaselineError(
+                f"Unknown timepoint. For schedule {self.visit_schedule}.{self.schedule}. "
+                f"Got {self.timepoint} not in {self.timepoints}"
+            )
+        self.value: bool = (
+            self.timepoint == self.baseline_timepoint and self.visit_code_sequence == 0
+        )
+
+    @property
+    def visit_schedule(self):
+        self.have_required_attrs_or_raise()
+        try:
+            visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
+        except SiteVisitScheduleError as e:
+            raise VisitScheduleBaselineError(str(e))
+        return visit_schedule
+
+    @property
+    def schedule(self):
+        try:
+            schedule = self.visit_schedule.schedules.get(self.schedule_name)
+        except SiteVisitScheduleError as e:
+            raise VisitScheduleBaselineError(str(e))
+        return schedule
+
+    @property
+    def baseline_timepoint(self):
+        """Returns a decimal that is the first timepoint in this schedule"""
+        return self.schedule.visits.first.timepoint
+
+    @property
+    def timepoints(self):
+        return self.schedule.visits.timepoints
+
+    def have_required_attrs_or_raise(self):
+        data = {
+            k: getattr(self, k, None) is None
+            for k in [
+                "visit_schedule_name",
+                "schedule_name",
+                "visit_code_sequence",
+                "timepoint",
+            ]
+        }
+
+        if any(data.values()):
+            raise VisitScheduleBaselineError(
+                "Missing value(s). Unable to determine if baseline. "
+                f"Got `None` for {[k for k, v in data.items() if v is True]}."
+            )
+
+
+def is_baseline(
+    instance: Optional[Any] = None,
+    timepoint: Optional[Decimal] = None,
+    visit_code_sequence: Optional[int] = None,
+    visit_schedule_name: Optional[str] = None,
+    schedule_name: Optional[str] = None,
+) -> bool:
+    return Baseline(
+        instance=instance,
+        timepoint=timepoint,
+        visit_code_sequence=visit_code_sequence,
+        visit_schedule_name=visit_schedule_name,
+        schedule_name=schedule_name,
+    ).value
 
 
 def raise_if_baseline(subject_visit) -> None:
-    if subject_visit and is_baseline(subject_visit):
+    if subject_visit and is_baseline(instance=subject_visit):
         raise forms.ValidationError("This form is not available for completion at baseline.")
 
 
 def raise_if_not_baseline(subject_visit) -> None:
-    if subject_visit and not is_baseline(subject_visit):
+    if subject_visit and not is_baseline(instance=subject_visit):
         raise forms.ValidationError("This form is only available for completion at baseline.")
 
 
