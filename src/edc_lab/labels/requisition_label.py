@@ -1,4 +1,5 @@
-import pytz
+from zoneinfo import ZoneInfo
+
 from arrow.arrow import Arrow
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -10,7 +11,7 @@ class RequisitionLabel(Label):
     template_name = "requisition"
     registered_subject_model = "edc_registration.registeredsubject"
 
-    def __init__(self, pk=None, requisition=None, item=None, **kwargs):
+    def __init__(self, pk=None, requisition=None, item=None, **kwargs):  # noqa
         super().__init__(label_template_name=self.template_name)
         self._registered_subject = None
         self.item = item or 1
@@ -32,7 +33,7 @@ class RequisitionLabel(Label):
 
     @property
     def label_context(self):
-        tz = pytz.timezone(settings.TIME_ZONE)
+        tz = ZoneInfo(settings.TIME_ZONE)
         local = Arrow.fromdatetime(
             self.requisition.drawn_datetime or self.requisition.created
         ).to(tz)
