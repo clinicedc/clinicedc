@@ -6,16 +6,20 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('edc_export', '0009_auto_20210510_2036'),
+        ("edc_export", "0009_auto_20210510_2036"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='exportdata',
-            options={'permissions': [('display_export_admin_action', 'Display export action')]},
+            name="exportdata",
+            options={
+                "permissions": [("display_export_admin_action", "Display export action")]
+            },
         ),
         migrations.AlterModelOptions(
-            name='importdata',
-            options={'permissions': [('display_import_admin_action', 'Display import action')]},
+            name="importdata",
+            options={
+                "permissions": [("display_import_admin_action", "Display import action")]
+            },
         ),
     ]
