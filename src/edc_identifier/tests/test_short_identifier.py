@@ -3,8 +3,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from faker import Faker
 
-from ..models import IdentifierModel
-from ..short_identifier import (
+from edc_identifier.models import IdentifierModel
+from edc_identifier.short_identifier import (
     DuplicateIdentifierError,
     ShortIdentifier,
     ShortIdentifierPrefixError,

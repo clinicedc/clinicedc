@@ -1,10 +1,8 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, tag
+from django.test import TestCase
 
 from edc_identifier.models import IdentifierModel
-from edc_identifier.simple_identifier import SimpleUniqueIdentifier
-
-from ..simple_identifier import SimpleIdentifier
+from edc_identifier.simple_identifier import SimpleIdentifier, SimpleUniqueIdentifier
 
 
 class TestSimpleIdentifier(TestCase):

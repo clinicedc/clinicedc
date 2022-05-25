@@ -1,6 +1,5 @@
 import re
 
-from django.apps import apps as django_apps
 from edc_protocol import Protocol
 
 from .exceptions import SubjectIdentifierError

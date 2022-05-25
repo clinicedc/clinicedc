@@ -1,15 +1,12 @@
 from unittest.case import skip
 
-from django.apps import apps as django_apps
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase
 from faker import Faker
-from multisite import SiteID
 
 from edc_identifier.exceptions import IdentifierError, SubjectIdentifierError
+from edc_identifier.models import IdentifierModel
+from edc_identifier.subject_identifier import SubjectIdentifier
 
-from ..models import IdentifierModel
-from ..research_identifier import IdentifierMissingTemplateValue
-from ..subject_identifier import SubjectIdentifier
 from .models import Enrollment, EnrollmentThree
 
 fake = Faker()

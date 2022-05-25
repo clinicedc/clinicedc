@@ -1,7 +1,7 @@
 from django.test import TestCase
 
-from ..checkdigit_mixins import LuhnMixin, LuhnOrdMixin
-from ..identifier import Identifier
+from edc_identifier.checkdigit_mixins import LuhnMixin, LuhnOrdMixin
+from edc_identifier.identifier import Identifier
 
 
 class TestIdentifier(TestCase):
