@@ -165,7 +165,7 @@ class SiteLabs:
         """
         module_name = module_name or "labs"
         verbose = True if verbose is None else verbose
-        sys.stdout.write(f" * checking for {module_name} ...\n")
+        # sys.stdout.write(f" * checking for {module_name} ...\n")
         for app in django_apps.app_configs:
             try:
                 mod = import_module(app)
