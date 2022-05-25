@@ -1,4 +1,4 @@
-from django.test import TestCase, tag
+from django.test import TestCase
 from django.test.utils import override_settings
 
 from edc_device.constants import CENTRAL_SERVER, CLIENT, MIDDLEMAN, NODE_SERVER
