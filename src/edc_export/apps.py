@@ -13,10 +13,6 @@ class AppConfig(DjangoApponfig):
     default_auto_field = "django.db.models.BigAutoField"
 
     def ready(self):
-        from .signals import (
-            export_transaction_history_on_post_save,
-            export_transaction_history_on_pre_delete,
-        )
 
         os.makedirs(self.export_folder, exist_ok=True)
         os.makedirs(self.upload_folder, exist_ok=True)

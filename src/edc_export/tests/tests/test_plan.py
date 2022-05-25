@@ -1,7 +1,7 @@
 import uuid
 
 from django.apps import apps as django_apps
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_utils import get_utcnow
 
 from edc_export.model_exporter import PlanExporter
