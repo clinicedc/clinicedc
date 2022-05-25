@@ -4,7 +4,6 @@ from edc_data_manager.data_manager_modeladmin_mixin import DataManagerModelAdmin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
 from ..admin_site import edc_metadata_admin
-from ..exim_resources import RequisitionMetadataResource
 from ..models import RequisitionMetadata
 
 
@@ -35,7 +34,6 @@ class RequisitionMetadataAdmin(
     def panel(obj=None):
         return obj.panel_name
 
-    resource_class = RequisitionMetadataResource
     search_fields = ("subject_identifier", "model", "id", "panel_name")
     list_display = (
         "subject_identifier",

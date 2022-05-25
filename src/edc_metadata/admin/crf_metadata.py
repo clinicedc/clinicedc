@@ -7,7 +7,6 @@ from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_metadata import KEYED, REQUIRED
 
 from ..admin_site import edc_metadata_admin
-from ..exim_resources import CrfMetadataResource
 from ..models import CrfMetadata
 
 
@@ -31,8 +30,6 @@ class CrfMetadataAdmin(
             subject_identifier=obj.subject_identifier,
             appointment=appointment.id,
         )
-
-    resource_class = CrfMetadataResource
 
     search_fields = ("subject_identifier", "model", "id")
     list_display = (
