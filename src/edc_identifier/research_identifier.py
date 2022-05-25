@@ -30,7 +30,7 @@ class ResearchIdentifier:
         template: Optional[str] = None,
         device_id: Optional[str] = None,
         protocol_number: Optional[str] = None,
-        site: Site = None,
+        site: Optional[Site] = None,
         requesting_model: Optional[str] = None,
         identifier: Optional[str] = None,
     ) -> None:
