@@ -66,7 +66,7 @@ def add_prn_requisition_popover(appointment, subject_dashboard_url):
         except ObjectDoesNotExist:
             requisition.add_url = requisition.model_cls().get_absolute_url()
             requisition.visit_model_attr = requisition.model_cls.visit_model_attr()
-            requisition.subject_visit = str(appointment.visit.pk)
+            requisition.subject_visit = str(getattr(appointment.visit, "id", ""))
             try:
                 panel_id = requisition.model_cls.panel.field.remote_field.model.objects.get(
                     name=requisition.panel.name
