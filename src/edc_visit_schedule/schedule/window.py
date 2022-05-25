@@ -39,6 +39,8 @@ class Window:
     @property
     def datetime_in_window(self):
         if enforce_window_period_enabled:
+            if not self.dt:
+                raise UnScheduledVisitWindowError("Invalid datetime")
             if not self.visits.get(self.visit_code):
                 raise ScheduleError(
                     f"Visit not added to schedule. Got visit `{self.visit_code}` "

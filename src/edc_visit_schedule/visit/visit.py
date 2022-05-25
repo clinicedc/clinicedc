@@ -1,6 +1,6 @@
 import re
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, Union
 
 import arrow
 from dateutil.relativedelta import relativedelta
@@ -53,7 +53,7 @@ class Visit:
     def __init__(
         self,
         code: Optional[str] = None,
-        timepoint: Optional[int] = None,
+        timepoint: Optional[Union[Decimal, float]] = None,
         rbase: Optional[relativedelta] = None,
         rlower: Optional[relativedelta] = None,
         rupper: Optional[relativedelta] = None,
