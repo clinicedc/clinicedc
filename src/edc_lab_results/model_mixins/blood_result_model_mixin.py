@@ -52,7 +52,7 @@ class BloodResultsMethodsModelMixin(models.Model):
     def get_summary(self: Any) -> list:
         opts = self.get_summary_options()
         summary = []
-        for field_name in [f.name for f in self._meta.fields]:
+        for field_name in [f.name for f in self._meta.get_fields()]:
             try:
                 utest_id, _ = field_name.split("_value")
             except ValueError:

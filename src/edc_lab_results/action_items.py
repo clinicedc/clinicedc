@@ -37,7 +37,7 @@ class BaseResultsAction(Action):
         if (
             self.reference_obj.results_abnormal == YES
             and self.reference_obj.results_reportable == YES
-            and not is_baseline(self.reference_obj.subject_visit)
+            and not is_baseline(instance=self.reference_obj.subject_visit)
         ):
             # AE for reportable result, though not on DAY1.0
             next_actions = [AE_INITIAL_ACTION]
