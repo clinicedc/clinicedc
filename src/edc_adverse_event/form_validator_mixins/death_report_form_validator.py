@@ -1,4 +1,6 @@
-import pytz
+from typing import Any
+from zoneinfo import ZoneInfo
+
 from arrow.arrow import Arrow
 from django import forms
 from django.apps import apps as django_apps
@@ -19,7 +21,7 @@ class DeathReportFormValidatorMixin:
     def cause_of_death_model_cls(self):
         return django_apps.get_model("edc_adverse_event.causeofdeath")
 
-    def clean(self):
+    def clean(self: Any):
 
         self.validate_study_day_with_death_report_date()
 
@@ -36,18 +38,18 @@ class DeathReportFormValidatorMixin:
         )
 
     @property
-    def death_report_date(self):
+    def death_report_date(self: Any):
         try:
             return self.cleaned_data.get(self.death_report_date_field).date()
         except AttributeError:
             return self.cleaned_data.get(self.death_report_date_field)
 
     def validate_study_day_with_death_report_date(
-        self,
+        self: Any,
         subject_identifier=None,
     ):
         """Raises an exception if study day does not match
-        calculation against pytz.
+        calculation against ZoneInfo.
 
         Note: study-day is 1-based.
 
@@ -70,7 +72,7 @@ class DeathReportFormValidatorMixin:
             ).randomization_datetime
             days_on_study = (self.death_report_date - randomization_datetime.date()).days
             if study_day - 1 != days_on_study:
-                tz = pytz.timezone(settings.TIME_ZONE)
+                tz = ZoneInfo(settings.TIME_ZONE)
                 formatted_date = (
                     Arrow.fromdatetime(randomization_datetime)
                     .to(tz)
