@@ -46,7 +46,7 @@ def get_review_model_cls(prefix):
 
 
 def raise_if_clinical_review_does_not_exist(subject_visit) -> None:
-    if is_baseline(subject_visit):
+    if is_baseline(instance=subject_visit):
         model_exists_or_raise(
             subject_visit=subject_visit,
             model_cls=get_clinical_review_baseline_model_cls(),

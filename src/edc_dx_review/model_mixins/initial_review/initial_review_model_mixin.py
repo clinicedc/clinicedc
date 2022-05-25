@@ -66,3 +66,4 @@ class InitialReviewModelMixin(models.Model):
 
     class Meta:
         abstract = True
+        # TODO: add contraint on diagnosis, this is a singlton
