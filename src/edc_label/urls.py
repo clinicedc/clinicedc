@@ -10,17 +10,17 @@ app_name = "edc_label"
 
 urlpatterns = [
     path(
-        "browser_print_labels",
+        r"browser_print_labels",
         BrowserPrintLabelsView.as_view(),
         name="browser_print_labels_url",
     ),
     re_path(
-        "printer/change/(?P<printer_type>\w+)/",
+        r"printer/change/(?P<printer_type>\w+)/",
         ChangePrinterView.as_view(),
         name="change_session_printer",
     ),
     re_path(
-        "print/label/(?P<printer_name>\w+)/(?P<label_template_name>)\w+/",
+        r"print/label/(?P<printer_name>\w+)/(?P<label_template_name>)\w+/",
         PrintLabelView.as_view(),
         name="print_label",
     ),
