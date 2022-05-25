@@ -11,7 +11,7 @@ class TestForDescribter(TestCase):
     def test_ok(self):
         describer = FormDescriber(admin_cls=MyModelAdmin, include_hidden_fields=True)
         txt = " ".join(describer.markdown)
-        for f in MyModel._meta.fields:
+        for f in MyModel._meta.get_fields():
             self.assertIn(f.verbose_name, txt)
 
     def test_to_file(self):
@@ -20,5 +20,5 @@ class TestForDescribter(TestCase):
         describer.to_file(path=tmp)
         with open(tmp, "r") as describer_file:
             txt = describer_file.read()
-            for f in MyModel._meta.fields:
+            for f in MyModel._meta.get_fields():
                 self.assertIn(f.verbose_name, txt)
