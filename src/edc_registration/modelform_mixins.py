@@ -6,6 +6,14 @@ from .utils import get_registered_subject_model_cls
 
 
 class ModelFormSubjectIdentifierMixin(SiteModelFormMixin):
+
+    subject_identifier = forms.CharField(
+        label="Subject Identifier",
+        required=False,
+        widget=forms.TextInput(attrs={"readonly": "readonly"}),
+        help_text="(read-only)",
+    )
+
     def clean(self):
         cleaned_data = super().clean()
         subject_identifier = cleaned_data.get("subject_identifier")
