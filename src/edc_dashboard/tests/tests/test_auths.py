@@ -10,6 +10,6 @@ class TestAuths(TestCase):
         EDC_AUTH_SKIP_AUTH_UPDATER=True,
     )
     def test_load(self):
-        import_module(f"edc_dashboard.auths")
-        import_module(f"edc_navbar.auths")
+        import_module("edc_dashboard.auths")
+        import_module("edc_navbar.auths")
         AuthUpdater(verbose=True)
