@@ -72,7 +72,7 @@ def duration_to_date(
     reference_date: Union[date, datetime, DateField, DateTimeField],
     future: Optional[bool] = None,
 ) -> date:
-    """ "Returns the estimated date from a well-formatted string
+    """Returns the estimated date from a well-formatted string
     relative to a reference date/datetime.
 
     Will raise an exception if the string cannot be interpreted.
