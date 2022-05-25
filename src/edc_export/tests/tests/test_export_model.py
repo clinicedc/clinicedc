@@ -6,7 +6,7 @@ from unittest.case import skip
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_pdutils.model_to_dataframe import ValueGetterInvalidLookup
 from edc_utils import get_utcnow
 

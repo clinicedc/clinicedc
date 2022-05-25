@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 
-from .constants import DELETE, INSERT, UPDATE
+from ..constants import DELETE, INSERT, UPDATE
 
 
 @receiver(post_save, weak=False, dispatch_uid="export_transaction_history_on_post_save")

@@ -9,6 +9,10 @@ from .file_history import FileHistory
 from .import_export import ExportData, ImportData
 from .object_history import ObjectHistory
 from .plan import Plan
+from .signals import (
+    export_transaction_history_on_post_save,
+    export_transaction_history_on_pre_delete,
+)
 from .upload_export_receipt_file import UploadExportReceiptFile
 
 if settings.APP_NAME == "edc_export" and "makemigrations" not in sys.argv:

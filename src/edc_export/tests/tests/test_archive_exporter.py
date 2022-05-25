@@ -4,7 +4,7 @@ from tempfile import mkdtemp
 
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
-from django.test import TestCase, tag
+from django.test import TestCase
 from django.test.utils import override_settings
 from edc_registration.models import RegisteredSubject
 
