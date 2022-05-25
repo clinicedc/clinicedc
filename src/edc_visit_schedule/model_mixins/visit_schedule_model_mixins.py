@@ -146,7 +146,7 @@ class VisitScheduleModelMixin(
     models.Model,
 ):
 
-    """A model mixin that adds adds field attributes and methods that
+    """A model mixin that adds field attributes and methods that
     link a model instance to its schedule.
 
     This mixin is used with Appointment and Visit models via their
