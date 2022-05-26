@@ -1,5 +1,5 @@
 from django import forms
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_crf.forms import CrfFormValidatorMixin
 
 from edc_dx import get_diagnosis_labels

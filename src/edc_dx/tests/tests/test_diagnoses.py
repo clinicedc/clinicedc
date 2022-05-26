@@ -1,10 +1,6 @@
-from django.apps import apps as django_apps
 from django.test import TestCase
 from edc_appointment.constants import INCOMPLETE_APPT
-from edc_appointment.models import Appointment
 from edc_constants.constants import CHOL, DM, HIV, HTN, NOT_APPLICABLE, POS, YES
-from edc_utils import get_utcnow
-from edc_visit_tracking.constants import SCHEDULED
 from model_bakery import baker
 
 from edc_dx.diagnoses import (
