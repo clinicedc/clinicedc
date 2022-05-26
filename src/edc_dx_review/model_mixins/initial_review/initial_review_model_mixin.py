@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Any, Optional
 
 from django.db import models
 from edc_constants.choices import YES_NO
@@ -12,38 +13,50 @@ class InitialReviewModelError(Exception):
     pass
 
 
-class InitialReviewModelMixin(models.Model):
+def initial_dx_model_mixin_factory(dx_field_prefix: Optional[str] = None):
+    class AbstractModel(models.Model):
+        class Meta:
+            abstract = True
 
-    dx_ago = edc_models.DurationYMDField(
-        verbose_name="How long ago was the patient diagnosed?",
-        null=True,
-        blank=True,
-        help_text="If possible, provide the exact date below instead of estimating here.",
-    )
+    dx_field_prefix = f"{dx_field_prefix}_" if dx_field_prefix else ""
 
-    dx_date = models.DateField(
-        verbose_name="Date patient diagnosed",
-        null=True,
-        blank=True,
-        help_text="If possible, provide the exact date here instead of estimating above.",
-    )
+    opts = {
+        f"{dx_field_prefix}dx_ago": edc_models.DurationYMDField(
+            verbose_name="How long ago was the patient diagnosed?",
+            null=True,
+            blank=True,
+            help_text="If possible, provide the exact date below instead of estimating here.",
+        ),
+        f"{dx_field_prefix}dx_date": models.DateField(
+            verbose_name="Date patient diagnosed",
+            null=True,
+            blank=True,
+            validators=[edc_models.date_not_future],
+            help_text="If possible, provide the exact date here instead of estimating above.",
+        ),
+        f"{dx_field_prefix}dx_estimated_date": models.DateField(
+            verbose_name="Estimated diagnoses date",
+            null=True,
+            help_text=f"Calculated based on response to `{dx_field_prefix}dx_ago`",
+            editable=False,
+        ),
+        f"{dx_field_prefix}dx_date_is_estimated": models.CharField(
+            verbose_name="Was the diagnosis date estimated?",
+            max_length=15,
+            choices=YES_NO,
+            default=YES,
+            editable=False,
+        ),
+    }
 
-    dx_estimated_date = models.DateField(
-        verbose_name="Estimated diagnoses date",
-        null=True,
-        help_text="Calculated based on response to `dx_ago`",
-        editable=False,
-    )
+    for name, fld_cls in opts.items():
+        AbstractModel.add_to_class(name, fld_cls)
 
-    dx_date_estimated = models.CharField(
-        verbose_name="Was the diagnosis date estimated?",
-        max_length=15,
-        choices=YES_NO,
-        default=YES,
-        editable=False,
-    )
+    return AbstractModel
 
-    def save(self, *args, **kwargs):
+
+class InitialReviewMethodsModelMixin(models.Model):
+    def save(self: Any, *args, **kwargs):
         diagnoses = Diagnoses(
             subject_identifier=self.subject_visit.subject_identifier,
             report_datetime=self.subject_visit.report_datetime,
@@ -54,16 +67,24 @@ class InitialReviewModelMixin(models.Model):
                 "No diagnosis has been recorded. See clinical review. "
                 "Perhaps catch this in the form."
             )
-        self.dx_estimated_date, self.dx_date_estimated = calculate_dx_date_if_estimated(
+        self.dx_estimated_date, self.dx_date_is_estimated = calculate_dx_date_if_estimated(
             self.dx_date,
             self.dx_ago,
             self.report_datetime,
         )
-        super().save(*args, **kwargs)  # type: ignore
+        super().save(*args, **kwargs)
 
-    def get_best_dx_date(self) -> date:
+    def get_best_dx_date(self: Any) -> date:
         return self.dx_date or self.dx_estimated_date
 
     class Meta:
         abstract = True
-        # TODO: add contraint on diagnosis, this is a singlton
+        # TODO: add constraint on diagnosis, this is a singlton
+
+
+class InitialReviewModelMixin(
+    initial_dx_model_mixin_factory(), InitialReviewMethodsModelMixin, models.Model
+):
+    class Meta:
+        abstract = True
+        # TODO: add constraint on diagnosis, this is a singlton

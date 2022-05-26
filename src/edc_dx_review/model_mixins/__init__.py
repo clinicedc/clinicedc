@@ -19,7 +19,9 @@ from .initial_review import (
     CholInitialReviewModelMixin,
     HivArvInitiationModelMixin,
     HivArvMonitoringModelMixin,
+    InitialReviewMethodsModelMixin,
     InitialReviewModelError,
     InitialReviewModelMixin,
     NcdInitialReviewModelMixin,
+    initial_dx_model_mixin_factory,
 )
