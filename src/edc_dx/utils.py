@@ -23,11 +23,11 @@ def calculate_dx_date_if_estimated(
 ):
     if dx_ago and not dx_date:
         dx_estimated_date = duration_to_date(dx_ago, report_datetime)
-        dx_date_estimated = YES
+        dx_date_is_estimated = YES
     else:
         dx_estimated_date = None
-        dx_date_estimated = NO
-    return dx_estimated_date, dx_date_estimated
+        dx_date_is_estimated = NO
+    return dx_estimated_date, dx_date_is_estimated
 
 
 def get_diagnosis_labels():
