@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from edc_document_status.fieldsets import document_status_fieldset_tuple

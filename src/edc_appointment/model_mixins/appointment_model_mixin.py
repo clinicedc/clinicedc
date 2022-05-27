@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from edc_document_status.model_mixins import DocumentStatusModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
-from edc_metadata.metadata_helper_mixin import MetaDataHelperMixin
+from edc_metadata.metadata_helper import MetaDataHelperMixin
 from edc_offstudy.model_mixins import OffstudyVisitModelMixin
 from edc_timepoint.model_mixins import TimepointModelMixin
 from edc_utils import formatted_datetime
@@ -120,6 +120,8 @@ class AppointmentModelMixin(
     comment = models.CharField("Comment", max_length=250, blank=True)
 
     is_confirmed = models.BooleanField(default=False, editable=False)
+
+    ignore_window_period = models.BooleanField(default=False, editable=False)
 
     objects = AppointmentManager()
 

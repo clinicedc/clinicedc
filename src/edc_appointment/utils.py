@@ -4,9 +4,15 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import ProtectedError
+from edc_visit_schedule.schedule.window import (
+    ScheduledVisitWindowError,
+    UnScheduledVisitWindowError,
+)
+from edc_visit_schedule.utils import is_baseline
 
 from .choices import DEFAULT_APPT_REASON_CHOICES
 from .constants import CANCELLED_APPT, MISSED_APPT, SCHEDULED_APPT, UNSCHEDULED_APPT
+from .exceptions import AppointmentWindowError
 
 
 def get_appt_reason_choices() -> tuple:
@@ -63,3 +69,28 @@ def missed_appointment(instance: Any):
             except AttributeError as e:
                 if "create_missed_visit" not in str(e):
                     raise
+
+
+def raise_on_appt_datetime_not_in_window(appointment) -> None:
+    if not is_baseline(instance=appointment):
+        baseline_timepoint_datetime = appointment.__class__.objects.first_appointment(
+            subject_identifier=appointment.subject_identifier,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+        ).timepoint_datetime
+        try:
+            appointment.schedule.datetime_in_window(
+                dt=appointment.appt_datetime,
+                timepoint_datetime=appointment.timepoint_datetime,
+                visit_code=appointment.visit_code,
+                visit_code_sequence=appointment.visit_code_sequence,
+                baseline_timepoint_datetime=baseline_timepoint_datetime,
+            )
+        except ScheduledVisitWindowError as e:
+            msg = str(e)
+            msg.replace("Invalid datetime", "Invalid appointment datetime")
+            raise AppointmentWindowError(msg)
+        except UnScheduledVisitWindowError as e:
+            msg = str(e)
+            msg.replace("Invalid datetime", "Invalid appointment datetime")
+            raise AppointmentWindowError(msg)

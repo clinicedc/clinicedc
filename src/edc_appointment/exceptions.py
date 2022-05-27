@@ -8,3 +8,7 @@ class AppointmentCreateError(Exception):
 
 class UnknownVisitCode(Exception):
     pass
+
+
+class AppointmentWindowError(Exception):
+    pass

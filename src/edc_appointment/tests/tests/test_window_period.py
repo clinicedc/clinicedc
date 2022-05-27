@@ -1,13 +1,21 @@
 from unittest.mock import patch
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
+from edc_reference import site_reference_configs
 from edc_visit_schedule import site_visit_schedules
-from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
+from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 
-from edc_appointment.constants import INCOMPLETE_APPT, ONTIME_APPT
+from edc_appointment.constants import (
+    COMPLETE_APPT,
+    IN_PROGRESS_APPT,
+    INCOMPLETE_APPT,
+    MISSED_APPT,
+    NEW_APPT,
+    ONTIME_APPT,
+)
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.forms import AppointmentForm
 from edc_appointment.model_mixins import AppointmentWindowError
@@ -33,6 +41,9 @@ class TestAppointmentWindowPeriod(TestCase):
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=Protocol().study_open_datetime,
+        )
+        site_reference_configs.register_from_visit_schedule(
+            visit_models={"edc_appointment.appointment": "edc_appointment_app.subjectvisit"}
         )
 
     @staticmethod
@@ -208,5 +219,81 @@ class TestAppointmentWindowPeriod(TestCase):
         )
         unscheduled_appointment = self.create_unscheduled(appointment_1030)
         form = self.get_form(unscheduled_appointment, appt_datetime_after)
+        form.is_valid()
+        self.assertIn("appt_datetime", form._errors)
+
+    def test_appointments_window_period_allows_between_completed_appointments(self):
+        appointment_1030, appointment_1060 = self.create_1030_and_1060()
+
+        # assert both appointments are complete or incomplete
+        appointment_1030.appt_status = INCOMPLETE_APPT
+        appointment_1030.save()
+        appointment_1060.appt_status = INCOMPLETE_APPT
+        appointment_1060.save()
+        self.assertIn(appointment_1030.appt_status, [INCOMPLETE_APPT, COMPLETE_APPT])
+        self.assertIn(appointment_1060.appt_status, [INCOMPLETE_APPT, COMPLETE_APPT])
+
+        # get appt_date one day before 1060
+        appt_datetime_after_1030 = appointment_1060.appt_datetime - relativedelta(days=1)
+        # create unscheduled off of 1030
+        unscheduled_appointment = self.create_unscheduled(appointment_1030)
+
+        # set appt_date to  one day before 1060
+        form = self.get_form(unscheduled_appointment, appt_datetime_after_1030)
+        form.is_valid()
+        self.assertNotIn("appt_datetime", form._errors)
+
+    def test_appointments_window_period_does_not_allow_between_new_appointments(self):
+        appointment_1030, appointment_1060 = self.create_1030_and_1060()
+
+        # assert only appointment_1030 is complete / incomplete
+        appointment_1030.appt_status = INCOMPLETE_APPT
+        appointment_1030.save()
+        self.assertIn(appointment_1030.appt_status, [INCOMPLETE_APPT, COMPLETE_APPT])
+        self.assertNotIn(
+            appointment_1060.appt_status, [INCOMPLETE_APPT, COMPLETE_APPT, MISSED_APPT]
+        )
+
+        # get appt_date one day before 1060
+        appt_datetime_after_1030 = appointment_1060.appt_datetime - relativedelta(days=1)
+        # create unscheduled off of 1030
+        unscheduled_appointment = self.create_unscheduled(appointment_1030)
+
+        # set appt_date to  one day before 1060
+        form = self.get_form(unscheduled_appointment, appt_datetime_after_1030)
+        form.is_valid()
+        self.assertIn("appt_datetime", form._errors)
+
+    @tag("2")
+    def test_appointments_window_period_does_not_allow_missed_unscheduled(self):
+        """Assert does not allow an unscheduled appointment if the
+        scheduled appt is missed (in this case 1030 is missed)
+        """
+        appointment_1030, appointment_1060 = self.create_1030_and_1060()
+
+        appointment_1030.appt_timing = MISSED_APPT
+        appointment_1030.save()
+        appointment_1030.refresh_from_db()
+
+        subject_visit = SubjectVisit.objects.get(appointment=appointment_1030)
+        subject_visit.reason = MISSED_VISIT
+        subject_visit.save()
+        subject_visit.refresh_from_db()
+
+        appointment_1030.appt_status = INCOMPLETE_APPT
+        appointment_1030.save()
+        appointment_1030.refresh_from_db()
+
+        self.assertIn(subject_visit.reason, [MISSED_VISIT])
+        self.assertIn(appointment_1030.appt_timing, [MISSED_APPT])
+        self.assertIn(appointment_1030.appt_status, [INCOMPLETE_APPT])
+
+        # get appt_date one day before 1060
+        appt_datetime_after_1030 = appointment_1060.appt_datetime - relativedelta(days=1)
+        # create unscheduled off of 1030
+        unscheduled_appointment = self.create_unscheduled(appointment_1030)
+
+        # set appt_date to  one day before 1060
+        form = self.get_form(unscheduled_appointment, appt_datetime_after_1030)
         form.is_valid()
         self.assertIn("appt_datetime", form._errors)

@@ -13,7 +13,7 @@ from edc_consent.requires_consent import RequiresConsent
 from edc_consent.site_consents import SiteConsentError, site_consents
 from edc_form_validators import INVALID_ERROR
 from edc_form_validators.form_validator import FormValidator
-from edc_metadata.metadata_helper_mixin import MetaDataHelperMixin
+from edc_metadata.metadata_helper import MetaDataHelperMixin
 from edc_registration import get_registered_subject_model_cls
 from edc_utils import formatted_datetime, get_utcnow
 from edc_visit_schedule import site_visit_schedules
@@ -33,6 +33,7 @@ from ..constants import (
     IN_PROGRESS_APPT,
     INCOMPLETE_APPT,
     LATE_APPT,
+    MISSED_APPT,
     NEW_APPT,
     UNSCHEDULED_APPT,
 )
@@ -63,6 +64,7 @@ class AppointmentFormValidator(
         #  that is also within window.
         # TODO: handle LATE_APPT
         # disable LATE_APPT for now
+        self.validate_scheduled_parent_not_missed()
         if (
             self.cleaned_data.get("appt_timing")
             and self.cleaned_data.get("appt_timing") == LATE_APPT
@@ -92,6 +94,7 @@ class AppointmentFormValidator(
             )
             self.validate_subject_on_schedule()
             self.validate_appt_reason()
+            self.validate_appt_incomplete_and_visit_report()
             self.validate_appt_new_or_cancelled()
             self.validate_appt_inprogress_or_incomplete()
             self.validate_appt_new_or_complete()
@@ -161,7 +164,8 @@ class AppointmentFormValidator(
                         {
                             "__all__": (
                                 "A previous appointment requires updating. "
-                                f"Update appointment for {first_new_appt.visit_code} first."
+                                f"Update appointment {first_new_appt.visit_code}."
+                                f"{first_new_appt.visit_code_sequence} first."
                             )
                         },
                         INVALID_ERROR,
@@ -282,6 +286,16 @@ class AppointmentFormValidator(
                         },
                         INVALID_APPT_DATE,
                     )
+
+    def validate_appt_incomplete_and_visit_report(self: Any) -> None:
+        """Require a visit report, at least, if wanting to set appt_status
+        to INCOMPLETE_APPT"""
+        appt_status = self.cleaned_data.get("appt_status")
+        if appt_status == INCOMPLETE_APPT and not self.instance.visit:
+            self.raise_validation_error(
+                {"appt_status": "Invalid. A visit report has not been submitted."},
+                INVALID_APPT_STATUS,
+            )
 
     def validate_appt_new_or_cancelled(self: Any) -> None:
         """Don't allow new or cancelled if form data exists
@@ -449,6 +463,20 @@ class AppointmentFormValidator(
         ):
             self.raise_validation_error(
                 {"appt_status": "Invalid. A scheduled appointment cannot be cancelled"},
+                INVALID_APPT_STATUS,
+            )
+
+    def validate_scheduled_parent_not_missed(self):
+        if (
+            self.cleaned_data.get("appt_reason") == UNSCHEDULED_APPT
+            and self.instance.previous.appt_status == MISSED_APPT
+        ):
+            self.raise_validation_error(
+                {
+                    "__all__": "Please completed the scheduled appointment instead. "
+                    f"See {self.instance.previous.visit_code}."
+                    f"{self.instance.previous.visit_code_sequence}"
+                },
                 INVALID_APPT_STATUS,
             )
 

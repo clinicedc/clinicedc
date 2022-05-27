@@ -14,6 +14,29 @@ from ..models import Appointment
 from ..utils import cancelled_appointment, missed_appointment
 
 
+@receiver(post_save, sender=Appointment, weak=False, dispatch_uid="appointment_post_save")
+def appointment_post_save(sender, instance, raw, update_fields, **kwargs):
+    if not raw:
+        if not update_fields:
+            # use the AppointmentStatusUpdater to set all
+            # other appointments to be NOT in progress
+            try:
+                if instance.appt_status == IN_PROGRESS_APPT:
+                    AppointmentStatusUpdater(instance, clear_others_in_progress=True)
+            except AttributeError as e:
+                if "appt_status" not in str(e):
+                    raise
+            except AppointmentStatusUpdaterError:
+                pass
+        # try to create_missed_visit_from_appointment
+        # if appt_status == missed
+        missed_appointment(instance)
+
+        # try to delete subject visit
+        # if appt status = CANCELLED_APPT
+        cancelled_appointment(instance)
+
+
 @receiver(post_save, weak=False, dispatch_uid="create_appointments_on_post_save")
 def create_appointments_on_post_save(sender, instance, raw, created, using, **kwargs):
     """Method `Model.create_appointments` is not typically used.
@@ -28,11 +51,21 @@ def create_appointments_on_post_save(sender, instance, raw, created, using, **kw
                 raise
 
 
-@receiver(post_save, sender=Appointment, weak=False, dispatch_uid="appointment_post_save")
-def appointment_post_save(sender, instance, raw, created, using, **kwargs):
-    if not raw:
-        missed_appointment(instance)
-        cancelled_appointment(instance)
+@receiver(post_save, weak=False, dispatch_uid="update_appt_status_on_subject_visit_post_save")
+def update_appt_status_on_subject_visit_post_save(
+    sender, instance, raw, update_fields, **kwargs
+):
+    if not raw and not update_fields:
+        try:
+            AppointmentStatusUpdater(
+                instance.appointment,
+                change_to_in_progress=True,
+                clear_others_in_progress=True,
+            )
+        except AttributeError:
+            pass
+        except AppointmentStatusUpdaterError:
+            pass
 
 
 @receiver(
@@ -73,33 +106,6 @@ def appointments_on_pre_delete(sender, instance, using, **kwargs):
                     f"Got appointment datetime "
                     f"{formatted_datetime(instance.appt_datetime)}. "
                 )
-
-
-@receiver(post_save, weak=False, dispatch_uid="update_appt_status_on_subject_visit_post_save")
-def update_appt_status_on_subject_visit_post_save(
-    sender, instance, raw, update_fields, **kwargs
-):
-    if not raw and not update_fields:
-        try:
-            AppointmentStatusUpdater(instance.appointment, change_to_in_progress=True)
-        except (AttributeError, AppointmentStatusUpdaterError):
-            pass
-
-
-@receiver(
-    post_save,
-    sender=Appointment,
-    weak=False,
-    dispatch_uid="update_appt_status_on_post_save",
-)
-def update_appt_status_on_post_save(sender, instance, raw, update_fields, **kwargs):
-    if not raw and not update_fields:
-        try:
-            AppointmentStatusUpdater(
-                instance,
-                clear_others_in_progress=True
-                if instance.appt_status == IN_PROGRESS_APPT
-                else False,
-            )
-        except (AttributeError, AppointmentStatusUpdaterError):
-            pass
+    else:
+        # TODO: any conditions for unscheduled?
+        pass

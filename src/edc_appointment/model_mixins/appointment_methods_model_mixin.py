@@ -1,4 +1,4 @@
-from typing import Optional, Type
+from typing import Any, Optional, Type
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -174,14 +174,19 @@ class AppointmentMethodsModelMixin(models.Model):
             subject_identifier=self.subject_identifier,
             visit_schedule_name=self.visit_schedule_name,
             schedule_name=self.schedule_name,
-            timepoint__lt=self.timepoint,
         )
-        if include_interim and self.visit_code_sequence != 0:
-            opts.pop("timepoint__lt")
-            opts.update(timepoint__lte=self.timepoint)
-            opts.update(visit_code_sequence__gt=0)
+        if include_interim:
+            if self.visit_code_sequence != 0:
+                opts.update(timepoint__lte=self.timepoint)
+                opts.update(visit_code_sequence__lt=self.visit_code_sequence)
+            else:
+                opts.update(timepoint__lt=self.timepoint)
         elif not include_interim:
-            opts.update(visit_code_sequence=0)
+            opts.update(
+                timepoint__lt=self.timepoint,
+                visit_code_sequence=0,
+            )
+
         appointments = (
             self.__class__.objects.filter(**opts)
             .exclude(id=self.id)
@@ -194,25 +199,45 @@ class AppointmentMethodsModelMixin(models.Model):
         return previous_appt
 
     @property
-    def next(self: AppointmentModelStub) -> Optional[AppointmentModelStub]:
+    def next(self: Any) -> Optional[AppointmentModelStub]:
         """Returns the next appointment or None in this schedule
         for visit_code_sequence=0.
         """
         next_appt: Optional[AppointmentModelStub] = None
         next_visit = self.schedule.visits.next(self.visit_code)
         if next_visit:
+            options = dict(
+                subject_identifier=self.subject_identifier,
+                visit_schedule_name=self.visit_schedule_name,
+                schedule_name=self.schedule_name,
+                visit_code=next_visit.code,
+                visit_code_sequence=0,
+            )
             try:
-                options = dict(
-                    subject_identifier=self.subject_identifier,
-                    visit_schedule_name=self.visit_schedule_name,
-                    schedule_name=self.schedule_name,
-                    visit_code=next_visit.code,
-                    visit_code_sequence=0,
-                )
                 next_appt = self.__class__.objects.get(**options)
             except ObjectDoesNotExist:
                 pass
         return next_appt
+
+    @property
+    def relative_next(self: Any) -> Optional[AppointmentModelStub]:
+        options = dict(
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=self.visit_schedule_name,
+            schedule_name=self.schedule_name,
+            timepoint__gte=self.timepoint,
+        )
+        appointment = None
+        return_on_next = False
+        for appointment in self.__class__.objects.filter(**options).order_by(
+            "timepoint", "visit_code_sequence"
+        ):
+            if return_on_next:
+                break
+            if appointment.id == self.id:
+                return_on_next = True
+                continue
+        return appointment
 
     class Meta:
         abstract = True

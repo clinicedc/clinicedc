@@ -43,6 +43,7 @@ class AppointmentCreator:
         appt_reason=None,
         suggested_datetime=None,
         skip_baseline=None,
+        ignore_window_period=None,
     ):
         self._appointment = None
         self._appointment_model_cls = None
@@ -60,6 +61,7 @@ class AppointmentCreator:
         self.visit = visit
         self.visit_code_sequence = visit_code_sequence or 0
         self.timepoint = timepoint or self.visit.timepoint
+        self.ignore_window_period = ignore_window_period
         if not isinstance(self.timepoint, Decimal):
             self.timepoint = Decimal(str(self.timepoint))
 
@@ -136,6 +138,7 @@ class AppointmentCreator:
                     appt_datetime=self.appt_datetime,
                     appt_type=self.default_appt_type,
                     appt_reason=self.appt_reason or self.default_appt_reason,
+                    ignore_window_period=self.ignore_window_period or False,
                     **self.options,
                 )
         except IntegrityError as e:

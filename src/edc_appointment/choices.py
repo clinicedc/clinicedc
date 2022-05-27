@@ -20,7 +20,7 @@ DEFAULT_APPT_REASON_CHOICES = (
 
 # EDC_APPOINTMENT_ALLOW_MISSED
 APPT_STATUS = (
-    (NEW_APPT, "New"),
+    (NEW_APPT, "Not started"),
     (IN_PROGRESS_APPT, "In Progress"),
     (INCOMPLETE_APPT, "Incomplete"),
     (COMPLETE_APPT, "Done"),
@@ -29,7 +29,6 @@ APPT_STATUS = (
 
 APPT_TIMING = (
     (ONTIME_APPT, "On time (within window period)"),
-    (LATE_APPT, "Late (outside of window period)"),
     (MISSED_APPT, "Missed"),
 )
 

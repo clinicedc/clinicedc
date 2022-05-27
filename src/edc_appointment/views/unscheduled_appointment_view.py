@@ -12,6 +12,7 @@ from ..creators import (
     UnscheduledAppointmentCreator,
     UnscheduledAppointmentError,
 )
+from ..exceptions import AppointmentWindowError
 
 
 class UnscheduledAppointmentView(View):
@@ -36,6 +37,7 @@ class UnscheduledAppointmentView(View):
             InvalidParentAppointmentMissingVisitError,
             InvalidParentAppointmentStatusError,
             AppointmentInProgressError,
+            AppointmentWindowError,
         ) as e:
             messages.error(self.request, str(e))
         else:

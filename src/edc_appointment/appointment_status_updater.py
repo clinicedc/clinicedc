@@ -15,15 +15,20 @@ class AppointmentStatusUpdater:
         clear_others_in_progress: Optional[bool] = None,
     ):
         self.appointment = appointment
-        if not getattr(self.appointment, "id", None):
+        if "historical" in self.appointment._meta.label_lower:
             raise AppointmentStatusUpdaterError(
-                "Appointment instance must exist. Got `id` is None"
+                f"Not an Appointment model instance. Got {self.appointment._meta.label_lower}."
             )
-        if change_to_in_progress and self.appointment.appt_status != IN_PROGRESS_APPT:
-            self.appointment.appt_status = IN_PROGRESS_APPT
-            self.appointment.save_base(update_fields=["appt_status"])
-        if clear_others_in_progress:
-            self.update_others_from_in_progress()
+        else:
+            if not getattr(self.appointment, "id", None):
+                raise AppointmentStatusUpdaterError(
+                    "Appointment instance must exist. Got `id` is None"
+                )
+            if change_to_in_progress and self.appointment.appt_status != IN_PROGRESS_APPT:
+                self.appointment.appt_status = IN_PROGRESS_APPT
+                self.appointment.save_base(update_fields=["appt_status"])
+            if clear_others_in_progress:
+                self.update_others_from_in_progress()
 
     def update_others_from_in_progress(self):
         opts = dict(

@@ -143,7 +143,7 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
             reason=SCHEDULED,
         )
 
-    @tag("15")
+    @tag("1")
     def test_visit_report_sequence2(self):
         """Asserts a sequence error is raised if previous visit
         not complete for an in progress appointment.
@@ -167,10 +167,9 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
 
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
 
-        # appointments is
+        # appointments are
         # 1000.0, 1000.1, 1000.2 2000.0, 3000.0, 4000.0
-        # no visit reports
-
+        # NO visit reports.
         self.assertEqual(appointments[1].visit_code, "1000")
         self.assertEqual(appointments[1].visit_code_sequence, 1)
 
@@ -182,7 +181,7 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
         with self.assertRaises(ValidationError) as cm:
             form_validator.validate_visit_report_sequence()
         self.assertIn(INVALID_PREVIOUS_VISIT_MISSING, form_validator._error_codes)
-        self.assertIn("1000.2", str(cm.exception))
+        self.assertIn("1000.0", str(cm.exception))
 
         SubjectVisit.objects.create(
             appointment=appointments[0],
