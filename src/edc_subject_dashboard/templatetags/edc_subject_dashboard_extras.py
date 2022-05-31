@@ -1,5 +1,6 @@
 from collections import namedtuple
 
+from dateutil.relativedelta import relativedelta
 from django import template
 from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
@@ -15,6 +16,9 @@ from edc_appointment.constants import (
 from edc_appointment.models import Appointment
 from edc_constants.constants import COMPLETE
 from edc_lab.models.manifest.consignee import Consignee
+from edc_metadata import KEYED, REQUIRED
+from edc_metadata.metadata_helper import MetadataHelper
+from edc_utils import get_utcnow
 
 register = template.Library()
 
@@ -46,7 +50,7 @@ def forms_button(wrapper=None):
         title = _("Click to update the visit report")
         fa_icon = "fas fa-plus"
         href = wrapper.wrapped_visit.href
-        label = _("Start")
+        label = _("Start visit")
         label_fa_icon = None
     btn_id = f"{label.lower()}_btn_{wrapper.visit_code}_{wrapper.visit_code_sequence}"
     return dict(
@@ -146,15 +150,44 @@ def appointment_status_icon(appt_status=None):
 
 
 @register.inclusion_tag(
+    f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/dashboard/crf_totals.html"
+)
+def show_crf_totals(wrapped_appointment=None, request=None):
+    helper = MetadataHelper(wrapped_appointment.object)
+    crf_keyed = helper.get_crf_metadata_by(entry_status=KEYED).count()
+    requisition_keyed = helper.get_requisition_metadata_by(entry_status=KEYED).count()
+    crf_total = helper.get_crf_metadata_by(entry_status=[REQUIRED, KEYED]).count()
+    requisition_total = helper.get_requisition_metadata_by(
+        entry_status=[REQUIRED, KEYED]
+    ).count()
+    keyed = crf_keyed + requisition_keyed
+    total = crf_total + requisition_total
+    if wrapped_appointment.object.appt_datetime > get_utcnow():
+        show_totals = False
+    else:
+        show_totals = False if keyed != 0 and keyed == total else True
+    return dict(
+        show_totals=show_totals,
+        complete=keyed != 0 and keyed == total,
+        request=request,
+        keyed=keyed,
+        total=total,
+    )
+
+
+@register.inclusion_tag(
     f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/dashboard/visit_button.html"
 )
 def show_dashboard_visit_button(wrapped_appointment=None, request=None):
+
     title = None
     label = None
     btn_class = None
     if wrapped_appointment.appt_status == NEW_APPT:
-        label = _("Start visit")
+        label = _("Start")
         title = _("Start data collection for this timepoint.")
+        if wrapped_appointment.object.appt_datetime <= get_utcnow():
+            btn_class = "warning"
     elif wrapped_appointment.appt_status == INCOMPLETE_APPT:
         incomplete = _("Incomplete")
         label = mark_safe(
@@ -232,6 +265,21 @@ def show_dashboard_appointment_button(
 def show_dashboard_unscheduled_appointment_button(
     wrapped_appointment=None, view_appointment=None, request=None
 ):
+    show_button = False
+    if (
+        wrapped_appointment
+        and wrapped_appointment.object.relative_next
+        and wrapped_appointment.appt_status in [INCOMPLETE_APPT, COMPLETE_APPT]
+        and (
+            wrapped_appointment.object.appt_datetime + relativedelta(days=1)
+            != wrapped_appointment.object.relative_next.appt_datetime
+        )
+        # and (
+        #     wrapped_appointment.object.relative_next.visit_code
+        #     != wrapped_appointment.visit_code
+        # )
+    ):
+        show_button = True
     anchor_id = (
         f"unscheduled_appt_btn_{wrapped_appointment.visit_code }_"
         f"{ wrapped_appointment.visit_code_sequence }"
@@ -247,6 +295,7 @@ def show_dashboard_unscheduled_appointment_button(
     else:
         title = "No permission to edit"
     return dict(
+        show_button=show_button,
         anchor_id=anchor_id,
         wrapped_appointment=wrapped_appointment,
         view_appointment=view_appointment,
