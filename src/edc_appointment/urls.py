@@ -9,7 +9,7 @@ app_name = "edc_appointment"
 urlpatterns = [
     path(
         "unscheduled_appointment/<subject_identifier>/<visit_schedule_name>"
-        "/<schedule_name>/<visit_code>/<timepoint>/<redirect_url>/",
+        "/<schedule_name>/<visit_code>/<visit_code_sequence>/<timepoint>/<redirect_url>/",
         UnscheduledAppointmentView.as_view(),
         name="unscheduled_appointment_url",
     ),

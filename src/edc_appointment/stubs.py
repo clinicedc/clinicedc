@@ -34,6 +34,7 @@ class AppointmentModelStub(Protocol):
     last_visit_code_sequence: Optional[int]
     next: "AppointmentModelStub"
     previous: "AppointmentModelStub"
+    get_next: "AppointmentModelStub"
 
     def save(self, *args, **kwargs) -> None:
         ...
