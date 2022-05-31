@@ -1,8 +1,9 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models.signals import post_save, pre_delete
+from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import receiver
 from edc_utils import formatted_datetime, get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.model_mixins import VisitModelMixin
 
 from ..appointment_status_updater import (
     AppointmentStatusUpdater,
@@ -10,8 +11,14 @@ from ..appointment_status_updater import (
 )
 from ..constants import IN_PROGRESS_APPT
 from ..managers import AppointmentDeleteError
+from ..model_mixins import AppointmentModelMixin
 from ..models import Appointment
-from ..utils import cancelled_appointment, missed_appointment
+from ..utils import (
+    cancelled_appointment,
+    get_appointment_model_name,
+    missed_appointment,
+    update_unscheduled_appointment_sequence,
+)
 
 
 @receiver(post_save, sender=Appointment, weak=False, dispatch_uid="appointment_post_save")
@@ -56,16 +63,17 @@ def update_appt_status_on_subject_visit_post_save(
     sender, instance, raw, update_fields, **kwargs
 ):
     if not raw and not update_fields:
-        try:
-            AppointmentStatusUpdater(
-                instance.appointment,
-                change_to_in_progress=True,
-                clear_others_in_progress=True,
-            )
-        except AttributeError:
-            pass
-        except AppointmentStatusUpdaterError:
-            pass
+        if isinstance(instance, (AppointmentModelMixin, VisitModelMixin)):
+            try:
+                AppointmentStatusUpdater(
+                    instance.appointment,
+                    change_to_in_progress=True,
+                    clear_others_in_progress=True,
+                )
+            except AttributeError:
+                pass
+            except AppointmentStatusUpdaterError:
+                pass
 
 
 @receiver(
@@ -109,3 +117,15 @@ def appointments_on_pre_delete(sender, instance, using, **kwargs):
     else:
         # TODO: any conditions for unscheduled?
         pass
+
+
+@receiver(
+    post_delete, sender=Appointment, weak=False, dispatch_uid="appointments_on_post_delete"
+)
+def appointments_on_post_delete(sender, instance, using, **kwargs):
+    # Holiday model comes in a sender, why ???
+    if (
+        not kwargs.get("update_fields")
+        and sender._meta.label_lower == get_appointment_model_name()
+    ):
+        update_unscheduled_appointment_sequence(subject_identifier=instance.subject_identifier)

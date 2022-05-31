@@ -13,7 +13,7 @@ from edc_consent.requires_consent import RequiresConsent
 from edc_consent.site_consents import SiteConsentError, site_consents
 from edc_form_validators import INVALID_ERROR
 from edc_form_validators.form_validator import FormValidator
-from edc_metadata.metadata_helper import MetaDataHelperMixin
+from edc_metadata.metadata_helper import MetadataHelperMixin
 from edc_registration import get_registered_subject_model_cls
 from edc_utils import formatted_datetime, get_utcnow
 from edc_visit_schedule import site_visit_schedules
@@ -51,7 +51,7 @@ INVALID_APPT_TIMING_REQUISITIONS_EXIST = "invalid_appt_timing_requisitions_exist
 
 
 class AppointmentFormValidator(
-    MetaDataHelperMixin, WindowPeriodFormValidatorMixin, FormValidator
+    MetadataHelperMixin, WindowPeriodFormValidatorMixin, FormValidator
 ):
     """Note, the appointment is only changed, never added,
     through this form.
@@ -469,7 +469,8 @@ class AppointmentFormValidator(
     def validate_scheduled_parent_not_missed(self):
         if (
             self.cleaned_data.get("appt_reason") == UNSCHEDULED_APPT
-            and self.instance.previous.appt_status == MISSED_APPT
+            and self.instance.get_previous(include_interim=True)
+            and self.instance.get_previous(include_interim=True).appt_status == MISSED_APPT
         ):
             self.raise_validation_error(
                 {

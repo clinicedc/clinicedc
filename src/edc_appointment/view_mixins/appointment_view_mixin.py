@@ -9,6 +9,7 @@ from ..constants import (
     INCOMPLETE_APPT,
     NEW_APPT,
 )
+from ..utils import update_unscheduled_appointment_sequence
 
 
 class AppointmentViewMixin(ContextMixin):
@@ -25,6 +26,9 @@ class AppointmentViewMixin(ContextMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        update_unscheduled_appointment_sequence(
+            subject_identifier=self.kwargs.get("subject_identifier"),
+        )
         context.update(
             appointment=self.appointment_wrapped,
             appointments=self.appointments_wrapped,
