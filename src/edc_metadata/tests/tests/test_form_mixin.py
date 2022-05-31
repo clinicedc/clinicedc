@@ -14,7 +14,7 @@ from edc_visit_tracking.constants import SCHEDULED
 
 from edc_metadata import site_metadata_rules
 
-from ...metadata_helper_mixin import MetaDataHelperMixin
+from ...metadata_helper import MetadataHelperMixin
 from ...models import CrfMetadata, RequisitionMetadata
 from ..models import SubjectConsent, SubjectVisit
 from ..reference_configs import register_to_site_reference_configs
@@ -22,7 +22,7 @@ from ..visit_schedule import visit_schedule
 from .test_view_mixin import MyView
 
 
-class MyForm(MetaDataHelperMixin, FormValidator):
+class MyForm(MetadataHelperMixin, FormValidator):
 
     pass
 
