@@ -4,10 +4,10 @@ from django.dispatch import receiver
 
 @receiver(post_save, weak=False, dispatch_uid="visit_tracking_check_in_progress_on_post_save")
 def visit_tracking_check_in_progress_on_post_save(
-    sender, instance, raw, created, using, **kwargs  # noqa
+    sender, instance, raw, created, using, update_fields, **kwargs  # noqa
 ):
     """Calls method on the visit tracking instance"""
-    if not raw:
+    if not raw and not update_fields:
         try:
             instance.appointment
         except AttributeError:

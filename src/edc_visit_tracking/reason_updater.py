@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from edc_appointment.choices import APPT_TIMING
 from edc_appointment.constants import MISSED_APPT, SCHEDULED_APPT, UNSCHEDULED_APPT
 from edc_constants.constants import INCOMPLETE
-from edc_metadata.metadata_helper_mixin import MetaDataHelperMixin
+from edc_metadata.metadata_helper import MetadataHelperMixin
 from edc_visit_schedule.utils import is_baseline
 
 from .constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
@@ -32,7 +32,7 @@ class SubjectVisitReasonUpdaterMissedVisitNotAllowed(Exception):
     pass
 
 
-class SubjectVisitReasonUpdater(MetaDataHelperMixin):
+class SubjectVisitReasonUpdater(MetadataHelperMixin):
     """A class to try to update `reason` field based on the
     response from appointment timing and appointment reason.
     """

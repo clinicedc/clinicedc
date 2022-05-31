@@ -7,6 +7,7 @@ from edc_appointment.constants import MISSED_APPT
 from edc_constants.constants import NO, YES
 from edc_document_status.model_mixins import DocumentStatusModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
+from edc_metadata.model_mixins import MetadataHelperModelMixin
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 
 from edc_visit_tracking.stubs import SubjectVisitModelStub
@@ -28,6 +29,7 @@ class VisitModelMixin(
     NonUniqueSubjectIdentifierFieldMixin,
     PreviousVisitModelMixin,
     DocumentStatusModelMixin,
+    MetadataHelperModelMixin,
     models.Model,
 ):
 
@@ -40,6 +42,8 @@ class VisitModelMixin(
             class Meta(VisitModelMixin.Meta):
                 app_label = 'my_app'
     """
+
+    metadata_helper_instance_attr = None
 
     appointment = models.OneToOneField("edc_appointment.appointment", on_delete=PROTECT)
 
