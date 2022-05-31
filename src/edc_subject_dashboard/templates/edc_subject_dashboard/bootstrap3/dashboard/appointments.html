@@ -28,11 +28,12 @@
                             {% endwith %}
                             {% forms_button wrapper=wrapped %}
                         {% elif wrapped.appt_status == COMPLETE_APPT %}
-                            {% show_dashboard_visit_button wrapped_appointment=wrapped request=request%}
+                            {% show_dashboard_visit_button wrapped_appointment=wrapped request=request %}
                         {% else %}
-                          {% show_dashboard_visit_button wrapped_appointment=wrapped request=request%}
+                          {% show_dashboard_visit_button wrapped_appointment=wrapped request=request %}
                         {% endif %}
                     </td>
+                    <td>{% show_crf_totals wrapped_appointment=wrapped request=request %}</td>
                     <td>
                         <!--begin show missed label or nothing -->
                         {{ wrapped.object.title }}&nbsp{% if wrapped.object.visit.reason == MISSED_VISIT %}<span class="label label-default">MISSED</span>{% endif %}
