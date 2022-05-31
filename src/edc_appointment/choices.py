@@ -3,7 +3,6 @@ from .constants import (
     COMPLETE_APPT,
     IN_PROGRESS_APPT,
     INCOMPLETE_APPT,
-    LATE_APPT,
     MISSED_APPT,
     NEW_APPT,
     ONTIME_APPT,

@@ -1,7 +1,7 @@
 from dateutil.relativedelta import relativedelta
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
 from edc_reference import site_reference_configs
@@ -72,7 +72,6 @@ class TestMoveAppointment(TestCase):
             o.appt_datetime for o in Appointment.objects.all().order_by("appt_datetime")
         ]
 
-    @tag("3")
     def test_resequence_appointments_correctly(self):
         def get_visit_codes():
             return [
@@ -91,7 +90,6 @@ class TestMoveAppointment(TestCase):
             get_visit_codes(),
         )
 
-    @tag("3")
     def test_resequence_appointment_correctly2(self):
         def get_visit_codes():
             return [
@@ -110,7 +108,6 @@ class TestMoveAppointment(TestCase):
             get_visit_codes(),
         )
 
-    @tag("3")
     def test_resequence_appointment_correctly3(self):
         def get_visit_codes():
             return [
@@ -129,7 +126,6 @@ class TestMoveAppointment(TestCase):
             get_visit_codes(),
         )
 
-    @tag("2")
     def test_delete_0_appointment_in_sequence(self):
         self.assertEqual(
             [0, 1, 2, 3],
@@ -157,7 +153,6 @@ class TestMoveAppointment(TestCase):
             ],
         )
 
-    @tag("2")
     def test_delete_first_appointment_in_sequence(self):
         post_save.disconnect(dispatch_uid="appointments_on_post_delete")
         self.assertEqual(
@@ -181,7 +176,6 @@ class TestMoveAppointment(TestCase):
             ],
         )
 
-    @tag("2")
     def test_delete_second_appointment_in_sequence(self):
         self.assertEqual(
             [0, 1, 2, 3],
@@ -204,7 +198,6 @@ class TestMoveAppointment(TestCase):
             ],
         )
 
-    @tag("2")
     def test_delete_third_appointment_in_sequence(self):
         self.assertEqual(
             [0, 1, 2, 3],

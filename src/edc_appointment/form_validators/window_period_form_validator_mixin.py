@@ -8,12 +8,7 @@ from edc_visit_schedule.schedule.window import (
     UnScheduledVisitWindowError,
 )
 
-from edc_appointment.constants import (
-    COMPLETE_APPT,
-    INCOMPLETE_APPT,
-    MISSED_APPT,
-    UNSCHEDULED_APPT,
-)
+from edc_appointment.constants import COMPLETE_APPT, INCOMPLETE_APPT
 
 UNSCHEDULED_WINDOW_ERROR = "unscheduled_window_error"
 SCHEDULED_WINDOW_ERROR = "scheduled_window_error"

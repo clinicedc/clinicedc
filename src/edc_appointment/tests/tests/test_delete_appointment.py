@@ -1,9 +1,7 @@
-from pprint import pprint
-
 from dateutil.relativedelta import relativedelta
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
 from edc_reference import site_reference_configs
@@ -81,7 +79,6 @@ class TestDeleteAppointment(TestCase):
             o.appt_datetime for o in Appointment.objects.all().order_by("appt_datetime")
         ]
 
-    @tag("2")
     def test_delete_0_appointment_in_sequence(self):
         self.assertEqual(
             [0, 1, 2, 3],
@@ -109,7 +106,6 @@ class TestDeleteAppointment(TestCase):
             ],
         )
 
-    @tag("2")
     def test_delete_first_appointment_in_sequence(self):
         self.assertEqual(
             [0, 1, 2, 3],
@@ -132,7 +128,6 @@ class TestDeleteAppointment(TestCase):
             ],
         )
 
-    @tag("2")
     def test_delete_second_appointment_in_sequence(self):
         self.assertEqual(
             [0, 1, 2, 3],
@@ -155,7 +150,6 @@ class TestDeleteAppointment(TestCase):
             ],
         )
 
-    @tag("2")
     def test_delete_third_appointment_in_sequence(self):
         self.assertEqual(
             [0, 1, 2, 3],

@@ -5,7 +5,7 @@ from arrow import arrow
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms import ValidationError
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_facility.import_holidays import import_holidays
 from edc_form_validators import ModelFormFieldValidatorError
 from edc_metadata import KEYED, REQUIRED
@@ -143,7 +143,6 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
             reason=SCHEDULED,
         )
 
-    @tag("1")
     def test_visit_report_sequence2(self):
         """Asserts a sequence error is raised if previous visit
         not complete for an in progress appointment.

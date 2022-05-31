@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
 from edc_reference import site_reference_configs
@@ -10,10 +10,8 @@ from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 
 from edc_appointment.constants import (
     COMPLETE_APPT,
-    IN_PROGRESS_APPT,
     INCOMPLETE_APPT,
     MISSED_APPT,
-    NEW_APPT,
     ONTIME_APPT,
 )
 from edc_appointment.creators import UnscheduledAppointmentCreator
@@ -264,7 +262,6 @@ class TestAppointmentWindowPeriod(TestCase):
         form.is_valid()
         self.assertIn("appt_datetime", form._errors)
 
-    @tag("2")
     def test_appointments_window_period_does_not_allow_missed_unscheduled(self):
         """Assert does not allow an unscheduled appointment if the
         scheduled appt is missed (in this case 1030 is missed)
