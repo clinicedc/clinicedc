@@ -2,7 +2,7 @@ from warnings import warn
 
 from django.db import models
 
-from ..validators import dh_validator, ymd_validator
+from ...validators import dh_validator, ymd_validator
 
 
 class DurationDHField(models.CharField):

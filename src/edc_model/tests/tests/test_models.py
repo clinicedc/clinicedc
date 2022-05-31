@@ -2,7 +2,7 @@ from copy import copy
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
-from django.test import TestCase, tag  # noqa
+from django.test import TestCase
 from django.test.utils import override_settings
 
 from edc_model.models import UrlModelMixinNoReverseMatch

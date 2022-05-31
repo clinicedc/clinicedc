@@ -1,7 +1,7 @@
 from django.db import models
 
 from ..choices import REPORT_STATUS
-from .validators import datetime_not_future
+from ..validators import datetime_not_future
 
 
 class ReportStatusModelMixin(models.Model):

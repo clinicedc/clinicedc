@@ -3,12 +3,14 @@ from dateutil.relativedelta import relativedelta
 from django.db import models
 from edc_sites.models import SiteModelMixin
 
-from ..models import (
+from edc_model.models import (
     BaseModel,
     BaseUuidModel,
     DurationDHField,
     HistoricalRecords,
     ReportStatusModelMixin,
+)
+from edc_model.validators import (
     cell_number,
     date_is_future,
     date_not_future,
