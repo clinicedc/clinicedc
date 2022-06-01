@@ -13,9 +13,7 @@ class SerializableModel(models.Model):
     objects = SerializableModelManager()
 
     def natural_key(self) -> tuple:
-        return tuple(
-            self.history_id,
-        )
+        return (self.history_id,)  # noqa
 
     class Meta:
         abstract = True
