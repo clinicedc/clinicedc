@@ -113,9 +113,7 @@ class VisitTrackingCrfModelMixin(
         return str(self.subject_visit)
 
     def natural_key(self) -> tuple:
-        return tuple(
-            getattr(self, self.visit_model_attr()).natural_key(),
-        )
+        return (getattr(self, self.visit_model_attr()).natural_key(),)  # noqa
 
     # noinspection PyTypeHints
     natural_key.dependencies = [settings.SUBJECT_VISIT_MODEL]  # type:ignore
