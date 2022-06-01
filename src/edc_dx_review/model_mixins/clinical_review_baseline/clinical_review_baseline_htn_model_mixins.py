@@ -4,6 +4,7 @@ from edc_constants.choices import YES_NO, YES_NO_NA
 from edc_constants.constants import NOT_APPLICABLE
 from edc_model import models as edc_models
 from edc_model.utils import estimated_date_from_ago
+from edc_model.validators import date_not_future
 
 
 class ClinicalReviewBaselineHtnModelMixin(models.Model):
@@ -28,7 +29,7 @@ class ClinicalReviewBaselineHtnModelMixin(models.Model):
 
     htn_test_date = models.DateField(
         verbose_name="Date of patient's most recent Hypertension test?",
-        validators=[edc_models.date_not_future],
+        validators=[date_not_future],
         null=True,
         blank=True,
     )

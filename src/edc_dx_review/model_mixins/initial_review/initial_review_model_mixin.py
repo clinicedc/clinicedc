@@ -7,6 +7,7 @@ from edc_constants.constants import YES
 from edc_dx import Diagnoses
 from edc_dx.utils import calculate_dx_date_if_estimated
 from edc_model import models as edc_models
+from edc_model.validators import date_not_future
 
 
 class InitialReviewModelError(Exception):
@@ -31,7 +32,7 @@ def initial_dx_model_mixin_factory(dx_field_prefix: Optional[str] = None):
             verbose_name="Date patient diagnosed",
             null=True,
             blank=True,
-            validators=[edc_models.date_not_future],
+            validators=[date_not_future],
             help_text="If possible, provide the exact date here instead of estimating above.",
         ),
         f"{dx_field_prefix}dx_estimated_date": models.DateField(

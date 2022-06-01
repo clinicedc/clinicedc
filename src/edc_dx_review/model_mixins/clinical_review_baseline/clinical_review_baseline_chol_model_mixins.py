@@ -3,8 +3,8 @@ from django.utils.html import format_html
 from edc_constants.choices import YES_NO, YES_NO_NA
 from edc_constants.constants import NOT_APPLICABLE
 from edc_model import models as edc_models
-from edc_model.models import date_not_future
 from edc_model.utils import estimated_date_from_ago
+from edc_model.validators import date_not_future
 
 
 class ClinicalReviewBaselineCholModelMixin(models.Model):
