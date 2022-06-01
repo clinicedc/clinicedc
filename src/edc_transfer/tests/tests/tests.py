@@ -1,8 +1,5 @@
-from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.test import RequestFactory, TestCase
-from django.views import View
-from django.views.generic.base import ContextMixin
+from django.test import TestCase
 from edc_constants.constants import OTHER
 from edc_metadata.tests.tests.metadata_test_mixin import TestMetadataMixin
 
