@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.safestring import mark_safe
 from django_crypto_fields.fields import EncryptedCharField, EncryptedTextField
 from edc_constants.choices import YES_NO
-from edc_model.models import cell_number, telephone_number
+from edc_model.validators import cell_number, telephone_number
 
 
 class SubjectIndirectContactFieldsMixin(models.Model):
