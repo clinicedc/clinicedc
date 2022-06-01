@@ -2,7 +2,7 @@ from datetime import datetime
 
 from arrow.arrow import Arrow
 from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase
 from django.test.utils import override_settings
 from edc_sites import add_or_update_django_sites
 from edc_sites.tests import SiteTestCaseMixin
