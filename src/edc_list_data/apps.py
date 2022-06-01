@@ -4,7 +4,7 @@ from django.apps import AppConfig as DjangoAppConfig
 from django.core.management.color import color_style
 from django.db.models.signals import post_migrate
 
-from .site_list_data import SiteListDataError, site_list_data
+from .site_list_data import site_list_data
 
 style = color_style()
 
