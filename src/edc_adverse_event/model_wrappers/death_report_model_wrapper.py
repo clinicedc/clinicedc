@@ -22,7 +22,7 @@ class DeathReportModelWrapper(ModelWrapper):
 
     @property
     def pk(self):
-        return str(self.object.pk)
+        return str(self.object.id)
 
     @property
     def subject_identifier(self):

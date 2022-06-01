@@ -10,7 +10,7 @@ class AesiMethodsModelMixin(models.Model):
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.action_identifier,)
+        return (self.action_identifier,)  # noqa
 
     class Meta:
         abstract = True

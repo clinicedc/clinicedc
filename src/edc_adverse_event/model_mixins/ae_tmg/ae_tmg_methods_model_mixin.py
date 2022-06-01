@@ -10,7 +10,7 @@ class AeTmgMethodsModelMixin(models.Model):
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.action_identifier,)
+        return (self.action_identifier,)  # noqa
 
     def get_action_item_reason(self):
         return self.ae_initial.ae_description
