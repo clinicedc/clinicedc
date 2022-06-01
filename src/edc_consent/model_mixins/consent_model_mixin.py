@@ -3,7 +3,7 @@ from uuid import uuid4
 from django.db import models
 from django.db.models import options
 from django_crypto_fields.fields import EncryptedTextField
-from edc_model.models import datetime_not_future
+from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.models import CurrentSiteManager
 from edc_utils import age, formatted_age
@@ -76,9 +76,7 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
         return f"{self.get_subject_identifier()} v{self.version}"
 
     def natural_key(self):
-        return tuple(
-            self.get_subject_identifier_as_pk(),
-        )
+        return (self.get_subject_identifier_as_pk(),)  # noqa
 
     def save(self, *args, **kwargs):
         self.report_datetime = self.consent_datetime
