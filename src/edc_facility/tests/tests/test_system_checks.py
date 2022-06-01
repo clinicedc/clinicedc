@@ -2,7 +2,7 @@ import os
 
 from django.apps import apps as django_apps
 from django.conf import settings
-from django.test import TestCase, tag
+from django.test import TestCase
 from django.test.utils import override_settings
 from edc_sites import add_or_update_django_sites
 from edc_sites.tests import SiteTestCaseMixin

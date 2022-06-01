@@ -1,4 +1,4 @@
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_utils import get_utcnow
 
 from ...models import Holiday
