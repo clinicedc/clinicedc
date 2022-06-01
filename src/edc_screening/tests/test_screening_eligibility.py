@@ -1,4 +1,4 @@
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_constants.constants import NO, TBD, YES
 
 from ..screening_eligibility import FC
