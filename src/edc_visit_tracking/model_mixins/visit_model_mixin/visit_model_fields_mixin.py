@@ -1,7 +1,7 @@
 from django.db import models
 from edc_constants.choices import ALIVE_DEAD_UNKNOWN_NA_MISSED, YES_NO
 from edc_constants.constants import ALIVE, NOT_APPLICABLE, YES
-from edc_model.models import date_not_future, datetime_not_future
+from edc_model.validators import date_not_future, datetime_not_future
 from edc_model_fields.fields import OtherCharField
 from edc_protocol.validators import (
     date_not_before_study_start,

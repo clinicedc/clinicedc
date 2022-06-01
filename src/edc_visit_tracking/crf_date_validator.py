@@ -3,7 +3,7 @@ from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from edc_model.models import datetime_not_future
+from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_utils.text import convert_php_dateformat
 
