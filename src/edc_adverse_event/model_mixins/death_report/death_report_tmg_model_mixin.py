@@ -11,7 +11,8 @@ from edc_identifier.model_mixins import (
     NonUniqueSubjectIdentifierFieldMixin,
     TrackingModelMixin,
 )
-from edc_model.models import ReportStatusModelMixin, datetime_not_future
+from edc_model.models import ReportStatusModelMixin
+from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
@@ -75,7 +76,7 @@ class DeathReportTmgFieldsModelMixin(models.Model):
     )
 
     cause_of_death_agreed = models.CharField(
-        verbose_name=("Is the cause of death agreed between study doctor and TMG member?"),
+        verbose_name="Is the cause of death agreed between study doctor and TMG member?",
         max_length=15,
         choices=YES_NO,
         blank=True,
@@ -98,7 +99,7 @@ class DeathReportTmgMethodsModelMixin(models.Model):
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.action_identifier,)
+        return (self.action_identifier,)  # noqa
 
     natural_key.dependencies = ["edc_adverse_event.causeofdeath"]
 

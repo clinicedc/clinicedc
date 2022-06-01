@@ -8,7 +8,7 @@ class AeInitialSusarModelMixin(models.Model):
     """This model mixin is for the AE Initial."""
 
     susar = models.CharField(
-        verbose_name=("Is this a Suspected Unexpected Serious Adverse Reaction (SUSAR)?"),
+        verbose_name="Is this a Suspected Unexpected Serious Adverse Reaction (SUSAR)?",
         choices=YES_NO,
         max_length=5,
         help_text=(

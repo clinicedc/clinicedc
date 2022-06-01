@@ -11,7 +11,8 @@ from edc_identifier.model_mixins import (
     TrackingModelMixin,
     UniqueSubjectIdentifierFieldMixin,
 )
-from edc_model.models import HistoricalRecords, date_not_future, datetime_not_future
+from edc_model.models import HistoricalRecords
+from edc_model.validators import date_not_future, datetime_not_future
 from edc_model_fields.fields.other_charfield import OtherCharField
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.models import SiteModelMixin
@@ -92,9 +93,7 @@ class DeathReportModelMixin(
     history = HistoricalRecords(inherit=True)
 
     def natural_key(self):
-        return tuple(
-            self.action_identifier,
-        )
+        return (self.action_identifier,)  # noqa
 
     natural_key.dependencies = ["edc_adverse_event.causeofdeath"]
 

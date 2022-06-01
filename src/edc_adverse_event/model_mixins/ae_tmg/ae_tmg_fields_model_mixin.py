@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import models
 from edc_constants.choices import YES_NO
-from edc_model.models import datetime_not_future
+from edc_model.validators import datetime_not_future
 from edc_model_fields.fields import OtherCharField
 from edc_utils import get_utcnow
 

@@ -6,7 +6,7 @@ from edc_model_fields.fields.other_charfield import OtherCharField
 class AeInitialAeModelMixin(models.Model):
 
     ae_study_relation_possibility = models.CharField(
-        verbose_name=("Is the incident related to the patient involvement in the study?"),
+        verbose_name="Is the incident related to the patient involvement in the study?",
         max_length=10,
         choices=YES_NO_UNKNOWN,
     )
