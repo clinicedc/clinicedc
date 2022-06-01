@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
-from edc_model.models import datetime_not_future
+from edc_model.validators import datetime_not_future
 from edc_model_fields.fields import OtherCharField
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_utils import formatted_datetime, get_utcnow
