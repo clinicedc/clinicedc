@@ -1,7 +1,7 @@
 from django.contrib.auth.models import Group
 from django.db import models
 from django.utils.text import slugify
-from edc_model.models.base_uuid_model import BaseUuidModel
+from edc_model.models import BaseUuidModel
 
 
 class RoleModelManager(models.Manager):
