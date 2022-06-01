@@ -62,9 +62,7 @@ class DeathReport(UniqueSubjectIdentifierFieldMixin, BaseUuidModel):
     objects = SubjectIdentifierManager()
 
     def natural_key(self):
-        return tuple(
-            self.subject_identifier,
-        )
+        return (self.subject_identifier,)  # noqa
 
 
 class SubjectConsent(
@@ -92,9 +90,7 @@ class SubjectConsent(
     objects = SubjectIdentifierManager()
 
     def natural_key(self):
-        return tuple(
-            self.subject_identifier,
-        )
+        return (self.subject_identifier,)  # noqa
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Subject Consent"
