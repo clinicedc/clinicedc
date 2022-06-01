@@ -1,5 +1,5 @@
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_utils.date import get_utcnow
 
 from edc_refusal.forms import SubjectRefusalForm
