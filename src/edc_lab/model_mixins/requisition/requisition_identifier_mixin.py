@@ -7,7 +7,7 @@ from edc_utils import get_uuid
 
 from ...identifiers import RequisitionIdentifier
 
-human_readable_pattern = "^[0-9A-Z]{3}\-[0-9A-Z]{4}$"
+human_readable_pattern = r"^[0-9A-Z]{3}\-[0-9A-Z]{4}$"
 
 
 class RequisitionIdentifierMixin(models.Model):

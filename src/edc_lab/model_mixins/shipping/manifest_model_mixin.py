@@ -56,7 +56,7 @@ class ManifestModelMixin(SiteModelMixin, models.Model):
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.manifest_identifier,)
+        return (self.manifest_identifier,)  # noqa
 
     natural_key.dependencies = ["sites.Site"]
 
