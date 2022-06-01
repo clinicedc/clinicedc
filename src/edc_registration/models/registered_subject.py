@@ -146,7 +146,7 @@ class RegisteredSubject(
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return tuple(self.subject_identifier_as_pk)
+        return (self.subject_identifier_as_pk,)  # noqa
 
     def __str__(self):
         return self.masked_subject_identifier
