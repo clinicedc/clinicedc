@@ -105,9 +105,7 @@ class ActionNoManagersModelMixin(models.Model):
         super().save(*args, **kwargs)  # type: ignore
 
     def natural_key(self) -> tuple:
-        return tuple(
-            self.action_identifier,
-        )
+        return (self.action_identifier,)
 
     # noinspection PyTypeHints
     natural_key.dependencies = ["edc_action_item.actionitem"]  # type:ignore
