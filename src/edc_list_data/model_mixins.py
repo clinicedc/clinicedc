@@ -51,9 +51,7 @@ class BaseListModelMixin(models.Model):
         super().save(*args, **kwargs)
 
     def natural_key(self) -> tuple:
-        return tuple(
-            self.name,
-        )
+        return (self.name,)  # noqa
 
     class Meta:
         abstract = True
