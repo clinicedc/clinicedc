@@ -66,7 +66,7 @@ class SubjectTransferModelMixin(
     comment = EncryptedTextField(verbose_name="Additional Comments")
 
     def natural_key(self):
-        return tuple([self.subject_identifier])
+        return (self.subject_identifier,)  # noqa
 
     class Meta:
         abstract = True
