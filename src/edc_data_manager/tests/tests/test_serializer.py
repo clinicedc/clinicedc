@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core import serializers
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_lab.site_labs import site_labs
 from edc_visit_schedule.apps import populate_visit_schedule
 from edc_visit_schedule.constants import HOURS

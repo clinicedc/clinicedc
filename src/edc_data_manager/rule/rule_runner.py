@@ -1,4 +1,6 @@
 import sys
+from decimal import Decimal
+from typing import Optional, Union
 
 import arrow
 from edc_metadata import KEYED, REQUIRED
@@ -41,11 +43,11 @@ class RuleRunner:
 
     def run_one(
         self,
-        subject_identifier=None,
-        visit_schedule_name=None,
-        schedule_name=None,
-        visit_code=None,
-        timepoint=None,
+        subject_identifier: Optional[str] = None,
+        visit_schedule_name: Optional[str] = None,
+        schedule_name: Optional[str] = None,
+        visit_code: Optional[str] = None,
+        timepoint: Optional[Union[float, Decimal]] = None,
     ):
         visit_schedule_obj = QueryVisitSchedule.objects.get(
             visit_schedule_name=visit_schedule_name,
@@ -80,7 +82,7 @@ class RuleRunner:
                 sys.stdout.write(
                     f"     - query {visit_schedule_obj.visit_schedule_name}."
                     f"{visit_schedule_obj.schedule_name}.{visit_schedule_obj.visit_code}"
-                    f" (timepoint {visit_schedule_obj.timepoint})\n"
+                    f"(timepoint {visit_schedule_obj.timepoint})\n"
                 )
             metadata_inspector = MetaDataInspector(
                 model_cls=self.query_rule_obj.model_cls,

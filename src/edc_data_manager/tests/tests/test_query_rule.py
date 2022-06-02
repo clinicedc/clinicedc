@@ -1,4 +1,6 @@
+from datetime import datetime
 from decimal import Decimal
+from typing import Optional
 
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
@@ -75,7 +77,12 @@ class TestQueryRules(TestCase):
             onschedule_datetime=subject_consent.consent_datetime,
         )
 
-    def create_subject_visit(self, visit_code, report_datetime=None, visit_code_sequence=None):
+    def create_subject_visit(
+        self,
+        visit_code: str,
+        report_datetime: Optional[datetime] = None,
+        visit_code_sequence: Optional[int] = None,
+    ):
         appointment = Appointment.objects.get(
             subject_identifier=self.subject_identifier,
             visit_schedule_name="visit_schedule",
@@ -88,6 +95,10 @@ class TestQueryRules(TestCase):
             report_datetime=report_datetime or appointment.appt_datetime,
             subject_identifier=self.subject_identifier,
             reason=SCHEDULED,
+            visit_code=appointment.visit_code,
+            visit_code_sequence=appointment.visit_code_sequence,
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
             user_created="user_login",
         )
 
@@ -388,6 +399,7 @@ class TestQueryRules(TestCase):
             0,
         )
 
+    @tag("1")
     def test_crf_rule_with_requisition_prn_visit(self):
 
         # create a rule
@@ -425,7 +437,7 @@ class TestQueryRules(TestCase):
 
         appointment_1_0 = Appointment.objects.get(visit_code="1000", visit_code_sequence=0)
         self.create_subject_visit(
-            "1000",
+            visit_code="1000",
             report_datetime=appointment_1_0.appt_datetime,
             visit_code_sequence=appointment_1_0.visit_code_sequence,
         )
@@ -438,8 +450,8 @@ class TestQueryRules(TestCase):
             visit_schedule_name=visit_schedule1.visit_schedule_name,
             schedule_name=visit_schedule1.schedule_name,
             visit_code="1000",
-            timepoint=Decimal("1.1"),
             visit_code_sequence=1,
+            timepoint=Decimal("1.0"),
         )
         # create visit report
         subject_visit = self.create_subject_visit(

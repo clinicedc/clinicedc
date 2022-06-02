@@ -332,10 +332,11 @@ class QueryRuleHandler:
         """Returns a requisition model instance or None."""
         if not self._requisition_obj:
             try:
-                self._requisition_obj = get_requisition_model().objects.get(
-                    **{f"{self.model_cls.visit_model_attr()}": self.visit_obj},
-                    panel=self.query_rule_obj.requisition_panel,
-                )
+                opts = {
+                    f"{self.model_cls.visit_model_attr()}": self.visit_obj,
+                    "panel": self.query_rule_obj.requisition_panel,
+                }
+                self._requisition_obj = get_requisition_model().objects.get(**opts)
             except ObjectDoesNotExist:
                 pass
         return self._requisition_obj

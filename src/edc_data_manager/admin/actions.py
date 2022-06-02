@@ -31,7 +31,7 @@ def toggle_dm_status(modeladmin, request, queryset):
         obj.save()
 
 
-toggle_dm_status.short_description = f"Toggle DM Status (OPEN/CLOSED)"
+toggle_dm_status.short_description = "Toggle DM Status (OPEN/CLOSED)"
 
 
 def copy_query_rule_action(modeladmin, request, queryset):
@@ -81,11 +81,11 @@ def update_query_rules_action(modeladmin, request, queryset):
             dte = get_utcnow()
             taskresult_url = reverse("admin:django_celery_results_taskresult_changelist")
             msg = mark_safe(
-                f"Updating data queries in the background. "
+                "Updating data queries in the background. "
                 f"Started at {formatted_datetime(dte)}. "
-                f"An updated digest will be email upon completion. "
+                "An updated digest will be email upon completion. "
                 f'You may also check in <a href="{taskresult_url}?'
-                f'task_name=update_query_rules">task results</A>. '
+                'task_name=update_query_rules">task results</A>. '
             )
         else:
             results = update_query_rules(pks=[o.pk for o in queryset])
