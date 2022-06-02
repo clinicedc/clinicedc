@@ -106,7 +106,7 @@ class Migration(migrations.Migration):
                     models.DateTimeField(
                         validators=[
                             edc_protocol.validators.datetime_not_before_study_start,
-                            edc_model.models.datetime_not_future,
+                            edc_model.validators.datetime_not_future,
                         ]
                     ),
                 ),
@@ -116,7 +116,7 @@ class Migration(migrations.Migration):
                         null=True,
                         validators=[
                             edc_protocol.validators.datetime_not_before_study_start,
-                            edc_model.models.datetime_not_future,
+                            edc_model.validators.datetime_not_future,
                         ],
                     ),
                 ),
