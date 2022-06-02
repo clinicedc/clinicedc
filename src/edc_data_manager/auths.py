@@ -15,7 +15,6 @@ from .auth_objects import (
     DATA_QUERY_VIEW,
     SITE_DATA_MANAGER_ROLE,
     data_manager,
-    data_query,
 )
 
 # groups

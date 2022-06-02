@@ -162,8 +162,6 @@ class QueryRule(BaseUuidModel):
         blank=True,
     )
 
-    reference_model = models.CharField(max_length=150, null=True, editable=False)
-
     # TODO: is this the CRF report datetime, for example?
     reference_date = models.CharField(
         max_length=25, choices=DATE_CHOICES, default=REPORT_DATE, editable=False
@@ -215,7 +213,7 @@ class QueryRule(BaseUuidModel):
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.title,)
+        return (self.title,)  # noqa
 
     natural_key.dependencies = [
         "edc_data_manager.CrfDataDictionary",
@@ -236,12 +234,12 @@ class QueryRule(BaseUuidModel):
 
     @property
     def model_cls(self):
-        models = list(set([dd.model for dd in self.data_dictionaries.all()]))
-        if len(models) != 1:
+        dct_models = list(set([dd.model for dd in self.data_dictionaries.all()]))
+        if len(dct_models) != 1:
             raise QueryRuleError(
                 "Multiple models specified. Questions from only one model are allowed."
             )
-        return django_apps.get_model(models[0])
+        return django_apps.get_model(dct_models[0])
 
     class Meta(BaseUuidModel.Meta):
         ordering = ("title",)

@@ -28,8 +28,9 @@ def update_query_on_crf(sender, instance, raw, **kwargs):
                 pass
             else:
                 if not is_inline_model(instance):
+                    visit_schedule_name = instance.visit.appointment.visit_schedule_name
                     opts = dict(
-                        visit_schedule__visit_schedule_name=instance.visit.appointment.visit_schedule_name,  # noqa
+                        visit_schedule__visit_schedule_name=visit_schedule_name,
                         visit_schedule__schedule_name=instance.visit.appointment.schedule_name,
                         visit_schedule__visit_code=instance.visit.appointment.visit_code,
                     )

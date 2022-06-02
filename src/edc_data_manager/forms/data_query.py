@@ -45,15 +45,11 @@ class DataQueryFormValidator(FormValidator):
             field_required="site_response_text",
         )
 
-        if (
-            self.cleaned_data.get("site_response_status")
-            in [
-                NEW,
-                OPEN,
-                FEEDBACK,
-            ]
-            and self.cleaned_data.get("status") in [CLOSED, CLOSED_WITH_ACTION]
-        ):
+        if self.cleaned_data.get("site_response_status") in [
+            NEW,
+            OPEN,
+            FEEDBACK,
+        ] and self.cleaned_data.get("status") in [CLOSED, CLOSED_WITH_ACTION]:
             raise forms.ValidationError({"status": "Invalid: Site response is not resolved."})
 
         # DM

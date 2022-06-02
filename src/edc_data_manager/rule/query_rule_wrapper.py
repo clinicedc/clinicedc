@@ -11,7 +11,6 @@ class QueryRuleWrapper:
         subject_identifiers=None,
         visit_schedule_obj=None,
         timepoint=None,
-        visit_code_sequence=None,
         entry_status=None,
         now=None,
         verbose=None,
@@ -21,9 +20,6 @@ class QueryRuleWrapper:
         self.subject_identifiers = subject_identifiers
         self.visit_schedule_obj = visit_schedule_obj
         self.timepoint = timepoint
-        self.visit_code_sequence = (
-            visit_code_sequence or str(self.timepoint).split(".")[1] or 0
-        )
         self.entry_status = entry_status
         self.verbose = verbose
 
@@ -66,7 +62,6 @@ class QueryRuleWrapper:
                 query_rule_obj=self.query_rule_obj,
                 registered_subject=registered_subject,
                 visit_schedule_obj=self.visit_schedule_obj,
-                visit_code_sequence=self.visit_code_sequence,
                 now=self.now,
             )
             handler.run()

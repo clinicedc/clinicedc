@@ -2,11 +2,11 @@ from importlib import import_module
 from unittest import skip
 
 from django.contrib.auth import get_user_model
-from django.test import override_settings, tag
+from django.test import override_settings
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_action_item.models.action_item import ActionItem
-from edc_auth.auth_objects import EVERYONE, STAFF_ROLE
+from edc_auth.auth_objects import STAFF_ROLE
 from edc_auth.auth_updater import AuthUpdater
 from edc_auth.models import Role
 from edc_auth.site_auths import site_auths
@@ -19,7 +19,7 @@ from model_bakery import baker
 from data_manager_app.lab_profiles import lab_profile
 from data_manager_app.reference_model_configs import register_to_site_reference_configs
 from data_manager_app.visit_schedules import visit_schedule
-from edc_data_manager.auth_objects import DATA_MANAGER, DATA_MANAGER_ROLE
+from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
 from edc_data_manager.models import CrfDataDictionary, DataQuery
 from edc_data_manager.models.user import DataManagerUser
 
@@ -62,7 +62,6 @@ class AdminSiteTest(WebTest):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
 
-    @tag("webtest")
     def test_default_rule_handler_names(self):
         """Assert default rule handler names on queryrule ADD form"""
         login(self, superuser=False, redirect_url="admin:index")
@@ -97,7 +96,6 @@ class AdminSiteTest(WebTest):
         response = form.submit().follow()
         self.assertIn("Invalid. Select questions from one CRF only", str(response.content))
 
-    @tag("webtest1")
     def test_data_query(self):
         login(self, superuser=False, redirect_url="admin:index")
 
@@ -135,7 +133,6 @@ class AdminSiteTest(WebTest):
         response = form.submit().follow()
         self.assertIn("was changed successfully", str(response.content))
 
-    @tag("webtest")
     def test_data_query_add_and_permissions(self):
         login(self, superuser=False, redirect_url="admin:index")
 
@@ -173,7 +170,6 @@ class AdminSiteTest(WebTest):
         response = form.submit().follow()
         self.assertIn("was changed successfully", str(response))
 
-    @tag("webtest")
     def test_data_query_action_attrs(self):
         login(self, superuser=False, redirect_url="admin:index")
 

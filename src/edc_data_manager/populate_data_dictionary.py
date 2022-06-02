@@ -143,7 +143,7 @@ def populate_data_dictionary_from_sites(request=None):
                 else:
                     sys.stdout.write(f"   + {model._meta.label_lower}.\n")
                     if not form.base_fields:
-                        for index, fld in enumerate(model._meta.fields):
+                        for index, fld in enumerate(model._meta.get_fields()):
                             if fld.editable:
                                 create_or_update_data_dictionary(index, model, fld)
                     else:
