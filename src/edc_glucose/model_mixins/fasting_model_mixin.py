@@ -2,7 +2,7 @@ from typing import Optional
 
 from django.db import models
 from edc_constants.choices import YES_NO
-from edc_model.models import hm_validator
+from edc_model.validators import hm_validator
 
 
 def fasting_model_mixin_factory(prefix: Optional[str] = None, **kwargs):
