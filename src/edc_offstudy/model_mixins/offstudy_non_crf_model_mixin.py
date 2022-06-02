@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
@@ -16,11 +18,11 @@ class OffstudyNonCrfModelMixin(models.Model):
     """A mixin for non-CRF models to add the ability to determine
     if the subject is off study as of this non-CRFs report_datetime.
 
-    Requires fields "subject_identifier" and "report_datetime"
+    Requires "subject_identifier" and "report_datetime"
 
     """
 
-    def save(self, *args, **kwargs):
+    def save(self: Any, *args, **kwargs):
         if not self._meta.offstudy_model_cls and not self._meta.offstudy_model:
             raise ImproperlyConfigured(
                 f"Attribute offstudy_model not defined. See {repr(self)}."

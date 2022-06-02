@@ -1,25 +1,29 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ImproperlyConfigured
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_appointment.models import Appointment
-from edc_appointment.tests.models import (
-    OffScheduleOne,
-    SubjectConsent,
-    SubjectOffstudy,
-    SubjectVisit,
-)
-from edc_appointment.tests.visit_schedule import visit_schedule1, visit_schedule2
 from edc_consent import NotConsentedError, site_consents
 from edc_constants.constants import DEAD
 from edc_facility.import_holidays import import_holidays
+from edc_reference import site_reference_configs
 from edc_utils import get_dob, get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
-from ..utils import OffstudyError
-from .consents import v1_consent
-from .forms import BadNonCrfOneForm, CrfOneForm, NonCrfOneForm, SubjectOffstudyForm
-from .models import BadNonCrfOne, CrfOne, NonCrfOne
+from edc_offstudy.utils import OffstudyError
+
+from ...models import SubjectOffstudy
+from ..consents import v1_consent
+from ..forms import BadNonCrfOneForm, CrfOneForm, NonCrfOneForm, SubjectOffstudyForm
+from ..models import (
+    BadNonCrfOne,
+    CrfOne,
+    NonCrfOne,
+    OffScheduleOne,
+    SubjectConsent,
+    SubjectVisit,
+)
+from ..visit_schedule import visit_schedule1
 
 
 class TestOffstudy(TestCase):
@@ -40,10 +44,11 @@ class TestOffstudy(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule1)
-        site_visit_schedules.register(visit_schedule2)
 
+        site_reference_configs.register_from_visit_schedule(
+            visit_models={"edc_appointment.appointment": "edc_offstudy.subjectvisit"}
+        )
         self.schedule1 = visit_schedule1.schedules.get("schedule1")
-        self.schedule2 = visit_schedule2.schedules.get("schedule2")
 
         self.subject_identifier = "111111111"
         self.subject_identifiers = [
@@ -52,13 +57,11 @@ class TestOffstudy(TestCase):
             "333333333",
             "444444444",
         ]
-        self.consent_datetime = get_utcnow() - relativedelta(weeks=4)
+        self.consent_datetime = get_utcnow() - relativedelta(years=4)
         dob = get_dob(age_in_years=25, now=self.consent_datetime)
         for subject_identifier in self.subject_identifiers:
             subject_consent = SubjectConsent.objects.create(
                 subject_identifier=subject_identifier,
-                identity=subject_identifier,
-                confirm_identity=subject_identifier,
                 consent_datetime=self.consent_datetime,
                 dob=dob,
             )
@@ -124,13 +127,15 @@ class TestOffstudy(TestCase):
                 schedule_name=appointment.schedule_name,
                 visit_code=appointment.visit_code,
                 report_datetime=appointment_datetimes[index],
-                study_status=SCHEDULED,
+                reason=SCHEDULED,
             )
+
+        subject_visit = SubjectVisit.objects.all().order_by("report_datetime").last()
 
         OffScheduleOne.objects.create(
             subject_identifier=self.subject_identifier,
-            report_datetime=get_utcnow(),
-            offschedule_datetime=appointment_datetimes[1],
+            report_datetime=subject_visit.report_datetime,
+            offschedule_datetime=subject_visit.report_datetime,
         )
 
         # report off study on same date as second visit
@@ -159,7 +164,7 @@ class TestOffstudy(TestCase):
             schedule_name=appointments[0].schedule_name,
             visit_code=appointments[0].visit_code,
             report_datetime=appointments[0].appt_datetime,
-            study_status=SCHEDULED,
+            reason=SCHEDULED,
         )
         # get crf_one for this visit
         crf_one = CrfOne(
@@ -176,7 +181,7 @@ class TestOffstudy(TestCase):
             schedule_name=appointments[1].schedule_name,
             visit_code=appointments[1].visit_code,
             report_datetime=appointments[1].appt_datetime,
-            study_status=SCHEDULED,
+            reason=SCHEDULED,
         )
 
         # take off schedule1
@@ -283,7 +288,7 @@ class TestOffstudy(TestCase):
             schedule_name=appointments[0].schedule_name,
             visit_code=appointments[0].visit_code,
             report_datetime=appointments[0].appt_datetime,
-            study_status=SCHEDULED,
+            reason=SCHEDULED,
         )
         data = dict(
             subject_visit=str(subject_visit.id),
