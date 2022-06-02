@@ -17,22 +17,6 @@ class SubjectOffstudyViewMixin(ContextMixin):
     offstudy_model_wrapper_cls = None
     subject_offstudy_model = None
 
-    #     def __init__(self, **kwargs):
-    #         super().__init__(**kwargs)
-    #         if not self.offstudy_model_wrapper_cls:
-    #             raise SubjectOffstudyViewMixinError(
-    #                 'subject_offstudy_model_wrapper_cls must be a valid ModelWrapper. Got None')
-    #         if not self.subject_offstudy_model:
-    #             raise SubjectOffstudyViewMixinError(
-    #                 'subject_offstudy_model must be a model (label_lower). Got None')
-
-    #     def get_context_data(self, **kwargs):
-    #         context = super().get_context_data(**kwargs)
-    #         wrapper = self.offstudy_model_wrapper_cls(
-    #             model_obj=self.subject_offstudy)
-    #         context.update(subject_offstudy=wrapper)
-    #         return context
-
     @property
     def subject_offstudy_model_cls(self):
         try:

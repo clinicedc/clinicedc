@@ -3,7 +3,7 @@ from edc_constants.constants import FEMALE, MALE
 from edc_protocol import Protocol
 
 v1_consent = Consent(
-    "edc_appointment.subjectconsent",
+    "edc_offstudy.subjectconsent",
     version="1",
     start=Protocol().study_open_datetime,
     end=Protocol().study_close_datetime,
