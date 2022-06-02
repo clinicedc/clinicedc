@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_model import models as edc_models
-from edc_model.models import datetime_not_future
+from edc_model.validators import datetime_not_future
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 from edc_utils import get_utcnow
 

@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.db import models
 from django.utils import timezone
 from edc_sites.models import SiteModelMixin
@@ -46,10 +48,10 @@ class AliquotModelMixin(SiteModelMixin, models.Model):
 
     comment = models.CharField(max_length=50, null=True, blank=True)
 
-    def __str__(self):
+    def __str__(self: Any):
         return self.aliquot_identifier
 
-    def natural_key(self):
+    def natural_key(self: Any):
         return (self.aliquot_identifier,)
 
     natural_key.dependencies = ["sites.Site"]

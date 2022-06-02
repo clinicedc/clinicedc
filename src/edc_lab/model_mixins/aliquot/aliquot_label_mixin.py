@@ -1,13 +1,15 @@
+from typing import Any
+
 from django.apps import apps as django_apps
 
 
 class AliquotLabelMixin:
     @property
-    def requisition(self):
+    def requisition(self: Any):
         model = django_apps.get_model(*self.receive.requisition_model_name)
         return model.objects.get(requisition_identifier=self.receive.requisition_identifier)
 
-    def label_context(self, extra_context=None):
+    def label_context(self: Any, extra_context=None):
         label_context = {}
         primary = ""
         if self.aliquot_identifier[-2:] == "01":

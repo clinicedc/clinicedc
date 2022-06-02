@@ -40,7 +40,7 @@ class BoxItem(SearchSlugModelMixin, VerifyModelMixin, edc_models.BaseUuidModel):
 
     @property
     def human_readable_identifier(self):
-        """Returns a human readable identifier."""
+        """Returns a human-readable identifier"""
         if self.identifier:
             x = self.identifier
             if re.match(aliquot_pattern, self.identifier):

@@ -97,7 +97,7 @@ class Migration(migrations.Migration):
                     "order_datetime",
                     models.DateTimeField(
                         default=edc_utils.date.get_utcnow,
-                        validators=[edc_model.models.datetime_not_future],
+                        validators=[edc_model.validators.datetime_not_future],
                     ),
                 ),
                 ("panel_name", models.CharField(max_length=25)),
@@ -443,7 +443,7 @@ class Migration(migrations.Migration):
                     "order_datetime",
                     models.DateTimeField(
                         default=edc_utils.date.get_utcnow,
-                        validators=[edc_model.models.datetime_not_future],
+                        validators=[edc_model.validators.datetime_not_future],
                     ),
                 ),
                 ("panel_name", models.CharField(max_length=25)),

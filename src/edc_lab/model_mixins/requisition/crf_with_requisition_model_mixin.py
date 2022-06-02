@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import PROTECT
-from edc_model import models as edc_models
+from edc_model.validators import datetime_not_future
 
 from edc_lab.utils import get_requisition_model_name
 
@@ -19,7 +19,7 @@ class CrfWithRequisitionModelMixin(models.Model):
 
     assay_datetime = models.DateTimeField(
         verbose_name="Result Report Date and Time",
-        validators=[edc_models.datetime_not_future],
+        validators=[datetime_not_future],
         null=True,
         blank=True,
     )
