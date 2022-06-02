@@ -24,9 +24,7 @@ class SubjectIdentifierModel(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel
     history = HistoricalRecords()
 
     def natural_key(self):
-        return tuple(
-            self.subject_identifier,
-        )
+        return (self.subject_identifier,)  # noqa
 
 
 class TestModelWithoutMixin(BaseUuidModel):
