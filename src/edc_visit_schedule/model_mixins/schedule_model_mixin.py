@@ -31,7 +31,7 @@ class ScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, mode
         return f"{self.subject_identifier} {formatted_datetime}"
 
     def natural_key(self):
-        return (self.subject_identifier,)
+        return (self.subject_identifier,)  # noqa
 
     class Meta:
         abstract = True

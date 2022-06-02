@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.db import models
 
 from ..subject_schedule import SubjectSchedule
@@ -14,7 +16,7 @@ class SubjectScheduleModelMixin(models.Model):
     offschedule_compare_dates_as_datetimes = False
     subject_schedule_cls = SubjectSchedule
 
-    def validate_subject_schedule_status(self):
+    def validate_subject_schedule_status(self: Any):
         visit_schedule = self.visit.appointment.visit_schedule
         schedule = self.visit.appointment.schedule
         subject_identifier = self.visit.subject_identifier
