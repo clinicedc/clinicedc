@@ -105,9 +105,7 @@ class RefillCreator:
         try:
             obj = Rx.objects.get(**opts)
         except ObjectDoesNotExist:
-            raise PrescriptionError(
-                f"Subject does not have a prescription. Got {opts}."
-            )
+            raise PrescriptionError(f"Subject does not have a prescription. Got {opts}.")
         else:
             refill_date = self.refill_date.strftime(
                 convert_php_dateformat(settings.DATETIME_FORMAT)

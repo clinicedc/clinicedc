@@ -11,14 +11,10 @@ from .dispensing_history import DispensingHistory
 from .medication_stock_create_labels import Labels, MedicationStockCreateLabels
 
 
-@receiver(
-    post_save, sender=DispensingHistory, dispatch_uid="dispensing_history_on_post_save"
-)
+@receiver(post_save, sender=DispensingHistory, dispatch_uid="dispensing_history_on_post_save")
 def dispensing_history_on_post_save(sender, instance, raw, created, **kwargs):
     if not raw:
-        dispensing = Dispensing(
-            rx_refill=instance.rx_refill, dispensed=instance.dispensed
-        )
+        dispensing = Dispensing(rx_refill=instance.rx_refill, dispensed=instance.dispensed)
         instance.rx_refill.remaining = dispensing.remaining
         instance.rx_refill.save(update_fields=["remaining"])
 
@@ -64,9 +60,7 @@ def create_refills_on_post_save(sender, instance, raw, created, **kwargs):
     sender=MedicationStockCreateLabels,
     dispatch_uid="create_medication_stock_labels_on_post_save",
 )
-def create_medication_stock_labels_on_post_save(
-    sender, instance, raw, created, **kwargs
-):
+def create_medication_stock_labels_on_post_save(sender, instance, raw, created, **kwargs):
     if not raw:
         qty_already_created = Labels.objects.filter(
             medication_stock_create_labels=instance

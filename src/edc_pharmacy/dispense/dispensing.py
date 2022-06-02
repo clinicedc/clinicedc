@@ -35,8 +35,8 @@ class Dispensing:
         if self.rx_refill.total:
             if self.exclude_id:
                 options = dict(id=self.exclude_id)
-            aggregate = self.rx_refill.dispensinghistory_set.filter(
-                **options
-            ).aggregate(Sum("dispensed"))
+            aggregate = self.rx_refill.dispensinghistory_set.filter(**options).aggregate(
+                Sum("dispensed")
+            )
             return float(aggregate.get("dispensed__sum") or 0.0)
         return 0.0

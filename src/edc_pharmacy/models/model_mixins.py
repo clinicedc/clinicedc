@@ -19,9 +19,7 @@ class StudyMedicationRefillModelMixin(models.Model):
         DosageGuideline, on_delete=PROTECT, null=True, blank=False
     )
 
-    formulation = models.ForeignKey(
-        Formulation, on_delete=PROTECT, null=True, blank=False
-    )
+    formulation = models.ForeignKey(Formulation, on_delete=PROTECT, null=True, blank=False)
 
     refill_to_next_visit = models.CharField(
         verbose_name="Refill to the next scheduled visit",

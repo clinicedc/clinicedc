@@ -4,7 +4,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import PROTECT
 from edc_action_item.models import ActionModelMixin
-from edc_action_item.models.action_model_mixin import ActionItemModelManager
 from edc_constants.constants import NEW
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model import models as edc_models
@@ -77,9 +76,7 @@ class Rx(
 
     randomizer_name = models.CharField(max_length=25, null=True, blank=True)
 
-    weight_in_kgs = models.DecimalField(
-        max_digits=6, decimal_places=1, null=True, blank=True
-    )
+    weight_in_kgs = models.DecimalField(max_digits=6, decimal_places=1, null=True, blank=True)
 
     clinician_initials = models.CharField(max_length=3, null=True)
 
@@ -96,7 +93,7 @@ class Rx(
         return f"{self.subject_identifier}"
 
     def natural_key(self):
-        return tuple(self.rx_identifier)
+        return (self.rx_identifier,)  # noqa
 
     def save(self, *args, **kwargs):
         self.registered_subject = RegisteredSubject.objects.get(

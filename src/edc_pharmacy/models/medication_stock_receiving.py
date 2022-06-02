@@ -27,9 +27,7 @@ class MedicationStockReceiving(edc_models.BaseUuidModel):
     history = edc_models.HistoricalRecords()
 
     def __str__(self):
-        return (
-            f"{self.medication_product}: {self.qty} recv'd on {self.received_datetime}"
-        )
+        return f"{self.medication_product}: {self.qty} recv'd on {self.received_datetime}"
 
     class Meta(edc_models.BaseUuidModel.Meta):
         verbose_name = "Medication stock: Receiving"

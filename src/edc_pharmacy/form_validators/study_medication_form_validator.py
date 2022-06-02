@@ -7,9 +7,7 @@ from ..models import Rx, RxRefill
 
 class StudyMedicationFormValidator(FormValidator):
     def clean(self):
-        self.required_if(
-            YES, field="order_next", field_required="next_dosage_guideline"
-        )
+        self.required_if(YES, field="order_next", field_required="next_dosage_guideline")
         if self.cleaned_data.get("order_next") == NO and self.next_refill:
             if self.next_refill.active:
                 self.raise_validation_error(
@@ -38,9 +36,7 @@ class StudyMedicationFormValidator(FormValidator):
     def rx(self):
         try:
             return Rx.objects.get(
-                subject_identifier=self.cleaned_data.get(
-                    "subject_visit"
-                ).subject_identifier,
+                subject_identifier=self.cleaned_data.get("subject_visit").subject_identifier,
                 medications__in=[self.cleaned_data.get("formulation").medication],
             )
         except ObjectDoesNotExist:

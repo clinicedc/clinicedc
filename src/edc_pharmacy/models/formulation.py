@@ -16,9 +16,7 @@ class Manager(models.Manager):
 
 class Formulation(edc_models.BaseUuidModel):
 
-    medication = models.ForeignKey(
-        Medication, on_delete=PROTECT, null=True, blank=False
-    )
+    medication = models.ForeignKey(Medication, on_delete=PROTECT, null=True, blank=False)
 
     strength = models.DecimalField(max_digits=6, decimal_places=1)
 

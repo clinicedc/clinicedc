@@ -64,9 +64,7 @@ class RxRefill(
         blank=True,
     )
 
-    weight_in_kgs = models.DecimalField(
-        max_digits=6, decimal_places=1, null=True, blank=True
-    )
+    weight_in_kgs = models.DecimalField(max_digits=6, decimal_places=1, null=True, blank=True)
 
     refill_date = models.DateField(
         verbose_name="Refill date", default=get_utcnow_as_date, help_text=""
@@ -118,7 +116,7 @@ class RxRefill(
         )
 
     def natural_key(self):
-        return tuple(self.refill_identifier)
+        return (self.refill_identifier,)  # noqa
 
     def save(self, *args, **kwargs):
         if not self.visit_code or self.visit_code_sequence is None:

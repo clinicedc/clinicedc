@@ -3,6 +3,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
 from edc_constants.constants import FEMALE
 from edc_list_data import site_list_data
+from edc_randomization.site_randomizers import site_randomizers
+from edc_registration.models import RegisteredSubject
+from edc_utils import get_utcnow
+
 from edc_pharmacy.exceptions import PrescriptionAlreadyExists, PrescriptionError
 from edc_pharmacy.models import (
     DosageGuideline,
@@ -15,9 +19,6 @@ from edc_pharmacy.models import (
     Units,
 )
 from edc_pharmacy.prescribe import create_prescription
-from edc_randomization.site_randomizers import site_randomizers
-from edc_registration.models import RegisteredSubject
-from edc_utils import get_utcnow
 
 
 @tag("rx")
@@ -77,9 +78,7 @@ class TestPrescription(TestCase):
             medications=[self.medication],
         )
         try:
-            Rx.objects.get(
-                subject_identifier=self.registered_subject.subject_identifier
-            )
+            Rx.objects.get(subject_identifier=self.registered_subject.subject_identifier)
         except ObjectDoesNotExist:
             self.fail("Rx unexpectedly does not exist")
 
@@ -115,9 +114,7 @@ class TestPrescription(TestCase):
             medications=[self.medication],
         )
         try:
-            Rx.objects.get(
-                subject_identifier=self.registered_subject.subject_identifier
-            )
+            Rx.objects.get(subject_identifier=self.registered_subject.subject_identifier)
         except ObjectDoesNotExist:
             self.fail("Rx unexpectedly does not exist")
 
