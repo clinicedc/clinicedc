@@ -1,11 +1,12 @@
 from django.db import models
 from edc_crf.crf_model_mixin import CrfModelMixin
 from edc_model import models as edc_models
-from edc_pharmacy.models import StudyMedicationCrfModelMixin
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
 from edc_visit_tracking.model_mixins import VisitModelMixin
+
+from edc_pharmacy.models import StudyMedicationCrfModelMixin
 
 
 class SubjectConsent(edc_models.BaseUuidModel):

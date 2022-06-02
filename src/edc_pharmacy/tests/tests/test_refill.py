@@ -1,7 +1,10 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 from edc_constants.constants import FEMALE
-from edc_pharmacy.exceptions import PrescriptionError, PrescriptionNotStarted
+from edc_registration.models import RegisteredSubject
+from edc_utils import get_utcnow
+
+from edc_pharmacy.exceptions import PrescriptionNotStarted
 from edc_pharmacy.models import (
     DosageGuideline,
     Formulation,
@@ -15,8 +18,6 @@ from edc_pharmacy.models import (
 )
 from edc_pharmacy.refill import RefillCreator, get_active_refill
 from edc_pharmacy.refill.refill_creator import RefillAlreadyExists
-from edc_registration.models import RegisteredSubject
-from edc_utils import get_utcnow
 
 
 @tag("refill")
@@ -255,9 +256,7 @@ class TestRefill(TestCase):
             make_active=True,
         )
         self.assertIsNotNone(get_active_refill(refill_creator.refill.rx))
-        self.assertEqual(
-            get_active_refill(refill_creator.refill.rx), refill_creator.refill
-        )
+        self.assertEqual(get_active_refill(refill_creator.refill.rx), refill_creator.refill)
 
     def test_refill_create_refill_date(self):
         refill_date = get_utcnow().date()

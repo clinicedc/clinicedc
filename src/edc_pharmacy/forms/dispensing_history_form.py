@@ -1,6 +1,5 @@
 from django import forms
 
-from ..constants import DISPENSED
 from ..dispense import DispenseError, Dispensing
 from ..models import DispensingHistory
 

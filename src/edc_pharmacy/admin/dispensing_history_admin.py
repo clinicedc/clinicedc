@@ -4,7 +4,7 @@ from django.urls import reverse
 from edc_model_admin import audit_fieldset_tuple
 
 from ..admin_site import edc_pharmacy_admin
-from ..forms import DispensingHistoryForm, DispensingHistoryReadonlyForm
+from ..forms import DispensingHistoryForm
 from ..models import DispensingHistory
 from .model_admin_mixin import ModelAdminMixin
 

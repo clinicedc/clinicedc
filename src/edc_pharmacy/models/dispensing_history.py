@@ -43,9 +43,7 @@ class DispensingHistory(edc_models.BaseUuidModel):
         )
 
     def save(self, *args, **kwargs):
-        Dispensing(
-            rx_refill=self.rx_refill, dispensed=self.dispensed, exclude_id=self.id
-        )
+        Dispensing(rx_refill=self.rx_refill, dispensed=self.dispensed, exclude_id=self.id)
         super().save(*args, **kwargs)
 
     @property

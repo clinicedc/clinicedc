@@ -14,10 +14,6 @@ class Manager(models.Manager):
 
     use_in_migrations = True
 
-    # def get_by_natural_key(self, container, count_per_container, *args):
-    #     Medication.objects.get(*args)
-    #     return self.get(name, strength, units, formulation)
-
 
 class MedicationProduct(SiteModelMixin, edc_models.BaseUuidModel):
 
@@ -44,8 +40,10 @@ class MedicationProduct(SiteModelMixin, edc_models.BaseUuidModel):
 
     def save(self, *args, **kwargs):
         self.name = (
-            f"{self.formulation.medication.display_name} {self.formulation.strength}{self.formulation.units}. "
-            f"LOT#: {self.lot_no.lot_no}. {self.container} of {self.count_per_container}"
+            f"{self.formulation.medication.display_name} "
+            f"{self.formulation.strength}{self.formulation.units}. "
+            f"LOT#: {self.lot_no.lot_no}. {self.container} of "
+            f"{self.count_per_container}"
         )
         super().save(*args, **kwargs)
 
