@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Optional
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -37,7 +37,7 @@ def verify_initials_against_full_name(
     first_name: Optional[str] = None,
     last_name: Optional[str] = None,
     initials: Optional[str] = None,
-    **kwargs,
+    **kwargs,  # noqa
 ) -> None:
     try:
         if initials[:1] != first_name[:1] or initials[-1:] != last_name[:1]:
