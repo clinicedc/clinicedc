@@ -10,8 +10,8 @@ from model_bakery import baker
 from edc_consent.field_mixins import IdentityFieldsMixinError
 from edc_consent.site_consents import site_consents
 
-from .consent_test_utils import consent_factory
-from .models import SubjectConsent
+from ..consent_test_utils import consent_factory
+from ..models import SubjectConsent
 
 
 @override_settings(

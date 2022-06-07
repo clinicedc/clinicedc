@@ -95,7 +95,7 @@ class SiteConsents:
         report_datetime=None,
         version=None,
         consent_group=None,
-    ):
+    ) -> Any:
         """Return consent object, not model, valid for the datetime."""
         app_config = django_apps.get_app_config("edc_consent")
         consent_group = consent_group or app_config.default_consent_group

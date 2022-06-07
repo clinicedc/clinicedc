@@ -11,9 +11,9 @@ from edc_consent.exceptions import NotConsentedError
 from edc_consent.requires_consent import RequiresConsent
 from edc_consent.site_consents import SiteConsentError, site_consents
 
-from .consent_test_utils import consent_object_factory
-from .models import CrfOne, SubjectVisit
-from .visit_schedules import visit_schedule
+from ..consent_test_utils import consent_object_factory
+from ..models import CrfOne, SubjectVisit
+from ..visit_schedules import visit_schedule
 
 
 @override_settings(

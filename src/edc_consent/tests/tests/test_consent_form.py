@@ -1,9 +1,12 @@
+from copy import deepcopy
 from datetime import timedelta
+from uuid import uuid4
 
 from dateutil.relativedelta import relativedelta
 from django import forms
-from django.test import TestCase, override_settings
-from edc_constants.constants import FEMALE, MALE, NO
+from django.contrib.sites.models import Site
+from django.test import TestCase, override_settings, tag
+from edc_constants.constants import FEMALE, MALE, NO, NOT_APPLICABLE, YES
 from edc_protocol import Protocol
 from edc_utils import get_utcnow
 from faker import Faker
@@ -13,7 +16,7 @@ from edc_consent.consent import Consent
 from edc_consent.modelform_mixins import ConsentModelFormMixin
 from edc_consent.site_consents import site_consents
 
-from .models import SubjectConsent
+from ..models import SubjectConsent
 
 fake = Faker()
 
@@ -67,6 +70,36 @@ class TestConsentForm(TestCase):
         consent = Consent(model, **options)
         site_consents.register(consent)
         return consent
+
+    def cleaned_data(self, **kwargs):
+        cleaned_data = dict(
+            consent_datetime=self.study_open_datetime,
+            dob=self.study_open_datetime - relativedelta(years=25),
+            first_name="THING",
+            last_name="ONE",
+            initials="TO",
+            gender=MALE,
+            identity="12315678",
+            confirm_identity="12315678",
+            identity_type="passport",
+            is_dob_estimated="-",
+            language="en",
+            is_literate=YES,
+            is_incarcerated=NO,
+            study_questions=YES,
+            consent_reviewed=YES,
+            consent_copy=YES,
+            assessment_score=YES,
+            consent_signature=YES,
+            site=Site.objects.get_current(),
+            legal_marriage=NO,
+            marriage_certificate=NOT_APPLICABLE,
+            subject_type="subject",
+            citizen=YES,
+            subject_identifier=uuid4().hex,
+        )
+        cleaned_data.update(**kwargs)
+        return cleaned_data
 
     def test_base_form_is_valid(self):
         """Asserts baker defaults validate."""
@@ -301,3 +334,53 @@ class TestConsentForm(TestCase):
         subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
         form = SubjectConsentForm(subject_consent.__dict__)
         self.assertTrue(form.is_valid())
+
+    def test_ok(self):
+        form = SubjectConsentForm(data=self.cleaned_data())
+        self.assertTrue(form.is_valid())
+
+    @tag("1")
+    def test_raises_on_duplicate_identity1(self):
+        form = SubjectConsentForm(data=self.cleaned_data(), instance=SubjectConsent())
+        self.assertTrue(form.is_valid())
+        subject_consent = form.save(commit=True)
+
+        subject_consent.refresh_from_db()
+        form = SubjectConsentForm(data=subject_consent.__dict__, instance=subject_consent)
+        form.is_valid()
+        self.assertEqual({}, form._errors)
+
+    @tag("1")
+    def test_raises_on_duplicate_identity2(self):
+        data = self.cleaned_data()
+        data.update(identity="987654321", confirm_identity="987654321")
+        form = SubjectConsentForm(data=data, instance=SubjectConsent())
+        self.assertTrue(form.is_valid())
+        form.save(commit=True)
+
+        form = SubjectConsentForm(data=data, instance=SubjectConsent())
+        form.is_valid()
+        self.assertIn("identity", form._errors)
+
+    @tag("2")
+    def test_raises_on_duplicate_identity3(self):
+        # save subject1 with identity="987654321"
+        data = self.cleaned_data(last_name="TWO", initials="TT")
+        data.update(identity="987654321", confirm_identity="987654321")
+        form = SubjectConsentForm(data=data, instance=SubjectConsent())
+        self.assertTrue(form.is_valid())
+        form.save(commit=True)
+
+        # save subject2 with another identity
+        form = SubjectConsentForm(data=self.cleaned_data(), instance=SubjectConsent())
+        self.assertTrue(form.is_valid())
+        subject_consent2 = form.save(commit=True)
+
+        # try to change subject2 identity to subject1 identity
+        subject_consent2.refresh_from_db()
+        self.assertEqual(subject_consent2.identity, "12315678")
+        data = deepcopy(subject_consent2.__dict__)
+        data.update(identity="987654321", confirm_identity="987654321")
+        form = SubjectConsentForm(data=data, instance=subject_consent2)
+        form.is_valid()
+        self.assertIn("identity", form._errors)

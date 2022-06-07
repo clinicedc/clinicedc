@@ -13,8 +13,8 @@ from model_bakery import baker
 from edc_consent.actions import unverify_consent, verify_consent
 from edc_consent.site_consents import site_consents
 
-from .consent_test_utils import consent_object_factory
-from .models import SubjectConsent
+from ..consent_test_utils import consent_object_factory
+from ..models import SubjectConsent
 
 fake = Faker()
 

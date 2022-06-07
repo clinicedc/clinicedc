@@ -61,7 +61,7 @@ class ModelAdminConsentMixin(admin.ModelAdmin):
         readonly_fields = super().get_readonly_fields(request, obj)
         fields = ["subject_identifier", "subject_identifier_as_pk"]
         if obj:
-            fields.append("consent_datetime")
+            fields.extend(["consent_datetime", "identity", "confirm_identity"])
             return fields + list(readonly_fields)
         else:
             return fields + list(readonly_fields)
