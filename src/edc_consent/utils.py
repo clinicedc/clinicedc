@@ -39,11 +39,12 @@ def verify_initials_against_full_name(
     initials: Optional[str] = None,
     **kwargs,  # noqa
 ) -> None:
-    try:
-        if initials[:1] != first_name[:1] or initials[-1:] != last_name[:1]:
+    if first_name and initials and last_name:
+        try:
+            if initials[:1] != first_name[:1] or initials[-1:] != last_name[:1]:
+                raise InvalidInitials("Initials do not match full name.")
+        except (IndexError, TypeError):
             raise InvalidInitials("Initials do not match full name.")
-    except (IndexError, TypeError):
-        raise InvalidInitials("Initials do not match full name.")
 
 
 def values_as_string(*values) -> Optional[str]:

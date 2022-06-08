@@ -1,14 +1,15 @@
-from copy import deepcopy
 from datetime import timedelta
 from uuid import uuid4
 
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.contrib.sites.models import Site
+from django.forms import model_to_dict
 from django.test import TestCase, override_settings, tag
 from edc_constants.constants import FEMALE, MALE, NO, NOT_APPLICABLE, YES
+from edc_form_validators import FormValidator, FormValidatorMixin
 from edc_protocol import Protocol
-from edc_utils import get_utcnow
+from edc_utils import age, get_utcnow
 from faker import Faker
 from model_bakery import baker
 
@@ -16,12 +17,25 @@ from edc_consent.consent import Consent
 from edc_consent.modelform_mixins import ConsentModelFormMixin
 from edc_consent.site_consents import site_consents
 
-from ..models import SubjectConsent
+from ...form_validators import SubjectConsentFormValidatorMixin
+from ..models import SubjectConsent, SubjectScreening
 
 fake = Faker()
 
 
-class SubjectConsentForm(ConsentModelFormMixin, forms.ModelForm):
+class SubjectConsentFormValidator(SubjectConsentFormValidatorMixin, FormValidator):
+    pass
+
+
+class SubjectConsentForm(ConsentModelFormMixin, FormValidatorMixin, forms.ModelForm):
+
+    form_validator_cls = SubjectConsentFormValidator
+
+    screening_identifier = forms.CharField(
+        label="Screening identifier",
+        widget=forms.TextInput(attrs={"readonly": "readonly"}),
+    )
+
     class Meta:
         model = SubjectConsent
         fields = "__all__"
@@ -36,6 +50,7 @@ class TestConsentForm(TestCase):
         site_consents.registry = {}
         self.study_open_datetime = Protocol().study_open_datetime
         self.study_close_datetime = Protocol().study_close_datetime
+
         self.consent_factory(
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
@@ -101,183 +116,295 @@ class TestConsentForm(TestCase):
         cleaned_data.update(**kwargs)
         return cleaned_data
 
-    def test_base_form_is_valid(self):
-        """Asserts baker defaults validate."""
+    def prepare_subject_consent(
+        self,
+        dob=None,
+        consent_datetime=None,
+        first_name=None,
+        last_name=None,
+        initials=None,
+        gender=None,
+        screening_identifier=None,
+        identity=None,
+        confirm_identity=None,
+        age_in_years=None,
+        is_literate=None,
+        witness_name=None,
+        create_subject_screening=None,
+    ):
+        create_subject_screening = (
+            True if create_subject_screening is None else create_subject_screening
+        )
+        consent_datetime = consent_datetime or self.study_open_datetime
+        dob = dob or self.study_open_datetime - relativedelta(years=25)
+        gender = gender or FEMALE
+        screening_identifier = screening_identifier or "ABCD"
+        age_in_years = age_in_years or age(dob, reference_dt=consent_datetime).years
+        initials = initials or "XX"
+        if create_subject_screening:
+            SubjectScreening.objects.create(
+                age_in_years=age_in_years,
+                initials=initials,
+                gender=gender,
+                screening_identifier=screening_identifier,
+                report_datetime=consent_datetime,
+                eligibility_datetime=consent_datetime,
+            )
         subject_consent = baker.prepare_recipe(
             "edc_consent.subjectconsent",
+            dob=dob,
+            consent_datetime=consent_datetime,
+            first_name=first_name or "XXXXXX",
+            last_name=last_name or "XXXXXX",
+            initials=initials,
+            gender=gender,
+            identity=identity or "123456789",
+            confirm_identity=confirm_identity or "123456789",
+            screening_identifier=screening_identifier,
+            is_literate=is_literate or YES,
+            witness_name=witness_name,
+        )
+        return subject_consent
+
+    @tag("3")
+    def test_base_form_is_valid(self):
+        """Asserts baker defaults validate."""
+        options = dict(
             dob=self.dob,
             consent_datetime=self.study_open_datetime,
             first_name="ERIK",
             last_name="THEPLEEB",
+            initials="ET",
+            screening_identifier="ABCD1",
         )
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
-        consent_form = SubjectConsentForm(data=subject_consent.__dict__)
-        self.assertTrue(consent_form.is_valid())
+        subject_consent = self.prepare_subject_consent(**options)
+        opts = SubjectConsentForm._meta
+        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
+        form = SubjectConsentForm(
+            data=data,
+            initial=dict(screening_identifier=data.get("screening_identifier")),
+            instance=SubjectConsent(),
+        )
+        self.assertTrue(form.is_valid())
 
+    @tag("3")
     def test_base_form_catches_consent_datetime_before_study_open(self):
-        subject_consent = baker.prepare_recipe(
-            "edc_consent.subjectconsent",
+        options = dict(
             consent_datetime=self.study_open_datetime + relativedelta(days=1),
             dob=self.dob,
             first_name="ERIK",
             last_name="THEPLEEB",
+            initials="ET",
+            screening_identifier="ABCD1",
         )
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
-        consent_form = SubjectConsentForm(data=subject_consent.__dict__)
-        self.assertTrue(consent_form.is_valid())
-        self.assertIsNone(consent_form.errors.get("consent_datetime"))
-        subject_consent = baker.prepare_recipe(
-            "edc_consent.subjectconsent",
-            consent_datetime=self.study_open_datetime - relativedelta(days=1),
-            dob=self.dob,
+        subject_consent = self.prepare_subject_consent(**options)
+        opts = SubjectConsentForm._meta
+        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
+        form = SubjectConsentForm(
+            data=data,
+            initial=dict(screening_identifier=data.get("screening_identifier")),
+            instance=SubjectConsent(),
         )
-        data = subject_consent.__dict__
-        data["initials"] = data["first_name"][0] + data["last_name"][0]
-        consent_form = SubjectConsentForm(data=data)
-        self.assertFalse(consent_form.is_valid())
+        form.is_valid()
+        self.assertEqual(form._errors, {})
 
+        # change consent_datetime to before the consent period
+        options.update(consent_datetime=self.study_open_datetime - relativedelta(days=1))
+        subject_consent = self.prepare_subject_consent(
+            **options, create_subject_screening=False
+        )
+        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
+        form = SubjectConsentForm(
+            data=data,
+            initial=dict(screening_identifier=data.get("screening_identifier")),
+            instance=SubjectConsent(),
+        )
+        form.is_valid()
+        self.assertIn("consent_datetime", form._errors)
+
+    @tag("3")
     def test_base_form_identity_mismatch(self):
-        subject_consent = baker.prepare_recipe(
-            "edc_consent.subjectconsent",
+        options = dict(
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
             first_name="ERIK",
             last_name="THEPLEEB",
+            initials="ET",
+            screening_identifier="ABCD1",
+            identity="1",
+            confirm_identity="2",
         )
-        subject_consent.confirm_identity = "1"
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
-        consent_form = SubjectConsentForm(data=subject_consent.__dict__)
-        self.assertFalse(consent_form.is_valid())
+        subject_consent = self.prepare_subject_consent(**options)
+        opts = SubjectConsentForm._meta
+        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
+        form = SubjectConsentForm(
+            data=data,
+            initial=dict(screening_identifier=data.get("screening_identifier")),
+            instance=SubjectConsent(),
+        )
+        form.is_valid()
+        self.assertIn("identity", form._errors)
 
+    @tag("3")
     def test_base_form_identity_dupl(self):
-        baker.make_recipe(
-            "edc_consent.subjectconsent",
+        options = dict(
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
             identity="123156788",
             confirm_identity="123156788",
             first_name="ERIK",
             last_name="THEPLEEB",
+            initials="ET",
+            screening_identifier="ABCD1",
         )
-        consent2 = baker.prepare_recipe(
-            "edc_consent.subjectconsent",
+        subject_consent = self.prepare_subject_consent(**options)
+        subject_consent.save()
+
+        options = dict(
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
             identity="123156788",
             confirm_identity="123156788",
+            first_name="ERIK2",
+            last_name="THEPLEEB2",
+            initials="ET",
+            screening_identifier="ABCD1XXX",
         )
-        consent_form = SubjectConsentForm(consent2.__dict__)
-        self.assertFalse(consent_form.is_valid())
+        subject_consent = self.prepare_subject_consent(**options)
+        opts = SubjectConsentForm._meta
+        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
+        form = SubjectConsentForm(
+            data=data,
+            initial=dict(screening_identifier=data.get("screening_identifier")),
+            instance=SubjectConsent(),
+        )
+        form.is_valid()
+        self.assertIn("identity", form._errors)
 
+    @tag("3")
     def test_base_form_guardian_and_dob1(self):
         """Asserts form for minor is not valid without guardian name."""
-        subject_consent = baker.prepare_recipe(
-            "edc_consent.subjectconsent",
+        options = dict(
             consent_datetime=self.study_open_datetime,
-            dob=self.dob,
+            dob=self.study_open_datetime - relativedelta(years=16),
+            identity="123156788",
+            confirm_identity="123156788",
             first_name="ERIK",
             last_name="THEPLEEB",
+            initials="ET",
+            screening_identifier="ABCD1",
         )
+        subject_consent = self.prepare_subject_consent(**options)
         subject_consent.guardian_name = None
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
-        consent = site_consents.get_consent_for_period(
-            report_datetime=subject_consent.consent_datetime,
-            model=subject_consent._meta.label_lower,
+        opts = SubjectConsentForm._meta
+        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
+        form = SubjectConsentForm(
+            data=data,
+            initial=dict(screening_identifier=data.get("screening_identifier")),
+            instance=SubjectConsent(),
         )
-        subject_consent.dob = self.study_open_datetime - relativedelta(
-            years=consent.age_is_adult - 1
-        )
-        consent_form = SubjectConsentForm(subject_consent.__dict__)
-        self.assertFalse(consent_form.is_valid())
+        form.is_valid()
+        self.assertIn("guardian_name", form._errors)
 
+    @tag("3")
     def test_base_form_guardian_and_dob2(self):
         """Asserts form for minor is valid with guardian name."""
-        subject_consent = baker.prepare_recipe(
-            "edc_consent.subjectconsent",
+        options = dict(
             consent_datetime=self.study_open_datetime,
-            dob=self.dob,
+            dob=self.study_open_datetime - relativedelta(years=16),
+            identity="123156788",
+            confirm_identity="123156788",
             first_name="ERIK",
             last_name="THEPLEEB",
+            initials="ET",
+            screening_identifier="ABCD1",
         )
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
+        subject_consent = self.prepare_subject_consent(**options)
         subject_consent.guardian_name = "SPOCK, YOUCOULDNTPRONOUNCEIT"
-        consent = site_consents.get_consent_for_period(
-            report_datetime=subject_consent.consent_datetime,
-            model=subject_consent._meta.label_lower,
+        opts = SubjectConsentForm._meta
+        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
+        form = SubjectConsentForm(
+            data=data,
+            initial=dict(screening_identifier=data.get("screening_identifier")),
+            instance=SubjectConsent(),
         )
-        subject_consent.dob = self.study_open_datetime - relativedelta(
-            years=consent.age_is_adult - 1
-        )
-        consent_form = SubjectConsentForm(subject_consent.__dict__)
-        self.assertTrue(consent_form.is_valid())
+        form.is_valid()
+        self.assertEqual({}, form._errors)
 
-    def test_base_form_guardian_and_dob3(self):
-        """Asserts form for adult is valid."""
-        subject_consent = baker.prepare_recipe(
-            "edc_consent.subjectconsent",
-            consent_datetime=self.study_open_datetime,
-            dob=self.dob,
-            first_name="ERIK",
-            last_name="THEPLEEB",
-        )
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
-        consent = site_consents.get_consent_for_period(
-            report_datetime=subject_consent.consent_datetime,
-            model=subject_consent._meta.label_lower,
-        )
-        subject_consent.dob = self.study_open_datetime - relativedelta(
-            years=consent.age_is_adult
-        )
-        consent_form = SubjectConsentForm(subject_consent.__dict__)
-        self.assertTrue(consent_form.is_valid())
-
+    @tag("3")
     def test_base_form_guardian_and_dob4(self):
         """Asserts form for adult is not valid if guardian name
         specified.
         """
-        subject_consent = baker.prepare_recipe(
-            "edc_consent.subjectconsent",
+        options = dict(
             consent_datetime=self.study_open_datetime,
-            dob=self.dob,
+            dob=self.study_open_datetime - relativedelta(years=25),
+            identity="123156788",
+            confirm_identity="123156788",
             first_name="ERIK",
             last_name="THEPLEEB",
+            initials="ET",
+            screening_identifier="ABCD1",
         )
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
+        subject_consent = self.prepare_subject_consent(**options)
         subject_consent.guardian_name = "SPOCK, YOUCOULDNTPRONOUNCEIT"
-        consent = site_consents.get_consent_for_period(
-            report_datetime=subject_consent.consent_datetime,
-            model=subject_consent._meta.label_lower,
+        opts = SubjectConsentForm._meta
+        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
+        form = SubjectConsentForm(
+            data=data,
+            initial=dict(screening_identifier=data.get("screening_identifier")),
+            instance=SubjectConsent(),
         )
-        subject_consent.dob = self.study_open_datetime - relativedelta(
-            years=consent.age_is_adult
-        )
-        consent_form = SubjectConsentForm(subject_consent.__dict__)
-        self.assertFalse(consent_form.is_valid())
+        form.is_valid()
+        self.assertIn("guardian_name", form._errors)
 
+    @tag("3")
     def test_base_form_catches_dob_lower(self):
-        subject_consent = baker.prepare_recipe(
-            "edc_consent.subjectconsent",
+        options = dict(
             consent_datetime=self.study_open_datetime,
-            dob=self.dob + relativedelta(years=25),
+            dob=self.study_open_datetime - relativedelta(years=15),
+            identity="123156788",
+            confirm_identity="123156788",
             first_name="ERIK",
             last_name="THEPLEEB",
+            initials="ET",
+            screening_identifier="ABCD1",
         )
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
-        consent_form = SubjectConsentForm(subject_consent.__dict__)
-        self.assertFalse(consent_form.is_valid())
+        subject_consent = self.prepare_subject_consent(**options)
+        opts = SubjectConsentForm._meta
+        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
+        form = SubjectConsentForm(
+            data=data,
+            initial=dict(screening_identifier=data.get("screening_identifier")),
+            instance=SubjectConsent(),
+        )
+        form.is_valid()
+        self.assertIn("dob", form._errors)
 
+    @tag("3")
     def test_base_form_catches_dob_upper(self):
-        subject_consent = baker.prepare_recipe(
-            "edc_consent.subjectconsent",
+        options = dict(
             consent_datetime=self.study_open_datetime,
-            dob=self.dob - relativedelta(years=100),
+            dob=self.study_open_datetime - relativedelta(years=100),
+            identity="123156788",
+            confirm_identity="123156788",
             first_name="ERIK",
             last_name="THEPLEEB",
+            initials="ET",
+            screening_identifier="ABCD1",
         )
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
-        consent_form = SubjectConsentForm(subject_consent.__dict__)
-        self.assertFalse(consent_form.is_valid())
+        subject_consent = self.prepare_subject_consent(**options)
+        opts = SubjectConsentForm._meta
+        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
+        form = SubjectConsentForm(
+            data=data,
+            initial=dict(screening_identifier=data.get("screening_identifier")),
+            instance=SubjectConsent(),
+        )
+        form.is_valid()
+        self.assertIn("dob", form._errors)
 
+    @tag("3")
     def test_base_form_catches_gender_of_consent(self):
         site_consents.registry = {}
         self.consent_factory(
@@ -288,99 +415,86 @@ class TestConsentForm(TestCase):
             first_name="ERIK",
             last_name="THEPLEEB",
         )
-        subject_consent = baker.prepare_recipe(
-            "edc_consent.subjectconsent",
-            consent_datetime=self.study_open_datetime,
-            dob=self.dob,
-            gender=MALE,
-            first_name="ERIK",
-            last_name="THEPLEEB",
+        subject_consent = self.prepare_subject_consent(gender=MALE)
+        opts = SubjectConsentForm._meta
+        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
+        form = SubjectConsentForm(
+            data=data,
+            initial=dict(screening_identifier=data.get("screening_identifier")),
+            instance=SubjectConsent(),
         )
-        form = SubjectConsentForm(subject_consent.__dict__)
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
-        self.assertTrue(form.is_valid())
-        subject_consent = baker.prepare_recipe(
-            "edc_consent.subjectconsent",
-            consent_datetime=self.study_open_datetime,
-            dob=self.dob,
-            gender=FEMALE,
-        )
-        form = SubjectConsentForm(subject_consent.__dict__)
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
-        self.assertFalse(form.is_valid())
-
-    def test_base_form_catches_is_literate_and_witness(self):
-        subject_consent = baker.prepare_recipe(
-            "edc_consent.subjectconsent",
-            consent_datetime=self.study_open_datetime,
-            dob=self.dob,
-            is_literate=NO,
-            witness_name="",
-            first_name="ERIK",
-            last_name="THEPLEEB",
-        )
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
-        form = SubjectConsentForm(subject_consent.__dict__)
-        self.assertFalse(form.is_valid())
-        subject_consent = baker.prepare_recipe(
-            "edc_consent.subjectconsent",
-            consent_datetime=self.study_open_datetime,
-            dob=self.dob,
-            is_literate=NO,
-            witness_name="BOND, JAMES",
-            first_name="ERIK",
-            last_name="THEPLEEB",
-        )
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
-        form = SubjectConsentForm(subject_consent.__dict__)
-        self.assertTrue(form.is_valid())
-
-    def test_ok(self):
-        form = SubjectConsentForm(data=self.cleaned_data())
-        self.assertTrue(form.is_valid())
-
-    @tag("1")
-    def test_raises_on_duplicate_identity1(self):
-        form = SubjectConsentForm(data=self.cleaned_data(), instance=SubjectConsent())
-        self.assertTrue(form.is_valid())
-        subject_consent = form.save(commit=True)
-
-        subject_consent.refresh_from_db()
-        form = SubjectConsentForm(data=subject_consent.__dict__, instance=subject_consent)
         form.is_valid()
         self.assertEqual({}, form._errors)
 
-    @tag("1")
-    def test_raises_on_duplicate_identity2(self):
-        data = self.cleaned_data()
-        data.update(identity="987654321", confirm_identity="987654321")
-        form = SubjectConsentForm(data=data, instance=SubjectConsent())
-        self.assertTrue(form.is_valid())
-        form.save(commit=True)
-
-        form = SubjectConsentForm(data=data, instance=SubjectConsent())
+        subject_consent = self.prepare_subject_consent(
+            gender=FEMALE, create_subject_screening=False
+        )
+        opts = SubjectConsentForm._meta
+        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
+        form = SubjectConsentForm(
+            data=data,
+            initial=dict(screening_identifier=data.get("screening_identifier")),
+            instance=SubjectConsent(),
+        )
         form.is_valid()
-        self.assertIn("identity", form._errors)
+        self.assertIn("gender", form._errors)
 
-    @tag("2")
-    def test_raises_on_duplicate_identity3(self):
-        # save subject1 with identity="987654321"
-        data = self.cleaned_data(last_name="TWO", initials="TT")
-        data.update(identity="987654321", confirm_identity="987654321")
-        form = SubjectConsentForm(data=data, instance=SubjectConsent())
-        self.assertTrue(form.is_valid())
+    @tag("3")
+    def test_base_form_catches_is_literate_and_witness(self):
+        subject_consent = self.prepare_subject_consent(
+            is_literate=NO,
+            witness_name="",
+        )
+        opts = SubjectConsentForm._meta
+        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
+        form = SubjectConsentForm(
+            data=data,
+            initial=dict(screening_identifier=data.get("screening_identifier")),
+            instance=SubjectConsent(),
+        )
+        form.is_valid()
+        self.assertIn("witness_name", form._errors)
+
+        subject_consent = self.prepare_subject_consent(
+            is_literate=NO,
+            witness_name="BUBBA, BUBBA",
+            create_subject_screening=False,
+        )
+        opts = SubjectConsentForm._meta
+        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
+        form = SubjectConsentForm(
+            data=data,
+            initial=dict(screening_identifier=data.get("screening_identifier")),
+            instance=SubjectConsent(),
+        )
+        form.is_valid()
+        self.assertEqual({}, form._errors)
+
+    @tag("3")
+    def test_raises_on_duplicate_identity1(self):
+        subject_consent = self.prepare_subject_consent(
+            identity="1", confirm_identity="1", screening_identifier="LOPIKKKK"
+        )
+        opts = SubjectConsentForm._meta
+        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
+        form = SubjectConsentForm(
+            data=data,
+            initial=dict(screening_identifier=data.get("screening_identifier")),
+            instance=SubjectConsent(),
+        )
+        form.is_valid()
+        self.assertEqual({}, form._errors)
         form.save(commit=True)
 
-        # save subject2 with another identity
-        form = SubjectConsentForm(data=self.cleaned_data(), instance=SubjectConsent())
-        self.assertTrue(form.is_valid())
-        subject_consent2 = form.save(commit=True)
-
-        # try to change subject2 identity to subject1 identity
-        subject_consent2.refresh_from_db()
-        self.assertEqual(subject_consent2.identity, "12315678")
-        data = deepcopy(subject_consent2.__dict__)
-        data.update(identity="987654321", confirm_identity="987654321")
-        form = SubjectConsentForm(data=data, instance=subject_consent2)
+        subject_consent = self.prepare_subject_consent(
+            identity="1", confirm_identity="1", screening_identifier="LOPIKXSWE"
+        )
+        opts = SubjectConsentForm._meta
+        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
+        form = SubjectConsentForm(
+            data=data,
+            initial=dict(screening_identifier="LOPIKXSWE"),
+            instance=subject_consent,
+        )
         form.is_valid()
         self.assertIn("identity", form._errors)

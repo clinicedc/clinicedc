@@ -1,16 +1,16 @@
 from typing import Any
 
-from ... import site_consents
 from ...consent_helper import ConsentHelper
-from .clean_fields_mixin import CleanFieldsMixin
+from ...site_consents import site_consents
+from .clean_fields_modelform_mixin import CleanFieldsModelformMixin
 from .custom_validation_mixin import CustomValidationMixin
 
 
-class ConsentModelFormMixin(CleanFieldsMixin, CustomValidationMixin):
+class ConsentModelFormMixin(CleanFieldsModelformMixin, CustomValidationMixin):
     def clean(self: Any):
         cleaned_data = super().clean()  # noqa
         self.validate_initials_with_full_name()
-        self.clean_gender_of_consent()
+        self.validate_gender_of_consent()
         self.validate_is_literate_and_witness()
         self.validate_dob_relative_to_consent_datetime()
         self.validate_guardian_and_dob()

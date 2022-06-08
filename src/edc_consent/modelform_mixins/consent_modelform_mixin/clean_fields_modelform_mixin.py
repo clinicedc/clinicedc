@@ -2,12 +2,35 @@ from typing import Any
 
 from django import forms
 from edc_constants.constants import NO, YES
+from edc_screening.utils import get_subject_screening_model_cls
 
 
-class CleanFieldsMixin:
+class ConsentModelFormMixinError(Exception):
+    pass
+
+
+class CleanFieldsModelformMixin:
     """A model form mixin calling the default `clean_xxxxx` django
     methods.
     """
+
+    @property
+    def subject_screening_model_cls(self):
+        return get_subject_screening_model_cls()
+
+    @property
+    def subject_screening(self: Any):
+        screening_identifier = self.cleaned_data.get(
+            "screening_identifier"
+        ) or self.initial.get("screening_identifier")
+        if not screening_identifier:
+            raise ConsentModelFormMixinError(
+                "Unable to determine the screening identifier. "
+                f"This should be part of the initial form data. Got {self.cleaned_data}"
+            )
+        return self.subject_screening_model_cls.objects.get(
+            screening_identifier=screening_identifier
+        )
 
     def clean_consent_reviewed(self: Any) -> str:
         consent_reviewed = self.cleaned_data.get("consent_reviewed")
@@ -54,16 +77,11 @@ class CleanFieldsMixin:
             )
         return consent_signature
 
-    def clean_gender_of_consent(self: Any) -> str:
-        """Validates gender is a gender of consent."""
-        gender = self.cleaned_data.get("gender")
-        if gender not in self.consent_config.gender:
+    def clean_initials(self: Any) -> str:
+        initials = self.cleaned_data.get("initials")
+        if initials and initials != self.subject_screening.initials:
             raise forms.ValidationError(
-                "Gender of consent can only be '%(gender_of_consent)s'. " "Got '%(gender)s'.",
-                params={
-                    "gender_of_consent": "' or '".join(self.consent_config.gender),
-                    "gender": gender,
-                },
-                code="invalid",
+                "Initials do not match those submitted at screening. "
+                f"Expected {self.subject_screening.initials}."
             )
-        return gender
+        return initials

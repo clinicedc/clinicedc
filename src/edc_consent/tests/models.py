@@ -1,5 +1,7 @@
 from django.db import models
 from django.db.models import PROTECT
+from edc_constants.choices import GENDER_UNDETERMINED
+from edc_constants.constants import FEMALE
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierModelMixin
 from edc_model.models import BaseUuidModel
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
@@ -16,6 +18,28 @@ from edc_consent.field_mixins import (
 from edc_consent.model_mixins import ConsentModelMixin, RequiresConsentFieldsModelMixin
 
 
+class SubjectScreening(models.Model):
+
+    screening_identifier = models.CharField(max_length=25, unique=True)
+
+    initials = models.CharField(max_length=5, default="TO")
+
+    age_in_years = models.IntegerField(default=25)
+
+    gender = models.CharField(
+        max_length=5,
+        choices=GENDER_UNDETERMINED,
+        default=FEMALE,
+    )
+
+    report_datetime = models.DateTimeField()
+
+    eligibility_datetime = models.DateTimeField()
+
+    class Meta:
+        pass
+
+
 class SubjectConsent(
     ConsentModelMixin,
     SiteModelMixin,
@@ -28,6 +52,10 @@ class SubjectConsent(
     VulnerabilityFieldsMixin,
     BaseUuidModel,
 ):
+    screening_identifier = models.CharField(
+        verbose_name="Screening identifier", max_length=50, unique=True
+    )
+
     class Meta(ConsentModelMixin.Meta):
         pass
 
@@ -44,6 +72,10 @@ class SubjectConsent2(
     VulnerabilityFieldsMixin,
     BaseUuidModel,
 ):
+    screening_identifier = models.CharField(
+        verbose_name="Screening identifier", max_length=50, unique=True
+    )
+
     class Meta(ConsentModelMixin.Meta):
         pass
 
