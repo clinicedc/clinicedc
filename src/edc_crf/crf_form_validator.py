@@ -79,7 +79,7 @@ class CrfFormValidator(
             and self.cleaned_data.get(field) > self.cleaned_data.get("report_datetime")
         ):
             self.raise_validation_error(
-                {field: "Cannot to after report datetime"}, INVALID_ERROR
+                {field: "Cannot be after report datetime"}, INVALID_ERROR
             )
 
     def validate_date_against_report_datetime(self, field):
@@ -90,5 +90,5 @@ class CrfFormValidator(
             and self.cleaned_data.get(field) > self.cleaned_data.get("report_datetime").date()
         ):
             self.raise_validation_error(
-                {field: "Cannot to after report datetime"}, INVALID_ERROR
+                {field: "Cannot be after report datetime"}, INVALID_ERROR
             )
