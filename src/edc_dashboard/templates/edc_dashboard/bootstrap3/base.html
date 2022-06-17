@@ -5,6 +5,10 @@
 
 {% block title %}{{ project_name|default_if_none:"clinicedc.org" }}{% endblock title %}
 
+{% block jquery %}
+  <script src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+{% endblock %}
+
 {% block extrastyle %}
     {{ block.super }}
     <!-- favicon -->
@@ -20,7 +24,7 @@
     <link rel="apple-touch-icon" sizes="152x152" href="{% static 'edc_dashboard/icons/apple-touch-icon-152x152.png' %}"/>
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'edc_dashboard/icons/apple-touch-icon-180x180.png' %}"/>
 
-    <script src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+
     <script src="https://kit.fontawesome.com/a022b85977.js" crossorigin="anonymous"></script>
 
     <!-- Latest bootstrap compiled and minified CSS -->
@@ -47,8 +51,7 @@
     <![endif]-->
 {% endblock extrastyle %}
 
-{% block extrahead %}
-    {{  block.super }}
+{% block document_ready %}
     <script>
         $(document).ready(function () {
             $('[data-toggle="tooltip"]').tooltip();
@@ -58,7 +61,10 @@
             });
         });
     </script>
+{% endblock document_ready %}
 
+{% block extrahead %}
+    {{  block.super }}
     {% if sentry_dsn %}
         <script type="text/javascript">
             Raven.config('{sentry_dsn}').install();

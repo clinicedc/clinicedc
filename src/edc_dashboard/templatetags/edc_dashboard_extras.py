@@ -7,6 +7,8 @@ from django.template.defaultfilters import stringfilter
 from django.urls.base import reverse
 from edc_utils import AgeValueError, age, get_utcnow
 
+from ..utils import get_bootstrap_version
+
 register = template.Library()
 
 
@@ -59,7 +61,7 @@ def page_numbers(page, numpages):
     return page_numbers_ or []
 
 
-@register.inclusion_tag(f"edc_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/copy_element.html")
+@register.inclusion_tag(f"edc_dashboard/bootstrap{get_bootstrap_version()}/copy_element.html")
 def copy_string_to_clipboard_button(value, index=None):
     return dict(value=value, index=index)
 
@@ -69,7 +71,10 @@ def copy_string_to_clipboard_button(value, index=None):
     takes_context=True,
 )
 def index_link(context):
-    return dict(index_page=settings.INDEX_PAGE, index_page_label=settings.INDEX_PAGE_LABEL)
+    return dict(
+        index_page=getattr(settings, "INDEX_PAGE", None),
+        index_page_label=getattr(settings, "INDEX_PAGE_LABEL", None),
+    )
 
 
 @register.filter
@@ -79,7 +84,7 @@ def human(value):
 
 
 @register.inclusion_tag(
-    f"edc_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/paginator/paginator_row.html",
+    f"edc_dashboard/bootstrap{get_bootstrap_version()}/paginator/paginator_row.html",
     takes_context=True,
 )
 def paginator_row(context):

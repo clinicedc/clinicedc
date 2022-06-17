@@ -1,10 +1,11 @@
 from math import floor
 
 from django.apps import apps as django_apps
-from django.conf import settings
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
 from django.views.generic.base import ContextMixin
+
+from edc_dashboard.utils import get_bootstrap_version
 
 
 class AdministrationDashboardError(Exception):
@@ -13,7 +14,7 @@ class AdministrationDashboardError(Exception):
 
 class AdministrationViewMixin(ContextMixin):
 
-    template_name = f"edc_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/administration.html"
+    template_name = f"edc_dashboard/bootstrap{get_bootstrap_version()}/administration.html"
 
     edc_module_prefix = "Edc"
 

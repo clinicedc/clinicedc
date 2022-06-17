@@ -1,4 +1,5 @@
 import os
+from warnings import warn
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -10,12 +11,19 @@ class EdcTemplateDoesNotExist(Exception):
     pass
 
 
-def get_bootstrap_version():
-    try:
-        bootstrap_version = settings.EDC_BOOTSTRAP
-    except AttributeError:
-        bootstrap_version = 3
-    return bootstrap_version
+def get_bootstrap_version() -> int:
+    return getattr(settings, "EDC_BOOTSTRAP", 3)
+
+
+def get_index_page() -> int:
+    index_page = getattr(settings, "INDEX_PAGE", None)
+    if not index_page:
+        warn("Settings attribute not set. See settings.INDEX_PAGE")
+    return getattr(settings, "INDEX_PAGE", None)
+
+
+def get_index_page_label() -> int:
+    return getattr(settings, "INDEX_PAGE_LABLE", settings.APP_NAME)
 
 
 def insert_bootstrap_version(**template_data):
@@ -85,8 +93,8 @@ def splitall(path):
 
 def select_edc_template(relative_path, default_app_label):
     """Returns a template object."""
-    local_path = f"{settings.APP_NAME}/bootstrap{settings.EDC_BOOTSTRAP}/"
-    default_path = f"{default_app_label}/bootstrap{settings.EDC_BOOTSTRAP}/"
+    local_path = f"{settings.APP_NAME}/bootstrap{get_bootstrap_version()}/"
+    default_path = f"{default_app_label}/bootstrap{get_bootstrap_version()}/"
     return select_template(
         [
             os.path.join(local_path, relative_path),
