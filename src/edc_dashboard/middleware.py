@@ -13,6 +13,7 @@ from edc_constants.constants import (
     OPEN,
     OTHER,
     PENDING,
+    TBD,
     YES,
 )
 
@@ -66,6 +67,7 @@ class DashboardMiddleware:
                 OTHER=OTHER,
                 PENDING=PENDING,
                 SITE_ID=settings.SITE_ID,
+                TBD=TBD,
                 YES=YES,
             )
             if "project_name" not in response.context_data:

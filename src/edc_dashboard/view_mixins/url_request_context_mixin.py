@@ -41,7 +41,7 @@ class UrlRequestContextMixin(ContextMixin):
 
     @staticmethod
     def add_url_to_context(new_key=None, existing_key=None, context=None):
-        """Add a url as new_key to the context using the value
+        """Add url as new_key to the context using the value
         of the existing_key from request.context_data.
         """
         try:

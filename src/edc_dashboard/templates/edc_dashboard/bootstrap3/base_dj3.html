@@ -1,9 +1,9 @@
-{% load i18n static %}<!DOCTYPE html>
+{% load i18n static %}
+<!DOCTYPE html>
 {% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
 <html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
-
-{% block header %}
-    <head>
+<head>
+  {% block header %}
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,14 +12,14 @@
     <meta name="msapplication-config" content="none"/>
 
     <title>{% block title %}{% endblock %}</title>
-
-    {% block extrastyle %}{% endblock %}
-    {% block extrahead %}{% endblock %}
-    {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE">{% endblock %}
-
-    </head>
-    {% load i18n %}
-{% endblock header %}
+      {% block jquery %}{% endblock %}
+      {% block extrastyle %}{% endblock %}
+      {% block extrahead %}{% endblock %}
+      {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE">{% endblock %}
+  {% endblock header %}
+  {% block document_ready %}
+  {% endblock document_ready %}
+</head>
 
 <body class="edc-body" id="edc-body" data-admin-utc-offset="{% now "Z" %}">
     {% block topbar %}{% endblock topbar %}
