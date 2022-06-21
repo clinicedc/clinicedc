@@ -4,6 +4,7 @@ from urllib.parse import parse_qsl, unquote, urlencode, urlparse
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
+from edc_dashboard.utils import get_bootstrap_version
 from edc_utils import convert_php_dateformat
 
 from .site_action_items import site_action_items
@@ -18,7 +19,7 @@ class ActionItemHelperError(Exception):
 class ActionItemHelper:
 
     action_item_reason_template_name = (
-        f"edc_action_item/bootstrap{settings.EDC_BOOTSTRAP}/action_item_reason.html"
+        f"edc_action_item/bootstrap{get_bootstrap_version()}/action_item_reason.html"
     )
 
     def __init__(
