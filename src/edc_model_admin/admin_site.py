@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin import AdminSite as DjangoAdminSite
 from django.contrib.sites.shortcuts import get_current_site
+from edc_dashboard.utils import get_bootstrap_version
 from edc_protocol import Protocol
 
 admin.site.enable_nav_sidebar = False
@@ -38,8 +39,8 @@ class EdcAdminSite(DjangoAdminSite):
     """
 
     app_index_template = "edc_model_admin/admin/app_index.html"
-    login_template = f"edc_auth/bootstrap{settings.EDC_BOOTSTRAP}/login.html"
-    logout_template = f"edc_auth/bootstrap{settings.EDC_BOOTSTRAP}/login.html"
+    login_template = f"edc_auth/bootstrap{get_bootstrap_version()}/login.html"
+    logout_template = f"edc_auth/bootstrap{get_bootstrap_version()}/login.html"
     enable_nav_sidebar = False  # DJ 3.1
     final_catch_all_view = True  # DJ 3.2
     site_url = "/administration/"
