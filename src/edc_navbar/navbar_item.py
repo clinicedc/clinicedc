@@ -8,6 +8,7 @@ from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
 from edc_constants.constants import IGNORE, WARN
 from edc_dashboard.url_names import InvalidUrlName, url_names
+from edc_dashboard.utils import get_bootstrap_version
 
 style = color_style()
 
@@ -26,7 +27,7 @@ class NavbarItem:
 
     """A class that represents a single item on a navbar."""
 
-    template_name = f"edc_navbar/bootstrap{settings.EDC_BOOTSTRAP}/navbar_item.html"
+    template_name = f"edc_navbar/bootstrap{get_bootstrap_version()}/navbar_item.html"
 
     def __init__(
         self,

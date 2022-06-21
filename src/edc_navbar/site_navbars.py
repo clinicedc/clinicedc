@@ -43,7 +43,7 @@ class NavbarCollection:
 
     def get_navbar(self, name=None, selected_item=None):
         """Returns a selected navbar in the collection."""
-        # does navbar exist?
+        # does the navbar exist?
         try:
             navbar = self.registry[name]
         except KeyError:
@@ -52,13 +52,13 @@ class NavbarCollection:
                 f"{list(self.registry.keys())}. See {repr(self)}."
             )
         else:
-            # does navbar have items?
+            # does the navbar have items?
             if not [item.name for item in navbar]:
                 raise NavbarError(
                     f"Navbar '{navbar.name}' has no items. Expected "
                     f"'{selected_item}'. See {repr(self)}"
                 )
-            # does selected item exist?
+            # does the selected item exist?
             if selected_item:
                 if selected_item not in [navbar_item.name for navbar_item in navbar]:
                     navbar_item_names = [item.name for item in navbar]
