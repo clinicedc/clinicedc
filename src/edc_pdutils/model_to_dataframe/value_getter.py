@@ -78,7 +78,7 @@ class ValueGetter:
         3. as an m2m
         """
         value = ""
-        for f in model_obj.__class__._meta.fields:
+        for f in model_obj.__class__._meta.get_fields():
             if (
                 f.name == field_name
                 and issubclass(f.__class__, BaseEncryptedField)

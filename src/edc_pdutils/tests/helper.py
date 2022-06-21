@@ -19,6 +19,7 @@ class Helper:
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
             visit_code=visit_code,
+            timepoint=0.0,
         )
         self.thing_one = ListModel.objects.create(
             display_name=f"thing_one_{i}", name=f"thing_one_{i}"

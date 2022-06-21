@@ -148,7 +148,7 @@ class ModelToDataframe:
     @property
     def has_encrypted_fields(self):
         """Returns True if at least one field uses encryption."""
-        for field in self.queryset.model._meta.fields:
+        for field in self.queryset.model._meta.get_fields():
             if hasattr(field, "field_cryptor"):
                 return True
         return False
@@ -158,7 +158,7 @@ class ModelToDataframe:
         """Return a list of column names that use encryption."""
         if not self._encrypted_columns:
             self._encrypted_columns = ["identity"]
-            for field in self.queryset.model._meta.fields:
+            for field in self.queryset.model._meta.get_fields():
                 if hasattr(field, "field_cryptor"):
                     self._encrypted_columns.append(field.name)
             self._encrypted_columns = list(set(self._encrypted_columns))
@@ -197,7 +197,7 @@ class ModelToDataframe:
                 field = getattr(self.model_cls, col)
                 if [
                     fld.name
-                    for fld in field.field.related_model._meta.fields
+                    for fld in field.field.related_model._meta.get_fields()
                     if fld.name == "subject_identifier"
                 ]:
                     subject_identifier_column = f"{col}__subject_identifier"
