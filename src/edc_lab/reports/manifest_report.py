@@ -2,7 +2,7 @@ from tempfile import mkdtemp
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from edc_reports import Report
+from edc_pdf_reports import Report
 from reportlab.graphics.barcode import code39
 from reportlab.lib import colors
 from reportlab.lib.units import cm, mm
