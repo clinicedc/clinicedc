@@ -19,6 +19,7 @@ from edc_constants.constants import (
     RESOLVED,
     YES,
 )
+from edc_dashboard.utils import get_bootstrap_version
 from edc_model_admin import SimpleHistoryAdmin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_utils import formatted_datetime
@@ -38,24 +39,24 @@ class DataQueryAdmin(
 ):
 
     status_column_template_name = (
-        f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/columns/status.html"
+        f"edc_data_manager/bootstrap{get_bootstrap_version()}/columns/status.html"
     )
     query_date_column_template_name = (
-        f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/columns/query_date.html"
+        f"edc_data_manager/bootstrap{get_bootstrap_version()}/columns/query_date.html"
     )
     query_text_column_template_name = (
-        f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/columns/query_text.html"
+        f"edc_data_manager/bootstrap{get_bootstrap_version()}/columns/query_text.html"
     )
     query_recipients_column_template_name = (
-        f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/columns/query_recipients.html"
+        f"edc_data_manager/bootstrap{get_bootstrap_version()}/columns/query_recipients.html"
     )
 
     rule_generated_column_template_name = (
-        f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/columns/rule_generated.html"
+        f"edc_data_manager/bootstrap{get_bootstrap_version()}/columns/rule_generated.html"
     )
 
     locked_column_template_name = (
-        f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/columns/locked.html"
+        f"edc_data_manager/bootstrap{get_bootstrap_version()}/columns/locked.html"
     )
 
     status_column_context = {

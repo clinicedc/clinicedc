@@ -8,6 +8,7 @@ from django.db.models.deletion import PROTECT
 from django.template.loader import render_to_string
 from django.utils.functional import lazy
 from edc_constants.constants import NORMAL
+from edc_dashboard.utils import get_bootstrap_version
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_visit_schedule.constants import DAYS, HOURS, MONTHS, WEEKS
 
@@ -50,7 +51,7 @@ UNITS = ((HOURS, "Hours"), (DAYS, "Days"), (WEEKS, "Weeks"), (MONTHS, "Months"))
 DEFAULT_RULE_HANDLER = "default"
 
 query_text_template_name = (
-    f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/default_query_text.html"
+    f"edc_data_manager/bootstrap{get_bootstrap_version()}/default_query_text.html"
 )
 
 

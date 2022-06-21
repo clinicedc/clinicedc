@@ -27,6 +27,9 @@
         {% if perms.edc_appointment %}
           <a id="home_edc_appointment_admin" href="{% url 'edc_appointment_admin:edc_appointment_appointment_changelist' %}" class="list-group-item">Review Appointments</a>
         {% endif %}
+        {% if perms.canned_views %}
+          <a id="home_canned_views" href="{% url 'canned_views:home_url' %}" class="list-group-item">Custom QA Reports</a>
+        {% endif %}
         {% if perms.edc_data_manager %}
           <a id="home_edc_data_manager_admin" href="{% url 'edc_data_manager_admin:app_list' 'edc_data_manager' %}" class="list-group-item">Admin</a>
         {% endif %}

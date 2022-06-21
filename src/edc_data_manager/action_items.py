@@ -9,6 +9,7 @@ from edc_constants.constants import (
     NORMAL,
     RESOLVED,
 )
+from edc_dashboard.utils import get_bootstrap_version
 from edc_utils.date import get_utcnow
 
 from .constants import CLOSED_WITH_ACTION
@@ -80,7 +81,7 @@ class DataQueryAction(Action):
 
     def get_display_name(self):
         template_name = (
-            f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/"
+            f"edc_data_manager/bootstrap{get_bootstrap_version()}/"
             f"action_item_display_name.html"
         )
         title = getattr(self.reference_obj, "title", "")

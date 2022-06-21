@@ -1,6 +1,5 @@
 from uuid import uuid4
 
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -18,6 +17,7 @@ from edc_constants.constants import (
     RESOLVED,
 )
 from edc_dashboard.url_names import InvalidUrlName, url_names
+from edc_dashboard.utils import get_bootstrap_version
 from edc_model.models import BaseUuidModel
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 from edc_utils.date import get_utcnow
@@ -278,7 +278,7 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
                 )
 
         template_name = (
-            f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/" f"columns/query_text.html"
+            f"edc_data_manager/bootstrap{get_bootstrap_version()}/" f"columns/query_text.html"
         )
         context = dict(
             form_and_numbers=self.form_and_numbers_to_string(),
