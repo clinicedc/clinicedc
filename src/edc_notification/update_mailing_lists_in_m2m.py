@@ -1,8 +1,8 @@
 from django.apps import apps as django_apps
-from django.conf import settings
 
 from .mailing_list_manager import MailingListManager
 from .site_notifications import site_notifications
+from .utils import get_email_enabled
 
 
 def update_mailing_lists_in_m2m(
@@ -19,7 +19,7 @@ def update_mailing_lists_in_m2m(
     'sms_notifications'.
     """
     response = None
-    email_enabled = email_enabled or settings.EMAIL_ENABLED
+    email_enabled = email_enabled or get_email_enabled()
     if (
         email_enabled
         and site_notifications.loaded

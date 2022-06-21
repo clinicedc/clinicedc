@@ -11,6 +11,7 @@ from twilio.rest import Client
 
 from ..site_notifications import site_notifications
 from ..stubs import NotificationModelStub
+from ..utils import get_email_contacts
 
 
 class NotificationError(Exception):
@@ -29,7 +30,7 @@ class Notification:
 
     sms_client = Client
 
-    email_from: List[str] = settings.EMAIL_CONTACTS.get("data_manager")
+    email_from: List[str] = get_email_contacts("data_manager")
     email_to: Optional[List[str]] = None  # usually a mailing list address
     email_message_cls = EmailMessage
 
