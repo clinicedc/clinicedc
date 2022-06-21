@@ -7,6 +7,7 @@ from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
 from django.utils.safestring import mark_safe
 from django.views.generic.base import TemplateView
+from edc_dashboard.utils import get_bootstrap_version
 from edc_dashboard.view_mixins import EdcViewMixin
 
 from ..archive_exporter import (
@@ -31,7 +32,7 @@ class ExportModelsViewError(Exception):
 class ExportSelectedModelsView(EdcViewMixin, TemplateView):
 
     post_action_url = "edc_export:export_models_url"
-    template_name = f"edc_export/bootstrap{settings.EDC_BOOTSTRAP}/export_models.html"
+    template_name = f"edc_export/bootstrap{get_bootstrap_version()}/export_models.html"
 
     def __init__(self, *args, **kwargs):
         self._selected_models_from_post = None
