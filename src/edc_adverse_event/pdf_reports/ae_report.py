@@ -2,7 +2,7 @@ from textwrap import fill
 
 import inflect
 from edc_constants.constants import OTHER, YES
-from edc_reports.crf_pdf_report import CrfPdfReport
+from edc_pdf_reports.crf_pdf_report import CrfPdfReport
 from reportlab.lib import colors
 from reportlab.lib.units import cm
 from reportlab.platypus import Paragraph, Table
