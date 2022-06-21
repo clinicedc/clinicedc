@@ -1,9 +1,9 @@
-from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.db.models.aggregates import Count
 from django.views.generic import TemplateView
 from edc_action_item.models.action_item import ActionItem
 from edc_constants.constants import CLOSED, NEW, OPEN
+from edc_dashboard.utils import get_bootstrap_version
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 
@@ -12,7 +12,7 @@ from edc_adverse_event.constants import AE_TMG_ACTION
 
 class TmgHomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
 
-    template_name = f"edc_adverse_event/bootstrap{settings.EDC_BOOTSTRAP}/tmg/tmg_home.html"
+    template_name = f"edc_adverse_event/bootstrap{get_bootstrap_version()}/tmg/tmg_home.html"
     navbar_selected_item = "tmg_home"
 
     def get_context_data(self, **kwargs):

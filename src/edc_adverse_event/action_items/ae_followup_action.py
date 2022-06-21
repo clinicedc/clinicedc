@@ -1,9 +1,9 @@
-from django.conf import settings
 from django.utils.safestring import mark_safe
 from edc_action_item.action_with_notification import ActionWithNotification
 from edc_action_item.site_action_items import site_action_items
 from edc_constants.constants import DEAD, HIGH_PRIORITY, YES
 from edc_ltfu.constants import LOST_TO_FOLLOWUP
+from edc_notification.utils import get_email_contacts
 from edc_reportable.constants import GRADE5
 from edc_visit_schedule.utils import (
     OnScheduleError,
@@ -43,8 +43,8 @@ class AeFollowupAction(ActionWithNotification):
     admin_site_name = ADVERSE_EVENT_ADMIN_SITE
     instructions = mark_safe(
         f"Upon submission the TMG group will be notified "
-        f'by email at <a href="mailto:{settings.EMAIL_CONTACTS.get("tmg") or "#"}">'
-        f'{settings.EMAIL_CONTACTS.get("tmg") or "unknown"}</a>'
+        f'by email at <a href="mailto:{get_email_contacts("tmg") or "#"}">'
+        f'{get_email_contacts("tmg") or "unknown"}</a>'
     )
     priority = HIGH_PRIORITY
 

@@ -9,6 +9,7 @@ from edc_action_item.modeladmin_mixins import ModelAdminActionItemMixin
 from edc_constants.constants import DEAD
 from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
+from edc_notification.utils import get_email_contacts
 
 from edc_adverse_event.get_ae_model import get_ae_model
 
@@ -73,7 +74,7 @@ class AeInitialModelAdminMixin(
 
     form = AeInitialForm
 
-    email_contact = settings.EMAIL_CONTACTS.get("ae_reports")
+    email_contact = get_email_contacts("ae_reports")
     additional_instructions = mark_safe(
         "Complete the initial AE report and forward to the TMG. "
         f'Email to <a href="mailto:{email_contact}">{email_contact}</a>'

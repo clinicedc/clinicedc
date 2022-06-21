@@ -7,14 +7,15 @@ from django.conf import settings
 from django.template.loader import select_template
 from django.utils.safestring import mark_safe
 from edc_constants.constants import OTHER, YES
+from edc_dashboard.utils import get_bootstrap_version
 
 register = template.Library()
 
 
 def select_ae_template(relative_path):
     """Returns a template object."""
-    local_path = f"{settings.ADVERSE_EVENT_APP_LABEL}/bootstrap{settings.EDC_BOOTSTRAP}/"
-    default_path = f"edc_adverse_event/bootstrap{settings.EDC_BOOTSTRAP}/"
+    local_path = f"{settings.ADVERSE_EVENT_APP_LABEL}/bootstrap{get_bootstrap_version()}/"
+    default_path = f"edc_adverse_event/bootstrap{get_bootstrap_version()}/"
     return select_template(
         [
             os.path.join(local_path, relative_path),
@@ -29,7 +30,7 @@ def select_description_template(model):
 
 
 @register.inclusion_tag(
-    f"edc_adverse_event/bootstrap{settings.EDC_BOOTSTRAP}/"
+    f"edc_adverse_event/bootstrap{get_bootstrap_version()}/"
     f"tmg/tmg_ae_listboard_result.html",
     takes_context=True,
 )
