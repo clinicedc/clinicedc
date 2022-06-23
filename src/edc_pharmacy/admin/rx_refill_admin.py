@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
+from edc_dashboard.utils import get_bootstrap_version
 from edc_model_admin import audit_fieldset_tuple
 from edc_utils import formatted_age, get_utcnow
 
@@ -168,7 +169,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
             "rx_refill": obj,
         }
         return render_to_string(
-            f"edc_pharmacy/bootstrap{settings.EDC_BOOTSTRAP}/rx_refill_description.html",
+            f"edc_pharmacy/bootstrap{get_bootstrap_version()}/rx_refill_description.html",
             context,
         )
 
