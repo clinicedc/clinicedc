@@ -1,10 +1,10 @@
 from django import template
-from django.conf import settings
+from edc_dashboard.utils import get_bootstrap_version
 
 register = template.Library()
 
 
-@register.inclusion_tag(f"edc_label/bootstrap{settings.EDC_BOOTSTRAP}/" "print_button.html")
+@register.inclusion_tag(f"edc_label/bootstrap{get_bootstrap_version()}/" "print_button.html")
 def print_button(button_label=None, printer=None, label_template_name=None, **kwargs):
     return dict(
         button_label=button_label,
@@ -13,7 +13,7 @@ def print_button(button_label=None, printer=None, label_template_name=None, **kw
     )
 
 
-@register.inclusion_tag(f"edc_label/bootstrap{settings.EDC_BOOTSTRAP}/" "printer_config.html")
+@register.inclusion_tag(f"edc_label/bootstrap{get_bootstrap_version()}/" "printer_config.html")
 def printer_config(
     heading=None, printer_type=None, selected_printer=None, printers=None, **kwargs
 ):
