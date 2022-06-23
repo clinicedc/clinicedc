@@ -2,9 +2,9 @@ import os
 import socket
 import sys
 
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.mail.message import EmailMessage
+from edc_notification.utils import get_email_contacts
 from edc_protocol.protocol import Protocol
 
 
@@ -47,7 +47,7 @@ class FilesEmailer:
         return EmailMessage(
             subject=f"{Protocol().protocol_name.title()} trial data request",
             body="\n\n".join(body),
-            from_email=settings.EMAIL_CONTACTS.get("data_request"),
+            from_email=get_email_contacts("data_request"),
             to=[self.user.email],
         )
 
