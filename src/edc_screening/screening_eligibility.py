@@ -2,7 +2,7 @@ from typing import Optional, Union
 
 from django.db import models
 from django.utils.html import format_html
-from edc_constants.constants import NO, TBD, YES
+from edc_constants.constants import NO, PENDING, TBD, YES
 
 
 class FC:
@@ -59,10 +59,13 @@ class ScreeningEligibility:
     eligible_display_label: str = "ELIGIBLE"
     eligible_fld_name: str = "eligible"
     eligible_value_default: str = TBD
+    default_display_label = TBD
     eligible_values_list: list = [YES, NO, TBD]
     ineligible_display_label: str = "INELIGIBLE"
     is_eligible_value: str = YES
     is_ineligible_value: str = NO
+    pending_value = PENDING
+    pending_display_label = "PENDING"
     reasons_ineligible_fld_name: str = "reasons_ineligible"
 
     def __init__(
@@ -261,4 +264,8 @@ class ScreeningEligibility:
             display_label = self.eligible_display_label
         elif self.eligible == self.is_ineligible_value:
             display_label = self.ineligible_display_label
+        elif self.eligible == self.eligible_value_default:
+            display_label = self.default_display_label
+        elif self.eligible == self.pending_value:
+            display_label = self.pending_display_label
         return display_label
