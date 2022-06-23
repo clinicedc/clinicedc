@@ -1,5 +1,5 @@
 from django.apps import apps as django_apps
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_lab.models import Aliquot, Box, BoxType
 from edc_lab.models.box_item import BoxItem
 

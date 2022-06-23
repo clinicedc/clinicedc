@@ -1,4 +1,4 @@
-from django.test import TestCase, tag
+from django.test import TestCase
 from django.urls import reverse
 
 
