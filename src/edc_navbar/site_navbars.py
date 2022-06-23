@@ -77,8 +77,8 @@ class NavbarCollection:
     def show_user_codenames(self, username=None, navbar_name=None):
         user_permissions = self.show_user_permissions(username, navbar_name)
         codenames = []
-        for l in [list(v.keys()) for v in user_permissions.values()]:
-            codenames.extend(l)
+        for codename in [list(v.keys()) for v in user_permissions.values()]:
+            codenames.extend(codename)
         return codenames
 
     def autodiscover(self, module_name=None, verbose=True):
