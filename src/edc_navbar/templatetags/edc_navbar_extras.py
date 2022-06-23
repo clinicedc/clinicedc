@@ -1,13 +1,13 @@
 from django import template
-from django.conf import settings
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
+from edc_dashboard.utils import get_bootstrap_version
 
 register = template.Library()
 
 
 @register.inclusion_tag(
-    f"edc_navbar/bootstrap{settings.EDC_BOOTSTRAP}/edc_navbar.html", takes_context=True
+    f"edc_navbar/bootstrap{get_bootstrap_version()}/edc_navbar.html", takes_context=True
 )
 def show_edc_navbar(context):
     auth_user_change_url = None

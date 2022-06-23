@@ -6,4 +6,4 @@ def get_default_navbar():
 
     For example: inte_dashboard for project INTE.
     """
-    return settings.EDC_NAVBAR_DEFAULT
+    return getattr(settings, "EDC_NAVBAR_DEFAULT", f"{settings.APP_NAME}_dashboard".lower())
