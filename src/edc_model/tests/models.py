@@ -66,7 +66,7 @@ class ModelWithDateValidators(BaseModel):
 
 
 class ModelWithDHDurationValidators(BaseModel):
-    duration_dh = DurationDHField()
+    duration_dh = DurationDHField(null=True)
 
 
 class ModelWithPhoneValidators(BaseModel):
