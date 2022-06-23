@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
-from django.conf import settings
 from django.views.generic.base import TemplateView
+from edc_dashboard.utils import get_bootstrap_version
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 
@@ -9,7 +9,7 @@ from .view_mixins import EdcDeviceViewMixin
 
 class HomeView(EdcViewMixin, NavbarViewMixin, EdcDeviceViewMixin, TemplateView):
 
-    template_name = f"edc_device/bootstrap{settings.EDC_BOOTSTRAP}/home.html"
+    template_name = f"edc_device/bootstrap{get_bootstrap_version()}/home.html"
     navbar_name = "edc_device"
     navbar_selected_item = "device"
 
