@@ -4,6 +4,8 @@ import requests
 from django.conf import settings
 from django.core.exceptions import ValidationError
 
+from .utils import get_email_enabled
+
 
 class EmailNotEnabledError(ValidationError):
     pass
@@ -31,7 +33,7 @@ class MailingListManager:
         self._api_url = None
         self.address = address  # mailing list address
         self.display_name = display_name
-        self.email_enabled = settings.EMAIL_ENABLED
+        self.email_enabled = get_email_enabled()
         self.name = name
 
     @property

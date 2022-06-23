@@ -10,6 +10,7 @@ from django.utils.module_loading import import_module, module_has_submodule
 from requests.exceptions import ConnectionError
 
 from .mailing_list_manager import MailingListManager
+from .utils import get_email_enabled
 
 style = color_style()
 
@@ -145,7 +146,7 @@ class SiteNotifications:
         """Creates the mailing list for each registered notification."""
         responses = {}
         if (
-            settings.EMAIL_ENABLED
+            get_email_enabled()
             and self.loaded
             and settings.EMAIL_BACKEND != "django.core.mail.backends.locmem.EmailBackend"
         ):
