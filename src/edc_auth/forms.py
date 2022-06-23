@@ -2,6 +2,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.forms import UserChangeForm as BaseForm
 from django.utils.safestring import mark_safe
+from edc_notification.utils import get_email_enabled
 from edc_randomization.auth_objects import RANDO_UNBLINDED
 from edc_randomization.blinding import (
     is_blinded_user,
@@ -32,7 +33,7 @@ class UserProfileForm(forms.ModelForm):
 
         qs = self.cleaned_data.get("email_notifications")
         if qs and qs.count() > 0:
-            if not settings.EMAIL_ENABLED:
+            if not get_email_enabled():
                 raise forms.ValidationError(
                     {
                         "email_notifications": "You may not choose an email "

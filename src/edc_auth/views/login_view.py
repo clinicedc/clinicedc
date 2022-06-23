@@ -2,12 +2,12 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.views import LoginView as BaseLoginView
 from django_revision.revision import site_revision
-from edc_dashboard.utils import get_template_path_with_bootstrap
+from edc_dashboard.utils import get_bootstrap_version, get_template_path_with_bootstrap
 from edc_protocol import Protocol
 
 
 class LoginView(BaseLoginView):
-    template_name = f"edc_auth/bootstrap{settings.EDC_BOOTSTRAP}/login.html"
+    template_name = f"edc_auth/bootstrap{get_bootstrap_version()}/login.html"
 
     def get_context_data(self, **kwargs):
         """Tests cookies."""
