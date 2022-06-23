@@ -5,17 +5,12 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from edc_registration.utils import get_registered_subject_model_cls
 
-from edc_randomization.randomization_list_importer import (
+from .constants import DEFAULT_ASSIGNMENT_MAP, RANDOMIZED
+from .randomization_list_importer import (
     RandomizationListAlreadyImported,
     RandomizationListImporter,
 )
-
-from .constants import DEFAULT_ASSIGNMENT_MAP
 from .randomization_list_verifier import RandomizationListVerifier
-
-RANDOMIZED = "RANDOMIZED"
-
-assignment_map = getattr(settings, "EDC_RANDOMIZATION_ASSIGNMENT_MAP", DEFAULT_ASSIGNMENT_MAP)
 
 
 class RandomizationError(Exception):
@@ -58,9 +53,13 @@ class Randomizer:
 
     name = "default"
     model = "edc_randomization.randomizationlist"
-    assignment_map = assignment_map
+    assignment_map = getattr(
+        settings, "EDC_RANDOMIZATION_ASSIGNMENT_MAP", DEFAULT_ASSIGNMENT_MAP
+    )
     filename = "randomization_list.csv"
-    randomization_list_path = settings.EDC_RANDOMIZATION_LIST_PATH
+    randomization_list_path = getattr(
+        settings, "EDC_RANDOMIZATION_LIST_PATH", os.path.join(settings.BASE_DIR, ".etc")
+    )
     is_blinded_trial = True
     importer_cls = RandomizationListImporter
 
