@@ -5,7 +5,7 @@ from edc_constants.constants import YES
 from edc_identifier.simple_identifier import convert_to_human_readable
 from edc_lab.model_mixins import RequisitionModelMixin
 from edc_lab.models.manifest.shipper import Shipper
-from edc_reports import Report
+from edc_pdf_reports import Report
 from edc_utils import get_utcnow
 from reportlab.graphics.barcode import code39
 from reportlab.lib import colors
