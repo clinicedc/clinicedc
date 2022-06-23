@@ -1,5 +1,5 @@
 from django.contrib.sites.models import Site
-from django.test import TestCase, tag
+from django.test import TestCase
 from django.urls.base import reverse
 from edc_lab.models import (
     Aliquot,

@@ -1,7 +1,7 @@
 from copy import copy
 
 from django.apps import apps as django_apps
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_lab.models import Aliquot, Box, BoxItem, BoxType
 
 from edc_lab_dashboard.model_wrappers import AliquotModelWrapper

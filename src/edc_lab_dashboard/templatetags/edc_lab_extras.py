@@ -1,7 +1,7 @@
 from django import template
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.safestring import mark_safe
+from edc_dashboard.utils import get_bootstrap_version
 from edc_lab.constants import SHIPPED
 from edc_lab.models import BoxItem
 
@@ -9,7 +9,7 @@ register = template.Library()
 
 
 @register.inclusion_tag(
-    f"edc_lab_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/" f"listboard/box/box_cell.html"
+    f"edc_lab_dashboard/bootstrap{get_bootstrap_version()}/" f"listboard/box/box_cell.html"
 )
 def show_box_rows(box, listboard_url, position=None):
     """Returns rendered HTML of a box as a dictionary of keys headers, rows.
@@ -27,9 +27,7 @@ def show_box_rows(box, listboard_url, position=None):
     rows = []
     header = range(1, box.box_type.across + 1)
     for i in range(1, box.box_type.down + 1):
-        row = {}
-        row["position"] = i
-        row["cells"] = []
+        row = {"position": i, "cells": []}
         for _ in range(1, box.box_type.across + 1):
             cell = {}
             pos += 1
@@ -80,7 +78,8 @@ def shipped(box_item):
 
 
 @register.inclusion_tag(
-    f"edc_lab_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/" "listboard/tags/status_column.html"
+    f"edc_lab_dashboard/bootstrap{get_bootstrap_version()}/"
+    "listboard/tags/status_column.html"
 )
 def status_column(model_wrapper, *attrs):
     options = {}
