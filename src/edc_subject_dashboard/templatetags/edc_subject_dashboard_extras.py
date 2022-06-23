@@ -2,7 +2,6 @@ from collections import namedtuple
 
 from dateutil.relativedelta import relativedelta
 from django import template
-from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
@@ -15,6 +14,7 @@ from edc_appointment.constants import (
 )
 from edc_appointment.models import Appointment
 from edc_constants.constants import COMPLETE
+from edc_dashboard.utils import get_bootstrap_version
 from edc_lab.models.manifest.consignee import Consignee
 from edc_metadata import KEYED, REQUIRED
 from edc_metadata.metadata_helper import MetadataHelper
@@ -28,7 +28,7 @@ class SubjectDashboardExtrasError(Exception):
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/forms_button.html"
+    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/forms_button.html"
 )
 def forms_button(wrapper=None):
     """wrapper is an AppointmentModelWrapper."""
@@ -70,7 +70,7 @@ def forms_button(wrapper=None):
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/appointment_in_progress.html"
+    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/appointment_in_progress.html"
 )
 def appointment_in_progress(subject_identifier=None, visit_schedule=None, schedule=None):
 
@@ -97,7 +97,7 @@ def appointment_in_progress(subject_identifier=None, visit_schedule=None, schedu
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/"
+    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
     f"requisition_panel_actions.html",
     takes_context=True,
 )
@@ -122,7 +122,7 @@ def requisition_panel_actions(context, requisitions=None):
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/"
+    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
     f"print_requisition_popover.html",
     takes_context=True,
 )
@@ -136,7 +136,7 @@ def print_requisition_popover(context):
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/" f"appointment_status.html"
+    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/" f"appointment_status.html"
 )
 def appointment_status_icon(appt_status=None):
     return dict(
@@ -150,7 +150,7 @@ def appointment_status_icon(appt_status=None):
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/dashboard/crf_totals.html"
+    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/dashboard/crf_totals.html"
 )
 def show_crf_totals(wrapped_appointment=None, request=None):
     helper = MetadataHelper(wrapped_appointment.object)
@@ -176,7 +176,7 @@ def show_crf_totals(wrapped_appointment=None, request=None):
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/dashboard/visit_button.html"
+    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/dashboard/visit_button.html"
 )
 def show_dashboard_visit_button(wrapped_appointment=None, request=None):
 
@@ -223,7 +223,7 @@ def show_dashboard_visit_button(wrapped_appointment=None, request=None):
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/"
+    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
     "dashboard/appointment_button.html"
 )
 def show_dashboard_appointment_button(
@@ -259,7 +259,7 @@ def show_dashboard_appointment_button(
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/"
+    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
     "dashboard/unscheduled_appointment_button.html"
 )
 def show_dashboard_unscheduled_appointment_button(
