@@ -214,7 +214,7 @@ class Notification:
         fail_silently: Optional[bool] = None,
         email_to: List[str] = None,
         email_body_template: str = None,
-        **kwargs
+        **kwargs,
     ) -> int:
         kwargs.update(**self.get_template_options(**kwargs))
         subject = self.email_subject_template.format(**kwargs)
@@ -228,7 +228,7 @@ class Notification:
         self,
         fail_silently: Optional[bool] = None,
         sms_recipient: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ) -> dict:
         status = {}
         if self.sms_sender:

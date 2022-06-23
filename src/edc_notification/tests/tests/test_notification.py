@@ -236,7 +236,7 @@ class TestNotification(TestCase):
         site_notifications.update_notification_list()
 
         # create new
-        ae = AE.objects.create(subject_identifier="1", ae_grade=4)
+        AE.objects.create(subject_identifier="1", ae_grade=4)
         self.assertEqual(len(mail.outbox), 1)
 
     def test_graded_event_grade4_on_create_then_escalate(self):

@@ -1,3 +1,3 @@
 CREATE = "+"
-UPDATE = "~"
 DELETE = "-"
+UPDATE = "~"
