@@ -1,6 +1,7 @@
 from typing import Any, Optional
 
-from .constants import COMPLETE_APPT, IN_PROGRESS_APPT, INCOMPLETE_APPT
+from .constants import IN_PROGRESS_APPT
+from .utils import update_appt_status
 
 
 class AppointmentStatusUpdaterError(Exception):
@@ -40,15 +41,4 @@ class AppointmentStatusUpdater:
             id=self.appointment.id
         )
         for appointment in appointments:
-            if not appointment.visit:
-                appointment.appt_status = INCOMPLETE_APPT
-            else:
-                if (
-                    appointment.crf_metadata_required_exists
-                    or appointment.requisition_metadata_required_exists
-                ):
-                    appointment.appt_status = INCOMPLETE_APPT
-                else:
-                    appointment.appt_status = COMPLETE_APPT
-            appointment.save_base(update_fields=["appt_status"])
-            appointment.refresh_from_db()
+            update_appt_status(appointment, save=True)

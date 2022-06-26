@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings, tag
 from edc_facility.import_holidays import import_holidays
 from edc_metadata.utils import get_crf_metadata_model_cls
 from edc_protocol import Protocol
@@ -249,6 +249,11 @@ class TestAppointmentStatus(TestCase):
         # change
         appointment_baseline.appt_status = IN_PROGRESS_APPT
         appointment_baseline.save_base()
+        SubjectVisit.objects.create(
+            appointment=appointment_baseline,
+            report_datetime=appointment_baseline.appt_datetime,
+            reason=SCHEDULED,
+        )
         self.assertEqual(appointment_baseline.appt_status, IN_PROGRESS_APPT)
 
         # check
