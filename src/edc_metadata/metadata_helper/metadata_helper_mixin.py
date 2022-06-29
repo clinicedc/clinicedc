@@ -93,7 +93,7 @@ class MetadataHelperMixin:
         """Returns True if any required requisitions for this visit code
         have not yet been keyed.
         """
-        return self.get_requisition_metadata_by(REQUIRED)
+        return self.get_requisition_metadata_by(REQUIRED).exists()
 
     @property
     def requisition_metadata_keyed_exists(self: Any) -> bool:
