@@ -28,7 +28,10 @@ class Baseline:
             try:
                 instance = instance.appointment
             except AttributeError:
-                pass
+                try:
+                    instance = instance.subject_visit.appointment
+                except AttributeError:
+                    pass
             self.visit_schedule_name = instance.visit_schedule_name
             self.schedule_name = instance.schedule_name
             self.visit_code_sequence = instance.visit_code_sequence
