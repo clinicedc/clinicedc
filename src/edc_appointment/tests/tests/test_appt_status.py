@@ -1,4 +1,4 @@
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase
 from edc_facility.import_holidays import import_holidays
 from edc_metadata.utils import get_crf_metadata_model_cls
 from edc_protocol import Protocol
