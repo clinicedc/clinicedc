@@ -88,3 +88,47 @@ class TestApplicableFieldValidator(TestCase):
             form_validator.not_required_if(NO, field="field_one", field_required="field_two")
         except (ModelFormFieldValidatorError, InvalidModelFormFieldValidator) as e:
             self.fail(f"Exception unexpectedly raised. Got {e}")
+
+    def test_not_applicable_if_true1(self):
+        """Asserts field_two not applicable if condition is True."""
+        form_validator = FormValidator(
+            cleaned_data=dict(
+                field_two=YES,
+            )
+        )
+        self.assertRaises(
+            forms.ValidationError,
+            form_validator.not_applicable_if_true,
+            condition=True,
+            field_applicable="field_two",
+        )
+
+        # try the inverse
+        form_validator = FormValidator(
+            cleaned_data=dict(
+                field_two=NOT_APPLICABLE,
+            )
+        )
+        try:
+            form_validator.not_applicable_if_true(
+                condition=True,
+                field_applicable="field_two",
+            )
+        except forms.ValidationError:
+            self.fail("ValidationError unexpectedly raised")
+
+    def test_not_applicable_if_true2(self):
+        """Asserts field_two applicable if condition is False."""
+
+        form_validator = FormValidator(
+            cleaned_data=dict(
+                field_two=NOT_APPLICABLE,
+            )
+        )
+
+        self.assertRaises(
+            forms.ValidationError,
+            form_validator.not_applicable_if_true,
+            condition=False,
+            field_applicable="field_two",
+        )
