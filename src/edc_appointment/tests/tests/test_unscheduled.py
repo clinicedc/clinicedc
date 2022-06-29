@@ -79,10 +79,12 @@ class TestUnscheduledAppointmentCreator(TestCase):
         )
         appointment.refresh_from_db()
         self.assertEqual(appointment.visit, subject_visit)
-        for appt_status in [NEW_APPT, IN_PROGRESS_APPT, CANCELLED_APPT]:
+        for appt_status in [NEW_APPT, INCOMPLETE_APPT, IN_PROGRESS_APPT, CANCELLED_APPT]:
             with self.subTest(appt_status=appt_status):
                 appointment.appt_status = appt_status
                 appointment.save()
+                if appointment.appt_status == INCOMPLETE_APPT:
+                    continue
                 self.assertEqual(appointment.appt_status, appt_status)
                 self.assertRaises(
                     InvalidParentAppointmentStatusError,

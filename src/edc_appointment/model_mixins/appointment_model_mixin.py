@@ -4,6 +4,7 @@ from typing import Union
 from uuid import UUID
 
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from edc_document_status.model_mixins import DocumentStatusModelMixin
@@ -18,10 +19,11 @@ from edc_visit_schedule.subject_schedule import NotOnScheduleError
 from edc_visit_schedule.utils import is_baseline
 
 from ..choices import APPT_STATUS, APPT_TIMING, APPT_TYPE, DEFAULT_APPT_REASON_CHOICES
-from ..constants import NEW_APPT, ONTIME_APPT
+from ..constants import IN_PROGRESS_APPT, NEW_APPT, ONTIME_APPT
 from ..exceptions import UnknownVisitCode
 from ..managers import AppointmentManager
 from ..stubs import AppointmentModelStub
+from ..utils import update_appt_status
 from .appointment_methods_model_mixin import AppointmentMethodsModelMixin
 from .missed_appointment_model_mixin import MissedAppointmentModelMixin
 from .window_period_model_mixin import WindowPeriodModelMixin
@@ -153,6 +155,10 @@ class AppointmentModelMixin(
                     skip_baseline=True,
                 )
         self.update_subject_visit_reason_or_raise()
+        if self.appt_status != IN_PROGRESS_APPT and getattr(
+            settings, "EDC_APPOINTMENT_CHECK_APPT_STATUS", True
+        ):
+            update_appt_status(self)
         super().save(*args, **kwargs)
 
     def natural_key(self) -> tuple:

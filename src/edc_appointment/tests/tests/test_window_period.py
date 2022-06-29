@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
 from edc_reference import site_reference_configs
@@ -220,6 +220,7 @@ class TestAppointmentWindowPeriod(TestCase):
         form.is_valid()
         self.assertIn("appt_datetime", form._errors)
 
+    @override_settings(EDC_APPOINTMENT_CHECK_APPT_STATUS=False)
     def test_appointments_window_period_allows_between_completed_appointments(self):
         appointment_1030, appointment_1060 = self.create_1030_and_1060()
 
@@ -262,6 +263,7 @@ class TestAppointmentWindowPeriod(TestCase):
         form.is_valid()
         self.assertIn("appt_datetime", form._errors)
 
+    @override_settings(EDC_APPOINTMENT_CHECK_APPT_STATUS=False)
     def test_appointments_window_period_does_not_allow_missed_unscheduled(self):
         """Assert does not allow an unscheduled appointment if the
         scheduled appt is missed (in this case 1030 is missed)

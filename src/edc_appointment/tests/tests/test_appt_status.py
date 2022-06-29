@@ -249,6 +249,11 @@ class TestAppointmentStatus(TestCase):
         # change
         appointment_baseline.appt_status = IN_PROGRESS_APPT
         appointment_baseline.save_base()
+        SubjectVisit.objects.create(
+            appointment=appointment_baseline,
+            report_datetime=appointment_baseline.appt_datetime,
+            reason=SCHEDULED,
+        )
         self.assertEqual(appointment_baseline.appt_status, IN_PROGRESS_APPT)
 
         # check

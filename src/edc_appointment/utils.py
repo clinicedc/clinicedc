@@ -12,7 +12,15 @@ from edc_visit_schedule.schedule.window import (
 from edc_visit_schedule.utils import is_baseline
 
 from .choices import DEFAULT_APPT_REASON_CHOICES
-from .constants import CANCELLED_APPT, MISSED_APPT, SCHEDULED_APPT, UNSCHEDULED_APPT
+from .constants import (
+    CANCELLED_APPT,
+    COMPLETE_APPT,
+    INCOMPLETE_APPT,
+    MISSED_APPT,
+    NEW_APPT,
+    SCHEDULED_APPT,
+    UNSCHEDULED_APPT,
+)
 from .exceptions import AppointmentWindowError
 
 
@@ -156,3 +164,28 @@ def raise_on_appt_datetime_not_in_window(appointment) -> None:
             msg = str(e)
             msg.replace("Invalid datetime", "Invalid appointment datetime")
             raise AppointmentWindowError(msg)
+
+
+def update_appt_status(appointment, save=None):
+    """Sets appt_status, and if save is True, calls save_base().
+
+    This is useful if checking `appt_status` is correct
+    relative to the visit tracking model and CRFs and
+    requisitions
+    """
+    if appointment.appt_status == CANCELLED_APPT:
+        pass
+    elif not appointment.visit:
+        appointment.appt_status = NEW_APPT
+    else:
+        if (
+            appointment.crf_metadata_required_exists
+            or appointment.requisition_metadata_required_exists
+        ):
+            appointment.appt_status = INCOMPLETE_APPT
+        else:
+            appointment.appt_status = COMPLETE_APPT
+    if save:
+        appointment.save_base(update_fields=["appt_status"])
+        appointment.refresh_from_db()
+    return appointment
