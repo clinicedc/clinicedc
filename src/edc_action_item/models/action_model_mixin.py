@@ -1,8 +1,8 @@
+from typing import Any
+
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_model.models import HistoricalRecords
-
-from edc_action_item.stubs import ActionItemStub
 
 from ..site_action_items import site_action_items
 from .action_item import ActionItem
@@ -65,7 +65,7 @@ class ActionNoManagersModelMixin(models.Model):
     def __str__(self):
         return f"{self.action_identifier[-9:]}"
 
-    def save(self: ActionItemStub, *args, **kwargs):
+    def save(self: Any, *args, **kwargs):
         # ensure action class is defined
         if not self.get_action_cls():
             raise ActionClassNotDefined(f"Action class name not defined. See {repr(self)}")
@@ -104,8 +104,8 @@ class ActionNoManagersModelMixin(models.Model):
         # also see signals.py
         super().save(*args, **kwargs)  # type: ignore
 
-    def natural_key(self) -> tuple:
-        return (self.action_identifier,)
+    def natural_key(self: Any) -> tuple:
+        return (self.action_identifier,)  # noqa
 
     # noinspection PyTypeHints
     natural_key.dependencies = ["edc_action_item.actionitem"]  # type:ignore
@@ -115,7 +115,7 @@ class ActionNoManagersModelMixin(models.Model):
         return site_action_items.get(cls.action_name)
 
     @property
-    def action(self):
+    def action(self: Any):
         return self.get_action_cls()(
             subject_identifier=self.subject_identifier,
             action_item=self.action_item,

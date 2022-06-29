@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, Type
+from typing import Any, Optional, Type
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -174,7 +174,7 @@ class ActionItem(
         super().save(*args, **kwargs)
 
     def natural_key(self) -> tuple:
-        return (self.action_identifier,)
+        return (self.action_identifier,)  # noqa
 
     @property
     def last_updated(self) -> Optional[datetime]:
@@ -203,11 +203,11 @@ class ActionItem(
         return django_apps.get_model(self.reference_model)
 
     @property
-    def reference_obj(self) -> BaseUuidModel:
+    def reference_obj(self) -> Any:
         return self.reference_model_cls.objects.get(action_identifier=self.action_identifier)
 
     @property
-    def parent_reference_obj(self) -> BaseUuidModel:
+    def parent_reference_obj(self: Any) -> Any:
         if not self.parent_action_item:
             raise ObjectDoesNotExist(
                 f"Parent ActionItem does not exist for {self.action_identifier}."
