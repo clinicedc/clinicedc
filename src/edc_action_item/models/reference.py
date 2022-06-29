@@ -33,7 +33,7 @@ class Reference(NonUniqueSubjectIdentifierFieldMixin, ActionModelMixin, BaseUuid
     objects = ReferenceManager()
 
     def natural_key(self):
-        return (self.action_identifier,)
+        return (self.action_identifier,)  # noqa
 
     class Meta(BaseUuidModel.Meta):
         pass

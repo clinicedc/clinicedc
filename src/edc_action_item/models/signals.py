@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import m2m_changed, post_delete, post_save
 from django.dispatch import receiver
@@ -10,7 +12,7 @@ from .action_item import ActionItem
 from .action_model_mixin import ActionModelMixin, ActionNoManagersModelMixin
 
 
-def update_or_create_action_item(instance, created, using):
+def update_or_create_action_item(instance: Any, created: bool, using: dict):
     action_item = None
     action_cls = instance.get_action_cls()
     if not instance.action_item:
@@ -65,8 +67,8 @@ def update_or_create_action_item_on_post_save(
     """
     if not raw and not update_fields:
         try:
-            instance.action_name
-            instance.action_item
+            instance.action_name  # noqa
+            instance.action_item  # noqa
         except AttributeError as e:
             if "action_name" not in str(e) and "action_item" not in str(e):
                 raise
@@ -78,7 +80,7 @@ def update_or_create_action_item_on_post_save(
 
 
 @receiver(post_delete, weak=False, dispatch_uid="action_on_reference_model_post_delete")
-def action_on_reference_model_post_delete(sender, instance, using, **kwargs):
+def action_on_reference_model_post_delete(sender, instance: Any, using, **kwargs):
     """Re-opens an action item when the action's reference
     model is deleted.
 
@@ -97,11 +99,11 @@ def action_on_reference_model_post_delete(sender, instance, using, **kwargs):
     elif isinstance(instance, ActionItem):
         if instance.parent_action_item:
             try:
-                instance.parent_reference_obj
+                parent_reference_obj = instance.parent_reference_obj
             except ObjectDoesNotExist:
                 pass
             else:
-                instance.parent_reference_obj.action_item.action_cls(
+                parent_reference_obj.action_item.action_cls(
                     action_item=instance.parent_reference_obj.action_item,
                     subject_identifier=instance.subject_identifier,
                     using=using,

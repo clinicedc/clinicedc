@@ -53,7 +53,7 @@ class ActionType(BaseUuidModel):
         return self.display_name
 
     def natural_key(self):
-        return (self.name,)
+        return (self.name,)  # noqa
 
     @property
     def reference_model_cls(self):
