@@ -1,7 +1,5 @@
 from typing import Any, List, Union
 
-from edc_visit_tracking.utils import get_subject_visit_missed_model
-
 from ..constants import KEYED, REQUIRED
 from ..utils import get_crf_metadata_model_cls, get_requisition_metadata_model_cls
 
@@ -67,11 +65,7 @@ class MetadataHelperMixin:
             opts = dict(entry_status__in=entry_status)
         else:
             opts = dict(entry_status=entry_status)
-        return (
-            self.get_crf_metadata()
-            .filter(**opts)
-            .exclude(model=get_subject_visit_missed_model())
-        )
+        return self.get_crf_metadata().filter(**opts)
 
     def get_requisition_metadata(self):
         """Returns a queryset of requisition metadata"""
