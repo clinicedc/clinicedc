@@ -399,7 +399,6 @@ class TestQueryRules(TestCase):
             0,
         )
 
-    @tag("1")
     def test_crf_rule_with_requisition_prn_visit(self):
 
         # create a rule
