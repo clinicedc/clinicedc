@@ -1,6 +1,6 @@
 import random
 import re
-from typing import Optional, Type
+from typing import Any, Optional, Type
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -128,6 +128,7 @@ class SimpleUniqueIdentifier:
         protocol_number: Optional[str] = None,
         source_model: Optional[str] = None,
         subject_identifier: Optional[str] = None,
+        site: Optional[Any] = None,
     ):
         self._identifier: str = None
         self.model = model or self.model
@@ -140,7 +141,7 @@ class SimpleUniqueIdentifier:
             )
         self.make_human_readable = make_human_readable or self.make_human_readable
         self.device_id = django_apps.get_app_config("edc_device").device_id
-        self.model_cls.objects.create(
+        opts = dict(
             identifier_type=self.identifier_type,
             sequence_number=1,
             device_id=self.device_id,
@@ -148,8 +149,11 @@ class SimpleUniqueIdentifier:
             protocol_number=protocol_number,
             model=source_model,
             subject_identifier=subject_identifier,
-            **{self.identifier_attr: self.identifier},
         )
+        opts.update({self.identifier_attr: self.identifier})
+        if site:
+            opts.update(site=site)
+        self.model_cls.objects.create(**opts)
 
     def __str__(self):
         return self.identifier
