@@ -14,7 +14,7 @@ from edc_reportable import (
 )
 from edc_reportable.units import MICROMOLES_PER_LITER, MILLIGRAMS_PER_DECILITER
 
-from ...calculators import BMI, CalculatorError, EgfrCkdEpi
+from ...calculators import BMI, CalculatorError, EgfrCkdEpi, egfr_percent_change
 
 
 class TestCalculators(TestCase):
@@ -212,3 +212,9 @@ class TestCalculators(TestCase):
         form_validator = EgfrFormValidator(cleaned_data=data)
         egfr = form_validator.validate_egfr()
         self.assertEqual(round(egfr, 2), 84.75)
+
+    def test_egfr_percent_change(self):
+        self.assertGreater(egfr_percent_change(51.10, 131.50), 0.20)
+        self.assertLess(egfr_percent_change(51.10, 61.10), 0.20)
+        self.assertEqual(egfr_percent_change(51.10, 51.10), 0.0)
+        self.assertLess(egfr_percent_change(51.10, 21.10), 0.0)
