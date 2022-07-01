@@ -48,9 +48,9 @@ class CrfModelAdminMixin:
         list_filter = super().get_list_filter(request)  # type: ignore
         fields = [
             f"{self.visit_model_attr}__report_datetime",
-            f"{self.visit_model_attr}__appointment__visit_code",
+            f"{self.visit_model_attr}__visit_code",
+            f"{self.visit_model_attr}__visit_code_sequence",
             f"{self.visit_model_attr}__reason",
-            f"{self.visit_model_attr}__appointment__appt_status",
         ]
         list_filter = [f for f in list_filter if f not in fields] + fields
         return list_filter
