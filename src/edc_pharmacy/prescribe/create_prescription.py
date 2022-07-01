@@ -37,7 +37,7 @@ def create_prescription(
             randomizer_name=randomizer_name,
         )
         if site:
-            opts.update(site=site)
+            opts.update(site_id=site.id)
         try:
             rx = rx_model_cls.objects.create(**opts)
         except ObjectDoesNotExist as e:
