@@ -1,5 +1,6 @@
 import re
 
+from django.apps import apps as django_apps
 from django.core.management.color import color_style
 
 from ..site_visit_schedules import SiteVisitScheduleError, site_visit_schedules
@@ -66,8 +67,9 @@ class Schedule:
         self.consent_model = consent_model.lower()
         self.offschedule_model = offschedule_model.lower()
         self.onschedule_model = onschedule_model.lower()
-        if loss_to_followup_model:
-            self.loss_to_followup_model = loss_to_followup_model.lower()
+        self.loss_to_followup_model = (
+            None if loss_to_followup_model is None else loss_to_followup_model.lower()
+        )
 
     def check(self):
         warnings = []
@@ -176,6 +178,14 @@ class Schedule:
     @property
     def offschedule_model_cls(self):
         return self.subject.offschedule_model_cls
+
+    @property
+    def loss_to_followup_model_cls(self):
+        return django_apps.get_model(self.loss_to_followup_model)
+
+    @property
+    def ltfu_model_cls(self):
+        return self.loss_to_followup_model_cls
 
     @property
     def history_model_cls(self):
