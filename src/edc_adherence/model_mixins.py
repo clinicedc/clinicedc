@@ -34,6 +34,12 @@ class MedicationAdherenceModelMixin(models.Model):
         verbose_name="Was a pill count performed", max_length=5, choices=YES_NO, default=YES
     )
 
+    pill_count_not_performed_reason = models.TextField(
+        verbose_name="Was a pill count performed",
+        null=True,
+        blank=True,
+    )
+
     pill_count = models.IntegerField(
         verbose_name="Number of pills left in the bottle", null=True, blank=True
     )
