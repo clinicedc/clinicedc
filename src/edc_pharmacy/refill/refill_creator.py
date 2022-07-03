@@ -38,6 +38,7 @@ class RefillCreator:
         dosage_guideline: Optional[models.Model] = None,
         make_active: Optional[bool] = None,
         force_active: Optional[bool] = None,
+        roundup_divisible_by: Optional[int] = None,
         **kwargs,
     ):
         """Creates a refill.
@@ -55,6 +56,7 @@ class RefillCreator:
             self.formulation = instance.formulation
             self.number_of_days = instance.number_of_days
             self.dosage_guideline = instance.dosage_guideline
+            self.roundup_divisible_by = instance.roundup_divisible_by or 1
 
         else:
             self.subject_identifier = subject_identifier
@@ -64,9 +66,12 @@ class RefillCreator:
             self.formulation = formulation
             self.number_of_days = number_of_days
             self.dosage_guideline = dosage_guideline
+            self.roundup_divisible_by = roundup_divisible_by or 1
+
         self.make_active = True if make_active is None else make_active
         self.force_active = force_active
         self.refill = Refill(self.create())
+        self.instance.refill
         if self.make_active:
             self.refill.activate()
 
@@ -81,6 +86,7 @@ class RefillCreator:
             formulation=self.formulation,
             refill_date=self.refill_date,
             number_of_days=self.number_of_days,
+            roundup_divisible_by=self.roundup_divisible_by,
             **get_opts,
         )
         try:

@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.db import models
 from django.db.models import PROTECT
 from edc_constants.choices import YES_NO
@@ -11,8 +13,6 @@ from .medication_stock import MedicationStock
 
 class StudyMedicationRefillModelMixin(models.Model):
 
-    """Declare with field subject_visit using a CRF model mixin"""
-
     refill_date = models.DateField()
 
     dosage_guideline = models.ForeignKey(
@@ -20,6 +20,8 @@ class StudyMedicationRefillModelMixin(models.Model):
     )
 
     formulation = models.ForeignKey(Formulation, on_delete=PROTECT, null=True, blank=False)
+
+    roundup_divisible_by = models.IntegerField(default=1)
 
     refill_to_next_visit = models.CharField(
         verbose_name="Refill to the next scheduled visit",
@@ -67,7 +69,7 @@ class StudyMedicationRefillModelMixin(models.Model):
 
 class StudyMedicationCrfModelMixin(StudyMedicationRefillModelMixin):
 
-    """Declare with a `subject_visit` field attr"""
+    """Declare with field subject_visit using a CRF model mixin"""
 
     @property
     def creates_refills_from_crf(self) -> bool:

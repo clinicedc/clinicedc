@@ -20,5 +20,6 @@ def create_refill(instance):
         number_of_days=number_of_days,
         dosage_guideline=instance.dosage_guideline,
         formulation=instance.formulation,
+        roundup_divisible_by=instance.roundup_divisible_by,
         make_active=True,
     )

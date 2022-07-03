@@ -1,3 +1,4 @@
+import math
 from uuid import uuid4
 
 from django.core.validators import MinValueValidator
@@ -71,6 +72,8 @@ class RxRefill(
     )
 
     number_of_days = models.IntegerField(null=True)
+
+    roundup_divisible_by = models.IntegerField(default=1)
 
     total = models.DecimalField(
         max_digits=6,
@@ -149,7 +152,10 @@ class RxRefill(
         )
 
     def get_total(self):
-        return float(self.dose) * float(self.number_of_days)
+        """Returns total 'pills' rounded up if divisor is greater than 1"""
+        return math.ceil(
+            (float(self.dose) * float(self.number_of_days)) / self.roundup_divisible_by
+        )
 
     @property
     def subject_identifier(self):
