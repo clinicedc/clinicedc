@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
+from edc_constants.constants import NEW
 from edc_document_status.fieldsets import document_status_fieldset_tuple
 from edc_document_status.modeladmin_mixins import DocumentStatusModelAdminMixin
 from edc_model_admin import SimpleHistoryAdmin, audit_fieldset_tuple
@@ -33,7 +34,7 @@ class AppointmentAdmin(
         "appt_datetime",
         "appt_type",
         "appt_status",
-        "appt_timing",
+        "timing",
         "schedule_name",
     )
     list_filter = ("visit_code", "appt_datetime", "appt_type", "appt_status", "appt_timing")
@@ -126,3 +127,9 @@ class AppointmentAdmin(
                 except OnScheduleError:
                     has_delete_permission = False
         return has_delete_permission
+
+    @admin.display(description="Timing", ordering="appt_timing")
+    def timing(self, obj=None):
+        if obj.appt_status == NEW_APPT:
+            return None
+        return obj.get_appt_timing_display()
