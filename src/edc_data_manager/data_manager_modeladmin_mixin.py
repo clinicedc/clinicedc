@@ -18,9 +18,8 @@ class DataManagerModelAdminMixin:
         storage = get_messages(request)
         roles = " ".join(expanded_view_roles)
         my_message = format_html(
-            "Your are being shown data from all sites but will only be able to change "
-            "data for the current site. To view data for one site, use the 'By site' "
-            "filter on the right sidebar. This feature is enabled because you are a "
+            "You have access to data from multiple sites but may only add/change "
+            "data for the current site. This feature is enabled because you are a "
             f"member of one of these roles: <i>{roles}</i>.",
             fail_silently=True,
         )
