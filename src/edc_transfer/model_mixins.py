@@ -42,7 +42,7 @@ class SubjectTransferModelMixin(
     initiated_by_other = edc_models.OtherCharField()
 
     transfer_reason = models.ManyToManyField(
-        f"{settings.LIST_MODEL_APP_LABEL}.TransferReasons",
+        f"{settings.LIST_MODEL_APP_LABEL}.transferreasons",
         verbose_name="Reason for transfer",
     )
 
