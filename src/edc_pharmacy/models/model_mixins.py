@@ -1,5 +1,3 @@
-from uuid import uuid4
-
 from django.db import models
 from django.db.models import PROTECT
 from edc_constants.choices import YES_NO
