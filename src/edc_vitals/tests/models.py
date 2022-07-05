@@ -6,6 +6,7 @@ from edc_vitals.model_mixins import (
     SimpleBloodPressureModelMixin,
     WeightHeightBmiModelMixin,
 )
+from edc_vitals.models.fields import TemperatureField
 
 
 class BloodPressure(BloodPressureModelMixin, models.Model):
@@ -14,6 +15,14 @@ class BloodPressure(BloodPressureModelMixin, models.Model):
 
 class SimpleBloodPressure(SimpleBloodPressureModelMixin, models.Model):
     pass
+
+
+class Temperature(models.Model):
+
+    temperature = TemperatureField(
+        null=True,
+        blank=True,
+    )
 
 
 class WeightHeightBmi(WeightHeightBmiModelMixin, models.Model):
