@@ -12,7 +12,7 @@ class TableToDataframe:
         columns=None,
         limit=None,
         df_handler_cls=None,
-        **kwargs
+        **kwargs,
     ):
         self.db = self.db_cls(db_name=db_name, **kwargs)
         self.table_name = table_name

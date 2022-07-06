@@ -49,8 +49,8 @@ def get_visit_schedule(i=None):
 
     schedule = Schedule(
         name="schedule",
-        onschedule_model="edc_visit_tracking.onscheduleone",
-        offschedule_model="edc_visit_tracking.offscheduleone",
+        onschedule_model="edc_pdutils.onschedule",
+        offschedule_model="edc_pdutils.offschedule",
         consent_model="edc_visit_tracking.subjectconsent",
         appointment_model="edc_appointment.appointment",
     )
@@ -67,7 +67,7 @@ def get_visit_schedule(i=None):
                 rupper=relativedelta(days=6),
                 requisitions=requisitions,
                 crfs=crfs,
-                facility_name="default",
+                facility_name="7-day-clinic",
                 allow_unscheduled=True,
             )
         )

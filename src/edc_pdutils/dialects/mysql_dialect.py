@@ -28,9 +28,9 @@ class MysqlDialect:
         }
         sql = (
             "SELECT DISTINCT table_name FROM information_schema.columns "
-            f"WHERE table_schema=%(dbname)s "
-            f"AND table_name LIKE %(app_label)s "
-            f"AND column_name IN (%(column_names)s)"
+            "WHERE table_schema=%(dbname)s "
+            "AND table_name LIKE %(app_label)s "
+            "AND column_name IN (%(column_names)s)"
         )
         return sql, params
 
