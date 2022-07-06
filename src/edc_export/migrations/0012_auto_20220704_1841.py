@@ -6,53 +6,78 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('edc_export', '0011_auto_20220215_2308'),
+        ("edc_export", "0011_auto_20220215_2308"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='historicaldatarequest',
-            options={'get_latest_by': ('history_date', 'history_id'), 'ordering': ('-history_date', '-history_id'), 'verbose_name': 'historical data request', 'verbose_name_plural': 'historical data requests'},
+            name="historicaldatarequest",
+            options={
+                "get_latest_by": ("history_date", "history_id"),
+                "ordering": ("-history_date", "-history_id"),
+                "verbose_name": "historical data request",
+                "verbose_name_plural": "historical data requests",
+            },
         ),
         migrations.AlterModelOptions(
-            name='historicalexportreceipt',
-            options={'get_latest_by': ('history_date', 'history_id'), 'ordering': ('-history_date', '-history_id'), 'verbose_name': 'historical export receipt', 'verbose_name_plural': 'historical export receipts'},
+            name="historicalexportreceipt",
+            options={
+                "get_latest_by": ("history_date", "history_id"),
+                "ordering": ("-history_date", "-history_id"),
+                "verbose_name": "historical export receipt",
+                "verbose_name_plural": "historical export receipts",
+            },
         ),
         migrations.AlterModelOptions(
-            name='historicalfilehistory',
-            options={'get_latest_by': ('history_date', 'history_id'), 'ordering': ('-history_date', '-history_id'), 'verbose_name': 'historical file history', 'verbose_name_plural': 'historical file historys'},
+            name="historicalfilehistory",
+            options={
+                "get_latest_by": ("history_date", "history_id"),
+                "ordering": ("-history_date", "-history_id"),
+                "verbose_name": "historical file history",
+                "verbose_name_plural": "historical file historys",
+            },
         ),
         migrations.AlterModelOptions(
-            name='historicalobjecthistory',
-            options={'get_latest_by': ('history_date', 'history_id'), 'ordering': ('-history_date', '-history_id'), 'verbose_name': 'historical object history', 'verbose_name_plural': 'historical object historys'},
+            name="historicalobjecthistory",
+            options={
+                "get_latest_by": ("history_date", "history_id"),
+                "ordering": ("-history_date", "-history_id"),
+                "verbose_name": "historical object history",
+                "verbose_name_plural": "historical object historys",
+            },
         ),
         migrations.AlterModelOptions(
-            name='historicalplan',
-            options={'get_latest_by': ('history_date', 'history_id'), 'ordering': ('-history_date', '-history_id'), 'verbose_name': 'historical plan', 'verbose_name_plural': 'historical plans'},
+            name="historicalplan",
+            options={
+                "get_latest_by": ("history_date", "history_id"),
+                "ordering": ("-history_date", "-history_id"),
+                "verbose_name": "historical plan",
+                "verbose_name_plural": "historical plans",
+            },
         ),
         migrations.AlterField(
-            model_name='historicaldatarequest',
-            name='history_date',
+            model_name="historicaldatarequest",
+            name="history_date",
             field=models.DateTimeField(db_index=True),
         ),
         migrations.AlterField(
-            model_name='historicalexportreceipt',
-            name='history_date',
+            model_name="historicalexportreceipt",
+            name="history_date",
             field=models.DateTimeField(db_index=True),
         ),
         migrations.AlterField(
-            model_name='historicalfilehistory',
-            name='history_date',
+            model_name="historicalfilehistory",
+            name="history_date",
             field=models.DateTimeField(db_index=True),
         ),
         migrations.AlterField(
-            model_name='historicalobjecthistory',
-            name='history_date',
+            model_name="historicalobjecthistory",
+            name="history_date",
             field=models.DateTimeField(db_index=True),
         ),
         migrations.AlterField(
-            model_name='historicalplan',
-            name='history_date',
+            model_name="historicalplan",
+            name="history_date",
             field=models.DateTimeField(db_index=True),
         ),
     ]
