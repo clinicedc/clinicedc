@@ -66,7 +66,7 @@ class ModelToDataframe:
             if row_count > 0:
                 if self.decrypt and self.has_encrypted_fields:
                     if self.verbose:
-                        sys.stdout.write(f"   PII will be decrypted! ... \n")
+                        sys.stdout.write("   PII will be decrypted! ... \n")
                     queryset = self.queryset.filter(**self.query_filter)
                     data = []
                     for index, model_obj in enumerate(queryset.order_by("id")):
@@ -94,6 +94,7 @@ class ModelToDataframe:
                 for column in list(
                     self._dataframe.select_dtypes(include=["datetime64[ns, UTC]"]).columns
                 ):
+                    # TODO: causes deprecation warning
                     self._dataframe[column] = self._dataframe[column].astype("datetime64[ns]")
                 for column in list(self._dataframe.select_dtypes(include=["O"]).columns):
                     self._dataframe[column] = self._dataframe[column].astype(str)
@@ -119,7 +120,7 @@ class ModelToDataframe:
 
     def get_m2m_values_list(self, m2m_field):
         m2m_values_list = []
-        for obj in self.queryset.model.objects.all():
+        for obj in self.queryset.model.objects.filter(**{f"{m2m_field.name}__isnull": False}):
             for m2m_obj in getattr(obj, m2m_field.name).all():
                 m2m_values_list.append((obj.id, m2m_obj))
         try:

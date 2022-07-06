@@ -93,7 +93,7 @@ class TablesExporter:
                 self.exported_paths.update({table_name: exported.path})
 
     def to_stata(self):
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def get_table_names(self):
         """Returns a list of table names for this app_label."""

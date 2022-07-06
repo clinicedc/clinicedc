@@ -2,7 +2,8 @@ import csv
 import os
 
 from django.apps import apps as django_apps
-from django.test import TestCase, tag  # noqa
+from django.test import TestCase
+from edc_facility import import_holidays
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ...df_exporters import TablesExporter
@@ -15,6 +16,10 @@ class TestExport(TestCase):
     app_config = django_apps.get_app_config("edc_pdutils")
     path = app_config.export_folder
     helper = Helper()
+
+    @classmethod
+    def setUpTestData(cls):
+        import_holidays()
 
     def setUp(self):
         site_visit_schedules._registry = {}
