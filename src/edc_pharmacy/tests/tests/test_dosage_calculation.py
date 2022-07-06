@@ -1,8 +1,8 @@
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_list_data import site_list_data
 
 from edc_pharmacy.dosage_calculator import DosageCalculator
-from edc_pharmacy.dosage_per_day import DosageError, dosage_per_day
+from edc_pharmacy.dosage_per_day import DosageError
 from edc_pharmacy.models import (
     DosageGuideline,
     Formulation,
@@ -120,9 +120,6 @@ class TestDoseCalculator(TestCase):
             ).dosage,
             6.0,
         )
-        # self.assertEqual(
-        #     dosage_per_day(dosage_guideline, strength=200, strength_units="mg"), 6.0
-        # )
 
     def test_dosage_exceptions(self):
         medication = Medication.objects.get(name="flucytosine")

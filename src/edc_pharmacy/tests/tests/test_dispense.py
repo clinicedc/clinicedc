@@ -1,4 +1,4 @@
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 
@@ -52,7 +52,6 @@ class TestDispense(TestCase):
         )
         self.rx.medications.add(self.medication)
 
-    @tag("11")
     def test_dispense(self):
         refill_creator = RefillCreator(
             subject_identifier=self.subject_identifier,
@@ -89,7 +88,6 @@ class TestDispense(TestCase):
             rx_refill = RxRefill.objects.get(id=rx_refill.id)
             self.assertEqual(rx_refill.remaining, 70 - dispensed)
 
-    @tag("13")
     def test_attempt_to_over_dispense(self):
         rx_refill = RxRefill.objects.create(
             rx=self.rx,

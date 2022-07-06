@@ -1,5 +1,5 @@
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_constants.constants import FEMALE
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
@@ -19,7 +19,6 @@ from edc_pharmacy.models import (
 from edc_pharmacy.refill import RefillCreator, get_active_refill
 
 
-@tag("2")
 class TestRefill(TestCase):
     def setUp(self):
         self.subject_identifier = "12345"
@@ -347,7 +346,6 @@ class TestRefill(TestCase):
         self.assertTrue(refill_creator.refill.active)
         self.assertEqual(RxRefill.objects.all().count(), 1)
 
-    @tag("10")
     def test_refill_count(self):
         refill_date = get_utcnow().date()
         RefillCreator(

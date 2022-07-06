@@ -1,4 +1,3 @@
-import math
 from decimal import Decimal
 from typing import Any, Optional, Union
 
@@ -20,7 +19,8 @@ class DosageCalculator:
         if formulation.medication != dosage_guideline.medication:
             raise DosageError(
                 "Medication mismatch. Guideline medication does not match formulation. "
-                f"Got guideline.{dosage_guideline.medication} != formulation.{formulation.medication}."
+                f"Got guideline.{dosage_guideline.medication} != formulation."
+                f"{formulation.medication}."
             )
         if formulation.units.name != dosage_guideline.dose_units.name:
             raise DosageError(
