@@ -16,18 +16,17 @@ class Dispensing:
         self.rx_refill = rx_refill
         self.dispensed = dispensed
 
-    def check(self):
-        if self.remaining < float(self.dispensed):
-            raise DispenseError(
-                "Attempt to dispense more than remaining on prescription. "
-                f"Remaining={self.remaining}. Got {self.dispensed}."
-            )
-
     @property
     def remaining(self) -> float:
+        value = 0.0
         if self.rx_refill.total:
-            return float(self.rx_refill.total) - float(self.total_dispensed)
-        return 0.0
+            value = float(self.rx_refill.total) - float(self.total_dispensed)
+        if value < 0.0:
+            raise DispenseError(
+                "Attempt to dispense more than remaining on prescription. "
+                f"Remaining={value}. Got {self.dispensed}."
+            )
+        return value
 
     @property
     def total_dispensed(self) -> float:

@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 
@@ -52,6 +52,7 @@ class TestDispense(TestCase):
         )
         self.rx.medications.add(self.medication)
 
+    @tag("11")
     def test_dispense(self):
         refill_creator = RefillCreator(
             subject_identifier=self.subject_identifier,
@@ -62,8 +63,8 @@ class TestDispense(TestCase):
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
         )
-
-        self.assertEqual(refill_creator.refill.remaining, 0)
+        self.assertEqual(refill_creator.refill.total, 56.0)
+        self.assertEqual(refill_creator.refill.remaining, 56.0)
 
     def test_dispense_many(self):
         rx_refill = RxRefill.objects.create(
@@ -72,12 +73,12 @@ class TestDispense(TestCase):
             visit_code_sequence=0,
             formulation=self.formulation,
             dosage_guideline=self.dosage_guideline,
-            frequency=1,
-            dose=None,
             refill_date=get_utcnow(),
             number_of_days=7,
+            weight_in_kgs=50,
         )
         dispensed = 0
+        self.assertEqual(rx_refill.total, 70.0)
         for amount in [8, 8, 8]:
             dispensed += amount
             obj = DispensingHistory.objects.create(
@@ -86,8 +87,9 @@ class TestDispense(TestCase):
             )
             self.assertEqual(obj.dispensed, 8)
             rx_refill = RxRefill.objects.get(id=rx_refill.id)
-            self.assertEqual(rx_refill.remaining, 56 - dispensed)
+            self.assertEqual(rx_refill.remaining, 70 - dispensed)
 
+    @tag("13")
     def test_attempt_to_over_dispense(self):
         rx_refill = RxRefill.objects.create(
             rx=self.rx,
@@ -95,13 +97,13 @@ class TestDispense(TestCase):
             visit_code_sequence=0,
             formulation=self.formulation,
             dosage_guideline=self.dosage_guideline,
-            frequency=1,
-            dose=None,
             refill_date=get_utcnow(),
-            number_of_days=7,
+            number_of_days=8,
+            weight_in_kgs=45,
         )
         dispensed = 0
-        for amount in [8, 8, 8, 8, 8, 8, 8]:
+        self.assertEqual(rx_refill.total, 72.0)
+        for amount in [8, 8, 8, 8, 8, 8, 8, 8]:
             dispensed += amount
             obj = DispensingHistory.objects.create(
                 rx_refill=rx_refill,
@@ -109,12 +111,12 @@ class TestDispense(TestCase):
             )
             self.assertEqual(obj.dispensed, 8)
             rx_refill = RxRefill.objects.get(id=rx_refill.id)
-            self.assertEqual(rx_refill.remaining, 48 - dispensed)
+            self.assertEqual(rx_refill.remaining, 72 - dispensed)
         rx_refill = RxRefill.objects.get(id=rx_refill.id)
-        self.assertEqual(rx_refill.remaining, 0)
+        self.assertEqual(rx_refill.remaining, 8)
         self.assertRaises(
             DispenseError,
             DispensingHistory.objects.create,
             rx_refill=rx_refill,
-            dispensed=8,
+            dispensed=16,
         )

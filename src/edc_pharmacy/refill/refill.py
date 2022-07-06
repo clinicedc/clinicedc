@@ -52,6 +52,10 @@ class Refill:
         return self._object.dispensed
 
     @property
+    def total(self):
+        return self._object.total
+
+    @property
     def remaining(self):
         return self._object.remaining
 

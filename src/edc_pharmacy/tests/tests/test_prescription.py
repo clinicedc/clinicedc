@@ -76,6 +76,7 @@ class TestPrescription(TestCase):
             subject_identifier=self.registered_subject.subject_identifier,
             report_datetime=self.registered_subject.registration_datetime,
             medications=[self.medication],
+            site=self.registered_subject.site,
         )
         try:
             Rx.objects.get(subject_identifier=self.registered_subject.subject_identifier)
@@ -87,6 +88,7 @@ class TestPrescription(TestCase):
             subject_identifier=self.registered_subject.subject_identifier,
             report_datetime=self.registered_subject.registration_datetime,
             medications=[self.medication],
+            site=self.registered_subject.site,
         )
         Rx.objects.get(subject_identifier=self.registered_subject.subject_identifier)
         with self.assertRaises(PrescriptionAlreadyExists):
@@ -94,6 +96,7 @@ class TestPrescription(TestCase):
                 subject_identifier=self.registered_subject.subject_identifier,
                 report_datetime=self.registered_subject.registration_datetime,
                 medications=[self.medication],
+                site=self.registered_subject.site,
             )
 
     def test_create_prescripition_from_func_for_rct(self):
@@ -112,6 +115,7 @@ class TestPrescription(TestCase):
             report_datetime=self.registered_subject.registration_datetime,
             randomizer_name="default",
             medications=[self.medication],
+            site=self.registered_subject.site,
         )
         try:
             Rx.objects.get(subject_identifier=self.registered_subject.subject_identifier)
@@ -124,6 +128,7 @@ class TestPrescription(TestCase):
                 subject_identifier=self.registered_subject.subject_identifier,
                 report_datetime=self.registered_subject.registration_datetime,
                 medications=[self.medication, "blah blah"],
+                site=self.registered_subject.site,
             )
         except PrescriptionError:
             pass

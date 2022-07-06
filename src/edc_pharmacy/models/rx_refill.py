@@ -1,7 +1,7 @@
 import math
+from decimal import Decimal
 from uuid import uuid4
 
-from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_model import models as edc_models
@@ -9,11 +9,10 @@ from edc_sites.models import CurrentSiteManager, SiteModelMixin
 from edc_utils.date import get_utcnow_as_date
 from edc_visit_schedule.model_mixins import VisitCodeFieldsModelMixin
 
-from ..dosage_per_day import dosage_per_day
+from ..dosage_calculator import DosageCalculator
 from ..exceptions import RefillError
 from .dosage_guideline import DosageGuideline
 from .formulation import Formulation
-from .list_models import FrequencyUnits
 from .model_mixins import MedicationOrderModelMixin
 from .rx import Rx
 
@@ -49,23 +48,9 @@ class RxRefill(
         help_text="dose per frequency if NOT considering weight",
     )
 
-    calculate_dose = models.BooleanField(default=True)
-
-    frequency = models.IntegerField(
-        validators=[MinValueValidator(1)],
-        null=True,
-        blank=True,
+    weight_in_kgs = models.DecimalField(
+        max_digits=6, decimal_places=1, null=True, blank=True, help_text="Defaults to 1.0"
     )
-
-    frequency_units = models.ForeignKey(
-        FrequencyUnits,
-        verbose_name="per",
-        on_delete=PROTECT,
-        null=True,
-        blank=True,
-    )
-
-    weight_in_kgs = models.DecimalField(max_digits=6, decimal_places=1, null=True, blank=True)
 
     refill_date = models.DateField(
         verbose_name="Refill date", default=get_utcnow_as_date, help_text=""
@@ -73,14 +58,27 @@ class RxRefill(
 
     number_of_days = models.IntegerField(null=True)
 
-    roundup_divisible_by = models.IntegerField(default=1)
+    roundup_dose = models.BooleanField(
+        default=False, help_text="Rounds UP the dose. e.g. 7.3->8.0, 7.5->8.0"
+    )
+
+    round_dose = models.IntegerField(
+        default=0, help_text="Rounds the dose. e.g. 7.3->7.0, 7.5->8.0"
+    )
+
+    roundup_divisible_by = models.IntegerField(
+        default=0,
+        help_text="Rounds up the total. For example, 32 would round 112 pills to 128 pills",
+    )
+
+    calculate_dose = models.BooleanField(default=True)
 
     total = models.DecimalField(
-        max_digits=6,
-        decimal_places=1,
+        max_digits=10,
+        decimal_places=4,
         null=True,
         blank=True,
-        help_text="Leave blank to auto-calculate",
+        help_text="Total to be dispensed. Leave blank to auto-calculate",
     )
 
     remaining = models.DecimalField(
@@ -101,6 +99,7 @@ class RxRefill(
     active = models.BooleanField(default=False)
 
     verified = models.BooleanField(default=False)
+
     verified_datetime = models.DateTimeField(null=True, blank=True)
 
     as_string = models.CharField(max_length=150, editable=False)
@@ -127,10 +126,10 @@ class RxRefill(
                 f"Unable to create `{self._meta.verbose_name}` model instance. "
                 "`visit code` and/or `visit code sequence` may not be none"
             )
-        self.frequency = self.dosage_guideline.frequency
-        self.frequency_units = self.dosage_guideline.frequency_units
-        self.dose = self.get_dose()
-        self.total = self.get_total()
+        if not self.weight_in_kgs:
+            self.weight_in_kgs = self.rx.weight_in_kgs
+        self.dose = Decimal(repr(self.get_dose()))
+        self.total = Decimal(repr(self.get_total_to_dispense()))
         if not self.id:
             self.remaining = self.total
         self.as_string = str(self)
@@ -143,19 +142,45 @@ class RxRefill(
             return obj
         return None
 
-    def get_dose(self):
-        return dosage_per_day(
-            self.dosage_guideline,
-            weight_in_kgs=self.weight_in_kgs,
-            strength=self.formulation.strength,
-            strength_units=self.formulation.units.name,
-        )
+    @property
+    def frequency(self):
+        return self.dosage_guideline.frequency
 
-    def get_total(self):
-        """Returns total 'pills' rounded up if divisor is greater than 1"""
-        return math.ceil(
-            (float(self.dose) * float(self.number_of_days)) / self.roundup_divisible_by
-        )
+    @property
+    def frequency_units(self):
+        return self.dosage_guideline.frequency_units
+
+    def get_dose(self) -> float:
+        dosage = DosageCalculator(
+            dosage_guideline=self.dosage_guideline,
+            formulation=self.formulation,
+            weight_in_kgs=self.weight_in_kgs,
+        ).dosage
+        if self.roundup_dose:
+            return math.ceil(dosage)
+        elif self.round_dose:
+            return round(dosage, self.round_dose)
+        return dosage
+
+    def get_total_to_dispense(self):
+        """Returns total 'dispense unit (e.g.pills)' rounded up if
+        divisor is greater than 1.
+        """
+        if self.roundup_divisible_by:
+            return (
+                math.ceil(
+                    (
+                        (
+                            float(self.get_dose())
+                            * float(self.frequency)
+                            * float(self.number_of_days)
+                        )
+                        / self.roundup_divisible_by
+                    )
+                )
+                * self.roundup_divisible_by
+            )
+        return float(self.get_dose()) * float(self.frequency) * float(self.number_of_days)
 
     @property
     def subject_identifier(self):

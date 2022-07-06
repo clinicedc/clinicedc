@@ -17,10 +17,9 @@ from edc_pharmacy.models import (
     Units,
 )
 from edc_pharmacy.refill import RefillCreator, get_active_refill
-from edc_pharmacy.refill.refill_creator import RefillAlreadyExists
 
 
-@tag("refill")
+@tag("2")
 class TestRefill(TestCase):
     def setUp(self):
         self.subject_identifier = "12345"
@@ -54,9 +53,17 @@ class TestRefill(TestCase):
 
         self.dosage_guideline = DosageGuideline.objects.create(
             medication=self.medication,
-            dose_per_kg=100,
+            dose_per_kg=50,
             dose_units=Units.objects.get(name="mg"),
             frequency=1,
+            frequency_units=FrequencyUnits.objects.get(name="day"),
+        )
+
+        self.dosage_guideline_no_weight = DosageGuideline.objects.create(
+            medication=self.medication,
+            dose=500,
+            dose_units=Units.objects.get(name="mg"),
+            frequency=2,
             frequency_units=FrequencyUnits.objects.get(name="day"),
         )
 
@@ -67,54 +74,82 @@ class TestRefill(TestCase):
             visit_code_sequence=0,
             formulation=self.formulation,
             dosage_guideline=self.dosage_guideline,
-            frequency=1,
             refill_date=get_utcnow(),
             number_of_days=10,
+            weight_in_kgs=65,
         )
         self.assertTrue(str(obj))
 
-    def test_prescription_accepts_explicit_dose(self):
-        obj = RxRefill.objects.create(
-            rx=self.rx,
-            visit_code="1000",
-            visit_code_sequence=0,
-            formulation=self.formulation,
-            dosage_guideline=self.dosage_guideline,
-            frequency=1,
-            dose=3,
-            refill_date=get_utcnow(),
-            number_of_days=10,
-        )
-        self.assertEqual(obj.dose, 3)
-
     def test_prescription_calculates_dose(self):
+        """50mg /kg for 10 days = 65 * 50 * 10"""
         obj = RxRefill.objects.create(
             rx=self.rx,
             visit_code="1000",
             visit_code_sequence=0,
             formulation=self.formulation,
             dosage_guideline=self.dosage_guideline,
-            frequency=1,
-            dose=None,
             refill_date=get_utcnow(),
             number_of_days=10,
+            weight_in_kgs=65,
         )
-        self.assertEqual(obj.dose, 8.0)
-        self.assertEqual(obj.medication.units, "mg")
+        self.assertEqual(obj.dose, 6.5)
+        self.assertEqual(obj.total, 65.0)  # 10 days
+        self.assertEqual(obj.dosage_guideline.dose_units.name, "mg")
+        self.assertEqual(obj.formulation.units.name, "mg")
 
-    def test_prescription_total(self):
+    def test_prescription_total_to_dispense_or_order_without_roundup(self):
+        obj = RxRefill.objects.create(
+            rx=self.rx,
+            visit_code="1000",
+            visit_code_sequence=0,
+            formulation=self.formulation,
+            dosage_guideline=self.dosage_guideline_no_weight,
+            refill_date=get_utcnow(),
+            number_of_days=56,
+        )
+        self.assertEqual(obj.total, 112)
+
+    def test_prescription_total_to_dispense_or_order_with_roundup(self):
+        obj = RxRefill.objects.create(
+            rx=self.rx,
+            visit_code="1000",
+            visit_code_sequence=0,
+            formulation=self.formulation,
+            dosage_guideline=self.dosage_guideline_no_weight,
+            refill_date=get_utcnow(),
+            number_of_days=56,
+            roundup_divisible_by=32,
+        )
+        self.assertEqual(obj.total, 128)
+
+    def test_prescription_total_to_dispense_or_order_weight_in_kgs(self):
         obj = RxRefill.objects.create(
             rx=self.rx,
             visit_code="1000",
             visit_code_sequence=0,
             formulation=self.formulation,
             dosage_guideline=self.dosage_guideline,
-            frequency=1,
-            dose=None,
             refill_date=get_utcnow(),
             number_of_days=10,
+            weight_in_kgs=65,
         )
-        self.assertEqual(obj.total, 56)
+        self.assertEqual(obj.dose, 6.5)  # 65kg * 50mg / 500mg = 6.5 pills
+        self.assertEqual(obj.total, 65)  # x 10 days
+
+    def test_prescription_total_to_dispense_or_order_weight_in_kgs_with_roundup(self):
+        obj = RxRefill.objects.create(
+            rx=self.rx,
+            visit_code="1000",
+            visit_code_sequence=0,
+            formulation=self.formulation,
+            dosage_guideline=self.dosage_guideline,
+            refill_date=get_utcnow(),
+            number_of_days=10,
+            weight_in_kgs=65,
+            roundup_divisible_by=12,
+        )
+        self.assertEqual(obj.dose, 6.5)  # 65kg * 50mg / 500mg = 6.5 pills
+        self.assertEqual(obj.total, 72)
 
     def test_refill_gets_rx(self):
         refill_creator = RefillCreator(
@@ -125,6 +160,7 @@ class TestRefill(TestCase):
             number_of_days=32,
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
+            weight_in_kgs=65,
         )
         self.assertTrue(refill_creator.refill.rx)
 
@@ -140,6 +176,7 @@ class TestRefill(TestCase):
             number_of_days=32,
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
+            weight_in_kgs=65,
         )
 
     def test_refill_create_and_no_active_refill(self):
@@ -152,6 +189,7 @@ class TestRefill(TestCase):
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             make_active=False,
+            weight_in_kgs=65,
         )
         self.assertIsNone(get_active_refill(refill_creator.refill.rx))
 
@@ -164,6 +202,7 @@ class TestRefill(TestCase):
             number_of_days=32,
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
+            weight_in_kgs=65,
         )
         self.assertEqual(
             get_active_refill(refill_creator.refill.rx),
@@ -179,6 +218,7 @@ class TestRefill(TestCase):
             number_of_days=32,
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
+            weight_in_kgs=65,
         )
         self.assertTrue(get_active_refill(refill_creator.refill.rx).active)
 
@@ -192,10 +232,11 @@ class TestRefill(TestCase):
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             make_active=False,
+            weight_in_kgs=65,
         )
         self.assertIsNone(get_active_refill(refill_creator.refill.rx))
 
-    def test_refill_create_duplicate_raises(self):
+    def test_refill_create_duplicate_updates(self):
         RefillCreator(
             subject_identifier=self.subject_identifier,
             visit_code="1000",
@@ -204,19 +245,31 @@ class TestRefill(TestCase):
             number_of_days=32,
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
+            weight_in_kgs=65,
         )
+        rx_refill = RxRefill.objects.get(
+            rx__subject_identifier=self.subject_identifier,
+            visit_code="1000",
+            visit_code_sequence=0,
+        )
+        self.assertEqual(rx_refill.number_of_days, 32)
 
-        self.assertRaises(
-            RefillAlreadyExists,
-            RefillCreator,
+        RefillCreator(
             subject_identifier=self.subject_identifier,
             visit_code="1000",
             visit_code_sequence=0,
             refill_date=get_utcnow(),
-            number_of_days=32,
+            number_of_days=31,
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
+            weight_in_kgs=65,
         )
+        rx_refill = RxRefill.objects.get(
+            rx__subject_identifier=self.subject_identifier,
+            visit_code="1000",
+            visit_code_sequence=0,
+        )
+        self.assertEqual(rx_refill.number_of_days, 31)
 
     def test_refill_create_finds_active(self):
         refill_creator = RefillCreator(
@@ -228,6 +281,7 @@ class TestRefill(TestCase):
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             make_active=True,
+            weight_in_kgs=65,
         )
         self.assertIsNotNone(get_active_refill(refill_creator.refill.rx))
         refill_creator.refill.deactivate()
@@ -242,6 +296,7 @@ class TestRefill(TestCase):
             number_of_days=32,
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
+            weight_in_kgs=65,
         )
         self.assertIsNotNone(get_active_refill(refill_creator.refill.rx))
 
@@ -254,6 +309,7 @@ class TestRefill(TestCase):
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             make_active=True,
+            weight_in_kgs=65,
         )
         self.assertIsNotNone(get_active_refill(refill_creator.refill.rx))
         self.assertEqual(get_active_refill(refill_creator.refill.rx), refill_creator.refill)
@@ -268,6 +324,7 @@ class TestRefill(TestCase):
             number_of_days=32,
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
+            weight_in_kgs=65,
         )
 
         self.assertEqual(refill_creator.refill.refill_date, refill_date)
@@ -283,8 +340,30 @@ class TestRefill(TestCase):
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             make_active=False,
+            weight_in_kgs=65,
         )
         self.assertFalse(refill_creator.refill.active)
         refill_creator.refill.activate()
         self.assertTrue(refill_creator.refill.active)
         self.assertEqual(RxRefill.objects.all().count(), 1)
+
+    @tag("10")
+    def test_refill_count(self):
+        refill_date = get_utcnow().date()
+        RefillCreator(
+            subject_identifier=self.subject_identifier,
+            visit_code="1000",
+            visit_code_sequence=0,
+            refill_date=refill_date,
+            number_of_days=11,
+            dosage_guideline=self.dosage_guideline,
+            formulation=self.formulation,
+            make_active=True,
+            weight_in_kgs=65,
+            roundup_divisible_by=0,
+        )
+        rx_refill = RxRefill.objects.get(rx__subject_identifier=self.subject_identifier)
+        self.assertEqual(rx_refill.number_of_days, 11)
+        self.assertEqual(rx_refill.dose, 6.5)  # (65 * 50)/500
+        self.assertEqual(rx_refill.total, 71.5)  # 6.5 * 11
+        self.assertEqual(rx_refill.remaining, 71.5)

@@ -282,6 +282,7 @@ class TestMedicationCrf(TestCase):
             order_next=YES,
             next_dosage_guideline=self.dosage_guideline_200,
             next_formulation=self.formulation,
+            roundup_divisible_by=32,
         )
 
         form = StudyMedicationForm(data=data)
@@ -303,6 +304,7 @@ class TestMedicationCrf(TestCase):
             order_next=NO,
             next_dosage_guideline=self.dosage_guideline_200,
             next_formulation=self.formulation,
+            roundup_divisible_by=32,
         )
 
         form = StudyMedicationForm(data=data)
