@@ -35,7 +35,7 @@ class MedicationAdherenceModelMixin(models.Model):
     )
 
     pill_count_not_performed_reason = models.TextField(
-        verbose_name="Was a pill count performed",
+        verbose_name="If NO, please specify reason ...",
         null=True,
         blank=True,
     )
