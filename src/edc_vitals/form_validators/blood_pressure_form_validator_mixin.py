@@ -13,12 +13,12 @@ class BloodPressureFormValidatorMixin:
     ):
         """Raise if BP is >= 180/110, See settings"""
         severe_htn_field_name = severe_htn_field_name or "severe_htn"
-        severe_htn_reponse = kwargs.get(severe_htn_field_name)
+        severe_htn_response = kwargs.get(severe_htn_field_name)
         errmsg = {
             severe_htn_field_name: (errmsg or "Invalid. Patient has severe hypertension")
         }
         use_avg = True if use_avg is None else False
         avg_sys, avg_dia = calculate_avg_bp(use_av=use_avg, **kwargs)
         if has_severe_htn(sys=avg_sys, dia=avg_dia):
-            if severe_htn_reponse != YES:
+            if severe_htn_response != YES:
                 raise forms.ValidationError(errmsg)
