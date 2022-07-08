@@ -31,21 +31,26 @@ class MetaDataViewMixin(MessageViewMixin, ContextMixin):
         if self.appointment:
             if self.appointment.appt_status != IN_PROGRESS_APPT:
                 message = _(
-                    'You have selected a visit that is no longer "in progress". '
-                    "Refer to the schedule for the visit that is "
+                    'You have selected an appointment that is no longer "in progress". '
+                    "Refer to the schedule for the appointment that is "
                     'currently "in progress".'
                 )
                 self.message_user(message, level=messages.WARNING)
 
             crf_model_wrappers = self.get_crf_model_wrappers()
-            context.update(
-                report_datetime=self.appointment.report_datetime,
-                crfs=crf_model_wrappers,
-                requisitions=self.get_requisition_model_wrapper(),
-                NOT_REQUIRED=NOT_REQUIRED,
-                REQUIRED=REQUIRED,
-                KEYED=KEYED,
-            )
+            try:
+                report_datetime = self.appointment.visit.report_datetime
+            except AttributeError:
+                pass
+            else:
+                context.update(
+                    report_datetime=report_datetime,
+                    crfs=crf_model_wrappers,
+                    requisitions=self.get_requisition_model_wrapper(),
+                    NOT_REQUIRED=NOT_REQUIRED,
+                    REQUIRED=REQUIRED,
+                    KEYED=KEYED,
+                )
         return context
 
     def get_crf_model_wrappers(self):
