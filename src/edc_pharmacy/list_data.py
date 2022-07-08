@@ -1,5 +1,7 @@
 from edc_constants.constants import NOT_APPLICABLE, OTHER
 
+from edc_pharmacy.constants import PER_DAY, PER_HR, SINGLE
+
 list_data = {
     "edc_pharmacy.formulationtype": [
         ("tablet", "Tablet"),
@@ -33,9 +35,9 @@ list_data = {
         (OTHER, "Other"),
     ],
     "edc_pharmacy.frequencyunits": [
-        ("hr", "times per hour"),
-        ("day", "times per day"),
-        ("single", "single dose"),
+        (PER_HR, "times per hour"),
+        (PER_DAY, "times per day"),
+        (SINGLE, "single dose"),
         (OTHER, "Other ..."),
         (NOT_APPLICABLE, "Not applicable"),
     ],

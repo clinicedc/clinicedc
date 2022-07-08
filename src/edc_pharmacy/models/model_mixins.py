@@ -6,12 +6,10 @@ from edc_constants.constants import YES
 from ..exceptions import NextRefillError
 from .dosage_guideline import DosageGuideline
 from .formulation import Formulation
-from .medication_stock import MedicationStock
+from .stock import Stock
 
 
 class StudyMedicationRefillModelMixin(models.Model):
-
-    """Declare with field subject_visit using a CRF model mixin"""
 
     refill_date = models.DateField()
 
@@ -20,6 +18,8 @@ class StudyMedicationRefillModelMixin(models.Model):
     )
 
     formulation = models.ForeignKey(Formulation, on_delete=PROTECT, null=True, blank=False)
+
+    roundup_divisible_by = models.IntegerField(default=1)
 
     refill_to_next_visit = models.CharField(
         verbose_name="Refill to the next scheduled visit",
@@ -67,7 +67,7 @@ class StudyMedicationRefillModelMixin(models.Model):
 
 class StudyMedicationCrfModelMixin(StudyMedicationRefillModelMixin):
 
-    """Declare with a `subject_visit` field attr"""
+    """Declare with field subject_visit using a CRF model mixin"""
 
     @property
     def creates_refills_from_crf(self) -> bool:
@@ -108,8 +108,8 @@ class StudyMedicationCrfModelMixin(StudyMedicationRefillModelMixin):
 
 class MedicationOrderModelMixin(models.Model):
 
-    medication_stock = models.ForeignKey(
-        MedicationStock,
+    stock = models.ForeignKey(
+        Stock,
         null=True,
         blank=False,
         on_delete=PROTECT,

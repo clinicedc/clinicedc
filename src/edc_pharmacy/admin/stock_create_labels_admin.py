@@ -2,20 +2,20 @@ from django.contrib import admin
 from edc_model_admin import audit_fieldset_tuple
 
 from ..admin_site import edc_pharmacy_admin
-from ..forms import MedicationStockCreateLabelsForm
-from ..models import MedicationStockCreateLabels
-from .actions import print_medication_stock_labels
+from ..forms import StockCreateLabelsForm
+from ..models import StockCreateLabels
+from .actions import print_stock_labels
 from .model_admin_mixin import ModelAdminMixin
 
 
-@admin.register(MedicationStockCreateLabels, site=edc_pharmacy_admin)
-class MedicationStockCreateLabelsAdmin(ModelAdminMixin, admin.ModelAdmin):
+@admin.register(StockCreateLabels, site=edc_pharmacy_admin)
+class StockCreateLabelsAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     show_object_tools = True
 
-    form = MedicationStockCreateLabelsForm
+    form = StockCreateLabelsForm
 
-    actions = [print_medication_stock_labels]
+    actions = [print_stock_labels]
 
     fieldsets = (
         (
@@ -23,7 +23,7 @@ class MedicationStockCreateLabelsAdmin(ModelAdminMixin, admin.ModelAdmin):
             {
                 "fields": (
                     [
-                        "medication_product",
+                        "product",
                         "qty",
                         # "randomizer",
                         # "allocation",
@@ -37,7 +37,7 @@ class MedicationStockCreateLabelsAdmin(ModelAdminMixin, admin.ModelAdmin):
     )
 
     list_display = [
-        "medication_product",
+        "product",
         "qty",
         "printed",
         "printed_datetime",
@@ -45,15 +45,15 @@ class MedicationStockCreateLabelsAdmin(ModelAdminMixin, admin.ModelAdmin):
         "modified",
     ]
     list_filter = [
-        "medication_product",
+        "product",
         "printed",
         "printed_datetime",
         "created",
         "modified",
     ]
     search_fields = [
-        "medication_product__product_identifier",
-        "medication_product__lot_no",
+        "product__product_identifier",
+        "product__lot_no",
     ]
     ordering = ["printed_datetime"]
     readonly_fields = ["printed", "printed_datetime"]

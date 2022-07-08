@@ -15,7 +15,7 @@ class Manager(models.Manager):
     use_in_migrations = True
 
 
-class MedicationProduct(SiteModelMixin, edc_models.BaseUuidModel):
+class Product(SiteModelMixin, edc_models.BaseUuidModel):
 
     product_identifier = models.CharField(max_length=36, default=uuid4, unique=True)
 

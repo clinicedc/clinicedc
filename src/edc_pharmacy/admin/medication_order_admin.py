@@ -25,7 +25,7 @@ class MedicationOrderAdmin(ModelAdminMixin, admin.ModelAdmin):
             "Order",
             {
                 "fields": (
-                    "medication_stock",
+                    "stock",
                     "qty",
                 ),
             },

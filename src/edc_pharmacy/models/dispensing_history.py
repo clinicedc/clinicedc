@@ -18,6 +18,7 @@ class Manager(models.Manager):
 
 
 class DispensingHistory(edc_models.BaseUuidModel):
+    """A model to capture an amount dispensed against a refill"""
 
     rx_refill = models.ForeignKey(RxRefill, on_delete=PROTECT)
 
@@ -43,6 +44,7 @@ class DispensingHistory(edc_models.BaseUuidModel):
         )
 
     def save(self, *args, **kwargs):
+        # will raise an exception if nothing remaining on refill
         Dispensing(rx_refill=self.rx_refill, dispensed=self.dispensed, exclude_id=self.id)
         super().save(*args, **kwargs)
 

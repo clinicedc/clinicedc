@@ -1,20 +1,20 @@
 from datetime import date, datetime
+from decimal import Decimal
 from typing import Any, Optional, Union
 
 import arrow
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import IntegrityError, models, transaction
+from django.db import models
 from edc_utils import convert_php_dateformat
 
-from ..exceptions import (
-    PrescriptionError,
-    PrescriptionExpired,
-    PrescriptionNotStarted,
-    RefillAlreadyExists,
-)
+from ..exceptions import PrescriptionError, PrescriptionExpired, PrescriptionNotStarted
 from ..models import Rx, RxRefill
 from .refill import Refill
+
+
+class RefillCreatorError(Exception):
+    pass
 
 
 def convert_to_utc_date(dte: Union[datetime, date]) -> date:
@@ -38,6 +38,8 @@ class RefillCreator:
         dosage_guideline: Optional[models.Model] = None,
         make_active: Optional[bool] = None,
         force_active: Optional[bool] = None,
+        roundup_divisible_by: Optional[int] = None,
+        weight_in_kgs: Optional[Union[float, Decimal]] = None,
         **kwargs,
     ):
         """Creates a refill.
@@ -46,15 +48,26 @@ class RefillCreator:
                         attrs (visit_code, ...),
                         e.g. study medication CRF
         """
-        super().__init__(**kwargs)
         if instance:
-            self.subject_identifier = instance.get_subject_identifier()
-            self.visit_code = instance.visit_code
-            self.visit_code_sequence = instance.visit_code_sequence
+            visit_model_attr = getattr(instance, "visit_model_attr", None)
+            if visit_model_attr:
+                self.subject_identifier = getattr(
+                    instance, visit_model_attr
+                ).subject_identifier
+                self.visit_code = getattr(instance, visit_model_attr).visit_code
+                self.visit_code_sequence = getattr(
+                    instance, visit_model_attr
+                ).visit_code_sequence
+            else:
+                self.subject_identifier = instance.subject_identifier
+                self.visit_code = instance.visit_code
+                self.visit_code_sequence = instance.visit_code_sequence
             self.refill_date = convert_to_utc_date(instance.refill_date)
             self.formulation = instance.formulation
             self.number_of_days = instance.number_of_days
             self.dosage_guideline = instance.dosage_guideline
+            self.roundup_divisible_by = instance.roundup_divisible_by
+            self.weight_in_kgs = getattr(instance, "weight_in_kgs", None)
 
         else:
             self.subject_identifier = subject_identifier
@@ -64,35 +77,47 @@ class RefillCreator:
             self.formulation = formulation
             self.number_of_days = number_of_days
             self.dosage_guideline = dosage_guideline
+            self.roundup_divisible_by = roundup_divisible_by or 0
+            self.weight_in_kgs = weight_in_kgs
+
+        if not self.weight_in_kgs:
+            self.weight_in_kgs = self._rx.weight_in_kgs
+        if self.dosage_guideline.dose_per_kg and not self.weight_in_kgs:
+            raise RefillCreatorError("Dosage guideline requires patient's weight in kgs")
+
         self.make_active = True if make_active is None else make_active
         self.force_active = force_active
-        self.refill = Refill(self.create())
+        self.refill = Refill(rx_refill=self.create_or_update())
         if self.make_active:
             self.refill.activate()
 
-    def create(self) -> Any:
+    @property
+    def options(self) -> dict:
+        return dict(
+            dosage_guideline=self.dosage_guideline,
+            formulation=self.formulation,
+            refill_date=self.refill_date,
+            number_of_days=self.number_of_days,
+            weight_in_kgs=self.weight_in_kgs,
+            roundup_divisible_by=self.roundup_divisible_by,
+        )
+
+    def create_or_update(self) -> Any:
+        """Creates / updates and returns a RxRefill."""
         get_opts = dict(
             rx=self._rx,
             visit_code=self.visit_code,
             visit_code_sequence=self.visit_code_sequence,
         )
-        create_opts = dict(
-            dosage_guideline=self.dosage_guideline,
-            formulation=self.formulation,
-            refill_date=self.refill_date,
-            number_of_days=self.number_of_days,
-            **get_opts,
-        )
         try:
             obj = RxRefill.objects.get(**get_opts)
         except ObjectDoesNotExist:
-            try:
-                with transaction.atomic():
-                    obj = RxRefill.objects.create(**create_opts)
-            except IntegrityError as e:
-                raise RefillAlreadyExists(f"Refill already exists. {e}. See {obj}.")
+            obj = RxRefill.objects.create(**self.options, **get_opts)
         else:
-            raise RefillAlreadyExists(f"Refill already exists. Got {obj}.")
+            for k, v in self.options.items():
+                setattr(obj, k, v)
+            obj.save()
+            obj.refresh_from_db()
         return obj
 
     @property

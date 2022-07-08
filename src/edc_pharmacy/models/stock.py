@@ -5,7 +5,7 @@ from django.db.models import PROTECT
 from edc_model import models as edc_models
 from edc_sites.models import SiteModelMixin
 
-from .medication_product import MedicationProduct
+from .product import Product
 
 
 class Manager(models.Manager):
@@ -13,11 +13,11 @@ class Manager(models.Manager):
     use_in_migrations = True
 
 
-class MedicationStock(SiteModelMixin, edc_models.BaseUuidModel):
+class Stock(SiteModelMixin, edc_models.BaseUuidModel):
 
     stock_identifier = models.CharField(max_length=36, default=uuid4, unique=True)
 
-    medication_product = models.ForeignKey(MedicationProduct, on_delete=PROTECT)
+    product = models.ForeignKey(Product, on_delete=PROTECT)
 
     # TODO: location
 
@@ -26,7 +26,7 @@ class MedicationStock(SiteModelMixin, edc_models.BaseUuidModel):
     history = edc_models.HistoricalRecords()
 
     def __str__(self):
-        return f"{self.stock_identifier}: {self.medication_product} "
+        return f"{self.stock_identifier}: {self.product} "
 
     class Meta(SiteModelMixin.Meta, edc_models.BaseUuidModel.Meta):
         verbose_name = "Medication stock"

@@ -48,9 +48,9 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
                     "the dosage guideline from above."
                 ),
                 "fields": (
-                    "dose",
-                    "frequency",
-                    "frequency_units",
+                    # "dose",
+                    # "frequency",
+                    # "frequency_units",
                     "weight_in_kgs",
                 ),
             },
@@ -69,6 +69,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     list_display = (
         "subject_identifier",
+        "dashboard",
         "visit",
         "refill_date",
         "description",

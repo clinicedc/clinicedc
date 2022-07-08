@@ -8,10 +8,10 @@ from edc_protocol import Protocol
 
 
 @admin.action(permissions=["view"], description="Print medication stock labels")
-def print_medication_stock_labels(modeladmin, request, queryset):
+def print_stock_labels(modeladmin, request, queryset):
     zpl_data = []
     label = Label(
-        label_template_name="medication_stock_label.lbl",
+        label_template_name="stock_label.lbl",
         static_files_path="edc_pharmacy/label_templates",
     )
     for obj in queryset:
@@ -22,9 +22,9 @@ def print_medication_stock_labels(modeladmin, request, queryset):
                 protocol_title=Protocol().protocol_title,
                 stock_identifier=stock_identifier,
                 barcode_value=stock_identifier,
-                medication_name=obj.medication_product.formulation.medication.display_name,
-                medication_strength=obj.medication_product.formulation.strength,
-                medication_units=obj.medication_product.formulation.units,
+                medication_name=obj.product.formulation.medication.display_name,
+                medication_strength=obj.product.formulation.strength,
+                medication_units=obj.product.formulation.units,
             )
             # keys = [k for k in context]
             # for fld in obj._meta.get_fields():

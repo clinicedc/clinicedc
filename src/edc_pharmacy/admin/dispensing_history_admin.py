@@ -40,7 +40,7 @@ class DispensingHistoryAdmin(ModelAdminMixin, admin.ModelAdmin):
     search_fields = [
         "rx_refill__id",
         "rx_refill__rx__subject_identifier",
-        "rx_refill__medication__name",
+        "rx_refill__dosage_guideline__medication__name",
     ]
     ordering = ["dispensed_datetime"]
 

@@ -1,7 +1,8 @@
 from django.test import TestCase
 from edc_list_data import site_list_data
 
-from edc_pharmacy.dosage_per_day import DosageError, dosage_per_day
+from edc_pharmacy.dosage_calculator import DosageCalculator
+from edc_pharmacy.dosage_per_day import DosageError
 from edc_pharmacy.models import (
     DosageGuideline,
     Formulation,
@@ -65,16 +66,24 @@ class TestDoseCalculator(TestCase):
             frequency=1.0,
             frequency_units=FrequencyUnits.objects.get(display_name__iexact="times per day"),
         )
+        formulation = Formulation.objects.get(
+            medication=medication,
+        )
+
         self.assertEqual(
-            dosage_per_day(dosage_guideline, strength=100.0, strength_units="mg"), 1.0
+            DosageCalculator(
+                dosage_guideline=dosage_guideline,
+                formulation=formulation,
+                weight_in_kgs=100.0,
+            ).dosage,
+            20.0,
         )
         self.assertEqual(
-            dosage_per_day(
-                dosage_guideline,
+            DosageCalculator(
+                dosage_guideline=dosage_guideline,
+                formulation=formulation,
                 weight_in_kgs=40.0,
-                strength=500.0,
-                strength_units="mg",
-            ),
+            ).dosage,
             8.0,
         )
 
@@ -87,14 +96,11 @@ class TestDoseCalculator(TestCase):
             frequency=1.0,
             frequency_units=FrequencyUnits.objects.get(display_name__iexact="times per day"),
         )
+        formulation = Formulation.objects.get(medication=medication)
         self.assertEqual(
-            dosage_per_day(dosage_guideline, strength=1.0, strength_units="mg"),
-            10.0,
-        )
-        self.assertEqual(
-            dosage_per_day(
-                dosage_guideline, weight_in_kgs=40.0, strength=50.0, strength_units="mg"
-            ),
+            DosageCalculator(
+                dosage_guideline=dosage_guideline, formulation=formulation, weight_in_kgs=40.0
+            ).dosage,
             8.0,
         )
 
@@ -107,11 +113,12 @@ class TestDoseCalculator(TestCase):
             frequency=1.0,
             frequency_units=FrequencyUnits.objects.get(display_name__iexact="times per day"),
         )
+        formulation = Formulation.objects.get(medication=medication)
         self.assertEqual(
-            dosage_per_day(dosage_guideline, strength=1.0, strength_units="mg"), 1200.0
-        )
-        self.assertEqual(
-            dosage_per_day(dosage_guideline, strength=200, strength_units="mg"), 6.0
+            DosageCalculator(
+                dosage_guideline=dosage_guideline, formulation=formulation
+            ).dosage,
+            6.0,
         )
 
     def test_dosage_exceptions(self):
@@ -124,11 +131,18 @@ class TestDoseCalculator(TestCase):
             frequency_units=FrequencyUnits.objects.get(display_name__iexact="times per day"),
         )
 
+        formulation = Formulation.objects.create(
+            medication=medication,
+            strength=200,
+            units=Units.objects.get(display_name__iexact="g"),
+            route=Route.objects.get(display_name__iexact="oral"),
+            formulation_type=FormulationType.objects.all()[0],
+        )
+
         self.assertRaises(
             DosageError,
-            dosage_per_day,
-            dosage_guideline,
+            DosageCalculator,
+            dosage_guideline=dosage_guideline,
+            formulation=formulation,
             weight_in_kgs=40,
-            strength=500,
-            strength_units="kg",
         )
