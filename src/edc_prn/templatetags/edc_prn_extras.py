@@ -33,9 +33,10 @@ def add_prn_crf_popover(appointment, subject_dashboard_url):
             model=crf.model,
             entry_status__in=[REQUIRED, KEYED],
         ).exists():
+            subject_visit_id = getattr(appointment.visit, "pk", None)
             crf.add_url = crf.model_cls().get_absolute_url()
             crf.visit_model_attr = crf.model_cls.visit_model_attr()
-            crf.subject_visit = str(appointment.visit.pk)
+            crf.subject_visit = str(subject_visit_id) if subject_visit_id else None
             prn_forms.append(crf)
     return dict(
         label=CRF,
