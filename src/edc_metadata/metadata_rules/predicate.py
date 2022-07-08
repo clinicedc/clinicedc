@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 from edc_reference.reference import ReferenceObjectDoesNotExist
 
@@ -101,7 +101,7 @@ class P(BasePredicate):
         "in": lambda x, y: True if x in y else False,
     }
 
-    def __init__(self, attr: str, operator: str, expected_value: str) -> None:
+    def __init__(self, attr: str, operator: str, expected_value: Union[list, str]) -> None:
         self.attr = attr
         self.expected_value = expected_value
         self.func = self.funcs.get(operator)
