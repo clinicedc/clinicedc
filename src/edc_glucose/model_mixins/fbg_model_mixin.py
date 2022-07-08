@@ -52,34 +52,5 @@ def fbg_model_mixin_factory(utest_id: str, **kwargs):
 class FbgModelMixin(fbg_model_mixin_factory("fbg"), models.Model):
     """A model mixin of fields for the FBG"""
 
-    # fbg_value = models.DecimalField(
-    #     verbose_name=format_html("FBG level"),
-    #     max_digits=8,
-    #     decimal_places=2,
-    #     null=True,
-    #     blank=True,
-    #     help_text=f"A `HIGH` reading may be entered as {GLUCOSE_HIGH_READING}",
-    # )
-    #
-    # fbg_quantifier = models.CharField(
-    #     verbose_name=format_html("FBG quantifier"),
-    #     max_length=10,
-    #     choices=RESULT_QUANTIFIER,
-    #     default=EQ,
-    # )
-    #
-    # fbg_units = models.CharField(
-    #     verbose_name="FBG units",
-    #     max_length=15,
-    #     choices=GLUCOSE_UNITS_NA,
-    #     default=NOT_APPLICABLE,
-    # )
-    #
-    # fbg_datetime = models.DateTimeField(
-    #     verbose_name=mark_safe("<u>Time</u> FBG level measured"),
-    #     null=True,
-    #     blank=True,
-    # )
-
     class Meta:
         abstract = True
