@@ -39,7 +39,7 @@ class MetaDataViewMixin(MessageViewMixin, ContextMixin):
 
             crf_model_wrappers = self.get_crf_model_wrappers()
             context.update(
-                report_datetime=self.appointment.visit.report_datetime,
+                report_datetime=self.appointment.report_datetime,
                 crfs=crf_model_wrappers,
                 requisitions=self.get_requisition_model_wrapper(),
                 NOT_REQUIRED=NOT_REQUIRED,
