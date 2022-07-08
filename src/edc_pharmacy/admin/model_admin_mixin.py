@@ -1,3 +1,4 @@
+from django.apps import apps as django_apps
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -41,9 +42,13 @@ class ModelAdminMixin(
         )
 
     def dashboard(self, obj=None, label=None):
+        opts = self.get_subject_dashboard_url_kwargs(obj)
+        appointment_model_cls = django_apps.get_model("edc_appointment.appointment")
+        if not appointment_model_cls.objects.get(id=opts.get("appointment")).visit:
+            opts.pop("appointment")
         url = reverse(
             self.get_subject_dashboard_url_name(),
-            kwargs=self.get_subject_dashboard_url_kwargs(obj),
+            kwargs=opts,
         )
         context = dict(title=_("Go to subject's dashboard"), url=url, label=label)
         return render_to_string("dashboard_button.html", context=context)
