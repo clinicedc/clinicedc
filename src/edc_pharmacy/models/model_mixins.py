@@ -6,7 +6,7 @@ from edc_constants.constants import YES
 from ..exceptions import NextRefillError
 from .dosage_guideline import DosageGuideline
 from .formulation import Formulation
-from .medication_stock import MedicationStock
+from .stock import Stock
 
 
 class StudyMedicationRefillModelMixin(models.Model):
@@ -108,8 +108,8 @@ class StudyMedicationCrfModelMixin(StudyMedicationRefillModelMixin):
 
 class MedicationOrderModelMixin(models.Model):
 
-    medication_stock = models.ForeignKey(
-        MedicationStock,
+    stock = models.ForeignKey(
+        Stock,
         null=True,
         blank=False,
         on_delete=PROTECT,

@@ -69,6 +69,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     list_display = (
         "subject_identifier",
+        "dashboard",
         "visit",
         "refill_date",
         "description",

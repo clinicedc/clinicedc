@@ -8,7 +8,7 @@ from ..dispense import Dispensing
 from ..exceptions import RefillAlreadyExists
 from ..refill import create_next_refill, create_refill, delete_next_refill
 from .dispensing_history import DispensingHistory
-from .medication_stock_create_labels import Labels, MedicationStockCreateLabels
+from .stock_create_labels import Labels, StockCreateLabels
 
 
 @receiver(post_save, sender=DispensingHistory, dispatch_uid="dispensing_history_on_post_save")
@@ -57,15 +57,11 @@ def create_refills_on_post_save(sender, instance, raw, created, **kwargs):
 
 @receiver(
     post_save,
-    sender=MedicationStockCreateLabels,
-    dispatch_uid="create_medication_stock_labels_on_post_save",
+    sender=StockCreateLabels,
+    dispatch_uid="create_stock_labels_on_post_save",
 )
-def create_medication_stock_labels_on_post_save(sender, instance, raw, created, **kwargs):
+def create_stock_labels_on_post_save(sender, instance, raw, created, **kwargs):
     if not raw:
-        qty_already_created = Labels.objects.filter(
-            medication_stock_create_labels=instance
-        ).count()
+        qty_already_created = Labels.objects.filter(stock_create_labels=instance).count()
         for i in range(0, instance.qty - qty_already_created):
-            Labels.objects.create(
-                medication_stock_create_labels=instance, stock_identifier=uuid4().hex
-            )
+            Labels.objects.create(stock_create_labels=instance, stock_identifier=uuid4().hex)

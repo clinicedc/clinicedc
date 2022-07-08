@@ -5,6 +5,7 @@ class DispenseError(Exception):
     pass
 
 
+# TODO: dispense against stock for site / central, etc
 class Dispensing:
     def __init__(
         self,
@@ -12,6 +13,7 @@ class Dispensing:
         dispensed=None,
         exclude_id=None,
     ):
+        """Dispense against an existing refill with remaining items"""
         self.exclude_id = exclude_id
         self.rx_refill = rx_refill
         self.dispensed = dispensed
@@ -23,13 +25,14 @@ class Dispensing:
             value = float(self.rx_refill.total) - float(self.total_dispensed)
         if value < 0.0:
             raise DispenseError(
-                "Attempt to dispense more than remaining on prescription. "
+                "Attempt to dispense more than remaining on refill. "
                 f"Remaining={value}. Got {self.dispensed}."
             )
         return value
 
     @property
     def total_dispensed(self) -> float:
+        """Returns the total dispensed for this refill"""
         options = {}
         if self.rx_refill.total:
             if self.exclude_id:

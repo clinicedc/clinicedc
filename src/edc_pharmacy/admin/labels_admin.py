@@ -4,7 +4,7 @@ from edc_model_admin import audit_fieldset_tuple
 from ..admin_site import edc_pharmacy_admin
 from ..forms import LabelsForm
 from ..models import Labels
-from .actions import print_medication_stock_labels
+from .actions import print_stock_labels
 from .model_admin_mixin import ModelAdminMixin
 
 
@@ -15,7 +15,7 @@ class LabelsAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     form = LabelsForm
 
-    actions = [print_medication_stock_labels]
+    actions = [print_stock_labels]
 
     fieldsets = (
         (
@@ -23,7 +23,7 @@ class LabelsAdmin(ModelAdminMixin, admin.ModelAdmin):
             {
                 "fields": (
                     [
-                        "medication_stock_create_labels",
+                        "stock_create_labels",
                         "stock_identifier",
                         "printed",
                         "printed_datetime",
@@ -37,7 +37,7 @@ class LabelsAdmin(ModelAdminMixin, admin.ModelAdmin):
     )
 
     list_display = [
-        "medication_stock_create_labels",
+        "stock_create_labels",
         "stock_identifier",
         "printed",
         "printed_datetime",
@@ -47,19 +47,19 @@ class LabelsAdmin(ModelAdminMixin, admin.ModelAdmin):
         "modified",
     ]
     list_filter = [
-        "medication_stock_create_labels",
+        "stock_create_labels",
         "printed",
         "printed_datetime",
         "created",
         "modified",
     ]
     search_fields = [
-        "medication_stock_create_labels__medication_product__product_identifier",
-        "medication_stock_create_labels__medication_product__lot_no",
+        "stock_create_labels__product__product_identifier",
+        "stock_create_labels__product__lot_no",
     ]
     ordering = ["printed_datetime"]
     readonly_fields = [
-        "medication_stock_create_labels",
+        "stock_create_labels",
         "stock_identifier",
         "printed",
         "printed_datetime",
