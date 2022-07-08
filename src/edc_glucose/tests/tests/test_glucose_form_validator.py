@@ -1,6 +1,5 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from edc_appointment.models import Appointment
 from edc_constants.constants import NOT_APPLICABLE, YES
 from edc_lab.constants import EQ
 from edc_reportable import MILLIMOLES_PER_LITER
