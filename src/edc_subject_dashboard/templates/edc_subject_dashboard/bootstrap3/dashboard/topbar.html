@@ -5,19 +5,25 @@
 <div class="panel-group">
     <div class="panel panel-{% if navbar_name == 'anonymous' %}danger{% else %}info{% endif %}">
        <div class="panel-heading">
-  
+
         {% if navbar_name == 'anonymous' %}
             <span class="text text-danger"><i class="fas fa-user-secret fa-2x fa-fw"></i></span>
         {% else %}
-            <i class="far fa-user-circle fa-2x fa-fw"></i> 
+            <i class="far fa-user-circle fa-2x fa-fw"></i>
   	        <span class="pull-right">
               {% if perms.edc_data_manager.add_dataquery %}
                 <a href="{% url 'edc_data_manager_admin:edc_data_manager_dataquery_add' %}?registered_subject={{ registered_subject_pk }}&sender={{ request.user.id }}&visit_schedule={{visit_schedule_pk|default:''}}&visit_code_sequence={{ appointment.visit_code_sequence }}"
                   role="button" class="btn btn-sm btn-default"><span class="fas fa-plus"></span> Query</a>
               {% endif %}
+              {% if subject_visit %}
+  	            <a href="{% url 'edc_subject_dashboard:refresh_metadata_actions_url' subject_visit.id %}" data-toggle="tooltip" title="Refresh data collection schedule" role="button" class="btn btn-sm btn-default">
+                  <i class="fas fa-redo fa-1x fa-fw" aria-hidden="true"></i>
+                </a>
+              {% endif %}
   	          <a {% block close_url %}href="{% url subject_listboard_url|default:'subject_listboard_url_cannot_be_none' %}"{% endblock close_url %}
   	            role="button" class="btn btn-sm btn-primary">
-  	                <i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i></a>
+  	                <i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i>
+              </a>
   	        </span>
         {% endif %}
 
