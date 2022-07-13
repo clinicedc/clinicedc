@@ -231,7 +231,7 @@ class ScreeningEligibility:
                     value = self.cleaned_data[fldattr]
                 except KeyError as e:
                     raise ScreeningEligibilityCleanedDataKeyError(
-                        "Attribute does not exist in cleaned_data. " f"Got {e}"
+                        f"Attribute does not exist in cleaned_data. Got {e}"
                     )
             setattr(self, fldattr, value)
 
