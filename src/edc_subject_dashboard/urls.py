@@ -3,7 +3,11 @@ from django.contrib import admin
 from django.urls.conf import path
 from edc_dashboard import url_names
 
-from .views import RequisitionPrintActionsView, RequisitionVerifyActionsView
+from .views import (
+    RefreshMetadataActionsView,
+    RequisitionPrintActionsView,
+    RequisitionVerifyActionsView,
+)
 
 app_name = "edc_subject_dashboard"
 
@@ -19,10 +23,16 @@ urlpatterns = [
         RequisitionVerifyActionsView.as_view(),
         name="requisition_verify_actions_url",
     ),
+    path(
+        "refresh_subject_dashboard/<str:subject_visit_id>",
+        RefreshMetadataActionsView.as_view(),
+        name="refresh_metadata_actions_url",
+    ),
 ]
 
 url_names.register(url="requisition_print_actions_url", namespace=app_name)
 url_names.register(url="requisition_verify_actions_url", namespace=app_name)
+url_names.register(url="refresh_metadata_actions_url", namespace=app_name)
 
 
 if settings.APP_NAME == app_name:
