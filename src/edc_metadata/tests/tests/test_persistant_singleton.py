@@ -170,7 +170,7 @@ class TestPersistantSingleton(TestCase):
             def crfone_required(self, visit, **kwargs):  # noqa
                 model = f"{self.app_label}.crfone"
                 return self.persistant_singleton_required(
-                    visit, model=model, evaluate_after=[DAY1]
+                    visit, model=model, exclude_visit_codes=[DAY1]
                 )
 
         pc = Predicates()

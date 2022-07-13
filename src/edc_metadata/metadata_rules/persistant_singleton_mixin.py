@@ -12,13 +12,16 @@ class PersistantSingletonMixin:
 
     Handles a singleton model that needs to be entered
     at some later visit if not at the intended visit.
+
+    The `required` entry status of CRF metadata is moved to the
+    last attended visit in the schedule until the CRF is submitted.
     """
 
     def persistant_singleton_required(
-        self, visit, model=None, evaluate_after: Optional[List[str]] = None
+        self, visit, model=None, exclude_visit_codes: Optional[List[str]] = None
     ) -> bool:
         """Returns True if the CRF model was not completed from any time
-        after the exclude_before visit_codes
+        after the exclude_visit_codes
 
         Updates metadata for other timepoints, except the last, to `not required`
         until the model is submitted.
@@ -35,12 +38,12 @@ class PersistantSingletonMixin:
             required = (
                 True
                 if visit == self.get_last_attended_scheduled_visit(visit)
-                and visit.visit_code not in evaluate_after
+                and visit.visit_code not in exclude_visit_codes
                 else False
             )
         else:
             required = False
-        if visit and visit.visit_code not in evaluate_after:
+        if visit and visit.visit_code not in exclude_visit_codes:
             last_attended_visit = self.get_last_attended_scheduled_visit(visit)
             if last_attended_visit:
                 self.set_other_crf_metadata_not_required(
