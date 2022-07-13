@@ -116,6 +116,8 @@ class MetadataGetter:
             subject_identifier=self.subject_identifier,
             visit_code=self.visit_code,
             visit_code_sequence=self.visit_code_sequence,
+            visit_schedule_name=instance.visit_schedule_name,
+            schedule_name=instance.schedule_name,
         )
         self.validate_metadata_objects(query_options)
         self.metadata_objects = self.metadata_model_cls.objects.filter(
