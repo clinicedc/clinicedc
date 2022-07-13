@@ -3,11 +3,14 @@ from copy import deepcopy
 
 from dateutil.relativedelta import relativedelta
 from django import forms
+from django.contrib.auth.models import User
 from django.test import TestCase, override_settings, tag
+from edc_appointment.models import Appointment
 from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_schedule.constants import DAY1, MONTH1, MONTH3, MONTH6, WEEK2
+from edc_visit_tracking.constants import SCHEDULED
 
 from edc_metadata import (
     KEYED,
@@ -25,8 +28,7 @@ from ...metadata_rules import (
     PredicateCollection,
 )
 from ...models import CrfMetadata
-from ..models import CrfOne
-from ..testcase_mixin import EdcMetadataTestCaseMixin
+from ..models import CrfOne, SubjectConsent, SubjectVisit
 from ..visit_schedule2 import visit_schedule
 
 
@@ -40,19 +42,45 @@ class CrfOneForm(forms.ModelForm):
     EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=3),
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=3),
 )
-class TestPersistantSingleton(EdcMetadataTestCaseMixin, TestCase):
-
-    visit_schedule = visit_schedule
-    consent_date_months_ago = 24
-
+class TestPersistantSingleton(TestCase):
     def setUp(self):
-        # site_visit_schedules._registry = {}
-        # site_visit_schedules.loaded = False
-        # site_visit_schedules.register(visit_schedule)
-        # site_reference_configs.register_from_visit_schedule(
-        #     visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
-        # )
-        super().setUp()
+        if self.visit_schedule:
+            site_visit_schedules._registry = {}
+            site_visit_schedules.loaded = False
+            site_visit_schedules.register(visit_schedule)
+
+        site_reference_configs.register_from_visit_schedule(
+            visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
+        )
+
+        site_metadata_rules.registry = OrderedDict()
+        for rule_cls in self.rule_groups:
+            site_metadata_rules.register(rule_cls)
+
+        self.user = User.objects.create(username="erik")
+
+        self.subject_identifier = "1111111"
+
+        subject_consent = SubjectConsent.objects.create(
+            subject_identifier=self.subject_identifier,
+            consent_datetime=get_utcnow() - relativedelta(months=24),
+        )
+        _, self.schedule = site_visit_schedules.get_by_onschedule_model(
+            "edc_metadata.onschedule"
+        )
+        self.schedule.put_on_schedule(
+            subject_identifier=self.subject_identifier,
+            onschedule_datetime=subject_consent.consent_datetime,
+        )
+        self.appointment = Appointment.objects.get(
+            subject_identifier=self.subject_identifier,
+            visit_code=self.schedule.visits.first.code,
+        )
+        self.subject_visit = SubjectVisit.objects.create(
+            appointment=self.appointment,
+            subject_identifier=self.subject_identifier,
+            reason=SCHEDULED,
+        )
 
         self.data = dict(
             subject_visit=self.subject_visit,
