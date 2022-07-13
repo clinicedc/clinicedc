@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 from zoneinfo import ZoneInfo
 
 from django import forms
@@ -42,19 +43,25 @@ class InlineModelFormMixin:
             )
 
     def dates_not_after_report_datetime(self, field=None, inline_model=None, field_label=None):
-        self.field_is_date_or_raise(field=field, inline_model=inline_model)
+        self.field_cls_is_date_or_raise(field=field, inline_model=inline_model)
         inline_set = f"{inline_model.split('.')[1]}_set"
-        dates = self.get_inline_field_values(field=field, inline_set=inline_set)
-        dates = [
-            datetime.fromisoformat(dte).replace(tzinfo=ZoneInfo(settings.TIME_ZONE))
-            for dte in dates
-            if dte
-        ]
-        for dte in dates:
-            if dte > self.cleaned_data.get("report_datetime"):
-                raise forms.ValidationError(
-                    f"{field_label}: Dates cannot be after report date/time"
-                )
+        dates_as_str = self.get_inline_field_values(field=field, inline_set=inline_set)
+        for dte_as_str in dates_as_str:
+            if dte_as_str:
+                try:
+                    dte = datetime.fromisoformat(dte_as_str)
+                except ValueError:
+                    raise forms.ValidationError(
+                        f"{field_label}: Invalid date or date format. Got {dte_as_str}"
+                    )
+                else:
+                    if dte.astimezone(ZoneInfo(settings.TIME_ZONE)) > self.cleaned_data.get(
+                        "report_datetime"
+                    ):
+                        raise forms.ValidationError(
+                            f"{field_label}: Date cannot be after report date/time. "
+                            f"Got `{dte_as_str}`."
+                        )
 
     def field_exists_or_raise(self, field, inline_model):
         model_cls = django_apps.get_model(inline_model)
@@ -65,7 +72,7 @@ class InlineModelFormMixin:
             )
         return [f for f in model_cls._meta.get_fields() if f.name == field][0]
 
-    def field_is_date_or_raise(self, field, inline_model):
+    def field_cls_is_date_or_raise(self, field: str, inline_model) -> Any:
         """Raises if field class on model is not a date.
 
         Works for DateField and DatetimeField"""
@@ -75,3 +82,4 @@ class InlineModelFormMixin:
                 f"Field is not a date field class. See {self.__class__.__name__}. "
                 f"Got {inline_model}.{field}."
             )
+        return field_obj.__class__
