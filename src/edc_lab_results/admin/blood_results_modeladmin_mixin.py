@@ -17,10 +17,10 @@ class BloodResultsModelAdminMixin:
 
     readonly_fields = ("summary",) + action_fields
 
-    list_display = ("abnormal", "reportable", "action_identifier")
+    list_display = ("missing_count", "missing", "abnormal", "reportable", "action_identifier")
 
     # TODO: add filter to see below grade 3,4
-    list_filter = ("results_abnormal", "results_reportable")
+    list_filter = ("missing_count", "results_abnormal", "results_reportable")
 
     search_fields = (
         "action_identifier",

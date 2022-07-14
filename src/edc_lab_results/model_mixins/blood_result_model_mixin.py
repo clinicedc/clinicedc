@@ -5,6 +5,8 @@ from django.db import models
 from edc_constants.choices import YES_NO, YES_NO_NA
 from edc_reportable.site_reportables import site_reportables
 
+from edc_lab_results.calculate_missing import calculate_missing
+
 
 class BloodResultsFieldsModelMixin(models.Model):
 
@@ -23,6 +25,18 @@ class BloodResultsFieldsModelMixin(models.Model):
 
     summary = models.TextField(null=True, blank=True)
 
+    missing_count = models.IntegerField(
+        default=0,
+        editable=False,
+        help_text="A count of fields left blank",
+    )
+
+    missing = models.TextField(
+        null=True,
+        editable=False,
+        help_text="calculated string of field names that have been left blank",
+    )
+
     class Meta:
         abstract = True
 
@@ -33,6 +47,7 @@ class BloodResultsMethodsModelMixin(models.Model):
 
     def save(self, *args, **kwargs):
         self.summary = "\n".join(self.get_summary())
+        self.missing_count, self.missing = calculate_missing(self, self.lab_panel)
         super().save(*args, **kwargs)
 
     def get_summary_options(self: Any) -> dict:

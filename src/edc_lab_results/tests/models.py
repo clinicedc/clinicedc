@@ -4,6 +4,7 @@ from edc_crf.crf_model_mixin import CrfModelMixin
 from edc_crf.crf_with_action_model_mixin import CrfWithActionModelMixin
 from edc_lab.model_mixins import CrfWithRequisitionModelMixin
 from edc_lab_panel.model_mixin_factory import reportable_result_model_mixin_factory
+from edc_lab_panel.panels import fbc_panel
 from edc_model import models as edc_models
 from edc_reportable import GRAMS_PER_DECILITER
 
@@ -34,6 +35,8 @@ class BloodResultsFbc(
     action_name = BLOOD_RESULTS_FBC_ACTION
 
     tracking_identifier_prefix = "FB"
+
+    lab_panel = fbc_panel
 
     class Meta(CrfWithActionModelMixin.Meta, edc_models.BaseUuidModel.Meta):
         verbose_name = "Blood Result: FBC"
