@@ -57,7 +57,7 @@ class ActionNoManagersModelMixin(models.Model):
         max_length=30,
         null=True,
         blank=True,
-        help_text="action identifier that links to related " "reference model instance.",
+        help_text="action identifier that links to related reference model instance.",
     )
 
     action_item_reason = models.TextField(null=True, editable=False)
@@ -127,7 +127,7 @@ class ActionNoManagersModelMixin(models.Model):
 
     @property
     def identifier(self):
-        """Returns a shortened action_identifier."""
+        """Returns a shortened action_identifier"""
         return self.action_identifier[-9:]
 
     class Meta:
