@@ -11,7 +11,7 @@ from edc_dashboard.view_mixins import (
 from edc_dashboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
 
-from edc_adverse_event.model_wrappers import DeathReportModelWrapper as ModelWrapper
+from ...model_wrappers import DeathReportModelWrapper as ModelWrapper
 
 
 class DeathReportModelWrapper(ModelWrapper):

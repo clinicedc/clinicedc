@@ -9,17 +9,14 @@ from edc_dashboard.view_mixins import (
 from edc_dashboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
 
-from edc_adverse_event.constants import (
+from ...auth_objects import TMG
+from ...constants import (
     AE_FOLLOWUP_ACTION,
     AE_TMG_ACTION,
     DEATH_REPORT_ACTION,
     DEATH_REPORT_TMG_ACTION,
 )
-from edc_adverse_event.model_wrappers import (
-    TmgActionItemModelWrapper as BaseTmgActionItemModelWrapper,
-)
-
-from ...auth_objects import TMG
+from ...model_wrappers import TmgActionItemModelWrapper as BaseTmgActionItemModelWrapper
 
 
 class TmgActionItemModelWrapper(BaseTmgActionItemModelWrapper):

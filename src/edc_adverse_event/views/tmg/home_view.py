@@ -7,7 +7,7 @@ from edc_dashboard.utils import get_bootstrap_version
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 
-from edc_adverse_event.constants import AE_TMG_ACTION
+from ...constants import AE_TMG_ACTION
 
 
 class TmgHomeView(EdcViewMixin, NavbarViewMixin, TemplateView):

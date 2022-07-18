@@ -15,9 +15,8 @@ from edc_dashboard.view_mixins import (
 from edc_dashboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
 
-from edc_adverse_event.get_ae_model import get_ae_model
-
 from ...constants import AE_INITIAL_ACTION
+from ...get_ae_model import get_ae_model
 from ...model_wrappers import AeInitialModelWrapper, DeathReportModelWrapper
 from ...pdf_reports import AeReport
 
