@@ -2,7 +2,7 @@ from django.apps import apps as django_apps
 from edc_constants.constants import NEW
 from edc_metadata import REQUIRED
 
-from .constants import COMPLETE_APPT, IN_PROGRESS_APPT, INCOMPLETE_APPT, NEW_APPT
+from ..constants import COMPLETE_APPT, IN_PROGRESS_APPT, INCOMPLETE_APPT, NEW_APPT
 
 
 def appointment_mark_as_done(modeladmin, request, queryset):

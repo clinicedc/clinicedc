@@ -131,34 +131,39 @@ class AppointmentModelMixin(
         return f"{self.visit_code}.{self.visit_code_sequence}"
 
     def save(self, *args, **kwargs):
-        if self.id and is_baseline(instance=self):
-            visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
-            schedule = visit_schedule.schedules.get(self.schedule_name)
-            try:
-                onschedule_obj = django_apps.get_model(schedule.onschedule_model).objects.get(
-                    subject_identifier=self.subject_identifier,
-                    onschedule_datetime__lte=self.appt_datetime,
+        if not kwargs.get("update_fields", None):
+            if self.id and is_baseline(instance=self):
+                visit_schedule = site_visit_schedules.get_visit_schedule(
+                    self.visit_schedule_name
                 )
-            except ObjectDoesNotExist as e:
-                dte_as_str = formatted_datetime(self.appt_datetime)
-                raise NotOnScheduleError(
-                    "Subject is not on a schedule. Using subject_identifier="
-                    f"`{self.subject_identifier}` and appt_datetime=`{dte_as_str}`. Got {e}"
-                )
-            if self.appt_datetime == onschedule_obj.onschedule_datetime:
-                pass
-            elif self.appt_datetime > onschedule_obj.onschedule_datetime:
-                # update appointment timepoints
-                schedule.put_on_schedule(
-                    subject_identifier=self.subject_identifier,
-                    onschedule_datetime=self.appt_datetime,
-                    skip_baseline=True,
-                )
-        self.update_subject_visit_reason_or_raise()
-        if self.appt_status != IN_PROGRESS_APPT and getattr(
-            settings, "EDC_APPOINTMENT_CHECK_APPT_STATUS", True
-        ):
-            update_appt_status(self)
+                schedule = visit_schedule.schedules.get(self.schedule_name)
+                try:
+                    onschedule_obj = django_apps.get_model(
+                        schedule.onschedule_model
+                    ).objects.get(
+                        subject_identifier=self.subject_identifier,
+                        onschedule_datetime__lte=self.appt_datetime,
+                    )
+                except ObjectDoesNotExist as e:
+                    dte_as_str = formatted_datetime(self.appt_datetime)
+                    raise NotOnScheduleError(
+                        "Subject is not on a schedule. Using subject_identifier="
+                        f"`{self.subject_identifier}` and appt_datetime=`{dte_as_str}`. Got {e}"
+                    )
+                if self.appt_datetime == onschedule_obj.onschedule_datetime:
+                    pass
+                elif self.appt_datetime > onschedule_obj.onschedule_datetime:
+                    # update appointment timepoints
+                    schedule.put_on_schedule(
+                        subject_identifier=self.subject_identifier,
+                        onschedule_datetime=self.appt_datetime,
+                        skip_baseline=True,
+                    )
+            self.update_subject_visit_reason_or_raise()
+            if self.appt_status != IN_PROGRESS_APPT and getattr(
+                settings, "EDC_APPOINTMENT_CHECK_APPT_STATUS", True
+            ):
+                update_appt_status(self)
         super().save(*args, **kwargs)
 
     def natural_key(self) -> tuple:
