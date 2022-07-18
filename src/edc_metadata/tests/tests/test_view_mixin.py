@@ -16,7 +16,7 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
 from ...models import CrfMetadata, RequisitionMetadata
-from ...view_mixins import MetaDataViewMixin
+from ...view_mixins import MetadataViewMixin
 from ..models import CrfOne, CrfThree, SubjectConsent, SubjectVisit
 from ..reference_configs import register_to_site_reference_configs
 from ..visit_schedule import visit_schedule
@@ -34,7 +34,7 @@ class DummyRequisitionModelWrapper:
         self.model = kwargs.get("model")
 
 
-class MyView(MetaDataViewMixin, ContextMixin, View):
+class MyView(MetadataViewMixin, ContextMixin, View):
     crf_model_wrapper_cls = DummyCrfModelWrapper
     requisition_model_wrapper_cls = DummyRequisitionModelWrapper
 

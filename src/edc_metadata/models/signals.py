@@ -7,7 +7,7 @@ from django.dispatch import receiver
 def metadata_create_on_post_save(
     sender, instance, raw, created, using, update_fields, **kwargs
 ) -> None:
-    """Creates all meta data on post save of model using
+    """Creates all metadata on post save of model using
     CreatesMetaDataModelMixin.
 
     For example, when saving the visit model.

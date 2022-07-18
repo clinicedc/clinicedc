@@ -1,1 +1,2 @@
-from .metadata_view_mixin import MetaDataViewMixin
+from .metadata_view_mixin import MetadataViewMixin
+from .refresh_metadata_view_mixin import RefreshMetadataViewMixin

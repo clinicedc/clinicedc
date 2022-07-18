@@ -11,11 +11,11 @@ from ..constants import CRF, KEYED, NOT_REQUIRED, REQUIRED, REQUISITION
 from ..metadata_wrappers import CrfMetadataWrappers, RequisitionMetadataWrappers
 
 
-class MetaDataViewError(Exception):
+class MetadataViewError(Exception):
     pass
 
 
-class MetaDataViewMixin(MessageViewMixin, ContextMixin):
+class MetadataViewMixin(MessageViewMixin, ContextMixin):
 
     crf_model_wrapper_cls = CrfModelWrapper
     requisition_model_wrapper_cls = RequisitionModelWrapper
@@ -107,7 +107,7 @@ class MetaDataViewMixin(MessageViewMixin, ContextMixin):
         try:
             panel = self.panel_model_cls.objects.get(name=metadata_wrapper.panel_name)
         except ObjectDoesNotExist as e:
-            raise MetaDataViewError(
+            raise MetadataViewError(
                 f"{e} Got panel name '{metadata_wrapper.panel_name}'. "
                 f"See {metadata_wrapper}."
             )
