@@ -10,7 +10,7 @@ from edc_dashboard.view_mixins import (
 )
 from edc_dashboard.views import ListboardView
 from edc_metadata.constants import KEYED, REQUIRED
-from edc_metadata.view_mixins.metadata_view_mixin import MetaDataViewMixin
+from edc_metadata.view_mixins.metadata_view_mixin import MetadataViewMixin
 from edc_navbar.view_mixin import NavbarViewMixin
 from edc_subject_dashboard.view_mixins import (
     RegisteredSubjectViewMixin,
@@ -24,7 +24,7 @@ from edc_visit_tracking.utils import get_subject_visit_model_cls
 class SubjectReviewListboardView(
     EdcViewMixin,
     NavbarViewMixin,
-    MetaDataViewMixin,
+    MetadataViewMixin,
     AppointmentViewMixin,
     SubjectVisitViewMixin,
     VisitScheduleViewMixin,
