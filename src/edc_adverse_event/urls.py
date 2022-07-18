@@ -1,8 +1,7 @@
 from django.urls.conf import path
 from edc_protocol.protocol import Protocol
 
-from edc_adverse_event.admin_site import edc_adverse_event_admin
-
+from .admin_site import edc_adverse_event_admin
 from .views import AeHomeView, ClosedTmgAeListboardView
 from .views import DeathListboardView as TmgDeathListboardView
 from .views import NewTmgAeListboardView, OpenTmgAeListboardView

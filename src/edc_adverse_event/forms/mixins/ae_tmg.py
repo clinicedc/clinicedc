@@ -1,5 +1,4 @@
 from django import forms
-from edc_action_item.forms import ActionItemFormMixin
 from edc_constants.constants import CLOSED, NO
 from edc_form_validators import FormValidator, FormValidatorMixin
 from edc_registration.modelform_mixins import ModelFormSubjectIdentifierMixin
@@ -17,36 +16,27 @@ class DefaultAeTmgFormValidator(FormValidator):
         )
 
 
-class AeTmgModelFormMixin(
-    FormValidatorMixin, ModelFormSubjectIdentifierMixin, ActionItemFormMixin
-):
+class AeTmgModelFormMixin(FormValidatorMixin, ModelFormSubjectIdentifierMixin):
 
     form_validator_cls = DefaultAeTmgFormValidator
 
-    subject_identifier = forms.CharField(
-        label="Subject Identifier",
-        required=False,
-        widget=forms.TextInput(attrs={"readonly": "readonly"}),
-        help_text="(read-only)",
-    )
-
-    ae_description = forms.CharField(
-        label="Original AE Description",
-        required=False,
-        widget=forms.Textarea(attrs={"readonly": "readonly", "cols": "79"}),
-        help_text="(read-only)",
-    )
-
-    ae_classification = forms.CharField(
-        label="AE Classification",
-        required=False,
-        widget=forms.TextInput(attrs={"readonly": "readonly"}),
-        help_text="(read-only)",
-    )
-
-    ae_classification_other = forms.CharField(
-        label="AE Classification (if `other` above)",
-        required=False,
-        widget=forms.TextInput(attrs={"readonly": "readonly"}),
-        help_text="(read-only)",
-    )
+    class Meta:
+        labels = {
+            "ae_description": "Original AE Description",
+            "ae_classification": "AE Classification",
+            "ae_classification_other": "AE Classification (if `other` above)",
+        }
+        help_text = {
+            "subject_identifier": "(read-only)",
+            "action_identifier": "(read-only)",
+            "ae_description": "(read-only)",
+            "ae_classification": "(read-only)",
+            "ae_classification_other": "(read-only)",
+        }
+        widgets = {
+            "subject_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
+            "action_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
+            "ae_description": forms.TextInput(attrs={"readonly": "readonly", "cols": "79"}),
+            "ae_classification": forms.TextInput(attrs={"readonly": "readonly"}),
+            "ae_classification_other": forms.TextInput(attrs={"readonly": "readonly"}),
+        }

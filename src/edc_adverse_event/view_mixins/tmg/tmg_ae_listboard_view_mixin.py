@@ -11,9 +11,8 @@ from edc_dashboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
 from edc_navbar.get_default_navbar import get_default_navbar
 
-from edc_adverse_event.constants import AE_TMG_ACTION
-
 from ...auth_objects import TMG
+from ...constants import AE_TMG_ACTION
 from ...model_wrappers import TmgActionItemModelWrapper
 
 

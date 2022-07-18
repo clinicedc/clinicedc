@@ -5,15 +5,14 @@ from django.template.loader import render_to_string
 from django.urls.base import reverse
 from django.utils.safestring import mark_safe
 from edc_action_item import action_fieldset_tuple
-from edc_action_item.modeladmin_mixins import ModelAdminActionItemMixin
+from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
 from edc_constants.constants import DEAD
 from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_notification.utils import get_email_contacts
 
-from edc_adverse_event.get_ae_model import get_ae_model
-
 from ..forms import AeInitialForm
+from ..get_ae_model import get_ae_model
 from ..templatetags.edc_adverse_event_extras import (
     format_ae_description,
     select_description_template,
@@ -69,7 +68,7 @@ default_radio_fields = {
 class AeInitialModelAdminMixin(
     AdverseEventModelAdminMixin,
     ModelAdminSubjectDashboardMixin,
-    ModelAdminActionItemMixin,
+    ActionItemModelAdminMixin,
 ):
 
     form = AeInitialForm
@@ -120,9 +119,9 @@ class AeInitialModelAdminMixin(
         If DEATH, adds link to the death report.
         """
         if obj.sae_reason.name == DEAD:
-            DeathReport = get_ae_model("deathreport")
+            death_report_cls = get_ae_model("deathreport")
             try:
-                death_report = DeathReport.objects.get(
+                death_report = death_report_cls.objects.get(
                     subject_identifier=obj.subject_identifier
                 )
             except ObjectDoesNotExist:
@@ -141,7 +140,8 @@ class AeInitialModelAdminMixin(
 
     if_sae_reason.short_description = "If SAE, reason"
 
-    def description(self, obj):
+    @staticmethod
+    def description(obj):
         """Returns a formatted comprehensive description of the SAE
         combining multiple fields.
         """

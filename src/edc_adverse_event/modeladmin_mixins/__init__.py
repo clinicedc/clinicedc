@@ -1,4 +1,3 @@
-# flake8: noqa
 from .ae_followup import AeFollowupModelAdminMixin
 from .ae_initial import (
     AeInitialModelAdminMixin,

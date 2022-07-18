@@ -8,7 +8,7 @@ from reportlab.lib.units import cm
 from reportlab.platypus import Paragraph, Table
 from reportlab.platypus.flowables import KeepTogether, Spacer
 
-from edc_adverse_event.get_ae_model import get_ae_model
+from ..get_ae_model import get_ae_model
 
 p = inflect.engine()
 

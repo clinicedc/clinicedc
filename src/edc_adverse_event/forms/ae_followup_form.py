@@ -6,6 +6,6 @@ from .mixins import AeFollowupModelFormMixin
 
 
 class AeFollowupForm(AeFollowupModelFormMixin, ActionItemModelFormMixin, forms.ModelForm):
-    class Meta:
+    class Meta(AeFollowupModelFormMixin.Meta):
         model = get_ae_model("aefollowup")
         fields = "__all__"
