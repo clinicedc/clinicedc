@@ -14,13 +14,14 @@ class WindowPeriodModelMixin(models.Model):
     window_period_checks_enabled = True
 
     def save(self: Any, *args, **kwargs) -> None:
-        if self.id and self.appt_datetime and self.timepoint_datetime:
-            if not self.ignore_window_period:
-                try:
-                    raise_on_appt_datetime_not_in_window(self)
-                except AppointmentWindowError as e:
-                    msg = f"{e} Perhaps catch this in the form"
-                    raise AppointmentWindowError(msg)
+        if not kwargs.get("update_fields", None):
+            if self.id and self.appt_datetime and self.timepoint_datetime:
+                if not self.ignore_window_period:
+                    try:
+                        raise_on_appt_datetime_not_in_window(self)
+                    except AppointmentWindowError as e:
+                        msg = f"{e} Perhaps catch this in the form"
+                        raise AppointmentWindowError(msg)
         super().save(*args, **kwargs)
 
     class Meta:

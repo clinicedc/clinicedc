@@ -29,6 +29,7 @@ class AppointmentViewMixin(ContextMixin):
         update_unscheduled_appointment_sequence(
             subject_identifier=self.kwargs.get("subject_identifier"),
         )
+        has_call_manager = True if django_apps.app_configs.get("edc_call_manager") else False
         context.update(
             appointment=self.appointment_wrapped,
             appointments=self.appointments_wrapped,
@@ -37,6 +38,7 @@ class AppointmentViewMixin(ContextMixin):
             INCOMPLETE_APPT=INCOMPLETE_APPT,
             IN_PROGRESS_APPT=IN_PROGRESS_APPT,
             NEW_APPT=NEW_APPT,
+            has_call_manager=has_call_manager,
         )
         return context
 

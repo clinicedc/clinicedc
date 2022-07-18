@@ -1,6 +1,10 @@
+import calendar
+
 from django.contrib import admin
+from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.safestring import mark_safe
-from edc_constants.constants import NEW
+from django.utils.translation import gettext as _
 from edc_document_status.fieldsets import document_status_fieldset_tuple
 from edc_document_status.modeladmin_mixins import DocumentStatusModelAdminMixin
 from edc_model_admin import SimpleHistoryAdmin, audit_fieldset_tuple
@@ -11,11 +15,12 @@ from edc_visit_schedule.fieldsets import (
     visit_schedule_fieldset_tuple,
 )
 
-from .admin_actions import appointment_mark_as_done, appointment_mark_as_new
-from .admin_site import edc_appointment_admin
-from .constants import NEW_APPT
-from .forms import AppointmentForm
-from .models import Appointment
+from ..admin_site import edc_appointment_admin
+from ..constants import NEW_APPT
+from ..forms import AppointmentForm
+from ..models import Appointment
+from .actions import appointment_mark_as_done, appointment_mark_as_new
+from .list_filters import AppointmentListFilter
 
 
 @admin.register(Appointment, site=edc_appointment_admin)
@@ -28,16 +33,22 @@ class AppointmentAdmin(
     actions = [appointment_mark_as_done, appointment_mark_as_new]
     date_hierarchy = "appt_datetime"
     list_display = (
-        "subject_identifier",
-        "__str__",
-        "dashboard",
-        "appt_datetime",
-        "appt_type",
+        "appointment_subject",
+        "full_visit_code",
+        "appt_actions",
+        "appointment_date",
+        "appointment_type",
         "appt_status",
         "timing",
         "schedule_name",
     )
-    list_filter = ("visit_code", "appt_datetime", "appt_type", "appt_status", "appt_timing")
+    list_filter = (
+        AppointmentListFilter,
+        "visit_code",
+        "appt_type",
+        "appt_status",
+        "appt_timing",
+    )
 
     additional_instructions = mark_safe(
         "To start or continue to edit FORMS for this subject, change the "
@@ -133,3 +144,37 @@ class AppointmentAdmin(
         if obj.appt_status == NEW_APPT:
             return None
         return obj.get_appt_timing_display()
+
+    @admin.display(description="Visit", ordering="visit_code")
+    def full_visit_code(self, obj=None):
+        """Returns a string of visit_code.visit_code_sequence"""
+        return f"{obj.visit_code}.{obj.visit_code_sequence}"
+
+    @admin.display(description="Appt. Date", ordering="appt_datetime")
+    def appointment_date(self, obj=None):
+        """Returns a string of visit_code.visit_code_sequence"""
+        return f"{obj.appt_datetime.date()} {calendar.day_abbr[obj.appt_datetime.weekday()]}"
+
+    @admin.display(description="Type", ordering="appt_type")
+    def appointment_type(self, obj=None):
+        """Returns a string of visit_code.visit_code_sequence"""
+        return obj.get_appt_type_display()
+
+    @admin.display(description="Subject", ordering="subject_identifier")
+    def appointment_subject(self, obj=None):
+        return obj.subject_identifier
+
+    @admin.display(description="Options")
+    def appt_actions(self, obj=None):
+        dashboard_url = reverse(
+            self.get_subject_dashboard_url_name(),
+            kwargs=self.get_subject_dashboard_url_kwargs(obj),
+        )
+        call_url = "#"
+        context = dict(
+            dashboard_title=_("Go to subject's dashboard"),
+            dashboard_url=dashboard_url,
+            call_title=_("Call subject"),
+            call_url=call_url,
+        )
+        return render_to_string("button.html", context=context)
