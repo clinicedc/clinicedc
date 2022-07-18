@@ -5,8 +5,6 @@ class ActionItemFormMixin:
 
     """Declare with forms.ModelForm."""
 
-    action_identifier = forms.CharField(
-        label="Action Identifier",
-        required=False,
-        widget=forms.TextInput(attrs={"readonly": "readonly"}),
-    )
+    class Meta:
+        help_text = {"action_identifier": "(read-only)"}
+        widgets = {"action_identifier": forms.TextInput(attrs={"readonly": "readonly"})}

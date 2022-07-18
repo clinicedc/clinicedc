@@ -5,6 +5,13 @@ from ..models import ActionItem
 
 
 class ActionItemForm(forms.ModelForm):
+
+    subject_identifier = forms.CharField(
+        label="Subject Identifier",
+        required=False,
+        widget=forms.TextInput(attrs={"readonly": "readonly"}),
+    )
+
     def clean(self):
         cleaned_data = super().clean()
         self.force_open_status()
