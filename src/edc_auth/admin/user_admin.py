@@ -2,16 +2,18 @@ from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
 from edc_dashboard import select_edc_template
 
 from ..forms import UserChangeForm
 from ..send_new_credentials_to_user import send_new_credentials_to_user
+from .list_filters import SitesListFilter
 from .user_profile_admin import UserProfileInline
 
 admin.site.unregister(User)
 
 
-def send_new_credentials_to_user_action(modeladmin, request, queryset):
+def send_new_credentials_to_user_action(modeladmin, request, queryset):  # noqa
     if request.user.has_perms(["auth.change_user"]):
         for obj in queryset:
             send_new_credentials_to_user(user=obj)
@@ -28,7 +30,15 @@ class UserAdmin(BaseUserAdmin):
     form = UserChangeForm
     actions = [send_new_credentials_to_user_action]
 
-    list_display = ("username", "email", "first_name", "last_name", "role", "is_staff")
+    list_display = (
+        "username",
+        "email",
+        "first_name",
+        "last_name",
+        "role",
+        "sites",
+        "is_staff",
+    )
 
     search_fields = (
         "username",
@@ -42,12 +52,13 @@ class UserAdmin(BaseUserAdmin):
         "is_staff",
         "is_superuser",
         "is_active",
+        SitesListFilter,
         "userprofile__roles",
         "groups",
     )
 
     def get_inline_instances(self, request, obj=None):
-        """Dont load inlines on add.
+        """Don't load inlines on add.
 
         Wait until after first post_save signal creates
         UserProfile.
@@ -71,6 +82,14 @@ class UserAdmin(BaseUserAdmin):
         )
         template_obj = select_edc_template("user_role_description.html", "edc_auth")
         return render_to_string(template_obj.template.name, context)
+
+    @staticmethod
+    def sites(obj=None):
+        sites = []
+        for site in obj.userprofile.sites.all():
+            sites.append(site.name.replace("_", " ").title())
+        sites.sort()
+        return mark_safe("<BR>".join(sites))
 
     @staticmethod
     def groups_in_role(obj=None):
