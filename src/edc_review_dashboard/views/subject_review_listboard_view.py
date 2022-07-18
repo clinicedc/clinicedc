@@ -10,7 +10,7 @@ from edc_dashboard.view_mixins import (
 )
 from edc_dashboard.views import ListboardView
 from edc_metadata.constants import KEYED, REQUIRED
-from edc_metadata.view_mixins.metadata_view_mixin import MetadataViewMixin
+from edc_metadata.view_mixins import MetadataViewMixin
 from edc_navbar.view_mixin import NavbarViewMixin
 from edc_subject_dashboard.view_mixins import (
     RegisteredSubjectViewMixin,
