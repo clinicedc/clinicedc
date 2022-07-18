@@ -7,7 +7,7 @@ from edc_model_fields.fields import OtherCharField
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_utils import formatted_datetime, get_utcnow
 
-from ..choices import OFF_STUDY_REASONS
+from ..choices import OFFSTUDY_REASONS
 from ..utils import off_all_schedules_or_raise
 
 
@@ -32,7 +32,7 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
 
     """
 
-    offstudy_reason_choices = OFF_STUDY_REASONS
+    offstudy_reason_choices = OFFSTUDY_REASONS
 
     offstudy_datetime = models.DateTimeField(
         verbose_name="Off-study date and time",
