@@ -1,8 +1,6 @@
-from copy import copy
-
 from django.contrib import admin
-from edc_action_item import action_fields, action_fieldset_tuple
-from edc_action_item.modeladmin_mixins import ModelAdminActionItemMixin
+from edc_action_item import action_fieldset_tuple
+from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
 from edc_constants.constants import OTHER
 from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
@@ -11,7 +9,7 @@ from ..get_ae_model import get_ae_model
 
 
 class DeathReportTmgModelAdminMixin(
-    ModelAdminSubjectDashboardMixin, ModelAdminActionItemMixin
+    ModelAdminSubjectDashboardMixin, ActionItemModelAdminMixin
 ):
 
     fieldsets = (
@@ -66,24 +64,23 @@ class DeathReportTmgModelAdminMixin(
 
     def get_readonly_fields(self, request, obj=None):
         fields = super().get_readonly_fields(request, obj)
-        action_flds = copy(list(action_fields))
-        action_flds.remove("action_identifier")
-        fields = list(action_flds) + list(fields)
         if obj:
-            fields = fields + ["death_report"]
+            fields = fields + ("death_report",)
         return fields
 
-    def status(self, obj=None):
+    @staticmethod
+    def status(obj=None):
         return obj.report_status.title()
 
-    def cause(self, obj):
+    def cause(self, obj=None):
         if obj.cause_of_death.name == OTHER:
             return f"Other: {obj.cause_of_death_other}"
         return obj.cause_of_death
 
     cause.short_description = "Cause (TMG Opinion)"
 
-    def agreed(self, obj):
+    @staticmethod
+    def agreed(obj=None):
         return obj.cause_of_death_agreed
 
     @property

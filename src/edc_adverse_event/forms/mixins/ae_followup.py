@@ -1,6 +1,5 @@
 from django import forms
 from django.conf import settings
-from edc_action_item.forms import ActionItemFormMixin
 from edc_constants.constants import DEAD, YES
 from edc_form_validators import FormValidator, FormValidatorMixin
 from edc_registration.modelform_mixins import ModelFormSubjectIdentifierMixin
@@ -19,7 +18,7 @@ def validate_ae_initial_outcome_date(form_obj):
                 convert_php_dateformat(settings.SHORT_DATE_FORMAT)
             )
             raise forms.ValidationError(
-                {"outcome_date": (f"May not be before the AE start date {formatted_dte}.")}
+                {"outcome_date": f"May not be before the AE start date {formatted_dte}."}
             )
 
 
@@ -35,18 +34,9 @@ class DefaultAeFollowupFormValidator(FormValidator):
         )
 
 
-class AeFollowupModelFormMixin(
-    FormValidatorMixin, ModelFormSubjectIdentifierMixin, ActionItemFormMixin
-):
+class AeFollowupModelFormMixin(FormValidatorMixin, ModelFormSubjectIdentifierMixin):
 
     form_validator_cls = DefaultAeFollowupFormValidator
-
-    subject_identifier = forms.CharField(
-        label="Subject Identifier",
-        required=False,
-        widget=forms.TextInput(attrs={"readonly": "readonly"}),
-        help_text="(read-only)",
-    )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -70,3 +60,10 @@ class AeFollowupModelFormMixin(
                         )
                     }
                 )
+
+    class Meta:
+        help_text = {"subject_identifier": "(read-only)", "action_identifier": "(read-only)"}
+        widgets = {
+            "subject_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
+            "action_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
+        }

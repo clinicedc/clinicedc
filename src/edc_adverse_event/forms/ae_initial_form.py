@@ -6,6 +6,6 @@ from .mixins import AeInitialModelFormMixin
 
 
 class AeInitialForm(AeInitialModelFormMixin, ActionItemModelFormMixin, forms.ModelForm):
-    class Meta:
+    class Meta(AeInitialModelFormMixin.Meta):
         model = get_ae_model("aeinitial")
         fields = "__all__"

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.template.loader import render_to_string
 from edc_action_item import action_fieldset_tuple
-from edc_action_item.modeladmin_mixins import ModelAdminActionItemMixin
+from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
 from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
@@ -17,7 +17,7 @@ class AeSusarModelAdminMixin(
     ModelAdminSubjectDashboardMixin,
     NonAeInitialModelAdminMixin,
     AdverseEventModelAdminMixin,
-    ModelAdminActionItemMixin,
+    ActionItemModelAdminMixin,
 ):
 
     form = AeSusarForm
@@ -58,7 +58,8 @@ class AeSusarModelAdminMixin(
 
     radio_fields = {"report_status": admin.VERTICAL}
 
-    def description(self, obj):
+    @staticmethod
+    def description(obj=None):
         """Returns a formatted comprehensive description."""
         context = format_ae_susar_description({}, obj, 50)
         return render_to_string(select_description_template("aesusar"), context)

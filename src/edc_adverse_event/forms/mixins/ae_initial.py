@@ -2,27 +2,18 @@ from django import forms
 from django.conf import settings
 from django.urls.base import reverse
 from django.utils.safestring import mark_safe
-from edc_action_item.forms import ActionItemFormMixin
 from edc_constants.constants import YES
 from edc_form_validators import FormValidatorMixin
 from edc_registration.modelform_mixins import ModelFormSubjectIdentifierMixin
 from edc_reportable import GRADE4, GRADE5
 
-from edc_adverse_event.form_validators import AeInitialFormValidator
-from edc_adverse_event.get_ae_model import get_ae_model
+from ...form_validators import AeInitialFormValidator
+from ...get_ae_model import get_ae_model
 
 
-class AeInitialModelFormMixin(
-    FormValidatorMixin, ModelFormSubjectIdentifierMixin, ActionItemFormMixin
-):
+class AeInitialModelFormMixin(FormValidatorMixin, ModelFormSubjectIdentifierMixin):
 
     form_validator_cls = AeInitialFormValidator
-
-    subject_identifier = forms.CharField(
-        label="Subject Identifier",
-        required=False,
-        widget=forms.TextInput(attrs={"readonly": "readonly"}),
-    )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -42,9 +33,9 @@ class AeInitialModelFormMixin(
 
     @property
     def changelist_url(self):
-        AeFollowup = get_ae_model("aefollowup")
-        app_label = AeFollowup._meta.app_label
-        model_name = AeFollowup._meta.object_name.lower()
+        ae_followup_cls = get_ae_model("aefollowup")
+        app_label = ae_followup_cls._meta.app_label
+        model_name = ae_followup_cls._meta.object_name.lower()
         return reverse(
             f"{settings.ADVERSE_EVENT_ADMIN_SITE}:{app_label}_{model_name}_changelist"
         )
@@ -53,14 +44,21 @@ class AeInitialModelFormMixin(
         """Raise an exception if the AE followup exists
         and the user is attempting to change this form.
         """
-        AeFollowup = get_ae_model("aefollowup")
-        if AeFollowup.objects.filter(ae_initial=self.instance.pk).exists():
+        ae_followup_cls = get_ae_model("aefollowup")
+        if ae_followup_cls.objects.filter(ae_initial=self.instance.pk).exists():
             url = f"{self.changelist_url}?q={self.instance.action_identifier}"
             raise forms.ValidationError(
                 mark_safe(
                     f"Unable to save. Follow-up reports exist. Provide updates "
                     f"to this report using the "
-                    f"{AeFollowup._meta.verbose_name} instead. "
+                    f"{ae_followup_cls._meta.verbose_name} instead. "
                     f'See <A href="{url}">AE Follow-ups for {self.instance}</A>.'
                 )
             )
+
+    class Meta:
+        help_texts = {"subject_identifier": "(read-only)", "action_identifier": "(read-only)"}
+        widgets = {
+            "subject_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
+            "action_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
+        }

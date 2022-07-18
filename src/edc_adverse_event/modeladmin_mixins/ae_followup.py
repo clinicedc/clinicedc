@@ -4,7 +4,7 @@ from django.template.loader import render_to_string
 from django.urls.base import reverse
 from django.utils.safestring import mark_safe
 from edc_action_item import action_fieldset_tuple
-from edc_action_item.modeladmin_mixins import ModelAdminActionItemMixin
+from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
 from edc_constants.constants import NO, NOT_APPLICABLE, YES
 from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
@@ -21,7 +21,7 @@ class AeFollowupModelAdminMixin(
     ModelAdminSubjectDashboardMixin,
     NonAeInitialModelAdminMixin,
     AdverseEventModelAdminMixin,
-    ModelAdminActionItemMixin,
+    ActionItemModelAdminMixin,
 ):
 
     form = AeFollowupForm
@@ -83,7 +83,7 @@ class AeFollowupModelAdminMixin(
             try:
                 ae_followup = self.model.objects.get(parent_action_item=obj.action_item)
             except ObjectDoesNotExist:
-                ae_followup = None
+                pass
             else:
                 follow_up_reports = self.follow_up_reports(ae_followup)
         elif obj.followup == NO and obj.ae_grade != NOT_APPLICABLE:

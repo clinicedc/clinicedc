@@ -1,13 +1,11 @@
-from copy import copy
-
 from django.contrib import admin
-from edc_action_item import action_fields, action_fieldset_tuple
-from edc_action_item.modeladmin_mixins import ModelAdminActionItemMixin
+from edc_action_item import action_fieldset_tuple
+from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
 from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
 
-class DeathReportModelAdminMixin(ModelAdminSubjectDashboardMixin, ModelAdminActionItemMixin):
+class DeathReportModelAdminMixin(ModelAdminSubjectDashboardMixin, ActionItemModelAdminMixin):
 
     form = None
 
@@ -50,10 +48,3 @@ class DeathReportModelAdminMixin(ModelAdminSubjectDashboardMixin, ModelAdminActi
     list_filter = ("report_datetime", "death_datetime", "cause_of_death")
 
     search_fields = ["subject_identifier", "action_identifier", "tracking_identifier"]
-
-    def get_readonly_fields(self, request, obj=None):
-        fields = super().get_readonly_fields(request, obj)
-        action_flds = copy(list(action_fields))
-        action_flds.remove("action_identifier")
-        fields = list(action_flds) + list(fields)
-        return fields

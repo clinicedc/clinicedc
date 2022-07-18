@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from edc_action_item import action_fieldset_tuple
-from edc_action_item.modeladmin_mixins import ModelAdminActionItemMixin
+from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
 from edc_constants.constants import OTHER
 from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
@@ -16,7 +16,7 @@ from .modeladmin_mixins import NonAeInitialModelAdminMixin
 class AeTmgModelAdminMixin(
     ModelAdminSubjectDashboardMixin,
     NonAeInitialModelAdminMixin,
-    ModelAdminActionItemMixin,
+    ActionItemModelAdminMixin,
 ):
 
     form = AeTmgForm
@@ -79,7 +79,8 @@ class AeTmgModelAdminMixin(
         "original_report_agreed": admin.VERTICAL,
     }
 
-    def status(self, obj=None):
+    @staticmethod
+    def status(obj=None):
         return obj.report_status.title()
 
     def get_queryset(self, request):
