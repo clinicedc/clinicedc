@@ -31,7 +31,7 @@ EDC_VISIT_TRACKING_ALLOW_MISSED_UNSCHEDULED = getattr(
 
 class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
 
-    """Form validator for visit all models (e.g. subject_visit).
+    """Form validator for visit models (e.g. subject_visit).
 
     See also `report_datetime` checks in the
     `VisitTrackingModelFormMixin`.
