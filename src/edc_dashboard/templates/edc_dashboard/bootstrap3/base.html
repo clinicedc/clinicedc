@@ -63,18 +63,6 @@
     </script>
 {% endblock document_ready %}
 
-{% block extrahead %}
-    {{  block.super }}
-    {% if sentry_dsn %}
-        <script type="text/javascript">
-            Raven.config('{sentry_dsn}').install();
-            window.onerror = Raven.process;
-        </script>
-    {% endif %}
-{% endblock extrahead %}
-
-
-
 {% block topbar %}
 
     <!-- topbar -->

@@ -10,13 +10,6 @@
     <link rel="icon" href="{% static 'favicon.ico' %}">
     <script   src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
 
-	{% if sentry_event_id %}
-	<script src="https://browser.sentry-cdn.com/5.4.0/bundle.min.js" crossorigin="anonymous"></script>
-	<script>
-	  Sentry.init({ dsn: 'https://dce472164c1046ae926d5c3c26399ebc@sentry.io/1244260' });
-	  Sentry.showReportDialog({ eventId: '{{ sentry_event_id }}' })
-	</script>
-	{% endif %}
 </head>
 <body class="edc-body" >
   <div class="container">
@@ -31,13 +24,6 @@
 
 	
 			  <p>If you wish to contact support, contact information is on Redmine.</p>
-
-	
-			  {% if sentry_event_id %}
-			    <p>You may reference this error as
-			    <strong>{{ sentry_event_id }}</strong>.</p>
-			  {% endif %}
-
 			  </div>
 		  </div>
 	  </div>

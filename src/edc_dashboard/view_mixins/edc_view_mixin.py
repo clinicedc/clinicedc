@@ -35,7 +35,6 @@ class EdcViewMixin(
             warnings.warn(str(e))
 
         live_system = getattr(settings, "LIVE_SYSTEM", "TEST")
-        sentry_dsn = getattr(settings, "SENTRY_DSN", "sentry_dsn?")
         protocol = Protocol()
         context.update(
             {
@@ -48,7 +47,6 @@ class EdcViewMixin(
                 "project_name": getattr(protocol, "project_name", "project_name?"),
                 "project_repo": getattr(protocol, "project_repo", "project_repo?"),
                 "live_system": live_system,
-                "sentry_dsn": sentry_dsn,
             }
         )
 
