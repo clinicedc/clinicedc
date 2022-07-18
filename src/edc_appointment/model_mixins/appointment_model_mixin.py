@@ -148,7 +148,8 @@ class AppointmentModelMixin(
                     dte_as_str = formatted_datetime(self.appt_datetime)
                     raise NotOnScheduleError(
                         "Subject is not on a schedule. Using subject_identifier="
-                        f"`{self.subject_identifier}` and appt_datetime=`{dte_as_str}`. Got {e}"
+                        f"`{self.subject_identifier}` and appt_datetime=`{dte_as_str}`."
+                        f"Got {e}"
                     )
                 if self.appt_datetime == onschedule_obj.onschedule_datetime:
                     pass
