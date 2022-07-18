@@ -1,7 +1,7 @@
 from .address_model_admin_mixin import AddressModelAdminMixin
 from .changelist_buttons import (
+    ChangelistButtonModelAdminMixin,
     ModelAdminChangelistButtonMixin,
-    ModelAdminChangelistModelButtonMixin,
 )
 from .inlines import (
     LimitedAdminInlineMixin,
