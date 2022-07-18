@@ -10,7 +10,7 @@ from reportlab.platypus.flowables import Spacer
 from reportlab.platypus.para import Paragraph
 from reportlab.platypus.tables import Table
 
-from edc_adverse_event.get_ae_model import get_ae_model
+from ..get_ae_model import get_ae_model
 
 User = get_user_model()
 p = inflect.engine()
