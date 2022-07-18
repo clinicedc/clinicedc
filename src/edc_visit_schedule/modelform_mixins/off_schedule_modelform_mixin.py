@@ -1,11 +1,11 @@
-from django.forms import ModelForm, ValidationError
+from django import forms
 from edc_utils import get_utcnow
 
 from ..site_visit_schedules import site_visit_schedules
 from ..subject_schedule import InvalidOffscheduleDate
 
 
-class OffScheduleModelFormMixin(ModelForm):
+class OffScheduleModelFormMixin:
     def clean(self):
         cleaned_data = super().clean()
         subject_identifier = cleaned_data.get("subject_identifier")
@@ -29,13 +29,12 @@ class OffScheduleModelFormMixin(ModelForm):
                 update=False,
             )
         except InvalidOffscheduleDate as e:
-            raise ValidationError(e)
+            raise forms.ValidationError(e)
         self.validate_visit_tracking_reports()
         return cleaned_data
 
     @property
     def offschedule_datetime_field(self):
-
         try:
             offschedule_datetime_field = self._meta.model.offschedule_datetime_field
         except AttributeError:
@@ -48,3 +47,10 @@ class OffScheduleModelFormMixin(ModelForm):
         have been submitted.
         """
         pass
+
+    class Meta:
+        help_text = {"subject_identifier": "(read-only)", "action_identifier": "(read-only)"}
+        widgets = {
+            "subject_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
+            "action_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
+        }
