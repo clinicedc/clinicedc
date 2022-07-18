@@ -76,11 +76,11 @@ class TestModelAdmin(TestCase):
             modeladmin.get_list_filter(request),
         )
         self.assertIn(
-            f"{modeladmin.visit_model_attr}__appointment__appt_status",
+            f"{modeladmin.visit_model_attr}__visit_code",
             modeladmin.get_list_filter(request),
         )
         self.assertIn(
-            f"{modeladmin.visit_model_attr}__appointment__visit_code",
+            f"{modeladmin.visit_model_attr}__visit_code_sequence",
             modeladmin.get_list_filter(request),
         )
 
