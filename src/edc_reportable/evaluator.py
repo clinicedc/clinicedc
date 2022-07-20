@@ -38,9 +38,9 @@ class Evaluator:
         name: str = None,
         lower: Optional[Union[int, float]] = None,
         upper: Optional[Union[int, float]] = None,
-        units: str = None,
-        lower_inclusive: bool = None,
-        upper_inclusive: bool = None,
+        units: Optional[str] = None,
+        lower_inclusive: Optional[bool] = None,
+        upper_inclusive: Optional[bool] = None,
         **kwargs,
     ) -> None:
         self.name = name
@@ -48,9 +48,7 @@ class Evaluator:
             raise InvalidLowerBound(f"Got {lower}.")
         if upper is not None and not re.match(r"\d+", str(upper)):
             raise InvalidUpperBound(f"Got {upper}.")
-        # noinspection PyTypeChecker
         self.lower: Optional[float] = None if lower is None else float(lower)
-        # noinspection PyTypeChecker
         self.upper: Optional[float] = None if upper is None else float(upper)
 
         if self.lower is not None and self.upper is not None:

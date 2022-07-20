@@ -3,6 +3,7 @@ import csv
 import os
 import sys
 from importlib import import_module
+from inspect import isfunction
 from typing import Optional
 
 from django.apps import apps as django_apps
@@ -61,7 +62,12 @@ class SiteReportables:
                     f"normal reference. Got {name}."
                 )
             for data in datas:
-                grade_ref = GradeReference(name=name, normal_references=grp.normal, **data)
+                if isfunction(data):
+                    grade_ref = GradeReference(
+                        name=name, normal_references=grp.normal, func=data
+                    )
+                else:
+                    grade_ref = GradeReference(name=name, normal_references=grp.normal, **data)
                 grp.add_grading(grade_ref)
             reference_range_collection.update_grp(grp)
         site_reportables._registry.update(

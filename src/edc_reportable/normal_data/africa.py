@@ -9,7 +9,6 @@ from edc_reportable import (
     TEN_X_9_PER_LITER,
     adult_age_options,
 )
-from edc_reportable import dummy_parse as dummy
 from edc_reportable import parse as p
 from edc_reportable.units import (
     CELLS_PER_MILLIMETER_CUBED,
@@ -38,7 +37,22 @@ normal_data = {
     "alt": [p("0<=x<=55", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options)],
     "amylase": [p("25<=x<=125", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options)],
     "ast": [p("5<=x<=34", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options)],
-    "egfr": [dummy(units=EGFR_UNITS)],
+    "egfr": [
+        p(
+            "0.0<=x<45.0",
+            units=EGFR_UNITS,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        )
+    ],
+    "egfr_drop": [
+        p(
+            "0.0<=x<40.0",
+            units=PERCENT,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        )
+    ],
     "chol": [
         p(
             "0.5<=x<=6.2",

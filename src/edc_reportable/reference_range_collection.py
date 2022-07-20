@@ -1,6 +1,6 @@
 from typing import Optional
 
-from edc_reportable import GRADE3, GRADE4
+from .constants import GRADE3, GRADE4
 
 
 class AlreadyRegistered(Exception):
