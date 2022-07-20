@@ -1,3 +1,5 @@
+from typing import Optional, Union
+
 from .age_evaluator import AgeEvaluator
 from .evaluator import Evaluator, ValueBoundryError
 from .parsers import parse_boundary
@@ -12,7 +14,14 @@ class ValueReference:
     age_evaluator_cls = AgeEvaluator
     evaluator_cls = Evaluator
 
-    def __init__(self, name=None, gender=None, units=None, normal_references=None, **kwargs):
+    def __init__(
+        self,
+        name: Optional[str] = None,
+        gender: Optional[str] = None,
+        units: Optional[str] = None,
+        normal_references=None,
+        **kwargs,
+    ):
         self._normal_reference = None
         self.normal_references = normal_references
         self.name = name
@@ -72,7 +81,7 @@ class ValueReference:
                 )
         return self._normal_reference[0]
 
-    def get_boundary_value(self, value):
+    def get_boundary_value(self, value: str) -> Union[int, float]:
         """Return value as a literal value or as a value relative
         to the normal lower or upper normal.
         """

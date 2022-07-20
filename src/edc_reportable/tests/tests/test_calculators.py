@@ -214,7 +214,7 @@ class TestCalculators(TestCase):
         self.assertEqual(round(egfr, 2), 84.75)
 
     def test_egfr_percent_change(self):
-        self.assertGreater(egfr_percent_change(51.10, 131.50), 0.20)
-        self.assertLess(egfr_percent_change(51.10, 61.10), 0.20)
+        self.assertGreater(egfr_percent_change(51.10, 131.50), 20.0)
+        self.assertLess(egfr_percent_change(51.10, 61.10), 20.0)
         self.assertEqual(egfr_percent_change(51.10, 51.10), 0.0)
-        self.assertLess(egfr_percent_change(51.10, 21.10), 0.0)
+        self.assertLess(egfr_percent_change(51.10, 21.10), 20.0)

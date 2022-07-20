@@ -1,5 +1,6 @@
 import re
 from collections import OrderedDict
+from typing import Optional, Tuple
 
 from edc_constants.constants import FEMALE, MALE
 
@@ -11,7 +12,7 @@ class ParserError(Exception):
     pass
 
 
-def unparse(**kwargs):
+def unparse(**kwargs) -> str:
 
     lower = kwargs.get("lower") or ""
     upper = kwargs.get("upper") or ""
@@ -36,13 +37,13 @@ def unparse(**kwargs):
     return f"{lower}{lower_op}x{upper_op}{upper} {fasting_str}{gender} {age}".rstrip()
 
 
-def parse(phrase=None, fasting=None, uln=None, lln=None, **kwargs):
+def parse(phrase: Optional[str] = None, *, fasting=None, uln=None, lln=None, **kwargs) -> dict:
 
     pattern = r"(([\d+\.\d+]|[\.\d+])?(<|<=)?)+x((<|<=)?([\d+\.\d+]|[\.\d+])+)?"
     lln = f"*{LLN}"
     uln = f"*{ULN}"
 
-    def _parse(string):
+    def _parse(string: str) -> Tuple[str, Optional[bool]]:
         inclusive = True if "=" in string else None
         try:
             value = float(
@@ -67,7 +68,7 @@ def parse(phrase=None, fasting=None, uln=None, lln=None, **kwargs):
     lower, lower_inclusive = _parse(left)
     upper, upper_inclusive = _parse(right)
     fasting = True if fasting else False
-    ret = OrderedDict(
+    ret_as_dict = OrderedDict(
         lower=lower,
         lower_inclusive=lower_inclusive,
         upper=upper,
@@ -75,12 +76,12 @@ def parse(phrase=None, fasting=None, uln=None, lln=None, **kwargs):
         fasting=fasting,
         **kwargs,
     )
-    for k, v in ret.items():
-        setattr(ret, k, v)
-    return ret
+    for k, v in ret_as_dict.items():
+        setattr(ret_as_dict, k, v)
+    return ret_as_dict
 
 
-def parse_boundary(value):
+def parse_boundary(value: str) -> Tuple[Optional[float], Optional[float]]:
     uln = lln = None
     value = value.upper()
     pattern = r"(\d+\.\d+)\*[LLN|ULN]"
@@ -95,7 +96,7 @@ def parse_boundary(value):
     return lln, uln
 
 
-def dummy_parse(phrase=None, units=None):
+def dummy_parse(phrase: Optional[str] = None, units: Optional[str] = None) -> dict:
     return parse(
         phrase or "0<=x",
         units=units,

@@ -35,15 +35,6 @@ G4 < 30 ml/min or ml/min/1.73 m2 OR ≥ 50% decrease from participant’s baseli
 """
 
 dummies = {
-    "egfr": [
-        p(
-            "x<0",
-            grade=GRADE0,
-            units=EGFR_UNITS,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-        ),
-    ],
     "hba1c": [
         p(
             "x<0",
@@ -324,6 +315,52 @@ chemistries = dict(
             "3.5*ULN<=x",
             grade=GRADE4,
             units=MILLIGRAMS_PER_DECILITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+    ],
+    egfr=[  # not considering % drop
+        p(
+            "60<=x<90",
+            grade=GRADE2,
+            units=EGFR_UNITS,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "30<=x<60",
+            grade=GRADE3,
+            units=EGFR_UNITS,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "x<30",
+            grade=GRADE4,
+            units=EGFR_UNITS,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+    ],
+    egfr_drop=[  # % drop from baseline
+        p(
+            "10<=x<30",
+            grade=GRADE2,
+            units=PERCENT,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "30<=x<50",
+            grade=GRADE3,
+            units=PERCENT,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "50<=x",
+            grade=GRADE4,
+            units=PERCENT,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
