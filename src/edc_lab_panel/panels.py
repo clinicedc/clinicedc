@@ -69,7 +69,7 @@ rft_panel = RequisitionPanel(
     verbose_name="Chemistry: Renal Function Tests",
     abbreviation="RFT",
     processing_profile=rft_processing,
-    utest_ids=["urea", "creatinine", "uric_acid", "egfr"],
+    utest_ids=["urea", "creatinine", "uric_acid", "egfr", "egfr_drop"],
 )
 
 lipids_panel = RequisitionPanel(
