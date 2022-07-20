@@ -4,7 +4,7 @@ panel_conclusion_fieldset = (
     "Conclusion",
     {"fields": ("results_abnormal", "results_reportable")},
 )
-panel_summary_fieldset = ("Summary", {"classes": ("collapse",), "fields": ("summary",)})
+panel_summary_fieldset = ("Summary", {"fields": ("summary",)})
 
 
 class BloodResultFieldsetError(Exception):

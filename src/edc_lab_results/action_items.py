@@ -71,7 +71,17 @@ class BloodResultsLipidAction(BaseResultsAction):
 class BloodResultsEgfrAction(BaseResultsAction):
     name = BLOOD_RESULTS_EGFR_ACTION
     display_name = "Reportable eGFR"
-    reference_model = f"{subject_app_label}.bloodresultsfbc"
+    reference_model = f"{subject_app_label}.bloodresultsrft"
+
+    def get_next_actions(self):
+        next_actions = []
+        if (
+            not is_baseline(instance=self.reference_obj.subject_visit)
+            and self.reference_obj.egfr_value < 45
+        ):
+            # AE for reportable result, though not on DAY1.0
+            next_actions = [AE_INITIAL_ACTION]
+        return next_actions
 
 
 class BloodResultsGluAction(BaseResultsAction):
