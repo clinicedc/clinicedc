@@ -34,8 +34,6 @@ class MetadataUpdater:
         metadata_obj = self.target.metadata_obj
         if self.target.object:
             entry_status = KEYED
-        # if not metadata_obj and self.missed_visit_model_instance:
-        #     pass
         if entry_status and metadata_obj.entry_status != entry_status:
             metadata_obj.entry_status = entry_status
             metadata_obj.save()
