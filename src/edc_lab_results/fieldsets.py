@@ -1,10 +1,31 @@
+from typing import List, Optional, Tuple
+
 from django_audit_fields import audit_fieldset_tuple
 
-panel_conclusion_fieldset = (
+panel_conclusion_fieldset: Tuple[str, dict] = (
     "Conclusion",
     {"fields": ("results_abnormal", "results_reportable")},
 )
-panel_summary_fieldset = ("Summary", {"fields": ("summary",)})
+panel_summary_fieldset: Tuple[str, dict] = ("Summary", {"fields": ("summary",)})
+
+
+calculate_egfr_fieldset: Tuple[str, dict] = (
+    "Calculated eGFR",
+    {
+        # "classes": ("collapse",),
+        "description": "To be calculated (or recalulated) when this form is saved",
+        "fields": ["egfr_value", "egfr_units", "egfr_grade"],
+    },
+)
+
+calculate_egfr_drop_fieldset: Tuple[str, dict] = (
+    "Calculated eGFR Drop",
+    {
+        # "classes": ("collapse",),
+        "description": "To be calculated (or recalulated) when this form is saved",
+        "fields": ["egfr_drop_value", "egfr_drop_units", "egfr_drop_grade"],
+    },
+)
 
 
 class BloodResultFieldsetError(Exception):
@@ -21,7 +42,7 @@ class BloodResultFieldset:
         panel,
         title=None,
         model_cls=None,
-        extra_fieldsets=None,
+        extra_fieldsets: Optional[List[Tuple[int, Tuple[str, dict]]]] = None,
         excluded_utest_ids=None,
         exclude_units=None,
     ):
