@@ -47,7 +47,7 @@ class EgfrCkdEpi(BaseEgfr):  # noqa
 
     @property
     def ethnicity_factor(self) -> float:
-        return 1.150 if self.ethnicity == BLACK else 1.000
+        return 1.159 if self.ethnicity == BLACK else 1.000
 
     @property
     def gender_factor(self) -> float:
