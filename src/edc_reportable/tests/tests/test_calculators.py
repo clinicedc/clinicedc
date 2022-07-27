@@ -107,7 +107,7 @@ class TestCalculators(TestCase):
             creatinine_units=MICROMOLES_PER_LITER,
         )
 
-        self.assertEqual(round(egfr1.value, 2), 712.56)
+        self.assertEqual(round(egfr1.value, 2), 718.14)
 
         egfr2 = EgfrCkdEpi(
             gender=MALE,
@@ -117,7 +117,7 @@ class TestCalculators(TestCase):
             creatinine_units=MICROMOLES_PER_LITER,
         )
 
-        self.assertEqual(round(egfr2.value, 2), 828.04)
+        self.assertEqual(round(egfr2.value, 2), 834.52)
 
     def test_bmi_form_validator(self):
         data = dict(
@@ -174,7 +174,7 @@ class TestCalculators(TestCase):
         data.update(creatinine_value=1.3, creatinine_units=MICROMOLES_PER_LITER)
         form_validator = EgfrFormValidator(cleaned_data=data)
         egfr = form_validator.validate_egfr()
-        self.assertEqual(round(egfr, 2), 712.56)
+        self.assertEqual(round(egfr, 2), 718.14)
 
         # calculation error: bad units
         data.update(creatinine_units=GRAMS_PER_DECILITER)
