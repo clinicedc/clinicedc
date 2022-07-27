@@ -14,7 +14,7 @@ admin.site.unregister(User)
 
 
 def send_new_credentials_to_user_action(modeladmin, request, queryset):  # noqa
-    if request.user.has_perms(["auth.change_user"]):
+    if request.user.has_perm("auth.change_user"):
         for obj in queryset:
             send_new_credentials_to_user(user=obj)
     else:
