@@ -9,6 +9,7 @@ DISPENSING_VIEW = "DISPENSING_VIEW"
 PHARMACIST_ROLE = "pharmacist"
 SITE_PHARMACIST_ROLE = "site_pharmacist"
 PRESCRIBER_ROLE = "prescriber"
+PHARMACY_AUDITOR_ROLE = "pharmacy_auditor_role"
 
 pharmacy_codenames = []
 for app_config in django_apps.get_app_configs():
