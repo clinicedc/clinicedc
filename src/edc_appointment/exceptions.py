@@ -12,3 +12,7 @@ class UnknownVisitCode(Exception):
 
 class AppointmentWindowError(Exception):
     pass
+
+
+class AppointmentPermissionsRequired(Exception):
+    pass

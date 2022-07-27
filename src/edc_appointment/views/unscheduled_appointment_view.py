@@ -12,7 +12,7 @@ from ..creators import (
     UnscheduledAppointmentCreator,
     UnscheduledAppointmentError,
 )
-from ..exceptions import AppointmentWindowError
+from ..exceptions import AppointmentPermissionsRequired, AppointmentWindowError
 
 
 class UnscheduledAppointmentView(View):
@@ -28,9 +28,8 @@ class UnscheduledAppointmentView(View):
     dashboard_template = "subject_dashboard_template"
 
     def get(self, request, *args, **kwargs):
-
         try:
-            creator = self.unscheduled_appointment_cls(**kwargs)
+            creator = self.unscheduled_appointment_cls(request=request, **kwargs)
         except (
             ObjectDoesNotExist,
             UnscheduledAppointmentError,
@@ -38,6 +37,7 @@ class UnscheduledAppointmentView(View):
             InvalidParentAppointmentStatusError,
             AppointmentInProgressError,
             AppointmentWindowError,
+            AppointmentPermissionsRequired,
         ) as e:
             messages.error(self.request, str(e))
         else:

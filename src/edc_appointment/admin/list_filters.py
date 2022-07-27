@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Optional
 
 from dateutil.relativedelta import MO, relativedelta
 from django.contrib import admin
