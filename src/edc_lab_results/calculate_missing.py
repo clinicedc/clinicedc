@@ -25,6 +25,6 @@ def calculate_missing(obj: Any, panel: Any) -> Tuple[int, Optional[str]]:
             except ValueError:
                 pass
             if field == utest_id or field == f"{utest_id}_value":
-                if not getattr(obj, field):
+                if getattr(obj, field) is None:
                     missing.append(field)
     return len(missing), ",".join(missing) if missing else None

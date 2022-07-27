@@ -1,51 +1,23 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from edc_constants.choices import YES_NO
-from edc_glucose.model_mixins import FastingModelMixin
-from edc_lab.choices import RESULT_QUANTIFIER
-from edc_lab.constants import EQ
-from edc_reportable import IU_LITER, IU_LITER_DISPLAY
-from edc_reportable.choices import REPORTABLE
+from edc_glucose.model_mixins import fasting_model_mixin_factory
+from edc_lab_panel.model_mixin_factory import reportable_result_model_mixin_factory
+from edc_reportable.units import IU_LITER, IU_LITER_DISPLAY
 
 
-class InsulinModelMixin(FastingModelMixin, models.Model):
-
-    ins_value = models.DecimalField(
+class BaseInsulinModelMixin(
+    reportable_result_model_mixin_factory(
+        utest_id="ins",
         verbose_name="Insulin",
-        max_digits=8,
-        decimal_places=4,
-        null=True,
-        blank=True,
-    )
+        units_choices=((IU_LITER, IU_LITER_DISPLAY),),
+        validators=[MinValueValidator(0.0), MaxValueValidator(999.0)],
+    ),
+    models.Model,
+):
+    class Meta:
+        abstract = True
 
-    ins_quantifier = models.CharField(
-        max_length=10,
-        choices=RESULT_QUANTIFIER,
-        default=EQ,
-    )
 
-    ins_units = models.CharField(
-        verbose_name="units",
-        max_length=15,
-        choices=(
-            (IU_LITER, IU_LITER),
-            (IU_LITER_DISPLAY, IU_LITER_DISPLAY),
-        ),
-        default=IU_LITER,
-        null=True,
-        blank=True,
-    )
-
-    ins_abnormal = models.CharField(
-        verbose_name="abnormal", choices=YES_NO, max_length=25, null=True, blank=True
-    )
-
-    ins_reportable = models.CharField(
-        verbose_name="reportable",
-        choices=REPORTABLE,
-        max_length=25,
-        null=True,
-        blank=True,
-    )
-
+class InsulinModelMixin(BaseInsulinModelMixin, fasting_model_mixin_factory(), models.Model):
     class Meta:
         abstract = True
