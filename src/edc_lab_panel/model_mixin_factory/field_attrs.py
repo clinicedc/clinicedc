@@ -3,6 +3,8 @@ from typing import Optional
 from django.core.validators import MinValueValidator
 from django.db import models
 from edc_constants.choices import GRADING_SCALE_WITH_NOT_GRADED, YES_NO
+from edc_lab.choices import RESULT_QUANTIFIER
+from edc_lab.constants import EQ
 from edc_reportable.choices import REPORTABLE
 
 
@@ -14,6 +16,7 @@ def get_field_attrs_for_utestid(
     decimal_places: Optional[int] = None,
     max_digits: Optional[int] = None,
     validators: Optional[list] = None,
+    quantifier: Optional[list] = None,
     help_text: Optional[list] = None,
 ) -> dict:
     """Returns a dictionary of field classes for the model"""
@@ -37,9 +40,18 @@ def get_field_attrs_for_utestid(
     if default_units:
         units_options.update(default=default_units)
 
+    quantifier_options = dict(
+        verbose_name="Quantifier",
+        max_length=10,
+        choices=RESULT_QUANTIFIER,
+        default=EQ,
+        null=True,
+        blank=True,
+    )
     return {
         f"{utest_id}_value": models.DecimalField(**value_options),
         f"{utest_id}_units": models.CharField(**units_options),
+        f"{utest_id}_quantifier": models.CharField(**quantifier_options),
     }
 
 
