@@ -1,5 +1,5 @@
 function edcPharmaReady() {
-	
+
 	var post = $.ajax({
 		url: Urls['edc-label:home_url'](),
 		type: 'GET',
