@@ -13,7 +13,7 @@ from ..constants import (
     NEW_APPT,
     UNSCHEDULED_APPT,
 )
-from ..exceptions import AppointmentWindowError
+from ..exceptions import AppointmentPermissionsRequired, AppointmentWindowError
 from .appointment_creator import AppointmentCreator
 
 
@@ -51,6 +51,7 @@ class UnscheduledAppointmentCreator:
         visit_code_sequence: Optional[Union[int, str]] = None,
         timepoint: Optional[Union[Decimal, str]] = None,
         facility: Optional[str] = None,
+        request: Optional[Any] = None,
         **kwargs,  # noqa
     ):
         self._parent_appointment = None
@@ -70,17 +71,23 @@ class UnscheduledAppointmentCreator:
         self.visit_schedule = site_visit_schedules.get_visit_schedule(visit_schedule_name)
         self.schedule = self.visit_schedule.schedules.get(schedule_name)
         self.appointment_model_cls = self.schedule.appointment_model_cls
-        visit = self.visit_schedule.schedules.get(schedule_name).visits.get(visit_code)
+        self.has_perm_or_raise(request)
+        self.create_or_raise()
+
+    def create_or_raise(self) -> None:
+        visit = self.visit_schedule.schedules.get(self.schedule_name).visits.get(
+            self.visit_code
+        )
         if not visit:
             raise UnscheduledAppointmentError(
                 "Invalid visit. Got None using {"
-                f"visit_schedule_name='{visit_schedule_name}',"
-                f"schedule_name='{schedule_name}',"
-                f"visit_code='{visit_code}'" + "}"
+                f"visit_schedule_name='{self.visit_schedule_name}',"
+                f"schedule_name='{self.schedule_name}',"
+                f"visit_code='{self.visit_code}'" + "}"
             )
         elif not visit.allow_unscheduled:
             raise UnscheduledAppointmentNotAllowed(
-                f"Not allowed. Visit {visit_code} is not configured for "
+                f"Not allowed. Visit {self.visit_code} is not configured for "
                 "unscheduled appointments."
             )
         else:
@@ -125,6 +132,15 @@ class UnscheduledAppointmentCreator:
                 )
             self.appointment = appointment_creator.appointment
 
+    def has_perm_or_raise(self, request) -> None:
+        if request and not request.user.has_perm(
+            f"{self.appointment_model_cls._meta.app_label}."
+            f"{self.appointment_model_cls._meta.model}_add"
+        ):
+            raise AppointmentPermissionsRequired(
+                "You do not have permission to create an appointment"
+            )
+
     @property
     def ignore_window_period(self: Any) -> bool:
         value = False
@@ -157,12 +173,11 @@ class UnscheduledAppointmentCreator:
             visit_schedule_name=self.visit_schedule_name,
             schedule_name=self.schedule_name,
             visit_code=self.visit_code,
+            visit_code_sequence=0,
             timepoint=self.timepoint,
         )
         if self.visit_code_sequence is not None and self.visit_code_sequence > 0:
             opts.update(visit_code_sequence=self.visit_code_sequence - 1)
-        else:
-            opts.update(visit_code_sequence=0)
         try:
             appointment = self.appointment_model_cls.objects.get(**opts)
         except ObjectDoesNotExist:
