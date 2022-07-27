@@ -223,7 +223,7 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
 
         If False, `get_queryset` returns an empty queryset.
         """
-        return self.request.user.has_perms([self.listboard_view_permission_codename])
+        return self.request.user.has_perm(self.listboard_view_permission_codename)
 
     @property
     def has_view_only_my_listboard_perms(self):
@@ -244,7 +244,7 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
         app_label = self.listboard_model_cls._meta.label_lower.split(".")[0]
         model_name = self.listboard_model_cls._meta.label_lower.split(".")[1]
         return self.request.user.has_perms(
-            f"{app_label}.add_{model_name}", f"{app_label}.change_{model_name}"
+            [f"{app_label}.add_{model_name}", f"{app_label}.change_{model_name}"]
         )
 
 
