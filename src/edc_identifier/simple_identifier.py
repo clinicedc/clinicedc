@@ -129,6 +129,7 @@ class SimpleUniqueIdentifier:
         source_model: Optional[str] = None,
         subject_identifier: Optional[str] = None,
         site: Optional[Any] = None,
+        site_id: Optional[str] = None,
     ):
         self._identifier: str = None
         self.model = model or self.model
@@ -153,6 +154,8 @@ class SimpleUniqueIdentifier:
         opts.update({self.identifier_attr: self.identifier})
         if site:
             opts.update(site=site)
+        elif site_id:
+            opts.update(site_id=site_id)
         self.model_cls.objects.create(**opts)
 
     def __str__(self):
