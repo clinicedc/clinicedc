@@ -7,6 +7,7 @@ from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from ..admin_site import edc_pharmacy_admin
 from ..forms import RxForm
 from ..models import Rx
+from .list_filters import MedicationsListFilter
 
 
 @admin.register(Rx, site=edc_pharmacy_admin)
@@ -56,7 +57,7 @@ class RxAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
         "rx_name",
     ]
 
-    list_filter = ("report_datetime", "site")
+    list_filter = ("report_datetime", MedicationsListFilter, "site")
 
     search_fields = [
         "id",
