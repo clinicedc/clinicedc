@@ -11,7 +11,9 @@ SITE_PHARMACIST_ROLE = "site_pharmacist"
 PRESCRIBER_ROLE = "prescriber"
 PHARMACY_AUDITOR_ROLE = "pharmacy_auditor_role"
 
+prescriber_codenames = []
 pharmacy_codenames = []
+
 for app_config in django_apps.get_app_configs():
     if app_config.name in [
         "edc_pharmacy",
@@ -23,9 +25,7 @@ for app_config in django_apps.get_app_configs():
                     pass
                 else:
                     pharmacy_codenames.append(f"{app_name}.{prefix}_{model_name}")
-pharmacy_codenames.sort()
 
-prescriber_codenames = []
 for model_name in [
     "dosageguideline",
     "medication",
@@ -39,4 +39,6 @@ for model_name in [
     "prescriptionitem",
 ]:
     prescriber_codenames.extend([c for c in pharmacy_codenames if model_name in c])
+
 prescriber_codenames.sort()
+pharmacy_codenames.sort()

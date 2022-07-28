@@ -1,8 +1,8 @@
 from datetime import date, datetime
 from decimal import Decimal
 from typing import Any, Optional, Union
+from zoneinfo import ZoneInfo
 
-import arrow
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -21,7 +21,7 @@ def convert_to_utc_date(dte: Union[datetime, date]) -> date:
     try:
         dt = dte.date()
     except AttributeError:
-        dt = arrow.get(dte).to("utc").date()
+        dt = dte.astimezone(ZoneInfo("UTC")).date()
     return dt
 
 

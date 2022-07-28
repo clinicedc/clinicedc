@@ -1,6 +1,5 @@
 from django.apps import apps as django_apps
 from edc_label.label import Label
-from edc_label.printer import Printer
 
 
 class PrintButtonAdminMixin:
@@ -15,34 +14,10 @@ class PrintButtonAdminMixin:
         self.label_templates = app_config.label_templates
         self.printer_label = app_config.default_printer_label
 
-    # @property
-    # def print_server(self):
-    #     if not self._print_server:
-    #         if self.cups_server_ip:
-    #             self._print_server = PrintServer(self.cups_server_ip)
-    #         else:
-    #             self._print_server = PrintServer()
-    #         self._print_server.select_printer(self.printer_label)
-    #     return self._print_server
-    #
-    # @property
-    # def printers(self):
-    #     if not self._printers:
-    #         if self.print_server:
-    #             for printer in self.print_server.printers.items():
-    #                 printer = str(printer[0])
-    #                 printer_properties = {
-    #                     k.replace("-", "_"): v
-    #                     for k, v in self.print_server.printers[printer].items()
-    #                 }
-    #                 self._printers.update({printer: printer_properties})
-    #     return self._printers
-
     def print_label(self, label_name, copies=None, context=None):
         copies = 1 if copies is None else copies
         label_template = self.label_templates.get(label_name)
         context = label_template.test_context if context is None else context
         label = Label(label_name)
         label.render_as_zpl_data(context=context, copies=copies)
-        Printer
         return label
