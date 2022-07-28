@@ -38,6 +38,4 @@ class DispensingHistoryReadonlyForm(forms.ModelForm):
 
     class Meta:
         model = DispensingHistory
-        # ['medication', 'count', 'status', 'dispensed_datetime']
-        # fields = '__all__'
         exclude = ["medication"]
