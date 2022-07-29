@@ -6,33 +6,63 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('edc_data_manager', '0021_auto_20210929_2343'),
+        ("edc_data_manager", "0021_auto_20210929_2343"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='dataquery',
-            name='recipients',
-            field=models.ManyToManyField(blank=True, help_text='Select any additional recipients. Users in the `Site Data Manager` group are automatically included.', related_name='+', to='edc_data_manager.queryuser', verbose_name='Sent to'),
+            model_name="dataquery",
+            name="recipients",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="Select any additional recipients. Users in the `Site Data Manager` group are automatically included.",
+                related_name="+",
+                to="edc_data_manager.queryuser",
+                verbose_name="Sent to",
+            ),
         ),
         migrations.AlterField(
-            model_name='queryrule',
-            name='data_dictionaries',
-            field=models.ManyToManyField(blank=True, help_text='select all that apply', related_name='+', to='edc_data_manager.crfdatadictionary', verbose_name='Question(s)'),
+            model_name="queryrule",
+            name="data_dictionaries",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="select all that apply",
+                related_name="+",
+                to="edc_data_manager.crfdatadictionary",
+                verbose_name="Question(s)",
+            ),
         ),
         migrations.AlterField(
-            model_name='queryrule',
-            name='recipients',
-            field=models.ManyToManyField(blank=True, help_text='Select any additional recipients. Users in the `Site Data Manager` group are automatically included.', related_name='+', to='edc_data_manager.queryuser', verbose_name='Send to'),
+            model_name="queryrule",
+            name="recipients",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="Select any additional recipients. Users in the `Site Data Manager` group are automatically included.",
+                related_name="+",
+                to="edc_data_manager.queryuser",
+                verbose_name="Send to",
+            ),
         ),
         migrations.AlterField(
-            model_name='queryrule',
-            name='visit_schedule',
-            field=models.ManyToManyField(blank=True, help_text='select all that apply', related_name='+', to='edc_data_manager.queryvisitschedule', verbose_name='Visit'),
+            model_name="queryrule",
+            name="visit_schedule",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="select all that apply",
+                related_name="+",
+                to="edc_data_manager.queryvisitschedule",
+                verbose_name="Visit",
+            ),
         ),
         migrations.AlterField(
-            model_name='queryrule',
-            name='visit_schedule_exclude',
-            field=models.ManyToManyField(blank=True, help_text='select all that apply', related_name='+', to='edc_data_manager.queryvisitschedule', verbose_name='Visit (exclude)'),
+            model_name="queryrule",
+            name="visit_schedule_exclude",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="select all that apply",
+                related_name="+",
+                to="edc_data_manager.queryvisitschedule",
+                verbose_name="Visit (exclude)",
+            ),
         ),
     ]

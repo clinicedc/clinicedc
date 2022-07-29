@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.contrib.admin.decorators import register
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_action_item.fieldsets import action_fields, action_fieldset_tuple
@@ -206,7 +207,8 @@ class DataQueryAdmin(
 
     def wrapped_title(self, obj=None):
         wrapped_title = wrap(obj.title, width=20)
-        return mark_safe("<BR>".join(wrapped_title))
+        html = "<BR>".join(wrapped_title)
+        return format_html("{}", mark_safe(html))  # nosec B703, B308
 
     wrapped_title.short_description = "Title"
 

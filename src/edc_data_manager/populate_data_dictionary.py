@@ -8,6 +8,7 @@ from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist
 from django.db.models.fields import NOT_PROVIDED
 from django.db.utils import IntegrityError, OperationalError
 from django.test.client import RequestFactory
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from edc_list_data.model_mixins import ListModelMixin
 
@@ -28,7 +29,9 @@ class DbField:
             self.default = self.get_default(db_field)
             self.field_name = getattr(db_field, "name", None)
             self.field_type = None if db_field is None else db_field.get_internal_type()
-            self.help_text = mark_safe(getattr(db_field, "help_text", ""))
+            self.help_text = format_html(
+                "{}", mark_safe(getattr(db_field, "help_text", ""))  # nosec B703, B308
+            )
             self.max_digits = getattr(db_field, "max_digits", None)
             self.max_length = getattr(db_field, "max_length", None)
             self.nullable = getattr(db_field, "null", False)
@@ -81,7 +84,7 @@ def create_or_update_data_dictionary(index, model, fld):
             active=True,
             model=model._meta.label_lower,
             number=index + 1,
-            prompt=mark_safe(label or ""),
+            prompt=format_html("{}", mark_safe(label or "")),  # nosec B703, B308
             **db_field_data,
         )
         try:
@@ -102,6 +105,7 @@ def create_or_update_data_dictionary(index, model, fld):
 
 
 def populate_data_dictionary(form=None, model=None):
+    auto_number = True
     try:
         auto_number = form._meta.auto_number
     except AttributeError:
@@ -141,7 +145,7 @@ def populate_data_dictionary_from_sites(request=None):
                 if not populate:
                     sys.stdout.write(f"   - {model._meta.label_lower}. (skipping)\n")
                 else:
-                    sys.stdout.write(f"   + {model._meta.label_lower}.\n")
+                    sys.stdout.write(f"   + {model._meta.label_lower}...\n")
                     if not form.base_fields:
                         for index, fld in enumerate(model._meta.get_fields()):
                             if fld.editable:
@@ -149,3 +153,4 @@ def populate_data_dictionary_from_sites(request=None):
                     else:
                         for index, fld in enumerate(form.base_fields.items()):
                             create_or_update_data_dictionary(index, model, fld)
+                    sys.stdout.write(f"   + {model._meta.label_lower}.   \n")

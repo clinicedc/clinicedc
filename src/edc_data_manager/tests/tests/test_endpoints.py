@@ -41,7 +41,7 @@ class AdminSiteTest(WebTest):
 
     def setUp(self):
         self.subject_identifier = "101-123456789"
-        self.user = User.objects.create(
+        self.user = User.objects.create(  # nosec B106
             username="user_login",
             email="u@example.com",
             password="pass",
