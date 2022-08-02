@@ -1,5 +1,4 @@
 from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 from edc_action_item.action_with_notification import ActionWithNotification
 from edc_constants.constants import CLOSED, HIGH_PRIORITY, NO, YES
 
