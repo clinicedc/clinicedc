@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls.base import reverse
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from edc_action_item import action_fieldset_tuple
 from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
@@ -74,9 +75,11 @@ class AeInitialModelAdminMixin(
     form = AeInitialForm
 
     email_contact = get_email_contacts("ae_reports")
-    additional_instructions = mark_safe(
+    additional_instructions = format_html(  # nosec B308, B703
         "Complete the initial AE report and forward to the TMG. "
-        f'Email to <a href="mailto:{email_contact}">{email_contact}</a>'
+        'Email to <a href="mailto:{}">{}</a>',
+        mark_safe(email_contact),  # nosec B308, B703
+        mark_safe(email_contact),  # nosec B308, B703
     )
 
     fieldsets = (
@@ -130,10 +133,12 @@ class AeInitialModelAdminMixin(
                 url_name = f"{settings.ADVERSE_EVENT_APP_LABEL}_deathreport"
                 namespace = self.admin_site.name
                 url = reverse(f"{namespace}:{url_name}_changelist")
-                link = (
-                    f'See report <a title="go to Death report"'
-                    f'href="{url}?q={death_report.subject_identifier}">'
-                    f"<span nowrap>{death_report.identifier}</span></a>"
+                link = format_html(  # nosec B308, B703
+                    'See report <a title="go to Death report"'
+                    'href="{}?q={}"><span nowrap>{}</span></a>',
+                    mark_safe(url),  # nosec B308, B703
+                    death_report.subject_identifier,
+                    death_report.identifier,
                 )
             return mark_safe(f"{obj.sae_reason.name}.<BR>{link}.")
         return obj.get_sae_reason_display()

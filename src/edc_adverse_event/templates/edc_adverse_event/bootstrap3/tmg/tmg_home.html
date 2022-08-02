@@ -10,7 +10,7 @@
         <div class="panel panel-warning">
           <div class="panel-heading">Closed AE TMG reports</div>
           <div class="panel-body">
-        <table class="table table-striped table-condensed">          
+        <table class="table table-striped table-condensed">
         {% for item in summary %}
           <tr><td>{{ item.site__name|title }}</td><td align="right">{{ item.count }}</td></tr>
         {% endfor %}

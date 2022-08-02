@@ -1,6 +1,7 @@
 from django import forms
 from django.conf import settings
 from django.urls.base import reverse
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from edc_constants.constants import YES
 from edc_form_validators import FormValidatorMixin
@@ -48,11 +49,13 @@ class AeInitialModelFormMixin(FormValidatorMixin, ModelFormSubjectIdentifierMixi
         if ae_followup_cls.objects.filter(ae_initial=self.instance.pk).exists():
             url = f"{self.changelist_url}?q={self.instance.action_identifier}"
             raise forms.ValidationError(
-                mark_safe(
-                    f"Unable to save. Follow-up reports exist. Provide updates "
-                    f"to this report using the "
-                    f"{ae_followup_cls._meta.verbose_name} instead. "
-                    f'See <A href="{url}">AE Follow-ups for {self.instance}</A>.'
+                format_html(  # nosec B703, B308
+                    "Unable to save. Follow-up reports exist. Provide updates "
+                    "to this report using the "
+                    '{} instead. See <A href="{}">AE Follow-ups for {}</A>.',
+                    ae_followup_cls._meta.verbose_name,
+                    mark_safe(url),  # nosec B703, B308
+                    mark_safe(self.instance),  # nosec B703, B308
                 )
             )
 

@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.urls.base import reverse
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from edc_utils.text import convert_php_dateformat
 
@@ -29,10 +30,12 @@ class NonAeInitialModelAdminMixin:
             url_name = "_".join(obj.ae_initial._meta.label_lower.split("."))
             namespace = self.admin_site.name
             url = reverse(f"{namespace}:{url_name}_changelist")
-            return mark_safe(
-                f'<a data-toggle="tooltip" title="go to ae initial report" '
-                f'href="{url}?q={obj.ae_initial.action_identifier}">'
-                f"{obj.ae_initial.identifier}</a>"
+            return format_html(  # nosec B703, B308
+                '<a data-toggle="tooltip" title="go to ae initial report" '
+                'href="{}?q={}">{}</a>',
+                mark_safe(url),  # nosec B703, B308
+                obj.ae_initial.action_identifier,
+                obj.ae_initial.identifier,
             )
         return None
 
@@ -40,7 +43,7 @@ class NonAeInitialModelAdminMixin:
 class AdverseEventModelAdminMixin:
     def user(self, obj):
         """Returns formatted user names and creation/modification dates."""
-        return mark_safe(
+        return format_html(
             "<BR>".join(
                 [
                     obj.user_created,

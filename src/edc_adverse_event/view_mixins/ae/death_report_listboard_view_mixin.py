@@ -1,8 +1,7 @@
 import arrow
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils.safestring import mark_safe
-from django.utils.translation import gettext as _
+from django.utils.html import format_html
 from edc_action_item.model_wrappers import (
     ActionItemModelWrapper as BaseActionItemModelWrapper,
 )
@@ -54,17 +53,14 @@ class DeathReportListboardViewMixin(
     listboard_url = "death_report_listboard_url"
     listboard_panel_style = "default"
     listboard_model = "edc_action_item.actionitem"
-    listboard_panel_title = _("Adverse Events: Death Reports")
+    listboard_panel_title = "Adverse Events: Death Reports"
     listboard_view_permission_codename = "edc_dashboard.view_ae_listboard"
-    listboard_instructions = mark_safe(
-        _(
-            "To find a death report, search on the subject's "
-            "study identifier, death report reference number, or AE reference number."
-        )
-        + " <BR>"
-        + _("To download the printable report, click on the PDF button")
-        + " <i class='fas fa-file-pdf fa-fw'></i> "
-        + _("left of the subject's identifier.")
+    listboard_instructions = format_html(
+        "To find a death report, search on the subject's "
+        "study identifier, death report reference number, or AE reference number."
+        "<BR>To download the printable report, click on the PDF button"
+        "<i class='fas fa-file-pdf fa-fw'></i> "
+        "left of the subject's identifier."
     )
 
     model_wrapper_cls = ActionItemModelWrapper
