@@ -1,8 +1,7 @@
 import arrow
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils.safestring import mark_safe
-from django.utils.translation import gettext as _
+from django.utils.html import format_html
 from edc_action_item.model_wrappers import (
     ActionItemModelWrapper as BaseActionItemModelWrapper,
 )
@@ -60,7 +59,7 @@ class AeListboardViewMixin(
 
     listboard_back_url = "ae_home_url"
     home_url = "ae_home_url"
-    listboard_panel_title = _("Adverse Events: AE Initial and Follow-up Reports")
+    listboard_panel_title = "Adverse Events: AE Initial and Follow-up Reports"
     model_wrapper_cls = ActionItemModelWrapper
 
     listboard_template = "ae_listboard_template"
@@ -68,17 +67,17 @@ class AeListboardViewMixin(
     listboard_panel_style = "default"
     listboard_model = "edc_action_item.actionitem"
     listboard_view_permission_codename = "edc_dashboard.view_ae_listboard"
-    listboard_instructions = mark_safe(
-        _(
+
+    listboard_instructions = format_html(
+        (
             "To find an initial adverse event report, search on the subject's "
             "study identifier or AE reference number."
         )
         + " <BR>"
-        + _("To download the printable report, click on the PDF button")
+        + "To download the printable report, click on the PDF button"
         + " <i class='fas fa-file-pdf fa-fw'></i> "
-        + _("left of the subject's identifier.")
+        + "left of the subject's identifier."
     )
-
     navbar_selected_item = "ae_home"
     ordering = "-report_datetime"
     paginate_by = 25

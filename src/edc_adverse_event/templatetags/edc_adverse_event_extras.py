@@ -5,7 +5,7 @@ import arrow
 from django import template
 from django.conf import settings
 from django.template.loader import select_template
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from edc_constants.constants import OTHER, YES
 from edc_dashboard.utils import get_bootstrap_version
 
@@ -47,10 +47,10 @@ def format_ae_description(context, ae_initial, wrap_length):
     context["OTHER"] = OTHER
     context["YES"] = YES
     context["ae_initial"] = ae_initial
-    context["sae_reason"] = mark_safe(
+    context["sae_reason"] = format_html(
         "<BR>".join(wrap(ae_initial.sae_reason.name, wrap_length or 35))
     )
-    context["ae_description"] = mark_safe(
+    context["ae_description"] = format_html(
         "<BR>".join(wrap(ae_initial.ae_description, wrap_length or 35))
     )
     return context
@@ -64,13 +64,13 @@ def format_ae_followup_description(context, ae_followup, wrap_length):
     context["YES"] = YES
     context["ae_followup"] = ae_followup
     context["ae_initial"] = ae_followup.ae_initial
-    context["sae_reason"] = mark_safe(
+    context["sae_reason"] = format_html(
         "<BR>".join(wrap(ae_followup.ae_initial.sae_reason.name, wrap_length or 35))
     )
-    context["relevant_history"] = mark_safe(
+    context["relevant_history"] = format_html(
         "<BR>".join(wrap(ae_followup.relevant_history, wrap_length or 35))
     )
-    context["ae_description"] = mark_safe(
+    context["ae_description"] = format_html(
         "<BR>".join(wrap(ae_followup.ae_initial.ae_description, wrap_length or 35))
     )
     return context
@@ -84,10 +84,10 @@ def format_ae_susar_description(context, ae_susar, wrap_length):
     context["YES"] = YES
     context["ae_susar"] = ae_susar
     context["ae_initial"] = ae_susar.ae_initial
-    context["sae_reason"] = mark_safe(
+    context["sae_reason"] = format_html(
         "<BR>".join(wrap(ae_susar.ae_initial.sae_reason.name, wrap_length or 35))
     )
-    context["ae_description"] = mark_safe(
+    context["ae_description"] = format_ae_description(
         "<BR>".join(wrap(ae_susar.ae_initial.ae_description, wrap_length or 35))
     )
     return context

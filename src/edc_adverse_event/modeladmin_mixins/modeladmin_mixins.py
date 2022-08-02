@@ -31,8 +31,7 @@ class NonAeInitialModelAdminMixin:
             namespace = self.admin_site.name
             url = reverse(f"{namespace}:{url_name}_changelist")
             return format_html(  # nosec B703, B308
-                '<a data-toggle="tooltip" title="go to ae initial report" '
-                'href="{}?q={}">{}</a>',
+                '<a data-toggle="tooltip" title="go to AE initial" href="{}?q={}">{}</a>',
                 mark_safe(url),  # nosec B703, B308
                 obj.ae_initial.action_identifier,
                 obj.ae_initial.identifier,
@@ -41,8 +40,9 @@ class NonAeInitialModelAdminMixin:
 
 
 class AdverseEventModelAdminMixin:
-    def user(self, obj):
-        """Returns formatted user names and creation/modification dates."""
+    @staticmethod
+    def user(obj):
+        """Returns formatted usernames and creation/modification dates."""
         return format_html(
             "<BR>".join(
                 [
@@ -57,9 +57,9 @@ class AdverseEventModelAdminMixin:
     def follow_up_reports(self, ae_initial):
         """Returns a formatted list of links to AE Follow up reports."""
         followups = []
-        AeFollowup = get_ae_model("aefollowup")
-        AeSusar = get_ae_model("aesusar")
-        for ae_followup in AeFollowup.objects.filter(
+        ae_followup_model_cls = get_ae_model("aefollowup")
+        ae_susar_model_cls = get_ae_model("aesusar")
+        for ae_followup in ae_followup_model_cls.objects.filter(
             related_action_item=ae_initial.action_item
         ):
             url = self.get_changelist_url(ae_followup)
@@ -72,7 +72,9 @@ class AdverseEventModelAdminMixin:
                 f'href="{url}?q={ae_initial.action_identifier}">'
                 f"<span nowrap>{ae_followup.identifier}</span></a>"
             )
-        for ae_susar in AeSusar.objects.filter(related_action_item=ae_initial.action_item):
+        for ae_susar in ae_susar_model_cls.objects.filter(
+            related_action_item=ae_initial.action_item
+        ):
             url = self.get_changelist_url(ae_susar)
             report_datetime = ae_susar.report_datetime.strftime(
                 convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
@@ -84,7 +86,7 @@ class AdverseEventModelAdminMixin:
                 f"<span nowrap>{ae_susar.identifier} (SUSAR)</span></a>"
             )
         if followups:
-            return mark_safe("<BR>".join(followups))
+            return format_html("<BR>".join(followups))
         return None
 
     def get_changelist_url(self, obj):

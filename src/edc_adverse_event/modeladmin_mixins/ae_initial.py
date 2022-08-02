@@ -140,7 +140,7 @@ class AeInitialModelAdminMixin(
                     death_report.subject_identifier,
                     death_report.identifier,
                 )
-            return mark_safe(f"{obj.sae_reason.name}.<BR>{link}.")
+            return format_html(f"{obj.sae_reason.name}.<BR>{link}.")
         return obj.get_sae_reason_display()
 
     if_sae_reason.short_description = "If SAE, reason"
