@@ -336,18 +336,17 @@ class DataQueryAdmin(
         }
         return render_to_string(self.query_date_column_template_name, context=context)
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_readonly_fields(self, request, obj=None) -> tuple:
         fields = super().get_readonly_fields(request, obj=obj)
-        extra_fields = [
+        extra_fields = (
             "rule_generated",
             "rule_reference",
             "missed_visit",
             "auto_resolved",
             "registered_subject",
-            *action_fields,
-        ]
+        ) + action_fields
         if not request.user.groups.filter(name=DATA_MANAGER):
-            extra_fields = [
+            extra_fields = (
                 "data_dictionaries",
                 "dm_user",
                 "plan_of_action",
@@ -363,10 +362,10 @@ class DataQueryAdmin(
                 "title",
                 "visit_code_sequence",
                 "visit_schedule",
-            ]
+            )
         if not obj:
-            extra_fields.remove("registered_subject")
-        return list(fields) + extra_fields
+            extra_fields = tuple(f for f in extra_fields if f != "registered_subject")
+        return fields + extra_fields
 
     def get_subject_dashboard_url_kwargs(self, obj):
         def get_opts():
