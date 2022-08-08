@@ -3,6 +3,8 @@ from uuid import uuid4
 from django.db import models
 from django.db.models import options
 from django_crypto_fields.fields import EncryptedTextField
+from edc_constants.constants import OPEN
+from edc_data_manager.get_data_queries import get_data_queries
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.models import CurrentSiteManager
@@ -132,6 +134,14 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
     def formatted_age_at_consent(self):
         """Returns a string representation."""
         return formatted_age(self.get_dob(), self.consent_datetime)
+
+    @property
+    def open_data_queries(self):
+        return get_data_queries(
+            subject_identifier=self.subject_identifier,
+            model=self._meta.label_lower,
+            status=OPEN,
+        )
 
     class Meta:
         abstract = True

@@ -2,6 +2,8 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib import admin
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.urls import reverse
+from django.utils.html import format_html
 from edc_identifier import SubjectIdentifierError, is_subject_identifier_or_raise
 
 from .actions import flag_as_verified_against_paper, unflag_as_verified_against_paper
@@ -57,14 +59,15 @@ class ModelAdminConsentMixin(admin.ModelAdmin):
             "consent_copy",
         ] + super().get_fields(request, obj=obj)
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_readonly_fields(self, request, obj=None) -> tuple:
         readonly_fields = super().get_readonly_fields(request, obj)
-        fields = ["subject_identifier", "subject_identifier_as_pk"]
+        fields = ("subject_identifier", "subject_identifier_as_pk")
         if obj:
-            fields.extend(["consent_datetime", "identity", "confirm_identity"])
-            return fields + list(readonly_fields)
+            return (
+                fields + ("consent_datetime", "identity", "confirm_identity") + readonly_fields
+            )
         else:
-            return fields + list(readonly_fields)
+            return fields + readonly_fields
 
     def get_search_fields(self, request):
         search_fields = list(super().get_search_fields(request))
@@ -76,8 +79,9 @@ class ModelAdminConsentMixin(admin.ModelAdmin):
             "identity",
         ]
 
-    def get_list_display(self, request):
-        return [
+    def get_list_display(self, request) -> tuple:
+        list_display = super().get_list_display(request)
+        custom_fields = (
             "subject_identifier",
             "is_verified",
             "is_verified_datetime",
@@ -91,11 +95,15 @@ class ModelAdminConsentMixin(admin.ModelAdmin):
             "modified",
             "user_created",
             "user_modified",
-        ] + list(super().get_list_display(request))
+        )
+        if request.user.has_perm("edc_data_manager.add_dataquery"):
+            custom_fields = list(custom_fields)
+            custom_fields.insert(3, self.queries)
+        return tuple(custom_fields) + tuple(f for f in list_display if f not in custom_fields)
 
-    def get_list_filter(self, request):
-        super().get_list_filter(request)
-        fields = [
+    def get_list_filter(self, request) -> tuple:
+        list_filter = super().get_list_filter(request)
+        custom_fields = (
             "gender",
             "is_verified",
             "is_verified_datetime",
@@ -108,11 +116,8 @@ class ModelAdminConsentMixin(admin.ModelAdmin):
             "user_created",
             "user_modified",
             "hostname_created",
-        ]
-        self.list_filter = [f for f in fields if f not in self.list_filter] + list(
-            self.list_filter
         )
-        return self.list_filter
+        return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
 
     def delete_view(self, request, object_id, extra_context=None):
         """Prevent deletion if SubjectVisit objects exist."""
@@ -148,3 +153,33 @@ class ModelAdminConsentMixin(admin.ModelAdmin):
         except KeyError:
             pass
         return next_options
+
+    @admin.display(description="Open queries")
+    def queries(self, obj=None):
+        new_url = reverse(
+            "edc_data_manager_admin:edc_data_manager_dataquery_add",
+        )
+        if obj.is_verified:
+            formatted_html = None
+        else:
+            links = []
+            for query_obj in obj.open_data_queries:
+                url = reverse(
+                    "edc_data_manager_admin:edc_data_manager_dataquery_change",
+                    args=(query_obj.id,),
+                )
+                links.append(
+                    f'<A title="go to query" href="{url}">'
+                    f"{query_obj.action_identifier[-9:]}</A>"
+                )
+            if links:
+                formatted_html = format_html(
+                    "<BR>".join(links) + f'<BR><A title="New query" '
+                    f'href="{new_url}">Add query</A>'
+                )
+            else:
+                formatted_html = format_html(
+                    f'<A title="New query" href="{new_url}?"'
+                    f'subject_identifier={obj.subject_identifier}">Add query</A>'
+                )
+        return formatted_html

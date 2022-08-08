@@ -1,6 +1,6 @@
 from django.core.validators import RegexValidator
 from django.db import models
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from django_crypto_fields.fields import (
     EncryptedCharField,
     FirstnameField,
@@ -70,7 +70,7 @@ class PersonalFieldsMixin(CryptoMixin, models.Model):
         validators=[FullNameValidator()],
         blank=True,
         null=True,
-        help_text=mark_safe(
+        help_text=format_html(
             "Required only if participant is a minor.<BR>"
             "Format is 'LASTNAME, FIRSTNAME'. "
             "All uppercase separated by a comma."
