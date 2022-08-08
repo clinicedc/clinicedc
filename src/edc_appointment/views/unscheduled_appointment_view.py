@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.views.generic.base import View
 
@@ -43,13 +44,16 @@ class UnscheduledAppointmentView(View):
         else:
             messages.success(
                 self.request,
-                mark_safe(f"Appointment {creator.appointment} was created successfully."),
+                format_html(
+                    "Appointment {} was created successfully.",
+                    mark_safe(creator.appointment),  # nosec B308, B703
+                ),
             )
             messages.warning(
                 self.request,
-                mark_safe(
-                    f"Remember to adjust the appointment date and time on "
-                    f"appointment {creator.appointment}."
+                format_html(
+                    "Remember to adjust the appointment date and time on " "appointment {}.",
+                    mark_safe(creator.appointment),  # nosec B308, B703
                 ),
             )
         return HttpResponseRedirect(

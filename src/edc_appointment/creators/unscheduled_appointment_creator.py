@@ -135,7 +135,7 @@ class UnscheduledAppointmentCreator:
     def has_perm_or_raise(self, request) -> None:
         if request and not request.user.has_perm(
             f"{self.appointment_model_cls._meta.app_label}."
-            f"{self.appointment_model_cls._meta.model}_add"
+            f"add_{self.appointment_model_cls._meta.model_name}"
         ):
             raise AppointmentPermissionsRequired(
                 "You do not have permission to create an appointment"

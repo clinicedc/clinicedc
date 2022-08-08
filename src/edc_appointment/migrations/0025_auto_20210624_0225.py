@@ -6,18 +6,28 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('edc_appointment', '0024_auto_20200911_0425'),
+        ("edc_appointment", "0024_auto_20200911_0425"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='appointment',
-            name='appt_reason',
-            field=models.CharField(choices=[('scheduled', 'Routine / Scheduled'), ('unscheduled', 'Unscheduled')], help_text="The visit report's `reason for visit` will be validated against this. Refer to the protocol's documentation for the definition of a `scheduled` visit.", max_length=25, verbose_name='Reason for appointment'),
+            model_name="appointment",
+            name="appt_reason",
+            field=models.CharField(
+                choices=[("scheduled", "Routine / Scheduled"), ("unscheduled", "Unscheduled")],
+                help_text="The visit report's `reason for visit` will be validated against this. Refer to the protocol's documentation for the definition of a `scheduled` visit.",
+                max_length=25,
+                verbose_name="Reason for appointment",
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalappointment',
-            name='appt_reason',
-            field=models.CharField(choices=[('scheduled', 'Routine / Scheduled'), ('unscheduled', 'Unscheduled')], help_text="The visit report's `reason for visit` will be validated against this. Refer to the protocol's documentation for the definition of a `scheduled` visit.", max_length=25, verbose_name='Reason for appointment'),
+            model_name="historicalappointment",
+            name="appt_reason",
+            field=models.CharField(
+                choices=[("scheduled", "Routine / Scheduled"), ("unscheduled", "Unscheduled")],
+                help_text="The visit report's `reason for visit` will be validated against this. Refer to the protocol's documentation for the definition of a `scheduled` visit.",
+                max_length=25,
+                verbose_name="Reason for appointment",
+            ),
         ),
     ]
