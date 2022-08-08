@@ -10,7 +10,7 @@ data-content="
 title='click to add'
 href='{% url action_item_add_url %}?next={{ subject_dashboard_url }},subject_identifier&subject_identifier={{ subject_identifier }}&action_type={{show_link_to_add_action.action_type_id}}'>
 <span class='text text-default small'><i class='fas fa-plus fa-fw' aria-hidden='true'></i> {{ show_link_to_add_action.display_name }}</span>
-</a>	
+</a>
 {% endfor %}
 </div>
 <p><a title='close' class='btn btn-sm btn-primary pull-right'><i class='fas fa-times fa-fw' aria-hidden='true'></i></a><br></p>">

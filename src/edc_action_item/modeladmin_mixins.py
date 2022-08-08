@@ -1,5 +1,3 @@
-from copy import copy
-
 from .fieldsets import action_fields
 
 
@@ -12,6 +10,5 @@ class ActionItemModelAdminMixin:
             You are expected to use ActionItemFormMixin with the form.
         """
         fields = super().get_readonly_fields(request, obj=obj)
-        action_flds = copy(list(action_fields))
-        action_flds.remove("action_identifier")
-        return tuple(fields) + tuple(action_flds)
+        fields += action_fields
+        return tuple(f for f in fields if f != "action_identifier")

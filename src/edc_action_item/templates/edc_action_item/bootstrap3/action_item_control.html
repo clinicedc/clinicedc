@@ -9,7 +9,7 @@ data-content="
 <a id='show-link-to-add-{{ show_link_to_add_action.name }}' class='list-group-item list-group-item-warning'
 href='{% url action_item_add_url %}?next={{ subject_dashboard_url }},subject_identifier&subject_identifier={{ subject_identifier }}&action_type={{show_link_to_add_action.action_type_id}}'>
 <i class='fas fa-plus fa-fw pull-left' aria-hidden='true'></i> <small>{{ show_link_to_add_action.display_name }}</small>
-</a>	
+</a>
 {% endfor %}
 </div>
 <p><a class='btn btn-sm btn-primary pull-right'><i class='fas fa-times fa-fw' aria-hidden='true'></i></a><br></p>">
