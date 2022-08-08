@@ -115,8 +115,9 @@ class ActionItemAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
             )
         return readonly_fields
 
-    def parent_action(self, obj):
-        """Returns a url to the parent action item
+    @staticmethod
+    def parent_action(obj):
+        """Returns an url to the parent action item
         for display in admin.
         """
         if obj.parent_action_item:
