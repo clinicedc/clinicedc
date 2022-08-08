@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.admin import sites
 from django.contrib.admin.decorators import register
 from django.contrib.auth import get_permission_codename
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django_audit_fields.admin import ModelAdminAuditFieldsMixin, audit_fieldset_tuple
 from edc_list_data.model_mixins import ListModelMixin
@@ -69,11 +70,13 @@ class DataDictionaryAdmin(ModelAdminAuditFieldsMixin, SimpleHistoryAdmin):
         "model_verbose_name",
     )
 
-    def form_title(self, obj):
+    @staticmethod
+    def form_title(obj):
         return obj.model_verbose_name
 
-    def question_text(self, obj):
-        return mark_safe(obj.prompt)
+    @staticmethod
+    def question_text(obj):
+        return format_html("{}", mark_safe(obj.prompt))  # nosec B703, B308
 
     def populate_data_dictionary_action(self, request, queryset):
         DataDictionary.objects.update(active=False)

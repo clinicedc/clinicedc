@@ -41,7 +41,7 @@ class AdminSiteTest(WebTest):
 
     def setUp(self):
         self.subject_identifier = "101-123456789"
-        self.user = User.objects.create(
+        self.user = User.objects.create(  # nosec B106
             username="user_login",
             email="u@example.com",
             password="pass",
@@ -115,7 +115,10 @@ class AdminSiteTest(WebTest):
         url = reverse(
             "edc_data_manager_admin:edc_data_manager_dataquery_change", args=(data_query.pk,)
         )
-        form = self.app.get(url, user=self.user).form
+        try:
+            form = self.app.get(url, user=self.user).form
+        except TypeError:
+            form = self.app.get(url, user=self.user).forms[1]
         response = form.submit().follow()
         self.assertIn("was changed successfully", str(response.content))
 
@@ -129,7 +132,10 @@ class AdminSiteTest(WebTest):
         url = reverse(
             "edc_data_manager_admin:edc_data_manager_dataquery_change", args=(data_query.pk,)
         )
-        form = self.app.get(url, user=self.user).form
+        try:
+            form = self.app.get(url, user=self.user).form
+        except TypeError:
+            form = self.app.get(url, user=self.user).forms[1]
         response = form.submit().follow()
         self.assertIn("was changed successfully", str(response.content))
 
@@ -141,14 +147,15 @@ class AdminSiteTest(WebTest):
         )
 
         url = reverse("edc_data_manager_admin:edc_data_manager_dataquery_add")
-        form = self.app.get(
-            (
-                f"{url}?subject_identifier={self.subject_identifier}&"
-                f"registered_subject={str(registered_subject.pk)}&"
-                f"sender={str(DataManagerUser.objects.get(username=self.user.username).pk)}"
-            ),
-            user=self.user,
-        ).form
+        url = (
+            f"{url}?subject_identifier={self.subject_identifier}&"
+            f"registered_subject={str(registered_subject.pk)}&"
+            f"sender={str(DataManagerUser.objects.get(username=self.user.username).pk)}"
+        )
+        try:
+            form = self.app.get(url, user=self.user).form
+        except TypeError:
+            form = self.app.get(url, user=self.user).forms[1]
         form["title"] = "My first query"
         form["query_text"] = "this is a query"
         response = form.submit().follow()
@@ -166,7 +173,10 @@ class AdminSiteTest(WebTest):
         url = reverse(
             "edc_data_manager_admin:edc_data_manager_dataquery_change", args=(data_query.pk,)
         )
-        form = self.app.get(url, user=self.user).form
+        try:
+            form = self.app.get(url, user=self.user).form
+        except TypeError:
+            form = self.app.get(url, user=self.user).forms[1]
         response = form.submit().follow()
         self.assertIn("was changed successfully", str(response))
 

@@ -1,5 +1,4 @@
 from edc_auth.auth_objects import (
-    AUDITOR_ROLE,
     CELERY_MANAGER,
     CLINICIAN_ROLE,
     CLINICIAN_SUPER_ROLE,
@@ -20,8 +19,10 @@ from .auth_objects import (
 # groups
 site_auths.add_group(*data_manager, name=DATA_MANAGER)
 site_auths.add_group(*data_manager, name=DATA_QUERY_VIEW, view_only=True)
+
 site_auths.add_group(*data_manager, name=DATA_QUERY, view_only=True)
 site_auths.update_group("edc_data_manager.change_dataquery", name=DATA_QUERY)
+
 site_auths.add_group(
     "edc_data_manager.export_datadictionary",
     "edc_data_manager.export_dataquery",
@@ -35,4 +36,3 @@ site_auths.add_role(DATA_QUERY, name=SITE_DATA_MANAGER_ROLE)
 site_auths.update_role(DATA_QUERY, name=CLINICIAN_ROLE)
 site_auths.update_role(DATA_QUERY, name=NURSE_ROLE)
 site_auths.update_role(DATA_QUERY, name=CLINICIAN_SUPER_ROLE)
-site_auths.update_role(DATA_MANAGER, name=AUDITOR_ROLE)

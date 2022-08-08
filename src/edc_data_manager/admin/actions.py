@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls.base import reverse
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from edc_constants.constants import CLOSED, OPEN
 from edc_utils import formatted_datetime, get_utcnow
@@ -70,7 +71,7 @@ copy_query_rule_action.short_description = f"Copy {QueryRule._meta.verbose_name}
 def update_query_rules_action(modeladmin, request, queryset):
 
     if not DATA_MANAGER_ENABLED:
-        msg = mark_safe(
+        msg = (
             "Data manager features are currently disabled. "
             "See settings.DATA_MANAGER_ENABLED."
         )
@@ -80,18 +81,21 @@ def update_query_rules_action(modeladmin, request, queryset):
             update_query_rules.delay(pks=[o.pk for o in queryset])
             dte = get_utcnow()
             taskresult_url = reverse("admin:django_celery_results_taskresult_changelist")
-            msg = mark_safe(
+            msg = format_html(
                 "Updating data queries in the background. "
-                f"Started at {formatted_datetime(dte)}. "
+                "Started at {}. "
                 "An updated digest will be email upon completion. "
-                f'You may also check in <a href="{taskresult_url}?'
-                'task_name=update_query_rules">task results</A>. '
+                'You may also check in <a href="{}?"'
+                'task_name=update_query_rules">task results</A>. ',
+                mark_safe(formatted_datetime(dte)),  # nosec B703, B308
+                mark_safe(taskresult_url),  # nosec B703, B308
             )
         else:
             results = update_query_rules(pks=[o.pk for o in queryset])
-            msg = mark_safe(
-                f"Done updating data queries. Created {results.get('created')}, "
-                f"resolved {results.get('resolved')}."
+            msg = format_html(
+                "Done updating data queries. Created {}, " "resolved {}.",
+                mark_safe(results.get("created")),  # nosec B703, B308
+                mark_safe(results.get("resolved")),  # nosec B703, B308
             )
         messages.add_message(request, messages.SUCCESS, msg)
 
