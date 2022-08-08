@@ -43,9 +43,9 @@ class ActionTypeAdmin(admin.ModelAdmin):
 
     date_hierarchy = None
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_readonly_fields(self, request, obj=None) -> tuple:
         readonly_fields = super().get_readonly_fields(request, obj=obj)
-        readonly_fields = list(readonly_fields) + [
+        return readonly_fields + (
             "name",
             "display_name",
             "model",
@@ -53,5 +53,4 @@ class ActionTypeAdmin(admin.ModelAdmin):
             "create_by_action",
             "create_by_user",
             "instructions",
-        ]
-        return readonly_fields
+        )
