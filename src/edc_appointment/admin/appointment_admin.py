@@ -3,7 +3,7 @@ import calendar
 from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from django.utils.translation import gettext as _
 from edc_document_status.fieldsets import document_status_fieldset_tuple
 from edc_document_status.modeladmin_mixins import DocumentStatusModelAdminMixin
@@ -50,7 +50,7 @@ class AppointmentAdmin(
         "appt_timing",
     )
 
-    additional_instructions = mark_safe(
+    additional_instructions = format_html(
         "To start or continue to edit FORMS for this subject, change the "
         'appointment status below to "In Progress" and click SAVE. <BR>'
         "<i>Note: You may only edit one appointment at a time. "
@@ -103,18 +103,18 @@ class AppointmentAdmin(
 
     search_fields = ("subject_identifier",)
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_readonly_fields(self, request, obj=None) -> tuple:
         readonly_fields = super().get_readonly_fields(request, obj=obj)
         return (
-            list(readonly_fields)
-            + list(visit_schedule_fields)
-            + [
+            readonly_fields
+            + visit_schedule_fields
+            + (
                 "subject_identifier",
                 "timepoint",
                 "timepoint_datetime",
                 "visit_code_sequence",
                 "facility_name",
-            ]
+            )
         )
 
     def has_delete_permission(self, request, obj=None):
