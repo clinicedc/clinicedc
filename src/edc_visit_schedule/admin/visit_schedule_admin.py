@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from django.contrib.admin.decorators import register
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_model_admin import SimpleHistoryAdmin
@@ -29,18 +31,6 @@ class VisitScheduleAdmin(SimpleHistoryAdmin):
         audit_fieldset_tuple,
     )
 
-    list_display = (
-        "visit_schedule_name",
-        "schedule_name",
-        "visit_code",
-        "visit_title",
-        "visit_name",
-        "timepoint",
-        "active",
-    )
-
-    list_filter = ("active", "visit_schedule_name", "schedule_name", "visit_code")
-
     search_fields = (
         "visit_schedule_name",
         "schedule_name",
@@ -49,6 +39,23 @@ class VisitScheduleAdmin(SimpleHistoryAdmin):
         "visit_name",
     )
 
-    def populate_visit_schedule(self, request, queryset):
+    def get_list_display(self, request) -> Tuple[str, ...]:
+        list_display = super().get_list_display(request)
+        return (
+            "visit_schedule_name",
+            "schedule_name",
+            "visit_code",
+            "visit_title",
+            "visit_name",
+            "timepoint",
+            "active",
+        ) + list_display
+
+    def get_list_filter(self, request) -> Tuple[str, ...]:
+        list_filter = super().get_list_filter(request)
+        return ("active", "visit_schedule_name", "schedule_name", "visit_code") + list_filter
+
+    @staticmethod
+    def populate_visit_schedule(request, queryset) -> None:
         VisitSchedule.objects.update(active=False)
         site_visit_schedules.to_model(VisitSchedule)

@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, reverse
 from django.utils.translation import gettext as _
+from django_audit_fields import audit_fields
 from edc_dashboard import url_names
 from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
@@ -48,21 +49,23 @@ class SubjectScheduleHistoryAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAd
         "offschedule_datetime",
     )
 
-    list_filter = (
-        "schedule_status",
-        "onschedule_datetime",
-        "offschedule_datetime",
-        "visit_schedule_name",
-        "schedule_name",
-    )
-
     search_fields = ("subject_identifier",)
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_list_filter(self, request) -> tuple:
+        list_filter = super().get_list_filter(request)
+        return (
+            "schedule_status",
+            "onschedule_datetime",
+            "offschedule_datetime",
+            "visit_schedule_name",
+            "schedule_name",
+        ) + list_filter
+
+    def get_readonly_fields(self, request, obj=None) -> tuple:
         fields = super().get_readonly_fields(request, obj=obj)
         fields = (
-            list(fields)
-            + [
+            fields
+            + (
                 "subject_identifier",
                 "visit_schedule_name",
                 "schedule_name",
@@ -71,12 +74,12 @@ class SubjectScheduleHistoryAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAd
                 "offschedule_datetime",
                 "onschedule_model",
                 "offschedule_model",
-            ]
-            + list(audit_fieldset_tuple[1].get("fields"))
+            )
+            + audit_fields
         )
         return fields
 
-    def dashboard(self, obj=None, label=None):
+    def dashboard(self, obj=None, label=None) -> str:
         try:
             url = reverse(
                 self.get_subject_dashboard_url_name(),
@@ -93,7 +96,8 @@ class SubjectScheduleHistoryAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAd
             context = dict(title=_("Go to subject dashboard"), url=url, label=label)
         return render_to_string("dashboard_button.html", context=context)
 
-    def review(self, obj=None):
+    @staticmethod
+    def review(obj=None) -> str:
         try:
             url = (
                 f"{reverse('edc_review_dashboard:subject_review_listboard_url')}?"
