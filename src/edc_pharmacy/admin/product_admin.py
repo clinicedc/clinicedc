@@ -32,7 +32,7 @@ class ProductAdmin(ModelAdminMixin, admin.ModelAdmin):
         audit_fieldset_tuple,
     )
 
-    list_display = [
+    list_display = (
         "product_identifier",
         "container",
         "count_per_container",
@@ -40,11 +40,17 @@ class ProductAdmin(ModelAdminMixin, admin.ModelAdmin):
         "lot_no",
         "created",
         "modified",
-    ]
-    list_filter = [
+    )
+    list_filter = (
         "formulation",
         "container",
-    ]
-    search_fields = ["product_identifier", "lot_no"]
-    ordering = ["product_identifier", "lot_no"]
-    readonly_fields = ["product_identifier"]
+    )
+    search_fields = (
+        "product_identifier",
+        "lot_no",
+    )
+    ordering = (
+        "product_identifier",
+        "lot_no",
+    )
+    readonly_fields = ("product_identifier",)

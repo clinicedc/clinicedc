@@ -1,6 +1,6 @@
 from edc_constants.constants import NOT_APPLICABLE, OTHER
 
-from edc_pharmacy.constants import PER_DAY, PER_HR, SINGLE
+from .constants import PER_DAY, PER_HR, SINGLE
 
 list_data = {
     "edc_pharmacy.formulationtype": [

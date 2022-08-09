@@ -17,8 +17,6 @@ class RxAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
 
     form = RxForm
 
-    # autocomplete_fields = ["medication"]
-
     fieldsets = (
         (
             None,
@@ -43,9 +41,9 @@ class RxAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
         audit_fieldset_tuple,
     )
 
-    filter_horizontal = ["medications"]
+    filter_horizontal = ("medications",)
 
-    list_display = [
+    list_display = (
         "subject_identifier",
         "dashboard",
         "add_refill",
@@ -55,11 +53,11 @@ class RxAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
         "rx_date",
         "weight_in_kgs",
         "rx_name",
-    ]
+    )
 
     list_filter = ("report_datetime", MedicationsListFilter, "site")
 
-    search_fields = [
+    search_fields = (
         "id",
         "subject_identifier",
         "rando_sid",
@@ -67,9 +65,13 @@ class RxAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
         "medications__name",
         "site__id",
         "rx_name",
-    ]
+    )
 
-    readonly_fields = ["rando_sid", "weight_in_kgs", "rx_name"]
+    readonly_fields = (
+        "rando_sid",
+        "weight_in_kgs",
+        "rx_name",
+    )
 
     @admin.display
     def add_refill(self, obj=None, label=None):

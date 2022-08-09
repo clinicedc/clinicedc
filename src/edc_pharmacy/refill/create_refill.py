@@ -1,7 +1,7 @@
 from .refill_creator import RefillCreator
 
 
-def create_refill(instance):
+def create_refill(instance) -> RefillCreator:
     """Creates the refill for this visit, if not already created.
 
     Called from signal.
@@ -12,7 +12,7 @@ def create_refill(instance):
             instance.subject_visit.appointment.next.appt_datetime
             - instance.subject_visit.appointment.appt_datetime
         ).days
-    RefillCreator(
+    return RefillCreator(
         dosage_guideline=instance.dosage_guideline,
         formulation=instance.formulation,
         make_active=True,

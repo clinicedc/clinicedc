@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('edc_pharmacy', '0005_alter_rx_managers'),
+        ("edc_pharmacy", "0005_alter_rx_managers"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='historicalrxrefill',
-            name='roundup_divisible_by',
+            model_name="historicalrxrefill",
+            name="roundup_divisible_by",
             field=models.IntegerField(default=1),
         ),
         migrations.AddField(
-            model_name='rxrefill',
-            name='roundup_divisible_by',
+            model_name="rxrefill",
+            name="roundup_divisible_by",
             field=models.IntegerField(default=1),
         ),
     ]

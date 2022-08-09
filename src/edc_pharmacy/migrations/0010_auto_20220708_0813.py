@@ -6,58 +6,58 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('edc_pharmacy', '0009_auto_20220708_0805'),
+        ("edc_pharmacy", "0009_auto_20220708_0805"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='historicallabels',
-            old_name='medication_stock_create_labels',
-            new_name='stock_create_labels',
+            model_name="historicallabels",
+            old_name="medication_stock_create_labels",
+            new_name="stock_create_labels",
         ),
         migrations.RenameField(
-            model_name='historicalrxrefill',
-            old_name='medication_stock',
-            new_name='stock',
+            model_name="historicalrxrefill",
+            old_name="medication_stock",
+            new_name="stock",
         ),
         migrations.RenameField(
-            model_name='historicalstock',
-            old_name='medication_product',
-            new_name='product',
+            model_name="historicalstock",
+            old_name="medication_product",
+            new_name="product",
         ),
         migrations.RenameField(
-            model_name='historicalstockcreatelabels',
-            old_name='medication_product',
-            new_name='product',
+            model_name="historicalstockcreatelabels",
+            old_name="medication_product",
+            new_name="product",
         ),
         migrations.RenameField(
-            model_name='historicalstockreceiving',
-            old_name='medication_product',
-            new_name='product',
+            model_name="historicalstockreceiving",
+            old_name="medication_product",
+            new_name="product",
         ),
         migrations.RenameField(
-            model_name='labels',
-            old_name='medication_stock_create_labels',
-            new_name='stock_create_labels',
+            model_name="labels",
+            old_name="medication_stock_create_labels",
+            new_name="stock_create_labels",
         ),
         migrations.RenameField(
-            model_name='rxrefill',
-            old_name='medication_stock',
-            new_name='stock',
+            model_name="rxrefill",
+            old_name="medication_stock",
+            new_name="stock",
         ),
         migrations.RenameField(
-            model_name='stock',
-            old_name='medication_product',
-            new_name='product',
+            model_name="stock",
+            old_name="medication_product",
+            new_name="product",
         ),
         migrations.RenameField(
-            model_name='stockcreatelabels',
-            old_name='medication_product',
-            new_name='product',
+            model_name="stockcreatelabels",
+            old_name="medication_product",
+            new_name="product",
         ),
         migrations.RenameField(
-            model_name='stockreceiving',
-            old_name='medication_product',
-            new_name='product',
+            model_name="stockreceiving",
+            old_name="medication_product",
+            new_name="product",
         ),
     ]

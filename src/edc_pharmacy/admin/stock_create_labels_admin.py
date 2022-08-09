@@ -20,40 +20,29 @@ class StockCreateLabelsAdmin(ModelAdminMixin, admin.ModelAdmin):
     fieldsets = (
         (
             None,
-            {
-                "fields": (
-                    [
-                        "product",
-                        "qty",
-                        # "randomizer",
-                        # "allocation",
-                        "printed",
-                        "printed_datetime",
-                    ]
-                )
-            },
+            {"fields": ("product", "qty", "printed", "printed_datetime")},
         ),
         audit_fieldset_tuple,
     )
 
-    list_display = [
+    list_display = (
         "product",
         "qty",
         "printed",
         "printed_datetime",
         "created",
         "modified",
-    ]
-    list_filter = [
+    )
+    list_filter = (
         "product",
         "printed",
         "printed_datetime",
         "created",
         "modified",
-    ]
-    search_fields = [
+    )
+    search_fields = (
         "product__product_identifier",
         "product__lot_no",
-    ]
-    ordering = ["printed_datetime"]
-    readonly_fields = ["printed", "printed_datetime"]
+    )
+    ordering = ("printed_datetime",)
+    readonly_fields = ("printed", "printed_datetime")
