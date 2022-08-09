@@ -143,7 +143,7 @@ class ManyToManyFieldValidator(BaseFormValidator):
         return False
 
     def m2m_single_selection_if(self, *single_selections: str, m2m_field=None):
-        """Raises an exception of returns False.
+        """Raises an exception or returns False.
 
         if a selected response from m2m_field is in single_selections
         and there is more than one selected value, raises.
