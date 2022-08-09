@@ -1,6 +1,5 @@
 from collections import namedtuple
-
-import arrow
+from zoneinfo import ZoneInfo
 
 
 class WindowPeriod:
@@ -10,7 +9,11 @@ class WindowPeriod:
 
     def get_window(self, dt=None):
         """Returns a named tuple of the lower and upper values."""
-        dt_floor = arrow.get(dt).to("utc").replace(hour=0, minute=0).datetime
-        dt_ceil = arrow.get(dt).to("utc").replace(hour=23, minute=59).datetime
+        dt_floor = dt.astimezone(ZoneInfo("UTC")).replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
+        dt_ceil = dt.astimezone(ZoneInfo("UTC")).replace(
+            hour=23, minute=59, second=59, microsecond=999999
+        )
         Window = namedtuple("window", ["lower", "upper"])
         return Window(dt_floor - self.rlower, dt_ceil + self.rupper)

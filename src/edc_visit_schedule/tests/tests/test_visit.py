@@ -88,7 +88,9 @@ class TestVisit(TestCase):
         )
         self.assertEqual(
             visit.dates.upper,
-            Arrow.fromdatetime(datetime(2001, 12, 7, 23, 59), tzinfo="utc").datetime,
+            Arrow.fromdatetime(
+                datetime(2001, 12, 7, 23, 59, 59, 999999), tzinfo="utc"
+            ).datetime,
         )
 
     def test_window_period_days(self):
@@ -98,11 +100,15 @@ class TestVisit(TestCase):
         self.assertEqual(wp.get_window(dt).lower, dt)
         self.assertEqual(
             wp.get_window(dt)[1],
-            Arrow.fromdatetime(datetime(2001, 12, 7, 23, 59), tzinfo="utc").datetime,
+            Arrow.fromdatetime(
+                datetime(2001, 12, 7, 23, 59, 59, 999999), tzinfo="utc"
+            ).datetime,
         )
         self.assertEqual(
             wp.get_window(dt).upper,
-            Arrow.fromdatetime(datetime(2001, 12, 7, 23, 59), tzinfo="utc").datetime,
+            Arrow.fromdatetime(
+                datetime(2001, 12, 7, 23, 59, 59, 999999), tzinfo="utc"
+            ).datetime,
         )
 
     def test_window_period_weeks(self):
@@ -114,7 +120,9 @@ class TestVisit(TestCase):
         )
         self.assertEqual(
             wp.get_window(dt).upper,
-            Arrow.fromdatetime(datetime(2002, 1, 19, 23, 59), tzinfo="utc").datetime,
+            Arrow.fromdatetime(
+                datetime(2002, 1, 19, 23, 59, 59, 999999), tzinfo="utc"
+            ).datetime,
         )
 
     def test_good_codes(self):
