@@ -57,7 +57,7 @@ class SimpleIdentifier:
     def random_string(self) -> str:
         return "".join(
             [
-                random.choice("ABCDEFGHKMNPRTUVWXYZ2346789")
+                random.choice("ABCDEFGHKMNPRTUVWXYZ2346789")  # nosec B311
                 for _ in range(self.random_string_length)
             ]
         )
@@ -89,7 +89,7 @@ class SimpleSequentialIdentifier:
 
     def __init__(self):
         sequence: int = int(get_utcnow().timestamp())
-        random_number: int = random.choice(range(1000, 9999))
+        random_number: int = random.choice(range(1000, 9999))  # nosec B311
         sequence: str = f"{sequence}{random_number}"
         chk: int = int(sequence) % 11
         self.identifier: str = f'{self.prefix or ""}{sequence}{chk}'
@@ -131,7 +131,7 @@ class SimpleUniqueIdentifier:
         site: Optional[Any] = None,
         site_id: Optional[str] = None,
     ):
-        self._identifier: str = None
+        self._identifier: Optional[str] = None
         self.model = model or self.model
         self.identifier_attr = identifier_attr or self.identifier_attr
         self.identifier_type = identifier_type or self.identifier_type

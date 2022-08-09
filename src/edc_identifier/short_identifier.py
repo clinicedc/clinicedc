@@ -100,7 +100,10 @@ class ShortIdentifier:
         while not identifier:
             tries += 1
             random_string = "".join(
-                [random.choice(allowed_chars) for _ in range(self.random_string_length)]
+                [
+                    random.choice(allowed_chars)  # nosec B311
+                    for _ in range(self.random_string_length)
+                ]
             )
             identifier = self.template.format(random_string=random_string, prefix=self.prefix)
             try:
