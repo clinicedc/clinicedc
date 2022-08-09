@@ -17,13 +17,12 @@ def update_user_profile_on_post_save(sender, instance, raw, **kwargs):
 
 @receiver(m2m_changed, weak=False, dispatch_uid="update_user_groups_on_role_m2m_changed")
 def update_user_groups_on_role_m2m_changed(sender, action, instance, pk_set, **kwargs):
-
     try:
-        assert instance.roles.through == sender
-    except (AttributeError, AssertionError):
+        through = instance.roles.through
+    except AttributeError:
         pass
     else:
-        if action in ["post_add", "post_remove"]:
+        if through == sender and action in ["post_add", "post_remove"]:
             if action == "post_add":
                 instance.add_groups_for_roles(pk_set)
             elif action == "post_remove":

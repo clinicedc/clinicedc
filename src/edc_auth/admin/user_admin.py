@@ -2,7 +2,7 @@ from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from edc_dashboard import select_edc_template
 
 from ..forms import UserChangeForm
@@ -69,7 +69,7 @@ class UserAdmin(BaseUserAdmin):
         return super().get_inline_instances(request, obj=obj)
 
     @staticmethod
-    def role(obj=None):
+    def role(obj=None) -> str:
         roles = []
         role_group_names = []
         for role in obj.userprofile.roles.all():
@@ -84,15 +84,15 @@ class UserAdmin(BaseUserAdmin):
         return render_to_string(template_obj.template.name, context)
 
     @staticmethod
-    def sites(obj=None):
+    def sites(obj=None) -> str:
         sites = []
         for site in obj.userprofile.sites.all():
             sites.append(site.name.replace("_", " ").title())
         sites.sort()
-        return mark_safe("<BR>".join(sites))
+        return format_html("<BR>".join(sites))
 
     @staticmethod
-    def groups_in_role(obj=None):
+    def groups_in_role(obj=None) -> str:
         roles = []
         role_group_names = []
         for role in obj.userprofile.roles.all():

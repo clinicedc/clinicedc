@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 
 from ..forms import UserProfileForm
 from ..models import UserProfile
@@ -10,9 +10,9 @@ class UserProfileInline(admin.StackedInline):
     can_delete = False
     verbose_name_plural = "User profile"
 
-    filter_horizontal = ("email_notifications", "sms_notifications", "sites", "roles")
-
     form = UserProfileForm
+
+    filter_horizontal = ("email_notifications", "sms_notifications", "sites", "roles")
 
 
 @admin.register(UserProfile)
@@ -31,24 +31,19 @@ class UserProfileAdmin(admin.ModelAdmin):
 
     @staticmethod
     def user_sites(obj=None):
-
-        return mark_safe("<BR>".join([o.name for o in obj.sites.all().order_by("name")]))
+        site_names = [o.name for o in obj.sites.all().order_by("name")]
+        return format_html("<BR>".join(site_names))
 
     @staticmethod
     def user_email_notifications(obj=None):
-        return mark_safe(
-            "<BR>".join(
-                [
-                    o.display_name
-                    for o in obj.email_notifications.all().order_by("display_name")
-                ]
-            )
-        )
+        display_names = [
+            o.display_name for o in obj.email_notifications.all().order_by("display_name")
+        ]
+        return format_html("<BR>".join(display_names))
 
     @staticmethod
     def user_sms_notifications(obj=None):
-        return mark_safe(
-            "<BR>".join(
-                [o.display_name for o in obj.sms_notifications.all().order_by("display_name")]
-            )
-        )
+        display_names = [
+            o.display_name for o in obj.sms_notifications.all().order_by("display_name")
+        ]
+        return format_html("<BR>".join(display_names))

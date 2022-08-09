@@ -14,9 +14,7 @@ class Migration(migrations.Migration):
         migrations.RemoveIndex(model_name="role", name="edc_auth_ro_id_587a9b_idx"),
         migrations.RemoveField(model_name="role", name="field_name"),
         migrations.RemoveField(model_name="role", name="version"),
-        migrations.RenameField(
-            model_name="role", old_name="name", new_name="display_name"
-        ),
+        migrations.RenameField(model_name="role", old_name="name", new_name="display_name"),
         migrations.AddIndex(
             model_name="role",
             index=models.Index(

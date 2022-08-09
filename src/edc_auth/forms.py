@@ -1,7 +1,7 @@
 from django import forms
 from django.conf import settings
 from django.contrib.auth.forms import UserChangeForm as BaseForm
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from edc_notification.utils import get_email_enabled
 from edc_randomization.auth_objects import RANDO_UNBLINDED
 from edc_randomization.blinding import (
@@ -36,9 +36,11 @@ class UserProfileForm(forms.ModelForm):
             if not get_email_enabled():
                 raise forms.ValidationError(
                     {
-                        "email_notifications": "You may not choose an email "
-                        "notification. Email is not enabled. "
-                        "Contact your EDC administrator."
+                        "email_notifications": (
+                            "You may not choose an email "
+                            "notification. Email is not enabled. "
+                            "Contact your EDC administrator."
+                        )
                     }
                 )
         qs = self.cleaned_data.get("sms_notifications")
@@ -46,9 +48,11 @@ class UserProfileForm(forms.ModelForm):
             if not settings.TWILIO_ENABLED:
                 raise forms.ValidationError(
                     {
-                        "sms_notifications": "You may not choose an SMS "
-                        "notification. SMS is not enabled. "
-                        "Contact your EDC administrator."
+                        "sms_notifications": (
+                            "You may not choose an SMS "
+                            "notification. SMS is not enabled. "
+                            "Contact your EDC administrator."
+                        )
                     }
                 )
         qs = self.cleaned_data.get("roles")
@@ -59,9 +63,10 @@ class UserProfileForm(forms.ModelForm):
                 ] and is_blinded_user(self.instance.user.username):
                     raise forms.ValidationError(
                         {
-                            "roles": mark_safe(
+                            "roles": format_html(
                                 "This user is not unblinded and may not be assigned "
-                                f"the role of <U>{role.name.title()}</U>."
+                                "the role of <U>{}</U>.",
+                                role.name.title(),
                             )
                         }
                     )
