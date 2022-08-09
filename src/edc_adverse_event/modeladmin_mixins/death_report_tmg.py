@@ -37,23 +37,6 @@ class DeathReportTmgModelAdminMixin(
         "report_status": admin.VERTICAL,
     }
 
-    list_display = [
-        "subject_identifier",
-        "dashboard",
-        "report_datetime",
-        "cause",
-        "agreed",
-        "status",
-        "report_closed_datetime",
-    ]
-
-    list_filter = (
-        "report_datetime",
-        "report_status",
-        "cause_of_death_agreed",
-        "cause_of_death",
-    )
-
     search_fields = [
         "subject_identifier",
         "action_identifier",
@@ -62,7 +45,30 @@ class DeathReportTmgModelAdminMixin(
         "death_report__tracking_identifier",
     ]
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_list_display(self, request) -> tuple:
+        list_display = super().get_list_display(request)
+        custom_fields = (
+            "subject_identifier",
+            "dashboard",
+            "report_datetime",
+            "cause",
+            "agreed",
+            "status",
+            "report_closed_datetime",
+        )
+        return custom_fields + tuple(f for f in list_display if f not in custom_fields)
+
+    def get_list_filter(self, request) -> tuple:
+        list_filter = super().get_list_filter(request)
+        custom_fields = (
+            "report_datetime",
+            "report_status",
+            "cause_of_death_agreed",
+            "cause_of_death",
+        )
+        return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
+
+    def get_readonly_fields(self, request, obj=None) -> tuple:
         fields = super().get_readonly_fields(request, obj)
         if obj:
             fields = fields + ("death_report",)

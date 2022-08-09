@@ -53,23 +53,29 @@ class AeFollowupModelAdminMixin(
         "ae_grade": admin.VERTICAL,
     }
 
-    list_display = [
-        "identifier",
-        "dashboard",
-        "description",
-        "initial_ae",
-        "follow_up_reports",
-        "user",
-    ]
-
-    list_filter = ("ae_grade", "followup", "outcome_date", "report_datetime")
-
     search_fields = [
         "action_identifier",
         "ae_initial__tracking_identifier",
         "ae_initial__subject_identifier",
         "ae_initial__action_identifier",
     ]
+
+    def get_list_display(self, request) -> tuple:
+        list_display = super().get_list_display(request)
+        custom_fields = (
+            "identifier",
+            "dashboard",
+            "description",
+            "initial_ae",
+            "follow_up_reports",
+            "user",
+        )
+        return custom_fields + tuple(f for f in list_display if f not in custom_fields)
+
+    def get_list_filter(self, request) -> tuple:
+        list_filter = super().get_list_filter(request)
+        custom_fields = ("ae_grade", "followup", "outcome_date", "report_datetime")
+        return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
 
     def description(self, obj):
         """Returns a formatted comprehensive description of the SAE

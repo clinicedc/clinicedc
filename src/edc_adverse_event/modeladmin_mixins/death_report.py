@@ -35,16 +35,22 @@ class DeathReportModelAdminMixin(ModelAdminSubjectDashboardMixin, ActionItemMode
         "cause_of_death": admin.VERTICAL,
     }
 
-    list_display = (
-        "subject_identifier",
-        "dashboard",
-        "report_datetime",
-        "cause_of_death",
-        "death_datetime",
-        "action_item",
-        "parent_action_item",
-    )
-
-    list_filter = ("report_datetime", "death_datetime", "cause_of_death")
-
     search_fields = ["subject_identifier", "action_identifier", "tracking_identifier"]
+
+    def get_list_display(self, request) -> tuple:
+        list_display = super().get_list_display(request)
+        custom_fields = (
+            "subject_identifier",
+            "dashboard",
+            "report_datetime",
+            "cause_of_death",
+            "death_datetime",
+            "action_item",
+            "parent_action_item",
+        )
+        return custom_fields + tuple(f for f in list_display if f not in custom_fields)
+
+    def get_list_filter(self, request) -> tuple:
+        list_filter = super().get_list_filter(request)
+        custom_fields = ("report_datetime", "death_datetime", "cause_of_death")
+        return custom_fields + tuple(f for f in list_filter if f not in custom_fields)

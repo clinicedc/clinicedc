@@ -96,25 +96,31 @@ class AeInitialModelAdminMixin(
 
     ordering = ["-tracking_identifier"]
 
-    list_display = [
-        "identifier",
-        "dashboard",
-        "description",
-        "follow_up_reports",
-        "user",
-    ]
-
-    list_filter = [
-        "ae_awareness_date",
-        "ae_grade",
-        "ae_classification",
-        "sae",
-        "sae_reason",
-        "susar",
-        "susar_reported",
-    ]
-
     search_fields = ["subject_identifier", "action_identifier", "tracking_identifier"]
+
+    def get_list_display(self, request) -> tuple:
+        list_display = super().get_list_display(request)
+        custom_fields = (
+            "identifier",
+            "dashboard",
+            "description",
+            "follow_up_reports",
+            "user",
+        )
+        return custom_fields + tuple(f for f in list_display if f not in custom_fields)
+
+    def get_list_filter(self, request) -> tuple:
+        list_filter = super().get_list_filter(request)
+        custom_fields = (
+            "ae_awareness_date",
+            "ae_grade",
+            "ae_classification",
+            "sae",
+            "sae_reason",
+            "susar",
+            "susar_reported",
+        )
+        return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
 
     def if_sae_reason(self, obj):
         """Returns the SAE reason.

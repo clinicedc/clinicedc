@@ -18,11 +18,11 @@ class NonAeInitialModelAdminMixin:
                 kwargs["queryset"] = get_ae_model("aeinitial").objects.none()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_readonly_fields(self, request, obj=None) -> tuple:
         fields = super().get_readonly_fields(request, obj=obj)
         if obj:
-            fields = list(fields) + ["ae_initial"]
-        return list(fields)
+            fields += ("ae_initial",)
+        return fields
 
     def initial_ae(self, obj):
         """Returns a shortened action identifier."""
