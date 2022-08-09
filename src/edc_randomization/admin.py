@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.sites import AlreadyRegistered
@@ -59,7 +61,7 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
 
     search_fields = ("subject_identifier", "sid")
 
-    readonly_fields = [
+    readonly_fields = (
         "subject_identifier",
         "sid",
         "site_name",
@@ -69,14 +71,13 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
         "allocated_datetime",
         "allocated_site",
         "randomizer_name",
-    ] + audit_fields
+    ) + audit_fields
 
     def get_fieldsets(self, request, obj=None):
-        fieldsets = (
+        return (
             (None, {"fields": self.get_fieldnames(request)}),
             audit_fieldset_tuple,
         )
-        return fieldsets
 
     def get_queryset(self, request):
         """
@@ -89,7 +90,7 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
             qs = qs.order_by(*ordering)
         return qs
 
-    def get_list_display(self, request):
+    def get_list_display(self, request) -> Tuple[str, ...]:
         list_display = [
             "sid",
             "assignment",
@@ -109,10 +110,10 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
         ).get_extra_list_display():
             for pos, fldname in flds:
                 list_display.insert(pos, fldname)
-        return list_display
+        return tuple(list_display)
 
     @staticmethod
-    def get_fieldnames(request):
+    def get_fieldnames(request) -> Tuple[str, ...]:
         fields = [
             "subject_identifier",
             "sid",
@@ -128,9 +129,9 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
             and RANDO_UNBLINDED not in [g.name for g in request.user.groups.all()]
         ):
             fields.remove("assignment")
-        return fields
+        return tuple(fields)
 
-    def get_list_filter(self, request):
+    def get_list_filter(self, request) -> Tuple[str, ...]:
         list_filter = [
             "assignment",
             "allocated_datetime",
