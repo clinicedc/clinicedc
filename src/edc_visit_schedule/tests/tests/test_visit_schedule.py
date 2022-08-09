@@ -1,7 +1,6 @@
-from datetime import date, datetime
+from datetime import date
 
 from dateutil.relativedelta import relativedelta
-from dateutil.tz import tzutc
 from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
@@ -313,7 +312,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
 
     def test_creates_appointments_starting_with_onschedule_datetime(self):
         """Will pass as long as this is not a holiday"""
-        onschedule_datetime = datetime(2017, 7, 19, 15, 29, 44, 903192, tzinfo=tzutc())
+        onschedule_datetime = Protocol().study_open_datetime + relativedelta(days=28)
         _, schedule = site_visit_schedules.get_by_onschedule_model(
             "visit_schedule_app.onschedule"
         )
