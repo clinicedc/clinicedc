@@ -1,7 +1,6 @@
 from typing import Any
+from zoneinfo import ZoneInfo
 
-import pytz
-from arrow.arrow import Arrow
 from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -19,7 +18,7 @@ class StudyDayFormValidatorMixin:
         study_day_field=None,
     ):
         """Raises an exception if study day does not match
-        calculation against pytz.
+        calculation against UTC.
 
         Note: study-day is 1-based.
         """
@@ -43,12 +42,10 @@ class StudyDayFormValidatorMixin:
             ).randomization_datetime
             days_on_study = (compare_date - randomization_datetime.date()).days
             if study_day - 1 != days_on_study:
-                tz = pytz.timezone(settings.TIME_ZONE)
-                formatted_date = (
-                    Arrow.fromdatetime(randomization_datetime)
-                    .to(tz)
-                    .strftime(convert_php_dateformat(settings.DATETIME_FORMAT))
-                )
+                randomization_datetime.astimezone(ZoneInfo(settings.TIME_ZONE))
+                formatted_date = randomization_datetime.astimezone(
+                    ZoneInfo(settings.TIME_ZONE)
+                ).strftime(convert_php_dateformat(settings.DATETIME_FORMAT))
                 message = {
                     study_day_field: (
                         f"Invalid. Expected {days_on_study + 1}. "
