@@ -14,7 +14,10 @@ class MedicationOrderAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     show_object_tools = True
 
-    autocomplete_fields = ["dosage_guideline", "formulation"]
+    autocomplete_fields = (
+        "dosage_guideline",
+        "formulation",
+    )
 
     form = MedicationOrderForm
 
@@ -76,7 +79,7 @@ class MedicationOrderAdmin(ModelAdminMixin, admin.ModelAdmin):
         "visit_code_sequence",
         "site",
     )
-    search_fields = [
+    search_fields = (
         "id",
         "site__id",
         "rx__id",
@@ -84,10 +87,13 @@ class MedicationOrderAdmin(ModelAdminMixin, admin.ModelAdmin):
         "rx__subject_identifier",
         "rx__registered_subject__initials",
         "dosage_guideline__medication__name",
-    ]
-    ordering = ["rx__subject_identifier", "-refill_date"]
+    )
+    ordering = (
+        "rx__subject_identifier",
+        "-refill_date",
+    )
 
-    readonly_fields = [
+    readonly_fields = (
         "rx",
         "dosage_guideline",
         "formulation",
@@ -96,7 +102,7 @@ class MedicationOrderAdmin(ModelAdminMixin, admin.ModelAdmin):
         "packed",
         "shipped",
         "received_at_site",
-    ]
+    )
 
     @staticmethod
     def description(obj):

@@ -36,7 +36,7 @@ class LabelsAdmin(ModelAdminMixin, admin.ModelAdmin):
         audit_fieldset_tuple,
     )
 
-    list_display = [
+    list_display = (
         "stock_create_labels",
         "stock_identifier",
         "printed",
@@ -45,24 +45,24 @@ class LabelsAdmin(ModelAdminMixin, admin.ModelAdmin):
         "in_stock_datetime",
         "created",
         "modified",
-    ]
-    list_filter = [
+    )
+    list_filter = (
         "stock_create_labels",
         "printed",
         "printed_datetime",
         "created",
         "modified",
-    ]
-    search_fields = [
+    )
+    search_fields = (
         "stock_create_labels__product__product_identifier",
         "stock_create_labels__product__lot_no",
-    ]
-    ordering = ["printed_datetime"]
-    readonly_fields = [
+    )
+    ordering = ("printed_datetime",)
+    readonly_fields = (
         "stock_create_labels",
         "stock_identifier",
         "printed",
         "printed_datetime",
         "in_stock",
         "in_stock_datetime",
-    ]
+    )

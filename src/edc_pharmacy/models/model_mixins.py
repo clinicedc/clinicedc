@@ -59,6 +59,12 @@ class StudyMedicationRefillModelMixin(models.Model):
         blank=True,
     )
 
+    # days_to_next_refill = models.IntegerField(
+    #     null=True,
+    #     blank=True,
+    #     help_text="Leave blank to auto-calculate relative to this refill (see signal)",
+    # )
+
     class Meta:
         verbose_name = "Study Medication"
         verbose_name_plural = "Study Medication"
@@ -75,8 +81,7 @@ class StudyMedicationCrfModelMixin(StudyMedicationRefillModelMixin):
         return True
 
     def save(self, *args, **kwargs):
-        if not self.number_of_days:
-            self.number_of_days = self.calculate_number_of_days()
+        self.number_of_days = self.calculate_days_to_next_visit()
         if self.order_next == YES and not self.has_next_appointment:
             raise NextRefillError(
                 "Cannot order next refill. This subject has no future appointments."
@@ -90,7 +95,7 @@ class StudyMedicationCrfModelMixin(StudyMedicationRefillModelMixin):
     def get_subject_identifier(self):
         return self.subject_visit.subject_identifier
 
-    def calculate_number_of_days(self) -> int:
+    def calculate_days_to_next_visit(self) -> int:
         """Returns the number of days between this appointment
         and the next
         """

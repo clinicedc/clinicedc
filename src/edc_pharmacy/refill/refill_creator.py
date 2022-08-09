@@ -19,9 +19,9 @@ class RefillCreatorError(Exception):
 
 def convert_to_utc_date(dte: Union[datetime, date]) -> date:
     try:
-        dt = dte.date()
-    except AttributeError:
         dt = dte.astimezone(ZoneInfo("UTC")).date()
+    except AttributeError:
+        dt = dte
     return dt
 
 

@@ -2,11 +2,9 @@ from uuid import uuid4
 
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
-from edc_constants.constants import YES
 
 from ..dispense import Dispensing
-from ..exceptions import RefillAlreadyExists
-from ..refill import create_next_refill, create_refill, delete_next_refill
+from ..refill import create_refills_from_crf
 from .dispensing_history import DispensingHistory
 from .stock_create_labels import Labels, StockCreateLabels
 
@@ -34,25 +32,15 @@ def dispensing_history_on_post_delete(sender, instance, using=None, **kwargs):
     post_save,
     dispatch_uid="create_refills_on_post_save",
 )
-def create_refills_on_post_save(sender, instance, raw, created, **kwargs):
-    if not raw:
+def create_refills_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
+    if not raw and not update_fields:
         try:
             instance.creates_refills_from_crf
         except AttributeError:
             pass
         else:
             if instance.creates_refills_from_crf:
-                try:
-                    create_refill(instance)
-                except RefillAlreadyExists:
-                    pass
-                if instance.order_next == YES:
-                    try:
-                        create_next_refill(instance)
-                    except RefillAlreadyExists:
-                        pass
-                elif not instance.subject_visit.appointment.next:
-                    delete_next_refill(instance)
+                create_refills_from_crf(instance)
 
 
 @receiver(

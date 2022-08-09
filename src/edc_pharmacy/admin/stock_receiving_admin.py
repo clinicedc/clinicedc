@@ -19,37 +19,32 @@ class StockReceivingAdmin(ModelAdminMixin, admin.ModelAdmin):
             None,
             {
                 "fields": (
-                    [
-                        "product",
-                        "qty",
-                        "stock_identifiers",
-                        "received",
-                        "received_datetime",
-                    ]
+                    "product",
+                    "qty",
+                    "stock_identifiers",
+                    "received",
+                    "received_datetime",
                 )
             },
         ),
         audit_fieldset_tuple,
     )
 
-    list_display = [
+    list_display = (
         "product",
         "qty",
         "received",
         "received_datetime",
         "created",
         "modified",
-    ]
-    list_filter = [
+    )
+    list_filter = (
         "product",
         "received",
         "received_datetime",
         "created",
         "modified",
-    ]
-    search_fields = [
-        "product__product_identifier",
-        "product__lot_no",
-    ]
-    ordering = ["received_datetime"]
-    readonly_fields = ["received", "received_datetime"]
+    )
+    search_fields = ("product__product_identifier", "product__lot_no")
+    ordering = ("received_datetime",)
+    readonly_fields = ("received", "received_datetime")

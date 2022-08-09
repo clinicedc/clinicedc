@@ -68,7 +68,7 @@ class DispensingHistoryInlineAdmin(admin.TabularInline):
     model = DispensingHistory
     can_delete = False
 
-    fields = ["dispensed", "status", "dispensed_datetime"]
-    ordering = ["dispensed_datetime"]
-    readonly_fields = ["dispensed", "status", "dispensed_datetime"]
+    fields = ("dispensed", "status", "dispensed_datetime")
+    ordering = ("dispensed_datetime",)
+    readonly_fields = ("dispensed", "status", "dispensed_datetime")
     extra = 0

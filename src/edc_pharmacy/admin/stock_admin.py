@@ -17,31 +17,24 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
     fieldsets = (
         (
             None,
-            {
-                "fields": (
-                    [
-                        "stock_identifier",
-                        "product",
-                    ]
-                )
-            },
+            {"fields": ("stock_identifier", "product")},
         ),
         audit_fieldset_tuple,
     )
 
-    list_display = [
+    list_display = (
         "stock_identifier",
         "product",
         "created",
         "modified",
-    ]
-    list_filter = [
+    )
+    list_filter = (
         "product",
         "product__lot_no",
         "product__formulation",
         "created",
         "modified",
-    ]
-    search_fields = ["stock_identifier", "product__lot_no"]
-    ordering = ["stock_identifier"]
-    readonly_fields = ["stock_identifier", "product"]
+    )
+    search_fields = ("stock_identifier", "product__lot_no")
+    ordering = ("stock_identifier",)
+    readonly_fields = ("stock_identifier", "product")

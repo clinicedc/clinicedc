@@ -1,7 +1,6 @@
 from django.apps import apps as django_apps
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.translation import gettext as _
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
 from edc_appointment.models import Appointment
 from edc_dashboard import url_names
@@ -50,5 +49,5 @@ class ModelAdminMixin(
             self.get_subject_dashboard_url_name(),
             kwargs=opts,
         )
-        context = dict(title=_("Go to subject's dashboard"), url=url, label=label)
+        context = dict(title="Go to subject's dashboard", url=url, label=label)
         return render_to_string("dashboard_button.html", context=context)
