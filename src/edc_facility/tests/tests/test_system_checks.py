@@ -20,7 +20,6 @@ class TestSystemChecks(SiteTestCaseMixin, TestCase):
         SITE_ID=SiteID(default=10),
     )
     def test_(self):
-        # app_configs = django_apps.get_app_configs()
         holiday_path_check(app_configs=None)
 
     @override_settings(

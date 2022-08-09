@@ -26,7 +26,6 @@ class AppConfig(DjangoAppConfig):
 
     def ready(self):
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
-        # if "runtests.py" not in sys.argv and "test" not in sys.argv:
         if "migrate" not in sys.argv and "showmigrations" not in sys.argv:
             register(holiday_path_check, deploy=True)
             register(holiday_country_check, deploy=True)

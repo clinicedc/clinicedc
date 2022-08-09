@@ -1,8 +1,11 @@
 from collections import OrderedDict
 from datetime import datetime
 from operator import methodcaller
+from typing import Any, List, Optional, Tuple, Union
+from zoneinfo import ZoneInfo
 
 import arrow
+from arrow import Arrow
 from dateutil._common import weekday
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
@@ -22,7 +25,7 @@ class Facility:
         will set available_rdata to the suggested_datetime if no
         available_rdata can be found. This is not ideal and could
         lead to a protocol violation but may be helpful for facilities
-        open 1 or 2 days per week where the visit has a very
+        open 1 or 2 days per week, where the visit has a very
         narrow window period (forward_delta, reverse_delta).
     """
 
@@ -30,10 +33,10 @@ class Facility:
 
     def __init__(
         self,
-        name=None,
-        days=None,
-        slots=None,
-        best_effort_available_datetime=None,
+        name: Optional[str] = None,
+        days: Optional[List[Union[str, Any]]] = None,
+        slots: Optional[List[int]] = None,
+        best_effort_available_datetime: Optional[datetime] = None,
     ):
         self.days = []
         self.name = name
@@ -61,7 +64,7 @@ class Facility:
         )
         return f"{self.name.title()} {description}"
 
-    def slots_per_day(self, day):
+    def slots_per_day(self, day) -> int:
         try:
             slots_per_day = self.config.get(str(day))
         except KeyError:
@@ -69,46 +72,44 @@ class Facility:
         return slots_per_day
 
     @property
-    def weekdays(self):
+    def weekdays(self) -> List[int]:
         return [d.weekday for d in self.days]
 
     @staticmethod
-    def open_slot_on(arw):
+    def open_slot_on(arr) -> Arrow:
         """Hook for handling load balance by day.
 
         For example, if 15 appointment `slots` are filled out of 30
         allowed for Monday, return arw, if 30/30 return None.
         """
-        return arw
+        return arr
 
-    @staticmethod
-    def to_arrow_utc(dt):
-        """Returns timezone-aware datetime as a UTC arrow object."""
-        return arrow.Arrow.fromdatetime(dt, dt.tzinfo).to("utc")
-
-    def is_holiday(self, arr_utc=None):
-        """Returns the arrow object, arr_utc, of a suggested
-        calendar date if not a holiday.
-        """
+    def is_holiday(self, arr_utc=None) -> bool:
         return self.holidays.is_holiday(utc_datetime=arr_utc.datetime)
 
-    def available_datetime(self, **kwargs):
-        return self.available_arw(**kwargs).datetime
+    def available_datetime(self, **kwargs) -> datetime:
+        return self.available_arr(**kwargs).datetime
 
-    def get_arw_span(self, suggested_arw, forward_delta, reverse_delta):
+    @staticmethod
+    def get_arr_span(
+        suggested_arr, forward_delta, reverse_delta
+    ) -> Tuple[List[Union[Arrow, Any]], Arrow, Arrow]:
         """Returns a list of arrow objects in a custom ordered.
         Objects are ordered around the suggested date. For example,
-
         """
-        min_arw = self.to_arrow_utc(suggested_arw.datetime - reverse_delta)
-        max_arw = self.to_arrow_utc(suggested_arw.datetime + forward_delta)
-        span = [
-            arw[0] for arw in arrow.Arrow.span_range("day", min_arw.datetime, max_arw.datetime)
-        ]
-        span_lt = [arw for arw in span if arw.date() < suggested_arw.date()]
+        # min_arw = self.to_arrow_utc(suggested_arr.datetime - reverse_delta)
+        min_arr = Arrow.fromdate(
+            suggested_arr.datetime - reverse_delta, tzinfo=ZoneInfo("UTC")
+        )
+        # max_arw = self.to_arrow_utc(suggested_arw.datetime + forward_delta)
+        max_arr = Arrow.fromdate(
+            suggested_arr.datetime + forward_delta, tzinfo=ZoneInfo("UTC")
+        )
+        span = [arw[0] for arw in Arrow.span_range("day", min_arr.datetime, max_arr.datetime)]
+        span_lt = [arw for arw in span if arw.date() < suggested_arr.date()]
         span_lt = sorted(span_lt, key=methodcaller("date"), reverse=True)
-        span_gt = [arw for arw in span if arw.date() > suggested_arw.date()]
-        arw_span = []
+        span_gt = [arw for arw in span if arw.date() > suggested_arr.date()]
+        arr_span = []
         max_len = len(span_gt) if len(span_gt) > len(span_lt) else len(span_lt)
         for i in range(0, max_len):
             try:
@@ -116,17 +117,17 @@ class Facility:
             except IndexError:
                 pass
             else:
-                arw_span.insert(0, item)
+                arr_span.insert(0, item)
             try:
                 item = span_gt.pop()
             except IndexError:
                 pass
             else:
-                arw_span.insert(0, item)
-        arw_span.insert(0, suggested_arw)
-        return arw_span, min_arw, max_arw
+                arr_span.insert(0, item)
+        arr_span.insert(0, suggested_arr)
+        return arr_span, min_arr, max_arr
 
-    def available_arw(
+    def available_arr(
         self,
         suggested_datetime=None,
         forward_delta=None,
@@ -140,35 +141,38 @@ class Facility:
         To exclude datetimes other than holidays, pass a list of
         datetimes in UTC to `taken_datetimes`.
         """
-        available_arw = None
+        available_arr = None
         forward_delta = forward_delta or relativedelta(months=1)
         reverse_delta = reverse_delta or relativedelta(months=0)
-        taken_arw = [self.to_arrow_utc(dt) for dt in taken_datetimes or []]
+        taken_arr = [
+            arrow.Arrow.fromdatetime(dt, tzinfo=ZoneInfo("UTC")).to("utc")
+            for dt in taken_datetimes or []
+        ]
         if suggested_datetime:
-            suggested_arw = arrow.Arrow.fromdatetime(suggested_datetime)
+            suggested_arr = arrow.Arrow.fromdatetime(suggested_datetime)
         else:
-            suggested_arw = arrow.Arrow.fromdatetime(get_utcnow())
-        arw_span_range, min_arw, max_arw = self.get_arw_span(
-            suggested_arw,
+            suggested_arr = arrow.Arrow.fromdatetime(get_utcnow())
+        arr_span_range, min_arr, max_arr = self.get_arr_span(
+            suggested_arr,
             forward_delta,
             reverse_delta,
         )
-        for arw in arw_span_range:
+        for arr in arr_span_range:
             # add back time to arrow object, r
-            if arw.date().weekday() in self.weekdays and (
-                min_arw.date() <= arw.date() < max_arw.date()
+            if arr.date().weekday() in self.weekdays and (
+                min_arr.date() <= arr.date() < max_arr.date()
             ):
-                is_holiday = False if schedule_on_holidays else self.is_holiday(arw)
+                is_holiday = False if schedule_on_holidays else self.is_holiday(arr)
                 if (
                     not is_holiday
-                    and arw.date() not in [a.date() for a in taken_arw]
-                    and self.open_slot_on(arw)
+                    and arr.date() not in [a.date() for a in taken_arr]
+                    and self.open_slot_on(arr)
                 ):
-                    available_arw = arw
+                    available_arr = arr
                     break
-        if not available_arw:
+        if not available_arr:
             if self.best_effort_available_datetime:
-                available_arw = suggested_arw
+                available_arr = suggested_arr
             else:
                 formatted_date = suggested_datetime.strftime(
                     convert_php_dateformat(settings.SHORT_DATE_FORMAT)
@@ -179,7 +183,7 @@ class Facility:
                     f"{forward_delta.days} days of {formatted_date}. "
                     f"Facility is {repr(self)}."
                 )
-        available_arw = arrow.Arrow.fromdatetime(
-            datetime.combine(available_arw.date(), suggested_arw.time())
+        available_arr = arrow.Arrow.fromdatetime(
+            datetime.combine(available_arr.date(), suggested_arr.time())
         )
-        return available_arw
+        return available_arr

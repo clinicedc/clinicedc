@@ -1,7 +1,11 @@
-import arrow
+from datetime import date
+from typing import List
+from zoneinfo import ZoneInfo
+
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Model, QuerySet
 
 
 class HolidayError(Exception):
@@ -16,7 +20,7 @@ class Holidays:
 
     model = "edc_facility.holiday"
 
-    def __init__(self):
+    def __init__(self) -> None:
         if getattr(settings, "COUNTRY", None):
             raise HolidayError(
                 "COUNTRY is no longer a valid settings attribute. "
@@ -25,22 +29,21 @@ class Holidays:
                 "SiteProfile in edc-sites."
             )
         self._country = None
-        self._holidays = {}
-        self.time_zone = settings.TIME_ZONE
+        self._holidays = None
         self.model_cls = django_apps.get_model(self.model)
         self.site_model_cls = django_apps.get_model("sites.site")
 
     def __repr__(self):
         return (
             f"{self.__class__.__name__}(country={self.country}, "
-            f"time_zone={self.time_zone})"
+            f"time_zone={settings.TIME_ZONE})"
         )
 
     def __len__(self):
-        return len(self.holidays)
+        return self.holidays.count()
 
     @property
-    def country(self):
+    def country(self) -> Model:
         if not self._country:
             self._country = self.site_model_cls.objects.get_current().siteprofile.country
             if not self._country:
@@ -51,30 +54,23 @@ class Holidays:
         return self._country
 
     @property
-    def local_dates(self):
+    def local_dates(self) -> List[date]:
         return [obj.local_date for obj in self.holidays]
 
     @property
-    def holidays(self):
-        """Returns a dictionary of holidays for this country as
-        {local_date: label, ...}.
-        """
+    def holidays(self) -> QuerySet:
+        """Returns a holiday model instance for this country."""
         if not self._holidays:
             self._holidays = self.model_cls.objects.filter(country=self.country)
             if not self._holidays:
                 raise HolidayError(f"No holidays found for '{self.country}. See {self.model}.")
         return self._holidays
 
-    def is_holiday(self, utc_datetime=None):
+    def is_holiday(self, utc_datetime=None) -> bool:
         """Returns True if the UTC datetime is a holiday."""
-        local_date = self.local_date(utc_datetime=utc_datetime)
+        local_date = utc_datetime.astimezone(ZoneInfo(settings.TIME_ZONE)).date()
         try:
-            self.holidays.get(country=self.country, local_date=local_date)
+            self.model_cls.objects.get(country=self.country, local_date=local_date)
         except ObjectDoesNotExist:
             return False
         return True
-
-    def local_date(self, utc_datetime=None):
-        """Returns the localized date from UTC."""
-        utc = arrow.Arrow.fromdatetime(utc_datetime)
-        return utc.to(self.time_zone).date()
