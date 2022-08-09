@@ -57,9 +57,6 @@ from .constants import (
 
 BLANK_CHOICE_DASH = [("", "---------")]
 
-""" Try to keep these in alphabetical order
-"""
-
 ACU_EST = (("Acute", "Acute"), ("Established", "Established"))
 
 ACU_EST_NEG = (
@@ -334,7 +331,7 @@ HIV_RESULT = (
     ),
 )
 
-"""do not change without inspecting implication to check_omang_field() in utils.py"""
+# do not change without inspecting implication to check_omang_field() in utils.py
 IDENTITY_TYPE = (
     (OMANG, "Omang"),
     ("DRIVERS", "Driver's License"),

@@ -1,8 +1,7 @@
 from django.conf import settings
 
-# for strftime formatting in edc messages etc.
-
 timezone = " %Z" if settings.USE_TZ else ""
+
 try:
     EDC_DATE_FORMAT = settings.EDC_DATE_FORMAT
 except AttributeError:
