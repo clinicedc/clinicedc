@@ -2,7 +2,7 @@ from urllib.parse import unquote, urlencode
 
 from django import template
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from edc_dashboard.utils import get_bootstrap_version
 
 from ..models import SubjectScheduleHistory
@@ -56,7 +56,7 @@ def subject_schedule_footer_row(
         context.update(
             offschedule_datetime=None,
             onschedule_datetime=onschedule_model_obj.onschedule_datetime,
-            href=mark_safe(href),
+            href=format_html(href),
         )
     elif history_obj.offschedule_datetime:
         # subject is OFF this schedule (offschedule_model_obj)
@@ -76,6 +76,6 @@ def subject_schedule_footer_row(
         context.update(
             offschedule_datetime=history_obj.offschedule_datetime,
             onschedule_datetime=onschedule_model_obj.onschedule_datetime,
-            href=mark_safe(href),
+            href=format_html(href),
         )
     return context

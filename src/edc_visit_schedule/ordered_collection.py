@@ -47,7 +47,8 @@ class OrderedCollection(OrderedDict):
         except StopIteration:
             pass
         else:
-            assert k == key
+            if k != key:
+                raise AssertionError
         try:
             return next(keys)
         except StopIteration:
