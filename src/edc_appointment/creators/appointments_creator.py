@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Optional
+from zoneinfo import ZoneInfo
 
-import arrow
 from django.apps import apps as django_apps
 from django.db.models.deletion import ProtectedError
 from edc_facility import FacilityError
@@ -45,11 +45,8 @@ class AppointmentsCreator:
         app_config = django_apps.get_app_config("edc_facility")
         appointments = []
         taken_datetimes = taken_datetimes or []
-        base_appt_datetime = base_appt_datetime or self.report_datetime
-        base_appt_datetime = (
-            arrow.Arrow.fromdatetime(base_appt_datetime, base_appt_datetime.tzinfo)
-            .to("utc")
-            .datetime
+        base_appt_datetime = (base_appt_datetime or self.report_datetime).astimezone(
+            ZoneInfo("UTC")
         )
         timepoint_dates = self.schedule.visits.timepoint_dates(dt=base_appt_datetime)
         for visit, timepoint_datetime in timepoint_dates.items():

@@ -1,7 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
+from zoneinfo import ZoneInfo
 
-import arrow
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase
 from edc_facility.import_holidays import import_holidays
@@ -41,7 +41,7 @@ class TestUnscheduledAppointmentCreator(TestCase):
         site_visit_schedules.register(visit_schedule=visit_schedule2)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
-            now=arrow.Arrow.fromdatetime(datetime(2017, 1, 7), tzinfo="UTC").datetime,
+            now=datetime(2017, 1, 7, tzinfo=ZoneInfo("UTC")),
         )
 
         site_reference_configs.register_from_visit_schedule(
