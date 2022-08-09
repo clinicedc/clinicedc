@@ -2,10 +2,7 @@ from django.core.validators import RegexValidator
 
 from ..utils import dh_pattern, ymd_pattern
 
-"""
-expect 1h20m, 11h5m, etc
-"""
-
+# expect 1h20m, 11h5m, etc
 dh_validator = RegexValidator(
     dh_pattern,
     message=(

@@ -1,8 +1,8 @@
 from datetime import date, datetime, timedelta
+from zoneinfo import ZoneInfo
 
 from django import forms
 from django.test import TestCase, override_settings
-from pytz import UTC
 
 from edc_model.utils import (
     InvalidFieldName,
@@ -72,7 +72,7 @@ class TestUtils(TestCase):
             "dx_ago_blah",
         )
 
-        reference_datetime = datetime(2015, 6, 15, tzinfo=UTC)
+        reference_datetime = datetime(2015, 6, 15).astimezone(ZoneInfo("UTC"))
         obj = SimpleModel.objects.create(ago="5d", report_datetime=reference_datetime)
         estimated_date = estimated_date_from_ago(obj, "ago", future=True)
         self.assertEqual(estimated_date, date(2015, 6, 20))
