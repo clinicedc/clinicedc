@@ -2,7 +2,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 
 from .auth_objects import RANDO_UNBLINDED
 
@@ -38,7 +38,7 @@ def raise_if_prohibited_from_unblinded_rando_group(username, groups):
     if RANDO_UNBLINDED in [grp.name for grp in groups] and is_blinded_user(username):
         raise forms.ValidationError(
             {
-                "groups": mark_safe(
+                "groups": format_html(
                     "This user is not unblinded and may not added "
                     "to the <U>RANDO_UNBLINDED</U> group."
                 )

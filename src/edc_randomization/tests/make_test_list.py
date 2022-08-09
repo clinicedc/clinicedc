@@ -23,7 +23,7 @@ def make_test_list(
         gen_site_name = (x for x in site_names)
     else:
         count = count or 50
-        gen_site_name = (random.choice(site_names) for i in range(0, 50))
+        gen_site_name = (random.choice(site_names) for i in range(0, 50))  # nosec B311
 
     if not full_path:
         full_path = os.path.join(mkdtemp(), "randomizationlist.csv")
@@ -34,6 +34,6 @@ def make_test_list(
         n = 0
         for i in range(first_sid, count + first_sid):
             n += 1
-            assignment = random.choice(assignments)
+            assignment = random.choice(assignments)  # nosec B311
             writer.writerow(dict(sid=i, assignment=assignment, site_name=next(gen_site_name)))
     return full_path
