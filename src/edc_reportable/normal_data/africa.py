@@ -47,7 +47,7 @@ normal_data = {
     ],
     "egfr_drop": [
         p(
-            "0.0<=x<40.0",
+            "x<40.0",
             units=PERCENT,
             gender=[MALE, FEMALE],
             **adult_age_options,
