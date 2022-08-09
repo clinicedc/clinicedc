@@ -82,7 +82,10 @@ class BloodResultFieldset:
             ]
         )
         for pos, fieldset in self.extra_fieldsets or []:
-            fieldsets.insert(pos, fieldset)
+            if pos < 0:
+                fieldsets.append(fieldset)
+            else:
+                fieldsets.insert(pos, fieldset)
         return tuple(fieldsets)
 
     def get_panel_item_fieldset(self, code, title=None):
