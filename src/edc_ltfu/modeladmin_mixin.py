@@ -1,5 +1,3 @@
-from copy import copy
-
 from django.contrib import admin
 from edc_action_item import action_fields, action_fieldset_tuple
 from edc_model_admin import audit_fieldset_tuple
@@ -55,8 +53,6 @@ class LtfuModelAdminMixin:
 
     search_fields = ("subject_identifier", "action_identifier", "tracking_identifier")
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_readonly_fields(self, request, obj=None) -> tuple:
         fields = super().get_readonly_fields(request, obj)
-        action_flds = copy(list(action_fields))
-        fields = list(action_flds) + list(fields)
-        return fields
+        return action_fields + fields
