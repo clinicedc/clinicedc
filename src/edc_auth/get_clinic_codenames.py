@@ -8,6 +8,16 @@ def get_clinic_codenames(
     list_app: Optional[str] = None,
     autocomplete_models: Optional[List[str]] = None,
 ) -> List[str]:
+    """Prepares and returns an ordered list of codenames for the
+    common edc project apps to be used in `auth_objects`.
+
+    For example, in `auths.py`:
+
+        clinic_codenames = get_clinic_codenames(
+            "meta_prn", "meta_subject", "meta_consent", list_app="meta_lists"
+        )
+    """
+
     clinic_codenames: List[str] = []
     autocomplete_models = autocomplete_models or []
     try:
