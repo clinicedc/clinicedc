@@ -1,10 +1,10 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase
 from edc_constants.constants import MALE
 from edc_utils import age
-from pytz import utc
 
 from edc_reportable import (
     AgeEvaluator,
@@ -146,7 +146,7 @@ class TestEvaluators(TestCase):
         """Test the age evaluator which is a child class
         of the basic evaluator.
         """
-        report_datetime = utc.localize(datetime(2017, 12, 7))
+        report_datetime = datetime(2017, 12, 7).astimezone(ZoneInfo("UTC"))
         dob = report_datetime - relativedelta(years=25)
         rdelta = age(dob, report_datetime)
 
@@ -175,7 +175,7 @@ class TestEvaluators(TestCase):
 
     def test_age_match(self):
         """Test age within the NormalReference."""
-        report_datetime = utc.localize(datetime(2017, 12, 7))
+        report_datetime = datetime(2017, 12, 7).astimezone(ZoneInfo("UTC"))
         dob = report_datetime - relativedelta(years=25)
 
         ref = NormalReference(
