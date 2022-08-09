@@ -11,6 +11,10 @@ from edc_sites import get_current_country
 from edc_utils import get_utcnow
 from tqdm import tqdm
 
+LOCAL_DATE = 0
+LABEL = 1
+COUNTRY = 2
+
 
 class HolidayImportError(Exception):
     pass
@@ -80,9 +84,6 @@ def import_file(path, recs, model_cls):
 
 
 def import_for_tests(model_cls):
-    LOCAL_DATE = 0
-    LABEL = 1
-    COUNTRY = 2
     year = get_utcnow().year
     country = get_current_country()
     if not country:

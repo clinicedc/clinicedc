@@ -1,6 +1,6 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
-from arrow.arrow import Arrow
 from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -36,7 +36,7 @@ class TestFacility(SiteTestCaseMixin, TestCase):
             (SU, MO),
         ]:
             dt = get_utcnow() + relativedelta(weekday=suggested.weekday)
-            rdate = facility.available_arw(dt, schedule_on_holidays=True)
+            rdate = facility.available_arr(dt, schedule_on_holidays=True)
             self.assertEqual(available.weekday, rdate.weekday())
 
     def test_allowed_weekday_limited(self):
@@ -53,7 +53,7 @@ class TestFacility(SiteTestCaseMixin, TestCase):
             dt = get_utcnow() + relativedelta(weekday=suggested.weekday)
             self.assertEqual(
                 available.weekday,
-                facility.available_arw(dt, schedule_on_holidays=True).datetime.weekday(),
+                facility.available_arr(dt, schedule_on_holidays=True).datetime.weekday(),
             )
 
     def test_allowed_weekday_limited2(self):
@@ -70,30 +70,30 @@ class TestFacility(SiteTestCaseMixin, TestCase):
             dt = get_utcnow() + relativedelta(weekday=suggested.weekday)
             self.assertEqual(
                 available.weekday,
-                facility.available_arw(dt, schedule_on_holidays=True).datetime.weekday(),
+                facility.available_arr(dt, schedule_on_holidays=True).datetime.weekday(),
             )
 
-    def test_available_arw(self):
-        """Asserts finds available_arw on first clinic day after holiday."""
+    def test_available_arr(self):
+        """Asserts finds available_arr on first clinic day after holiday."""
         facility = Facility(name="clinic", days=[WE], slots=[100])
         suggested_date = get_utcnow() + relativedelta(months=3)
-        available_arw = facility.available_arw(suggested_date)
-        self.assertEqual(available_arw.datetime.weekday(), WE.weekday)  # noqa
+        available_arr = facility.available_arr(suggested_date)
+        self.assertEqual(available_arr.datetime.weekday(), WE.weekday)  # noqa
 
-    def test_available_arw_with_holiday(self):
-        """Asserts finds available_arw on first clinic day after holiday."""
-        suggested_date = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
-        expected_date = Arrow.fromdatetime(datetime(2017, 1, 8)).datetime
+    def test_available_arr_with_holiday(self):
+        """Asserts finds available_arr on first clinic day after holiday."""
+        suggested_date = datetime(2017, 1, 1, tzinfo=ZoneInfo("UTC"))
+        expected_date = datetime(2017, 1, 8, tzinfo=ZoneInfo("UTC"))
         facility = Facility(name="clinic", days=[suggested_date.weekday()], slots=[100])
-        available_arw = facility.available_arw(suggested_date)
-        self.assertEqual(expected_date, available_arw.datetime)
+        available_arr = facility.available_arr(suggested_date)
+        self.assertEqual(expected_date, available_arr.datetime)
 
     @override_settings(HOLIDAY_FILE=None)
     def test_read_holidays_from_db(self):
-        """Asserts finds available_arw on first clinic day after holiday."""
-        suggested_date = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
-        expected_date = Arrow.fromdatetime(datetime(2017, 1, 8)).datetime
+        """Asserts finds available_arr on first clinic day after holiday."""
+        suggested_date = datetime(2017, 1, 1, tzinfo=ZoneInfo("UTC"))
+        expected_date = datetime(2017, 1, 8, tzinfo=ZoneInfo("UTC"))
         Holiday.objects.create(local_date=suggested_date)
         facility = Facility(name="clinic", days=[suggested_date.weekday()], slots=[100])
-        available_arw = facility.available_arw(suggested_date)
-        self.assertEqual(expected_date, available_arw.datetime)
+        available_arr = facility.available_arr(suggested_date)
+        self.assertEqual(expected_date, available_arr.datetime)

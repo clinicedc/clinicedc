@@ -1,3 +1,5 @@
+from typing import List
+
 from django.conf import settings
 from django.core.checks import Warning
 from django.db import models
@@ -17,18 +19,18 @@ class Holiday(models.Model):
     name = models.CharField(max_length=50)
 
     @property
-    def label(self):
+    def label(self) -> str:
         return self.name
 
     @property
-    def formatted_date(self):
+    def formatted_date(self) -> str:
         return self.local_date.strftime(convert_php_dateformat(settings.SHORT_DATE_FORMAT))
 
     def __str__(self):
         return f"{self.label} on {self.formatted_date}"
 
     @classmethod
-    def check(cls, **kwargs):
+    def check(cls, **kwargs) -> List[Warning]:
         errors = super().check(**kwargs)
         try:
             if cls.objects.all().count() == 0:

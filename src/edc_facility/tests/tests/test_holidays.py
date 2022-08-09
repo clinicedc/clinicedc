@@ -1,6 +1,6 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
-import arrow
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -43,11 +43,11 @@ class TestHolidays(SiteTestCaseMixin, TestCase):
         self.assertTrue(datetime.strftime(holidays.local_dates[0], "%Y-%m-%d"))
 
     def test_is_holiday(self):
-        start_datetime = arrow.Arrow.fromdatetime(datetime(2017, 9, 30)).datetime
+        start_datetime = datetime(2017, 9, 30, tzinfo=ZoneInfo("UTC"))
         obj = Holidays()
         self.assertTrue(obj.is_holiday(start_datetime))
 
     def test_is_not_holiday(self):
-        utc_datetime = arrow.Arrow.fromdatetime(datetime(2017, 9, 30)).datetime
+        utc_datetime = datetime(2017, 9, 30, tzinfo=ZoneInfo("UTC"))
         holidays = Holidays()
         self.assertTrue(holidays.is_holiday(utc_datetime))
