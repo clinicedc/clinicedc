@@ -33,9 +33,9 @@ class RangeFieldValidator(BaseFormValidator):
                 lower_op = "<" if not lower_inclusive else "<="
                 upper_op = "<" if not upper_inclusive else "<="
                 expression = f"{lower}{lower_op}{value}{upper_op}{upper}"
-                if not eval(expression):
+                if not eval(expression):  # nosec B307
                     message = {
-                        field: f"This field is not within range. Expected " f"{expression}."
+                        field: f"This field is not within range. Expected {expression}."
                     }
                     self.raise_validation_error(message, OUT_OF_RANGE_ERROR)
         return False

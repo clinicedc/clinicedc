@@ -8,16 +8,6 @@ from .base_form_validator import (
     BaseFormValidator,
 )
 
-"""
-        instance_fields = instance_fields or []
-        cleaned_data = copy(self.cleaned_data)
-        for k in instance_fields:
-            if k not in cleaned_data:
-                cleaned_data.update({k: getattr(self.instance, k)})
-        if field not in cleaned_data or field_applicable not in cleaned_data:
-            raise
-"""
-
 
 class ApplicableFieldValidator(BaseFormValidator):
     def raise_applicable(
