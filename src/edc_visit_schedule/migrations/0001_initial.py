@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "hostname_modified",
-                    edc_model_fields.fields.hostname_modification_field.HostnameModificationField(  # noqa: E501
+                    edc_model_fields.fields.hostname_modification_field.HostnameModificationField(
                         blank=True,
                         help_text="System field. (modified on every save)",
                         max_length=50,
