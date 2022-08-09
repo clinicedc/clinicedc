@@ -26,6 +26,6 @@ class BaseModelAdmin(
     view_on_site = False
     show_cancel = True
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_readonly_fields(self, request, obj=None) -> tuple:
         readonly_fields = super().get_readonly_fields(request, obj=obj)
-        return list(readonly_fields) + list(audit_fields) + ["site"]
+        return tuple(set(readonly_fields + audit_fields + ("site",)))

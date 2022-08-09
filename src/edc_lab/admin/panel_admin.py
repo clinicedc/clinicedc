@@ -1,5 +1,3 @@
-from copy import copy
-
 from django.contrib import admin
 from edc_model_admin import audit_fieldset_tuple
 
@@ -16,8 +14,6 @@ class PanelAdmin(BaseModelAdmin, admin.ModelAdmin):
         audit_fieldset_tuple,
     )
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_readonly_fields(self, request, obj=None) -> tuple:
         readonly_fields = super().get_readonly_fields(request, obj=obj)
-        readonly_fields = list(copy(readonly_fields))
-        readonly_fields.remove("site")
-        return readonly_fields + ["name", "display_name", "lab_profile_name"]
+        return readonly_fields + ("name", "display_name", "lab_profile_name")

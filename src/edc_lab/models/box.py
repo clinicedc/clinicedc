@@ -77,18 +77,18 @@ class Box(SearchSlugModelMixin, VerifyBoxModelMixin, SiteModelMixin, edc_models.
 
     def save(self, *args, **kwargs):
         if not self.box_identifier:
-            identifier = BoxIdentifier()
-            self.box_identifier = identifier.identifier
+            self.box_identifier = BoxIdentifier().identifier
         if not self.name:
             self.name = self.box_identifier
-        self.update_verified()
+        if self.id:
+            self.update_verified()
         super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
 
     def natural_key(self):
-        return (self.box_identifier,)
+        return tuple(self.box_identifier)
 
     natural_key.dependencies = ["edc_lab.boxtype", "sites.Site"]
 

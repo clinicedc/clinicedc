@@ -35,8 +35,13 @@ class ManifestAdmin(BaseModelAdmin, admin.ModelAdmin):
         audit_fieldset_tuple,
     )
 
-    list_display = ("manifest_identifier", "manifest_datetime", "shipper", "consignee")
-
-    list_filter = ("manifest_datetime",)
-
     search_fields = ("manifest_identifier",)
+
+    def get_list_filter(self, request) -> tuple:
+        list_filter = super().get_list_filter(request)
+        return tuple(set(("manifest_datetime",) + list_filter))
+
+    def get_list_display(self, request) -> tuple:
+        list_display = super().get_list_display(request)
+        custom_fields = ("manifest_identifier", "manifest_datetime", "shipper", "consignee")
+        return tuple(set(custom_fields + list_display))

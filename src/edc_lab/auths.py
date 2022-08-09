@@ -7,7 +7,6 @@ from edc_auth.auth_objects import (
     PII_VIEW,
 )
 from edc_auth.site_auths import site_auths
-from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
 from edc_export.auth_objects import EXPORT
 
 from .auth_objects import (
@@ -36,5 +35,4 @@ site_auths.update_group(
 site_auths.add_role(ADMINISTRATION, EVERYONE, LAB, PII_VIEW, name=LAB_TECHNICIAN_ROLE)
 site_auths.update_role(LAB, name=CLINICIAN_ROLE)
 site_auths.update_role(LAB, name=NURSE_ROLE)
-site_auths.update_role(LAB, name=DATA_MANAGER_ROLE)
 site_auths.update_role(LAB_VIEW, name=AUDITOR_ROLE)

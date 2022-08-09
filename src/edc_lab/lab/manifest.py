@@ -2,7 +2,7 @@ from django.apps import apps as django_apps
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls.base import reverse
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 
 from ..constants import VERIFIED
 
@@ -67,10 +67,12 @@ class Manifest:
                         },
                     )
                     manifest_identifier = manifest_item.manifest.human_readable_identifier
-                    message = mark_safe(
+                    message = format_html(
                         "Item is already in a manifest. See "
-                        f'<a href="{href}" class="alert-link">'
-                        f"{manifest_identifier}</a>"
+                        '<a href="{}" class="alert-link">'
+                        "{}</a>",
+                        href,
+                        manifest_identifier,
                     )
                     messages.error(self.request, message)
             else:

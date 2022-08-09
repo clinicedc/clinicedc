@@ -17,4 +17,7 @@ class BoxTypeAdmin(BaseModelAdmin, admin.ModelAdmin):
         audit_fieldset_tuple,
     )
 
-    list_display = ("name", "across", "down", "total")
+    def get_list_filter(self, request) -> tuple:
+        list_filter = super().get_list_filter(request)
+        custom_fields = ("name", "across", "down", "total")
+        return tuple(set(custom_fields + list_filter))
