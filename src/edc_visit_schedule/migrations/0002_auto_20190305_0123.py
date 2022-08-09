@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="subjectschedulehistory",
             name="hostname_modified",
-            field=django_audit_fields.fields.hostname_modification_field.HostnameModificationField(  # noqa: E501
+            field=django_audit_fields.fields.hostname_modification_field.HostnameModificationField(
                 blank=True,
                 help_text="System field. (modified on every save)",
                 max_length=50,

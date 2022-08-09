@@ -79,7 +79,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "hostname_modified",
-                    django_audit_fields.fields.hostname_modification_field.HostnameModificationField(  # noqa: E501
+                    django_audit_fields.fields.hostname_modification_field.HostnameModificationField(
                         blank=True,
                         help_text="System field. (modified on every save)",
                         max_length=50,
@@ -164,7 +164,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "hostname_modified",
-                    django_audit_fields.fields.hostname_modification_field.HostnameModificationField(  # noqa: E501
+                    django_audit_fields.fields.hostname_modification_field.HostnameModificationField(
                         blank=True,
                         help_text="System field. (modified on every save)",
                         max_length=50,
