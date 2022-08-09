@@ -12,18 +12,16 @@ crf_status_fieldset_tuple = (
 
 
 class CrfStatusModelAdminMixin:
-    def get_list_display(self, request):
+    def get_list_display(self, request) -> tuple:
         list_display = super().get_list_display(request)
         if "crf_status" not in list_display:
-            list_display = list(list_display)
-            list_display.append("crf_status")
+            list_display = list_display + ("crf_status",)
         return list_display
 
-    def get_list_filter(self, request):
+    def get_list_filter(self, request) -> tuple:
         list_filter = super().get_list_filter(request)
         if "crf_status" not in list_filter:
-            list_filter = list(list_filter)
-            list_filter.insert(0, "crf_status")
+            list_filter = ("crf_status",) + list_filter
         return list_filter
 
 
