@@ -1,5 +1,5 @@
 from django.apps import apps as django_apps
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from simple_history.admin import SimpleHistoryAdmin as BaseSimpleHistoryAdmin
 
 
@@ -22,12 +22,12 @@ class SimpleHistoryAdmin(BaseSimpleHistoryAdmin):
             .first()
         )
         if log_entry:
-            return mark_safe(log_entry.get_change_message())
+            return format_html(log_entry.get_change_message())
         return None
 
     change_message.short_description = "Change Message"
 
     def dashboard(self, obj):
         if callable(self.view_on_site):
-            return mark_safe(f'<A href="{self.view_on_site(obj)}">Dashboard</A>')
+            return format_html('<A href="{}">Dashboard</A>', self.view_on_site(obj))
         return None

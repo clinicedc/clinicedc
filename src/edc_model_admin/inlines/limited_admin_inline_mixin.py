@@ -1,3 +1,7 @@
+class LimitedAdminInlineError(Exception):
+    pass
+
+
 class LimitedAdminInlineMixin:
     """Limit choices on a foreignkey field in an inline to a value
     on the parent model.
@@ -26,7 +30,8 @@ class LimitedAdminInlineMixin:
 
     @staticmethod
     def limit_inline_choices(formset, field, empty=False, **filters):
-        assert field in formset.form.base_fields
+        if field not in formset.form.base_fields:
+            raise LimitedAdminInlineError(f"Field not found in form. Got {field}.")
         qs = formset.form.base_fields[field].queryset
         if empty:
             formset.form.base_fields[field].queryset = qs.none()
