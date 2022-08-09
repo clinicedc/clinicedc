@@ -1,3 +1,4 @@
+from typing import Optional
 from urllib.parse import urlencode
 
 from django.apps import apps as django_apps
@@ -71,7 +72,7 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
             request, object_id, form_url=form_url, extra_context=extra_context
         )
 
-    def redirect_url(self, request, obj, post_url_continue=None):
+    def redirect_url(self, request, obj, post_url_continue=None) -> Optional[str]:
         redirect_url = None
         if self.show_save_next and request.POST.get("_savenext"):
             redirect_url = self.get_savenext_redirect_url(request=request, obj=obj)
@@ -87,13 +88,12 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
             )
         return redirect_url
 
-    def get_next_redirect_url(self, request=None, **kwargs):
+    def get_next_redirect_url(self, request=None, **kwargs) -> Optional[str]:
         """Returns a redirect url determined from the "next" attr
         in the querystring.
         """
         redirect_url = None
-        next_querystring = request.GET.dict().get(self.next_querystring_attr)
-        if next_querystring:
+        if next_querystring := request.GET.dict().get(self.next_querystring_attr):
             url_name = next_querystring.split(",")[0]
             options = self.get_next_options(request=request, **kwargs)
             try:
@@ -107,7 +107,7 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
                     raise ModelAdminNextUrlRedirectError(msg)
         return redirect_url
 
-    def get_savenext_redirect_url(self, request=None, obj=None):
+    def get_savenext_redirect_url(self, request=None, obj=None) -> Optional[str]:
         """Returns a redirect_url for the next form in
         the visit schedule.
 
@@ -144,9 +144,12 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
             panel = panel_model_cls.objects.get(name=panel_name)
             querystring_opts.update(panel=str(panel.id))
         querystring = urlencode(querystring_opts)
-        return (
-            f"{redirect_url}?{self.next_querystring_attr}=" f"{next_querystring}&{querystring}"
-        )
+        if redirect_url:
+            return (
+                f"{redirect_url}?{self.next_querystring_attr}="
+                f"{next_querystring}&{querystring}"
+            )
+        return None
 
     def get_next_options(self, request=None, **kwargs):
         """Returns the key/value pairs from the "next" querystring

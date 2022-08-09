@@ -1,7 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, reverse
-from django.utils.translation import gettext as _
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
 from edc_dashboard.url_names import url_names
 from edc_notification import NotificationModelAdminMixin
@@ -60,15 +59,18 @@ class ModelAdminSubjectDashboardMixin(
             self.get_subject_dashboard_url_name(),
             kwargs=self.get_subject_dashboard_url_kwargs(obj),
         )
-        context = dict(title=_("Go to subject's dashboard"), url=url, label=label)
+        context = dict(title="Go to subject's dashboard", url=url, label=label)
         return render_to_string("dashboard_button.html", context=context)
 
-    def get_list_display(self, request):
+    def get_list_display(self, request) -> tuple:
         list_display = super().get_list_display(request)
-        if self.show_dashboard_in_list_display_pos is not None:
+        if (
+            self.show_dashboard_in_list_display_pos is not None
+            and self.dashboard not in list_display
+        ):
             list_display = list(list_display)
-            if self.dashboard not in list_display:
-                list_display.insert(self.show_dashboard_in_list_display_pos, self.dashboard)
+            list_display.insert(self.show_dashboard_in_list_display_pos, self.dashboard)
+            list_display = tuple(list_display)
         return list_display
 
     def view_on_site(self, obj):

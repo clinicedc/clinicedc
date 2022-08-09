@@ -8,6 +8,7 @@ from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
 from edc_lab.site_labs import site_labs
 from edc_reference.site_reference import site_reference_configs
+from edc_test_utils.get_webtest_form import get_webtest_form
 from edc_utils.date import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -67,7 +68,7 @@ class ModelAdminSiteTest(WebTest):
     def login(self):
         form = self.app.get(reverse("admin:index")).maybe_follow().form
         form["username"] = self.user.username
-        form["password"] = "pass"
+        form["password"] = "pass"  # nosec B105
         return form.submit()
 
     def test_redirect_next(self):
@@ -93,8 +94,9 @@ class ModelAdminSiteTest(WebTest):
         url = reverse(f"admin:edc_model_admin_{model}_add") + "?" + query_string
 
         response = self.app.get(url, user=self.user)
-        response.form["subject_identifier"] = self.subject_identifier
-        response = response.form.submit(name="_save").follow()
+        form = get_webtest_form(response)
+        form["subject_identifier"] = self.subject_identifier
+        response = form.submit(name="_save").follow()
 
         self.assertIn("You are at the subject dashboard", response)
         self.assertIn(self.subject_identifier, response)
@@ -121,7 +123,8 @@ class ModelAdminSiteTest(WebTest):
 
         # oops, cancel
         response = self.app.get(url, user=self.user)
-        response = response.form.submit(name="_cancel").follow()
+        form = get_webtest_form(response)
+        response = form.submit(name="_cancel").follow()
         self.assertIn("You are at the subject dashboard", response)
 
         # add CRF Two
@@ -132,9 +135,10 @@ class ModelAdminSiteTest(WebTest):
             "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
             "report_datetime_1": "00:00:00",
         }
+        form = get_webtest_form(response)
         for key, value in form_data.items():
-            response.form[key] = value
-        response = response.form.submit(name="_savenext").follow()
+            form[key] = value
+        response = form.submit(name="_savenext").follow()
 
         # goes directly to CRF Three, add CRF Three
         self.assertIn("Add crf three", response)
@@ -143,9 +147,10 @@ class ModelAdminSiteTest(WebTest):
             "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
             "report_datetime_1": "00:00:00",
         }
+        form = get_webtest_form(response)
         for key, value in form_data.items():
-            response.form[key] = value
-        response = response.form.submit(name="_savenext").follow()
+            form[key] = value
+        response = form.submit(name="_savenext").follow()
 
         # goes to dashboard
         self.assertIn("You are at the subject dashboard", response)
@@ -160,7 +165,8 @@ class ModelAdminSiteTest(WebTest):
         )
 
         response = self.app.get(url, user=self.user)
-        response = response.form.submit(name="_cancel").follow()
+        form = get_webtest_form(response)
+        response = form.submit(name="_cancel").follow()
         self.assertIn("You are at the subject dashboard", response)
 
         response = self.app.get(url, user=self.user)
@@ -170,9 +176,10 @@ class ModelAdminSiteTest(WebTest):
             "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
             "report_datetime_1": "00:00:00",
         }
+        form = get_webtest_form(response)
         for key, value in form_data.items():
-            response.form[key] = value
-        response = response.form.submit(name="_savenext").follow()
+            form[key] = value
+        response = form.submit(name="_savenext").follow()
 
         self.assertIn("You are at the subject dashboard", response)
         self.assertIn(self.subject_identifier, response)
@@ -203,7 +210,8 @@ class ModelAdminSiteTest(WebTest):
         add_url = reverse(f"admin:edc_model_admin_{model}_add")
         url = add_url + f"?{query_string}&panel={str(panel_one.id)}"
         response = self.app.get(url, user=self.user)
-        response = response.form.submit(name="_cancel").follow()
+        form = get_webtest_form(response)
+        response = form.submit(name="_cancel").follow()
         self.assertIn("You are at the subject dashboard", response)
 
         dte = get_utcnow()
@@ -223,10 +231,11 @@ class ModelAdminSiteTest(WebTest):
         response = self.app.get(url, user=self.user)
         self.assertIn("Add requisition", response)
         self.assertIn(f'value="{str(panel_one.id)}"', response)
+        form = get_webtest_form(response)
         for key, value in form_data.items():
-            response.form[key] = value
-        response.form["requisition_identifier"] = "ABCDE0001"
-        response = response.form.submit().follow()
+            form[key] = value
+        form["requisition_identifier"] = "ABCDE0001"
+        response = form.submit().follow()
         self.assertIn("You are at the subject dashboard", response)
         Requisition.objects.all().delete()
 
@@ -237,16 +246,18 @@ class ModelAdminSiteTest(WebTest):
         self.assertIn("Add requisition", response)
         self.assertIn(f'value="{str(panel_one.id)}"', response)
         self.assertIn("_savenext", response)
+        form = get_webtest_form(response)
         for key, value in form_data.items():
-            response.form[key] = value
-        response.form["requisition_identifier"] = "ABCDE0001"
-        response = response.form.submit(name="_savenext").follow()
+            form[key] = value
+        form["requisition_identifier"] = "ABCDE0001"
+        response = form.submit(name="_savenext").follow()
         self.assertIn("Add requisition", response)
         self.assertIn(f'value="{str(panel_two.id)}"', response)
+        form = get_webtest_form(response)
         for key, value in form_data.items():
-            response.form[key] = value
-        response.form["requisition_identifier"] = "ABCDE0002"
-        response = response.form.submit(name="_savenext").follow()
+            form[key] = value
+        form["requisition_identifier"] = "ABCDE0002"
+        response = form.submit(name="_savenext").follow()
         self.assertIn("You are at the subject dashboard", response)
         self.assertIn(self.subject_identifier, response)
 
@@ -261,7 +272,8 @@ class ModelAdminSiteTest(WebTest):
         self.assertIn("Change requisition", response)
         self.assertIn("ABCDE0001", response)
         self.assertIn(f'{str(panel_one.id)}" selected>One</option>', response)
-        response = response.form.submit(name="_savenext").follow()
+        form = get_webtest_form(response)
+        response = form.submit(name="_savenext").follow()
 
         # self.assertIn("Change requisition", response)
         # self.assertIn("ABCDE0002", response)
@@ -295,9 +307,10 @@ class ModelAdminSiteTest(WebTest):
             "report_datetime_1": "00:00:00",
         }
         response = self.app.get(url, user=self.user)
+        form = get_webtest_form(response)
         for key, value in form_data.items():
-            response.form[key] = value
-        response.form.submit(name="_save").follow()
+            form[key] = value
+        form.submit(name="_save").follow()
 
         # delete
         crffour = CrfFour.objects.all()[0]
@@ -311,7 +324,8 @@ class ModelAdminSiteTest(WebTest):
         response = response.click(href=delete_url)
 
         # submit confirmation page
-        response = response.form.submit().follow()
+        form = get_webtest_form(response)
+        response = form.submit().follow()
 
         # redirects to the dashboard
         self.assertIn("You are at the subject dashboard", response)
@@ -329,7 +343,8 @@ class ModelAdminSiteTest(WebTest):
         response = self.app.get(url, user=self.user)
         delete_url = reverse(f"admin:edc_model_admin_{model}_delete", args=(crffive.id,))
         response = response.click(href=delete_url)
-        response = response.form.submit().follow()
+        form = get_webtest_form(response)
+        response = form.submit().follow()
         self.assertIn("You are at Dashboard Two", response)
         self.assertRaises(ObjectDoesNotExist, CrfFive.objects.get, id=crffive.id)
 
@@ -345,6 +360,7 @@ class ModelAdminSiteTest(WebTest):
         response = self.app.get(url, user=self.user)
         delete_url = reverse(f"admin:edc_model_admin_{model}_delete", args=(crfsix.id,))
         response = response.click(href=delete_url)
-        response = response.form.submit().follow()
+        form = get_webtest_form(response)
+        response = form.submit().follow()
         self.assertRaises(ObjectDoesNotExist, CrfSix.objects.get, id=crfsix.id)
         self.assertIn("changelist", response)
