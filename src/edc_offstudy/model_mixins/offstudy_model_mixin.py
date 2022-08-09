@@ -27,7 +27,7 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
 
         def formfield_for_choice_field(self, db_field, request, **kwargs):
             if db_field.name == "offstudy_reason":
-                kwargs['choices'] = OFF_STUDY_REASONS
+                kwargs['choices'] = OFFSTUDY_REASONS
             return super().formfield_for_choice_field(db_field, request, **kwargs)
 
     """
