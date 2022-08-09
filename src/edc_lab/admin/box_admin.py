@@ -44,15 +44,25 @@ class BoxAdmin(BaseModelAdmin, admin.ModelAdmin):
         "status": admin.VERTICAL,
     }
 
-    readonly_fields = ("status", "verified", "verified_datetime")
+    def get_list_display(self, request) -> tuple:
+        list_display = super().get_list_display(request)
+        custom_fields = (
+            "box_identifier",
+            "name",
+            "category",
+            "specimen_types",
+            "box_type",
+            "box_datetime",
+            "user_created",
+            "user_modified",
+        )
+        return tuple(set(custom_fields + list_display))
 
-    list_display = (
-        "box_identifier",
-        "name",
-        "category",
-        "specimen_types",
-        "box_type",
-        "box_datetime",
-        "user_created",
-        "user_modified",
-    )
+    def get_list_filter(self, request) -> tuple:
+        list_filter = super().get_list_filter(request)
+        custom_fields = ("box_datetime", "specimen_types", "category", "box_type")
+        return tuple(set(custom_fields + list_filter))
+
+    def get_readonly_fields(self, request, obj=None) -> tuple:
+        readonly_fields = super().get_readonly_fields(request, obj=obj)
+        return tuple(set(readonly_fields + ("status", "verified", "verified_datetime")))

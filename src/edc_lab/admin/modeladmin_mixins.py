@@ -1,7 +1,8 @@
+from typing import Tuple
 from uuid import UUID
 
 from django.contrib import admin
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from edc_constants.constants import YES
 
 from edc_lab.admin.fieldsets import (
@@ -22,32 +23,25 @@ class RequisitionAdminMixin:
         "item_type": admin.VERTICAL,
     }
 
-    list_display = [
-        "requisition",
-        "subject_identifier",
-        "visit_code",
-        "panel",
-        "requisition_datetime",
-        "hostname_created",
-    ]
-
-    list_filter = ["requisition_datetime", "site", "is_drawn", "panel"]
-
     search_fields = [
         "requisition_identifier",
         "subject_identifier",
         "panel__display_name",
     ]
 
-    def visit_code(self, obj=None):
+    @staticmethod
+    def visit_code(obj=None) -> str:
         return f"{obj.visit.visit_code}.{obj.visit.visit_code_sequence}"
 
-    def requisition(self, obj=None):
+    @staticmethod
+    def requisition(obj=None):
         if obj.is_drawn == YES:
             return obj.requisition_identifier
         elif not obj.is_drawn:
-            return mark_safe(f'<span style="color:red;">{obj.requisition_identifier}</span>')
-        return mark_safe('<span style="color:red;">not drawn</span>')
+            return format_html(
+                '<span style="color:red;">{}</span>', obj.requisition_identifier
+            )
+        return format_html('<span style="color:red;">not drawn</span>')
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "panel":
@@ -55,10 +49,27 @@ class RequisitionAdminMixin:
             kwargs["queryset"] = db_field.related_model.objects.filter(pk=pk)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_list_filter(self, request) -> Tuple[str, ...]:
+        list_filter = super().get_list_filter(request)
+        custom_fields = ("requisition_datetime", "site", "is_drawn", "panel")
+        list_filter = tuple(f for f in list_filter if f not in custom_fields)
+        return custom_fields + list_filter
+
+    def get_list_display(self, request) -> Tuple[str, ...]:
+        list_display = super().get_list_display(request)
+        custom_fields = (
+            "requisition",
+            "subject_identifier",
+            "visit_code",
+            "panel",
+            "requisition_datetime",
+            "hostname_created",
+        )
+        list_display = tuple(f for f in list_display if f not in custom_fields)
+        return custom_fields + list_display
+
+    def get_readonly_fields(self, request, obj=None) -> Tuple[str, ...]:
         readonly_fields = super().get_readonly_fields(request, obj=obj)
-        return (
-            list(readonly_fields)
-            + list(requisition_identifier_fields)
-            + list(requisition_verify_fields)
+        return tuple(
+            set(readonly_fields + requisition_identifier_fields + requisition_verify_fields)
         )

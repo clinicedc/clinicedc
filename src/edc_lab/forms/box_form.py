@@ -7,7 +7,7 @@ from ..models import Box
 
 
 class BoxForm(forms.ModelForm):
-    def clean(self):
+    def clean(self) -> dict:
         cleaned_data = super().clean()
         form_validator = FormValidator(cleaned_data=cleaned_data)
         if cleaned_data.get("specimen_types"):

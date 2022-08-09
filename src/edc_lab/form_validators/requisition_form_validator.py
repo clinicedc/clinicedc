@@ -13,7 +13,7 @@ class RequisitionFormValidator(FormValidator):
     def aliqout_model_cls(self):
         return django_apps.get_model(self.aliquot_model)
 
-    def clean(self):
+    def clean(self) -> None:
         if self.instance:
             if self.cleaned_data.get("packed") != self.instance.packed:
                 raise forms.ValidationError({"packed": "Value may not be changed here."})
@@ -48,7 +48,7 @@ class RequisitionFormValidator(FormValidator):
         self.required_if(YES, field="is_drawn", field_required="estimated_volume")
 
     @staticmethod
-    def validate_assay_datetime(assay_datetime, requisition, field):
+    def validate_assay_datetime(assay_datetime, requisition, field) -> None:
         if assay_datetime:
             assay_datetime = to_utc(assay_datetime)
             requisition_datetime = to_utc(requisition.requisition_datetime)
@@ -62,7 +62,7 @@ class RequisitionFormValidator(FormValidator):
                     }
                 )
 
-    def validate_requisition_datetime(self):
+    def validate_requisition_datetime(self) -> None:
         requisition_datetime = self.cleaned_data.get("requisition_datetime")
         subject_visit = self.cleaned_data.get("subject_visit")
         if requisition_datetime:

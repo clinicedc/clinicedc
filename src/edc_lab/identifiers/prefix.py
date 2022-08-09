@@ -1,3 +1,6 @@
+from typing import Optional
+
+
 class PrefixLengthError(Exception):
     pass
 
@@ -10,15 +13,17 @@ class Prefix:
 
     """A class to generate an identifier prefix."""
 
-    template = "{protocol_number}{requisition_identifier}"
-    length = 10
+    template: str = "{protocol_number}{requisition_identifier}"
+    length: int = 10
 
-    def __init__(self, template=None, length=None, **template_opts):
-        self.template = template or self.template
-        self.length = length or self.length
+    def __init__(
+        self, template: Optional[str] = None, length: Optional[int] = None, **template_opts
+    ):
+        self.template: str = template or self.template
+        self.length: int = length or self.length
         template_opts = {k: v for k, v in template_opts.items() if v is not None}
         try:
-            self.prefix = self.template.format(**template_opts)
+            self.prefix: str = self.template.format(**template_opts)
         except KeyError as e:
             raise PrefixKeyError(
                 f"Missing template value for '{e}'. Got options={template_opts}"

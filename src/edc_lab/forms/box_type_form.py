@@ -4,7 +4,7 @@ from ..models import BoxType
 
 
 class BoxTypeForm(forms.ModelForm):
-    def clean(self):
+    def clean(self) -> dict:
         cleaned_data = super().clean()
         if cleaned_data.get("across") and cleaned_data.get("down"):
             if cleaned_data.get("across") * cleaned_data.get("down") != cleaned_data.get(

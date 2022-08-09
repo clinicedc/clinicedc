@@ -24,3 +24,7 @@ class ManifestItemAdmin(BaseModelAdmin, admin.ModelAdmin):
     )
 
     list_display = ("identifier",)
+
+    def get_list_display(self, request) -> tuple:
+        list_display = super().get_list_display(request)
+        return tuple(set(("identifier",) + list_display))

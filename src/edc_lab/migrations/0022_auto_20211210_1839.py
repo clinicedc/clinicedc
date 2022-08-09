@@ -16,68 +16,68 @@ import edc_sites.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('edc_lab', '0021_auto_20200513_0034'),
+        ("edc_lab", "0021_auto_20200513_0034"),
     ]
 
     operations = [
         migrations.AlterModelManagers(
-            name='aliquot',
+            name="aliquot",
             managers=[
-                ('on_site', edc_sites.models.CurrentSiteManager()),
-                ('objects', edc_lab.models.aliquot.Manager()),
+                ("on_site", edc_sites.models.CurrentSiteManager()),
+                ("objects", edc_lab.models.aliquot.Manager()),
             ],
         ),
         migrations.AlterModelManagers(
-            name='box',
+            name="box",
             managers=[
-                ('on_site', edc_sites.models.CurrentSiteManager()),
-                ('objects', edc_lab.models.box.BoxManager()),
+                ("on_site", edc_sites.models.CurrentSiteManager()),
+                ("objects", edc_lab.models.box.BoxManager()),
             ],
         ),
         migrations.AlterModelManagers(
-            name='boxitem',
+            name="boxitem",
             managers=[
-                ('objects', edc_lab.models.box_item.BoxItemManager()),
+                ("objects", edc_lab.models.box_item.BoxItemManager()),
             ],
         ),
         migrations.AlterModelManagers(
-            name='boxtype',
+            name="boxtype",
             managers=[
-                ('objects', edc_lab.models.box_type.BoxTypeManager()),
+                ("objects", edc_lab.models.box_type.BoxTypeManager()),
             ],
         ),
         migrations.AlterModelManagers(
-            name='manifest',
+            name="manifest",
             managers=[
-                ('on_site', edc_sites.models.CurrentSiteManager()),
-                ('objects', edc_lab.models.manifest.manifest.Manager()),
+                ("on_site", edc_sites.models.CurrentSiteManager()),
+                ("objects", edc_lab.models.manifest.manifest.Manager()),
             ],
         ),
         migrations.AlterModelManagers(
-            name='order',
+            name="order",
             managers=[
-                ('on_site', edc_sites.models.CurrentSiteManager()),
-                ('objects', edc_lab.models.order.OrderManager()),
+                ("on_site", edc_sites.models.CurrentSiteManager()),
+                ("objects", edc_lab.models.order.OrderManager()),
             ],
         ),
         migrations.AlterModelManagers(
-            name='panel',
+            name="panel",
             managers=[
-                ('objects', edc_lab.models.panel.PanelManager()),
+                ("objects", edc_lab.models.panel.PanelManager()),
             ],
         ),
         migrations.AlterModelManagers(
-            name='result',
+            name="result",
             managers=[
-                ('on_site', edc_sites.models.CurrentSiteManager()),
-                ('objects', edc_lab.models.result.ResultManager()),
+                ("on_site", edc_sites.models.CurrentSiteManager()),
+                ("objects", edc_lab.models.result.ResultManager()),
             ],
         ),
         migrations.AlterModelManagers(
-            name='resultitem',
+            name="resultitem",
             managers=[
-                ('on_site', edc_sites.models.CurrentSiteManager()),
-                ('objects', edc_lab.models.result_item.ResultItemManager()),
+                ("on_site", edc_sites.models.CurrentSiteManager()),
+                ("objects", edc_lab.models.result_item.ResultItemManager()),
             ],
         ),
     ]
