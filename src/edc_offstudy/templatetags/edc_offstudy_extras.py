@@ -3,7 +3,6 @@ from urllib.parse import unquote, urlencode
 from django import template
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils.safestring import mark_safe
 
 register = template.Library()
 
@@ -26,7 +25,7 @@ def offstudy_visit_schedule_row(subject_identifier, visit_schedule, subject_dash
         context = dict(
             offstudy_datetime=obj.offstudy_datetime,
             visit_schedule=visit_schedule,
-            href=mark_safe(href),
+            href=href,
             verbose_name=obj._meta.verbose_name,
         )
     return context
