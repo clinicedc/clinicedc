@@ -24,7 +24,7 @@
     <td nowrap>
        <a title="Edit AE Initial" href="{{ result.ae_initial.href }}" class="btn btn-default btn-sm"><i class="fas fa-pencil-alt fa-fw"></i></a>
        <a title="Print AE Initial" href="?pdf={{result.action_identifier}}" class="btn btn-default btn-sm"><i class="fas fa-file-pdf fa-fw"></i></a>
-       <a title="Go to subject's dashboard" class="btn btn-primary btn-sm" href="{% url subject_dashboard_url result.subject_identifier %}"><i class="fas fa-share fa-fw"></i></a>        
+       <a title="Go to subject's dashboard" class="btn btn-primary btn-sm" href="{% url subject_dashboard_url result.subject_identifier %}"><i class="fas fa-share fa-fw"></i></a>
     </td>
 {% endblock %}
 

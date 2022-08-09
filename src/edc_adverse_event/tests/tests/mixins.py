@@ -32,7 +32,8 @@ class DeathReportTestMixin:
 
         causes_qs = CauseOfDeath.objects.exclude(name=OTHER)
         cause_of_death = (
-            cause_of_death or causes_qs[choice([x for x in range(0, len(causes_qs))])]
+            cause_of_death
+            or causes_qs[choice([x for x in range(0, len(causes_qs))])]  # nosec B311
         )
 
         # create ae initial

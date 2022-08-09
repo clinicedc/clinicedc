@@ -71,7 +71,7 @@
                     title="View {{ result.parent_reference_model_name}}"
                     id="parent_reference_obj-{{forloop.counter}}"
                     href="{{ result.parent_reference_url }}">
-                    {% if 'TMG' in result.parent_reference_model_name %} <i class="fas fa-pencil-alt fa-fw"></i>{% else %}<i class="fas fa-eye fa-fw"></i>{% endif %} 
+                    {% if 'TMG' in result.parent_reference_model_name %} <i class="fas fa-pencil-alt fa-fw"></i>{% else %}<i class="fas fa-eye fa-fw"></i>{% endif %}
                      {{ result.parent_reference_model_name }}
                 </a>
                 {% else %}
@@ -84,7 +84,7 @@
                 {% endif %}
                 <div class="list-group-item"><b>Created:</b> {{ result.parent_reference_obj.user_created|default:"---" }}&nbsp;{{ result.parent_reference_obj.created|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
                 <div class="list-group-item"><b>Last modified:</b> {{ result.parent_reference_obj.user_modified|default:"---" }}&nbsp;{{ result.parent_reference_obj.modified|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
-            {% endif %}    
+            {% endif %}
 
             {% if result.related_reference_obj and result.parent_reference_obj.action_identifier != result.related_reference_obj.action_identifier %}
                 {% if result.has_parent_reference_obj_permissions %}
@@ -92,7 +92,7 @@
                     title="View {{ result.related_reference_model_name }}"
                     id="related_reference_obj-{{forloop.counter}}"
                     href="{{ result.related_reference_url }}">
-                    {% if 'TMG' in result.related_reference_model_name %} <i class="fas fa-pencil-alt fa-fw"></i>{% else %}<i class="fas fa-eye fa-fw"></i>{% endif %} 
+                    {% if 'TMG' in result.related_reference_model_name %} <i class="fas fa-pencil-alt fa-fw"></i>{% else %}<i class="fas fa-eye fa-fw"></i>{% endif %}
                     {{result.related_reference_model_name }}</a>
                 {% else %}
                     <div class="list-group-item list-group-item-info">
@@ -105,15 +105,15 @@
                 <div class="list-group-item"><b>Created:</b> {{ result.related_reference_obj.user_created|default:"---" }}&nbsp;{{ result.related_reference_obj.created|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
                 <div class="list-group-item"><b>Last modified:</b> {{ result.related_reference_obj.user_modified|default:"---" }}&nbsp;{{ result.related_reference_obj.modified|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
             {% endif %}
-            
+
         </div>
 
 
         </div>
 
         <div class="col-md-4">
-            
-            
+
+
             {% if result.parent_reference_obj.action_identifier != result.related_reference_obj.action_identifier%}
                 {% for obj in result.parent_reference_obj.ae_follow_ups %}
                     <a class="list-group-item list-group-item-info" role="button"
@@ -141,13 +141,13 @@
                 <i class="fas fa-eye fa-fw"></i> Death Report {{ result.death_report.object }} <span class="text text-muted">{{ utc_date|timeuntil:result.death_report.object.death_datetime }}</span></a>
             {% endif %}
 
-            <a class="list-group-item list-group-item-default" role="button" 
+            <a class="list-group-item list-group-item-default" role="button"
             title="go to list of reported visits for this subject"
             href="{% url subject_review_listboard_url|default:'subject_review_listboard_url_cannot_be_none' %}?q={{ result.subject_identifier }}">
             <i class="fas fa-user-circle fa-sm"></i> Subject Review  <i class="fas fa-share"></i></a>
 
 
-            <a class="list-group-item list-group-item-default" role="button" 
+            <a class="list-group-item list-group-item-default" role="button"
             title=""
             href="{{ result.href }}">{{ result.object }}</a>
 

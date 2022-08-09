@@ -23,18 +23,6 @@ class AeTmgModelAdminMixin(
 
     additional_instructions = "For completion by TMG Investigators Only"
 
-    list_display = [
-        "subject_identifier",
-        "dashboard",
-        "status",
-        "ae_initial",
-        "report_datetime",
-        "officials_notified",
-        "report_closed_datetime",
-    ]
-
-    list_filter = ("report_datetime", "report_status")
-
     search_fields = [
         "subject_identifier",
         "action_identifier",
@@ -78,6 +66,24 @@ class AeTmgModelAdminMixin(
         "report_status": admin.VERTICAL,
         "original_report_agreed": admin.VERTICAL,
     }
+
+    def get_list_display(self, request) -> tuple:
+        list_display = super().get_list_display(request)
+        custom_fields = (
+            "subject_identifier",
+            "dashboard",
+            "status",
+            "ae_initial",
+            "report_datetime",
+            "officials_notified",
+            "report_closed_datetime",
+        )
+        return custom_fields + tuple(f for f in list_display if f not in custom_fields)
+
+    def get_list_filter(self, request) -> tuple:
+        list_filter = super().get_list_filter(request)
+        custom_fields = ("report_datetime", "report_status")
+        return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
 
     @staticmethod
     def status(obj=None):

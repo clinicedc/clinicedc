@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 from zoneinfo import ZoneInfo
 
 from arrow.arrow import Arrow
@@ -21,7 +21,7 @@ class DeathReportFormValidatorMixin:
     def cause_of_death_model_cls(self):
         return django_apps.get_model("edc_adverse_event.causeofdeath")
 
-    def clean(self: Any):
+    def clean(self: Any) -> None:
 
         self.validate_study_day_with_death_report_date()
 
@@ -38,7 +38,7 @@ class DeathReportFormValidatorMixin:
         )
 
     @property
-    def death_report_date(self: Any):
+    def death_report_date(self: Any) -> None:
         try:
             return self.cleaned_data.get(self.death_report_date_field).date()
         except AttributeError:
@@ -46,8 +46,8 @@ class DeathReportFormValidatorMixin:
 
     def validate_study_day_with_death_report_date(
         self: Any,
-        subject_identifier=None,
-    ):
+        subject_identifier: Optional[str] = None,
+    ) -> None:
         """Raises an exception if study day does not match
         calculation against ZoneInfo.
 
@@ -84,6 +84,4 @@ class DeathReportFormValidatorMixin:
                         f"Subject was registered on {formatted_date}"
                     )
                 }
-                # self._errors.update(message)
-                # self._error_codes.append(INVALID_ERROR)
                 raise forms.ValidationError(message, code=INVALID_ERROR)

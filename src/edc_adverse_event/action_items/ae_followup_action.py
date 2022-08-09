@@ -1,3 +1,4 @@
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from edc_action_item.action_with_notification import ActionWithNotification
 from edc_action_item.site_action_items import site_action_items
@@ -41,10 +42,11 @@ class AeFollowupAction(ActionWithNotification):
     create_by_user = False
     show_link_to_changelist = True
     admin_site_name = ADVERSE_EVENT_ADMIN_SITE
-    instructions = mark_safe(
-        f"Upon submission the TMG group will be notified "
-        f'by email at <a href="mailto:{get_email_contacts("tmg") or "#"}">'
-        f'{get_email_contacts("tmg") or "unknown"}</a>'
+    instructions = format_html(  # nosec B703, B308
+        "Upon submission the TMG group will be notified "
+        'by email at <a href="mailto:{}">{}</a>',
+        mark_safe(get_email_contacts("tmg") or "#"),  # nosec B703, B308
+        mark_safe(get_email_contacts("tmg") or "unknown"),  # nosec B703, B308
     )
     priority = HIGH_PRIORITY
 
