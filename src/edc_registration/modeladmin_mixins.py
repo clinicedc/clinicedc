@@ -14,7 +14,8 @@ class RegisteredSubjectModelAdminMixin(ModelAdminSubjectDashboardMixin, admin.Mo
 
     instructions = []
 
-    def show_pii(self, request):
+    @staticmethod
+    def show_pii(request) -> bool:
         return request.user.groups.filter(name__in=[PII, PII_VIEW]).exists()
 
     def get_fieldsets(self, request, obj=None):
@@ -53,9 +54,9 @@ class RegisteredSubjectModelAdminMixin(ModelAdminSubjectDashboardMixin, admin.Mo
         )
 
     def get_list_display(self, request):
-
+        list_display = super().get_list_display(request)
         if self.show_pii(request):
-            list_display = [
+            custom_fields = (
                 "subject_identifier",
                 "dashboard",
                 "first_name",
@@ -67,9 +68,9 @@ class RegisteredSubjectModelAdminMixin(ModelAdminSubjectDashboardMixin, admin.Mo
                 "site",
                 "user_created",
                 "created",
-            ]
+            )
         else:
-            list_display = [
+            custom_fields = (
                 "subject_identifier",
                 "dashboard",
                 "gender",
@@ -79,53 +80,36 @@ class RegisteredSubjectModelAdminMixin(ModelAdminSubjectDashboardMixin, admin.Mo
                 "site",
                 "user_created",
                 "created",
-            ]
-        return list_display + list(super().get_list_display(request))
+            )
+        return custom_fields + tuple(f for f in list_display if f not in custom_fields)
 
-    def get_list_filter(self, request):
-        super().get_list_filter(request)
-        if self.show_pii(request):
-            fields = [
-                "subject_type",
-                "registration_status",
-                "screening_datetime",
-                "registration_datetime",
-                "gender",
-                "site",
-                "hostname_created",
-            ]
-        else:
-            fields = [
-                "subject_type",
-                "registration_status",
-                "screening_datetime",
-                "registration_datetime",
-                "site",
-                "hostname_created",
-            ]
-        self.list_filter = [f for f in fields if f not in self.list_filter] + list(
-            self.list_filter
+    def get_list_filter(self, request) -> Tuple[str, ...]:
+        list_filter = super().get_list_filter(request)
+        custom_fields = (
+            "subject_type",
+            "registration_status",
+            "screening_datetime",
+            "registration_datetime",
+            "gender",
+            "site",
+            "hostname_created",
         )
-        return self.list_filter
+        return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
 
-    def get_search_fields(self, request):
-        if self.show_pii(request):
-            search_fields = [
-                "subject_identifier",
-                "first_name",
-                "initials",
-                "sid",
-                "identity",
-                "id",
-                "screening_identifier",
-                "registration_identifier",
-            ]
-        else:
-            search_fields = [
-                "subject_identifier",
-                "sid",
-                "id",
-                "screening_identifier",
-                "registration_identifier",
-            ]
-        return search_fields + list(super().get_search_fields(request))
+    def get_search_fields(self, request) -> Tuple[str, ...]:
+        search_fields = super().get_search_fields(request)
+        pii_fields = (
+            "first_name",
+            "initials",
+            "identity",
+        )
+        search_fields += (
+            "subject_identifier",
+            "sid",
+            "id",
+            "screening_identifier",
+            "registration_identifier",
+        )
+        if not self.show_pii(request):
+            return tuple(set(f for f in search_fields if f not in pii_fields))
+        return tuple(set(search_fields + pii_fields))
