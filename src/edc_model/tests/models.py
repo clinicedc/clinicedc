@@ -1,7 +1,7 @@
-import arrow
 from dateutil.relativedelta import relativedelta
 from django.db import models
 from edc_sites.models import SiteModelMixin
+from edc_utils import get_utcnow
 
 from edc_model.models import (
     BaseModel,
@@ -20,12 +20,8 @@ from edc_model.validators import (
 )
 
 
-def get_utcnow():
-    return arrow.utcnow().datetime
-
-
 def get_future_date():
-    return arrow.utcnow().datetime + relativedelta(days=10)
+    return get_utcnow() + relativedelta(days=10)
 
 
 class SimpleModel(BaseModel):
