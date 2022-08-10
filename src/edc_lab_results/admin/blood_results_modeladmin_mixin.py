@@ -1,8 +1,9 @@
 from django.contrib import admin
+from django.contrib.admin import ModelAdmin
 from edc_action_item import action_fields
 
 
-class BloodResultsModelAdminMixin:
+class BloodResultsModelAdminMixin(ModelAdmin):
 
     form = None
 
