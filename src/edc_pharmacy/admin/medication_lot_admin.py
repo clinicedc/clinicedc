@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from django.contrib import admin
 from edc_model_admin import audit_fieldset_tuple
 
@@ -28,7 +30,22 @@ class MedicationLotAdmin(ModelAdminMixin, admin.ModelAdmin):
         audit_fieldset_tuple,
     )
 
-    list_filter = ["lot_no", "expiration_date", "formulation", "created", "modified"]
-    list_display = ["lot_no", "expiration_date", "formulation", "created", "modified"]
-    search_fields = ["lot_no"]
-    ordering = ["-expiration_date"]
+    list_filter: Tuple[str, ...] = (
+        "lot_no",
+        "expiration_date",
+        "formulation",
+        "created",
+        "modified",
+    )
+
+    list_display: Tuple[str, ...] = (
+        "lot_no",
+        "expiration_date",
+        "formulation",
+        "created",
+        "modified",
+    )
+
+    search_fields: Tuple[str, ...] = ("lot_no",)
+
+    ordering: Tuple[str, ...] = ("-expiration_date",)

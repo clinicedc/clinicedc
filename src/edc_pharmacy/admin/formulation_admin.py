@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from django.contrib import admin
 from edc_model_admin import audit_fieldset_tuple
 
@@ -39,12 +41,13 @@ class FormulationAdmin(ModelAdminMixin, admin.ModelAdmin):
         "route": admin.VERTICAL,
     }
 
-    list_filter = [
+    list_filter: Tuple[str, ...] = (
         "strength",
         "units",
         "formulation_type",
         "route",
-    ]
+    )
 
-    search_fields = ["medication__name"]
-    ordering = ["medication__name"]
+    search_fields: Tuple[str, ...] = ("medication__name",)
+
+    ordering: Tuple[str, ...] = ("medication__name",)

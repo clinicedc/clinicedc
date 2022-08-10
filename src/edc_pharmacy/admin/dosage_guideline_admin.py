@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from django.contrib import admin
 from edc_model_admin import audit_fieldset_tuple
 
@@ -33,5 +35,5 @@ class DosageGuidelineAdmin(ModelAdminMixin, admin.ModelAdmin):
         audit_fieldset_tuple,
     )
 
-    list_display = ["__str__", "modified", "user_modified"]
-    search_fields = ["medication__name"]
+    list_display: Tuple[str, ...] = ("__str__", "modified", "user_modified")
+    search_fields: Tuple[str, ...] = ("medication__name",)
