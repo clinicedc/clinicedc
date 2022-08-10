@@ -1,4 +1,5 @@
-import arrow
+from zoneinfo import ZoneInfo
+
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -43,16 +44,8 @@ class CrfDateValidator:
         if not self.report_datetime_allowance:
             app_config = django_apps.get_app_config("edc_visit_tracking")
             self.report_datetime_allowance = app_config.report_datetime_allowance
-        self.report_datetime = (
-            arrow.Arrow.fromdatetime(report_datetime, report_datetime.tzinfo)
-            .to("utc")
-            .datetime
-        )
-        self.visit_report_datetime = (
-            arrow.Arrow.fromdatetime(visit_report_datetime, visit_report_datetime.tzinfo)
-            .to("utc")
-            .datetime
-        )
+        self.report_datetime = report_datetime.astimezone(ZoneInfo("UTC"))
+        self.visit_report_datetime = visit_report_datetime.astimezone(ZoneInfo("UTC"))
         self.created = created
         self.modified = modified
         self.subject_identifier = subject_identifier

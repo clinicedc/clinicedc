@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Tuple
 
 from django.contrib import admin
 from edc_appointment.models import Appointment
@@ -11,8 +11,7 @@ from edc_visit_schedule.fieldsets import (
     visit_schedule_fieldset_tuple,
 )
 
-from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
-from edc_visit_tracking.stubs import SubjectVisitModelStub
+from ..constants import SCHEDULED, UNSCHEDULED
 
 
 class VisitModelAdminMixin(DocumentStatusModelAdminMixin):
@@ -59,15 +58,6 @@ class VisitModelAdminMixin(DocumentStatusModelAdminMixin):
         "require_crfs": admin.VERTICAL,
     }
 
-    list_display = [
-        "appointment",
-        "subject_identifier",
-        "report_datetime",
-        "visit_reason",
-        "status",
-        "scheduled_data",
-    ]
-
     search_fields = [
         "id",
         "reason",
@@ -75,20 +65,12 @@ class VisitModelAdminMixin(DocumentStatusModelAdminMixin):
         "appointment__subject_identifier",
     ]
 
-    list_filter = [
-        "report_datetime",
-        "appointment__visit_code",
-        "appointment__visit_code_sequence",
-        "reason",
-        "require_crfs",
-    ]
-
     @staticmethod
-    def subject_identifier(obj: SubjectVisitModelStub = None) -> str:
+    def subject_identifier(obj=None) -> str:
         return obj.appointment.subject_identifier
 
     @staticmethod
-    def visit_reason(obj: SubjectVisitModelStub = None) -> str:
+    def visit_reason(obj=None) -> str:
         if obj.reason != UNSCHEDULED:
             visit_reason = obj.get_reason_display()
         else:
@@ -99,14 +81,14 @@ class VisitModelAdminMixin(DocumentStatusModelAdminMixin):
         return visit_reason
 
     @staticmethod
-    def status(obj: SubjectVisitModelStub = None) -> str:
+    def status(obj=None) -> str:
         return obj.study_status
 
     @staticmethod
-    def scheduled_data(obj: SubjectVisitModelStub = None) -> str:
+    def scheduled_data(obj=None) -> str:
         return obj.get_require_crfs_display()
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):  # type: ignore
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
         db = kwargs.get("using")
         if db_field.name == "appointment" and request.GET.get("appointment"):
             kwargs["queryset"] = db_field.related_model._default_manager.using(db).filter(
@@ -116,9 +98,32 @@ class VisitModelAdminMixin(DocumentStatusModelAdminMixin):
             kwargs["queryset"] = db_field.related_model._default_manager.none()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
-    def get_readonly_fields(self, request, obj=None) -> list:
-        readonly_fields = super().get_readonly_fields(request, obj=obj)  # type: ignore
-        return list(readonly_fields) + list(visit_schedule_fields)
+    def get_list_display(self, request) -> Tuple[str, ...]:
+        list_display = super().get_list_display(request)
+        custom_fields = (
+            "appointment",
+            "subject_identifier",
+            "report_datetime",
+            "visit_reason",
+            "status",
+            "scheduled_data",
+        )
+        return custom_fields + tuple(f for f in list_display if f not in custom_fields)
+
+    def get_list_filter(self, request) -> Tuple[str, ...]:
+        list_filter = super().get_list_filter(request)
+        custom_fields = (
+            "report_datetime",
+            "appointment__visit_code",
+            "appointment__visit_code_sequence",
+            "reason",
+            "require_crfs",
+        )
+        return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
+
+    def get_readonly_fields(self, request, obj=None) -> Tuple[str, ...]:
+        readonly_fields = super().get_readonly_fields(request, obj=obj)
+        return tuple(set(readonly_fields + visit_schedule_fields))
 
     def get_changeform_initial_data(self, request: Any) -> dict:
         """Sets initial data for the form.
@@ -128,7 +133,7 @@ class VisitModelAdminMixin(DocumentStatusModelAdminMixin):
         Gets report_datetime from the appointment.appt_datetime
         and reason from the appointment.visit_code_sequence.
         """
-        initial_data = super().get_changeform_initial_data(request)  # type: ignore
+        initial_data = super().get_changeform_initial_data(request)
         appointment_id = request.GET.get("appointment")
         appointment = Appointment.objects.get(id=appointment_id)
         initial_data.update(

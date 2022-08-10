@@ -91,7 +91,7 @@ class SubjectVisitReasonUpdater(MetadataHelperMixin):
                 f"appt_timing={self.appt_timing}"
             )
 
-    def _update_visit_to_missed_or_raise(self):
+    def _update_visit_to_missed_or_raise(self) -> None:
         self.missed_visit_allowed_or_raise()
         if self.subject_visit:
             self.subject_visit.reason = MISSED_VISIT
@@ -100,7 +100,7 @@ class SubjectVisitReasonUpdater(MetadataHelperMixin):
                 self.subject_visit.save_base(update_fields=["reason", "document_status"])
                 self.subject_visit.refresh_from_db()
 
-    def _update_visit_to_not_missed_or_raise(self):
+    def _update_visit_to_not_missed_or_raise(self) -> None:
         """Updates the subject visit instance from MISSED_VISIT
         to SCHEDULED or UNSCHEDULED.
         """

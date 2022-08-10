@@ -10,10 +10,9 @@ from edc_protocol.validators import datetime_not_before_study_start
 from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins import SubjectScheduleModelMixin
 
-from edc_visit_tracking.stubs import SubjectVisitModelStub, TSubjectVisitModelStub
-
 from ...crf_date_validator import CrfDateValidator
 from ...managers import CrfModelManager
+from ...stubs import SubjectVisitModelStub, TSubjectVisitModelStub
 from ..visit_model_mixin import VisitModelMixin
 
 
@@ -33,11 +32,11 @@ class VisitMethodsModelMixin(models.Model):
         fields = {field.name: field for field in self._meta.get_fields()}
         for name, field in fields.items():
             try:
-                assert field.related_model is not None
-            except (AttributeError, AssertionError):
+                related_model = field.related_model
+            except AttributeError:
                 pass
             else:
-                if issubclass(field.related_model, (VisitModelMixin,)):
+                if related_model is not None and issubclass(related_model, (VisitModelMixin,)):
                     try:
                         visit = getattr(self, name)
                     except ObjectDoesNotExist:
@@ -53,11 +52,11 @@ class VisitMethodsModelMixin(models.Model):
         fields = {field.name: field for field in cls._meta.get_fields()}
         for name, field in fields.items():
             try:
-                assert field.related_model is not None
-            except (AttributeError, AssertionError):
+                related_model = field.related_model
+            except AttributeError:
                 pass
             else:
-                if issubclass(field.related_model, (VisitModelMixin,)):
+                if related_model is not None and issubclass(related_model, (VisitModelMixin,)):
                     visit_model_attr = name
         return visit_model_attr
 

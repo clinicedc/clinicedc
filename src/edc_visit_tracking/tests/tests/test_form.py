@@ -1,4 +1,5 @@
-import arrow
+from zoneinfo import ZoneInfo
+
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.test import TestCase, override_settings
@@ -129,10 +130,10 @@ class TestForm(TestCase):
             reason=SCHEDULED,
             report_datetime=get_utcnow(),
         )
-        a = arrow.utcnow().to("Africa/Dar_es_Salaam")
+        dte = get_utcnow().astimezone(ZoneInfo("Africa/Dar_es_Salaam"))
         for report_datetime in [
-            a.datetime - relativedelta(months=1),
-            a.datetime + relativedelta(months=1),
+            dte - relativedelta(months=1),
+            dte + relativedelta(months=1),
         ]:
             form = CrfForm(
                 {

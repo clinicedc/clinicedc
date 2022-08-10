@@ -72,7 +72,7 @@ class VisitSequence:
         # TODO: consider recreating missing appointments if sequence
         #       is broken
 
-        opts = dict(
+        opts: dict = dict(
             subject_identifier=self.subject_identifier,
             visit_schedule_name=self.visit_schedule_name,
             schedule_name=self.appointment.schedule_name,

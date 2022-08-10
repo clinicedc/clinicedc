@@ -1,4 +1,5 @@
 from copy import deepcopy
+from datetime import datetime
 from typing import Any, List, Optional
 from zoneinfo import ZoneInfo
 
@@ -19,9 +20,8 @@ from edc_metadata.utils import (
 from edc_utils import formatted_datetime
 from edc_visit_schedule.utils import is_baseline
 
-from edc_visit_tracking.utils import get_subject_visit_missed_model_cls
-
 from ..constants import MISSED_VISIT, UNSCHEDULED
+from ..utils import get_subject_visit_missed_model_cls
 from ..visit_sequence import VisitSequence, VisitSequenceError
 
 EDC_VISIT_TRACKING_ALLOW_MISSED_UNSCHEDULED = getattr(
@@ -72,18 +72,18 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
         self.required_if(OTHER, field="info_source", field_required="info_source_other")
 
     @property
-    def appt_datetime_local(self):
+    def appt_datetime_local(self) -> datetime:
         """Returns appt datetime in local timezone"""
         return self.cleaned_data.get("appointment").appt_datetime.astimezone(
             ZoneInfo(settings.TIME_ZONE)
         )
 
     @property
-    def report_datetime_utc(self):
+    def report_datetime_utc(self) -> datetime:
         """Returns report datetime in UTC timezone"""
         return self.cleaned_data.get("report_datetime").astimezone(ZoneInfo("UTC"))
 
-    def validate_visit_datetime_unique(self: Any):
+    def validate_visit_datetime_unique(self: Any) -> None:
         """Assert one visit report per day"""
         if self.cleaned_data.get("report_datetime"):
             qs = self.instance.__class__.objects.filter(
@@ -150,7 +150,7 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
                         INVALID_ERROR,
                     )
 
-    def validate_visit_datetime_in_window_period(self):
+    def validate_visit_datetime_in_window_period(self) -> None:
         """Asserts the report_datetime is within the visits lower and
         upper boundaries of the visit_schedule.schdule.visit.
 
@@ -163,7 +163,7 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
                 "report_datetime",
             )
 
-    def validate_visits_completed_in_order(self):
+    def validate_visits_completed_in_order(self) -> None:
         """Asserts visits are completed in order."""
         visit_sequence = self.visit_sequence_cls(
             appointment=self.cleaned_data.get("appointment")
@@ -203,18 +203,8 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
                     {"reason": "Invalid. Some CRF data has already been submitted."},
                     code=INVALID_ERROR,
                 )
-            # raise if SubjectVisitMissed CRF metadata exist
-            # if reason in [UNSCHEDULED, SCHEDULED] and self.metadata_exists_for(
-            #     entry_status=KEYED,
-            #     filter_models=[get_subject_visit_missed_model_cls()._meta.label_lower],
-            #     exclude_models=[get_subject_visit_missed_model()],
-            # ):
-            #     raise forms.ValidationError(
-            #         {"reason": "Invalid. A missed visit report has already been submitted."},
-            #         code=INVALID_ERROR,
-            #     )
 
-    def validate_visit_reason(self):
+    def validate_visit_reason(self) -> None:
         """Asserts that reason=missed if appointment is missed"""
         if (
             self.cleaned_data.get("appointment").appt_timing == MISSED_APPT
@@ -248,7 +238,7 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
         entry_status: str = None,
         filter_models: Optional[List[str]] = None,
         exclude_models: Optional[List[str]] = None,
-    ) -> bool:
+    ) -> int:
         """Returns True if metadata exists for this visit for
         the given entry_status.
         """
