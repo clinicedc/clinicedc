@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from django.conf import settings
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
@@ -23,13 +25,13 @@ class AeTmgModelAdminMixin(
 
     additional_instructions = "For completion by TMG Investigators Only"
 
-    search_fields = [
+    search_fields = (
         "subject_identifier",
         "action_identifier",
         "ae_initial__action_identifier",
         "ae_initial__tracking_identifier",
         "tracking_identifier",
-    ]
+    )
 
     fieldsets = (
         (None, {"fields": ("subject_identifier", "ae_initial", "report_datetime")}),
@@ -67,7 +69,7 @@ class AeTmgModelAdminMixin(
         "original_report_agreed": admin.VERTICAL,
     }
 
-    def get_list_display(self, request) -> tuple:
+    def get_list_display(self, request) -> Tuple[str, ...]:
         list_display = super().get_list_display(request)
         custom_fields = (
             "subject_identifier",
@@ -80,7 +82,7 @@ class AeTmgModelAdminMixin(
         )
         return custom_fields + tuple(f for f in list_display if f not in custom_fields)
 
-    def get_list_filter(self, request) -> tuple:
+    def get_list_filter(self, request) -> Tuple[str, ...]:
         list_filter = super().get_list_filter(request)
         custom_fields = ("report_datetime", "report_status")
         return custom_fields + tuple(f for f in list_filter if f not in custom_fields)

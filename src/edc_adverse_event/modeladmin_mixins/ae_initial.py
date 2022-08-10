@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from django.conf import settings
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
@@ -94,11 +96,11 @@ class AeInitialModelAdminMixin(
 
     radio_fields = default_radio_fields
 
-    ordering = ["-tracking_identifier"]
+    ordering = ("-tracking_identifier",)
 
-    search_fields = ["subject_identifier", "action_identifier", "tracking_identifier"]
+    search_fields = ("subject_identifier", "action_identifier", "tracking_identifier")
 
-    def get_list_display(self, request) -> tuple:
+    def get_list_display(self, request) -> Tuple[str, ...]:
         list_display = super().get_list_display(request)
         custom_fields = (
             "identifier",
@@ -109,7 +111,7 @@ class AeInitialModelAdminMixin(
         )
         return custom_fields + tuple(f for f in list_display if f not in custom_fields)
 
-    def get_list_filter(self, request) -> tuple:
+    def get_list_filter(self, request) -> Tuple[str, ...]:
         list_filter = super().get_list_filter(request)
         custom_fields = (
             "ae_awareness_date",
