@@ -58,12 +58,12 @@ class VisitModelAdminMixin(DocumentStatusModelAdminMixin):
         "require_crfs": admin.VERTICAL,
     }
 
-    search_fields = [
+    search_fields = (
         "id",
         "reason",
         "appointment__visit_code",
         "appointment__subject_identifier",
-    ]
+    )
 
     @staticmethod
     def subject_identifier(obj=None) -> str:
