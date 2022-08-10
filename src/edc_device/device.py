@@ -108,7 +108,8 @@ class Device:
             self.is_server = False
         return role
 
-    def get_device_id(self, device_id=None):
+    @staticmethod
+    def get_device_id(device_id=None):
         try:
             value = settings.DEVICE_ID
         except AttributeError:
@@ -116,9 +117,7 @@ class Device:
         else:
             value = value or device_id
         if value and device_id:
-            try:
-                assert value == device_id
-            except AssertionError:
+            if value != device_id:
                 raise DeviceIdError(
                     f"AppConfig.device_id conflicts with settings.DEVICE_ID "
                     f"Got '{device_id}' != '{settings.DEVICE_ID}'",
