@@ -1,10 +1,12 @@
+from typing import Tuple
+
 from django.contrib import admin
 
 
 class ListModelAdminMixin(admin.ModelAdmin):
 
-    ordering = ("display_index", "display_name")
+    ordering: Tuple[str, ...] = ("display_index", "display_name")
 
-    list_display = ["display_name", "name", "display_index"]
+    list_display: Tuple[str, ...] = ("display_name", "name", "display_index")
 
-    search_fields = ("display_name", "name")
+    search_fields: Tuple[str, ...] = ("display_name", "name")
