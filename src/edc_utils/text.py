@@ -16,7 +16,7 @@ def get_safe_random_string(length=12, safe=None, allowed_chars=None):
     )
     if safe:
         allowed_chars = "ABCDEFGHKMNPRTUVWXYZ2346789"
-    return "".join([random.choice(allowed_chars) for _ in range(length)])
+    return "".join([random.choice(allowed_chars) for _ in range(length)])  # nosec B311
 
 
 def convert_php_dateformat(php_format_string):

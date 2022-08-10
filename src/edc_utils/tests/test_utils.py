@@ -22,7 +22,7 @@ class TestUtils(TestCase):
         allowed_chars = "ABCDEFGHKMNPRTUVWXYZ2346789"
         for character in _safe_string:
             if character not in allowed_chars:
-                assert False
+                self.fail("Unexpected char")
 
     def test_formatted_age(self):
         datetime(2016, 12, 12).astimezone(ZoneInfo("UTC"))
