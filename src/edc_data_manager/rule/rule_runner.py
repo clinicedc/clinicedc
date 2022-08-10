@@ -2,9 +2,9 @@ import sys
 from decimal import Decimal
 from typing import Optional, Union
 
-import arrow
 from edc_metadata import KEYED, REQUIRED
 from edc_metadata.metadata_inspector import MetaDataInspector
+from edc_utils import get_utcnow
 
 from ..models import QueryVisitSchedule
 from .query_rule_wrapper import QueryRuleWrapper
@@ -13,7 +13,7 @@ from .query_rule_wrapper import QueryRuleWrapper
 class RuleRunner:
     def __init__(self, query_rule_obj=None, now=None, verbose=None):
         self.query_rule_obj = query_rule_obj  # query rule model instance
-        self.now = now or arrow.utcnow().datetime
+        self.now = now or get_utcnow()
         self.verbose = verbose
 
     @property
