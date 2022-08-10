@@ -9,21 +9,6 @@ from .site_list_data import site_list_data
 style = color_style()
 
 
-"""
-If you need list data in your tests add to your test case:
-
-    @classmethod
-    def setUpClass(cls):
-        site_list_data.autodiscover()
-        super().setUpClass()
-
-    @classmethod
-    def tearDownClass(cls):
-        super().tearDownClass()
-
-"""
-
-
 def post_migrate_list_data(sender=None, **kwargs):
 
     sys.stdout.write(style.MIGRATE_HEADING("Updating list data:\n"))
