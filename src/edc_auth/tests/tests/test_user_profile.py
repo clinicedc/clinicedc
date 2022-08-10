@@ -30,7 +30,7 @@ class TestUserProfile(EdcAuthTestCase):
         request = RequestFactory()
         backend = ModelBackendWithSite()
         self.assertIsNotNone(
-            backend.authenticate(request, username="erik", password="password")
+            backend.authenticate(request, username="erik", password="password")  # nosec B106
         )
 
     @override_settings(SITE_ID=10)
@@ -47,7 +47,7 @@ class TestUserProfile(EdcAuthTestCase):
         request = RequestFactory()
         backend = ModelBackendWithSite()
         self.assertIsNotNone(
-            backend.authenticate(request, username="erik", password="password")
+            backend.authenticate(request, username="erik", password="password")  # nosec B106
         )
 
     @override_settings(SITE_ID=20)
@@ -62,7 +62,13 @@ class TestUserProfile(EdcAuthTestCase):
         user.userprofile.sites.add(ten)
         request = RequestFactory()
         backend = ModelBackendWithSite()
-        self.assertIsNone(backend.authenticate(request, username="erik", password="password"))
+        self.assertIsNone(
+            backend.authenticate(  # nosec B106
+                request,
+                username="erik",
+                password="password",
+            )
+        )
 
     def test_add_groups_for_role(self):
         AuthUpdater(verbose=False)
