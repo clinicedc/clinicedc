@@ -1,7 +1,6 @@
 from typing import Any, Optional
 from zoneinfo import ZoneInfo
 
-from arrow.arrow import Arrow
 from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -72,12 +71,9 @@ class DeathReportFormValidatorMixin:
             ).randomization_datetime
             days_on_study = (self.death_report_date - randomization_datetime.date()).days
             if study_day - 1 != days_on_study:
-                tz = ZoneInfo(settings.TIME_ZONE)
-                formatted_date = (
-                    Arrow.fromdatetime(randomization_datetime)
-                    .to(tz)
-                    .strftime(convert_php_dateformat(settings.DATETIME_FORMAT))
-                )
+                formatted_date = randomization_datetime.astimezone(
+                    ZoneInfo(settings.TIME_ZONE)
+                ).strftime(convert_php_dateformat(settings.DATETIME_FORMAT))
                 message = {
                     self.study_day_field: (
                         f"Invalid. Expected {days_on_study + 1}. "

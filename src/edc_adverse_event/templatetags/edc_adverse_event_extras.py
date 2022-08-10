@@ -1,13 +1,13 @@
 import os
 from textwrap import wrap
 
-import arrow
 from django import template
 from django.conf import settings
 from django.template.loader import select_template
 from django.utils.html import format_html
 from edc_constants.constants import OTHER, YES
 from edc_dashboard.utils import get_bootstrap_version
+from edc_utils import get_utcnow
 
 register = template.Library()
 
@@ -42,7 +42,7 @@ def tmg_listboard_results(context, results, empty_message=None):
 
 @register.inclusion_tag(select_description_template("aeinitial"), takes_context=True)
 def format_ae_description(context, ae_initial, wrap_length):
-    context["utc_date"] = arrow.now().date()
+    context["utc_date"] = get_utcnow().date()
     context["SHORT_DATE_FORMAT"] = settings.SHORT_DATE_FORMAT
     context["OTHER"] = OTHER
     context["YES"] = YES
@@ -58,7 +58,7 @@ def format_ae_description(context, ae_initial, wrap_length):
 
 @register.inclusion_tag(select_description_template("aefollowup"), takes_context=True)
 def format_ae_followup_description(context, ae_followup, wrap_length):
-    context["utc_date"] = arrow.now().date()
+    context["utc_date"] = get_utcnow().date()
     context["SHORT_DATE_FORMAT"] = settings.SHORT_DATE_FORMAT
     context["OTHER"] = OTHER
     context["YES"] = YES
@@ -78,7 +78,7 @@ def format_ae_followup_description(context, ae_followup, wrap_length):
 
 @register.inclusion_tag(select_description_template("aesusar"), takes_context=True)
 def format_ae_susar_description(context, ae_susar, wrap_length):
-    context["utc_date"] = arrow.now().date()
+    context["utc_date"] = get_utcnow().date()
     context["SHORT_DATE_FORMAT"] = settings.SHORT_DATE_FORMAT
     context["OTHER"] = OTHER
     context["YES"] = YES
