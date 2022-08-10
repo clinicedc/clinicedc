@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib import messages
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from edc_constants.constants import YES
 
 from ...model_wrappers import RequisitionModelWrapper
@@ -35,10 +35,13 @@ class RequisitionListboardView(BaseListboardView):
             plural = "" if self.unverified_requisition_count == 1 else "s"
             messages.warning(
                 self.request,
-                mark_safe(
-                    f"There {verb} {self.unverified_requisition_count} requisition{plural} "
+                format_html(
+                    "There {} {} requisition{} "
                     "where the specimen is <b>drawn but not verified</b> by the clinic. "
-                    "Please follow up."
+                    "Please follow up.",
+                    verb,
+                    str(self.unverified_requisition_count),
+                    plural,
                 ),
             )
             context.update(unverified_requisition_count=self.unverified_requisition_count)

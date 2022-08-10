@@ -6,21 +6,21 @@
     </a>&nbsp;
 {% endblock panel_back %}
 
-{% block panel_description %}                    
+{% block panel_description %}
     <span class="text">
     <span class="label label-success">Box</span>&nbsp;
-     <span class="text text-identifier"><strong>{{ box.human_readable_identifier }}</strong></span>&nbsp; 
-     <span class="label label-success">{{ box.get_category_display }}</span> 
-     <span class="label label-success">{{ box.specimen_types }}</span> 
+     <span class="text text-identifier"><strong>{{ box.human_readable_identifier }}</strong></span>&nbsp;
+     <span class="label label-success">{{ box.get_category_display }}</span>
+     <span class="label label-success">{{ box.specimen_types }}</span>
      {% if box.accept_primary %}
          <span class="label label-success">accepts primary</span>
      {% endif %}
-     <span class="label label-success">{{ box.box_type }}</span> 
-     <span class="label label-success">{{ box.count}}/{{ box.box_type.total}}</span> 
+     <span class="label label-success">{{ box.box_type }}</span>
+     <span class="label label-success">{{ box.count}}/{{ box.box_type.total}}</span>
      <span class="label label-success">{{ box.object.box_datetime|date:"Y-m-d" }}</span>
     {% if box.status == SHIPPED %}
         <span class="label label-default">SHIPPED</span>
-    {% endif %} 
+    {% endif %}
      </span>
 {% endblock panel_description %}
 

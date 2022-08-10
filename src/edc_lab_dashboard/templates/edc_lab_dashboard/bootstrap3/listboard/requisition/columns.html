@@ -7,7 +7,7 @@
     </td>
     <td>
       {% if wrapped.clinic_verified == YES %}
-        <a title="Edit requisition" role="button" href="{{ wrapped.href }}" class="btn btn-default btn-sm"><i class="fas fa-pencil-alt fa-fw"></i></a>      
+        <a title="Edit requisition" role="button" href="{{ wrapped.href }}" class="btn btn-default btn-sm"><i class="fas fa-pencil-alt fa-fw"></i></a>
       {% else %}
         <span class="text text-danger"><i class="fas fa-exclamation-circle fa-lg"></i> Not verified</span>
       {% endif %}

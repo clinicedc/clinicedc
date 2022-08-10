@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from edc_dashboard.url_names import url_names
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_lab import SHIPPED
@@ -73,7 +73,7 @@ class ManageBoxItemView(EdcViewMixin, BoxViewMixin, ActionView):
             )
             messages.success(self.request, message)
 
-    def add_box_item(self, **kwargs):
+    def add_box_item(self, **kwargs):  # noqa
         """Adds the item to the next available position in the box."""
         if self.box.status == SHIPPED:
             message = "Unable to add. Box has already been shipped."
@@ -90,10 +90,11 @@ class ManageBoxItemView(EdcViewMixin, BoxViewMixin, ActionView):
                 except ObjectDoesNotExist:
                     self.create_box_item()
                 else:
-                    message = mark_safe(
-                        f'Item is already packed. See box <a href="{self.box_href}" '
-                        f'class="alert-link">'
-                        f"{box_item.box.human_readable_identifier}</a>"
+                    message = format_html(
+                        'Item is already packed. See box <a href="{}" '
+                        'class="alert-link">{}</a>',
+                        self.box_href,
+                        box_item.box.human_readable_identifier,
                     )
                     messages.error(self.request, message)
             else:
@@ -115,7 +116,7 @@ class ManageBoxItemView(EdcViewMixin, BoxViewMixin, ActionView):
         try:
             position = self.box.next_position
         except BoxIsFullError as e:
-            message = mark_safe(f"{e}")
+            message = format_html("{}", str(e))
             messages.error(self.request, message)
         else:
             box_item = BoxItem(
