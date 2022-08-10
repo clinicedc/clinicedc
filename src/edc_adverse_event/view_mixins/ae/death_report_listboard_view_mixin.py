@@ -108,7 +108,7 @@ class DeathReportListboardViewMixin(
             return report.render()
         return None
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict:
         context = super().get_context_data(**kwargs)
         context = self.add_url_to_context(
             new_key="ae_home_url", existing_key=self.home_url, context=context

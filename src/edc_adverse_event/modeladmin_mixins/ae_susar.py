@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from django.contrib import admin
 from django.template.loader import render_to_string
 from edc_action_item import action_fieldset_tuple
@@ -22,13 +24,13 @@ class AeSusarModelAdminMixin(
 
     form = AeSusarForm
 
-    search_fields = [
+    search_fields = (
         "subject_identifier",
         "action_identifier",
         "ae_initial__action_identifier",
         "ae_initial__tracking_identifier",
         "tracking_identifier",
-    ]
+    )
 
     fieldsets = (
         (
@@ -48,7 +50,7 @@ class AeSusarModelAdminMixin(
 
     radio_fields = {"report_status": admin.VERTICAL}
 
-    def get_list_display(self, request) -> tuple:
+    def get_list_display(self, request) -> Tuple[str, ...]:
         list_display = super().get_list_display(request)
         custom_fields = (
             "subject_identifier",
@@ -59,13 +61,13 @@ class AeSusarModelAdminMixin(
         )
         return custom_fields + tuple(f for f in list_display if f not in custom_fields)
 
-    def get_list_filter(self, request) -> tuple:
+    def get_list_filter(self, request) -> Tuple[str, ...]:
         list_filter = super().get_list_filter(request)
         custom_fields = ("report_datetime", "submitted_datetime")
         return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
 
     @staticmethod
-    def description(obj=None):
+    def description(obj=None) -> str:
         """Returns a formatted comprehensive description."""
         context = format_ae_susar_description({}, obj, 50)
         return render_to_string(select_description_template("aesusar"), context)

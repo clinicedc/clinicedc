@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from django.contrib import admin
 from edc_action_item import action_fieldset_tuple
 from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
@@ -35,9 +37,9 @@ class DeathReportModelAdminMixin(ModelAdminSubjectDashboardMixin, ActionItemMode
         "cause_of_death": admin.VERTICAL,
     }
 
-    search_fields = ["subject_identifier", "action_identifier", "tracking_identifier"]
+    search_fields = ("subject_identifier", "action_identifier", "tracking_identifier")
 
-    def get_list_display(self, request) -> tuple:
+    def get_list_display(self, request) -> Tuple[str, ...]:
         list_display = super().get_list_display(request)
         custom_fields = (
             "subject_identifier",
@@ -50,7 +52,7 @@ class DeathReportModelAdminMixin(ModelAdminSubjectDashboardMixin, ActionItemMode
         )
         return custom_fields + tuple(f for f in list_display if f not in custom_fields)
 
-    def get_list_filter(self, request) -> tuple:
+    def get_list_filter(self, request) -> Tuple[str, ...]:
         list_filter = super().get_list_filter(request)
         custom_fields = ("report_datetime", "death_datetime", "cause_of_death")
         return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
