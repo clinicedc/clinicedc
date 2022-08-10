@@ -1,4 +1,5 @@
 from copy import copy
+from typing import Tuple
 
 from django.contrib import admin
 from edc_action_item import action_fields, action_fieldset_tuple
@@ -56,8 +57,6 @@ class SubjectTransferModelAdminMixin:
 
     search_fields = ("subject_identifier", "action_identifier", "tracking_identifier")
 
-    def get_readonly_fields(self, request, obj=None):
-        fields = super().get_readonly_fields(request, obj)
-        action_flds = copy(list(action_fields))
-        fields = list(action_flds) + list(fields)
-        return fields
+    def get_readonly_fields(self, request, obj=None) -> Tuple[str, ...]:
+        readonly_fields = super().get_readonly_fields(request, obj)
+        return tuple(set(action_fields + readonly_fields))
