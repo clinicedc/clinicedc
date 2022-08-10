@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from django.contrib import admin
 from django_audit_fields import audit_fieldset_tuple
 from edc_model import DEFAULT_BASE_FIELDS
@@ -51,8 +53,8 @@ class IdentifierModelAdmin(admin.ModelAdmin):
     )
     search_fields = ("identifier", "subject_identifier", "linked_identifier")
 
-    def get_readonly_fields(self, request, obj=None):
-        return [
+    def get_readonly_fields(self, request, obj=None) -> Tuple[str, ...]:
+        return (
             "identifier",
             "protocol_number",
             "subject_identifier",
@@ -64,4 +66,4 @@ class IdentifierModelAdmin(admin.ModelAdmin):
             "linked_identifier",
             "device_id",
             "identifier_prefix",
-        ] + list(DEFAULT_BASE_FIELDS)
+        ) + tuple(DEFAULT_BASE_FIELDS)
