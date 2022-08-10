@@ -2,11 +2,10 @@ from datetime import date, datetime
 from typing import Optional, Union
 from zoneinfo import ZoneInfo
 
-import arrow
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 
-from .date import get_utcnow, to_arrow_utc
+from .date import get_utcnow
 
 
 class AgeValueError(Exception):
@@ -41,10 +40,16 @@ def age(
     """
     if born is None:
         raise AgeValueError("DOB cannot be None")
-    born_utc = to_arrow_utc(born, timezone)
-    reference_dt_utc = to_arrow_utc(reference_dt, timezone)
-    rdelta = relativedelta(reference_dt_utc.datetime, born_utc.datetime)
-    if born_utc.datetime > reference_dt_utc.datetime:
+    try:
+        born_utc = born.astimezone(ZoneInfo("UTC"))
+    except AttributeError:
+        born_utc = datetime(*[*born.timetuple()][0:6], tzinfo=ZoneInfo("UTC"))
+    try:
+        reference_dt_utc = reference_dt.astimezone(ZoneInfo("UTC"))
+    except AttributeError:
+        reference_dt_utc = datetime(*[*reference_dt.timetuple()][0:6], tzinfo=ZoneInfo("UTC"))
+    rdelta = relativedelta(reference_dt_utc, born_utc)
+    if born_utc > reference_dt_utc:
         raise AgeValueError(
             f"Reference date {reference_dt} {str(reference_dt.tzinfo)} "
             f"precedes DOB {born} {timezone}. Got {rdelta}"
@@ -60,7 +65,7 @@ def formatted_age(
     age_as_str = "?"
     if born:
         timezone = timezone or getattr(settings, "TIME_ZONE", "UTC")
-        born = arrow.Arrow.fromdate(born, tzinfo=ZoneInfo(timezone)).datetime
+        born = datetime(*[*born.timetuple()][0:6], tzinfo=ZoneInfo(timezone))
         reference_dt = reference_dt or get_utcnow()
         age_delta = age(born, reference_dt or get_utcnow())
         if age_delta.years == 0 and age_delta.months <= 0:

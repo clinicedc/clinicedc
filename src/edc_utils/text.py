@@ -1,8 +1,9 @@
 import random
 import re
+from datetime import datetime
+from typing import Optional
 from zoneinfo import ZoneInfo
 
-from arrow.arrow import Arrow
 from django.conf import settings
 
 safe_allowed_chars = "ABCDEFGHKMNPRTUVWXYZ2346789"
@@ -62,22 +63,26 @@ def convert_from_camel(name):
     return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
 
-def formatted_datetime(aware_datetime, php_dateformat=None, tz=None, format_as_date=None):
+def formatted_datetime(
+    aware_datetime: Optional[datetime],
+    php_dateformat: Optional[str] = None,
+    tz: Optional[str] = None,
+    format_as_date: Optional[bool] = None,
+):
     """Returns a formatted datetime string, localized by default.
 
     format_as_date: does not affect the calculation, just the formatted output.
     """
+    formatted = ""
     if aware_datetime:
-        tz = tz or ZoneInfo(settings.TIME_ZONE)
-        utc = Arrow.fromdatetime(aware_datetime)
-        local = utc.to(tz)
+        local = aware_datetime.astimezone(tz or ZoneInfo(settings.TIME_ZONE))
         if format_as_date:
             php_dateformat = php_dateformat or settings.SHORT_DATE_FORMAT
-            return local.datetime.date().strftime(convert_php_dateformat(php_dateformat))
+            formatted = local.date().strftime(convert_php_dateformat(php_dateformat))
         else:
             php_dateformat = php_dateformat or settings.SHORT_DATETIME_FORMAT
-            return local.datetime.strftime(convert_php_dateformat(php_dateformat))
-    return ""
+            formatted = local.strftime(convert_php_dateformat(php_dateformat))
+    return formatted
 
 
 def formatted_date(dte, php_dateformat=None):
