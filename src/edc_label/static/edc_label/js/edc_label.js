@@ -1,5 +1,5 @@
 function edcLabelReady() {
-	
+
 	// var labelTemplates = JSON.parse( label_templates );
 
 	var post = $.ajax({
@@ -30,7 +30,7 @@ function updatePage( data ) {
 	updatePrinters( printers, data.default_printer_name );
 
 	$( "#alert-print-server-wait" ).hide();
-	$( "#alert-print-error" ).hide();	
+	$( "#alert-print-error" ).hide();
 	$( "#alert-print-server-error" ).hide();
 	if( data.print_server_error != '' &  data.print_server_error != null ) {
 		$( "#alert-print-server-error" ).text( data.print_server_error ).append( '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' );

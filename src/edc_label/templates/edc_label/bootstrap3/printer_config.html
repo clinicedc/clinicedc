@@ -1,8 +1,8 @@
 {% load edc_label_extras %}
     <!--start printer_config -->
     <div class="panel panel-success">
-      <div class="panel-heading"><h4>{{ heading }}</h4></div>      
-      <div class="panel-body">  
+      <div class="panel-heading"><h4>{{ heading }}</h4></div>
+      <div class="panel-body">
       <form action="{% url 'edc_label:change_session_printer' printer_type %}" method="post">
           {% csrf_token %}
         <div class="form-group">
@@ -15,7 +15,7 @@
         </div>
       </form>
       {% if selected_printer %}
-          <form action="{% url 'edc_label:print_label' %}" method="post"> 
+          <form action="{% url 'edc_label:print_label' %}" method="post">
             {% print_button printer=selected_printer button_label="Test Print Requisition Label" label_template_name="requisition" %}
             {% print_button printer=selected_printer button_label="Test Print Aliquot Label" label_template_name="aliquot" %}
             {% print_button printer=selected_printer button_label="Test Print Box Label" label_template_name="box" %}

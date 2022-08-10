@@ -15,8 +15,8 @@
     <div class="panel-group">
 
     <div class="panel panel-success">
-      <div class="panel-heading"><h4>Your print server</h4></div>      
-      <div class="panel-body">  
+      <div class="panel-heading"><h4>Your print server</h4></div>
+      <div class="panel-body">
       <form action="{% url 'edc_label:change_session_print_server' %}" method="post">
           {% csrf_token %}
         <div class="form-group">
@@ -30,8 +30,8 @@
       </form>
       </div>
       </div>
-      
-    
+
+
   {% if printers %}
 
       {% printer_config heading="Your clinic label printer" printer_type=CLINIC_LABEL_PRINTER selected_printer=selected_clinic_label_printer printers=printers %}
