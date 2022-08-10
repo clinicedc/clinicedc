@@ -1,6 +1,6 @@
 import os
-import urllib
 from urllib.error import URLError
+from urllib.request import urlretrieve
 
 from django.conf import settings
 
@@ -14,7 +14,7 @@ def get_static_file(app_label: str, filename: str) -> str:
         except FileNotFoundError:
             path = os.path.join(f"https://{settings.STATIC_URL}", app_label, filename)
             try:
-                urllib.request.urlretrieve(path)
+                urlretrieve(path)  # nosec B310
             except URLError:
                 raise FileNotFoundError(
                     f"Static file not found. Tried "
