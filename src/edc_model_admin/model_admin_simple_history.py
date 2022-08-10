@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from django.apps import apps as django_apps
 from django.utils.html import format_html
 from simple_history.admin import SimpleHistoryAdmin as BaseSimpleHistoryAdmin
@@ -5,7 +7,7 @@ from simple_history.admin import SimpleHistoryAdmin as BaseSimpleHistoryAdmin
 
 class SimpleHistoryAdmin(BaseSimpleHistoryAdmin):
 
-    history_list_display = ["dashboard", "change_message"]
+    history_list_display: Tuple[str, ...] = ("dashboard", "change_message")
     object_history_template = "edc_model_admin/admin/object_history.html"
     object_history_form_template = "edc_model_admin/admin/object_history_form.html"
 
