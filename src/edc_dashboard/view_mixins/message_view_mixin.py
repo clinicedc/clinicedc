@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 
 
 class MessageViewMixin:
@@ -30,7 +30,7 @@ class MessageViewMixin:
         messages.add_message(
             self.request,
             level,
-            mark_safe(message),
+            format_html(message),
             extra_tags=extra_tags,
             fail_silently=fail_silently,
         )
