@@ -50,7 +50,7 @@ class SubjectTransferModelAdminMixin:
             "may_return",
             "may_contact",
         )
-        return tuple(f for f in list_display if f not in custom_fields) + list_display
+        return custom_fields + tuple(f for f in list_display if f not in custom_fields)
 
     def get_list_filter(self, request) -> Tuple[str, ...]:
         list_filter = super().get_list_display(request)
@@ -60,7 +60,7 @@ class SubjectTransferModelAdminMixin:
             "may_return",
             "may_contact",
         )
-        return tuple(f for f in list_filter if f not in custom_fields) + list_filter
+        return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
 
     def get_readonly_fields(self, request, obj=None) -> Tuple[str, ...]:
         readonly_fields = super().get_readonly_fields(request, obj)
