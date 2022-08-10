@@ -9,7 +9,7 @@
            <a title="Edit manifest" role="button" href="{{ wrapped.href }}" class="btn btn-default btn-sm"><i class="fas fa-pencil-alt fa-fw"></i></a>
            <a role="button" href="{% url manage_manifest_listboard_url manifest_identifier=wrapped.manifest_identifier action_name='manage' %}" class="btn btn-default btn-sm">Manage</a>
            <a role="button" href="?pdf={{wrapped.manifest_identifier}}" class="btn btn-sm {% if wrapped.object.shipped and not wrapped.object.printed %}btn-warning{% elif wrapped.object.shipped and wrapped.object.printed %}btn-success{% else %}btn-default{% endif %}"><i class="fas fa-file-pdf-o fa-sm"></i></a>
-           
+
         </div>&nbsp;
       <span class="text text-identifier">
       {{ wrapped.object.human_readable_identifier }}

@@ -1,6 +1,6 @@
 from django import template
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from edc_dashboard.utils import get_bootstrap_version
 from edc_lab.constants import SHIPPED
 from edc_lab.models import BoxItem
@@ -57,7 +57,7 @@ def verified(box_item):
     return (
         ""
         if not verified
-        else mark_safe(
+        else format_html(
             '&nbsp;<span title="verified" alt="verified" class="text text-success">'
             '<i class="fas fa-check fa-fw"></i></span>'
         )
@@ -70,7 +70,7 @@ def shipped(box_item):
     return (
         ""
         if not box_item.status == SHIPPED
-        else mark_safe(
+        else format_html(
             '&nbsp;<span title="shipped" class="text text-success">'
             '<i class="fas fa-ship fa-fw"></i></span>'
         )

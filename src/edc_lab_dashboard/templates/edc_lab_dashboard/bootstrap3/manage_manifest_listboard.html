@@ -7,10 +7,10 @@
 {% endblock panel_back %}
 
 
-{% block panel_description %}                    
-     <span class="label label-success">Manifest</span> 
-     <span class="text text-identifier"><strong>{{ manifest.human_readable_identifier }}</strong></span> 
-     <span class="label label-success">Date</span> {{ manifest.object.manifest_datetime|date:"Y-m-d" }} 
+{% block panel_description %}
+     <span class="label label-success">Manifest</span>
+     <span class="text text-identifier"><strong>{{ manifest.human_readable_identifier }}</strong></span>
+     <span class="label label-success">Date</span> {{ manifest.object.manifest_datetime|date:"Y-m-d" }}
 {% endblock panel_description %}
 
 {% block results_panel_form %}
@@ -76,11 +76,11 @@
     </td>
 
 <!-- end columns -->
-    
+
   </tr>
 
 {% endfor %}
-    
-    
+
+
 {% endblock results_body %}
 
