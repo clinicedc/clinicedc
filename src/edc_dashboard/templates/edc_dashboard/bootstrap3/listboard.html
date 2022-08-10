@@ -65,19 +65,19 @@
 {% block listboard_table_body %}
 
     {% for result in results %}
-        <tr> 
-        
+        <tr>
+
         <td>{{ forloop.counter }}</td>
-        
+
         {% block listboard_table_button_column %}
             {% include 'edc_dashboard/bootstrap3/listboard/buttons_column.html' %}
         {% endblock listboard_table_button_column %}
-    
+
         {% block listboard_table_columns %}
             {% include 'edc_dashboard/bootstrap3/listboard/columns.html' %}
         {% endblock listboard_table_columns %}
-        </tr>                       
-    
+        </tr>
+
     {% endfor %}
 
 {% endblock listboard_table_body %}

@@ -10,13 +10,13 @@
 
 <td style="white-space: nowrap">
     <div class="btn-group">
-    <a title="Edit subject's screening form" role="button" 
+    <a title="Edit subject's screening form" role="button"
        class="btn btn-default btn-sm"
            {% if has_listboard_model_perms %}href="{{ result.href }}"{% else %} disabled {% endif %}>
         <i class="fas fa-pencil-alt fa-sm"></i>
     </a>
     {% if result.id %}
-         <a id="btn-subject-dashboard-{{result.subject_identifier}}" class="btn btn-primary btn-sm" role="button"   
+         <a id="btn-subject-dashboard-{{result.subject_identifier}}" class="btn btn-primary btn-sm" role="button"
         title="Go to subject's dashboard" href="{% url subject_dashboard_url result.subject_identifier %}">
         <i class="far fa-user-circle fa-sm"></i> Dashboard  <i class="fas fa-share"></i></a>
     {% else %}

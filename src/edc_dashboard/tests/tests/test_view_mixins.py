@@ -1,4 +1,5 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import arrow
 from django.contrib.auth.models import Group, User
@@ -84,11 +85,11 @@ class TestViewMixins(TestCase):
             model_wrapper_cls = SubjectVisitModelWrapper
             listboard_view_filters = MyListboardViewFilters()
 
-        start = datetime(2013, 5, 1, 12, 30)
-        end = datetime(2013, 5, 10, 17, 15)
-        for r in arrow.Arrow.range("day", start, end):
+        start = datetime(2013, 5, 1, 12, 30, tzinfo=ZoneInfo("UTC"))
+        end = datetime(2013, 5, 10, 17, 15, tzinfo=ZoneInfo("UTC"))
+        for arr in arrow.Arrow.range("day", start, end):
             SubjectVisit.objects.create(
-                subject_identifier="1234", report_datetime=r.datetime, reason="missed"
+                subject_identifier="1234", report_datetime=arr.datetime, reason="missed"
             )
         subject_visit = SubjectVisit.objects.create(
             subject_identifier="1234", report_datetime=get_utcnow(), reason="scheduled"
@@ -96,7 +97,6 @@ class TestViewMixins(TestCase):
         request = RequestFactory().get("/?scheduled=scheduled")
         request.user = self.user
         request.site = Site.objects.get_current()
-        # request.url_name_data = {"listboard_url": "listboard_url"}
         request.template_data = {"listboard_template": "listboard.html"}
         template_response = MyView.as_view()(request=request)
         object_list = template_response.__dict__.get("context_data").get("object_list")
