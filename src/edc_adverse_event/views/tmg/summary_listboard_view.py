@@ -1,4 +1,3 @@
-import arrow
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from edc_dashboard.view_mixins import (
@@ -8,6 +7,7 @@ from edc_dashboard.view_mixins import (
 )
 from edc_dashboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
+from edc_utils import get_utcnow
 
 from ...auth_objects import TMG
 from ...constants import (
@@ -64,7 +64,7 @@ class SummaryListboardView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["AE_TMG_ACTION"] = AE_TMG_ACTION
-        context["utc_date"] = arrow.now().date()
+        context["utc_date"] = get_utcnow().date()
         return context
 
     def get_queryset_filter_options(self, request, *args, **kwargs):

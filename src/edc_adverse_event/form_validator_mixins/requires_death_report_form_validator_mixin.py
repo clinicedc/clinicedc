@@ -1,5 +1,5 @@
-import arrow
-from dateutil import tz
+from zoneinfo import ZoneInfo
+
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -89,13 +89,11 @@ class RequiresDeathReportFormValidatorMixin:
     @property
     def death_report_date(self):
         """Returns the localized death date from the death report"""
+        value = getattr(self.death_report, self.death_report_death_date_field)
         try:
-            death_report_date = arrow.get(
-                getattr(self.death_report, self.death_report_death_date_field),
-                tz.gettz(settings.TIME_ZONE),
-            ).date()
+            death_report_date = value.astimezone(ZoneInfo("UTC")).date()
         except AttributeError:
-            death_report_date = getattr(self.death_report, self.death_report_death_date_field)
+            death_report_date = value
         except ValueError:
             death_report_date = None
         return death_report_date

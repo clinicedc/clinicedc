@@ -1,4 +1,3 @@
-import arrow
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.html import format_html
@@ -13,6 +12,7 @@ from edc_dashboard.view_mixins import (
 )
 from edc_dashboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
+from edc_utils import get_utcnow
 
 from ...constants import AE_INITIAL_ACTION
 from ...get_ae_model import get_ae_model
@@ -124,7 +124,7 @@ class AeListboardViewMixin(
             new_key="ae_home_url", existing_key=self.home_url, context=context
         )
         context["AE_INITIAL_ACTION"] = AE_INITIAL_ACTION
-        context["utc_date"] = arrow.now().date()
+        context["utc_date"] = get_utcnow().date()
         return context
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
