@@ -46,9 +46,7 @@ class RuleGroupMetaOptions:
         # source model
         self.source_model = self.options.get("source_model")
         if self.source_model:
-            try:
-                assert len(self.source_model.split(".")) == 2
-            except AssertionError:
+            if len(self.source_model.split(".")) != 2:
                 self.source_model = f"{self.app_label}.{self.source_model}"
             self.options.update(source_model=self.source_model)
 
