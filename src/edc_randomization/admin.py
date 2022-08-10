@@ -61,23 +61,26 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
 
     search_fields = ("subject_identifier", "sid")
 
-    readonly_fields = (
-        "subject_identifier",
-        "sid",
-        "site_name",
-        "assignment",
-        "allocated",
-        "allocated_user",
-        "allocated_datetime",
-        "allocated_site",
-        "randomizer_name",
-    ) + audit_fields
-
     def get_fieldsets(self, request, obj=None):
         return (
             (None, {"fields": self.get_fieldnames(request)}),
             audit_fieldset_tuple,
         )
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = super().get_readonly_fields(request, obj=obj)
+        readonly_fields += (
+            "subject_identifier",
+            "sid",
+            "site_name",
+            "assignment",
+            "allocated",
+            "allocated_user",
+            "allocated_datetime",
+            "allocated_site",
+            "randomizer_name",
+        ) + audit_fields
+        return tuple(set(readonly_fields))
 
     def get_queryset(self, request):
         """
