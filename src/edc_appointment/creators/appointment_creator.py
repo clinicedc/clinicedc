@@ -171,7 +171,7 @@ class AppointmentCreator:
         """
         if self.visit_code_sequence == 0 or self.visit_code_sequence is None:
             try:
-                arw = self.facility.available_arw(
+                arw = self.facility.available_arr(
                     suggested_datetime=self.suggested_datetime,
                     forward_delta=self.visit.rupper,
                     reverse_delta=self.visit.rlower,
