@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from django.conf import settings
 from django.contrib import admin
 from django.template.loader import render_to_string
@@ -67,7 +69,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
         audit_fieldset_tuple,
     )
 
-    list_display = (
+    list_display: Tuple[str, ...] = (
         "subject_identifier",
         "dashboard",
         "visit",
@@ -83,7 +85,8 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
         "verified",
         "verified_datetime",
     )
-    list_filter = (
+
+    list_filter: Tuple[str, ...] = (
         "active",
         "refill_date",
         "visit_code",
@@ -93,7 +96,8 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
         "received_at_site",
         "site",
     )
-    search_fields = [
+
+    search_fields: Tuple[str, ...] = (
         "id",
         "site__id",
         "rx__id",
@@ -101,8 +105,9 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
         "rx__subject_identifier",
         "rx__registered_subject__initials",
         "dosage_guideline__medication__name",
-    ]
-    ordering = ["rx__subject_identifier", "-refill_date"]
+    )
+
+    ordering: Tuple[str, ...] = ("rx__subject_identifier", "-refill_date")
 
     @admin.display
     def visit(self, obj):
@@ -188,7 +193,7 @@ class RxRefillInlineAdmin(admin.StackedInline):
 
     model = RxRefill
 
-    fields = [
+    fields: Tuple[str, ...] = (
         "dosage_guideline",
         "formulation",
         "refill_date",
@@ -196,8 +201,10 @@ class RxRefillInlineAdmin(admin.StackedInline):
         "dose",
         "frequency",
         "frequency_units",
-    ]
+    )
 
-    search_fields = ["dosage_guideline__medication__name"]
-    ordering = ["refill_date"]
+    search_fields: Tuple[str, ...] = "dosage_guideline__medication__name"
+
+    ordering: Tuple[str, ...] = ("refill_date",)
+
     extra = 0

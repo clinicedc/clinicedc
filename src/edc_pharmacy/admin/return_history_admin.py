@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -28,22 +30,23 @@ class ReturnHistoryAdmin(ModelAdminMixin, admin.ModelAdmin):
         audit_fieldset_tuple,
     )
 
-    list_display = [
+    list_display: Tuple[str, ...] = (
         "subject_identifier",
         "refill",
         "rx_refill",
         "returned",
         "return_datetime",
-    ]
-    list_filter = [
-        "return_datetime",
-    ]
-    search_fields = [
+    )
+
+    list_filter: Tuple[str, ...] = ("return_datetime",)
+
+    search_fields: Tuple[str, ...] = (
         "prescription_item__id",
         "prescription_item__prescription__subject_identifier",
         "prescription_item__medication__name",
-    ]
-    ordering = ["return_datetime"]
+    )
+
+    ordering: Tuple[str, ...] = ("return_datetime",)
 
     @admin.display(description="Subject identifier")
     def subject_identifier(self, obj=None):
