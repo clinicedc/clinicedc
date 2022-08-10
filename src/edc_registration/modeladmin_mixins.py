@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from django.contrib import admin
 from edc_auth.auth_objects import PII, PII_VIEW
 from edc_model_admin import audit_fields
@@ -26,11 +28,11 @@ class RegisteredSubjectModelAdminMixin(ModelAdminSubjectDashboardMixin, admin.Mo
                 return self.fieldsets_no_pii
         return [(None, {"fields": self.get_fields(request, obj)})]
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_readonly_fields(self, request, obj=None) -> Tuple[str, ...]:
         readonly_fields = super().get_readonly_fields(request, obj=obj)
         return (
-            list(readonly_fields)
-            + [
+            readonly_fields
+            + (
                 "subject_identifier",
                 "sid",
                 "first_name",
@@ -46,8 +48,8 @@ class RegisteredSubjectModelAdminMixin(ModelAdminSubjectDashboardMixin, admin.Mo
                 "registration_datetime",
                 "randomization_datetime",
                 "consent_datetime",
-            ]
-            + list(audit_fields)
+            )
+            + audit_fields
         )
 
     def get_list_display(self, request):
