@@ -23,11 +23,11 @@ class RequisitionAdminMixin:
         "item_type": admin.VERTICAL,
     }
 
-    search_fields = [
+    search_fields: Tuple[str, ...] = (
         "requisition_identifier",
         "subject_identifier",
         "panel__display_name",
-    ]
+    )
 
     @staticmethod
     def visit_code(obj=None) -> str:
