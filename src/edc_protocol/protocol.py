@@ -1,4 +1,3 @@
-import arrow
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from edc_utils import get_utcnow
@@ -72,26 +71,16 @@ class Protocol:
             settings, "EDC_PROTOCOL_SCREENING_IDENTIFIER_PATTERN", "[A-Z0-9]{8}"
         )
 
-        study_open_datetime = getattr(
+        self.study_open_datetime = getattr(
             settings,
             "EDC_PROTOCOL_STUDY_OPEN_DATETIME",
-            arrow.utcnow().floor("hour") - relativedelta(months=1),
+            get_utcnow().replace(microsecond=0, second=0, minute=0, hour=0)
+            - relativedelta(months=1),
         )
 
-        study_close_datetime = getattr(
+        self.study_close_datetime = getattr(
             settings,
             "EDC_PROTOCOL_STUDY_CLOSE_DATETIME",
-            arrow.utcnow().ceil("hour") + relativedelta(years=1),
+            get_utcnow().replace(microsecond=999999, second=59, minute=59, hour=11)
+            + relativedelta(years=1),
         )
-        self.rstudy_open = (
-            arrow.Arrow.fromdatetime(study_open_datetime, study_open_datetime.tzinfo)
-            .to("utc")
-            .floor("hour")
-        )
-        self.rstudy_close = (
-            arrow.Arrow.fromdatetime(study_close_datetime, study_close_datetime.tzinfo)
-            .to("utc")
-            .ceil("hour")
-        )
-        self.study_open_datetime = self.rstudy_open.datetime
-        self.study_close_datetime = self.rstudy_close.datetime
