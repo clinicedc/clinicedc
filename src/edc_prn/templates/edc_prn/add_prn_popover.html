@@ -11,7 +11,7 @@ data-content="
 title='click to add'
 href='{{ prn_form.add_url }}?next={{ subject_dashboard_url }},appointment,subject_identifier&subject_identifier={{ subject_identifier }}&appointment={{ appointment_pk }}&{{ prn_form.visit_model_attr }}={{ prn_form.subject_visit }}&panel={{ prn_form.panel.pk }}'>
 <span class='text text-default text-nowrap small'><i class='fas fa-plus fa-1x fa-fw' aria-hidden='true'></i> {{ prn_form.verbose_name }} {% if label == REQUISITION and not prn_form.panel.pk %}Invalid Panel!{% endif %}</span>
-</a>	
+</a>
 {% endfor %}
 </div>
 <p><a title='close' class='btn btn-sm btn-primary pull-right'><i class='fas fa-times fa-fw' aria-hidden='true'></i></a><br></p>">
