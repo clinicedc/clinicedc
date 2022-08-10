@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib import admin
@@ -69,15 +71,20 @@ class ModelAdminConsentMixin(admin.ModelAdmin):
         else:
             return fields + readonly_fields
 
-    def get_search_fields(self, request):
-        search_fields = list(super().get_search_fields(request))
-        return list(search_fields) + [
-            "id",
-            "subject_identifier",
-            "first_name",
-            "last_name",
-            "identity",
-        ]
+    def get_search_fields(self, request) -> Tuple[str, ...]:
+        search_fields = super().get_search_fields(request)
+        return tuple(
+            set(
+                search_fields
+                + (
+                    "id",
+                    "subject_identifier",
+                    "first_name",
+                    "last_name",
+                    "identity",
+                )
+            )
+        )
 
     def get_list_display(self, request) -> tuple:
         list_display = super().get_list_display(request)
