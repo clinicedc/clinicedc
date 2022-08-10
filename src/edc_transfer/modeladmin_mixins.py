@@ -1,4 +1,3 @@
-from copy import copy
 from typing import Tuple
 
 from django.contrib import admin
@@ -31,22 +30,6 @@ class SubjectTransferModelAdminMixin:
         audit_fieldset_tuple,
     )
 
-    list_display = (
-        "subject_identifier",
-        "dashboard",
-        "transfer_date",
-        "initiated_by",
-        "may_return",
-        "may_contact",
-    )
-
-    list_filter = (
-        "transfer_date",
-        "initiated_by",
-        "may_return",
-        "may_contact",
-    )
-
     filter_horizontal = ("transfer_reason",)
 
     radio_fields = {
@@ -56,6 +39,28 @@ class SubjectTransferModelAdminMixin:
     }
 
     search_fields = ("subject_identifier", "action_identifier", "tracking_identifier")
+
+    def get_list_display(self, request) -> Tuple[str, ...]:
+        list_display = super().get_list_display(request)
+        custom_fields = (
+            "subject_identifier",
+            "dashboard",
+            "transfer_date",
+            "initiated_by",
+            "may_return",
+            "may_contact",
+        )
+        return tuple(f for f in list_display if f not in custom_fields) + list_display
+
+    def get_list_filter(self, request) -> Tuple[str, ...]:
+        list_filter = super().get_list_display(request)
+        custom_fields = (
+            "transfer_date",
+            "initiated_by",
+            "may_return",
+            "may_contact",
+        )
+        return tuple(f for f in list_filter if f not in custom_fields) + list_filter
 
     def get_readonly_fields(self, request, obj=None) -> Tuple[str, ...]:
         readonly_fields = super().get_readonly_fields(request, obj)
