@@ -1,6 +1,5 @@
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
-from django.test import tag  # noqa
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_facility.import_holidays import import_holidays
@@ -16,13 +15,6 @@ from review_dashboard_app.reference_configs import register_to_site_reference_co
 from review_dashboard_app.visit_schedule import visit_schedule
 
 User = get_user_model()
-
-"""
-subject_dashboard_url
-subject_review_listboard_url
-requisition_print_actions_url
-requisition_verify_actions_url
-"""
 
 
 class TestDashboard(WebTest):
@@ -87,7 +79,7 @@ class TestDashboard(WebTest):
     def login(self):
         form = self.app.get(reverse("admin:index")).maybe_follow().form
         form["username"] = self.user.username
-        form["password"] = "pass"
+        form["password"] = "pass"  # nosec B105
         return form.submit()
 
     def test_url(self):
