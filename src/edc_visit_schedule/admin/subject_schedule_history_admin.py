@@ -75,7 +75,7 @@ class SubjectScheduleHistoryAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAd
                 "onschedule_model",
                 "offschedule_model",
             )
-            + audit_fields
+            + tuple(audit_fields)
         )
         return fields
 
