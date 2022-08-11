@@ -9,6 +9,7 @@ from edc_visit_schedule.schedule import (
     Schedule,
     ScheduleNameError,
 )
+from edc_visit_schedule.schedule.schedule import VisitTimepointError
 from edc_visit_schedule.visit import Visit
 from visit_schedule_app.models import OffSchedule, OnSchedule
 
@@ -170,6 +171,47 @@ class TestSchedule(TestCase):
         )
         self.assertRaises(AlreadyRegisteredVisit, schedule.add_visit, visit=visit)
 
+    def test_add_visits_custom_base_timepoint(self):
+        schedule = Schedule(
+            name="schedule",
+            onschedule_model="visit_schedule_app.onschedule",
+            offschedule_model="visit_schedule_app.offschedule",
+            consent_model="visit_schedule_app.subjectconsent",
+            appointment_model="edc_appointment.appointment",
+            base_timepoint=1,
+        )
+        visit = Visit(
+            code=str(0),
+            title="erik",
+            timepoint=1,
+            rbase=relativedelta(days=0),
+            rlower=relativedelta(days=0),
+            rupper=relativedelta(days=6),
+        )
+        try:
+            schedule.add_visit(visit=visit)
+        except VisitTimepointError:
+            self.fail("VisitTimepointError unexpectedly raised")
+
+    def test_add_visits_base_timepoint_mismatch(self):
+        schedule = Schedule(
+            name="schedule",
+            onschedule_model="visit_schedule_app.onschedule",
+            offschedule_model="visit_schedule_app.offschedule",
+            consent_model="visit_schedule_app.subjectconsent",
+            appointment_model="edc_appointment.appointment",
+            base_timepoint=1,
+        )
+        visit = Visit(
+            code=str(0),
+            title="erik",
+            timepoint=0,
+            rbase=relativedelta(days=0),
+            rlower=relativedelta(days=0),
+            rupper=relativedelta(days=6),
+        )
+        self.assertRaises(VisitTimepointError, schedule.add_visit, visit=visit)
+
     def test_add_visits_duplicate_timepoint(self):
         schedule = Schedule(
             name="schedule",
@@ -231,8 +273,60 @@ class TestScheduleWithVisits(TestCase):
             appointment_model="edc_appointment.appointment",
         )
 
+    def test_wont_accept_visit_before_base_timepoint(self):
+        schedule = Schedule(
+            name="schedule",
+            onschedule_model="visit_schedule_app.onschedule",
+            offschedule_model="visit_schedule_app.offschedule",
+            consent_model="visit_schedule_app.subjectconsent",
+            appointment_model="edc_appointment.appointment",
+            base_timepoint=1,
+        )
+        visit = Visit(
+            code=str(1),
+            timepoint=1,
+            rbase=relativedelta(days=1),
+            rlower=relativedelta(days=0),
+            rupper=relativedelta(days=6),
+        )
+        schedule.add_visit(visit=visit)
+
+        visit = Visit(
+            code=str(0),
+            timepoint=0,
+            rbase=relativedelta(days=0),
+            rlower=relativedelta(days=0),
+            rupper=relativedelta(days=6),
+        )
+        self.assertRaises(VisitTimepointError, schedule.add_visit, visit=visit)
+
+    def test_first_visit_added_must_be_base(self):
+        visits = []
+        for i in [3, 0]:
+            visits.append(
+                Visit(
+                    code=str(i),
+                    timepoint=i,
+                    rbase=relativedelta(days=i),
+                    rlower=relativedelta(days=0),
+                    rupper=relativedelta(days=6),
+                )
+            )
+        # attempt to add visit where timepoint == 3 - raises
+        self.assertRaises(VisitTimepointError, self.schedule.add_visit, visit=visits[0])
+        # attempt to add visit where timepoint == 0 - ok
+        try:
+            self.schedule.add_visit(visit=visits[1])
+        except VisitTimepointError:
+            self.fail("VisitTimepointError unexpectedly raised")
+        # attempt to add visit where timepoint == 3 again - ok
+        try:
+            self.schedule.add_visit(visit=visits[0])
+        except VisitTimepointError:
+            self.fail("VisitTimepointError unexpectedly raised")
+
     def test_order(self):
-        for i in [3, 5, 1, 0, 2, 4]:
+        for i in [0, 3, 5, 1, 2, 4]:
             visit = Visit(
                 code=str(i),
                 timepoint=i,
@@ -246,6 +340,14 @@ class TestScheduleWithVisits(TestCase):
         )
 
     def test_first_visit(self):
+        first_visit = Visit(
+            code=str(0),
+            timepoint=0,
+            rbase=relativedelta(days=0),
+            rlower=relativedelta(days=0),
+            rupper=relativedelta(days=6),
+        )
+        self.schedule.add_visit(visit=first_visit)
         for i in range(1, 5):
             visit = Visit(
                 code=str(i),
@@ -255,15 +357,7 @@ class TestScheduleWithVisits(TestCase):
                 rupper=relativedelta(days=6),
             )
             self.schedule.add_visit(visit=visit)
-        visit = Visit(
-            code=str(0),
-            timepoint=0,
-            rbase=relativedelta(days=0),
-            rlower=relativedelta(days=0),
-            rupper=relativedelta(days=6),
-        )
-        self.schedule.add_visit(visit=visit)
-        self.assertEqual(self.schedule.visits.first, visit)
+        self.assertEqual(self.schedule.visits.first, first_visit)
 
     def test_last_visit(self):
         for i in range(0, 5):

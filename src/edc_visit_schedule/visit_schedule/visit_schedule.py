@@ -104,6 +104,9 @@ class VisitSchedule:
         warnings = []
         try:
             self.offstudy_model_cls
+        except LookupError as e:
+            warnings.append(f"{e} See visit schedule '{self.name}'.")
+        try:
             self.death_report_model_cls
         except LookupError as e:
             warnings.append(f"{e} See visit schedule '{self.name}'.")

@@ -31,6 +31,7 @@ class TestSystemChecks(TestCase):
             offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
             consent_model="visit_schedule_app.subjectconsent",
+            base_timepoint=1,
         )
         visit_schedule.add_schedule(schedule)
         site_visit_schedules.register(visit_schedule)
@@ -51,6 +52,7 @@ class TestSystemChecks(TestCase):
             offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
             consent_model="visit_schedule_app.subjectconsent",
+            base_timepoint=1,
         )
         visit_schedule.add_schedule(schedule)
         site_visit_schedules.register(visit_schedule)
@@ -72,6 +74,7 @@ class TestSystemChecks(TestCase):
             offschedule_model="visit_schedule_app.offschedule",
             appointment_model="blah.appointment",
             consent_model="visit_schedule_app.subjectconsent",
+            base_timepoint=1,
         )
         visit_schedule.add_schedule(schedule)
         site_visit_schedules.register(visit_schedule)
@@ -93,6 +96,7 @@ class TestSystemChecks(TestCase):
             offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
             consent_model="visit_schedule_app.subjectconsent",
+            base_timepoint=1,
         )
         crfs = FormsCollection(
             Crf(show_order=10, model="blah.CrfOne"),

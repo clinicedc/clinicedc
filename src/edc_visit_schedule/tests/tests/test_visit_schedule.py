@@ -229,6 +229,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
             offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
             consent_model="visit_schedule_app.subjectconsent",
+            base_timepoint=1,
         )
 
         visit = Visit(
