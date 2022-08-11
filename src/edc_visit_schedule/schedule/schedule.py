@@ -25,6 +25,10 @@ class AlreadyRegisteredVisit(Exception):
     pass
 
 
+class VisitTimepointError(Exception):
+    pass
+
+
 class Schedule:
     """A class that represents a "schedule" of visits.
 
@@ -50,8 +54,10 @@ class Schedule:
         loss_to_followup_model=None,
         appointment_model=None,
         consent_model=None,
+        base_timepoint=None,
     ):
         self._subject = None
+        self.base_timepoint = base_timepoint or 0
         self.visits = self.visit_collection_cls()
         if not name or not re.match(r"[a-z0-9_\-]+$", name):
             raise ScheduleNameError(
@@ -88,6 +94,12 @@ class Schedule:
     def add_visit(self, visit=None, **kwargs):
         """Adds a unique visit to the schedule."""
         visit = visit or self.visit_cls(**kwargs)
+        if visit.timepoint < self.base_timepoint:
+            raise VisitTimepointError(
+                "Visit timepoint cannot be less than this schedule's base_timepoint. "
+                f"See {visit}. Got visit.timepoint={visit.timepoint}."
+            )
+
         for attr in ["code", "title", "timepoint", "rbase"]:
             if getattr(visit, attr) in [getattr(v, attr) for v in self.visits.values()]:
                 raise AlreadyRegisteredVisit(
@@ -95,6 +107,13 @@ class Schedule:
                     f"(offending attr='{attr}'). "
                     f"See schedule '{self}'"
                 )
+        if not self.visits and visit.timepoint != self.base_timepoint:
+            raise VisitTimepointError(
+                f"First visit timepoint should be {self.base_timepoint}. Set schedule"
+                f".base_timepoint if not using default base_timepoint of 0. See {visit}. "
+                f"Got visit.timepoint={visit.timepoint}."
+            )
+        visit.base_timepoint = self.base_timepoint
         self.visits.update({visit.code: visit})
         return visit
 

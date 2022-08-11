@@ -34,6 +34,7 @@ class TestSiteVisitSchedule(TestCase):
             offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
             consent_model="visit_schedule_app.subjectconsent",
+            base_timepoint=1,
         )
         self.visit_schedule.add_schedule(schedule)
         site_visit_schedules.register(self.visit_schedule)
@@ -60,6 +61,7 @@ class TestSiteVisitSchedule1(TestCase):
             offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
             consent_model="visit_schedule_app.subjectconsent",
+            base_timepoint=1,
         )
 
         self.visit_schedule.add_schedule(self.schedule)
@@ -77,6 +79,7 @@ class TestSiteVisitSchedule1(TestCase):
             offschedule_model="visit_schedule_app.offscheduletwo",
             appointment_model="edc_appointment.appointment",
             consent_model="visit_schedule_app.subjectconsent",
+            base_timepoint=1,
         )
 
         self.visit_schedule_two.add_schedule(self.schedule_two)

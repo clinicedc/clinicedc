@@ -1,4 +1,5 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from arrow import Arrow
 from dateutil.relativedelta import relativedelta
@@ -39,6 +40,7 @@ class TestVisit(TestCase):
         self.assertEqual(visit.title, "Visit 1000")
         self.assertEqual(str(visit), "Visit 1000")
 
+    @tag("2")
     def test_visit_datetime(self):
         visit = Visit(
             code="1000",
@@ -47,10 +49,46 @@ class TestVisit(TestCase):
             rupper=relativedelta(days=6),
             timepoint=1,
         )
-        visit.timepoint_datetime = datetime(2001, 12, 1)
+        visit.timepoint_datetime = datetime(2001, 12, 1, tzinfo=ZoneInfo("UTC"))
+        self.assertEqual(
+            visit.dates.lower,
+            datetime(2001, 12, 1, tzinfo=ZoneInfo("UTC")),
+        )
+        self.assertEqual(
+            visit.dates.base,
+            datetime(2001, 12, 1, tzinfo=ZoneInfo("UTC")),
+        )
+        self.assertEqual(
+            visit.dates.upper,
+            datetime(2001, 12, 7, 23, 59, 59, 999999, tzinfo=ZoneInfo("UTC")),
+        )
+
+    @tag("2")
+    def test_visit_datetime_other_timezone(self):
+        visit = Visit(
+            code="1000",
+            rbase=relativedelta(days=0),
+            rlower=relativedelta(days=0),
+            rupper=relativedelta(days=6),
+            timepoint=0,
+        )
+        visit.timepoint_datetime = datetime(2001, 12, 1, tzinfo=ZoneInfo("Africa/Gaborone"))
         self.assertEqual(
             visit.timepoint_datetime,
-            Arrow.fromdatetime(datetime(2001, 12, 1), tzinfo="utc"),
+            datetime(2001, 11, 30, 22, tzinfo=ZoneInfo("UTC")),
+        )
+
+        self.assertEqual(
+            visit.dates.lower,
+            datetime(2001, 11, 30, 22, tzinfo=ZoneInfo("UTC")),
+        )
+        self.assertEqual(
+            visit.dates.base,
+            datetime(2001, 11, 30, 22, tzinfo=ZoneInfo("UTC")),
+        )
+        self.assertEqual(
+            visit.dates.upper,
+            datetime(2001, 12, 6, 23, 59, 59, 999999, tzinfo=ZoneInfo("UTC")),
         )
 
     def test_visit_lower_upper_no_datetime(self):

@@ -43,6 +43,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
             offschedule_model="visit_schedule_app.OffSchedule",
             appointment_model="edc_appointment.appointment",
             consent_model="visit_schedule_app.subjectconsent",
+            base_timepoint=1,
         )
         self.schedule3 = Schedule(
             name="schedule_three",
@@ -50,6 +51,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
             offschedule_model="visit_schedule_app.OffScheduleThree",
             appointment_model="edc_appointment.appointment",
             consent_model="visit_schedule_app.subjectconsent",
+            base_timepoint=1,
         )
 
         self.visit_schedule.add_schedule(self.schedule)

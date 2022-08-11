@@ -1,8 +1,8 @@
 import re
 from decimal import Decimal
 from typing import Optional, Union
+from zoneinfo import ZoneInfo
 
-import arrow
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -26,12 +26,15 @@ class VisitError(Exception):
 class VisitDate:
     window_period_cls = WindowPeriod
 
-    def __init__(self, rlower=None, rupper=None, visit_code=None):
+    def __init__(self, rlower=None, rupper=None, timepoint=None, base_timepoint=None):
         self._base = None
         self.lower = None
         self.upper = None
         self._window = self.window_period_cls(
-            rlower=rlower, rupper=rupper, visit_code=visit_code
+            rlower=rlower,
+            rupper=rupper,
+            timepoint=timepoint,
+            base_timepoint=base_timepoint,
         )
 
     @property
@@ -40,8 +43,8 @@ class VisitDate:
 
     @base.setter
     def base(self, dt=None):
-        self._base = arrow.get(dt).to("utc").datetime
-        window = self._window.get_window(dt=dt)
+        self._base = dt.astimezone(ZoneInfo("UTC"))
+        window = self._window.get_window(dt=self._base)
         self.lower = window.lower
         self.upper = window.upper
 
@@ -69,7 +72,9 @@ class Visit:
         facility_name: Optional[str] = None,
         instructions=None,
         grouping=None,
+        base_timepoint=None,
     ):
+        self.base_timepoint = base_timepoint or 0
         self.crfs = crfs.forms if crfs else tuple()
         self.crfs_unscheduled = crfs_unscheduled.forms if crfs_unscheduled else ()
         self.crfs_missed = crfs_missed.forms if crfs_missed else ()
@@ -93,7 +98,12 @@ class Visit:
             raise VisitCodeError(f"Invalid visit code. Got '{code}'")
         else:
             self.code = code  # unique
-        self.dates = self.visit_date_cls(rlower=rlower, rupper=rupper, visit_code=self.code)
+        self.dates = self.visit_date_cls(
+            rlower=rlower,
+            rupper=rupper,
+            timepoint=self.timepoint,
+            base_timepoint=self.base_timepoint,
+        )
         self.title = title or f"Visit {self.code}"
         self.name = self.code
         self.facility_name = facility_name or settings.EDC_FACILITY_DEFAULT_FACILITY_NAME
@@ -188,7 +198,7 @@ class Visit:
 
     @timepoint_datetime.setter
     def timepoint_datetime(self, dt=None):
-        self.dates.base = dt
+        self.dates.base = dt.astimezone(ZoneInfo("UTC"))
 
     def check(self):
         warnings = []
