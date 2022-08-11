@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from edc_constants.choices import YES_NO_NA
 from edc_constants.constants import NOT_APPLICABLE
 from edc_model import models as edc_models
@@ -14,7 +14,7 @@ class ClinicalReviewHivModelMixin(models.Model):
         max_length=15,
         choices=YES_NO_NA,
         default=NOT_APPLICABLE,
-        help_text=mark_safe(
+        help_text=format_html(
             "Note: Select `not applicable` if diagnosis previously reported. <BR>"
             "`Since last seen` includes today.<BR>"
             "If `yes', complete the initial review CRF<BR>"
@@ -38,7 +38,7 @@ class ClinicalReviewHivModelMixin(models.Model):
     hiv_reason_other = edc_models.OtherCharField()
 
     hiv_dx = models.CharField(
-        verbose_name=mark_safe(
+        verbose_name=format_html(
             "As of today, was the patient <u>newly</u> diagnosed with HIV infection?"
         ),
         max_length=15,
