@@ -12,11 +12,11 @@ class FieldsetsModelAdminMixin:
     * Expects appointment to be in GET
     """
 
-    appointment_model = "edc_appointment.appointment"
+    appointment_model: str = "edc_appointment.appointment"
     # key: value where key is a visit_code. value is a fieldlist object
-    conditional_fieldlists = {}
+    conditional_fieldlists: dict = {}
     # key: value where key is a visit code. value is a fieldsets object.
-    conditional_fieldsets = {}
+    conditional_fieldsets: dict = {}
 
     fieldsets_move_to_end = None
 

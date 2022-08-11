@@ -1,5 +1,5 @@
 from django.contrib.admin.utils import flatten_fieldsets
-from django.test import TestCase, tag
+from django.test import TestCase
 
 from ...fieldset import Fieldset
 from ...fieldsets import FieldsetError, Fieldsets

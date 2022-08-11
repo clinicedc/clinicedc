@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.contrib import admin
 from django.contrib.auth.models import Permission, User
-from django.test import TestCase, tag
+from django.test import TestCase
 from django.test.client import RequestFactory
 from edc_appointment.models import Appointment
 from edc_registration.models import RegisteredSubject
