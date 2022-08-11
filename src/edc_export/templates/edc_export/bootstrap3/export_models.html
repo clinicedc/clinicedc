@@ -33,10 +33,10 @@
 
 	 		<div class="panel panel-warning">
 	 		<div class="panel-heading clearfix">
-	 			<i class="fas fa-file-export fa-fw fa-lg"></i> 
+	 			<i class="fas fa-file-export fa-fw fa-lg"></i>
 	 		</div>
 	 		</div>
-	 		
+
 			<div class="col-sm-3"></div>
 			<div class="col-sm-6">
 		 		<div class="panel">
@@ -88,7 +88,7 @@
 
 		<form id="frm_exportables" name="frm_exportables" method="post" action="{% url 'edc_export:export_selected_models_url' %}">
 		<div class="form-group">
-	 	
+
 	 		<div class="panel panel-warning">
 	 		<div class="panel-heading clearfix">
 		        <a id="home_list_group_home" href="{% url 'edc_export:home_url' %}" class="btn btn-primary"><i class="fas fa-reply fa-fw" aria-hidden="true"></i></a>
@@ -108,7 +108,7 @@
 	 		<div class="panel-heading clearfix"><b>{{ exportable.verbose_name }}</b>&nbsp;<small>({{ exportable.name }})</small>
 	 		</div>
 			<div class="panel-body">
-				<div class="form-group">		
+				<div class="form-group">
 
 			<table class="table table-hover table-condensed">
 			{% for label, models in exportable.items %}

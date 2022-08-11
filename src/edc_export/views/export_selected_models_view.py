@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.views.generic.base import TemplateView
 from edc_dashboard.utils import get_bootstrap_version
@@ -56,10 +57,11 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
             user_url = reverse("admin:auth_user_change", args=(request.user.id,))
             messages.error(
                 request,
-                mark_safe(
+                format_html(
                     "Your account does not include an email address. "
-                    f'Please update your <a href="{user_url}">user account</a> '
-                    "and try again."
+                    'Please update your <a href="{}">user account</a> '
+                    "and try again.",
+                    mark_safe(user_url),  # nosec B308 B703
                 ),
             )
         else:
