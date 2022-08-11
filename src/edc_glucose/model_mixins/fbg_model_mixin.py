@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 from edc_constants.constants import NOT_APPLICABLE
 from edc_lab.choices import GLUCOSE_UNITS_NA, RESULT_QUANTIFIER
 from edc_lab.constants import EQ
@@ -35,7 +34,7 @@ def fbg_model_mixin_factory(utest_id: str, **kwargs):
             default=NOT_APPLICABLE,
         ),
         f"{utest_id}_datetime": models.DateTimeField(
-            verbose_name=mark_safe("<u>Time</u> FBG level measured"),
+            verbose_name=format_html("<u>Time</u> FBG level measured"),
             null=True,
             blank=True,
         ),

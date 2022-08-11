@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 from edc_lab.constants import EQ
 from edc_reportable import PERCENT
 
@@ -31,7 +30,7 @@ class Hba1cModelMixin(models.Model):
     )
 
     hba1c_datetime = models.DateTimeField(
-        verbose_name=mark_safe("<u>Time</u> HbA1c measured"),
+        verbose_name=format_html("<u>Time</u> HbA1c measured"),
         null=True,
         blank=True,
     )
