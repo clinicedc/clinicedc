@@ -38,8 +38,6 @@ class SubjectTransferModelAdminMixin:
         "may_contact": admin.VERTICAL,
     }
 
-    search_fields = ("subject_identifier", "action_identifier", "tracking_identifier")
-
     def get_list_display(self, request) -> Tuple[str, ...]:
         list_display = super().get_list_display(request)
         custom_fields = (
@@ -62,6 +60,7 @@ class SubjectTransferModelAdminMixin:
         )
         return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
 
-    def get_readonly_fields(self, request, obj=None) -> Tuple[str, ...]:
-        readonly_fields = super().get_readonly_fields(request, obj)
-        return tuple(set(action_fields + readonly_fields))
+    def get_search_fields(self, request) -> Tuple[str, ...]:
+        search_fields = super().get_search_fields(request)
+        custom_fields = ("subject_identifier",)
+        return tuple(set(custom_fields + search_fields))
