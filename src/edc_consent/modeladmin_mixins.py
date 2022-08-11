@@ -11,7 +11,7 @@ from edc_identifier import SubjectIdentifierError, is_subject_identifier_or_rais
 from .actions import flag_as_verified_against_paper, unflag_as_verified_against_paper
 
 
-class ModelAdminConsentMixin(admin.ModelAdmin):
+class ModelAdminConsentMixin:
     def __init__(self, *args):
         self.get_radio_fields()
         super().__init__(*args)
@@ -35,8 +35,8 @@ class ModelAdminConsentMixin(admin.ModelAdmin):
             }
         )
 
-    def get_fields(self, request, obj=None):
-        return [
+    def get_fields(self, request, obj=None) -> Tuple[str, ...]:
+        return (
             "subject_identifier",
             "first_name",
             "last_name",
@@ -59,9 +59,9 @@ class ModelAdminConsentMixin(admin.ModelAdmin):
             "study_questions",
             "assessment_score",
             "consent_copy",
-        ] + super().get_fields(request, obj=obj)
+        ) + super().get_fields(request, obj=obj)
 
-    def get_readonly_fields(self, request, obj=None) -> tuple:
+    def get_readonly_fields(self, request, obj=None) -> Tuple[str, ...]:
         readonly_fields = super().get_readonly_fields(request, obj)
         fields = ("subject_identifier", "subject_identifier_as_pk")
         if obj:
@@ -108,7 +108,7 @@ class ModelAdminConsentMixin(admin.ModelAdmin):
             custom_fields.insert(3, self.queries)
         return tuple(custom_fields) + tuple(f for f in list_display if f not in custom_fields)
 
-    def get_list_filter(self, request) -> tuple:
+    def get_list_filter(self, request) -> Tuple[str, ...]:
         list_filter = super().get_list_filter(request)
         custom_fields = (
             "gender",
@@ -145,7 +145,7 @@ class ModelAdminConsentMixin(admin.ModelAdmin):
         extra_context.update({"protected": protected})
         return super().delete_view(request, object_id, extra_context)
 
-    def get_next_options(self, request=None, **kwargs):
+    def get_next_options(self, request=None, **kwargs) -> dict:
         """Returns the key/value pairs from the "next" querystring
         as a dictionary.
         """
@@ -162,7 +162,7 @@ class ModelAdminConsentMixin(admin.ModelAdmin):
         return next_options
 
     @admin.display(description="Open queries")
-    def queries(self, obj=None):
+    def queries(self, obj=None) -> str:
         new_url = reverse(
             "edc_data_manager_admin:edc_data_manager_dataquery_add",
         )
