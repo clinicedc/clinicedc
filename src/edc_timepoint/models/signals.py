@@ -2,7 +2,7 @@ from django.apps import apps as django_apps
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 
-from .constants import OPEN_TIMEPOINT
+from ..constants import OPEN_TIMEPOINT
 
 
 @receiver(post_save, weak=False, dispatch_uid="update_timepoint_on_post_save")

@@ -1,6 +1,5 @@
 from decimal import Decimal
 
-from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
 from edc_appointment.constants import COMPLETE_APPT
