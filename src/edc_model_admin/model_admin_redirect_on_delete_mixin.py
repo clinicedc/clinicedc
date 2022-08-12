@@ -1,3 +1,5 @@
+from typing import Optional
+
 from django.contrib import messages
 from django.http.response import HttpResponseRedirect
 from django.urls import reverse
@@ -18,7 +20,7 @@ class ModelAdminRedirectOnDeleteMixin:
         self.post_url_on_delete = None
         super().__init__(*args)
 
-    def get_post_url_on_delete(self, request, obj):
+    def get_post_url_on_delete(self, request, obj) -> Optional[str]:
         try:
             url_name = url_names.get(self.post_url_on_delete_name)
         except InvalidUrlName:
@@ -31,14 +33,14 @@ class ModelAdminRedirectOnDeleteMixin:
             return post_url_on_delete
         return None
 
-    def post_url_on_delete_kwargs(self, request, obj):
+    def post_url_on_delete_kwargs(self, request, obj) -> dict:
         """Returns kwargs needed to reverse the url.
 
         Override.
         """
         return {}
 
-    def delete_model(self, request, obj):
+    def delete_model(self, request, obj) -> None:
         """Overridden to intercept the obj to reverse
         the post_url_on_delete
         """

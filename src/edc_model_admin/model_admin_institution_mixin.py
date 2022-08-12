@@ -5,7 +5,7 @@ class ModelAdminInstitutionMixin:
     """Adds institution attrs to the ModelAdmin context."""
 
     @staticmethod
-    def get_institution_extra_context(extra_context):
+    def get_institution_extra_context(extra_context) -> dict:
         protocol = Protocol()
         extra_context.update(
             {

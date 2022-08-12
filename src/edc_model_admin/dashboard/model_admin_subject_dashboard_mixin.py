@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, reverse
@@ -25,10 +27,10 @@ class ModelAdminSubjectDashboardMixin(
     ModelAdminFormInstructionsMixin,
     ModelAdminFormAutoNumberMixin,
     ModelAdminRevisionMixin,
-    ModelAdminAuditFieldsMixin,
     ModelAdminInstitutionMixin,
     ModelAdminRedirectOnDeleteMixin,
     ModelAdminReplaceLabelTextMixin,
+    ModelAdminAuditFieldsMixin,
 ):
 
     date_hierarchy = "modified"
@@ -39,22 +41,22 @@ class ModelAdminSubjectDashboardMixin(
     show_cancel = True
     show_dashboard_in_list_display_pos = None
 
-    def get_subject_dashboard_url_name(self):
+    def get_subject_dashboard_url_name(self) -> str:
         return url_names.get(self.subject_dashboard_url_name)
 
-    def get_subject_dashboard_url_kwargs(self, obj):
+    def get_subject_dashboard_url_kwargs(self, obj) -> dict:
         return dict(subject_identifier=obj.subject_identifier)
 
-    def get_subject_listboard_url_name(self):
+    def get_subject_listboard_url_name(self) -> str:
         return url_names.get(self.subject_listboard_url_name)
 
-    def get_post_url_on_delete_name(self, *args):
+    def get_post_url_on_delete_name(self, *args) -> str:
         return self.get_subject_dashboard_url_name()
 
-    def post_url_on_delete_kwargs(self, request, obj):
+    def post_url_on_delete_kwargs(self, request, obj) -> dict:
         return self.get_subject_dashboard_url_kwargs(obj)
 
-    def dashboard(self, obj=None, label=None):
+    def dashboard(self, obj=None, label=None) -> str:
         url = reverse(
             self.get_subject_dashboard_url_name(),
             kwargs=self.get_subject_dashboard_url_kwargs(obj),
@@ -62,7 +64,7 @@ class ModelAdminSubjectDashboardMixin(
         context = dict(title="Go to subject's dashboard", url=url, label=label)
         return render_to_string("dashboard_button.html", context=context)
 
-    def get_list_display(self, request) -> tuple:
+    def get_list_display(self, request) -> Tuple[str, ...]:
         list_display = super().get_list_display(request)
         if (
             self.show_dashboard_in_list_display_pos is not None
@@ -73,7 +75,16 @@ class ModelAdminSubjectDashboardMixin(
             list_display = tuple(list_display)
         return list_display
 
-    def view_on_site(self, obj):
+    def get_list_filter(self, request) -> Tuple[str, ...]:
+        return super().get_list_filter(request)
+
+    def get_readonly_fields(self, request, obj=None) -> Tuple[str, ...]:
+        return super().get_readonly_fields(request, obj=obj)
+
+    def get_search_fields(self, request) -> Tuple[str, ...]:
+        return super().get_search_fields(request)
+
+    def view_on_site(self, obj) -> str:
         try:
             RegisteredSubject.objects.get(subject_identifier=obj.subject_identifier)
         except ObjectDoesNotExist:
