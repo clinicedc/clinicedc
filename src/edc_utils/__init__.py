@@ -2,8 +2,7 @@ from datetime import datetime
 from math import ceil
 from typing import Any, Optional
 from uuid import uuid4
-
-from dateutil.tz import gettz
+from zoneinfo import ZoneInfo
 
 from .age import AgeValueError, age, formatted_age, get_age_in_days, get_dob
 from .date import get_utcnow, get_utcnow_as_date, to_utc
@@ -54,5 +53,5 @@ def get_datetime_from_env(
         int(minute),
         int(second),
         0,
-        gettz(time_zone),
+        ZoneInfo(time_zone),
     )
