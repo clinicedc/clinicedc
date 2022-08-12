@@ -1,18 +1,19 @@
 import os
 from datetime import datetime
+from typing import Optional
 
 
 class MarkdownWriter:
-    def __init__(self, path=None, exists_ok=None):
-        self.path = self.get_path(path=path, exists_ok=exists_ok)
+    def __init__(self, path: Optional[str] = None, overwrite: Optional[bool] = None):
+        self.path = self.get_path(path=path, overwrite=overwrite)
 
     @staticmethod
-    def get_path(path=None, exists_ok=None):
+    def get_path(path: Optional[str] = None, overwrite: Optional[bool] = None):
         if not path:
             timestamp = datetime.today().strftime("%Y%m%d%H%M")
             path = f"forms_{timestamp}.md"
         if os.path.exists(path):
-            if exists_ok:
+            if overwrite:
                 os.remove(path)
             else:
                 raise FileExistsError(f"File exists. Got '{path}'")
