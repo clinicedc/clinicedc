@@ -1,10 +1,8 @@
-from datetime import datetime
 from decimal import Decimal
 
-from arrow import arrow
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
-from django.test import TestCase, tag  # noqa
+from django.test import TestCase, tag
 from edc_appointment.constants import COMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
@@ -17,7 +15,7 @@ from ...constants import CLOSED_TIMEPOINT, OPEN_TIMEPOINT
 from ...model_mixins import UnableToCloseTimepoint
 from ...timepoint import TimepointClosed
 from ..consents import v1
-from ..models import CrfOne, SubjectConsent, SubjectVisit
+from ..models import CrfOne, CrfTwo, SubjectConsent, SubjectVisit
 from ..visit_schedule import visit_schedule1
 
 
@@ -99,6 +97,9 @@ class TimepointTests(TestCase):
         """Assert timepoint closes because appointment status
         is "closed" and blocks further changes.
         """
+        subject_visit = SubjectVisit.objects.create(appointment=self.appointment)
+        CrfOne.objects.create(subject_visit=subject_visit)
+        CrfTwo.objects.create(subject_visit=subject_visit)
         self.appointment.appt_status = COMPLETE_APPT
         self.appointment.save()
         self.appointment.timepoint_close_timepoint()
@@ -118,12 +119,14 @@ class TimepointTests(TestCase):
         self.assertRaises(TimepointClosed, subject_visit.save)
         self.assertRaises(TimepointClosed, crf_obj.save)
 
+    @tag("1")
     def test_timepoint_status_attrs(self):
         """Assert timepoint closes because appointment status
         is COMPLETE_APPT and blocks further changes.
         """
-        self.appointment.appt_datetime = get_utcnow() - relativedelta(days=10)
-        self.appointment.visit_code = "1000"
+        subject_visit = SubjectVisit.objects.create(appointment=self.appointment)
+        CrfOne.objects.create(subject_visit=subject_visit)
+        CrfTwo.objects.create(subject_visit=subject_visit)
         self.appointment.appt_status = COMPLETE_APPT
         self.appointment.save()
         self.appointment.timepoint_close_timepoint()
