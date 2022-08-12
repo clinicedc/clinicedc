@@ -1,6 +1,7 @@
-from typing import Tuple
+from typing import Optional, Tuple
 
 from django.apps import apps as django_apps
+from django.contrib import admin
 from django.utils.html import format_html
 from simple_history.admin import SimpleHistoryAdmin as BaseSimpleHistoryAdmin
 
@@ -14,7 +15,8 @@ class SimpleHistoryAdmin(BaseSimpleHistoryAdmin):
     save_as = False
     save_as_continue = False
 
-    def change_message(self, obj):
+    @admin.display(description="Change Message")
+    def change_message(self, obj) -> Optional[str]:
         log_entry_model_cls = django_apps.get_model("admin.logentry")
         log_entry = (
             log_entry_model_cls.objects.filter(
@@ -27,9 +29,19 @@ class SimpleHistoryAdmin(BaseSimpleHistoryAdmin):
             return format_html(log_entry.get_change_message())
         return None
 
-    change_message.short_description = "Change Message"
-
-    def dashboard(self, obj):
+    def dashboard(self, obj) -> Optional[str]:
         if callable(self.view_on_site):
             return format_html('<A href="{}">Dashboard</A>', self.view_on_site(obj))
         return None
+
+    def get_list_display(self, request) -> Tuple[str, ...]:
+        return tuple(super().get_list_display(request))
+
+    def get_list_filter(self, request) -> Tuple[str, ...]:
+        return tuple(super().get_list_filter(request))
+
+    def get_search_fields(self, request) -> Tuple[str, ...]:
+        return tuple(super().get_search_fields(request))
+
+    def get_readonly_fields(self, request, obj=None) -> Tuple[str, ...]:
+        return tuple(super().get_readonly_fields(request, obj=obj))

@@ -18,7 +18,7 @@ class ModelAdminCrfDashboardMixin(
     show_cancel = True
     show_dashboard_in_list_display_pos = 1
 
-    def get_subject_dashboard_url_kwargs(self, obj):
+    def get_subject_dashboard_url_kwargs(self, obj) -> dict:
         return dict(
             subject_identifier=obj.subject_visit.subject_identifier,
             appointment=str(obj.subject_visit.appointment.id),
