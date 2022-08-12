@@ -1,5 +1,5 @@
-from dateutil.relativedelta import relativedelta
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from edc_utils import get_utcnow
 
 from .address import Address
@@ -70,17 +70,38 @@ class Protocol:
         self.screening_identifier_pattern = getattr(
             settings, "EDC_PROTOCOL_SCREENING_IDENTIFIER_PATTERN", "[A-Z0-9]{8}"
         )
-
-        self.study_open_datetime = getattr(
-            settings,
-            "EDC_PROTOCOL_STUDY_OPEN_DATETIME",
-            get_utcnow().replace(microsecond=0, second=0, minute=0, hour=0)
-            - relativedelta(months=1),
+        error_msg1 = (
+            "Unable to set `study_open_datetime`. "
+            "Settings.EDC_PROTOCOL_STUDY_OPEN_DATETIME not found. "
+            "Expected something like: `EDC_PROTOCOL_STUDY_OPEN_DATETIME = "
+            'datetime(2013, 10, 15, tzinfo=ZoneInfo("Africa/Gaborone)`. '
+            "See edc_protocol."
         )
-
-        self.study_close_datetime = getattr(
-            settings,
-            "EDC_PROTOCOL_STUDY_CLOSE_DATETIME",
-            get_utcnow().replace(microsecond=999999, second=59, minute=59, hour=11)
-            + relativedelta(years=1),
+        error_msg2 = (
+            "Unable to set `study_open_datetime`. "
+            "Settings.EDC_PROTOCOL_STUDY_OPEN_DATETIME cannot be None. "
+            "Expected something like: `EDC_PROTOCOL_STUDY_OPEN_DATETIME = "
+            'datetime(2013, 10, 15, tzinfo=ZoneInfo("Africa/Gaborone)`. '
+            "See edc_protocol."
         )
+        try:
+            self.study_open_datetime = settings.EDC_PROTOCOL_STUDY_OPEN_DATETIME
+        except AttributeError:
+            raise ImproperlyConfigured(error_msg1)
+        if not self.study_open_datetime:
+            raise ImproperlyConfigured(error_msg2)
+
+        try:
+            self.study_close_datetime = settings.EDC_PROTOCOL_STUDY_CLOSE_DATETIME
+        except AttributeError:
+            raise ImproperlyConfigured(
+                error_msg1.replace(
+                    "EDC_PROTOCOL_STUDY_OPEN_DATETIME", "EDC_PROTOCOL_STUDY_CLOSE_DATETIME"
+                ).replace("study_open_datetime", "study_close_datetime")
+            )
+        if not self.study_close_datetime:
+            raise ImproperlyConfigured(
+                error_msg2.replace(
+                    "EDC_PROTOCOL_STUDY_OPEN_DATETIME", "EDC_PROTOCOL_STUDY_CLOSE_DATETIME"
+                ).replace("study_open_datetime", "study_close_datetime")
+            )
