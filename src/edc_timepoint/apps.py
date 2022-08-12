@@ -30,8 +30,6 @@ class AppConfig(DjangoAppConfig):
     )
 
     def ready(self):
-        from .signals import update_timepoint_on_post_save
-
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
         for model in self.timepoints:
             sys.stdout.write(f" * '{model}' is a timepoint model.\n")
