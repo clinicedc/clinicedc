@@ -3,6 +3,7 @@ import string
 import sys
 from datetime import datetime
 from math import floor
+from typing import Optional
 
 from django.core.management.color import color_style
 from edc_fieldsets import Fieldsets
@@ -142,8 +143,8 @@ class FormDescriber:
         markdown_writer = self.markdown_writer_cls()
         return markdown_writer.to_markdown(markdown=self.markdown)
 
-    def to_file(self, path=None):
-        markdown_writer = self.markdown_writer_cls(path=path)
+    def to_file(self, path: Optional[str] = None, overwrite: Optional[bool] = None):
+        markdown_writer = self.markdown_writer_cls(path=path, overwrite=overwrite)
         markdown_writer.to_file(markdown=self.markdown)
 
     def add_hidden_fields(self):
