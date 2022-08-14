@@ -1,5 +1,5 @@
 from edc_constants.constants import FEMALE
-from edc_reportable import MICROMOLES_PER_LITER, MILLIGRAMS_PER_DECILITER
+from edc_reportable import MICROMOLES_PER_LITER
 
 from .base_egrfr import BaseEgfr, EgfrCalculatorError
 

@@ -1,11 +1,9 @@
 from django.db import models
 from django.db.models import PROTECT
 from edc_constants.choices import GENDER
-from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel
 from edc_reportable import MICROMOLES_PER_LITER
 from edc_screening.model_mixins import ScreeningIdentifierModelMixin
-from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
 
 from edc_egfr.model_mixins import EgfrDropNotificationModelMixin
