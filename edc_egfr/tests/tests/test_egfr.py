@@ -117,7 +117,7 @@ class TestEgfr(TestCase):
         self.assertEqual(egfr.egfr_drop_grade, 4)
 
     @override_settings(EDC_EGFR_DROP_NOTIFICATION_MODEL="egfr_app.EgfrDropNotification")
-    def test_egfr_drop(self):
+    def test_egfr_drop_with_notify(self):
         appointment = Appointment.objects.create(
             subject_identifier="1234",
             appt_datetime=get_utcnow(),
