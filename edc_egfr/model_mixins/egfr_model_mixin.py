@@ -14,5 +14,8 @@ class EgfrModelMixin(
     ),
     models.Model,
 ):
+
+    """Declared with a bloodresult RFT CRF model"""
+
     class Meta:
         abstract = True

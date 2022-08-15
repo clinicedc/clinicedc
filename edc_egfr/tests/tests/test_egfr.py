@@ -1,6 +1,8 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
 from edc_constants.constants import BLACK, MALE
+from edc_lab.models import Panel
+from edc_registration.models import RegisteredSubject
 from edc_reportable import (
     MICROMOLES_PER_LITER,
     MILLIGRAMS_PER_DECILITER,
@@ -12,11 +14,20 @@ from edc_utils import get_utcnow
 
 from edc_egfr.calculators import EgfrCalculatorError
 from edc_egfr.egfr import Egfr, EgfrError
-from egfr_app.models import Appointment, EgfrDropNotification, ResultCrf, SubjectVisit
+from egfr_app.models import (
+    Appointment,
+    EgfrDropNotification,
+    ResultCrf,
+    SubjectRequisition,
+    SubjectVisit,
+)
 
 
 class TestEgfr(TestCase):
     def setUp(self) -> None:
+        RegisteredSubject.objects.create(
+            subject_identifier="1234", gender=MALE, dob=get_utcnow() - relativedelta(years=30)
+        )
         site_reportables._registry = {}
 
         site_reportables.register(
@@ -32,7 +43,7 @@ class TestEgfr(TestCase):
             creatinine_units=MICROMOLES_PER_LITER,
             report_datetime=get_utcnow(),
             reference_range_collection_name="my_reference_list",
-            calculator_name="ckd-epi",
+            formula_name="ckd-epi",
         )
 
         try:
@@ -68,6 +79,19 @@ class TestEgfr(TestCase):
             reference_range_collection_name="my_reference_list",
         )
 
+    def test_egfr_missing_age_and_dob_raises(self):
+        self.assertRaises(
+            EgfrError,
+            Egfr,
+            gender=MALE,
+            ethnicity=BLACK,
+            creatinine_value=10.15,
+            creatinine_units=MILLIGRAMS_PER_DECILITER,
+            report_datetime=get_utcnow(),
+            reference_range_collection_name="my_reference_list",
+            formula_name="ckd-epi",
+        )
+
     def test_egfr_grade(self):
         egfr = Egfr(
             gender=MALE,
@@ -77,7 +101,7 @@ class TestEgfr(TestCase):
             creatinine_units=MICROMOLES_PER_LITER,
             report_datetime=get_utcnow(),
             reference_range_collection_name="my_reference_list",
-            calculator_name="ckd-epi",
+            formula_name="ckd-epi",
         )
 
         self.assertEqual(egfr.egfr_grade, 4)
@@ -91,7 +115,7 @@ class TestEgfr(TestCase):
             creatinine_units=MICROMOLES_PER_LITER,
             report_datetime=get_utcnow(),
             reference_range_collection_name="my_reference_list",
-            calculator_name="ckd-epi",
+            formula_name="ckd-epi",
         )
         self.assertEqual(egfr.egfr_grade, 4)
 
@@ -104,7 +128,7 @@ class TestEgfr(TestCase):
             creatinine_units=MILLIGRAMS_PER_DECILITER,
             report_datetime=get_utcnow(),
             reference_range_collection_name="my_reference_list",
-            calculator_name="ckd-epi",
+            formula_name="ckd-epi",
         )
         egfr = Egfr(**opts)
         self.assertEqual(egfr.egfr_drop_value, 0.0)
@@ -121,6 +145,7 @@ class TestEgfr(TestCase):
         appointment = Appointment.objects.create(
             subject_identifier="1234",
             appt_datetime=get_utcnow(),
+            timepoint=0,
         )
         subject_visit = SubjectVisit.objects.create(
             subject_identifier="1234",
@@ -128,25 +153,35 @@ class TestEgfr(TestCase):
             report_datetime=appointment.appt_datetime,
         )
 
+        panel = Panel.objects.create(name="rft_panel")
+
+        requisition = SubjectRequisition.objects.create(
+            subject_identifier="1234",
+            subject_visit=subject_visit,
+            report_datetime=appointment.appt_datetime,
+            panel=panel,
+        )
+
         crf = ResultCrf.objects.create(
             subject_visit=subject_visit,
+            requisition=requisition,
             report_datetime=appointment.appt_datetime,
             assay_datetime=appointment.appt_datetime,
             egfr_value=156.43,
+            creatinine_value=53,
+            creatinine_units=MICROMOLES_PER_LITER,
         )
         opts = dict(
             gender=MALE,
             age_in_years=30,
             ethnicity=BLACK,
-            creatinine_value=53,
-            creatinine_units=MICROMOLES_PER_LITER,
             report_datetime=get_utcnow(),
             reference_range_collection_name="my_reference_list",
-            calculator_name="ckd-epi",
+            formula_name="ckd-epi",
         )
 
         egfr = Egfr(
-            baseline_egfr_value=220.1, notify_on_percent_drop=20, calling_crf=crf, **opts
+            baseline_egfr_value=220.1, percent_drop_threshold=20, calling_crf=crf, **opts
         )
         self.assertEqual(round(egfr.egfr_value, 2), 156.43)
         self.assertIsNone(egfr.egfr_grade)
@@ -156,9 +191,11 @@ class TestEgfr(TestCase):
             EgfrDropNotification.objects.filter(subject_visit=subject_visit).exists()
         )
 
-        opts.update(creatinine_value=48)
+        crf.creatinine_value = 48
+        crf.save()
+        crf.refresh_from_db()
         egfr = Egfr(
-            baseline_egfr_value=220.1, notify_on_percent_drop=20, calling_crf=crf, **opts
+            baseline_egfr_value=220.1, percent_drop_threshold=20, calling_crf=crf, **opts
         )
         self.assertEqual(round(egfr.egfr_value, 2), 162.93)
         self.assertIsNone(egfr.egfr_grade)
@@ -168,11 +205,13 @@ class TestEgfr(TestCase):
             EgfrDropNotification.objects.filter(subject_visit=subject_visit).exists()
         )
 
-        EgfrDropNotification.objects.filter(subject_visit=subject_visit).delete()
+        EgfrDropNotification.objects.all().delete()
 
-        opts.update(creatinine_value=53)
+        crf.creatinine_value = 53
+        crf.save()
+        crf.refresh_from_db()
         egfr = Egfr(
-            baseline_egfr_value=190.1, notify_on_percent_drop=20, calling_crf=crf, **opts
+            baseline_egfr_value=190.1, percent_drop_threshold=20, calling_crf=crf, **opts
         )
         self.assertEqual(round(egfr.egfr_value, 2), 156.43)
         self.assertIsNone(egfr.egfr_grade)
@@ -184,7 +223,7 @@ class TestEgfr(TestCase):
         )
 
         egfr = Egfr(
-            baseline_egfr_value=100.1, notify_on_percent_drop=20, calling_crf=crf, **opts
+            baseline_egfr_value=100.1, percent_drop_threshold=20, calling_crf=crf, **opts
         )
         self.assertEqual(round(egfr.egfr_value, 2), 156.43)
         self.assertIsNone(egfr.egfr_grade)
