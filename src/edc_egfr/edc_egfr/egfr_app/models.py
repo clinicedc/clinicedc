@@ -132,6 +132,10 @@ class EgfrDropNotification(EgfrDropNotificationModelMixin, BaseUuidModel):
 
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
+    report_datetime = models.DateTimeField(
+        verbose_name="Report Date and Time", default=get_utcnow
+    )
+
     consent_version = models.CharField(max_length=5, default="1")
 
     class Meta(EgfrDropNotificationModelMixin.Meta, BaseUuidModel.Meta):
