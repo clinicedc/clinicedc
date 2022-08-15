@@ -15,8 +15,8 @@ from edc_appointment.constants import (
     ONTIME_APPT,
 )
 from edc_appointment.creators import UnscheduledAppointmentCreator
+from edc_appointment.exceptions import AppointmentWindowError
 from edc_appointment.forms import AppointmentForm
-from edc_appointment.model_mixins import AppointmentWindowError
 from edc_appointment.models import Appointment
 from edc_appointment_app.models import SubjectVisit
 from edc_appointment_app.visit_schedule import visit_schedule3
