@@ -17,7 +17,6 @@ DEFAULT_SETTINGS = DefaultTestSettings(
     BASE_DIR=base_dir,
     APP_NAME=app_name,
     ETC_DIR=os.path.join(base_dir, app_name, "tests", "etc"),
-    # SUBJECT_VISIT_MODEL=f"{app_name}.tests.subjectvisit",
     INSTALLED_APPS=[
         "django.contrib.admin",
         "django.contrib.auth",
@@ -29,6 +28,7 @@ DEFAULT_SETTINGS = DefaultTestSettings(
         "django_crypto_fields.apps.AppConfig",
         "edc_appointment.apps.AppConfig",
         "edc_action_item.apps.AppConfig",
+        "edc_lab.apps.AppConfig",
         "edc_registration.apps.AppConfig",
         "edc_sites.apps.AppConfig",
         "edc_notification.apps.AppConfig",

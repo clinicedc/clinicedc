@@ -18,6 +18,7 @@ class EgfrCockcroftGault(BaseEgfr):
         (140 – age) × (weight, kg) × (0.85 if female) / (72 × SCr(mg/dL))
 
     or:
+
     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2763564/
 
     GFR = 141 × min(Scr/κ, 1)α × max(Scr/κ, 1)-1.209 × 0.993Age

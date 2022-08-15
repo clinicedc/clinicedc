@@ -25,7 +25,9 @@ class BaseEgfr:
         """
         self.scr = {}
         if not gender or gender not in [MALE, FEMALE]:
-            raise EgfrCalculatorError(f"Invalid gender. Expected on of {MALE}, {FEMALE}")
+            raise EgfrCalculatorError(
+                f"Invalid gender. Expected one of {MALE}, {FEMALE}. Got {gender}."
+            )
         self.gender = gender
         self.weight = float(weight) if weight else None
         if not (18 <= (age_in_years or 0) < 120):

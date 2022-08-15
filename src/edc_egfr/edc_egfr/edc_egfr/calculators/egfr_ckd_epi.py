@@ -35,7 +35,13 @@ class EgfrCkdEpi(BaseEgfr):
                 * self.gender_factor
                 * self.ethnicity_factor
             )
-        raise EgfrCalculatorError("Unable to calculate. Insufficient information.")
+        opts = dict(
+            gender=self.gender,
+            age_in_years=self.age_in_years,
+            ethnicity=self.ethnicity,
+            scr=self.scr.get(MILLIGRAMS_PER_DECILITER),
+        )
+        raise EgfrCalculatorError(f"Unable to calculate. Insufficient information. Got {opts}")
 
     @property
     def alpha(self) -> float:
