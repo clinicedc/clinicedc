@@ -111,10 +111,29 @@ Connecting a custom drop notification model with edc-action-item
             verbose_name_plural = "eGFR Drop Notifications"
 
 
-Adding to model.save()
-======================
+Adding to an EDC model.save()
+=============================
 
-...
+For example, from the BloodResultRft model in `meta-edc`_
+
+.. code-block:: python
+
+    class BloodResultsRft(
+        CrfModelMixin,
+        CreatinineModelMixin,
+        EgfrModelMixin,
+        EgfrDropModelMixin,
+        CrfWithRequisitionModelMixin,
+        BloodResultsModelMixin,
+        edc_models.BaseUuidModel,
+    ):
+        lab_panel = rft_panel
+        egfr_formula_name = "ckd-epi"
+
+        class Meta(CrfWithActionModelMixin.Meta, edc_models.BaseUuidModel.Meta):
+            verbose_name = "Blood Result: RFT"
+            verbose_name_plural = "Blood Results: RFT"
+
 
 
 
@@ -130,3 +149,5 @@ Adding to model.save()
 
 .. |downloads| image:: https://pepy.tech/badge/edc-egfr
    :target: https://pepy.tech/project/edc-egfr
+
+.. _meta-edc: https://github.com/meta-trial/meta-edc/blob/develop/meta_subject/models/blood_results/blood_results_rft.py
