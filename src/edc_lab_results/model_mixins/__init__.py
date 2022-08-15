@@ -39,10 +39,4 @@ from .lipid_model_mixins import (
     TrigModelMixin,
 )
 from .proteinuria_model_mixin import ProteinuriaModelMixin
-from .rft_model_mixins import (
-    CreatinineModelMixin,
-    EgfrDropModelMixin,
-    EgfrModelMixin,
-    UreaModelMixin,
-    UricAcidModelMixin,
-)
+from .rft_model_mixins import CreatinineModelMixin, UreaModelMixin, UricAcidModelMixin

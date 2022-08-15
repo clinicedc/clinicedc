@@ -1,13 +1,11 @@
 from django.db import models
 from edc_lab_panel.model_mixin_factory import reportable_result_model_mixin_factory
 from edc_reportable.units import (
-    EGFR_UNITS,
     MICROMOLES_PER_LITER,
     MICROMOLES_PER_LITER_DISPLAY,
     MILLIGRAMS_PER_DECILITER,
     MILLIMOLES_PER_LITER,
     MILLIMOLES_PER_LITER_DISPLAY,
-    PERCENT,
 )
 
 
@@ -19,36 +17,6 @@ class CreatinineModelMixin(
             (MILLIGRAMS_PER_DECILITER, MILLIGRAMS_PER_DECILITER),
             (MICROMOLES_PER_LITER, MICROMOLES_PER_LITER_DISPLAY),
         ),
-    ),
-    models.Model,
-):
-    class Meta:
-        abstract = True
-
-
-class EgfrModelMixin(
-    reportable_result_model_mixin_factory(
-        utest_id="egfr",
-        verbose_name="eGFR",
-        decimal_places=4,
-        default_units=EGFR_UNITS,
-        max_digits=8,
-        units_choices=((EGFR_UNITS, EGFR_UNITS),),
-    ),
-    models.Model,
-):
-    class Meta:
-        abstract = True
-
-
-class EgfrDropModelMixin(
-    reportable_result_model_mixin_factory(
-        utest_id="egfr_drop",
-        verbose_name="eGFR Drop",
-        decimal_places=4,
-        default_units=PERCENT,
-        max_digits=10,
-        units_choices=((PERCENT, PERCENT),),
     ),
     models.Model,
 ):
