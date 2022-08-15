@@ -4,14 +4,9 @@ from edc_constants.constants import COMPLETE, INCOMPLETE, NEW, NOT_APPLICABLE, O
 from edc_crf.crf_status_model_mixin import CrfStatusModelMixin
 from edc_lab.choices import SERUM_CREATININE_UNITS_NA
 from edc_model import REPORT_STATUS
-from edc_utils import get_utcnow
 
 
 class EgfrDropNotificationModelMixin(CrfStatusModelMixin, models.Model):
-
-    report_datetime = models.DateTimeField(
-        verbose_name="Report Date and Time", default=get_utcnow
-    )
 
     creatinine_date = models.DateField(verbose_name="Creatinine result date")
 
