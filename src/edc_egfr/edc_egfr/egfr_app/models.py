@@ -1,5 +1,3 @@
-from typing import Any
-
 from django.db import models
 from django.db.models import PROTECT
 from edc_constants.choices import GENDER
@@ -11,11 +9,7 @@ from edc_reportable import MICROMOLES_PER_LITER
 from edc_screening.model_mixins import ScreeningIdentifierModelMixin
 from edc_utils import get_utcnow
 
-from edc_egfr.model_mixins import (
-    EgfrDropModelMixin,
-    EgfrDropNotificationModelMixin,
-    EgfrModelMixin,
-)
+from edc_egfr.model_mixins import EgfrDropNotificationModelMixin, EgfrModelMixin
 
 
 class SubjectScreening(ScreeningIdentifierModelMixin, BaseUuidModel):
@@ -50,6 +44,10 @@ class Appointment(BaseUuidModel):
 
     visit_code_sequence = models.IntegerField(default=0)
 
+    visit_schedule_name = models.CharField(max_length=25, default="visit_schedule")
+
+    schedule_name = models.CharField(max_length=25, default="schedule")
+
     class Meta(BaseUuidModel.Meta):
         pass
 
@@ -67,6 +65,10 @@ class SubjectVisit(BaseUuidModel):
     report_datetime = models.DateTimeField()
 
     visit_code_sequence = models.IntegerField(default=0)
+
+    visit_schedule_name = models.CharField(max_length=25, default="visit_schedule")
+
+    schedule_name = models.CharField(max_length=25, default="schedule")
 
     class Meta(BaseUuidModel.Meta):
         app_label = "egfr_app"
@@ -93,9 +95,7 @@ class SubjectRequisition(PanelModelMixin, BaseUuidModel):
         pass
 
 
-class ResultCrf(
-    BloodResultsMethodsModelMixin, EgfrModelMixin, EgfrDropModelMixin, models.Model
-):
+class ResultCrf(BloodResultsMethodsModelMixin, EgfrModelMixin, models.Model):
     lab_panel = rft_panel
 
     egfr_formula_name = "ckd-epi"
@@ -123,9 +123,6 @@ class ResultCrf(
         null=True,
         blank=True,
     )
-
-    def get_reference_range_collection_name(self: Any) -> str:
-        return "my_reference_list"
 
 
 class EgfrDropNotification(EgfrDropNotificationModelMixin, BaseUuidModel):
