@@ -17,7 +17,7 @@ class EgfrDropNotificationModelMixin(
         default_units=EGFR_UNITS,
         max_digits=8,
         units_choices=((EGFR_UNITS, EGFR_UNITS),),
-        exclude_attrs_got_reportable=True,
+        exclude_attrs_for_reportable=True,
     ),
     reportable_result_model_mixin_factory(
         utest_id="creatinine",
@@ -26,7 +26,7 @@ class EgfrDropNotificationModelMixin(
         default_units=MICROMOLES_PER_LITER,
         max_digits=8,
         units_choices=((SERUM_CREATININE_UNITS, SERUM_CREATININE_UNITS),),
-        exclude_attrs_got_reportable=True,
+        exclude_attrs_for_reportable=True,
     ),
     models.Model,
 ):
