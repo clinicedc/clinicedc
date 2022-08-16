@@ -29,7 +29,7 @@ class CrfNoManagerModelMixin(
     def natural_key(self) -> tuple:
         return self.subject_visit.natural_key()
 
-    natural_key.dependencies = [  # type:ignore
+    natural_key.dependencies = [
         settings.SUBJECT_VISIT_MODEL,
         "sites.Site",
         "edc_appointment.appointment",
