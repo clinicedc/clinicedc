@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from django.apps import apps as django_apps
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_appointment.constants import COMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
@@ -118,7 +118,6 @@ class TimepointTests(TestCase):
         self.assertRaises(TimepointClosed, subject_visit.save)
         self.assertRaises(TimepointClosed, crf_obj.save)
 
-    @tag("1")
     def test_timepoint_status_attrs(self):
         """Assert timepoint closes because appointment status
         is COMPLETE_APPT and blocks further changes.
