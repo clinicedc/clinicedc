@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls.base import reverse
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from edc_constants.constants import OTHER
 from edc_dashboard.url_names import url_names
 from edc_form_validators import FormValidator, FormValidatorMixin
@@ -19,7 +19,9 @@ class SubjectRefusalFormValidator(FormValidator):
 class ScreeningFormMixin:
     def clean(self):
         cleaned_data = super().clean()
-        screening_identifier = cleaned_data.get("screening_identifier")
+        screening_identifier = (
+            cleaned_data.get("screening_identifier") or self.instance.screening_identifier
+        )
         if screening_identifier:
             subject_screening = get_subject_screening_model_cls().objects.get(
                 screening_identifier=screening_identifier
@@ -28,12 +30,14 @@ class ScreeningFormMixin:
                 url_name = url_names.get("screening_listboard_url")
                 url = reverse(
                     url_name,
-                    kwargs={"screening_identifier": self.instance.screening_identifier},
+                    kwargs={"screening_identifier": screening_identifier},
                 )
-                msg = mark_safe(
+                msg = format_html(
                     "Not allowed. Subject is not eligible. "
-                    f'See subject <A href="{url}?q={screening_identifier}">'
-                    f"{screening_identifier}</A>"
+                    'See subject <A href="{}?q={}">{}</A>',
+                    url,
+                    screening_identifier,
+                    screening_identifier,
                 )
                 raise forms.ValidationError(msg)
         return cleaned_data
@@ -54,9 +58,11 @@ class AlreadyConsentedFormMixin:
                 url_name,
                 kwargs={"subject_identifier": obj.subject_identifier},
             )
-            msg = mark_safe(
+            msg = format_html(
                 "Not allowed. Subject has already consented. "
-                f'See subject <A href="{url}">{obj.subject_identifier}</A>'
+                'See subject <A href="{}">{}</A>',
+                url,
+                obj.subject_identifier,
             )
             raise forms.ValidationError(msg)
         return cleaned_data
