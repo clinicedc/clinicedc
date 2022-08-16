@@ -7,7 +7,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from edc_form_validators import FormValidator
-from edc_screening.utils import get_subject_screening_model_name
+from edc_screening.utils import get_subject_screening_model
 from edc_utils import AgeValueError, age
 from edc_utils.date import to_utc
 from edc_utils.text import convert_php_dateformat
@@ -17,7 +17,7 @@ class SubjectConsentFormValidatorMixin(FormValidator):
 
     """Form Validator mixin for the consent model."""
 
-    subject_screening_model = get_subject_screening_model_name()
+    subject_screening_model = get_subject_screening_model()
 
     def __init__(self: Any, **kwargs):
         super().__init__(**kwargs)
