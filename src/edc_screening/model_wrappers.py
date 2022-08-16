@@ -7,7 +7,7 @@ from edc_refusal.model_wrappers import SubjectRefusalModelWrapper
 from edc_subject_model_wrappers import SubjectConsentModelWrapper as BaseModelWrapper
 from edc_subject_model_wrappers import SubjectRefusalModelWrapperMixin
 
-from edc_screening.utils import get_subject_screening_model_name
+from edc_screening.utils import get_subject_screening_model
 
 
 class SubjectConsentModelWrapper(BaseModelWrapper):
@@ -25,7 +25,7 @@ class SubjectScreeningModelWrapper(
 
     consent_model_wrapper_cls = SubjectConsentModelWrapper
     refusal_model_wrapper_cls = SubjectRefusalModelWrapper
-    model = get_subject_screening_model_name()
+    model = get_subject_screening_model()
     next_url_attrs = ["screening_identifier"]
     next_url_name = "screening_listboard_url"
     querystring_attrs = ["gender"]
