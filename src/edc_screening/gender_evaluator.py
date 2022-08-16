@@ -10,7 +10,5 @@ class GenderEvaluator:
         self.reasons_ineligible = None
         if gender in self.eligible_gender:
             self.eligible = True
-        if not self.eligible:
-            self.reasons_ineligible = []
-            if gender not in [MALE, FEMALE]:
-                self.reasons_ineligible.append(f"{gender} is an invalid gender.")
+        else:
+            self.reasons_ineligible = f"`{gender}` is an invalid."

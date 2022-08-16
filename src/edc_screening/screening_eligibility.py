@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from typing import Optional, Union
 
 from django.db import models
@@ -11,11 +12,13 @@ class FC:
     value: value if eligible
     msg: message if value is NOT met / ineligible
     ignore_if_missing: skip assessment if the field does not have a value
+
+    if value is a callable it must return True/False, True means eligible.
     """
 
     def __init__(
         self,
-        value: Optional[Union[str, list, tuple, range]] = None,
+        value: Optional[Union[str, list, tuple, range, Callable[..., bool]]] = None,
         msg: Optional[str] = None,
         ignore_if_missing: Optional[bool] = False,
         missing_value: Optional[str] = None,
@@ -78,12 +81,10 @@ class ScreeningEligibility:
         is_ineligible_value: Optional[str] = None,
         eligible_display_label: Optional[str] = None,
         ineligible_display_label: Optional[str] = None,
-        verbose: Optional[bool] = None,
         update_model: Optional[bool] = None,
     ) -> None:
 
         self.eligible: str = ""
-        self.verbose = verbose
         self.update_model = True if update_model is None else update_model
         self.cleaned_data = cleaned_data
         if eligible_value_default:
@@ -167,22 +168,30 @@ class ScreeningEligibility:
             if fldattr not in missing_data:
                 if fc and fc.value:
                     msg = fc.msg if fc.msg else fldattr.title().replace("_", " ")
-                    if self.verbose:
-                        msg = f"{msg}. Got {fldattr}={getattr(self, fldattr)}"
+                    is_callable = False
+                    try:
+                        value = fc.value(getattr(self, fldattr))
+                    except TypeError:
+                        value = fc.value
+                    else:
+                        is_callable = True
                     if (
-                        (type(fc.value) == str and getattr(self, fldattr) != fc.value)
+                        (type(value) == str and getattr(self, fldattr) != value)
                         or (
-                            type(fc.value) in (list, tuple)
-                            and getattr(self, fldattr) not in fc.value
+                            type(value) in (list, tuple)
+                            and getattr(self, fldattr) not in value
                         )
                         or (
-                            type(fc.value) in (range,)
-                            and not (min(fc.value) <= getattr(self, fldattr) <= max(fc.value))
+                            type(value) in (range,)
+                            and not (min(value) <= getattr(self, fldattr) <= max(value))
                         )
+                        or (is_callable and value is False)
                     ):
                         self.reasons_ineligible.update({fldattr: msg})
                         self.eligible = self.is_ineligible_value  # probably NO
         if self.is_eligible:
+            if self.is_eligible and not self.get_required_fields():
+                self.eligible = self.eligible_value_default
             self.assess_eligibility()
 
     def _set_fld_attrs_on_model(self) -> None:
@@ -227,12 +236,7 @@ class ScreeningEligibility:
                         f"Got {e}"
                     )
             else:
-                try:
-                    value = self.cleaned_data[fldattr]
-                except KeyError as e:
-                    raise ScreeningEligibilityCleanedDataKeyError(
-                        f"Attribute does not exist in cleaned_data. Got {e}"
-                    )
+                value = self.cleaned_data.get(fldattr)
             setattr(self, fldattr, value)
 
     def get_missing_data(self) -> dict:

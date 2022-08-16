@@ -1,4 +1,5 @@
 from django.db import models
+from edc_constants.constants import YES
 from edc_model.models import BaseUuidModel
 
 from edc_screening.model_mixins import EligibilityModelMixin
@@ -17,6 +18,8 @@ class SubjectScreeningWithEligibility(
 ):
 
     eligibility_cls = MyScreeningEligibility
+
+    alive = models.CharField(max_length=10, default=YES)
 
 
 class SubjectScreeningWithEligibilitySimple(

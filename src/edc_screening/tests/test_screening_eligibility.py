@@ -5,7 +5,6 @@ from ..screening_eligibility import FC
 from ..screening_eligibility import ScreeningEligibility as BaseScreeningEligibility
 from ..screening_eligibility import (
     ScreeningEligibilityAttributeError,
-    ScreeningEligibilityCleanedDataKeyError,
     ScreeningEligibilityError,
     ScreeningEligibilityInvalidCombination,
     ScreeningEligibilityModelAttributeError,
@@ -27,20 +26,18 @@ class TestScreening(TestCase):
         self.assertTrue(repr(eligibility))
         self.assertTrue(str(eligibility))
 
-    def test_without_required_fields(self):
-        required_fields = {}
+    def test_without_required_fields_or_assess_eligibility(self):
+        """Assert that the base screening class, if not modified,
+        does nothing.
+        """
 
         class ScreeningEligibility(BaseScreeningEligibility):
-            def __init__(self, **kwargs):
-                self.erik = None
-                super().__init__(**kwargs)
-
-            def get_required_fields(self):
-                return required_fields
+            pass
 
         eligibility = ScreeningEligibility()
         self.assertDictEqual(eligibility.reasons_ineligible, {})
-        self.assertTrue(eligibility.is_eligible)
+        self.assertFalse(eligibility.is_eligible)
+        self.assertEqual(eligibility.eligible, TBD)
 
     def test_required_fields_does_not_have_corresponding_class_attr(self):
         required_fields = dict(erik=FC(YES, "erik must be YES", ignore_if_missing=True))
@@ -87,24 +84,6 @@ class TestScreening(TestCase):
 
         self.assertRaises(
             ScreeningEligibilityModelAttributeError, ScreeningEligibility, model_obj=model_obj
-        )
-
-    def test_required_fields_does_not_have_corresponding_cleaned_data_key(self):
-        cleaned_data = dict(bob=NO)
-        required_fields = dict(erik=FC(YES, "erik must be YES"))
-
-        class ScreeningEligibility(BaseScreeningEligibility):
-            def __init__(self, **kwargs):
-                self.erik = None
-                super().__init__(**kwargs)
-
-            def get_required_fields(self):
-                return required_fields
-
-        self.assertRaises(
-            ScreeningEligibilityCleanedDataKeyError,
-            ScreeningEligibility,
-            cleaned_data=cleaned_data,
         )
 
     def test_with_model_obj(self):
@@ -309,6 +288,27 @@ class TestScreening(TestCase):
         cleaned_data = dict(thing_one=YES, thing_two=YES)
         eligibility = ScreeningEligibility(cleaned_data=cleaned_data)
         self.assertEqual(eligibility.formatted_reasons_ineligible(), "")
+
+    def test_fc_with_callable(self):
+        required_fields = dict(
+            age_in_years=FC(lambda x: x >= 18, "must be >=18y"),
+        )
+
+        class ScreeningEligibility(BaseScreeningEligibility):
+            def __init__(self, **kwargs):
+                self.age_in_years = None
+                super().__init__(**kwargs)
+
+            def get_required_fields(self):
+                return required_fields
+
+        cleaned_data = dict(age_in_years=17)
+        eligibility = ScreeningEligibility(cleaned_data=cleaned_data)
+        self.assertFalse(eligibility.is_eligible)
+
+        cleaned_data = dict(age_in_years=18)
+        eligibility = ScreeningEligibility(cleaned_data=cleaned_data)
+        self.assertTrue(eligibility.is_eligible)
 
     def test_eligibility_display_label(self):
 
