@@ -4,8 +4,9 @@ from django.apps import apps as django_apps
 from django.db import models
 from edc_constants.choices import YES_NO, YES_NO_NA
 from edc_reportable.site_reportables import site_reportables
+from edc_reportable.utils import get_reference_range_collection_name
 
-from edc_lab_results.calculate_missing import calculate_missing
+from ..calculate_missing import calculate_missing
 
 
 class BloodResultsFieldsModelMixin(models.Model):
@@ -61,9 +62,6 @@ class BloodResultsMethodsModelMixin(models.Model):
             report_datetime=self.subject_visit.report_datetime,
         )
 
-    def get_reference_range_collection_name(self: Any) -> str:
-        return self.requisition.panel_object.reference_range_collection_name
-
     def get_summary(self: Any) -> list:
         opts = self.get_summary_options()
         summary = []
@@ -73,7 +71,7 @@ class BloodResultsMethodsModelMixin(models.Model):
             except ValueError:
                 utest_id = field_name
             if reference_grp := site_reportables.get(
-                self.get_reference_range_collection_name()
+                get_reference_range_collection_name(self)
             ).get(utest_id):
                 if value := getattr(self, field_name):
                     units = getattr(self, f"{utest_id}_units")
