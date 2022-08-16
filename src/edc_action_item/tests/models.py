@@ -53,19 +53,6 @@ class TestModelWithAction(
     action_name = "submit-form-zero"
 
 
-# class SubjectVisit(VisitModelMixin, SiteModelMixin, BaseUuidModel):
-#
-#     appointment = models.OneToOneField(
-#         "edc_appointment.appointment", on_delete=PROTECT, related_name="D_NHJS34"
-#     )
-#
-#     report_datetime = models.DateTimeField(default=get_utcnow)
-#
-#     reason = models.CharField(max_length=25, default=SCHEDULED)
-#
-#     history = HistoricalRecords()
-
-
 class FormZero(
     NonUniqueSubjectIdentifierFieldMixin,
     ActionModelMixin,
