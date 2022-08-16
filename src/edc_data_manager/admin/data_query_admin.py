@@ -28,8 +28,8 @@ from edc_utils import formatted_datetime
 from ..admin_site import edc_data_manager_admin
 from ..auth_objects import DATA_MANAGER
 from ..constants import CLOSED_WITH_ACTION
-from ..data_manager_modeladmin_mixin import DataManagerModelAdminMixin
 from ..forms import DataQueryForm
+from ..modeladmin_mixins import DataManagerModelAdminMixin
 from ..models import DataDictionary, DataQuery
 from .actions import toggle_dm_status
 
