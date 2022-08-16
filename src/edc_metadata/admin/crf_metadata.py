@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from edc_appointment.models import Appointment
-from edc_data_manager.data_manager_modeladmin_mixin import DataManagerModelAdminMixin
+from edc_data_manager.modeladmin_mixins import DataManagerModelAdminMixin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
 from edc_metadata import KEYED, REQUIRED
