@@ -13,6 +13,7 @@ def reportable_result_model_mixin_factory(
     decimal_places: Optional[int] = None,
     max_digits: Optional[int] = None,
     validators: Optional[list] = None,
+    exclude_attrs_for_reportable: Optional[bool] = None,
 ) -> Type[models.Model]:
     """Returns an abstract model class with a single field class"""
 
@@ -29,7 +30,8 @@ def reportable_result_model_mixin_factory(
         max_digits,
         validators,
     )
-    attrs.update(get_field_attrs_for_reportable(utest_id))
+    if not exclude_attrs_for_reportable:
+        attrs.update(get_field_attrs_for_reportable(utest_id))
     for name, fld_cls in attrs.items():
         AbstractModel.add_to_class(name, fld_cls)
     return AbstractModel
