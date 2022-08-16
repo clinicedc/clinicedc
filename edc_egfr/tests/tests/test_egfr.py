@@ -1,7 +1,9 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
 from edc_constants.constants import BLACK, MALE
+from edc_lab import site_labs
 from edc_lab.models import Panel
+from edc_lab_panel.panels import rft_panel
 from edc_registration.models import RegisteredSubject
 from edc_reportable import (
     MICROMOLES_PER_LITER,
@@ -14,6 +16,7 @@ from edc_utils import get_utcnow
 
 from edc_egfr.calculators import EgfrCalculatorError
 from edc_egfr.egfr import Egfr, EgfrError
+from egfr_app.lab_profiles import lab_profile
 from egfr_app.models import (
     Appointment,
     EgfrDropNotification,
@@ -28,11 +31,15 @@ class TestEgfr(TestCase):
         RegisteredSubject.objects.create(
             subject_identifier="1234", gender=MALE, dob=get_utcnow() - relativedelta(years=30)
         )
-        site_reportables._registry = {}
 
+    @classmethod
+    def setUpTestData(cls):
+        site_reportables._registry = {}
         site_reportables.register(
             name="my_reference_list", normal_data=normal_data, grading_data=grading_data
         )
+        site_labs.initialize()
+        site_labs.register(lab_profile=lab_profile)
 
     def test_ok(self):
         egfr = Egfr(
@@ -88,6 +95,37 @@ class TestEgfr(TestCase):
             creatinine_value=10.15,
             creatinine_units=MILLIGRAMS_PER_DECILITER,
             report_datetime=get_utcnow(),
+            reference_range_collection_name="my_reference_list",
+            formula_name="ckd-epi",
+        )
+
+    def test_egfr_percent_drop_less_than_one_raises(self):
+        self.assertRaises(
+            EgfrError,
+            Egfr,
+            gender=MALE,
+            age_in_years=30,
+            ethnicity=BLACK,
+            creatinine_value=10.15,
+            creatinine_units=MILLIGRAMS_PER_DECILITER,
+            report_datetime=get_utcnow(),
+            percent_drop_threshold=0.25,
+            reference_range_collection_name="my_reference_list",
+            formula_name="ckd-epi",
+        )
+
+    def test_egfr_assay_datetime(self):
+        self.assertRaises(
+            EgfrError,
+            Egfr,
+            gender=MALE,
+            age_in_years=30,
+            ethnicity=BLACK,
+            creatinine_value=10.15,
+            creatinine_units=MILLIGRAMS_PER_DECILITER,
+            report_datetime=get_utcnow(),
+            assay_datetime=get_utcnow(),
+            percent_drop_threshold=0.25,
             reference_range_collection_name="my_reference_list",
             formula_name="ckd-epi",
         )
@@ -153,7 +191,7 @@ class TestEgfr(TestCase):
             report_datetime=appointment.appt_datetime,
         )
 
-        panel = Panel.objects.create(name="rft_panel")
+        panel = Panel.objects.get(name=rft_panel.name)
 
         requisition = SubjectRequisition.objects.create(
             subject_identifier="1234",
@@ -161,7 +199,6 @@ class TestEgfr(TestCase):
             report_datetime=appointment.appt_datetime,
             panel=panel,
         )
-
         crf = ResultCrf.objects.create(
             subject_visit=subject_visit,
             requisition=requisition,

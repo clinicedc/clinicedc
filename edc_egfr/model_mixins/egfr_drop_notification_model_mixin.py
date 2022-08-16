@@ -1,32 +1,42 @@
 from django.db import models
-from django.utils.html import format_html
-from edc_constants.constants import COMPLETE, INCOMPLETE, NEW, NOT_APPLICABLE, OPEN
+from edc_constants.constants import COMPLETE, INCOMPLETE, NEW, OPEN
 from edc_crf.crf_status_model_mixin import CrfStatusModelMixin
-from edc_lab.choices import SERUM_CREATININE_UNITS_NA
+from edc_lab.choices import SERUM_CREATININE_UNITS
+from edc_lab_panel.model_mixin_factory import reportable_result_model_mixin_factory
 from edc_model import REPORT_STATUS
+from edc_reportable.units import EGFR_UNITS, MICROMOLES_PER_LITER
+from edc_vitals.models import WeightField
 
 
-class EgfrDropNotificationModelMixin(CrfStatusModelMixin, models.Model):
-
-    creatinine_date = models.DateField(verbose_name="Creatinine result date")
-
-    creatinine_value = models.DecimalField(
-        verbose_name=format_html("Creatinine <u>level</u>"),
+class EgfrDropNotificationModelMixin(
+    CrfStatusModelMixin,
+    reportable_result_model_mixin_factory(
+        utest_id="egfr",
+        verbose_name="eGFR",
+        decimal_places=4,
+        default_units=EGFR_UNITS,
         max_digits=8,
+        units_choices=((EGFR_UNITS, EGFR_UNITS),),
+        exclude_attrs_got_reportable=True,
+    ),
+    reportable_result_model_mixin_factory(
+        utest_id="creatinine",
+        verbose_name="Serum creatinine",
         decimal_places=2,
-        null=True,
-        blank=True,
-    )
+        default_units=MICROMOLES_PER_LITER,
+        max_digits=8,
+        units_choices=((SERUM_CREATININE_UNITS, SERUM_CREATININE_UNITS),),
+        exclude_attrs_got_reportable=True,
+    ),
+    models.Model,
+):
 
-    creatinine_units = models.CharField(
-        verbose_name="Units (creatinine)",
-        max_length=15,
-        choices=SERUM_CREATININE_UNITS_NA,
-        default=NOT_APPLICABLE,
-    )
+    creatinine_date = models.DateField(verbose_name="Serum creatinine date")
+
+    weight = WeightField(null=True, blank=True)
 
     egfr_percent_change = models.DecimalField(
-        verbose_name="Change from baseline",
+        verbose_name="Percent change from baseline",
         max_digits=10,
         decimal_places=2,
         null=True,
