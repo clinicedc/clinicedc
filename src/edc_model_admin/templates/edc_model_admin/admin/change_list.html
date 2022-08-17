@@ -13,13 +13,30 @@
 
 {% block object-tools-items %}
 
-{% if show_object_tools %}
-	{{ block.super }}
-{% endif %}
+  {% if show_object_tools %}
+    {{ block.super }}
+  {% endif %}
 
 {% endblock object-tools-items %}
 
-{% block usertools %}{% endblock %}
+{% block breadcrumbs %}{% endblock %}
+
+{% block branding %}
+  {{ protocol_name}}: <a href="/">{% translate 'Home' %}</a> &rsaquo;
+    {% if site_url %}
+        <a href="{{ site_url }}">{% translate 'Administration' %}</a>
+    {% endif %}
+&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+&rsaquo; {% if has_view_permission %}<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}
+{% endblock %}
+
+{% block welcome-msg %}{% endblock %}
+
+{% block userlinks %}
+<A title="Logout" href="{% url 'admin:logout' %}">Logout</A>  | <strong>{{  user.get_username }}@{{ protocol_name}}.{{ global_site.name }}</strong>
+{% endblock %}
+
+
 
 {% block content %}
     {{ block.super }}

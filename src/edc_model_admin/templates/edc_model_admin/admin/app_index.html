@@ -1,7 +1,25 @@
 {% extends 'admin/app_index.html' %}
-{% load static %}
+{% load i18n admin_urls static admin_modify %}
+{% load edc_dashboard_extras edc_admin_modify edc_navbar_extras %}
+
 {% block extrahead %}{{ block.super }}
     <link rel="stylesheet" type="text/css" href="{% static 'edc_dashboard/css/dark_mode.css' %}">
 {% endblock %}
 
-{% block usertools %}{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+
+{% block branding %}
+  <a href="/">{% translate 'Home' %}</a> &rsaquo;
+    {% if site_url %}
+        <a href="{{ site_url }}">{% translate 'Administration' %}</a>
+    {% endif %}
+ &rsaquo; {% for app in app_list %}{{ app.name }}{% endfor %}
+{% endblock %}
+
+{% block welcome-msg %}{% endblock %}
+
+{% block userlinks %}
+<A title="Logout" href="{% url 'admin:logout' %}">Logout</A>  | <strong>{{  user.get_username }}@{{ protocol_name}}.{{ global_site.name }}</strong>
+{% endblock %}
