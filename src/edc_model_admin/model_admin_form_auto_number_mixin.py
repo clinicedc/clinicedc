@@ -2,6 +2,7 @@ import re
 from copy import copy
 
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
 
 class ModelAdminFormAutoNumberMixin:
@@ -32,7 +33,10 @@ class ModelAdminFormAutoNumberMixin:
             if not re.match(r"^\d+\.", label) and not re.match(r"\<a\ title\=\"", label):
                 fld[widget].original_label = copy(label)
                 fld[widget].label = format_html(
-                    '<a title="{}">{}</a>. {}', fld[0], str(index), label
+                    '<a title="{}">{}</a>. {}',
+                    fld[0],
+                    str(index),
+                    mark_safe(label),  # nosec B308 B703
                 )
 
         return form

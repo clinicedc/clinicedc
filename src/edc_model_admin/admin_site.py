@@ -37,6 +37,7 @@ class EdcAdminSite(DjangoAdminSite):
 
     """
 
+    index_template = "edc_model_admin/admin/index.html"
     app_index_template = "edc_model_admin/admin/app_index.html"
     login_template = f"edc_auth/bootstrap{get_bootstrap_version()}/login.html"
     logout_template = f"edc_auth/bootstrap{get_bootstrap_version()}/login.html"
@@ -52,11 +53,12 @@ class EdcAdminSite(DjangoAdminSite):
 
     def each_context(self, request):
         context = super().each_context(request)
-        context.update(global_site=get_current_site(request))
         context.update(
             site_title=self.get_edc_site_title(request),
             site_header=self.get_edc_site_header(request),
             index_title=self.index_title,
+            global_site=get_current_site(request),
+            protocol_name=Protocol().protocol_name,
         )
         return context
 
