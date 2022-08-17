@@ -1,5 +1,6 @@
 from django.contrib import admin
-from edc_model_admin import audit_fieldset_tuple
+from edc_model_admin import SimpleHistoryAdmin, audit_fieldset_tuple
+from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
 from ..admin_site import edc_action_item_admin
 from ..forms import ActionTypeForm
@@ -7,7 +8,7 @@ from ..models import ActionType
 
 
 @admin.register(ActionType, site=edc_action_item_admin)
-class ActionTypeAdmin(admin.ModelAdmin):
+class ActionTypeAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
 
     form = ActionTypeForm
 
