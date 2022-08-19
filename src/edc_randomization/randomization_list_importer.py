@@ -58,7 +58,7 @@ class RandomizationListImporter:
         ...
     """
 
-    default_csv_fieldnames = ["sid", "assignment", "site_name"]
+    required_csv_fieldnames = ["sid", "assignment", "site_name"]
     verifier_cls = RandomizationListVerifier
 
     def __init__(
@@ -89,7 +89,7 @@ class RandomizationListImporter:
         self.randomizer_name = randomizer_name
         self.assignment_map = assignment_map
         self.randomizationlist_path = randomizationlist_path
-        self.default_csv_fieldnames.extend(extra_csv_fieldnames or [])
+        self.required_csv_fieldnames.extend(extra_csv_fieldnames or [])
 
         if self.dryrun:
             sys.stdout.write(
@@ -174,7 +174,7 @@ class RandomizationListImporter:
             reader = csv.DictReader(csvfile)
             for index, row in enumerate(reader):
                 if index == 0:
-                    for fieldname in self.default_csv_fieldnames:
+                    for fieldname in self.required_csv_fieldnames:
                         if fieldname not in row:
                             raise RandomizationListImportError(
                                 "Invalid header. Missing column " f"`{fieldname}`. Got {row}"
@@ -266,7 +266,7 @@ class RandomizationListImporter:
             randomizationlist_path=self.randomizationlist_path,
             randomizer_model_cls=self.randomizer_model_cls,
             randomizer_name=self.randomizer_name,
-            extra_csv_fieldnames=self.extra_csv_fieldnames,
+            required_csv_fieldnames=self.required_csv_fieldnames,
             **kwargs,
         )
         return verifier.messages

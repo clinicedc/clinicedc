@@ -24,8 +24,6 @@ class RandomizationListVerifier:
 
     """Verifies the Randomization List against the CSV file."""
 
-    default_csv_fieldnames: List[str] = ["sid", "assignment", "site_name"]
-
     def __init__(
         self,
         randomizer_name=None,
@@ -34,7 +32,7 @@ class RandomizationListVerifier:
         assignment_map=None,
         fieldnames=None,
         sid_count_for_tests=None,
-        extra_csv_fieldnames: Optional[List[str]] = None,
+        required_csv_fieldnames: Optional[List[str]] = None,
         **kwargs,
     ):
         self.count: int = 0
@@ -44,12 +42,12 @@ class RandomizationListVerifier:
         self.randomizationlist_path: str = randomizationlist_path
         self.assignment_map: dict = assignment_map
         self.sid_count_for_tests: Optional[int] = sid_count_for_tests
-        self.default_csv_fieldnames.extend(extra_csv_fieldnames or [])
+        self.required_csv_fieldnames = required_csv_fieldnames
 
         randomizer_cls = site_randomizers.get(randomizer_name)
         if not randomizer_cls:
             raise RandomizationListError(f"Randomizer not registered. Got `{randomizer_name}`")
-        self.fieldnames = fieldnames or self.default_csv_fieldnames
+        self.fieldnames = fieldnames or self.required_csv_fieldnames
         try:
             self.count = self.randomizer_model_cls.objects.all().count()
         except (ProgrammingError, OperationalError) as e:
