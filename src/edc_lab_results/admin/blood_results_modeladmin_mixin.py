@@ -1,9 +1,9 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
-from edc_action_item import action_fields
+from edc_action_item import ActionItemModelAdminMixin
 
 
-class BloodResultsModelAdminMixin(ModelAdmin):
+class BloodResultsModelAdminMixin(ActionItemModelAdminMixin, ModelAdmin):
 
     form = None
 
@@ -16,19 +16,35 @@ class BloodResultsModelAdminMixin(ModelAdmin):
         "results_reportable": admin.VERTICAL,
     }
 
-    list_display = ("missing_count", "missing", "abnormal", "reportable", "action_identifier")
-
-    search_fields = (
-        "action_identifier",
-        "subject_visit__subject_identifier",
-        "tracking_identifier",
-    )
-
     # TODO: add filter to see below grade 3,4
     def get_list_filter(self, request) -> tuple:
-        list_filter = super().get_list_filter(request)
-        list_filter = ("missing_count", "results_abnormal", "results_reportable") + list_filter
-        return list_filter
+        fields = super().get_list_filter(request)
+        custom_fields = ("missing_count", "results_abnormal", "results_reportable")
+        return tuple(f for f in custom_fields if f not in fields) + fields
+
+    def get_list_display(self, request):
+        fields = super().get_list_display(request)
+        fields = list(fields)
+        custom_fields = [
+            "missing_count",
+            "missing",
+            "abnormal",
+            "reportable",
+            "action_identifier",
+        ]
+        fields[4:1] = custom_fields
+        return fields
+
+    def get_readonly_fields(self, request, obj=None) -> tuple:
+        fields = super().get_readonly_fields(request, obj=obj)
+        custom_fields = ("summary",)
+        return tuple(set(fields + custom_fields))
+
+    def get_search_fields(self, request):
+        fields = super().get_search_fields(request)
+        fields = list(fields)
+        fields.insert(0, "subject_visit__subject_identifier")
+        return tuple(set(fields))
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "appointment" and request.GET.get("appointment"):
@@ -36,9 +52,3 @@ class BloodResultsModelAdminMixin(ModelAdmin):
                 pk=request.GET.get("appointment", 0)
             )
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
-    def get_readonly_fields(self, request, obj=None) -> tuple:
-        readonly_fields = super().get_readonly_fields(request, obj=obj)  # type: ignore
-        readonly_fields += ("summary",) + action_fields
-        readonly_fields = set(list(readonly_fields))
-        return tuple(readonly_fields)
