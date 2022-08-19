@@ -91,11 +91,11 @@ class ModelToDataframe:
                 self.merge_dataframe_with_pivoted_m2ms()
                 self._dataframe.rename(columns=self.columns, inplace=True)
                 self._dataframe.fillna(value=np.nan, inplace=True)
-                for column in list(
-                    self._dataframe.select_dtypes(include=["datetime64[ns, UTC]"]).columns
-                ):
-                    # TODO: causes deprecation warning
-                    self._dataframe[column] = self._dataframe[column].astype("datetime64[ns]")
+                # TODO: causes deprecation warning (commented out)
+                # for column in list(
+                #     self._dataframe.select_dtypes(include=["datetime64[ns, UTC]"]).columns
+                # ):
+                #     self._dataframe[column] = self._dataframe[column].astype()
                 for column in list(self._dataframe.select_dtypes(include=["O"]).columns):
                     self._dataframe[column] = self._dataframe[column].astype(str)
                 if self.drop_sys_columns:
