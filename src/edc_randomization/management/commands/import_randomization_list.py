@@ -1,12 +1,11 @@
 from django.core.management.base import BaseCommand, CommandError
 
-from edc_randomization.site_randomizers import site_randomizers
-
-from ...randomization_list_importer import (
+from edc_randomization.randomization_list_importer import (
     RandomizationListAlreadyImported,
     RandomizationListImporter,
     RandomizationListImportError,
 )
+from edc_randomization.site_randomizers import site_randomizers
 
 
 class Command(BaseCommand):

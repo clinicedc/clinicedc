@@ -7,7 +7,7 @@ from django.conf import settings
 from django.core.checks.registry import register
 
 from .site_randomizers import site_randomizers
-from .system_checks import randomization_list_check
+from .system_checks import randomizationlist_check
 
 
 class AppConfig(DjangoAppConfig):
@@ -19,7 +19,7 @@ class AppConfig(DjangoAppConfig):
     def ready(self):
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
         site_randomizers.autodiscover()
-        register(randomization_list_check, deploy=True)
+        register(randomizationlist_check, deploy=True)
         sys.stdout.write(f" Done loading {self.verbose_name} ...\n")
 
     @property

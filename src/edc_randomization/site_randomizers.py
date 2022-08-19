@@ -63,7 +63,6 @@ class SiteRandomizers:
 
         Default: `edc_randomization.randomizationlist`.
         """
-        model = model or "edc_randomization.randomizationlist"
         for randomizer_cls in self._registry.values():
             if randomizer_cls.model == model:
                 return randomizer_cls
@@ -91,7 +90,7 @@ class SiteRandomizers:
             site=site,
             user=user,
             **kwargs,
-        )
+        ).randomize()
 
     def autodiscover(self, module_name=None, apps=None, verbose=None):
         """Autodiscovers classes in the randomizers.py file of
