@@ -22,7 +22,7 @@
 {% block breadcrumbs %}{% endblock %}
 
 {% block branding %}
-  {{ protocol_name}}: <a href="/">{% translate 'Home' %}</a> &rsaquo;
+  <a href="/">{% translate 'Home' %}</a> &rsaquo;
     {% if site_url %}
         <a href="{{ site_url }}">{% translate 'Administration' %}</a>
     {% endif %}
@@ -33,7 +33,7 @@
 {% block welcome-msg %}{% endblock %}
 
 {% block userlinks %}
-<A title="Logout" href="{% url 'admin:logout' %}">Logout</A>  | <strong>{{  user.get_username }}@{{ protocol_name}}.{{ global_site.name }}</strong>
+<A title="Logout" href="{% url 'admin:logout' %}">Logout</A>  | <strong>{{  user.get_username }}@{{ global_site.name }}.{{ protocol_name}}</strong>
 {% endblock %}
 
 
