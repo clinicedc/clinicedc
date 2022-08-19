@@ -91,7 +91,7 @@ class SiteRandomizers:
             site=site,
             user=user,
             **kwargs,
-        )
+        ).randomize()
 
     def autodiscover(self, module_name=None, apps=None, verbose=None):
         """Autodiscovers classes in the randomizers.py file of

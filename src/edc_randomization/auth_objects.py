@@ -57,9 +57,8 @@ def update_rando_group_permissions(auth_updater):
 
 def make_randomizationlist_view_only(auth_updater):
     for randomizer_cls in site_randomizers._registry.values():
-        app_label, model = randomizer_cls.model_cls(
-            apps=auth_updater.apps
-        )._meta.label_lower.split(".")
+        randomizer_cls.apps = auth_updater.apps
+        app_label, model = randomizer_cls.model_cls()._meta.label_lower.split(".")
         permissions = auth_updater.group_updater.permission_model_cls.objects.filter(
             content_type__app_label=app_label, content_type__model=model
         ).exclude(codename=f"view_{model}")

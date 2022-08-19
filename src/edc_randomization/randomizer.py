@@ -1,19 +1,24 @@
 import os
+from datetime import datetime
+from typing import Any, Dict, List, Tuple
 
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from edc_registration.utils import get_registered_subject_model_cls
 
-from .constants import DEFAULT_ASSIGNMENT_MAP, RANDOMIZED
+from .constants import (
+    DEFAULT_ASSIGNMENT_DESCRIPTION_MAP,
+    DEFAULT_ASSIGNMENT_MAP,
+    RANDOMIZED,
+)
 from .randomization_list_importer import (
     RandomizationListAlreadyImported,
     RandomizationListImporter,
 )
-from .randomization_list_verifier import RandomizationListVerifier
 
 
-class RandomizationError(Exception):
+class InvalidAssignmentDescriptionMap(Exception):
     pass
 
 
@@ -25,19 +30,15 @@ class RandomizationListNotLoaded(Exception):
     pass
 
 
+class RandomizationError(Exception):
+    pass
+
+
 class AlreadyRandomized(ValidationError):
     pass
 
 
 class AllocationError(Exception):
-    pass
-
-
-class InvalidAllocation(Exception):
-    pass
-
-
-class InvalidAssignment(Exception):
     pass
 
 
@@ -49,22 +50,60 @@ class Randomizer:
     This is the default randomizer class and is registered with
     `site_randomizer` by default. To prevent registration set
     settings.EDC_RANDOMIZATION_REGISTER_DEFAULT_RANDOMIZER=False.
+
+    assignment_map: {<assignment:str)>: <allocation:int>, ...}
+    assignment_description_map: {<assignment:str)>: <description:str>, ...}
+
+
+    Usage:
+        Randomizer(
+            subject_identifier=subject_identifier,
+            report_datetime=report_datetime,
+            site=site,
+            user=user,
+            **kwargs,
+        ).randomize()
+
+    Its better to access this class via the site_randomizer through a signal
+    on something like the subject_consent:
+
+        site_randomizers.randomize(
+            "default",
+            subject_identifier=instance.subject_identifier,
+            report_datetime=instance.consent_datetime,
+            site=instance.site,
+            user=instance.user_created,
+            gender=instance.gender,
+        )
+
+
     """
 
-    name = "default"
-    model = "edc_randomization.randomizationlist"
-    assignment_map = getattr(
+    name: str = "default"
+    model: str = "edc_randomization.randomizationlist"
+    assignment_map: Dict[str, int] = getattr(
         settings, "EDC_RANDOMIZATION_ASSIGNMENT_MAP", DEFAULT_ASSIGNMENT_MAP
     )
-    filename = "randomization_list.csv"
-    randomization_list_path = getattr(
+    assignment_description_map: Dict[str, str] = getattr(
+        settings,
+        "EDC_RANDOMIZATION_ASSIGNMENT_DESCRIPTION_MAP",
+        DEFAULT_ASSIGNMENT_DESCRIPTION_MAP,
+    )
+    filename: str = "randomization_list.csv"
+    randomizationlist_folder: str = getattr(
         settings, "EDC_RANDOMIZATION_LIST_PATH", os.path.join(settings.BASE_DIR, ".etc")
     )
-    is_blinded_trial = True
-    importer_cls = RandomizationListImporter
+    is_blinded_trial: bool = True
+    importer_cls: Any = RandomizationListImporter
+    apps = None  # if not using django_apps
 
     def __init__(
-        self, subject_identifier=None, report_datetime=None, site=None, user=None, **kwargs
+        self,
+        subject_identifier: str = None,
+        report_datetime: datetime = None,
+        site: Any = None,
+        user: str = None,
+        **kwargs,
     ):
         self._model_obj = None
         self._registered_subject = None
@@ -72,26 +111,23 @@ class Randomizer:
         self.allocated_datetime = report_datetime
         self.site = site
         self.user = user
-        if not os.path.exists(self.get_randomization_list_fullpath()):
-            raise RandomizationListFileNotFound(
-                "Randomization list file not found. "
-                f"Got {self.get_randomization_list_fullpath()}. See {self}."
-            )
-        self.check_loaded()
-        # force query, will raise if already randomized
-        self.get_registered_subject()
-        # will raise if already randomized
-        self.randomize()
+        self.validate_assignment_description_map()
+        self.import_list(overwrite=False)
 
     def __repr__(self):
-        return (
-            f"{self.__class__.__name__}({self.name},{self.get_randomization_list_fullpath()})"
-        )
+        return f"{self.__class__.__name__}({self.name},{self.randomizationlist_folder})"
 
     def __str__(self):
-        return f"<{self.name} for file {self.get_randomization_list_fullpath()}>"
+        return f"<{self.name} for file {self.randomizationlist_folder}>"
 
     def randomize(self):
+        """Randomize a subject.
+
+        Will raise RandomizationError if general problems;
+        Will raise AlreadyRandomized if already randomized.
+        """
+        self.raise_if_already_randomized()
+
         required_instance_attrs = dict(
             subject_identifier=self.subject_identifier,
             allocated_datetime=self.allocated_datetime,
@@ -116,7 +152,7 @@ class Randomizer:
             allocated=True,
             allocated_datetime=self.allocated_datetime,
         )
-        self.registered_subject.sid = self.model_obj.sid
+        self.registered_subject.sid = self.sid
         self.registered_subject.randomization_datetime = self.model_obj.allocated_datetime
         self.registered_subject.registration_status = RANDOMIZED
         self.registered_subject.randomization_list_model = self.model_obj._meta.label_lower
@@ -133,54 +169,23 @@ class Randomizer:
         """
         return {}
 
-    @classmethod
-    def model_cls(cls, apps=None):
-        return (apps or django_apps).get_model(cls.model)
-
-    @classmethod
-    def get_randomization_list_fullpath(cls):
-        return os.path.expanduser(os.path.join(cls.randomization_list_path, cls.filename))
-
-    @classmethod
-    def get_assignment(cls, row):
-        """Returns assignment (text) after checking validity."""
-        assignment = row["assignment"]
-        if assignment not in cls.assignment_map:
-            raise InvalidAssignment(
-                f"Invalid assignment. Expected one of {list(cls.assignment_map.keys())}. "
-                f"Got `{assignment}`. "
-                f"See randomizer `{cls.name}` {repr(cls)}. "
-            )
-        return assignment
-
-    @classmethod
-    def get_allocation(cls, row):
-        """Returns an integer allocation for the given
-        assignment or raises.
-        """
-        assignment = cls.get_assignment(row)
-        return cls.assignment_map.get(assignment)
-
     @property
     def sid(self):
         """Returns the SID."""
+        if self.model_obj.sid is None:
+            raise RandomizationError(f"SID cannot be None. See {self.model_obj}.")
         return self.model_obj.sid
 
+    @property
+    def extra_model_obj_options(self):
+        """Returns a dict of extra key/value pair for filtering the
+        "rando" model.
+        """
+        return {}
+
     @classmethod
-    def check_loaded(cls):
-        try:
-            cls.import_list(overwrite=False)
-        except RandomizationListAlreadyImported:
-            pass
-        # except RandomizationListImportError as e:
-        #     sys.stdout.write(f"RandomizationListImportError. {e}\n")
-        if cls.model_cls().objects.all().count() == 0:
-            raise RandomizationListNotLoaded(
-                "Randomization list has not been loaded. "
-                "You may need to run the management command or check "
-                "the path or format of the `randomization list` file. "
-                f"See {repr(cls)}."
-            )
+    def model_cls(cls):
+        return (cls.apps or django_apps).get_model(cls.model)
 
     @property
     def model_obj(self):
@@ -213,15 +218,22 @@ class Randomizer:
                 )
         return self._model_obj
 
-    @property
-    def extra_model_obj_options(self):
-        """Returns a dict of extra key/value pair for filtering the
-        "rando" model.
-        """
-        return {}
-
-    def get_registered_subject(self):
+    def raise_if_already_randomized(self) -> Any:
+        """Forces a query, will raise if already randomized."""
         return self.registered_subject
+
+    def validate_assignment_description_map(self) -> None:
+        """Raises an exception if the assignment description map
+        has extra or missing keys.
+
+        Compares with the assignment map.
+        """
+        list(self.assignment_map.keys()).sort()
+        if list(self.assignment_map.keys()) != list(self.assignment_description_map.keys()):
+            raise InvalidAssignmentDescriptionMap(
+                f"Invalid assignment description. See randomizer {self.name}. "
+                f"Got {self.assignment_description_map}."
+            )
 
     @property
     def registered_subject(self):
@@ -250,21 +262,45 @@ class Randomizer:
         return self._registered_subject
 
     @classmethod
-    def get_extra_list_display(cls):
+    def get_extra_list_display(cls) -> Tuple[Tuple[int, str, ...], ...]:
         """Returns a list of tuples of (pos, field name) for ModelAdmin."""
-        return []
+        return ()
 
     @classmethod
-    def get_extra_list_filter(cls):
+    def get_extra_list_filter(cls) -> Tuple[Tuple[int, str, ...], ...]:
         """Returns a list of tuples of (pos, field name) for ModelAdmin."""
         return cls.get_extra_list_display()
 
     @classmethod
-    def verify_list(cls):
-        randomization_list_verifier = RandomizationListVerifier(randomizer_name=cls.name)
-        return randomization_list_verifier.messages
+    def randomizationlist_path(cls) -> str:
+        return os.path.expanduser(os.path.join(cls.randomizationlist_folder, cls.filename))
 
     @classmethod
-    def import_list(cls, **kwargs):
-        importer = cls.importer_cls(randomizer_cls=cls, **kwargs)
-        importer.import_list()
+    def import_list(cls, **kwargs) -> Tuple[int, str]:
+        result = (0, "")
+        if not os.path.exists(cls.randomizationlist_path()):
+            raise RandomizationListFileNotFound(
+                "Randomization list file not found. "
+                f"Got `{cls.randomizationlist_path()}`. See Randomizer {cls.name}."
+            )
+        try:
+            result = cls.importer_cls(
+                assignment_map=cls.assignment_map,
+                randomizationlist_path=cls.randomizationlist_path(),
+                randomizer_model_cls=cls.model_cls(),
+                randomizer_name=cls.name,
+                **kwargs,
+            ).import_list()
+        except RandomizationListAlreadyImported:
+            pass
+        return result
+
+    @classmethod
+    def verify_list(cls, **kwargs) -> List[str]:
+        return cls.importer_cls.verifier_cls(
+            assignment_map=cls.assignment_map,
+            randomizationlist_path=cls.randomizationlist_path(),
+            randomizer_model_cls=cls.model_cls(),
+            randomizer_name=cls.name,
+            **kwargs,
+        ).messages

@@ -1,11 +1,15 @@
 import csv
+import os
 import sys
 from pprint import pprint
+from typing import Dict, List, Optional, Tuple
 from uuid import uuid4
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
 from tqdm import tqdm
+
+from edc_randomization.randomization_list_verifier import RandomizationListVerifier
 
 style = color_style()
 
@@ -18,11 +22,15 @@ class RandomizationListAlreadyImported(Exception):
     pass
 
 
+class InvalidAssignment(Exception):
+    pass
+
+
 class RandomizationListImporter:
     """Imports upon instantiation a formatted randomization CSV file
     into model RandomizationList.
 
-    default CSV file is the projects randomization_list.csv
+    default CSV file is the project's randomization_list.csv
 
     name: name of randomizer, e.g. "default"
 
@@ -51,10 +59,14 @@ class RandomizationListImporter:
     """
 
     default_fieldnames = ["sid", "assignment", "site_name"]
+    verifier_cls = RandomizationListVerifier
 
     def __init__(
         self,
-        randomizer_cls=None,
+        randomizer_model_cls=None,
+        randomizer_name: str = None,
+        randomizationlist_path: str = None,
+        assignment_map: Dict[str, int] = None,
         verbose: bool = None,
         overwrite: bool = None,
         add: bool = None,
@@ -63,8 +75,8 @@ class RandomizationListImporter:
         revision: str = None,
         sid_count_for_tests: int = None,
     ):
+        self.verify_messages: Optional[str] = None
         self.sid_count = 0
-        self.randomizer_cls = randomizer_cls
         self.add = add
         self.overwrite = overwrite
         self.verbose = True if verbose is None else verbose
@@ -72,6 +84,10 @@ class RandomizationListImporter:
         self.revision = revision
         self.user = username
         self.sid_count_for_tests = sid_count_for_tests
+        self.randomizer_model_cls = randomizer_model_cls
+        self.randomizer_name = randomizer_name
+        self.assignment_map = assignment_map
+        self.randomizationlist_path = randomizationlist_path
 
         if self.dryrun:
             sys.stdout.write(
@@ -83,47 +99,76 @@ class RandomizationListImporter:
                 'method "add_or_update_django_sites".'
             )
         if self.verbose and add:
-            count = self.randomizer_cls.model_cls().objects.all().count()
+            count = self.randomizer_model_cls.objects.all().count()
             sys.stdout.write(
-                style.SUCCESS(f"(*) Randolist model has {count} SIDs (count before import).\n")
+                style.SUCCESS(
+                    f"\n(*) Randolist model has {count} SIDs (count before import).\n"
+                )
             )
 
-    def import_list(self):
+    def import_list(self) -> Tuple[int, str]:
+        """Imports CSV and verifies."""
+        self._raise_on_empty_file()
         self._raise_on_invalid_header()
         self._raise_on_already_imported()
         self._raise_on_duplicates()
-        self._import_to_model()
-        self._summarize_results()
-        sys.stdout.write(
-            style.SUCCESS(
-                f"(*) Loaded randomizer {self.randomizer_cls}.\n"
-                f"    -  Name: {self.randomizer_cls.name}\n"
-                f"    -  Assignments: {self.randomizer_cls.assignment_map}\n"
-                f"    -  Blinded trial:  {self.randomizer_cls.is_blinded_trial}\n"
-                f"    -  CSV file:  {self.randomizer_cls.filename}\n"
-                f"    -  Model: {self.randomizer_cls.model}\n"
-                f"    -  Path: {self.randomizer_cls.randomization_list_path}\n"
+        if self.verbose:
+            sys.stdout.write(
+                style.SUCCESS(
+                    "\nImport CSV data\n"
+                    "  Randomizer:\n"
+                    f"    -  Name: {self.randomizer_name}\n"
+                    f"    -  Assignments: {self.assignment_map}\n"
+                    f"    -  Model: {self.randomizer_model_cls._meta.label_lower}\n"
+                    f"    -  Path: {self.randomizationlist_path}\n"
+                )
             )
-        )
-        return self.randomizer_cls.get_randomization_list_fullpath()
+        rec_count = self._import_csv_to_model()
+        self.verify_messages = self._verify_data()
+        self._summarize_results()
+        if self.verbose:
+            sys.stdout.write(
+                style.SUCCESS("\nDone.------------------------------------------------\n")
+            )
+        return rec_count, self.randomizationlist_path
 
     def _summarize_results(self):
         if self.verbose:
-            count = self.randomizer_cls.model_cls().objects.all().count()
-            path = self.randomizer_cls.get_randomization_list_fullpath()
-            sys.stdout.write(
-                style.SUCCESS(
-                    f"(*) Imported {count} SIDs for randomizer "
-                    f"`{self.randomizer_cls.name}` into model "
-                    f"`{self.randomizer_cls.model_cls()._meta.label_lower}` \n"
-                    f"    from {path} (count after import).\n"
-                )
+            count = self.randomizer_model_cls.objects.all().count()
+            path = self.randomizationlist_path
+            msg = (
+                f"\n    - Imported {count} SIDs for randomizer "
+                f"`{self.randomizer_name}` into model "
+                f"`{self.randomizer_model_cls._meta.label_lower}` \n"
+                f"      from {path}.\n"
             )
-        if not self.randomizer_cls.get_randomization_list_fullpath():
-            raise RandomizationListImportError("No randomization list to imported!")
+            sys.stdout.write(style.SUCCESS(msg))
+            if self.verify_messages:
+                sys.stdout.write(style.ERROR("\n    ! Verification failed. "))
+            else:
+                sys.stdout.write(style.SUCCESS("    - Verified OK. \n"))
+
+    def _raise_on_empty_file(self):
+        if int(os.path.getsize(self.randomizationlist_path)) < 1:
+            raise RandomizationListImportError(
+                f"File is empty. See {self.randomizer_name}. "
+                f"Got {self.randomizationlist_path} (1)."
+            )
+        else:
+            index = 0
+            with open(self.randomizationlist_path, "r") as csvfile:
+                reader = csv.DictReader(csvfile)
+                for index, row in enumerate(reader):
+                    if index == 0:
+                        continue
+            if index == 0:
+                raise RandomizationListImportError(
+                    f"File is empty. See {self.randomizer_name}. "
+                    f"Got {self.randomizationlist_path} (2)."
+                )
 
     def _raise_on_invalid_header(self):
-        with open(self.randomizer_cls.get_randomization_list_fullpath(), "r") as csvfile:
+        with open(self.randomizationlist_path, "r") as csvfile:
             reader = csv.DictReader(csvfile)
             for index, row in enumerate(reader):
                 if index == 0:
@@ -138,7 +183,7 @@ class RandomizationListImporter:
                         print(" -->  First row:")
                         print(f" -->  {list(row_as_dict.keys())}")
                         print(f" -->  {list(row_as_dict.values())}")
-                        obj = self.randomizer_cls.model_cls()(**self.get_import_options(row))
+                        obj = self.randomizer_model_cls(**self.get_import_options(row))
                         pprint(obj.__dict__)
                 else:
                     break
@@ -146,25 +191,27 @@ class RandomizationListImporter:
     def _raise_on_already_imported(self):
         if not self.dryrun:
             if self.overwrite:
-                self.randomizer_cls.model_cls().objects.all().delete()
-            if self.randomizer_cls.model_cls().objects.all().count() > 0 and not self.add:
+                self.randomizer_model_cls.objects.all().delete()
+            if self.randomizer_model_cls.objects.all().count() > 0 and not self.add:
                 raise RandomizationListAlreadyImported(
-                    f"Not importing CSV. "
-                    f"{self.randomizer_cls.model_cls()._meta.label_lower} model is not empty!"
+                    "Not importing CSV. "
+                    f"{self.randomizer_model_cls._meta.label_lower} "
+                    "model is not empty!"
                 )
 
     def _raise_on_duplicates(self):
-        with open(self.randomizer_cls.get_randomization_list_fullpath(), "r") as csvfile:
+        with open(self.randomizationlist_path, "r") as csvfile:
             reader = csv.DictReader(csvfile)
             sids = [row["sid"] for row in reader]
         if len(sids) != len(list(set(sids))):
             raise RandomizationListImportError("Invalid file. Detected duplicate SIDs")
         self.sid_count = len(sids)
 
-    def _import_to_model(self):
+    def _import_csv_to_model(self) -> int:
         """Imports a CSV to populate the "rando" model"""
         objs = []
-        with open(self.randomizer_cls.get_randomization_list_fullpath(), "r") as csvfile:
+        rec_count = 0
+        with open(self.randomizationlist_path, "r") as csvfile:
             reader = csv.DictReader(csvfile)
             if self.sid_count_for_tests:
                 sys.stdout.write(
@@ -174,9 +221,11 @@ class RandomizationListImporter:
                 )
             sid_count = self.sid_count_for_tests or self.sid_count
             for row in tqdm(reader, total=sid_count):
+                if len(objs) > sid_count:
+                    break
                 row = {k: v.strip() for k, v in row.items()}
                 try:
-                    self.randomizer_cls.model_cls().objects.get(sid=row["sid"])
+                    self.randomizer_model_cls.objects.get(sid=row["sid"])
                 except ObjectDoesNotExist:
                     opts = self.get_import_options(row)
                     opts.update(self.get_extra_import_options(row))
@@ -184,51 +233,63 @@ class RandomizationListImporter:
                         opts.update(user_created=self.user)
                     if self.revision:
                         opts.update(revision=self.revision)
-                    obj = self.randomizer_cls.model_cls()(**opts)
+                    obj = self.randomizer_model_cls(**opts)
                     objs.append(obj)
-                if len(objs) == sid_count:
-                    break
             if not self.dryrun:
-                sys.stdout.write(
-                    style.SUCCESS(
-                        f"\n    -  bulk creating {self.sid_count_for_tests or self.sid_count} "
-                        "model instances ...\r"
-                    )
-                )
-                self.randomizer_cls.model_cls().objects.bulk_create(objs)
-                sys.stdout.write(
-                    style.SUCCESS(
-                        f"    -  bulk creating {self.sid_count_for_tests or self.sid_count} "
-                        "model instances ... done\n"
-                    )
-                )
-                rec_count = self.randomizer_cls.model_cls().objects.all().count()
+                self.randomizer_model_cls.objects.bulk_create(objs)
+                rec_count = self.randomizer_model_cls.objects.all().count()
                 if not sid_count == rec_count:
                     raise RandomizationListImportError(
                         "Incorrect record count on import. "
                         f"Expected {sid_count}. Got {rec_count}."
                     )
-                sys.stdout.write(
-                    style.SUCCESS(
-                        "    Important: You may wish to run the randomization list "
-                        "verifier before going LIVE on production systems."
-                    )
-                )
-
             else:
                 sys.stdout.write(
                     style.MIGRATE_HEADING(
                         "\n ->> this is a dry run. No changes were saved. **\n"
                     )
                 )
+        return rec_count
+
+    def _verify_data(self, **kwargs) -> List[str]:
+        verifier = self.verifier_cls(
+            assignment_map=self.assignment_map,
+            randomizationlist_path=self.randomizationlist_path,
+            randomizer_model_cls=self.randomizer_model_cls,
+            randomizer_name=self.randomizer_name,
+            **kwargs,
+        )
+        return verifier.messages
+
+    def get_assignment(self, row: dict, assignment_map: Dict[str, int]) -> str:
+        """Returns assignment (text) after checking validity."""
+        return self.valid_assignment_or_raise(row["assignment"], assignment_map)
+
+    def get_allocation(self, row: dict, assignment_map: Dict[str, int]) -> int:
+        """Returns an integer allocation for the given
+        assignment or raises.
+        """
+        assignment = self.get_assignment(row, assignment_map)
+        return assignment_map.get(assignment)
+
+    def valid_assignment_or_raise(
+        self, assignment: str, assignment_map: Dict[str, int]
+    ) -> str:
+        if assignment not in assignment_map:
+            raise InvalidAssignment(
+                f"Invalid assignment. Expected one of {list(assignment_map.keys())}. "
+                f"Got `{assignment}`. "
+                f"See randomizer `{self.randomizer_name}` {repr(self)}. "
+            )
+        return assignment
 
     def get_import_options(self, row):
         return dict(
             id=uuid4(),
             sid=row["sid"],
-            assignment=self.randomizer_cls.get_assignment(row),
-            allocation=str(self.randomizer_cls.get_allocation(row)),
-            randomizer_name=self.randomizer_cls.name,
+            assignment=self.get_assignment(row, self.assignment_map),
+            allocation=str(self.get_allocation(row, self.assignment_map)),
+            randomizer_name=self.randomizer_name,
             site_name=self.validate_site_name(row),
             **self.get_extra_import_options(row),
         )
@@ -237,7 +298,7 @@ class RandomizationListImporter:
         return {}
 
     @staticmethod
-    def get_site_names():
+    def get_site_names() -> Dict[str, str]:
         """A dict of site names for the target randomizer.
 
         Default: All sites"""
@@ -251,7 +312,7 @@ class RandomizationListImporter:
             )
         return sites
 
-    def validate_site_name(self, row):
+    def validate_site_name(self, row) -> str:
         """Returns the site name or raises"""
         try:
             site_name = self.get_site_names()[row["site_name"]]
