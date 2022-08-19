@@ -32,6 +32,7 @@ from edc_randomization.utils import (
     get_assignment_for_subject,
 )
 
+from ...decorators import RegisterRandomizerError, register
 from ..make_test_list import make_test_list
 from ..models import SubjectConsent
 from ..randomizers import MyRandomizer, tmpdir
@@ -648,3 +649,23 @@ class TestRandomizer(TestCaseMixin, TestCase):
                 if "str" in line:
                     break
         self.assertEqual(n, 51)
+
+    def test_decorator(self):
+        @register()
+        class MeRandomizer(Randomizer):
+            name = "me"
+
+        self.assertEqual(site_randomizers.get("me"), MeRandomizer)
+
+        try:
+
+            @register()
+            class NotARandomizer:
+                name = "not_me"
+
+        except RegisterRandomizerError:
+            pass
+        else:
+            self.fail("RegisterRandomizerError not raised")
+
+        self.assertRaises(NotRegistered, site_randomizers.get, "not_me")

@@ -93,6 +93,7 @@ class Randomizer:
     randomizationlist_folder: str = getattr(
         settings, "EDC_RANDOMIZATION_LIST_PATH", os.path.join(settings.BASE_DIR, ".etc")
     )
+    extra_csv_fieldnames = ["gender"]
     is_blinded_trial: bool = True
     importer_cls: Any = RandomizationListImporter
     apps = None  # if not using django_apps
@@ -290,6 +291,7 @@ class Randomizer:
                 randomizationlist_path=cls.randomizationlist_path(),
                 randomizer_model_cls=cls.model_cls(),
                 randomizer_name=cls.name,
+                extra_csv_fieldnames=cls.extra_csv_fieldnames,
                 **kwargs,
             ).import_list(**kwargs)
         except RandomizationListAlreadyImported:
