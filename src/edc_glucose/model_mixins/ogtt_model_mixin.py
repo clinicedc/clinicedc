@@ -15,7 +15,7 @@ def ogtt_model_mixin_factory(utest_id: str, **kwargs):
 
     opts = {
         f"{utest_id}_base_datetime": models.DateTimeField(
-            verbose_name=format_html("<u>Time</u> oral glucose solution was given"),
+            verbose_name="Date/time oral glucose solution given",
             validators=[datetime_not_future],
             null=True,
             blank=True,
@@ -23,7 +23,7 @@ def ogtt_model_mixin_factory(utest_id: str, **kwargs):
         ),
         f"{utest_id}_value": models.DecimalField(
             verbose_name=format_html(
-                "Blood glucose <u>level</u> 2-hours after oral glucose solution given"
+                "Blood glucose measure 2hrs <u>after</u> oral glucose solution given"
             ),
             max_digits=8,
             decimal_places=2,
@@ -45,8 +45,8 @@ def ogtt_model_mixin_factory(utest_id: str, **kwargs):
         ),
         f"{utest_id}_datetime": models.DateTimeField(
             verbose_name=format_html(
-                "<u>Time</u> blood glucose measured 2-hours "
-                "after oral glucose solution given"
+                "Date/time blood glucose measured 2hrs <u>after</u> "
+                "oral glucose solution given"
             ),
             validators=[datetime_not_future],
             blank=True,

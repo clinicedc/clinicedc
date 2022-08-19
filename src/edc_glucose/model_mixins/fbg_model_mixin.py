@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils.html import format_html
 from edc_constants.constants import NOT_APPLICABLE
 from edc_lab.choices import GLUCOSE_UNITS_NA, RESULT_QUANTIFIER
 from edc_lab.constants import EQ
@@ -14,7 +13,7 @@ def fbg_model_mixin_factory(utest_id: str, **kwargs):
 
     opts = {
         f"{utest_id}_value": models.DecimalField(
-            verbose_name=format_html("FBG level"),
+            verbose_name="FBG level",
             max_digits=8,
             decimal_places=2,
             null=True,
@@ -22,7 +21,7 @@ def fbg_model_mixin_factory(utest_id: str, **kwargs):
             help_text=f"A `HIGH` reading may be entered as {GLUCOSE_HIGH_READING}",
         ),
         f"{utest_id}_quantifier": models.CharField(
-            verbose_name=format_html("FBG quantifier"),
+            verbose_name="FBG quantifier",
             max_length=10,
             choices=RESULT_QUANTIFIER,
             default=EQ,
@@ -34,7 +33,7 @@ def fbg_model_mixin_factory(utest_id: str, **kwargs):
             default=NOT_APPLICABLE,
         ),
         f"{utest_id}_datetime": models.DateTimeField(
-            verbose_name=format_html("<u>Time</u> FBG level measured"),
+            verbose_name="FBG date/time measured",
             null=True,
             blank=True,
         ),

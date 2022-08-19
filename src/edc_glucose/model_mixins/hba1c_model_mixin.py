@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils.html import format_html
 from edc_lab.constants import EQ
 from edc_reportable import PERCENT
 
@@ -7,10 +6,10 @@ from ..constants import GLUCOSE_HIGH_READING
 
 
 class Hba1cModelMixin(models.Model):
-    """A model mixin of fields for the IFG"""
+    """A model mixin of fields for the HbA1c"""
 
     hba1c_value = models.DecimalField(
-        verbose_name=format_html("HbA1c Reading"),
+        verbose_name="HbA1c Reading",
         max_digits=8,
         decimal_places=2,
         null=True,
@@ -19,18 +18,18 @@ class Hba1cModelMixin(models.Model):
     )
 
     hba1c_quantifier = models.CharField(
-        verbose_name=format_html("IFG quantifier"),
+        verbose_name="HbA1c quantifier",
         max_length=10,
         default=EQ,
         editable=False,
     )
 
     hba1c_units = models.CharField(
-        verbose_name="IFG units", max_length=15, default=PERCENT, editable=False
+        verbose_name="HbA1c units", max_length=15, default=PERCENT, editable=False
     )
 
     hba1c_datetime = models.DateTimeField(
-        verbose_name=format_html("<u>Time</u> HbA1c measured"),
+        verbose_name="Date/time HbA1c measured",
         null=True,
         blank=True,
     )
