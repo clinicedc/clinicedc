@@ -2,7 +2,7 @@ from django.contrib.sites.models import Site
 from edc_sites import add_or_update_django_sites
 from edc_sites.single_site import SingleSite
 
-from edc_randomization import Randomizer
+from edc_randomization.randomizer import Randomizer
 from edc_randomization.site_randomizers import site_randomizers
 from edc_randomization.tests.make_test_list import make_test_list
 

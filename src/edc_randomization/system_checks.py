@@ -3,19 +3,36 @@ import sys
 from collections import namedtuple
 
 from django.conf import settings
-from django.core.checks import Warning
+from django.core.checks import Error, Warning
 from django.core.management import color_style
 
 from .site_randomizers import site_randomizers
 
 err = namedtuple("Err", "id cls")
 
-error_configs = dict(randomization_list_check=err("edc_randomization.W001", Warning))
+error_configs = dict(
+    randomization_list_check=err("edc_randomization.W001", Warning),
+    blinded_trial_settings_check=err("edc_randomization.E002", Error),
+)
 
 style = color_style()
 
 
-def randomizationlist_check(app_configs, **kwargs):
+def blinded_trial_settings_check(app_configs, **kwargs) -> list:
+    errors = []
+    error = error_configs.get("blinded_trial_settings_check")
+    blinded_trial = getattr(settings, "EDC_RANDOMIZATION_BLINDED_TRIAL", None)
+    unblinded_users = getattr(settings, "EDC_RANDOMIZATION_UNBLINDED_USERS", None)
+    if not blinded_trial and unblinded_users:
+        error_msg = (
+            "Trial is not a blinded trial but users are listed as unblinded. "
+            "See EDC_RANDOMIZATION_UNBLINDED_USERS"
+        )
+        errors.append(error.cls(error_msg, hint=None, obj=None, id=error.id))
+    return errors
+
+
+def randomizationlist_check(app_configs, **kwargs) -> list:
     sys.stdout.write(style.SQL_KEYWORD("randomizationlist_check ... \r"))
     errors = []
     error = error_configs.get("randomization_list_check")

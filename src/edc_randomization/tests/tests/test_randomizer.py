@@ -541,7 +541,7 @@ class TestRandomizer(TestCaseMixin, TestCase):
 
         with self.assertRaises(RandomizationListError) as cm:
             randomizer_cls.verify_list()
-        self.assertIn("Randomization list has invalid SIDs", str(cm.exception))
+        self.assertIn("Randomization file has an invalid SID", str(cm.exception))
 
     @override_settings(SITE_ID=SiteID(40))
     def test_invalid_count(self):

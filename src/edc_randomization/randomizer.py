@@ -262,12 +262,12 @@ class Randomizer:
         return self._registered_subject
 
     @classmethod
-    def get_extra_list_display(cls) -> Tuple[Tuple[int, str, ...], ...]:
+    def get_extra_list_display(cls) -> Tuple[Tuple[int, str], ...]:
         """Returns a list of tuples of (pos, field name) for ModelAdmin."""
         return ()
 
     @classmethod
-    def get_extra_list_filter(cls) -> Tuple[Tuple[int, str, ...], ...]:
+    def get_extra_list_filter(cls) -> Tuple[Tuple[int, str], ...]:
         """Returns a list of tuples of (pos, field name) for ModelAdmin."""
         return cls.get_extra_list_display()
 
@@ -290,7 +290,7 @@ class Randomizer:
                 randomizer_model_cls=cls.model_cls(),
                 randomizer_name=cls.name,
                 **kwargs,
-            ).import_list()
+            ).import_list(**kwargs)
         except RandomizationListAlreadyImported:
             pass
         return result

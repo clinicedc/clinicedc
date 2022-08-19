@@ -33,12 +33,16 @@ class RandomizationListVerifier:
         randomizer_model_cls=None,
         assignment_map=None,
         fieldnames=None,
+        sid_count_for_tests=None,
+        **kwargs,
     ):
+        self.count: int = 0
         self.messages: List[str] = []
-        self.randomizer_name = randomizer_name
+        self.randomizer_name: str = randomizer_name
         self.randomizer_model_cls = randomizer_model_cls
-        self.randomizationlist_path = randomizationlist_path
-        self.assignment_map = assignment_map
+        self.randomizationlist_path: str = randomizationlist_path
+        self.assignment_map: dict = assignment_map
+        self.sid_count_for_tests: Optional[int] = sid_count_for_tests
 
         randomizer_cls = site_randomizers.get(randomizer_name)
         if not randomizer_cls:
@@ -82,24 +86,28 @@ class RandomizationListVerifier:
         message = None
         with open(self.randomizationlist_path, "r") as f:
             reader = csv.DictReader(f)
-            for index, row in enumerate(reader):
+            for index, row in enumerate(reader, start=1):
                 row = {k: v.strip() for k, v in row.items() if k}
-                if index == 0:
-                    continue
-                message = self.inspect_row(index, row)
+                message = self.inspect_row(index - 1, row)
                 if message:
                     break
+                if self.sid_count_for_tests and index == self.sid_count_for_tests:
+                    break
         if not message:
-            if self.count != index + 1:
+            if self.count != index:
                 message = (
-                    f"Randomization list count is off. Expected {index + 1} (CSV). "
+                    f"Randomization list count is off. Expected {index} (CSV). "
                     f"Got {self.count} (model_cls). See file "
                     f"{self.randomizationlist_path}. "
                     f"Resolve this issue before using the system."
                 )
         return message
 
-    def inspect_row(self, index, row) -> Optional[str]:
+    def inspect_row(self, index: int, row) -> Optional[str]:
+        """Checks SIDS, site_name, assignment, ...
+
+        Note:Index is zero-based
+        """
         message = None
         obj1 = self.randomizer_model_cls.objects.all().order_by("sid")[index]
         try:

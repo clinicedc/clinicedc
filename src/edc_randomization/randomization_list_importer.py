@@ -74,9 +74,9 @@ class RandomizationListImporter:
         username: str = None,
         revision: str = None,
         sid_count_for_tests: int = None,
+        **kwargs,
     ):
         self.verify_messages: Optional[str] = None
-        self.sid_count = 0
         self.add = add
         self.overwrite = overwrite
         self.verbose = True if verbose is None else verbose
@@ -106,7 +106,7 @@ class RandomizationListImporter:
                 )
             )
 
-    def import_list(self) -> Tuple[int, str]:
+    def import_list(self, **kwargs) -> Tuple[int, str]:
         """Imports CSV and verifies."""
         self._raise_on_empty_file()
         self._raise_on_invalid_header()
@@ -124,7 +124,7 @@ class RandomizationListImporter:
                 )
             )
         rec_count = self._import_csv_to_model()
-        self.verify_messages = self._verify_data()
+        self.verify_messages = self._verify_data(**kwargs)
         self._summarize_results()
         if self.verbose:
             sys.stdout.write(
@@ -199,29 +199,36 @@ class RandomizationListImporter:
                     "model is not empty!"
                 )
 
-    def _raise_on_duplicates(self):
+    def get_sid_list(self) -> List[int]:
         with open(self.randomizationlist_path, "r") as csvfile:
             reader = csv.DictReader(csvfile)
             sids = [row["sid"] for row in reader]
         if len(sids) != len(list(set(sids))):
             raise RandomizationListImportError("Invalid file. Detected duplicate SIDs")
-        self.sid_count = len(sids)
+        return sids
+
+    def _raise_on_duplicates(self):
+        self.get_sid_list()
 
     def _import_csv_to_model(self) -> int:
         """Imports a CSV to populate the "rando" model"""
         objs = []
         rec_count = 0
+
+        if self.sid_count_for_tests is not None:
+            sys.stdout.write(
+                style.WARNING(
+                    "\nNote: Importing a `subset` of the randomization list for tests "
+                    f"({self.sid_count_for_tests}).\n"
+                )
+            )
+            sid_count = self.sid_count_for_tests
+        else:
+            sid_count = len(self.get_sid_list())
         with open(self.randomizationlist_path, "r") as csvfile:
             reader = csv.DictReader(csvfile)
-            if self.sid_count_for_tests:
-                sys.stdout.write(
-                    style.WARNING(
-                        "\nNote: Importing a `subset` of the randomization list for tests\n"
-                    )
-                )
-            sid_count = self.sid_count_for_tests or self.sid_count
             for row in tqdm(reader, total=sid_count):
-                if len(objs) > sid_count:
+                if self.sid_count_for_tests and len(objs) == self.sid_count_for_tests:
                     break
                 row = {k: v.strip() for k, v in row.items()}
                 try:
