@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -93,7 +93,7 @@ class Randomizer:
     randomizationlist_folder: str = getattr(
         settings, "EDC_RANDOMIZATION_LIST_PATH", os.path.join(settings.BASE_DIR, ".etc")
     )
-    extra_csv_fieldnames = ["gender"]
+    extra_csv_fieldnames: Optional[List[str]] = None
     is_blinded_trial: bool = True
     importer_cls: Any = RandomizationListImporter
     apps = None  # if not using django_apps

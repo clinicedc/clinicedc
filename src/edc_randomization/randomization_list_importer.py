@@ -89,9 +89,7 @@ class RandomizationListImporter:
         self.randomizer_name = randomizer_name
         self.assignment_map = assignment_map
         self.randomizationlist_path = randomizationlist_path
-        self.default_csv_fieldnames = self.default_csv_fieldnames.extend(
-            extra_csv_fieldnames or []
-        )
+        self.default_csv_fieldnames.extend(extra_csv_fieldnames or [])
 
         if self.dryrun:
             sys.stdout.write(
