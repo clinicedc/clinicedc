@@ -9,7 +9,7 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from edc_lab.auth_objects import LAB_TECHNICIAN_ROLE
-from edc_randomization import Randomizer
+from edc_randomization.randomizer import Randomizer
 from edc_randomization.site_randomizers import site_randomizers
 from edc_sites.models import SiteProfile
 from faker import Faker
