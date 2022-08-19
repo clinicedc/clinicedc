@@ -38,6 +38,8 @@ class UserAdmin(BaseUserAdmin):
         "role",
         "sites",
         "is_staff",
+        "is_active",
+        "last_login",
     )
 
     search_fields = (
