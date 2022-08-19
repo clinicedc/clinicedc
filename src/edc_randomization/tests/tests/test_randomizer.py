@@ -9,7 +9,7 @@ from edc_constants.constants import FEMALE
 from edc_registration.models import RegisteredSubject
 from multisite import SiteID
 
-from edc_randomization.constants import ACTIVE
+from edc_randomization.constants import ACTIVE, PLACEBO
 from edc_randomization.models import RandomizationList
 from edc_randomization.randomization_list_importer import (
     InvalidAssignment,
@@ -32,6 +32,7 @@ from edc_randomization.utils import (
     get_assignment_for_subject,
 )
 
+from ...decorators import RegisterRandomizerError, register
 from ..make_test_list import make_test_list
 from ..models import SubjectConsent
 from ..randomizers import MyRandomizer, tmpdir
@@ -308,6 +309,40 @@ class TestRandomizer(TestCaseMixin, TestCase):
             user=subject_consent.user_created,
         ).randomize()
         self.assertEqual(get_assignment_for_subject("54321", "default"), second_assignment)
+
+    def test_valid_assignment_description_maps(self):
+        self.populate_list(randomizer_name="default", overwrite_site=True)
+        site = Site.objects.get_current()
+        subject_consent = SubjectConsent.objects.create(
+            subject_identifier="12345", site=site, user_created="erikvw"
+        )
+
+        class ValidRandomizer(Randomizer):
+            assignment_description_map = {ACTIVE: "blah", PLACEBO: "blahblah"}
+
+        try:
+            ValidRandomizer(
+                subject_identifier=subject_consent.subject_identifier,
+                report_datetime=subject_consent.consent_datetime,
+                site=subject_consent.site,
+                user=subject_consent.user_created,
+            )
+        except InvalidAssignmentDescriptionMap as e:
+            self.fail(f"InvalidAssignmentDescriptionMap unexpectedly raised. Got {e}")
+
+        # Test still ok with dict items in opposite order
+        class ValidRandomizerMapOrderDifferent(Randomizer):
+            assignment_description_map = {PLACEBO: "blah", ACTIVE: "blahblah"}
+
+        try:
+            ValidRandomizerMapOrderDifferent(
+                subject_identifier=subject_consent.subject_identifier,
+                report_datetime=subject_consent.consent_datetime,
+                site=subject_consent.site,
+                user=subject_consent.user_created,
+            )
+        except InvalidAssignmentDescriptionMap as e:
+            self.fail(f"InvalidAssignmentDescriptionMap unexpectedly raised. Got {e}")
 
     def test_invalid_assignment_description_map(self):
         self.populate_list(randomizer_name="default", overwrite_site=True)
@@ -614,3 +649,23 @@ class TestRandomizer(TestCaseMixin, TestCase):
                 if "str" in line:
                     break
         self.assertEqual(n, 51)
+
+    def test_decorator(self):
+        @register()
+        class MeRandomizer(Randomizer):
+            name = "me"
+
+        self.assertEqual(site_randomizers.get("me"), MeRandomizer)
+
+        try:
+
+            @register()
+            class NotARandomizer:
+                name = "not_me"
+
+        except RegisterRandomizerError:
+            pass
+        else:
+            self.fail("RegisterRandomizerError not raised")
+
+        self.assertRaises(NotRegistered, site_randomizers.get, "not_me")
