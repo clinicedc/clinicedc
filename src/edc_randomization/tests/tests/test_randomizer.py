@@ -9,7 +9,7 @@ from edc_constants.constants import FEMALE
 from edc_registration.models import RegisteredSubject
 from multisite import SiteID
 
-from edc_randomization.constants import ACTIVE
+from edc_randomization.constants import ACTIVE, PLACEBO
 from edc_randomization.models import RandomizationList
 from edc_randomization.randomization_list_importer import (
     InvalidAssignment,
@@ -308,6 +308,40 @@ class TestRandomizer(TestCaseMixin, TestCase):
             user=subject_consent.user_created,
         ).randomize()
         self.assertEqual(get_assignment_for_subject("54321", "default"), second_assignment)
+
+    def test_valid_assignment_description_maps(self):
+        self.populate_list(randomizer_name="default", overwrite_site=True)
+        site = Site.objects.get_current()
+        subject_consent = SubjectConsent.objects.create(
+            subject_identifier="12345", site=site, user_created="erikvw"
+        )
+
+        class ValidRandomizer(Randomizer):
+            assignment_description_map = {ACTIVE: "blah", PLACEBO: "blahblah"}
+
+        try:
+            ValidRandomizer(
+                subject_identifier=subject_consent.subject_identifier,
+                report_datetime=subject_consent.consent_datetime,
+                site=subject_consent.site,
+                user=subject_consent.user_created,
+            )
+        except InvalidAssignmentDescriptionMap as e:
+            self.fail(f"InvalidAssignmentDescriptionMap unexpectedly raised. Got {e}")
+
+        # Test still ok with dict items in opposite order
+        class ValidRandomizerMapOrderDifferent(Randomizer):
+            assignment_description_map = {PLACEBO: "blah", ACTIVE: "blahblah"}
+
+        try:
+            ValidRandomizerMapOrderDifferent(
+                subject_identifier=subject_consent.subject_identifier,
+                report_datetime=subject_consent.consent_datetime,
+                site=subject_consent.site,
+                user=subject_consent.user_created,
+            )
+        except InvalidAssignmentDescriptionMap as e:
+            self.fail(f"InvalidAssignmentDescriptionMap unexpectedly raised. Got {e}")
 
     def test_invalid_assignment_description_map(self):
         self.populate_list(randomizer_name="default", overwrite_site=True)

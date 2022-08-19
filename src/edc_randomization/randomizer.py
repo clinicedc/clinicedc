@@ -228,8 +228,9 @@ class Randomizer:
 
         Compares with the assignment map.
         """
-        list(self.assignment_map.keys()).sort()
-        if list(self.assignment_map.keys()) != list(self.assignment_description_map.keys()):
+        if sorted(list(self.assignment_map.keys())) != sorted(
+            list(self.assignment_description_map.keys())
+        ):
             raise InvalidAssignmentDescriptionMap(
                 f"Invalid assignment description. See randomizer {self.name}. "
                 f"Got {self.assignment_description_map}."
