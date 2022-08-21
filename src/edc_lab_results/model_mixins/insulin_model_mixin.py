@@ -2,14 +2,14 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from edc_glucose.model_mixins import fasting_model_mixin_factory
 from edc_lab_panel.model_mixin_factory import reportable_result_model_mixin_factory
-from edc_reportable.units import IU_LITER, IU_LITER_DISPLAY
+from edc_reportable.units import MICRO_IU_MILLILITER, MICRO_IU_MILLILITER_DISPLAY
 
 
 class BaseInsulinModelMixin(
     reportable_result_model_mixin_factory(
         utest_id="ins",
         verbose_name="Insulin",
-        units_choices=((IU_LITER, IU_LITER_DISPLAY),),
+        units_choices=((MICRO_IU_MILLILITER, MICRO_IU_MILLILITER_DISPLAY),),
         validators=[MinValueValidator(0.0), MaxValueValidator(999.0)],
     ),
     models.Model,
