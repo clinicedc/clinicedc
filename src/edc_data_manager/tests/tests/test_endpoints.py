@@ -161,7 +161,7 @@ class AdminSiteTest(WebTest):
         response = form.submit().follow()
 
         self.assertIn("was added successfully", str(response))
-        self.app.get(reverse("admin:logout"), user=self.user, status=200)
+        self.app.get(reverse("edc_auth:logout"), user=self.user, status=200)
 
         login(
             self,
