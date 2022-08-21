@@ -13,4 +13,5 @@ class SubjectOffstudy(OffstudyModelMixin, SiteModelMixin, edc_models.BaseUuidMod
     history = edc_models.HistoricalRecords()
 
     class Meta(edc_models.BaseUuidModel.Meta):
-        pass
+        verbose_name = "Subject Offstudy"
+        verbose_name_plural = "Subject Offstudy"

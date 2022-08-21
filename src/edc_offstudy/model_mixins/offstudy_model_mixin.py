@@ -46,7 +46,14 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
         max_length=125,
     )
 
-    offstudy_reason_other = OtherCharField()
+    other_offstudy_reason = OtherCharField()
+
+    comment = models.TextField(
+        verbose_name="Please provide further details if possible",
+        max_length=500,
+        blank=True,
+        null=True,
+    )
 
     def __str__(self):
         local = timezone.localtime(self.offstudy_datetime)
