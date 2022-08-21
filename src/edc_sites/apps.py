@@ -28,8 +28,10 @@ def post_migrate_update_sites(sender=None, **kwargs):
 
 class AppConfig(DjangoAppConfig):
     name = "edc_sites"
+    verbose_name = "Edc Sites"
     has_exportable_data = True
     default_auto_field = "django.db.models.BigAutoField"
+    include_in_administration_section = True
 
     def ready(self):
         post_migrate.connect(post_migrate_update_sites, sender=self)
