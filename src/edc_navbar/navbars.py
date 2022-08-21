@@ -14,7 +14,7 @@ if app_config.register_default_navbar:
         NavbarItem(
             name="home",
             title="Home",
-            fa_icon="fas fa-home",
+            fa_icon="fa-solid fa-home",
             url_name="home_url",
             codename="edc_navbar.nav_home",
         )
@@ -24,7 +24,7 @@ if app_config.register_default_navbar:
         NavbarItem(
             name="administration",
             title="Administration",
-            fa_icon="fas fa-cog",
+            fa_icon="fa-solid fa-cog",
             codename="edc_navbar.nav_administration",
             url_name="administration_url",
         )
@@ -34,8 +34,8 @@ if app_config.register_default_navbar:
         NavbarItem(
             name="logout",
             title="Logout",
-            fa_icon="fas fa-sign-out-alt",
-            url_name="logout",
+            fa_icon="fa-solid fa-sign-out-alt",
+            url_name="edc_auth_admin:logout",
             codename="edc_navbar.nav_logout",
         )
     )
