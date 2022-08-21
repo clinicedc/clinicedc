@@ -37,13 +37,13 @@
     float: left;
     border: none;
     font-weight: 400;
-    background: #f0ad4e;
+    background: #0d47a1;
 }
 
 .button.add:active, input[type=submit].add:active,
 .button.add:focus, input[type=submit].add:focus,
 .button.add:hover, input[type=submit].add:hover {
-    background: #f0ad4e;
+    background: #0d47a1;
 }
 
 .button[disabled].add,
