@@ -1,11 +1,41 @@
 from django.contrib import admin
-from django.contrib.admin.decorators import register
+from edc_model_admin import SimpleHistoryAdmin
+from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
 from .admin_site import edc_offstudy_admin
 from .models import SubjectOffstudy
 
 
-@register(SubjectOffstudy, site=edc_offstudy_admin)
-class SubjectOffstudyAdmin(admin.ModelAdmin):
+@admin.register(SubjectOffstudy, site=edc_offstudy_admin)
+class SubjectOffstudyAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
 
-    pass
+    fieldsets = (
+        [
+            None,
+            {
+                "fields": (
+                    "subject_identifier",
+                    "offstudy_datetime",
+                )
+            },
+        ],
+        [
+            "Off-study reason",
+            {
+                "fields": (
+                    "offstudy_reason",
+                    "other_offstudy_reason",
+                )
+            },
+        ],
+        [
+            "Comments",
+            {"fields": ("comment",)},
+        ],
+    )
+
+    list_filter = ("offstudy_datetime",)
+
+    radio_fields = {
+        "offstudy_reason": admin.VERTICAL,
+    }
