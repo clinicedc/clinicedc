@@ -25,7 +25,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'edc_dashboard/icons/apple-touch-icon-180x180.png' %}"/>
 
 
-    <script src="https://kit.fontawesome.com/a022b85977.js" crossorigin="anonymous"></script>
+    <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
 
     <!-- Latest bootstrap compiled and minified CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
@@ -34,7 +34,6 @@
 
     <!-- EDC themes -->
     <link rel="stylesheet" type="text/css" href="{% static 'edc_dashboard/css/sticky-footer-navbar.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'edc_dashboard/css/edc.css' %}">
 
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
@@ -80,9 +79,14 @@
                 </button>
 
                 {% block topbar_title %}
-                    <span class="navbar-brand hidden-sm">{% if live_system and not DEBUG %}
+                    <span class="navbar-brand hidden-sm">
+                      {% if live_system and not DEBUG %}
                         <span class="label label-success">Live</span>{% else %}
-                        <span class="label label-danger">Test</span>{% endif %}&nbsp;&nbsp;{{ protocol_name |default:project_name }}: {{ site_title|default:request.site.name|title }} ({{ request.site.id }})</span>
+                        <span class="label label-danger">Test</span>
+                      {% endif %}&nbsp
+                      <small>{{ protocol_name |default:project_name }}: {{ request.site.name|title }} ({{ request.site.id }})</small>
+                    </span>
+
                 {% endblock topbar_title %}
 
             </div>

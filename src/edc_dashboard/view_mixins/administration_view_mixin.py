@@ -81,7 +81,10 @@ class AdministrationViewMixin(ContextMixin):
 
     @property
     def default_sections(self):
-        return {"Accounts, Profiles, Sites and Logs": "admin:index"}
+        return {
+            "Accounts, Profiles, Logs": "edc_auth:home_url",
+            # "Sites": "edc_sites_admin:home_url",
+        }
 
     @property
     def sections(self):
@@ -111,5 +114,4 @@ class AdministrationViewMixin(ContextMixin):
         other_keys.sort()
 
         keys = other_keys + edc_keys
-
         return {key: sections.get(key) for key in keys}
