@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from edc_model_admin import TemplatesModelAdminMixin
 
+from ..admin_site import edc_auth_admin
 from ..forms import UserProfileForm
 from ..models import UserProfile
 
@@ -15,8 +17,8 @@ class UserProfileInline(admin.StackedInline):
     filter_horizontal = ("email_notifications", "sms_notifications", "sites", "roles")
 
 
-@admin.register(UserProfile)
-class UserProfileAdmin(admin.ModelAdmin):
+@admin.register(UserProfile, site=edc_auth_admin)
+class UserProfileAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
 
     filter_horizontal = ("email_notifications", "sms_notifications", "sites")
 
@@ -28,6 +30,10 @@ class UserProfileAdmin(admin.ModelAdmin):
         "mobile",
         "export_format",
     )
+
+    list_filter = ("sites__name", "email_notifications__name")
+
+    search_fields = ("user__username", "mobile", "user__email")
 
     @staticmethod
     def user_sites(obj=None):

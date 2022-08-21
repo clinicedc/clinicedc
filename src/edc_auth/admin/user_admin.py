@@ -4,7 +4,9 @@ from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.utils.html import format_html
 from edc_dashboard import select_edc_template
+from edc_model_admin import TemplatesModelAdminMixin
 
+from ..admin_site import edc_auth_admin
 from ..forms import UserChangeForm
 from ..send_new_credentials_to_user import send_new_credentials_to_user
 from .list_filters import SitesListFilter
@@ -24,8 +26,8 @@ def send_new_credentials_to_user_action(modeladmin, request, queryset):  # noqa
 send_new_credentials_to_user_action.short_description = "Reset password and email to user"
 
 
-@admin.register(User)
-class UserAdmin(BaseUserAdmin):
+@admin.register(User, site=edc_auth_admin)
+class UserAdmin(TemplatesModelAdminMixin, BaseUserAdmin):
     inlines = (UserProfileInline,)
     form = UserChangeForm
     actions = [send_new_credentials_to_user_action]
