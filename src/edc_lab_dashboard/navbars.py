@@ -6,7 +6,7 @@ specimens_navbar = NavbarItem(
     name="specimens",
     label="Specimens",
     title="Specimens",
-    fa_icon="fas fa-flask",
+    fa_icon="fa-solid fa-flask",
     codename="edc_navbar.nav_lab_section",
     url_name="requisition_listboard_url",
 )
@@ -84,7 +84,7 @@ navbar.append_item(
     NavbarItem(
         name="specimens",
         title="Specimens",
-        fa_icon="fas fa-flask",
+        fa_icon="fa-solid fa-flask",
         codename="edc_navbar.nav_lab_section",
         url_name="requisition_listboard_url",
         active=True,
