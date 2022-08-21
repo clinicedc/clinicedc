@@ -1,0 +1,24 @@
+.btn {
+    font-size: 12px;
+    font-weight: bold;
+    padding: 3px 10px;
+    margin-bottom: 0;
+    display: inline-block;
+    text-decoration: none;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+  .btn-live{color:#fff;background-color:#00C853}
+  .btn-test{color:#fff;background-color:#EF5350}
+

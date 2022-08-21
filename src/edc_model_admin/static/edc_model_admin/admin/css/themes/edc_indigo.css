@@ -1,0 +1,20 @@
+/* https://mdbootstrap.com/docs/standard/content-styles/colors/ */
+
+:root {
+    --primary: #7986CB; /* 300 Indigo */
+    --secondary: #303F9F; /* 700 Indigo */
+    --accent: #616161; /* 700 Grey */
+
+    --body-quiet-color: #616161; /* 700 Grey */
+    --body-loud-color: #212121; /* 900 Grey */
+
+    --header-color: #BDBDBD; /* 400 Grey */
+    --header-bg: #424242; /* 800 Grey */
+
+    --link-fg: #7986CB; /* 300 Indigo */
+    --link-hover-color: #1A237E; /* 900 Indigo */
+    --link-selected-fg: #303F9F; /* 700 Indigo */
+
+    --button-hover-bg: #1A237E; /* 900 Indigo */
+    --default-button-hover-bg: #1A237E; /* 900 Indigo */
+}

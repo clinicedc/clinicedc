@@ -1,10 +1,16 @@
 {% extends "admin/base_site.html" %}
 {% load i18n static %}
 
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static "admin/css/dashboard.css" %}">{% endblock %}
-
 {% block extrahead %}{{ block.super }}
+    <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}
     <link rel="stylesheet" type="text/css" href="{% static 'edc_dashboard/css/dark_mode.css' %}">
+    <link rel="stylesheet" href="{% static "admin/css/dashboard.css" %}">
+    {%  for css in edc_model_admin_css_theme_path %}
+        <link rel='stylesheet' type="text/css" href='{% static css %}'>
+    {% endfor %}
 {% endblock %}
 
 {% block coltype %}colMS{% endblock %}
@@ -13,13 +19,13 @@
 
 {% block breadcrumbs %}{% endblock %}
 
-{% block nav-sidebar %}{% endblock %}
 
 {% block content %}
 <div id="content-main">
   {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
 </div>
 {% endblock %}
+
 
 {% block sidebar %}
 <div id="content-related">
@@ -54,6 +60,10 @@
 {% endblock %}
 
 {% block branding %}
+  <button type="button" class="btn btn-{% if LIVE_SYSTEM and not DEBUG %}live{% else %}test{% endif %}">
+    {% if LIVE_SYSTEM and not DEBUG %}{{ LIVE|title }}{% else %}{{ TEST|title }}{% endif %}
+  </button>&nbsp;
+  {{ protocol_name |default:project_name }}: {{ request.site.name|title }} ({{ request.site.id }}) &nbsp;
   <a href="/">{% translate 'Home' %}</a> &rsaquo;
     {% if site_url %}
         <a href="{{ site_url }}">{% translate 'Administration' %}</a>
@@ -63,5 +73,5 @@
 {% block welcome-msg %}{% endblock %}
 
 {% block userlinks %}
-<A title="Logout" href="{% url 'admin:logout' %}">Logout</A>  | <strong>{{  user.get_username }}@{{ global_site.name }}.{{ protocol_name}}</strong>
+<A title="Logout" href="{% url 'admin:logout' %}">Logout</A>  | <strong>{{  user.get_username }}</strong>
 {% endblock %}

@@ -2,6 +2,7 @@ from django.apps import apps as django_apps
 from django.contrib import admin
 from django.contrib.admin import AdminSite as DjangoAdminSite
 from django.contrib.sites.shortcuts import get_current_site
+from django.template.response import TemplateResponse
 from edc_dashboard.utils import get_bootstrap_version
 from edc_protocol import Protocol
 
@@ -45,8 +46,12 @@ class EdcAdminSite(DjangoAdminSite):
     final_catch_all_view = True  # DJ 3.2
     site_url = "/administration/"
 
-    def __init__(self, name="admin", app_label=None, keep_delete_action=None):
+    def __init__(
+        self, name="admin", app_label=None, keep_delete_action=None, enable_nav_sidebar=None
+    ):
         self.app_label = app_label
+        if enable_nav_sidebar is not None:
+            self.enable_nav_sidebar = enable_nav_sidebar
         super().__init__(name)
         if not keep_delete_action:
             del self._actions["delete_selected"]
@@ -56,18 +61,33 @@ class EdcAdminSite(DjangoAdminSite):
         context.update(
             site_title=self.get_edc_site_title(request),
             site_header=self.get_edc_site_header(request),
-            index_title=self.index_title,
+            title=self.get_edc_index_title(request),
             global_site=get_current_site(request),
             protocol_name=Protocol().protocol_name,
         )
         return context
 
-    def get_edc_site_title(self, request):
+    def get_edc_site_title(self, request) -> str:
         verbose_name = django_apps.get_app_config(self.app_label).verbose_name
         return verbose_name.replace(
             Protocol().project_name,
             f"{Protocol().project_name} @ {get_current_site(request).name.title()} ",
         )
 
-    def get_edc_site_header(self, request):
+    def get_edc_site_header(self, request) -> str:
         return self.get_edc_site_title(request)
+
+    def get_edc_index_title(self, request) -> str:
+        return self.get_edc_site_title(request)
+
+    def index(self, request, extra_context=None):
+        app_list = self.get_app_list(request)
+        context = {
+            **self.each_context(request),
+            "title": self.get_edc_index_title(request),
+            "subtitle": None,
+            "app_list": app_list,
+            **(extra_context or {}),
+        }
+        request.current_app = self.name
+        return TemplateResponse(request, self.index_template or "admin/index.html", context)

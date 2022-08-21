@@ -20,8 +20,26 @@ class TemplatesModelAdminMixin:
     add_form_template = "edc_model_admin/admin/change_form.html"
     change_form_template = "edc_model_admin/admin/change_form.html"
     change_list_template = "edc_model_admin/admin/change_list.html"
+    view_on_site_label = None
+    history_label = "Audit trail"
+
+    def change_view(self, request, object_id, form_url="", extra_context=None):
+        extra_context = extra_context or {}
+        extra_context.update(
+            {
+                "view_on_site_label": self.view_on_site_label,
+                "history_label": self.history_label,
+            }
+        )
+        return super().change_view(
+            request, object_id, form_url=form_url, extra_context=extra_context
+        )
 
     def changelist_view(self, request, extra_context=None):
         extra_context = {} if not extra_context else extra_context
-        extra_context.update({"show_object_tools": self.show_object_tools})
+        extra_context.update(
+            {
+                "show_object_tools": self.show_object_tools,
+            }
+        )
         return super().changelist_view(request, extra_context=extra_context)

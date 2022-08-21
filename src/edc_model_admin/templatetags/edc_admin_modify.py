@@ -68,9 +68,9 @@ def get_cancel_url(context, cancel_attr=None):
                 kwargs = {"subject_identifier": get_subject_identifier(context)}
                 try:
                     cancel_url = reverse(url, kwargs=kwargs)
-                except NoReverseMatch as e:
+                except NoReverseMatch:
                     cancel_url = None
-                    warn(f"{str(e)} kwargs={kwargs}. See 'get_cancel_url'.")
+                    # warn(f"{str(e)} kwargs={kwargs}. See 'get_cancel_url'.")
     return cancel_url
 
 
