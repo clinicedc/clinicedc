@@ -10,8 +10,8 @@
           </h6>
       </div>
       <div id="demographics-panel" class="panel-collapse collapse in">
-          {% block demographics %}{% endblock demographics %}           
-      </div>           
+          {% block demographics %}{% endblock demographics %}
+      </div>
     </div>
 
     {% if open_action_items %}
@@ -31,8 +31,8 @@
           </h6>
       </div>
       <div id="prn-forms-panel" class="panel-collapse collapse in">
-          {% block prn_forms %}{% endblock prn_forms %}           
-      </div>           
+          {% block prn_forms %}{% endblock prn_forms %}
+      </div>
     </div>
 
     <div class="panel panel-default">
@@ -42,21 +42,21 @@
           </h6>
       </div>
       <div id="prn-lists-panel" class="panel-collapse collapse in">
-          {% block prn_lists %}{% endblock prn_lists %}           
-      </div>           
+          {% block prn_lists %}{% endblock prn_lists %}
+      </div>
     </div>
 
     {% if consents %}
     <div class="panel panel-default">
       <div class="panel-heading">
           <h6 class="panel-title">
-              <i class="far fa-handshake fa-lg fa-fw"></i> 
+              <i class="far fa-handshake fa-lg fa-fw"></i>
               <a id="consents-panel-title" data-toggle="collapse" data-parent="#accordion" href="#consents-panel">Consents <span class="caret"></span></a>
           </h6>
       </div>
       <div id="consents-panel" class="panel-collapse collapse in">
          {% block consents %}{% endblock consents %}
-      </div>           
+      </div>
     </div>
     {% endif %}
 
