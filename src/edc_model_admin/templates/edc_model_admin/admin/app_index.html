@@ -3,7 +3,14 @@
 {% load edc_dashboard_extras edc_admin_modify edc_navbar_extras %}
 
 {% block extrahead %}{{ block.super }}
+    <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}
     <link rel="stylesheet" type="text/css" href="{% static 'edc_dashboard/css/dark_mode.css' %}">
+    {%  for css in edc_model_admin_css_theme_path %}
+        <link rel='stylesheet' type="text/css" href='{% static css %}'>
+    {% endfor %}
 {% endblock %}
 
 
@@ -11,6 +18,10 @@
 
 
 {% block branding %}
+  <button type="button" class="btn btn-{% if LIVE_SYSTEM and not DEBUG %}live{% else %}test{% endif %}">
+    {% if LIVE_SYSTEM and not DEBUG %}{{ LIVE|title }}{% else %}{{ TEST|title }}{% endif %}
+  </button>&nbsp;
+  {{ protocol_name |default:project_name }}: {{ request.site.name|title }} ({{ request.site.id }}) &nbsp;
   <a href="/">{% translate 'Home' %}</a> &rsaquo;
     {% if site_url %}
         <a href="{{ site_url }}">{% translate 'Administration' %}</a>
@@ -21,5 +32,5 @@
 {% block welcome-msg %}{% endblock %}
 
 {% block userlinks %}
-<A title="Logout" href="{% url 'admin:logout' %}">Logout</A> | <strong>{{  user.get_username }}@{{ global_site.name }}.{{ protocol_name}}</strong>
+<A title="Logout" href="{% url 'edc_auth_admin:logout' %}">Logout</A> | <strong>{{  user.get_username }}</strong>
 {% endblock %}

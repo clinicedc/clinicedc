@@ -40,6 +40,7 @@ class ModelAdminSubjectDashboardMixin(
     subject_listboard_url_name = "subject_listboard_url"
     show_cancel = True
     show_dashboard_in_list_display_pos = None
+    view_on_site_label = "Subject dashboard"
 
     def get_subject_dashboard_url_name(self) -> str:
         return url_names.get(self.subject_dashboard_url_name)
