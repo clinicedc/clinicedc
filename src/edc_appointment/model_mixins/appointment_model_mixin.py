@@ -54,7 +54,7 @@ class AppointmentModelMixin(
     objects = AppointmentManager()
 
     def __str__(self) -> str:
-        return f"{self.visit_code}.{self.visit_code_sequence}"
+        return f"{self.subject_identifier} {self.visit_code}.{self.visit_code_sequence}"
 
     def save(self, *args, **kwargs):
         if not kwargs.get("update_fields", None):
