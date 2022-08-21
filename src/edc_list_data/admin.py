@@ -1,9 +1,10 @@
 from typing import Tuple
 
 from django.contrib import admin
+from edc_model_admin import TemplatesModelAdminMixin
 
 
-class ListModelAdminMixin(admin.ModelAdmin):
+class ListModelAdminMixin(TemplatesModelAdminMixin, admin.ModelAdmin):
 
     ordering: Tuple[str, ...] = ("display_index", "display_name")
 
