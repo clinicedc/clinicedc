@@ -28,12 +28,12 @@ Check your browser downloads for the PDF report.
 	value='{{ consignee.pk }}'
 	class='list-group-item list-group-item-info'
 	title='select and download'><span class='text text-default'>{{ consignee.name }}</span>
-	</button>	
+	</button>
 {% endfor %}
 <a role='button' href='{% url 'edc_lab_admin:edc_lab_consignee_add' %}'
 class='list-group-item list-group-item-default'
 title='add'><span class='text text-default small'><i class='fas fa-plus fa-fw'></i> Add service provider not listed</span>
-</a>	
+</a>
 </div>
 
 <p><a title='close' class='btn btn-sm btn-primary pull-right'><i class='fas fa-times fa-fw' aria-hidden='true'></i></a><br></p>

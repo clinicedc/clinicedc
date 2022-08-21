@@ -3,7 +3,7 @@ from collections import namedtuple
 from dateutil.relativedelta import relativedelta
 from django import template
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from django.utils.translation import gettext as _
 from edc_appointment.constants import (
     CANCELLED_APPT,
@@ -190,8 +190,8 @@ def show_dashboard_visit_button(wrapped_appointment=None, request=None):
             btn_class = "warning"
     elif wrapped_appointment.appt_status == INCOMPLETE_APPT:
         incomplete = _("Incomplete")
-        label = mark_safe(
-            f'<i class="fas fa-pencil-alt fa-sm" aria-hidden="true"></i> {incomplete}'
+        label = format_html(
+            '<i class="fas fa-pencil-alt fa-sm" aria-hidden="true"></i> {}', incomplete
         )
         title = _("Continue data collection for this timepoint.")
     elif wrapped_appointment.appt_status == CANCELLED_APPT:
@@ -200,8 +200,8 @@ def show_dashboard_visit_button(wrapped_appointment=None, request=None):
     elif wrapped_appointment.appt_status == COMPLETE_APPT:
         # this appt_status is handled by the subject visit button
         label = _("Done")
-        label = mark_safe(
-            f'<i class="fas fa-pencil-alt fa-sm" aria-hidden="true"></i> {label}'
+        label = format_html(
+            '<i class="fas fa-pencil-alt fa-sm" aria-hidden="true"></i> {}', label
         )
         title = _("Done. Timepoint is complete")
         btn_class = "success"

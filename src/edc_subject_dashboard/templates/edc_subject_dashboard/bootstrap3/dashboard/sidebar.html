@@ -5,28 +5,28 @@
 {% load edc_prn_extras %}
 {% load action_item_extras %}
 
-{% block demographics %}   
-	
+{% block demographics %}
+
     	{% include 'edc_subject_dashboard/bootstrap3/dashboard/sidebar/demographics.html' %}
 
 {% endblock demographics %}
 
 
-{% block prn_forms %}   
+{% block prn_forms %}
 
 	<div class="list-group list-group-default">
 
     {% add_action_item_popover subject_identifier subject_dashboard_url %}
-    
+
     {% if appointment %}
     	{% add_prn_crf_popover appointment.object subject_dashboard_url %}
     	{% add_prn_requisition_popover appointment.object subject_dashboard_url %}
     {% endif %}
-    
+
 	</div>
 {% endblock prn_forms %}
 
-{% block prn_lists %}   
+{% block prn_lists %}
 
     {% prn_list_items subject_identifier %}
 
@@ -40,7 +40,7 @@
 {% endblock consents %}
 
 
-{% block action_items %}   
+{% block action_items %}
 
 	{% if open_action_items %}
 

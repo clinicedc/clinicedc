@@ -2,11 +2,69 @@
 {% load static %}
 {% load edc_visit_schedule_extras %}
 {% load edc_subject_dashboard_extras %}
+{% load edc_dashboard_extras %}
 
 {% block main %}
     <div id="subject_dashboard" class="container">
         <div class="row">
+              <div class="panel-group col-md-12">
+                  <div class="panel panel-{% if navbar_name == 'anonymous' %}danger{% else %}info{% endif %}">
+                     <div class="panel-heading">
+                        <h6 class="panel-title clearfix">
+                        {% if navbar_name == 'anonymous' %}
+                            <span class="text text-danger"><i class="fas fa-user-secret fa-2x fa-fw"></i></span>
+                        {% else %}
+                            <i class="{% if gender == MALE %}fas fa-male{% else %}fas fa-female{% endif %} fa-lg fa-fw"></i>
+                            <a id="demographics-panel-title">{{ subject_identifier }} </a> {% copy_string_to_clipboard_button subject_identifier %}
+                        {% endif %}
+                              <span class="pull-right">
+                              <div class="btn-group">
+                                {% if subject_visit %}
+                                  <a href="{% url 'edc_subject_dashboard:refresh_metadata_actions_url' subject_visit.id %}" data-toggle="tooltip" title="Refresh data collection schedule" role="button" class="btn btn-sm btn-default">
+                                    <i class="fas fa-arrows-rotate fa-1x fa-fw" aria-hidden="true"></i>
+                                  </a>
+                                {% endif %}
+                                {% if perms.edc_data_manager.add_dataquery %}
+                                  <a href="{% url 'edc_data_manager_admin:edc_data_manager_dataquery_add' %}?registered_subject={{ registered_subject_pk }}&sender={{ request.user.id }}&visit_schedule={{visit_schedule_pk|default:''}}&visit_code_sequence={{ appointment.visit_code_sequence }}"
+                                    role="button" class="btn btn-sm btn-default" data-toggle="tooltip" title="Add new data query">Query</a>
+                                {% endif %}
+                                    {% block schedule_button %}
+                                        {% if subject_visit %}
+                                            <a href="{% url subject_dashboard_url|default:'subject_dashboard_url_cannot_be_none' subject_identifier=subject_identifier %}"
+                                               role="button" class="btn btn-sm btn-primary" data-toggle="tooltip" title="Go to subject's schedule">
+                                            <i class="fa-solid fa-reply fa-1x fa-fw" aria-hidden="true"></i>
+                                              Schedule
+                                            </a>
+                                            <a href="{% url subject_review_listboard_url|default:'subject_review_listboard_url_cannot_be_none' subject_identifier=subject_identifier appointment=appointment.object.id|stringformat:"s" %}#{{ subject_identifier }}-{{ appointment.visit_code }}-{{ appointment.visit_code_sequence }}"
+                                               role="button" class="btn btn-sm btn-primary" data-toggle="tooltip" title="Go to subject review">
+                                            <i class="fa-solid fa-reply fa-1x fa-fw" aria-hidden="true"></i>
+                                                Review
+                                            </a>
+                                          {% else %}
+                                        <a href="{% url subject_review_listboard_url|default:'subject_review_listboard_url_cannot_be_none' subject_identifier=subject_identifier %}"
+                                           role="button" class="btn btn-sm btn-primary" data-toggle="tooltip" title="Go to subject review">
+                                        <i class="fa-solid fa-reply fa-1x fa-fw" aria-hidden="true"></i>
+                                          Review
+                                        </a>
+                                          {% endif %}
+                                    {% endblock schedule_button %}
+
+                                <a {% block close_url %}href="{% url subject_listboard_url|default:'subject_listboard_url_cannot_be_none' %}"{% endblock close_url %}
+                                  role="button" class="btn btn-sm btn-primary" data-toggle="tooltip" title="Back to Subjects">
+                                  <i class="fa-solid fa-reply fa-1x fa-fw" aria-hidden="true"></i><i class="fas fa-user-circle fa-1x fa-fw"></i>
+                                </a>
+                              </div>
+                              </span>
+                        </h6>
+
+                     </div>
+                  </div>
+              </div>
+        </div>
+    </div>
+
             <div class="col-md-9">
+
 
                 <div class="panel-group" id="accordion_schedule">
 
@@ -37,20 +95,6 @@
                                         class="fas fa-caret-right"></i> {{ appointment.visit_code }}.{{ appointment.visit_code_sequence }} {{ appointment.title|lower|title }} {{ appointment.wrapped_visit.object.get_reason_display }}<span
                                         class="caret"></span>
                                 </a>
-                                {% block schedule_button %}
-                                    <span class="pull-right">
-                                        <span class="text test-muted">
-                                        <a href="{% url subject_review_listboard_url|default:'subject_review_listboard_url_cannot_be_none' subject_identifier=subject_identifier appointment=appointment.object.id|stringformat:"s" %}#{{ appointment.subject_identifier }}-{{ appointment.visit_code }}-{{ appointment.visit_code_sequence }}"
-                                           role="button" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-reply fa-fw" aria-hidden="true"></i> Subject Review
-                                        </a>
-                                        <a href="{% url subject_dashboard_url|default:'subject_dashboard_url_cannot_be_none' subject_identifier=subject_identifier %}"
-                                           role="button" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-reply fa-fw" aria-hidden="true"></i> <i class="far fa-calendar fa-fw"></i> Schedule
-                                        </a>
-	                                    </span>
-                                    </span>
-                                {% endblock schedule_button %}
                             </div>
                             <div id="subject_dashboard_forms_for_{{ appointment.visit_schedule.name|slugify }}-{{ appointment.schedule.name|slugify }}"
                                  class="panel-collapse collapse in">
@@ -88,10 +132,6 @@
                                         <span class="caret"></span>
                                     </a>
                                     <span class="pull-right">
-                                        <a href="{% url subject_review_listboard_url|default:'subject_review_listboard_url_cannot_be_none' subject_identifier=subject_identifier %}"
-                                           role="button" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-reply fa-fw" aria-hidden="true"></i> Subject Review
-                                        </a>
             					  	    {% appointment_in_progress subject_identifier schedule_obj.visit_schedule schedule_obj.schedule %}
 			            		  	</span>
                                 </div>
