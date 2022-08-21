@@ -5,7 +5,7 @@ from edc_protocol import Protocol
 
 
 class LogoutView(BaseLogoutView):
-    next_page = "login"
+    next_page = "edc_auth/login"
 
     @property
     def extra_context(self):

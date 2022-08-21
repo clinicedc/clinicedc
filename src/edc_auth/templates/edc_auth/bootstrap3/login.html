@@ -27,7 +27,7 @@
                 {% endif %}
             {% endif %}
 
-            <form method="post" action="{% url 'login' %}">
+            <form method="post" action="{% url 'edc_auth_admin:login' %}">
         		  {% csrf_token %}
               <div class="form-group">
                   {{ form.username.label_tag|default:"<h5>Username:</h5>"}}
