@@ -6,7 +6,7 @@ navbar.append_item(
     NavbarItem(
         name="export",
         label="Export",
-        fa_icon="fas fa-file-export",
+        fa_icon="fa-solid fa-file-export",
         url_name="edc_export:home_url",
         codename="edc_navbar.nav_export",
     )
