@@ -5,6 +5,7 @@ from importlib import import_module
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.management.color import color_style
+from django.urls import NoReverseMatch
 from django.utils.module_loading import module_has_submodule
 
 from .navbar import NavbarError
@@ -96,8 +97,12 @@ class NavbarCollection:
                         import_module(f"{app}.{module_name}")
                         writer(f" * registered navbars '{module_name}' from '{app}'\n")
                     except NavbarError as e:
-                        writer(f"   - loading {app}.navbars ... ")
+                        writer(f" * loading {app}.navbars ... \n")
                         writer(style.ERROR(f"ERROR! {e}\n"))
+                    except NoReverseMatch as e:
+                        writer(f" * loading {app}.navbars ... \n")
+                        writer(style.ERROR(f"ERROR! {e}\n"))
+                        raise
                     except ImportError as e:
                         site_navbars.registry = before_import_registry
                         if module_has_submodule(mod, module_name):

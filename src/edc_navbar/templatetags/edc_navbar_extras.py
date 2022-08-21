@@ -17,7 +17,7 @@ def show_edc_navbar(context):
         user = None
     else:
         try:
-            auth_user_change_url = reverse("admin:auth_user_change", args=(user.id,))
+            auth_user_change_url = reverse("edc_auth_admin:auth_user_change", args=(user.id,))
         except NoReverseMatch:
             pass
     return dict(

@@ -52,7 +52,7 @@ class NavbarItem:
         self.alt = alt or label or name
 
         if fa_icon and fa_icon.startswith("fa-"):
-            self.fa_icon = f"fa {fa_icon}"
+            self.fa_icon = f"fa-solid {fa_icon}"
         else:
             self.fa_icon = fa_icon
 

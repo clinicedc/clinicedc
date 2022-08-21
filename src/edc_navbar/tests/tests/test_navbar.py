@@ -121,7 +121,7 @@ class TestNavbar(TestCase):
             label="Navbar Item One",
             title="navbar_item_one",
             url_name="navbar_one_url",
-            fa_icon="far fa-user-circle",
+            fa_icon="fa-solid fa-user-circle",
             codename="edc_navbar.nav_one",
         )
         template_string = navbar_item.render(
