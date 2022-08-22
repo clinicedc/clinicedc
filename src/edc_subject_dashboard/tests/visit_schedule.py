@@ -58,14 +58,6 @@ schedule1 = Schedule(
     appointment_model="edc_appointment.appointment",
 )
 
-schedule2 = Schedule(
-    name="schedule2",
-    onschedule_model="edc_subject_dashboard.onscheduletwo",
-    offschedule_model="edc_subject_dashboard.offscheduletwo",
-    consent_model="edc_visit_tracking.subjectconsent",
-    appointment_model="edc_appointment.appointment",
-)
-
 
 visits = []
 for index in range(0, 4):
@@ -85,6 +77,16 @@ for index in range(0, 4):
     )
 for visit in visits:
     schedule1.add_visit(visit)
+
+schedule2 = Schedule(
+    name="schedule2",
+    onschedule_model="edc_subject_dashboard.onscheduletwo",
+    offschedule_model="edc_subject_dashboard.offscheduletwo",
+    consent_model="edc_visit_tracking.subjectconsent",
+    appointment_model="edc_appointment.appointment",
+    base_timepoint=4,
+)
+
 
 visits = []
 for index in range(4, 8):
