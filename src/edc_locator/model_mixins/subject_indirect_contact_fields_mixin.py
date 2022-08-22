@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from django_crypto_fields.fields import EncryptedCharField, EncryptedTextField
 from edc_constants.choices import YES_NO
 from edc_model.validators import cell_number, telephone_number
@@ -10,7 +10,7 @@ class SubjectIndirectContactFieldsMixin(models.Model):
     may_contact_indirectly = models.CharField(
         max_length=25,
         choices=YES_NO,
-        verbose_name=mark_safe(
+        verbose_name=format_html(
             "Has the participant given permission for study staff "
             "<b>to contact anyone else</b> for follow-up purposes during the study?"
         ),
