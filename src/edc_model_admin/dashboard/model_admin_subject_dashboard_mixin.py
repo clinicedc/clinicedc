@@ -3,13 +3,13 @@ from typing import Tuple
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, reverse
+from django_audit_fields.admin import ModelAdminAuditFieldsMixin
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
 from edc_dashboard.url_names import url_names
 from edc_notification import NotificationModelAdminMixin
 from edc_registration.models import RegisteredSubject
 
 from edc_model_admin import (
-    ModelAdminAuditFieldsMixin,
     ModelAdminFormAutoNumberMixin,
     ModelAdminFormInstructionsMixin,
     ModelAdminInstitutionMixin,

@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import include, path
 from django.views.generic.base import RedirectView
+from edc_utils.paths_for_urlpatterns import paths_for_urlpatterns
 
 from .admin import *  # noqa
 from .views import CrfOneListView
@@ -11,13 +12,17 @@ urlpatterns = []
 
 for app_name in [
     "edc_dashboard",
+    "edc_auth",
+    "edc_export",
     "edc_consent",
     "edc_device",
     "edc_protocol",
     "edc_reference",
     "edc_visit_schedule",
 ]:
-    urlpatterns.append(path(f"{app_name}/", include(f"{app_name}.urls")))
+    for p in paths_for_urlpatterns(app_name):
+        urlpatterns.append(p)
+    # urlpatterns.append(path(f"{app_name}/", include(f"{app_name}.urls")))
 
 urlpatterns += [
     path("admin/", admin.site.urls),
