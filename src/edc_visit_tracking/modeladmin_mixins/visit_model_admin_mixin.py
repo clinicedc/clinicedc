@@ -1,11 +1,11 @@
 from typing import Any, Tuple
 
 from django.contrib import admin
+from django_audit_fields.admin import audit_fieldset_tuple
 from edc_appointment.models import Appointment
 from edc_constants.constants import OTHER
 from edc_document_status.fieldsets import document_status_fieldset_tuple
 from edc_document_status.modeladmin_mixins import DocumentStatusModelAdminMixin
-from edc_model_admin.model_admin_audit_fields_mixin import audit_fieldset_tuple
 from edc_visit_schedule.fieldsets import (
     visit_schedule_fields,
     visit_schedule_fieldset_tuple,

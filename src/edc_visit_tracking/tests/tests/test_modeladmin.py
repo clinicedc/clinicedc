@@ -1,9 +1,9 @@
 from django.contrib import admin
 from django.test import TestCase
 from django.test.client import RequestFactory
+from django_audit_fields.admin import ModelAdminAuditFieldsMixin, audit_fields
 from edc_appointment.models import Appointment
 from edc_facility.import_holidays import import_holidays
-from edc_model_admin import ModelAdminAuditFieldsMixin, audit_fields
 from edc_reference import site_reference_configs
 from edc_visit_schedule.fieldsets import visit_schedule_fields
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
