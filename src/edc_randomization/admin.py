@@ -6,11 +6,8 @@ from django.contrib.admin.sites import AlreadyRegistered
 from django.contrib.sites.models import Site
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django_audit_fields.admin import audit_fields, audit_fieldset_tuple
 from edc_label import Label
-from edc_model_admin.model_admin_audit_fields_mixin import (
-    audit_fields,
-    audit_fieldset_tuple,
-)
 from edc_protocol import Protocol
 
 from .admin_site import edc_randomization_admin
