@@ -1,5 +1,5 @@
 from django.contrib import admin
-from edc_model_admin.model_admin_audit_fields_mixin import audit_fieldset_tuple
+from django_audit_fields.admin import audit_fieldset_tuple
 
 from ..fieldset import Fieldset
 from ..fieldsets_modeladmin_mixin import FieldsetsModelAdminMixin
