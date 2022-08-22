@@ -1,5 +1,6 @@
-from django.urls.conf import include, path
+from django.urls.conf import path
 from django.views.generic.base import RedirectView
+from edc_utils.paths_for_urlpatterns import paths_for_urlpatterns
 
 from ..url_config import UrlConfig
 from ..views import AdministrationView, ListboardView
@@ -16,17 +17,27 @@ subject_listboard_url_config = UrlConfig(
     identifier_pattern="/w+",
 )
 
-urlpatterns = subject_listboard_url_config.listboard_urls + [
+
+urlpatterns = subject_listboard_url_config.listboard_urls
+
+for app_name in [
+    "edc_dashboard",
+    "edc_auth",
+    "edc_adverse_event",
+    "edc_randomization",
+    "edc_consent",
+    "edc_export",
+    "edc_device",
+    "edc_protocol",
+    "edc_reference",
+    "edc_visit_schedule",
+]:
+    for p in paths_for_urlpatterns(app_name):
+        urlpatterns.append(p)
+
+urlpatterns += [
     path("admin/", edc_dashboard_admin.urls),
-    path("edc_auth/", include("edc_auth.urls")),
-    path("edc_adverse_event/", include("edc_adverse_event.urls")),
-    path("edc_randomization/", include("edc_randomization.urls")),
-    path("edc_consent/", include("edc_consent.urls")),
-    path("edc_dashboard/", include("edc_dashboard.urls")),
-    path("edc_export/", include("edc_export.urls")),
-    path("edc_device/", include("edc_device.urls")),
-    path("edc_protocol/", include("edc_protocol.urls")),
-    path("edc_visit_schedule/", include("edc_visit_schedule.urls")),
     path("administration/", AdministrationView.as_view(), name="administration_url"),
     path("", RedirectView.as_view(url="admin/"), name="home_url"),
+    path("", RedirectView.as_view(url="admin/"), name="logout"),
 ]
