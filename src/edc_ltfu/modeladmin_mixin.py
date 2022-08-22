@@ -1,6 +1,6 @@
 from django.contrib import admin
+from django_audit_fields.admin import audit_fieldset_tuple
 from edc_action_item import action_fields, action_fieldset_tuple
-from edc_model_admin import audit_fieldset_tuple
 
 from .forms import LtfuForm
 
