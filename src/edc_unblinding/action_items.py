@@ -1,4 +1,3 @@
-from django.utils.safestring import mark_safe
 from edc_action_item import ActionWithNotification
 from edc_constants.constants import HIGH_PRIORITY, TBD, YES
 from edc_offstudy.constants import END_OF_STUDY_ACTION
@@ -42,9 +41,7 @@ class UnblindingReviewAction(ActionWithNotification):
     priority = HIGH_PRIORITY
     color_style = "info"
     create_by_user = False
-    instructions = mark_safe(
-        "This report is to be completed by the UNBLINDING REVIEWERS only."
-    )
+    instructions = "This report is to be completed by the UNBLINDING REVIEWERS only."
 
     def get_next_actions(self):
         next_actions = []
