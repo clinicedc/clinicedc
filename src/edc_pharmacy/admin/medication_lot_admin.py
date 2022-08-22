@@ -1,7 +1,7 @@
 from typing import Tuple
 
 from django.contrib import admin
-from edc_model_admin import audit_fieldset_tuple
+from django_audit_fields.admin import audit_fieldset_tuple
 
 from ..admin_site import edc_pharmacy_admin
 from ..forms import MedicationLotForm
