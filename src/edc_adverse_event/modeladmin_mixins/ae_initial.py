@@ -7,10 +7,10 @@ from django.template.loader import render_to_string
 from django.urls.base import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django_audit_fields.admin import audit_fieldset_tuple
 from edc_action_item import action_fieldset_tuple
 from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
 from edc_constants.constants import DEAD
-from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_notification.utils import get_email_contacts
 
