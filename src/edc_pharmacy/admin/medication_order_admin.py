@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib import admin
-from edc_model_admin import audit_fieldset_tuple
+from django_audit_fields.admin import audit_fieldset_tuple
 from edc_utils import convert_php_dateformat
 
 from ..admin_site import edc_pharmacy_admin
