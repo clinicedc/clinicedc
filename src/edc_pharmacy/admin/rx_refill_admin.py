@@ -5,8 +5,8 @@ from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
+from django_audit_fields.admin import audit_fieldset_tuple
 from edc_dashboard.utils import get_bootstrap_version
-from edc_model_admin import audit_fieldset_tuple
 from edc_utils import formatted_age, get_utcnow
 
 from ..admin_site import edc_pharmacy_admin
