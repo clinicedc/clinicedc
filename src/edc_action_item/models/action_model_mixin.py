@@ -32,7 +32,7 @@ class ActionNoManagersModelMixin(models.Model):
 
     subject_dashboard_url: str = "subject_dashboard_url"
 
-    action_identifier = models.CharField(max_length=50, unique=True)
+    action_identifier = models.CharField(max_length=50, unique=True, blank=True)
 
     action_item = models.ForeignKey(ActionItem, null=True, blank=True, on_delete=PROTECT)
 
