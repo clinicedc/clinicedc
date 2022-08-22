@@ -5,9 +5,10 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
+from django_audit_fields.admin import audit_fieldset_tuple
 from edc_document_status.fieldsets import document_status_fieldset_tuple
 from edc_document_status.modeladmin_mixins import DocumentStatusModelAdminMixin
-from edc_model_admin import SimpleHistoryAdmin, audit_fieldset_tuple
+from edc_model_admin import SimpleHistoryAdmin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_visit_schedule import OnScheduleError, off_schedule_or_raise
 from edc_visit_schedule.fieldsets import (
