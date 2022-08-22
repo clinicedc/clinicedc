@@ -1,6 +1,4 @@
 /* https://mdbootstrap.com/docs/standard/content-styles/colors/ */
-@import "edc_model_admin.css";
-
 :root {
     --primary: #9575CD; /* 300 Deep Purple */
     --secondary: #512DA8; /* 700 Purple */
