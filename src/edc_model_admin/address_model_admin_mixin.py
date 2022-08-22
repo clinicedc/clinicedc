@@ -1,6 +1,5 @@
 from django.contrib import admin
-
-from .model_admin_audit_fields_mixin import audit_fieldset_tuple
+from django_audit_fields.admin import audit_fieldset_tuple
 
 
 class AddressModelAdminMixin(admin.ModelAdmin):

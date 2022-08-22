@@ -15,13 +15,13 @@ class TemplatesModelAdminMixin:
     See also: https://linevi.ch/en/django-inline-in-fieldset.html
     """
 
-    show_object_tools = False
+    show_object_tools: bool = False
 
-    add_form_template = "edc_model_admin/admin/change_form.html"
-    change_form_template = "edc_model_admin/admin/change_form.html"
-    change_list_template = "edc_model_admin/admin/change_list.html"
-    view_on_site_label = None
-    history_label = "Audit trail"
+    add_form_template: str = "edc_model_admin/admin/change_form.html"
+    change_form_template: str = "edc_model_admin/admin/change_form.html"
+    change_list_template: str = "edc_model_admin/admin/change_list.html"
+    view_on_site_label: str = "View on site"
+    history_label: str = "Audit trail"
 
     def change_view(self, request, object_id, form_url="", extra_context=None):
         extra_context = extra_context or {}
