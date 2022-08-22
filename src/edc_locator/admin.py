@@ -1,5 +1,6 @@
 from django.contrib import admin
-from edc_model_admin import SimpleHistoryAdmin, audit_fieldset_tuple
+from django_audit_fields.admin import audit_fieldset_tuple
+from edc_model_admin import SimpleHistoryAdmin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
 from .admin_site import edc_locator_admin
