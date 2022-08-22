@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('edc_locator', '0023_auto_20210203_0706'),
+        ("edc_locator", "0023_auto_20210203_0706"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='historicalsubjectlocator',
-            name='tracking_identifier',
+            model_name="historicalsubjectlocator",
+            name="tracking_identifier",
             field=models.CharField(db_index=True, max_length=32),
         ),
         migrations.AlterField(
-            model_name='subjectlocator',
-            name='tracking_identifier',
+            model_name="subjectlocator",
+            name="tracking_identifier",
             field=models.CharField(max_length=32, unique=True),
         ),
     ]

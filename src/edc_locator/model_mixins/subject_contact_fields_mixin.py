@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from django_crypto_fields.fields import EncryptedCharField, EncryptedTextField
 from edc_constants.choices import YES_NO
 from edc_model.validators import cell_number, telephone_number
@@ -10,7 +10,7 @@ class SubjectContactFieldsMixin(models.Model):
     may_call = models.CharField(
         max_length=25,
         choices=YES_NO,
-        verbose_name=mark_safe(
+        verbose_name=format_html(
             "Has the participant given permission <b>to contacted by telephone "
             "or cell</b> by study staff for follow-up purposes during the study?"
         ),
@@ -19,7 +19,7 @@ class SubjectContactFieldsMixin(models.Model):
     may_visit_home = models.CharField(
         max_length=25,
         choices=YES_NO,
-        verbose_name=mark_safe(
+        verbose_name=format_html(
             "Has the participant given permission for study "
             "staff <b>to make home visits</b> for follow-up purposes?"
         ),
@@ -30,7 +30,7 @@ class SubjectContactFieldsMixin(models.Model):
         choices=YES_NO,
         null=True,
         blank=False,
-        verbose_name=mark_safe(
+        verbose_name=format_html(
             "Has the participant given permission <b>to be contacted by SMS</b> "
             "by study staff for follow-up purposes during the study?"
         ),
