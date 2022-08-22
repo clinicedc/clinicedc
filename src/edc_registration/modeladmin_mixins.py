@@ -1,8 +1,8 @@
 from typing import Tuple
 
 from django.contrib import admin
+from django_audit_fields.admin import audit_fields
 from edc_auth.auth_objects import PII, PII_VIEW
-from edc_model_admin import audit_fields
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
 
