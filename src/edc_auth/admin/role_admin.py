@@ -2,7 +2,7 @@ from typing import Tuple
 
 from django.contrib import admin
 from django.utils.html import format_html
-from edc_model_admin import TemplatesModelAdminMixin
+from edc_model_admin.mixins import TemplatesModelAdminMixin
 
 from ..admin_site import edc_auth_admin
 from ..models import Role
