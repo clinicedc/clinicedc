@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from edc_model_admin import (
+from edc_model_admin.mixins import (
     ModelAdminNextUrlRedirectMixin,
     ModelAdminRedirectOnDeleteMixin,
     TemplatesModelAdminMixin,
