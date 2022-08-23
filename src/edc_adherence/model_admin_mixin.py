@@ -11,18 +11,18 @@ missed_medications_fieldset_tuple = (
             "medicines for various reasons. What was the reason you "
             "missed taking your pills the last time?</p>"
         ),
-        "fields": [
+        "fields": (
             "last_missed_pill",
             "missed_pill_reason",
             "other_missed_pill_reason",
-        ],
+        ),
     },
 )
 
 pill_count_fieldset_tuple = (
     "Pill Count",
     {
-        "fields": ["pill_count_performed", "pill_count"],
+        "fields": ("pill_count_performed", "pill_count"),
     },
 )
 
@@ -46,7 +46,7 @@ def get_visual_score_fieldset_tuple(description=None):
     return (
         "Visual Score",
         {
-            "description": format_html(description),
+            "description": format_html(description or ""),
             "fields": ("visual_score_slider", "visual_score_confirmed"),
         },
     )
