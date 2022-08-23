@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin.decorators import register
 from django_audit_fields.admin import ModelAdminAuditFieldsMixin, audit_fieldset_tuple
-from edc_model_admin.model_admin_simple_history import SimpleHistoryAdmin
+from edc_model_admin.history import SimpleHistoryAdmin
 
 from ..admin_site import edc_data_manager_admin
 from ..forms import QueryRuleForm
