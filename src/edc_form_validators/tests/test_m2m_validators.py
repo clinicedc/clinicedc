@@ -19,12 +19,9 @@ class TestApplicableFieldValidator(TestCase):
         Alphabet.objects.create(display_name=NOT_APPLICABLE, name=NOT_APPLICABLE)
 
     def test_m2m_applicable_if(self):
-        """"""
-
         cleaned_data = dict(
             f1=YES, alphabet=Alphabet.objects.filter(name__in=[NOT_APPLICABLE])
         )
-
         form_validator = FormValidator(cleaned_data=cleaned_data)
 
         self.assertRaises(
