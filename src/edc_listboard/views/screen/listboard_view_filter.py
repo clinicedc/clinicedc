@@ -1,8 +1,8 @@
-from edc_dashboard.listboard_filter import ListboardFilter
-from edc_dashboard.listboard_filter import ListboardViewFilters as Base
+from ...filters import ListboardFilter
+from ...filters import ListboardViewFilters as Base
 
 
-class ListboardViewFilters(Base):
+class ScreeningListboardViewFilters(Base):
 
     all = ListboardFilter(name="all", label="All", lookup={})
 

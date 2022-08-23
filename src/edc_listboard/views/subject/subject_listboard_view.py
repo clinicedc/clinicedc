@@ -2,14 +2,12 @@ import re
 
 from django.db.models import Q
 from edc_consent.utils import get_consent_model_name
-from edc_dashboard.view_mixins import (
-    EdcViewMixin,
-    ListboardFilterViewMixin,
-    SearchFormViewMixin,
-)
-from edc_dashboard.views import ListboardView as BaseListboardView
+from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_subject_model_wrappers import SubjectConsentModelWrapper
+
+from ...view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
+from ..listboard_view import ListboardView
 
 
 class SubjectListboardView(
@@ -17,7 +15,7 @@ class SubjectListboardView(
     NavbarViewMixin,
     ListboardFilterViewMixin,
     SearchFormViewMixin,
-    BaseListboardView,
+    ListboardView,
 ):
 
     listboard_model = get_consent_model_name()
@@ -27,7 +25,7 @@ class SubjectListboardView(
     listboard_url = "subject_listboard_url"
     listboard_panel_style = "success"
     listboard_fa_icon = "fas fa-user-circle fa-2x"
-    listboard_view_permission_codename = "edc_dashboard.view_subject_listboard"
+    listboard_view_permission_codename = "edc_listboard.view_subject_listboard"
 
     navbar_selected_item = "consented_subject"
     search_form_url = "subject_listboard_url"

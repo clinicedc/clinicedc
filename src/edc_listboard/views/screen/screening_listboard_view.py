@@ -3,17 +3,14 @@ from typing import List
 
 from django.db.models import Q
 from edc_constants.constants import ABNORMAL
-from edc_dashboard.view_mixins import (
-    EdcViewMixin,
-    ListboardFilterViewMixin,
-    SearchFormViewMixin,
-)
-from edc_dashboard.views import ListboardView as BaseListboardView
+from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_screening.model_wrappers import SubjectScreeningModelWrapper
 from edc_screening.utils import get_subject_screening_model
 
-from .listboard_view_filter import ListboardViewFilters
+from ...view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
+from ..listboard_view import ListboardView
+from .listboard_view_filter import ScreeningListboardViewFilters
 
 
 class ScreeningListboardView(
@@ -21,18 +18,18 @@ class ScreeningListboardView(
     NavbarViewMixin,
     ListboardFilterViewMixin,
     SearchFormViewMixin,
-    BaseListboardView,
+    ListboardView,
 ):
 
     listboard_model = get_subject_screening_model()
     model_wrapper_cls = SubjectScreeningModelWrapper
-    listboard_view_filters = ListboardViewFilters()
+    listboard_view_filters = ScreeningListboardViewFilters()
 
     listboard_template = "screening_listboard_template"
     listboard_url = "screening_listboard_url"
     listboard_panel_style = "info"
     listboard_fa_icon = "fas fa-user-plus"
-    listboard_view_permission_codename = "edc_dashboard.view_screening_listboard"
+    listboard_view_permission_codename = "edc_listboard.view_screening_listboard"
     alternate_search_attr = "screening_identifier"
     navbar_selected_item = "screened_subject"
     ordering = "-report_datetime"
