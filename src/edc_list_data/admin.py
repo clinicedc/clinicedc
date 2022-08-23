@@ -1,7 +1,7 @@
 from typing import Tuple
 
 from django.contrib import admin
-from edc_model_admin import TemplatesModelAdminMixin
+from edc_model_admin.mixins import TemplatesModelAdminMixin
 
 
 class ListModelAdminMixin(TemplatesModelAdminMixin, admin.ModelAdmin):
