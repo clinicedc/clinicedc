@@ -3,7 +3,7 @@ from unittest.mock import patch
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.client import RequestFactory
-from edc_model_admin import ModelAdminFormInstructionsMixin
+from edc_model_admin.mixins import ModelAdminFormInstructionsMixin
 
 from edc_notification import NotificationModelAdminMixin
 
