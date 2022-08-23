@@ -2,7 +2,7 @@ from typing import Tuple
 
 from django.contrib.admin.decorators import register
 from django_audit_fields.admin import audit_fieldset_tuple
-from edc_model_admin import SimpleHistoryAdmin
+from edc_model_admin.history import SimpleHistoryAdmin
 
 from ..admin_site import edc_visit_schedule_admin
 from ..models import VisitSchedule
