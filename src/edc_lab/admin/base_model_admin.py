@@ -2,7 +2,7 @@ from django.contrib import admin
 from django_audit_fields.admin import ModelAdminAuditFieldsMixin, audit_fields
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
 from edc_fieldsets import FieldsetsModelAdminMixin
-from edc_model_admin import (
+from edc_model_admin.mixins import (
     ModelAdminFormAutoNumberMixin,
     ModelAdminFormInstructionsMixin,
     ModelAdminNextUrlRedirectMixin,

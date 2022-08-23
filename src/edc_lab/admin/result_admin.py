@@ -1,5 +1,5 @@
 from django.contrib import admin
-from edc_model_admin import TabularInlineMixin
+from edc_model_admin.mixins import TabularInlineMixin
 
 from ..admin_site import edc_lab_admin
 from ..models import Result, ResultItem
