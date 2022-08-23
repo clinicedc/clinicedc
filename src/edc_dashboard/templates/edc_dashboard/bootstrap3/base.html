@@ -6,11 +6,16 @@
 {% block title %}{{ project_name|default_if_none:"clinicedc.org" }}{% endblock title %}
 
 {% block jquery %}
-  <script src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+  {% if DEBUG %}
+    <script src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+  {% else %}
+    <script src="{% static 'admin/js/vendor/jquery/jquery.min.js' %}"></script>
+  {% endif %}
 {% endblock %}
 
 {% block extrastyle %}
     {{ block.super }}
+    <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
     <!-- favicon -->
     <link rel="icon" href="{% static 'edc_dashboard/icons/favicon.ico' %}">
     <link rel="shortcut icon" href="{% static 'edc_dashboard/icons/favicon.ico' %}" type="image/x-icon"/>
@@ -23,9 +28,6 @@
     <link rel="apple-touch-icon" sizes="144x144" href="{% static 'edc_dashboard/icons/apple-touch-icon-144x144.png' %}"/>
     <link rel="apple-touch-icon" sizes="152x152" href="{% static 'edc_dashboard/icons/apple-touch-icon-152x152.png' %}"/>
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'edc_dashboard/icons/apple-touch-icon-180x180.png' %}"/>
-
-
-    <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
 
     <!-- Latest bootstrap compiled and minified CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
