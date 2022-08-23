@@ -18,14 +18,14 @@ class NotificationModelAdminMixin:
         notification_instructions = None
         if notifications:
             notifications = [notification.display_name for notification in notifications]
-            tooltip1 = mark_safe(", ".join(notifications))
+            tooltip1 = mark_safe(", ".join(notifications))  # nosec B308 B703
             my_notifications = [
                 n.display_name
                 for n in request.user.userprofile.email_notifications.filter(
                     display_name__in=notifications
                 )
             ]
-            tooltip2 = mark_safe(", ".join(my_notifications))
+            tooltip2 = mark_safe(", ".join(my_notifications))  # nosec B308 B703
             word = "notification is" if len(notifications) == 1 else "notifications are"
             notification_instructions = (
                 f'<a href="#" title="{tooltip1}">{len(notifications)} '
@@ -34,7 +34,7 @@ class NotificationModelAdminMixin:
                 f"to {len(my_notifications)}</a>. "
                 f"See your user profile for more details."
             )
-            return mark_safe(notification_instructions)
+            return mark_safe(notification_instructions)  # nosec B308 B703
         return notification_instructions
 
     def get_add_instructions(self, extra_context, request=None):
