@@ -10,7 +10,7 @@ class FormValidatorMixin:
     form_validator_cls = None
 
     def clean(self: ModelForm) -> dict:
-        cleaned_data = super().clean()  # type: ignore
+        cleaned_data = super().clean()
         try:
             form_validator = self.form_validator_cls(
                 cleaned_data=cleaned_data, instance=self.instance, data=self.data

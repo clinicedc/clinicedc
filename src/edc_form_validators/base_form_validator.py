@@ -1,4 +1,4 @@
-from copy import copy
+from copy import copy, deepcopy
 from typing import Any, Union
 
 from django.core.exceptions import NON_FIELD_ERRORS
@@ -36,10 +36,10 @@ class BaseFormValidator:
     ) -> None:
         self._errors: dict = {}
         self._error_codes: list = []
-        self.cleaned_data = copy(cleaned_data)
+        self.cleaned_data = deepcopy(cleaned_data)
         self.data = copy(data)
         self.instance = instance
-        self.original_cleaned_data = copy(cleaned_data)
+        self.original_cleaned_data = deepcopy(cleaned_data)
         if cleaned_data is None:
             raise ModelFormFieldValidatorError(
                 f"{repr(self)}. Expected a cleaned_data dictionary. Got None."
