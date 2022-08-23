@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.utils.html import format_html
 from edc_dashboard import select_edc_template
-from edc_model_admin import TemplatesModelAdminMixin
+from edc_model_admin.mixins import TemplatesModelAdminMixin
 
 from ..admin_site import edc_auth_admin
 from ..forms import UserChangeForm

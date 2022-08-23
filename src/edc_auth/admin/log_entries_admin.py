@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.admin.models import LogEntry
-from edc_model_admin import TemplatesModelAdminMixin
+from edc_model_admin.mixins import TemplatesModelAdminMixin
 from logentry_admin.admin import ActionListFilter, LogEntryAdmin, UserListFilter
 
 from edc_auth.admin_site import edc_auth_admin
