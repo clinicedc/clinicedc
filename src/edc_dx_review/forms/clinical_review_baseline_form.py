@@ -4,7 +4,7 @@ from edc_crf.forms import CrfFormValidatorMixin
 from edc_crf.modelform_mixins import CrfModelFormMixin
 from edc_dx import get_diagnosis_labels_prefixes
 from edc_form_validators.form_validator import FormValidator
-from edc_utils.forms import EstimatedDateFromAgoFormMixin
+from edc_model_form.mixins import EstimatedDateFromAgoFormMixin
 from edc_visit_schedule.utils import raise_if_not_baseline
 
 from ..models import ClinicalReviewBaseline
