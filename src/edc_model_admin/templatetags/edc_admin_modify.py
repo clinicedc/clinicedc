@@ -7,7 +7,7 @@ from django.contrib.admin.templatetags.admin_modify import (
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
 
-from edc_model_admin import get_next_url
+from edc_model_admin.utils import get_next_url
 
 register = template.Library()
 

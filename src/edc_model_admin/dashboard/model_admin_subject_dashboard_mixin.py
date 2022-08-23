@@ -9,7 +9,7 @@ from edc_dashboard.url_names import url_names
 from edc_notification import NotificationModelAdminMixin
 from edc_registration.models import RegisteredSubject
 
-from edc_model_admin import (
+from edc_model_admin.mixins import (
     ModelAdminFormAutoNumberMixin,
     ModelAdminFormInstructionsMixin,
     ModelAdminInstitutionMixin,

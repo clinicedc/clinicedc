@@ -22,6 +22,7 @@ class TemplatesModelAdminMixin:
     change_list_template: str = "edc_model_admin/admin/change_list.html"
     view_on_site_label: str = "View on site"
     history_label: str = "Audit trail"
+    delete_confirmation_template: str = "edc_model_admin/admin/delete_confirmation.html"
 
     def change_view(self, request, object_id, form_url="", extra_context=None):
         extra_context = extra_context or {}
