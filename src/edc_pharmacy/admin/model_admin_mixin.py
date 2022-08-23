@@ -5,7 +5,7 @@ from django_audit_fields.admin import ModelAdminAuditFieldsMixin
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
 from edc_appointment.models import Appointment
 from edc_dashboard import url_names
-from edc_model_admin import (
+from edc_model_admin.mixins import (
     ModelAdminFormAutoNumberMixin,
     ModelAdminFormInstructionsMixin,
     ModelAdminInstitutionMixin,
