@@ -3,7 +3,7 @@ from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
-from edc_model_admin.model_admin_simple_history import SimpleHistoryAdmin
+from edc_model_admin.history import SimpleHistoryAdmin
 
 from .admin_site import edc_refusal_admin
 from .forms import SubjectRefusalForm
