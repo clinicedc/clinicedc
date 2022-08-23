@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('edc_sites', '0004_siteprofile_country_code'),
+        ("edc_sites", "0004_siteprofile_country_code"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='siteprofile',
-            name='id',
+            model_name="siteprofile",
+            name="id",
             field=models.BigAutoField(primary_key=True, serialize=False),
         ),
     ]

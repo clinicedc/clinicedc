@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.sites.models import Site
-from edc_model_admin import TemplatesModelAdminMixin
+from edc_model_admin.mixins import TemplatesModelAdminMixin
 
 from .admin_site import edc_sites_admin
 
