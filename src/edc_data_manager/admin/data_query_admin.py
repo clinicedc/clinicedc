@@ -21,8 +21,8 @@ from edc_constants.constants import (
     YES,
 )
 from edc_dashboard.utils import get_bootstrap_version
-from edc_model_admin import SimpleHistoryAdmin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
+from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils import formatted_datetime
 
 from ..admin_site import edc_data_manager_admin
