@@ -1,4 +1,4 @@
-from copy import copy, deepcopy
+from copy import deepcopy
 
 from django.apps import apps as django_apps
 from edc_constants.constants import YES
@@ -45,7 +45,7 @@ class ReportablesFormValidatorMixin:
         # check normal ranges and grade result values
         reportables = self.reportables_cls(
             reference_range_collection_name,
-            cleaned_data=copy(cleaned_data),
+            cleaned_data=deepcopy(cleaned_data),
             gender=registered_subject.gender,
             dob=registered_subject.dob,
             report_datetime=subject_visit.report_datetime,
