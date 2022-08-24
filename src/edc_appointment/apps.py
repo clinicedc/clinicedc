@@ -3,7 +3,7 @@ import sys
 from django.apps import AppConfig as DjangoAppConfig
 from django.core.checks.registry import register
 
-from .system_checks import context_processor_check
+from .system_checks import context_processors_check
 
 
 class AppConfig(DjangoAppConfig):
@@ -15,5 +15,5 @@ class AppConfig(DjangoAppConfig):
 
     def ready(self):
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
-        register(context_processor_check)
+        register(context_processors_check)
         sys.stdout.write(f" Done loading {self.verbose_name}.\n")
