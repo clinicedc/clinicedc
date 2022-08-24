@@ -38,9 +38,9 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
     listboard_instructions = None
 
     permissions_warning_message = _("You do not have permission to view these data.")
-    # e.g. "edc_dashboard.view_subject_listboard"
+    # e.g. "edc_listboard.view_subject_listboard"
     listboard_view_permission_codename = None
-    # e.g. "edc_dashboard.view_subject_listboard"
+    # e.g. "edc_listboard.view_subject_listboard"
     listboard_view_only_my_permission_codename = None
 
     model_wrapper_cls = None

@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import arrow
 from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
 from edc_auth.auth_objects import CLINIC
@@ -57,6 +57,7 @@ class TestViewMixins(TestCase):
             with self.subTest(attr=attr):
                 self.assertEqual(attr, view.get_context_data().get(attr), attr)
 
+    @tag("1")
     def test_listboard_filter_view(self):
         class SubjectVisitModelWrapper(ModelWrapper):
             model = "edc_listboard.subjectvisit"
