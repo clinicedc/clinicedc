@@ -6,7 +6,7 @@ navbar_item = NavbarItem(
     name="subject_review",
     label="Review",
     title="Subject Review",
-    codename="edc_dashboard.view_subject_review_listboard",
+    codename="edc_review_dashboard.view_subject_review_listboard",
     url_name="subject_review_listboard_url",
 )
 

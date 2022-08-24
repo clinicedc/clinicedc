@@ -3,12 +3,9 @@ import re
 from django.db.models import Q
 from django.db.models.aggregates import Count
 from edc_appointment.view_mixins import AppointmentViewMixin
-from edc_dashboard.view_mixins import (
-    EdcViewMixin,
-    ListboardFilterViewMixin,
-    SearchFormViewMixin,
-)
-from edc_dashboard.views import ListboardView
+from edc_dashboard.view_mixins import EdcViewMixin
+from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
+from edc_listboard.views import ListboardView
 from edc_metadata.constants import KEYED, REQUIRED
 from edc_metadata.view_mixins import MetadataViewMixin
 from edc_navbar.view_mixin import NavbarViewMixin
@@ -42,7 +39,7 @@ class SubjectReviewListboardView(
     listboard_panel_style = "default"
     listboard_model_manager_name = "objects"
     listboard_panel_title = "Subject Review"
-    listboard_view_permission_codename = "edc_dashboard.view_subject_review_listboard"
+    listboard_view_permission_codename = "edc_review_dashboard.view_subject_review_listboard"
 
     model_wrapper_cls = SubjectVisitModelWrapper
     navbar_selected_item = "subject_review"

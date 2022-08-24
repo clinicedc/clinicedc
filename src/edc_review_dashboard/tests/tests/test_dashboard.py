@@ -26,7 +26,10 @@ class TestDashboard(WebTest):
 
     def setUp(self):
         self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
-
+        self.user.is_active = True
+        self.user.is_staff = True
+        self.user.save()
+        self.user.refresh_from_db()
         site_labs._registry = {}
         site_labs.loaded = False
         site_labs.register(lab_profile=lab_profile)
