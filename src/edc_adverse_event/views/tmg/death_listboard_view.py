@@ -3,12 +3,9 @@ import re
 from django.conf import settings
 from django.db.models import Q
 from edc_dashboard.url_names import url_names
-from edc_dashboard.view_mixins import (
-    EdcViewMixin,
-    ListboardFilterViewMixin,
-    SearchFormViewMixin,
-)
-from edc_dashboard.views import ListboardView as BaseListboardView
+from edc_dashboard.view_mixins import EdcViewMixin
+from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
+from edc_listboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
 
 from ...model_wrappers import DeathReportModelWrapper as ModelWrapper

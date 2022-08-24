@@ -5,12 +5,9 @@ from edc_action_item.model_wrappers import (
     ActionItemModelWrapper as BaseActionItemModelWrapper,
 )
 from edc_constants.constants import CLOSED, NEW, OPEN
-from edc_dashboard.view_mixins import (
-    EdcViewMixin,
-    ListboardFilterViewMixin,
-    SearchFormViewMixin,
-)
-from edc_dashboard.views import ListboardView as BaseListboardView
+from edc_dashboard.view_mixins import EdcViewMixin
+from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
+from edc_listboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
 from edc_utils import get_utcnow
 

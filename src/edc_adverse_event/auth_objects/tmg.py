@@ -7,9 +7,9 @@ TMG_ROLE = "tmg"
 tmg_codenames = [
     "edc_appointment.view_appointment",
     "edc_appointment.view_historicalappointment",
-    "edc_dashboard.view_screening_listboard",
-    "edc_dashboard.view_subject_listboard",
-    "edc_dashboard.view_subject_review_listboard",
+    "edc_listboard.view_screening_listboard",
+    "edc_listboard.view_subject_listboard",
+    "edc_review_dashboard.view_subject_review_listboard",
     "edc_dashboard.view_tmg_listboard",
     "edc_navbar.nav_screening_section",
     "edc_navbar.nav_subject_section",
