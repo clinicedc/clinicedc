@@ -5,9 +5,9 @@ from .models import SubjectVisit
 
 
 class AdminSite(DjangoAdminSite):
-    site_title = "Example"
-    site_header = "Example"
-    index_title = "Example"
+    site_title = "edc_listboard"
+    site_header = "edc_listboard"
+    index_title = "edc_listboard"
     site_url = "/"
 
 
