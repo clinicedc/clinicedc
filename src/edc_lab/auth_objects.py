@@ -48,9 +48,9 @@ for action in ["view_", "add_", "change_", "delete_", "view_historical"]:
 #     "edc_dashboard.view_lab_receive_listboard",
 #     "edc_dashboard.view_lab_requisition_listboard",
 #     "edc_dashboard.view_lab_result_listboard",
-#     "edc_dashboard.view_screening_listboard",
-#     "edc_dashboard.view_subject_listboard",
-#     "edc_dashboard.view_subject_review_listboard",
+#     "edc_listboard.view_screening_listboard",
+#     "edc_listboard.view_subject_listboard",
+#     "edc_review_dashboard.view_subject_review_listboard",
 # ]
 #
 # lab_navbar = [
