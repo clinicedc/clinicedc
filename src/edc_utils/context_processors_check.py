@@ -10,7 +10,7 @@ style = color_style()
 def edc_context_processors_check(
     app_configs, app_label=None, context_processor_name=None, error_code=None, **kwargs
 ):
-    msg = "edc_appointment.context_processors_check"
+    msg = f"check for {app_label}.context_processor"
     sys.stdout.write(style.SQL_KEYWORD(f"{msg} ... \r"))
     errors = []
     for template_config in settings.TEMPLATES:
@@ -19,7 +19,7 @@ def edc_context_processors_check(
         ):
             errors.append(
                 Error(
-                    "Missing template context processor. "
+                    "Missing item in TEMPLATE.OPTIONS.context_processors. "
                     f"Expected `{context_processor_name}`.",
                     id=f"{app_label}.{error_code or'001'}",
                 )
