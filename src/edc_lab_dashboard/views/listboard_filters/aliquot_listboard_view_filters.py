@@ -1,5 +1,5 @@
-from edc_dashboard.listboard_filter import ListboardFilter, ListboardViewFilters
 from edc_lab.models import BoxItem
+from edc_listboard.filters import ListboardFilter, ListboardViewFilters
 
 
 def get_box_items():

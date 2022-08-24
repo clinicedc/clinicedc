@@ -1,4 +1,4 @@
-from edc_dashboard.listboard_filter import ListboardFilter, ListboardViewFilters
+from edc_listboard.filters import ListboardFilter, ListboardViewFilters
 
 
 class ManifestListboardViewFilters(ListboardViewFilters):
