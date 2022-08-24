@@ -1,5 +1,6 @@
 import sys
 from copy import deepcopy
+from typing import Tuple
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -200,7 +201,9 @@ class SiteAuths:
         existing_group_names = list(set(existing_group_names))
         self.registry[key].update({name: existing_group_names})
 
-    def add_custom_permissions_tuples(self, model: str, codename_tuples: tuple):
+    def add_custom_permissions_tuples(
+        self, model: str, codename_tuples: Tuple[Tuple[str, str], ...]
+    ):
         try:
             self.registry["custom_permissions_tuples"][model]
         except KeyError:
