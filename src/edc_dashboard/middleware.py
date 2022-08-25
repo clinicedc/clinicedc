@@ -1,21 +1,4 @@
 from django.conf import settings
-from edc_constants.constants import (
-    ABNORMAL,
-    CANCELLED,
-    CLOSED,
-    COMPLETE,
-    FEMALE,
-    INCOMPLETE,
-    MALE,
-    NEW,
-    NO,
-    NOT_APPLICABLE,
-    OPEN,
-    OTHER,
-    PENDING,
-    TBD,
-    YES,
-)
 
 from .dashboard_templates import dashboard_templates
 from .url_names import url_names
@@ -51,25 +34,6 @@ class DashboardMiddleware:
 
     def process_template_response(self, request, response):
         if response.context_data:
-            response.context_data.update(
-                ABNORMAL=ABNORMAL,
-                CANCELLED=CANCELLED,
-                CLOSED=CLOSED,
-                COMPLETE=COMPLETE,
-                DEBUG=settings.DEBUG,
-                FEMALE=FEMALE,
-                INCOMPLETE=INCOMPLETE,
-                MALE=MALE,
-                NEW=NEW,
-                NO=NO,
-                NOT_APPLICABLE=NOT_APPLICABLE,
-                OPEN=OPEN,
-                OTHER=OTHER,
-                PENDING=PENDING,
-                SITE_ID=settings.SITE_ID,
-                TBD=TBD,
-                YES=YES,
-            )
             if "project_name" not in response.context_data:
                 response.context_data.update(project_name="project_name")
         return response

@@ -10,16 +10,13 @@ from django.views.generic.base import ContextMixin, View
 from edc_auth.auth_objects import CLINIC
 from edc_auth.auth_updater import AuthUpdater
 from edc_auth.site_auths import site_auths
+from edc_listboard.filters import ListboardFilter, ListboardViewFilters
+from edc_listboard.view_mixins import ListboardFilterViewMixin, QueryStringViewMixin
+from edc_listboard.views import ListboardView
 from edc_model_wrapper import ModelWrapper
 from edc_utils import get_utcnow
 
-from edc_dashboard.listboard_filter import ListboardFilter, ListboardViewFilters
 from edc_dashboard.url_names import url_names
-from edc_dashboard.view_mixins import ListboardFilterViewMixin
-from edc_dashboard.view_mixins.listboard.querystring_view_mixin import (
-    QueryStringViewMixin,
-)
-from edc_dashboard.views import ListboardView
 
 from ..models import SubjectVisit
 
@@ -32,7 +29,7 @@ class TestViewMixins(TestCase):
         site_auths.clear()
         site_auths.add_group("edc_dashboard.view_my_listboard", name=CLINIC)
         site_auths.add_custom_permissions_tuples(
-            model="edc_dashboard.dashboard",
+            model="edc_dashboard.edcpermissions",
             codename_tuples=(("edc_dashboard.view_my_listboard", "View my listboard"),),
         )
         AuthUpdater(verbose=False, warn_only=True)
