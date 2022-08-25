@@ -14,7 +14,7 @@
 
 {% block main %}
 
-{% if not perms.edc_dashboard.view_export_dashboard %}
+{% if not perms.edc_export.view_export_dashboard %}
 	<div class="row">
 	<div class="col-sm-12">
 	<p class="text-center">You do not have sufficient permissions to view.</p>

@@ -1,7 +1,6 @@
 EXPORT = "EXPORT"
 DATA_EXPORTER_ROLE = "data_exporter"
 export_codenames = [
-    "edc_dashboard.view_export_dashboard",
     "edc_export.display_export_admin_action",
     "edc_export.add_datarequest",
     "edc_export.add_datarequesthistory",
@@ -36,4 +35,7 @@ export_codenames = [
     "edc_export.view_objecthistory",
     "edc_export.view_plan",
     "edc_export.view_uploadexportreceiptfile",
+    "edc_export.export_subjectschedulehistory",
+    "edc_export.export_visitschedule",
+    "edc_export.view_export_dashboard",
 ]
