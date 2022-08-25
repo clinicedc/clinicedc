@@ -7,6 +7,10 @@ DATA_QUERY = "DATA_QUERY"
 DATA_QUERY_VIEW = "DATA_QUERY_VIEW"
 SITE_DATA_MANAGER = "SITE_DATA_MANAGER"
 
+# role names
+SITE_DATA_MANAGER_ROLE = "site_data_manager"
+DATA_MANAGER_ROLE = "data_manager"
+
 # codenames
 data_manager = [
     "edc_data_manager.add_dataquery",
@@ -32,13 +36,18 @@ data_manager = [
     "edc_data_manager.view_visitdatadictionary",
     "edc_metadata.view_crfmetadata",
     "edc_metadata.view_requisitionmetadata",
-    "edc_navbar.nav_data_manager_section",
 ]
+
+custom_codenames = [
+    "edc_data_manager.nav_data_manager_section",
+]
+
+data_manager.extend(custom_codenames)
 
 data_manager.extend([tpl[0] for tpl in dashboard_tuples])
 
 data_query = [c for c in data_manager if ("view_" in c or "navbar" in c)]
 
-# role names
-SITE_DATA_MANAGER_ROLE = "site_data_manager"
-DATA_MANAGER_ROLE = "data_manager"
+custom_codename_tuples = []
+for codename in custom_codenames:
+    custom_codename_tuples.append((codename, f"Can access {codename.split('.')[1]}"))

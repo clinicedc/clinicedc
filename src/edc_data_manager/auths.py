@@ -13,8 +13,14 @@ from .auth_objects import (
     DATA_QUERY,
     DATA_QUERY_VIEW,
     SITE_DATA_MANAGER_ROLE,
+    custom_codename_tuples,
     data_manager,
 )
+
+site_auths.add_custom_permissions_tuples(
+    model="edc_data_manager.edcpermissions", codename_tuples=custom_codename_tuples
+)
+
 
 # groups
 site_auths.add_group(*data_manager, name=DATA_MANAGER)

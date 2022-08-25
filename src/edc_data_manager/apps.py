@@ -52,13 +52,8 @@ class AppConfig(DjangoAppConfig):
 if settings.APP_NAME == "edc_data_manager":
 
     from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE
-    from edc_appointment.apps import AppConfig as BaseEdcAppointmentAppConfig
     from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
     from edc_metadata.apps import AppConfig as BaseEdcMetadataAppConfig
-    from edc_visit_tracking.apps import AppConfig as BaseEdcVisitTrackingAppConfig
-
-    class EdcVisitTrackingAppConfig(BaseEdcVisitTrackingAppConfig):
-        visit_models = {"data_manager_app": ("subject_visit", "data_manager_app.subjectvisit")}
 
     class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
         definitions = {
@@ -68,9 +63,6 @@ if settings.APP_NAME == "edc_data_manager":
             ),
             "5-day-clinic": dict(days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100]),
         }
-
-    class EdcAppointmentAppConfig(BaseEdcAppointmentAppConfig):
-        pass
 
     class EdcMetadataAppConfig(BaseEdcMetadataAppConfig):
         reason_field = {"data_manager_app.subjectvisit": "reason"}
