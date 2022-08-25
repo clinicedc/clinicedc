@@ -2,7 +2,7 @@ from django.apps import apps as django_apps
 from django.db import models
 from django.db.models import Q
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
-from edc_model import models as edc_models
+from edc_model.models import BaseUuidModel
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_utils import get_utcnow
@@ -49,7 +49,7 @@ class SubjectScheduleModelManager(models.Manager):
 class SubjectScheduleHistory(
     NonUniqueSubjectIdentifierFieldMixin,
     VisitScheduleFieldsModelMixin,
-    edc_models.BaseUuidModel,
+    BaseUuidModel,
 ):
 
     onschedule_model = models.CharField(max_length=100)
@@ -69,7 +69,11 @@ class SubjectScheduleHistory(
     objects = SubjectScheduleModelManager()
 
     def natural_key(self):
-        return (self.subject_identifier, self.visit_schedule_name, self.schedule_name)
+        return (
+            self.subject_identifier,
+            self.visit_schedule_name,
+            self.schedule_name,
+        )
 
-    class Meta(edc_models.BaseUuidModel.Meta):
+    class Meta(BaseUuidModel.Meta):
         unique_together = ("subject_identifier", "visit_schedule_name", "schedule_name")
