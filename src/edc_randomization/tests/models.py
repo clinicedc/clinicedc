@@ -4,7 +4,7 @@ from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
 
-from edc_randomization.models import RandomizationListModelMixin
+from edc_randomization.model_mixins import RandomizationListModelMixin
 
 from .randomizers import MyRandomizer
 
