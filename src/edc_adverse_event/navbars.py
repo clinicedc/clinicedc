@@ -7,7 +7,7 @@ ae_navbar_item = NavbarItem(
     name="ae_home",
     title="Adverse Events",
     label="AE",
-    codename="edc_navbar.nav_ae_section",
+    codename="edc_adverse_event.nav_ae_section",
     url_name="edc_adverse_event:ae_home_url",
     no_url_namespace=no_url_namespace,
 )
@@ -15,7 +15,7 @@ ae_navbar_item = NavbarItem(
 tmg_navbar_item = NavbarItem(
     name="tmg_home",
     label="TMG",
-    codename="edc_navbar.nav_tmg_section",
+    codename="edc_adverse_event.nav_tmg_section",
     url_name="edc_adverse_event:tmg_home_url",
     no_url_namespace=no_url_namespace,
 )

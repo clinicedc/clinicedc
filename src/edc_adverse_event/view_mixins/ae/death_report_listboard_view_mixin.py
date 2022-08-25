@@ -5,12 +5,9 @@ from edc_action_item.model_wrappers import (
     ActionItemModelWrapper as BaseActionItemModelWrapper,
 )
 from edc_constants.constants import CLOSED, NEW, OPEN
-from edc_dashboard.view_mixins import (
-    EdcViewMixin,
-    ListboardFilterViewMixin,
-    SearchFormViewMixin,
-)
-from edc_dashboard.views import ListboardView as BaseListboardView
+from edc_dashboard.view_mixins import EdcViewMixin
+from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
+from edc_listboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
 from edc_utils import get_utcnow
 
@@ -54,7 +51,7 @@ class DeathReportListboardViewMixin(
     listboard_panel_style = "default"
     listboard_model = "edc_action_item.actionitem"
     listboard_panel_title = "Adverse Events: Death Reports"
-    listboard_view_permission_codename = "edc_dashboard.view_ae_listboard"
+    listboard_view_permission_codename = "edc_adverse_event.view_ae_listboard"
     listboard_instructions = format_html(
         "To find a death report, search on the subject's "
         "study identifier, death report reference number, or AE reference number."

@@ -3,12 +3,9 @@ import re
 from django.conf import settings
 from django.db.models import Q
 from edc_dashboard.url_names import url_names
-from edc_dashboard.view_mixins import (
-    EdcViewMixin,
-    ListboardFilterViewMixin,
-    SearchFormViewMixin,
-)
-from edc_dashboard.views import ListboardView as BaseListboardView
+from edc_dashboard.view_mixins import EdcViewMixin
+from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
+from edc_listboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
 
 from ...model_wrappers import DeathReportModelWrapper as ModelWrapper
@@ -34,7 +31,7 @@ class DeathListboardView(
     listboard_model = f"{settings.ADVERSE_EVENT_APP_LABEL}.deathreport"
     listboard_model_manager_name = "objects"
     listboard_panel_title = "TMG: Death Reports"
-    listboard_view_permission_codename = "edc_dashboard.view_tmg_listboard"
+    listboard_view_permission_codename = "edc_adverse_event.view_tmg_listboard"
     model_wrapper_cls = DeathReportModelWrapper
     navbar_selected_item = "tmg_home"
     ordering = "-created"

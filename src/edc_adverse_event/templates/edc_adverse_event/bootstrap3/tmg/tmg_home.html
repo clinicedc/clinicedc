@@ -25,7 +25,7 @@
 
 
       <div class="list-group">
-      {% if perms.edc_dashboard.view_tmg_listboard %}
+      {% if perms.edc_adverse_event.nav_tmg_section %}
         <a id="home_list_group_home" href="{% url 'home_url' %}" class="list-group-item"><i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i> Home</a>
         <a id="home_list_group_tmg_ae_listboard" href="{% url new_tmg_ae_listboard_url %}" class="list-group-item">AE Reports: <i>New</i> <span class="label label-danger">{{ new_count }}</span></a>
         <a id="home_list_group_tmg_ae_listboard" href="{% url open_tmg_ae_listboard_url %}" class="list-group-item">AE Reports: <i>Open</i> <span class="label label-danger">{{ open_count }}</span></a>

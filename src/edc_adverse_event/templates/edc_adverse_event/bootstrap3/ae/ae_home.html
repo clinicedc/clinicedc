@@ -13,7 +13,7 @@
       <div class="panel-heading"><i class="fas fa-heartbeat fa-lg fa-fw"></i> Adverse Events (AE)</div>
 
       <div class="list-group">
-      {% if perms.edc_dashboard.view_subject_listboard %}
+      {% if perms.edc_listboard.view_subject_listboard %}
         <a id="home_list_group_home" href="{% url 'home_url' %}" class="list-group-item"><i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i> Home</a>
         <a id="home_list_group_ae_listboard" href="{% url ae_listboard_url %}" class="list-group-item"><i class="fas fa-file-pdf fa-1x fa-fw" aria-hidden="true"></i>AE Initial and Follow-up Reports</a>
         <a id="home_list_group_death_listboard" href="{% url death_report_listboard_url %}" class="list-group-item"><i class="fas fa-file-pdf fa-1x fa-fw" aria-hidden="true"></i>Death Reports</a>
