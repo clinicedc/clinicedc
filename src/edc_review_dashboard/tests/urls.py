@@ -1,15 +1,9 @@
-from django.contrib import admin
-from django.urls.conf import include, path
-from edc_action_item.admin_site import edc_action_item_admin
-from edc_appointment.admin_site import edc_appointment_admin
-from edc_data_manager.admin_site import edc_data_manager_admin
-from edc_lab.admin_site import edc_lab_admin
-from edc_locator.admin_site import edc_locator_admin
-from edc_visit_schedule.admin_site import edc_visit_schedule_admin
+from django.urls.conf import path
+from django.views.generic import RedirectView
+from edc_dashboard.views import AdministrationView
+from edc_utils.paths_for_urlpatterns import paths_for_urlpatterns
 
 from review_dashboard_app.admin_site import review_dashboard_app_admin
-
-from .views import HomeView
 
 app_name = "review_dashboard_app"
 
@@ -23,28 +17,21 @@ for app_name in [
     "edc_dashboard",
     "edc_data_manager",
     "edc_device",
+    "edc_lab",
     "edc_lab_dashboard",
+    "edc_locator",
     "edc_protocol",
     "edc_reference",
     "edc_subject_dashboard",
     "edc_visit_schedule",
+    "review_dashboard_app",
 ]:
-    urlpatterns.append(path(f"{app_name}/", include(f"{app_name}.urls")))
-
+    for p in paths_for_urlpatterns(app_name):
+        urlpatterns.append(p)
 
 urlpatterns += [
-    path("accounts/", include("edc_auth.urls")),
-    path("admin/", include("edc_auth.urls")),
-    path("admin/", admin.site.urls),
     path("admin/", review_dashboard_app_admin.urls),
-    path("admin/", edc_action_item_admin.urls),
-    path("admin/", edc_lab_admin.urls),
-    path("admin/", edc_appointment_admin.urls),
-    path("admin/", edc_locator_admin.urls),
-    path("admin/", edc_visit_schedule_admin.urls),
-    path("admin/", edc_data_manager_admin.urls),
-    path("review_dashboard_app/", include("review_dashboard_app.urls")),
-    path("", HomeView.as_view(), name="logout"),
-    path("", HomeView.as_view(), name="administration_url"),
-    path("", HomeView.as_view(), name="home_url"),
+    path("administration/", AdministrationView.as_view(), name="administration_url"),
+    path("", RedirectView.as_view(url="admin/"), name="home_url"),
+    path("", RedirectView.as_view(url="admin/"), name="logout"),
 ]
