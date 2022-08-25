@@ -29,7 +29,7 @@ class TestViewMixins(TestCase):
         site_auths.clear()
         site_auths.add_group("edc_dashboard.view_my_listboard", name=CLINIC)
         site_auths.add_custom_permissions_tuples(
-            model="edc_dashboard.dashboard",
+            model="edc_dashboard.edcpermissions",
             codename_tuples=(("edc_dashboard.view_my_listboard", "View my listboard"),),
         )
         AuthUpdater(verbose=False, warn_only=True)

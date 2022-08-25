@@ -1,14 +1,10 @@
-from django.conf import settings
+from edc_auth.model_mixins import EdcPermissionsModelMixin
 from edc_model.models import BaseUuidModel
 
 
-class Dashboard(BaseUuidModel):
+class EdcPermissions(EdcPermissionsModelMixin, BaseUuidModel):
 
     # see edc_auth for permissions attached to this model
-    # create_edc_dashboard_permissions
 
-    pass
-
-
-if settings.APP_NAME == "edc_dashboard":
-    from .tests import models  # noqa
+    class Meta(EdcPermissionsModelMixin.Meta):
+        pass
