@@ -1,16 +1,10 @@
-from django.db import models
+from edc_auth.model_mixins import EdcPermissionsModelMixin
+from edc_model.models import BaseUuidModel
 
 
-class Navbar(models.Model):
+class EdcPermissions(EdcPermissionsModelMixin, BaseUuidModel):
 
-    """Dummy model to create content_type to link with permissions.
+    # see edc_auth for permissions attached to this model
 
-    Permissions are added against this models content_type.
-
-    See also: edc_auth.permissions_updater
-    """
-
-    id = models.BigAutoField(primary_key=True)
-
-    class Meta:
-        verbose_name = "Navbar"
+    class Meta(EdcPermissionsModelMixin.Meta):
+        pass
