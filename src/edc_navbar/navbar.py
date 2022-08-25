@@ -1,5 +1,4 @@
-class NavbarError(Exception):
-    pass
+from .exceptions import NavbarError
 
 
 class Navbar:

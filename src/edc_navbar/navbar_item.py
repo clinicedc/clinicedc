@@ -10,17 +10,11 @@ from edc_constants.constants import IGNORE, WARN
 from edc_dashboard.url_names import InvalidUrlName, url_names
 from edc_dashboard.utils import get_bootstrap_version
 
+from .exceptions import NavbarItemError, PermissionsCodenameError
+
 style = color_style()
 
 EDC_NAVBAR_VERIFY_ON_LOAD = getattr(settings, "EDC_NAVBAR_VERIFY_ON_LOAD", None)
-
-
-class NavbarItemError(Exception):
-    pass
-
-
-class PermissionsCodenameError(Exception):
-    pass
 
 
 class NavbarItem:

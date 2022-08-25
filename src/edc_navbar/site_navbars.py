@@ -8,11 +8,7 @@ from django.core.management.color import color_style
 from django.urls import NoReverseMatch
 from django.utils.module_loading import module_has_submodule
 
-from .navbar import NavbarError
-
-
-class AlreadyRegistered(Exception):
-    pass
+from .exceptions import AlreadyRegistered, NavbarError
 
 
 class NavbarCollection:
