@@ -238,9 +238,17 @@ class GroupUpdater:
                 codename=codename, content_type__app_label=app_label
             )
         except ObjectDoesNotExist as e:
-            raise CodenameDoesNotExist(f"{e} Got '{app_label}.{codename}'")
+            raise CodenameDoesNotExist(
+                f"Unable to verify codename. {e} Got '{app_label}.{codename}'"
+            )
         except MultipleObjectsReturned as e:
-            raise CodenameDoesNotExist(f"{e} Got '{app_label}.{codename}'")
+            self.permission_model_cls.objects.filter(
+                content_type__app_label=app_label, content_type__model="edcpermissions"
+            ).delete()
+            raise CodenameDoesNotExist(
+                f"Unable to verify codename. {e} Got '{app_label}.{codename}'. \n"
+                "YOU NEED TO RUN MIGRATE AGAIN!\n"
+            )
         return permission
 
     @staticmethod
@@ -260,7 +268,10 @@ class GroupUpdater:
         return _app_label, codename, name
 
     def remove_permissions_by_codenames(
-        self, group=None, codenames=None, allow_multiple_objects: Optional[bool] = None
+        self,
+        group: Any = None,
+        codenames: List[str] = None,
+        allow_multiple_objects: Optional[bool] = None,
     ):
         """Remove the given codenames from the given group."""
         permissions = self.get_permissions_qs_from_codenames(

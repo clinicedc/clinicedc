@@ -21,10 +21,15 @@ def post_migrate_user_groups_and_roles(sender=None, **kwargs):  # noqa
     except CodenameDoesNotExist as e:
         sys.stdout.write(style.ERROR(f"{e}. "))
         sys.stdout.write(
-            style.ERROR("\nIf the codename is mispelled, correct the error and try again.\n\n")
+            style.ERROR(
+                "\n\nIf the codename is mispelled, correct the error and try again.\n\n"
+            )
         )
         sys.stdout.write(
-            style.ERROR("\nPut `edc_auth` as close to last as possible in INSTALLED_APPS.\n\n")
+            style.ERROR(
+                "\nIf the codename is a custom codename (not Django's), "
+                "make sure you created it.\n\n"
+            )
         )
         sys.stdout.write(
             style.ERROR(

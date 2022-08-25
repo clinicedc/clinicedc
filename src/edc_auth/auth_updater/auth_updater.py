@@ -1,5 +1,5 @@
 import sys
-from typing import Optional
+from typing import Callable, List, Optional, Tuple
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -24,7 +24,7 @@ class AuthUpdater:
         roles: Optional[dict] = None,
         pii_models: Optional[list] = None,
         pre_update_funcs: Optional[list] = None,
-        post_update_funcs: Optional[list] = None,
+        post_update_funcs: Optional[List[Tuple[str, Callable]]] = None,
         custom_permissions_tuples: Optional[dict] = None,
         verbose=None,
         apps=None,
@@ -91,14 +91,14 @@ class AuthUpdater:
         if self.verbose:
             sys.stdout.write("   Done.\n")
 
-    def run_post_updates(self, post_updates):
+    def run_post_updates(self, post_updates: List[Tuple[str, Callable]]):
         """Custom funcs that operate after all groups and roles have been created"""
         if self.verbose:
             sys.stdout.write(style.MIGRATE_HEADING(" - Running post updates:\n"))
         if post_updates:
-            for func in post_updates:
-                sys.stdout.write(f"   * {func.__name__}\n")
-                func(self)
+            for app_label, func in post_updates:
+                sys.stdout.write(f"   * {func.__name__}({app_label})\n")
+                func(self, app_label)
         else:
             if self.verbose:
                 sys.stdout.write("   * nothing to do\n")

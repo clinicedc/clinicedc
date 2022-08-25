@@ -1,6 +1,6 @@
 import sys
 from copy import deepcopy
-from typing import Tuple
+from typing import Callable, Tuple
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -134,8 +134,8 @@ class SiteAuths:
     def add_pre_update_func(self, func):
         self.registry["pre_update_funcs"].append(func)
 
-    def add_post_update_func(self, func):
-        self.registry["post_update_funcs"].append(func)
+    def add_post_update_func(self, app_label: str, func: Callable):
+        self.registry["post_update_funcs"].append((app_label, func))
 
     def add_pii_model(self, model_name):
         if model_name in self.registry["pii_models"]:
@@ -273,7 +273,7 @@ class SiteAuths:
         return self.registry["pre_update_funcs"]
 
     @property
-    def post_update_funcs(self):
+    def post_update_funcs(self) -> Tuple[str, Callable]:
         return self.registry["post_update_funcs"]
 
     @property
