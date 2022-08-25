@@ -11,6 +11,6 @@ class TestAuths(TestCase):
         EDC_AUTH_SKIP_AUTH_UPDATER=False,
     )
     def test_load(self):
-        site_auths.clear()
+        site_auths.initialize()
         import_module("edc_appointment.auths")
         AuthUpdater(verbose=True)
