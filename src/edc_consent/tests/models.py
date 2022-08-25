@@ -3,7 +3,7 @@ from django.db.models import PROTECT
 from edc_constants.choices import GENDER_UNDETERMINED
 from edc_constants.constants import FEMALE
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierModelMixin
-from edc_model.models import BaseUuidModel
+from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
@@ -55,6 +55,28 @@ class SubjectConsent(
     screening_identifier = models.CharField(
         verbose_name="Screening identifier", max_length=50, unique=True
     )
+    history = HistoricalRecords()
+
+    class Meta(ConsentModelMixin.Meta):
+        pass
+
+
+class SubjectReconsent(
+    ConsentModelMixin,
+    SiteModelMixin,
+    NonUniqueSubjectIdentifierModelMixin,
+    UpdatesOrCreatesRegistrationModelMixin,
+    IdentityFieldsMixin,
+    ReviewFieldsMixin,
+    PersonalFieldsMixin,
+    CitizenFieldsMixin,
+    VulnerabilityFieldsMixin,
+    BaseUuidModel,
+):
+    screening_identifier = models.CharField(
+        verbose_name="Screening identifier", max_length=50, unique=True
+    )
+    history = HistoricalRecords()
 
     class Meta(ConsentModelMixin.Meta):
         pass
@@ -75,6 +97,8 @@ class SubjectConsent2(
     screening_identifier = models.CharField(
         verbose_name="Screening identifier", max_length=50, unique=True
     )
+
+    history = HistoricalRecords()
 
     class Meta(ConsentModelMixin.Meta):
         pass

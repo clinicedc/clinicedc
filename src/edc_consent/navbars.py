@@ -8,7 +8,7 @@ navbar.append_item(
         label="Consent",
         fa_icon="fa-solid fa-user-circle",
         url_name="edc_consent:home_url",
-        codename="edc_navbar.nav_consent",
+        codename="edc_consent.nav_consent",
     )
 )
 
