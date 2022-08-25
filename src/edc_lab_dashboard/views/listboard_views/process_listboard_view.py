@@ -16,7 +16,7 @@ class ProcessListboardView(RequisitionListboardView):
     form_action_url = "process_form_action_url"
     listboard_template = "process_listboard_template"
     listboard_url = "process_listboard_url"
-    listboard_view_permission_codename = "edc_dashboard.view_lab_process_listboard"
+    listboard_view_permission_codename = "edc_lab_dashboard.view_lab_process_listboard"
     listboard_view_only_my_permission_codename = None
     navbar_selected_item = "process"
     search_form_url = "process_listboard_url"

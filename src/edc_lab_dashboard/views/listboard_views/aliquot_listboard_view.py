@@ -11,7 +11,7 @@ class AliquotListboardView(BaseListboardView):
     listboard_template = "aliquot_listboard_template"
     listboard_url = "aliquot_listboard_url"
     listboard_view_filters = AliquotListboardViewFilters()
-    listboard_view_permission_codename = "edc_dashboard.view_lab_aliquot_listboard"
+    listboard_view_permission_codename = "edc_lab_dashboard.view_lab_aliquot_listboard"
     listboard_view_only_my_permission_codename = None
     listboard_model = Aliquot
     model_wrapper_cls = AliquotModelWrapper

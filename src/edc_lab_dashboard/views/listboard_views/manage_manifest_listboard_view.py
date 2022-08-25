@@ -13,7 +13,7 @@ class ManageManifestListboardView(ManifestViewMixin, BaseListboardView):
     form_action_url = "manage_manifest_item_form_action_url"
     listboard_url = "manage_manifest_listboard_url"
     listboard_template = "manage_manifest_listboard_template"
-    listboard_view_permission_codename = "edc_dashboard.view_lab_manifest_listboard"
+    listboard_view_permission_codename = "edc_lab_dashboard.view_lab_manifest_listboard"
     search_form_url = "manage_manifest_listboard_url"
 
     listboard_model = ManifestItem

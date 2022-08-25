@@ -10,7 +10,7 @@ class ResultListboardView(BaseListboardView):
     listboard_template = "result_listboard_template"
     listboard_url = "result_listboard_url"
     listboard_model = Result
-    listboard_view_permission_codename = "edc_dashboard.view_lab_result_listboard"
+    listboard_view_permission_codename = "edc_lab_dashboard.view_lab_result_listboard"
     listboard_view_only_my_permission_codename = None
     model_wrapper_cls = ResultModelWrapper
     navbar_selected_item = "result"
