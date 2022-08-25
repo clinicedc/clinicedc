@@ -16,7 +16,7 @@ action_items_codenames = [
 ]
 
 navbar_codenames = [
-    "edc_navbar.nav_action_item_section",
+    "edc_action_item.nav_action_item_section",
 ]
 
 navbar_tuples = []
