@@ -2,6 +2,7 @@ import sys
 
 from django.conf import settings
 
+from .edc_permissions import EdcPermissions
 from .role import Role
 from .signals import (
     update_user_groups_on_role_m2m_changed,

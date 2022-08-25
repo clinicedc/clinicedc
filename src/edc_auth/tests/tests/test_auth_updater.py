@@ -238,15 +238,14 @@ class TestAuthUpdater(TestCase):
             codename="view_actionitem",
         )
 
-    def test_removes_edc_dashboard_dashboard_model_perms(self):
-        """Perms for the dummy model edc_dashboard"""
+    def test_removes_edc_permissions_model_perms(self):
         qs = Permission.objects.filter(
-            content_type__app_label="edc_dashboard",
+            content_type__app_label="edc_auth",
             codename__in=[
-                "add_dashboard",
-                "change_dashboard",
-                "view_dashboard",
-                "delete_dashboard",
+                "add_edcpermissions",
+                "change_edcpermissions",
+                "view_edcpermissions",
+                "delete_edcpermissions",
             ],
         )
         self.assertEqual(qs.count(), 4)

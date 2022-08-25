@@ -1,3 +1,5 @@
+from typing import Dict, List
+
 from edc_auth.auth_objects.default_role_names import STATISTICIAN
 
 from .default_group_names import (
@@ -21,7 +23,7 @@ from .default_role_names import (
 )
 
 # Format {ROLE_NAME: [GROUP_NAME, GROUP_NAME, ...]
-default_roles = {
+default_roles: Dict[str, List[str]] = {
     ACCOUNT_MANAGER_ROLE: [ACCOUNT_MANAGER],
     AUDITOR_ROLE: [
         AUDITOR,

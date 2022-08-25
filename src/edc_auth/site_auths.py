@@ -1,5 +1,6 @@
 import sys
 from copy import deepcopy
+from typing import Callable, Tuple
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -133,8 +134,8 @@ class SiteAuths:
     def add_pre_update_func(self, func):
         self.registry["pre_update_funcs"].append(func)
 
-    def add_post_update_func(self, func):
-        self.registry["post_update_funcs"].append(func)
+    def add_post_update_func(self, app_label: str, func: Callable):
+        self.registry["post_update_funcs"].append((app_label, func))
 
     def add_pii_model(self, model_name):
         if model_name in self.registry["pii_models"]:
@@ -200,7 +201,9 @@ class SiteAuths:
         existing_group_names = list(set(existing_group_names))
         self.registry[key].update({name: existing_group_names})
 
-    def add_custom_permissions_tuples(self, model: str, codename_tuples: tuple):
+    def add_custom_permissions_tuples(
+        self, model: str, codename_tuples: Tuple[Tuple[str, str], ...]
+    ):
         try:
             self.registry["custom_permissions_tuples"][model]
         except KeyError:
@@ -270,7 +273,7 @@ class SiteAuths:
         return self.registry["pre_update_funcs"]
 
     @property
-    def post_update_funcs(self):
+    def post_update_funcs(self) -> Tuple[str, Callable]:
         return self.registry["post_update_funcs"]
 
     @property
