@@ -9,6 +9,7 @@ from .action_item import (
 )
 from .action_model_mixin import ActionModelMixin, ActionNoManagersModelMixin
 from .action_type import ActionType, ActionTypeError
+from .edc_permissions import EdcPermissions
 from .reference import Reference
 from .signals import (
     action_item_notification_on_post_create_historical_record,
