@@ -1,6 +1,6 @@
 from edc_model import models as edc_models
 
-from .model_mixin import RandomizationListModelMixin
+from ..model_mixins import RandomizationListModelMixin
 
 
 class RandomizationList(RandomizationListModelMixin, edc_models.BaseUuidModel):

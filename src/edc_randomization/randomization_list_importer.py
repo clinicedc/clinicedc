@@ -9,7 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
 from tqdm import tqdm
 
-from edc_randomization.randomization_list_verifier import RandomizationListVerifier
+from .randomization_list_verifier import RandomizationListVerifier
 
 style = color_style()
 
