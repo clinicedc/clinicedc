@@ -31,7 +31,7 @@ class DeathListboardView(
     listboard_model = f"{settings.ADVERSE_EVENT_APP_LABEL}.deathreport"
     listboard_model_manager_name = "objects"
     listboard_panel_title = "TMG: Death Reports"
-    listboard_view_permission_codename = "edc_dashboard.view_tmg_listboard"
+    listboard_view_permission_codename = "edc_adverse_event.view_tmg_listboard"
     model_wrapper_cls = DeathReportModelWrapper
     navbar_selected_item = "tmg_home"
     ordering = "-created"

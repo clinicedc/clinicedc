@@ -1,4 +1,11 @@
+from edc_auth.auth_objects import (
+    AUDITOR_ROLE,
+    CLINICIAN_ROLE,
+    CLINICIAN_SUPER_ROLE,
+    NURSE_ROLE,
+)
 from edc_auth.site_auths import site_auths
+from edc_auth.utils import remove_default_model_permissions_from_edc_permissions
 
 from .auth_objects import (
     AE,
@@ -14,6 +21,27 @@ from .auth_objects import (
     tmg_codenames,
     tmg_dashboard_tuples,
     tmg_navbar_tuples,
+)
+
+site_auths.add_post_update_func(
+    "edc_adverse_event", remove_default_model_permissions_from_edc_permissions
+)
+
+permissions_model = "edc_adverse_event.edcpermissions"
+
+# custom perms
+site_auths.add_custom_permissions_tuples(
+    model=permissions_model, codename_tuples=ae_dashboard_tuples
+)
+site_auths.add_custom_permissions_tuples(
+    model=permissions_model, codename_tuples=tmg_dashboard_tuples
+)
+
+site_auths.add_custom_permissions_tuples(
+    model=permissions_model, codename_tuples=tmg_navbar_tuples
+)
+site_auths.add_custom_permissions_tuples(
+    model=permissions_model, codename_tuples=ae_navbar_tuples
 )
 
 # groups
@@ -46,16 +74,8 @@ site_auths.update_group(
 site_auths.add_role(AE, name=AE_ROLE)
 site_auths.add_role(AE_REVIEW, TMG, name=TMG_ROLE)
 
-# custom perms
-site_auths.add_custom_permissions_tuples(
-    model="edc_dashboard.dashboard", codename_tuples=ae_dashboard_tuples
-)
-site_auths.add_custom_permissions_tuples(
-    model="edc_navbar.navbar", codename_tuples=ae_navbar_tuples
-)
-site_auths.add_custom_permissions_tuples(
-    model="edc_dashboard.dashboard", codename_tuples=tmg_dashboard_tuples
-)
-site_auths.add_custom_permissions_tuples(
-    model="edc_navbar.navbar", codename_tuples=tmg_navbar_tuples
-)
+
+site_auths.update_role(AE, name=CLINICIAN_ROLE)
+site_auths.update_role(AE, name=NURSE_ROLE)
+site_auths.update_role(AE_REVIEW, TMG_REVIEW, name=AUDITOR_ROLE)
+site_auths.update_role(AE_SUPER, name=CLINICIAN_SUPER_ROLE)

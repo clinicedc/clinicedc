@@ -29,7 +29,7 @@ class TmgAeListboardViewMixin(
     listboard_panel_style = "warning"
     listboard_model = "edc_action_item.actionitem"
     listboard_panel_title = "TMG: AE Reports"
-    listboard_view_permission_codename = "edc_dashboard.view_tmg_listboard"
+    listboard_view_permission_codename = "edc_adverse_event.view_tmg_listboard"
 
     model_wrapper_cls = TmgActionItemModelWrapper
     navbar_name = get_default_navbar()

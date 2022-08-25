@@ -63,7 +63,7 @@ class AeListboardViewMixin(
     listboard_url = "ae_listboard_url"
     listboard_panel_style = "default"
     listboard_model = "edc_action_item.actionitem"
-    listboard_view_permission_codename = "edc_dashboard.view_ae_listboard"
+    listboard_view_permission_codename = "edc_adverse_event.view_ae_listboard"
 
     listboard_instructions = format_html(
         (
