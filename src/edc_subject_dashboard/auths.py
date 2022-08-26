@@ -16,7 +16,8 @@ SUBJECT_VIEW = "SUBJECT_VIEW"
 site_auths.add_custom_permissions_tuples(
     model="edc_subject_dashboard.edcpermissions",
     codename_tuples=(
-        ("edc_subject_dashboard.view_subject_listboard", "Can view subject listboard"),
+        ("edc_subject_dashboard.view_subject_listboard", "Can access subject listboard"),
+        ("edc_subject_dashboard.nav_subject_section", "Can access nav_subject_section"),
     ),
 )
 
