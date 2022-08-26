@@ -30,7 +30,4 @@
 
 {% block welcome-msg %}{% endblock %}
 
-{% block userlinks %}
-<A title="Logout" href="{% url 'edc_auth_admin:logout' %}">Logout</A>  | <strong>{{  user.get_username }}</strong>
-{% endblock %}
-
+{% block userlinks %}{% logout_row %}{% endblock %}

@@ -93,6 +93,11 @@ def edc_submit_row(context):
     return django_submit_row(context)
 
 
+@register.inclusion_tag("logout_row.html", takes_context=True)
+def logout_row(context):
+    return dict(user=context.get("request").user)
+
+
 @register.inclusion_tag("edc_revision_line.html", takes_context=True)
 def revision_row(context):
     return dict(

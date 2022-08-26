@@ -1,5 +1,5 @@
 {% extends "admin/base_site.html" %}
-{% load i18n admin_urls static %}
+{% load i18n admin_urls static edc_admin_modify %}
 
 {% block extrahead %}
     {{ block.super }}
@@ -36,10 +36,7 @@
 
 {% block welcome-msg %}{% endblock %}
 
-{% block userlinks %}
-<A title="Logout" href="{% url 'edc_auth_admin:logout' %}">Logout</A>  | <strong>{{  user.get_username }}</strong>
-{% endblock %}
-
+{% block userlinks %}{% logout_row %}{% endblock %}
 
 {% block content %}
 {% if perms_lacking %}

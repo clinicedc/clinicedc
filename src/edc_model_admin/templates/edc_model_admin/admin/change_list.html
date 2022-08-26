@@ -1,5 +1,5 @@
 {% extends "admin/change_list.html" %}
-{% load i18n admin_urls static admin_list %}
+{% load i18n admin_urls static admin_list edc_admin_modify %}
 
 {% block extrahead %}{{ block.super }}
     <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
@@ -37,10 +37,7 @@
 
 {% block welcome-msg %}{% endblock %}
 
-{% block userlinks %}
-  <A title="Logout" href="{% url 'edc_auth_admin:logout' %}">Logout</A>  | <strong>{{  user.get_username }}</strong>
-{% endblock %}
-
+{% block userlinks %}{% logout_row %}{% endblock %}
 
 
 {% block content %}
