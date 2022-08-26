@@ -26,8 +26,6 @@ class BloodResultsFbc(
 
     action_name = BLOOD_RESULTS_FBC_ACTION
 
-    tracking_identifier_prefix = "FB"
-
     class Meta(CrfWithActionModelMixin.Meta, edc_models.BaseUuidModel.Meta):
         verbose_name = "Blood Result: FBC"
         verbose_name_plural = "Blood Results: FBC"
