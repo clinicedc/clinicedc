@@ -8,10 +8,7 @@ from edc_action_item.models.action_model_mixin import ActionModelMixin
 from edc_constants.choices import YES_NO_TBD
 from edc_constants.constants import TBD
 from edc_identifier.managers import SubjectIdentifierManager
-from edc_identifier.model_mixins import (
-    NonUniqueSubjectIdentifierFieldMixin,
-    TrackingModelMixin,
-)
+from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models.base_uuid_model import BaseUuidModel
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 from edc_utils.date import get_utcnow
@@ -24,13 +21,10 @@ class UnblindingRequest(
     NonUniqueSubjectIdentifierFieldMixin,
     SiteModelMixin,
     ActionModelMixin,
-    TrackingModelMixin,
     BaseUuidModel,
 ):
 
     action_name = UNBLINDING_REQUEST_ACTION
-
-    tracking_identifier_prefix = "UB"
 
     report_datetime = models.DateTimeField(
         verbose_name="Report Date and Time", default=get_utcnow
