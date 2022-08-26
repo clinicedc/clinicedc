@@ -7,8 +7,8 @@ from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db import models
 from edc_constants.constants import UUID_PATTERN
 
-from ..exceptions import IdentifierError
-from ..subject_identifier import SubjectIdentifier
+from .exceptions import IdentifierError
+from .subject_identifier import SubjectIdentifier
 
 
 class NonUniqueSubjectIdentifierFieldMixin(models.Model):
