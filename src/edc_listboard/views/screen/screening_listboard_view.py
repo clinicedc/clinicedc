@@ -29,7 +29,7 @@ class ScreeningListboardView(
     listboard_url = "screening_listboard_url"
     listboard_panel_style = "info"
     listboard_fa_icon = "fas fa-user-plus"
-    listboard_view_permission_codename = "edc_listboard.view_screening_listboard"
+    listboard_view_permission_codename = "edc_screening.view_screening_listboard"
     alternate_search_attr = "screening_identifier"
     navbar_selected_item = "screened_subject"
     ordering = "-report_datetime"

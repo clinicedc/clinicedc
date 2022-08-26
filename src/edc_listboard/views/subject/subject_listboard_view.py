@@ -25,7 +25,7 @@ class SubjectListboardView(
     listboard_url = "subject_listboard_url"
     listboard_panel_style = "success"
     listboard_fa_icon = "fas fa-user-circle fa-2x"
-    listboard_view_permission_codename = "edc_listboard.view_subject_listboard"
+    listboard_view_permission_codename = "edc_subject_dashboard.view_subject_listboard"
 
     navbar_selected_item = "consented_subject"
     search_form_url = "subject_listboard_url"
