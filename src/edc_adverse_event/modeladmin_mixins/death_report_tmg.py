@@ -42,9 +42,7 @@ class DeathReportTmgModelAdminMixin(
     search_fields = (
         "subject_identifier",
         "action_identifier",
-        "tracking_identifier",
         "death_report__action_identifier",
-        "death_report__tracking_identifier",
     )
 
     def get_list_display(self, request) -> Tuple[str, ...]:

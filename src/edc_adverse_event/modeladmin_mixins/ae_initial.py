@@ -96,9 +96,9 @@ class AeInitialModelAdminMixin(
 
     radio_fields = default_radio_fields
 
-    ordering = ("-tracking_identifier",)
+    ordering = ("-action_identifier",)
 
-    search_fields = ("subject_identifier", "action_identifier", "tracking_identifier")
+    search_fields = ("subject_identifier", "action_identifier")
 
     def get_list_display(self, request) -> Tuple[str, ...]:
         list_display = super().get_list_display(request)

@@ -39,7 +39,7 @@ class DeathReportModelAdminMixin(ModelAdminSubjectDashboardMixin, ActionItemMode
 
     def get_search_fields(self, request) -> Tuple[str, ...]:
         search_fields = super().get_search_fields(request)
-        custom_fields = ("subject_identifier", "action_identifier", "tracking_identifier")
+        custom_fields = ("subject_identifier", "action_identifier")
         return tuple(set(search_fields + custom_fields))
 
     def get_list_display(self, request) -> Tuple[str, ...]:

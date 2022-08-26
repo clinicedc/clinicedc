@@ -29,8 +29,6 @@ class AeTmgModelAdminMixin(
         "subject_identifier",
         "action_identifier",
         "ae_initial__action_identifier",
-        "ae_initial__tracking_identifier",
-        "tracking_identifier",
     )
 
     fieldsets = (
