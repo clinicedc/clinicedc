@@ -7,10 +7,7 @@ from edc_action_item.managers import (
 )
 from edc_action_item.models import ActionModelMixin
 from edc_constants.choices import YES_NO
-from edc_identifier.model_mixins import (
-    NonUniqueSubjectIdentifierFieldMixin,
-    TrackingModelMixin,
-)
+from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import ReportStatusModelMixin
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
@@ -109,7 +106,6 @@ class DeathReportTmgMethodsModelMixin(models.Model):
 class DeathReportTmgModelMixin(
     NonUniqueSubjectIdentifierFieldMixin,
     ActionModelMixin,
-    TrackingModelMixin,
     DeathReportTmgFieldsModelMixin,
     DeathReportTmgMethodsModelMixin,
     ReportStatusModelMixin,
@@ -118,8 +114,6 @@ class DeathReportTmgModelMixin(
 ):
 
     action_name = DEATH_REPORT_TMG_ACTION
-
-    tracking_identifier_prefix = "DT"
 
     on_site = DeathReportTmgSiteManager()
 
@@ -137,8 +131,6 @@ class DeathReportTmgModelMixin(
 class DeathReportTmgSecondModelMixin(DeathReportTmgModelMixin):
 
     action_name = DEATH_REPORT_TMG_SECOND_ACTION
-
-    tracking_identifier_prefix = "DT"
 
     on_site = DeathReportTmgSecondSiteManager()
 

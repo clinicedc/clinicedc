@@ -4,10 +4,7 @@ from edc_action_item.managers import (
     ActionIdentifierSiteManager,
 )
 from edc_action_item.models import ActionModelMixin
-from edc_identifier.model_mixins import (
-    TrackingModelMixin,
-    UniqueSubjectIdentifierFieldMixin,
-)
+from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_model.validators import date_not_future, datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.models import SiteModelMixin
@@ -20,15 +17,12 @@ class SimpleDeathReportModelMixin(
     UniqueSubjectIdentifierFieldMixin,
     SiteModelMixin,
     ActionModelMixin,
-    TrackingModelMixin,
     models.Model,
 ):
 
     action_name = DEATH_REPORT_ACTION
 
     death_date_field = "death_date"
-
-    tracking_identifier_prefix = "DR"
 
     report_datetime = models.DateTimeField(
         verbose_name="Report Date",

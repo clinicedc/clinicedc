@@ -4,10 +4,7 @@ from edc_action_item.managers import (
     ActionIdentifierSiteManager,
 )
 from edc_action_item.models import ActionModelMixin
-from edc_identifier.model_mixins import (
-    NonUniqueSubjectIdentifierFieldMixin,
-    TrackingModelMixin,
-)
+from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import ReportStatusModelMixin
 from edc_sites.models import SiteModelMixin
 
@@ -24,13 +21,10 @@ class AeSusarModelMixin(
     ReportStatusModelMixin,
     SiteModelMixin,
     ActionModelMixin,
-    TrackingModelMixin,
     models.Model,
 ):
 
     action_name = AE_SUSAR_ACTION
-
-    tracking_identifier_prefix = "AS"
 
     on_site = ActionIdentifierSiteManager()
 

@@ -4,10 +4,7 @@ from edc_action_item.managers import (
     ActionIdentifierSiteManager,
 )
 from edc_action_item.models import ActionModelMixin
-from edc_identifier.model_mixins import (
-    NonUniqueSubjectIdentifierFieldMixin,
-    TrackingModelMixin,
-)
+from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_sites.models import SiteModelMixin
 
 from ...constants import AE_INITIAL_ACTION
@@ -29,13 +26,10 @@ class AeInitialModelMixin(
     AeInitialTmgModelMixin,
     SiteModelMixin,
     ActionModelMixin,
-    TrackingModelMixin,
     models.Model,
 ):
 
     action_name = AE_INITIAL_ACTION
-
-    tracking_identifier_prefix = "AE"
 
     on_site = ActionIdentifierSiteManager()
 
