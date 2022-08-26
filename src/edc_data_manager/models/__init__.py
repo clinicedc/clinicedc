@@ -1,6 +1,7 @@
 from .action_item import DataManagerActionItem
 from .data_dictionary import DataDictionary
 from .data_query import DataQuery
+from .edc_permissions import EdcPermissions
 from .query_rule import (
     CrfDataDictionary,
     QueryRule,
