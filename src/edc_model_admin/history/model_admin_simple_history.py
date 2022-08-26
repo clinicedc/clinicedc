@@ -45,3 +45,11 @@ class SimpleHistoryAdmin(BaseSimpleHistoryAdmin):
 
     def get_readonly_fields(self, request, obj=None) -> Tuple[str, ...]:
         return tuple(super().get_readonly_fields(request, obj=obj))
+
+    def history_view_title(self, request, obj):
+        word = "View" if self.revert_disabled else "Revert"
+        return f"{word} {obj._meta.verbose_name.title()} Audit Trail"
+
+    def history_form_view_title(self, request, obj):
+        word = "View" if self.revert_disabled else "Revert"
+        return f"{word} {obj._meta.verbose_name.title()} Audit Trail"

@@ -61,7 +61,6 @@ class EdcAdminSite(DjangoAdminSite):
         context.update(
             site_title=self.get_edc_site_title(request),
             site_header=self.get_edc_site_header(request),
-            title=self.get_edc_index_title(request),
             global_site=get_current_site(request),
             protocol_name=Protocol().protocol_name,
         )
@@ -84,7 +83,6 @@ class EdcAdminSite(DjangoAdminSite):
         app_list = self.get_app_list(request)
         context = {
             **self.each_context(request),
-            "title": self.get_edc_index_title(request),
             "subtitle": None,
             "app_list": app_list,
             **(extra_context or {}),
