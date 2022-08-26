@@ -42,7 +42,6 @@ class TestBloodResultForm(TestCaseMixin, TestCase):
             subject_visit=self.subject_visit,
             assay_datetime=self.subject_visit.report_datetime,
             requisition=requisition,
-            tracking_identifier="X",
             action_identifier="-",
             results_reportable=NOT_APPLICABLE,
             results_abnormal=NO,
