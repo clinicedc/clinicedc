@@ -228,10 +228,6 @@ class SubjectVisitMissed(
     BaseUuidModel,
 ):
 
-    action_identifier = models.CharField(max_length=50, null=True)
-
-    tracking_identifier = models.CharField(max_length=30, null=True)
-
     missed_reasons = models.ManyToManyField(
         SubjectVisitMissedReasons, blank=True, related_name="+"
     )
