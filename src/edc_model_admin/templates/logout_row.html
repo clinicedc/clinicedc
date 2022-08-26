@@ -1,0 +1,2 @@
+{% load i18n admin_urls %}
+<A title="Logout" href="{% url 'edc_auth_admin:logout' %}">Logout</A>  | <strong><A title="Go to user account" href="{% url 'edc_auth_admin:auth_user_change' user.id %}">{{ user.get_username }}</A></strong>
