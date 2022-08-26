@@ -16,8 +16,8 @@ site_auths.add_post_update_func(
 site_auths.add_custom_permissions_tuples(
     model="edc_screening.edcpermissions",
     codename_tuples=(
-        ("edc_screening.view_screening_listboard", "Can view Screening listboard"),
-        ("edc_screening.nav_screening_section", "Can view screening section"),
+        ("edc_screening.view_screening_listboard", "Can access Screening listboard"),
+        ("edc_screening.nav_screening_section", "Can access screening section"),
     ),
 )
 
