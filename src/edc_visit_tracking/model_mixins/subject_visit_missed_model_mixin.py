@@ -39,8 +39,6 @@ class SubjectVisitMissedModelMixin(models.Model):
 
     action_name = VISIT_MISSED_ACTION
 
-    tracking_identifier_prefix = "VM"
-
     survival_status = models.CharField(
         verbose_name="Survival status",
         max_length=25,
