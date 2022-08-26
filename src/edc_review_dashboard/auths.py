@@ -18,7 +18,7 @@ site_auths.add_custom_permissions_tuples(
     codename_tuples=[
         (
             "edc_review_dashboard.view_subject_review_listboard",
-            "Can view Subject review listboard",
+            "Can access subject review listboard",
         )
     ],
 )
