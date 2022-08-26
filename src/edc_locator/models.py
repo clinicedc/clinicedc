@@ -3,7 +3,6 @@ import sys
 from django.conf import settings
 from edc_action_item.models import ActionModelMixin
 from edc_consent.model_mixins import RequiresConsentFieldsModelMixin
-from edc_identifier.model_mixins import TrackingModelMixin
 from edc_model.models import BaseUuidModel
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 
@@ -18,7 +17,6 @@ class SubjectLocator(
     LocatorModelMixin,
     RequiresConsentFieldsModelMixin,
     ActionModelMixin,
-    TrackingModelMixin,
     SiteModelMixin,
     BaseUuidModel,
 ):
@@ -27,8 +25,6 @@ class SubjectLocator(
     """
 
     action_name = SUBJECT_LOCATOR_ACTION
-
-    tracking_identifier_prefix = "SL"
 
     on_site = CurrentSiteManager()
 
