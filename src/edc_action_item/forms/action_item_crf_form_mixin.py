@@ -8,5 +8,7 @@ class ActionItemCrfFormMixin:
     class Meta:
         help_text = {"action_identifier": "(read-only)"}
         widgets = {
-            "action_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
+            "action_identifier": forms.TextInput(
+                attrs={"required": False, "readonly": "readonly"}
+            ),
         }
