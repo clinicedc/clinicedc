@@ -37,8 +37,6 @@ class Rx(
 
     action_name = PRESCRIPTION_ACTION
 
-    action_identifier = models.CharField(max_length=50, unique=True, null=True)
-
     rx_identifier = models.CharField(max_length=36, default=uuid4)
 
     rx_name = models.CharField(max_length=36, default="study prescription")
