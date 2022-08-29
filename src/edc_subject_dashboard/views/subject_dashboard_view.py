@@ -62,6 +62,8 @@ class SubjectDashboardView(
     visit_model = None
     visit_model_wrapper_cls = SubjectVisitModelWrapper
 
+    history_button_label = None
+
     def __init__(self, **kwargs):
         if not self.navbar_name:
             raise ImproperlyConfigured(f"'navbar_name' cannot be None. See {repr(self)}.")
@@ -77,3 +79,8 @@ class SubjectDashboardView(
         else:
             self.consent_model = self.consent_model_wrapper_cls.model
         super().__init__(**kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(history_button_label=self.history_button_label)
+        return context
