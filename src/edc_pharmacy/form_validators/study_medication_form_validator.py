@@ -7,28 +7,30 @@ from ..models import Rx, RxRefill
 
 class StudyMedicationFormValidator(FormValidator):
     def clean(self):
-        self.required_if(YES, field="order_next", field_required="next_dosage_guideline")
-        if self.cleaned_data.get("order_next") == NO and self.next_refill:
+        self.required_if(
+            YES, field="order_or_update_next", field_required="next_dosage_guideline"
+        )
+        if self.cleaned_data.get("order_or_update_next") == NO and self.next_refill:
             if self.next_refill.active:
                 self.raise_validation_error(
                     "Invalid. Next refill is already active", INVALID_ERROR
                 )
         if (
-            self.cleaned_data.get("order_next") == NO
+            self.cleaned_data.get("order_or_update_next") == NO
             and not self.cleaned_data.get("subject_visit").appointment.next
         ):
             self.raise_validation_error(
                 "Invalid. This is the last scheduled visit", INVALID_ERROR
             )
 
-        self.required_if(YES, field="order_next", field_required="next_formulation")
+        self.required_if(YES, field="order_or_update_next", field_required="next_formulation")
 
     @property
     def next_refill(self):
         for obj in RxRefill.objects.filter(
             rx=self.rx,
-            refill_date__gt=self.cleaned_data.get("refill_date"),
-        ).order_by("refill_date"):
+            refill_start_datetime__gt=self.cleaned_data.get("refill_start_datetime"),
+        ).order_by("refill_start_datetime"):
             return obj
         return None
 

@@ -2,18 +2,17 @@ import math
 from decimal import Decimal
 from uuid import uuid4
 
+from django.conf import settings
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_model import models as edc_models
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
-from edc_utils.date import get_utcnow_as_date
-from edc_visit_schedule.model_mixins import VisitCodeFieldsModelMixin
+from edc_utils import convert_php_dateformat
 
 from ..dosage_calculator import DosageCalculator
-from ..exceptions import RefillError
+from ..model_mixins import MedicationOrderModelMixin, PreviousNextModelMixin
 from .dosage_guideline import DosageGuideline
 from .formulation import Formulation
-from .model_mixins import MedicationOrderModelMixin
 from .rx import Rx
 
 
@@ -21,20 +20,22 @@ class Manager(models.Manager):
 
     use_in_migrations = True
 
-    def get_by_natural_key(self, prescription, medication, refill_date):
-        return self.get(prescription, medication, refill_date)
+    def get_by_natural_key(self, prescription, medication, refill_start_datetime):
+        return self.get(prescription, medication, refill_start_datetime)
 
 
 class RxRefill(
+    PreviousNextModelMixin,
     MedicationOrderModelMixin,
-    VisitCodeFieldsModelMixin,
     SiteModelMixin,
     edc_models.BaseUuidModel,
 ):
 
     rx = models.ForeignKey(Rx, on_delete=PROTECT)
 
-    refill_identifier = models.CharField(max_length=36, default=uuid4)
+    refill_identifier = models.CharField(
+        max_length=36, default=uuid4, unique=True, editable=False
+    )
 
     dosage_guideline = models.ForeignKey(DosageGuideline, on_delete=PROTECT)
 
@@ -52,8 +53,16 @@ class RxRefill(
         max_digits=6, decimal_places=1, null=True, blank=True, help_text="Defaults to 1.0"
     )
 
-    refill_date = models.DateField(
-        verbose_name="Refill date", default=get_utcnow_as_date, help_text=""
+    refill_start_datetime = models.DateTimeField(
+        verbose_name="Refill start date/time",
+        # default=get_utcnow,
+        help_text="Starting date for this refill",
+    )
+
+    refill_end_datetime = models.DateTimeField(
+        verbose_name="Refill end date/time",
+        # default=get_utcnow,
+        help_text="Ending date for this refill",
     )
 
     number_of_days = models.IntegerField(null=True)
@@ -111,36 +120,34 @@ class RxRefill(
     history = edc_models.HistoricalRecords()
 
     def __str__(self):
+        convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+        start_date = self.refill_start_datetime.strftime(
+            convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+        )
+        end_date = self.refill_end_datetime.strftime(
+            convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+        )
         return (
             f"{self.rx} "
             f"Take {self.dose} {self.formulation.formulation_type.display_name} "
-            f"{self.formulation.route.display_name} "
+            f"{self.formulation.route.display_name}. "
+            f"Valid: {start_date} to {end_date}."
         )
 
     def natural_key(self):
         return (self.refill_identifier,)  # noqa
 
     def save(self, *args, **kwargs):
-        if not self.visit_code or self.visit_code_sequence is None:
-            raise RefillError(
-                f"Unable to create `{self._meta.verbose_name}` model instance. "
-                "`visit code` and/or `visit code sequence` may not be none"
-            )
+        self.adjust_end_datetimes()
+        self.number_of_days = (self.refill_end_datetime - self.refill_start_datetime).days
         if not self.weight_in_kgs:
             self.weight_in_kgs = self.rx.weight_in_kgs
-        self.dose = Decimal(repr(self.get_dose()))
-        self.total = Decimal(repr(self.get_total_to_dispense()))
+        self.dose = Decimal(str(self.get_dose()))
+        self.total = Decimal(str(self.get_total_to_dispense()))
         if not self.id:
             self.remaining = self.total
         self.as_string = str(self)
         super().save(*args, **kwargs)
-
-    def next(self, rx):
-        for obj in self.__class__.objects.filter(
-            rx=rx, refill_date__gt=self.refill_date
-        ).order_by("refill_date"):
-            return obj
-        return None
 
     @property
     def frequency(self):
@@ -189,7 +196,4 @@ class RxRefill(
     class Meta(edc_models.BaseUuidModel.Meta):
         verbose_name = "RX refill"
         verbose_name_plural = "RX refills"
-        unique_together = [
-            ["rx", "refill_date"],
-            ["rx", "visit_code", "visit_code_sequence"],
-        ]
+        unique_together = (("rx", "refill_start_datetime"),)

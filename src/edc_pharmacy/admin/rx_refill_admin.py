@@ -37,7 +37,8 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
                     "rx",
                     "dosage_guideline",
                     "formulation",
-                    "refill_date",
+                    "refill_start_datetime",
+                    "refill_end_datetime",
                     "number_of_days",
                 )
             },
@@ -73,7 +74,8 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
         "subject_identifier",
         "dashboard",
         "visit",
-        "refill_date",
+        "refill_start_datetime",
+        "refill_end_datetime",
         "description",
         "dispense",
         "returns",
@@ -88,9 +90,8 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     list_filter: Tuple[str, ...] = (
         "active",
-        "refill_date",
-        "visit_code",
-        "visit_code_sequence",
+        "refill_start_datetime",
+        "refill_end_datetime",
         "packed",
         "shipped",
         "received_at_site",
@@ -107,7 +108,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
         "dosage_guideline__medication__name",
     )
 
-    ordering: Tuple[str, ...] = ("rx__subject_identifier", "-refill_date")
+    ordering: Tuple[str, ...] = ("rx__subject_identifier", "-refill_start_datetime")
 
     @admin.display
     def visit(self, obj):
@@ -196,7 +197,8 @@ class RxRefillInlineAdmin(admin.StackedInline):
     fields: Tuple[str, ...] = (
         "dosage_guideline",
         "formulation",
-        "refill_date",
+        "refill_start_datetime",
+        "refill_end_datetime",
         "number_of_days",
         "dose",
         "frequency",
@@ -205,6 +207,6 @@ class RxRefillInlineAdmin(admin.StackedInline):
 
     search_fields: Tuple[str, ...] = "dosage_guideline__medication__name"
 
-    ordering: Tuple[str, ...] = ("refill_date",)
+    ordering: Tuple[str, ...] = ("refill_start_datetime",)
 
     extra = 0

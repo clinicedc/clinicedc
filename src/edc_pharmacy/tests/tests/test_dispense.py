@@ -1,3 +1,4 @@
+from dateutil.relativedelta import relativedelta
 from django.test import TestCase
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
@@ -55,25 +56,21 @@ class TestDispense(TestCase):
     def test_dispense(self):
         refill_creator = RefillCreator(
             subject_identifier=self.subject_identifier,
-            visit_code="1000",
-            visit_code_sequence=0,
-            refill_date=get_utcnow(),
-            number_of_days=7,
+            refill_start_datetime=get_utcnow(),
+            refill_end_datetime=get_utcnow() + relativedelta(days=7),
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
         )
-        self.assertEqual(refill_creator.refill.total, 56.0)
-        self.assertEqual(refill_creator.refill.remaining, 56.0)
+        self.assertEqual(refill_creator.rx_refill.total, 56.0)
+        self.assertEqual(refill_creator.rx_refill.remaining, 56.0)
 
     def test_dispense_many(self):
         rx_refill = RxRefill.objects.create(
             rx=self.rx,
-            visit_code="1000",
-            visit_code_sequence=0,
             formulation=self.formulation,
             dosage_guideline=self.dosage_guideline,
-            refill_date=get_utcnow(),
-            number_of_days=7,
+            refill_start_datetime=get_utcnow(),
+            refill_end_datetime=get_utcnow() + relativedelta(days=7),
             weight_in_kgs=50,
         )
         dispensed = 0
@@ -91,12 +88,10 @@ class TestDispense(TestCase):
     def test_attempt_to_over_dispense(self):
         rx_refill = RxRefill.objects.create(
             rx=self.rx,
-            visit_code="1000",
-            visit_code_sequence=0,
             formulation=self.formulation,
             dosage_guideline=self.dosage_guideline,
-            refill_date=get_utcnow(),
-            number_of_days=8,
+            refill_start_datetime=get_utcnow(),
+            refill_end_datetime=get_utcnow() + relativedelta(days=8),
             weight_in_kgs=45,
         )
         dispensed = 0

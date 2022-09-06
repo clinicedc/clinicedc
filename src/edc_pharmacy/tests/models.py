@@ -6,7 +6,7 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
 from edc_visit_tracking.model_mixins import VisitModelMixin
 
-from edc_pharmacy.models import StudyMedicationCrfModelMixin
+from edc_pharmacy.model_mixins import StudyMedicationCrfModelMixin
 
 
 class SubjectConsent(edc_models.BaseUuidModel):

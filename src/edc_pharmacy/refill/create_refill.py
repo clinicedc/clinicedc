@@ -1,26 +1,39 @@
+from __future__ import annotations
+
+from datetime import datetime
+from typing import Any
+
 from .refill_creator import RefillCreator
 
 
-def create_refill(instance) -> RefillCreator:
-    """Creates the refill for this visit, if not already created.
+def create_refill(
+    refill_identifier: str,
+    subject_identifier: str,
+    dosage_guideline: Any,
+    formulation: Any,
+    refill_start_datetime: datetime,
+    refill_end_datetime: datetime,
+    roundup_divisible_by: int | None,
+    weight_in_kgs: float | None,
+) -> RefillCreator:
+    """Creates the edc_pharmacy refill for this study medication CRF,
+    if not already created.
+
+    Usually called by study medication CRF
 
     Called from signal.
     """
-    number_of_days = 0
-    if instance.subject_visit.appointment.next:
-        number_of_days = (
-            instance.subject_visit.appointment.next.appt_datetime
-            - instance.subject_visit.appointment.appt_datetime
-        ).days
-    return RefillCreator(
-        dosage_guideline=instance.dosage_guideline,
-        formulation=instance.formulation,
+    rx_refill = RefillCreator(
+        refill_identifier=refill_identifier,
+        dosage_guideline=dosage_guideline,
+        formulation=formulation,
         make_active=True,
-        number_of_days=number_of_days,
-        refill_date=instance.refill_date,
-        roundup_divisible_by=instance.roundup_divisible_by,
-        subject_identifier=instance.subject_visit.subject_identifier,
-        visit_code=instance.subject_visit.appointment.visit_code,
-        visit_code_sequence=instance.subject_visit.appointment.visit_code_sequence,
-        weight_in_kgs=getattr(instance, "weight_in_kgs", None),
+        refill_start_datetime=refill_start_datetime,
+        refill_end_datetime=refill_end_datetime,
+        roundup_divisible_by=roundup_divisible_by,
+        subject_identifier=subject_identifier,
+        weight_in_kgs=weight_in_kgs,
     )
+    # adjust_previous
+
+    return rx_refill

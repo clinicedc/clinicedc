@@ -29,6 +29,7 @@ visit1 = Visit(
     rupper=relativedelta(days=6),
     crfs=crfs,
     facility_name="5-day-clinic",
+    allow_unscheduled=True,
 )
 
 visit2 = Visit(
