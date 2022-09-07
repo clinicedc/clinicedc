@@ -3,11 +3,12 @@ from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
 from django.db.models.signals import pre_save
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import AppointmentsCreator, UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
 from edc_appointment.tests.helper import Helper
+from edc_appointment.utils import get_next_appointment
 from edc_constants.constants import NO, YES
 from edc_facility import import_holidays
 from edc_registration.models import RegisteredSubject
@@ -128,7 +129,9 @@ class TestMedicationCrf(TestCase):
             subject_visit=subject_visit,
             report_datetime=subject_visit.report_datetime,
             refill_start_datetime=subject_visit.report_datetime,
-            refill_end_datetime=appointment.next.appt_datetime,
+            refill_end_datetime=get_next_appointment(
+                appointment, include_interim=True
+            ).appt_datetime,
             dosage_guideline=self.dosage_guideline_100,
             formulation=self.formulation,
             order_or_update_next=YES,
@@ -139,7 +142,9 @@ class TestMedicationCrf(TestCase):
 
         # calc num of days until next visit
         number_of_days = (
-            obj.subject_visit.appointment.next.appt_datetime
+            get_next_appointment(
+                obj.subject_visit.appointment, include_interim=True
+            ).appt_datetime
             - obj.subject_visit.appointment.appt_datetime
         ).days
 
@@ -162,7 +167,9 @@ class TestMedicationCrf(TestCase):
                 self.rx.rx_date.year, self.rx.rx_date.month, self.rx.rx_date.day, 0, 0, 0
             ).astimezone(ZoneInfo("UTC"))
             - relativedelta(years=1),
-            refill_end_datetime=appointment.next.appt_datetime,
+            refill_end_datetime=get_next_appointment(
+                appointment, include_interim=True
+            ).appt_datetime,
             dosage_guideline=self.dosage_guideline_100,
             formulation=self.formulation,
             order_or_update_next=YES,
@@ -187,7 +194,9 @@ class TestMedicationCrf(TestCase):
             subject_visit=subject_visit,
             report_datetime=subject_visit.report_datetime,
             refill_start_datetime=subject_visit.report_datetime + relativedelta(years=1),
-            refill_end_datetime=subject_visit.appointment.next.appt_datetime
+            refill_end_datetime=get_next_appointment(
+                subject_visit.appointment, include_interim=True
+            ).appt_datetime
             + relativedelta(years=1),
             dosage_guideline=self.dosage_guideline_100,
             formulation=self.formulation,
@@ -214,7 +223,9 @@ class TestMedicationCrf(TestCase):
                     subject_visit=subject_visit,
                     report_datetime=subject_visit.report_datetime,
                     refill_start_datetime=subject_visit.report_datetime,
-                    refill_end_datetime=appointment.next.appt_datetime,
+                    refill_end_datetime=get_next_appointment(
+                        appointment, include_interim=True
+                    ).appt_datetime,
                     dosage_guideline=self.dosage_guideline_100,
                     formulation=self.formulation,
                     next_dosage_guideline=None,
@@ -226,7 +237,6 @@ class TestMedicationCrf(TestCase):
         )
         self.assertEqual(RxRefill.objects.all().count(), Appointment.objects.all().count() - 1)
 
-    @tag("2")
     def test_rx_refill_start_datetimes_are_greater(self):
         for appointment in Appointment.objects.all().order_by("timepoint"):
             subject_visit = SubjectVisit.objects.create(
@@ -239,7 +249,9 @@ class TestMedicationCrf(TestCase):
                     subject_visit=subject_visit,
                     report_datetime=subject_visit.report_datetime,
                     refill_start_datetime=subject_visit.report_datetime,
-                    refill_end_datetime=appointment.next.appt_datetime,
+                    refill_end_datetime=get_next_appointment(
+                        appointment, include_interim=True
+                    ).appt_datetime,
                     dosage_guideline=self.dosage_guideline_100,
                     formulation=self.formulation,
                     next_dosage_guideline=None,
@@ -263,7 +275,6 @@ class TestMedicationCrf(TestCase):
             self.assertGreater(dt, last_dt)
             last_dt = dt
 
-    @tag("34")
     def test_next_previous_refill(self):
         for appointment in Appointment.objects.all().order_by("timepoint"):
             subject_visit = SubjectVisit.objects.create(
@@ -276,7 +287,9 @@ class TestMedicationCrf(TestCase):
                     subject_visit=subject_visit,
                     report_datetime=subject_visit.report_datetime,
                     refill_start_datetime=subject_visit.report_datetime,
-                    refill_end_datetime=appointment.next.appt_datetime
+                    refill_end_datetime=get_next_appointment(
+                        appointment, include_interim=True
+                    ).appt_datetime
                     - relativedelta(minutes=1),
                     dosage_guideline=self.dosage_guideline_100,
                     formulation=self.formulation,
@@ -289,7 +302,6 @@ class TestMedicationCrf(TestCase):
         self.assertEqual(obj0.next.id, obj1.id)
         self.assertEqual(obj0.id, obj1.previous.id)
 
-    @tag("33")
     def test_insert_unscheduled_appt_refill(self):
         for appointment in Appointment.objects.all().order_by("timepoint"):
             subject_visit = SubjectVisit.objects.create(
@@ -302,7 +314,9 @@ class TestMedicationCrf(TestCase):
                     subject_visit=subject_visit,
                     report_datetime=subject_visit.report_datetime,
                     refill_start_datetime=subject_visit.report_datetime,
-                    refill_end_datetime=appointment.next.appt_datetime
+                    refill_end_datetime=get_next_appointment(
+                        appointment, include_interim=True
+                    ).appt_datetime
                     - relativedelta(minutes=1),
                     dosage_guideline=self.dosage_guideline_100,
                     formulation=self.formulation,
@@ -401,7 +415,9 @@ class TestMedicationCrf(TestCase):
                     subject_visit=subject_visit,
                     report_datetime=subject_visit.report_datetime,
                     refill_start_datetime=subject_visit.report_datetime,
-                    refill_end_datetime=subject_visit.appointment.next.appt_datetime,
+                    refill_end_datetime=get_next_appointment(
+                        subject_visit.appointment, include_interim=True
+                    ).appt_datetime,
                     dosage_guideline=self.dosage_guideline_100,
                     formulation=self.formulation,
                     order_or_update_next=YES,
@@ -421,7 +437,9 @@ class TestMedicationCrf(TestCase):
             subject_visit=subject_visit,
             report_datetime=subject_visit.report_datetime,
             refill_start_datetime=subject_visit.report_datetime,
-            refill_end_datetime=subject_visit.appointment.next.appt_datetime,
+            refill_end_datetime=get_next_appointment(
+                subject_visit.appointment, include_interim=True
+            ).appt_datetime,
             dosage_guideline=self.dosage_guideline_100,
             formulation=self.formulation,
             order_or_update_next=YES,
@@ -439,7 +457,9 @@ class TestMedicationCrf(TestCase):
             subject_visit=subject_visit,
             report_datetime=subject_visit.report_datetime,
             refill_start_datetime=subject_visit.report_datetime,
-            refill_end_datetime=subject_visit.appointment.next.appt_datetime,
+            refill_end_datetime=get_next_appointment(
+                subject_visit.appointment, include_interim=True
+            ).appt_datetime,
             dosage_guideline=self.dosage_guideline_100,
             formulation=self.formulation,
             order_or_update_next=YES,
@@ -449,14 +469,17 @@ class TestMedicationCrf(TestCase):
 
     def test_study_medication_form_baseline(self):
         appointment = Appointment.objects.all().order_by("timepoint")[0]
+        next_appointment = get_next_appointment(appointment, include_interim=True)
         subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+            appointment=appointment,
+            report_datetime=appointment.appt_datetime,
+            reason=SCHEDULED,
         )
         data = dict(
             subject_visit=subject_visit,
             report_datetime=subject_visit.report_datetime,
             refill_start_datetime=subject_visit.report_datetime,
-            refill_end_datetime=subject_visit.appointment.next.appt_datetime,
+            refill_end_datetime=next_appointment.appt_datetime,
             dosage_guideline=self.dosage_guideline_100,
             formulation=self.formulation,
             refill_to_next_visit=YES,
@@ -473,13 +496,17 @@ class TestMedicationCrf(TestCase):
     def test_study_medication_form_not_order_or_update_next(self):
         appointment = Appointment.objects.all().order_by("timepoint")[0]
         subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+            appointment=appointment,
+            report_datetime=appointment.appt_datetime,
+            reason=SCHEDULED,
         )
         data = dict(
             subject_visit=subject_visit,
             report_datetime=subject_visit.report_datetime,
             refill_start_datetime=subject_visit.report_datetime,
-            refill_end_datetime=subject_visit.appointment.next.appt_datetime,
+            refill_end_datetime=get_next_appointment(
+                subject_visit.appointment, include_interim=True
+            ).appt_datetime,
             dosage_guideline=self.dosage_guideline_100,
             formulation=self.formulation,
             refill_to_next_visit=YES,
@@ -503,7 +530,6 @@ class TestMedicationCrf(TestCase):
         form.is_valid()
         self.assertEqual({}, form._errors)
 
-    @tag("1")
     def test_inserts_refill(self):
         # 1000
         appointment = Appointment.objects.all().order_by("timepoint")[0]
@@ -517,7 +543,9 @@ class TestMedicationCrf(TestCase):
             subject_visit=subject_visit,
             report_datetime=subject_visit.report_datetime,
             refill_start_datetime=subject_visit.report_datetime,
-            refill_end_datetime=appointment.next.appt_datetime,
+            refill_end_datetime=get_next_appointment(
+                appointment, include_interim=True
+            ).appt_datetime,
             dosage_guideline=self.dosage_guideline_100,
             formulation=self.formulation,
             order_or_update_next=YES,
@@ -543,7 +571,9 @@ class TestMedicationCrf(TestCase):
             subject_visit=subject_visit,
             report_datetime=subject_visit.report_datetime,
             refill_start_datetime=subject_visit.report_datetime,
-            refill_end_datetime=appointment.next.appt_datetime,
+            refill_end_datetime=get_next_appointment(
+                appointment, include_interim=True
+            ).appt_datetime,
             dosage_guideline=self.dosage_guideline_200,
             formulation=self.formulation,
             order_or_update_next=YES,
@@ -610,7 +640,9 @@ class TestMedicationCrf(TestCase):
             subject_visit=subject_visit,
             report_datetime=subject_visit.report_datetime,
             refill_start_datetime=subject_visit.report_datetime,
-            refill_end_datetime=creator.appointment.next.appt_datetime,
+            refill_end_datetime=get_next_appointment(
+                creator.appointment, include_interim=True
+            ).appt_datetime,
             dosage_guideline=self.dosage_guideline_100,
             formulation=self.formulation,
             order_or_update_next=YES,

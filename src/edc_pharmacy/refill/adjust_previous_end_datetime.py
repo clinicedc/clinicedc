@@ -18,4 +18,11 @@ def adjust_previous_end_datetime(
         ).days
         previous_obj.user_modified = user_modified or previous_obj.user_modified
         previous_obj.modified = modified or previous_obj.modified
-        previous_obj.save()
+        previous_obj.save_base(
+            update_fields=[
+                "refill_end_datetime",
+                "number_of_days",
+                "modified",
+                "user_modified",
+            ]
+        )

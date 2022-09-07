@@ -36,7 +36,7 @@ def create_or_update_refills_on_post_save(
 ):
     if not raw:
         try:
-            instance.visit_model_attr()  # see edc-visit-tracking
+            instance.related_visit_model_attr()  # see edc-visit-tracking
         except AttributeError:
             pass
         else:

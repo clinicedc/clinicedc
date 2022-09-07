@@ -6,8 +6,9 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
 from django_audit_fields.admin import audit_fieldset_tuple
+from edc_appointment.models import Appointment
 from edc_dashboard.utils import get_bootstrap_version
-from edc_utils import formatted_age, get_utcnow
+from edc_utils import convert_php_dateformat, formatted_age, get_utcnow
 
 from ..admin_site import edc_pharmacy_admin
 from ..forms import RxRefillForm
@@ -50,12 +51,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
                     "This section is only required if customizing "
                     "the dosage guideline from above."
                 ),
-                "fields": (
-                    # "dose",
-                    # "frequency",
-                    # "frequency_units",
-                    "weight_in_kgs",
-                ),
+                "fields": ("weight_in_kgs",),
             },
         ),
         (
@@ -73,9 +69,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
     list_display: Tuple[str, ...] = (
         "subject_identifier",
         "dashboard",
-        "visit",
-        "refill_start_datetime",
-        "refill_end_datetime",
+        "duration",
         "description",
         "dispense",
         "returns",
@@ -110,13 +104,32 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     ordering: Tuple[str, ...] = ("rx__subject_identifier", "-refill_start_datetime")
 
-    @admin.display
-    def visit(self, obj):
-        return f"{obj.visit_code}.{obj.visit_code_sequence}"
-
     @admin.display(description="Subject identifier")
     def subject_identifier(self, obj=None):
         return obj.rx.subject_identifier
+
+    @admin.display(description="Duration")
+    def duration(self, obj=None):
+        context = dict(
+            refill_start_date=format_html(
+                "&nbsp;".join(
+                    obj.refill_start_datetime.strftime(
+                        convert_php_dateformat(settings.DATE_FORMAT)
+                    ).split(" ")
+                )
+            ),
+            refill_end_date=format_html(
+                "&nbsp;".join(
+                    obj.refill_end_datetime.strftime(
+                        convert_php_dateformat(settings.DATE_FORMAT)
+                    ).split(" ")
+                )
+            ),
+            number_of_days=obj.number_of_days,
+        )
+        return render_to_string(
+            f"edc_pharmacy/bootstrap{get_bootstrap_version()}/duration.html", context=context
+        )
 
     @admin.display(description="Rx")
     def prescription(self, obj=None):
@@ -186,6 +199,16 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
                 pk=request.GET.get("rx", 0)
             )
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def get_subject_dashboard_url_kwargs(self, obj):
+        appointment = Appointment.objects.filter(
+            subject_identifier=obj.subject_identifier,
+            appt_datetime__date__gte=obj.refill_start_datetime.date(),
+        ).first()
+        return dict(
+            subject_identifier=obj.subject_identifier,
+            appointment=appointment.id,
+        )
 
 
 class RxRefillInlineAdmin(admin.StackedInline):

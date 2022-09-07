@@ -10,11 +10,13 @@ class StudyMedicationRefillModelMixin(models.Model):
 
     refill_start_datetime = models.DateTimeField()
 
-    refill_end_datetime = models.DateTimeField(null=True, blank=True)
-
-    refill_identifier = models.CharField(
-        max_length=36, default=uuid4, unique=True, editable=False
+    refill_end_datetime = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Leave blank to auto-calculate if refilling to the next scheduled visit",
     )
+
+    refill_identifier = models.CharField(max_length=36, default=uuid4, editable=False)
 
     dosage_guideline = models.ForeignKey(
         "edc_pharmacy.DosageGuideline", on_delete=PROTECT, null=True, blank=False
@@ -31,6 +33,7 @@ class StudyMedicationRefillModelMixin(models.Model):
         max_length=25,
         choices=YES_NO,
         default=YES,
+        help_text="If YES, leave refill end date blank to auto-calculate",
     )
 
     number_of_days = models.IntegerField(

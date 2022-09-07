@@ -33,9 +33,7 @@ class RxRefill(
 
     rx = models.ForeignKey(Rx, on_delete=PROTECT)
 
-    refill_identifier = models.CharField(
-        max_length=36, default=uuid4, unique=True, editable=False
-    )
+    refill_identifier = models.CharField(max_length=36, default=uuid4, editable=False)
 
     dosage_guideline = models.ForeignKey(DosageGuideline, on_delete=PROTECT)
 
@@ -61,7 +59,7 @@ class RxRefill(
 
     refill_end_datetime = models.DateTimeField(
         verbose_name="Refill end date/time",
-        # default=get_utcnow,
+        null=True,
         help_text="Ending date for this refill",
     )
 
@@ -196,4 +194,4 @@ class RxRefill(
     class Meta(edc_models.BaseUuidModel.Meta):
         verbose_name = "RX refill"
         verbose_name_plural = "RX refills"
-        unique_together = (("rx", "refill_start_datetime"),)
+        # unique_together = (("rx", "refill_start_datetime"),)
