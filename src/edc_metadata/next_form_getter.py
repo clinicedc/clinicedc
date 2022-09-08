@@ -20,8 +20,8 @@ class NextFormGetter:
         self._visit = None
 
         self.model = model or model_obj._meta.label_lower
-        self.appointment = appointment or model_obj.visit.appointment
-        self.visit = self.appointment.visit.visit
+        self.appointment = appointment or model_obj.related_visit.appointment
+        self.visit = self.appointment.related_visit.visit
 
     @property
     def next_form(self):
@@ -45,7 +45,11 @@ class NextFormGetter:
             model_cls = django_apps.get_model(self.model)
             try:
                 self._model_obj = model_cls.objects.get(
-                    **{f"{model_cls.visit_model_attr()}__appointment": self.appointment}
+                    **{
+                        f"{model_cls.related_visit_model_attr()}__appointment": (
+                            self.appointment
+                        )
+                    }
                 )
             except ObjectDoesNotExist:
                 pass

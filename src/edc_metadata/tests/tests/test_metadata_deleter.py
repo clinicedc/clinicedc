@@ -84,7 +84,7 @@ class TestDeletesMetadata(TestMetadataMixin, TestCase):
         self.assertGreater(CrfMetadata.objects.all().count(), 0)
         # delete
         subject_visit.delete()
-        self.assertEquals(CrfMetadata.objects.all().count(), 0)
+        self.assertEqual(CrfMetadata.objects.all().count(), 0)
         # recreate
         subject_visit.save()
         self.assertGreater(CrfMetadata.objects.all().count(), 0)
@@ -95,7 +95,7 @@ class TestDeletesMetadata(TestMetadataMixin, TestCase):
         # create error condition, keyed but no model instances
         CrfMetadata.objects.all().update(entry_status=KEYED)
         subject_visit.delete()
-        self.assertEquals(CrfMetadata.objects.all().count(), 0)
+        self.assertEqual(CrfMetadata.objects.all().count(), 0)
 
     @tag("101")
     def test_delete_visit_for_keyed_requisition(self):
@@ -113,4 +113,4 @@ class TestDeletesMetadata(TestMetadataMixin, TestCase):
         # create error condition, keyed but no model instances
         RequisitionMetadata.objects.all().update(entry_status=KEYED)
         subject_visit.delete()
-        self.assertEquals(RequisitionMetadata.objects.all().count(), 0)
+        self.assertEqual(RequisitionMetadata.objects.all().count(), 0)

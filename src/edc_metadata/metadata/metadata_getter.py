@@ -48,13 +48,13 @@ class MetadataValidator:
                     # confirm metadata.entry_status is correct
                     model_obj = None
                     query_attrs = {
-                        f"{model_cls.visit_model_attr()}": self.visit_model_instance
+                        f"{model_cls.related_visit_model_attr()}": self.visit_model_instance
                     }
                     query_attrs.update(**self.extra_query_attrs)
                     try:
                         model_obj = model_cls.objects.get(**query_attrs)
                     except AttributeError as e:
-                        if "visit_model_attr" not in str(e):
+                        if "related_visit_model_attr" not in str(e):
                             raise ImproperlyConfigured(f"{e} See {repr(model_cls)}")
                         raise
                     except ObjectDoesNotExist:
@@ -107,7 +107,7 @@ class MetadataGetter:
     def __init__(self, appointment: Any) -> None:
         self.options = {}
         self.appointment = appointment
-        self.visit_model_instance = getattr(self.appointment, "visit", None)
+        self.visit_model_instance = getattr(self.appointment, "related_visit", None)
         instance = self.visit_model_instance or self.appointment
         self.subject_identifier = instance.subject_identifier
         self.visit_code = instance.visit_code

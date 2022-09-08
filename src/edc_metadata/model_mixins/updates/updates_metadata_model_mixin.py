@@ -35,13 +35,13 @@ class UpdatesMetadataModelMixin(models.Model):
 
     def run_metadata_rules_for_crf(self: CrfLikeModelInstance) -> None:
         """Runs all the metadata rules."""
-        self.visit.run_metadata_rules()
+        self.related_visit.run_metadata_rules()
 
     @property
     def metadata_updater(self: CrfLikeModelInstance) -> None:
         """Returns an instance of MetadataUpdater."""
         return self.metadata_updater_cls(
-            visit_model_instance=self.visit, target_model=self._meta.label_lower
+            visit_model_instance=self.related_visit, target_model=self._meta.label_lower
         )
 
     def metadata_reset_on_delete(self: CrfLikeModelInstance) -> None:
@@ -67,7 +67,7 @@ class UpdatesMetadataModelMixin(models.Model):
         of the CRF in the visit schedule.
         """
         crfs_prn = self.metadata_visit_object.crfs_prn
-        if self.visit.visit_code_sequence != 0:
+        if self.related_visit.visit_code_sequence != 0:
             crfs = self.metadata_visit_object.crfs_unscheduled + crfs_prn
         else:
             crfs = self.metadata_visit_object.crfs + crfs_prn
@@ -77,17 +77,17 @@ class UpdatesMetadataModelMixin(models.Model):
     @property
     def metadata_visit_object(self: CrfLikeModelInstance) -> Any:
         visit_schedule = site_visit_schedules.get_visit_schedule(
-            visit_schedule_name=self.visit.visit_schedule_name
+            visit_schedule_name=self.related_visit.visit_schedule_name
         )
-        schedule = visit_schedule.schedules.get(self.visit.schedule_name)
-        return schedule.visits.get(self.visit.visit_code)
+        schedule = visit_schedule.schedules.get(self.related_visit.schedule_name)
+        return schedule.visits.get(self.related_visit.visit_code)
 
     @property
     def metadata_query_options(self: CrfLikeModelInstance) -> dict:
-        options = self.visit.metadata_query_options
+        options = self.related_visit.metadata_query_options
         options.update(
             {
-                "subject_identifier": self.visit.subject_identifier,
+                "subject_identifier": self.related_visit.subject_identifier,
                 "model": self._meta.label_lower,
             }
         )

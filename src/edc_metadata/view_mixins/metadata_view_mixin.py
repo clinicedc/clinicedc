@@ -39,7 +39,7 @@ class MetadataViewMixin(MessageViewMixin, ContextMixin):
 
             crf_model_wrappers = self.get_crf_model_wrappers()
             try:
-                report_datetime = self.appointment.visit.report_datetime
+                report_datetime = self.appointment.related_visit.report_datetime
             except AttributeError:
                 pass
             else:
@@ -60,7 +60,11 @@ class MetadataViewMixin(MessageViewMixin, ContextMixin):
         for metadata_wrapper in crf_metadata_wrappers.objects:
             if not metadata_wrapper.model_obj:
                 metadata_wrapper.model_obj = metadata_wrapper.model_cls(
-                    **{metadata_wrapper.model_cls.visit_model_attr(): metadata_wrapper.visit}
+                    **{
+                        metadata_wrapper.model_cls.related_visit_model_attr(): (
+                            metadata_wrapper.visit
+                        )
+                    }
                 )
             metadata_wrapper.metadata_obj.object = self.crf_model_wrapper_cls(
                 model_obj=metadata_wrapper.model_obj,
@@ -86,7 +90,9 @@ class MetadataViewMixin(MessageViewMixin, ContextMixin):
                 panel = self.get_panel(metadata_wrapper)
                 metadata_wrapper.model_obj = metadata_wrapper.model_cls(
                     **{
-                        metadata_wrapper.model_cls.visit_model_attr(): metadata_wrapper.visit,
+                        metadata_wrapper.model_cls.related_visit_model_attr(): (
+                            metadata_wrapper.visit
+                        ),
                         "panel": panel,
                     }
                 )

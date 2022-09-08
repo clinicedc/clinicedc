@@ -47,7 +47,7 @@ class MetadataWrapper:
     @property
     def options(self) -> dict:
         """Returns a dictionary of query options."""
-        return {f"{self.model_cls.visit_model_attr()}": self.visit}
+        return {f"{self.model_cls.related_visit_model_attr()}": self.visit}
 
     @property
     def model_obj(self) -> CrfModelStub:
@@ -55,7 +55,7 @@ class MetadataWrapper:
             try:
                 self._model_obj = self.model_cls.objects.get(**self.options)
             except AttributeError as e:
-                if "visit_model_attr" not in str(e):
+                if "related_visit_model_attr" not in str(e):
                     raise ImproperlyConfigured(f"{e} See {repr(self.model_cls)}")
             except ObjectDoesNotExist:
                 self._model_obj = None

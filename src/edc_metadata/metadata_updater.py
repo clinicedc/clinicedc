@@ -21,7 +21,6 @@ class MetadataUpdater:
         self._metadata_obj = None
         self.visit_model_instance = visit_model_instance
         self.target_model = target_model
-        # self._missed_visit_model_instance = None
 
     def __repr__(self):
         return (
@@ -51,15 +50,3 @@ class MetadataUpdater:
         return self.target_handler(
             model=self.target_model, visit_model_instance=self.visit_model_instance
         )
-
-    # def missed_visit_model_instance(self):
-    #     if not self._missed_visit_model_instance:
-    #         try:
-    #             self._missed_visit_model_instance = (
-    #                 get_subject_visit_missed_model_cls().objects.get(
-    #                     subject_visit=self.visit_model_instance
-    #                 )
-    #             )
-    #         except ObjectDoesNotExist:
-    #             self._missed_visit_model_instance = None
-    #     return self._missed_visit_model_instance

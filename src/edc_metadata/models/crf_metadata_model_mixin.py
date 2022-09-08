@@ -66,7 +66,7 @@ class CrfMetadataModelMixin(
 
     def model_instance_query_opts(self) -> dict:
         models_cls = django_apps.get_model(self.model)
-        attr = models_cls.visit_model_attr()
+        attr = models_cls.related_visit_model_attr()
         return {
             f"{attr}__subject_identifier": self.subject_identifier,
             f"{attr}__visit_schedule_name": self.visit_schedule_name,

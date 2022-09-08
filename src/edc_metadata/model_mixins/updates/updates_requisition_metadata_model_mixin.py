@@ -17,7 +17,7 @@ class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
     def metadata_updater(self: RequisitionMetadataModelStub) -> RequisitionMetadataUpdater:
         """Returns an instance of RequisitionMetadataUpdater."""
         opts = dict(
-            visit_model_instance=self.visit,
+            visit_model_instance=self.related_visit,
             target_model=self._meta.label_lower,
             target_panel=self.panel,
         )
@@ -35,7 +35,7 @@ class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
         entry status of the requisition in the visit schedule.
         """
         requisitions_prn = self.metadata_visit_object.requisitions_prn
-        if self.visit.visit_code_sequence != 0:
+        if self.related_visit.visit_code_sequence != 0:
             requisitions = (
                 self.metadata_visit_object.requisitions_unscheduled + requisitions_prn
             )
