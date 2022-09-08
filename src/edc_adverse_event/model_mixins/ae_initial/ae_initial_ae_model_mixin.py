@@ -2,6 +2,8 @@ from django.db import models
 from edc_constants.choices import YES_NO, YES_NO_UNKNOWN
 from edc_model_fields.fields.other_charfield import OtherCharField
 
+from edc_adverse_event.models import AeActionClassification
+
 
 class AeInitialAeModelMixin(models.Model):
 
@@ -25,6 +27,14 @@ class AeInitialAeModelMixin(models.Model):
     )
 
     ae_treatment = models.TextField(verbose_name="Specify action taken for treatment of AE:")
+
+    ae_action_classification = models.ForeignKey(
+        AeActionClassification,
+        on_delete=models.PROTECT,
+        verbose_name="Classification of action taken",
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         abstract = True
