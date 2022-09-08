@@ -15,7 +15,7 @@ class CrfModelStub(Protocol):
     subject_visit: SubjectVisitModelStub
 
     @classmethod
-    def visit_model_attr(cls) -> str:
+    def related_visit_model_attr(cls) -> str:
         ...
 
     objects: models.Manager
