@@ -38,7 +38,7 @@ class RequisitionLabels:
         is_drawn and drawn_datetime are None.
         """
         requisition_model_cls = django_apps.get_model(panel.requisition_model)
-        related_visit_model_attr = requisition_model_cls.visit_model_attr()
+        related_visit_model_attr = requisition_model_cls.related_visit_model_attr()
         try:
             requisition_model_obj = requisition_model_cls.objects.get(
                 panel=panel.panel_model_obj,
