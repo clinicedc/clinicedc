@@ -32,3 +32,9 @@
 {% block welcome-msg %}{% endblock %}
 
 {% block userlinks %}{% logout_row %}{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+
+    {% revision_row %}
+{% endblock content %}

@@ -127,7 +127,7 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
             next_model_cls = django_apps.get_model(getter.next_form.model)
             url_name = "_".join(next_model_cls._meta.label_lower.split("."))
             url_name = f"{self.admin_site.name}:{url_name}"
-            lookup_opts = {obj.visit_model_attr(): obj.visit}
+            lookup_opts = {obj.related_visit_model_attr(): obj.related_visit}
             if panel_name:
                 lookup_opts.update(panel__name=panel_name)
             try:
@@ -138,7 +138,7 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
                 redirect_url = reverse(f"{url_name}_change", args=(next_obj.id,))
         next_querystring = request.GET.dict().get(self.next_querystring_attr)
         querystring_opts = self.get_next_options(request=request)
-        querystring_opts.update({obj.visit_model_attr(): str(obj.visit.id)})
+        querystring_opts.update({obj.related_visit_model_attr(): str(obj.related_visit.id)})
         if panel_name:
             panel_model_cls = django_apps.get_model("edc_lab.panel")
             panel = panel_model_cls.objects.get(name=panel_name)
