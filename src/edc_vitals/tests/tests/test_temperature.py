@@ -80,7 +80,7 @@ class TestTemperature(TestCase):
                 self.assertTrue(has_g4_fever(temperature=temperature))
 
     def test_get_g3_fever_lower(self):
-        self.assertEquals(get_g3_fever_lower(), 39.3)
+        self.assertEqual(get_g3_fever_lower(), 39.3)
 
     def test_get_g4_fever_lower(self):
-        self.assertEquals(get_g4_fever_lower(), 40.0)
+        self.assertEqual(get_g4_fever_lower(), 40.0)
