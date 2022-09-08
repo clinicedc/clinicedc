@@ -11,6 +11,8 @@ admin.site.unregister(Group)
 @admin.register(Group, site=edc_auth_admin)
 class GroupAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
 
+    ordering = ("name",)
+
     list_display_links = ("name", "codenames")
 
     list_display = ("name", "codenames")
