@@ -22,6 +22,10 @@ class AppointmentMethodsModelMixin(models.Model):
     """Mixin of methods for the appointment model only"""
 
     @property
+    def visit_label(self) -> str:
+        return f"{self.visit_code}.{self.visit_code_sequence}"
+
+    @property
     def related_visit(self: AppointmentModelStub) -> SubjectVisitModelStub:
         """Returns the related visit model instance, or None"""
         visit = None
