@@ -195,7 +195,7 @@ class UnscheduledAppointmentCreator:
                 visit_code_sequence=0,
             )
             self._parent_appointment = self.appointment_model_cls.objects.get(**options)
-            if not self._parent_appointment.visit:
+            if not self._parent_appointment.related_visit:
                 raise InvalidParentAppointmentMissingVisitError(
                     f"Unable to create unscheduled appointment. An unscheduled "
                     f"appointment cannot be created if the parent appointment "

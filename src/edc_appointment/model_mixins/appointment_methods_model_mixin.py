@@ -1,4 +1,6 @@
-from typing import Any, Optional, Type
+from __future__ import annotations
+
+from typing import Type
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -7,7 +9,8 @@ from edc_facility import Facility
 from edc_visit_tracking.model_mixins import VisitModelMixin
 from edc_visit_tracking.stubs import SubjectVisitModelStub
 
-from edc_appointment.stubs import AppointmentModelStub, TAppointmentModelStub
+from ..stubs import AppointmentModelStub, TAppointmentModelStub
+from ..utils import get_next_appointment, get_previous_appointment
 
 
 class AppointmentMethodsModelError(Exception):
@@ -19,7 +22,7 @@ class AppointmentMethodsModelMixin(models.Model):
     """Mixin of methods for the appointment model only"""
 
     @property
-    def visit(self: AppointmentModelStub) -> SubjectVisitModelStub:
+    def related_visit(self: AppointmentModelStub) -> SubjectVisitModelStub:
         """Returns the related visit model instance, or None"""
         visit = None
         for f in self._meta.get_fields():
@@ -30,7 +33,6 @@ class AppointmentMethodsModelMixin(models.Model):
                             visit = f.related_model.objects.get(appointment=self)
                         except ObjectDoesNotExist:
                             pass
-        # return getattr(self, self.related_visit_model_attr())
         return visit
 
     @property
@@ -67,7 +69,7 @@ class AppointmentMethodsModelMixin(models.Model):
         return getattr(cls, cls.related_visit_model_attr()).related.related_model
 
     @property
-    def next_by_timepoint(self: AppointmentModelStub) -> AppointmentModelStub:
+    def next_by_timepoint(self: AppointmentModelStub) -> AppointmentModelStub | None:
         """Returns the next appointment or None of all appointments
         for this subject for visit_code_sequence=0.
         """
@@ -82,7 +84,7 @@ class AppointmentMethodsModelMixin(models.Model):
         )
 
     @property
-    def last_visit_code_sequence(self: AppointmentModelStub) -> Optional[int]:
+    def last_visit_code_sequence(self: AppointmentModelStub) -> int | None:
         """Returns an integer, or None, that is the visit_code_sequence
         of the last appointment for this visit code that is not self.
         (ordered by visit_code_sequence).
@@ -116,14 +118,14 @@ class AppointmentMethodsModelMixin(models.Model):
 
     def get_last_appointment_with_visit_report(
         self: AppointmentModelStub,
-    ) -> Optional[AppointmentModelStub]:
+    ) -> AppointmentModelStub | None:
         """Returns the last appointment model instance,
         or None, with a completed visit report.
 
         Ordering is by appointment timepoint/visit_code_sequence
         with a completed visit report.
         """
-        appointment: Optional[AppointmentModelStub] = None
+        appointment = None
         visit = (
             self.__class__.visit_model_cls()
             .objects.filter(
@@ -139,7 +141,7 @@ class AppointmentMethodsModelMixin(models.Model):
         return appointment
 
     @property
-    def previous_by_timepoint(self: AppointmentModelStub) -> Optional[AppointmentModelStub]:
+    def previous_by_timepoint(self: AppointmentModelStub) -> AppointmentModelStub | None:
         """Returns the previous appointment or None by timepoint
         for visit_code_sequence=0.
         """
@@ -154,90 +156,26 @@ class AppointmentMethodsModelMixin(models.Model):
         )
 
     @property
-    def previous(self: AppointmentModelStub) -> Optional[AppointmentModelStub]:
+    def previous(self: AppointmentModelStub) -> AppointmentModelStub | None:
         """Returns the previous appointment or None in this schedule
         for visit_code_sequence=0.
         """
-        return self.get_previous()
-
-    def get_previous(
-        self: AppointmentModelStub, include_interim=None
-    ) -> Optional[AppointmentModelStub]:
-        """Returns the previous appointment model instance,
-        or None, in this schedule.
-
-        Keywords:
-            * include_interim: include interim appointments
-              (e.g. those where visit_code_sequence != 0)
-        """
-        opts = dict(
-            subject_identifier=self.subject_identifier,
-            visit_schedule_name=self.visit_schedule_name,
-            schedule_name=self.schedule_name,
-        )
-        if include_interim:
-            if self.visit_code_sequence != 0:
-                opts.update(timepoint__lte=self.timepoint)
-                opts.update(visit_code_sequence__lt=self.visit_code_sequence)
-            else:
-                opts.update(timepoint__lt=self.timepoint)
-        elif not include_interim:
-            opts.update(
-                timepoint__lt=self.timepoint,
-                visit_code_sequence=0,
-            )
-
-        appointments = (
-            self.__class__.objects.filter(**opts)
-            .exclude(id=self.id)
-            .order_by("timepoint", "visit_code_sequence")
-        )
-        try:
-            previous_appt: Optional[AppointmentModelStub] = appointments.reverse()[0]
-        except IndexError:
-            previous_appt = None
-        return previous_appt
+        return get_previous_appointment(self, include_interim=False)
 
     @property
-    def next(self: Any) -> Optional[AppointmentModelStub]:
+    def next(self: AppointmentModelStub) -> AppointmentModelStub | None:
         """Returns the next appointment or None in this schedule
         for visit_code_sequence=0.
         """
-        next_appt: Optional[AppointmentModelStub] = None
-        next_visit = self.schedule.visits.next(self.visit_code)
-        if next_visit:
-            options = dict(
-                subject_identifier=self.subject_identifier,
-                visit_schedule_name=self.visit_schedule_name,
-                schedule_name=self.schedule_name,
-                visit_code=next_visit.code,
-                visit_code_sequence=0,
-            )
-            try:
-                next_appt = self.__class__.objects.get(**options)
-            except ObjectDoesNotExist:
-                pass
-        return next_appt
+        return get_next_appointment(self, include_interim=False)
 
     @property
-    def relative_next(self: Any) -> Optional[AppointmentModelStub]:
-        options = dict(
-            subject_identifier=self.subject_identifier,
-            visit_schedule_name=self.visit_schedule_name,
-            schedule_name=self.schedule_name,
-            timepoint__gte=self.timepoint,
-        )
-        appointment = None
-        return_on_next = False
-        for appointment in self.__class__.objects.filter(**options).order_by(
-            "timepoint", "visit_code_sequence"
-        ):
-            if return_on_next:
-                break
-            if appointment.id == self.id:
-                return_on_next = True
-                continue
-        return appointment
+    def relative_previous(self: AppointmentModelStub) -> AppointmentModelStub | None:
+        return get_previous_appointment(self, include_interim=True)
+
+    @property
+    def relative_next(self: AppointmentModelStub) -> AppointmentModelStub | None:
+        return get_next_appointment(self, include_interim=True)
 
     class Meta:
         abstract = True

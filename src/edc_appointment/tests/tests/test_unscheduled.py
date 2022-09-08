@@ -78,7 +78,7 @@ class TestUnscheduledAppointmentCreator(TestCase):
             appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
         )
         appointment.refresh_from_db()
-        self.assertEqual(appointment.visit, subject_visit)
+        self.assertEqual(appointment.related_visit, subject_visit)
         for appt_status in [NEW_APPT, INCOMPLETE_APPT, IN_PROGRESS_APPT, CANCELLED_APPT]:
             with self.subTest(appt_status=appt_status):
                 appointment.appt_status = appt_status
@@ -135,8 +135,8 @@ class TestUnscheduledAppointmentCreator(TestCase):
                     schedule_name=schedule_name,
                 )
                 appointment.refresh_from_db()
-                self.assertTrue(appointment.visit, subject_visit)
-                self.assertEqual(0, appointment.visit.visit_code_sequence)
+                self.assertTrue(appointment.related_visit, subject_visit)
+                self.assertEqual(0, appointment.related_visit.visit_code_sequence)
                 self.assertEqual(1, appointment.next_visit_code_sequence)
 
                 # close appt (set to INCOMPLETE_APPT)

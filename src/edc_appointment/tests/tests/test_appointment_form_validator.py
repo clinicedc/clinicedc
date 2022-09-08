@@ -38,6 +38,7 @@ from ...form_validators.appointment_form_validator import (
     INVALID_MISSED_APPT_NOT_ALLOWED_AT_BASELINE,
 )
 from ...models import Appointment
+from ...utils import get_previous_appointment
 from ..appointment_test_case_mixin import AppointmentTestCaseMixin
 from ..helper import Helper
 
@@ -83,16 +84,22 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
             ["1000.0", "1000.1", "1000.2", "2000.0", "3000.0", "4000.0"],
         )
 
-        self.assertIsNone(appointments[0].get_previous())
+        self.assertIsNone(get_previous_appointment(appointments[0]))
 
-        self.assertEqual(appointments[4], appointments[5].get_previous(include_interim=True))
-        self.assertEqual(appointments[4], appointments[5].get_previous())
+        self.assertEqual(
+            appointments[4], get_previous_appointment(appointments[5], include_interim=True)
+        )
+        self.assertEqual(appointments[4], get_previous_appointment(appointments[5]))
 
-        self.assertEqual(appointments[2], appointments[3].get_previous(include_interim=True))
-        self.assertEqual(appointments[0], appointments[3].get_previous())
+        self.assertEqual(
+            appointments[2], get_previous_appointment(appointments[3], include_interim=True)
+        )
+        self.assertEqual(appointments[0], get_previous_appointment(appointments[3]))
 
-        self.assertEqual(appointments[3], appointments[4].get_previous(include_interim=True))
-        self.assertEqual(appointments[3], appointments[4].get_previous())
+        self.assertEqual(
+            appointments[3], get_previous_appointment(appointments[4], include_interim=True)
+        )
+        self.assertEqual(appointments[3], get_previous_appointment(appointments[4]))
 
     def test_(self):
         try:
