@@ -1,4 +1,5 @@
-import six
+from __future__ import annotations
+
 from django.apps import apps as django_apps
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import gettext as _
@@ -21,33 +22,33 @@ class ListboardViewError(Exception):
 
 class BaseListboardView(TemplateRequestContextMixin, ListView):
 
-    cleaned_search_term = None
-    context_object_name = "results"
-    empty_queryset_message = _("Nothing to display.")
-    listboard_template = None  # an existing key in request.context_data
+    cleaned_search_term: str | None = None
+    context_object_name: str = "results"
+    empty_queryset_message: str = _("Nothing to display.")
+    listboard_template: str | None = None  # an existing key in request.context_data
     # if self.listboard_url declared through another mixin.
-    listboard_url = None  # an existing key in request.context_data
-    listboard_back_url = None
+    listboard_url: str | None = None  # an existing key in request.context_data
+    listboard_back_url: str | None = None
 
     # default, info, success, danger, warning, etc. See Bootstrap.
-    listboard_panel_style = "default"
-    listboard_fa_icon = None
-    listboard_model = None  # label_lower model name or model class
-    listboard_model_manager_name = "_default_manager"
-    listboard_panel_title = None
-    listboard_instructions = None
+    listboard_panel_style: str = "default"
+    listboard_fa_icon: str | None = None
+    listboard_model: str | None = None  # label_lower model name or model class
+    listboard_model_manager_name: str = "_default_manager"
+    listboard_panel_title: str | None = None
+    listboard_instructions: str | None = None
 
-    permissions_warning_message = _("You do not have permission to view these data.")
+    permissions_warning_message: str = _("You do not have permission to view these data.")
     # e.g. "edc_subject_dashboard.view_subject_listboard"
-    listboard_view_permission_codename = None
+    listboard_view_permission_codename: str | None = None
     # e.g. "edc_subject_dashboard.view_subject_listboard"
-    listboard_view_only_my_permission_codename = None
+    listboard_view_only_my_permission_codename: str | None = None
 
     model_wrapper_cls = None
-    ordering = "-created"
+    ordering: str = "-created"
 
-    orphans = 3
-    paginate_by = 10
+    orphans: int = 3
+    paginate_by: int = 10
     paginator_url = None  # defaults to listboard_url
 
     def get(self, request, *args, **kwargs):
@@ -157,7 +158,7 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
             Only returns records if user has dashboard permissions to
             do so. See `has_view_listboard_perms`.
 
-            Limits records to those created by the current user if
+            Limit records to those created by the current user if
             `has_view_only_my_listboard_perms` return True.
             See `has_view_only_my_listboard_perms`.
 
@@ -182,7 +183,7 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
             queryset = self.get_updated_queryset(queryset)
             ordering = self.get_ordering()
             if ordering:
-                if isinstance(ordering, six.string_types):
+                if isinstance(ordering, (str,)):
                     ordering = (ordering,)
                 queryset = queryset.order_by(*ordering)
         return queryset
@@ -229,14 +230,14 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
 
     @property
     def has_view_only_my_listboard_perms(self):
-        """Returns True if request.user ONLY has permissions to
-        view records created by request.user on the listboard.
+        """Returns True if `request.user` ONLY has permissions to
+        view records created by `request.user` on the listboard.
         """
         return self.request.user.has_perm(self.listboard_view_only_my_permission_codename)
 
     @property
     def has_listboard_model_perms(self):
-        """Returns True if request.user has permissions to
+        """Returns True if `request.user` has permissions to
         add/change the listboard model.
 
         Does not affect `get_queryset`.
