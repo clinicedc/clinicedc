@@ -223,25 +223,27 @@ class Diagnoses:
         return initial_reviews
 
     def initial_diagnosis_visit(self, prefix):
+        related_visit_model_attr = (
+            get_clinical_review_baseline_model_cls().related_visit_model_attr()
+        )
+        opts = {
+            f"{related_visit_model_attr}__subject_identifier": self.subject_identifier,
+            f"{prefix.lower()}_dx": YES,
+        }
+        opts.update(**self.report_datetime_opts(f"{related_visit_model_attr}__", lte=True))
         try:
             clinical_review_baseline = get_clinical_review_baseline_model_cls().objects.get(
-                subject_visit__subject_identifier=self.subject_identifier,
-                **self.report_datetime_opts("subject_visit__", lte=True),
-                **{f"{prefix.lower()}_dx": YES},
+                **opts
             )
         except ObjectDoesNotExist:
             subject_visit = None
         else:
-            subject_visit = clinical_review_baseline.subject_visit
+            subject_visit = clinical_review_baseline.related_visit
         if not subject_visit:
             try:
-                clinical_review = get_clinical_review_model_cls().objects.get(
-                    subject_visit__subject_identifier=self.subject_identifier,
-                    **self.report_datetime_opts("subject_visit__", lte=True),
-                    **{f"{prefix.lower()}_dx": YES},
-                )
+                clinical_review = get_clinical_review_model_cls().objects.get(**opts)
             except ObjectDoesNotExist:
                 subject_visit = None
             else:
-                subject_visit = clinical_review.subject_visit
+                subject_visit = clinical_review.related_visit
         return subject_visit
