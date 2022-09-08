@@ -18,7 +18,7 @@ class RequisitionLabels:
         for metadata in requisition_metadata.filter(panel_name__in=panel_names):
             panel = [
                 r
-                for r in appointment.visit.visit.all_requisitions
+                for r in appointment.related_visit.visit.all_requisitions
                 if r.panel.name == metadata.panel_name
             ][0].panel
             requisition = self.get_or_create_requisition(panel=panel, user=user)
@@ -38,17 +38,17 @@ class RequisitionLabels:
         is_drawn and drawn_datetime are None.
         """
         requisition_model_cls = django_apps.get_model(panel.requisition_model)
-        visit_model_attr = requisition_model_cls.visit_model_attr()
+        related_visit_model_attr = requisition_model_cls.visit_model_attr()
         try:
             requisition_model_obj = requisition_model_cls.objects.get(
                 panel=panel.panel_model_obj,
-                **{f"{visit_model_attr}__appointment": self.appointment},
+                **{f"{related_visit_model_attr}__appointment": self.appointment},
             )
         except ObjectDoesNotExist:
             requisition_model_obj = requisition_model_cls(
                 user_created=user.username,
                 panel=panel.panel_model_obj,
-                **{visit_model_attr: self.appointment.visit},
+                **{related_visit_model_attr: self.appointment.visit},
             )
             requisition_model_obj.get_requisition_identifier()
             requisition_model_obj.save()
