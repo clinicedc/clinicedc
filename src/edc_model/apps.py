@@ -5,15 +5,9 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.management.color import color_style
 from django.db.backends.signals import connection_created
+from edc_utils.sqlite import activate_foreign_keys
 
 style = color_style()
-
-
-def activate_foreign_keys(sender, connection, **kwargs):
-    """Enable integrity constraint with sqlite."""
-    if connection.vendor == "sqlite":
-        cursor = connection.cursor()
-        cursor.execute("PRAGMA foreign_keys = ON;")
 
 
 class AppConfig(DjangoAppConfig):
