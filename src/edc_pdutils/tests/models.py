@@ -76,7 +76,7 @@ class CrfModelMixin(models.Model):
         return self.subject_visit.visit_code
 
     @property
-    def visit(self):
+    def related_visit(self):
         return self.subject_visit
 
     class Meta:
