@@ -1,5 +1,3 @@
-import pdb
-
 from .custom_label_condition import CustomFormLabelError
 
 
