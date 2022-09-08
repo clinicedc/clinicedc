@@ -158,11 +158,11 @@ class CrfOne(ActionModelMixin, SiteModelMixin, BaseUuidModel):
         return self.subject_visit.subject_identifier
 
     @property
-    def visit(self):
+    def related_visit(self):
         return self.subject_visit
 
     @classmethod
-    def visit_model_attr(cls):
+    def related_visit_model_attr(cls):
         return "subject_visit"
 
 
@@ -181,11 +181,11 @@ class CrfTwo(ActionModelMixin, SiteModelMixin, BaseUuidModel):
         return self.subject_visit.subject_identifier
 
     @property
-    def visit(self):
+    def related_visit(self):
         return self.subject_visit
 
     @classmethod
-    def visit_model_attr(cls):
+    def related_visit_model_attr(cls):
         return "subject_visit"
 
 

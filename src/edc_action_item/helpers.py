@@ -91,14 +91,14 @@ class ActionItemHelper:
                 )
         if model_obj:
             try:
-                model_obj.visit_model_attr()
+                model_obj.related_visit_model_attr()
             except AttributeError:
                 pass
             else:
-                visit_obj = getattr(model_obj, model_obj.visit_model_attr())
+                visit_obj = getattr(model_obj, model_obj.related_visit_model_attr())
                 opts.update(
                     {
-                        model_obj.visit_model_attr(): str(visit_obj.pk),
+                        model_obj.related_visit_model_attr(): str(visit_obj.pk),
                         "appointment": str(visit_obj.appointment.pk),
                     }
                 )
