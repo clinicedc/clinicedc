@@ -69,7 +69,7 @@ class CustomLabelCondition:
         if self.previous_visit:
             try:
                 previous_obj = self.model.objects.get(
-                    **{f"{self.model.visit_model_attr()}": self.previous_visit}
+                    **{f"{self.model.related_visit_model_attr()}": self.previous_visit}
                 )
             except ObjectDoesNotExist:
                 pass
