@@ -63,10 +63,10 @@ class CrfInlineModelMixin(InlineVisitMethodsModelMixin, SiteModelMixin, models.M
         """Return the instance of the inline parent model's visit
         model.
         """
-        return getattr(self.parent_instance, self.visit_model_attr())
+        return getattr(self.parent_instance, self.related_visit_model_attr())
 
-    def visit_model_attr(self):
-        return self.parent_model.visit_model_attr()
+    def related_visit_model_attr(self):
+        return self.parent_model.related_visit_model_attr()
 
     @property
     def report_datetime(self) -> datetime:
