@@ -50,7 +50,7 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
 
     list_per_page = 15
 
-    actions = [print_pharmacy_labels]
+    actions = (print_pharmacy_labels,)
 
     view_on_site = False
 
