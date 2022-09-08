@@ -124,7 +124,7 @@ class RequisitionModelMixin(
     def save(self, *args, **kwargs):
         if not self.id:
             self.protocol_number = Protocol().protocol_number
-        self.subject_identifier = self.subject_visit.subject_identifier
+        self.subject_identifier = self.related_visit.subject_identifier
         self.specimen_type = self.panel_object.aliquot_type.alpha_code
         super().save(*args, **kwargs)
 
