@@ -22,6 +22,8 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     show_object_tools = True
 
+    ordering: Tuple[str, ...] = ("refill_start_datetime",)
+
     autocomplete_fields = ["dosage_guideline", "formulation"]
 
     form = RxRefillForm
@@ -102,29 +104,25 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
         "dosage_guideline__medication__name",
     )
 
-    ordering: Tuple[str, ...] = ("rx__subject_identifier", "-refill_start_datetime")
-
     @admin.display(description="Subject identifier")
     def subject_identifier(self, obj=None):
         return obj.rx.subject_identifier
 
     @admin.display(description="Duration")
     def duration(self, obj=None):
+        refill_start_date = obj.refill_start_datetime.strftime(
+            convert_php_dateformat(settings.DATE_FORMAT)
+        ).split(" ")
+        refill_end_date = (
+            obj.refill_end_datetime.strftime(
+                convert_php_dateformat(settings.DATE_FORMAT)
+            ).split(" ")
+            if obj.refill_end_datetime
+            else "???"
+        )
         context = dict(
-            refill_start_date=format_html(
-                "&nbsp;".join(
-                    obj.refill_start_datetime.strftime(
-                        convert_php_dateformat(settings.DATE_FORMAT)
-                    ).split(" ")
-                )
-            ),
-            refill_end_date=format_html(
-                "&nbsp;".join(
-                    obj.refill_end_datetime.strftime(
-                        convert_php_dateformat(settings.DATE_FORMAT)
-                    ).split(" ")
-                )
-            ),
+            refill_start_date=format_html("&nbsp;".join(refill_start_date)),
+            refill_end_date=format_html("&nbsp;".join(refill_end_date)),
             number_of_days=obj.number_of_days,
         )
         return render_to_string(
