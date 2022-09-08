@@ -4,7 +4,6 @@ from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
 from ..dispense import Dispensing
-from ..refill import create_refills_from_crf
 from .dispensing_history import DispensingHistory
 from .stock_create_labels import Labels, StockCreateLabels
 
@@ -30,17 +29,23 @@ def dispensing_history_on_post_delete(sender, instance, using=None, **kwargs):
 
 @receiver(
     post_save,
-    dispatch_uid="create_refills_on_post_save",
+    dispatch_uid="create_or_update_refills_on_post_save",
 )
-def create_refills_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
-    if not raw and not update_fields:
+def create_or_update_refills_on_post_save(
+    sender, instance, raw, created, update_fields, **kwargs
+):
+    if not raw:
         try:
-            instance.creates_refills_from_crf
+            instance.related_visit_model_attr()  # see edc-visit-tracking
         except AttributeError:
             pass
         else:
-            if instance.creates_refills_from_crf:
-                create_refills_from_crf(instance)
+            try:
+                instance.creates_refills_from_crf()
+            except AttributeError as e:
+                if "creates_refills_from_crf" not in str(e):
+                    raise
+                pass
 
 
 @receiver(

@@ -6,8 +6,9 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
 from django_audit_fields.admin import audit_fieldset_tuple
+from edc_appointment.models import Appointment
 from edc_dashboard.utils import get_bootstrap_version
-from edc_utils import formatted_age, get_utcnow
+from edc_utils import convert_php_dateformat, formatted_age, get_utcnow
 
 from ..admin_site import edc_pharmacy_admin
 from ..forms import RxRefillForm
@@ -37,7 +38,8 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
                     "rx",
                     "dosage_guideline",
                     "formulation",
-                    "refill_date",
+                    "refill_start_datetime",
+                    "refill_end_datetime",
                     "number_of_days",
                 )
             },
@@ -49,12 +51,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
                     "This section is only required if customizing "
                     "the dosage guideline from above."
                 ),
-                "fields": (
-                    # "dose",
-                    # "frequency",
-                    # "frequency_units",
-                    "weight_in_kgs",
-                ),
+                "fields": ("weight_in_kgs",),
             },
         ),
         (
@@ -72,8 +69,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
     list_display: Tuple[str, ...] = (
         "subject_identifier",
         "dashboard",
-        "visit",
-        "refill_date",
+        "duration",
         "description",
         "dispense",
         "returns",
@@ -88,9 +84,8 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     list_filter: Tuple[str, ...] = (
         "active",
-        "refill_date",
-        "visit_code",
-        "visit_code_sequence",
+        "refill_start_datetime",
+        "refill_end_datetime",
         "packed",
         "shipped",
         "received_at_site",
@@ -107,15 +102,34 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
         "dosage_guideline__medication__name",
     )
 
-    ordering: Tuple[str, ...] = ("rx__subject_identifier", "-refill_date")
-
-    @admin.display
-    def visit(self, obj):
-        return f"{obj.visit_code}.{obj.visit_code_sequence}"
+    ordering: Tuple[str, ...] = ("rx__subject_identifier", "-refill_start_datetime")
 
     @admin.display(description="Subject identifier")
     def subject_identifier(self, obj=None):
         return obj.rx.subject_identifier
+
+    @admin.display(description="Duration")
+    def duration(self, obj=None):
+        context = dict(
+            refill_start_date=format_html(
+                "&nbsp;".join(
+                    obj.refill_start_datetime.strftime(
+                        convert_php_dateformat(settings.DATE_FORMAT)
+                    ).split(" ")
+                )
+            ),
+            refill_end_date=format_html(
+                "&nbsp;".join(
+                    obj.refill_end_datetime.strftime(
+                        convert_php_dateformat(settings.DATE_FORMAT)
+                    ).split(" ")
+                )
+            ),
+            number_of_days=obj.number_of_days,
+        )
+        return render_to_string(
+            f"edc_pharmacy/bootstrap{get_bootstrap_version()}/duration.html", context=context
+        )
 
     @admin.display(description="Rx")
     def prescription(self, obj=None):
@@ -186,6 +200,16 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
             )
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
+    def get_subject_dashboard_url_kwargs(self, obj):
+        appointment = Appointment.objects.filter(
+            subject_identifier=obj.subject_identifier,
+            appt_datetime__date__gte=obj.refill_start_datetime.date(),
+        ).first()
+        return dict(
+            subject_identifier=obj.subject_identifier,
+            appointment=appointment.id,
+        )
+
 
 class RxRefillInlineAdmin(admin.StackedInline):
 
@@ -196,7 +220,8 @@ class RxRefillInlineAdmin(admin.StackedInline):
     fields: Tuple[str, ...] = (
         "dosage_guideline",
         "formulation",
-        "refill_date",
+        "refill_start_datetime",
+        "refill_end_datetime",
         "number_of_days",
         "dose",
         "frequency",
@@ -205,6 +230,6 @@ class RxRefillInlineAdmin(admin.StackedInline):
 
     search_fields: Tuple[str, ...] = "dosage_guideline__medication__name"
 
-    ordering: Tuple[str, ...] = ("refill_date",)
+    ordering: Tuple[str, ...] = ("refill_start_datetime",)
 
     extra = 0

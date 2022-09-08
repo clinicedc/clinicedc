@@ -1,37 +1,32 @@
-from ..models import RxRefill
-from .refill_creator import RefillCreator
+from __future__ import annotations
+
+from typing import Any
+
+from .refill_creator import RefillCreator, RefillCreatorError
 
 
-def create_next_refill(instance):
+def create_next_refill(instance: Any, related_visit_model_attr: str) -> Any | None:
     """Creates the next refill relative to the current visit,
     if not already created.
 
     Called from signal.
-    """
-    if (
-        RxRefill.objects.filter(
-            rx__subject_identifier=instance.subject_visit.subject_identifier,
-            visit_code=instance.subject_visit.visit_code,
-            visit_code_sequence=instance.subject_visit.visit_code_sequence,
-        ).exists()
-        and instance.subject_visit.appointment.next
-    ):
-        number_of_days = 0
-        if instance.subject_visit.appointment.next.next:
-            number_of_days = (
-                instance.subject_visit.appointment.next.next.appt_datetime
-                - instance.subject_visit.appointment.next.appt_datetime
-            ).days
 
-        RefillCreator(
+    Instance should be a subclass of StudyMedicationCrfModelMixin
+    """
+    rx_refill = None
+    if not getattr(instance, "creates_refills_from_crf", None):
+        raise RefillCreatorError("Expected an instance of StudyMedicationCrfModelMixin")
+    appointment = getattr(instance, related_visit_model_attr).appointment.next
+    if appointment:
+        refill_creator = RefillCreator(
             dosage_guideline=instance.next_dosage_guideline,
             formulation=instance.next_formulation,
             make_active=False,
-            number_of_days=number_of_days,
-            refill_date=instance.subject_visit.appointment.next.appt_datetime,
+            refill_start_datetime=instance.refill_end_datetime,
+            refill_end_datetime=appointment.appt_datetime,
             roundup_divisible_by=instance.roundup_divisible_by,
-            subject_identifier=instance.subject_visit.subject_identifier,
-            visit_code=instance.subject_visit.appointment.next.visit_code,
-            visit_code_sequence=instance.subject_visit.appointment.next.visit_code_sequence,
+            subject_identifier=getattr(instance, related_visit_model_attr).subject_identifier,
             weight_in_kgs=getattr(instance, "weight_in_kgs", None),
         )
+        rx_refill = refill_creator.rx_refill
+    return rx_refill

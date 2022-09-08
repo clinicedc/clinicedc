@@ -12,7 +12,7 @@ PRESCRIBER_ROLE = "prescriber"
 PHARMACY_AUDITOR_ROLE = "pharmacy_auditor_role"
 
 prescriber_codenames = []
-pharmacy_codenames = []
+pharmacy_codenames = ["view_subject"]
 
 for app_config in django_apps.get_app_configs():
     if app_config.name in [
@@ -20,11 +20,10 @@ for app_config in django_apps.get_app_configs():
     ]:
         for model_cls in app_config.get_models():
             app_name, model_name = model_cls._meta.label_lower.split(".")
+            if model_name == "subject":
+                continue
             for prefix in ["add", "change", "view", "delete"]:
-                if model_name == "subject" and prefix in ["add", "change", "delete"]:
-                    pass
-                else:
-                    pharmacy_codenames.append(f"{app_name}.{prefix}_{model_name}")
+                pharmacy_codenames.append(f"{app_name}.{prefix}_{model_name}")
 
 for model_name in [
     "dosageguideline",
