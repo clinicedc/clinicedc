@@ -9,7 +9,7 @@ class OffstudyCrfModelFormMixin(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        visit = cleaned_data.get(self._meta.model.visit_model_attr())
+        visit = cleaned_data.get(self._meta.model.related_visit_model_attr())
         try:
             raise_if_offstudy(
                 subject_identifier=visit.subject_identifier,
