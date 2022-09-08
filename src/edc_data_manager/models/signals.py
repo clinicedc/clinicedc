@@ -23,16 +23,18 @@ def update_query_on_crf(sender, instance, raw, **kwargs):
     if not raw:
         if DATA_MANAGER_ENABLED:
             try:
-                instance.visit_model_attr  # is a CRF/Requisition
+                related_visit_model_attr = instance.related_visit_model_attr()
             except AttributeError:
                 pass
             else:
-                if not is_inline_model(instance):
-                    visit_schedule_name = instance.visit.appointment.visit_schedule_name
+                related_visit = getattr(instance, related_visit_model_attr, None)
+                appointment = getattr(related_visit, "appointment", None)
+                if appointment and not is_inline_model(instance):
+                    visit_schedule_name = appointment.visit_schedule_name
                     opts = dict(
                         visit_schedule__visit_schedule_name=visit_schedule_name,
-                        visit_schedule__schedule_name=instance.visit.appointment.schedule_name,
-                        visit_schedule__visit_code=instance.visit.appointment.visit_code,
+                        visit_schedule__schedule_name=appointment.schedule_name,
+                        visit_schedule__visit_code=appointment.visit_code,
                     )
                     try:
                         instance.panel
@@ -51,9 +53,9 @@ def update_query_on_crf(sender, instance, raw, **kwargs):
                     ):
                         runner = RuleRunner(query_rule_obj)
                         runner.run_one(
-                            subject_identifier=instance.visit.appointment.subject_identifier,
-                            visit_schedule_name=instance.visit.appointment.visit_schedule_name,
-                            schedule_name=instance.visit.appointment.schedule_name,
-                            visit_code=instance.visit.appointment.visit_code,
-                            timepoint=instance.visit.appointment.timepoint,
+                            subject_identifier=appointment.subject_identifier,
+                            visit_schedule_name=appointment.visit_schedule_name,
+                            schedule_name=appointment.schedule_name,
+                            visit_code=appointment.visit_code,
+                            timepoint=appointment.timepoint,
                         )

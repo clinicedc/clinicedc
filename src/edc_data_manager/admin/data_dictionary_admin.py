@@ -59,7 +59,7 @@ class DataDictionaryAdmin(ModelAdminAuditFieldsMixin, SimpleHistoryAdmin):
         "decimal_places",
     )
 
-    actions = ["populate_data_dictionary_action"]
+    actions = ("populate_data_dictionary_action",)
 
     search_fields = (
         "number",

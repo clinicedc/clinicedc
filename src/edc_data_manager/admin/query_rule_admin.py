@@ -60,7 +60,11 @@ class QueryRuleAdmin(QueryRuleModelAdminMixin, ModelAdminAuditFieldsMixin, Simpl
 
     form = QueryRuleForm
 
-    actions = [update_query_rules_action, toggle_active_flag, copy_query_rule_action]
+    actions = (
+        update_query_rules_action,
+        toggle_active_flag,
+        copy_query_rule_action,
+    )
 
     list_display = (
         "title",
