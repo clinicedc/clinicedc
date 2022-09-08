@@ -1,3 +1,5 @@
+import pdb
+
 from .custom_label_condition import CustomFormLabelError
 
 
@@ -21,13 +23,13 @@ class FormLabel:
             )
             visit_datetime = ""
             if obj:
-                visit_datetime = getattr(obj, obj.visit_model_attr()).report_datetime.strftime(
-                    "%B %Y"
-                )
+                visit_datetime = getattr(
+                    obj, obj.related_visit_model_attr()
+                ).report_datetime.strftime("%B %Y")
             try:
                 label = self.custom_label.format(
-                    appointment=condition.appointment,
-                    previous_appointment=condition.previous_appointment,
+                    appointment=condition.appointment.visit_label,
+                    previous_appointment=condition.previous_appointment.visit_label,
                     previous_obj=condition.previous_obj,
                     previous_visit=condition.previous_visit,
                     visit_datetime=visit_datetime,
