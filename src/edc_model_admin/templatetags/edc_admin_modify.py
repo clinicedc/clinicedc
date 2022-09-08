@@ -6,6 +6,8 @@ from django.contrib.admin.templatetags.admin_modify import (
 )
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
+from django_revision.revision import site_revision
+from edc_protocol import Protocol
 
 from edc_model_admin.utils import get_next_url
 
@@ -100,18 +102,18 @@ def logout_row(context):
 
 @register.inclusion_tag("edc_revision_line.html", takes_context=True)
 def revision_row(context):
+
     return dict(
-        copyright=context.get("copyright"),
-        institution=context.get("institution"),
-        revision=context.get("revision"),
-        disclaimer=context.get("disclaimer"),
+        copyright=context.get("copyright") or Protocol().copyright,
+        institution=context.get("institution") or Protocol().institution,
+        revision=context.get("revision") or site_revision.tag,
+        disclaimer=context.get("disclaimer") or Protocol().disclaimer,
     )
 
 
 @register.inclusion_tag("edc_instructions.html", takes_context=True)
 def instructions(context):
-    instructions = context.get("instructions")
-    return {"instructions": instructions}
+    return {"instructions": context.get("instructions")}
 
 
 @register.inclusion_tag("edc_additional_instructions.html", takes_context=True)

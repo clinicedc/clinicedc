@@ -31,3 +31,17 @@
 {% block welcome-msg %}{% endblock %}
 
 {% block userlinks %}{% logout_row %}{% endblock %}
+
+{% block content_subtitle %}<p>{{  object }}</p>{% endblock %}
+
+{% block content %}
+  {% block object-tools %}
+    <ul class="object-tools">
+      <li>
+          {% url opts|admin_urlname:'change' object.pk|admin_urlquote as object_url %}
+          <a href="{% add_preserved_filters object_url %}" >{% translate "Current document" %}</a>
+      </li>
+    </ul>
+  {% endblock %}
+  {{ block.super }}
+{% endblock %}

@@ -31,3 +31,9 @@
 {% block welcome-msg %}{% endblock %}
 
 {% block userlinks %}{% logout_row %}{% endblock %}
+
+{% block object-tools-items %}{% endblock %}
+
+{% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
+
+{% block content_subtitle %}<p>{{  original }}</p>{% endblock %}
