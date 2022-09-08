@@ -39,7 +39,7 @@ class ConsentViewMixin(ContextMixin):
     def report_datetime(self):
         report_datetime = None
         try:
-            report_datetime = self.appointment.visit.report_datetime
+            report_datetime = self.appointment.related_visit.report_datetime
         except AttributeError:
             try:
                 report_datetime = self.appointment.appt_datetime

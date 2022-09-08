@@ -16,7 +16,7 @@ class ModelAdminConsentMixin:
         self.get_radio_fields()
         super().__init__(*args)
 
-    actions = [flag_as_verified_against_paper, unflag_as_verified_against_paper]
+    actions = (flag_as_verified_against_paper, unflag_as_verified_against_paper)
 
     def get_radio_fields(self):
         self.radio_fields.update(

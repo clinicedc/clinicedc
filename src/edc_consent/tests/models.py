@@ -120,13 +120,6 @@ class TestModel(
     report_datetime = models.DateTimeField(default=get_utcnow)
 
 
-# class CrfOne(
-#     VisitTrackingCrfModelMixin,
-#     ReferenceModelMixin,
-#     UpdatesCrfMetadataModelMixin,
-#     SiteModelMixin,
-#     BaseUuidModel,
-# ):
 class CrfOne(NonUniqueSubjectIdentifierModelMixin, BaseUuidModel):
 
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)

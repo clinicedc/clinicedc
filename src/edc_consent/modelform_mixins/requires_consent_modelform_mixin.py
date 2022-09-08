@@ -23,7 +23,7 @@ class RequiresConsentModelFormMixin:
         """
         report_datetime = self.cleaned_data.get("report_datetime")
         subject_visit = get_subject_visit(
-            self, visit_model_attr=self._meta.model.visit_model_attr()
+            self, related_visit_model_attr=self._meta.model.related_visit_model_attr()
         )
         if subject_visit and not report_datetime:
             report_datetime = subject_visit.report_datetime
@@ -37,7 +37,7 @@ class RequiresConsentModelFormMixin:
             subject_identifier = self.cleaned_data["appointment"].subject_identifier
         except KeyError:
             subject_visit = get_subject_visit(
-                self, visit_model_attr=self._meta.model.visit_model_attr()
+                self, related_visit_model_attr=self._meta.model.related_visit_model_attr()
             )
             subject_identifier = subject_visit.appointment.subject_identifier
         consent = self.get_consent(subject_identifier, self.report_datetime)
