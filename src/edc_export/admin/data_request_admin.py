@@ -10,7 +10,7 @@ from .data_request_history_admin import DataRequestHistoryInline
 @admin.register(DataRequest, site=edc_export_admin)
 class DataRequestAdmin(admin.ModelAdmin):
 
-    actions = ["export_selected"]
+    actions = ("export_selected",)
 
     ordering = ("-created",)
 
