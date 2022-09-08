@@ -34,7 +34,7 @@ class CrfModelManager(models.Manager):
             visit_code,
             visit_code_sequence,
         )
-        return self.get(**{self.model.visit_model_attr(): instance})
+        return self.get(**{self.model.related_visit_model_attr(): instance})
 
 
 class VisitModelManager(models.Manager):

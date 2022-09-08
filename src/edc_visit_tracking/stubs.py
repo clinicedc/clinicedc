@@ -29,7 +29,7 @@ class SubjectVisitModelStub(Protocol):
     def save(self, *args, **kwargs) -> None:
         ...
 
-    def visit_model_attr(self) -> str:
+    def related_visit_model_attr(self) -> str:
         ...
 
     def get_visit_reason_no_follow_up_choices(self) -> list:

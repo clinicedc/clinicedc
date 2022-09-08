@@ -37,12 +37,12 @@ class VisitTrackingModelFormMixin:
         # trigger a validation error if visit field is None
         # no comment needed since django will catch it as
         # a required field.
-        if not self.subject_visit:
-            if self.visit_model_attr in self.cleaned_data:
-                raise forms.ValidationError({self.visit_model_attr: ""})
+        if not getattr(self, self.related_visit_model_attr()):
+            if self.related_visit_model_attr() in self.cleaned_data:
+                raise forms.ValidationError({self.related_visit_model_attr(): ""})
             else:
                 raise forms.ValidationError(
-                    f"Field `{self.visit_model_attr}` is required (1)."
+                    f"Field `{self.related_visit_model_attr()}` is required (1)."
                 )
         elif self.cleaned_data.get("report_datetime"):
             try:
@@ -60,8 +60,9 @@ class VisitTrackingModelFormMixin:
 
     @property
     def subject_visit(self: Any) -> Any:
-        return get_subject_visit(self, visit_model_attr=self.visit_model_attr)
+        return get_subject_visit(
+            self, related_visit_model_attr=self.related_visit_model_attr()
+        )
 
-    @property
-    def visit_model_attr(self: Any) -> str:
-        return "subject_visit"
+    def related_visit_model_attr(self: Any) -> str:
+        return self._meta.model.related_visit_model_attr()

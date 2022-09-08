@@ -26,7 +26,7 @@ class PreviousVisitModelMixin(models.Model):
 
     def validate_visit_sequence(self) -> None:
         try:
-            appointment = self.subject_visit.appointment
+            appointment = self.related_visit.appointment
         except AttributeError:
             appointment = self.appointment
         visit_sequence = self.visit_sequence_cls(appointment=appointment)
@@ -38,7 +38,7 @@ class PreviousVisitModelMixin(models.Model):
     @property
     def previous_visit(self) -> Any:
         try:
-            appointment = self.subject_visit.appointment
+            appointment = self.related_visit.appointment
         except AttributeError:
             appointment = self.appointment
         visit_sequence = self.visit_sequence_cls(appointment=appointment)

@@ -24,7 +24,7 @@ class VisitMethodsModelMixin(models.Model):
         return self.subject_visit.visit_code
 
     @property
-    def visit(self: CrfModelStub) -> SubjectVisitModelStub:
+    def related_visit(self: CrfModelStub) -> SubjectVisitModelStub:
         """Returns the model instance of the visit foreign key
         attribute.
         """
@@ -44,11 +44,11 @@ class VisitMethodsModelMixin(models.Model):
         return visit
 
     @classmethod
-    def visit_model_attr(cls) -> str:
+    def related_visit_model_attr(cls) -> str:
         """Returns the field name for the visit model
         foreign key.
         """
-        visit_model_attr = None
+        related_visit_model_attr = None
         fields = {field.name: field for field in cls._meta.get_fields()}
         for name, field in fields.items():
             try:
@@ -57,8 +57,8 @@ class VisitMethodsModelMixin(models.Model):
                 pass
             else:
                 if related_model is not None and issubclass(related_model, (VisitModelMixin,)):
-                    visit_model_attr = name
-        return visit_model_attr
+                    related_visit_model_attr = name
+        return related_visit_model_attr
 
     @classmethod
     def visit_model(cls: TCrfModelStub) -> str:
@@ -72,7 +72,7 @@ class VisitMethodsModelMixin(models.Model):
         """Returns the visit foreign key attribute model class."""
         fields = {field.name: field for field in cls._meta.get_fields()}
         for name, field in fields.items():
-            if name == cls.visit_model_attr():
+            if name == cls.related_visit_model_attr():
                 return field.related_model
         return None
 
@@ -112,18 +112,18 @@ class VisitTrackingCrfModelMixin(
         return str(self.subject_visit)
 
     def natural_key(self) -> tuple:
-        return (getattr(self, self.visit_model_attr()).natural_key(),)  # noqa
+        return (getattr(self, self.related_visit_model_attr()).natural_key(),)  # noqa
 
     # noinspection PyTypeHints
     natural_key.dependencies = [settings.SUBJECT_VISIT_MODEL]  # type:ignore
 
     @property
-    def visit(self: CrfModelStub) -> SubjectVisitModelStub:
+    def related_visit(self: CrfModelStub) -> SubjectVisitModelStub:
         return self.subject_visit
 
     @property
     def subject_identifier(self: "VisitMethodsModelMixin"):
-        return self.visit.subject_identifier
+        return self.related_visit.subject_identifier
 
     class Meta:
         abstract = True
