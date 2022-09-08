@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from decimal import Decimal
 
 from django.apps import apps as django_apps
@@ -5,8 +7,9 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.utils import IntegrityError
+from django.utils.datetime_safe import datetime
 from django.utils.timezone import is_naive
-from edc_facility.facility import FacilityError
+from edc_facility.facility import Facility, FacilityError
 from edc_visit_schedule.utils import is_baseline
 
 from ..constants import CLINIC, SCHEDULED_APPT
@@ -27,23 +30,23 @@ class AppointmentCreatorError(Exception):
 class AppointmentCreator:
     def __init__(
         self,
-        timepoint_datetime=None,
-        timepoint=None,
-        visit=None,
-        visit_code_sequence=None,
-        facility=None,
-        appointment_model=None,
-        taken_datetimes=None,
-        subject_identifier=None,
-        visit_schedule_name=None,
-        schedule_name=None,
-        default_appt_type=None,
-        default_appt_reason=None,
-        appt_status=None,
-        appt_reason=None,
-        suggested_datetime=None,
-        skip_baseline=None,
-        ignore_window_period=None,
+        timepoint_datetime: datetime = None,
+        timepoint: int | None = None,
+        visit=None,  # from edc_visit_schedule
+        visit_code_sequence: int | None = None,
+        facility: Facility | None = None,
+        appointment_model: str = None,
+        taken_datetimes: list[datetime] | None = None,
+        subject_identifier: str = None,
+        visit_schedule_name: str = None,
+        schedule_name: str = None,
+        default_appt_type: str | None = None,
+        default_appt_reason: str | None = None,
+        appt_status: str | None = None,
+        appt_reason: str | None = None,
+        suggested_datetime: datetime | None = None,
+        skip_baseline: bool | None = None,
+        ignore_window_period: bool | None = None,
     ):
         self._appointment = None
         self._appointment_model_cls = None
@@ -52,7 +55,7 @@ class AppointmentCreator:
         self.skip_baseline = skip_baseline
         self.subject_identifier = subject_identifier
         self.visit_schedule_name = visit_schedule_name
-        self.schedule_name = schedule_name
+        self.schedule_name: str = schedule_name
         self.appt_status = appt_status
         self.appt_reason = appt_reason
         self.appointment_model = appointment_model
@@ -88,7 +91,7 @@ class AppointmentCreator:
         self.facility = facility or visit.facility
         if not self.facility:
             raise AppointmentCreatorError(f"facility_name not defined. See {repr(visit)}")
-        self.appointment
+        self.get_appointment()
 
     def __repr__(self):
         return (
@@ -98,6 +101,9 @@ class AppointmentCreator:
 
     def __str__(self):
         return self.subject_identifier
+
+    def get_appointment(self):
+        return self.appointment
 
     @property
     def appointment(self):

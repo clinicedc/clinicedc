@@ -15,7 +15,7 @@ from ...constants import INCOMPLETE_APPT
 from ...creators import UnscheduledAppointmentCreator
 from ...managers import AppointmentDeleteError
 from ...models import Appointment
-from ...utils import delete_appointment_in_sequence
+from ...utils import delete_appointment_in_sequence, get_next_appointment
 from ..helper import Helper
 
 
@@ -218,4 +218,29 @@ class TestMoveAppointment(TestCase):
                     "appt_datetime"
                 )
             ],
+        )
+
+    def test_next_getter(self):
+        def get_visit_codes():
+            return [
+                f"{o.visit_code}.{o.visit_code_sequence}"
+                for o in Appointment.objects.all().order_by("appt_datetime")
+            ]
+
+        appointment = Appointment.objects.get(visit_code="1000", visit_code_sequence=0)
+
+        self.assertEqual(appointment.visit_code, "1000")
+        self.assertEqual(appointment.visit_code_sequence, 0)
+
+        self.assertEqual(get_next_appointment(appointment).visit_code, "2000")
+        self.assertEqual(get_next_appointment(appointment).visit_code_sequence, 0)
+        self.assertEqual(
+            get_next_appointment(appointment, include_interim=True).visit_code, "1000"
+        )
+        self.assertEqual(
+            get_next_appointment(appointment, include_interim=True).visit_code_sequence, 1
+        )
+        self.assertEqual(
+            ["1000.0", "1000.1", "1000.2", "1000.3", "2000.0", "3000.0", "4000.0"],
+            get_visit_codes(),
         )

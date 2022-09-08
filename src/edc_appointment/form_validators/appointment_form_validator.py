@@ -37,6 +37,7 @@ from ..constants import (
     NEW_APPT,
     UNSCHEDULED_APPT,
 )
+from ..utils import get_previous_appointment
 from .utils import validate_appt_datetime_unique
 from .window_period_form_validator_mixin import WindowPeriodFormValidatorMixin
 
@@ -119,9 +120,9 @@ class AppointmentFormValidator(
         if self.cleaned_data.get("appt_status") == IN_PROGRESS_APPT and getattr(
             self.instance, "id", None
         ):
-            previous_appt = self.instance.get_previous(include_interim=True)
+            previous_appt = get_previous_appointment(self.instance, include_interim=True)
             if previous_appt and previous_appt.appt_status != CANCELLED_APPT:
-                if not previous_appt.visit:
+                if not previous_appt.related_visit:
                     self.raise_validation_error(
                         message=(
                             "A previous appointment requires a visit report. "
@@ -469,8 +470,9 @@ class AppointmentFormValidator(
     def validate_scheduled_parent_not_missed(self):
         if (
             self.cleaned_data.get("appt_reason") == UNSCHEDULED_APPT
-            and self.instance.get_previous(include_interim=True)
-            and self.instance.get_previous(include_interim=True).appt_status == MISSED_APPT
+            and get_previous_appointment(self.instance, include_interim=True)
+            and get_previous_appointment(self.instance, include_interim=True).appt_status
+            == MISSED_APPT
         ):
             self.raise_validation_error(
                 {

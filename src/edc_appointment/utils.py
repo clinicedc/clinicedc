@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from django.apps import apps as django_apps
@@ -22,6 +24,7 @@ from .constants import (
     UNSCHEDULED_APPT,
 )
 from .exceptions import AppointmentWindowError
+from .stubs import AppointmentModelStub
 
 
 def get_appointment_model_name() -> str:
@@ -116,7 +119,7 @@ def update_unscheduled_appointment_sequence(subject_identifier: str) -> None:
 
             appointment.visit_code_sequence = index + 1
             appointment.save_base(update_fields=["visit_code_sequence"])
-            subject_visit = appointment.visit
+            subject_visit = appointment.related_visit
             if subject_visit:
                 subject_visit.visit_code_sequence = index + 1
                 subject_visit.save_base(update_fields=["visit_code_sequence"])
@@ -166,7 +169,7 @@ def raise_on_appt_datetime_not_in_window(appointment) -> None:
             raise AppointmentWindowError(msg)
 
 
-def update_appt_status(appointment, save=None):
+def update_appt_status(appointment: AppointmentModelStub, save=None):
     """Sets appt_status, and if save is True, calls save_base().
 
     This is useful if checking `appt_status` is correct
@@ -175,7 +178,7 @@ def update_appt_status(appointment, save=None):
     """
     if appointment.appt_status == CANCELLED_APPT:
         pass
-    elif not appointment.visit:
+    elif not appointment.related_visit:
         appointment.appt_status = NEW_APPT
     else:
         if (
@@ -189,3 +192,81 @@ def update_appt_status(appointment, save=None):
         appointment.save_base(update_fields=["appt_status"])
         appointment.refresh_from_db()
     return appointment
+
+
+def get_previous_appointment(appointment, include_interim=None) -> AppointmentModelStub | None:
+    """Returns the previous appointment model instance,
+    or None, in this schedule.
+
+    Keywords:
+        * include_interim: include interim appointments
+          (e.g. those where visit_code_sequence != 0)
+
+    See also: `AppointmentMethodsModelMixin`
+    """
+    opts = dict(
+        subject_identifier=appointment.subject_identifier,
+        visit_schedule_name=appointment.visit_schedule_name,
+        schedule_name=appointment.schedule_name,
+    )
+    if include_interim:
+        if appointment.visit_code_sequence != 0:
+            opts.update(timepoint__lte=appointment.timepoint)
+            opts.update(visit_code_sequence__lt=appointment.visit_code_sequence)
+        else:
+            opts.update(timepoint__lt=appointment.timepoint)
+    elif not include_interim:
+        opts.update(
+            timepoint__lt=appointment.timepoint,
+            visit_code_sequence=0,
+        )
+
+    appointments = (
+        appointment.__class__.objects.filter(**opts)
+        .exclude(id=appointment.id)
+        .order_by("timepoint", "visit_code_sequence")
+    )
+    try:
+        previous_appt = appointments.reverse()[0]
+    except IndexError:
+        previous_appt = None
+    return previous_appt
+
+
+def get_next_appointment(appointment, include_interim=None) -> AppointmentModelStub | None:
+    """Returns the next appointment model instance,
+    or None, in this schedule.
+
+    Keywords:
+        * include_interim: include interim appointments
+          (e.g. those where visit_code_sequence != 0)
+
+    See also: `AppointmentMethodsModelMixin`
+    """
+    next_appt = None
+    opts = dict(
+        subject_identifier=appointment.subject_identifier,
+        visit_schedule_name=appointment.visit_schedule_name,
+        schedule_name=appointment.schedule_name,
+    )
+    if include_interim:
+        break_on_next = False
+        for obj in appointment.__class__.objects.filter(
+            timepoint__gte=appointment.timepoint, **opts
+        ).order_by("timepoint", "visit_code_sequence"):
+            if break_on_next:
+                next_appt = obj
+                break
+            if obj.id == appointment.id:
+                break_on_next = True
+    elif not include_interim:
+        opts.update(
+            timepoint__gt=appointment.timepoint,
+            visit_code_sequence=0,
+        )
+        next_appt = (
+            appointment.__class__.objects.filter(**opts)
+            .exclude(id=appointment.id)
+            .order_by("timepoint", "visit_code_sequence")
+        ).first()
+    return next_appt
