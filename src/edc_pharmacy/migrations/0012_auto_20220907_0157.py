@@ -13,25 +13,25 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name="historicalrxrefill",
-            name="visit_code",
-        ),
-        migrations.RemoveField(
-            model_name="historicalrxrefill",
-            name="visit_code_sequence",
-        ),
-        migrations.RemoveField(
-            model_name="rxrefill",
-            name="visit_code",
-        ),
-        migrations.RemoveField(
-            model_name="rxrefill",
-            name="visit_code_sequence",
-        ),
         migrations.AlterUniqueTogether(
             name="rxrefill",
             unique_together=set(),
+        ),
+        migrations.RemoveField(
+            model_name="historicalrxrefill",
+            name="visit_code",
+        ),
+        migrations.RemoveField(
+            model_name="historicalrxrefill",
+            name="visit_code_sequence",
+        ),
+        migrations.RemoveField(
+            model_name="rxrefill",
+            name="visit_code",
+        ),
+        migrations.RemoveField(
+            model_name="rxrefill",
+            name="visit_code_sequence",
         ),
         migrations.RenameField(
             model_name="historicalrxrefill",
