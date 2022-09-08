@@ -8,6 +8,10 @@ from django.core.management.color import color_style
 style = color_style()
 
 
+class RoleUpdaterError(Exception):
+    pass
+
+
 class RoleUpdater:
     def __init__(
         self,
@@ -54,7 +58,11 @@ class RoleUpdater:
                 try:
                     group = self.group_model_cls.objects.get(name=group_name)
                 except ObjectDoesNotExist:
-                    group = self.group_model_cls.objects.create(name=group_name)
+                    raise RoleUpdaterError(
+                        "Invalid group specified for role. "
+                        f"`{group_name}` is not a group. See role `{role}`."
+                    )
+                    # group = self.group_model_cls.objects.create(name=group_name)
                 role.groups.add(group)
             index += 1
         if self.verbose:

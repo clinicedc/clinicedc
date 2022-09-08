@@ -1,10 +1,10 @@
-from copy import copy
+from copy import copy, deepcopy
 from importlib import import_module
 from typing import List
 
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from edc_randomization.auth_objects import (
     RANDO_BLINDED,
     RANDO_UNBLINDED,
@@ -16,6 +16,7 @@ from edc_randomization.site_randomizers import site_randomizers
 from edc_auth.auth_updater import AuthUpdater
 from edc_auth.site_auths import site_auths
 
+from ...auth_objects import default_groups
 from ..randomizers import CustomRandomizer
 
 
@@ -212,17 +213,20 @@ class TestAuthUpdater(TestCase):
             get_rando_permissions_tuples(),
         )
 
+    @tag("1")
     def test_removes_for_apps_not_installed_by_exact_match(self):
         """The app edc_action_blah is not installed, and will
         be removed."""
-        AuthUpdater(
-            groups={
+        groups = deepcopy(default_groups)
+        groups.update(
+            {
                 "ACTION_GROUP": [
                     "edc_action_blah.view_actionitem",
                     "edc_action_item.view_actionitem",
                 ]
-            },
+            }
         )
+        AuthUpdater(groups=groups)
         groups = Group.objects.get(name="ACTION_GROUP")
         try:
             groups.permissions.get(
