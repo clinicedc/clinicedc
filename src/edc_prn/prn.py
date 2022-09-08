@@ -80,7 +80,7 @@ class Prn:
         Called after a simple subject identifier lookup fails
         """
         try:
-            attr = self.model_cls.visit_model_attr()
+            attr = self.model_cls.related_visit_model_attr()
             opts = {f"{attr}__subject_identifier": subject_identifier}
         except AttributeError:
             opts = {"registered_subject__subject_identifier": subject_identifier}

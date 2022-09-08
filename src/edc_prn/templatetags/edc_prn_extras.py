@@ -33,9 +33,9 @@ def add_prn_crf_popover(appointment, subject_dashboard_url):
             model=crf.model,
             entry_status__in=[REQUIRED, KEYED],
         ).exists():
-            subject_visit_id = getattr(appointment.visit, "pk", None)
+            subject_visit_id = getattr(appointment.related_visit, "pk", None)
             crf.add_url = crf.model_cls().get_absolute_url()
-            crf.visit_model_attr = crf.model_cls.visit_model_attr()
+            crf.related_visit_model_attr = crf.model_cls.related_visit_model_attr()
             crf.subject_visit = str(subject_visit_id) if subject_visit_id else None
             prn_forms.append(crf)
     return dict(
@@ -66,8 +66,10 @@ def add_prn_requisition_popover(appointment, subject_dashboard_url):
             )
         except ObjectDoesNotExist:
             requisition.add_url = requisition.model_cls().get_absolute_url()
-            requisition.visit_model_attr = requisition.model_cls.visit_model_attr()
-            requisition.subject_visit = str(getattr(appointment.visit, "id", ""))
+            requisition.related_visit_model_attr = (
+                requisition.model_cls.related_visit_model_attr()
+            )
+            requisition.subject_visit = str(getattr(appointment.related_visit, "id", ""))
             try:
                 panel_id = requisition.model_cls.panel.field.remote_field.model.objects.get(
                     name=requisition.panel.name
