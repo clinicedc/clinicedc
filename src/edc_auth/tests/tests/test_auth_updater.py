@@ -4,7 +4,7 @@ from typing import List
 
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_randomization.auth_objects import (
     RANDO_BLINDED,
     RANDO_UNBLINDED,
@@ -213,7 +213,6 @@ class TestAuthUpdater(TestCase):
             get_rando_permissions_tuples(),
         )
 
-    @tag("1")
     def test_removes_for_apps_not_installed_by_exact_match(self):
         """The app edc_action_blah is not installed, and will
         be removed."""
