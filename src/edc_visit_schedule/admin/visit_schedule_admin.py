@@ -12,7 +12,7 @@ from ..site_visit_schedules import site_visit_schedules
 @register(VisitSchedule, site=edc_visit_schedule_admin)
 class VisitScheduleAdmin(SimpleHistoryAdmin):
 
-    actions = ["populate_visit_schedule"]
+    actions = ("populate_visit_schedule",)
 
     fieldsets = (
         [

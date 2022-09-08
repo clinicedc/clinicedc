@@ -8,7 +8,7 @@ class SubjectScheduleModelFormMixin:
 
     Declare with `forms.ModelForm`.
 
-    See `self._meta.model.visit_model_attr()`.
+    See `self._meta.model.related_visit_model_attr()`.
     """
 
     def clean(self):
@@ -17,7 +17,7 @@ class SubjectScheduleModelFormMixin:
         return cleaned_data
 
     def validate_subject_schedule(self) -> None:
-        subject_visit = self.cleaned_data.get(self._meta.model.visit_model_attr())
+        subject_visit = self.cleaned_data.get(self._meta.model.related_visit_model_attr())
         if subject_visit:
             visit_schedule = subject_visit.appointment.visit_schedule
             schedule = subject_visit.appointment.schedule
