@@ -57,7 +57,7 @@ class RequisitionVerifier:
         model.
         """
         model_cls = None
-        visit_model_cls = self.appointment.visit.__class__
+        visit_model_cls = self.appointment.related_visit.__class__
         for attr in dir(visit_model_cls):
             try:
                 obj = getattr(getattr(visit_model_cls, attr), "rel")

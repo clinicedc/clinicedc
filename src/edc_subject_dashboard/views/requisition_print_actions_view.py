@@ -177,7 +177,7 @@ class RequisitionPrintActionsView(BaseRequisitionView):
                 if issubclass(model_cls, RequisitionModelMixin):
                     verified_requisitions.extend(
                         list(
-                            getattr(self.appointment.visit, k).filter(
+                            getattr(self.appointment.related_visit, k).filter(
                                 clinic_verified=YES,
                                 panel__name__in=self.selected_panel_names,
                             )
