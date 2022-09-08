@@ -316,12 +316,12 @@ class QueryRuleHandler:
         if not self._model_obj:
             try:
                 self._model_obj = self.model_cls.objects.get(
-                    **{f"{self.model_cls.visit_model_attr()}": self.visit_obj}
+                    **{f"{self.model_cls.related_visit_model_attr()}": self.visit_obj}
                 )
             except ObjectDoesNotExist:
                 pass
             except AttributeError as e:
-                if "visit_model_attr" in str(e):
+                if "related_visit_model_attr" in str(e):
                     self._model_obj = self.model_cls.objects.get(
                         subject_identifier=self.registered_subject.subject_identifier
                     )
@@ -333,7 +333,7 @@ class QueryRuleHandler:
         if not self._requisition_obj:
             try:
                 opts = {
-                    f"{self.model_cls.visit_model_attr()}": self.visit_obj,
+                    f"{self.model_cls.related_visit_model_attr()}": self.visit_obj,
                     "panel": self.query_rule_obj.requisition_panel,
                 }
                 self._requisition_obj = get_requisition_model().objects.get(**opts)

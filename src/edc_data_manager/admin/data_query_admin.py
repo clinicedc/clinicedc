@@ -74,7 +74,7 @@ class DataQueryAdmin(
 
     form = DataQueryForm
 
-    actions = [toggle_dm_status]
+    actions = (toggle_dm_status,)
 
     radio_fields = {
         "status": admin.VERTICAL,
