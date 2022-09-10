@@ -31,6 +31,9 @@ class CodenameDoesNotExist(Exception):
 
 
 class GroupUpdater:
+
+    default_model_name = "edcpermissions"
+
     def __init__(
         self,
         groups: Optional[dict] = None,
@@ -131,8 +134,8 @@ class GroupUpdater:
                     warn(style.ERROR(errmsg))
                 except MultipleObjectsReturned as e:
                     if not allow_multiple_objects:
-                        raise MultipleObjectsReturned(
-                            f"{str(e)} See `{app_label}.{codename}`."
+                        self.delete_and_raise_on_duplicate_codenames(
+                            codename, app_label, exception=e
                         )
                     permissions.extend(
                         [
@@ -229,27 +232,34 @@ class GroupUpdater:
                         self.permission_model_cls.objects.create(
                             name=name, codename=codename, content_type=content_type
                         )
-                    self.verify_codename_exists(f"{app_label}.{codename}")
+                    self.verify_codename_exists(f"{app_label}.{codename}", content_type)
 
-    def verify_codename_exists(self, codename):
+    def verify_codename_exists(self, codename, content_type):
+        permission = None
         app_label, codename = self.get_from_dotted_codename(codename)
         try:
             permission = self.permission_model_cls.objects.get(
-                codename=codename, content_type__app_label=app_label
+                codename=codename, content_type=content_type
             )
         except ObjectDoesNotExist as e:
             raise CodenameDoesNotExist(
                 f"Unable to verify codename. {e} Got '{app_label}.{codename}'"
             )
         except MultipleObjectsReturned as e:
-            self.permission_model_cls.objects.filter(
-                content_type__app_label=app_label, content_type__model="edcpermissions"
-            ).delete()
-            raise CodenameDoesNotExist(
-                f"Unable to verify codename. {e} Got '{app_label}.{codename}'. \n"
-                "YOU NEED TO RUN MIGRATE AGAIN!\n"
-            )
+            self.delete_and_raise_on_duplicate_codenames(codename, app_label, exception=e)
         return permission
+
+    def delete_and_raise_on_duplicate_codenames(
+        self, codename: str, app_label: str, exception=None
+    ):
+        self.permission_model_cls.objects.filter(
+            content_type__app_label=app_label, content_type__model=self.default_model_name
+        ).delete()
+        self.permission_model_cls.objects.filter(codename=codename).delete()
+        raise CodenameDoesNotExist(
+            f"Unable to verify codename. {exception or ''} Got '{app_label}.{codename}'. \n"
+            "YOU NEED TO RUN MIGRATE AGAIN!\n"
+        )
 
     @staticmethod
     def get_from_codename_tuple(codename_tpl, app_label=None):
