@@ -9,7 +9,8 @@ from edc_randomization.blinding import (
     is_blinded_user,
     raise_if_prohibited_from_unblinded_rando_group,
 )
-from edc_randomization.tests.tests.testcase_mixin import TestCaseMixin
+
+from ..testcase_mixin import TestCaseMixin
 
 
 class TestRandomizer(TestCaseMixin, TestCase):
