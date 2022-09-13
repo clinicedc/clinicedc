@@ -3,7 +3,7 @@ from uuid import uuid4
 from django.db import models
 from django.db.models import PROTECT
 from edc_constants.choices import YES_NO
-from edc_constants.constants import YES
+from edc_constants.constants import NO, YES
 
 
 class StudyMedicationRefillModelMixin(models.Model):
@@ -48,7 +48,7 @@ class StudyMedicationRefillModelMixin(models.Model):
         verbose_name="Order, or update, refill for next scheduled visit?",
         max_length=15,
         choices=YES_NO,
-        default=YES,
+        default=NO,
     )
 
     next_dosage_guideline = models.ForeignKey(

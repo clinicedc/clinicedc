@@ -32,3 +32,7 @@ class ActiveRefillAlreadyExists(Exception):
 
 class NextRefillError(Exception):
     pass
+
+
+class InsufficientQuantityError(Exception):
+    pass

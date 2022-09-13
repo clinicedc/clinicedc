@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from copy import deepcopy
 from datetime import datetime
 from decimal import Decimal
 from typing import Any
@@ -26,11 +25,11 @@ class RefillCreator:
     def __init__(
         self,
         refill_identifier: str = None,
-        subject_identifier: str | None = None,
-        refill_start_datetime: datetime | None = None,
-        refill_end_datetime: datetime | None = None,
-        formulation: Any | None = None,
-        dosage_guideline: models.Model | None = None,
+        subject_identifier: str = None,
+        refill_start_datetime: datetime = None,
+        refill_end_datetime: datetime = None,
+        formulation: models.Model = None,
+        dosage_guideline: models.Model = None,
         make_active: bool | None = None,
         force_active: bool | None = None,
         roundup_divisible_by: int | None = None,
@@ -48,6 +47,10 @@ class RefillCreator:
         self.roundup_divisible_by = roundup_divisible_by or 0
         self.weight_in_kgs = weight_in_kgs
 
+        if not self.formulation:
+            raise RefillCreatorError("Formulation cannot be None")
+        if not self.dosage_guideline:
+            raise RefillCreatorError("Dosage guideline cannot be None")
         if not self.weight_in_kgs:
             self.weight_in_kgs = self.rx.weight_in_kgs
         if self.dosage_guideline.dose_per_kg and not self.weight_in_kgs:
@@ -59,9 +62,10 @@ class RefillCreator:
         if self.make_active:
             activate_refill(self.rx_refill)
 
-    @property
-    def options(self) -> dict:
-        return dict(
+    def create_or_update(self) -> Any:
+        """Creates / updates and returns a RxRefill."""
+        # find first refill on or after this start date
+        opts = dict(
             refill_identifier=self.refill_identifier or uuid4(),
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
@@ -70,16 +74,11 @@ class RefillCreator:
             weight_in_kgs=self.weight_in_kgs,
             roundup_divisible_by=self.roundup_divisible_by,
         )
-
-    def create_or_update(self) -> Any:
-        """Creates / updates and returns a RxRefill."""
-        # find first refill on or after this start date
         try:
             rx_refill = get_rxrefill_model_cls().objects.get(
                 rx=self.rx, refill_start_datetime=self.refill_start_datetime
             )
         except ObjectDoesNotExist:
-            opts = deepcopy(self.options)
             if self.prev_rx_refill:
                 # found previous rx_refill, update end datetime, number_of_days
                 self.prev_rx_refill.refill_end_datetime = (
@@ -94,14 +93,13 @@ class RefillCreator:
             # create a new rx_refill
             rx_refill = get_rxrefill_model_cls().objects.create(rx=self.rx, **opts)
         else:
-            opts = deepcopy(self.options)
             refill_end_datetime = self.refill_end_datetime
             if self.next_rx_refill:
                 refill_end_datetime = (
                     self.next_rx_refill.refill_start_datetime - relativedelta(minutes=1)
                 )
             opts.update(refill_end_datetime=refill_end_datetime)
-            for k, v in self.options.items():
+            for k, v in opts.items():
                 setattr(rx_refill, k, v)
             rx_refill.save()
             rx_refill.refresh_from_db()
@@ -119,15 +117,12 @@ class RefillCreator:
         except ObjectDoesNotExist:
             raise PrescriptionError(f"Subject does not have a prescription. Got {opts}.")
         else:
-            refill_start_datetime = self.refill_start_datetime.strftime(
-                convert_php_dateformat(settings.DATETIME_FORMAT)
-            )
             if self.refill_start_datetime.date() < rx.rx_date:
                 rx_date = rx.rx_date.strftime(convert_php_dateformat(settings.DATE_FORMAT))
                 raise PrescriptionNotStarted(
                     f"Subject's prescription not started. Starts on {rx_date}. "
                     f"Got {self.subject_identifier} attempting "
-                    f"refill on {refill_start_datetime}."
+                    f"refill on {self.refill_start_datetime_as_str}."
                 )
             elif (
                 rx.rx_expiration_date
@@ -139,7 +134,7 @@ class RefillCreator:
                 raise PrescriptionExpired(
                     f"Subject prescription has expired. Expired on {rx_expiration_date}. "
                     f"Got {self.subject_identifier} attempting refill "
-                    f"on {refill_start_datetime}."
+                    f"on {self.refill_start_datetime_as_str}."
                 )
         return rx
 
@@ -168,3 +163,9 @@ class RefillCreator:
                 .first()
             )
         return self._next_rx_refill
+
+    @property
+    def refill_start_datetime_as_str(self) -> str:
+        return self.refill_start_datetime.strftime(
+            convert_php_dateformat(settings.DATETIME_FORMAT)
+        )

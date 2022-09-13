@@ -11,6 +11,7 @@ from .list_model_admin import (
 )
 from .medication_admin import MedicationAdmin
 from .medication_lot_admin import MedicationLotAdmin
+from .order_admin import OrderAdmin
 from .product_admin import ProductAdmin
 from .return_history_admin import ReturnHistoryAdmin
 from .rx_admin import RxAdmin

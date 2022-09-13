@@ -35,7 +35,12 @@ class PreviousNextModelMixin(models.Model):
             )
         else:
             opts.update({"rx__subject_identifier": self.rx.subject_identifier})
-        return self.__class__.objects.filter(**opts).order_by("refill_start_datetime").last()
+        return (
+            self.__class__.objects.filter(**opts)
+            .order_by("refill_start_datetime")
+            .exclude(refill_identifier=self.refill_identifier)
+            .last()
+        )
 
     @property
     def next(self):
@@ -51,7 +56,12 @@ class PreviousNextModelMixin(models.Model):
             )
         else:
             opts.update({"rx__subject_identifier": self.rx.subject_identifier})
-        return self.__class__.objects.filter(**opts).order_by("refill_start_datetime").first()
+        return (
+            self.__class__.objects.filter(**opts)
+            .order_by("refill_start_datetime")
+            .exclude(refill_identifier=self.refill_identifier)
+            .first()
+        )
 
     def adjust_end_datetimes(self):
         """Adjust the refill_end_datetime for the previous and

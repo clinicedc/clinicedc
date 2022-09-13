@@ -24,7 +24,7 @@ class ProductAdmin(ModelAdminMixin, admin.ModelAdmin):
                         "container",
                         "count_per_container",
                         "formulation",
-                        "lot_no",
+                        "medication_lot",
                     ]
                 )
             },
@@ -37,7 +37,7 @@ class ProductAdmin(ModelAdminMixin, admin.ModelAdmin):
         "container",
         "count_per_container",
         "formulation",
-        "lot_no",
+        "medication_lot",
         "created",
         "modified",
     )
@@ -47,10 +47,10 @@ class ProductAdmin(ModelAdminMixin, admin.ModelAdmin):
     )
     search_fields = (
         "product_identifier",
-        "lot_no",
+        "medication_lot__lot_no",
     )
     ordering = (
         "product_identifier",
-        "lot_no",
+        "medication_lot__lot_no",
     )
     readonly_fields = ("product_identifier",)

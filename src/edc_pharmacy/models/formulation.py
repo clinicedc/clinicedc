@@ -33,7 +33,7 @@ class Formulation(edc_models.BaseUuidModel):
     history = edc_models.HistoricalRecords()
 
     def __str__(self):
-        return self.description
+        return self.description.title()
 
     def natural_key(self):
         return (

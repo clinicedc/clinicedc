@@ -16,10 +16,9 @@ from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 
-from edc_pharmacy.exceptions import (
-    NextRefillError,
-    PrescriptionExpired,
-    PrescriptionNotStarted,
+from edc_pharmacy.model_mixins.study_medication_crf_model_mixin import (
+    NextStudyMedicationError,
+    StudyMedicationError,
 )
 from edc_pharmacy.models import (
     DosageGuideline,
@@ -176,7 +175,7 @@ class TestMedicationCrf(TestCase):
             next_dosage_guideline=self.dosage_guideline_200,
             next_formulation=self.formulation,
         )
-        with self.assertRaises(PrescriptionNotStarted):
+        with self.assertRaises(StudyMedicationError):
             obj.save()
 
     def test_refill_for_expired_rx(self):
@@ -204,7 +203,7 @@ class TestMedicationCrf(TestCase):
             next_dosage_guideline=self.dosage_guideline_200,
             next_formulation=self.formulation,
         )
-        with self.assertRaises(PrescriptionExpired):
+        with self.assertRaises(StudyMedicationError):
             obj.save()
 
     def test_for_each_appt_creates_rxrefill_thru_studymedication(self):
@@ -398,7 +397,7 @@ class TestMedicationCrf(TestCase):
             )
             if not appointment.next:
                 self.assertRaises(
-                    NextRefillError,
+                    NextStudyMedicationError,
                     StudyMedication.objects.create,
                     subject_visit=subject_visit,
                     report_datetime=subject_visit.report_datetime,
@@ -556,6 +555,7 @@ class TestMedicationCrf(TestCase):
         refills = RxRefill.objects.all().order_by("refill_start_datetime")
         self.assertEqual(refills[0].dosage_guideline, self.dosage_guideline_100)
         self.assertEqual(refills[1].dosage_guideline, self.dosage_guideline_200)
+
         appointment.appt_status = INCOMPLETE_APPT
         appointment.save()
 
@@ -581,7 +581,8 @@ class TestMedicationCrf(TestCase):
             next_formulation=self.formulation,
         )
 
-        self.assertEqual(RxRefill.objects.all().count(), 4)
+        self.assertEqual(RxRefill.objects.all().count(), 3)
+
         refills = RxRefill.objects.all().order_by("refill_start_datetime")
         self.assertEqual(refills[0].dosage_guideline, self.dosage_guideline_100)
         self.assertEqual(refills[1].dosage_guideline, self.dosage_guideline_200)
@@ -608,11 +609,11 @@ class TestMedicationCrf(TestCase):
             next_dosage_guideline=self.dosage_guideline_200,
             next_formulation=self.formulation,
         )
-        self.assertRaises(NextRefillError, StudyMedication.objects.create, **opts)
+        self.assertRaises(NextStudyMedicationError, StudyMedication.objects.create, **opts)
         appointment.appt_status = INCOMPLETE_APPT
         appointment.save()
 
-        self.assertEqual(RxRefill.objects.all().count(), 4)
+        self.assertEqual(RxRefill.objects.all().count(), 3)
         refills = RxRefill.objects.all().order_by("refill_start_datetime")
         self.assertEqual(refills[0].dosage_guideline, self.dosage_guideline_100)
         self.assertEqual(refills[1].dosage_guideline, self.dosage_guideline_200)

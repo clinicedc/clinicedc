@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import PROTECT
-from edc_model import models as edc_models
+from edc_model.models import BaseUuidModel, HistoricalRecords
 
 from .formulation import Formulation
 
@@ -10,7 +10,7 @@ class Manager(models.Manager):
     use_in_migrations = True
 
 
-class MedicationLot(edc_models.BaseUuidModel):
+class MedicationLot(BaseUuidModel):
 
     lot_no = models.CharField(max_length=50, unique=True)
 
@@ -20,11 +20,11 @@ class MedicationLot(edc_models.BaseUuidModel):
 
     objects = Manager()
 
-    history = edc_models.HistoricalRecords()
+    history = HistoricalRecords()
 
     def __str__(self):
-        return self.lot_no
+        return f"{self.formulation} Lot {self.lot_no}"
 
-    class Meta(edc_models.BaseUuidModel.Meta):
+    class Meta(BaseUuidModel.Meta):
         verbose_name = "Medication lot"
         verbose_name_plural = "Medication lots"
