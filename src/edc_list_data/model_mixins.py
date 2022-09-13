@@ -19,6 +19,8 @@ class BaseListModelMixin(models.Model):
         help_text="This is the stored value, required",
     )
 
+    plural_name = models.CharField(verbose_name="Plural name", max_length=250, null=True)
+
     display_name = models.CharField(
         verbose_name="Name",
         max_length=250,
@@ -48,6 +50,8 @@ class BaseListModelMixin(models.Model):
     def save(self, *args, **kwargs):
         if not self.name:
             self.name = slugify(self.display_name).lower()
+        if not self.plural_name:
+            self.plural_name = f"{self.name}s"
         super().save(*args, **kwargs)
 
     def natural_key(self) -> tuple:
