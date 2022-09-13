@@ -26,10 +26,12 @@ from .storage import (
     PillBottle,
     Room,
     Shelf,
+    SubjectPillBottle,
     UnitType,
     get_location,
     get_room,
     get_shelf,
     repackage,
+    repackage_for_subject,
 )
 from .subject import Subject

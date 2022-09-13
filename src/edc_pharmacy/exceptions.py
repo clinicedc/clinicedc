@@ -36,3 +36,15 @@ class NextRefillError(Exception):
 
 class InsufficientQuantityError(Exception):
     pass
+
+
+class PackagingSidMismatchError(Exception):
+    pass
+
+
+class PackagingSubjectIdentifierMismatchError(Exception):
+    pass
+
+
+class PackagingLotNumberMismatchError(Exception):
+    pass
