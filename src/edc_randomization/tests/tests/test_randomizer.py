@@ -36,7 +36,7 @@ from ...decorators import RegisterRandomizerError, register
 from ..make_test_list import make_test_list
 from ..models import SubjectConsent
 from ..randomizers import MyRandomizer, tmpdir
-from .testcase_mixin import TestCaseMixin
+from ..testcase_mixin import TestCaseMixin
 
 
 @override_settings(
