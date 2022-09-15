@@ -7,6 +7,7 @@ from edc_lab_results.model_mixins import BloodResultsMethodsModelMixin
 from edc_model.models import BaseUuidModel
 from edc_reportable import MICROMOLES_PER_LITER
 from edc_screening.model_mixins import ScreeningIdentifierModelMixin
+from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
 
 from edc_egfr.model_mixins import EgfrDropNotificationModelMixin, EgfrModelMixin
@@ -52,7 +53,7 @@ class Appointment(BaseUuidModel):
         pass
 
 
-class SubjectVisit(BaseUuidModel):
+class SubjectVisit(SiteModelMixin, BaseUuidModel):
     appointment = models.OneToOneField(
         Appointment,
         on_delete=PROTECT,
@@ -125,7 +126,7 @@ class ResultCrf(BloodResultsMethodsModelMixin, EgfrModelMixin, models.Model):
     )
 
 
-class EgfrDropNotification(EgfrDropNotificationModelMixin, BaseUuidModel):
+class EgfrDropNotification(SiteModelMixin, EgfrDropNotificationModelMixin, BaseUuidModel):
 
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
