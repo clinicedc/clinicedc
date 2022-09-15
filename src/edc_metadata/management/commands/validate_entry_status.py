@@ -4,6 +4,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 from django.db.models import Count
+from edc_utils.round_up import round_half_away_from_zero
 from tqdm import tqdm
 
 from ...constants import KEYED
@@ -60,7 +61,7 @@ class Command(BaseCommand):
                         pass
                     else:
                         keyed += 1
-                perc = round((index / count) * 100)
+                perc = round_half_away_from_zero((index / count) * 100)
                 sys.stdout.write(
                     f" ( ) {model} exists={exists}/{count}, "
                     f"keyed={keyed}/{count}, missing={doesnotexist}/{count}"
@@ -99,7 +100,7 @@ class Command(BaseCommand):
                         pass
                     else:
                         keyed += 1
-                perc = round((index / count) * 100)
+                perc = round_half_away_from_zero((index / count) * 100)
                 sys.stdout.write(
                     f" ( ) {model} exists={exists}/{count}, keyed={keyed}/{count}, "
                     f"missing={doesnotexist}/{count}    {perc}% \r"
