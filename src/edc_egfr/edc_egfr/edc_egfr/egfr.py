@@ -206,6 +206,7 @@ class Egfr:
                     egfr_percent_change=self.egfr_drop_value,
                     report_status=NEW,
                     consent_version=self.subject_visit.consent_version,
+                    site_id=self.subject_visit.site.id,
                 )
             else:
                 obj.egfr_value = self.egfr_value
