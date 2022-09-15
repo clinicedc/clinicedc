@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from decimal import Decimal
+
 from edc_constants.constants import FEMALE
 from edc_reportable import MICROMOLES_PER_LITER
 
@@ -23,6 +27,10 @@ class EgfrCockcroftGault(BaseEgfr):
 
     GFR = 141 × min(Scr/κ, 1)α × max(Scr/κ, 1)-1.209 × 0.993Age
     """
+
+    def __init__(self, weight: int | float | Decimal = None, **kwargs):
+        self.weight = float(weight) if weight else None
+        super().__init__(**kwargs)
 
     @property
     def value(self) -> float:

@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from datetime import date, datetime
+from decimal import Decimal
 from typing import Any, Optional
 from zoneinfo import ZoneInfo
 
@@ -8,7 +11,7 @@ from django.db import transaction
 from edc_constants.constants import NEW
 from edc_reportable import site_reportables
 from edc_reportable.units import EGFR_UNITS, PERCENT
-from edc_utils import age
+from edc_utils import age, get_utcnow
 
 from .calculators import EgfrCkdEpi, EgfrCockcroftGault, egfr_percent_change
 from .get_drop_notification_model import get_egfr_drop_notification_model_cls
@@ -24,29 +27,29 @@ class Egfr:
 
     def __init__(
         self,
-        baseline_egfr_value: Optional[float] = None,
-        gender: Optional[str] = None,
-        ethnicity: Optional[str] = None,
-        age_in_years: Optional[int] = None,
-        dob: Optional[date] = None,
-        weight_in_kgs: Optional[float] = None,
-        report_datetime: Optional[datetime] = None,
-        creatinine_value: Optional[float] = None,
-        creatinine_units: Optional[str] = None,
-        formula_name: Optional[str] = None,
-        value_threshold: Optional[float] = None,
-        percent_drop_threshold: Optional[float] = None,
-        reference_range_collection_name: Optional[str] = None,
-        calling_crf: Optional[Any] = None,
-        subject_visit: Optional[Any] = None,
-        assay_datetime: Optional[datetime] = None,
-        egfr_drop_notification_model: Optional[str] = None,
+        baseline_egfr_value: Decimal | float | None = None,
+        gender: str | None = None,
+        ethnicity: str | None = None,
+        age_in_years: int | None = None,
+        dob: date | None = None,
+        weight_in_kgs: Decimal | float | None = None,
+        report_datetime: datetime | None = None,
+        creatinine_value: Decimal | float | None = None,
+        creatinine_units: str | None = None,
+        formula_name: str | None = None,
+        value_threshold: Decimal | float | None = None,
+        percent_drop_threshold: Decimal | float | None = None,
+        reference_range_collection_name: str | None = None,
+        calling_crf: Any | None = None,
+        subject_visit: Any | None = None,
+        assay_datetime: datetime | None = None,
+        egfr_drop_notification_model: str | None = None,
     ):
-        self._egfr_value: Optional[float] = None
+        self._egfr_value: Decimal | None = None
         self._egfr_grade = None
-        self._egfr_drop_value = None
+        self._egfr_drop_value: Decimal | None = None
         self._egfr_drop_grade = None
-        self.assay_date = None
+        self.assay_date: date | None = None
         self.subject_visit = None
 
         self.baseline_egfr_value = baseline_egfr_value
@@ -94,6 +97,7 @@ class Egfr:
             self.creatinine_value = creatinine_value
             self.percent_drop_threshold = percent_drop_threshold
             self.subject_visit = subject_visit
+            self.report_datetime = report_datetime
             if assay_datetime:
                 self.assay_date = assay_datetime.astimezone(ZoneInfo("UTC")).date()
 
@@ -159,8 +163,8 @@ class Egfr:
                     float(self.egfr_value), float(self.baseline_egfr_value)
                 )
             else:
-                egfr_drop_value = 0.0
-            self._egfr_drop_value = 0.0 if egfr_drop_value < 0.0 else egfr_drop_value
+                egfr_drop_value = 0.0000
+            self._egfr_drop_value = 0.0000 if egfr_drop_value < 0.0000 else egfr_drop_value
         return self._egfr_drop_value
 
     @property
@@ -188,12 +192,13 @@ class Egfr:
         with transaction.atomic():
             try:
                 obj = self.egfr_drop_notification_model_cls.objects.get(
-                    subject_visit=self.subject_visit
+                    subject_visit__id=self.subject_visit.id
                 )
             except ObjectDoesNotExist:
                 obj = self.egfr_drop_notification_model_cls.objects.create(
-                    subject_visit=self.subject_visit,
+                    subject_visit_id=self.subject_visit.id,
                     report_datetime=self.report_datetime,
+                    egfr_value=self.egfr_value,
                     creatinine_date=self.assay_date,
                     creatinine_value=self.creatinine_value,
                     creatinine_units=self.creatinine_units,
@@ -203,8 +208,12 @@ class Egfr:
                     consent_version=self.subject_visit.consent_version,
                 )
             else:
+                obj.egfr_value = self.egfr_value
+                obj.creatinine_value = self.creatinine_value
+                obj.weight = self.get_weight_in_kgs()
                 obj.egfr_percent_change = self.egfr_drop_value
                 obj.creatinine_date = self.assay_date
+                obj.modified = get_utcnow()
                 obj.save()
         obj.refresh_from_db()
         return obj

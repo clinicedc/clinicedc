@@ -8,10 +8,15 @@ from edc_reportable.units import (
     MICROMOLES_PER_LITER,
     MILLIGRAMS_PER_DECILITER,
 )
+from edc_utils.round_up import round_half_away_from_zero
 
-from ... import EgfrCockcroftGault
-from ...calculators import EgfrCalculatorError, EgfrCkdEpi, egfr_percent_change
-from ...form_validator_mixins import (
+from edc_egfr.calculators import (
+    EgfrCalculatorError,
+    EgfrCkdEpi,
+    EgfrCockcroftGault,
+    egfr_percent_change,
+)
+from edc_egfr.form_validator_mixins import (
     EgfrCkdEpiFormValidatorMixin,
     EgfrCockcroftGaultFormValidatorMixin,
 )
@@ -23,7 +28,7 @@ class TestCalculators(TestCase):
         European units: 74.3 to 107 micromoles per liter (umol/L)
         """
         self.assertEqual(
-            round(
+            round_half_away_from_zero(
                 convert_units(
                     float(0.84),
                     units_from=MILLIGRAMS_PER_DECILITER,
@@ -34,7 +39,7 @@ class TestCalculators(TestCase):
             74.3,
         )
         self.assertEqual(
-            round(
+            round_half_away_from_zero(
                 convert_units(
                     float(1.21),
                     units_from=MILLIGRAMS_PER_DECILITER,
@@ -45,7 +50,7 @@ class TestCalculators(TestCase):
             107.0,
         )
         self.assertEqual(
-            round(
+            round_half_away_from_zero(
                 convert_units(
                     float(74.3),
                     units_from=MICROMOLES_PER_LITER,
@@ -56,7 +61,7 @@ class TestCalculators(TestCase):
             0.84,
         )
         self.assertEqual(
-            round(
+            round_half_away_from_zero(
                 convert_units(
                     float(107.0),
                     units_from=MICROMOLES_PER_LITER,
@@ -134,7 +139,7 @@ class TestCalculators(TestCase):
             age_in_years=30,
             creatinine_units=MICROMOLES_PER_LITER,
         )
-        self.assertEqual(round(egfr1.value, 2), 156.43)
+        self.assertEqual(round_half_away_from_zero(egfr1.value, 2), 156.43)
 
         egfr2 = EgfrCkdEpi(
             gender=FEMALE,
@@ -143,7 +148,7 @@ class TestCalculators(TestCase):
             age_in_years=30,
             creatinine_units=MICROMOLES_PER_LITER,
         )
-        self.assertEqual(round(egfr2.value, 2), 141.81)
+        self.assertEqual(round_half_away_from_zero(egfr2.value, 2), 141.81)
 
         egfr1 = EgfrCkdEpi(
             gender=MALE,
@@ -152,7 +157,7 @@ class TestCalculators(TestCase):
             age_in_years=30,
             creatinine_units=MICROMOLES_PER_LITER,
         )
-        self.assertEqual(round(egfr1.value, 2), 134.97)
+        self.assertEqual(round_half_away_from_zero(egfr1.value, 2), 134.97)
 
         egfr2 = EgfrCkdEpi(
             gender=FEMALE,
@@ -161,7 +166,52 @@ class TestCalculators(TestCase):
             age_in_years=30,
             creatinine_units=MICROMOLES_PER_LITER,
         )
-        self.assertEqual(round(egfr2.value, 2), 122.35)
+        self.assertEqual(round_half_away_from_zero(egfr2.value, 2), 122.35)
+
+        egfr3 = EgfrCkdEpi(
+            gender=MALE,
+            ethnicity=BLACK,
+            creatinine_value=150.8,
+            age_in_years=60,
+            creatinine_units=MICROMOLES_PER_LITER,
+        )
+        self.assertEqual(round_half_away_from_zero(egfr3.value, 4), 49.5026)
+
+        egfr4 = EgfrCkdEpi(
+            gender=MALE,
+            ethnicity=BLACK,
+            creatinine_value=152.0,
+            age_in_years=60,
+            creatinine_units=MICROMOLES_PER_LITER,
+        )
+        self.assertEqual(round_half_away_from_zero(egfr4.value, 4), 49.0295)
+
+        egfr4 = EgfrCkdEpi(
+            gender=MALE,
+            ethnicity=BLACK,
+            creatinine_value=152.0,
+            age_in_years=59,
+            creatinine_units=MICROMOLES_PER_LITER,
+        )
+        self.assertEqual(round_half_away_from_zero(egfr4.value, 4), 49.3751)
+
+        egfr = EgfrCkdEpi(
+            gender=FEMALE,
+            ethnicity=BLACK,
+            creatinine_value=150.8,
+            age_in_years=60,
+            creatinine_units=MICROMOLES_PER_LITER,
+        )
+        self.assertEqual(round_half_away_from_zero(egfr.value, 4), 37.1895)
+
+        egfr = EgfrCkdEpi(
+            gender=FEMALE,
+            ethnicity=BLACK,
+            creatinine_value=152.0,
+            age_in_years=60,
+            creatinine_units=MICROMOLES_PER_LITER,
+        )
+        self.assertEqual(round_half_away_from_zero(egfr.value, 4), 36.8341)
 
     def test_egfr_cockcroft_gault_calculator(self):
 
@@ -201,7 +251,7 @@ class TestCalculators(TestCase):
             creatinine_units=MICROMOLES_PER_LITER,
             weight=65.0,
         )
-        self.assertEqual(round(egfr.value, 2), 175.89)
+        self.assertEqual(round_half_away_from_zero(egfr.value, 2), 175.89)
 
         egfr = EgfrCockcroftGault(
             gender=MALE,
@@ -210,7 +260,7 @@ class TestCalculators(TestCase):
             creatinine_units=MICROMOLES_PER_LITER,
             weight=65.0,
         )
-        self.assertEqual(round(egfr.value, 2), 173.12)
+        self.assertEqual(round_half_away_from_zero(egfr.value, 2), 173.12)
 
         egfr = EgfrCockcroftGault(
             gender=MALE,
@@ -219,7 +269,7 @@ class TestCalculators(TestCase):
             creatinine_units=MICROMOLES_PER_LITER,
             weight=65.0,
         )
-        self.assertEqual(round(egfr.value, 2), 172.78)
+        self.assertEqual(round_half_away_from_zero(egfr.value, 2), 172.78)
 
         egfr = EgfrCockcroftGault(
             gender=FEMALE,
@@ -228,7 +278,7 @@ class TestCalculators(TestCase):
             creatinine_units=MICROMOLES_PER_LITER,
             weight=65.0,
         )
-        self.assertEqual(round(egfr.value, 2), 147.5)
+        self.assertEqual(round_half_away_from_zero(egfr.value, 2), 147.5)
 
         egfr = EgfrCockcroftGault(
             gender=FEMALE,
@@ -238,7 +288,7 @@ class TestCalculators(TestCase):
             weight=65.0,
         )
 
-        self.assertEqual(round(egfr.value, 2), 65.31)
+        self.assertEqual(round_half_away_from_zero(egfr.value, 2), 65.31)
 
         egfr2 = EgfrCockcroftGault(
             gender=MALE,
@@ -248,7 +298,7 @@ class TestCalculators(TestCase):
             weight=65.0,
         )
 
-        self.assertEqual(round(egfr2.value, 2), 110.51)
+        self.assertEqual(round_half_away_from_zero(egfr2.value, 2), 110.51)
 
     def test_egfr_ckd_epi_form_validator(self):
         data = dict(
@@ -269,7 +319,7 @@ class TestCalculators(TestCase):
         data.update(creatinine_value=1.3, creatinine_units=MICROMOLES_PER_LITER)
         form_validator = EgfrFormValidator(cleaned_data=data)
         egfr = form_validator.validate_egfr()
-        self.assertEqual(round(egfr, 2), 718.14)
+        self.assertEqual(round_half_away_from_zero(egfr, 2), 718.14)
 
         # calculation error: bad units
         data.update(creatinine_units=GRAMS_PER_DECILITER)
@@ -300,13 +350,13 @@ class TestCalculators(TestCase):
         data.update(creatinine_value=1.30, creatinine_units=MILLIGRAMS_PER_DECILITER)
         form_validator = EgfrFormValidator(cleaned_data=data)
         egfr = form_validator.validate_egfr()
-        self.assertEqual(round(egfr, 2), 84.75)
+        self.assertEqual(round_half_away_from_zero(egfr, 2), 84.75)
 
         # calculates
         data.update(creatinine_value=114.94, creatinine_units=MICROMOLES_PER_LITER)
         form_validator = EgfrFormValidator(cleaned_data=data)
         egfr = form_validator.validate_egfr()
-        self.assertEqual(round(egfr, 2), 84.75)
+        self.assertEqual(round_half_away_from_zero(egfr, 2), 84.75)
 
     def test_egfr_percent_change(self):
         self.assertGreater(egfr_percent_change(51.10, 131.50), 20.0)

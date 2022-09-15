@@ -24,7 +24,10 @@ from egfr_app.models import (
 class TestEgfr(TestCase):
     def setUp(self) -> None:
         RegisteredSubject.objects.create(
-            subject_identifier="1234", gender=MALE, dob=get_utcnow() - relativedelta(years=30)
+            subject_identifier="1234",
+            gender=MALE,
+            dob=get_utcnow() - relativedelta(years=30),
+            ethnicity=BLACK,
         )
         appointment = Appointment.objects.create(
             subject_identifier="1234",
