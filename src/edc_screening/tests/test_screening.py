@@ -1,7 +1,7 @@
 import re
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_constants.constants import MALE, NO, UUID_PATTERN, YES
 from edc_identifier.models import IdentifierModel
 
@@ -68,7 +68,6 @@ class TestScreening(TestCase):
         gender_evaluator = GenderEvaluator("BARK")
         self.assertFalse(gender_evaluator.eligible)
 
-    @tag("1")
     def test_model(self):
         obj = SubjectScreening.objects.create(age_in_years=25)
 
