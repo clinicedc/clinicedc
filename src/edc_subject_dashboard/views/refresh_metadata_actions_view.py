@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.views import View
 from edc_dashboard import url_names
 from edc_utils import get_utcnow
+from edc_utils.round_up import round_half_away_from_zero
 from edc_visit_tracking.utils import get_subject_visit_model_cls
 
 
@@ -31,7 +32,8 @@ class RefreshMetadataActionsView(LoginRequiredMixin, View):
             SUCCESS,
             f"The data collection schedule for {subject_visit.visit_code}."
             f"{subject_visit.visit_code_sequence} has been refreshed "
-            f"({round((get_utcnow()-dte1).microseconds/1000000, 2)} seconds)",
+            f"({round_half_away_from_zero((get_utcnow()-dte1).microseconds/1000000, 2)} "
+            "seconds)",
         )
         return HttpResponseRedirect(url)
 
