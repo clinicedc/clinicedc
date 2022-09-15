@@ -1,5 +1,7 @@
 from typing import Optional, Union
 
+from edc_utils.round_up import round_half_away_from_zero
+
 from .units import MICROMOLES_PER_LITER, MILLIGRAMS_PER_DECILITER, MILLIMOLES_PER_LITER
 
 
@@ -29,5 +31,5 @@ def convert_units(
                 f"Conversion not handled. Got from {units_from} to {units_to}"
             )
     if converted_value:
-        converted_value = round(converted_value, places)
+        converted_value = round_half_away_from_zero(converted_value, places)
     return converted_value

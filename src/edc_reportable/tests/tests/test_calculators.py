@@ -4,6 +4,7 @@ from django.test import TestCase
 from edc_constants.constants import BLACK, MALE
 from edc_form_validators import FormValidator
 from edc_utils import get_utcnow
+from edc_utils.round_up import round_half_away_from_zero
 
 from edc_reportable import BmiFormValidatorMixin, calculate_bmi
 
@@ -36,7 +37,7 @@ class TestCalculators(TestCase):
                 except CalculatorError as e:
                     self.fail(f"CalculatorError unexpectedly raises. Got {e}")
                 else:
-                    self.assertEqual(round(bmi.value, 2), 24.89)
+                    self.assertEqual(round_half_away_from_zero(bmi.value, 2), 24.89)
 
     def test_bmi_form_validator(self):
         data = dict(
