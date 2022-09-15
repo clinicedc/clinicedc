@@ -65,6 +65,12 @@ class RegisteredSubject(
         verbose_name="Gender", max_length=1, choices=GENDER, null=True, blank=False
     )
 
+    ethnicity = models.CharField(
+        max_length=15,
+        null=True,
+        blank=True,
+    )
+
     subject_consent_id = models.CharField(max_length=100, null=True, blank=True)
 
     registration_identifier = models.CharField(max_length=36, null=True, blank=True)
