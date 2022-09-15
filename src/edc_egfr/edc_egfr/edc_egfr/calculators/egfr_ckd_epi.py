@@ -18,6 +18,10 @@ class EgfrCkdEpi(BaseEgfr):
     Filtration Rate. Ann Intern Med. 2009; 150:604-612.
     """
 
+    def __init__(self, ethnicity: str = None, **kwargs):
+        self.ethnicity = ethnicity
+        super().__init__(**kwargs)
+
     @property
     def value(self) -> Optional[float]:
         if (
