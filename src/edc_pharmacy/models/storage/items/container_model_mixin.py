@@ -21,6 +21,8 @@ class ContainerModelMixin(models.Model):
 
     description = models.TextField(null=True)
 
+    contains_uniquely_identifiable_items = models.BooleanField(default=True)
+
     def __str__(self):
         return f"{self.container_type.name} {self.name}"
 

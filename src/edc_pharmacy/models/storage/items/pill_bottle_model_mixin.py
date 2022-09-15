@@ -30,6 +30,7 @@ class PillBottleModelMixin(ContainerModelMixin, BaseUuidModel):
         return f"{self.formulation} {self.unit_qty} count"
 
     def save(self, *args, **kwargs):
+        self.contains_uniquely_identifiable_items = False
         if self.unit_qty < self.unit_qty_out:
             raise PillBottleError(f"Qty cannot be negative. See {self}.")
         if self.max_unit_qty and self.max_unit_qty > self.unit_qty:
