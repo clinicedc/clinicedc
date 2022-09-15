@@ -1,5 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from edc_utils import age, get_utcnow
+from edc_utils.round_up import round_half_away_from_zero
 
 from .exceptions import CalculatorError
 
@@ -34,7 +35,7 @@ class BMI:
 
     @property
     def value(self):
-        return round(self.raw_bmi_value, 4)
+        return round_half_away_from_zero(self.raw_bmi_value, 4)
 
 
 def calculate_bmi(
