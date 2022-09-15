@@ -7,7 +7,7 @@ from .formulation_form import FormulationForm
 from .labels_form import LabelsForm
 from .medication_form import MedicationForm
 from .medication_lot_form import MedicationLotForm
-from .medication_order_form import MedicationOrderForm
+from .order_form import OrderForm
 from .product_form import ProductForm
 from .return_history_form import ReturnHistoryForm
 from .rx_form import RxForm

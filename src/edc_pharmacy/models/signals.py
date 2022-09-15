@@ -5,6 +5,9 @@ from django.dispatch import receiver
 
 from ..dispense import Dispensing
 from .dispensing_history import DispensingHistory
+
+# from .order import Order
+# from .rx_refill import RxRefill
 from .stock_create_labels import Labels, StockCreateLabels
 
 
@@ -46,6 +49,25 @@ def create_or_update_refills_on_post_save(
                 if "creates_refills_from_crf" not in str(e):
                     raise
                 pass
+
+
+# @receiver(
+#     post_save,
+#     sender=RxRefill,
+#     dispatch_uid="create_or_update_refills_on_post_save",
+# )
+# def get_or_create_subject_orders_on_refill(
+#     sender, instance, raw, created, update_fields, **kwargs
+# ):
+#     """Confirm or create an order for the items requested thru the refill"""
+#     if not raw:
+#         pass
+#         instance.total
+#         Order.objects.filter(product=product)
+#         # check orders
+#         # is the product requested on order
+#         # is the product requested on order and delivered to
+#         # check patient_stock
 
 
 @receiver(

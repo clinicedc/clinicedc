@@ -2,6 +2,7 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import PROTECT
 from edc_model import models as edc_models
+from edc_utils.round_up import round_half_away_from_zero
 
 from .list_models import FrequencyUnits, Units
 from .medication import Medication
@@ -60,8 +61,8 @@ class DosageGuideline(edc_models.BaseUuidModel):
 
     def __str__(self):
         return (
-            f"{self.medication.name} {round(self.dose or 0, 0)}{self.dose_units} "
-            f"{round((self.frequency or 0), 0)} "
+            f"{self.medication.name} {round_half_away_from_zero(self.dose or 0, 0)}"
+            f"{self.dose_units} {round_half_away_from_zero((self.frequency or 0), 0)} "
             f"{self.get_frequency_units_display()}{' (per kg)' if self.dose_per_kg else ''}"
         )
 

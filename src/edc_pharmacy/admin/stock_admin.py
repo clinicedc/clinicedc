@@ -30,11 +30,11 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
     )
     list_filter = (
         "product",
-        "product__lot_no",
+        "product__medication_lot__lot_no",
         "product__formulation",
         "created",
         "modified",
     )
-    search_fields = ("stock_identifier", "product__lot_no")
+    search_fields = ("stock_identifier", "product__medication_lot__lot_no")
     ordering = ("stock_identifier",)
     readonly_fields = ("stock_identifier", "product")

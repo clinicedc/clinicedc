@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import PROTECT
 from edc_model import models as edc_models
+from edc_utils.round_up import round_half_away_from_zero
 
 from .list_models import FormulationType, Route, Units
 from .medication import Medication
@@ -33,7 +34,7 @@ class Formulation(edc_models.BaseUuidModel):
     history = edc_models.HistoricalRecords()
 
     def __str__(self):
-        return self.description
+        return self.description.title()
 
     def natural_key(self):
         return (
@@ -46,7 +47,8 @@ class Formulation(edc_models.BaseUuidModel):
     @property
     def description(self):
         return (
-            f"{self.medication} {round(self.strength, 0)}{self.get_units_display()} "
+            f"{self.medication} {round_half_away_from_zero(self.strength, 0)}"
+            f"{self.get_units_display()} "
             f"{self.get_formulation_type_display()} "
             f"{self.get_route_display()}"
         )

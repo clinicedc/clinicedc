@@ -16,14 +16,14 @@ def create_next_refill(instance: Any, related_visit_model_attr: str) -> Any | No
     rx_refill = None
     if not getattr(instance, "creates_refills_from_crf", None):
         raise RefillCreatorError("Expected an instance of StudyMedicationCrfModelMixin")
-    appointment = getattr(instance, related_visit_model_attr).appointment.next
-    if appointment:
+    next_next_appointment = getattr(instance, related_visit_model_attr).appointment.next.next
+    if next_next_appointment:
         refill_creator = RefillCreator(
             dosage_guideline=instance.next_dosage_guideline,
             formulation=instance.next_formulation,
             make_active=False,
             refill_start_datetime=instance.refill_end_datetime,
-            refill_end_datetime=appointment.appt_datetime,
+            refill_end_datetime=next_next_appointment.appt_datetime,
             roundup_divisible_by=instance.roundup_divisible_by,
             subject_identifier=getattr(instance, related_visit_model_attr).subject_identifier,
             weight_in_kgs=getattr(instance, "weight_in_kgs", None),

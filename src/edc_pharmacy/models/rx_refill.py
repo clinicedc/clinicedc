@@ -8,6 +8,7 @@ from django.db.models.deletion import PROTECT
 from edc_model import models as edc_models
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 from edc_utils import convert_php_dateformat
+from edc_utils.round_up import round_half_away_from_zero
 
 from ..dosage_calculator import DosageCalculator
 from ..model_mixins import MedicationOrderModelMixin, PreviousNextModelMixin
@@ -164,7 +165,7 @@ class RxRefill(
         if self.roundup_dose:
             return math.ceil(dosage)
         elif self.round_dose:
-            return round(dosage, self.round_dose)
+            return round_half_away_from_zero(dosage, self.round_dose)
         return dosage
 
     def get_total_to_dispense(self):

@@ -32,3 +32,19 @@ class ActiveRefillAlreadyExists(Exception):
 
 class NextRefillError(Exception):
     pass
+
+
+class InsufficientQuantityError(Exception):
+    pass
+
+
+class PackagingSidMismatchError(Exception):
+    pass
+
+
+class PackagingSubjectIdentifierMismatchError(Exception):
+    pass
+
+
+class PackagingLotNumberMismatchError(Exception):
+    pass

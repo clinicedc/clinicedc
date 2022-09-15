@@ -31,7 +31,7 @@ class Rx(
     """A model for the prescription.
 
     In this context the `prescription` specifies only the medication.
-    The formulation and doseage guidelines are specified
+    The formulation and dosage guidelines are specified
     on each Refill.
     """
 

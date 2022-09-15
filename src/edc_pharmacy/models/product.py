@@ -29,7 +29,7 @@ class Product(SiteModelMixin, edc_models.BaseUuidModel):
 
     formulation = models.ForeignKey(Formulation, on_delete=PROTECT)
 
-    lot_no = models.ForeignKey(MedicationLot, on_delete=PROTECT)
+    medication_lot = models.ForeignKey(MedicationLot, on_delete=PROTECT)
 
     objects = Manager()
 
@@ -42,7 +42,7 @@ class Product(SiteModelMixin, edc_models.BaseUuidModel):
         self.name = (
             f"{self.formulation.medication.display_name} "
             f"{self.formulation.strength}{self.formulation.units}. "
-            f"LOT#: {self.lot_no.lot_no}. {self.container} of "
+            f"LOT#: {self.medication_lot.lot_no}. {self.container} of "
             f"{self.count_per_container}"
         )
         super().save(*args, **kwargs)
