@@ -13,6 +13,7 @@ from edc_reportable import (
 from edc_reportable.grading_data.daids_july_2017 import grading_data
 from edc_reportable.normal_data.africa import normal_data
 from edc_utils import get_utcnow
+from edc_utils.round_up import round_half_away_from_zero
 
 from edc_egfr.calculators import EgfrCalculatorError
 from edc_egfr.egfr import Egfr, EgfrError
@@ -29,7 +30,10 @@ from egfr_app.models import (
 class TestEgfr(TestCase):
     def setUp(self) -> None:
         RegisteredSubject.objects.create(
-            subject_identifier="1234", gender=MALE, dob=get_utcnow() - relativedelta(years=30)
+            subject_identifier="1234",
+            gender=MALE,
+            dob=get_utcnow() - relativedelta(years=30),
+            ethnicity=BLACK,
         )
 
     @classmethod
@@ -46,7 +50,7 @@ class TestEgfr(TestCase):
             gender=MALE,
             age_in_years=30,
             ethnicity=BLACK,
-            creatinine_value=52,
+            creatinine_value=52.0,
             creatinine_units=MICROMOLES_PER_LITER,
             report_datetime=get_utcnow(),
             reference_range_collection_name="my_reference_list",
@@ -171,10 +175,10 @@ class TestEgfr(TestCase):
         egfr = Egfr(**opts)
         self.assertEqual(egfr.egfr_drop_value, 0.0)
         egfr = Egfr(baseline_egfr_value=23.0, **opts)
-        self.assertEqual(round(egfr.egfr_value, 2), 7.33)
+        self.assertEqual(round_half_away_from_zero(egfr.egfr_value, 2), 7.33)
         self.assertEqual(egfr.egfr_grade, 4)
         self.assertEqual(egfr.egfr_grade, 4)
-        self.assertEqual(round(egfr.egfr_drop_value, 2), 68.15)
+        self.assertEqual(round_half_away_from_zero(egfr.egfr_drop_value, 2), 68.15)
         self.assertEqual(egfr.egfr_drop_grade, 4)
         self.assertEqual(egfr.egfr_drop_grade, 4)
 
@@ -220,9 +224,9 @@ class TestEgfr(TestCase):
         egfr = Egfr(
             baseline_egfr_value=220.1, percent_drop_threshold=20, calling_crf=crf, **opts
         )
-        self.assertEqual(round(egfr.egfr_value, 2), 156.43)
+        self.assertEqual(round_half_away_from_zero(egfr.egfr_value, 2), 156.43)
         self.assertIsNone(egfr.egfr_grade)
-        self.assertEqual(round(egfr.egfr_drop_value, 2), 28.93)
+        self.assertEqual(round_half_away_from_zero(egfr.egfr_drop_value, 2), 28.93)
         self.assertEqual(egfr.egfr_drop_grade, 2)
         self.assertTrue(
             EgfrDropNotification.objects.filter(subject_visit=subject_visit).exists()
@@ -234,9 +238,9 @@ class TestEgfr(TestCase):
         egfr = Egfr(
             baseline_egfr_value=220.1, percent_drop_threshold=20, calling_crf=crf, **opts
         )
-        self.assertEqual(round(egfr.egfr_value, 2), 162.93)
+        self.assertEqual(round_half_away_from_zero(egfr.egfr_value, 2), 162.93)
         self.assertIsNone(egfr.egfr_grade)
-        self.assertEqual(round(egfr.egfr_drop_value, 2), 25.97)
+        self.assertEqual(round_half_away_from_zero(egfr.egfr_drop_value, 2), 25.97)
         self.assertEqual(egfr.egfr_drop_grade, 2)
         self.assertTrue(
             EgfrDropNotification.objects.filter(subject_visit=subject_visit).exists()
@@ -250,9 +254,9 @@ class TestEgfr(TestCase):
         egfr = Egfr(
             baseline_egfr_value=190.1, percent_drop_threshold=20, calling_crf=crf, **opts
         )
-        self.assertEqual(round(egfr.egfr_value, 2), 156.43)
+        self.assertEqual(round_half_away_from_zero(egfr.egfr_value, 2), 156.43)
         self.assertIsNone(egfr.egfr_grade)
-        self.assertEqual(round(egfr.egfr_drop_value, 2), 17.71)
+        self.assertEqual(round_half_away_from_zero(egfr.egfr_drop_value, 2), 17.71)
         self.assertEqual(egfr.egfr_drop_grade, 2)
         self.assertEqual(egfr.egfr_drop_grade, 2)
         self.assertFalse(
@@ -262,9 +266,9 @@ class TestEgfr(TestCase):
         egfr = Egfr(
             baseline_egfr_value=100.1, percent_drop_threshold=20, calling_crf=crf, **opts
         )
-        self.assertEqual(round(egfr.egfr_value, 2), 156.43)
+        self.assertEqual(round_half_away_from_zero(egfr.egfr_value, 2), 156.43)
         self.assertIsNone(egfr.egfr_grade)
-        self.assertEqual(round(egfr.egfr_drop_value, 2), 0.0)
+        self.assertEqual(round_half_away_from_zero(egfr.egfr_drop_value, 2), 0.0)
         self.assertIsNone(egfr.egfr_drop_grade)
         self.assertFalse(
             EgfrDropNotification.objects.filter(subject_visit=subject_visit).exists()
