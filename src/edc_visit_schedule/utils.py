@@ -5,9 +5,10 @@ from typing import Any, List, Optional
 from django import forms
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 from edc_utils import formatted_datetime
 
-from .exceptions import NotOnScheduleError, OnScheduleError
+from .exceptions import OffScheduleError, OnScheduleError
 from .site_visit_schedules import SiteVisitScheduleError, site_visit_schedules
 
 
@@ -165,6 +166,22 @@ def get_offschedule_models(subject_identifier=None, report_datetime=None):
     return offschedule_models
 
 
+def get_subject_schedule_cls(model, visit_schedule, schedule):
+    try:
+        subject_schedule_cls = model.subject_schedule_cls(
+            visit_schedule=visit_schedule, schedule=schedule
+        )
+    except AttributeError as e:
+        if "subject_schedule_cls" in str(e):
+            raise AttributeError(
+                f"Was model `{model._meta.label_lower}` declared "
+                f"with `CrfScheduleModelMixin`? Got {e}"
+            )
+        else:
+            raise
+    return subject_schedule_cls
+
+
 def off_schedule_or_raise(
     subject_identifier=None,
     report_datetime=None,
@@ -189,6 +206,114 @@ def off_schedule_or_raise(
         )
 
 
+def off_all_schedules_or_raise(subject_identifier: str = None):
+    """Raises an exception if subject is still on any schedule."""
+    for visit_schedule in site_visit_schedules.get_visit_schedules().values():
+        for schedule in visit_schedule.schedules.values():
+            try:
+                with transaction.atomic():
+                    schedule.onschedule_model_cls.objects.get(
+                        subject_identifier=subject_identifier
+                    )
+            except ObjectDoesNotExist:
+                pass
+            else:
+                try:
+                    with transaction.atomic():
+                        schedule.offschedule_model_cls.objects.get(
+                            subject_identifier=subject_identifier
+                        )
+                except ObjectDoesNotExist:
+                    model_name = schedule.offschedule_model_cls()._meta.verbose_name.title()
+                    raise OffScheduleError(
+                        f"Subject cannot be taken off study. Subject is still on a "
+                        f"schedule. Got schedule '{visit_schedule.name}.{schedule.name}. "
+                        f"Complete the offschedule form `{model_name}` first. "
+                        f"Subject identifier='{subject_identifier}', "
+                    )
+    return True
+
+
+def offstudy_datetime_after_all_offschedule_datetimes(
+    subject_identifier: str = None,
+    offstudy_datetime: datetime = None,
+    exception_cls=None,
+):
+    exception_cls = exception_cls or forms.ValidationError
+    for visit_schedule in site_visit_schedules.get_visit_schedules().values():
+        for schedule in visit_schedule.schedules.values():
+            try:
+                schedule.onschedule_model_cls.objects.get(
+                    subject_identifier=subject_identifier
+                )
+            except ObjectDoesNotExist:
+                pass
+            else:
+                try:
+                    offschedule_obj = schedule.offschedule_model_cls.objects.get(
+                        subject_identifier=subject_identifier,
+                        offschedule_datetime__gt=offstudy_datetime,
+                    )
+                except ObjectDoesNotExist:
+                    pass
+                else:
+                    offschedule_datetime = formatted_datetime(
+                        offschedule_obj.offschedule_datetime
+                    )
+                    raise exception_cls(
+                        "`Offstudy` datetime cannot be before any `offschedule` datetime. "
+                        f"Got {subject_identifier} went off schedule "
+                        f"`{visit_schedule.name}.{schedule.name}` on "
+                        f"{offschedule_datetime}."
+                    )
+
+
+def report_datetime_within_onschedule_offschedule_datetimes(
+    subject_identifier: str = None,
+    report_datetime: datetime = None,
+    visit_schedule_name: str = None,
+    schedule_name: str = None,
+    exception_cls=None,
+):
+    exception_cls = exception_cls or forms.ValidationError
+    visit_schedule = site_visit_schedules.get_visit_schedule(visit_schedule_name)
+    schedule = visit_schedule.schedules.get(schedule_name)
+    try:
+        onschedule_obj = schedule.onschedule_model_cls.objects.get(
+            subject_identifier=subject_identifier
+        )
+    except ObjectDoesNotExist:
+        raise OnScheduleError(
+            f"Subject is not on schedule. {visit_schedule_name}.{schedule_name}. "
+            f"Got {subject_identifier}"
+        )
+    try:
+        offschedule_obj = schedule.offschedule_model_cls.objects.get(
+            subject_identifier=subject_identifier,
+            offschedule_datetime__lte=report_datetime,
+        )
+    except ObjectDoesNotExist:
+        offschedule_obj = None
+        offschedule_datetime = report_datetime
+    else:
+        offschedule_datetime = offschedule_obj.offschedule_datetime
+    if not (onschedule_obj.onschedule_datetime <= report_datetime <= offschedule_datetime):
+        onschedule_datetime = formatted_datetime(onschedule_obj.onschedule_datetime)
+        if offschedule_obj:
+            offschedule_datetime = formatted_datetime(offschedule_obj.offschedule_datetime)
+            error_msg = (
+                "Invalid report datetime. Expected a datetime between "
+                f"{onschedule_datetime} and {offschedule_datetime}. "
+                "See onschedule and offschedule."
+            )
+        else:
+            error_msg = (
+                "Invalid report datetime. Expected a datetime on or after "
+                f"{onschedule_datetime}. See onschedule."
+            )
+        raise exception_cls(error_msg)
+
+
 def get_onschedule_model_instance(
     subject_identifier: str,
     reference_datetime: datetime,
@@ -207,7 +332,7 @@ def get_onschedule_model_instance(
         )
     except ObjectDoesNotExist as e:
         dte_as_str = formatted_datetime(reference_datetime)
-        raise NotOnScheduleError(
+        raise OffScheduleError(
             "Subject is not on a schedule. Using subject_identifier="
             f"`{subject_identifier}` and appt_datetime=`{dte_as_str}`. Got {e}"
         )

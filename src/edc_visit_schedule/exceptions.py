@@ -10,6 +10,10 @@ class OnScheduleError(Exception):
     pass
 
 
+class OffScheduleError(Exception):
+    pass
+
+
 class NotOffScheduleError(Exception):
     pass
 
