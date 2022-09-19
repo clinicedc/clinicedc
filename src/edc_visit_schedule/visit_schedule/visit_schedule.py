@@ -2,8 +2,10 @@ import json
 import re
 
 from django.apps import apps as django_apps
-from django.conf import settings
+from edc_locator.utils import get_locator_model
+from edc_offstudy.utils import get_offstudy_model
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
+from edc_visit_tracking.utils import get_subject_visit_model
 
 from .schedules_collection import SchedulesCollection
 
@@ -51,11 +53,11 @@ class VisitSchedule:
         self._all_post_consent_models = None
         self.name = name
         self.schedules = self.schedules_collection(visit_schedule_name=name)
-        self.offstudy_model = offstudy_model or "edc_offstudy.subjectoffstudy"
+        self.offstudy_model = offstudy_model or get_offstudy_model()
         self.death_report_model = death_report_model
-        self.locator_model = locator_model or "edc_locator.subjectlocator"
+        self.locator_model = locator_model or get_locator_model()
         self.previous_visit_schedule = previous_visit_schedule
-        self.visit_model = visit_model or settings.SUBJECT_VISIT_MODEL
+        self.visit_model = visit_model or get_subject_visit_model()
         self.visit_model_reason_field = visit_model_reason_field or "reason"
         self.create_metadata_on_reasons = (
             create_metadata_on_reasons or self.create_metadata_on_reasons
@@ -103,11 +105,11 @@ class VisitSchedule:
     def check(self):
         warnings = []
         try:
-            self.offstudy_model_cls
+            getattr(self, "offstudy_model_cls")
         except LookupError as e:
             warnings.append(f"{e} See visit schedule '{self.name}'.")
         try:
-            self.death_report_model_cls
+            getattr(self, "death_report_model_cls")
         except LookupError as e:
             warnings.append(f"{e} See visit schedule '{self.name}'.")
         return warnings
