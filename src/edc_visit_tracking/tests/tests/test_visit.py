@@ -43,7 +43,7 @@ class TestVisit(TestCase):
         self.assertEqual(instance.subject_visit, subject_visit)
         self.assertEqual(instance.related_visit_model_attr(), "subject_visit")
         self.assertEqual(CrfOne.related_visit_model_attr(), "subject_visit")
-        self.assertEqual(CrfOne.visit_model_cls(), SubjectVisit)
+        self.assertEqual(CrfOne.related_visit_model_cls(), SubjectVisit)
 
     def test_crf_related_visit_model_attrs(self):
         """Assert models using the CrfModelMixin can determine which
@@ -56,7 +56,7 @@ class TestVisit(TestCase):
         """Assert models using the CrfModelMixin can determine which
         visit model is in use for the app_label.
         """
-        self.assertEqual(CrfOne().visit_model_cls(), SubjectVisit)
+        self.assertEqual(CrfOne().related_visit_model_cls(), SubjectVisit)
         self.assertEqual(CrfOne.objects.all().count(), 0)
 
     def test_crf_inline_model_attrs(self):

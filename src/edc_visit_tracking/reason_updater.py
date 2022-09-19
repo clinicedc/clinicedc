@@ -1,4 +1,6 @@
-from typing import Any, Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -10,6 +12,9 @@ from edc_visit_schedule.utils import is_baseline
 
 from .constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 from .utils import get_subject_visit_missed_model_cls
+
+if TYPE_CHECKING:
+    from edc_appointment.models import Appointment
 
 
 class SubjectVisitReasonUpdaterError(Exception):
@@ -37,14 +42,14 @@ class SubjectVisitReasonUpdater(MetadataHelperMixin):
     response from appointment timing and appointment reason.
     """
 
-    metadata_helper_instance_attr = "appointment"
+    metadata_helper_instance_attr: str = "appointment"
 
     def __init__(
         self,
-        appointment: Optional[Any] = None,
-        appt_timing: Optional[str] = None,
-        appt_reason: Optional[str] = None,
-        commit: Optional[bool] = None,
+        appointment: Appointment = None,
+        appt_timing: str = None,
+        appt_reason: str = None,
+        commit: bool | None = None,
     ):
         self.appointment = appointment
         if not getattr(self.appointment, "id", None):
@@ -60,15 +65,15 @@ class SubjectVisitReasonUpdater(MetadataHelperMixin):
             )
         self.appt_reason = appt_reason or self.appointment.appt_reason
         try:
-            self.subject_visit = getattr(
+            self.related_visit = getattr(
                 self.appointment, self.appointment.related_visit_model_attr()
             )
         except ObjectDoesNotExist:
-            self.subject_visit = None
+            self.related_visit = None
         except AttributeError as e:
             if "related_visit_model_attr" not in str(e):
                 raise
-            self.subject_visit = None
+            self.related_visit = None
 
     def update_or_raise(self) -> None:
         if self.appt_timing == MISSED_APPT and is_baseline(instance=self.appointment):
@@ -93,31 +98,31 @@ class SubjectVisitReasonUpdater(MetadataHelperMixin):
 
     def _update_visit_to_missed_or_raise(self) -> None:
         self.missed_visit_allowed_or_raise()
-        if self.subject_visit:
-            self.subject_visit.reason = MISSED_VISIT
-            self.subject_visit.document_status = INCOMPLETE
+        if self.related_visit:
+            self.related_visit.reason = MISSED_VISIT
+            self.related_visit.document_status = INCOMPLETE
             if self.commit:
-                self.subject_visit.save_base(update_fields=["reason", "document_status"])
-                self.subject_visit.refresh_from_db()
+                self.related_visit.save_base(update_fields=["reason", "document_status"])
+                self.related_visit.refresh_from_db()
 
     def _update_visit_to_not_missed_or_raise(self) -> None:
         """Updates the subject visit instance from MISSED_VISIT
         to SCHEDULED or UNSCHEDULED.
         """
-        if self.subject_visit:
+        if self.related_visit:
             reason = self.get_reason_from_appt_reason(self.appt_reason)
             self.delete_subject_visit_missed_if_exists()
-            self.subject_visit.reason = reason
-            self.subject_visit.document_status = INCOMPLETE
-            if self.subject_visit.comments:
-                self.subject_visit.comments = self.subject_visit.comments.replace(
+            self.related_visit.reason = reason
+            self.related_visit.document_status = INCOMPLETE
+            if self.related_visit.comments:
+                self.related_visit.comments = self.related_visit.comments.replace(
                     "[auto-created]", ""
                 )
             if self.commit:
-                self.subject_visit.save_base(
+                self.related_visit.save_base(
                     update_fields=["reason", "document_status", "comments"]
                 )
-                self.subject_visit.refresh_from_db()
+                self.related_visit.refresh_from_db()
 
     def missed_visit_allowed_or_raise(self) -> None:
         """Raises an exception if not allowed.

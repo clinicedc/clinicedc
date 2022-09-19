@@ -1,0 +1,2 @@
+class RelatedVisitFieldError(Exception):
+    pass

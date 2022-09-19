@@ -119,7 +119,6 @@ class TestVisit(TestCase):
         subject_visit.save()
         self.assertEqual(1, CrfMetadata.objects.filter(**opts).count())
 
-    @tag("mis")
     def test_subject_visit_missed_form_survivial_and_ltfu(self):
         self.helper.consent_and_put_on_schedule()
         _, subject_visit = self.get_subject_visit()
@@ -149,7 +148,7 @@ class TestVisit(TestCase):
         form.is_valid()
         self.assertIn("ltfu", form._errors)
 
-    @tag("mis")
+    @tag("1")
     def test_subject_visit_missed_form_missed_reasons(self):
         self.helper.consent_and_put_on_schedule()
         _, subject_visit = self.get_subject_visit()
@@ -172,7 +171,6 @@ class TestVisit(TestCase):
         form.is_valid()
         self.assertIn("missed_reasons_other", form._errors)
 
-    @tag("mis")
     def test_subject_visit_missed_form_attempts(self):
         self.helper.consent_and_put_on_schedule()
         _, subject_visit = self.get_subject_visit()
@@ -193,6 +191,7 @@ class TestVisit(TestCase):
         data.update(contact_attempted=YES, contact_made=NO, contact_attempts_count=None)
         form = SubjectVisitMissedForm(data=data)
         form.is_valid()
+
         self.assertIn("contact_attempts_count", form._errors)
 
         data.update(contact_attempted=YES, contact_made=NO, contact_attempts_count=2)

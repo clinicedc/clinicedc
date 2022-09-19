@@ -1,6 +1,11 @@
-from typing import Any, Tuple
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Tuple
 
 from django.contrib import admin
+
+if TYPE_CHECKING:
+    from ..model_mixins import VisitModelMixin, VisitTrackingCrfModelMixin
 
 
 class CrfModelAdminMixin:
@@ -11,13 +16,13 @@ class CrfModelAdminMixin:
 
     date_hierarchy = "report_datetime"
 
-    def visit_reason(self, obj=None) -> str:
+    def visit_reason(self, obj: VisitTrackingCrfModelMixin | None = None) -> str:
         return getattr(obj, self.related_visit_model_attr()).reason
 
-    def visit_code(self, obj=None) -> str:
+    def visit_code(self, obj: VisitTrackingCrfModelMixin | None = None) -> str:
         return getattr(obj, self.related_visit_model_attr()).appointment.visit_code
 
-    def subject_identifier(self, obj=None) -> str:
+    def subject_identifier(self, obj: VisitTrackingCrfModelMixin | None = None) -> str:
         return getattr(obj, self.related_visit_model_attr()).subject_identifier
 
     def get_list_display(self, request) -> Tuple[str, ...]:
@@ -55,8 +60,8 @@ class CrfModelAdminMixin:
         return tuple(f for f in list_filter if f not in fields) + fields
 
     @property
-    def visit_model(self: admin.ModelAdmin) -> Any:
-        return self.model.visit_model_cls()
+    def visit_model(self: admin.ModelAdmin) -> VisitModelMixin:
+        return self.model.related_visit_model_cls()
 
     def related_visit_model_attr(self: admin.ModelAdmin) -> str:
         return self.model.related_visit_model_attr()

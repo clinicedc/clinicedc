@@ -9,18 +9,21 @@ from ..crf_date_validator import (
     CrfReportDateBeforeStudyStart,
     CrfReportDateIsFuture,
 )
-from .utils import get_subject_visit
+from .utils import get_related_visit
 
 
 class VisitTrackingModelFormMixin:
     """Validates subject visit and report datetime.
 
     Usually included in the form class declaration with
-    `SubjectScheduleModelFormMixin`.
+    `CRfScheduleModelFormMixin`.
     """
 
     crf_date_validator_cls = CrfDateValidator
     report_datetime_allowance = getattr(settings, "DEFAULT_REPORT_DATETIME_ALLOWANCE", 0)
+
+    # may also be appt_datetime or requisition_datetime
+    report_datetime_field_attr = "report_datetime"
 
     def clean(self: Any) -> dict:
         """Triggers a validation error if subject visit is None.
@@ -37,30 +40,30 @@ class VisitTrackingModelFormMixin:
         # trigger a validation error if visit field is None
         # no comment needed since django will catch it as
         # a required field.
-        if not getattr(self, self.related_visit_model_attr()):
+        if not self.related_visit:
             if self.related_visit_model_attr() in self.cleaned_data:
                 raise forms.ValidationError({self.related_visit_model_attr(): ""})
             else:
                 raise forms.ValidationError(
                     f"Field `{self.related_visit_model_attr()}` is required (1)."
                 )
-        elif self.cleaned_data.get("report_datetime"):
+        elif self.cleaned_data.get(self.report_datetime_field_attr):
             try:
                 self.crf_date_validator_cls(
                     report_datetime_allowance=self.report_datetime_allowance,
-                    report_datetime=self.cleaned_data.get("report_datetime"),
-                    visit_report_datetime=self.subject_visit.report_datetime,
+                    report_datetime=self.cleaned_data.get(self.report_datetime_field_attr),
+                    visit_report_datetime=self.related_visit.report_datetime,
                 )
             except (
                 CrfReportDateAllowanceError,
                 CrfReportDateBeforeStudyStart,
                 CrfReportDateIsFuture,
             ) as e:
-                raise forms.ValidationError({"report_datetime": str(e)})
+                raise forms.ValidationError({self.report_datetime_field_attr: str(e)})
 
     @property
-    def subject_visit(self: Any) -> Any:
-        return get_subject_visit(
+    def related_visit(self: Any) -> Any:
+        return get_related_visit(
             self, related_visit_model_attr=self.related_visit_model_attr()
         )
 
