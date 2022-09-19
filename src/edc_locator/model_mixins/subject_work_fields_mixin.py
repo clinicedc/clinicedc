@@ -11,8 +11,9 @@ class SubjectWorkFieldsMixin(models.Model):
         max_length=25,
         choices=YES_NO,
         verbose_name=format_html(
-            "Has the participant given permission to contacted <b>at work</b> by telephone "
-            "or cell by study staff for follow-up purposes during the study?"
+            "Has the participant given permission to be contacted "
+            "<b>at work</b>, by telephone or cell, by study staff for follow-up "
+            "purposes during the study?"
         ),
     )
 

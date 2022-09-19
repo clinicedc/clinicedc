@@ -4,6 +4,7 @@ from edc_constants.constants import HIGH_PRIORITY
 SUBJECT_LOCATOR_ACTION = "submit-subject-locator"
 
 
+# TODO: reference model name may not match that specified in visit schedule??
 class SubjectLocatorAction(Action):
     name = SUBJECT_LOCATOR_ACTION
     display_name = "Submit Subject Locator"
