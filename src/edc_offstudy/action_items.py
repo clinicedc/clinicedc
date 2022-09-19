@@ -5,11 +5,13 @@ from edc_ltfu.constants import LTFU_ACTION
 from edc_unblinding.constants import UNBLINDING_REVIEW_ACTION
 
 from .constants import END_OF_STUDY_ACTION
+from .utils import get_offstudy_model_cls
 
 
+# TODO: reference model name may not match that specified in visit schedule??
 class EndOfStudyAction(ActionWithNotification):
 
-    reference_model = None  # "inte_prn.endofstudy"
+    reference_model = get_offstudy_model_cls()
     admin_site_name = None  # "inte_prn_admin"
 
     name = END_OF_STUDY_ACTION

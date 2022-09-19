@@ -1,32 +1,30 @@
 from django import forms
-from django.apps import apps as django_apps
-from django.core.exceptions import ImproperlyConfigured
 
-from ..utils import OffstudyError, raise_if_offstudy
+from ..exceptions import OffstudyError
+from ..utils import raise_if_offstudy
 
 
-class OffstudyNonCrfModelFormMixin(forms.ModelForm):
+class OffstudyNonCrfModelFormMixin:
+    """ModelForm mixin for non-CRF modelforms / PRNs."""
 
-    """ModelForm mixin for non-CRF modelforms."""
+    report_datetime_field_attr = "report_datetime"
 
     def clean(self):
         cleaned_data = super().clean()
-        if (
-            not self._meta.model._meta.offstudy_model_cls
-            and not self._meta.model._meta.offstudy_model
-        ):
-            raise ImproperlyConfigured(
-                f"Attribute offstudy_model not defined. See {repr(self)}."
-            )
+        self.cleaned_data["subject_identifier"] = (
+            self.cleaned_data.get("subject_identifier") or self.instance.subject_identifier
+        )
+        self.raise_if_offstudy()
+        return cleaned_data
+
+    def raise_if_offstudy(self) -> None:
         try:
             raise_if_offstudy(
-                subject_identifier=cleaned_data.get("subject_identifier"),
-                report_datetime=cleaned_data.get("report_datetime"),
-                offstudy_model_cls=(
-                    self._meta.model._meta.offstudy_model_cls
-                    or django_apps.get_model(self._meta.model._meta.offstudy_model)
-                ),
+                source_obj=self.instance,
+                subject_identifier=self.cleaned_data.get("subject_identifier"),
+                report_datetime=self.cleaned_data.get(self.report_datetime_field_attr),
+                visit_schedule_name=getattr(self.instance, "visit_schedule_name", None),
+                offstudy_model=getattr(self.instance, "offstudy_model", None),
             )
         except OffstudyError as e:
-            raise forms.ValidationError(f"{e}")
-        return cleaned_data
+            raise forms.ValidationError(e)

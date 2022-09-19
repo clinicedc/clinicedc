@@ -1,43 +1,39 @@
+from __future__ import annotations
+
 from typing import Any
 
-from django.apps import apps as django_apps
-from django.core.exceptions import ImproperlyConfigured
+from django.conf import settings
 from django.db import models
-from django.db.models import options
 
 from ..utils import raise_if_offstudy
 
-if "offstudy_model" not in options.DEFAULT_NAMES:
-    options.DEFAULT_NAMES = options.DEFAULT_NAMES + ("offstudy_model",)
-if "offstudy_model_cls" not in options.DEFAULT_NAMES:
-    options.DEFAULT_NAMES = options.DEFAULT_NAMES + ("offstudy_model_cls",)
+
+class OffstudyNonCrfModelError(Exception):
+    pass
 
 
 class OffstudyNonCrfModelMixin(models.Model):
 
-    """A mixin for non-CRF models to add the ability to determine
+    """Model mixin for non-CRF, PRN, visit, appt models.
+
+    A mixin for non-CRF models to add the ability to determine
     if the subject is off study as of this non-CRFs report_datetime.
 
-    Requires "subject_identifier" and "report_datetime"
-
+    Requires fields subject_identifier, report_datetime,
+    visit_schedule_name. If visit_schedule_name is not on the model,
+    use method offstudy_model_cls,
     """
 
+    offstudy_model: str | None = getattr(settings, "EDC_OFFSTUDY_OFFSTUDY_MODEL", None)
+
     def save(self: Any, *args, **kwargs):
-        if not self._meta.offstudy_model_cls and not self._meta.offstudy_model:
-            raise ImproperlyConfigured(
-                f"Attribute offstudy_model not defined. See {repr(self)}."
-            )
         raise_if_offstudy(
+            source_obj=self,
             subject_identifier=self.subject_identifier,
             report_datetime=self.report_datetime,
-            offstudy_model_cls=(
-                self._meta.offstudy_model_cls
-                or django_apps.get_model(self._meta.offstudy_model)
-            ),
+            offstudy_model=self.offstudy_model,
         )
         super().save(*args, **kwargs)
 
     class Meta:
         abstract = True
-        offstudy_model = None
-        offstudy_model_cls = None
