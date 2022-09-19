@@ -5,7 +5,9 @@ from ..utils import raise_if_offstudy
 
 class OffstudyCrfModelMixin(models.Model):
 
-    """A mixin for CRF models to add the ability to determine
+    """Model mixin for CRF models.
+
+    A mixin for CRF models to add the ability to determine
     if the subject is off study as of this CRFs report_datetime.
 
     CRFs by definition include CrfModelMixin in their declaration.
@@ -15,14 +17,15 @@ class OffstudyCrfModelMixin(models.Model):
     """
 
     def save(self, *args, **kwargs):
-        self.validate_study_status()
+        self.raise_if_offstudy()
         super().save(*args, **kwargs)
 
-    def validate_study_status(self):
+    def raise_if_offstudy(self):
         raise_if_offstudy(
+            source_obj=self,
             subject_identifier=self.related_visit.subject_identifier,
             report_datetime=self.report_datetime,
-            offstudy_model_cls=self.related_visit.visit_schedule.offstudy_model_cls,
+            visit_schedule_name=self.related_visit.visit_schedule_name,
         )
 
     class Meta:

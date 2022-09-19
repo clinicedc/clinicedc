@@ -6,7 +6,7 @@ from ..modelform_mixins import (
     OffstudyNonCrfModelFormMixin,
 )
 from ..models import SubjectOffstudy
-from .models import BadNonCrfOne, CrfOne, NonCrfOne
+from .models import CrfOne, NonCrfOne
 
 
 class SubjectOffstudyForm(OffstudyModelFormMixin, forms.ModelForm):
@@ -24,10 +24,4 @@ class CrfOneForm(OffstudyCrfModelFormMixin, forms.ModelForm):
 class NonCrfOneForm(OffstudyNonCrfModelFormMixin, forms.ModelForm):
     class Meta:
         model = NonCrfOne
-        fields = "__all__"
-
-
-class BadNonCrfOneForm(OffstudyNonCrfModelFormMixin, forms.ModelForm):
-    class Meta:
-        model = BadNonCrfOne
         fields = "__all__"

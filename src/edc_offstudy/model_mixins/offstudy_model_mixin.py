@@ -6,9 +6,13 @@ from edc_model.validators import datetime_not_future
 from edc_model_fields.fields import OtherCharField
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_utils import formatted_datetime, get_utcnow
+from edc_visit_schedule.utils import (
+    off_all_schedules_or_raise,
+    offstudy_datetime_after_all_offschedule_datetimes,
+)
 
 from ..choices import OFFSTUDY_REASONS
-from ..utils import off_all_schedules_or_raise
+from ..utils import OffstudyError
 
 
 class OffstudyModelMixinError(ValidationError):
@@ -60,9 +64,11 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
         return f"{self.subject_identifier} {formatted_datetime(local)}"
 
     def save(self, *args, **kwargs):
-        off_all_schedules_or_raise(
+        off_all_schedules_or_raise(subject_identifier=self.subject_identifier)
+        offstudy_datetime_after_all_offschedule_datetimes(
             subject_identifier=self.subject_identifier,
             offstudy_datetime=self.offstudy_datetime,
+            exception_cls=OffstudyError,
         )
         super().save(*args, **kwargs)
 

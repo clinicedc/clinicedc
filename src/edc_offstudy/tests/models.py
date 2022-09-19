@@ -21,7 +21,6 @@ from ..model_mixins import (
     OffstudyNonCrfModelMixin,
     OffstudyVisitModelMixin,
 )
-from ..models import SubjectOffstudy
 
 
 class SubjectConsent(
@@ -93,16 +92,6 @@ class CrfOne(OffstudyCrfModelMixin, VisitTrackingCrfModelMixin, BaseUuidModel):
 
 
 class NonCrfOne(NonUniqueSubjectIdentifierFieldMixin, OffstudyNonCrfModelMixin, BaseUuidModel):
-
-    report_datetime = models.DateTimeField(default=get_utcnow)
-
-    class Meta(OffstudyNonCrfModelMixin.Meta):
-        offstudy_model_cls = SubjectOffstudy
-
-
-class BadNonCrfOne(
-    NonUniqueSubjectIdentifierFieldMixin, OffstudyNonCrfModelMixin, BaseUuidModel
-):
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
