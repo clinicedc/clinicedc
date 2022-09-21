@@ -60,9 +60,8 @@ class EdcCrfTestCase(TestCase):
 
     @override_settings(CRF_STATUS_DEFAULT=COMPLETE)
     def test_default_complete(self):
-        """Note this settings attr works for EXISTING instances, not new ones"""
         crf_obj = Crf.objects.create(subject_visit=self.subject_visit)
-        self.assertEqual(crf_obj.crf_status, INCOMPLETE)
+        self.assertEqual(crf_obj.crf_status, COMPLETE)
 
     def test_creates_crf_status(self):
         crf_obj = Crf.objects.create(subject_visit=self.subject_visit)
@@ -90,7 +89,7 @@ class EdcCrfTestCase(TestCase):
         class MyFormValidator(CrfFormValidatorMixin, FormValidator):
             def clean(self) -> None:
                 """test all methods"""
-                _ = self.subject_visit
+                _ = self.related_visit
                 _ = self.subject_consent
                 _ = self.subject_identifier
                 _ = self.report_datetime
