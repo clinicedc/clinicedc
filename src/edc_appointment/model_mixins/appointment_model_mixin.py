@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import uuid
 from datetime import datetime
-from typing import Union
+from typing import TYPE_CHECKING, Union
 from uuid import UUID
 
 from django.apps import apps as django_apps
@@ -21,12 +23,14 @@ from edc_visit_schedule.utils import is_baseline
 from ..constants import IN_PROGRESS_APPT
 from ..exceptions import UnknownVisitCode
 from ..managers import AppointmentManager
-from ..stubs import AppointmentModelStub
 from ..utils import update_appt_status
 from .appointment_fields_model_mixin import AppointmentFieldsModelMixin
 from .appointment_methods_model_mixin import AppointmentMethodsModelMixin
 from .missed_appointment_model_mixin import MissedAppointmentModelMixin
 from .window_period_model_mixin import WindowPeriodModelMixin
+
+if TYPE_CHECKING:
+    from ..models import Appointment
 
 
 class AppointmentModelMixin(
@@ -56,7 +60,7 @@ class AppointmentModelMixin(
     def __str__(self) -> str:
         return f"{self.subject_identifier} {self.visit_code}.{self.visit_code_sequence}"
 
-    def save(self, *args, **kwargs):
+    def save(self: Appointment, *args, **kwargs):
         if not kwargs.get("update_fields", None):
             if self.id and is_baseline(instance=self):
                 visit_schedule = site_visit_schedules.get_visit_schedule(
@@ -103,13 +107,13 @@ class AppointmentModelMixin(
         )
 
     @property
-    def str_pk(self: AppointmentModelStub) -> Union[str, uuid.UUID]:
+    def str_pk(self: Appointment) -> Union[str, uuid.UUID]:
         if isinstance(self.id, UUID):
             return str(self.pk)
         return self.pk
 
     @property
-    def title(self: AppointmentModelStub) -> str:
+    def title(self: Appointment) -> str:
         if not self.schedule.visits.get(self.visit_code):
             valid_visit_codes = [v for v in self.schedule.visits]
             raise UnknownVisitCode(
@@ -124,7 +128,7 @@ class AppointmentModelMixin(
         return title
 
     @property
-    def report_datetime(self: AppointmentModelStub) -> datetime:
+    def report_datetime(self: Appointment) -> datetime:
         return self.appt_datetime
 
     class Meta:

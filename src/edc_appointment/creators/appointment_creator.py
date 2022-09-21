@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -13,6 +14,9 @@ from edc_facility.facility import Facility, FacilityError
 from edc_visit_schedule.utils import is_baseline
 
 from ..constants import CLINIC, SCHEDULED_APPT
+
+if TYPE_CHECKING:
+    from ..models import Appointment
 
 
 class CreateAppointmentError(Exception):
@@ -27,12 +31,16 @@ class AppointmentCreatorError(Exception):
     pass
 
 
+if TYPE_CHECKING:
+    from edc_visit_schedule.visit import Visit
+
+
 class AppointmentCreator:
     def __init__(
         self,
         timepoint_datetime: datetime = None,
         timepoint: int | None = None,
-        visit=None,  # from edc_visit_schedule
+        visit: Visit | None = None,  # from edc_visit_schedule
         visit_code_sequence: int | None = None,
         facility: Facility | None = None,
         appointment_model: str = None,
@@ -102,11 +110,11 @@ class AppointmentCreator:
     def __str__(self):
         return self.subject_identifier
 
-    def get_appointment(self):
+    def get_appointment(self) -> Appointment:
         return self.appointment
 
     @property
-    def appointment(self):
+    def appointment(self) -> Appointment:
         """Returns a newly created or updated appointment model instance."""
         if not self._appointment:
             try:
@@ -118,7 +126,7 @@ class AppointmentCreator:
         return self._appointment
 
     @property
-    def options(self):
+    def options(self) -> dict:
         """Returns default options to "get" an existing
         appointment model instance.
         """
@@ -134,7 +142,7 @@ class AppointmentCreator:
             options.update(appt_status=self.appt_status)
         return options
 
-    def _create(self):
+    def _create(self) -> Appointment:
         """Returns a newly created appointment model instance."""
         try:
             with transaction.atomic():
@@ -155,7 +163,7 @@ class AppointmentCreator:
             )
         return appointment
 
-    def _update(self, appointment=None):
+    def _update(self, appointment=None) -> Appointment:
         """Returns an updated appointment model instance."""
         if is_baseline(instance=appointment) and self.skip_baseline:
             pass
@@ -167,7 +175,7 @@ class AppointmentCreator:
         return appointment
 
     @property
-    def appt_datetime(self):
+    def appt_datetime(self) -> datetime:
         """Returns an available appointment datetime.
 
         Raises an CreateAppointmentDateError if none.
@@ -193,12 +201,12 @@ class AppointmentCreator:
         return arw.datetime
 
     @property
-    def appointment_model_cls(self):
+    def appointment_model_cls(self) -> Appointment:
         """Returns the appointment model class."""
         return django_apps.get_model("edc_appointment.appointment")
 
     @property
-    def default_appt_type(self):
+    def default_appt_type(self) -> str:
         """Returns a string that is the default appointment
         type, e.g. 'clinic'.
         """
@@ -210,7 +218,7 @@ class AppointmentCreator:
         return self._default_appt_type
 
     @property
-    def default_appt_reason(self):
+    def default_appt_reason(self) -> str:
         """Returns a string that is the default appointment reason
         type, e.g. 'scheduled'.
         """

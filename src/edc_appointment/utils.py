@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any, Dict, Tuple
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -24,18 +24,20 @@ from .constants import (
     UNSCHEDULED_APPT,
 )
 from .exceptions import AppointmentWindowError
-from .stubs import AppointmentModelStub
+
+if TYPE_CHECKING:
+    from .models import Appointment
 
 
 def get_appointment_model_name() -> str:
     return "edc_appointment.appointment"
 
 
-def get_appointment_model_cls() -> Any:
+def get_appointment_model_cls() -> Appointment:
     return django_apps.get_model(get_appointment_model_name())
 
 
-def get_appt_reason_choices() -> tuple:
+def get_appt_reason_choices() -> Tuple[str, ...]:
     """Returns a customized tuple of choices otherwise the default"""
     settings_attr = "EDC_APPOINTMENT_APPT_REASON_CHOICES"
     appt_reason_choices = getattr(settings, settings_attr, DEFAULT_APPT_REASON_CHOICES)
@@ -43,29 +45,32 @@ def get_appt_reason_choices() -> tuple:
     for key in [SCHEDULED_APPT, UNSCHEDULED_APPT]:
         if key not in required_keys:
             raise ImproperlyConfigured(
-                f"Invalid APPT_REASON_CHOICES. Missing key `{key}`. See {settings_attr}."
+                "Invalid value for EDC_APPOINTMENT_APPT_REASON_CHOICES. "
+                f"Missing key `{key}`. See {settings_attr}."
             )
     return appt_reason_choices
 
 
-def cancelled_appointment(instance: Any):
+def cancelled_appointment(appointment: Appointment) -> None:
     try:
-        cancelled = instance.appt_status == CANCELLED_APPT
+        cancelled = appointment.appt_status == CANCELLED_APPT
     except AttributeError as e:
         if "appt_status" not in str(e):
             raise
     else:
         if (
             cancelled
-            and instance.visit_code_sequence > 0
-            and "historical" not in instance._meta.label_lower
-            and not instance.crf_metadata_keyed_exists
-            and not instance.requisition_metadata_keyed_exists
+            and appointment.visit_code_sequence > 0
+            and "historical" not in appointment._meta.label_lower
+            and not appointment.crf_metadata_keyed_exists
+            and not appointment.requisition_metadata_keyed_exists
         ):
             try:
-                subject_visit = instance.visit_model_cls().objects.get(appointment=instance)
+                subject_visit = appointment.related_visit_model_cls().objects.get(
+                    appointment=appointment
+                )
             except ObjectDoesNotExist:
-                instance.delete()
+                appointment.delete()
             else:
                 with transaction.atomic():
                     try:
@@ -73,23 +78,23 @@ def cancelled_appointment(instance: Any):
                     except ProtectedError:
                         pass
                     else:
-                        instance.delete()
+                        appointment.delete()
 
 
-def missed_appointment(instance: Any):
+def missed_appointment(appointment: Appointment) -> None:
     try:
-        missed = instance.appt_timing == MISSED_APPT
+        missed = appointment.appt_timing == MISSED_APPT
     except AttributeError as e:
         if "appt_timing" not in str(e):
             raise
     else:
         if (
             missed
-            and instance.visit_code_sequence == 0
-            and "historical" not in instance._meta.label_lower
+            and appointment.visit_code_sequence == 0
+            and "historical" not in appointment._meta.label_lower
         ):
             try:
-                instance.create_missed_visit_from_appointment()
+                appointment.create_missed_visit_from_appointment()
             except AttributeError as e:
                 if "create_missed_visit" not in str(e):
                     raise
@@ -131,11 +136,6 @@ def update_unscheduled_appointment_sequence(subject_identifier: str) -> None:
                     requisition.save_base(update_fields=["visit_code_sequence"])
 
 
-def insert_appointment_in_sequence(appointment: Any, proposed_visit_code_sequence: int) -> Any:
-
-    return appointment
-
-
 def delete_appointment_in_sequence(appointment: Any, from_post_delete=None) -> None:
     if not from_post_delete:
         with transaction.atomic():
@@ -144,7 +144,7 @@ def delete_appointment_in_sequence(appointment: Any, from_post_delete=None) -> N
     return None
 
 
-def raise_on_appt_datetime_not_in_window(appointment) -> None:
+def raise_on_appt_datetime_not_in_window(appointment: Appointment) -> None:
     if not is_baseline(instance=appointment):
         baseline_timepoint_datetime = appointment.__class__.objects.first_appointment(
             subject_identifier=appointment.subject_identifier,
@@ -169,7 +169,7 @@ def raise_on_appt_datetime_not_in_window(appointment) -> None:
             raise AppointmentWindowError(msg)
 
 
-def update_appt_status(appointment: AppointmentModelStub, save=None):
+def update_appt_status(appointment: Appointment, save: bool | None = None):
     """Sets appt_status, and if save is True, calls save_base().
 
     This is useful if checking `appt_status` is correct
@@ -194,7 +194,9 @@ def update_appt_status(appointment: AppointmentModelStub, save=None):
     return appointment
 
 
-def get_previous_appointment(appointment, include_interim=None) -> AppointmentModelStub | None:
+def get_previous_appointment(
+    appointment: Appointment, include_interim: bool | None = None
+) -> Appointment | None:
     """Returns the previous appointment model instance,
     or None, in this schedule.
 
@@ -204,15 +206,17 @@ def get_previous_appointment(appointment, include_interim=None) -> AppointmentMo
 
     See also: `AppointmentMethodsModelMixin`
     """
-    opts = dict(
+    opts: Dict[Any] = dict(
         subject_identifier=appointment.subject_identifier,
         visit_schedule_name=appointment.visit_schedule_name,
         schedule_name=appointment.schedule_name,
     )
     if include_interim:
         if appointment.visit_code_sequence != 0:
-            opts.update(timepoint__lte=appointment.timepoint)
-            opts.update(visit_code_sequence__lt=appointment.visit_code_sequence)
+            opts.update(
+                timepoint__lte=appointment.timepoint,
+                visit_code_sequence__lt=appointment.visit_code_sequence,
+            )
         else:
             opts.update(timepoint__lt=appointment.timepoint)
     elif not include_interim:
@@ -233,7 +237,7 @@ def get_previous_appointment(appointment, include_interim=None) -> AppointmentMo
     return previous_appt
 
 
-def get_next_appointment(appointment, include_interim=None) -> AppointmentModelStub | None:
+def get_next_appointment(appointment: Appointment, include_interim=None) -> Appointment | None:
     """Returns the next appointment model instance,
     or None, in this schedule.
 
@@ -243,8 +247,8 @@ def get_next_appointment(appointment, include_interim=None) -> AppointmentModelS
 
     See also: `AppointmentMethodsModelMixin`
     """
-    next_appt = None
-    opts = dict(
+    next_appt: Appointment | None = None
+    opts: Dict[Any] = dict(
         subject_identifier=appointment.subject_identifier,
         visit_schedule_name=appointment.visit_schedule_name,
         schedule_name=appointment.schedule_name,

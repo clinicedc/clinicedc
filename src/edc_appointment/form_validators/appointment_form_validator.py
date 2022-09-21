@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from datetime import datetime
 from logging import warning
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from arrow.arrow import Arrow
 from django.apps import apps as django_apps
@@ -40,6 +42,9 @@ from ..constants import (
 from ..utils import get_previous_appointment
 from .utils import validate_appt_datetime_unique
 from .window_period_form_validator_mixin import WindowPeriodFormValidatorMixin
+
+if TYPE_CHECKING:
+    from ..models import Appointment
 
 INVALID_APPT_DATE = "invalid_appt_datetime"
 INVALID_APPT_STATUS = "invalid_appt_status"
@@ -105,7 +110,7 @@ class AppointmentFormValidator(
             self.validate_appointment_timing()
 
     @property
-    def appointment_model_cls(self) -> Any:
+    def appointment_model_cls(self) -> Appointment:
         return django_apps.get_model(self.appointment_model)
 
     @property
@@ -382,7 +387,7 @@ class AppointmentFormValidator(
     def validate_appt_new_or_complete(self: Any) -> None:
         appt_status = self.cleaned_data.get("appt_status")
         if (
-            appt_status not in [COMPLETE_APPT, NEW_APPT]
+            appt_status not in [COMPLETE_APPT, NEW_APPT, IN_PROGRESS_APPT]
             and self.crf_metadata_exists
             and self.requisition_metadata_exists
             and not self.crf_metadata_required_exists

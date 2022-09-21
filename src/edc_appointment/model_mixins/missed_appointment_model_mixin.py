@@ -1,4 +1,6 @@
-from typing import Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -8,14 +10,19 @@ from edc_visit_tracking.reason_updater import SubjectVisitReasonUpdater
 
 from ..constants import IN_PROGRESS_APPT, MISSED_APPT
 
+if TYPE_CHECKING:
+    from ..models import Appointment
+
 
 class MissedAppointmentModelMixin(models.Model):
-    def create_missed_visit_from_appointment(self: Any):
+    def create_missed_visit_from_appointment(self: Appointment):
         if self.appt_timing == MISSED_APPT:
             try:
-                subject_visit = self.visit_model_cls().objects.get(appointment__id=self.id)
+                subject_visit = self.related_visit_model_cls().objects.get(
+                    appointment__id=self.id
+                )
             except ObjectDoesNotExist:
-                self.visit_model_cls().objects.create_missed_from_appointment(
+                self.related_visit_model_cls().objects.create_missed_from_appointment(
                     appointment=self,
                 )
             else:
@@ -23,7 +30,7 @@ class MissedAppointmentModelMixin(models.Model):
                 subject_visit.document_status = INCOMPLETE
                 subject_visit.save_base(update_fields=["reason", "document_status"])
 
-    def update_subject_visit_reason_or_raise(self: Any):
+    def update_subject_visit_reason_or_raise(self: Appointment):
         """Trys to update the subject_visit.reason field, if it
         exists, when appt_timing changes, or raises.
         """

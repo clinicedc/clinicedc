@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from datetime import datetime
-from typing import Any, Optional
+from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
 from django.apps import apps as django_apps
@@ -7,6 +9,12 @@ from django.db.models.deletion import ProtectedError
 from edc_facility import FacilityError
 
 from .appointment_creator import AppointmentCreator, CreateAppointmentError
+
+if TYPE_CHECKING:
+    from edc_visit_schedule.schedule import Schedule
+    from edc_visit_schedule.visit_schedule import VisitSchedule
+
+    from ..models import Appointment
 
 
 class AppointmentsCreator:
@@ -22,12 +30,12 @@ class AppointmentsCreator:
 
     def __init__(
         self,
-        subject_identifier: Optional[str] = None,
-        visit_schedule: Optional[Any] = None,
-        schedule: Optional[Any] = None,
-        report_datetime: Optional[datetime] = None,
-        appointment_model: Optional[Any] = None,
-        skip_baseline: Optional[bool] = None,
+        subject_identifier: str | None = None,
+        visit_schedule: VisitSchedule | None = None,
+        schedule: Schedule | None = None,
+        report_datetime: datetime | None = None,
+        appointment_model: Appointment = None,
+        skip_baseline: bool | None = None,
     ):
         self.subject_identifier = subject_identifier
         self.visit_schedule = visit_schedule
@@ -36,7 +44,9 @@ class AppointmentsCreator:
         self.appointment_model = appointment_model
         self.skip_baseline = skip_baseline
 
-    def create_appointments(self, base_appt_datetime=None, taken_datetimes=None):
+    def create_appointments(
+        self, base_appt_datetime=None, taken_datetimes=None
+    ) -> list[Appointment]:
         """Creates appointments when called by post_save signal.
 
         Timepoint datetimes are adjusted according to the available
@@ -66,7 +76,7 @@ class AppointmentsCreator:
             taken_datetimes.append(appointment.appt_datetime)
         return appointments
 
-    def update_or_create_appointment(self, **kwargs):
+    def update_or_create_appointment(self, **kwargs) -> Appointment:
         """Updates or creates an appointment for this subject
         for the visit.
         """
@@ -80,7 +90,7 @@ class AppointmentsCreator:
         )
         return appointment_creator.appointment
 
-    def delete_unused_appointments(self):
+    def delete_unused_appointments(self) -> None:
         appointments = self.appointment_model.objects.filter(
             subject_identifier=self.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
@@ -91,7 +101,3 @@ class AppointmentsCreator:
                 appointment.delete()
             except ProtectedError:
                 pass
-        return None
-
-    def recalulate_from_baseline(self):
-        pass

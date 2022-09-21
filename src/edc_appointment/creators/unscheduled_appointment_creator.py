@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from datetime import datetime
 from decimal import Decimal
-from typing import Any, Optional, Union
+from typing import Any
 
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
@@ -43,15 +45,15 @@ class UnscheduledAppointmentCreator:
 
     def __init__(
         self,
-        subject_identifier: Optional[str] = None,
-        appt_datetime: Optional[datetime] = None,
-        visit_schedule_name: Optional[str] = None,
-        schedule_name: Optional[str] = None,
-        visit_code: Optional[str] = None,
-        visit_code_sequence: Optional[Union[int, str]] = None,
-        timepoint: Optional[Union[Decimal, str]] = None,
-        facility: Optional[str] = None,
-        request: Optional[Any] = None,
+        subject_identifier: str = None,
+        appt_datetime: datetime | None = None,
+        visit_schedule_name: str = None,
+        schedule_name: str = None,
+        visit_code: str = None,
+        visit_code_sequence: int = None,
+        timepoint: Decimal = None,
+        facility: str = None,
+        request: Any | None = None,
         **kwargs,  # noqa
     ):
         self._parent_appointment = None

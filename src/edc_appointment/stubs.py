@@ -1,15 +1,9 @@
 from datetime import datetime
-from typing import Any, Optional, Protocol, Type, TypeVar, Union
+from typing import Any, Optional, Protocol, TypeVar, Union
 from uuid import UUID
 
 from django.db import models
 from edc_visit_schedule import Schedule
-
-
-class VisitModelStub(Protocol):
-    visit_code: Union[str, models.CharField]
-    visit_code_sequence: Union[int, models.IntegerField]
-    visit_schedule_name: Union[str, models.CharField]
 
 
 class AppointmentModelStub(Protocol):
@@ -25,11 +19,9 @@ class AppointmentModelStub(Protocol):
     timepoint: Union[int, models.IntegerField]
     timepoint_datetime: datetime
     schedule: Schedule
-    visit_model_cls: Type[models.Model]
     _meta: Any
 
     objects: models.Manager
-    visit: VisitModelStub
 
     last_visit_code_sequence: Optional[int]
     next: "AppointmentModelStub"
