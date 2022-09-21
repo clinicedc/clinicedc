@@ -6,15 +6,15 @@ from edc_constants.constants import COMPLETE, INCOMPLETE
 
 
 def update_crf_status_for_instance(instance: Any) -> None:
-    """Only works for CRFs, e.g. have subject_visit."""
-    if hasattr(instance, "subject_visit"):
+    """Only works for CRFs, e.g. have related_visit."""
+    if hasattr(instance, "related_visit"):
         crf_status_model_cls = django_apps.get_model("edc_crf.crfstatus")
         opts = dict(
-            subject_identifier=instance.subject_visit.subject_identifier,
-            visit_schedule_name=instance.subject_visit.visit_schedule_name,
-            schedule_name=instance.subject_visit.schedule_name,
-            visit_code=instance.subject_visit.visit_code,
-            visit_code_sequence=instance.subject_visit.visit_code_sequence,
+            subject_identifier=instance.related_visit.subject_identifier,
+            visit_schedule_name=instance.related_visit.visit_schedule_name,
+            schedule_name=instance.related_visit.schedule_name,
+            visit_code=instance.related_visit.visit_code,
+            visit_code_sequence=instance.related_visit.visit_code_sequence,
             label_lower=instance._meta.label_lower,
         )
         if instance.crf_status == COMPLETE:
