@@ -62,7 +62,11 @@ class ActionItem(
         ActionType, on_delete=PROTECT, related_name="action_type", verbose_name="Action"
     )
 
-    reference_model = models.CharField(max_length=50, null=True)
+    reference_model = models.CharField(
+        max_length=50,
+        null=True,
+        help_text="model name in label_lower format",
+    )
 
     linked_to_reference = models.BooleanField(
         default=False,
