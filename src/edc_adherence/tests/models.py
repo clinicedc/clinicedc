@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models import PROTECT
 from edc_appointment.models import Appointment
-from edc_crf.crf_model_mixin import CrfModelMixin
+from edc_crf.model_mixins import CrfModelMixin
 from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
 from edc_model import models as edc_models
 from edc_model.models import BaseUuidModel
