@@ -4,13 +4,16 @@ from typing import Any
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from edc_visit_tracking.modelform_mixins import get_subject_visit
+from edc_visit_tracking.modelform_mixins import get_related_visit
 
 from ..constants import DEFAULT_CONSENT_GROUP
 from ..site_consents import site_consents
 
 
 class RequiresConsentModelFormMixin:
+
+    report_datetime_field_attr = "report_datetime"
+
     def clean(self):
         cleaned_data = super().clean()
         self.validate_against_consent()
@@ -19,14 +22,14 @@ class RequiresConsentModelFormMixin:
     @property
     def report_datetime(self: Any) -> datetime:
         """Returns the report_datetime from directly from
-        cleaned_data or via the subject_visit.
+        cleaned_data or via the related_visit, if it exists.
         """
-        report_datetime = self.cleaned_data.get("report_datetime")
-        subject_visit = get_subject_visit(
+        report_datetime = self.cleaned_data.get(self.report_datetime_field_attr)
+        related_visit = get_related_visit(
             self, related_visit_model_attr=self._meta.model.related_visit_model_attr()
         )
-        if subject_visit and not report_datetime:
-            report_datetime = subject_visit.report_datetime
+        if related_visit and not report_datetime:
+            report_datetime = related_visit.report_datetime
         return report_datetime
 
     def validate_against_consent(self: Any) -> None:
@@ -36,11 +39,11 @@ class RequiresConsentModelFormMixin:
         try:
             subject_identifier = self.cleaned_data["appointment"].subject_identifier
         except KeyError:
-            subject_visit = get_subject_visit(
+            subject_visit = get_related_visit(
                 self, related_visit_model_attr=self._meta.model.related_visit_model_attr()
             )
             subject_identifier = subject_visit.appointment.subject_identifier
-        consent = self.get_consent(subject_identifier, self.report_datetime)
+        consent = self.get_consent_or_raise(subject_identifier, self.report_datetime)
         if self.report_datetime < consent.consent_datetime:
             raise forms.ValidationError("Report datetime cannot be before consent datetime")
         if self.report_datetime.date() < consent.dob:
@@ -62,7 +65,9 @@ class RequiresConsentModelFormMixin:
             consent_model = settings.SUBJECT_CONSENT_MODEL
         return consent_model
 
-    def get_consent(self: Any, subject_identifier: str, report_datetime: datetime) -> Any:
+    def get_consent_or_raise(
+        self: Any, subject_identifier: str, report_datetime: datetime
+    ) -> Any:
         """Return an instance of the consent model"""
         consent_object = site_consents.get_consent(
             report_datetime=report_datetime,
