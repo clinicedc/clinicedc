@@ -42,6 +42,9 @@ class RequisitionModelMixin(
     UpdatesRequisitionMetadataModelMixin,
     models.Model,
 ):
+
+    subject_visit = models.ForeignKey(settings.SUBJECT_VISIT_MODEL, on_delete=models.PROTECT)
+
     requisition_datetime = models.DateTimeField(
         validators=[datetime_not_before_study_start, datetime_not_future],
         default=timezone.now,
