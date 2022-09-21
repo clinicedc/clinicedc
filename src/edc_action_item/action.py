@@ -150,7 +150,7 @@ class Action:
     def reference_obj(self):
         """Returns the reference model instance or None.
 
-        If the reference model instance "should" exist if
+        The reference model instance "should" exist if
         action item exists and is CLOSED. If not, re-open.
         """
         if not self._reference_obj:
