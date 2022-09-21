@@ -43,6 +43,7 @@ class RequisitionFormValidator(FormValidator):
         self.applicable_if(NO, field="is_drawn", field_applicable="reason_not_drawn")
         self.validate_other_specify(field="reason_not_drawn")
         self.required_if(YES, field="is_drawn", field_required="drawn_datetime")
+        self.validate_drawn_datetime()
         self.applicable_if(YES, field="is_drawn", field_applicable="item_type")
         self.required_if(YES, field="is_drawn", field_required="item_count")
         self.required_if(YES, field="is_drawn", field_required="estimated_volume")
@@ -75,3 +76,24 @@ class RequisitionFormValidator(FormValidator):
                         f"{formatted_datetime(report_datetime)}."
                     }
                 )
+
+    def validate_drawn_datetime(self):
+        if (
+            self.cleaned_data.get("requisition_datetime")
+            and self.cleaned_data.get("drawn_datetime")
+            and self.cleaned_data.get("drawn_datetime").date()
+            > self.cleaned_data.get("requisition_datetime").date()
+        ):
+            raise forms.ValidationError(
+                {"drawn_datetime": "Invalid. Cannot be after requisition date."}
+            )
+
+        related_visit = self.cleaned_data.get(self.instance.related_visit_model_attr())
+        if (
+            self.cleaned_data.get("drawn_datetime")
+            and self.cleaned_data.get("drawn_datetime").date()
+            < related_visit.report_datetime.date()
+        ):
+            raise forms.ValidationError(
+                {"drawn_datetime": "Invalid. Cannot be before the visit date."}
+            )

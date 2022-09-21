@@ -2,8 +2,10 @@ from typing import Tuple
 from uuid import UUID
 
 from django.contrib import admin
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.html import format_html
 from edc_constants.constants import YES
+from edc_visit_tracking.utils import get_related_visit_model_cls
 
 from edc_lab.admin.fieldsets import (
     requisition_identifier_fields,
@@ -73,3 +75,18 @@ class RequisitionAdminMixin:
         return tuple(
             set(readonly_fields + requisition_identifier_fields + requisition_verify_fields)
         )
+
+    def get_changeform_initial_data(self, request) -> dict:
+        initial_data = super().get_changeform_initial_data(request)  # noqa
+        try:
+            related_visit = get_related_visit_model_cls().objects.get(
+                id=request.GET.get(self.model.related_visit_model_attr())
+            )
+        except ObjectDoesNotExist:
+            # TODO: how do we get here? PRN?
+            pass
+        else:
+            initial_data.update(
+                requisition_datetime=related_visit.report_datetime,
+            )
+        return initial_data

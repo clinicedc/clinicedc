@@ -2,7 +2,7 @@ from django.db import models
 from edc_consent.field_mixins.identity_fields_mixin import IdentityFieldsMixin
 from edc_consent.field_mixins.personal_fields_mixin import PersonalFieldsMixin
 from edc_consent.model_mixins.consent_model_mixin import ConsentModelMixin
-from edc_crf.crf_model_mixin import CrfModelMixin
+from edc_crf.model_mixins import CrfModelMixin
 from edc_identifier.managers import SubjectIdentifierManager
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
