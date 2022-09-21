@@ -28,8 +28,8 @@ class ModelFormFieldValidatorError(Exception):
 
 class BaseFormValidator:
 
-    default_fk_stored_field_name = "name"
-    default_fk_display_field_name = "display_name"
+    default_fk_stored_field_name: str = "name"
+    default_fk_display_field_name: str = "display_name"
 
     def __init__(
         self, cleaned_data: dict = None, instance: Model = None, data: dict = None
