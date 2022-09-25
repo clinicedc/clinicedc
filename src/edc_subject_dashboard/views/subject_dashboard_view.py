@@ -1,5 +1,4 @@
 from django.core.exceptions import ImproperlyConfigured
-from django.views.generic.base import ContextMixin
 from edc_action_item.view_mixins import ActionItemViewMixin
 from edc_appointment.view_mixins import AppointmentViewMixin
 from edc_consent.view_mixins import ConsentViewMixin
@@ -20,7 +19,7 @@ from edc_visit_schedule.view_mixins import VisitScheduleViewMixin
 from ..view_mixins import RegisteredSubjectViewMixin, SubjectVisitViewMixin
 
 
-class VerifyRequisitionMixin(ContextMixin):
+class VerifyRequisitionMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         scanning = self.kwargs.get("scanning")
@@ -35,10 +34,10 @@ class SubjectDashboardView(
     RefreshMetadataViewMixin,
     ConsentViewMixin,
     SubjectLocatorViewMixin,
-    AppointmentViewMixin,
     ActionItemViewMixin,
     DataManagerViewMixin,
     SubjectVisitViewMixin,
+    AppointmentViewMixin,
     VisitScheduleViewMixin,
     RegisteredSubjectViewMixin,
     VerifyRequisitionMixin,

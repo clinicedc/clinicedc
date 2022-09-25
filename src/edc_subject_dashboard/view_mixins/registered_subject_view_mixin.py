@@ -1,12 +1,11 @@
 import re
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.views.generic.base import ContextMixin
 from edc_protocol import Protocol
 from edc_registration.models import RegisteredSubject, RegisteredSubjectError
 
 
-class RegisteredSubjectViewMixin(ContextMixin):
+class RegisteredSubjectViewMixin:
 
     """Adds the subject_identifier to the context."""
 

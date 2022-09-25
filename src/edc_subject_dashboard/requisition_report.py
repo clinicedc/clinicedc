@@ -254,7 +254,7 @@ class RequisitionReport(Report):
         to this appointment.
         """
         if not self._requisitions:
-            for k, v in self.appointment.visit_model_cls().__dict__.items():
+            for k, v in self.appointment.related_visit_model_cls().__dict__.items():
                 try:
                     model_cls = getattr(getattr(v, "rel"), "related_model")
                 except AttributeError:

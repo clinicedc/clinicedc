@@ -2,13 +2,14 @@
 {% load edc_subject_dashboard_extras %}
 {% load tz %}
 {% load i18n %}
+{% load l10n %}
 
 <a name="verify_requisition_identifier"></a>
 
 <div class="panel-group">
 	<div class="panel panel-success">
 		<div class="panel-heading clearfix"><i class="fas fa-flask fa-fw" aria-hidden="true"></i> Requisitions
-		<label class="small pull-right" title="visit report datetime">{{ appointment.object.visit.report_datetime|localtime|date:"SHORT_DATETIME_FORMAT" }}</label>
+		<label class="small pull-right" title="visit report datetime">{{ appointment.object.related_visit.report_datetime|date:"SHORT_DATETIME_FORMAT" }}</label>
 		</div>
 
 		{% requisition_panel_actions requisitions %}
@@ -97,7 +98,7 @@
                             </td>
                         </tr>
                     {% endif %}
-				    {% if appointment.object.visit.visit.requisitions_prn %}
+				    {% if appointment.object.related_visit.visit.requisitions_prn %}
 				    	<tr><td colspan="4">
 						<span class="text text small pull-right">
 				    	PRN Requisitions are available.

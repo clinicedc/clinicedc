@@ -1,4 +1,6 @@
+{% load l10n %}
 {% load edc_subject_dashboard_extras %}
+
 <!-- start appointments -->
 
 <div id="apointments_list" class="table-responsive">
@@ -36,7 +38,7 @@
                     <td>{% show_crf_totals wrapped_appointment=wrapped request=request %}</td>
                     <td>
                         <!--begin show missed label or nothing -->
-                        {{ wrapped.object.title }}&nbsp{% if wrapped.object.visit.reason == MISSED_VISIT %}<span class="label label-default">MISSED</span>{% endif %}
+                        {{ wrapped.object.title }}&nbsp{% if wrapped.object.related_visit.reason == MISSED_VISIT %}<span class="label label-default">MISSED</span>{% endif %}
                         <!--end show missed label or nothing -->
                     </td>
 
@@ -46,8 +48,8 @@
                         <!--end unscheduled appointment button -->
                     </td>
                         <!--begin show appt or visit report datetime -->
-                        {% if wrapped.object.visit.report_datetime %}
-                            <td>{{ wrapped.object.visit.report_datetime|date:"SHORT_DATE_FORMAT" }} {{ wrapped.object.visit.report_datetime|date:"D"| capfirst }}</td>
+                        {% if wrapped.object.related_visit.report_datetime %}
+                            <td>{{ wrapped.object.related_visit.report_datetime|date:"SHORT_DATE_FORMAT" }} {{ wrapped.object.related_visit.report_datetime|date:"D"| capfirst }}</td>
                         {% else %}
                             <td class="text text-muted">{{ wrapped.object.appt_datetime|date:"SHORT_DATE_FORMAT" }} {{ wrapped.object.appt_datetime|date:"D"| capfirst }}</td>
                         {% endif %}
