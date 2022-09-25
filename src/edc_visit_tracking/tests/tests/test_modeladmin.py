@@ -54,7 +54,7 @@ class TestModelAdmin(TestCase):
 
     def test_related_visit_model_attr(self):
         modeladmin = edc_visit_tracking_admin._registry.get(CrfOne)
-        self.assertTrue("subject_visit", modeladmin.related_visit_model_attr())
+        self.assertTrue("subject_visit", modeladmin.related_visit_model_attr)
 
     def test_adds_to_list_display(self):
         factory = RequestFactory()
@@ -68,19 +68,19 @@ class TestModelAdmin(TestCase):
         request = factory.get("/")
         modeladmin = edc_visit_tracking_admin._registry.get(CrfOne)
         self.assertIn(
-            f"{modeladmin.related_visit_model_attr()}__report_datetime",
+            f"{modeladmin.related_visit_model_attr}__report_datetime",
             modeladmin.get_list_filter(request),
         )
         self.assertIn(
-            f"{modeladmin.related_visit_model_attr()}__reason",
+            f"{modeladmin.related_visit_model_attr}__reason",
             modeladmin.get_list_filter(request),
         )
         self.assertIn(
-            f"{modeladmin.related_visit_model_attr()}__visit_code",
+            f"{modeladmin.related_visit_model_attr}__visit_code",
             modeladmin.get_list_filter(request),
         )
         self.assertIn(
-            f"{modeladmin.related_visit_model_attr()}__visit_code_sequence",
+            f"{modeladmin.related_visit_model_attr}__visit_code_sequence",
             modeladmin.get_list_filter(request),
         )
 
@@ -89,7 +89,7 @@ class TestModelAdmin(TestCase):
         request = factory.get("/")
         modeladmin = edc_visit_tracking_admin._registry.get(CrfOne)
         self.assertIn(
-            f"{modeladmin.related_visit_model_attr()}__appointment__subject_identifier",
+            f"{modeladmin.related_visit_model_attr}__appointment__subject_identifier",
             modeladmin.get_search_fields(request),
         )
 
@@ -102,7 +102,7 @@ class TestModelAdmin(TestCase):
         modeladmin = edc_visit_tracking_admin._registry.get(CrfOne)
 
         class Fld:
-            name = modeladmin.related_visit_model_attr()
+            name = modeladmin.related_visit_model_attr
 
             def formfield(self, **kwargs):
                 return kwargs
@@ -128,7 +128,7 @@ class TestModelAdmin(TestCase):
         CrfOne.objects.create(subject_visit=subject_visit)
 
         class Fld:
-            name = modeladmin.related_visit_model_attr()
+            name = modeladmin.related_visit_model_attr
 
             def formfield(self, **kwargs):
                 return kwargs

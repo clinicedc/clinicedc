@@ -16,12 +16,20 @@ if TYPE_CHECKING:
     ListModel = TypeVar("ListModel", bound=ListModelMixin)
 
 
-def get_subject_visit_model() -> str:
+def get_related_visit_model() -> str:
     return settings.SUBJECT_VISIT_MODEL
 
 
-def get_subject_visit_model_cls() -> VisitModel:
+def get_related_visit_model_cls() -> VisitModel:
     return django_apps.get_model(settings.SUBJECT_VISIT_MODEL)
+
+
+def get_subject_visit_model() -> str:
+    return get_related_visit_model()
+
+
+def get_subject_visit_model_cls() -> VisitModel:
+    return get_related_visit_model_cls()
 
 
 def get_subject_visit_missed_reasons_model() -> ListModel:

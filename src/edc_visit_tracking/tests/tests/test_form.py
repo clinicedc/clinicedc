@@ -11,7 +11,7 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.form_validators import VisitFormValidator
-from edc_visit_tracking.modelform_mixins import VisitTrackingModelFormMixin
+from edc_visit_tracking.modelform_mixins import VisitTrackingCrfModelFormMixin
 
 from ..helper import Helper
 from ..models import CrfOne, SubjectVisit
@@ -45,7 +45,9 @@ class TestForm(TestCase):
         )
 
     def test_visit_tracking_form_ok(self):
-        class CrfForm(VisitTrackingModelFormMixin, forms.ModelForm):
+        class CrfForm(VisitTrackingCrfModelFormMixin, forms.ModelForm):
+            report_datetime_field_attr = "report_datetime"
+
             class Meta:
                 model = CrfOne
                 fields = "__all__"
@@ -66,7 +68,9 @@ class TestForm(TestCase):
         form.save(commit=True)
 
     def test_visit_tracking_form_missing_subject_visit(self):
-        class CrfForm(VisitTrackingModelFormMixin, forms.ModelForm):
+        class CrfForm(VisitTrackingCrfModelFormMixin, forms.ModelForm):
+            report_datetime_field_attr = "report_datetime"
+
             class Meta:
                 model = CrfOne
                 fields = "__all__"
@@ -79,7 +83,9 @@ class TestForm(TestCase):
         self.assertIn("subject_visit", form._errors)
 
     def test_visit_tracking_form_no_report_datetime(self):
-        class CrfForm(VisitTrackingModelFormMixin, forms.ModelForm):
+        class CrfForm(VisitTrackingCrfModelFormMixin, forms.ModelForm):
+            report_datetime_field_attr = "report_datetime"
+
             class Meta:
                 model = CrfOne
                 fields = "__all__"
@@ -92,7 +98,9 @@ class TestForm(TestCase):
         self.assertIn("report_datetime", form._errors)
 
     def test_visit_tracking_form_report_datetime(self):
-        class CrfForm(VisitTrackingModelFormMixin, forms.ModelForm):
+        class CrfForm(VisitTrackingCrfModelFormMixin, forms.ModelForm):
+            report_datetime_field_attr = "report_datetime"
+
             class Meta:
                 model = CrfOne
                 fields = "__all__"
@@ -118,7 +126,9 @@ class TestForm(TestCase):
 
     @override_settings(TIME_ZONE="Africa/Dar_es_Salaam")
     def test_visit_tracking_form_report_datetime_zone(self):
-        class CrfForm(VisitTrackingModelFormMixin, forms.ModelForm):
+        class CrfForm(VisitTrackingCrfModelFormMixin, forms.ModelForm):
+            report_datetime_field_attr = "report_datetime"
+
             class Meta:
                 model = CrfOne
                 fields = "__all__"

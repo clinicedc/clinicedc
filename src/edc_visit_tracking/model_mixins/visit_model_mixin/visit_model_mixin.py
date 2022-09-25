@@ -15,7 +15,7 @@ from edc_visit_tracking.stubs import SubjectVisitModelStub
 from ...constants import MISSED_VISIT, NO_FOLLOW_UP_REASONS
 from ...managers import VisitModelManager
 from ...reason_updater import SubjectVisitReasonUpdater
-from ..previous_visit_model_mixin import PreviousVisitModelMixin
+from .previous_visit_model_mixin import PreviousVisitModelMixin
 from .visit_model_fields_mixin import VisitModelFieldsMixin
 
 

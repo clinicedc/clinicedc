@@ -1,11 +1,18 @@
-from typing import Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from edc_appointment.stubs import AppointmentModelStub
 
 
 class VisitSequenceError(Exception):
     pass
+
+
+if TYPE_CHECKING:
+    from edc_appointment.models import Appointment
+
+    from edc_visit_tracking.model_mixins import VisitModelMixin
 
 
 class VisitSequence:
@@ -14,13 +21,17 @@ class VisitSequence:
     that visits are filled in sequence.
     """
 
-    def __init__(self, appointment: AppointmentModelStub) -> None:
+    def __init__(self, appointment: Appointment) -> None:
         self.appointment = appointment
         self.appointment_model_cls = self.appointment.__class__
-        self.model_cls = getattr(
+        descriptor = getattr(
             self.appointment_model_cls,
             self.appointment_model_cls.related_visit_model_attr(),
-        ).related.related_model
+        )
+        try:
+            self.model_cls = descriptor.related.related_model
+        except AttributeError:
+            self.model_cls = descriptor.rel.related_model
         self.subject_identifier = self.appointment.subject_identifier
         self.visit_schedule_name = self.appointment.visit_schedule_name
         self.visit_code = self.appointment.visit_code
@@ -59,19 +70,16 @@ class VisitSequence:
         return previous_visit_code
 
     @property
-    def previous_appointment(self) -> Optional[AppointmentModelStub]:
+    def previous_appointment(self) -> Appointment | None:
         """Returns the previous appointment model instance or None.
 
-        Considers visit code sequence.
+        Considers visit code sequence; that is, considers interim
+        appointments.
 
         Raises `VisitSequenceError` if the expected sequence of
         appointments is broken. Expected sequence is based on
         the visit schedule.
-
         """
-        # TODO: consider recreating missing appointments if sequence
-        #       is broken
-
         opts: dict = dict(
             subject_identifier=self.subject_identifier,
             visit_schedule_name=self.visit_schedule_name,
@@ -116,11 +124,12 @@ class VisitSequence:
         return previous_appointment
 
     @property
-    def previous_visit(self) -> Optional[AppointmentModelStub]:
+    def previous_visit(self) -> VisitModelMixin | None:
         """Returns the previous visit model instance if it exists"""
         if self.previous_appointment:
             return self.model_cls.objects.get(appointment=self.previous_appointment)
         return None
 
-    def get_previous_visit(self) -> Optional[AppointmentModelStub]:
+    def get_previous_visit(self) -> VisitModelMixin | None:
+        """Returns the previous visit model instance if it exists"""
         return self.previous_visit

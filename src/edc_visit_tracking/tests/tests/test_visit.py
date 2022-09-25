@@ -67,7 +67,7 @@ class TestVisit(TestCase):
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
         other_model = OtherModel.objects.create()
         crf_one_inline = CrfOneInline.objects.create(crf_one=crf_one, other_model=other_model)
-        self.assertEqual(crf_one_inline.subject_visit.pk, subject_visit.pk)
+        self.assertEqual(crf_one_inline.related_visit.pk, subject_visit.pk)
 
     def test_crf_inline_model_parent_model(self):
         """Assert inline model cannot find parent, raises exception."""
@@ -91,7 +91,7 @@ class TestVisit(TestCase):
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
         other_model = OtherModel.objects.create()
         crf_one_inline = CrfOneInline.objects.create(crf_one=crf_one, other_model=other_model)
-        self.assertIsInstance(crf_one_inline.subject_visit, SubjectVisit)
+        self.assertIsInstance(crf_one_inline.related_visit, SubjectVisit)
 
     def test_get_previous_model_instance(self):
         """Assert model can determine the previous."""

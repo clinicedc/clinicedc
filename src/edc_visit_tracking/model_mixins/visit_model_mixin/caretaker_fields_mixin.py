@@ -5,7 +5,7 @@ from edc_constants.constants import YES
 
 class CaretakerFieldsMixin(models.Model):
     """A fields mixin for visit models where information
-    on the the participant is offered by another person,
+    on the participant is offered by another person,
     as in the case of infant and mother.
 
     One the ModelForm, override the default form to customize

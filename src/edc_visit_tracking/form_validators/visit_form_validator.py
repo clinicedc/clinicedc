@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from copy import deepcopy
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import TYPE_CHECKING, Any, List, Optional
 from zoneinfo import ZoneInfo
 
 from django import forms
@@ -24,6 +26,9 @@ from ..constants import MISSED_VISIT, UNSCHEDULED
 from ..utils import get_subject_visit_missed_model_cls
 from ..visit_sequence import VisitSequence, VisitSequenceError
 
+if TYPE_CHECKING:
+    from edc_appointment.models import Appointment
+
 EDC_VISIT_TRACKING_ALLOW_MISSED_UNSCHEDULED = getattr(
     settings, "EDC_VISIT_TRACKING_ALLOW_MISSED_UNSCHEDULED", False
 )
@@ -34,7 +39,7 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
     """Form validator for visit models (e.g. subject_visit).
 
     See also `report_datetime` checks in the
-    `VisitTrackingModelFormMixin`.
+    `VisitTrackingCrfModelFormMixin`.
     """
 
     visit_sequence_cls = VisitSequence
@@ -43,15 +48,15 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
 
     def _clean(self) -> None:
         super()._clean()
-        if not self.cleaned_data.get("appointment"):
+        if not self.appointment:
             raise forms.ValidationError(
                 {"appointment": "This field is required"}, code=REQUIRED_ERROR
             )
 
         validate_appt_datetime_unique(
             form_validator=self,
-            appointment=self.cleaned_data.get("appointment"),
-            appt_datetime=self.cleaned_data.get("appointment").appt_datetime,
+            appointment=self.appointment,
+            appt_datetime=self.appointment.appt_datetime,
             form_field="appointment",
         )
 
@@ -72,22 +77,35 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
         self.required_if(OTHER, field="info_source", field_required="info_source_other")
 
     @property
-    def appt_datetime_local(self) -> datetime:
-        """Returns appt datetime in local timezone"""
-        return self.cleaned_data.get("appointment").appt_datetime.astimezone(
-            ZoneInfo(settings.TIME_ZONE)
-        )
+    def subject_identifier(self) -> str:
+        return self.appointment.subject_identifier
+
+    @property
+    def appointment(self) -> Appointment:
+        return self.cleaned_data.get("appointment")
+
+    @property
+    def report_datetime(self) -> datetime:
+        """Returns report datetime in local timezone (from form
+        cleaned_data).
+        """
+        return self.cleaned_data.get("report_datetime")
 
     @property
     def report_datetime_utc(self) -> datetime:
         """Returns report datetime in UTC timezone"""
-        return self.cleaned_data.get("report_datetime").astimezone(ZoneInfo("UTC"))
+        return self.report_datetime.astimezone(ZoneInfo("UTC"))
+
+    @property
+    def appt_datetime_local(self) -> datetime:
+        """Returns appt datetime in local timezone"""
+        return self.appointment.appt_datetime.astimezone(ZoneInfo(settings.TIME_ZONE))
 
     def validate_visit_datetime_unique(self: Any) -> None:
         """Assert one visit report per day"""
-        if self.cleaned_data.get("report_datetime"):
+        if self.report_datetime:
             qs = self.instance.__class__.objects.filter(
-                subject_identifier=self.cleaned_data.get("appointment").subject_identifier,
+                subject_identifier=self.subject_identifier,
                 report_datetime__date=self.report_datetime_utc.date(),
                 visit_schedule_name=self.instance.visit_schedule_name,
                 schedule_name=self.instance.schedule_name,
@@ -114,7 +132,7 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
         """Asserts the report_datetime is not before the
         appt_datetime.
         """
-        if report_datetime_local := self.cleaned_data.get("report_datetime"):
+        if report_datetime_local := self.report_datetime:
             if report_datetime_local.date() < self.appt_datetime_local.date():
                 appt_datetime_str = formatted_datetime(
                     self.appt_datetime_local, format_as_date=True
@@ -133,8 +151,8 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
         """Asserts the report_datetime matches the appt_datetime
         as baseline.
         """
-        if is_baseline(instance=self.cleaned_data.get("appointment")):
-            if report_datetime_local := self.cleaned_data.get("report_datetime"):
+        if is_baseline(instance=self.appointment):
+            if report_datetime_local := self.report_datetime:
                 if report_datetime_local.date() != self.appt_datetime_local.date():
                     appt_datetime_str = formatted_datetime(
                         self.appt_datetime_local, format_as_date=True
@@ -156,18 +174,16 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
 
         See also `edc_visit_schedule`.
         """
-        if self.cleaned_data.get("report_datetime"):
+        if self.report_datetime:
             super().validate_visit_datetime_in_window_period(
-                self.cleaned_data.get("appointment"),
-                self.cleaned_data.get("report_datetime"),
+                self.appointment,
+                self.report_datetime,
                 "report_datetime",
             )
 
     def validate_visits_completed_in_order(self) -> None:
         """Asserts visits are completed in order."""
-        visit_sequence = self.visit_sequence_cls(
-            appointment=self.cleaned_data.get("appointment")
-        )
+        visit_sequence = self.visit_sequence_cls(appointment=self.appointment)
         try:
             visit_sequence.enforce_sequence()
         except VisitSequenceError as e:
@@ -177,7 +193,7 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
         """Asserts the `reason` makes sense relative to the
         visit_code_sequence coming from the appointment.
         """
-        appointment = self.cleaned_data.get("appointment")
+        appointment = self.appointment
         reason = self.cleaned_data.get("reason")
         if appointment:
             if not appointment.visit_code_sequence and reason == UNSCHEDULED:
@@ -207,7 +223,7 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
     def validate_visit_reason(self) -> None:
         """Asserts that reason=missed if appointment is missed"""
         if (
-            self.cleaned_data.get("appointment").appt_timing == MISSED_APPT
+            self.appointment.appt_timing == MISSED_APPT
             and self.cleaned_data.get("reason") != MISSED_VISIT
         ):
             self.raise_validation_error(
@@ -265,12 +281,11 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
         """Returns a dictionary of `filter` options when querying
         models CrfMetadata / RequisitionMetadata.
         """
-        appointment = self.cleaned_data.get("appointment")
         return dict(
-            subject_identifier=appointment.subject_identifier,
-            visit_code=appointment.visit_code,
-            visit_code_sequence=appointment.visit_code_sequence,
-            visit_schedule_name=appointment.visit_schedule_name,
-            schedule_name=appointment.schedule_name,
+            subject_identifier=self.subject_identifier,
+            visit_code=self.appointment.visit_code,
+            visit_code_sequence=self.appointment.visit_code_sequence,
+            visit_schedule_name=self.appointment.visit_schedule_name,
+            schedule_name=self.appointment.schedule_name,
             entry_status=KEYED,
         )

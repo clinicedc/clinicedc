@@ -2,12 +2,10 @@ from datetime import datetime
 from typing import Protocol, TypeVar, Union
 
 from django.db import models
-from edc_appointment.stubs import AppointmentModelStub
 from edc_model.stubs import ModelMetaStub
 
 
 class SubjectVisitModelStub(Protocol):
-    appointment: AppointmentModelStub
     report_datetime: Union[datetime, models.DateTimeField]
     subject_identifier: Union[str, models.CharField]
     reason: str

@@ -1,5 +1,5 @@
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
 from edc_constants.constants import (
     ALIVE,
@@ -148,7 +148,6 @@ class TestVisit(TestCase):
         form.is_valid()
         self.assertIn("ltfu", form._errors)
 
-    @tag("1")
     def test_subject_visit_missed_form_missed_reasons(self):
         self.helper.consent_and_put_on_schedule()
         _, subject_visit = self.get_subject_visit()

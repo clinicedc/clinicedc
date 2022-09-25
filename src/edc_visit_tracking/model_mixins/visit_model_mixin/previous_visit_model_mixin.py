@@ -2,7 +2,7 @@ from typing import Any
 
 from django.db import models
 
-from ..visit_sequence import VisitSequence, VisitSequenceError
+from ...visit_sequence import VisitSequence, VisitSequenceError
 
 
 class PreviousVisitError(Exception):
