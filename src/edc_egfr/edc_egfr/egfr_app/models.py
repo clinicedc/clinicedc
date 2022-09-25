@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models import PROTECT
 from edc_constants.choices import GENDER
-from edc_lab.model_mixins import PanelModelMixin, RequisitionModelMixin
+from edc_lab.model_mixins import PanelModelMixin
 from edc_lab_panel.panels import rft_panel
 from edc_lab_results.model_mixins import BloodResultsMethodsModelMixin
 from edc_model.models import BaseUuidModel
@@ -92,7 +92,7 @@ class SubjectRequisition(PanelModelMixin, BaseUuidModel):
         verbose_name="Requisition Date",
     )
 
-    class Meta(RequisitionModelMixin.Meta):
+    class Meta:
         pass
 
 
@@ -124,6 +124,10 @@ class ResultCrf(BloodResultsMethodsModelMixin, EgfrModelMixin, models.Model):
         null=True,
         blank=True,
     )
+
+    @property
+    def related_visit(self):
+        return self.subject_visit
 
 
 class EgfrDropNotification(SiteModelMixin, EgfrDropNotificationModelMixin, BaseUuidModel):

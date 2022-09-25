@@ -37,6 +37,7 @@ DEFAULT_SETTINGS = DefaultTestSettings(
         "edc_protocol.apps.AppConfig",
         "edc_reportable.apps.AppConfig",
         "edc_visit_schedule.apps.AppConfig",
+        "edc_timepoint.apps.AppConfig",
         "edc_egfr.apps.AppConfig",
         "egfr_app.apps.AppConfig",
     ],
