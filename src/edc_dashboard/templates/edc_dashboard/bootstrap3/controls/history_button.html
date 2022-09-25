@@ -1,4 +1,4 @@
-
+{% load l10n %}
 <!-- start history button -->
 
 <div class="btn-group">
@@ -21,7 +21,7 @@
 	        <li class="dropdown-header">{{ title|default:"History" }}</li>
 	        {% for obj in history_objects reversed %}
 	          <li><a href="{{ obj.get_absolute_url }}?next={{ obj.next_url }}&{{ obj.querystring }}">
-	               {{ obj.report_datetime }}</a></li>
+	               {{ obj.report_datetime|localize }}</a></li>
 	        {% endfor %}
 	      </ul>
 	</div>

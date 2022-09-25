@@ -1,4 +1,3 @@
-from django.views.generic.base import ContextMixin
 from edc_protocol import Protocol
 from edc_utils.text import convert_from_camel
 
@@ -10,7 +9,7 @@ class UrlRequestContextError(Exception):
     pass
 
 
-class UrlRequestContextMixin(ContextMixin):
+class UrlRequestContextMixin:
 
     urlconfig_getattr = "dashboard_urls"
     urlconfig_identifier_label = "subject_identifier"
