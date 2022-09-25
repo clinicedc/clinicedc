@@ -1,7 +1,6 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from edc_crf.crf_model_mixin import CrfModelMixin
-from edc_crf.crf_with_action_model_mixin import CrfWithActionModelMixin
+from edc_crf.model_mixins import CrfModelMixin, CrfWithActionModelMixin
 from edc_lab.model_mixins import CrfWithRequisitionModelMixin
 from edc_lab_panel.model_mixin_factory import reportable_result_model_mixin_factory
 from edc_lab_panel.panels import fbc_panel
