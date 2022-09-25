@@ -4,25 +4,26 @@ from typing import TYPE_CHECKING
 
 from edc_consent.modelform_mixins import RequiresConsentModelFormMixin
 from edc_form_validators import FormValidatorMixin
+from edc_model_form.mixins import BaseModelFormMixin
 from edc_offstudy.modelform_mixins import OffstudyCrfModelFormMixin
 from edc_sites.forms import SiteModelFormMixin
-from edc_visit_schedule.modelform_mixins import CrfScheduleModelFormMixin
+from edc_visit_schedule.modelform_mixins import VisitScheduleCrfModelFormMixin
 from edc_visit_tracking.modelform_mixins import (
-    VisitTrackingModelFormMixin,
+    VisitTrackingCrfModelFormMixin,
     get_related_visit,
 )
 
 if TYPE_CHECKING:
-
     from edc_visit_tracking.model_mixins import VisitModelMixin
 
 
 class CrfModelFormMixin(
     SiteModelFormMixin,
     RequiresConsentModelFormMixin,
-    CrfScheduleModelFormMixin,
-    VisitTrackingModelFormMixin,
+    VisitScheduleCrfModelFormMixin,
+    VisitTrackingCrfModelFormMixin,
     OffstudyCrfModelFormMixin,
+    BaseModelFormMixin,
     FormValidatorMixin,
 ):
     """A modelform mixin for all CRFs.
@@ -35,7 +36,12 @@ class CrfModelFormMixin(
     * is participant offstudy relative to report datetime.
     """
 
-    pass
+    report_datetime_field_attr = "report_datetime"
+
+
+class RequisitionModelFormMixin(CrfModelFormMixin):
+
+    report_datetime_field_attr = "requisition_datetime"
 
 
 class InlineCrfModelFormMixin:
