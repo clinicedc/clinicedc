@@ -57,7 +57,7 @@ class MysqlDialect:
     @staticmethod
     def select_table(table_name=None):
         params = {}
-        sql = f"select * from {table_name}"
+        sql = f"select * from {table_name}"  # nosec B608
         return sql, params
 
     @staticmethod

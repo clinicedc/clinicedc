@@ -7,6 +7,7 @@ from edc_list_data.model_mixins import ListModelMixin
 from edc_model.models import BaseUuidModel
 from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
+from edc_visit_tracking.model_mixins import VisitModelMixin
 
 
 class OnSchedule(OnScheduleModelMixin, BaseUuidModel):
@@ -19,7 +20,7 @@ class OffSchedule(OffScheduleModelMixin, BaseUuidModel):
         app_label = "edc_pdutils"
 
 
-class SubjectVisit(BaseUuidModel):
+class SubjectVisit(VisitModelMixin, BaseUuidModel):
 
     appointment = models.OneToOneField(Appointment, on_delete=models.PROTECT)
 
@@ -76,7 +77,7 @@ class CrfModelMixin(models.Model):
         return self.subject_visit.visit_code
 
     @property
-    def visit(self):
+    def related_visit(self):
         return self.subject_visit
 
     class Meta:
