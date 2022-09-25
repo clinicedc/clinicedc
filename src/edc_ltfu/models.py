@@ -18,8 +18,6 @@ class Ltfu(
 
     action_name = LTFU_ACTION
 
-    tracking_identifier_prefix = "LF"
-
     class Meta:
         verbose_name = "Loss to Follow Up"
         verbose_name_plural = "Loss to Follow Ups"
