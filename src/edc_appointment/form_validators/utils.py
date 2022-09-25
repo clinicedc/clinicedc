@@ -8,7 +8,7 @@ from edc_dashboard import url_names
 from edc_form_validators import INVALID_ERROR
 
 
-def get_appointment_url(appointment_pk: str, subject_identifier: str):
+def get_appointment_url(appointment_pk: str, subject_identifier: str) -> str:
     rev_url = reverse(
         "edc_appointment_admin:edc_appointment_appointment_change",
         args=(appointment_pk,),

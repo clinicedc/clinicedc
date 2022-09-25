@@ -1,6 +1,13 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Dict
+
 from django.db import models, transaction
 from django.db.models.deletion import ProtectedError
 from edc_visit_schedule import site_visit_schedules
+
+if TYPE_CHECKING:
+    from .models import Appointment
 
 
 class AppointmentDeleteError(Exception):
@@ -26,7 +33,7 @@ class AppointmentManager(models.Manager):
         schedule_name,
         visit_code,
         visit_code_sequence,
-    ):
+    ) -> Appointment:
         return self.get(
             subject_identifier=subject_identifier,
             visit_schedule_name=visit_schedule_name,
@@ -35,8 +42,9 @@ class AppointmentManager(models.Manager):
             visit_code_sequence=visit_code_sequence,
         )
 
-    def get_query_options(self, **kwargs):
-        """Returns an options dictionary.
+    @staticmethod
+    def get_query_options(**kwargs) -> Dict[Any]:
+        """Returns a dictionary or options.
 
         Dictionary is based on the appointment instance or everything
         else.
@@ -45,7 +53,7 @@ class AppointmentManager(models.Manager):
         schedule_name = kwargs.get("schedule_name")
         subject_identifier = kwargs.get("subject_identifier")
         visit_schedule_name = kwargs.get("visit_schedule_name")
-        options = dict(visit_code_sequence=0)
+        options: Dict[Any] = dict(visit_code_sequence=0)
         try:
             options.update(
                 subject_identifier=appointment.subject_identifier,
@@ -72,7 +80,8 @@ class AppointmentManager(models.Manager):
                 options.update(schedule_name=schedule_name)
         return options
 
-    def get_visit_code(self, action, schedule, **kwargs):
+    @staticmethod
+    def get_visit_code(action, schedule, **kwargs) -> str | None:
         """Updates the options dictionary with the next or previous
         visit code in the schedule.
 
@@ -100,7 +109,7 @@ class AppointmentManager(models.Manager):
             visit_code = None
         return visit_code
 
-    def first_appointment(self, **kwargs):
+    def first_appointment(self, **kwargs) -> Appointment | None:
         """Returns the first appointment instance for the given criteria.
 
         For visit_code_sequence=0.
@@ -123,7 +132,7 @@ class AppointmentManager(models.Manager):
             first_appointment = None
         return first_appointment
 
-    def last_appointment(self, **kwargs):
+    def last_appointment(self, **kwargs) -> Appointment | None:
         """Returns the last appointment relative to the criteria.
 
         For visit_code_sequence=0.
@@ -138,7 +147,7 @@ class AppointmentManager(models.Manager):
             last_appointment = None
         return last_appointment
 
-    def next_appointment(self, **kwargs):
+    def next_appointment(self, **kwargs) -> Appointment | None:
         """Returns the next appointment relative to the criteria or
         None if there is no next.
 
@@ -172,7 +181,7 @@ class AppointmentManager(models.Manager):
             next_appointment = None
         return next_appointment
 
-    def previous_appointment(self, **kwargs):
+    def previous_appointment(self, **kwargs) -> Appointment | None:
         """Returns the previous appointment relative to the criteria
         or None if there is no previous.
 
@@ -201,7 +210,7 @@ class AppointmentManager(models.Manager):
         visit_schedule_name=None,
         schedule_name=None,
         is_offstudy=None,
-    ):
+    ) -> int:
         """Deletes appointments for a given subject_identifier with
         appt_datetime greater than `dt`.
 

@@ -1,6 +1,5 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from django.views.generic.base import ContextMixin
 
 from ..constants import (
     CANCELLED_APPT,
@@ -9,10 +8,11 @@ from ..constants import (
     INCOMPLETE_APPT,
     NEW_APPT,
 )
+from ..models import Appointment
 from ..utils import update_unscheduled_appointment_sequence
 
 
-class AppointmentViewMixin(ContextMixin):
+class AppointmentViewMixin:
 
     """A view mixin to handle appointments on the dashboard."""
 
@@ -20,12 +20,15 @@ class AppointmentViewMixin(ContextMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self._appointment = None
         self._appointments = None
         self._wrapped_appointments = None
         self.appointment_model = "edc_appointment.appointment"
+        self.appointment_id = None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        self.appointment_id = kwargs.get("appointment")
         update_unscheduled_appointment_sequence(
             subject_identifier=self.kwargs.get("subject_identifier"),
         )
@@ -65,14 +68,18 @@ class AppointmentViewMixin(ContextMixin):
 
     @property
     def appointment(self):
-        appointment = None
-        opts = self.appointment_options
-        if opts:
-            try:
-                appointment = self.appointment_model_cls.objects.get(**opts)
-            except ObjectDoesNotExist:
-                pass
-        return appointment
+        if not self._appointment:
+            if self.appointment_id:
+                try:
+                    self._appointment = Appointment.objects.get(id=self.appointment_id)
+                except ObjectDoesNotExist:
+                    opts = self.appointment_options
+                    if opts:
+                        try:
+                            self._appointment = self.appointment_model_cls.objects.get(**opts)
+                        except ObjectDoesNotExist:
+                            pass
+        return self._appointment
 
     @property
     def appointment_wrapped(self):

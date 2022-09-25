@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import uuid
 from datetime import datetime
-from typing import Union
+from typing import TYPE_CHECKING, Union
 from uuid import UUID
 
 from django.apps import apps as django_apps
@@ -10,23 +12,25 @@ from django.db import models
 from edc_document_status.model_mixins import DocumentStatusModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_metadata.model_mixins import MetadataHelperModelMixin
-from edc_offstudy.model_mixins import OffstudyVisitModelMixin
+from edc_offstudy.model_mixins import OffstudyNonCrfModelMixin
 from edc_timepoint.model_mixins import TimepointModelMixin
 from edc_utils import formatted_datetime
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
-from edc_visit_schedule.subject_schedule import NotOnScheduleError
+from edc_visit_schedule.subject_schedule import NotOnScheduleError, SubjectSchedule
 from edc_visit_schedule.utils import is_baseline
 
 from ..constants import IN_PROGRESS_APPT
 from ..exceptions import UnknownVisitCode
 from ..managers import AppointmentManager
-from ..stubs import AppointmentModelStub
 from ..utils import update_appt_status
 from .appointment_fields_model_mixin import AppointmentFieldsModelMixin
 from .appointment_methods_model_mixin import AppointmentMethodsModelMixin
 from .missed_appointment_model_mixin import MissedAppointmentModelMixin
 from .window_period_model_mixin import WindowPeriodModelMixin
+
+if TYPE_CHECKING:
+    from ..models import Appointment
 
 
 class AppointmentModelMixin(
@@ -39,7 +43,7 @@ class AppointmentModelMixin(
     VisitScheduleModelMixin,
     DocumentStatusModelMixin,
     MetadataHelperModelMixin,
-    OffstudyVisitModelMixin,
+    OffstudyNonCrfModelMixin,
 ):
 
     """Mixin for the appointment model only.
@@ -51,12 +55,16 @@ class AppointmentModelMixin(
 
     metadata_helper_instance_attr = None
 
+    subject_schedule_cls = SubjectSchedule
+
+    offschedule_compare_dates_as_datetimes = False
+
     objects = AppointmentManager()
 
     def __str__(self) -> str:
         return f"{self.subject_identifier} {self.visit_code}.{self.visit_code_sequence}"
 
-    def save(self, *args, **kwargs):
+    def save(self: Appointment, *args, **kwargs):
         if not kwargs.get("update_fields", None):
             if self.id and is_baseline(instance=self):
                 visit_schedule = site_visit_schedules.get_visit_schedule(
@@ -103,13 +111,13 @@ class AppointmentModelMixin(
         )
 
     @property
-    def str_pk(self: AppointmentModelStub) -> Union[str, uuid.UUID]:
+    def str_pk(self: Appointment) -> Union[str, uuid.UUID]:
         if isinstance(self.id, UUID):
             return str(self.pk)
         return self.pk
 
     @property
-    def title(self: AppointmentModelStub) -> str:
+    def title(self: Appointment) -> str:
         if not self.schedule.visits.get(self.visit_code):
             valid_visit_codes = [v for v in self.schedule.visits]
             raise UnknownVisitCode(
@@ -124,7 +132,7 @@ class AppointmentModelMixin(
         return title
 
     @property
-    def report_datetime(self: AppointmentModelStub) -> datetime:
+    def report_datetime(self: Appointment) -> datetime:
         return self.appt_datetime
 
     class Meta:
