@@ -4,13 +4,13 @@
 {% load action_item_extras %}
 {% load tz %}
 {% load i18n %}
-
+{% load l10n %}
 
 
 <div class="panel-group">
     <div class="panel panel-warning">
         <div class="panel-heading clearfix"><i class="fas fa-flask fa-fw" aria-hidden="true"></i> Data Queries
-        <label class="small pull-right" title="visit report datetime">{{ appointment.object.visit.report_datetime|localtime|date:"SHORT_DATETIME_FORMAT" }}</label>
+        <label class="small pull-right" title="visit report datetime">{{ appointment.object.related_visit.report_datetime|date:"SHORT_DATETIME_FORMAT" }}</label>
         </div>
         <div class="panel-body">
                 {% for action_item in open_data_queries %}

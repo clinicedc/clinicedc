@@ -19,8 +19,8 @@
                         {% endif %}
                               <span class="pull-right">
                               <div class="btn-group">
-                                {% if subject_visit %}
-                                  <a href="{% url 'edc_subject_dashboard:refresh_metadata_actions_url' subject_visit.id %}" data-toggle="tooltip" title="Refresh data collection schedule" role="button" class="btn btn-sm btn-default">
+                                {% if related_visit %}
+                                  <a href="{% url 'edc_subject_dashboard:refresh_metadata_actions_url' related_visit.id %}" data-toggle="tooltip" title="Refresh data collection schedule" role="button" class="btn btn-sm btn-default">
                                     <i class="fas fa-arrows-rotate fa-1x fa-fw" aria-hidden="true"></i>
                                   </a>
                                 {% endif %}
@@ -29,7 +29,7 @@
                                     role="button" class="btn btn-sm btn-default" data-toggle="tooltip" title="Add new data query">Query</a>
                                 {% endif %}
                                     {% block schedule_button %}
-                                        {% if subject_visit %}
+                                        {% if related_visit %}
                                             <a href="{% url subject_dashboard_url|default:'subject_dashboard_url_cannot_be_none' subject_identifier=subject_identifier %}"
                                                role="button" class="btn btn-sm btn-primary" data-toggle="tooltip" title="Go to subject's schedule">
                                             <i class="fa-solid fa-reply fa-1x fa-fw" aria-hidden="true"></i>

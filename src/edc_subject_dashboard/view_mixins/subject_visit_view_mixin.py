@@ -1,67 +1,85 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.core.exceptions import ObjectDoesNotExist
-from django.views.generic.base import ContextMixin
+from edc_utils import get_utcnow
 from edc_visit_schedule.models import VisitSchedule
+
+if TYPE_CHECKING:
+    from edc_visit_tracking.model_mixins import VisitModelMixin
 
 
 class SubjectVisitViewMixinError(Exception):
     pass
 
 
-class SubjectVisitViewMixin(ContextMixin):
+class SubjectVisitViewMixin:
 
     """Mixin to add the subject visit instance to the view.
 
     Declare together with the edc_appointment.AppointmentViewMixin.
     """
 
-    visit_attr = "subjectvisit"
-
     def __init__(self, **kwargs):
+        self._related_visit = None
+        self._report_datetime = None
         super().__init__(**kwargs)
-        self.subject_visit = None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        try:
-            appointment = self.appointment
-        except AttributeError as e:
-            raise SubjectVisitViewMixinError(
-                f"Mixin must be declared together with AppointmentViewMixin. Got {e}"
-            )
-        else:
-            if appointment:
-                try:
-                    self.subject_visit = appointment.related_visit_model_attr
-                except AttributeError as e:
-                    raise SubjectVisitViewMixinError(
-                        f"Visit model must have a OneToOne relation to appointment. "
-                        f"Got {e}"
-                    )
-                else:
-                    try:
-                        self.subject_visit = appointment.related_visit
-                    except AttributeError:
-                        pass
-                context.update(
-                    subject_visit=self.subject_visit,
-                    visit_schedule_pk=str(self.get_visit_schedule_pk(appointment)),
-                )
-
+        context.update(
+            related_visit=self.related_visit,
+            visit_schedule_pk=self.get_visit_schedule_pk(),
+        )
         return context
 
-    @staticmethod
-    def get_visit_schedule_pk(appointment):
+    @property
+    def related_visit(self) -> VisitModelMixin | None:
+        if not self._related_visit:
+            try:
+                appointment = self.appointment
+            except AttributeError as e:
+                raise SubjectVisitViewMixinError(
+                    f"Mixin must be declared together with AppointmentViewMixin. Got {e}"
+                )
+            else:
+                if appointment:
+                    try:
+                        self._related_visit = appointment.related_visit
+                    except AttributeError as e:
+                        raise SubjectVisitViewMixinError(
+                            "Visit model must have a OneToOne relation to appointment. "
+                            f"Got {e}"
+                        )
+        return self._related_visit
+
+    def get_visit_schedule_pk(self) -> str | None:
         """Returns a str(pk) from the VisitSchedule model."""
-        visit_schedule_pk = ""
-        opts = dict(
-            visit_schedule_name=appointment.visit_schedule_name,
-            schedule_name=appointment.schedule_name,
-            visit_code=appointment.visit_code,
-        )
-        try:
-            obj = VisitSchedule.objects.get(**opts)
-        except ObjectDoesNotExist:
-            pass
-        else:
-            visit_schedule_pk = str(obj.pk)
+        visit_schedule_pk = None
+        if self.appointment:
+            opts = dict(
+                visit_schedule_name=self.appointment.visit_schedule_name,
+                schedule_name=self.appointment.schedule_name,
+                visit_code=self.appointment.visit_code,
+            )
+            try:
+                obj = VisitSchedule.objects.get(**opts)
+            except ObjectDoesNotExist:
+                pass
+            else:
+                visit_schedule_pk = str(obj.pk)
         return visit_schedule_pk
+
+    @property
+    def report_datetime(self):
+        """Returns the report datetime in UTC"""
+        if not self._report_datetime:
+            try:
+                self._report_datetime = self.related_visit.report_datetime
+            except AttributeError:
+                try:
+                    self._report_datetime = self.appointment.appt_datetime
+                except AttributeError:
+                    self._report_datetime = get_utcnow()
+        return self._report_datetime

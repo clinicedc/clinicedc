@@ -1,11 +1,12 @@
 {% load i18n %}
+{% load l10n %}
 {% load tz %}
     <div class="panel panel-success">
 
             <div class="panel-heading">
                  <span class="text text-muted">
                     <i class="fas fa-list-alt fa-fw" aria-hidden="true"></i> CRFs</span>
-                    <label class="small pull-right" title="visit report datetime">{{ appointment.object.visit.report_datetime|localtime|date:"SHORT_DATETIME_FORMAT" }}</label>
+                    <label class="small pull-right" title="visit report datetime">{{ appointment.object.related_visit.report_datetime|date:"SHORT_DATETIME_FORMAT" }}</label>
             </div>
 
             <div class="table-responsive">
@@ -71,7 +72,7 @@
                             </td>
                         </tr>
                     {% endif %}
-                    {% if appointment.object.visit.visit.crfs_prn %}
+                    {% if appointment.object.related_visit.visit.crfs_prn %}
                         <tr><td colspan="3">
                         <span class="text text-default small pull-right">
                         PRN CRFs are available.

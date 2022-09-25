@@ -1,5 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase
+from django.views.generic.base import ContextMixin
 from edc_facility import import_holidays
 from edc_locator.view_mixins import (
     SubjectLocatorViewMixin,
@@ -66,26 +67,32 @@ class TestViewMixins(TestCase):
         import_holidays()
 
     def test_subject_visit_missing_appointment(self):
-        mixin = SubjectVisitViewMixin()
-        self.assertRaises(SubjectVisitViewMixinError, mixin.get_context_data)
+        class MyView(SubjectVisitViewMixin, ContextMixin):
+            pass
+
+        view = MyView()
+        self.assertRaises(SubjectVisitViewMixinError, view.get_context_data)
 
     def test_subject_visit_correct_relation(self):
-        mixin = SubjectVisitViewMixin()
-        mixin.appointment = self.appointment
-        context = mixin.get_context_data()
-        self.assertEqual(context.get("subject_visit"), self.subject_visit)
+        class MyView(SubjectVisitViewMixin, ContextMixin):
+            pass
+
+        view = MyView()
+        view.appointment = self.appointment
+        context = view.get_context_data()
+        self.assertEqual(context.get("related_visit"), self.subject_visit)
 
     def test_subject_visit_incorrect_relation(self):
         """Asserts raises if relation is not one to one."""
 
-        class MySubjectVisitViewMixin(SubjectVisitViewMixin):
+        class MySubjectVisitViewMixin(SubjectVisitViewMixin, ContextMixin):
             visit_attr = "badsubjectvisit"
 
         mixin = MySubjectVisitViewMixin()
         self.assertRaises(SubjectVisitViewMixinError, mixin.get_context_data)
 
     def test_subject_locator_raises_on_bad_model(self):
-        class MySubjectLocatorViewMixin(SubjectLocatorViewMixin):
+        class MySubjectLocatorViewMixin(SubjectLocatorViewMixin, ContextMixin):
             subject_locator_model_wrapper_cls = DummyModelWrapper
             subject_locator_model = "blah.blahblah"
 
@@ -93,13 +100,13 @@ class TestViewMixins(TestCase):
         self.assertRaises(SubjectLocatorViewMixinError, mixin.get_context_data)
 
     def test_subject_locator_raisesmissing_wrapper_cls(self):
-        class MySubjectLocatorViewMixin(SubjectLocatorViewMixin):
+        class MySubjectLocatorViewMixin(SubjectLocatorViewMixin, ContextMixin):
             subject_locator_model = "edc_locator.subjectlocator"
 
         self.assertRaises(SubjectLocatorViewMixinError, MySubjectLocatorViewMixin)
 
     def test_subject_locator_ok(self):
-        class MySubjectLocatorViewMixin(SubjectLocatorViewMixin):
+        class MySubjectLocatorViewMixin(SubjectLocatorViewMixin, ContextMixin):
             subject_locator_model_wrapper_cls = DummyModelWrapper
             subject_locator_model = "edc_locator.subjectlocator"
 
