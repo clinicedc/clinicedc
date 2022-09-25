@@ -22,12 +22,12 @@ from edc_model_admin.mixins import (
 
 class ModelAdminSubjectDashboardMixin(
     TemplatesModelAdminMixin,
-    ModelAdminNextUrlRedirectMixin,
+    ModelAdminNextUrlRedirectMixin,  # add
     NotificationModelAdminMixin,
-    ModelAdminFormInstructionsMixin,
+    ModelAdminFormInstructionsMixin,  # add
     ModelAdminFormAutoNumberMixin,
-    ModelAdminRevisionMixin,
-    ModelAdminInstitutionMixin,
+    ModelAdminRevisionMixin,  # add
+    ModelAdminInstitutionMixin,  # add
     ModelAdminRedirectOnDeleteMixin,
     ModelAdminReplaceLabelTextMixin,
     ModelAdminAuditFieldsMixin,

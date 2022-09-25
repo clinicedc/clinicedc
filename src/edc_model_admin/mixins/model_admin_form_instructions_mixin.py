@@ -1,3 +1,11 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
+
+
 class ModelAdminFormInstructionsMixin:
     """Add instructions to the add view context.
 
@@ -35,7 +43,9 @@ class ModelAdminFormInstructionsMixin:
     add_additional_instructions = None
     change_additional_instructions = None
 
-    def get_add_instructions(self, extra_context, request=None):
+    def get_add_instructions(
+        self, extra_context: dict | None, request: WSGIRequest | None = None
+    ):
         extra_context = extra_context or {}
         extra_context["instructions"] = self.add_instructions or self.instructions
         extra_context["additional_instructions"] = (
@@ -43,7 +53,9 @@ class ModelAdminFormInstructionsMixin:
         )
         return extra_context
 
-    def get_change_instructions(self, extra_context, request=None):
+    def get_change_instructions(
+        self, extra_context: dict | None, request: WSGIRequest | None = None
+    ):
         extra_context = extra_context or {}
         extra_context["instructions"] = self.change_instructions or self.instructions
         extra_context["additional_instructions"] = (
@@ -51,11 +63,11 @@ class ModelAdminFormInstructionsMixin:
         )
         return extra_context
 
-    def add_view(self, request, form_url="", extra_context=None):
+    def add_view(self, request: WSGIRequest, form_url: str = "", extra_context: dict = None):
         extra_context = self.get_add_instructions(extra_context, request=request)
         return super().add_view(request, form_url=form_url, extra_context=extra_context)
 
-    def change_view(self, request, object_id, form_url="", extra_context=None):
+    def change_view(self, request: WSGIRequest, object_id, form_url="", extra_context=None):
         extra_context = self.get_change_instructions(extra_context, request=request)
         return super().change_view(
             request, object_id, form_url=form_url, extra_context=extra_context
