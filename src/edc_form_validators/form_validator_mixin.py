@@ -13,7 +13,10 @@ class FormValidatorMixin:
         cleaned_data = super().clean()
         try:
             form_validator = self.form_validator_cls(
-                cleaned_data=cleaned_data, instance=self.instance, data=self.data
+                cleaned_data=cleaned_data,
+                instance=self.instance,
+                data=self.data,
+                model=self._meta.model,
             )
         except TypeError as e:
             if str(e) != "'NoneType' object is not callable":

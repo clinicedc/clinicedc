@@ -1,9 +1,16 @@
+from __future__ import annotations
+
 from copy import copy
-from typing import Any, Union
+from typing import TYPE_CHECKING, Any, Union
 
 from django.core.exceptions import NON_FIELD_ERRORS
-from django.db.models import Model
 from django.forms import ValidationError, forms
+from django_mock_queries.query import MockModel
+
+if TYPE_CHECKING:
+    from django.db.models import Model
+    from edc_model.models import BaseUuidModel
+
 
 APPLICABLE_ERROR = "applicable"
 INVALID_ERROR = "invalid"
@@ -32,7 +39,11 @@ class BaseFormValidator:
     default_fk_display_field_name: str = "display_name"
 
     def __init__(
-        self, cleaned_data: dict = None, instance: Model = None, data: dict = None
+        self,
+        cleaned_data: dict = None,
+        instance: Model = None,
+        data: dict = None,
+        model: (Model | BaseUuidModel | MockModel) = None,  # model class
     ) -> None:
         self._errors: dict = {}
         self._error_codes: list = []
@@ -48,6 +59,7 @@ class BaseFormValidator:
         if data:
             self.data = copy(data)
         self.instance = instance
+        self.model = model
         try:
             self.instance.id
         except AttributeError:
