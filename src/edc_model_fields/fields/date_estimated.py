@@ -29,7 +29,7 @@ class IsDateEstimatedField(CharField):
 
 class IsDateEstimatedFieldNa(CharField):
 
-    """field to question if date is estimated"""
+    """Field to question if date is estimated."""
 
     description = _("Custom field to question if date is estimated")
 
