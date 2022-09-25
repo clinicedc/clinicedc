@@ -1,9 +1,9 @@
-from typing import Any
 from zoneinfo import ZoneInfo
 
 from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
+from edc_crf.crf_form_validator import CrfFormValidator
 from edc_utils import convert_php_dateformat
 
 from ..base_form_validator import INVALID_ERROR
@@ -11,7 +11,7 @@ from ..base_form_validator import INVALID_ERROR
 
 class StudyDayFormValidatorMixin:
     def validate_study_day_with_datetime(
-        self: Any,
+        self: CrfFormValidator,
         subject_identifier=None,
         study_day=None,
         compare_date=None,
@@ -27,12 +27,7 @@ class StudyDayFormValidatorMixin:
                 compare_date = compare_date.date()
             except AttributeError:
                 pass
-            subject_identifier = (
-                subject_identifier
-                or self.cleaned_data.get("subject_identifier")
-                or self.instance.subject_identifier
-            )
-            if not subject_identifier:
+            if not subject_identifier or self.subject_identifier:
                 raise ValueError(f"Subject identifier cannot be None. See {repr(self)}")
             registered_subject_model_cls = django_apps.get_model(
                 "edc_registration.registeredsubject"

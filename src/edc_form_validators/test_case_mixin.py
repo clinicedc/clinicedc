@@ -1,31 +1,53 @@
-from typing import Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Type
 
 from django.forms import ValidationError
+from django.test import TestCase
+
+if TYPE_CHECKING:
+    from edc_model.models import BaseUuidModel
+
+    from edc_form_validators import FormValidator
 
 
 class FormValidatorTestCaseMixin:
 
-    form_validator_default_form_cls = None
+    form_validator_cls: Type[FormValidator] = None
+    form_validator_model_cls: Type[BaseUuidModel] = None
 
-    def validate_form_validator(self, cleaned_data, form_cls=None, instance=None):
-        form_cls = form_cls or self.form_validator_default_form_cls
-        form_validator = form_cls(cleaned_data=cleaned_data, instance=instance)
+    def validate_form_validator(
+        self: FormValidatorTestCaseMixin,
+        cleaned_data: dict,
+        *,
+        instance: BaseUuidModel | None = None,
+        model_cls: Type[BaseUuidModel] | None = None,
+        form_validator_cls: Type[FormValidator] | None = None,
+    ) -> FormValidator:
+        form_validator = (form_validator_cls or self.form_validator_cls)(
+            cleaned_data=cleaned_data,
+            model=model_cls or self.form_validator_model_cls,
+            instance=instance,
+        )
         try:
             form_validator.validate()
         except ValidationError:
             pass
         return form_validator
 
-    def assertFormValidatorNoError(self: Any, form_validator):  # noqa
+    def assertFormValidatorNoError(  # noqa
+        self: FormValidatorTestCaseMixin | TestCase, form_validator
+    ) -> None:
         self.assertDictEqual({}, form_validator._errors)
 
     def assertFormValidatorError(  # noqa
-        self: Any,
+        self: FormValidatorTestCaseMixin | TestCase,
         field: str,
         expected_msg: str,
         form_validator,
-        expected_errors: int = 1,
-    ):
+        expected_errors: int | None = None,
+    ) -> None:
+        expected_errors = 1 if expected_errors is None else expected_errors
         self.assertIn(
             field,
             form_validator._errors,
