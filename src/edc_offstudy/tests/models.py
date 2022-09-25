@@ -19,7 +19,6 @@ from ..model_mixins import (
     OffstudyCrfModelMixin,
     OffstudyModelMixin,
     OffstudyNonCrfModelMixin,
-    OffstudyVisitModelMixin,
 )
 
 
@@ -55,7 +54,7 @@ class SubjectVisit(
     ReferenceModelMixin,
     CreatesMetadataModelMixin,
     SiteModelMixin,
-    OffstudyVisitModelMixin,
+    OffstudyNonCrfModelMixin,
     BaseUuidModel,
 ):
     reason = models.CharField(max_length=25, choices=VISIT_REASON)
