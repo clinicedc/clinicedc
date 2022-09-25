@@ -1,4 +1,6 @@
-from typing import Any, Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 from warnings import warn
 
 from django.apps import apps as django_apps
@@ -12,15 +14,21 @@ from django.core.exceptions import (
 from ..constants import KEYED
 from .metadata import model_cls_registered_with_admin_site
 
+if TYPE_CHECKING:
+    from edc_appointment.models import Appointment
+    from edc_visit_tracking.model_mixins import VisitModelMixin
+
+    from ..models import CrfMetadata, RequisitionMetadata
+
 
 class MetadataGetterError(Exception):
     pass
 
 
 class MetadataValidator:
-    def __init__(self, metadata_obj: Any, visit_model_instance: Any) -> None:
+    def __init__(self, metadata_obj: Any, related_visit: Any) -> None:
         self.metadata_obj = metadata_obj
-        self.visit_model_instance = visit_model_instance
+        self.related_visit = related_visit
         self.validate_metadata_object()
 
     @property
@@ -48,7 +56,7 @@ class MetadataValidator:
                     # confirm metadata.entry_status is correct
                     model_obj = None
                     query_attrs = {
-                        f"{model_cls.related_visit_model_attr()}": self.visit_model_instance
+                        f"{model_cls.related_visit_model_attr()}": self.related_visit
                     }
                     query_attrs.update(**self.extra_query_attrs)
                     try:
@@ -79,9 +87,9 @@ class MetadataValidator:
             #  Do we need to recalculate the visit's metadata??
             # what about metadata rules?
             elif not model_obj and self.metadata_obj.entry_status == KEYED:
-                if self.visit_model_instance:
+                if self.related_visit:
                     # resave subject visit to recreate / calculate metadata
-                    self.visit_model_instance.save()
+                    self.related_visit.save()
                     self.metadata_obj.refresh_from_db()
                     continue
 
@@ -100,15 +108,17 @@ class MetadataGetter:
     `metadata_objects`.
     """
 
-    metadata_model: Optional[str] = None
+    metadata_model: str = None
 
     metadata_validator_cls = MetadataValidator
 
-    def __init__(self, appointment: Any) -> None:
+    def __init__(self, appointment: Appointment) -> None:
         self.options = {}
         self.appointment = appointment
-        self.visit_model_instance = getattr(self.appointment, "related_visit", None)
-        instance = self.visit_model_instance or self.appointment
+        self.related_visit: VisitModelMixin | None = getattr(
+            self.appointment, "related_visit", None
+        )
+        instance = self.related_visit or self.appointment
         self.subject_identifier = instance.subject_identifier
         self.visit_code = instance.visit_code
         self.visit_code_sequence = instance.visit_code_sequence
@@ -125,10 +135,12 @@ class MetadataGetter:
         ).order_by("show_order")
 
     @property
-    def metadata_model_cls(self) -> Any:
+    def metadata_model_cls(self) -> CrfMetadata | RequisitionMetadata:
         return django_apps.get_model(self.metadata_model)
 
-    def next_object(self, show_order=None, entry_status=None) -> Any:
+    def next_object(
+        self, show_order: int | None = None, entry_status: str | None = None
+    ) -> CrfMetadata | RequisitionMetadata:
         """Returns the next model instance based on the show order."""
         if show_order is None:
             metadata_obj = None
@@ -139,7 +151,7 @@ class MetadataGetter:
             metadata_obj = self.metadata_objects.filter(**opts).order_by("show_order").first()
         return metadata_obj
 
-    def validate_metadata_objects(self, query_options) -> None:
+    def validate_metadata_objects(self, query_options: dict) -> None:
         qs = self.metadata_model_cls.objects.filter(**query_options)
         for metadata_obj in qs:
-            self.metadata_validator_cls(metadata_obj, self.visit_model_instance)
+            self.metadata_validator_cls(metadata_obj, self.related_visit)

@@ -76,8 +76,7 @@ class TestForm(TestCase):
     def test_ok(self):
         request = RequestFactory().get("/?f=f&e=e&o=o&q=q")
         request.user = self.user
-        view = MyView(request=request)
-        view.appointment = self.appointment
+        view = MyView(request=request, appointment=self.appointment)
         self.assertEqual("1000", self.appointment.visit_code)
         view.subject_identifier = self.subject_identifier
         view.kwargs = {}

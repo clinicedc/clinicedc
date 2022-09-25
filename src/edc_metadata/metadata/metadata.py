@@ -1,4 +1,6 @@
-from typing import Any, Type, Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Type, Union
 from warnings import warn
 
 from django.apps import apps as django_apps
@@ -11,7 +13,13 @@ from edc_visit_schedule import Crf, FormsCollection, Requisition, site_visit_sch
 from edc_visit_tracking.constants import MISSED_VISIT
 
 from ..constants import KEYED, NOT_REQUIRED, REQUIRED
-from ..stubs import CrfMetadataModelStub, RequisitionMetadataModelStub, VisitModel
+
+if TYPE_CHECKING:
+    from edc_reference.models import Reference
+    from edc_visit_tracking.model_mixins import VisitModelMixin
+
+    from ..model_mixins.creates import CreatesMetadataModelMixin
+    from ..models import CrfMetadata, RequisitionMetadata
 
 verify_model_cls_registered_with_admin: bool = getattr(
     settings, "EDC_METADATA_VERIFY_MODELS_REGISTERED_WITH_ADMIN", False
@@ -46,40 +54,40 @@ class CrfCreator:
 
     def __init__(
         self,
-        visit_model_instance: VisitModel,
+        related_visit: VisitModelMixin,
         update_keyed: bool,
         crf: Union[Crf, Requisition],
     ) -> None:
         self._metadata_obj = None
         self.update_keyed = update_keyed
-        self.visit_model_instance = visit_model_instance
+        self.related_visit = related_visit
         self.crf = crf
 
     @property
     def metadata_model_cls(
         self,
-    ) -> Union[Type[CrfMetadataModelStub], Type[RequisitionMetadataModelStub]]:
+    ) -> CrfMetadata | RequisitionMetadata:
         return django_apps.get_model(self.metadata_model)
 
     @property
-    def reference_model_cls(self) -> Type[Model]:
+    def reference_model_cls(self) -> Reference:
         """Returns model cls edc_reference.reference by default"""
         reference_model = site_reference_configs.get_reference_model(name=self.crf.model)
         return django_apps.get_model(reference_model)
 
     @property
     def query_options(self) -> dict:
-        query_options = self.visit_model_instance.metadata_query_options
+        query_options = self.related_visit.metadata_query_options
         query_options.update(
             {
-                "subject_identifier": self.visit_model_instance.subject_identifier,
+                "subject_identifier": self.related_visit.subject_identifier,
                 "model": self.crf.model,
             }
         )
         return query_options
 
     @property
-    def metadata_obj(self) -> Union[CrfMetadataModelStub, RequisitionMetadataModelStub]:
+    def metadata_obj(self) -> CrfMetadata | RequisitionMetadata:
         """Returns a metadata model instance.
 
         Gets or creates the metadata model instance to represent a
@@ -92,7 +100,7 @@ class CrfCreator:
                 metadata_obj = self.metadata_model_cls.objects.create(
                     entry_status=REQUIRED if self.crf.required else NOT_REQUIRED,
                     show_order=self.crf.show_order,
-                    site=self.visit_model_instance.site,
+                    site=self.related_visit.site,
                     **self.query_options,
                 )
             if not model_cls_registered_with_admin_site(self.crf.model_cls):
@@ -103,7 +111,7 @@ class CrfCreator:
             self._metadata_obj = metadata_obj
         return self._metadata_obj
 
-    def create(self) -> Union[CrfMetadataModelStub, RequisitionMetadataModelStub]:
+    def create(self) -> CrfMetadata | RequisitionMetadata:
         """Creates a metadata model instance to represent a
         CRF, if it does not already exist (get_or_create).
         """
@@ -121,20 +129,20 @@ class CrfCreator:
         """
         exists_instance = (
             django_apps.get_model(self.crf.model)
-            .objects.filter(subject_visit=self.visit_model_instance)
+            .objects.filter(subject_visit=self.related_visit)
             .exists()
         )
         exists_reference = self.reference_model_cls.objects.filter_crf_for_visit(
-            name=self.crf.model, visit=self.visit_model_instance
+            name=self.crf.model, visit=self.related_visit
         ).exists()
         if exists_reference != exists_instance:
             print(
-                f"is_keyed mismatch: {self.crf.model}, {self.visit_model_instance}, "
+                f"is_keyed mismatch: {self.crf.model}, {self.related_visit}, "
                 f"ref={exists_reference}, instance={exists_instance}. Fixed"
             )
         return (
             django_apps.get_model(self.crf.model)
-            .objects.filter(subject_visit=self.visit_model_instance)
+            .objects.filter(subject_visit=self.related_visit)
             .exists()
         )
 
@@ -168,12 +176,12 @@ class RequisitionCreator(CrfCreator):
         self,
         requisition: Requisition,
         update_keyed: bool,
-        visit_model_instance: VisitModel,
+        related_visit: VisitModelMixin,
     ) -> None:
         super().__init__(
             crf=requisition,
             update_keyed=update_keyed,
-            visit_model_instance=visit_model_instance,
+            related_visit=related_visit,
         )
         self.panel_name: str = f"{self.requisition.model}.{self.requisition.panel.name}"
 
@@ -201,7 +209,7 @@ class RequisitionCreator(CrfCreator):
         See also edc_reference.
         """
         return self.reference_model_cls.objects.get_requisition_for_visit(
-            name=self.panel_name, visit=self.visit_model_instance
+            name=self.panel_name, visit=self.related_visit
         )
 
 
@@ -212,17 +220,15 @@ class Creator:
     def __init__(
         self,
         update_keyed: bool,
-        visit_model_instance: VisitModel,
+        related_visit: VisitModelMixin,
     ) -> None:
-        self.visit_model_instance: VisitModel = visit_model_instance
+        self.related_visit = related_visit
         self.update_keyed = update_keyed
-        self.visit_code_sequence = self.visit_model_instance.visit_code_sequence
+        self.visit_code_sequence = self.related_visit.visit_code_sequence
         self.visit = (
-            site_visit_schedules.get_visit_schedule(
-                self.visit_model_instance.visit_schedule_name
-            )
-            .schedules.get(self.visit_model_instance.schedule_name)
-            .visits.get(self.visit_model_instance.visit_code)
+            site_visit_schedules.get_visit_schedule(self.related_visit.visit_schedule_name)
+            .schedules.get(self.related_visit.schedule_name)
+            .visits.get(self.related_visit.visit_code)
         )
 
     @property
@@ -230,7 +236,7 @@ class Creator:
         """Returns list of crfs for this visit based on
         values for visit_code_sequence and MISSED_VISIT.
         """
-        if self.visit_model_instance.reason == MISSED_VISIT:
+        if self.related_visit.reason == MISSED_VISIT:
             return self.visit.crfs_missed
         elif self.visit_code_sequence != 0:
             return self.visit.crfs_unscheduled
@@ -240,7 +246,7 @@ class Creator:
     def requisitions(self) -> FormsCollection:
         if self.visit_code_sequence != 0:
             return self.visit.requisitions_unscheduled
-        elif self.visit_model_instance.reason == MISSED_VISIT:
+        elif self.related_visit.reason == MISSED_VISIT:
             return FormsCollection()
         return self.visit.requisitions
 
@@ -253,18 +259,18 @@ class Creator:
         for requisition in self.requisitions:
             self.create_requisition(requisition)
 
-    def create_crf(self, crf) -> CrfMetadataModelStub:
+    def create_crf(self, crf) -> CrfMetadata:
         return self.crf_creator_cls(
             crf=crf,
             update_keyed=self.update_keyed,
-            visit_model_instance=self.visit_model_instance,
+            related_visit=self.related_visit,
         ).create()
 
-    def create_requisition(self, requisition) -> RequisitionMetadataModelStub:
+    def create_requisition(self, requisition) -> RequisitionMetadata:
         return self.requisition_creator_cls(
             requisition=requisition,
             update_keyed=self.update_keyed,
-            visit_model_instance=self.visit_model_instance,
+            related_visit=self.related_visit,
         ).create()
 
 
@@ -272,30 +278,30 @@ class Destroyer:
     metadata_crf_model = "edc_metadata.crfmetadata"
     metadata_requisition_model = "edc_metadata.requisitionmetadata"
 
-    def __init__(self, visit_model_instance: Any) -> None:
-        self.visit_model_instance: VisitModel = visit_model_instance
+    def __init__(self, related_visit: VisitModelMixin | CreatesMetadataModelMixin) -> None:
+        self.related_visit = related_visit
 
     @property
-    def metadata_crf_model_cls(self) -> Type[CrfMetadataModelStub]:
+    def metadata_crf_model_cls(self) -> CrfMetadata:
         return django_apps.get_model(self.metadata_crf_model)
 
     @property
-    def metadata_requisition_model_cls(self) -> Type[RequisitionMetadataModelStub]:
+    def metadata_requisition_model_cls(self) -> RequisitionMetadata:
         return django_apps.get_model(self.metadata_requisition_model)
 
     def delete(self) -> int:
         """Deletes all CRF and requisition metadata for
-        the visit instance (self.visit_model_instance) excluding where
+        the visit instance (self.related_visit) excluding where
         entry_status = KEYED.
         """
         qs = self.metadata_crf_model_cls.objects.filter(
-            subject_identifier=self.visit_model_instance.subject_identifier,
-            **self.visit_model_instance.metadata_query_options,
+            subject_identifier=self.related_visit.subject_identifier,
+            **self.related_visit.metadata_query_options,
         ).exclude(entry_status=KEYED)
         deleted = qs.delete()
         qs = self.metadata_requisition_model_cls.objects.filter(
-            subject_identifier=self.visit_model_instance.subject_identifier,
-            **self.visit_model_instance.metadata_query_options,
+            subject_identifier=self.related_visit.subject_identifier,
+            **self.related_visit.metadata_query_options,
         ).exclude(entry_status=KEYED)
         qs.delete()
         return deleted
@@ -307,27 +313,23 @@ class Metadata:
 
     def __init__(
         self,
-        visit_model_instance: Any,
+        related_visit: Any,
         update_keyed: bool,
     ) -> None:
         self._reason = None
         self._reason_field = "reason"
-        self.visit_model_instance = visit_model_instance
-        self.creator = self.creator_cls(
-            visit_model_instance=visit_model_instance, update_keyed=update_keyed
-        )
-        self.destroyer = self.destroyer_cls(visit_model_instance=visit_model_instance)
+        self.related_visit = related_visit
+        self.creator = self.creator_cls(related_visit=related_visit, update_keyed=update_keyed)
+        self.destroyer = self.destroyer_cls(related_visit=related_visit)
 
     def prepare(self) -> bool:
         """Creates or deletes metadata, depending on the visit reason,
         for the visit instance.
         """
         metadata_exists = False
-        if self.reason in self.visit_model_instance.visit_schedule.delete_metadata_on_reasons:
+        if self.reason in self.related_visit.visit_schedule.delete_metadata_on_reasons:
             self.destroyer.delete()
-        elif (
-            self.reason in self.visit_model_instance.visit_schedule.create_metadata_on_reasons
-        ):
+        elif self.reason in self.related_visit.visit_schedule.create_metadata_on_reasons:
             self.destroyer.delete()
             self.creator.create()
             metadata_exists = True
@@ -349,14 +351,14 @@ class Metadata:
         For example: `schedule` or `unscheduled`
         """
         if not self._reason:
-            reason_field = self.visit_model_instance.visit_schedule.visit_model_reason_field
+            reason_field = self.related_visit.visit_schedule.visit_model_reason_field
             try:
-                self._reason = getattr(self.visit_model_instance, reason_field)
+                self._reason = getattr(self.related_visit, reason_field)
             except AttributeError as e:
                 raise CreatesMetadataError(
                     f"Invalid reason field. Expected attribute {reason_field}. "
-                    f"{self.visit_model_instance._meta.label_lower}. Got {e}. "
-                    f"visit schedule `{self.visit_model_instance.visit_schedule.name}` "
+                    f"{self.related_visit._meta.label_lower}. Got {e}. "
+                    f"visit schedule `{self.related_visit.visit_schedule.name}` "
                     f"visit_model_reason_field = {reason_field}"
                 ) from e
             if not self._reason:

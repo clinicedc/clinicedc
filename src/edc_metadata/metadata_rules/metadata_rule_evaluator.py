@@ -11,11 +11,11 @@ class MetadataRuleEvaluator:
     """
 
     def __init__(
-        self, visit_model_instance: Optional[Any] = None, app_label: Optional[str] = None
+        self, related_visit: Optional[Any] = None, app_label: Optional[str] = None
     ) -> None:
-        self.visit_model_instance = visit_model_instance
-        self.app_label = app_label or visit_model_instance._meta.app_label
+        self.related_visit = related_visit
+        self.app_label = app_label or related_visit._meta.app_label
 
     def evaluate_rules(self) -> None:
         for rule_group in site_metadata_rules.registry.get(self.app_label, []):
-            rule_group.evaluate_rules(visit=self.visit_model_instance)
+            rule_group.evaluate_rules(visit=self.related_visit)

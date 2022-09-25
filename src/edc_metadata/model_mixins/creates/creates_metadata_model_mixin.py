@@ -1,6 +1,5 @@
-from typing import Any
-
 from django.db import models
+from edc_visit_tracking.model_mixins import VisitModelMixin
 
 from ...constants import CRF, KEYED, REQUISITION
 from ...metadata import (
@@ -11,7 +10,6 @@ from ...metadata import (
     RequisitionMetadataGetter,
 )
 from ...metadata_rules import MetadataRuleEvaluator
-from ...stubs import SubjectVisitLikeModelObject
 
 
 class CreatesMetadataModelMixin(models.Model):
@@ -19,13 +17,13 @@ class CreatesMetadataModelMixin(models.Model):
     create metadata on save.
     """
 
-    metadata_cls = Metadata
-    metadata_destroyer_cls = Destroyer
-    metadata_rule_evaluator_cls = MetadataRuleEvaluator
+    metadata_cls: Metadata = Metadata
+    metadata_destroyer_cls: Destroyer = Destroyer
+    metadata_rule_evaluator_cls: MetadataRuleEvaluator = MetadataRuleEvaluator
 
     def metadata_create(self) -> None:
         """Creates metadata, called by post_save signal."""
-        metadata = self.metadata_cls(visit_model_instance=self, update_keyed=True)
+        metadata = self.metadata_cls(related_visit=self, update_keyed=True)
         metadata.prepare()
 
     def run_metadata_rules(self) -> None:
@@ -35,13 +33,13 @@ class CreatesMetadataModelMixin(models.Model):
 
         Also called by post_save signal after metadata is updated.
         """
-        metadata_rule_evaluator = self.metadata_rule_evaluator_cls(visit_model_instance=self)
+        metadata_rule_evaluator = self.metadata_rule_evaluator_cls(related_visit=self)
         metadata_rule_evaluator.evaluate_rules()
 
     @property
-    def metadata_query_options(self: SubjectVisitLikeModelObject) -> dict:
+    def metadata_query_options(self: VisitModelMixin) -> dict:
         """Returns a dictionary of query options needed select
-        the visit model instance
+        the related_visit.
         """
         visit = self.visits.get(self.appointment.visit_code)
         options = dict(
@@ -54,7 +52,7 @@ class CreatesMetadataModelMixin(models.Model):
         return options
 
     @property
-    def metadata(self: Any) -> Any:
+    def metadata(self: VisitModelMixin) -> dict:
         """Returns a dictionary of metadata querysets for each
         metadata category (CRF or REQUISITION).
         """
@@ -65,7 +63,7 @@ class CreatesMetadataModelMixin(models.Model):
         metadata[REQUISITION] = getter.metadata_objects
         return metadata
 
-    def metadata_delete_for_visit(self: Any) -> None:
+    def metadata_delete_for_visit(self) -> None:
         """Deletes metadata for a visit when the visit is deleted.
 
         See signals.
@@ -76,7 +74,7 @@ class CreatesMetadataModelMixin(models.Model):
                     f"Metadata cannot be deleted. {key}s have been "
                     f"keyed. Got {repr(self)}."
                 )
-        destroyer = self.metadata_destroyer_cls(visit_model_instance=self)
+        destroyer = self.metadata_destroyer_cls(related_visit=self)
         destroyer.delete()
 
     class Meta:

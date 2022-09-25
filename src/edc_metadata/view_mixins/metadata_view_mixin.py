@@ -1,10 +1,10 @@
+from __future__ import annotations
+
 from django.apps import apps as django_apps
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
-from django.views.generic.base import ContextMixin
 from edc_appointment.constants import IN_PROGRESS_APPT
-from edc_dashboard.view_mixins import MessageViewMixin
 from edc_subject_model_wrappers import CrfModelWrapper, RequisitionModelWrapper
 
 from ..constants import CRF, KEYED, NOT_REQUIRED, REQUIRED, REQUISITION
@@ -15,15 +15,17 @@ class MetadataViewError(Exception):
     pass
 
 
-class MetadataViewMixin(MessageViewMixin, ContextMixin):
+class MetadataViewMixin:
 
-    crf_model_wrapper_cls = CrfModelWrapper
-    requisition_model_wrapper_cls = RequisitionModelWrapper
-    crf_metadata_wrappers_cls = CrfMetadataWrappers
-    requisition_metadata_wrappers_cls = RequisitionMetadataWrappers
-    panel_model = "edc_lab.panel"
+    crf_model_wrapper_cls: CrfModelWrapper = CrfModelWrapper
+    requisition_model_wrapper_cls: RequisitionModelWrapper = RequisitionModelWrapper
+    crf_metadata_wrappers_cls: CrfMetadataWrappers = CrfMetadataWrappers
+    requisition_metadata_wrappers_cls: RequisitionMetadataWrappers = (
+        RequisitionMetadataWrappers
+    )
+    panel_model: str = "edc_lab.panel"
 
-    metadata_show_status = [REQUIRED, KEYED]
+    metadata_show_status: list[str] = [REQUIRED, KEYED]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

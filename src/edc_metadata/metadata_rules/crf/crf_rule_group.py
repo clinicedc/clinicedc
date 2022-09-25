@@ -45,7 +45,7 @@ class CrfRuleGroup(RuleGroup, metaclass=RuleGroupMetaclass):
                 # only do something if target model is in visit.crfs (including PRNs)
                 if target_model in [c.model for c in cls.crfs_for_visit(visit)]:
                     metadata_updater = cls.metadata_updater_cls(
-                        visit_model_instance=visit, target_model=target_model
+                        related_visit=visit, target_model=target_model
                     )
                     metadata_obj = metadata_updater.update(
                         entry_status=entry_status

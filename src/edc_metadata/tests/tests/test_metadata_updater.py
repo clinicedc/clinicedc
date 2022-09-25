@@ -232,7 +232,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
             entry_status=REQUIRED,
         )
         metadata_updater = MetadataUpdater(
-            visit_model_instance=subject_visit,
+            related_visit=subject_visit,
             target_model="edc_metadata.crfone",
         )
         metadata_updater.update(entry_status=NOT_REQUIRED)
@@ -268,7 +268,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
             appointment=self.appointment, reason=SCHEDULED
         )
         metadata_updater = MetadataUpdater(
-            visit_model_instance=subject_visit,
+            related_visit=subject_visit,
             target_model="edc_metadata.blah",
         )
         self.assertRaises(
@@ -280,7 +280,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
             appointment=self.appointment, reason=SCHEDULED
         )
         metadata_updater = MetadataUpdater(
-            visit_model_instance=subject_visit,
+            related_visit=subject_visit,
             target_model="edc_metadata.crfseven",
         )
         self.assertRaises(

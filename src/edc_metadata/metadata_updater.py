@@ -1,4 +1,6 @@
-from typing import Optional, Type
+from __future__ import annotations
+
+from typing import Type
 
 from django.db import models
 
@@ -12,24 +14,24 @@ class MetadataUpdaterError(Exception):
 
 class MetadataUpdater:
     """A class to update a subject's metadata given
-    the visit_model_instance, target model name and desired entry status.
+    the related_visit, target model name and desired entry status.
     """
 
     target_handler = TargetHandler
 
-    def __init__(self, visit_model_instance=None, target_model=None):
+    def __init__(self, related_visit=None, target_model=None):
         self._metadata_obj = None
-        self.visit_model_instance = visit_model_instance
+        self.related_visit = related_visit
         self.target_model = target_model
 
     def __repr__(self):
         return (
             f"{self.__class__.__name__}"
-            f"(visit_model_instance={self.visit_model_instance}, "
+            f"(related_visit={self.related_visit}, "
             f"target_model={self.target_model})"
         )
 
-    def update(self, entry_status: Optional[str] = None) -> Type[models.Model]:
+    def update(self, entry_status: str = None) -> Type[models.Model]:
         metadata_obj = self.target.metadata_obj
         if self.target.object:
             entry_status = KEYED
@@ -47,6 +49,4 @@ class MetadataUpdater:
 
     @property
     def target(self):
-        return self.target_handler(
-            model=self.target_model, visit_model_instance=self.visit_model_instance
-        )
+        return self.target_handler(model=self.target_model, related_visit=self.related_visit)

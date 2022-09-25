@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from .metadata_getter import MetadataGetter, MetadataValidator
 
 

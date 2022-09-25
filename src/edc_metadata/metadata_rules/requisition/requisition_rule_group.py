@@ -93,7 +93,7 @@ class RequisitionRuleGroup(RuleGroup, metaclass=RequisitionMetaclass):
                         r.panel.name for r in cls.requisitions_for_visit(visit)
                     ]:
                         metadata_updater = cls.metadata_updater_cls(
-                            visit_model_instance=visit,
+                            related_visit=visit,
                             target_model=target_model,
                             target_panel=target_panel,
                         )

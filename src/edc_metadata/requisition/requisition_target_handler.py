@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.apps import apps as django_apps
 from edc_reference import site_reference_configs
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -5,6 +9,9 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from ..constants import REQUISITION
 from ..target_handler import TargetHandler
 from .requisition_metadata_handler import RequisitionMetadataHandler
+
+if TYPE_CHECKING:
+    from edc_lab.models import Panel
 
 
 class TargetPanelNotScheduledForVisit(Exception):
@@ -16,11 +23,11 @@ class InvalidTargetPanel(Exception):
 
 
 class RequisitionTargetHandler(TargetHandler):
-    metadata_handler_cls = RequisitionMetadataHandler
-    metadata_category = REQUISITION
-    metadata_model = "edc_metadata.requisitionmetadata"
+    metadata_handler_cls: RequisitionMetadataHandler = RequisitionMetadataHandler
+    metadata_category: str = REQUISITION
+    metadata_model: str = "edc_metadata.requisitionmetadata"
 
-    def __init__(self, target_panel=None, **kwargs):
+    def __init__(self, target_panel: Panel = None, **kwargs):
         self.target_panel = target_panel
         super().__init__(**kwargs)
 
@@ -33,22 +40,22 @@ class RequisitionTargetHandler(TargetHandler):
     @property
     def object(self):
         return self.reference_model_cls.objects.get_requisition_for_visit(
-            visit=self.visit_model_instance,
+            visit=self.related_visit,
             name=f"{self.model}.{self.target_panel.name}",
         )
 
     @property
     def target_panel_names(self):
         """Returns a list of panels for this visit."""
-        if self.visit_model_instance.visit_code_sequence != 0:
+        if self.related_visit.visit_code_sequence != 0:
             forms = (
-                self.visit_model_instance.visit.requisitions_unscheduled
-                + self.visit_model_instance.visit.requisitions_prn
+                self.related_visit.visit.requisitions_unscheduled
+                + self.related_visit.visit.requisitions_prn
             )
         else:
             forms = (
-                self.visit_model_instance.visit.requisitions
-                + self.visit_model_instance.visit.requisitions_prn
+                self.related_visit.visit.requisitions
+                + self.related_visit.visit.requisitions_prn
             )
         return list(set([form.panel.name for form in forms]))
 
@@ -60,7 +67,7 @@ class RequisitionTargetHandler(TargetHandler):
         if self.target_panel.name not in self.target_panel_names:
             raise TargetPanelNotScheduledForVisit(
                 f"Target panel {self.target_panel.name} is not scheduled "
-                f"for visit '{self.visit_model_instance.visit_code}'."
+                f"for visit '{self.related_visit.visit_code}'."
             )
 
     @property
@@ -69,9 +76,9 @@ class RequisitionTargetHandler(TargetHandler):
         for this visit.
         """
         visit_schedule = site_visit_schedules.get_visit_schedule(
-            self.visit_model_instance.visit_schedule_name
+            self.related_visit.visit_schedule_name
         )
-        return visit_schedule.schedules.get(self.visit_model_instance.schedule_name)
+        return visit_schedule.schedules.get(self.related_visit.schedule_name)
 
     def raise_on_invalid_panel(self):
         """Raises an exception if target_panel is not found in any visit
@@ -91,6 +98,6 @@ class RequisitionTargetHandler(TargetHandler):
         return self.metadata_handler_cls(
             metadata_model=self.metadata_model,
             model=self.model,
-            visit_model_instance=self.visit_model_instance,
+            related_visit=self.related_visit,
             panel=self.target_panel,
         )

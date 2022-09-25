@@ -38,6 +38,14 @@ class MyView(MetadataViewMixin, ContextMixin, View):
     crf_model_wrapper_cls = DummyCrfModelWrapper
     requisition_model_wrapper_cls = DummyRequisitionModelWrapper
 
+    def __init__(self, appointment: Appointment = None, **kwargs):
+        self._appointment = appointment
+        super().__init__(**kwargs)
+
+    @property
+    def appointment(self) -> Appointment:
+        return self._appointment
+
 
 class TestViewMixin(TestCase):
     @classmethod
@@ -88,8 +96,7 @@ class TestViewMixin(TestCase):
     def test_view_mixin(self):
         request = RequestFactory().get("/?f=f&e=e&o=o&q=q")
         request.user = self.user
-        view = MyView(request=request)
-        view.appointment = self.appointment
+        view = MyView(request=request, appointment=self.appointment)
         view.subject_identifier = self.subject_identifier
         view.kwargs = {}
         view.get_context_data()
@@ -97,8 +104,7 @@ class TestViewMixin(TestCase):
     def test_view_mixin_context_data_crfs(self):
         request = RequestFactory().get("/?f=f&e=e&o=o&q=q")
         request.user = self.user
-        view = MyView(request=request)
-        view.appointment = self.appointment
+        view = MyView(request=request, appointment=self.appointment)
         view.subject_identifier = self.subject_identifier
         view.kwargs = {}
         context_data = view.get_context_data()
@@ -109,8 +115,7 @@ class TestViewMixin(TestCase):
         CrfThree.objects.create(subject_visit=self.subject_visit)
         request = RequestFactory().get("/?f=f&e=e&o=o&q=q")
         request.user = self.user
-        view = MyView(request=request)
-        view.appointment = self.appointment
+        view = MyView(request=request, appointment=self.appointment)
         view.subject_identifier = self.subject_identifier
         view.kwargs = {}
         context_data = view.get_context_data()
@@ -123,8 +128,7 @@ class TestViewMixin(TestCase):
     def test_view_mixin_context_data_requisitions(self):
         request = RequestFactory().get("/?f=f&e=e&o=o&q=q")
         request.user = self.user
-        view = MyView(request=request)
-        view.appointment = self.appointment
+        view = MyView(request=request, appointment=self.appointment)
         view.subject_identifier = self.subject_identifier
         context_data = view.get_context_data()
         self.assertEqual(len(context_data.get("requisitions")), 2)
@@ -148,8 +152,7 @@ class TestViewMixin(TestCase):
 
         request = RequestFactory().get("/?f=f&e=e&o=o&q=q")
         request.user = self.user
-        view = MyView(request=request)
-        view.appointment = creator.appointment
+        view = MyView(request=request, appointment=creator.appointment)
         view.subject_identifier = self.subject_identifier
         view.kwargs = {}
         context_data = view.get_context_data()
@@ -159,8 +162,7 @@ class TestViewMixin(TestCase):
         request = RequestFactory().get("/?f=f&e=e&o=o&q=q")
         request.user = self.user
 
-        view = MyView(request=request)
-        view.appointment = self.appointment
+        view = MyView(request=request, appointment=self.appointment)
         view.subject_identifier = self.subject_identifier
         view.kwargs = {}
         view.request = HttpRequest()

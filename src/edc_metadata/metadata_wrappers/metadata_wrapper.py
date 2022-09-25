@@ -1,11 +1,15 @@
-from typing import Optional, Type, Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
-from edc_crf.stubs import CrfModelStub
-from edc_visit_tracking.stubs import SubjectVisitModelStub
 
-from ..stubs import CrfMetadataModelStub, RequisitionMetadataModelStub
+if TYPE_CHECKING:
+    from edc_crf.model_mixins import CrfModelMixin
+    from edc_visit_tracking.model_mixins import VisitModelMixin
+
+    from edc_metadata.models import CrfMetadata, RequisitionMetadata
 
 
 class MetadataWrapperError(Exception):
@@ -19,12 +23,12 @@ class MetadataWrapper:
     attributes like the visit, model class, metadata_obj, etc.
     """
 
-    label: Optional[str] = None
+    label: str | None = None
 
     def __init__(
         self,
-        visit: SubjectVisitModelStub,
-        metadata_obj: Union[CrfMetadataModelStub, RequisitionMetadataModelStub],
+        visit: VisitModelMixin,
+        metadata_obj: CrfMetadata | RequisitionMetadata,
     ) -> None:
         self._model_obj = None
         self.metadata_obj = metadata_obj
@@ -50,7 +54,7 @@ class MetadataWrapper:
         return {f"{self.model_cls.related_visit_model_attr()}": self.visit}
 
     @property
-    def model_obj(self) -> CrfModelStub:
+    def model_obj(self) -> CrfModelMixin:
         if not self._model_obj:
             try:
                 self._model_obj = self.model_cls.objects.get(**self.options)
@@ -66,6 +70,6 @@ class MetadataWrapper:
         self._model_obj = value
 
     @property
-    def model_cls(self) -> Type[CrfModelStub]:
-        """Returns a model class"""
+    def model_cls(self) -> CrfModelMixin:
+        """Returns a CRF model class"""
         return django_apps.get_model(self.metadata_obj.model)

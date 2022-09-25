@@ -1,8 +1,19 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 
 from .constants import REQUIRED
 from .metadata import CrfMetadataGetter, RequisitionMetadataGetter
+
+if TYPE_CHECKING:
+    from edc_appointment.models import Appointment
+    from edc_visit_schedule import Crf, Requisition, Visit
+
+    from .metadata import MetadataGetter
+    from .models import CrfMetadata, RequisitionMetadata
 
 
 class NextFormGetter:
@@ -10,21 +21,26 @@ class NextFormGetter:
     crf_metadata_getter_cls = CrfMetadataGetter
     requisition_metadata_getter_cls = RequisitionMetadataGetter
 
-    def __init__(self, model_obj=None, appointment=None, model=None, panel_name=None):
+    def __init__(
+        self,
+        model_obj=None,
+        appointment: Appointment = None,
+        model: str = None,
+        panel_name: str = None,
+    ):
         self._getter = None
         self._next_metadata_obj = None
         self._model_obj = model_obj
         self._next_form = None
         self._next_panel = None
         self._panel_name = panel_name
-        self._visit = None
 
         self.model = model or model_obj._meta.label_lower
         self.appointment = appointment or model_obj.related_visit.appointment
-        self.visit = self.appointment.related_visit.visit
+        self.visit: Visit = self.appointment.related_visit.visit
 
     @property
-    def next_form(self):
+    def next_form(self) -> Crf | Requisition:
         """Returns the next required form based on the metadata.
 
         A form is a Crf or Requisition object from edc_visit_schedule.
@@ -56,7 +72,7 @@ class NextFormGetter:
         return self._model_obj
 
     @property
-    def metadata_getter(self):
+    def metadata_getter(self) -> MetadataGetter | RequisitionMetadataGetter:
         """Returns a metadata_getter instance."""
         if not self._getter:
             if self.panel_name:
@@ -68,7 +84,7 @@ class NextFormGetter:
         return self._getter
 
     @property
-    def next_metadata_obj(self):
+    def next_metadata_obj(self) -> CrfMetadata | RequisitionMetadata:
         """Returns the "next" metadata model instance or None."""
         if not self._next_metadata_obj:
             show_order = getattr(self.crf_or_requisition, "show_order", None)
@@ -78,8 +94,7 @@ class NextFormGetter:
         return self._next_metadata_obj
 
     @property
-    def next_panel(self):
-        """Returns the metadata model instance."""
+    def next_panel(self) -> str | None:
         if not self._next_panel:
             if self.next_metadata_obj:
                 try:
@@ -89,7 +104,7 @@ class NextFormGetter:
         return self._next_panel
 
     @property
-    def panel_name(self):
+    def panel_name(self) -> str | None:
         """Returns a panel_name or None."""
         if not self._panel_name:
             if self.model_obj:
@@ -100,7 +115,7 @@ class NextFormGetter:
         return self._panel_name
 
     @property
-    def crf_or_requisition(self):
+    def crf_or_requisition(self) -> Crf | Requisition:
         """Returns a CRF or Requisition object from
         the visit schedule's visit.
         """

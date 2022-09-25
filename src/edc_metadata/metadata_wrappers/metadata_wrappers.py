@@ -1,8 +1,9 @@
-from typing import ClassVar
+from __future__ import annotations
 
 from django.core.management.color import color_style
 
-from ..stubs import MetadataGetterStub, MetadataWrapperStub
+from ..metadata import MetadataGetter
+from .metadata_wrapper import MetadataWrapper
 
 style = color_style()
 
@@ -15,17 +16,17 @@ class MetadataWrappers:
     See also classes Crf, Requisition in edc_visit_schedule.
     """
 
-    metadata_getter_cls: ClassVar[MetadataGetterStub] = None
-    metadata_wrapper_cls: ClassVar[MetadataWrapperStub] = None
+    metadata_getter_cls: MetadataGetter = MetadataGetter
+    metadata_wrapper_cls: MetadataWrapper = MetadataWrapper
 
     def __init__(self, **kwargs) -> None:
         metadata_getter = self.metadata_getter_cls(**kwargs)
         self.objects = []
-        if metadata_getter.visit_model_instance:
+        if metadata_getter.related_visit:
             for metadata_obj in metadata_getter.metadata_objects:
                 metadata_wrapper = self.metadata_wrapper_cls(
                     metadata_obj=metadata_obj,
-                    visit=metadata_getter.visit_model_instance,
+                    visit=metadata_getter.related_visit,
                 )
                 self.objects.append(metadata_wrapper)
 

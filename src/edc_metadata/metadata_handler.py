@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from edc_visit_tracking.constants import MISSED_VISIT
@@ -19,13 +21,11 @@ class MetadataHandler:
 
     creator_cls = Creator
 
-    def __init__(self, metadata_model=None, visit_model_instance=None, model=None):
+    def __init__(self, metadata_model=None, related_visit=None, model=None):
         self.metadata_model = metadata_model
         self.model = model
-        self.visit_model_instance = visit_model_instance
-        self.creator = self.creator_cls(
-            visit_model_instance=self.visit_model_instance, update_keyed=True
-        )
+        self.related_visit = related_visit
+        self.creator = self.creator_cls(related_visit=self.related_visit, update_keyed=True)
 
     @property
     def metadata_model_cls(self):
@@ -51,7 +51,7 @@ class MetadataHandler:
                 crf for crf in self.creator.visit.all_crfs if crf.model == self.model
             ][0]
         except IndexError as e:
-            if self.visit_model_instance.reason != MISSED_VISIT:
+            if self.related_visit.reason != MISSED_VISIT:
                 raise MetadataHandlerError(
                     f"Model not found. Not in visit.all_crfs. Model {self.model}. Got {e}"
                 )
@@ -66,11 +66,11 @@ class MetadataHandler:
         Note: the metadata model instance shares many field attributes
         with the visit model.
         """
-        query_options = self.visit_model_instance.metadata_query_options
+        query_options = self.related_visit.metadata_query_options
         query_options.update(
             {
                 "model": self.model,
-                "subject_identifier": self.visit_model_instance.subject_identifier,
+                "subject_identifier": self.related_visit.subject_identifier,
             }
         )
         return query_options

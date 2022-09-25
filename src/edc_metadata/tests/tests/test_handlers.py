@@ -70,60 +70,60 @@ class TestHandlers(TestCase):
         )
 
     def test_requisition_handler_invalid_target_panel(self):
-        visit_model_instance = SubjectVisit.objects.create(
+        related_visit = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED
         )
         self.assertRaises(
             InvalidTargetPanel,
             RequisitionTargetHandler,
             model="edc_metadata.subjectrequisition",
-            visit_model_instance=visit_model_instance,
+            related_visit=related_visit,
             target_panel=self.panel_blah,
         )
 
     def test_requisition_handler_target_panel_not_for_visit(self):
-        visit_model_instance = SubjectVisit.objects.create(
+        related_visit = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED
         )
         self.assertRaises(
             TargetPanelNotScheduledForVisit,
             RequisitionTargetHandler,
             model="edc_metadata.subjectrequisition",
-            visit_model_instance=visit_model_instance,
+            related_visit=related_visit,
             target_panel=self.panel_nine,
         )
 
     def test_crf_handler_invalid_target_model(self):
-        visit_model_instance = SubjectVisit.objects.create(
+        related_visit = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED
         )
         self.assertRaises(
             TargetModelLookupError,
             TargetHandler,
             model="edc_metadata.crfblah",
-            visit_model_instance=visit_model_instance,
+            related_visit=related_visit,
         )
 
     def test_crf_handler_target_model_not_for_visit(self):
-        visit_model_instance = SubjectVisit.objects.create(
+        related_visit = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED
         )
         self.assertRaises(
             TargetModelNotScheduledForVisit,
             TargetHandler,
             model="edc_metadata.crfseven",
-            visit_model_instance=visit_model_instance,
+            related_visit=related_visit,
         )
 
     def test_crf_handler_target_model_ignored_for_missed_visit(self):
         SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
         self.appointment_2000.appt_timing = MISSED_APPT
         self.appointment_2000.save_base(update_fields=["appt_timing"])
-        visit_model_instance = SubjectVisit.objects.get(appointment=self.appointment_2000)
+        related_visit = SubjectVisit.objects.get(appointment=self.appointment_2000)
         try:
             TargetHandler(
                 model="edc_metadata.crfseven",
-                visit_model_instance=visit_model_instance,
+                related_visit=related_visit,
             )
         except TargetModelNotScheduledForVisit:
             self.fail("TargetModelNotScheduledForVisit unexpectedly raised")

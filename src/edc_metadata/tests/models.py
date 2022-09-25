@@ -6,7 +6,7 @@ from edc_appointment.models import Appointment
 from edc_consent.field_mixins import PersonalFieldsMixin
 from edc_constants.choices import YES_NO
 from edc_constants.constants import MALE
-from edc_crf.crf_with_action_model_mixin import CrfWithActionModelMixin
+from edc_crf.model_mixins import CrfWithActionModelMixin
 from edc_identifier.managers import SubjectIdentifierManager
 from edc_identifier.model_mixins import (
     UniqueSubjectIdentifierFieldMixin,
@@ -15,7 +15,6 @@ from edc_identifier.model_mixins import (
 from edc_lab.model_mixins import PanelModelMixin
 from edc_list_data.model_mixins import ListModelMixin
 from edc_model.models import BaseUuidModel
-from edc_offstudy.model_mixins import OffstudyModelMixin
 from edc_reference.model_mixins import (
     ReferenceModelMixin,
     RequisitionReferenceModelMixin,
@@ -50,11 +49,6 @@ class OnSchedule(OnScheduleModelMixin, BaseUuidModel):
 class OffSchedule(OffScheduleModelMixin, BaseUuidModel):
 
     pass
-
-
-class SubjectOffstudy(OffstudyModelMixin, BaseUuidModel):
-    class Meta(OffstudyModelMixin.Meta):
-        pass
 
 
 class DeathReport(UniqueSubjectIdentifierFieldMixin, BaseUuidModel):
