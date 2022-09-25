@@ -15,6 +15,10 @@ from edc_lab.admin.fieldsets import (
 
 class RequisitionAdminMixin:
 
+    default_item_type = "tube"
+    default_item_count = 1
+    default_estimated_volume = 5.0
+
     ordering = ("requisition_identifier",)
 
     date_hierarchy = "requisition_datetime"
@@ -77,7 +81,7 @@ class RequisitionAdminMixin:
         )
 
     def get_changeform_initial_data(self, request) -> dict:
-        initial_data = super().get_changeform_initial_data(request)  # noqa
+        initial_data = super().get_changeform_initial_data(request)
         try:
             related_visit = get_related_visit_model_cls().objects.get(
                 id=request.GET.get(self.model.related_visit_model_attr())
@@ -88,5 +92,11 @@ class RequisitionAdminMixin:
         else:
             initial_data.update(
                 requisition_datetime=related_visit.report_datetime,
+                item_type=self.default_item_type,
+                item_count=self.default_item_count,
+                estimated_volume=self.default_estimated_volume,
             )
         return initial_data
+
+        # if self.fields.get("specimen_type"):
+        #     self.fields["specimen_type"].widget.attrs["readonly"] = True

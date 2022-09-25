@@ -16,7 +16,7 @@ from edc_sites.models import SiteModelMixin
 from edc_visit_tracking.managers import CurrentSiteManager
 from edc_visit_tracking.model_mixins import (
     PreviousVisitModelMixin,
-    VisitTrackingCrfModelMixin,
+    VisitTrackingRequisitionModelMixin,
 )
 
 from ...choices import ITEM_TYPE, REASON_NOT_DRAWN
@@ -29,7 +29,7 @@ from .requisition_verify_model_mixin import RequisitionVerifyModelMixin
 
 class RequisitionModelMixin(
     NonUniqueSubjectIdentifierFieldMixin,
-    VisitTrackingCrfModelMixin,
+    VisitTrackingRequisitionModelMixin,
     PanelModelMixin,
     PreviousVisitModelMixin,
     RequiresConsentFieldsModelMixin,
@@ -42,8 +42,6 @@ class RequisitionModelMixin(
     UpdatesRequisitionMetadataModelMixin,
     models.Model,
 ):
-
-    subject_visit = models.ForeignKey(settings.SUBJECT_VISIT_MODEL, on_delete=models.PROTECT)
 
     requisition_datetime = models.DateTimeField(
         validators=[datetime_not_before_study_start, datetime_not_future],
@@ -129,10 +127,11 @@ class RequisitionModelMixin(
             self.protocol_number = Protocol().protocol_number
         self.subject_identifier = self.related_visit.subject_identifier
         self.specimen_type = self.panel_object.aliquot_type.alpha_code
+        self.report_datetime = self.requisition_datetime
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.requisition_identifier,)
+        return tuple(self.requisition_identifier)
 
     natural_key.dependencies = [settings.SUBJECT_VISIT_MODEL, "sites.Site"]
 
@@ -151,3 +150,7 @@ class RequisitionModelMixin(
     class Meta:
         abstract = True
         unique_together = ("panel", "subject_visit")
+        indexes = [
+            models.Index(fields=["subject_visit", "site", "panel", "id"]),
+            models.Index(fields=["subject_visit", "report_datetime"]),
+        ]
