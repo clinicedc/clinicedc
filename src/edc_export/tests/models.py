@@ -3,7 +3,6 @@ from uuid import uuid4
 from django.db import models
 from django.db.models.deletion import PROTECT
 from django_crypto_fields.fields import EncryptedCharField
-from edc_appointment.models import Appointment
 from edc_constants.constants import YES
 from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
 from edc_list_data.model_mixins import BaseListModelMixin, ListModelMixin
@@ -15,22 +14,13 @@ from edc_visit_schedule.model_mixins.off_schedule_model_mixin import (
     OffScheduleModelMixin,
 )
 from edc_visit_schedule.model_mixins.on_schedule_model_mixin import OnScheduleModelMixin
+from edc_visit_tracking.model_mixins import VisitModelMixin
 
 from ..managers import ExportHistoryManager
 from ..model_mixins import ExportTrackingFieldsModelMixin
 
 
-class SubjectVisit(BaseUuidModel):
-
-    appointment = models.ForeignKey(Appointment, null=True, on_delete=PROTECT)
-
-    subject_identifier = models.CharField(max_length=36)
-
-    report_datetime = models.DateTimeField(default=get_utcnow)
-
-    visit_code = models.CharField(max_length=25, default="T0")
-
-    reason = models.CharField(max_length=25, null=True)
+class SubjectVisit(VisitModelMixin, BaseUuidModel):
 
     survival_status = models.CharField(max_length=25, null=True)
 
