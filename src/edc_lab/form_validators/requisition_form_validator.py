@@ -1,11 +1,13 @@
 from django import forms
 from django.apps import apps as django_apps
 from edc_constants.constants import NO, YES
-from edc_form_validators import FormValidator
+from edc_crf.crf_form_validator import CrfFormValidator
 from edc_utils import formatted_datetime, to_utc
 
+from ..form_validators import CrfRequisitionFormValidatorMixin
 
-class RequisitionFormValidator(FormValidator):
+
+class RequisitionFormValidator(CrfRequisitionFormValidatorMixin, CrfFormValidator):
 
     aliquot_model = "edc_lab.aliquot"
 
