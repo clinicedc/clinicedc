@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.test import TestCase
 from edc_appointment.constants import COMPLETE_APPT
@@ -67,7 +68,8 @@ class TimepointTests(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier, now=get_utcnow()
+            subject_identifier=self.subject_identifier,
+            now=get_utcnow() - relativedelta(years=1),
         )
         self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.filter(
