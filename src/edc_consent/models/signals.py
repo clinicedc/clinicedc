@@ -21,7 +21,7 @@ def requires_consent_on_pre_save(instance, raw, using, update_fields, **kwargs):
             try:
                 subject_identifier = instance.subject_identifier
             except AttributeError:
-                subject_identifier = instance.visit.subject_identifier
+                subject_identifier = instance.related_visit.subject_identifier
             if consent_model:
                 requires_consent = RequiresConsent(
                     model=instance._meta.label_lower,

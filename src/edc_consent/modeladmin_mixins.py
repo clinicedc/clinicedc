@@ -130,16 +130,16 @@ class ModelAdminConsentMixin:
         """Prevent deletion if SubjectVisit objects exist."""
         extra_context = extra_context or {}
         subject_consent_model_cls = django_apps.get_model(settings.SUBJECT_CONSENT_MODEL)
-        subject_visit_model_cls = django_apps.get_model(settings.SUBJECT_VISIT_MODEL)
+        related_visit_model_cls = django_apps.get_model(settings.SUBJECT_VISIT_MODEL)
         obj = subject_consent_model_cls.objects.get(id=object_id)
         try:
             protected = [
-                subject_visit_model_cls.objects.get(subject_identifier=obj.subject_identifier)
+                related_visit_model_cls.objects.get(subject_identifier=obj.subject_identifier)
             ]
         except ObjectDoesNotExist:
             protected = None
         except MultipleObjectsReturned:
-            protected = subject_visit_model_cls.objects.filter(
+            protected = related_visit_model_cls.objects.filter(
                 subject_identifier=obj.subject_identifier
             )
         extra_context.update({"protected": protected})
