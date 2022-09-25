@@ -3,7 +3,7 @@ from django.utils.translation import gettext as _
 
 
 class OtherCharField(CharField):
-    """Field for "Other specify" options"""
+    """Field for "Other specify" options."""
 
     description = _("Custom field for 'Other specify' form field")
 
