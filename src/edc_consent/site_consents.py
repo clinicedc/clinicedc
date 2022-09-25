@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import sys
 from copy import deepcopy
 from datetime import datetime
-from typing import Any, Optional
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -11,6 +13,9 @@ from edc_utils import convert_php_dateformat
 
 from .consent_object_validator import ConsentObjectValidator
 from .exceptions import ConsentObjectDoesNotExist
+
+if TYPE_CHECKING:
+    from .consent import Consent
 
 
 class ConsentError(Exception):
@@ -41,12 +46,12 @@ class SiteConsents:
         self.loaded = True
 
     @property
-    def consents(self):
+    def consents(self) -> list[Consent]:
         """Returns an ordered list of consent objects."""
         consents = list(self.registry.values())
         return sorted(consents, key=lambda x: x.name, reverse=False)
 
-    def get_consents_by_model(self, model=None):
+    def get_consents_by_model(self, model: str = None) -> list[Consent] | list[str]():
         """Returns a list of consents for the given
         consent model label_lower.
         """
@@ -54,16 +59,16 @@ class SiteConsents:
 
     def get_consent_for_period(
         self,
-        model: Optional[str] = None,
-        report_datetime: Optional[datetime] = None,
-        consent_group: Optional[str] = None,
-    ) -> Any:
+        model: str = None,
+        report_datetime: datetime = None,
+        consent_group: str | None = None,
+    ) -> Consent:
         """Returns a consent object with a date range that the
         given report_datetime falls within.
         """
         if not self.consents or not self.loaded:
             raise SiteConsentError(
-                f"No consent objects have been registered by site consents. "
+                f"No consent objects have been registered with `site_consents`. "
                 f"Got {self.consents}, loaded={self.loaded}."
             )
         app_config = django_apps.get_app_config("edc_consent")
@@ -91,11 +96,11 @@ class SiteConsents:
 
     def get_consent(
         self,
-        consent_model=None,
-        report_datetime=None,
+        consent_model: str = None,
+        report_datetime: datetime = None,
         version=None,
         consent_group=None,
-    ) -> Any:
+    ) -> Consent:
         """Return consent object, not model, valid for the datetime."""
         app_config = django_apps.get_app_config("edc_consent")
         consent_group = consent_group or app_config.default_consent_group

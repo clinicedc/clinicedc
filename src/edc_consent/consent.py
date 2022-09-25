@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from datetime import datetime
+
 from django.apps import apps as django_apps
 from edc_constants.constants import FEMALE, MALE
 
@@ -17,19 +21,21 @@ class Consent:
 
     def __init__(
         self,
-        model,
-        group=None,
-        start=None,
-        end=None,
-        version=None,
-        gender=None,
-        updates_versions=None,
-        age_min=None,
-        age_max=None,
-        age_is_adult=None,
-        subject_type=None,
+        model: str,
+        group: str = None,
+        start: datetime = None,
+        end: datetime = None,
+        version: str | None = None,
+        gender: list[str] = None,
+        updates_versions: list[str] | str | None = None,
+        age_min: int = None,
+        age_max: int = None,
+        age_is_adult: bool | None = None,
+        subject_type: str | None = None,
     ):
-        """A class that represents the general attributes of a consent."""
+        """A class that represents the general attributes
+        of a consent.
+        """
         if not start.tzinfo:
             raise NaiveDatetimeError(f"Naive datetime is invalid. Got {start}.")
         if not end.tzinfo:
