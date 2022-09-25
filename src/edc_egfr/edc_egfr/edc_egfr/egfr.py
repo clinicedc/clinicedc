@@ -23,7 +23,7 @@ class EgfrError(Exception):
 
 class Egfr:
 
-    calculators = {"ckd-epi": EgfrCkdEpi, "cockcroft-gault": EgfrCockcroftGault}
+    calculators: dict = {"ckd-epi": EgfrCkdEpi, "cockcroft-gault": EgfrCockcroftGault}
 
     def __init__(
         self,

@@ -1,4 +1,4 @@
-from typing import Optional
+from __future__ import annotations
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models, transaction
@@ -38,9 +38,9 @@ class EgfrModelMixin(
     See edc_lab_result, edc_crf.
     """
 
-    percent_drop_threshold: Optional[float] = 20
-    baseline_timepoint: Optional[int] = 0
-    egfr_formula_name: Optional[str] = None
+    percent_drop_threshold: float = 20.0
+    baseline_timepoint: int = 0
+    egfr_formula_name: str = None
 
     def save(self, *args, **kwargs):
         egfr = Egfr(**self.egfr_options)
@@ -55,7 +55,7 @@ class EgfrModelMixin(
     @property
     def egfr_options(self) -> dict:
         rs = RegisteredSubject.objects.get(
-            subject_identifier=self.subject_visit.subject_identifier
+            subject_identifier=self.related_visit.subject_identifier
         )
         return dict(
             calling_crf=self,
@@ -70,23 +70,25 @@ class EgfrModelMixin(
             reference_range_collection_name=get_reference_range_collection_name(self),
         )
 
-    def get_baseline_egfr_value(self) -> Optional[float]:
+    def get_baseline_egfr_value(self) -> float | None:
         """Returns a baseline or reference eGFR value.
 
-        Expects a longitudinal / CRF model with attrs subject_visit.
+        Expects a longitudinal / CRF model with attrs `subject_visit`.
         """
         egfr_value = None
         with transaction.atomic():
-            subject_visit = self.subject_visit.__class__.objects.get(
-                appointment__subject_identifier=self.subject_visit.subject_identifier,
-                appointment__visit_schedule_name=self.subject_visit.visit_schedule_name,
-                appointment__schedule_name=self.subject_visit.schedule_name,
+            baseline_visit = self.related_visit.__class__.objects.get(
+                appointment__subject_identifier=self.related_visit.subject_identifier,
+                appointment__visit_schedule_name=self.related_visit.visit_schedule_name,
+                appointment__schedule_name=self.related_visit.schedule_name,
                 appointment__timepoint=self.baseline_timepoint,
                 visit_code_sequence=0,
             )
         with transaction.atomic():
             try:
-                egfr_value = self.__class__.objects.get(subject_visit=subject_visit).egfr_value
+                egfr_value = self.__class__.objects.get(
+                    subject_visit=baseline_visit
+                ).egfr_value
             except ObjectDoesNotExist:
                 pass
         return egfr_value
