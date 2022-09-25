@@ -1,7 +1,7 @@
-import arrow
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
+from edc_utils import get_utcnow
 
 from .choices import TIMEPOINT_STATUS
 from .constants import CLOSED_TIMEPOINT, FEEDBACK, OPEN_TIMEPOINT
@@ -100,7 +100,7 @@ class TimepointModelMixin(models.Model):
         status = getattr(self, timepoint.status_field)
         if status == timepoint.closed_status:
             self.timepoint_status = CLOSED_TIMEPOINT
-            self.timepoint_closed_datetime = arrow.utcnow().datetime
+            self.timepoint_closed_datetime = get_utcnow()
             self.save(update_fields=["timepoint_status"])
         else:
             raise UnableToCloseTimepoint(
