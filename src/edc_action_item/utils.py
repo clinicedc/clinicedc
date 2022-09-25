@@ -27,10 +27,10 @@ def update_action_identifier(model=None, action_cls=None, apps=None, status=None
     action_type = create_or_update_action_type(apps=apps, **action_cls.as_dict())
     for obj in tqdm(model_cls.objects.filter(action_identifier__isnull=True)):
         action_item = action_item_cls(
-            subject_identifier=obj.subject_visit.subject_identifier,
+            subject_identifier=obj.related_visit.subject_identifier,
             action_type=action_type,
             action_identifier=ActionIdentifier().identifier,
-            site=obj.subject_visit.site,
+            site=obj.related_visit.site,
         )
         action_item.linked_to_reference = True
         action_item.status = status or CLOSED

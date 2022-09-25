@@ -36,8 +36,8 @@ def fix_null_action_item_fk(apps, app_label, models):
         model_cls.action_name = [
             action.name
             for action in site_action_items.registry.values()
-            if action.reference_model
-            and action.reference_model.split(".")[1].lower() == model.lower()
+            if action.get_reference_model()
+            and action.get_reference_model().split(".")[1].lower() == model.lower()
         ][0]
         if model_cls.action_name:
             for obj in model_cls.objects.all():

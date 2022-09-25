@@ -49,7 +49,7 @@ class SiteActionItemCollection:
             self.registry.update({action_cls.name: action_cls})
         if action_cls.show_link_to_changelist:
             prn = Prn(
-                model=action_cls.reference_model,
+                model=action_cls.get_reference_model(),
                 url_namespace=action_cls.admin_site_name,
             )
             try:
@@ -88,7 +88,7 @@ class SiteActionItemCollection:
     def get_by_model(self, model=None):
         """Returns the action_cls linked to this reference model."""
         for action_cls in self.registry.values():
-            if action_cls.reference_model == model:
+            if action_cls.get_reference_model() == model:
                 return self.get(action_cls.name)
         return None
 

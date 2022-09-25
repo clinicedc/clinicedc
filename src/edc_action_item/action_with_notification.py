@@ -36,7 +36,7 @@ class ActionWithNotification(Action):
                 ),
                 email_to=cls.notification_email_to,
                 notification_fields=cls.notification_fields,
-                model=cls.reference_model,
+                model=cls.get_reference_model(),
                 notify_on_new_and_no_reference_obj=cls.notify_on_new_and_no_reference_obj,
                 notify_on_new=cls.notify_on_new,
                 notify_on_open=cls.notify_on_open,

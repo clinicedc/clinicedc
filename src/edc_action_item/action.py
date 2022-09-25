@@ -257,9 +257,14 @@ class Action:
         return django_apps.get_model(cls.action_type_model)
 
     @classmethod
+    def get_reference_model(cls):
+        """Returns the reference model label lower."""
+        return cls.reference_model
+
+    @classmethod
     def reference_model_cls(cls):
         """Returns the reference model class."""
-        return django_apps.get_model(cls.reference_model)
+        return django_apps.get_model(cls.get_reference_model())
 
     @classmethod
     def related_reference_model_cls(cls):
@@ -271,7 +276,7 @@ class Action:
         """Returns select class attrs as a dictionary."""
         dct = {k: v for k, v in cls.__dict__.items() if not k.startswith("_")}
         try:
-            dct.update(reference_model=cls.reference_model.lower())
+            dct.update(reference_model=cls.get_reference_model().lower())
         except AttributeError:
             pass
         try:

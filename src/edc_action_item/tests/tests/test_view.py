@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.urls.base import reverse
+from django.views.generic.base import ContextMixin
 from edc_model_wrapper import ModelWrapper
 
 from edc_action_item.models import ActionItem, ActionType
@@ -13,13 +14,16 @@ class MyModelWrapper(ModelWrapper):
     next_url_name = "subject_dashboard_url"
 
 
+class MyActionItemViewMixin(ActionItemViewMixin, ContextMixin):
+    action_item_model_wrapper_cls = MyModelWrapper
+
+
 class TestAction(TestCaseMixin, TestCase):
     def setUp(self):
         self.subject_identifier = self.fake_enroll()
-        ActionItemViewMixin.action_item_model_wrapper_cls = MyModelWrapper
 
     def test_view_context(self):
-        view = ActionItemViewMixin()
+        view = MyActionItemViewMixin()
         view.kwargs = dict(subject_identifier=self.subject_identifier)
         context = view.get_context_data()
         self.assertEqual(context.get("open_action_items"), [])
@@ -29,7 +33,7 @@ class TestAction(TestCaseMixin, TestCase):
                 subject_identifier=self.subject_identifier, action_type=action_type
             )
 
-        view = ActionItemViewMixin()
+        view = MyActionItemViewMixin()
         view.kwargs = dict(subject_identifier=self.subject_identifier)
         context = view.get_context_data()
         self.assertEqual(
