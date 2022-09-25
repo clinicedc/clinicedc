@@ -1,11 +1,10 @@
-from django.views.generic.base import ContextMixin
 from edc_constants.constants import NEW, OPEN
 
 from ..model_wrappers import ActionItemModelWrapper
 from ..models import ActionItem
 
 
-class ActionItemViewMixin(ContextMixin):
+class ActionItemViewMixin:
 
     action_item_model_wrapper_cls = ActionItemModelWrapper
 

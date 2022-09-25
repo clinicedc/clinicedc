@@ -10,7 +10,7 @@ register = template.Library()
 
 
 @register.inclusion_tag(
-    f"edc_action_item/bootstrap{get_bootstrap_version()}/" "add_action_item_popover.html"
+    f"edc_action_item/bootstrap{get_bootstrap_version()}/add_action_item_popover.html"
 )
 def add_action_item_popover(subject_identifier, subject_dashboard_url):
     action_item_add_url = "edc_action_item_admin:edc_action_item_actionitem_add"
@@ -24,7 +24,7 @@ def add_action_item_popover(subject_identifier, subject_dashboard_url):
 
 
 @register.inclusion_tag(
-    f"edc_action_item/bootstrap{get_bootstrap_version()}/" "action_item_with_popover.html"
+    f"edc_action_item/bootstrap{get_bootstrap_version()}/action_item_with_popover.html"
 )
 def action_item_with_popover(action_item_model_wrapper, tabindex):
     helper = ActionItemHelper(

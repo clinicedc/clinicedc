@@ -1,5 +1,6 @@
 import logging
 from urllib.parse import parse_qsl, unquote, urlencode, urlparse
+from zoneinfo import ZoneInfo
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -267,7 +268,9 @@ class ActionItemHelper:
             related_reference_obj=self.related_reference_obj,
             related_reference_model_name=self.related_reference_model_name,
             related_reference_url=self.related_reference_url,
-            report_datetime=self.action_item.report_datetime,
+            report_datetime=self.action_item.report_datetime.astimezone(
+                ZoneInfo(settings.TIME_ZONE)
+            ),
             status=self.action_item.action.get_status(),
         )
         return context

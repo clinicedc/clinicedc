@@ -1,3 +1,4 @@
+{% load l10n %}
 {% comment %}
 
  	Renders a single list-item for a listgroup of action items.
@@ -22,7 +23,7 @@ data-content="
 <p class='text text-muted'>{{ action_item_reason|default:'---' }}</p>
 {% if action_instructions %}<p class='text text-muted'><small>{{ action_instructions|truncatechars:250 }}</small></p>{% endif %}
 <p class='text text-muted'>
-	<small>Opened on {{ report_datetime|date:'SHORT_DATETIME_FORMAT' }}. {{ last_updated_text }}</small>
+	<small>Opened on {{ report_datetime }}. {{ last_updated_text }}</small>
 </p>
 </div>
 {% if reference_url %}
