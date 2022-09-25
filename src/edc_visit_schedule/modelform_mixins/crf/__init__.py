@@ -1,1 +1,1 @@
-from .crf_schedule_modelform_mixin import CrfScheduleModelFormMixin
+from .visit_schedule_crf_modelform_mixin import VisitScheduleCrfModelFormMixin

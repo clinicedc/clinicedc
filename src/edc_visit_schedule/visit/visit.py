@@ -1,14 +1,22 @@
+from __future__ import annotations
+
 import re
 from decimal import Decimal
-from typing import Optional, Union
+from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
-from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.conf import settings
 
-from .forms_collection import FormsCollection
 from .window_period import WindowPeriod
+
+if TYPE_CHECKING:
+    from datetime import datetime
+
+    from dateutil.relativedelta import relativedelta
+    from edc_facility import Facility
+
+    from .forms_collection import FormsCollection
 
 
 class VisitCodeError(Exception):
@@ -26,7 +34,13 @@ class VisitError(Exception):
 class VisitDate:
     window_period_cls = WindowPeriod
 
-    def __init__(self, rlower=None, rupper=None, timepoint=None, base_timepoint=None):
+    def __init__(
+        self,
+        rlower: relativedelta = None,
+        rupper: relativedelta = None,
+        timepoint: Decimal = None,
+        base_timepoint: Decimal = None,
+    ):
         self._base = None
         self.lower = None
         self.upper = None
@@ -44,9 +58,7 @@ class VisitDate:
     @base.setter
     def base(self, dt=None):
         self._base = dt.astimezone(ZoneInfo("UTC"))
-        window = self._window.get_window(dt=self._base)
-        self.lower = window.lower
-        self.upper = window.upper
+        self.lower, self.upper = self._window.get_window(dt=self._base)
 
 
 class Visit:
@@ -55,26 +67,30 @@ class Visit:
 
     def __init__(
         self,
-        code: Optional[str] = None,
-        timepoint: Optional[Union[Decimal, float]] = None,
-        rbase: Optional[relativedelta] = None,
-        rlower: Optional[relativedelta] = None,
-        rupper: Optional[relativedelta] = None,
-        crfs: Optional[FormsCollection] = None,
-        requisitions: Optional[FormsCollection] = None,
-        crfs_unscheduled: Optional[FormsCollection] = None,
-        crfs_missed: Optional[FormsCollection] = None,
-        requisitions_unscheduled: Optional[FormsCollection] = None,
-        crfs_prn: Optional[FormsCollection] = None,
-        requisitions_prn: Optional[FormsCollection] = None,
-        title: Optional[str] = None,
-        allow_unscheduled: Optional[bool] = None,
-        facility_name: Optional[str] = None,
-        instructions=None,
+        code: str = None,
+        timepoint: int | float | Decimal = None,
+        rbase: relativedelta = None,
+        rlower: relativedelta = None,
+        rupper: relativedelta = None,
+        crfs: FormsCollection | None = None,
+        requisitions: FormsCollection | None = None,
+        crfs_unscheduled: FormsCollection | None = None,
+        crfs_missed: FormsCollection | None = None,
+        requisitions_unscheduled: FormsCollection | None = None,
+        crfs_prn: FormsCollection | None = None,
+        requisitions_prn: FormsCollection | None = None,
+        title: str = None,
+        allow_unscheduled: bool | None = None,
+        facility_name: str | None = None,
+        instructions: str | None = None,
+        base_timepoint: int | float | Decimal | None = None,
         grouping=None,
-        base_timepoint=None,
     ):
-        self.base_timepoint = base_timepoint or 0
+        if isinstance(base_timepoint, (float,)):
+            base_timepoint = Decimal(str(base_timepoint))
+        elif isinstance(base_timepoint, (int,)):
+            base_timepoint = Decimal(str(base_timepoint) + ".0")
+        self.base_timepoint = base_timepoint or Decimal("0.0")
         self.crfs = crfs.forms if crfs else tuple()
         self.crfs_unscheduled = crfs_unscheduled.forms if crfs_unscheduled else ()
         self.crfs_missed = crfs_missed.forms if crfs_missed else ()
@@ -89,7 +105,11 @@ class Visit:
         for prn in self.requisitions_prn:
             prn.required = False
         self.instructions = instructions
-        self.timepoint = Decimal(str(timepoint))
+        if isinstance(timepoint, (float,)):
+            timepoint = Decimal(str(timepoint))
+        elif isinstance(timepoint, (int,)):
+            timepoint = Decimal(str(timepoint) + ".0")
+        self.timepoint = timepoint
         self.rbase = rbase
         self.rlower = rlower
         self.rupper = rupper
@@ -185,7 +205,7 @@ class Visit:
         return get_requisition
 
     @property
-    def facility(self):
+    def facility(self) -> Facility | None:
         """Returns a Facility object."""
         if self.facility_name:
             app_config = django_apps.get_app_config("edc_facility")
@@ -193,7 +213,7 @@ class Visit:
         return None
 
     @property
-    def timepoint_datetime(self):
+    def timepoint_datetime(self) -> datetime:
         return self.dates.base
 
     @timepoint_datetime.setter

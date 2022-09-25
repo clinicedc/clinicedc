@@ -5,7 +5,7 @@ from django.apps import apps as django_apps
 from edc_locator.utils import get_locator_model
 from edc_offstudy.utils import get_offstudy_model
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
-from edc_visit_tracking.utils import get_subject_visit_model
+from edc_visit_tracking.utils import get_related_visit_model
 
 from .schedules_collection import SchedulesCollection
 
@@ -57,7 +57,7 @@ class VisitSchedule:
         self.death_report_model = death_report_model
         self.locator_model = locator_model or get_locator_model()
         self.previous_visit_schedule = previous_visit_schedule
-        self.visit_model = visit_model or get_subject_visit_model()
+        self.visit_model = visit_model or get_related_visit_model()
         self.visit_model_reason_field = visit_model_reason_field or "reason"
         self.create_metadata_on_reasons = (
             create_metadata_on_reasons or self.create_metadata_on_reasons

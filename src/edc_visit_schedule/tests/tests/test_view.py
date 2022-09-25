@@ -4,6 +4,7 @@ from dateutil.relativedelta import relativedelta
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
+from django.views.generic.base import ContextMixin
 from edc_consent import site_consents
 from edc_consent.consent import Consent
 from edc_constants.constants import FEMALE, MALE
@@ -18,11 +19,11 @@ from edc_visit_schedule.visit_schedule import VisitSchedule
 from visit_schedule_app.models import OnSchedule, SubjectConsent
 
 
-class MyView(VisitScheduleViewMixin):
+class MyView(VisitScheduleViewMixin, ContextMixin):
     kwargs: dict = {}
 
 
-class MyViewCurrent(VisitScheduleViewMixin):
+class MyViewCurrent(VisitScheduleViewMixin, ContextMixin):
     kwargs: dict = {}
 
 

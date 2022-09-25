@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import re
+from decimal import Decimal
 
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
@@ -47,17 +50,22 @@ class Schedule:
     def __init__(
         self,
         name=None,
-        verbose_name=None,
-        sequence=None,
-        onschedule_model=None,
-        offschedule_model=None,
-        loss_to_followup_model=None,
-        appointment_model=None,
-        consent_model=None,
-        base_timepoint=None,
+        verbose_name: str = None,
+        onschedule_model: str = None,
+        offschedule_model: str = None,
+        loss_to_followup_model: str = None,
+        consent_model: str = None,
+        appointment_model: str | None = None,
+        offstudymedication_model: str | None = None,
+        sequence: str | None = None,
+        base_timepoint: float | Decimal | None = None,
     ):
         self._subject = None
-        self.base_timepoint = base_timepoint or 0
+        if isinstance(base_timepoint, (float,)):
+            base_timepoint = Decimal(str(base_timepoint))
+        elif isinstance(base_timepoint, (int,)):
+            base_timepoint = Decimal(str(base_timepoint) + ".0")
+        self.base_timepoint = base_timepoint or Decimal("0.0")
         self.visits = self.visit_collection_cls()
         if not name or not re.match(r"[a-z0-9_\-]+$", name):
             raise ScheduleNameError(
@@ -69,12 +77,15 @@ class Schedule:
         self.verbose_name = verbose_name or name
         self.sequence = sequence or name
 
-        self.appointment_model = appointment_model.lower()
+        self.appointment_model = appointment_model.lower() or "edc_appointment.appointment"
         self.consent_model = consent_model.lower()
         self.offschedule_model = offschedule_model.lower()
         self.onschedule_model = onschedule_model.lower()
         self.loss_to_followup_model = (
             None if loss_to_followup_model is None else loss_to_followup_model.lower()
+        )
+        self.offstudymedication_model = (
+            None if offstudymedication_model is None else offstudymedication_model.lower()
         )
 
     def check(self):

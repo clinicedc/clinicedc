@@ -124,7 +124,7 @@ def raise_if_not_baseline(subject_visit) -> None:
 
 
 def get_onschedule_models(
-    subject_identifier: Optional[str] = None, report_datetime: Optional[datetime] = None
+    subject_identifier: str = None, report_datetime: datetime = None
 ) -> List[str]:
     """Returns a list of onschedule models, in label_lower format,
     for this subject and date.
@@ -174,8 +174,8 @@ def get_subject_schedule_cls(model, visit_schedule, schedule):
     except AttributeError as e:
         if "subject_schedule_cls" in str(e):
             raise AttributeError(
-                f"Was model `{model._meta.label_lower}` declared "
-                f"with `CrfScheduleModelMixin`? Got {e}"
+                f"{e}. Perhaps model `{model._meta.label_lower}` should be declared "
+                f"with `CrfScheduleModelMixin`?"
             )
         else:
             raise
