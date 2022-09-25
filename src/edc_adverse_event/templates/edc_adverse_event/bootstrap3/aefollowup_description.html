@@ -2,15 +2,16 @@
 {% load edc_adverse_event_extras %}
 {% load tz %}
 {% load static %}
+{% load l10n %}
 
 <B>{{ ae_initial.subject_identifier }}</B>
 <BR><b>Followup required: <font color="{% if ae_followup.followup == YES%}red{%else%}green{%endif%}">{{ ae_followup.get_followup_display }}</font></b>
-<BR><b>Followup reported:</b> {{ ae_followup.report_datetime.date|date:SHORT_DATE_FORMAT}} ({{ utc_date|timeuntil:ae_initial.report_datetime.date }} ago)
+<BR><b>Followup reported:</b> {{ ae_followup.report_datetime|date:SHORT_DATE_FORMAT}} ({{ utc_date|timeuntil:ae_initial.report_datetime.date }} ago)
 <BR><b>This followup:</b>
 <BR>{{ relevant_history|default:ae_followup.relevant_history }}
 <BR>
 <BR><b><U>Original AE Report</U></b>
-<BR><b>Reported:</b> {{ ae_initial.report_datetime.date|date:SHORT_DATE_FORMAT}} ({{ utc_date|timeuntil:ae_initial.report_datetime.date }} ago)
+<BR><b>Reported:</b> {{ ae_initial.report_datetime|date:SHORT_DATE_FORMAT}} ({{ utc_date|timeuntil:ae_initial.report_datetime.date }} ago)
 <BR><b>Site aware:</b> {{ ae_initial.ae_awareness_date|date:SHORT_DATE_FORMAT }}
 <BR><b>Grade:</b> {{ ae_initial.get_ae_grade_display }}
 <BR><b>Classification:</b>

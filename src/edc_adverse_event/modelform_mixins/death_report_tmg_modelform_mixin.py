@@ -1,14 +1,10 @@
 from django import forms
-from edc_form_validators import FormValidatorMixin
-from edc_sites.forms import SiteModelFormMixin
 
-from ...form_validators import DeathReportTmgFormValidator
+from ..form_validators import DeathReportTmgFormValidator
+from .ae_modelform_mixin import AeModelFormMixin
 
 
-class DeathReportTmgModelFormMixin(
-    SiteModelFormMixin,
-    FormValidatorMixin,
-):
+class DeathReportTmgModelFormMixin(AeModelFormMixin):
 
     form_validator_cls = DeathReportTmgFormValidator
 

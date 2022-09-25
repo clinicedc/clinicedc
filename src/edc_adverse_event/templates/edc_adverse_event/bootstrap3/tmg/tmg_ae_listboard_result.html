@@ -138,7 +138,7 @@
                 <a class="list-group-item list-group-item-info" role="button"
                 title="View {{ result.death_report.object }}"
                 href="{{ result.death_report.href }}">
-                <i class="fas fa-eye fa-fw"></i> Death Report {{ result.death_report.object }} <span class="text text-muted">{{ utc_date|timeuntil:result.death_report.object.death_datetime }}</span></a>
+                <i class="fas fa-eye fa-fw"></i> Death Report {{ result.death_report.object }} <span class="text text-muted">{{ utc_date|timeuntil:result.death_report.object.death_datetime.date }}</span></a>
             {% endif %}
 
             <a class="list-group-item list-group-item-default" role="button"

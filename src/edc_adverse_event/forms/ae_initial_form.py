@@ -1,11 +1,10 @@
 from django import forms
-from edc_action_item.modelform_mixins import ActionItemModelFormMixin
 
 from ..get_ae_model import get_ae_model
-from .mixins import AeInitialModelFormMixin
+from ..modelform_mixins import AeInitialModelFormMixin, AeModelFormMixin
 
 
-class AeInitialForm(AeInitialModelFormMixin, ActionItemModelFormMixin, forms.ModelForm):
+class AeInitialForm(AeInitialModelFormMixin, AeModelFormMixin, forms.ModelForm):
     class Meta(AeInitialModelFormMixin.Meta):
         model = get_ae_model("aeinitial")
         fields = "__all__"

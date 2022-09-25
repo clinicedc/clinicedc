@@ -673,7 +673,7 @@ class TestAeAndActions(TestCase):
         action_item.refresh_from_db()
         self.assertEqual(action_item.status, CLOSED)
 
-        # confirm susar updates ae_initial (thru signal)
+        # confirm susar updates ae_initial (through signal)
         ae_initial.refresh_from_db()
         self.assertEqual(ae_initial.susar_reported, YES)
 
