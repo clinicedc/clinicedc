@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django import template
 from django.core.exceptions import ObjectDoesNotExist
 from edc_metadata.constants import KEYED, REQUIRED
@@ -5,6 +9,8 @@ from edc_metadata.models import CrfMetadata, RequisitionMetadata
 
 from ..site_prn_forms import site_prn_forms
 
+if TYPE_CHECKING:
+    from edc_appointment.models import Appointment
 register = template.Library()
 
 CRF = "CRF"
@@ -36,7 +42,7 @@ def add_prn_crf_popover(appointment, subject_dashboard_url):
             subject_visit_id = getattr(appointment.related_visit, "pk", None)
             crf.add_url = crf.model_cls().get_absolute_url()
             crf.related_visit_model_attr = crf.model_cls.related_visit_model_attr()
-            crf.subject_visit = str(subject_visit_id) if subject_visit_id else None
+            crf.related_visit = str(subject_visit_id) if subject_visit_id else None
             prn_forms.append(crf)
     return dict(
         label=CRF,
@@ -50,7 +56,7 @@ def add_prn_crf_popover(appointment, subject_dashboard_url):
 
 
 @register.inclusion_tag("edc_prn/add_prn_popover.html")
-def add_prn_requisition_popover(appointment, subject_dashboard_url):
+def add_prn_requisition_popover(appointment: Appointment, subject_dashboard_url):
     prn_forms = []
     for requisition in appointment.visits.get(appointment.visit_code).requisitions_prn:
         try:
@@ -69,7 +75,7 @@ def add_prn_requisition_popover(appointment, subject_dashboard_url):
             requisition.related_visit_model_attr = (
                 requisition.model_cls.related_visit_model_attr()
             )
-            requisition.subject_visit = str(getattr(appointment.related_visit, "id", ""))
+            requisition.related_visit = str(getattr(appointment.related_visit, "id", ""))
             try:
                 panel_id = requisition.model_cls.panel.field.remote_field.model.objects.get(
                     name=requisition.panel.name
