@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional
@@ -6,6 +8,7 @@ from unittest import skip
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.test import TestCase, tag  # noqa
+from edc_appointment.models import Appointment
 from edc_constants.constants import NO, OPEN, YES
 from edc_facility.import_holidays import import_holidays
 from edc_lab.constants import TUBE
@@ -21,7 +24,6 @@ from edc_visit_tracking.constants import SCHEDULED
 
 from data_manager_app.lab_profiles import lab_profile
 from data_manager_app.models import (
-    Appointment,
     CrfOne,
     SubjectConsent,
     SubjectRequisition,
@@ -82,7 +84,7 @@ class TestQueryRules(TestCase):
         self,
         visit_code: str,
         report_datetime: Optional[datetime] = None,
-        visit_code_sequence: Optional[int] = None,
+        visit_code_sequence: int | None = None,
     ):
         appointment = Appointment.objects.get(
             subject_identifier=self.subject_identifier,
@@ -91,7 +93,7 @@ class TestQueryRules(TestCase):
             visit_code=visit_code,
             visit_code_sequence=visit_code_sequence or 0,
         )
-        return SubjectVisit.objects.create(
+        subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             report_datetime=report_datetime or appointment.appt_datetime,
             subject_identifier=self.subject_identifier,
@@ -102,7 +104,10 @@ class TestQueryRules(TestCase):
             schedule_name="schedule",
             user_created="user_login",
         )
+        appointment.refresh_from_db()
+        return subject_visit
 
+    @tag("1")
     def test_data_inspector(self):
 
         for schedule in visit_schedule.schedules.values():
@@ -265,7 +270,6 @@ class TestQueryRules(TestCase):
             0,
         )
 
-    @tag("5")
     def test_crf_rule_with_requisition(self):
 
         # create a rule
