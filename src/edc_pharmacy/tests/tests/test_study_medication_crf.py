@@ -3,14 +3,16 @@ from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
 from django.db.models.signals import pre_save
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import AppointmentsCreator, UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
 from edc_appointment.tests.helper import Helper
 from edc_appointment.utils import get_next_appointment
+from edc_consent.tests.consent_test_utils import consent_object_factory
 from edc_constants.constants import NO, YES
 from edc_facility import import_holidays
+from edc_protocol import Protocol
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
@@ -57,6 +59,7 @@ class TestMedicationCrf(TestCase):
         RegisteredSubject.objects.create(
             subject_identifier=self.subject_identifier,
             registration_datetime=self.registration_datetime,
+            consent_datetime=self.registration_datetime,
         )
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
@@ -466,7 +469,16 @@ class TestMedicationCrf(TestCase):
             next_formulation=self.formulation,
         )
 
+    @tag("1")
     def test_study_medication_form_baseline(self):
+        self.study_open_datetime = Protocol().study_open_datetime
+        self.study_close_datetime = Protocol().study_close_datetime
+        consent_object_factory(
+            model="edc_pharmacy.subjectconsent",
+            start=self.study_open_datetime,
+            end=self.study_close_datetime,
+        )
+
         appointment = Appointment.objects.all().order_by("timepoint")[0]
         next_appointment = get_next_appointment(appointment, include_interim=True)
         subject_visit = SubjectVisit.objects.create(
