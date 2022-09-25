@@ -66,7 +66,7 @@ def cancelled_appointment(appointment: Appointment) -> None:
             and not appointment.requisition_metadata_keyed_exists
         ):
             try:
-                subject_visit = appointment.related_visit_model_cls().objects.get(
+                related_visit = appointment.related_visit_model_cls().objects.get(
                     appointment=appointment
                 )
             except ObjectDoesNotExist:
@@ -74,7 +74,7 @@ def cancelled_appointment(appointment: Appointment) -> None:
             else:
                 with transaction.atomic():
                     try:
-                        subject_visit.delete()
+                        related_visit.delete()
                     except ProtectedError:
                         pass
                     else:
@@ -124,14 +124,14 @@ def update_unscheduled_appointment_sequence(subject_identifier: str) -> None:
 
             appointment.visit_code_sequence = index + 1
             appointment.save_base(update_fields=["visit_code_sequence"])
-            subject_visit = appointment.related_visit
-            if subject_visit:
-                subject_visit.visit_code_sequence = index + 1
-                subject_visit.save_base(update_fields=["visit_code_sequence"])
-                for crf in subject_visit.get_crf_metadata():
+            related_visit = appointment.related_visit
+            if related_visit:
+                related_visit.visit_code_sequence = index + 1
+                related_visit.save_base(update_fields=["visit_code_sequence"])
+                for crf in related_visit.get_crf_metadata():
                     crf.visit_code_sequence = index + 1
                     crf.save_base(update_fields=["visit_code_sequence"])
-                for requisition in subject_visit.get_requisition_metadata():
+                for requisition in related_visit.get_requisition_metadata():
                     requisition.visit_code_sequence = index + 1
                     requisition.save_base(update_fields=["visit_code_sequence"])
 

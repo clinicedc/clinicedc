@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, TypeVar
 
 from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from edc_facility import Facility
 from edc_visit_tracking.model_mixins import get_related_visit_model_attr
@@ -38,10 +39,21 @@ class AppointmentMethodsModelMixin(models.Model):
     @property
     def related_visit(self: Appointment) -> VisitModel | None:
         """Returns the related visit model instance, or None"""
-        return getattr(self, self.related_visit_model_attr(), None)
+        related_visit = None
+        try:
+            related_visit = getattr(self, self.related_visit_model_attr())
+        except ObjectDoesNotExist:
+            pass
+        except AttributeError:
+            query = getattr(self, f"{self.related_visit_model_attr()}_set")
+            if query:
+                if qs := query.all():
+                    related_visit = qs[0]
+        return related_visit
 
     @classmethod
     def related_visit_model_attr(cls: Appointment) -> str:
+        """Returns the reversed related visit attr"""
         return get_related_visit_model_attr(cls)
 
     @classmethod
