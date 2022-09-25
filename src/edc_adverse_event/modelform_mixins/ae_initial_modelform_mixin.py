@@ -4,15 +4,14 @@ from django.urls.base import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from edc_constants.constants import YES
-from edc_form_validators import FormValidatorMixin
-from edc_registration.modelform_mixins import ModelFormSubjectIdentifierMixin
 from edc_reportable import GRADE4, GRADE5
 
-from ...form_validators import AeInitialFormValidator
-from ...get_ae_model import get_ae_model
+from ..form_validators import AeInitialFormValidator
+from ..get_ae_model import get_ae_model
+from .ae_modelform_mixin import AeModelFormMixin
 
 
-class AeInitialModelFormMixin(FormValidatorMixin, ModelFormSubjectIdentifierMixin):
+class AeInitialModelFormMixin(AeModelFormMixin):
 
     form_validator_cls = AeInitialFormValidator
 

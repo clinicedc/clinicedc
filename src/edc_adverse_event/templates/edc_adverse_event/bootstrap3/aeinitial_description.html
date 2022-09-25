@@ -2,9 +2,10 @@
 {% load edc_adverse_event_extras %}
 {% load tz %}
 {% load static %}
+{% load l10n %}
 
 <B>{{ ae_initial.subject_identifier }}</B>
-<BR><b>Reported:</b> {{ ae_initial.report_datetime.date|date:SHORT_DATE_FORMAT}} ({{ utc_date|timeuntil:ae_initial.report_datetime.date }} ago)
+<BR><b>Reported:</b> {{ ae_initial.report_datetime|date:SHORT_DATE_FORMAT}} ({{ utc_date|timeuntil:ae_initial.report_datetime.date }} ago)
 <BR><b>Site aware:</b> {{ ae_initial.ae_awareness_date|date:SHORT_DATE_FORMAT }}
 <BR><b>Grade:</b> {{ ae_initial.get_ae_grade_display }}
 <BR><b>Classification:</b>

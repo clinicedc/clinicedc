@@ -1,13 +1,10 @@
 from django import forms
-from edc_action_item.modelform_mixins import ActionItemModelFormMixin
 
 from ..get_ae_model import get_ae_model
-from .mixins import DeathReportTmgModelFormMixin
+from ..modelform_mixins import DeathReportTmgSecondModelFormMixin
 
 
-class DeathReportTmgSecondForm(
-    DeathReportTmgModelFormMixin, ActionItemModelFormMixin, forms.ModelForm
-):
-    class Meta:
+class DeathReportTmgSecondForm(DeathReportTmgSecondModelFormMixin, forms.ModelForm):
+    class Meta(DeathReportTmgSecondModelFormMixin.Meta):
         model = get_ae_model("deathreporttmgsecond")
         fields = "__all__"

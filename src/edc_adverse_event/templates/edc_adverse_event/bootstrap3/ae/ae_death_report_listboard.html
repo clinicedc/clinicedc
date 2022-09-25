@@ -5,6 +5,7 @@
 
 {% load tz %}
 {% load static %}
+{% load l10n %}
 
 {% block listboard_panel_back %}
 <a class="btn btn-default btn-sm btn-primary clearfix" role="button" href="{% url listboard_back_url|default:'listboard_back_url' %}"><i class="fas fa-reply"></i></a>
@@ -41,8 +42,8 @@
 
     <td><a href="{% url ae_listboard_url|default:'ae_listboard_url' %}?q={{result.subject_identifier }}">{{ result.parent_reference_model_name|default:"" }}</a></td>
 
-    <td>{{ result.reference_obj.user_created|default:"---" }}<BR>{{ result.reference_obj.created|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</td>
+    <td>{{ result.reference_obj.user_created|default:"---" }}<BR>{{ result.reference_obj.created|date:"SHORT_DATE_FORMAT"|default:"---" }}</td>
 
-    <td>{{ result.reference_obj.user_modified|default:"---" }}<BR>{{ result.reference_obj.modified|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</td>
+    <td>{{ result.reference_obj.user_modified|default:"---" }}<BR>{{ result.reference_obj.modified|date:"SHORT_DATE_FORMAT"|default:"---" }}</td>
 
 {% endblock listboard_table_columns %}
