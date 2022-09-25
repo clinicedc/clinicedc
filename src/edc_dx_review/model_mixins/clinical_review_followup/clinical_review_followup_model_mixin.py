@@ -15,7 +15,7 @@ class ClinicalReviewModelMixin(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        raise_if_baseline(self.subject_visit)
+        raise_if_baseline(self.related_visit)
         raise_on_unknown_diagnosis_labels(self, "_test", YES)
         super().save(*args, **kwargs)
 

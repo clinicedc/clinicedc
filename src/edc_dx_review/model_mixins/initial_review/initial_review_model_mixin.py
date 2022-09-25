@@ -59,8 +59,8 @@ def initial_dx_model_mixin_factory(dx_field_prefix: Optional[str] = None):
 class InitialReviewMethodsModelMixin(models.Model):
     def save(self: Any, *args, **kwargs):
         diagnoses = Diagnoses(
-            subject_identifier=self.subject_visit.subject_identifier,
-            report_datetime=self.subject_visit.report_datetime,
+            subject_identifier=self.subject_identifier,
+            report_datetime=self.report_datetime,
             lte=True,
         )
         if not diagnoses.get_dx_by_model(self) == YES:

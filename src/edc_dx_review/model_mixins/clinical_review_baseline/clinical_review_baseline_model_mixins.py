@@ -16,7 +16,7 @@ class ClinicalReviewBaselineModelMixin(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        raise_if_not_baseline(self.subject_visit)
+        raise_if_not_baseline(self.related_visit)
         raise_on_unknown_diagnosis_labels(self, "_test", YES)
         for prefix in get_diagnosis_labels_prefixes():
             setattr(
