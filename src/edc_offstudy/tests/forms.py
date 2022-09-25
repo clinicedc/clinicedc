@@ -1,4 +1,7 @@
 from django import forms
+from edc_model_form.mixins import BaseModelFormMixin
+from edc_visit_schedule.modelform_mixins import VisitScheduleCrfModelFormMixin
+from edc_visit_tracking.modelform_mixins import VisitTrackingCrfModelFormMixin
 
 from ..modelform_mixins import (
     OffstudyCrfModelFormMixin,
@@ -15,13 +18,24 @@ class SubjectOffstudyForm(OffstudyModelFormMixin, forms.ModelForm):
         fields = "__all__"
 
 
-class CrfOneForm(OffstudyCrfModelFormMixin, forms.ModelForm):
+class CrfOneForm(
+    OffstudyCrfModelFormMixin,
+    VisitScheduleCrfModelFormMixin,
+    VisitTrackingCrfModelFormMixin,
+    BaseModelFormMixin,
+    forms.ModelForm,
+):
+    report_datetime_field_attr = "report_datetime"
+
     class Meta:
         model = CrfOne
         fields = "__all__"
 
 
-class NonCrfOneForm(OffstudyNonCrfModelFormMixin, forms.ModelForm):
+class NonCrfOneForm(OffstudyNonCrfModelFormMixin, BaseModelFormMixin, forms.ModelForm):
+
+    report_datetime_field_attr = "report_datetime"
+
     class Meta:
         model = NonCrfOne
         fields = "__all__"

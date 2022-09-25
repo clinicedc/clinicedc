@@ -5,13 +5,11 @@ from edc_ltfu.constants import LTFU_ACTION
 from edc_unblinding.constants import UNBLINDING_REVIEW_ACTION
 
 from .constants import END_OF_STUDY_ACTION
-from .utils import get_offstudy_model_cls
+from .utils import get_offstudy_model
 
 
-# TODO: reference model name may not match that specified in visit schedule??
 class EndOfStudyAction(ActionWithNotification):
 
-    reference_model = get_offstudy_model_cls()
     admin_site_name = None  # "inte_prn_admin"
 
     name = END_OF_STUDY_ACTION
@@ -25,3 +23,12 @@ class EndOfStudyAction(ActionWithNotification):
     show_link_to_changelist = True
     priority = HIGH_PRIORITY
     singleton = True
+
+    @classmethod
+    def get_reference_model(cls) -> str:
+        """Returns the reference model label lower.
+
+        Overridden because site_visit_schedule needs to
+        register visit schedules first.
+        """
+        return get_offstudy_model()

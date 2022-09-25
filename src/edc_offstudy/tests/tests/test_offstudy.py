@@ -1,7 +1,8 @@
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
+from edc_action_item import site_action_items
 from edc_appointment.models import Appointment
-from edc_consent import NotConsentedError, site_consents
+from edc_consent import site_consents
 from edc_constants.constants import DEAD
 from edc_facility.import_holidays import import_holidays
 from edc_reference import site_reference_configs
@@ -10,9 +11,10 @@ from edc_visit_schedule.exceptions import OffScheduleError
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
+from edc_offstudy.models import SubjectOffstudy
 from edc_offstudy.utils import OffstudyError
 
-from ...models import SubjectOffstudy
+from ...action_items import EndOfStudyAction
 from ..consents import v1_consent
 from ..forms import CrfOneForm, NonCrfOneForm, SubjectOffstudyForm
 from ..models import CrfOne, NonCrfOne, OffScheduleOne, SubjectConsent, SubjectVisit
@@ -22,8 +24,11 @@ from ..visit_schedule import visit_schedule1
 class TestOffstudy(TestCase):
     @classmethod
     def setUpClass(cls):
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule1)
         site_consents.register(v1_consent)
         import_holidays()
+        site_action_items.register(EndOfStudyAction)
         return super().setUpClass()
 
     @classmethod
@@ -31,6 +36,7 @@ class TestOffstudy(TestCase):
         super().tearDownClass()
 
     def setUp(self):
+
         self.visit_schedule_name = "visit_schedule1"
         self.schedule_name = "schedule1"
 
@@ -50,6 +56,7 @@ class TestOffstudy(TestCase):
             "333333333",
             "444444444",
         ]
+
         self.consent_datetime = get_utcnow() - relativedelta(years=4)
         dob = get_dob(age_in_years=25, now=self.consent_datetime)
         for subject_identifier in self.subject_identifiers:
@@ -107,7 +114,7 @@ class TestOffstudy(TestCase):
             offstudy_datetime=self.consent_datetime - relativedelta(days=1),
         )
 
-    def test_offstudy_cls_subject_not_registered_by_offstudy_date(self):
+    def test_offstudy_not_before_offschedule(self):
 
         OffScheduleOne.objects.create(
             subject_identifier=self.subject_identifier,
@@ -116,10 +123,10 @@ class TestOffstudy(TestCase):
         )
 
         self.assertRaises(
-            NotConsentedError,
+            OffstudyError,
             SubjectOffstudy.objects.create,
-            subject_identifier="ERIK",
-            offstudy_datetime=self.consent_datetime + relativedelta(days=1),
+            subject_identifier=self.subject_identifier,
+            offstudy_datetime=self.consent_datetime - relativedelta(days=1),
         )
 
     def test_update_subject_visit_report_date_after_offstudy_date(self):
@@ -280,7 +287,6 @@ class TestOffstudy(TestCase):
         form = SubjectOffstudyForm(data=data)
         self.assertTrue(form.is_valid())
 
-    @tag("1")
     def test_crf_modelform_ok(self):
         appointments = Appointment.objects.filter(
             subject_identifier=self.subject_identifier
@@ -297,8 +303,8 @@ class TestOffstudy(TestCase):
         data = dict(
             subject_visit=subject_visit,
             report_datetime=appointments[0].appt_datetime,
-            visit_schedule_name="visit_schedule1",
-            schedule_name="schedule1",
+            visit_schedule_name=appointments[0].visit_schedule_name,
+            schedule_name=appointments[0].schedule_name,
         )
         form = CrfOneForm(data=data)
         form.is_valid()
@@ -308,12 +314,12 @@ class TestOffstudy(TestCase):
         # take off schedule1
         OffScheduleOne.objects.create(
             subject_identifier=self.subject_identifier,
-            report_datetime=get_utcnow(),
-            offschedule_datetime=(appointments[0].appt_datetime + relativedelta(hours=1)),
+            report_datetime=appointments[0].appt_datetime,
+            offschedule_datetime=appointments[0].appt_datetime + relativedelta(days=1),
         )
 
         SubjectOffstudy.objects.create(
-            offstudy_datetime=appointments[0].appt_datetime + relativedelta(hours=1),
+            offstudy_datetime=appointments[0].appt_datetime + relativedelta(days=1),
             subject_identifier=self.subject_identifier,
         )
         form = CrfOneForm(data=data)
@@ -321,13 +327,13 @@ class TestOffstudy(TestCase):
 
         data = dict(
             subject_visit=subject_visit,
-            report_datetime=appointments[0].appt_datetime + relativedelta(hours=2),
+            report_datetime=appointments[0].appt_datetime + relativedelta(days=2),
             visit_schedule_name="visit_schedule1",
             schedule_name="schedule1",
         )
         form = CrfOneForm(data=data)
         self.assertFalse(form.is_valid())
-        self.assertIn("Subject off study by given date/time", str(form.errors))
+        self.assertIn("Subject not on schedule", str(form.errors))
 
     @override_settings(EDC_OFFSTUDY_OFFSTUDY_MODEL="edc_offstudy.SubjectOffstudy")
     def test_non_crf_modelform1(self):

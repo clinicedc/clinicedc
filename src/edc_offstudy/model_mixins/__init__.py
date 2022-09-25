@@ -5,4 +5,3 @@ from .offstudy_model_mixin import (
     OffstudyModelMixinError,
 )
 from .offstudy_non_crf_model_mixin import OffstudyNonCrfModelMixin
-from .offstudy_visit_model_mixin import OffstudyVisitModelMixin

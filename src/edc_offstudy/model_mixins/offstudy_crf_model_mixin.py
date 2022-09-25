@@ -25,7 +25,6 @@ class OffstudyCrfModelMixin(models.Model):
             source_obj=self,
             subject_identifier=self.related_visit.subject_identifier,
             report_datetime=self.report_datetime,
-            visit_schedule_name=self.related_visit.visit_schedule_name,
         )
 
     class Meta:
