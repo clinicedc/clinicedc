@@ -94,11 +94,11 @@ class Helper:
 
     @staticmethod
     def create_crf_with_inlines(appointment):
-        subject_visit = SubjectVisit.objects.create(
-            appointment=appointment,
-            subject_identifier=appointment.subject_identifier,
-            report_datetime=get_utcnow(),
-        )
+        # subject_visit = SubjectVisit.objects.create(
+        #     appointment=appointment,
+        #     subject_identifier=appointment.subject_identifier,
+        #     report_datetime=get_utcnow(),
+        # )
         list_one = ListOne.objects.create(
             display_name=f"list_one{appointment.visit_code}",
             name=f"list_one{appointment.visit_code}",
@@ -108,7 +108,7 @@ class Helper:
             name=f"list_two{appointment.visit_code}",
         )
         CrfWithInline.objects.create(
-            subject_visit=subject_visit,
+            subject_visit=appointment.subjectvisit,
             list_one=list_one,
             list_two=list_two,
             dte=get_utcnow(),
