@@ -1,4 +1,6 @@
-from typing import Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Optional
 from urllib.parse import urlencode
 
 from django.apps import apps as django_apps
@@ -8,6 +10,9 @@ from django.urls import NoReverseMatch, reverse
 from edc_metadata.next_form_getter import NextFormGetter
 
 from .base_model_admin_redirect_mixin import BaseModelAdminRedirectMixin
+
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
 
 
 class ModelAdminNextUrlRedirectError(Exception):
@@ -37,6 +42,30 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
 
     next_querystring_attr = "next"
 
+    def add_view(
+        self, request: WSGIRequest, form_url: str = "", extra_context: dict | None = None
+    ):
+        """Redirect before save on "cancel", otherwise return
+        normal behavior.
+        """
+        if self.show_cancel and request.POST.get("_cancel"):
+            redirect_url = self.get_next_redirect_url(request=request)
+            return HttpResponseRedirect(redirect_url)
+        extra_context = self.extra_context(extra_context)
+        return super().add_view(request, form_url=form_url, extra_context=extra_context)
+
+    def change_view(self, request: WSGIRequest, object_id, form_url="", extra_context=None):
+        """Redirect before save on "cancel", otherwise return
+        normal behavior.
+        """
+        if self.show_cancel and request.POST.get("_cancel"):
+            redirect_url = self.get_next_redirect_url(request=request, object_id=object_id)
+            return HttpResponseRedirect(redirect_url)
+        extra_context = self.extra_context(extra_context)
+        return super().change_view(
+            request, object_id, form_url=form_url, extra_context=extra_context
+        )
+
     def extra_context(self, extra_context=None):
         """Adds the booleans for the savenext and cancel buttons
         to the context.
@@ -49,28 +78,6 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
         if self.show_cancel:
             extra_context.update(show_cancel=self.show_cancel)
         return extra_context
-
-    def add_view(self, request, form_url="", extra_context=None):
-        """Redirect before save on "cancel", otherwise return
-        normal behavior.
-        """
-        if self.show_cancel and request.POST.get("_cancel"):
-            redirect_url = self.get_next_redirect_url(request=request)
-            return HttpResponseRedirect(redirect_url)
-        extra_context = self.extra_context(extra_context)
-        return super().add_view(request, form_url=form_url, extra_context=extra_context)
-
-    def change_view(self, request, object_id, form_url="", extra_context=None):
-        """Redirect before save on "cancel", otherwise return
-        normal behavior.
-        """
-        if self.show_cancel and request.POST.get("_cancel"):
-            redirect_url = self.get_next_redirect_url(request=request, object_id=object_id)
-            return HttpResponseRedirect(redirect_url)
-        extra_context = self.extra_context(extra_context)
-        return super().change_view(
-            request, object_id, form_url=form_url, extra_context=extra_context
-        )
 
     def redirect_url(self, request, obj, post_url_continue=None) -> Optional[str]:
         redirect_url = None
