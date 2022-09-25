@@ -13,7 +13,7 @@ from edc_visit_tracking.tests.helper import Helper
 from visit_schedule_app.consents import v1_consent
 from visit_schedule_app.models import SubjectConsent, SubjectVisit
 
-from edc_crf.forms import PrnFormValidatorMixin
+from edc_crf.form_validator_mixins import PrnFormValidatorMixin
 
 from ..models import Prn
 from ..visit_schedule import visit_schedule

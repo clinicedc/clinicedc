@@ -16,12 +16,16 @@ if TYPE_CHECKING:
     from edc_visit_tracking.model_mixins import VisitModelMixin
 
 
+class CrfFormValidatorError(Exception):
+    pass
+
+
 class CrfFormValidator(
     WindowPeriodFormValidatorMixin, ConsentFormValidatorMixin, FormValidator
 ):
     """Form validator for CRfs.
 
-    CRFs have a FK to subject_visit.
+    CRFs have a FK to related_visit_model_cls.
     """
 
     report_datetime_field_attr = "report_datetime"
@@ -31,19 +35,17 @@ class CrfFormValidator(
         super()._clean()
 
     def validate_crf_report_datetime(self) -> None:
-        if self.cleaned_data.get(self.report_datetime_field_attr):
+        if self.report_datetime:
             # falls within appointment's window period
             self.validate_crf_datetime_in_window_period(
                 self.appointment,
-                self.cleaned_data.get(self.report_datetime_field_attr),
+                self.report_datetime,
                 self.report_datetime_field_attr,
             )
             # falls within a valid consent period
-            self.get_consent_for_period_or_raise(
-                self.cleaned_data.get(self.report_datetime_field_attr)
-            )
+            self.get_consent_for_period_or_raise(self.report_datetime)
             # not before consent date
-            if self.cleaned_data.get(self.report_datetime_field_attr) < self.consent_datetime:
+            if self.report_datetime < self.consent_datetime:
                 self.raise_validation_error(
                     {
                         self.report_datetime_field_attr: (
@@ -51,8 +53,15 @@ class CrfFormValidator(
                             "Participant consent on "
                             f"{formatted_datetime(self.consent_datetime)}"
                         )
-                    }
+                    },
+                    INVALID_ERROR,
                 )
+
+    @property
+    def report_datetime(self):
+        return self.cleaned_data.get(self.report_datetime_field_attr) or getattr(
+            self.instance, self.report_datetime_field_attr
+        )
 
     @property
     def appointment(self) -> Appointment:
@@ -73,11 +82,31 @@ class CrfFormValidator(
         return self.related_visit
 
     @property
-    def related_visit(self) -> VisitModelMixin:
-        """Returns a subject visit model instance or None."""
-        return get_related_visit(
-            self, related_visit_model_attr=self.instance.related_visit_model_attr()
-        )
+    def related_visit_model_attr(self) -> str:
+        """Returns the field name attr if the  related_visit.
+
+        Note: during testing, `self.instance` and `self.model` are
+        set on the FormValidator class by a modelform mixin. If you
+        are testing the FormValidator in isolation, add these
+        values manually on behalf of the modelform. See also
+        `related_visit`.
+        """
+        try:
+            return self.instance.related_visit_model_attr()
+        except AttributeError:
+            return self.model.related_visit_model_attr()
+
+    @property
+    def related_visit(self) -> VisitModelMixin | None:
+        """Returns a related_visit (subject visit) model instance
+        or None.
+        """
+        try:
+            return get_related_visit(
+                self, related_visit_model_attr=self.related_visit_model_attr
+            )
+        except AttributeError as e:
+            raise CrfFormValidatorError(f"{e}. See {self.__class__}")
 
     @property
     def subject_identifier(self) -> str:
@@ -95,9 +124,8 @@ class CrfFormValidator(
         """Datetime cannot be after report_datetime"""
         if (
             self.cleaned_data.get(field)
-            and self.cleaned_data.get(self.report_datetime_field_attr)
-            and self.cleaned_data.get(field)
-            > self.cleaned_data.get(self.report_datetime_field_attr)
+            and self.report_datetime
+            and self.cleaned_data.get(field) > self.report_datetime
         ):
             self.raise_validation_error(
                 {field: "Cannot be after report datetime"}, INVALID_ERROR
@@ -107,9 +135,8 @@ class CrfFormValidator(
         """Date cannot be after report_datetime"""
         if (
             self.cleaned_data.get(field)
-            and self.cleaned_data.get(self.report_datetime_field_attr)
-            and self.cleaned_data.get(field)
-            > self.cleaned_data.get(self.report_datetime_field_attr).date()
+            and self.report_datetime
+            and self.cleaned_data.get(field) > self.report_datetime.date()
         ):
             self.raise_validation_error(
                 {field: "Cannot be after report datetime"}, INVALID_ERROR

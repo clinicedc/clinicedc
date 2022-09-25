@@ -14,7 +14,7 @@ from edc_visit_tracking.tests.helper import Helper
 from visit_schedule_app.consents import v1_consent
 from visit_schedule_app.models import SubjectConsent, SubjectVisit
 
-from edc_crf.forms import CrfFormValidatorMixin
+from edc_crf.form_validator_mixins import CrfFormValidatorMixin
 from edc_crf.modelform_mixins import CrfModelFormMixin
 from edc_crf.models import CrfStatus
 
