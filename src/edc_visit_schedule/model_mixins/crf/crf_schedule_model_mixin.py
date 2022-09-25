@@ -1,4 +1,4 @@
-from typing import Any
+from __future__ import annotations
 
 from django.db import models
 
@@ -8,6 +8,9 @@ from ...subject_schedule import SubjectSchedule
 class CrfScheduleModelMixin(models.Model):
     """A mixin for CRF models to add the ability to determine
     if the subject is on/off schedule.
+
+    To be declared with VisitMethodsCrfModelMixin to get access
+    to `related_visit` and `subject_identifier`.
     """
 
     # If True, compares report_datetime and offschedule_datetime as datetimes
@@ -32,11 +35,7 @@ class CrfScheduleModelMixin(models.Model):
     def schedule(self):
         return self.related_visit.schedule
 
-    @property
-    def subject_identifier(self):
-        return self.related_visit.subject_identifier
-
-    def is_onschedule_or_raise(self: Any):
+    def is_onschedule_or_raise(self):
         subject_schedule = self.subject_schedule_cls(
             visit_schedule=self.visit_schedule, schedule=self.schedule
         )

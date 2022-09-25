@@ -1,9 +1,17 @@
+from __future__ import annotations
+
 import copy
 import sys
+from typing import TYPE_CHECKING, Tuple
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.module_loading import import_module, module_has_submodule
+
+if TYPE_CHECKING:
+    from .models import VisitSchedule as VisitScheduleModel
+    from .schedule import Schedule
+    from .visit_schedule import VisitSchedule
 
 
 class RegistryNotLoaded(Exception):
@@ -25,12 +33,12 @@ class SiteVisitSchedules:
     """
 
     def __init__(self):
-        self._registry = {}
-        self._all_post_consent_models = None
-        self.loaded = False
+        self._registry: dict = {}
+        self._all_post_consent_models: dict[str, str] | None = None
+        self.loaded: bool = False
 
     @property
-    def registry(self):
+    def registry(self) -> dict[str, VisitSchedule]:
         if not self.loaded:
             raise RegistryNotLoaded(
                 "Registry not loaded. Is AppConfig for 'edc_visit_schedule' "
@@ -38,7 +46,7 @@ class SiteVisitSchedules:
             )
         return self._registry
 
-    def register(self, visit_schedule):
+    def register(self, visit_schedule: VisitSchedule) -> None:
         self.loaded = True
         if not visit_schedule.schedules:
             raise SiteVisitScheduleError(
@@ -52,12 +60,13 @@ class SiteVisitSchedules:
                 f"Visit Schedule {visit_schedule} is already registered."
             )
         self._all_post_consent_models = None
+        self.get_offstudy_model()
 
     @property
-    def visit_schedules(self):
+    def visit_schedules(self) -> dict[str, VisitSchedule]:
         return self.registry
 
-    def get_visit_schedule(self, visit_schedule_name=None):
+    def get_visit_schedule(self, visit_schedule_name=None) -> VisitSchedule:
         """Returns a visit schedule instance or raises."""
         try:
             visit_schedule_name = visit_schedule_name.split(".")[0]
@@ -72,7 +81,7 @@ class SiteVisitSchedules:
             )
         return visit_schedule
 
-    def get_visit_schedules(self, *visit_schedule_names):
+    def get_visit_schedules(self, *visit_schedule_names) -> dict[str, VisitSchedule]:
         """Returns a dictionary of visit schedules.
 
         If visit_schedule_name not specified, returns all visit schedules.
@@ -86,35 +95,47 @@ class SiteVisitSchedules:
             visit_schedules[visit_schedule_name] = self.get_visit_schedule(visit_schedule_name)
         return visit_schedules or self.registry
 
-    def get_by_onschedule_model(self, onschedule_model=None):
+    def get_by_onschedule_model(self, onschedule_model=None) -> Tuple[VisitSchedule, Schedule]:
         """Returns a tuple of (visit_schedule, schedule)
         for the given onschedule model.
 
         attr `onschedule_model` is in "label_lower" format.
         """
-        return self._get_by_model(attr="onschedule_model", model=onschedule_model)
+        return self.get_by_model(attr="onschedule_model", model=onschedule_model)
 
-    def get_by_offschedule_model(self, offschedule_model=None):
+    def get_by_offschedule_model(
+        self, offschedule_model=None
+    ) -> Tuple[VisitSchedule, Schedule]:
         """Returns a tuple of visit_schedule, schedule
         for the given offschedule model.
 
         attr `offschedule_model` is in "label_lower" format.
         """
-        return self._get_by_model(attr="offschedule_model", model=offschedule_model)
+        return self.get_by_model(attr="offschedule_model", model=offschedule_model)
 
-    def get_by_loss_to_followup_model(self, loss_to_followup_model=None):
+    def get_by_loss_to_followup_model(
+        self, loss_to_followup_model=None
+    ) -> Tuple[VisitSchedule, Schedule]:
         """Returns a tuple of visit_schedule, schedule
         for the given loss_to_followup model.
 
         attr `loss_to_followup_model` is in "label_lower" format.
         """
-        return self._get_by_model(attr="loss_to_followup_model", model=loss_to_followup_model)
+        return self.get_by_model(attr="loss_to_followup_model", model=loss_to_followup_model)
 
-    def _get_by_model(self, attr=None, model=None):
+    def get_by_model(
+        self, attr: str = None, model: str = None
+    ) -> Tuple[VisitSchedule, Schedule]:
         ret = []
         for visit_schedule in self.visit_schedules.values():
             for schedule in visit_schedule.schedules.values():
-                if getattr(schedule, attr) == model:
+                try:
+                    model_name = getattr(schedule, attr)
+                except (AttributeError, TypeError):
+                    raise SiteVisitScheduleError(
+                        f"Invalid attr for Schedule. See {schedule}. Got {attr}."
+                    )
+                if model_name and model_name == model:
                     ret.append([visit_schedule, schedule])
         if not ret:
             raise SiteVisitScheduleError(
@@ -125,9 +146,10 @@ class SiteVisitSchedules:
                 f"Schedule is ambiguous. More than one schedule exists for "
                 f"{attr}={model}. Got {ret}"
             )
-        return ret[0]
+        visit_schedule, schedule = ret[0]
+        return visit_schedule, schedule
 
-    def get_by_offstudy_model(self, offstudy_model=None):
+    def get_by_offstudy_model(self, offstudy_model=None) -> list[VisitSchedule]:
         """Returns a list of visit_schedules for the given
         offstudy model.
         """
@@ -152,8 +174,30 @@ class SiteVisitSchedules:
         schedule = self.get_visit_schedule(visit_schedule_name).schedules.get(schedule_name)
         return schedule.onschedule_model
 
+    @staticmethod
+    def get_offstudy_model() -> str:
+        offstudy_models = []
+        for _, visit_schedule in site_visit_schedules.get_visit_schedules().items():
+            if visit_schedule.offstudy_model not in offstudy_models:
+                offstudy_models.append(visit_schedule.offstudy_model)
+        if len(offstudy_models) > 1:
+            raise SiteVisitScheduleError(
+                "More than one off study model defined. See visit schedules. "
+                f"Got {offstudy_models}."
+            )
+        if len(offstudy_models) == 0:
+            visit_schedule_names = [
+                k for k, v in site_visit_schedules.get_visit_schedules().items()
+            ]
+            raise SiteVisitScheduleError(
+                "No off study model defined in visit_schedule. "
+                f"Got registered visit_schedules: {visit_schedule_names}."
+            )
+        offstudy_model = offstudy_models[0]
+        return offstudy_model
+
     @property
-    def all_post_consent_models(self):
+    def all_post_consent_models(self) -> dict[str, str]:
         """Returns a dictionary of models that require consent before save.
 
         {model_name1: consent_model_name, model_name2: consent_model_name, ...}
@@ -165,7 +209,7 @@ class SiteVisitSchedules:
             self._all_post_consent_models = models
         return self._all_post_consent_models
 
-    def check(self):
+    def check(self) -> dict[str, list]:
         if not self.loaded:
             raise SiteVisitScheduleError("Registry is not loaded.")
         errors = {"visit_schedules": [], "schedules": [], "visits": []}
@@ -178,7 +222,7 @@ class SiteVisitSchedules:
         return errors
 
     @staticmethod
-    def to_model(model_cls):
+    def to_model(model_cls: VisitScheduleModel) -> None:
         """Updates the VisitSchedule model with the current visit
         schedule, schedule and visits.
 
@@ -218,7 +262,7 @@ class SiteVisitSchedules:
                             setattr(obj, fld, value)
                         obj.save()
 
-    def autodiscover(self, module_name=None, apps=None, verbose=None):
+    def autodiscover(self, module_name=None, apps=None, verbose=None) -> None:
         """Autodiscovers classes in the visit_schedules.py file of
         any INSTALLED_APP.
         """
