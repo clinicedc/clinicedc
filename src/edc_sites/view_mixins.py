@@ -1,11 +1,12 @@
+from __future__ import annotations
+
 from django.core.exceptions import ObjectDoesNotExist
-from django.views.generic.base import ContextMixin
 
 from .models import SiteProfile
 
 
-class SiteViewMixin(ContextMixin):
-    def get_context_data(self, **kwargs):
+class SiteViewMixin:
+    def get_context_data(self, **kwargs) -> dict:
         context = super().get_context_data(**kwargs)
         try:
             site_profile = SiteProfile.objects.get(site__id=self.request.site.id)
