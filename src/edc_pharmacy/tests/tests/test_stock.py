@@ -1,5 +1,5 @@
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_list_data import site_list_data
 from edc_utils import get_utcnow
 
@@ -40,7 +40,6 @@ class TestPrescription(TestCase):
             formulation_type=FormulationType.objects.get(display_name__iexact="Tablet"),
         )
 
-    @tag("1")
     def test_build_location(self):
 
         location = Location.objects.create(name="LOCATION_ONE")
@@ -53,7 +52,6 @@ class TestPrescription(TestCase):
                 container_type=container_type, name=f"BOTTLE_{i}", box=box
             )
 
-    @tag("1")
     def test_add_unpackaged_medicationitem(self):
         container_type = ContainerType.objects.create(name="bottle")
         medication_lot_one = MedicationLot.objects.create(
@@ -93,7 +91,6 @@ class TestPrescription(TestCase):
         for obj in PillBottle.objects.all():
             self.assertEqual(str(obj), "Metformin 500Mg Tablet Oral 32 count")
 
-    @tag("1")
     def test_where_is_the_bottle(self):
         container_type = ContainerType.objects.create(name="bottle")
         medication_lot_one = MedicationLot.objects.create(
