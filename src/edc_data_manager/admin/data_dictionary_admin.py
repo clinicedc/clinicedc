@@ -4,8 +4,9 @@ from django.contrib.admin.decorators import register
 from django.contrib.auth import get_permission_codename
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django_audit_fields.admin import ModelAdminAuditFieldsMixin, audit_fieldset_tuple
+from django_audit_fields.admin import audit_fieldset_tuple
 from edc_list_data.model_mixins import ListModelMixin
+from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_model_admin.history import SimpleHistoryAdmin
 
 from ..admin_site import edc_data_manager_admin
@@ -14,7 +15,7 @@ from ..populate_data_dictionary import populate_data_dictionary
 
 
 @register(DataDictionary, site=edc_data_manager_admin)
-class DataDictionaryAdmin(ModelAdminAuditFieldsMixin, SimpleHistoryAdmin):
+class DataDictionaryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
 
     fieldsets = (
         [

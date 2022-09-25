@@ -1,8 +1,9 @@
+{% load l10n %}
 <small>
 {% if title %}<B><U>{{ title }}</U></B><BR>{% endif %}
-{% if report_datetime %}<B>Queried: </B>{{ report_datetime }}<BR>{% endif %}
-{% if site_resolved_datetime %}<B>Responded: </B>{{ site_resolved_datetime|default:" - " }}<BR>{% endif %}
-{% if resolved_datetime %}<B>TCC: </B>{{ resolved_datetime|default:" - " }}<BR>{% endif %}
+{% if report_datetime %}<B>Queried: </B>{{ report_datetime|localize }}<BR>{% endif %}
+{% if site_resolved_datetime %}<B>Responded: </B>{{ site_resolved_datetime|localize|default:" - " }}<BR>{% endif %}
+{% if resolved_datetime %}<B>TCC: </B>{{ resolved_datetime|localize|default:" - " }}<BR>{% endif %}
 {% if dm_user %}<B>Closed by: </B>{{ dm_user.first_name }} {{ dm_user.last_name }}<BR>{% endif %}
 
 {% if status == CLOSED %}

@@ -3,6 +3,7 @@ from django.contrib.admin.decorators import register
 from django.contrib.sites.shortcuts import get_current_site
 from edc_auth.admin import UserAdmin as BaseUserAdmin
 from edc_lab.admin import PanelAdmin as BasePanelAdmin
+from edc_model_admin.mixins import TemplatesModelAdminMixin
 from edc_registration.admin import RegisteredSubjectAdmin as BaseRegisteredSubjectAdmin
 from edc_visit_schedule.admin import VisitScheduleAdmin as BaseVisitScheduleAdmin
 
@@ -21,19 +22,19 @@ from ..models import (
 
 
 @register(VisitDataDictionary, site=edc_data_manager_admin)
-class VisitDataDictionaryAdmin(admin.ModelAdmin):
+class VisitDataDictionaryAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
     ordering = ("model",)
     search_fields = ("model",)
 
 
 @register(CrfDataDictionary, site=edc_data_manager_admin)
-class CrfDataDictionaryAdmin(admin.ModelAdmin):
+class CrfDataDictionaryAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
     ordering = ("model", "number")
     search_fields = ("model", "prompt", "number")
 
 
 @register(RequisitionDataDictionary, site=edc_data_manager_admin)
-class RequisitionDataDictionaryAdmin(admin.ModelAdmin):
+class RequisitionDataDictionaryAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
     ordering = ("model", "number")
     search_fields = ("model", "prompt", "number")
 
@@ -45,7 +46,7 @@ class QuerySubjectAdmin(BaseRegisteredSubjectAdmin):
 
 
 @register(RequisitionPanel, site=edc_data_manager_admin)
-class RequisitionPanelAdmin(BasePanelAdmin):
+class RequisitionPanelAdmin(TemplatesModelAdminMixin, BasePanelAdmin):
     ordering = ("display_name",)
     search_fields = ("display_name", "name")
 
@@ -85,5 +86,5 @@ class QueryUserAdmin(BaseUserAdmin):
 
 
 @register(QueryVisitSchedule, site=edc_data_manager_admin)
-class QueryVisitScheduleAdmin(BaseVisitScheduleAdmin):
+class QueryVisitScheduleAdmin(TemplatesModelAdminMixin, BaseVisitScheduleAdmin):
     pass
