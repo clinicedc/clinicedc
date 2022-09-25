@@ -1,3 +1,4 @@
-<B>Query: </B>{{ report_datetime }}<BR>
-<B>Site: </B>{{ site_resolved_datetime|default:" - " }}<BR>
-<B>TCC: </B>{{ resolved_datetime|default:" - " }}
+{% load l10n %}
+<B>Query: </B>{{ report_datetime|localize }}<BR>
+<B>Site: </B>{{ site_resolved_datetime|localize|default:" - " }}<BR>
+<B>TCC: </B>{{ resolved_datetime|localize|default:" - " }}

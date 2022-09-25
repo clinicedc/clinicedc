@@ -7,8 +7,8 @@ from edc_metadata.constants import KEYED, REQUIRED
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 from edc_utils import get_utcnow
 from edc_visit_tracking.utils import (
+    get_related_visit_model_cls,
     get_subject_visit_missed_model_cls,
-    get_subject_visit_model_cls,
 )
 
 from ..constants import AUTO_RESOLVED
@@ -66,7 +66,7 @@ class QueryRuleHandler:
     ):
         self._field_values = {}
         self._model_obj = None
-        self._visit_obj = None
+        self._related_visit = None
         self._recipients = None
         self._requisition_obj = None
         self.created_counter = 0
@@ -102,13 +102,13 @@ class QueryRuleHandler:
 
     @property
     def resolved(self):
-        """Returns True if visit_obj is NULL, or the query is not
+        """Returns True if related_visit is NULL, or the query is not
         yet due, or the combination of field values is correct.
 
         To customize, try overriding `inspect_model`.
         """
         resolved = True
-        if self.visit_obj:
+        if self.related_visit:
             try:
                 self.inspect_requisition()
             except SpecimenNotDrawn:
@@ -132,7 +132,7 @@ class QueryRuleHandler:
         if self.data_query:
             try:
                 missed_visit_obj = get_subject_visit_missed_model_cls().objects.get(
-                    subject_visit=self.visit_obj
+                    subject_visit=self.related_visit
                 )
             except ObjectDoesNotExist:
                 pass
@@ -175,10 +175,10 @@ class QueryRuleHandler:
             subject_identifier=self.registered_subject.subject_identifier,
             model=get_requisition_model()._meta.label_lower,
             panel_name=self.query_rule_obj.requisition_panel.name,
-            visit_schedule_name=self.visit_obj.visit_schedule_name,
-            schedule_name=self.visit_obj.schedule_name,
-            visit_code=self.visit_obj.visit_code,
-            visit_code_sequence=self.visit_obj.visit_code_sequence,
+            visit_schedule_name=self.related_visit.visit_schedule_name,
+            schedule_name=self.related_visit.schedule_name,
+            visit_code=self.related_visit.visit_code,
+            visit_code_sequence=self.related_visit.visit_code_sequence,
             entry_status__in=[REQUIRED, KEYED],
         )
         exists = RequisitionMetadata.objects.filter(**opts).exists()
@@ -192,10 +192,10 @@ class QueryRuleHandler:
         return CrfMetadata.objects.filter(
             subject_identifier=self.registered_subject.subject_identifier,
             model=self.query_rule_obj.model_cls._meta.label_lower,
-            visit_schedule_name=self.visit_obj.visit_schedule_name,
-            schedule_name=self.visit_obj.schedule_name,
-            visit_code=self.visit_obj.visit_code,
-            visit_code_sequence=self.visit_obj.visit_code_sequence,
+            visit_schedule_name=self.related_visit.visit_schedule_name,
+            schedule_name=self.related_visit.schedule_name,
+            visit_code=self.related_visit.visit_code,
+            visit_code_sequence=self.related_visit.visit_code_sequence,
             entry_status__in=[REQUIRED, KEYED],
         ).exists()
 
@@ -209,13 +209,13 @@ class QueryRuleHandler:
         See fields `timing` and `timing_units`.
         """
         is_due = False
-        if self.visit_obj:
+        if self.related_visit:
             if not self.model_obj:
                 is_due = True
             else:
                 now = arrow.get(self.now)
-                start = arrow.get(self.visit_obj.report_datetime)
-                end = arrow.get(self.visit_obj.report_datetime).shift(
+                start = arrow.get(self.related_visit.report_datetime)
+                end = arrow.get(self.related_visit.report_datetime).shift(
                     **{self.query_rule_obj.timing_units: self.query_rule_obj.timing}
                 )
                 is_due = now >= start and not now.is_between(start, end, "[]")
@@ -287,13 +287,13 @@ class QueryRuleHandler:
             self.data_query.refresh_from_db()
 
     @property
-    def visit_obj(self):
+    def related_visit(self):
         """Returns a visit model instance or None for this
         subject_identifier and visit schedule timepoint.
         """
-        if not self._visit_obj:
+        if not self._related_visit:
             try:
-                self._visit_obj = get_subject_visit_model_cls().objects.get(
+                self._related_visit = get_related_visit_model_cls().objects.get(
                     appointment__visit_schedule_name=(
                         self.visit_schedule_obj.visit_schedule_name
                     ),
@@ -305,8 +305,8 @@ class QueryRuleHandler:
                     ),
                 )
             except ObjectDoesNotExist:
-                self._visit_obj = None
-        return self._visit_obj
+                self._related_visit = None
+        return self._related_visit
 
     @property
     def model_obj(self):
@@ -316,7 +316,7 @@ class QueryRuleHandler:
         if not self._model_obj:
             try:
                 self._model_obj = self.model_cls.objects.get(
-                    **{f"{self.model_cls.related_visit_model_attr()}": self.visit_obj}
+                    **{f"{self.model_cls.related_visit_model_attr()}": self.related_visit}
                 )
             except ObjectDoesNotExist:
                 pass
@@ -333,7 +333,7 @@ class QueryRuleHandler:
         if not self._requisition_obj:
             try:
                 opts = {
-                    f"{self.model_cls.related_visit_model_attr()}": self.visit_obj,
+                    f"{self.model_cls.related_visit_model_attr()}": self.related_visit,
                     "panel": self.query_rule_obj.requisition_panel,
                 }
                 self._requisition_obj = get_requisition_model().objects.get(**opts)

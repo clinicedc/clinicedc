@@ -1,4 +1,3 @@
-from django.views.generic.base import ContextMixin
 from edc_action_item.model_wrappers import ActionItemModelWrapper
 from edc_action_item.models import ActionItem
 from edc_constants.constants import NEW, OPEN, RESOLVED
@@ -6,7 +5,7 @@ from edc_constants.constants import NEW, OPEN, RESOLVED
 from edc_data_manager.models import DataQuery
 
 
-class DataManagerViewMixin(ContextMixin):
+class DataManagerViewMixin:
 
     action_item_model_wrapper_cls = ActionItemModelWrapper
 

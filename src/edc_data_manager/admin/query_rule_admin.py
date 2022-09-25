@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin.decorators import register
-from django_audit_fields.admin import ModelAdminAuditFieldsMixin, audit_fieldset_tuple
+from django_audit_fields.admin import audit_fieldset_tuple
+from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_model_admin.history import SimpleHistoryAdmin
 
 from ..admin_site import edc_data_manager_admin
@@ -56,7 +57,9 @@ class QueryRuleModelAdminMixin:
 
 
 @register(QueryRule, site=edc_data_manager_admin)
-class QueryRuleAdmin(QueryRuleModelAdminMixin, ModelAdminAuditFieldsMixin, SimpleHistoryAdmin):
+class QueryRuleAdmin(
+    QueryRuleModelAdminMixin, ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin
+):
 
     form = QueryRuleForm
 
