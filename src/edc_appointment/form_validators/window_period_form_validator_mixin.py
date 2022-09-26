@@ -82,8 +82,14 @@ class WindowPeriodFormValidatorMixin:
                     )
             except ScheduledVisitWindowError:
                 upper = appointment.visit_from_schedule.dates.upper.strftime(datestring)
+                proposed = proposed_appt_datetime.strftime(datestring)
                 self.raise_validation_error(
-                    {form_field: f"Invalid. Expected a date between {lower} and {upper} (S)."},
+                    {
+                        form_field: (
+                            f"Invalid. Expected a date between {lower} and {upper} (S). "
+                            f"Got {proposed}."
+                        )
+                    },
                     SCHEDULED_WINDOW_ERROR,
                 )
 
