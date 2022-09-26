@@ -37,13 +37,13 @@ class CrfRequisitionFormValidatorMixin:
         *panels,
         requisition_field: str | None = None,
         assay_datetime_field: str | None = None,
-    ):
+    ) -> RequisitionModelMixin:
         """Validates that the requisition model instance exists
         and assay datetime provided.
         """
         requisition_field = requisition_field or self.requisition_field
-        assay_datetime_field = assay_datetime_field or self.assay_datetime_field
         requisition = self.cleaned_data.get(requisition_field)
+        assay_datetime_field = assay_datetime_field or self.assay_datetime_field
         if requisition and requisition.panel_object not in panels:
             raise forms.ValidationError(
                 {
@@ -77,20 +77,3 @@ class CrfRequisitionFormValidatorMixin:
                         )
                     }
                 )
-
-    # @staticmethod
-    # def validate_assay_datetime(
-    #     assay_datetime: datetime | None, requisition, field: str
-    # ) -> None:
-    #     if assay_datetime:
-    #         assay_datetime = to_utc(assay_datetime)
-    #         requisition_datetime = to_utc(requisition.requisition_datetime)
-    #         if assay_datetime < requisition_datetime:
-    #             raise forms.ValidationError(
-    #                 {
-    #                     field: (
-    #                         f"Invalid. Cannot be before date of requisition "
-    #                         f"{formatted_datetime(requisition_datetime)}."
-    #                     )
-    #                 }
-    #             )
