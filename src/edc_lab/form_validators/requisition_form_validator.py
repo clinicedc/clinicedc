@@ -10,6 +10,7 @@ from ..form_validators import CrfRequisitionFormValidatorMixin
 class RequisitionFormValidator(CrfRequisitionFormValidatorMixin, CrfFormValidator):
 
     aliquot_model = "edc_lab.aliquot"
+    report_datetime_field_attr = "requisition_datetime"
 
     @property
     def aliqout_model_cls(self):
