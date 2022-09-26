@@ -1,7 +1,7 @@
 from copy import deepcopy
 
-from django.apps import apps as django_apps
 from edc_constants.constants import YES
+from edc_registration import get_registered_subject_model_cls
 
 from ..reportables_evaluator import ReportablesEvaluator
 
@@ -28,27 +28,17 @@ class ReportablesFormValidatorMixin:
                 ...
         """
         cleaned_data = deepcopy(self.cleaned_data)
-
-        if cleaned_data.get("subject_visit"):
-            subject_visit = cleaned_data.get("subject_visit")
-        else:
-            subject_visit = self.instance.subject_visit
-        cleaned_data.update(subject_visit=subject_visit)
-        registered_subject_model_cls = django_apps.get_model(
-            "edc_registration.registeredsubject"
+        # cleaned_data.update(subject_visit=self.related_visit)
+        registered_subject = get_registered_subject_model_cls().objects.get(
+            subject_identifier=self.subject_identifier
         )
-        subject_identifier = subject_visit.subject_identifier
-        registered_subject = registered_subject_model_cls.objects.get(
-            subject_identifier=subject_identifier
-        )
-
         # check normal ranges and grade result values
         reportables = self.reportables_cls(
             reference_range_collection_name,
             cleaned_data=deepcopy(cleaned_data),
             gender=registered_subject.gender,
             dob=registered_subject.dob,
-            report_datetime=subject_visit.report_datetime,
+            report_datetime=self.report_datetime,
             value_field_suffix=self.value_field_suffix,
             **reportables_evaluator_options,
         )
