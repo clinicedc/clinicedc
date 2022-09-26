@@ -1,6 +1,5 @@
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
-from django.views.generic.base import ContextMixin
 from edc_dashboard.url_names import url_names
 
 
@@ -8,7 +7,7 @@ class SearchFormViewError(Exception):
     pass
 
 
-class SearchFormViewMixin(ContextMixin):
+class SearchFormViewMixin:
 
     search_form_url = None
 

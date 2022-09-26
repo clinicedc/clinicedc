@@ -1,10 +1,9 @@
-from django.views.generic.base import ContextMixin
 from edc_dashboard import url_names
 
 from ..filters import ListboardViewFilters
 
 
-class ListboardFilterViewMixin(ContextMixin):
+class ListboardFilterViewMixin:
 
     listboard_view_filters = ListboardViewFilters()
     listboard_filter_url = None
