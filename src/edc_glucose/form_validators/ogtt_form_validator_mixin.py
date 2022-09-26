@@ -1,16 +1,15 @@
-from typing import Optional
+from __future__ import annotations
 
 from django import forms
 from edc_constants.constants import NO
-from edc_form_validators import FormValidator
 
 
 class OgttFormValidatorMixin:
     def validate_ogtt_required_fields(
-        self: FormValidator,
-        ogtt_prefix: Optional[str] = None,
-        fasting_prefix: Optional[str] = None,
-    ):
+        self,
+        ogtt_prefix: str | None = None,
+        fasting_prefix: str | None = None,
+    ) -> None:
         """Uses fields `fasting`, `ogtt_base_datetime`, `ogtt_datetime`,
         `ogtt_value`, `ogtt_units`
         """
@@ -50,7 +49,7 @@ class OgttFormValidatorMixin:
             NO, field=fasting, field_not_required=f"{ogtt}_units", inverse=False
         )
 
-    def validate_ogtt_dates(self: FormValidator, ogtt_prefix: Optional[str] = None):
+    def validate_ogtt_dates(self, ogtt_prefix: str | None = None) -> None:
         ogtt = ogtt_prefix or "ogtt"
         ogtt_base_dte = self.cleaned_data.get(f"{ogtt}_base_datetime")
         ogtt_dte = self.cleaned_data.get(f"{ogtt}_datetime")
@@ -73,7 +72,7 @@ class OgttFormValidatorMixin:
                     }
                 )
 
-    def validate_ogtt_time_interval(self: FormValidator, ogtt_prefix: Optional[str] = None):
+    def validate_ogtt_time_interval(self, ogtt_prefix: str | None = None) -> None:
         """Validate the OGTT is measured 2 hrs after base date"""
         ogtt = ogtt_prefix or "ogtt"
         ogtt_base_dte = self.cleaned_data.get(f"{ogtt}_base_datetime")

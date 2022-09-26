@@ -7,7 +7,7 @@ from edc_utils.round_up import round_half_away_from_zero
 from .constants import GLUCOSE_HIGH_READING
 
 
-def validate_glucose_as_millimoles_per_liter(prefix: str, cleaned_data=None) -> None:
+def validate_glucose_as_millimoles_per_liter(prefix: str, cleaned_data: dict = None) -> None:
     min_val = Decimal("0.00")
     max_val = Decimal("30.00")
     high_value = Decimal(f"{GLUCOSE_HIGH_READING}")

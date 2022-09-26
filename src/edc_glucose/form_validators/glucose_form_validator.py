@@ -15,13 +15,14 @@ class GlucoseFormValidator(
     CrfFormValidatorMixin,
     FormValidator,
 ):
-    """Declared as an example of the clean method to use with the mixin"""
+    """Declared as an example of the clean method to use with
+    the mixin.
+    """
 
     required_at_baseline = True
     require_diagnosis = False
 
     def clean(self):
-
         if self.cleaned_data.get("subject_visit"):
             if not self.required_at_baseline:
                 raise_if_baseline(self.cleaned_data.get("subject_visit"))

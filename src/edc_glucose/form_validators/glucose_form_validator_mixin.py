@@ -4,7 +4,7 @@ from ..utils import validate_glucose_as_millimoles_per_liter
 
 
 class GlucoseFormValidatorMixin:
-    def validate_glucose_test(self):
+    def validate_glucose_test(self) -> None:
         self.required_if(YES, field="glucose_performed", field_required="glucose_date")
         self.required_if(YES, field="glucose_performed", field_required="fasting")
         self.required_if(YES, field="glucose_performed", field_required="glucose_value")
