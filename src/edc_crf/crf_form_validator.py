@@ -8,7 +8,7 @@ from edc_appointment.form_validators import WindowPeriodFormValidatorMixin
 from edc_consent.form_validators import ConsentFormValidatorMixin
 from edc_form_validators import INVALID_ERROR, FormValidator
 from edc_registration import get_registered_subject_model_cls
-from edc_utils import formatted_datetime
+from edc_utils import formatted_datetime, to_utc
 from edc_visit_tracking.modelform_mixins import get_related_visit
 
 if TYPE_CHECKING:
@@ -58,10 +58,14 @@ class CrfFormValidator(
                 )
 
     @property
-    def report_datetime(self):
-        return self.cleaned_data.get(self.report_datetime_field_attr) or getattr(
-            self.instance, self.report_datetime_field_attr
-        )
+    def report_datetime(self) -> datetime | None:
+        """Returns the report_datetime in UTC from cleaned_data,
+        if key exists, else returns the instance report_datetime.
+        """
+        if self.report_datetime_field_attr in self.cleaned_data:
+            return to_utc(self.cleaned_data.get(self.report_datetime_field_attr))
+        else:
+            return getattr(self.instance, self.report_datetime_field_attr)
 
     @property
     def appointment(self) -> Appointment:
