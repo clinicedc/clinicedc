@@ -2,7 +2,16 @@ from django import forms
 from edc_constants.constants import NO, NOT_APPLICABLE, YES
 from edc_metadata.constants import REQUIRED
 
-from .constants import ALREADY_REPORTED, INVALID_REFERENCE, PRESENT_AT_BASELINE
+from .constants import (
+    ALREADY_REPORTED,
+    GRADE0,
+    GRADE1,
+    GRADE2,
+    GRADE3,
+    GRADE4,
+    INVALID_REFERENCE,
+    PRESENT_AT_BASELINE,
+)
 from .site_reportables import site_reportables
 from .value_reference_group import NotEvaluated
 
@@ -83,13 +92,14 @@ class ReportablesEvaluator:
             word=word or "reportable",
         )
 
+    @property
+    def grades(self):
+        return [GRADE0, GRADE1, GRADE2, GRADE3, GRADE4]
+
     def reportable_grades_for_utest_id(self, utest_id):
-        try:
-            reportable_grades = (
-                self.reference_range_collection.reportable_grades_exceptions.get(utest_id)
-            )
-        except KeyError:
-            pass
+        reportable_grades = self.reference_range_collection.reportable_grades_exceptions.get(
+            utest_id
+        )
         return reportable_grades or self.reference_range_collection.reportable_grades
 
     def _evaluate_reportable(self, utest_id, value, field):
@@ -130,8 +140,23 @@ class ReportablesEvaluator:
             raise forms.ValidationError(
                 {field: f"{utest_id.upper()} is reportable. Got {grade.description}."}
             )
+        # user selects grade that does not match grade from evaluator
+        if (
+            grade
+            and grade.grade
+            and response.reportable in self.grades
+            and grade.grade != response.reportable
+        ):
+            raise forms.ValidationError(
+                {
+                    field: (
+                        f"{utest_id.upper()} grade mismatch. Evaluated as grade "
+                        f"{grade.grade}. Got {response.reportable}."
+                    )
+                }
+            )
 
-        # is not gradeable, user reponse is a valid opt out
+        # is not gradeable, user reponse is a valid `opt out`.
         if not grade and response.reportable not in [NO, NOT_APPLICABLE]:
             raise forms.ValidationError(
                 {f"{utest_id}_reportable": "Invalid. Expected 'No' or 'Not applicable'."}
