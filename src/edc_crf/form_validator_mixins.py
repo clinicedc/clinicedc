@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import abstractmethod
 from datetime import datetime
 
 from edc_consent.utils import get_consent_model_cls
@@ -9,26 +10,22 @@ from edc_visit_tracking.model_mixins import VisitModelMixin
 from edc_visit_tracking.modelform_mixins import get_related_visit
 
 
-class PrnFormValidatorMixin:
-    """A mixin of common properties needed for PRN validation
-    to be declared with FormValidator.
+class BaseFormValidatorMixin:
+    """A base mixin of common properties needed for PRN/CRF validation
+    to be declared with FormValidators.
     """
 
     report_datetime_field_attr = "report_datetime"
 
     @property
-    def subject_identifier(self) -> str:
-        subject_identifier = self.cleaned_data.get("subject_identifier")
-        if not subject_identifier and self.instance:
-            subject_identifier = getattr(self.instance, "subject_identifier", None)
-        return subject_identifier
+    @abstractmethod
+    def subject_identifier(self) -> str | None:
+        ...
 
     @property
-    def report_datetime(self) -> datetime:
-        report_datetime = self.cleaned_data.get(self.report_datetime_field_attr)
-        if not report_datetime and self.instance:
-            report_datetime = getattr(self.instance, self.report_datetime_field_attr, None)
-        return report_datetime
+    @abstractmethod
+    def report_datetime(self) -> datetime | None:
+        ...
 
     @property
     def subject_screening(self):
@@ -45,7 +42,7 @@ class PrnFormValidatorMixin:
         return age(self.subject_consent.dob, to_utc(self.report_datetime)).years
 
 
-class CrfFormValidatorMixin(PrnFormValidatorMixin):
+class CrfFormValidatorMixin(BaseFormValidatorMixin):
     """Assumes model is a CRF and has a key to related/subject_visit.
 
     Declare with FormValidator (not modelform).
@@ -61,7 +58,7 @@ class CrfFormValidatorMixin(PrnFormValidatorMixin):
     @property
     def report_datetime(self) -> datetime:
         report_datetime = super().report_datetime
-        if not report_datetime:
+        if not report_datetime and self.report_datetime_field_attr not in self.cleaned_data:
             report_datetime = self.related_visit.report_datetime
         return report_datetime
 
