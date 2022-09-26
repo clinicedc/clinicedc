@@ -2,37 +2,25 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from edc_consent.utils import get_consent_model_cls
-from edc_screening.utils import get_subject_screening_model_cls
-from edc_utils import age, to_utc
+from edc_crf.form_validator_mixins import BaseFormValidatorMixin
+from edc_utils import to_utc
 
 
-class PrnFormValidatorMixin:
-    """A mixin of common properties needed for PRN validation
-    to be declared with FormValidator.
-    """
+class PrnFormValidatorMixin(BaseFormValidatorMixin):
+    @property
+    def subject_identifier(self) -> str | None:
+        if "subject_identifier" in self.cleaned_data:
+            subject_identifier = self.cleaned_data.get("subject_identifier")
+        else:
+            subject_identifier = getattr(self.instance, "subject_identifier", None)
+        return subject_identifier
 
     @property
-    def subject_identifier(self) -> str:
-        return self.cleaned_data.get("subject_identifier")
-
-    @property
-    def report_datetime(self) -> datetime:
-        try:
-            return self.cleaned_data.get("report_datetime")
-        except AttributeError:
-            return self.subject_visit.report_datetime
-
-    @property
-    def subject_screening(self):
-        return get_subject_screening_model_cls().objects.get(
-            subject_identifier=self.subject_identifier
-        )
-
-    @property
-    def subject_consent(self):
-        return get_consent_model_cls().objects.get(subject_identifier=self.subject_identifier)
-
-    @property
-    def age_in_years(self) -> int:
-        return age(self.subject_consent.dob, to_utc(self.report_datetime)).years
+    def report_datetime(self) -> datetime | None:
+        """Returns the report_datetime in UTC from cleaned_data,
+        if key exists, else returns the instance report_datetime.
+        """
+        if self.report_datetime_field_attr in self.cleaned_data:
+            return to_utc(self.cleaned_data.get(self.report_datetime_field_attr))
+        else:
+            return getattr(self.instance, self.report_datetime_field_attr)
