@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 from datetime import datetime
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms import ValidationError
 from edc_registration import get_registered_subject_model_cls
+from edc_utils import to_utc
 
 
 class BaseModelFormMixinError(Exception):
@@ -60,7 +63,11 @@ class BaseModelFormMixin:
             raise ValidationError("Invalid. Subject identifier cannot be none.")
 
     @property
-    def report_datetime(self) -> datetime:
-        return self.cleaned_data.get(self.report_datetime_field_attr) or getattr(
-            self.instance, self.report_datetime_field_attr
-        )
+    def report_datetime(self) -> datetime | None:
+        """Returns the report_datetime in UTC from cleaned_data,
+        if key exists, else returns the instance report_datetime.
+        """
+        if self.report_datetime_field_attr in self.cleaned_data:
+            return to_utc(self.cleaned_data.get(self.report_datetime_field_attr))
+        else:
+            return getattr(self.instance, self.report_datetime_field_attr)
