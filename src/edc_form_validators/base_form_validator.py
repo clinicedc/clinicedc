@@ -5,12 +5,11 @@ from typing import TYPE_CHECKING, Any, Union
 
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.forms import ValidationError, forms
-from django_mock_queries.query import MockModel
 
 if TYPE_CHECKING:
     from django.db.models import Model
+    from django_mock_queries.query import MockModel
     from edc_model.models import BaseUuidModel
-
 
 APPLICABLE_ERROR = "applicable"
 INVALID_ERROR = "invalid"
