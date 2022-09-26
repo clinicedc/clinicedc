@@ -1,12 +1,17 @@
-from typing import Any, Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from django import forms
 from edc_utils import formatted_datetime, to_utc
 
+if TYPE_CHECKING:
+    from ..model_mixins import RequisitionModelMixin
+
 
 class CrfRequisitionFormValidatorMixin:
 
-    """An edc_form_validators.FormValidator mixin.
+    """An FormValidator mixin for CRFs (not requisitions).
 
     Used with a CRF that refers to a requisition or requisitions.
 
@@ -24,14 +29,14 @@ class CrfRequisitionFormValidatorMixin:
     See also, for example: ambition_form_validators.form_validators.blood_result
     """
 
-    assay_datetime_field = "assay_datetime"
-    requisition_field = "requisition"
+    assay_datetime_field: str = "assay_datetime"
+    requisition_field: str = "requisition"
 
     def validate_requisition(
-        self: Any,
+        self,
         *panels,
-        requisition_field: Optional[str] = None,
-        assay_datetime_field: Optional[str] = None,
+        requisition_field: str | None = None,
+        assay_datetime_field: str | None = None,
     ):
         """Validates that the requisition model instance exists
         and assay datetime provided.
@@ -56,7 +61,7 @@ class CrfRequisitionFormValidatorMixin:
         return requisition
 
     def validate_assay_datetime(
-        self: Any, requisition: Any, assay_datetime_field: Optional[str] = None
+        self, requisition: RequisitionModelMixin, assay_datetime_field: str | None = None
     ):
         assay_datetime_field = assay_datetime_field or self.assay_datetime_field
         assay_datetime = self.cleaned_data.get(assay_datetime_field)
@@ -72,3 +77,20 @@ class CrfRequisitionFormValidatorMixin:
                         )
                     }
                 )
+
+    # @staticmethod
+    # def validate_assay_datetime(
+    #     assay_datetime: datetime | None, requisition, field: str
+    # ) -> None:
+    #     if assay_datetime:
+    #         assay_datetime = to_utc(assay_datetime)
+    #         requisition_datetime = to_utc(requisition.requisition_datetime)
+    #         if assay_datetime < requisition_datetime:
+    #             raise forms.ValidationError(
+    #                 {
+    #                     field: (
+    #                         f"Invalid. Cannot be before date of requisition "
+    #                         f"{formatted_datetime(requisition_datetime)}."
+    #                     )
+    #                 }
+    #             )

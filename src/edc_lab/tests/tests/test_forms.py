@@ -2,12 +2,12 @@ from datetime import timedelta
 
 from django import forms
 from django.conf import settings
-from django.core.exceptions import NON_FIELD_ERRORS
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
 from edc_facility.import_holidays import import_holidays
-from edc_form_validators import FormValidatorMixin
+from edc_form_validators import FormValidator, FormValidatorMixin
 from edc_sites import add_or_update_django_sites
 from edc_sites.single_site import SingleSite
 from edc_utils import get_utcnow
@@ -18,6 +18,7 @@ from edc_lab.form_validators import RequisitionFormValidator
 from edc_lab.forms import BoxForm, BoxTypeForm, ManifestForm, RequisitionFormMixin
 from edc_lab.models import Aliquot
 
+from ...form_validators.requisition_form_validator import RequisitionFormValidatorMixin
 from ..models import SubjectConsent, SubjectRequisition, SubjectVisit
 from ..site_labs_test_helper import SiteLabsTestHelper
 from ..visit_schedules import visit_schedule
@@ -98,55 +99,75 @@ class TestForms(TestCase):
         self.assertNotIn("category_other", list(form.errors.keys()))
 
     def test_requisition_form_reason(self):
-        class RequisitionForm(RequisitionFormMixin, FormValidatorMixin, forms.ModelForm):
+        class MyRequisitionFormValidator(RequisitionFormValidatorMixin, FormValidator):
+            report_datetime_field_attr = "requisition_datetime"
 
-            form_validator_cls = RequisitionFormValidator
-
-            class Meta:
-                fields = "__all__"
-                model = SubjectRequisition
+            @property
+            def report_datetime(self):
+                return self.cleaned_data.get(self.report_datetime_field_attr)
 
         data = {"is_drawn": YES, "reason_not_drawn": NOT_APPLICABLE}
-        form = RequisitionForm(data=data)
-        form.is_valid()
-        self.assertNotIn("reason_not_drawn", list(form.errors.keys()))
+        form_validator = MyRequisitionFormValidator(
+            cleaned_data=data, model=SubjectRequisition
+        )
+        with self.assertRaises(ValidationError) as cm:
+            form_validator.validate()
+        self.assertNotIn("reason_not_drawn", cm.exception.error_dict)
 
         data = {
             "is_drawn": NO,
             "reason_not_drawn": "collection_failed",
             "item_type": NOT_APPLICABLE,
         }
-        form = RequisitionForm(data=data)
-        form.is_valid()
-        self.assertNotIn("reason_not_drawn", list(form.errors.keys()))
-        self.assertNotIn("drawn_datetime", list(form.errors.keys()))
-        self.assertNotIn("item_type", list(form.errors.keys()))
+        form_validator = MyRequisitionFormValidator(
+            cleaned_data=data, model=SubjectRequisition
+        )
+        try:
+            form_validator.validate()
+        except ValidationError:
+            self.fail("ValidationError unexpectedly raised")
 
     def test_requisition_form_drawn_not_drawn(self):
-        class RequisitionForm(RequisitionFormMixin, FormValidatorMixin, forms.ModelForm):
+        class MyRequisitionFormValidator(RequisitionFormValidatorMixin, FormValidator):
+            report_datetime_field_attr = "requisition_datetime"
 
-            form_validator_cls = RequisitionFormValidator
+            @property
+            def report_datetime(self):
+                return self.cleaned_data.get(self.report_datetime_field_attr)
 
-            class Meta:
-                fields = "__all__"
-                model = SubjectRequisition
+        data = {"is_drawn": YES, "drawn_datetime": None, "requisition_datetime": get_utcnow()}
+        form_validator = MyRequisitionFormValidator(
+            cleaned_data=data, model=SubjectRequisition
+        )
+        with self.assertRaises(ValidationError) as cm:
+            form_validator.validate()
+        self.assertIn("drawn_datetime", cm.exception.error_dict)
 
-        data = {"is_drawn": YES, "drawn_datetime": None}
-        form = RequisitionForm(data=data)
-        form.is_valid()
-        self.assertIn("drawn_datetime", list(form.errors.keys()))
-        self.assertEqual(form.errors.get("drawn_datetime"), ["This field is required."])
+        self.assertEqual(
+            cm.exception.error_dict.get("drawn_datetime")[0].message,
+            "This field is required.",
+        )
 
         data = {"is_drawn": NO, "drawn_datetime": get_utcnow()}
-        form = RequisitionForm(data=data)
-        form.is_valid()
-        self.assertIn("drawn_datetime", list(form.errors.keys()))
-        self.assertEqual(form.errors.get("drawn_datetime"), ["This field is not required."])
+        form_validator = MyRequisitionFormValidator(
+            cleaned_data=data, model=SubjectRequisition
+        )
+        with self.assertRaises(ValidationError) as cm:
+            form_validator.validate()
+        self.assertIn("drawn_datetime", cm.exception.error_dict)
+        self.assertEqual(
+            cm.exception.error_dict.get("drawn_datetime")[0].message,
+            "This field is not required.",
+        )
 
         data = {"is_drawn": NO, "drawn_datetime": None}
-        form = RequisitionForm(data=data)
-        form.is_valid()
-        self.assertIsNone(form.errors.get("drawn_datetime"))
+        form_validator = MyRequisitionFormValidator(
+            cleaned_data=data, model=SubjectRequisition
+        )
+        try:
+            form_validator.validate()
+        except ValidationError:
+            self.fail("ValidationError unexpectedly raised")
 
 
 class TestForms2(TestCase):
@@ -297,5 +318,5 @@ class TestForms2(TestCase):
         form.is_valid()
         print(form.is_valid())
         self.assertIn(
-            "Cannot be before date of visit", form.errors.get("requisition_datetime")[0]
+            "Invalid. Expected a date between", form.errors.get("requisition_datetime")[0]
         )

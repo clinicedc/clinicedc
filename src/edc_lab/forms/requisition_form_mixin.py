@@ -4,6 +4,7 @@ class RequisitionFormMixin:
     default_item_count = 1
     default_estimated_volume = 5.0
 
+    # TODO: This is set by ModelAdmin get_initial_data. Should be removed.
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not kwargs.get("instance"):
