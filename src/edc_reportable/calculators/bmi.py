@@ -23,7 +23,7 @@ class BMI:
         if age(dob, report_datetime).years < 18:
             raise CalculatorError("Unable to calculate BMI. Got age<18")
         self.lower = float(lower_bmi_value or 5.0)
-        self.upper = float(upper_bmi_value or 60.0)
+        self.upper = float(upper_bmi_value or 75.0)
         self.weight = float(weight_kg)
         self.height = float(height_cm) / 100.0
         self.raw_bmi_value = self.weight / (self.height**2)
