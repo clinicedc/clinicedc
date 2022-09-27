@@ -53,6 +53,8 @@ class EdcCrfTestCase(TestCase):
 
     def test_form_validator_with_prn(self):
         class MyFormValidator(PrnFormValidatorMixin, FormValidator):
+            report_datetime_field_attr = "report_datetime"
+
             def clean(self) -> None:
                 """test all methods"""
                 _ = self.subject_consent
