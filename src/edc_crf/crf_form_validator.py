@@ -11,6 +11,8 @@ from edc_registration import get_registered_subject_model_cls
 from edc_utils import formatted_datetime, to_utc
 from edc_visit_tracking.modelform_mixins import get_related_visit
 
+from .form_validator_mixins import CrfFormValidatorMixin
+
 if TYPE_CHECKING:
     from edc_appointment.models import Appointment
     from edc_visit_tracking.model_mixins import VisitModelMixin
@@ -21,7 +23,10 @@ class CrfFormValidatorError(Exception):
 
 
 class CrfFormValidator(
-    WindowPeriodFormValidatorMixin, ConsentFormValidatorMixin, FormValidator
+    WindowPeriodFormValidatorMixin,
+    ConsentFormValidatorMixin,
+    CrfFormValidatorMixin,
+    FormValidator,
 ):
     """Form validator for CRfs.
 
