@@ -1,26 +1,9 @@
-from django.forms import ModelForm
+import warnings
 
+from .form_validator_mixins import FormValidatorMixin  # noqa
 
-class FormValidatorMixin:
-    """A ModelForm mixin to add a validator class.
-
-    Declare with `forms.ModelForm`.
-    """
-
-    form_validator_cls = None
-
-    def clean(self: ModelForm) -> dict:
-        cleaned_data = super().clean()
-        try:
-            form_validator = self.form_validator_cls(
-                cleaned_data=cleaned_data,
-                instance=self.instance,
-                data=self.data,
-                model=self._meta.model,
-            )
-        except TypeError as e:
-            if str(e) != "'NoneType' object is not callable":
-                raise
-        else:
-            cleaned_data = form_validator.validate()
-        return cleaned_data
+warnings.warn(
+    "This path is deprecated in favor of form_validator_mixins.",
+    DeprecationWarning,
+    stacklevel=2,
+)
