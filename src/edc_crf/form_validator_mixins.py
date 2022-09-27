@@ -2,12 +2,15 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from edc_consent.utils import get_consent_model_cls
 from edc_screening.utils import get_subject_screening_model_cls
 from edc_utils import age, to_utc
-from edc_visit_tracking.model_mixins import VisitModelMixin
 from edc_visit_tracking.modelform_mixins import get_related_visit
+
+if TYPE_CHECKING:
+    from edc_visit_tracking.model_mixins import VisitModelMixin
 
 
 class BaseFormValidatorMixin:
