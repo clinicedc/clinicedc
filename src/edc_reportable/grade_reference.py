@@ -8,12 +8,12 @@ class GradeError(Exception):
 
 class GradeReference(ValueReference):
 
-    grades = [GRADE0, GRADE1, GRADE2, GRADE3, GRADE4, GRADE5]
+    grades: list[str] = [GRADE0, GRADE1, GRADE2, GRADE3, GRADE4, GRADE5]
 
-    def __init__(self, grade=None, normal_references=None, func=None, **kwargs):
+    def __init__(self, grade: int = None, normal_references: dict = None, func=None, **kwargs):
         if int(grade) not in [int(x) for x in self.grades]:
             raise GradeError(f"Invalid grade. Expected one of {self.grades}. Got {grade}.")
-        self.grade = int(grade)
+        self.grade: int = int(grade)
         super().__init__(normal_references=normal_references, func=func, **kwargs)
 
     def __repr__(self):

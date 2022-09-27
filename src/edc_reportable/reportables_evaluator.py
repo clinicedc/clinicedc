@@ -93,7 +93,7 @@ class ReportablesEvaluator:
         )
 
     @property
-    def grades(self):
+    def grades(self) -> list[str]:
         return [GRADE0, GRADE1, GRADE2, GRADE3, GRADE4]
 
     def reportable_grades_for_utest_id(self, utest_id):
@@ -145,7 +145,7 @@ class ReportablesEvaluator:
             grade
             and grade.grade
             and response.reportable in self.grades
-            and grade.grade != response.reportable
+            and str(grade.grade) != str(response.reportable)
         ):
             raise forms.ValidationError(
                 {
