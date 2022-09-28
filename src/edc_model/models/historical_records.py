@@ -15,6 +15,30 @@ class SerializableModel(models.Model):
     def natural_key(self) -> tuple:
         return (self.history_id,)  # noqa
 
+    def related_visit_model_attr(self):
+        try:
+            return self.history_object.related_visit_model_attr()
+        except AttributeError:
+            raise
+
+    @property
+    def related_visit(self):
+        return getattr(self, self.related_visit_model_attr())
+
+    class Meta:
+        abstract = True
+
+
+class SerializableCrfModel(models.Model):
+    objects = SerializableModelManager()
+
+    @property
+    def related_visit(self):
+        return NotImplemented(self)
+
+    def natural_key(self) -> tuple:
+        return (self.history_id,)  # noqa
+
     class Meta:
         abstract = True
 
@@ -35,3 +59,12 @@ class HistoricalRecords(SimpleHistoricalRecords):
         kwargs.update(history_id_field=models.UUIDField(default=uuid.uuid4))
         kwargs.update(use_base_model_db=True)
         super().__init__(**kwargs)
+
+    def contribute_to_class(self, cls, name):
+        try:
+            cls.related_visit_model_attr
+        except AttributeError:
+            pass
+        else:
+            self.model_cls = SerializableCrfModel
+        return super().contribute_to_class(cls, name)
