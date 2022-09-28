@@ -4,6 +4,7 @@ from abc import abstractmethod
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+from django.core.exceptions import ObjectDoesNotExist
 from edc_consent.utils import get_consent_model_cls
 from edc_screening.utils import get_subject_screening_model_cls
 from edc_utils import age, to_utc
@@ -73,3 +74,15 @@ class CrfFormValidatorMixin(BaseFormValidatorMixin):
     def related_visit(self) -> VisitModelMixin:
         """Returns a subject visit model instance or None"""
         return get_related_visit(self, related_visit_model_attr=self.related_visit_model_attr)
+
+    @property
+    def offschedule_datetime(self) -> datetime | None:
+        try:
+            obj = self.related_visit.schedule.offschedule_model_cls.objects.get(
+                subject_identifier=self.subject_identifier
+            )
+        except ObjectDoesNotExist:
+            offschedule_datetime = None
+        else:
+            offschedule_datetime = obj.offschedule_datetime
+        return offschedule_datetime
