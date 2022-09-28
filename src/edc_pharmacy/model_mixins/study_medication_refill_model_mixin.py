@@ -3,10 +3,18 @@ from uuid import uuid4
 from django.db import models
 from django.db.models import PROTECT
 from edc_constants.choices import YES_NO
-from edc_constants.constants import NO, YES
+from edc_constants.constants import YES
 
 
 class StudyMedicationRefillModelMixin(models.Model):
+
+    refill = models.CharField(
+        verbose_name="Will the subject receive study medication for this visit",
+        max_length=15,
+        default=YES,
+        choices=YES_NO,
+        help_text="If NO, set refill_start_datetime equal to the refill_end_datetime",
+    )
 
     refill_start_datetime = models.DateTimeField()
 
@@ -43,29 +51,6 @@ class StudyMedicationRefillModelMixin(models.Model):
     )
 
     special_instructions = models.TextField(null=True, blank=True)
-
-    order_or_update_next = models.CharField(
-        verbose_name="Order, or update, refill for next scheduled visit?",
-        max_length=15,
-        choices=YES_NO,
-        default=NO,
-    )
-
-    next_dosage_guideline = models.ForeignKey(
-        "edc_pharmacy.DosageGuideline",
-        on_delete=PROTECT,
-        related_name="next_dosageguideline",
-        null=True,
-        blank=True,
-    )
-
-    next_formulation = models.ForeignKey(
-        "edc_pharmacy.Formulation",
-        on_delete=PROTECT,
-        related_name="next_formulation",
-        null=True,
-        blank=True,
-    )
 
     class Meta:
         verbose_name = "Study Medication"

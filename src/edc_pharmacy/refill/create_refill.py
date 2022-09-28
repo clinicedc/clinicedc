@@ -1,25 +1,27 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import models
 
 from ..utils import get_rxrefill_model_cls
 from .refill_creator import RefillCreator
+
+if TYPE_CHECKING:
+    from ..models import DosageGuideline, Formulation, RxRefill
 
 
 def create_refill(
     refill_identifier: str,
     subject_identifier: str,
-    dosage_guideline: Any,
-    formulation: Any,
+    dosage_guideline: DosageGuideline,
+    formulation: Formulation,
     refill_start_datetime: datetime,
     refill_end_datetime: datetime,
     roundup_divisible_by: int | None,
     weight_in_kgs: float | None,
-) -> models.Model:
+) -> RxRefill:
     """Creates or updated the edc_pharmacy refill for this study medication CRF,
     if not already created.
 
