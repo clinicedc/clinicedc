@@ -1,11 +1,8 @@
 from dateutil.relativedelta import relativedelta
 from django.db import models
 
+from ..exceptions import RefillEndDatetimeError
 from ..refill import adjust_previous_end_datetime
-
-
-class RefillEndDatetimeError(Exception):
-    pass
 
 
 class PreviousNextModelMixin(models.Model):

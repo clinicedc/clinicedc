@@ -2,23 +2,26 @@ from __future__ import annotations
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Any
+from typing import TYPE_CHECKING
 from uuid import uuid4
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import models
 from edc_utils import convert_php_dateformat
 
-from ..exceptions import PrescriptionError, PrescriptionExpired, PrescriptionNotStarted
+from ..exceptions import (
+    PrescriptionError,
+    PrescriptionExpired,
+    PrescriptionNotStarted,
+    RefillCreatorError,
+)
 from ..utils import get_rx_model_cls, get_rxrefill_model_cls
 from .activate_refill import activate_refill
 
-
-class RefillCreatorError(Exception):
-    pass
+if TYPE_CHECKING:
+    from ..models import DosageGuideline, Formulation, Rx, RxRefill
 
 
 class RefillCreator:
@@ -28,8 +31,8 @@ class RefillCreator:
         subject_identifier: str = None,
         refill_start_datetime: datetime = None,
         refill_end_datetime: datetime = None,
-        formulation: models.Model = None,
-        dosage_guideline: models.Model = None,
+        formulation: Formulation = None,
+        dosage_guideline: DosageGuideline = None,
         make_active: bool | None = None,
         force_active: bool | None = None,
         roundup_divisible_by: int | None = None,
@@ -48,13 +51,22 @@ class RefillCreator:
         self.weight_in_kgs = weight_in_kgs
 
         if not self.formulation:
-            raise RefillCreatorError("Formulation cannot be None")
+            raise RefillCreatorError(
+                f"Formulation cannot be None. Refill identifier is {refill_identifier}. "
+                f"See {self.subject_identifier}."
+            )
         if not self.dosage_guideline:
-            raise RefillCreatorError("Dosage guideline cannot be None")
+            raise RefillCreatorError(
+                f"Dosage guideline cannot be None. Refill identifier is {refill_identifier}. "
+                f"See {self.subject_identifier}."
+            )
         if not self.weight_in_kgs:
             self.weight_in_kgs = self.rx.weight_in_kgs
         if self.dosage_guideline.dose_per_kg and not self.weight_in_kgs:
-            raise RefillCreatorError("Dosage guideline requires patient's weight in kgs")
+            raise RefillCreatorError(
+                "Dosage guideline requires patient's weight in kgs. "
+                f"See {self.subject_identifier}."
+            )
 
         self.make_active = True if make_active is None else make_active
         self.force_active = force_active
@@ -62,7 +74,7 @@ class RefillCreator:
         if self.make_active:
             activate_refill(self.rx_refill)
 
-    def create_or_update(self) -> Any:
+    def create_or_update(self) -> RxRefill:
         """Creates / updates and returns a RxRefill."""
         # find first refill on or after this start date
         opts = dict(
@@ -106,7 +118,7 @@ class RefillCreator:
         return rx_refill
 
     @property
-    def rx(self) -> Any:
+    def rx(self) -> Rx:
         """Returns Rx model instance else raises PrescriptionError"""
         opts = dict(
             subject_identifier=self.subject_identifier,
