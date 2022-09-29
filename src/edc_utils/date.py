@@ -21,6 +21,12 @@ def to_utc(dt: datetime) -> datetime:
     return dt.astimezone(ZoneInfo("UTC"))
 
 
+def floor_secs(dte) -> datetime:
+    return datetime(dte.year, dte.month, dte.day, dte.hour, dte.minute, 0).astimezone(
+        dte.tzinfo
+    )
+
+
 def floor_datetime(dt) -> datetime:
     return dt.replace(hour=0, minute=0, second=0, microsecond=0).astimezone(ZoneInfo("UTC"))
 
