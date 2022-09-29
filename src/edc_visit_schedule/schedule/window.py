@@ -1,5 +1,5 @@
-import arrow
 from django.conf import settings
+from edc_utils import floor_secs, to_utc
 
 from .exceptions import ScheduleError
 
@@ -30,11 +30,11 @@ class Window:
     ):
         self.name = name
         self.visits = visits
-        self.timepoint_datetime = timepoint_datetime
-        self.dt = dt
+        self.timepoint_datetime = to_utc(timepoint_datetime)
+        self.dt = to_utc(dt)
         self.visit_code = visit_code
         self.visit_code_sequence = visit_code_sequence
-        self.baseline_timepoint_datetime = baseline_timepoint_datetime
+        self.baseline_timepoint_datetime = to_utc(baseline_timepoint_datetime)
 
     @property
     def datetime_in_window(self):
@@ -68,7 +68,9 @@ class Window:
         visit = self.visits.get(self.visit_code)
         visit.timepoint_datetime = self.timepoint_datetime
         if not (
-            visit.dates.lower <= arrow.get(self.dt).to("utc").datetime <= visit.dates.upper
+            floor_secs(to_utc(visit.dates.lower))
+            <= floor_secs(to_utc(self.dt))
+            <= floor_secs(to_utc(visit.dates.upper))
         ):
             raise ScheduledVisitWindowError(
                 "Invalid datetime. Falls outside of the "
@@ -94,7 +96,10 @@ class Window:
         next_timepoint_datetime = self.visits.timepoint_dates(
             dt=self.baseline_timepoint_datetime
         ).get(next_visit)
-        if not (self.dt < next_timepoint_datetime - next_visit.rlower):
+        if not (
+            floor_secs(to_utc(self.dt))
+            < floor_secs(to_utc(next_timepoint_datetime - next_visit.rlower))
+        ):
             raise UnScheduledVisitWindowError(
                 "Invalid datetime. Falls outside of the "
                 f"window period for this `unscheduled` visit. "

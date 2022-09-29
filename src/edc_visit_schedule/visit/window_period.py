@@ -7,6 +7,7 @@ from typing import Tuple
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
+from edc_utils import to_utc
 
 
 class WindowPeriod:
@@ -30,15 +31,16 @@ class WindowPeriod:
 
     def get_window(self, dt=None) -> Tuple[datetime, datetime]:
         """Returns a tuple of the lower and upper datetimes in UTC."""
+
         dt_floor = (
-            dt
+            to_utc(dt)
             if self.no_floor
             else dt.replace(hour=0, minute=0, second=0, microsecond=0).astimezone(
                 ZoneInfo("UTC")
             )
         )
         dt_ceil = (
-            dt
+            to_utc(dt)
             if self.no_ceil
             else dt.replace(hour=23, minute=59, second=59, microsecond=999999).astimezone(
                 ZoneInfo("UTC")
