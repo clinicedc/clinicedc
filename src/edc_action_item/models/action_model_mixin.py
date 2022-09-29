@@ -66,8 +66,8 @@ class ActionNoManagersModelMixin(models.Model):
         # ensure subject_identifier
         if not self.subject_identifier:
             raise ActionItemError(
-                f"Missing subject identifier. See {self.__class__}"
-                f" {self.action_identifier}."
+                f"Subject identifier may not be None. See {self.__class__}"
+                f" action_identifier=`{self.action_identifier}`."
             )
 
         # ensure related_action_item is set if there is a
