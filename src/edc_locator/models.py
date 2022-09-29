@@ -25,7 +25,7 @@ class SubjectLocator(
     objects = LocatorManager()
 
     def natural_key(self):
-        return tuple(self.subject_identifier)
+        return (self.subject_identifier,)
 
     natural_key.dependencies = ["sites.Site"]
 

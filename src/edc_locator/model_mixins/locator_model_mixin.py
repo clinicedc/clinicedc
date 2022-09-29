@@ -37,7 +37,7 @@ class LocatorModelMixin(
         return self.subject_identifier
 
     def natural_key(self):
-        return tuple(self.subject_identifier)
+        return (self.subject_identifier,)
 
     class Meta:
         abstract = True
