@@ -41,12 +41,12 @@ class CrfModelMixin(VisitTrackingCrfModelMixin, SiteModelMixin, models.Model):
         abstract = True
 
 
-class OnSchedule(OnScheduleModelMixin, BaseUuidModel):
+class OnSchedule(SiteModelMixin, OnScheduleModelMixin, BaseUuidModel):
 
     pass
 
 
-class OffSchedule(OffScheduleModelMixin, BaseUuidModel):
+class OffSchedule(SiteModelMixin, OffScheduleModelMixin, BaseUuidModel):
 
     pass
 
