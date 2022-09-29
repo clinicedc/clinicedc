@@ -7,7 +7,7 @@ from unittest import skip
 
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
-from django.test import TestCase, tag  # noqa
+from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_constants.constants import NO, OPEN, YES
 from edc_facility.import_holidays import import_holidays
@@ -107,7 +107,6 @@ class TestQueryRules(TestCase):
         appointment.refresh_from_db()
         return subject_visit
 
-    @tag("1")
     def test_data_inspector(self):
 
         for schedule in visit_schedule.schedules.values():
