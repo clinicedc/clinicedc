@@ -13,9 +13,9 @@ from .constants import SUBJECT_TRANSFER_ACTION
 
 
 class SubjectTransferModelMixin(
-    UniqueSubjectIdentifierFieldMixin,
     SiteModelMixin,
     ActionModelMixin,
+    UniqueSubjectIdentifierFieldMixin,
     models.Model,
 ):
 
