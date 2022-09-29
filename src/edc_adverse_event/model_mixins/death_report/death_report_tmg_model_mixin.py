@@ -2,7 +2,7 @@ from django.conf import settings
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_action_item.managers import (
-    ActionIdentifierManager,
+    ActionIdentifierModelManager,
     ActionIdentifierSiteManager,
 )
 from edc_action_item.models import ActionModelMixin
@@ -18,7 +18,7 @@ from ...constants import DEATH_REPORT_TMG_ACTION, DEATH_REPORT_TMG_SECOND_ACTION
 from ...models import CauseOfDeath
 
 
-class DeathReportTmgManager(ActionIdentifierManager):
+class DeathReportTmgManager(ActionIdentifierModelManager):
     def get_queryset(self):
         qs = super().get_queryset()
         return qs.filter(action_item__action_type__name=DEATH_REPORT_TMG_ACTION)
@@ -30,7 +30,7 @@ class DeathReportTmgSiteManager(ActionIdentifierSiteManager):
         return qs.filter(action_item__action_type__name=DEATH_REPORT_TMG_ACTION)
 
 
-class DeathReportTmgSecondManager(ActionIdentifierManager):
+class DeathReportTmgSecondManager(ActionIdentifierModelManager):
     def get_queryset(self):
         qs = super().get_queryset()
         return qs.filter(action_item__action_type__name=DEATH_REPORT_TMG_SECOND_ACTION)
