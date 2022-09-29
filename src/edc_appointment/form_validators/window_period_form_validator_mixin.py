@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import TYPE_CHECKING
-from zoneinfo import ZoneInfo
 
 from django.conf import settings
-from edc_utils import convert_php_dateformat
+from edc_utils import convert_php_dateformat, floor_secs, to_utc
 from edc_visit_schedule.schedule.window import (
     ScheduledVisitWindowError,
     UnScheduledVisitWindowError,
@@ -52,10 +51,10 @@ class WindowPeriodFormValidatorMixin:
         form_field: str,
     ):
         if proposed_appt_datetime:
-            proposed_appt_datetime = proposed_appt_datetime.astimezone(ZoneInfo("UTC"))
-            datestring = convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+            proposed_appt_datetime = to_utc(floor_secs(proposed_appt_datetime))
+            datetimestring = convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
             appointment.visit_from_schedule.timepoint_datetime = appointment.timepoint_datetime
-            lower = appointment.visit_from_schedule.dates.lower.strftime(datestring)
+            lower = appointment.visit_from_schedule.dates.lower.strftime(datetimestring)
             try:
                 appointment.schedule.datetime_in_window(
                     timepoint_datetime=appointment.timepoint_datetime,
@@ -70,23 +69,23 @@ class WindowPeriodFormValidatorMixin:
                 ):
                     upper = appointment.schedule.visits.next(
                         appointment.visit_code
-                    ).dates.lower.strftime(datestring)
+                    ).dates.lower.strftime(datetimestring)
                     self.raise_validation_error(
                         {
                             form_field: (
-                                f"Invalid. Expected a date between {lower} and {upper} (U). "
-                                f"Got {e}"
+                                "Invalid. Expected a date/time between "
+                                f"{lower} and {upper} (U). Got {e}."
                             )
                         },
                         UNSCHEDULED_WINDOW_ERROR,
                     )
             except ScheduledVisitWindowError:
-                upper = appointment.visit_from_schedule.dates.upper.strftime(datestring)
-                proposed = proposed_appt_datetime.strftime(datestring)
+                upper = appointment.visit_from_schedule.dates.upper.strftime(datetimestring)
+                proposed = proposed_appt_datetime.strftime(datetimestring)
                 self.raise_validation_error(
                     {
                         form_field: (
-                            f"Invalid. Expected a date between {lower} and {upper} (S). "
+                            f"Invalid. Expected a date/time between {lower} and {upper} (S). "
                             f"Got {proposed}."
                         )
                     },
