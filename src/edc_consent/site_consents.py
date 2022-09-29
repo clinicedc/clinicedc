@@ -9,7 +9,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.management.color import color_style
 from django.utils.module_loading import import_module, module_has_submodule
-from edc_utils import convert_php_dateformat
+from edc_utils import convert_php_dateformat, floor_secs
 
 from .consent_object_validator import ConsentObjectValidator
 from .exceptions import ConsentObjectDoesNotExist
@@ -127,7 +127,9 @@ class SiteConsents:
                 f"model={consent_model}."
             )
         registered_consents = [
-            c for c in registered_consents if c.start <= report_datetime <= c.end
+            c
+            for c in registered_consents
+            if floor_secs(c.start) <= floor_secs(report_datetime) <= floor_secs(c.end)
         ]
         if not registered_consents:
             raise ConsentObjectDoesNotExist(

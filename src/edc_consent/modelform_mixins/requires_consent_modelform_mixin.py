@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist
-from edc_utils import formatted_datetime
+from edc_utils import floor_secs, formatted_date, formatted_datetime
 
 from ..constants import DEFAULT_CONSENT_GROUP
 from ..site_consents import site_consents
@@ -31,10 +31,14 @@ class RequiresConsentModelFormMixin:
         sense relative to the consent.
         """
         consent = self.get_consent_or_raise()
-        if self.report_datetime < consent.consent_datetime:
-            raise forms.ValidationError("Report datetime cannot be before consent datetime")
+        if floor_secs(self.report_datetime) < floor_secs(consent.consent_datetime):
+            dte_str = formatted_datetime(consent.consent_datetime)
+            raise forms.ValidationError(
+                f"Report datetime cannot be before consent datetime. Got {dte_str}."
+            )
         if self.report_datetime.date() < consent.dob:
-            raise forms.ValidationError("Report datetime cannot be before DOB")
+            dte_str = formatted_date(consent.dob)
+            raise forms.ValidationError(f"Report datetime cannot be before DOB. Got {dte_str}")
 
     @property
     def consent_group(self) -> str:
