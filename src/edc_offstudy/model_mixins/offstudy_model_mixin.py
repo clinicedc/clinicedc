@@ -44,6 +44,8 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
         default=get_utcnow,
     )
 
+    report_datetime = models.DateTimeField(null=True, editable=False)
+
     offstudy_reason = models.CharField(
         verbose_name="Please code the primary reason participant taken off-study",
         choices=offstudy_reason_choices,
@@ -64,6 +66,7 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
         return f"{self.subject_identifier} {formatted_datetime(local)}"
 
     def save(self, *args, **kwargs):
+        self.report_datetime = self.offstudy_datetime
         off_all_schedules_or_raise(subject_identifier=self.subject_identifier)
         offstudy_datetime_after_all_offschedule_datetimes(
             subject_identifier=self.subject_identifier,
@@ -74,10 +77,6 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
 
     def natural_key(self):
         return (self.subject_identifier,)
-
-    @property
-    def report_datetime(self):
-        return self.offstudy_datetime
 
     class Meta:
         abstract = True

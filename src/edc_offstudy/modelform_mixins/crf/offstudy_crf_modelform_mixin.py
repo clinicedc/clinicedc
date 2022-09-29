@@ -3,22 +3,26 @@ from django.core.exceptions import ObjectDoesNotExist
 from edc_utils import formatted_datetime
 from edc_visit_schedule import site_visit_schedules
 
-from ..utils import OffstudyError, raise_if_offstudy
+from ...utils import OffstudyError, raise_if_offstudy
 
 
 class OffstudyCrfModelFormMixin:
 
     """ModelForm mixin for CRF Models.
 
-    Must be declared with at least VisitScheduleCrfModelFormMixin"""
+    Must be declared with at least VisitScheduleCrfModelFormMixin
+    """
 
     def clean(self):
         cleaned_data = super().clean()
-        self.raise_if_offstudy()
-        self.raise_if_offschedule()
+        self.raise_if_offstudy_by_report_datetime()
+        self.raise_if_offschedule_by_report_datetime()
         return cleaned_data
 
-    def raise_if_offschedule(self):
+    def raise_if_offschedule_by_report_datetime(self):
+        """Raises a ValidationError if the subject is offschedule before
+        the report_datetime.
+        """
         visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
         schedule = visit_schedule.schedules.get(self.schedule_name)
         try:
@@ -37,7 +41,10 @@ class OffstudyCrfModelFormMixin:
                 f"offschedule date='{offschedule_datetime}'."
             )
 
-    def raise_if_offstudy(self):
+    def raise_if_offstudy_by_report_datetime(self):
+        """Raises a ValidationError if the subject is off study before
+        the report_datetime.
+        """
         try:
             raise_if_offstudy(
                 source_obj=self.instance,
