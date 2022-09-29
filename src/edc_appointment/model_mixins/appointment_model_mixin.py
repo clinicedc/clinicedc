@@ -17,7 +17,7 @@ from edc_timepoint.model_mixins import TimepointModelMixin
 from edc_utils import formatted_datetime
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
-from edc_visit_schedule.subject_schedule import NotOnScheduleError, SubjectSchedule
+from edc_visit_schedule.subject_schedule import NotOnScheduleError
 from edc_visit_schedule.utils import is_baseline
 
 from ..constants import IN_PROGRESS_APPT
@@ -54,8 +54,6 @@ class AppointmentModelMixin(
     """
 
     metadata_helper_instance_attr = None
-
-    subject_schedule_cls = SubjectSchedule
 
     offschedule_compare_dates_as_datetimes = False
 

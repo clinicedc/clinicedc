@@ -27,6 +27,7 @@ class AppointmentForm(
     """
 
     form_validator_cls = AppointmentFormValidator
+    report_datetime_field_attr: str = "appt_datetime"
 
     class Meta:
         model = Appointment
