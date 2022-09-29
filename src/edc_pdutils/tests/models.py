@@ -5,17 +5,18 @@ from edc_appointment.models import Appointment
 from edc_constants.constants import YES
 from edc_list_data.model_mixins import ListModelMixin
 from edc_model.models import BaseUuidModel
+from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
 from edc_visit_tracking.model_mixins import VisitModelMixin
 
 
-class OnSchedule(OnScheduleModelMixin, BaseUuidModel):
+class OnSchedule(SiteModelMixin, OnScheduleModelMixin, BaseUuidModel):
     class Meta:
         app_label = "edc_pdutils"
 
 
-class OffSchedule(OffScheduleModelMixin, BaseUuidModel):
+class OffSchedule(SiteModelMixin, OffScheduleModelMixin, BaseUuidModel):
     class Meta:
         app_label = "edc_pdutils"
 
