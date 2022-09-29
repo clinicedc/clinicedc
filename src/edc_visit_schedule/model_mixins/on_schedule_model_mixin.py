@@ -7,10 +7,9 @@ from django.conf import settings
 from django.db import models
 from edc_identifier.managers import SubjectIdentifierManager
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
+from edc_model.models import HistoricalRecords
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
-from edc_sites.models import CurrentSiteManager as BaseCurrentSiteManager
-from edc_sites.models import SiteModelMixin
 from edc_utils import convert_php_dateformat, get_utcnow
 
 from ..site_visit_schedules import site_visit_schedules
@@ -20,14 +19,7 @@ if TYPE_CHECKING:
     from ..visit_schedule import VisitSchedule
 
 
-class CurrentSiteManager(BaseCurrentSiteManager):
-    use_in_migrations = True
-
-    def get_by_natural_key(self, subject_identifier):
-        return self.get(subject_identifier=subject_identifier)
-
-
-class OnScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, models.Model):
+class OnScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
     """A model mixin for a schedule's onschedule model."""
 
     onschedule_datetime = models.DateTimeField(
@@ -37,9 +29,9 @@ class OnScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, mo
 
     report_datetime = models.DateTimeField(editable=False)
 
-    on_site = CurrentSiteManager()
-
     objects = SubjectIdentifierManager()
+
+    history = HistoricalRecords(inherit=True)
 
     def __str__(self):
         formatted_datetime = self.report_datetime.astimezone(

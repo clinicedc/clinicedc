@@ -8,7 +8,7 @@ from django import forms
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from edc_utils import formatted_datetime
+from edc_utils import floor_secs, formatted_datetime
 
 from .exceptions import OffScheduleError, OnScheduleError
 from .site_visit_schedules import SiteVisitScheduleError, site_visit_schedules
@@ -286,7 +286,11 @@ def report_datetime_within_onschedule_offschedule_datetimes(
         offschedule_datetime = report_datetime
     else:
         offschedule_datetime = offschedule_obj.offschedule_datetime
-    if not (onschedule_obj.onschedule_datetime <= report_datetime <= offschedule_datetime):
+    if not (
+        floor_secs(onschedule_obj.onschedule_datetime)
+        <= floor_secs(report_datetime)
+        <= floor_secs(offschedule_datetime)
+    ):
         onschedule_datetime = formatted_datetime(onschedule_obj.onschedule_datetime)
         if offschedule_obj:
             offschedule_datetime = formatted_datetime(offschedule_obj.offschedule_datetime)

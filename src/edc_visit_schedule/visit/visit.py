@@ -7,6 +7,7 @@ from zoneinfo import ZoneInfo
 
 from django.apps import apps as django_apps
 from django.conf import settings
+from edc_utils import to_utc
 
 from .window_period import WindowPeriod
 
@@ -41,10 +42,10 @@ class VisitDate:
         timepoint: Decimal = None,
         base_timepoint: Decimal = None,
     ):
-        self._base = None
-        self.lower = None
-        self.upper = None
-        self._window = self.window_period_cls(
+        self._base: datetime | None = None
+        self.lower: datetime | None = None
+        self.upper: datetime | None = None
+        self._window_period = self.window_period_cls(
             rlower=rlower,
             rupper=rupper,
             timepoint=timepoint,
@@ -52,13 +53,13 @@ class VisitDate:
         )
 
     @property
-    def base(self):
+    def base(self) -> datetime:
         return self._base
 
     @base.setter
-    def base(self, dt=None):
-        self._base = dt.astimezone(ZoneInfo("UTC"))
-        self.lower, self.upper = self._window.get_window(dt=self._base)
+    def base(self, dt: datetime = None):
+        self._base = to_utc(dt)
+        self.lower, self.upper = self._window_period.get_window(dt=self._base)
 
 
 class Visit:

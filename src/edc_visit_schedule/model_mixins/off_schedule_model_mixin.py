@@ -11,7 +11,6 @@ from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.models import CurrentSiteManager as BaseCurrentSiteManager
-from edc_sites.models import SiteModelMixin
 from edc_utils import convert_php_dateformat, get_utcnow
 
 from ..site_visit_schedules import site_visit_schedules
@@ -28,7 +27,7 @@ class CurrentSiteManager(BaseCurrentSiteManager):
         return self.get(subject_identifier=subject_identifier)
 
 
-class OffScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, models.Model):
+class OffScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
     """Model mixin for a schedule's OffSchedule model."""
 
     offschedule_datetime_field_attr: str = "offschedule_datetime"
@@ -40,8 +39,6 @@ class OffScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, m
     )
 
     report_datetime = models.DateTimeField(editable=False)
-
-    on_site = CurrentSiteManager()
 
     objects = SubjectIdentifierManager()
 
