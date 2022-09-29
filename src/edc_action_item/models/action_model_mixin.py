@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_model.models import HistoricalRecords
 
+from ..managers import ActionIdentifierModelManager
 from ..site_action_items import site_action_items
 from .action_item import ActionItem
 
@@ -14,14 +15,6 @@ class ActionClassNotDefined(Exception):
 
 class ActionItemError(Exception):
     pass
-
-
-class ActionItemModelManager(models.Manager):
-
-    use_in_migrations = True
-
-    def get_by_natural_key(self, action_identifier):
-        return self.get(action_identifier=action_identifier)
 
 
 class ActionNoManagersModelMixin(models.Model):
@@ -136,7 +129,7 @@ class ActionNoManagersModelMixin(models.Model):
 
 class ActionModelMixin(ActionNoManagersModelMixin):
 
-    objects = ActionItemModelManager()
+    objects = ActionIdentifierModelManager()
 
     history = HistoricalRecords(inherit=True)
 
