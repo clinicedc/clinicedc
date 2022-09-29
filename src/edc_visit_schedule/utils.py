@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from django import forms
 from django.apps import apps as django_apps
@@ -11,8 +11,10 @@ from django.db import transaction
 from edc_utils import formatted_datetime
 
 from .exceptions import OffScheduleError, OnScheduleError
-from .model_mixins import OnScheduleModelMixin
 from .site_visit_schedules import SiteVisitScheduleError, site_visit_schedules
+
+if TYPE_CHECKING:
+    from .model_mixins import OnScheduleModelMixin
 
 
 class VisitScheduleBaselineError(Exception):
