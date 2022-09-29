@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from datetime import datetime
 from decimal import Decimal
-from typing import Any, List, Optional
+from typing import Any
 
 from django import forms
 from django.apps import apps as django_apps
@@ -9,6 +11,7 @@ from django.db import transaction
 from edc_utils import formatted_datetime
 
 from .exceptions import OffScheduleError, OnScheduleError
+from .model_mixins import OnScheduleModelMixin
 from .site_visit_schedules import SiteVisitScheduleError, site_visit_schedules
 
 
@@ -19,11 +22,11 @@ class VisitScheduleBaselineError(Exception):
 class Baseline:
     def __init__(
         self,
-        instance: Optional[Any] = None,
-        timepoint: Optional[Decimal] = None,
-        visit_code_sequence: Optional[int] = None,
-        visit_schedule_name: Optional[str] = None,
-        schedule_name: Optional[str] = None,
+        instance: Any = None,
+        timepoint: Decimal | None = None,
+        visit_code_sequence: int | None = None,
+        visit_schedule_name: str | None = None,
+        schedule_name: str | None = None,
     ):
         if instance:
             try:
@@ -98,11 +101,11 @@ class Baseline:
 
 
 def is_baseline(
-    instance: Optional[Any] = None,
-    timepoint: Optional[Decimal] = None,
-    visit_code_sequence: Optional[int] = None,
-    visit_schedule_name: Optional[str] = None,
-    schedule_name: Optional[str] = None,
+    instance: Any = None,
+    timepoint: Decimal | None = None,
+    visit_code_sequence: int | None = None,
+    visit_schedule_name: str | None = None,
+    schedule_name: str | None = None,
 ) -> bool:
     return Baseline(
         instance=instance,
@@ -125,7 +128,7 @@ def raise_if_not_baseline(subject_visit) -> None:
 
 def get_onschedule_models(
     subject_identifier: str = None, report_datetime: datetime = None
-) -> List[str]:
+) -> list[str]:
     """Returns a list of onschedule models, in label_lower format,
     for this subject and date.
     """
@@ -143,7 +146,7 @@ def get_onschedule_models(
     return onschedule_models
 
 
-def get_offschedule_models(subject_identifier=None, report_datetime=None):
+def get_offschedule_models(subject_identifier=None, report_datetime=None) -> list[str]:
     """Returns a list of offschedule models, in label_lower format,
     for this subject and date.
 
@@ -166,28 +169,12 @@ def get_offschedule_models(subject_identifier=None, report_datetime=None):
     return offschedule_models
 
 
-def get_subject_schedule_cls(model, visit_schedule, schedule):
-    try:
-        subject_schedule_cls = model.subject_schedule_cls(
-            visit_schedule=visit_schedule, schedule=schedule
-        )
-    except AttributeError as e:
-        if "subject_schedule_cls" in str(e):
-            raise AttributeError(
-                f"{e}. Perhaps model `{model._meta.label_lower}` should be declared "
-                f"with `CrfScheduleModelMixin`?"
-            )
-        else:
-            raise
-    return subject_schedule_cls
-
-
 def off_schedule_or_raise(
     subject_identifier=None,
     report_datetime=None,
     visit_schedule_name=None,
     schedule_name=None,
-):
+) -> None:
     """Returns True if subject is on the given schedule
     on this date.
     """
@@ -238,7 +225,7 @@ def offstudy_datetime_after_all_offschedule_datetimes(
     subject_identifier: str = None,
     offstudy_datetime: datetime = None,
     exception_cls=None,
-):
+) -> None:
     exception_cls = exception_cls or forms.ValidationError
     for visit_schedule in site_visit_schedules.get_visit_schedules().values():
         for schedule in visit_schedule.schedules.values():
@@ -319,7 +306,7 @@ def get_onschedule_model_instance(
     reference_datetime: datetime,
     visit_schedule_name: str,
     schedule_name: str,
-) -> Any:
+) -> OnScheduleModelMixin:
     """Returns the onschedule model instance"""
     schedule = site_visit_schedules.get_visit_schedule(visit_schedule_name).schedules.get(
         schedule_name

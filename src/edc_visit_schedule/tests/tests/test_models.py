@@ -1,4 +1,3 @@
-import arrow
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings
@@ -129,15 +128,17 @@ class TestModels(SiteTestCaseMixin, TestCase):
             onschedule_datetime=get_utcnow() - relativedelta(years=2),
         )
 
-        offschedule_datetime = arrow.Arrow.fromdate(
-            (get_utcnow() - relativedelta(years=1)).date()
-        )
-        obj = OffScheduleSix.objects.create(
-            subject_identifier=self.subject_identifier,
-            my_offschedule_date=offschedule_datetime.date(),
-        )
-        self.assertEqual(obj.my_offschedule_date, offschedule_datetime.date())
-        self.assertEqual(obj.offschedule_datetime, offschedule_datetime)
+        offschedule_datetime = get_utcnow() - relativedelta(years=1)
+
+        try:
+            OffScheduleSix.objects.create(
+                subject_identifier=self.subject_identifier,
+                my_offschedule_date=offschedule_datetime.date(),
+            )
+        except ImproperlyConfigured:
+            pass
+        else:
+            self.fail("ImproperlyConfigured not raised")
 
     def test_bad_offschedule1(self):
         site_visit_schedules.loaded = False

@@ -64,21 +64,10 @@ class VisitScheduleMethodsModelMixin(models.Model):
 
     @property
     def visit_schedule(self) -> VisitSchedule:
-        """Returns a visit schedule object from Meta.visit_schedule_name.
-
-        Declared on Meta like this:
-            visit_schedule_name = 'my_visit_schedule_name.my_schedule_name'
-
-        or, for example, in the case of an offstudy model:
-            visit_schedule_name = 'my_visit_schedule_name'
-        """
-        try:
-            visit_schedule_name, _ = self._meta.visit_schedule_name.split(".")
-        except ValueError:
-            visit_schedule_name = self._meta.visit_schedule_name
-        except AttributeError:
-            visit_schedule_name = self.visit_schedule_name
-        return site_visit_schedules.get_visit_schedule(visit_schedule_name=visit_schedule_name)
+        """Returns a visit schedule object"""
+        return site_visit_schedules.get_visit_schedule(
+            visit_schedule_name=self.visit_schedule_name
+        )
 
     class Meta:
         abstract = True

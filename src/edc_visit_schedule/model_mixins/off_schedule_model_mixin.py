@@ -1,23 +1,37 @@
-import arrow
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+from zoneinfo import ZoneInfo
+
+from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
-from django.db.models import options
-from edc_model.validators import date_not_future, datetime_not_future
-from edc_protocol.validators import (
-    date_not_before_study_start,
-    datetime_not_before_study_start,
-)
-from edc_utils import get_utcnow
+from edc_identifier.managers import SubjectIdentifierManager
+from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
+from edc_model.validators import datetime_not_future
+from edc_protocol.validators import datetime_not_before_study_start
+from edc_sites.models import CurrentSiteManager as BaseCurrentSiteManager
+from edc_sites.models import SiteModelMixin
+from edc_utils import convert_php_dateformat, get_utcnow
 
 from ..site_visit_schedules import site_visit_schedules
-from .schedule_model_mixin import ScheduleModelMixin
 
-if "offschedule_datetime_field" not in options.DEFAULT_NAMES:
-    options.DEFAULT_NAMES = options.DEFAULT_NAMES + ("offschedule_datetime_field",)
+if TYPE_CHECKING:
+    from ..schedule import Schedule
+    from ..visit_schedule import VisitSchedule
 
 
-class OffScheduleModelMixin(ScheduleModelMixin):
+class CurrentSiteManager(BaseCurrentSiteManager):
+    use_in_migrations = True
+
+    def get_by_natural_key(self, subject_identifier):
+        return self.get(subject_identifier=subject_identifier)
+
+
+class OffScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, models.Model):
     """Model mixin for a schedule's OffSchedule model."""
+
+    offschedule_datetime_field_attr: str = "offschedule_datetime"
 
     offschedule_datetime = models.DateTimeField(
         verbose_name="Date and time subject taken off schedule",
@@ -25,41 +39,51 @@ class OffScheduleModelMixin(ScheduleModelMixin):
         default=get_utcnow,
     )
 
+    report_datetime = models.DateTimeField(editable=False)
+
+    on_site = CurrentSiteManager()
+
+    objects = SubjectIdentifierManager()
+
+    def __str__(self):
+        formatted_datetime = self.report_datetime.astimezone(
+            ZoneInfo(settings.TIME_ZONE)
+        ).strftime(convert_php_dateformat(settings.SHORT_DATETIME_FORMAT))
+        return f"{self.subject_identifier} {formatted_datetime}"
+
+    def natural_key(self):
+        return (self.subject_identifier,)
+
     def save(self, *args, **kwargs):
-        try:
-            self._meta.offschedule_datetime_field
-        except AttributeError:
-            offschedule_datetime_field = "offschedule_datetime"
-        else:
-            offschedule_datetime_field = self._meta.offschedule_datetime_field
-        if not offschedule_datetime_field:
+        if not self.offschedule_datetime_field_attr:
             raise ImproperlyConfigured(
-                f"Meta attr 'offschedule_datetime_field' "
+                f"Model attr 'offschedule_datetime_field_attr' "
                 f"cannot be None. See model {self.__class__.__name__}"
             )
-        dt = getattr(self, offschedule_datetime_field)
+        if self.offschedule_datetime_field_attr != "offschedule_datetime":
+            self.offschedule_datetime = getattr(self, self.offschedule_datetime_field_attr)
         try:
-            dt.date()
+            self.offschedule_datetime.date()
         except AttributeError:
-            date_not_before_study_start(dt)
-            date_not_future(dt)
-            self.offschedule_datetime = arrow.Arrow.fromdate(dt).datetime
-        else:
-            datetime_not_before_study_start(dt)
-            datetime_not_future(dt)
-            self.offschedule_datetime = dt
+            raise ImproperlyConfigured(
+                f"Field class must be DateTimeField. See {self.__class__}."
+                f"{self.offschedule_datetime_field_attr}."
+            )
+
+        datetime_not_before_study_start(self.offschedule_datetime)
+        datetime_not_future(self.offschedule_datetime)
         self.report_datetime = self.offschedule_datetime
         super().save(*args, **kwargs)
 
     @property
-    def visit_schedule(self):
+    def visit_schedule(self) -> VisitSchedule:
         """Returns a visit schedule object."""
         return site_visit_schedules.get_by_offschedule_model(
             offschedule_model=self._meta.label_lower
         )[0]
 
     @property
-    def schedule(self):
+    def schedule(self) -> Schedule:
         """Returns a schedule object."""
         return site_visit_schedules.get_by_offschedule_model(
             offschedule_model=self._meta.label_lower
@@ -67,7 +91,6 @@ class OffScheduleModelMixin(ScheduleModelMixin):
 
     class Meta:
         abstract = True
-        offschedule_datetime_field = "offschedule_datetime"
         indexes = [
             models.Index(fields=["id", "subject_identifier", "offschedule_datetime", "site"])
         ]

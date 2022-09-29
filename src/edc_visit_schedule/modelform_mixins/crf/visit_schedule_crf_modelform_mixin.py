@@ -1,11 +1,12 @@
 from django import forms
 
 from ... import Schedule, VisitSchedule
-from ...subject_schedule import NotOnScheduleError, NotOnScheduleForDateError
-from ...utils import (
-    get_subject_schedule_cls,
-    report_datetime_within_onschedule_offschedule_datetimes,
+from ...subject_schedule import (
+    NotOnScheduleError,
+    NotOnScheduleForDateError,
+    SubjectSchedule,
 )
+from ...utils import report_datetime_within_onschedule_offschedule_datetimes
 
 
 class VisitScheduleCrfModelFormMixin:
@@ -43,9 +44,7 @@ class VisitScheduleCrfModelFormMixin:
         if self.related_visit:
             visit_schedule = self.visit_schedule
             schedule = self.schedule
-            subject_schedule = get_subject_schedule_cls(
-                self._meta.model, visit_schedule, schedule
-            )
+            subject_schedule = SubjectSchedule(visit_schedule, schedule)
             try:
                 subject_schedule.onschedule_or_raise(
                     subject_identifier=self.subject_identifier,

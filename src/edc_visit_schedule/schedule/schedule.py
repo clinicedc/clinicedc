@@ -44,7 +44,6 @@ class Schedule:
     name_regex = r"[a-z0-9\_\-]+$"
     visit_cls = Visit
     visit_collection_cls = VisitCollection
-    subject_schedule_cls = SubjectSchedule
     window_cls = Window
 
     def __init__(
@@ -173,9 +172,7 @@ class Schedule:
                     f"Expected {repr(self)} for onschedule_model={self.onschedule_model}. "
                     f"Got {repr(schedule)}."
                 )
-            self._subject = self.subject_schedule_cls(
-                visit_schedule=visit_schedule, schedule=self
-            )
+            self._subject = SubjectSchedule(visit_schedule=visit_schedule, schedule=self)
         return self._subject
 
     def put_on_schedule(self, **kwargs):

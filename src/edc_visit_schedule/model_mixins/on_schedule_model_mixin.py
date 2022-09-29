@@ -1,19 +1,54 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+from zoneinfo import ZoneInfo
+
+from django.conf import settings
 from django.db import models
+from edc_identifier.managers import SubjectIdentifierManager
+from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
-from edc_utils import get_utcnow
+from edc_sites.models import CurrentSiteManager as BaseCurrentSiteManager
+from edc_sites.models import SiteModelMixin
+from edc_utils import convert_php_dateformat, get_utcnow
 
 from ..site_visit_schedules import site_visit_schedules
-from .schedule_model_mixin import ScheduleModelMixin
+
+if TYPE_CHECKING:
+    from ..schedule import Schedule
+    from ..visit_schedule import VisitSchedule
 
 
-class OnScheduleModelMixin(ScheduleModelMixin):
+class CurrentSiteManager(BaseCurrentSiteManager):
+    use_in_migrations = True
+
+    def get_by_natural_key(self, subject_identifier):
+        return self.get(subject_identifier=subject_identifier)
+
+
+class OnScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, models.Model):
     """A model mixin for a schedule's onschedule model."""
 
     onschedule_datetime = models.DateTimeField(
         validators=[datetime_not_before_study_start, datetime_not_future],
         default=get_utcnow,
     )
+
+    report_datetime = models.DateTimeField(editable=False)
+
+    on_site = CurrentSiteManager()
+
+    objects = SubjectIdentifierManager()
+
+    def __str__(self):
+        formatted_datetime = self.report_datetime.astimezone(
+            ZoneInfo(settings.TIME_ZONE)
+        ).strftime(convert_php_dateformat(settings.SHORT_DATETIME_FORMAT))
+        return f"{self.subject_identifier} {formatted_datetime}"
+
+    def natural_key(self):
+        return (self.subject_identifier,)
 
     def save(self, *args, **kwargs):
         self.report_datetime = self.onschedule_datetime
@@ -27,14 +62,14 @@ class OnScheduleModelMixin(ScheduleModelMixin):
         )
 
     @property
-    def visit_schedule(self):
+    def visit_schedule(self) -> VisitSchedule:
         """Returns a visit schedule object."""
         return site_visit_schedules.get_by_onschedule_model(
             onschedule_model=self._meta.label_lower
         )[0]
 
     @property
-    def schedule(self):
+    def schedule(self) -> Schedule:
         """Returns a schedule object."""
         return site_visit_schedules.get_by_onschedule_model(
             onschedule_model=self._meta.label_lower
