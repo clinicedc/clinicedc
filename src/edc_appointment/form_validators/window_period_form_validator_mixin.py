@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from django.conf import settings
-from edc_utils import convert_php_dateformat, floor_secs, to_utc
+from edc_utils import convert_php_dateformat
 from edc_visit_schedule.schedule.window import (
     ScheduledVisitWindowError,
     UnScheduledVisitWindowError,
@@ -51,7 +51,6 @@ class WindowPeriodFormValidatorMixin:
         form_field: str,
     ):
         if proposed_appt_datetime:
-            proposed_appt_datetime = to_utc(floor_secs(proposed_appt_datetime))
             datetimestring = convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
             appointment.visit_from_schedule.timepoint_datetime = appointment.timepoint_datetime
             lower = appointment.visit_from_schedule.dates.lower.strftime(datetimestring)
