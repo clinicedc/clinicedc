@@ -9,7 +9,7 @@ from edc_visit_tracking.model_mixins import VisitModelMixin
 from edc_pharmacy.model_mixins import StudyMedicationCrfModelMixin
 
 
-class SubjectConsent(edc_models.BaseUuidModel):
+class SubjectConsent(SiteModelMixin, edc_models.BaseUuidModel):
     subject_identifier = models.CharField(max_length=25)
 
     consent_datetime = models.DateTimeField()
@@ -18,7 +18,7 @@ class SubjectConsent(edc_models.BaseUuidModel):
         pass
 
 
-class SubjectVisit(VisitModelMixin, edc_models.BaseUuidModel):
+class SubjectVisit(SiteModelMixin, VisitModelMixin, edc_models.BaseUuidModel):
     class Meta(VisitModelMixin.Meta, edc_models.BaseUuidModel.Meta):
         app_label = "edc_pharmacy"
 
@@ -26,7 +26,6 @@ class SubjectVisit(VisitModelMixin, edc_models.BaseUuidModel):
 class StudyMedication(
     StudyMedicationCrfModelMixin,
     CrfModelMixin,
-    SiteModelMixin,
     edc_models.BaseUuidModel,
 ):
 
@@ -47,11 +46,11 @@ class StudyMedication(
         app_label = "edc_pharmacy"
 
 
-class OnSchedule(OnScheduleModelMixin, edc_models.BaseUuidModel):
+class OnSchedule(SiteModelMixin, OnScheduleModelMixin, edc_models.BaseUuidModel):
 
     pass
 
 
-class OffSchedule(OffScheduleModelMixin, edc_models.BaseUuidModel):
+class OffSchedule(SiteModelMixin, OffScheduleModelMixin, edc_models.BaseUuidModel):
 
     pass

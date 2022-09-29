@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                 ("on_site", edc_sites.models.CurrentSiteManager()),
                 (
                     "objects",
-                    edc_action_item.models.action_model_mixin.ActionItemModelManager(),
+                    edc_action_item.models.action_model_mixin.ActionIdentifierModelManager(),
                 ),
             ],
         ),
