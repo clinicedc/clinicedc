@@ -104,12 +104,12 @@ class DeathReportTmgMethodsModelMixin(models.Model):
 
 
 class DeathReportTmgModelMixin(
-    NonUniqueSubjectIdentifierFieldMixin,
+    SiteModelMixin,
     ActionModelMixin,
+    NonUniqueSubjectIdentifierFieldMixin,
     DeathReportTmgFieldsModelMixin,
     DeathReportTmgMethodsModelMixin,
     ReportStatusModelMixin,
-    SiteModelMixin,
     models.Model,
 ):
 

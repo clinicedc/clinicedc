@@ -15,12 +15,12 @@ from .aesi_methods_model_mixin import AesiMethodsModelMixin
 
 
 class AesiModelMixin(
-    NonUniqueSubjectIdentifierFieldMixin,
-    AesiFieldsModelMixin,
     AesiMethodsModelMixin,
-    ReportStatusModelMixin,
     SiteModelMixin,
     ActionModelMixin,
+    NonUniqueSubjectIdentifierFieldMixin,
+    AesiFieldsModelMixin,
+    ReportStatusModelMixin,
     models.Model,
 ):
 

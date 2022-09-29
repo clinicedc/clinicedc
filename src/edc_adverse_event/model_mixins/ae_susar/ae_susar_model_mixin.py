@@ -15,12 +15,12 @@ from .ae_susar_methods_model_mixin import AeSusarMethodsModelMixin
 
 
 class AeSusarModelMixin(
-    NonUniqueSubjectIdentifierFieldMixin,
-    AeSusarFieldsModelMixin,
     AeSusarMethodsModelMixin,
-    ReportStatusModelMixin,
     SiteModelMixin,
     ActionModelMixin,
+    NonUniqueSubjectIdentifierFieldMixin,
+    AeSusarFieldsModelMixin,
+    ReportStatusModelMixin,
     models.Model,
 ):
 
