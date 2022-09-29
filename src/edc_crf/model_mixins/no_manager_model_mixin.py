@@ -4,7 +4,6 @@ from edc_consent.model_mixins import RequiresConsentFieldsModelMixin
 from edc_metadata.model_mixins.updates import UpdatesCrfMetadataModelMixin
 from edc_offstudy.model_mixins import OffstudyCrfModelMixin
 from edc_reference.model_mixins import ReferenceModelMixin
-from edc_sites.models import SiteModelMixin
 from edc_visit_schedule.model_mixins import CrfScheduleModelMixin
 from edc_visit_tracking.model_mixins import PreviousVisitModelMixin
 
@@ -15,7 +14,6 @@ class NoManagerModelMixin(
     PreviousVisitModelMixin,
     UpdatesCrfMetadataModelMixin,
     OffstudyCrfModelMixin,
-    SiteModelMixin,
     ReferenceModelMixin,
     models.Model,
 ):
