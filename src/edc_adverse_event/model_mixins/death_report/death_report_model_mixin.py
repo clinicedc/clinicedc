@@ -2,7 +2,7 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_action_item.managers import (
-    ActionIdentifierManager,
+    ActionIdentifierModelManager,
     ActionIdentifierSiteManager,
 )
 from edc_action_item.models import ActionNoManagersModelMixin
@@ -82,7 +82,7 @@ class DeathReportModelMixin(
 
     on_site = ActionIdentifierSiteManager()
 
-    objects = ActionIdentifierManager()
+    objects = ActionIdentifierModelManager()
 
     history = HistoricalRecords(inherit=True)
 

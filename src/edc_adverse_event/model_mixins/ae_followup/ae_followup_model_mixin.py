@@ -1,6 +1,6 @@
 from django.db import models
 from edc_action_item.managers import (
-    ActionIdentifierManager,
+    ActionIdentifierModelManager,
     ActionIdentifierSiteManager,
 )
 from edc_action_item.models import ActionModelMixin
@@ -25,7 +25,7 @@ class AeFollowupModelMixin(
 
     on_site = ActionIdentifierSiteManager()
 
-    objects = ActionIdentifierManager()
+    objects = ActionIdentifierModelManager()
 
     class Meta:
         abstract = True

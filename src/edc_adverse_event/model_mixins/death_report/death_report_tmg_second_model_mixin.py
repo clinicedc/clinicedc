@@ -1,6 +1,6 @@
 from django.db import models
 from edc_action_item.managers import (
-    ActionIdentifierManager,
+    ActionIdentifierModelManager,
     ActionIdentifierSiteManager,
 )
 
@@ -8,7 +8,7 @@ from ...constants import DEATH_REPORT_TMG_SECOND_ACTION
 from .death_report_tmg_model_mixin import DeathReportTmgModelMixin
 
 
-class DeathReportTmgSecondManager(ActionIdentifierManager):
+class DeathReportTmgSecondManager(ActionIdentifierModelManager):
     def get_queryset(self):
         qs = super().get_queryset()
         return qs.filter(action_item__action_type__name=DEATH_REPORT_TMG_SECOND_ACTION)
