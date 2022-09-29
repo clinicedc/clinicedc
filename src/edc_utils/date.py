@@ -22,7 +22,13 @@ def to_utc(dt: datetime) -> datetime:
 
 
 def floor_secs(dte) -> datetime:
-    return datetime(dte.year, dte.month, dte.day, dte.hour, dte.minute, 0).astimezone(
+    return datetime(dte.year, dte.month, dte.day, dte.hour, dte.minute, 0, 0).astimezone(
+        dte.tzinfo
+    )
+
+
+def ceil_secs(dte) -> datetime:
+    return datetime(dte.year, dte.month, dte.day, dte.hour, dte.minute, 59, 999999).astimezone(
         dte.tzinfo
     )
 
