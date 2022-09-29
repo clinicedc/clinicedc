@@ -10,7 +10,7 @@ class ActionIdentifierSiteManager(BaseCurrentSiteManager):
         return self.get(action_identifier=action_identifier)
 
 
-class ActionIdentifierManager(models.Manager):
+class ActionIdentifierModelManager(models.Manager):
 
     use_in_migrations = True
 
