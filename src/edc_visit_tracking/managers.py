@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from django.contrib.sites.managers import CurrentSiteManager as BaseCurrentSiteManager
+from django.contrib.sites.managers import CurrentSiteManager as DjangoCurrentSiteManager
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError, models, transaction
 from edc_constants.constants import INCOMPLETE, NOT_APPLICABLE
@@ -108,7 +108,14 @@ class VisitModelManager(models.Manager):
                 )
 
 
-class CurrentSiteManager(BaseCurrentSiteManager, CrfModelManager):
+class VisitCurrentSiteManager(DjangoCurrentSiteManager, VisitModelManager):
+
+    use_in_migrations = True
+
+    pass
+
+
+class CrfCurrentSiteManager(DjangoCurrentSiteManager, CrfModelManager):
 
     use_in_migrations = True
 

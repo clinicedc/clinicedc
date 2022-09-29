@@ -7,7 +7,6 @@ from edc_protocol.validators import datetime_not_before_study_start
 from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins import CrfScheduleModelMixin
 
-from ...managers import CrfModelManager
 from ..base import VisitMethodsModelMixin
 
 
@@ -36,8 +35,6 @@ class VisitTrackingCrfModelMixin(VisitMethodsModelMixin, CrfScheduleModelMixin, 
             "the date/time this information was reported."
         ),
     )
-
-    objects = CrfModelManager()
 
     @property
     def subject_identifier(self) -> str | None:
