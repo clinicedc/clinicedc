@@ -57,7 +57,7 @@ class OnScheduleTwo(OnScheduleModelMixin, BaseUuidModel):
         pass
 
 
-class OffSchedule(OffScheduleModelMixin, BaseUuidModel):
+class OffSchedule(SiteModelMixin, OffScheduleModelMixin, BaseUuidModel):
     class Meta(BaseUuidModel.Meta):
         pass
 
