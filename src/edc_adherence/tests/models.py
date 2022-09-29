@@ -35,13 +35,13 @@ class SubjectConsent(UpdatesOrCreatesRegistrationModelMixin, edc_models.BaseUuid
     consent_datetime = models.DateTimeField()
 
 
-class OnSchedule(edc_models.BaseUuidModel):
+class OnSchedule(SiteModelMixin, edc_models.BaseUuidModel):
     subject_identifier = models.CharField(max_length=50)
 
     onschedule_datetime = models.DateTimeField(default=get_utcnow)
 
 
-class OffSchedule(edc_models.BaseUuidModel):
+class OffSchedule(SiteModelMixin, edc_models.BaseUuidModel):
     subject_identifier = models.CharField(max_length=50)
 
     offschedule_datetime = models.DateTimeField(default=get_utcnow)
