@@ -1,19 +1,20 @@
-from django.contrib.sites.managers import CurrentSiteManager
 from edc_action_item.models import ActionNoManagersModelMixin
 from edc_model.models import HistoricalRecords
-from edc_visit_tracking.managers import CrfModelManager
+from edc_sites.models import SiteModelMixin
+from edc_visit_tracking.managers import CrfCurrentSiteManager, CrfModelManager
 
 from .crf_model_mixin import CrfNoManagerModelMixin
 
 
 class CrfWithActionModelMixin(
+    SiteModelMixin,
     CrfNoManagerModelMixin,
     ActionNoManagersModelMixin,
 ):
 
     action_name = None
 
-    on_site = CurrentSiteManager()
+    on_site = CrfCurrentSiteManager()
     objects = CrfModelManager()
     history = HistoricalRecords(inherit=True)
 

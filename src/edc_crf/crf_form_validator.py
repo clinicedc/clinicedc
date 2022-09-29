@@ -8,7 +8,7 @@ from edc_appointment.form_validators import WindowPeriodFormValidatorMixin
 from edc_consent.form_validators import ConsentFormValidatorMixin
 from edc_form_validators import INVALID_ERROR, FormValidator
 from edc_registration import get_registered_subject_model_cls
-from edc_utils import formatted_datetime, to_utc
+from edc_utils import floor_secs, formatted_datetime, to_utc
 from edc_visit_tracking.modelform_mixins import get_related_visit
 
 from .form_validator_mixins import CrfFormValidatorMixin
@@ -50,7 +50,7 @@ class CrfFormValidator(
             # falls within a valid consent period
             self.get_consent_for_period_or_raise(self.report_datetime)
             # not before consent date
-            if self.report_datetime < self.consent_datetime:
+            if floor_secs(self.report_datetime) < floor_secs(self.consent_datetime):
                 self.raise_validation_error(
                     {
                         self.report_datetime_field_attr: (
@@ -68,9 +68,10 @@ class CrfFormValidator(
         if key exists, else returns the instance report_datetime.
         """
         if self.report_datetime_field_attr in self.cleaned_data:
-            return to_utc(self.cleaned_data.get(self.report_datetime_field_attr))
+            dt = self.cleaned_data.get(self.report_datetime_field_attr)
         else:
-            return getattr(self.instance, self.report_datetime_field_attr)
+            dt = getattr(self.instance, self.report_datetime_field_attr)
+        return to_utc(dt)
 
     @property
     def appointment(self) -> Appointment:
@@ -123,18 +124,20 @@ class CrfFormValidator(
 
     @property
     def consent_datetime(self) -> datetime:
-        return (
+        dt = (
             get_registered_subject_model_cls()
             .objects.get(subject_identifier=self.subject_identifier)
             .consent_datetime
         )
+        return to_utc(dt)
 
     def validate_datetime_against_report_datetime(self, field: str) -> None:
         """Datetime cannot be after report_datetime"""
         if (
             self.cleaned_data.get(field)
-            and self.report_datetime
-            and self.cleaned_data.get(field) > self.report_datetime
+            and floor_secs(self.report_datetime)
+            and floor_secs(to_utc(self.cleaned_data.get(field)))
+            > floor_secs(self.report_datetime)
         ):
             self.raise_validation_error(
                 {field: "Cannot be after report datetime"}, INVALID_ERROR
