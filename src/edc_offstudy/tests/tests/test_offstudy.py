@@ -1,5 +1,5 @@
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from edc_action_item import site_action_items
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
@@ -250,6 +250,7 @@ class TestOffstudy(TestCase):
         non_crf_one.report_datetime = non_crf_one.report_datetime + relativedelta(years=1)
         self.assertRaises(OffstudyError, non_crf_one.save)
 
+    @tag("1")
     @override_settings(EDC_OFFSTUDY_OFFSTUDY_MODEL="edc_offstudy.SubjectOffstudy")
     def test_modelform_mixin_ok(self):
         data = dict(

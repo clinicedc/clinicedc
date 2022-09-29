@@ -1,4 +1,4 @@
-from .offstudy_crf_modelform_mixin import OffstudyCrfModelFormMixin
+from ..crf import OffstudyCrfModelFormMixin
 
 
 class OffstudyRequisitionModelFormMixin(OffstudyCrfModelFormMixin):
