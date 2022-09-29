@@ -49,7 +49,7 @@ class CrfInlineModelMixin(InlineVisitMethodsModelMixin, SiteModelMixin, models.M
 
     @abc.abstractmethod
     def natural_key(self) -> tuple:
-        return tuple()
+        return ()
 
     @property
     def parent_instance(self) -> CrfModelMixin:
