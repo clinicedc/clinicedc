@@ -13,7 +13,7 @@ from edc_protocol.validators import datetime_not_before_study_start
 from edc_reference.model_mixins import RequisitionReferenceModelMixin
 from edc_search.model_mixins import SearchSlugModelMixin
 from edc_sites.models import SiteModelMixin
-from edc_visit_tracking.managers import CurrentSiteManager
+from edc_visit_tracking.managers import CrfCurrentSiteManager
 from edc_visit_tracking.model_mixins import (
     PreviousVisitModelMixin,
     VisitTrackingRequisitionModelMixin,
@@ -28,6 +28,7 @@ from .requisition_verify_model_mixin import RequisitionVerifyModelMixin
 
 
 class RequisitionModelMixin(
+    SiteModelMixin,
     NonUniqueSubjectIdentifierFieldMixin,
     VisitTrackingRequisitionModelMixin,
     PanelModelMixin,
@@ -38,7 +39,6 @@ class RequisitionModelMixin(
     RequisitionStatusMixin,
     RequisitionVerifyModelMixin,
     SearchSlugModelMixin,
-    SiteModelMixin,
     UpdatesRequisitionMetadataModelMixin,
     models.Model,
 ):
@@ -113,7 +113,7 @@ class RequisitionModelMixin(
 
     comments = models.TextField(max_length=25, null=True, blank=True)
 
-    on_site = CurrentSiteManager()
+    on_site = CrfCurrentSiteManager()
 
     objects = RequisitionManager()
 

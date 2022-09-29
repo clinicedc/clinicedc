@@ -318,5 +318,5 @@ class TestForms2(TestCase):
         form.is_valid()
         print(form.is_valid())
         self.assertIn(
-            "Invalid. Expected a date between", form.errors.get("requisition_datetime")[0]
+            "Invalid. Expected a date/time between", form.errors.get("requisition_datetime")[0]
         )
