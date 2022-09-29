@@ -30,7 +30,7 @@ class Consent:
         updates_versions: list[str] | str | None = None,
         age_min: int = None,
         age_max: int = None,
-        age_is_adult: bool | None = None,
+        age_is_adult: int | None = None,
         subject_type: str | None = None,
     ):
         """A class that represents the general attributes
