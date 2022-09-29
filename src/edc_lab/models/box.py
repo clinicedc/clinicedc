@@ -88,7 +88,7 @@ class Box(SearchSlugModelMixin, VerifyBoxModelMixin, SiteModelMixin, edc_models.
         return self.name
 
     def natural_key(self):
-        return tuple(self.box_identifier)
+        return (self.box_identifier,)
 
     natural_key.dependencies = ["edc_lab.boxtype", "sites.Site"]
 

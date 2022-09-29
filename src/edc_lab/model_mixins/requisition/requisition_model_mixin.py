@@ -131,7 +131,7 @@ class RequisitionModelMixin(
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return tuple(self.requisition_identifier)
+        return (self.requisition_identifier,)  # noqa
 
     natural_key.dependencies = [settings.SUBJECT_VISIT_MODEL, "sites.Site"]
 
