@@ -17,7 +17,6 @@ class CrfScheduleModelMixin(models.Model):
     # If False, (Default) compares report_datetime and
     # offschedule_datetime as dates
     offschedule_compare_dates_as_datetimes = False
-    subject_schedule_cls = SubjectSchedule
 
     @property
     def visit_schedule_name(self):
@@ -36,7 +35,7 @@ class CrfScheduleModelMixin(models.Model):
         return self.related_visit.schedule
 
     def is_onschedule_or_raise(self):
-        subject_schedule = self.subject_schedule_cls(
+        subject_schedule = SubjectSchedule(
             visit_schedule=self.visit_schedule, schedule=self.schedule
         )
         subject_schedule.onschedule_or_raise(

@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from django import forms
+from edc_utils import to_utc
 
 from ..subject_schedule import InvalidOffscheduleDate
 from .visit_schedule_non_crf_modelform_mixin import VisitScheduleNonCrfModelFormMixin
@@ -11,10 +12,6 @@ from .visit_schedule_non_crf_modelform_mixin import VisitScheduleNonCrfModelForm
 class OffScheduleModelFormMixin(VisitScheduleNonCrfModelFormMixin):
 
     offschedule_datetime_field_attr = "offschedule_datetime"
-
-    @property
-    def subject_identifier(self):
-        return self.cleaned_data.get("subject_identifier") or self.instance.subject_identifier
 
     def clean(self):
         cleaned_data = super().clean()
@@ -35,17 +32,23 @@ class OffScheduleModelFormMixin(VisitScheduleNonCrfModelFormMixin):
         self.validate_visit_tracking_reports()
         return cleaned_data
 
-    def offschedule_datetime(self) -> datetime | None:
-        return self.cleaned_data.get(self.offschedule_datetime_field_attr) or getattr(
-            self.instance, self.offschedule_datetime_field_attr
-        )
-
     # TODO: validate_visit_tracking_reports before taking off schedule
     def validate_visit_tracking_reports(self):
         """Asserts that all visit tracking reports
         have been submitted.
         """
         pass
+
+    @property
+    def offschedule_datetime(self) -> datetime | None:
+        if self.offschedule_datetime_field_attr in self.cleaned_data:
+            return to_utc(self.cleaned_data.get(self.offschedule_datetime_field_attr))
+        else:
+            return getattr(self.instance, self.offschedule_datetime_field_attr)
+
+    @property
+    def offschedule_compare_dates_as_datetimes(self):
+        return True
 
     class Meta:
         help_text = {"subject_identifier": "(read-only)", "action_identifier": "(read-only)"}

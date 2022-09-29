@@ -3,12 +3,12 @@ from django.db import models
 
 class SubjectOnScheduleModelMixin(models.Model):
 
-    """A model mixin to be added to a consent, crf or other model
-    that when saved signifies a subject on schedule.
+    """A model mixin for a consent or other model
+    that when saved updates a subject to be `on schedule`.
 
     Used when the "Onschedule" model is not a user model.
+
     This is NOT for the "Onschedule" model. See `OnScheduleModelMixin`.
-    Triggers the "put on schedule" process.
     """
 
     def put_subject_on_schedule_on_post_save(self, created):

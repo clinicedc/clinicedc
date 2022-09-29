@@ -5,11 +5,12 @@ from django import forms
 from .. import site_visit_schedules
 from ..schedule import Schedule
 from ..site_visit_schedules import SiteVisitScheduleError
-from ..subject_schedule import NotOnScheduleError, NotOnScheduleForDateError
-from ..utils import (
-    get_subject_schedule_cls,
-    report_datetime_within_onschedule_offschedule_datetimes,
+from ..subject_schedule import (
+    NotOnScheduleError,
+    NotOnScheduleForDateError,
+    SubjectSchedule,
 )
+from ..utils import report_datetime_within_onschedule_offschedule_datetimes
 from ..visit_schedule import VisitSchedule
 
 
@@ -65,14 +66,12 @@ class VisitScheduleNonCrfModelFormMixin:
         return schedule
 
     def is_onschedule_or_raise(self) -> None:
-        subject_schedule = get_subject_schedule_cls(
-            self._meta.model, self.visit_schedule, self.schedule
-        )
+        subject_schedule = SubjectSchedule(self.visit_schedule, self.schedule)
         try:
             subject_schedule.onschedule_or_raise(
                 subject_identifier=self.subject_identifier,
                 report_datetime=self.report_datetime,
-                compare_as_datetimes=self._meta.model.offschedule_compare_dates_as_datetimes,
+                compare_as_datetimes=self.offschedule_compare_dates_as_datetimes,
             )
         except (NotOnScheduleError, NotOnScheduleForDateError) as e:
             raise forms.ValidationError(str(e))
@@ -85,3 +84,7 @@ class VisitScheduleNonCrfModelFormMixin:
             schedule_name=self.schedule_name,
             exception_cls=forms.ValidationError,
         )
+
+    @property
+    def offschedule_compare_dates_as_datetimes(self):
+        return self._meta.model.offschedule_compare_dates_as_datetimes
