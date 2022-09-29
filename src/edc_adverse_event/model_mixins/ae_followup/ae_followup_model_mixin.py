@@ -13,11 +13,11 @@ from .ae_followup_methods_model_mixin import AeFollowupMethodsModelMixin
 
 
 class AeFollowupModelMixin(
+    SiteModelMixin,
+    ActionModelMixin,
     NonUniqueSubjectIdentifierFieldMixin,
     AeFollowupFieldsModelMixin,
     AeFollowupMethodsModelMixin,
-    SiteModelMixin,
-    ActionModelMixin,
     models.Model,
 ):
 

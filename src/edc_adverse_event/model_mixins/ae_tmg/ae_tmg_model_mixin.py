@@ -15,13 +15,13 @@ from .ae_tmg_methods_model_mixin import AeTmgMethodsModelMixin
 
 
 class AeTmgModelMixin(
-    NonUniqueSubjectIdentifierFieldMixin,
-    AeTmgFieldsModelMixin,
     AeTmgMethodsModelMixin,
-    ReportStatusModelMixin,
-    SearchSlugModelMixin,
     SiteModelMixin,
     ActionModelMixin,
+    NonUniqueSubjectIdentifierFieldMixin,
+    AeTmgFieldsModelMixin,
+    ReportStatusModelMixin,
+    SearchSlugModelMixin,
     models.Model,
 ):
 

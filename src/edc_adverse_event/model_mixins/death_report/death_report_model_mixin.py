@@ -20,8 +20,8 @@ from ...models import CauseOfDeath
 
 
 class DeathReportModelMixin(
-    UniqueSubjectIdentifierFieldMixin,
     SiteModelMixin,
+    UniqueSubjectIdentifierFieldMixin,
     ActionNoManagersModelMixin,
     models.Model,
 ):
