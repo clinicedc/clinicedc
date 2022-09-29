@@ -34,12 +34,12 @@ class BasicModel(SiteModelMixin, BaseUuidModel):
     subject_identifier = models.CharField(max_length=25, default="12345")
 
 
-class OnSchedule(OnScheduleModelMixin, BaseUuidModel):
+class OnSchedule(SiteModelMixin, OnScheduleModelMixin, BaseUuidModel):
 
     pass
 
 
-class OffSchedule(OffScheduleModelMixin, BaseUuidModel):
+class OffSchedule(SiteModelMixin, OffScheduleModelMixin, BaseUuidModel):
 
     pass
 
