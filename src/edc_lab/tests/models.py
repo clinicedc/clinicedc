@@ -39,7 +39,7 @@ class SubjectRequisitionManager(models.Manager):
         )
 
 
-class SubjectVisit(VisitModelMixin, CreatesMetadataModelMixin, SiteModelMixin, BaseUuidModel):
+class SubjectVisit(SiteModelMixin, VisitModelMixin, CreatesMetadataModelMixin, BaseUuidModel):
     def update_reference_on_save(self):
         pass
 
@@ -52,17 +52,17 @@ class SubjectRequisition(RequisitionModelMixin, BaseUuidModel):
         pass
 
 
-class OnSchedule(OnScheduleModelMixin, BaseUuidModel):
+class OnSchedule(SiteModelMixin, OnScheduleModelMixin, BaseUuidModel):
 
     pass
 
 
-class OffSchedule(OffScheduleModelMixin, BaseUuidModel):
+class OffSchedule(SiteModelMixin, OffScheduleModelMixin, BaseUuidModel):
 
     pass
 
 
-class DeathReport(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidModel):
+class DeathReport(SiteModelMixin, UniqueSubjectIdentifierFieldMixin, BaseUuidModel):
 
     objects = SubjectIdentifierManager()
 
@@ -71,12 +71,12 @@ class DeathReport(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidMod
 
 
 class SubjectConsent(
+    SiteModelMixin,
     ConsentModelMixin,
     UniqueSubjectIdentifierFieldMixin,
     PersonalFieldsMixin,
     IdentityFieldsMixin,
     UpdatesOrCreatesRegistrationModelMixin,
-    SiteModelMixin,
     SubjectOnScheduleModelMixin,
     VisitScheduleFieldsModelMixin,
     VisitScheduleMethodsModelMixin,
