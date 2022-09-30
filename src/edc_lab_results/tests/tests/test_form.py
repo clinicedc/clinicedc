@@ -18,7 +18,6 @@ from ..test_case_mixin import TestCaseMixin
 
 class TestBloodResultForm(TestCaseMixin, TestCase):
     def setUp(self):
-        super().setUp()
         site_action_items.registry = {}
         register_actions()
         self.subject_identifier = self.enroll()
@@ -47,7 +46,7 @@ class TestBloodResultForm(TestCaseMixin, TestCase):
             results_abnormal=NO,
         )
 
-    @tag("3")
+    @tag("1")
     def test_fbc_ok(self):
         data = deepcopy(self.data)
         form = BloodResultsFbcForm(data=data)
