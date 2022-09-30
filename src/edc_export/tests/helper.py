@@ -2,12 +2,12 @@ import uuid
 from decimal import Decimal
 
 from edc_appointment.creators import UnscheduledAppointmentCreator
+from edc_appointment.models import Appointment
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from .models import (
-    Appointment,
     Crf,
     CrfOne,
     CrfThree,

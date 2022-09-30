@@ -4,12 +4,11 @@ from django.apps import apps as django_apps
 from django.contrib.auth.models import Group, User
 from django.test import TestCase
 from django.test.client import RequestFactory
+from edc_appointment.models import Appointment
 from edc_registration.models import RegisteredSubject
 
 from edc_export.exportables import Exportables
 from edc_export.model_options import ModelOptions
-
-from ..models import Appointment
 
 
 class TestExportable(TestCase):
