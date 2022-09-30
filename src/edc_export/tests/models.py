@@ -4,10 +4,12 @@ from django.db import models
 from django.db.models.deletion import PROTECT
 from django_crypto_fields.fields import EncryptedCharField
 from edc_constants.constants import YES
+from edc_identifier.managers import SubjectIdentifierManager
 from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
+from edc_lab.model_mixins import RequisitionModelMixin
 from edc_list_data.model_mixins import BaseListModelMixin, ListModelMixin
 from edc_model.models import BaseUuidModel
-from edc_offstudy.model_mixins import OffstudyModelManager, OffstudyModelMixin
+from edc_offstudy.model_mixins import OffstudyModelMixin
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins.off_schedule_model_mixin import (
@@ -68,7 +70,7 @@ class CrfModelMixin(models.Model):
         abstract = True
 
 
-class SubjectRequisition(CrfModelMixin, BaseUuidModel):
+class SubjectRequisition(RequisitionModelMixin, BaseUuidModel):
 
     panel_name = models.CharField(max_length=25, default="Microtube")
 
@@ -143,16 +145,16 @@ class CrfWithInline(CrfModelMixin, BaseUuidModel):
     dte = models.DateTimeField(default=get_utcnow)
 
 
-class OnScheduleOne(OnScheduleModelMixin, BaseUuidModel):
+class OnScheduleOne(SiteModelMixin, OnScheduleModelMixin, BaseUuidModel):
     def put_on_schedule(self):
         pass
 
 
-class OffScheduleOne(OffScheduleModelMixin, BaseUuidModel):
+class OffScheduleOne(SiteModelMixin, OffScheduleModelMixin, BaseUuidModel):
 
     pass
 
 
-class SubjectOffstudy(OffstudyModelMixin, BaseUuidModel):
+class SubjectOffstudy(SiteModelMixin, OffstudyModelMixin, BaseUuidModel):
 
-    objects = OffstudyModelManager()
+    objects = SubjectIdentifierManager()
