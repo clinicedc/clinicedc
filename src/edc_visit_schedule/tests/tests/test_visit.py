@@ -5,7 +5,8 @@ from arrow import Arrow
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 
-from edc_visit_schedule.visit import Visit, VisitCodeError, VisitDateError, WindowPeriod
+from edc_visit_schedule.visit import Visit, VisitCodeError, WindowPeriod
+from edc_visit_schedule.visit.visit import BaseDatetimeNotSet
 
 
 class TestVisit(TestCase):
@@ -101,11 +102,11 @@ class TestVisit(TestCase):
         )
         try:
             visit.dates.lower
-        except VisitDateError:
+        except BaseDatetimeNotSet:
             pass
         try:
             visit.dates.upper
-        except VisitDateError:
+        except BaseDatetimeNotSet:
             pass
 
     @tag("arr")

@@ -104,14 +104,15 @@ class VisitSchedule:
 
     def check(self):
         warnings = []
-        try:
-            getattr(self, "offstudy_model_cls")
-        except LookupError as e:
-            warnings.append(f"{e} See visit schedule '{self.name}'.")
-        try:
-            getattr(self, "death_report_model_cls")
-        except LookupError as e:
-            warnings.append(f"{e} See visit schedule '{self.name}'.")
+        for model in [
+            "death_report",
+            "locator",
+            "offstudy",
+        ]:
+            try:
+                getattr(self, f"{model}_model_cls")
+            except LookupError as e:
+                warnings.append(f"{e} See visit schedule '{self.name}'.")
         return warnings
 
     @property

@@ -8,98 +8,26 @@ from django import forms
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from edc_utils import floor_secs, formatted_datetime
+from edc_utils import floor_secs, formatted_datetime, to_utc
 
+from .baseline import Baseline
 from .exceptions import OffScheduleError, OnScheduleError
-from .site_visit_schedules import SiteVisitScheduleError, site_visit_schedules
+from .site_visit_schedules import site_visit_schedules
 
 if TYPE_CHECKING:
     from .model_mixins import OnScheduleModelMixin
 
 
-class VisitScheduleBaselineError(Exception):
-    pass
+def get_lower_datetime(instance) -> datetime:
+    """Returns the datetime of the lower window"""
+    instance.visit.dates.base = to_utc(instance.first.timepoint_datetime)
+    return instance.visit.dates.lower
 
 
-class Baseline:
-    def __init__(
-        self,
-        instance: Any = None,
-        timepoint: Decimal | None = None,
-        visit_code_sequence: int | None = None,
-        visit_schedule_name: str | None = None,
-        schedule_name: str | None = None,
-    ):
-        if instance:
-            try:
-                instance = instance.appointment
-            except AttributeError:
-                try:
-                    instance = instance.subject_visit.appointment
-                except AttributeError:
-                    pass
-            self.visit_schedule_name = instance.visit_schedule_name
-            self.schedule_name = instance.schedule_name
-            self.visit_code_sequence = instance.visit_code_sequence
-            self.timepoint = instance.timepoint
-        else:
-            self.visit_schedule_name = visit_schedule_name
-            self.schedule_name = schedule_name
-            self.visit_code_sequence = visit_code_sequence
-            self.timepoint = timepoint
-            if self.timepoint is None:
-                raise VisitScheduleBaselineError("timpoint may not be None")
-        if not any([x == self.timepoint for x in self.timepoints.values()]):
-            raise VisitScheduleBaselineError(
-                f"Unknown timepoint. For schedule {self.visit_schedule}.{self.schedule}. "
-                f"Got {self.timepoint} not in {self.timepoints}"
-            )
-        self.value: bool = (
-            self.timepoint == self.baseline_timepoint and self.visit_code_sequence == 0
-        )
-
-    @property
-    def visit_schedule(self):
-        self.have_required_attrs_or_raise()
-        try:
-            visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
-        except SiteVisitScheduleError as e:
-            raise VisitScheduleBaselineError(str(e))
-        return visit_schedule
-
-    @property
-    def schedule(self):
-        try:
-            schedule = self.visit_schedule.schedules.get(self.schedule_name)
-        except SiteVisitScheduleError as e:
-            raise VisitScheduleBaselineError(str(e))
-        return schedule
-
-    @property
-    def baseline_timepoint(self):
-        """Returns a decimal that is the first timepoint in this schedule"""
-        return self.schedule.visits.first.timepoint
-
-    @property
-    def timepoints(self):
-        return self.schedule.visits.timepoints
-
-    def have_required_attrs_or_raise(self):
-        data = {
-            k: getattr(self, k, None) is None
-            for k in [
-                "visit_schedule_name",
-                "schedule_name",
-                "visit_code_sequence",
-                "timepoint",
-            ]
-        }
-
-        if any(data.values()):
-            raise VisitScheduleBaselineError(
-                "Missing value(s). Unable to determine if baseline. "
-                f"Got `None` for {[k for k, v in data.items() if v is True]}."
-            )
+def get_upper_datetime(instance) -> datetime:
+    """Returns the datetime of the upper window"""
+    instance.visit.dates.base = to_utc(instance.first.timepoint_datetime)
+    return instance.visit.dates.lower
 
 
 def is_baseline(

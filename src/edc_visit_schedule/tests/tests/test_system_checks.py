@@ -24,6 +24,7 @@ class TestSystemChecks(TestCase):
             verbose_name="Visit Schedule",
             offstudy_model="visit_schedule_app.subjectoffstudy",
             death_report_model="visit_schedule_app.deathreport",
+            locator_model="edc_locator.subjectlocator",
         )
         schedule = Schedule(
             name="schedule",
@@ -45,6 +46,7 @@ class TestSystemChecks(TestCase):
             verbose_name="Visit Schedule",
             offstudy_model="blah.subjectoffstudy",
             death_report_model="visit_schedule_app.deathreport",
+            locator_model="edc_locator.subjectlocator",
         )
         schedule = Schedule(
             name="schedule",
@@ -67,6 +69,7 @@ class TestSystemChecks(TestCase):
             verbose_name="Visit Schedule",
             offstudy_model="visit_schedule_app.subjectoffstudy",
             death_report_model="visit_schedule_app.deathreport",
+            locator_model="edc_locator.subjectlocator",
         )
         schedule = Schedule(
             name="schedule",
@@ -89,6 +92,7 @@ class TestSystemChecks(TestCase):
             verbose_name="Visit Schedule",
             offstudy_model="visit_schedule_app.subjectoffstudy",
             death_report_model="visit_schedule_app.deathreport",
+            locator_model="edc_locator.subjectlocator",
         )
         schedule = Schedule(
             name="schedule",

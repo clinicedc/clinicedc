@@ -75,6 +75,7 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
             verbose_name="Visit Schedule",
             offstudy_model="visit_schedule_app.deathreport",
             death_report_model="visit_schedule_app.deathreport",
+            locator_model="edc_locator.subjectlocator",
         )
 
     def test_visit_schedule_repr(self):
@@ -84,6 +85,7 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
             verbose_name="Visit Schedule",
             offstudy_model="visit_schedule_app.deathreport",
             death_report_model="visit_schedule_app.deathreport",
+            locator_model="edc_locator.subjectlocator",
         )
         self.assertTrue(v.__repr__())
 
@@ -93,6 +95,7 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
             verbose_name="Visit Schedule",
             offstudy_model="visit_schedule_app.subjectoffstudy",
             death_report_model="visit_schedule_app.deathreport",
+            locator_model="edc_locator.subjectlocator",
         )
         errors = visit_schedule.check()
         if errors:
@@ -124,6 +127,7 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
             verbose_name="Visit Schedule",
             offstudy_model="visit_schedule_app.subjectoffstudy",
             death_report_model="visit_schedule_app.deathreport",
+            locator_model="edc_locator.subjectlocator",
         )
 
         self.schedule = Schedule(

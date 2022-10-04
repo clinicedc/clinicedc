@@ -3,7 +3,6 @@ from __future__ import annotations
 import re
 from decimal import Decimal
 from typing import TYPE_CHECKING
-from zoneinfo import ZoneInfo
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -32,6 +31,16 @@ class VisitError(Exception):
     pass
 
 
+class BaseDatetimeNotSet(Exception):
+    pass
+
+
+def base_datetime_required():
+    raise BaseDatetimeNotSet(
+        "Base datetime is None, set the base datetime before accessing attr"
+    )
+
+
 class VisitDate:
     window_period_cls = WindowPeriod
 
@@ -43,8 +52,8 @@ class VisitDate:
         base_timepoint: Decimal = None,
     ):
         self._base: datetime | None = None
-        self.lower: datetime | None = None
-        self.upper: datetime | None = None
+        self._lower: datetime | None = None
+        self._upper: datetime | None = None
         self._window_period = self.window_period_cls(
             rlower=rlower,
             rupper=rupper,
@@ -59,7 +68,23 @@ class VisitDate:
     @base.setter
     def base(self, dt: datetime = None):
         self._base = to_utc(dt)
-        self.lower, self.upper = self._window_period.get_window(dt=self._base)
+        self._lower, self._upper = self._window_period.get_window(dt=self._base)
+
+    @property
+    def lower(self) -> datetime:
+        if not self.base:
+            raise BaseDatetimeNotSet(
+                "Base datetime is None, set the base datetime before accessing attr lower"
+            )
+        return self._lower
+
+    @property
+    def upper(self) -> datetime:
+        if not self.base:
+            raise BaseDatetimeNotSet(
+                "Base datetime is None, set the base datetime before accessing attr upper"
+            )
+        return self._upper
 
 
 class Visit:
@@ -219,7 +244,7 @@ class Visit:
 
     @timepoint_datetime.setter
     def timepoint_datetime(self, dt=None):
-        self.dates.base = dt.astimezone(ZoneInfo("UTC"))
+        self.dates.base = to_utc(dt)
 
     def check(self):
         warnings = []

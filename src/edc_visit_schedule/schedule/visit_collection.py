@@ -36,10 +36,22 @@ class VisitCollection(OrderedCollection):
             else:
                 visit.timepoint_datetime = timepoint_datetime
             timepoint_dates.update({visit: visit.timepoint_datetime})
+
+        last_dte = None
+        for dte in timepoint_dates.values():
+            if not last_dte:
+                last_dte = dte
+                continue
+            if dte and last_dte and not dte > last_dte:
+                raise VisitCollectionError(
+                    "Wait! timepoint datetimes are not in sequence. "
+                    f"Check visit.rbase in your visit collection. See {self}."
+                )
+
         return timepoint_dates
 
     @property
-    def timepoints(self):
+    def timepoints(self) -> dict:
         timepoints = {}
         for visit in self.values():
             timepoints.update({visit: visit.timepoint})
