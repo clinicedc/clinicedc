@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 from django.apps import apps as django_apps
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_action_item import site_action_items
 from edc_appointment.models import Appointment
 from edc_constants.constants import NO, NOT_APPLICABLE, YES
@@ -46,7 +46,6 @@ class TestBloodResultForm(TestCaseMixin, TestCase):
             results_abnormal=NO,
         )
 
-    @tag("1")
     def test_fbc_ok(self):
         data = deepcopy(self.data)
         form = BloodResultsFbcForm(data=data)
