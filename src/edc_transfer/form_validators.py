@@ -4,12 +4,13 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from edc_constants.constants import DWTA, OTHER
 from edc_form_validators import FormValidator
+from edc_prn.modelform_mixins import PrnFormValidatorMixin
 from edc_utils import convert_php_dateformat
 
 from .constants import TRANSFERRED
 
 
-class SubjectTransferFormValidator(FormValidator):
+class SubjectTransferFormValidator(PrnFormValidatorMixin, FormValidator):
     """For use with the SubjectTransferForm"""
 
     def clean(self):
@@ -42,14 +43,11 @@ class SubjectTransferFormValidatorMixin:
         return django_apps.get_model(self.subject_transfer_model)
 
     def validate_subject_transferred(self):
-        if self.cleaned_data.get("subject_identifier") or self.instance:
-            subject_identifier = (
-                self.cleaned_data.get("subject_identifier") or self.instance.subject_identifier
-            )
+        if self.subject_identifier:
             try:
                 subject_transfer_obj = django_apps.get_model(
                     self.subject_transfer_model
-                ).objects.get(subject_identifier=subject_identifier)
+                ).objects.get(subject_identifier=self.subject_identifier)
             except ObjectDoesNotExist:
                 if (
                     self.cleaned_data.get(self.offschedule_reason_field)
