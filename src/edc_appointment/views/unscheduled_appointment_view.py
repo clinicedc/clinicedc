@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.http.response import HttpResponseRedirect
@@ -29,6 +31,8 @@ class UnscheduledAppointmentView(View):
     dashboard_template = "subject_dashboard_template"
 
     def get(self, request, *args, **kwargs):
+        kwargs["visit_code_sequence"] = int(kwargs["visit_code_sequence"])
+        kwargs["timepoint"] = Decimal(kwargs["timepoint"])
         try:
             creator = self.unscheduled_appointment_cls(request=request, **kwargs)
         except (

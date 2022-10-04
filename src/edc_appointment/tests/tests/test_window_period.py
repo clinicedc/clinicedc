@@ -7,6 +7,7 @@ from edc_protocol import Protocol
 from edc_reference import site_reference_configs
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
+from tqdm import tqdm
 
 from edc_appointment.constants import (
     COMPLETE_APPT,
@@ -14,7 +15,10 @@ from edc_appointment.constants import (
     MISSED_APPT,
     ONTIME_APPT,
 )
-from edc_appointment.creators import UnscheduledAppointmentCreator
+from edc_appointment.creators import (
+    UnscheduledAppointmentCreator,
+    UnscheduledAppointmentError,
+)
 from edc_appointment.exceptions import AppointmentWindowError
 from edc_appointment.forms import AppointmentForm
 from edc_appointment.models import Appointment
@@ -45,13 +49,15 @@ class TestAppointmentWindowPeriod(TestCase):
         )
 
     @staticmethod
-    def create_unscheduled(appointment_1030):
+    def create_unscheduled(appointment):
         return UnscheduledAppointmentCreator(
-            subject_identifier=appointment_1030.subject_identifier,
-            visit_schedule_name=appointment_1030.visit_schedule_name,
-            schedule_name=appointment_1030.schedule_name,
-            visit_code=appointment_1030.visit_code,
-            facility=appointment_1030.facility,
+            subject_identifier=appointment.subject_identifier,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            timepoint=appointment.timepoint,
+            visit_code=appointment.visit_code,
+            visit_code_sequence=appointment.visit_code_sequence + 1,
+            facility=appointment.facility,
         ).appointment
 
     @staticmethod
@@ -298,3 +304,59 @@ class TestAppointmentWindowPeriod(TestCase):
         form = self.get_form(unscheduled_appointment, appt_datetime_after_1030)
         form.is_valid()
         self.assertIn("appt_datetime", form._errors)
+
+    @override_settings(EDC_APPOINTMENT_CHECK_APPT_STATUS=False)
+    def test_appointments_window_period_unscheduled(self):
+        appointment_1030, appointment_1060 = self.create_1030_and_1060()
+
+        appointment_1060_lower_appt_datetime = (
+            appointment_1060.appt_datetime - appointment_1060.visit.rlower
+        )
+
+        # assert only appointment_1030 is complete / incomplete
+        appointment_1030.appt_status = INCOMPLETE_APPT
+        appointment_1030.save()
+        # create unscheduled off of 1030 until you hit lower bound of
+        # 1060 window
+        unscheduled_appointment = self.create_unscheduled(appointment_1030)
+        unscheduled_appointment.appt_status = INCOMPLETE_APPT
+        unscheduled_appointment.save()
+        total = (
+            appointment_1060_lower_appt_datetime - unscheduled_appointment.appt_datetime
+        ).days
+        for _ in tqdm(range(1, total + 5), total=total):
+            unscheduled_appointment = self.create_unscheduled(unscheduled_appointment)
+            unscheduled_appointment.appt_status = INCOMPLETE_APPT
+            unscheduled_appointment.save()
+            if (
+                unscheduled_appointment.appt_datetime
+                == appointment_1060_lower_appt_datetime - relativedelta(days=1)
+            ):
+                break
+
+        # attempt to hit lower bound of 1060 window raises exception
+        self.assertRaises(
+            UnscheduledAppointmentError,
+            self.create_unscheduled,
+            unscheduled_appointment,
+        ),
+
+        self.assertEqual(
+            (
+                appointment_1060_lower_appt_datetime - unscheduled_appointment.appt_datetime
+            ).days,
+            1,
+        )
+
+        # now use the form to try to create the next unscheduled visit on the
+        # date of the lower bound of 1060.
+        form = self.get_form(
+            unscheduled_appointment,
+            appointment_1060_lower_appt_datetime,
+        )
+        form.is_valid()
+        # form.save(commit=True)
+        self.assertIn("appt_datetime", form._errors)
+        self.assertIn(
+            "Falls outside of the window period", form._errors.get("appt_datetime")[0]
+        )

@@ -161,11 +161,11 @@ def raise_on_appt_datetime_not_in_window(appointment: Appointment) -> None:
             )
         except ScheduledVisitWindowError as e:
             msg = str(e)
-            msg.replace("Invalid datetime", "Invalid appointment datetime")
+            msg.replace("Invalid datetime", "Invalid appointment datetime (S)")
             raise AppointmentWindowError(msg)
         except UnScheduledVisitWindowError as e:
             msg = str(e)
-            msg.replace("Invalid datetime", "Invalid appointment datetime")
+            msg.replace("Invalid datetime", "Invalid appointment datetime (U)")
             raise AppointmentWindowError(msg)
 
 
@@ -230,6 +230,7 @@ def get_previous_appointment(
         .exclude(id=appointment.id)
         .order_by("timepoint", "visit_code_sequence")
     )
+
     try:
         previous_appt = appointments.reverse()[0]
     except IndexError:

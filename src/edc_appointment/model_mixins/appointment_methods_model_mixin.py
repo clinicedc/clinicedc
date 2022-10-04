@@ -148,6 +148,19 @@ class AppointmentMethodsModelMixin(models.Model):
         )
 
     @property
+    def first(self: Appointment) -> Appointment:
+        """Returns the first appointment for this timepoint."""
+        if self.visit_code_sequence == 0:
+            return self
+        return self.__class__.objects.get(
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=self.visit_schedule_name,
+            schedule_name=self.schedule_name,
+            timepoint=self.timepoint,
+            visit_code_sequence=0,
+        )
+
+    @property
     def previous(self: Appointment) -> Appointment | None:
         """Returns the previous appointment or None in this schedule
         for visit_code_sequence=0.

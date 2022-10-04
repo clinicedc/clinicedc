@@ -3,7 +3,7 @@ from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_facility.import_holidays import import_holidays
 from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
@@ -48,6 +48,7 @@ class TestUnscheduledAppointmentCreator(TestCase):
             visit_models={"edc_appointment.appointment": "edc_appointment_app.subjectvisit"}
         )
 
+    @tag("2")
     def test_unscheduled_allowed_but_raises_on_appt_status(self):
         self.helper.consent_and_put_on_schedule()
         schedule_name = "schedule1"
@@ -71,6 +72,8 @@ class TestUnscheduledAppointmentCreator(TestCase):
                     visit_schedule_name=visit_schedule1.name,
                     schedule_name=schedule_name,
                     visit_code=visit.code,
+                    visit_code_sequence=appointment.visit_code_sequence + 1,
+                    timepoint=appointment.timepoint,
                 )
         # add a subject_visit and expect exception to be raises because
         # of appt_status
@@ -93,6 +96,8 @@ class TestUnscheduledAppointmentCreator(TestCase):
                     visit_schedule_name=visit_schedule1.name,
                     schedule_name=schedule_name,
                     visit_code=visit.code,
+                    visit_code_sequence=appointment.visit_code_sequence + 1,
+                    timepoint=appointment.timepoint,
                 )
 
     def test_unscheduled_not_allowed(self):
@@ -103,6 +108,8 @@ class TestUnscheduledAppointmentCreator(TestCase):
             visit_schedule_name=visit_schedule2.name,
             schedule_name="schedule2",
             visit_code="5000",
+            visit_code_sequence=1,
+            timepoint=Decimal("5.0"),
         )
 
     def test_add_subject_visits(self):
@@ -151,6 +158,8 @@ class TestUnscheduledAppointmentCreator(TestCase):
                     schedule_name=schedule_name,
                     visit_code=visit.code,
                     facility=appointment.facility,
+                    visit_code_sequence=appointment.visit_code_sequence + 1,
+                    timepoint=appointment.timepoint,
                     appt_datetime=appointment.appt_datetime + relativedelta(days=1),
                 )
                 new_appointment = creator.appointment
@@ -198,7 +207,9 @@ class TestUnscheduledAppointmentCreator(TestCase):
                     visit_schedule_name=appointment.visit_schedule_name,
                     schedule_name=appointment.schedule_name,
                     visit_code=appointment.visit_code,
+                    visit_code_sequence=appointment.visit_code_sequence + index,
                     facility=appointment.facility,
+                    timepoint=appointment.timepoint,
                 )
                 self.assertEqual(appointment.timepoint, creator.appointment.timepoint)
                 self.assertNotEqual(
@@ -207,7 +218,7 @@ class TestUnscheduledAppointmentCreator(TestCase):
                 )
                 self.assertEqual(
                     creator.appointment.visit_code_sequence,
-                    index,
+                    appointment.visit_code_sequence + index,
                 )
                 SubjectVisit.objects.create(
                     appointment=creator.appointment,
@@ -238,6 +249,8 @@ class TestUnscheduledAppointmentCreator(TestCase):
             schedule_name=appointment.schedule_name,
             visit_code=appointment.visit_code,
             facility=appointment.facility,
+            visit_code_sequence=appointment.visit_code_sequence + 1,
+            timepoint=appointment.timepoint,
         )
         self.assertEqual(creator.appointment.title, "Day 1.1")
 
@@ -266,6 +279,8 @@ class TestUnscheduledAppointmentCreator(TestCase):
             schedule_name=next_appointment.schedule_name,
             visit_code=next_appointment.visit_code,
             facility=next_appointment.facility,
+            visit_code_sequence=next_appointment.visit_code_sequence + 1,
+            timepoint=next_appointment.timepoint,
         )
 
         self.assertEqual(creator.appointment.title, "Day 2.1")

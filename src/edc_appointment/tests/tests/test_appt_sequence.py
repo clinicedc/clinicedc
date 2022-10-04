@@ -1,4 +1,3 @@
-from dateutil.relativedelta import relativedelta
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
 from django.test import TestCase
@@ -63,10 +62,12 @@ class TestMoveAppointment(TestCase):
                 visit_schedule_name=visit_schedule1.name,
                 schedule_name="schedule1",
                 visit_code="1000",
-                appt_datetime=appointment.appt_datetime + relativedelta(days=i),
+                timepoint=appointment.timepoint,
+                visit_code_sequence=appointment.visit_code_sequence + 1,
             )
-            creator.appointment.appt_status = INCOMPLETE_APPT
-            creator.appointment.save_base(update_fields=["appt_status"])
+            appointment = creator.appointment
+            appointment.appt_status = INCOMPLETE_APPT
+            appointment.save_base(update_fields=["appt_status"])
 
         self.appt_datetimes = [
             o.appt_datetime for o in Appointment.objects.all().order_by("appt_datetime")

@@ -39,7 +39,7 @@ class AppointmentCreator:
     def __init__(
         self,
         timepoint_datetime: datetime = None,
-        timepoint: int | None = None,
+        timepoint: Decimal | None = None,
         visit: Visit | None = None,  # from edc_visit_schedule
         visit_code_sequence: int | None = None,
         facility: Facility | None = None,

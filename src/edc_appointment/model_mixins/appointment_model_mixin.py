@@ -144,6 +144,7 @@ class AppointmentModelMixin(
                 "timepoint",
                 "visit_code_sequence",
             ),
+            ("subject_identifier", "visit_schedule_name", "schedule_name", "appt_datetime"),
         )
         ordering = ("timepoint", "visit_code_sequence")
 
