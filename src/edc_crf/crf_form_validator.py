@@ -11,7 +11,7 @@ from edc_registration import get_registered_subject_model_cls
 from edc_utils import floor_secs, formatted_datetime, to_utc
 from edc_visit_tracking.modelform_mixins import get_related_visit
 
-from .form_validator_mixins import CrfFormValidatorMixin
+from .crf_form_validator_mixins import CrfFormValidatorMixin
 
 if TYPE_CHECKING:
     from edc_appointment.models import Appointment
@@ -42,13 +42,9 @@ class CrfFormValidator(
     def validate_crf_report_datetime(self) -> None:
         if self.report_datetime:
             # falls within appointment's window period
-            self.validate_crf_datetime_in_window_period(
-                self.appointment,
-                self.report_datetime,
-                self.report_datetime_field_attr,
-            )
+            self.validate_crf_datetime_in_window_period()
             # falls within a valid consent period
-            self.get_consent_for_period_or_raise(self.report_datetime)
+            self.get_consent_for_period_or_raise()
             # not before consent date
             if floor_secs(self.report_datetime) < floor_secs(self.consent_datetime):
                 self.raise_validation_error(
@@ -62,16 +58,13 @@ class CrfFormValidator(
                     INVALID_ERROR,
                 )
 
-    @property
-    def report_datetime(self) -> datetime | None:
-        """Returns the report_datetime in UTC from cleaned_data,
-        if key exists, else returns the instance report_datetime.
-        """
-        if self.report_datetime_field_attr in self.cleaned_data:
-            dt = self.cleaned_data.get(self.report_datetime_field_attr)
-        else:
-            dt = getattr(self.instance, self.report_datetime_field_attr)
-        return to_utc(dt)
+    def validate_crf_datetime_in_window_period(self) -> None:
+        opts = [
+            self.appointment,
+            self.report_datetime,
+            self.report_datetime_field_attr,
+        ]
+        self.datetime_in_window_or_raise(*opts)
 
     @property
     def appointment(self) -> Appointment:
@@ -81,15 +74,6 @@ class CrfFormValidator(
             self.raise_validation_error(
                 f"{self.related_visit._meta.verbose_name} is required.", INVALID_ERROR
             )
-
-    @property
-    def subject_visit(self) -> VisitModelMixin:
-        warnings.warn(
-            "The subject_visit attribute is deprecated in favor of related_visit.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.related_visit
 
     @property
     def related_visit_model_attr(self) -> str:
@@ -117,10 +101,6 @@ class CrfFormValidator(
             )
         except AttributeError as e:
             raise CrfFormValidatorError(f"{e}. See {self.__class__}")
-
-    @property
-    def subject_identifier(self) -> str:
-        return self.appointment.subject_identifier
 
     @property
     def consent_datetime(self) -> datetime:
@@ -153,3 +133,12 @@ class CrfFormValidator(
             self.raise_validation_error(
                 {field: "Cannot be after report datetime"}, INVALID_ERROR
             )
+
+    @property
+    def subject_visit(self) -> VisitModelMixin:
+        warnings.warn(
+            "The subject_visit attribute is deprecated in favor of related_visit.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.related_visit
