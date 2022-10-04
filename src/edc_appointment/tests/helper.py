@@ -1,9 +1,16 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.apps import apps as django_apps
 from django.conf import settings
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from ..creators import UnscheduledAppointmentCreator
+from edc_appointment.creators import UnscheduledAppointmentCreator
+
+if TYPE_CHECKING:
+    from edc_appointment.models import Appointment
 
 
 class Helper:
@@ -43,12 +50,13 @@ class Helper:
         return subject_consent
 
     @staticmethod
-    def add_unscheduled_appointment(appointment=None):
+    def add_unscheduled_appointment(appointment: Appointment | None = None):
         creator = UnscheduledAppointmentCreator(
             subject_identifier=appointment.subject_identifier,
             visit_schedule_name=appointment.visit_schedule_name,
             schedule_name=appointment.schedule_name,
             visit_code=appointment.visit_code,
+            visit_code_sequence=appointment.visit_code_sequence + 1,
             facility=appointment.facility,
             timepoint=appointment.timepoint,
         )

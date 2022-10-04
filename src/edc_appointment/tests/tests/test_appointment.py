@@ -355,6 +355,7 @@ class TestAppointment(TestCase):
         )
         first_appointment.appt_status = INCOMPLETE_APPT
         first_appointment.save()
+        first_appointment.refresh_from_db()
         self.helper.add_unscheduled_appointment(first_appointment)
 
         next_appointment = Appointment.objects.next_appointment(

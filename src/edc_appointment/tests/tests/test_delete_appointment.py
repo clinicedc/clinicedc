@@ -1,7 +1,6 @@
-from dateutil.relativedelta import relativedelta
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
 from edc_reference import site_reference_configs
@@ -64,13 +63,15 @@ class TestDeleteAppointment(TestCase):
         appointment.save_base(update_fields=["appt_status"])
         appointment.refresh_from_db()
 
-        for i in range(0, 3):
+        for i in range(1, 4):
             creator = UnscheduledAppointmentCreator(
                 subject_identifier=self.subject_identifier,
                 visit_schedule_name=visit_schedule1.name,
                 schedule_name="schedule1",
                 visit_code="1000",
-                appt_datetime=appointment.appt_datetime + relativedelta(days=i),
+                # appt_datetime=appointment.appt_datetime + relativedelta(days=i),
+                visit_code_sequence=appointment.visit_code_sequence + i,
+                timepoint=appointment.timepoint,
             )
             creator.appointment.appt_status = INCOMPLETE_APPT
             creator.appointment.save_base(update_fields=["appt_status"])
@@ -79,6 +80,7 @@ class TestDeleteAppointment(TestCase):
             o.appt_datetime for o in Appointment.objects.all().order_by("appt_datetime")
         ]
 
+    @tag("3")
     def test_delete_0_appointment_in_sequence(self):
         self.assertEqual(
             [0, 1, 2, 3],
@@ -106,6 +108,7 @@ class TestDeleteAppointment(TestCase):
             ],
         )
 
+    @tag("3")
     def test_delete_first_appointment_in_sequence(self):
         self.assertEqual(
             [0, 1, 2, 3],
@@ -128,6 +131,7 @@ class TestDeleteAppointment(TestCase):
             ],
         )
 
+    @tag("3")
     def test_delete_second_appointment_in_sequence(self):
         self.assertEqual(
             [0, 1, 2, 3],
@@ -150,6 +154,7 @@ class TestDeleteAppointment(TestCase):
             ],
         )
 
+    @tag("3")
     def test_delete_third_appointment_in_sequence(self):
         self.assertEqual(
             [0, 1, 2, 3],

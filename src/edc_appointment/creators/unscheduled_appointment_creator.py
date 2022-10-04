@@ -1,12 +1,15 @@
 from __future__ import annotations
 
-from datetime import datetime
 from decimal import Decimal
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.db import IntegrityError
+from edc_utils import formatted_datetime, to_utc
+from edc_utils.date import to_local
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_schedule.utils import get_lower_datetime
 
 from ..constants import (
     COMPLETE_APPT,
@@ -16,7 +19,12 @@ from ..constants import (
     UNSCHEDULED_APPT,
 )
 from ..exceptions import AppointmentPermissionsRequired, AppointmentWindowError
-from .appointment_creator import AppointmentCreator
+from .appointment_creator import AppointmentCreator, CreateAppointmentError
+
+if TYPE_CHECKING:
+    from edc_facility import Facility
+
+    from ..models import Appointment
 
 
 class UnscheduledAppointmentError(Exception):
@@ -24,6 +32,14 @@ class UnscheduledAppointmentError(Exception):
 
 
 class UnscheduledAppointmentNotAllowed(Exception):
+    pass
+
+
+class InvalidVisitCodeSequencesError(Exception):
+    pass
+
+
+class InvalidTimepointError(Exception):
     pass
 
 
@@ -41,34 +57,40 @@ class AppointmentInProgressError(Exception):
 
 class UnscheduledAppointmentCreator:
 
+    """Attempts to create a new unscheduled appointment where the
+    visit code sequence == the given `visit_code_sequence` or raises.
+    """
+
     appointment_creator_cls = AppointmentCreator
 
     def __init__(
         self,
         subject_identifier: str = None,
-        appt_datetime: datetime | None = None,
         visit_schedule_name: str = None,
         schedule_name: str = None,
         visit_code: str = None,
-        visit_code_sequence: int = None,
+        visit_code_sequence: int = None,  # suggested for new unsched appt
         timepoint: Decimal = None,
-        facility: str = None,
+        facility: Facility = None,
         request: Any | None = None,
         **kwargs,  # noqa
     ):
         self._parent_appointment = None
-        self._suggested_appt_datetime = appt_datetime
+        self._suggested_appt_datetime = None
+        self._calling_appointment = None
         self.appointment = None
         self.subject_identifier = subject_identifier
         self.visit_schedule_name = visit_schedule_name
         self.schedule_name = schedule_name
         self.visit_code = visit_code
         self.timepoint = timepoint
-        if isinstance(timepoint, (str,)):
-            self.timepoint = Decimal(timepoint)
+        if self.timepoint is None:
+            raise InvalidTimepointError("timepoint cannot be None")
         self.visit_code_sequence = visit_code_sequence
-        if isinstance(visit_code_sequence, (str,)):
-            self.visit_code_sequence = int(visit_code_sequence)
+        if self.visit_code_sequence is None:
+            raise InvalidVisitCodeSequencesError("visit code sequence cannot be None")
+        if visit_code_sequence < 1:
+            raise InvalidVisitCodeSequencesError("visit code sequence cannot be less than 1")
         self.facility = facility
         self.visit_schedule = site_visit_schedules.get_visit_schedule(visit_schedule_name)
         self.schedule = self.visit_schedule.schedules.get(schedule_name)
@@ -92,10 +114,23 @@ class UnscheduledAppointmentCreator:
                 f"Not allowed. Visit {self.visit_code} is not configured for "
                 "unscheduled appointments."
             )
+        elif (
+            self.parent_appointment
+            and self.parent_appointment.next
+            and to_utc(self.suggested_appt_datetime)
+            >= get_lower_datetime(self.parent_appointment.next)
+        ):
+            dt = formatted_datetime(to_local(self.suggested_appt_datetime))
+            next_dt = formatted_datetime(
+                to_local(get_lower_datetime(self.parent_appointment.next))
+            )
+            raise UnscheduledAppointmentError(
+                "Appointment date exceeds window period. Next appointment is "
+                f"{self.parent_appointment.next.visit_code} and lower window starts "
+                f"on {next_dt}. Got {dt}. Perhaps catch this in the form."
+            )
         else:
-            # force lookup and parent_appointment exceptions
-            self.parent_appointment  # noqa
-            # do not allow if any appointments are IN_PROGRESS
+            # do not allow new unscheduled if any appointments are IN_PROGRESS
             try:
                 obj = self.appointment_model_cls.objects.get(
                     subject_identifier=self.subject_identifier,
@@ -127,6 +162,10 @@ class UnscheduledAppointmentCreator:
                     appt_reason=UNSCHEDULED_APPT,
                     ignore_window_period=self.ignore_window_period,
                 )
+            except CreateAppointmentError:
+                raise
+            except IntegrityError as e:
+                raise CreateAppointmentError(e)
             except AppointmentWindowError as e:
                 msg = str(e).replace("Perhaps catch this in the form", "")
                 raise UnscheduledAppointmentError(
@@ -158,36 +197,41 @@ class UnscheduledAppointmentCreator:
     @property
     def suggested_appt_datetime(self):
         if not self._suggested_appt_datetime:
-            if self.calling_appointment:
-                self._suggested_appt_datetime = (
-                    self.calling_appointment.appt_datetime + relativedelta(days=1)
-                )
-            else:
-                self._suggested_appt_datetime = (
-                    self.parent_appointment.appt_datetime + relativedelta(days=1)
-                )
+            self._suggested_appt_datetime = (
+                self.calling_appointment.appt_datetime + relativedelta(days=1)
+            )
         return self._suggested_appt_datetime
 
     @property
-    def calling_appointment(self):
-        opts = dict(
-            subject_identifier=self.subject_identifier,
-            visit_schedule_name=self.visit_schedule_name,
-            schedule_name=self.schedule_name,
-            visit_code=self.visit_code,
-            visit_code_sequence=0,
-            timepoint=self.timepoint,
-        )
-        if self.visit_code_sequence is not None and self.visit_code_sequence > 0:
-            opts.update(visit_code_sequence=self.visit_code_sequence - 1)
-        try:
-            appointment = self.appointment_model_cls.objects.get(**opts)
-        except ObjectDoesNotExist:
-            appointment = None
-        return appointment
+    def calling_appointment(self) -> Appointment:
+        """Returns the appointment which preceeds the to-be-created
+        unscheduled appt.
+
+        It must exist.
+
+        Note: subtracting 1 from `visit_code_sequence` implies the
+        visit_code_sequence cannot be less than 1.
+
+        if visit_code_sequence = 1, calling_appointment and parent_appointment
+        will be the same instance.
+        """
+        if not self._calling_appointment:
+            opts = dict(
+                subject_identifier=self.subject_identifier,
+                visit_schedule_name=self.visit_schedule_name,
+                schedule_name=self.schedule_name,
+                visit_code=self.visit_code,
+                visit_code_sequence=self.visit_code_sequence - 1,
+                timepoint=self.timepoint,
+            )
+            self._calling_appointment = self.appointment_model_cls.objects.get(**opts)
+        return self._calling_appointment
 
     @property
-    def parent_appointment(self):
+    def parent_appointment(self) -> Appointment:
+        """Returns the parent or 'scheduled' appointment
+        (visit_code_sequence=0).
+        """
         if not self._parent_appointment:
             options = dict(
                 subject_identifier=self.subject_identifier,
