@@ -1,10 +1,14 @@
 from edc_constants.constants import YES
 from edc_form_validators import INVALID_ERROR, FormValidator
+from edc_prn.modelform_mixins import PrnFormValidatorMixin
+from edc_utils.date import to_local
 
 from .mixins import IncidentFormvalidatorMixin
 
 
-class ProtocolIncidentFormValidator(IncidentFormvalidatorMixin, FormValidator):
+class ProtocolIncidentFormValidator(
+    IncidentFormvalidatorMixin, PrnFormValidatorMixin, FormValidator
+):
     def clean(self):
 
         self.required_if(YES, field="safety_impact", field_required="safety_impact_details")
@@ -16,9 +20,8 @@ class ProtocolIncidentFormValidator(IncidentFormvalidatorMixin, FormValidator):
         )
         if (
             self.cleaned_data.get("incident_datetime")
-            and self.cleaned_data.get("report_datetime")
-            and self.cleaned_data.get("incident_datetime")
-            > self.cleaned_data.get("report_datetime")
+            and self.report_datetime
+            and self.cleaned_data.get("incident_datetime") > to_local(self.report_datetime)
         ):
             self.raise_validation_error(
                 {"incident_datetime": "May not be after report date/time"},

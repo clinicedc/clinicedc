@@ -12,9 +12,9 @@ from ..models import ProtocolIncident
 class ProtocolIncidentForm(
     SiteModelFormMixin,
     OffstudyNonCrfModelFormMixin,
-    FormValidatorMixin,
     ActionItemFormMixin,
     BaseModelFormMixin,
+    FormValidatorMixin,
     forms.ModelForm,
 ):
     report_datetime_field_attr = "report_datetime"
