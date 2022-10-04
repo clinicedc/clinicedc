@@ -45,6 +45,7 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
     visit_sequence_cls = VisitSequence
     validate_missed_visit_reason = True
     validate_unscheduled_visit_reason = True
+    report_datetime_field_attr = "report_datetime"
 
     def _clean(self) -> None:
         super()._clean()
@@ -82,24 +83,48 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
 
     @property
     def appointment(self) -> Appointment:
-        return self.cleaned_data.get("appointment")
+        appointment = None
+        if "appointment" in self.cleaned_data:
+            appointment = self.cleaned_data.get("appointment")
+        elif self.instance:
+            appointment = self.instance.appointment
+        if not appointment:
+            self.raise_validation_error("Appointment is required.")
+        return appointment
 
     @property
-    def report_datetime(self) -> datetime:
+    def report_datetime(self) -> datetime | None:
         """Returns report datetime in local timezone (from form
         cleaned_data).
         """
-        return self.cleaned_data.get("report_datetime")
+        report_datetime = None
+        if "report_datetime" in self.cleaned_data:
+            report_datetime = self.cleaned_data.get("report_datetime")
+        elif self.instance:
+            report_datetime = self.instance.report_datetime
+        return report_datetime
 
     @property
-    def report_datetime_utc(self) -> datetime:
+    def report_datetime_utc(self) -> datetime | None:
         """Returns report datetime in UTC timezone"""
-        return self.report_datetime.astimezone(ZoneInfo("UTC"))
+        if self.report_datetime:
+            return self.report_datetime.astimezone(ZoneInfo("UTC"))
+        return None
 
     @property
     def appt_datetime_local(self) -> datetime:
         """Returns appt datetime in local timezone"""
         return self.appointment.appt_datetime.astimezone(ZoneInfo(settings.TIME_ZONE))
+
+    def validate_visit_datetime_in_window_period(self, *args) -> None:
+        """Asserts the report_datetime is within the visits lower and
+        upper boundaries of the visit_schedule.schdule.visit.
+
+        See also `edc_visit_schedule`.
+        """
+        if self.report_datetime:
+            args = [self.appointment, self.report_datetime, self.report_datetime_field_attr]
+            self.datetime_in_window_or_raise(*args)
 
     def validate_visit_datetime_unique(self: Any) -> None:
         """Assert one visit report per day"""
@@ -167,19 +192,6 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
                         },
                         INVALID_ERROR,
                     )
-
-    def validate_visit_datetime_in_window_period(self) -> None:
-        """Asserts the report_datetime is within the visits lower and
-        upper boundaries of the visit_schedule.schdule.visit.
-
-        See also `edc_visit_schedule`.
-        """
-        if self.report_datetime:
-            super().validate_visit_datetime_in_window_period(
-                self.appointment,
-                self.report_datetime,
-                "report_datetime",
-            )
 
     def validate_visits_completed_in_order(self) -> None:
         """Asserts visits are completed in order."""

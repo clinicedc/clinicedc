@@ -2,6 +2,7 @@ from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
 from django import forms
+from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
 from edc_facility.import_holidays import import_holidays
@@ -14,7 +15,7 @@ from edc_visit_tracking.form_validators import VisitFormValidator
 from edc_visit_tracking.modelform_mixins import VisitTrackingCrfModelFormMixin
 
 from ..helper import Helper
-from ..models import CrfOne, SubjectVisit
+from ..models import BadCrfNoRelatedVisit, CrfOne, SubjectVisit
 from ..visit_schedule import visit_schedule1, visit_schedule2
 
 
@@ -82,6 +83,20 @@ class TestForm(TestCase):
         form.is_valid()
         self.assertIn("subject_visit", form._errors)
 
+    def test_visit_tracking_form_missing_subject_visit_fk_raises(self):
+        class BadCrfNoRelatedVisitorm(VisitTrackingCrfModelFormMixin, forms.ModelForm):
+            report_datetime_field_attr = "report_datetime"
+
+            class Meta:
+                model = BadCrfNoRelatedVisit
+                fields = "__all__"
+
+        self.helper.consent_and_put_on_schedule()
+        form = BadCrfNoRelatedVisitorm(
+            {"f1": "1", "f2": "2", "f3": "3", "report_datetime": get_utcnow()}
+        )
+        self.assertRaises(ImproperlyConfigured, form.is_valid)
+
     def test_visit_tracking_form_no_report_datetime(self):
         class CrfForm(VisitTrackingCrfModelFormMixin, forms.ModelForm):
             report_datetime_field_attr = "report_datetime"
@@ -97,7 +112,7 @@ class TestForm(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("report_datetime", form._errors)
 
-    def test_visit_tracking_form_report_datetime(self):
+    def test_visit_tracking_form_report_datetime_validated_against_related_visit(self):
         class CrfForm(VisitTrackingCrfModelFormMixin, forms.ModelForm):
             report_datetime_field_attr = "report_datetime"
 
@@ -156,3 +171,40 @@ class TestForm(TestCase):
             )
             self.assertFalse(form.is_valid())
             self.assertIn("report_datetime", form._errors)
+
+    @override_settings(TIME_ZONE="Africa/Dar_es_Salaam")
+    def test_visit_tracking_form_report_datetime_zone2(self):
+        class CrfForm(VisitTrackingCrfModelFormMixin, forms.ModelForm):
+            report_datetime_field_attr = "report_datetime"
+
+            class Meta:
+                model = CrfOne
+                fields = "__all__"
+
+        self.helper.consent_and_put_on_schedule()
+        appointment = Appointment.objects.all()[0]
+        subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
+        form = CrfForm(
+            {
+                "f1": "1",
+                "f2": "2",
+                "f3": "3",
+                "report_datetime": subject_visit.report_datetime,
+                "subject_visit": subject_visit.pk,
+            }
+        )
+        form.is_valid()
+        self.assertEqual({}, form._errors)
+        form.save(commit=True)
+
+        form = CrfForm(
+            {
+                "f1": "1",
+                "f2": "2",
+                "f3": "3",
+                "report_datetime": subject_visit.report_datetime,
+                "subject_visit": subject_visit.pk,
+            }
+        )
+        form.is_valid()
+        self.assertIn("subject_visit", form._errors)

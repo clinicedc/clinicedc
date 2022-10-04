@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.db import models
 
 from ...exceptions import RelatedVisitFieldError
@@ -31,12 +31,16 @@ class VisitMethodsModelMixin(models.Model):
 
     @classmethod
     def related_visit_model_attr(cls) -> str:
-        """Returns the field name for the visit model foreign key."""
+        """Returns the field name for the related visit model
+        foreign key.
+        """
         return get_related_visit_model_attr(cls)
 
     @classmethod
     def related_visit_field_cls(cls) -> OneToOneField | None:
-        """Returns the field class of the visit foreign key attribute."""
+        """Returns the 'field' class of the related visit foreign
+        key attribute.
+        """
         related_visit_field_cls = None
         for fld_cls in cls._meta.get_fields():
             if fld_cls.name == cls.related_visit_model_attr():
@@ -48,7 +52,9 @@ class VisitMethodsModelMixin(models.Model):
 
     @classmethod
     def related_visit_model_cls(cls) -> VisitModelMixin:
-        """Returns the model class of the visit foreign key attribute."""
+        """Returns the 'model' class of the related visit foreign
+        key attribute.
+        """
         related_model = None
         for fld_cls in cls._meta.get_fields():
             if fld_cls.name == cls.related_visit_model_attr():
@@ -60,7 +66,9 @@ class VisitMethodsModelMixin(models.Model):
 
     @classmethod
     def related_visit_model(cls) -> str:
-        """Returns the name of the visit foreign key model in label_lower format"""
+        """Returns the name of the visit foreign key model in
+        label_lower format.
+        """
         return cls.related_visit_model_cls()._meta.label_lower
 
     @property
@@ -76,23 +84,34 @@ class VisitMethodsModelMixin(models.Model):
         """Returns the model instance of the visit foreign key
         attribute.
 
-        Note: doing this will cuase a RelatedObjectDoesNotExist exception:
+        Note: doing this will cause a RelatedObjectDoesNotExist exception:
             return getattr(self, self.related_visit_model_attr())
         RelatedObjectDoesNotExist cannot be imported since it is created
         at runtime.
         """
+        related_model = None
         related_visit = None
         for fld_cls in self._meta.get_fields():
-            try:
-                related_model = fld_cls.related_model
-            except AttributeError:
-                pass
+            related_model = fld_cls.related_model
+            if related_model is not None and issubclass(related_model, (VisitModelMixin,)):
+                try:
+                    related_visit = getattr(self, fld_cls.name)
+                except ObjectDoesNotExist:
+                    pass
+                break
             else:
-                if related_model is not None and issubclass(related_model, (VisitModelMixin,)):
-                    try:
-                        related_visit = getattr(self, fld_cls.name)
-                    except ObjectDoesNotExist:
-                        pass
+                related_model = None
+        if not related_model:
+            error_msg = (
+                f"Model is missing a FK to a related visit model. See {self.__class__}. "
+            )
+            raise ImproperlyConfigured(error_msg)
+        if not related_visit:
+            error_msg = (
+                f"Related visit cannot be None. See {self.__class__}. "
+                "Perhaps catch this in the form."
+            )
+            raise RelatedVisitFieldError(error_msg)
         return related_visit
 
     class Meta:

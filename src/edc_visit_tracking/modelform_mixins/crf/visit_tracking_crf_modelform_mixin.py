@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
 from typing import TYPE_CHECKING, Any
-from zoneinfo import ZoneInfo
 
 from django import forms
 from django.conf import settings
@@ -50,22 +48,21 @@ class VisitTrackingCrfModelFormMixin:
     @property
     def subject_identifier(self):
         """Overridden"""
-        return (
-            self.cleaned_data.get("subject_identifier")
-            or self.related_visit.subject_identifier
-        )
+        return self.related_visit.subject_identifier
 
     @property
-    def report_datetime(self) -> datetime:
-        """Overridden. Returns the report_datetime as UTC from directly from
-        cleaned_data or via the related_visit, if it exists.
-        """
-        report_datetime = self.cleaned_data.get(self.report_datetime_field_attr)
-        if self.related_visit and not report_datetime:
-            report_datetime = getattr(self.related_visit, self.report_datetime_field_attr)
-        if report_datetime:
-            report_datetime = report_datetime.astimezone(ZoneInfo("UTC"))
-        return report_datetime
+    def related_visit(self) -> VisitModelMixin | None:
+        return get_related_visit(self, related_visit_model_attr=self.related_visit_model_attr)
+
+    @property
+    def related_visit_model_attr(self) -> str:
+        try:
+            return self._meta.model.related_visit_model_attr()
+        except AttributeError:
+            raise VisitTrackingCrfModelFormMixinError(
+                "Expected method `related_visit_model_attr`. Is this a CRF? "
+                f"See model {self._meta.model}"
+            )
 
     def validate_visit_tracking(self: Any) -> None:
         # trigger a validation error if visit field is None
@@ -92,16 +89,14 @@ class VisitTrackingCrfModelFormMixin:
             ) as e:
                 raise forms.ValidationError({self.report_datetime_field_attr: str(e)})
 
-    @property
-    def related_visit(self) -> VisitModelMixin | None:
-        return get_related_visit(self, related_visit_model_attr=self.related_visit_model_attr)
-
-    @property
-    def related_visit_model_attr(self) -> str:
-        try:
-            return self._meta.model.related_visit_model_attr()
-        except AttributeError:
-            raise VisitTrackingCrfModelFormMixinError(
-                "Expected method `related_visit_model_attr`. Is this a CRF? "
-                f"See model {self._meta.model}"
-            )
+    # @property
+    # def report_datetime(self) -> datetime:
+    #     """Overridden. Returns the report_datetime as UTC from directly from
+    #     cleaned_data or via the related_visit, if it exists.
+    #     """
+    #     report_datetime = self.cleaned_data.get(self.report_datetime_field_attr)
+    #     if self.related_visit and not report_datetime:
+    #         report_datetime = getattr(self.related_visit, self.report_datetime_field_attr)
+    #     if report_datetime:
+    #         report_datetime = report_datetime.astimezone(ZoneInfo("UTC"))
+    #     return report_datetime

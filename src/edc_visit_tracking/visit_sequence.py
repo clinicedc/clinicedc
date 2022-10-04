@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-
 
 class VisitSequenceError(Exception):
     pass
@@ -21,8 +19,10 @@ class VisitSequence:
     that visits are filled in sequence.
     """
 
-    def __init__(self, appointment: Appointment) -> None:
+    def __init__(self, appointment: Appointment, skip_enforce: bool | None = None) -> None:
+        self._previous_appointment = None
         self.appointment = appointment
+        self.skip_enforce = skip_enforce  # for tests
         self.appointment_model_cls = self.appointment.__class__
         descriptor = getattr(
             self.appointment_model_cls,
@@ -39,19 +39,25 @@ class VisitSequence:
 
     def enforce_sequence(self) -> None:
         """Raises an exception if sequence is not adhered to; that is,
-        the visits are not completed in order.
+        the visit reports are not completed in order.
         """
-        try:
-            self.get_previous_visit()
-        except ObjectDoesNotExist:
-            previous_visit_code_sequence = (
-                0 if not self.visit_code_sequence else self.visit_code_sequence - 1
-            )
-            raise VisitSequenceError(
+        opts = dict(
+            subject_identifier=self.appointment.subject_identifier,
+            visit_schedule_name=self.appointment.visit_schedule_name,
+            schedule_name=self.appointment.schedule_name,
+            appt_datetime__lt=self.appointment.appt_datetime,
+        )
+        opts.update({f"{self.appointment.related_visit_model_attr()}__isnull": True})
+        if appointments := self.appointment.__class__.objects.filter(**opts).order_by(
+            "timepoint", "visit_code_sequence"
+        ):
+            msg = (
                 "Previous visit report required. Enter report for "
-                f"'{self.previous_visit_code}.{previous_visit_code_sequence}' "
+                f"'{appointments.first().visit_code}."
+                f"{appointments.first().visit_code_sequence}' "
                 f"before completing this report."
             )
+            raise VisitSequenceError(msg)
 
     @property
     def previous_visit_code(self) -> str:
@@ -73,59 +79,21 @@ class VisitSequence:
     def previous_appointment(self) -> Appointment | None:
         """Returns the previous appointment model instance or None.
 
-        Considers visit code sequence; that is, considers interim
-        appointments.
-
-        Raises `VisitSequenceError` if the expected sequence of
-        appointments is broken. Expected sequence is based on
-        the visit schedule.
+        Considers interim appointments (relative_previous).
         """
-        opts: dict = dict(
-            subject_identifier=self.subject_identifier,
-            visit_schedule_name=self.visit_schedule_name,
-            schedule_name=self.appointment.schedule_name,
-            visit_code=self.previous_visit_code,
-        )
-        try:
-            previous_appointment = self.appointment_model_cls.objects.get(**opts)
-        except ObjectDoesNotExist as e:
-            if self.previous_visit_code:
-                raise VisitSequenceError(
-                    f"Appointment unexpectedly does not exist. Expected "
-                    f"appointment {self.previous_visit_code}. "
-                    f"Got {e}"
-                )
-            previous_appointment = None
-        except MultipleObjectsReturned:
-            if self.visit_code_sequence:
-                opts.update(visit_code_sequence=self.visit_code_sequence - 1)
-                try:
-                    previous_appointment = self.appointment_model_cls.objects.get(**opts)
-                except ObjectDoesNotExist:
-                    raise VisitSequenceError(
-                        f"Appointment unexpectedly does not exist. Expected "
-                        f"appointment for {self.previous_visit_code}."
-                        f"{self.visit_code_sequence - 1}."
-                    )
-            else:
-                opts.update(visit_code_sequence__gte=self.visit_code_sequence)
-                previous_appointment = (
-                    self.appointment_model_cls.objects.filter(**opts)
-                    .order_by("visit_code_sequence")
-                    .last()
-                )
-        else:
-            if previous_appointment.visit_code_sequence != 0:
-                raise VisitSequenceError(
-                    f"Missing appointment {self.previous_visit_code}.0. "
-                    f"Unexpectedly got non-zero sequence for first appointment. "
-                    f"See {previous_appointment}."
-                )
-        return previous_appointment
+        if not self._previous_appointment:
+            if not self.skip_enforce:
+                self.enforce_sequence()
+            self._previous_appointment = self.appointment.relative_previous
+        return self._previous_appointment
 
     @property
     def previous_visit(self) -> VisitModelMixin | None:
-        """Returns the previous visit model instance if it exists"""
+        """Returns the previous visit model instance if it exists
+        or raises.
+
+        A previous visit report must exist.
+        """
         if self.previous_appointment:
             return self.model_cls.objects.get(appointment=self.previous_appointment)
         return None

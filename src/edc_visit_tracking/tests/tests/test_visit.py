@@ -9,7 +9,7 @@ from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 
 from ..helper import Helper
 from ..models import BadCrfOneInline, CrfOne, CrfOneInline, OtherModel, SubjectVisit
@@ -133,19 +133,21 @@ class TestVisit(TestCase):
             appointment.appt_status = INCOMPLETE_APPT
             appointment.save()
 
-        last_appt = appointments.last()
+        appointment = appointments.last()
         for i in [1, 2]:
             appointment = UnscheduledAppointmentCreator(
                 subject_identifier=self.subject_identifier,
-                visit_schedule_name=last_appt.visit_schedule_name,
-                schedule_name=last_appt.schedule_name,
-                visit_code=last_appt.visit_code,
-                facility=last_appt.facility,
+                visit_schedule_name=appointment.visit_schedule_name,
+                schedule_name=appointment.schedule_name,
+                visit_code=appointment.visit_code,
+                visit_code_sequence=appointment.visit_code_sequence + 1,
+                timepoint=appointment.timepoint,
+                facility=appointment.facility,
             ).appointment
             SubjectVisit.objects.create(
                 appointment=appointment,
-                report_datetime=(last_appt.appt_datetime + relativedelta(days=i)),
-                reason=SCHEDULED,
+                report_datetime=(appointment.appt_datetime + relativedelta(days=i)),
+                reason=UNSCHEDULED,
             )
             appointment.appt_status = INCOMPLETE_APPT
             appointment.save()

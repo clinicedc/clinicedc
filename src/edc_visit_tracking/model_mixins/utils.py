@@ -3,6 +3,9 @@ from .visit_model_mixin import VisitModelMixin
 
 
 def get_related_visit_model_attr(model_cls) -> str:
+    """Returns the field name for the visit model foreign key
+    or raises.
+    """
     attrs = []
     for fld_cls in model_cls._meta.get_fields():
         if fld_cls.related_model is not None and issubclass(

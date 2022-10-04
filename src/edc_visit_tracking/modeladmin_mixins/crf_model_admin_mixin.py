@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Tuple
+from uuid import UUID
+
+from edc_constants.constants import UUID_PATTERN
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -81,14 +84,18 @@ class CrfModelAdminMixin:
             related_visit = getattr(obj, self.related_visit_model_attr)
         return related_visit
 
-    def related_visit_id(self, request) -> str:
+    def related_visit_id(self, request) -> UUID | str | None:
         """Returns the record id/pk for the related visit"""
-        return request.GET.get(self.related_visit_model_attr)
+        related_visit_id = request.GET.get(self.related_visit_model_attr)
+        if related_visit_id and UUID_PATTERN.match(related_visit_id):
+            return related_visit_id
+        return None
 
     def formfield_for_foreignkey(self, db_field, request: WSGIRequest, **kwargs):
         db = kwargs.get("using")
         if db_field.name == self.related_visit_model_attr:
-            if related_visit_id := self.related_visit_id(request):
+            related_visit_id = self.related_visit_id(request)
+            if related_visit_id and UUID_PATTERN.match(related_visit_id):
                 kwargs["queryset"] = self.related_visit_model_cls._default_manager.using(
                     db
                 ).filter(id__exact=related_visit_id)

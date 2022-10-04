@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING
 
 from django import forms
 
+from ..exceptions import RelatedVisitFieldError
+
 if TYPE_CHECKING:
     from edc_crf.crf_form_validator import CrfFormValidator
     from edc_crf.form_validator_mixins import CrfFormValidatorMixin
@@ -27,9 +29,14 @@ def get_related_visit(
     Tries instance and cleaned data.
     """
     if related_visit_model_attr not in modelform.cleaned_data:
-        related_visit = modelform.instance.related_visit
+        try:
+            related_visit = modelform.instance.related_visit
+        except RelatedVisitFieldError:
+            related_visit = None
         if not related_visit:
-            raise forms.ValidationError(f"Field `{related_visit_model_attr}` is required (2).")
+            raise forms.ValidationError(
+                f"This field is required. Got `{related_visit_model_attr}.` (2)."
+            )
     else:
         related_visit = modelform.cleaned_data.get(related_visit_model_attr)
     return related_visit

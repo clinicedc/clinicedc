@@ -40,7 +40,9 @@ class VisitTrackingCrfModelMixin(VisitMethodsModelMixin, CrfScheduleModelMixin, 
     def subject_identifier(self) -> str | None:
         try:
             return self.related_visit.subject_identifier
-        except AttributeError:
+        except AttributeError as e:
+            if "subject_identifier" not in str(e):
+                raise
             return None
 
     @classmethod

@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
@@ -32,3 +33,15 @@ class Helper:
             onschedule_datetime=subject_consent.consent_datetime,
         )
         return subject_consent
+
+    @staticmethod
+    def create_unscheduled(appointment):
+        return UnscheduledAppointmentCreator(
+            subject_identifier=appointment.subject_identifier,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            timepoint=appointment.timepoint,
+            visit_code=appointment.visit_code,
+            visit_code_sequence=appointment.visit_code_sequence + 1,
+            facility=appointment.facility,
+        ).appointment

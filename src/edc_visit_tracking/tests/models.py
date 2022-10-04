@@ -108,7 +108,6 @@ class SubjectRequisition(RequisitionModelMixin, BaseUuidModel):
 
 
 class CrfOne(VisitTrackingCrfModelMixin, BaseUuidModel):
-    subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
@@ -121,7 +120,6 @@ class CrfOne(VisitTrackingCrfModelMixin, BaseUuidModel):
 
 
 class CrfTwo(VisitTrackingCrfModelMixin, BaseUuidModel):
-    subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
@@ -134,7 +132,6 @@ class CrfTwo(VisitTrackingCrfModelMixin, BaseUuidModel):
 
 
 class CrfThree(VisitTrackingCrfModelMixin, BaseUuidModel):
-    subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
@@ -147,7 +144,6 @@ class CrfThree(VisitTrackingCrfModelMixin, BaseUuidModel):
 
 
 class CrfFour(VisitTrackingCrfModelMixin, BaseUuidModel):
-    subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
@@ -160,7 +156,20 @@ class CrfFour(VisitTrackingCrfModelMixin, BaseUuidModel):
 
 
 class CrfFive(VisitTrackingCrfModelMixin, BaseUuidModel):
-    subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
+
+    f1 = models.CharField(max_length=50, null=True)
+
+    f2 = models.CharField(max_length=50, null=True)
+
+    f3 = models.CharField(max_length=50, null=True)
+
+    class Meta(BaseUuidModel.Meta):
+        pass
+
+
+class BadCrfNoRelatedVisit(VisitTrackingCrfModelMixin, BaseUuidModel):
+
+    subject_visit = None
 
     f1 = models.CharField(max_length=50, null=True)
 
