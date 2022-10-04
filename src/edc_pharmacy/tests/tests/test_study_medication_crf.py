@@ -319,6 +319,7 @@ class TestMedicationCrf(TestCase):
             visit_schedule_name=appointment_before.visit_schedule_name,
             schedule_name=appointment_before.schedule_name,
             visit_code=appointment_before.visit_code,
+            visit_code_sequence=appointment_before.visit_code_sequence + 1,
             facility=appointment_before.facility,
             timepoint=appointment_before.timepoint,
         )
@@ -512,6 +513,7 @@ class TestMedicationCrf(TestCase):
             visit_schedule_name=appointment.visit_schedule_name,
             schedule_name=appointment.schedule_name,
             visit_code=appointment.visit_code,
+            visit_code_sequence=appointment.visit_code_sequence + 1,
             facility=appointment.facility,
             timepoint=appointment.timepoint,
         )
