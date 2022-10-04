@@ -313,10 +313,11 @@ class TestForms2(TestCase):
             "drawn_datetime": self.subject_visit.report_datetime,
             "requisition_datetime": self.subject_visit.report_datetime - timedelta(days=3),
             "subject_visit": self.subject_visit.pk,
+            "report_datetime": self.subject_visit.report_datetime - timedelta(days=3),
         }
         form = RequisitionForm(data=data)
         form.is_valid()
-        print(form.is_valid())
+        self.assertIn("requisition_datetime", form._errors)
         self.assertIn(
             "Invalid. Expected a date/time between", form.errors.get("requisition_datetime")[0]
         )
