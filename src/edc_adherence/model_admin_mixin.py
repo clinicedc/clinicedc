@@ -22,7 +22,7 @@ missed_medications_fieldset_tuple = (
 pill_count_fieldset_tuple = (
     "Pill Count",
     {
-        "fields": ("pill_count_performed", "pill_count"),
+        "fields": ("pill_count_performed", "pill_count", "pill_count_not_performed_reason"),
     },
 )
 
