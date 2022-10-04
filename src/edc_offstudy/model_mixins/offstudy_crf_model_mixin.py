@@ -20,12 +20,13 @@ class OffstudyCrfModelMixin(models.Model):
         self.raise_if_offstudy()
         super().save(*args, **kwargs)
 
-    def raise_if_offstudy(self):
-        raise_if_offstudy(
-            source_obj=self,
-            subject_identifier=self.related_visit.subject_identifier,
-            report_datetime=self.report_datetime,
-        )
+    def raise_if_offstudy(self) -> None:
+        if self.subject_identifier and self.report_datetime:
+            raise_if_offstudy(
+                source_obj=self,
+                subject_identifier=self.subject_identifier,
+                report_datetime=self.report_datetime,
+            )
 
     class Meta:
         abstract = True

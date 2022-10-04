@@ -12,7 +12,7 @@ from ..models import SubjectOffstudy
 from .models import CrfOne, NonCrfOne
 
 
-class SubjectOffstudyForm(OffstudyModelFormMixin, forms.ModelForm):
+class SubjectOffstudyForm(OffstudyModelFormMixin, BaseModelFormMixin, forms.ModelForm):
     class Meta:
         model = SubjectOffstudy
         fields = "__all__"

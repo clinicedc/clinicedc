@@ -16,16 +16,6 @@ class OffstudyModelFormMixin:
         self.offstudy_datetime_after_all_offschedule_datetimes()
         return cleaned_data
 
-    @property
-    def subject_identifier(self):
-        if "subject_identifier" in self.cleaned_data:
-            subject_identifier = self.cleaned_data.get("subject_identifier")
-        else:
-            subject_identifier = self.instance.subject_identifier
-        if not subject_identifier:
-            raise forms.ValidationError("Subject identifier cannot be None")
-        return subject_identifier
-
     def off_all_schedules_or_raise(self):
         """Raises a ValidationError if this off study form is submitted
         but subject is still on one or more schedules.

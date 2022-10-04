@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from edc_utils import formatted_datetime
+from edc_utils import formatted_datetime, to_utc
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from .exceptions import OffstudyError
@@ -36,24 +36,23 @@ def raise_if_offstudy(
     subject_identifier: str = None,
     report_datetime: datetime = None,
 ) -> OffstudyModelMixin | None:
-    """Returns the Offstudy model instance, if fetched for the given
-    query criteria, or none.
-    """
+    """Returns None or raises OffstudyError"""
     obj = None
     try:
         with transaction.atomic():
             obj = get_offstudy_model_cls().objects.get(
                 subject_identifier=subject_identifier,
-                offstudy_datetime__lt=report_datetime,
+                offstudy_datetime__lt=to_utc(report_datetime),
             )
     except ObjectDoesNotExist:
         pass
     else:
+        msg_part = f"Source model {source_obj}." if source_obj else ""
         raise OffstudyError(
             "Subject off study by given date/time. "
             f"Got `{formatted_datetime(report_datetime)}` "
             f"while the offstudy date is `{formatted_datetime(obj.offstudy_datetime)}` "
-            f"Subject {subject_identifier}. Source model {source_obj}. "
+            f"Subject {subject_identifier}. {msg_part} "
             f"See also '{get_offstudy_model_cls()._meta.verbose_name}'."
         )
     return obj
