@@ -41,7 +41,7 @@ class VisitScheduleCrfModelFormMixin:
         return self.related_visit.schedule
 
     def is_onschedule_or_raise(self) -> None:
-        if self.related_visit:
+        if self.report_datetime and self.related_visit:
             visit_schedule = self.visit_schedule
             schedule = self.schedule
             subject_schedule = SubjectSchedule(visit_schedule, schedule)
@@ -57,10 +57,11 @@ class VisitScheduleCrfModelFormMixin:
                 raise forms.ValidationError(str(e))
 
     def report_datetime_within_schedule_datetimes(self) -> None:
-        report_datetime_within_onschedule_offschedule_datetimes(
-            subject_identifier=self.subject_identifier,
-            report_datetime=self.report_datetime,
-            visit_schedule_name=self.visit_schedule_name,
-            schedule_name=self.schedule_name,
-            exception_cls=forms.ValidationError,
-        )
+        if self.report_datetime:
+            report_datetime_within_onschedule_offschedule_datetimes(
+                subject_identifier=self.subject_identifier,
+                report_datetime=self.report_datetime,
+                visit_schedule_name=self.visit_schedule_name,
+                schedule_name=self.schedule_name,
+                exception_cls=forms.ValidationError,
+            )

@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_utils import get_utcnow
 
 from edc_visit_schedule.schedule import (
@@ -444,7 +444,6 @@ class TestScheduleWithVisits(TestCase):
             self.schedule.add_visit(visit=visit)
         self.assertIsNone(self.schedule.visits.next("5"))
 
-    @tag("1")
     def test_visit_dates(self):
         dt = get_utcnow()
         for index, seq in enumerate(range(0, 5)):
