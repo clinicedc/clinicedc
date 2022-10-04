@@ -1,12 +1,15 @@
 from edc_consent.field_mixins import IdentityFieldsMixin, PersonalFieldsMixin
 from edc_consent.model_mixins import ConsentModelMixin
+from edc_crf.model_mixins import CrfModelMixin
 from edc_identifier.managers import SubjectIdentifierManager
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
+from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
 from edc_model.models import BaseUuidModel
+from edc_reference.model_mixins import ReferenceModelMixin
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_sites.models import SiteModelMixin
 from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
-from edc_visit_tracking.model_mixins import VisitModelMixin, VisitTrackingCrfModelMixin
+from edc_visit_tracking.model_mixins import VisitModelMixin
 
 from ..model_mixins import TimepointLookupModelMixin
 from ..timepoint_lookup import TimepointLookup
@@ -22,33 +25,29 @@ class CrfTimepointLookup(TimepointLookup):
 
 
 class SubjectConsent(
+    SiteModelMixin,
     ConsentModelMixin,
     PersonalFieldsMixin,
     IdentityFieldsMixin,
     UniqueSubjectIdentifierFieldMixin,
     UpdatesOrCreatesRegistrationModelMixin,
-    SiteModelMixin,
     BaseUuidModel,
 ):
-
-    objects = SubjectIdentifierManager()
-
     def natural_key(self):
         return (self.subject_identifier,)
 
-
-# class SubjectVisit(
-#     VisitModelMixin,
-#     ReferenceModelMixin,
-#     CreatesMetadataModelMixin,
-#     SiteModelMixin,
-#     BaseUuidModel,
-# ):
-#
-#     subject_identifier = models.CharField(max_length=50)
+    class Meta(ConsentModelMixin.Meta, BaseUuidModel.Meta):
+        pass
 
 
-class SubjectVisit(VisitModelMixin, TimepointLookupModelMixin, BaseUuidModel):
+class SubjectVisit(
+    SiteModelMixin,
+    VisitModelMixin,
+    ReferenceModelMixin,
+    CreatesMetadataModelMixin,
+    TimepointLookupModelMixin,
+    BaseUuidModel,
+):
 
     timepoint_lookup_cls = VisitTimepointLookup
 
@@ -56,27 +55,27 @@ class SubjectVisit(VisitModelMixin, TimepointLookupModelMixin, BaseUuidModel):
         pass
 
 
-class CrfOne(VisitTrackingCrfModelMixin, TimepointLookupModelMixin, BaseUuidModel):
+class CrfOne(CrfModelMixin, TimepointLookupModelMixin, BaseUuidModel):
 
     timepoint_lookup_cls = CrfTimepointLookup
 
 
-class CrfTwo(VisitTrackingCrfModelMixin, TimepointLookupModelMixin, BaseUuidModel):
+class CrfTwo(CrfModelMixin, TimepointLookupModelMixin, BaseUuidModel):
 
     timepoint_lookup_cls = CrfTimepointLookup
 
 
-class OnSchedule(OnScheduleModelMixin, BaseUuidModel):
+class OnSchedule(SiteModelMixin, OnScheduleModelMixin, BaseUuidModel):
 
     pass
 
 
-class OffSchedule(OffScheduleModelMixin, BaseUuidModel):
+class OffSchedule(SiteModelMixin, OffScheduleModelMixin, BaseUuidModel):
 
     pass
 
 
-class DeathReport(UniqueSubjectIdentifierFieldMixin, BaseUuidModel):
+class DeathReport(SiteModelMixin, UniqueSubjectIdentifierFieldMixin, BaseUuidModel):
 
     objects = SubjectIdentifierManager()
 
