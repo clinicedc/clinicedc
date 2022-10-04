@@ -1,10 +1,9 @@
 from django.db import models
-from django.db.models.deletion import PROTECT
-from edc_appointment.models import Appointment
 from edc_constants.choices import YES_NO
+from edc_crf.model_mixins import CrfModelMixin
 from edc_model.models import BaseUuidModel
 from edc_utils import get_utcnow
-from edc_visit_tracking.model_mixins import VisitModelMixin, VisitTrackingCrfModelMixin
+from edc_visit_tracking.model_mixins import VisitModelMixin
 
 
 class SubjectVisit(VisitModelMixin, BaseUuidModel):
@@ -13,12 +12,8 @@ class SubjectVisit(VisitModelMixin, BaseUuidModel):
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
-    appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
 
-
-class MyModel(VisitTrackingCrfModelMixin, BaseUuidModel):
-
-    subject_visit = models.OneToOneField(SubjectVisit, on_delete=PROTECT)
+class MyModel(CrfModelMixin, BaseUuidModel):
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
