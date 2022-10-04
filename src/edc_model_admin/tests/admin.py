@@ -1,4 +1,6 @@
+from django import forms
 from django.contrib import admin
+from edc_crf.modelform_mixins import CrfModelFormMixin
 
 from edc_model_admin.mixins import (
     ModelAdminNextUrlRedirectMixin,
@@ -10,6 +12,7 @@ from .models import (
     CrfFive,
     CrfFour,
     CrfOne,
+    CrfSeven,
     CrfSix,
     CrfThree,
     CrfTwo,
@@ -27,6 +30,8 @@ __all__ = [
     "CrfFiveAdmin",
     "CrfSixAdmin",
 ]
+
+from ..dashboard import ModelAdminCrfDashboardMixin
 
 
 class BaseModelAdmin(TemplatesModelAdminMixin):
@@ -92,3 +97,18 @@ class CrfSixAdmin(BaseModelAdmin, ModelAdminRedirectOnDeleteMixin, admin.ModelAd
 
     def post_url_on_delete_kwargs(self, request, obj):
         return {"subject_identifier": obj.subject_identifier}
+
+
+class CrfSevenForm(CrfModelFormMixin, forms.ModelForm):
+    class Meta:
+        fields = "__all__"
+        model = CrfSeven
+
+
+@admin.register(CrfSeven)
+class CrfSevenAdmin(ModelAdminCrfDashboardMixin, admin.ModelAdmin):
+
+    show_save_next = True
+    show_cancel = False
+
+    form = CrfSevenForm

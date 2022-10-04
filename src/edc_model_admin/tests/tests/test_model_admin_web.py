@@ -364,3 +364,29 @@ class ModelAdminSiteTest(WebTest):
         response = form.submit().follow()
         self.assertRaises(ObjectDoesNotExist, CrfSix.objects.get, id=crfsix.id)
         self.assertIn("changelist", response)
+
+    def test_add_directly_from_changelist_without_subject_visit_raises(self):
+        self.login()
+
+        self.app.get(
+            reverse("dashboard_app:dashboard_url", args=(self.subject_identifier,)),
+            user=self.user,
+            status=200,
+        )
+
+        model = "crfseven"
+        add_url = reverse(f"admin:edc_model_admin_{model}_add")
+
+        form_data = {
+            "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
+            "report_datetime_1": "00:00:00",
+        }
+        response = self.app.get(add_url, user=self.user)
+        form = get_webtest_form(response)
+        for key, value in form_data.items():
+            form[key] = value
+        try:
+            form.submit(name="_savenext").follow()
+        except AssertionError:
+            response = form.submit(name="_savenext")
+        self.assertIn("This field is required", response)

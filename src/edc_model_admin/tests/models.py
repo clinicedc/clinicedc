@@ -94,32 +94,26 @@ class CrfOne(BaseCrfModel, BaseUuidModel):
 
 
 class CrfTwo(BaseCrfModel, BaseUuidModel):
-
     pass
 
 
 class CrfThree(BaseCrfModel, BaseUuidModel):
-
     pass
 
 
 class CrfFour(BaseCrfModel, BaseUuidModel):
-
     pass
 
 
 class CrfFive(BaseCrfModel, BaseUuidModel):
-
     pass
 
 
 class CrfSix(BaseCrfModel, BaseUuidModel):
-
     pass
 
 
 class CrfSeven(BaseCrfModel, BaseUuidModel):
-
     pass
 
 
