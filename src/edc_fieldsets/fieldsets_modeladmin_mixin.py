@@ -1,5 +1,6 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
+from edc_constants.constants import UUID_PATTERN
 
 from .fieldsets import Fieldsets
 
@@ -20,7 +21,7 @@ class FieldsetsModelAdminMixin:
 
     fieldsets_move_to_end = None
 
-    def get_key(self, request=None, **kwargs):
+    def get_key(self, request=None, **kwargs) -> str:
         """Returns a string that is the key to `get` the
         value in the "conditional" dictionaries.
 
@@ -30,15 +31,18 @@ class FieldsetsModelAdminMixin:
                 conditional_fieldsets = {
                     '1000': ...}
         """
+        visit_code = None
         appointment_model_cls = django_apps.get_model(self.appointment_model)
-        try:
-            appointment = appointment_model_cls.objects.get(pk=request.GET.get("appointment"))
-        except ObjectDoesNotExist:
-            visit_code = None
-        else:
-            visit_code = appointment.visit_code
-            if appointment.visit_code_sequence != 0:
-                visit_code = f"{visit_code}.{appointment.visit_code_sequence}"
+        appointment_id = request.GET.get("appointment")
+        if appointment_id and UUID_PATTERN.match(appointment_id):
+            try:
+                appointment = appointment_model_cls.objects.get(pk=appointment_id)
+            except ObjectDoesNotExist:
+                pass
+            else:
+                visit_code = appointment.visit_code
+                if appointment.visit_code_sequence != 0:
+                    visit_code = f"{visit_code}.{appointment.visit_code_sequence}"
         return visit_code
 
     def get_fieldsets(self, request, obj=None):
