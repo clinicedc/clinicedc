@@ -1,0 +1,2 @@
+class FormValidatorError(Exception):
+    pass
