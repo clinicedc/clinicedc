@@ -4,7 +4,7 @@ from uuid import UUID
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.html import format_html
-from edc_constants.constants import YES
+from edc_constants.constants import UUID_PATTERN, YES
 from edc_visit_tracking.utils import get_related_visit_model_cls
 
 from edc_lab.admin.fieldsets import (
@@ -37,7 +37,7 @@ class RequisitionAdminMixin:
 
     @staticmethod
     def visit_code(obj=None) -> str:
-        return f"{obj.visit.visit_code}.{obj.visit.visit_code_sequence}"
+        return f"{obj.related_visit.visit_code}.{obj.related_visit.visit_code_sequence}"
 
     @staticmethod
     def requisition(obj=None):
@@ -51,8 +51,11 @@ class RequisitionAdminMixin:
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "panel":
-            pk = UUID(request.GET.get("panel")) if request.GET.get("panel") else None
-            kwargs["queryset"] = db_field.related_model.objects.filter(pk=pk)
+            panel_id = request.GET.get("panel")
+            if panel_id and UUID_PATTERN.match(panel_id):
+                kwargs["queryset"] = db_field.related_model.objects.filter(
+                    pk=UUID(request.GET.get("panel"))
+                )
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def get_list_filter(self, request) -> Tuple[str, ...]:
@@ -82,20 +85,21 @@ class RequisitionAdminMixin:
 
     def get_changeform_initial_data(self, request) -> dict:
         initial_data = super().get_changeform_initial_data(request)
-        try:
-            related_visit = get_related_visit_model_cls().objects.get(
-                id=request.GET.get(self.model.related_visit_model_attr())
-            )
-        except ObjectDoesNotExist:
-            # TODO: how do we get here? PRN?
-            pass
-        else:
-            initial_data.update(
-                requisition_datetime=related_visit.report_datetime,
-                item_type=self.default_item_type,
-                item_count=self.default_item_count,
-                estimated_volume=self.default_estimated_volume,
-            )
+        if isinstance(request.GET.get(self.model.related_visit_model_attr()), UUID):
+            try:
+                related_visit = get_related_visit_model_cls().objects.get(
+                    id=request.GET.get(self.model.related_visit_model_attr())
+                )
+            except ObjectDoesNotExist:
+                # TODO: how do we get here? PRN?
+                pass
+            else:
+                initial_data.update(
+                    requisition_datetime=related_visit.report_datetime,
+                    item_type=self.default_item_type,
+                    item_count=self.default_item_count,
+                    estimated_volume=self.default_estimated_volume,
+                )
         return initial_data
 
         # if self.fields.get("specimen_type"):
