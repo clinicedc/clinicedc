@@ -5,15 +5,17 @@ from django.test import TestCase, override_settings
 from edc_constants.constants import MALE, NO, UUID_PATTERN, YES
 from edc_identifier.models import IdentifierModel
 
-from .. import AgeEvaluator, GenderEvaluator
-from ..constants import ELIGIBLE, NOT_ELIGIBLE
-from ..utils import (
+from edc_screening.age_evaluator import AgeEvaluator
+from edc_screening.constants import ELIGIBLE, NOT_ELIGIBLE
+from edc_screening.gender_evaluator import GenderEvaluator
+from edc_screening.utils import (
     eligibility_display_label,
     format_reasons_ineligible,
     get_subject_screening_app_label,
     get_subject_screening_model,
     get_subject_screening_model_cls,
 )
+
 from .models import (
     SubjectScreening,
     SubjectScreeningWithEligibility,

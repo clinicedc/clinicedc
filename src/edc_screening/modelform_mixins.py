@@ -8,7 +8,7 @@ from edc_dashboard.url_names import url_names
 
 
 class AlreadyConsentedFormMixin:
-    def clean(self: forms.ModelForm) -> dict:
+    def clean(self) -> dict:
         cleaned_data = super().clean()
         r = re.compile(UUID_PATTERN)
         if (
