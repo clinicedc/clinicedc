@@ -1,6 +1,6 @@
 from django import forms
 from django.test import TestCase
-from edc_crf.form_validator_mixins import CrfFormValidatorMixin
+from edc_crf.crf_form_validator_mixins import CrfFormValidatorMixin
 
 from edc_dx import get_diagnosis_labels
 from edc_dx.form_validators import DiagnosisFormValidatorMixin
