@@ -1,8 +1,13 @@
-from typing import Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from django import forms
 from edc_constants.constants import NO, YES
 from edc_screening.utils import get_subject_screening_model_cls
+
+if TYPE_CHECKING:
+    from edc_screening.model_mixins import ScreeningModelMixin
 
 
 class ConsentModelFormMixinError(Exception):
@@ -15,11 +20,11 @@ class CleanFieldsModelformMixin:
     """
 
     @property
-    def subject_screening_model_cls(self):
+    def subject_screening_model_cls(self) -> ScreeningModelMixin:
         return get_subject_screening_model_cls()
 
     @property
-    def subject_screening(self: Any):
+    def subject_screening(self):
         screening_identifier = self.cleaned_data.get(
             "screening_identifier"
         ) or self.initial.get("screening_identifier")
@@ -32,7 +37,7 @@ class CleanFieldsModelformMixin:
             screening_identifier=screening_identifier
         )
 
-    def clean_consent_reviewed(self: Any) -> str:
+    def clean_consent_reviewed(self) -> str:
         consent_reviewed = self.cleaned_data.get("consent_reviewed")
         if consent_reviewed != YES:
             raise forms.ValidationError(
@@ -41,7 +46,7 @@ class CleanFieldsModelformMixin:
             )
         return consent_reviewed
 
-    def clean_study_questions(self: Any) -> str:
+    def clean_study_questions(self) -> str:
         study_questions = self.cleaned_data.get("study_questions")
         if study_questions != YES:
             raise forms.ValidationError(
@@ -50,7 +55,7 @@ class CleanFieldsModelformMixin:
             )
         return study_questions
 
-    def clean_assessment_score(self: Any) -> str:
+    def clean_assessment_score(self) -> str:
         assessment_score = self.cleaned_data.get("assessment_score")
         if assessment_score != YES:
             raise forms.ValidationError(
@@ -59,7 +64,7 @@ class CleanFieldsModelformMixin:
             )
         return assessment_score
 
-    def clean_consent_copy(self: Any) -> str:
+    def clean_consent_copy(self) -> str:
         consent_copy = self.cleaned_data.get("consent_copy")
         if consent_copy == NO:
             raise forms.ValidationError(
@@ -68,7 +73,7 @@ class CleanFieldsModelformMixin:
             )
         return consent_copy
 
-    def clean_consent_signature(self: Any) -> str:
+    def clean_consent_signature(self) -> str:
         consent_signature = self.cleaned_data.get("consent_signature")
         if consent_signature != YES:
             raise forms.ValidationError(
@@ -77,7 +82,7 @@ class CleanFieldsModelformMixin:
             )
         return consent_signature
 
-    def clean_initials(self: Any) -> str:
+    def clean_initials(self) -> str:
         initials = self.cleaned_data.get("initials")
         if initials and initials != self.subject_screening.initials:
             raise forms.ValidationError(

@@ -1,5 +1,3 @@
-from typing import Any
-
 from ...consent_helper import ConsentHelper
 from ...site_consents import site_consents
 from .clean_fields_modelform_mixin import CleanFieldsModelformMixin
@@ -7,8 +5,8 @@ from .custom_validation_mixin import CustomValidationMixin
 
 
 class ConsentModelFormMixin(CleanFieldsModelformMixin, CustomValidationMixin):
-    def clean(self: Any):
-        cleaned_data = super().clean()  # noqa
+    def clean(self) -> dict:
+        cleaned_data = super().clean()
         self.validate_initials_with_full_name()
         self.validate_gender_of_consent()
         self.validate_is_literate_and_witness()
@@ -18,7 +16,7 @@ class ConsentModelFormMixin(CleanFieldsModelformMixin, CustomValidationMixin):
         options = dict(
             consent_model=self._meta.model._meta.label_lower,
             consent_group=self._meta.model._meta.consent_group,
-            report_datetime=self._consent_datetime,
+            report_datetime=self.consent_datetime,
         )
         consent = site_consents.get_consent(**options)
         if consent.updates_versions:

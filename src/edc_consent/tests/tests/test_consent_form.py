@@ -5,8 +5,9 @@ from dateutil.relativedelta import relativedelta
 from django import forms
 from django.contrib.sites.models import Site
 from django.forms import model_to_dict
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_constants.constants import FEMALE, MALE, NO, NOT_APPLICABLE, YES
+from edc_crf.crf_form_validator_mixins import BaseFormValidatorMixin
 from edc_form_validators import FormValidator, FormValidatorMixin
 from edc_protocol import Protocol
 from edc_utils import age, get_utcnow
@@ -23,7 +24,9 @@ from ..models import SubjectConsent, SubjectScreening
 fake = Faker()
 
 
-class SubjectConsentFormValidator(SubjectConsentFormValidatorMixin, FormValidator):
+class SubjectConsentFormValidator(
+    SubjectConsentFormValidatorMixin, BaseFormValidatorMixin, FormValidator
+):
     pass
 
 
@@ -168,7 +171,6 @@ class TestConsentForm(TestCase):
         )
         return subject_consent
 
-    @tag("3")
     def test_base_form_is_valid(self):
         """Asserts baker defaults validate."""
         options = dict(
@@ -189,7 +191,6 @@ class TestConsentForm(TestCase):
         )
         self.assertTrue(form.is_valid())
 
-    @tag("3")
     def test_base_form_catches_consent_datetime_before_study_open(self):
         options = dict(
             consent_datetime=self.study_open_datetime + relativedelta(days=1),
@@ -224,7 +225,6 @@ class TestConsentForm(TestCase):
         form.is_valid()
         self.assertIn("consent_datetime", form._errors)
 
-    @tag("3")
     def test_base_form_identity_mismatch(self):
         options = dict(
             consent_datetime=self.study_open_datetime,
@@ -247,7 +247,6 @@ class TestConsentForm(TestCase):
         form.is_valid()
         self.assertIn("identity", form._errors)
 
-    @tag("3")
     def test_base_form_identity_dupl(self):
         options = dict(
             consent_datetime=self.study_open_datetime,
@@ -283,7 +282,6 @@ class TestConsentForm(TestCase):
         form.is_valid()
         self.assertIn("identity", form._errors)
 
-    @tag("3")
     def test_base_form_guardian_and_dob1(self):
         """Asserts form for minor is not valid without guardian name."""
         options = dict(
@@ -308,7 +306,6 @@ class TestConsentForm(TestCase):
         form.is_valid()
         self.assertIn("guardian_name", form._errors)
 
-    @tag("3")
     def test_base_form_guardian_and_dob2(self):
         """Asserts form for minor is valid with guardian name."""
         options = dict(
@@ -333,7 +330,6 @@ class TestConsentForm(TestCase):
         form.is_valid()
         self.assertEqual({}, form._errors)
 
-    @tag("3")
     def test_base_form_guardian_and_dob4(self):
         """Asserts form for adult is not valid if guardian name
         specified.
@@ -360,7 +356,6 @@ class TestConsentForm(TestCase):
         form.is_valid()
         self.assertIn("guardian_name", form._errors)
 
-    @tag("3")
     def test_base_form_catches_dob_lower(self):
         options = dict(
             consent_datetime=self.study_open_datetime,
@@ -383,7 +378,6 @@ class TestConsentForm(TestCase):
         form.is_valid()
         self.assertIn("dob", form._errors)
 
-    @tag("3")
     def test_base_form_catches_dob_upper(self):
         options = dict(
             consent_datetime=self.study_open_datetime,
@@ -406,7 +400,6 @@ class TestConsentForm(TestCase):
         form.is_valid()
         self.assertIn("dob", form._errors)
 
-    @tag("3")
     def test_base_form_catches_gender_of_consent(self):
         site_consents.registry = {}
         self.consent_factory(
@@ -441,7 +434,6 @@ class TestConsentForm(TestCase):
         form.is_valid()
         self.assertIn("gender", form._errors)
 
-    @tag("3")
     def test_base_form_catches_is_literate_and_witness(self):
         subject_consent = self.prepare_subject_consent(
             is_literate=NO,
@@ -472,7 +464,6 @@ class TestConsentForm(TestCase):
         form.is_valid()
         self.assertEqual({}, form._errors)
 
-    @tag("3")
     def test_raises_on_duplicate_identity1(self):
         subject_consent = self.prepare_subject_consent(
             identity="1", confirm_identity="1", screening_identifier="LOPIKKKK"

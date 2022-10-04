@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 from edc_utils import floor_secs, formatted_date, formatted_datetime
+from edc_utils.date import to_local, to_utc
 
 from ..constants import DEFAULT_CONSENT_GROUP
 from ..site_consents import site_consents
@@ -26,19 +27,22 @@ class RequiresConsentModelFormMixin:
         self.validate_against_consent()
         return cleaned_data
 
-    def validate_against_consent(self: Any) -> None:
+    def validate_against_consent(self) -> None:
         """Raise an exception if the report datetime doesn't make
         sense relative to the consent.
         """
-        consent = self.get_consent_or_raise()
-        if floor_secs(self.report_datetime) < floor_secs(consent.consent_datetime):
-            dte_str = formatted_datetime(consent.consent_datetime)
-            raise forms.ValidationError(
-                f"Report datetime cannot be before consent datetime. Got {dte_str}."
-            )
-        if self.report_datetime.date() < consent.dob:
-            dte_str = formatted_date(consent.dob)
-            raise forms.ValidationError(f"Report datetime cannot be before DOB. Got {dte_str}")
+        if self.report_datetime:
+            consent = self.get_consent_or_raise()
+            if floor_secs(to_utc(self.report_datetime)) < floor_secs(consent.consent_datetime):
+                dte_str = formatted_datetime(to_local(consent.consent_datetime))
+                raise forms.ValidationError(
+                    f"Report datetime cannot be before consent datetime. Got {dte_str}."
+                )
+            if to_utc(self.report_datetime).date() < consent.dob:
+                dte_str = formatted_date(consent.dob)
+                raise forms.ValidationError(
+                    f"Report datetime cannot be before DOB. Got {dte_str}"
+                )
 
     @property
     def consent_group(self) -> str:

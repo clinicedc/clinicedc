@@ -1,17 +1,21 @@
+from __future__ import annotations
+
+from datetime import datetime
+
 from edc_consent.consent import Consent
 from edc_consent.site_consents import site_consents
 
 
 def consent_object_factory(
-    model=None,
-    start=None,
-    end=None,
-    gender=None,
-    updates_versions=None,
-    version=None,
-    age_min=None,
-    age_max=None,
-    age_is_adult=None,
+    model: str | None = None,
+    start: datetime = None,
+    end: datetime = None,
+    gender: list[str] | None = None,
+    updates_versions: list = None,
+    version: str | None = None,
+    age_min: int | None = None,
+    age_max: int | None = None,
+    age_is_adult: int | None = None,
 ):
     options = dict(
         start=start,

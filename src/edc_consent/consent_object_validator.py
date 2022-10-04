@@ -1,6 +1,7 @@
 from django.conf import settings
 from edc_protocol import Protocol
-from edc_utils import convert_php_dateformat
+from edc_utils import convert_php_dateformat, floor_secs
+from edc_utils.date import ceil_datetime, floor_datetime
 
 from .exceptions import ConsentVersionSequenceError
 
@@ -59,15 +60,21 @@ class ConsentObjectValidator:
         study_open_datetime = protocol.study_open_datetime
         study_close_datetime = protocol.study_close_datetime
         for index, dt in enumerate([new_consent.start, new_consent.end]):
-            if not (study_open_datetime <= dt <= study_close_datetime):
+            if not (
+                floor_secs(floor_datetime(study_open_datetime))
+                <= floor_secs(dt)
+                <= floor_secs(ceil_datetime(study_close_datetime))
+            ):
                 dt_label = "start" if index == 0 else "end"
                 formatted_study_open_datetime = study_open_datetime.strftime(
-                    convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+                    convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
                 )
                 formatted_study_close_datetime = study_close_datetime.strftime(
-                    convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+                    convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
                 )
-                formatted_dt = dt.strftime(convert_php_dateformat(settings.SHORT_DATE_FORMAT))
+                formatted_dt = dt.strftime(
+                    convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
+                )
                 raise ConsentPeriodError(
                     f"Invalid consent. Consent period for {new_consent.name} "
                     "must be within study opening/closing dates of "
