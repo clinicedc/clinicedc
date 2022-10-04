@@ -1,5 +1,5 @@
 from edc_constants.constants import DM
-from edc_crf.form_validator_mixins import CrfFormValidatorMixin
+from edc_crf.crf_form_validator_mixins import CrfFormValidatorMixin
 from edc_dx_review.utils import (
     raise_if_clinical_review_does_not_exist,
     raise_if_initial_review_does_not_exist,
