@@ -6,7 +6,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT
 from edc_appointment.models import Appointment
 from edc_constants.constants import FEMALE
@@ -204,6 +204,7 @@ class TestPersistantSingleton(TestCase):
             ).exists()
         )
 
+    @tag("1")
     def test_1005_required(self):
         site_metadata_rules.registry = OrderedDict()
         site_metadata_rules.register(self.rule_group)

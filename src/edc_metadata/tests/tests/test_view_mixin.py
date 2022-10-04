@@ -141,7 +141,9 @@ class TestViewMixin(TestCase):
             visit_schedule_name=self.appointment.visit_schedule_name,
             schedule_name=self.appointment.schedule_name,
             visit_code=self.appointment.visit_code,
+            visit_code_sequence=self.appointment.visit_code_sequence + 1,
             facility=self.appointment.facility,
+            timepoint=self.appointment.timepoint,
         )
 
         SubjectVisit.objects.create(

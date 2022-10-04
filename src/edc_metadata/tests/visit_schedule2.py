@@ -34,7 +34,7 @@ crfs4 = FormsCollection(Crf(show_order=1, model=f"{app_label}.crfone", required=
 visit0 = Visit(
     code=DAY1,
     title="Week 1",
-    timepoint=0,
+    timepoint=0.0,
     rbase=relativedelta(days=0),
     rlower=relativedelta(days=0),
     rupper=relativedelta(days=6),
@@ -47,7 +47,7 @@ visit0 = Visit(
 visit1 = Visit(
     code=WEEK2,
     title="Week 2",
-    timepoint=1,
+    timepoint=1.0,
     rbase=relativedelta(days=7),
     rlower=relativedelta(days=0),
     rupper=relativedelta(days=6),
@@ -60,8 +60,8 @@ visit1 = Visit(
 visit2 = Visit(
     code=MONTH1,
     title="Month 1",
-    timepoint=2,
-    rbase=relativedelta(month=1),
+    timepoint=2.0,
+    rbase=relativedelta(months=1),
     rlower=relativedelta(days=0),
     rupper=relativedelta(days=6),
     crfs=crfs2,
@@ -72,8 +72,8 @@ visit2 = Visit(
 visit3 = Visit(
     code=MONTH3,
     title="Month 3",
-    timepoint=3,
-    rbase=relativedelta(month=3),
+    timepoint=3.0,
+    rbase=relativedelta(months=3),
     rlower=relativedelta(days=0),
     rupper=relativedelta(days=6),
     crfs=crfs3,
@@ -84,8 +84,8 @@ visit3 = Visit(
 visit4 = Visit(
     code=MONTH6,
     title="Month 6",
-    timepoint=4,
-    rbase=relativedelta(month=6),
+    timepoint=4.0,
+    rbase=relativedelta(months=6),
     rlower=relativedelta(days=0),
     rupper=relativedelta(days=6),
     crfs=crfs4,
