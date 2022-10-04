@@ -13,11 +13,12 @@ class OffstudyNonCrfModelFormMixin:
         return cleaned_data
 
     def raise_if_offstudy_by_report_datetime(self) -> None:
-        try:
-            raise_if_offstudy(
-                source_obj=self.instance,
-                subject_identifier=self.subject_identifier,
-                report_datetime=self.report_datetime,
-            )
-        except OffstudyError as e:
-            raise forms.ValidationError(e)
+        if self.subject_identifier and self.report_datetime:
+            try:
+                raise_if_offstudy(
+                    source_obj=self.instance,
+                    subject_identifier=self.subject_identifier,
+                    report_datetime=self.report_datetime,
+                )
+            except OffstudyError as e:
+                raise forms.ValidationError(e)
