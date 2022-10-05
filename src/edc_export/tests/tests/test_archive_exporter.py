@@ -11,7 +11,7 @@ from edc_registration.models import RegisteredSubject
 from edc_export.archive_exporter import ArchiveExporter, ArchiveExporterNothingExported
 
 
-@override_settings(EXPORT_FOLDER=mkdtemp())
+@override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp())
 class TestArchiveExporter(TestCase):
     def setUp(self):
 

@@ -1,8 +1,9 @@
 import json
+from tempfile import mkdtemp
 
 from django.apps import apps as django_apps
 from django.contrib.auth.models import Group, User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from edc_appointment.models import Appointment
 from edc_registration.models import RegisteredSubject
@@ -11,6 +12,7 @@ from edc_export.exportables import Exportables
 from edc_export.model_options import ModelOptions
 
 
+@override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp())
 class TestExportable(TestCase):
     def setUp(self):
         group = Group.objects.create(name="EXPORT")

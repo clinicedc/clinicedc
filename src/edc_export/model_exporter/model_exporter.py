@@ -7,10 +7,9 @@ from django.core.exceptions import ValidationError
 from edc_pdutils import ValueGetter
 from edc_utils import get_utcnow
 
+from ..utils import get_export_folder
 from .file_history_updater import FileHistoryUpdater
 from .object_history_helpers import ObjectHistoryHelper
-
-app_config = django_apps.get_app_config("edc_export")
 
 
 class ModelExporterError(Exception):
@@ -40,7 +39,6 @@ class ModelExporter(object):
     object_history_helper_cls = ObjectHistoryHelper
     value_getter_cls = ValueGetter
     additional_values_cls = AdditionalValues
-    export_folder = app_config.export_folder
 
     export_fields = [
         "export_uuid",
@@ -124,7 +122,7 @@ class ModelExporter(object):
         self.queryset = queryset or self.queryset
         exported_datetime = get_utcnow()
         filename = self.get_filename(exported_datetime)
-        path = os.path.join(self.export_folder, filename)
+        path = os.path.join(get_export_folder(), filename)
         with open(path, "w") as f:
             csv_writer = csv.DictWriter(
                 f, fieldnames=self.field_names, delimiter=self.delimiter
