@@ -3,6 +3,7 @@ import sys
 
 from django.conf import settings
 from django.core.management.color import color_style
+from edc_export.utils import get_export_folder
 from edc_utils import get_utcnow
 
 style = color_style()
@@ -38,7 +39,6 @@ class CsvExporter:
     date_format = None
     delimiter = "|"
     encoding = "utf-8"
-    export_folder = None
     file_exists_ok = False
     index = False
     sort_by = None
@@ -52,7 +52,7 @@ class CsvExporter:
         date_format=None,
         index=None,
         verbose=None,
-        **kwargs,  # noqa
+        **kwargs,
     ):
         self.delimiter = delimiter or self.delimiter
         self.date_format = date_format or self.date_format
@@ -60,7 +60,7 @@ class CsvExporter:
         self.sort_by = sort_by or self.sort_by
         if self.sort_by and not isinstance(self.sort_by, (list, tuple)):
             self.sort_by = [self.sort_by]
-        self.export_folder = export_folder or self.export_folder
+        self.export_folder = export_folder or get_export_folder()
         self.verbose = verbose
         if not self.export_folder:
             raise ExporterExportFolder("Invalid export folder. Got None")

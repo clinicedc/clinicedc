@@ -2,7 +2,7 @@ import csv
 from tempfile import mkdtemp
 
 from django.apps import apps as django_apps
-from django.test import TestCase, tag  # noqa
+from django.test import TestCase
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ...df_exporters import CsvCrfInlineTablesExporter, CsvCrfTablesExporter

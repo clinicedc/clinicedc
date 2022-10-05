@@ -14,7 +14,7 @@ class CsvNonCrfTablesExporter(TablesExporter):
 
     """A class to export non-CRF tables for this app_label."""
 
-    # a list of columns to NOT appear in any table, used to selected the tables
+    # a list of columns to NOT appear in any table, used to select the tables
     without_crf_columns = None
     crf_dialect_cls = NonCrfDfHandler
 
