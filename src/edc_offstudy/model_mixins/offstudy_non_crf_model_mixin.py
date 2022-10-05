@@ -22,12 +22,15 @@ class OffstudyNonCrfModelMixin(models.Model):
     """
 
     def save(self: Any, *args, **kwargs):
+        self.raise_if_offstudy()
+        super().save(*args, **kwargs)
+
+    def raise_if_offstudy(self) -> None:
         raise_if_offstudy(
             source_obj=self,
             subject_identifier=self.subject_identifier,
             report_datetime=self.report_datetime,
         )
-        super().save(*args, **kwargs)
 
     class Meta:
         abstract = True
