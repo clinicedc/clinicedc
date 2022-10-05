@@ -253,6 +253,7 @@ class TestAppointmentCreator2(AppointmentCreatorTestCase):
         appt_datetime = datetime(1900, 1, 1, tzinfo=ZoneInfo("UTC"))
         self.onschedule.onschedule_datetime = appt_datetime
         self.onschedule.save()
+
         expected_appt_datetime = datetime(1900, 1, 2, tzinfo=ZoneInfo("UTC"))
         creator = AppointmentCreator(
             subject_identifier=self.subject_identifier,
@@ -264,7 +265,7 @@ class TestAppointmentCreator2(AppointmentCreatorTestCase):
         self.assertEqual(Appointment.objects.all()[0], creator.appointment)
         self.assertEqual(Appointment.objects.all()[0].appt_datetime, expected_appt_datetime)
 
-        appt_datetime = datetime(2017, 1, 1, tzinfo=ZoneInfo("UTC"))
+        appt_datetime = datetime(1900, 1, 3, tzinfo=ZoneInfo("UTC"))
         creator = AppointmentCreator(
             subject_identifier=self.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,

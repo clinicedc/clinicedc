@@ -11,7 +11,7 @@ from edc_protocol import Protocol
 from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
-from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
+from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 
 from edc_appointment.utils import get_appt_reason_choices
 from edc_appointment_app.models import (
@@ -30,6 +30,7 @@ from ...constants import (
     SCHEDULED_APPT,
     UNSCHEDULED_APPT,
 )
+from ...exceptions import AppointmentDatetimeError
 from ...managers import AppointmentDeleteError
 from ...models import Appointment
 from ..helper import Helper
@@ -203,6 +204,54 @@ class TestAppointment(TestCase):
                 else:
                     self.assertGreater(appt_datetime, last)
                     last = appt_datetime
+
+    def test_attempt_to_change(self):
+        for index in range(0, 7):
+            SubjectConsent.objects.create(
+                subject_identifier=f"{self.subject_identifier}-{index}",
+                consent_datetime=get_utcnow(),
+            )
+        for day in [MO, TU, WE, TH, FR, SA, SU]:
+            subject_consent = SubjectConsent.objects.all()[day.weekday]
+            OnScheduleOne.objects.create(
+                subject_identifier=subject_consent.subject_identifier,
+                onschedule_datetime=(
+                    subject_consent.consent_datetime
+                    + relativedelta(weeks=2)
+                    + relativedelta(weekday=day(-1))
+                ),
+            )
+        subject_identifier = subject_consent.subject_identifier
+        self.assertEqual(
+            Appointment.objects.filter(subject_identifier=subject_identifier).count(), 4
+        )
+
+        # create two unscheduled appts after first
+        appointment0 = Appointment.objects.filter(
+            subject_identifier=subject_identifier
+        ).order_by("appt_datetime")[0]
+        SubjectVisit.objects.create(
+            appointment=appointment0,
+            report_datetime=appointment0.appt_datetime,
+            reason=SCHEDULED,
+        )
+        appointment0.appt_status = INCOMPLETE_APPT
+        appointment0.save()
+
+        appointment0_1 = self.helper.add_unscheduled_appointment(appointment0)
+        SubjectVisit.objects.create(
+            appointment=appointment0_1,
+            report_datetime=appointment0.appt_datetime,
+            reason=UNSCHEDULED,
+        )
+        appointment0_1.appt_status = INCOMPLETE_APPT
+        appointment0_1.save()
+
+        appointment0_2 = self.helper.add_unscheduled_appointment(appointment0_1)
+
+        appointment0_1.appt_datetime = appointment0_2.appt_datetime + relativedelta(days=1)
+
+        self.assertRaises(AppointmentDatetimeError, appointment0_1.save)
 
     def test_timepoint(self):
         """Assert timepoints are saved from the schedule correctly

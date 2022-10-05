@@ -3,7 +3,7 @@ from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_facility.import_holidays import import_holidays
 from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
@@ -48,7 +48,6 @@ class TestUnscheduledAppointmentCreator(TestCase):
             visit_models={"edc_appointment.appointment": "edc_appointment_app.subjectvisit"}
         )
 
-    @tag("2")
     def test_unscheduled_allowed_but_raises_on_appt_status(self):
         self.helper.consent_and_put_on_schedule()
         schedule_name = "schedule1"

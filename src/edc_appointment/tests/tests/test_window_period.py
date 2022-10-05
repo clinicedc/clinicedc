@@ -145,7 +145,7 @@ class TestAppointmentWindowPeriod(TestCase):
         appointment_1060 = Appointment.objects.get(
             subject_identifier=self.subject_identifier, visit_code="1060"
         )
-        appointment_1030.appt_datetime = appointment_1060.appt_datetime
+        appointment_1030.appt_datetime = appointment_1060.appt_datetime - relativedelta(days=1)
         self.assertRaises(AppointmentWindowError, appointment_1030.save)
 
     @patch("edc_appointment.form_validators.utils.url_names")
