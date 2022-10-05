@@ -36,5 +36,9 @@ class TimepointCollection:
         try:
             timepoint = self._timepoints[model]
         except KeyError:
-            raise TimepointDoesNotExist(f"No timepoint has been configured with {model}.")
+            raise TimepointDoesNotExist(
+                f"No timepoint has been configured with {model}. "
+                "See AppConfig for edc_timepoint. Hint: Perhaps you are using a custom "
+                "`Appointment` model?"
+            )
         return timepoint

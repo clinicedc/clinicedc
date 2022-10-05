@@ -8,6 +8,7 @@ from .constants import CLOSED_TIMEPOINT, FEEDBACK, OPEN_TIMEPOINT
 from .timepoint import TimepointClosed
 from .timepoint_collection import TimepointConfigError
 from .timepoint_lookup import TimepointLookup
+from .utils import get_enable_timepoint_checks
 
 
 class UnableToCloseTimepoint(Exception):
@@ -25,13 +26,15 @@ class TimepointLookupModelMixin(models.Model):
     timepoint_lookup_cls = TimepointLookup
 
     def save(self, *args, **kwargs):
-        timepoint_lookup = self.timepoint_lookup_cls()
-        if timepoint_lookup.timepoint_model == self._meta.label_lower:
-            raise ImproperlyConfigured(
-                f"Timepoint model cannot use TimepointLookupModelMixin. "
-                f"Got {self._meta.label_lower}"
-            )
-        timepoint_lookup.raise_if_closed(model_obj=self)
+        timepoint_lookup_cls = getattr(self, "timepoint_lookup_cls", None)
+        if timepoint_lookup_cls and get_enable_timepoint_checks():
+            timepoint_lookup = self.timepoint_lookup_cls()
+            if timepoint_lookup.timepoint_model == self._meta.label_lower:
+                raise ImproperlyConfigured(
+                    f"Timepoint model cannot use TimepointLookupModelMixin. "
+                    f"Got {self._meta.label_lower}"
+                )
+            timepoint_lookup.raise_if_closed(model_obj=self)
         super().save(*args, **kwargs)
 
     class Meta:
@@ -67,6 +70,26 @@ class TimepointModelMixin(models.Model):
             ):
                 self.timepoint_open_or_raise()
         super().save(*args, **kwargs)
+
+    def update_timepoint(self):
+        """Called by signal"""
+        if self.enabled_as_timepoint:
+            app_config = django_apps.get_app_config("edc_timepoint")
+            if "historical" not in self._meta.label_lower:
+                timepoint = app_config.timepoints.get(self._meta.label_lower)
+                datetime_value = getattr(self, timepoint.datetime_field)
+                if (
+                    self.timepoint_opened_datetime is None
+                    or self.timepoint_opened_datetime != datetime_value
+                ):
+                    self.timepoint_opened_datetime = datetime_value
+                    self.timepoint_status = OPEN_TIMEPOINT
+                    self.save_base(
+                        update_fields=[
+                            "timepoint_opened_datetime",
+                            "timepoint_status",
+                        ]
+                    )
 
     def timepoint_open_or_raise(self, timepoint=None):
         if not timepoint:
