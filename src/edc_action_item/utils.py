@@ -49,11 +49,13 @@ def reset_and_delete_action_item(instance, using=None):
     action_item.linked_to_reference = False
     action_item.save(using=using)
     for obj in ActionItem.objects.using(using).filter(
-        parent_action_item=instance.action_item, status=NEW
+        parent_action_item=action_item,
+        status=NEW,
     ):
         obj.delete(using=using)
     for obj in ActionItem.objects.using(using).filter(
-        related_action_item=instance.action_item, status=NEW
+        related_action_item=action_item,
+        status=NEW,
     ):
         obj.delete(using=using)
     if action_item.action.delete_with_reference_object:
