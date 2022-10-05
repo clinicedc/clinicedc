@@ -21,7 +21,7 @@ from edc_visit_schedule.subject_schedule import NotOnScheduleError
 from edc_visit_schedule.utils import is_baseline
 
 from ..constants import IN_PROGRESS_APPT
-from ..exceptions import UnknownVisitCode
+from ..exceptions import AppointmentDatetimeError, UnknownVisitCode
 from ..managers import AppointmentManager
 from ..utils import update_appt_status
 from .appointment_fields_model_mixin import AppointmentFieldsModelMixin
@@ -31,6 +31,40 @@ from .window_period_model_mixin import WindowPeriodModelMixin
 
 if TYPE_CHECKING:
     from ..models import Appointment
+
+# if django.VERSION[0] < 4:
+constraints = []
+unique_together = (
+    (
+        "subject_identifier",
+        "visit_schedule_name",
+        "schedule_name",
+        "visit_code",
+        "timepoint",
+        "visit_code_sequence",
+    ),
+    ("subject_identifier", "visit_schedule_name", "schedule_name", "appt_datetime"),
+)
+# else:
+#     constraints = [
+#         UniqueConstraint(
+#             "subject_identifier",
+#             Lower("visit_schedule_name"),
+#             Lower("schedule_name"),
+#             Lower("visit_code"),
+#             "timepoint",
+#             "visit_code_sequence",
+#             name="subject_id_visit_timepoint_seq_d98fxg_unique",
+#         ),
+#         UniqueConstraint(
+#             "subject_identifier",
+#             Lower("visit_schedule_name"),
+#             Lower("schedule_name"),
+#             "appt_datetime",
+#             name="subject_id_visit_appt_datetime_9u3drr_unique",
+#         ),
+#     ]
+#     unique_together = ()
 
 
 class AppointmentModelMixin(
@@ -92,6 +126,8 @@ class AppointmentModelMixin(
                         onschedule_datetime=self.appt_datetime,
                         skip_baseline=True,
                     )
+            else:
+                self.validate_appt_datetime_not_after_next()
             self.update_subject_visit_reason_or_raise()
             if self.appt_status != IN_PROGRESS_APPT and getattr(
                 settings, "EDC_APPOINTMENT_CHECK_APPT_STATUS", True
@@ -114,6 +150,17 @@ class AppointmentModelMixin(
             return str(self.pk)
         return self.pk
 
+    def validate_appt_datetime_not_after_next(self) -> None:
+        if self.appt_datetime and self.relative_next:
+            if self.appt_datetime >= self.relative_next.appt_datetime:
+                appt_datetime = formatted_datetime(self.appt_datetime)
+                next_appt_datetime = formatted_datetime(self.relative_next.appt_datetime)
+                raise AppointmentDatetimeError(
+                    "Datetime cannot be on or after next appointment datetime. "
+                    f"Got {appt_datetime} >= {next_appt_datetime}. "
+                    f"Perhaps catch this in the form. See {self}."
+                )
+
     @property
     def title(self: Appointment) -> str:
         if not self.schedule.visits.get(self.visit_code):
@@ -135,19 +182,9 @@ class AppointmentModelMixin(
 
     class Meta:
         abstract = True
-        unique_together = (
-            (
-                "subject_identifier",
-                "visit_schedule_name",
-                "schedule_name",
-                "visit_code",
-                "timepoint",
-                "visit_code_sequence",
-            ),
-            ("subject_identifier", "visit_schedule_name", "schedule_name", "appt_datetime"),
-        )
+        constraints = constraints
+        unique_together = unique_together
         ordering = ("timepoint", "visit_code_sequence")
-
         indexes = [
             models.Index(
                 fields=[

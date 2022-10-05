@@ -23,7 +23,7 @@ from .constants import (
     SCHEDULED_APPT,
     UNSCHEDULED_APPT,
 )
-from .exceptions import AppointmentWindowError
+from .exceptions import AppointmentMissingValuesError, AppointmentWindowError
 
 if TYPE_CHECKING:
     from .models import Appointment
@@ -206,6 +206,7 @@ def get_previous_appointment(
 
     See also: `AppointmentMethodsModelMixin`
     """
+    check_appointment_required_values_or_raise(appointment)
     opts: Dict[Any] = dict(
         subject_identifier=appointment.subject_identifier,
         visit_schedule_name=appointment.visit_schedule_name,
@@ -249,6 +250,13 @@ def get_next_appointment(appointment: Appointment, include_interim=None) -> Appo
     See also: `AppointmentMethodsModelMixin`
     """
     next_appt: Appointment | None = None
+    check_appointment_required_values_or_raise(appointment)
+    if (
+        not appointment.visit_schedule_name
+        or not appointment.schedule_name
+        or appointment.timepoint is None
+    ):
+        raise
     opts: Dict[Any] = dict(
         subject_identifier=appointment.subject_identifier,
         visit_schedule_name=appointment.visit_schedule_name,
@@ -275,3 +283,16 @@ def get_next_appointment(appointment: Appointment, include_interim=None) -> Appo
             .order_by("timepoint", "visit_code_sequence")
         ).first()
     return next_appt
+
+
+def check_appointment_required_values_or_raise(appointment: Appointment) -> None:
+    if (
+        not appointment.visit_schedule_name
+        or not appointment.schedule_name
+        or not appointment.visit_code
+        or appointment.visit_code_sequence is None
+        or appointment.timepoint is None
+    ):
+        raise AppointmentMissingValuesError(
+            f"Appointment instance is missing required values. See {appointment}."
+        )

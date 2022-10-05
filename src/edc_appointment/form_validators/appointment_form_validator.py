@@ -4,7 +4,6 @@ from datetime import datetime
 from logging import warning
 from typing import TYPE_CHECKING, Any
 
-from arrow.arrow import Arrow
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -17,7 +16,8 @@ from edc_form_validators import INVALID_ERROR
 from edc_form_validators.form_validator import FormValidator
 from edc_metadata.metadata_helper import MetadataHelperMixin
 from edc_registration import get_registered_subject_model_cls
-from edc_utils import formatted_datetime, get_utcnow
+from edc_utils import formatted_datetime, get_utcnow, to_utc
+from edc_utils.date import to_local
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_schedule.subject_schedule import NotOnScheduleError
 from edc_visit_schedule.utils import get_onschedule_model_instance
@@ -199,9 +199,9 @@ class AppointmentFormValidator(
 
     def validate_not_future_appt_datetime(self: Any) -> None:
         appt_datetime = self.cleaned_data.get("appt_datetime")
-        if appt_datetime and appt_datetime != NEW_APPT:
-            rappt_datetime = Arrow.fromdatetime(appt_datetime, appt_datetime.tzinfo)
-            if rappt_datetime.to("UTC").date() > get_utcnow().date():
+        appt_status = self.cleaned_data.get("appt_status")
+        if appt_datetime and appt_status != NEW_APPT:
+            if to_utc(appt_datetime) > get_utcnow():
                 self.raise_validation_error(
                     {"appt_datetime": "Cannot be a future date."}, INVALID_APPT_DATE
                 )
@@ -217,17 +217,12 @@ class AppointmentFormValidator(
             )
         else:
             appt_datetime = self.cleaned_data.get("appt_datetime")
-            if appt_datetime and appt_datetime != NEW_APPT:
-                rappt_datetime = Arrow.fromdatetime(appt_datetime, appt_datetime.tzinfo)
-                consent_datetime = self.consent_datetime_or_raise(
-                    rappt_datetime.to("UTC").datetime
-                )
-                if rappt_datetime.to("UTC").date() < consent_datetime.date():
-                    rconsent_datetime = Arrow.fromdatetime(
-                        consent_datetime, appt_datetime.tzinfo
-                    )
+            appt_status = self.cleaned_data.get("appt_status")
+            if appt_datetime and appt_status != NEW_APPT:
+                consent_datetime = self.consent_datetime_or_raise(to_utc(appt_datetime))
+                if to_utc(appt_datetime).date() < consent_datetime.date():
                     formatted_date = formatted_datetime(
-                        rconsent_datetime.datetime, format_as_date=True
+                        to_local(consent_datetime), format_as_date=True
                     )
                     self.raise_validation_error(
                         {
@@ -276,18 +271,19 @@ class AppointmentFormValidator(
 
     def validate_appt_datetime_not_after_next_appt_datetime(self: Any) -> None:
         appt_datetime = self.cleaned_data.get("appt_datetime")
-        if appt_datetime and appt_datetime != NEW_APPT:
-            rappt_datetime = Arrow.fromdatetime(appt_datetime, appt_datetime.tzinfo)
-            if self.instance.next:
-                if rappt_datetime.to("UTC").date() > self.instance.next.appt_datetime.date():
+        appt_status = self.cleaned_data.get("appt_status")
+        if appt_datetime and appt_status and appt_status != NEW_APPT:
+            if self.instance.relative_next:
+                if to_utc(appt_datetime) > self.instance.relative_next.appt_datetime:
                     formatted_date = formatted_datetime(
-                        self.instance.next.appt_datetime, format_as_date=True
+                        self.instance.relative_next.appt_datetime
                     )
                     self.raise_validation_error(
                         {
                             "appt_datetime": (
-                                "Cannot be after next scheduled appointment. "
-                                f"Next appointment is on {formatted_date}"
+                                "Cannot be after next appointment. Next appointment is "
+                                f"{self.instance.relative_next.visit_label} "
+                                f"on {formatted_date}."
                             )
                         },
                         INVALID_APPT_DATE,
