@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 from django.db.models.signals import pre_save
 from django.test import TestCase, override_settings
 from edc_appointment.constants import INCOMPLETE_APPT
-from edc_appointment.creators import AppointmentsCreator, UnscheduledAppointmentCreator
+from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
 from edc_appointment.tests.helper import Helper
 from edc_appointment.utils import get_next_appointment
@@ -33,7 +33,7 @@ from edc_pharmacy.models import (
 
 from ..forms import StudyMedicationForm
 from ..models import StudyMedication, SubjectVisit
-from ..visit_schedule import schedule, visit_schedule
+from ..visit_schedule import visit_schedule
 
 
 @override_settings(SUBJECT_CONSENT_MODEL="edc_pharmacy.subjectconsent")
@@ -60,21 +60,13 @@ class TestMedicationCrf(TestCase):
         )
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
-            now=get_utcnow() - relativedelta(years=6),
+            now=get_utcnow() - relativedelta(years=5),
         )
         self.helper.consent_and_put_on_schedule(
             subject_identifier=self.subject_identifier,
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
         )
-        creator = AppointmentsCreator(
-            subject_identifier=self.subject_identifier,
-            visit_schedule=visit_schedule,
-            schedule=schedule,
-            report_datetime=self.registration_datetime,
-        )
-        creator.create_appointments(base_appt_datetime=self.registration_datetime)
-
         self.assertGreater(
             Appointment.objects.filter(subject_identifier=self.subject_identifier).count(),
             0,
