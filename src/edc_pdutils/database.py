@@ -17,7 +17,7 @@ class Database:
     lowercase_columns = True
     DATABASES_NAME = "default"
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self._database = None
         self._tables = pd.DataFrame()
         self.dialect = self.dialect_cls(dbname=self.database)

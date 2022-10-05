@@ -1,3 +1,5 @@
+from edc_export.utils import get_export_folder
+
 from ..database import Database
 from ..df_handlers import DfHandler
 from .csv_exporter import CsvExporter
@@ -27,7 +29,6 @@ class TablesExporter:
     """
 
     app_label = None
-    export_folder = None
     csv_exporter_cls = CsvExporter
     db_cls = Database
     delimiter = "|"
@@ -48,7 +49,7 @@ class TablesExporter:
         self.app_label = app_label or self.app_label
         if not self.app_label:
             raise TablesExporterError(f"Missing app_label. Got None. See {repr(self)}")
-        self.export_folder = export_folder or self.export_folder
+        self.export_folder = export_folder or get_export_folder()
         self.with_columns = with_columns or []
         self.without_columns = without_columns or []
         exclude_table_hints = exclude_table_hints or []
@@ -91,9 +92,6 @@ class TablesExporter:
             exported = exporter.to_csv(dataframe=df, export_folder=export_folder)
             if exported.path:
                 self.exported_paths.update({table_name: exported.path})
-
-    def to_stata(self):
-        raise NotImplementedError()
 
     def get_table_names(self):
         """Returns a list of table names for this app_label."""
