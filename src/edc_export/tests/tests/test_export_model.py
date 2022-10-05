@@ -1,12 +1,12 @@
 import csv
 import os
 import uuid
+from tempfile import mkdtemp
 from time import sleep
 from unittest.case import skip
 
-from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase
+from django.test import TestCase, override_settings, tag
 from edc_appointment.models import Appointment
 from edc_pdutils.model_to_dataframe import ValueGetterInvalidLookup
 from edc_utils import get_utcnow
@@ -18,13 +18,9 @@ from edc_export.models import FileHistory, ObjectHistory
 from ..helper import Helper
 from ..models import Crf, CrfEncrypted, ListModel, SubjectVisit
 
-app_config = django_apps.get_app_config("edc_export")
 
-
+@override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp())
 class TestExportModel(TestCase):
-
-    path = app_config.export_folder
-
     def setUp(self):
         self.helper = Helper()
         for appointment in Appointment.objects.all().order_by("visit_code"):
@@ -43,17 +39,6 @@ class TestExportModel(TestCase):
             int1=1,
             uuid1=uuid.uuid4(),
         )
-
-    def tearDown(self):
-        """Remove .csv files created in tests."""
-        super().tearDown()
-        if "edc_export" not in self.path:
-            raise ValueError(f"Invalid path in test. Got {self.path}")
-        files = os.listdir(self.path)
-        for file in files:
-            if ".csv" in file:
-                file = os.path.join(self.path, file)
-                os.remove(file)
 
     def test_model(self):
         ModelExporter(
@@ -140,6 +125,7 @@ class TestExportModel(TestCase):
         for i, name in enumerate(model_exporter.audit_fields):
             self.assertEqual(name, model_exporter.field_names[i])
 
+    @tag("1")
     def test_with_queryset(self):
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(

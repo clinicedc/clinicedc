@@ -1,7 +1,7 @@
 import uuid
+from tempfile import mkdtemp
 
-from django.apps import apps as django_apps
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
 from edc_utils import get_utcnow
 
@@ -11,13 +11,9 @@ from edc_export.models import Plan
 from ..helper import Helper
 from ..models import Crf, ListModel, SubjectVisit
 
-app_config = django_apps.get_app_config("edc_export")
 
-
+@override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp())
 class TestPlan(TestCase):
-
-    path = app_config.export_folder
-
     def setUp(self):
         self.helper = Helper()
         for appointment in Appointment.objects.all().order_by("visit_code"):

@@ -1,24 +1,25 @@
 import csv
 from tempfile import mkdtemp
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
 from edc_facility.import_holidays import import_holidays
 from edc_pdutils import CsvModelExporter, ModelToDataframe
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
+from ...utils import get_export_folder
 from ..helper import Helper
 from ..models import Crf, CrfEncrypted, SubjectVisit
 from ..visit_schedule import visit_schedule1
 
 
+@override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp())
 class TestExport(TestCase):
     def setUp(self):
         import_holidays()
         self.helper = Helper()
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule1)
-        self.path = mkdtemp()
         self.helper.create_crfs(5)
         self.subject_visit = SubjectVisit.objects.all()[0]
 
@@ -77,7 +78,7 @@ class TestExport(TestCase):
         model_exporter = CsvModelExporter(
             queryset=CrfEncrypted.objects.all(),
             add_columns_for="subject_visit",
-            export_folder=self.path,
+            export_folder=get_export_folder(),
         )
         model_exporter.to_csv()
 
@@ -86,19 +87,21 @@ class TestExport(TestCase):
         model_exporter = CsvModelExporter(
             model="edc_export.CrfEncrypted",
             add_columns_for="subject_visit",
-            export_folder=self.path,
+            export_folder=get_export_folder(),
         )
         model_exporter.to_csv()
 
     def test_records_to_csv_from_qs(self):
-        model_exporter = CsvModelExporter(queryset=Crf.objects.all(), export_folder=self.path)
+        model_exporter = CsvModelExporter(
+            queryset=Crf.objects.all(), export_folder=get_export_folder()
+        )
         model_exporter.to_csv()
 
     def test_records_to_csv_from_model(self):
         model_exporter = CsvModelExporter(
             model="edc_export.crf",
             sort_by=["subject_identifier", "visit_code"],
-            export_folder=self.path,
+            export_folder=get_export_folder(),
         )
         exported = model_exporter.to_csv()
         with open(exported.path, "r") as f:
