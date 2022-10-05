@@ -28,6 +28,9 @@ send_new_credentials_to_user_action.short_description = "Reset password and emai
 
 @admin.register(User, site=edc_auth_admin)
 class UserAdmin(TemplatesModelAdminMixin, BaseUserAdmin):
+
+    show_object_tools: bool = True
+
     inlines = (UserProfileInline,)
     form = UserChangeForm
     actions = [send_new_credentials_to_user_action]
