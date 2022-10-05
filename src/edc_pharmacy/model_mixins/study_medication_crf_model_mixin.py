@@ -6,6 +6,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from edc_appointment.utils import get_next_appointment
 from edc_constants.constants import YES
+from edc_utils import formatted_datetime
 
 from ..exceptions import NextStudyMedicationError, StudyMedicationError
 from ..refill import create_refills_from_crf
@@ -52,9 +53,32 @@ class StudyMedicationCrfModelMixin(PreviousNextModelMixin, StudyMedicationRefill
         self.number_of_days = (self.refill_end_datetime - self.refill_start_datetime).days
 
         if not self.rx:
-            raise StudyMedicationError(
-                f"Prescription not found. Perhaps catch this in the form. See {self}. "
-            )
+            dt = formatted_datetime(self.refill_start_datetime)
+            if not self.rx_model_cls.objects.filter(
+                subject_identifier=self.related_visit.subject_identifier,
+            ).exists():
+                error_msg = (
+                    f"No prescriptions found for this subject. "
+                    f"Using subject_identifier=`{self.related_visit.subject_identifier}` "
+                    f"Perhaps catch this in the form. See {self}."
+                )
+            elif not self.rx_model_cls.objects.filter(
+                subject_identifier=self.related_visit.subject_identifier,
+                medications__in=[self.formulation.medication],
+            ).exists():
+                error_msg = (
+                    f"No prescriptions found for this medication. "
+                    f"Using medication {self.formulation.medication}. "
+                    f"Perhaps catch this in the form. See {self}."
+                )
+            else:
+                error_msg = (
+                    f"A valid prescription not found. Check refill date. "
+                    f"Using refill start datetime `{dt}`. "
+                    f"Perhaps catch this in the form. See {self}."
+                )
+
+            raise StudyMedicationError(error_msg)
 
         super().save(*args, **kwargs)
 
@@ -66,9 +90,13 @@ class StudyMedicationCrfModelMixin(PreviousNextModelMixin, StudyMedicationRefill
         return self.related_visit.subject_identifier
 
     @property
+    def rx_model_cls(self):
+        return django_apps.get_model("edc_pharmacy.rx")
+
+    @property
     def rx(self):
         try:
-            rx = django_apps.get_model("edc_pharmacy.rx").objects.get(
+            rx = self.rx_model_cls.objects.get(
                 registered_subject__subject_identifier=self.related_visit.subject_identifier,
                 medications__in=[self.formulation.medication],
                 rx_date__lte=self.refill_start_datetime.date(),
