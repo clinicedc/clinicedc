@@ -1,6 +1,6 @@
 from django import forms
 from edc_constants.constants import YES
-from edc_crf.form_validator_mixins import CrfFormValidatorMixin
+from edc_crf.crf_form_validator_mixins import CrfFormValidatorMixin
 from edc_crf.modelform_mixins import CrfModelFormMixin
 from edc_dx import get_diagnosis_labels
 from edc_dx.form_validators import DiagnosisFormValidatorMixin
