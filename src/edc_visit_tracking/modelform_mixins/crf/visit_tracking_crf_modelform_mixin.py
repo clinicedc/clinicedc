@@ -38,7 +38,7 @@ class VisitTrackingCrfModelFormMixin:
         """
         if not self.report_datetime_field_attr:
             raise VisitTrackingCrfModelFormMixinError(
-                f"Cannot be None. See modeform for {self._meta.model}."
+                f"Cannot be None. See modelform for {self._meta.model}."
                 "Got `report_datetime_field_attr`=None."
             )
         cleaned_data = super().clean()
