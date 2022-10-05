@@ -1,3 +1,2 @@
 from .base_model_form_mixin import BaseModelFormMixin
-from .estimated_date_from_ago_form_mixin import EstimatedDateFromAgoFormMixin
 from .inline_model_form_mixin import InlineModelFormMixin, InlineModelFormMixinError
