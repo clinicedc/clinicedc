@@ -33,6 +33,7 @@ class TestFieldsetAdmin(TestCase):
         appointment = Appointment.objects.create(
             subject_identifier=self.subject_identifier,
             appt_datetime=get_utcnow(),
+            timepoint=0.0,
             visit_code=VISIT_ONE,
             visit_code_sequence=0,
             visit_schedule_name="visit_schedule",
@@ -68,7 +69,7 @@ class TestFieldsetAdmin(TestCase):
         appointment = Appointment.objects.create(
             subject_identifier=self.subject_identifier,
             appt_datetime=get_utcnow() - timedelta(days=1),
-            timepoint=0,
+            timepoint=0.0,
             visit_code=VISIT_ONE,
             visit_code_sequence=0,
             visit_schedule_name="visit_schedule",
@@ -82,6 +83,7 @@ class TestFieldsetAdmin(TestCase):
             visit_code_sequence=0,
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
+            timepoint=1.0,
         )
 
         subject_visit = SubjectVisit.objects.create(appointment=appointment)
@@ -114,7 +116,7 @@ class TestFieldsetAdmin(TestCase):
         appointment = Appointment.objects.create(
             subject_identifier=self.subject_identifier,
             appt_datetime=get_utcnow() - timedelta(days=1),
-            timepoint=0,
+            timepoint=0.0,
             visit_code=VISIT_ONE,
             visit_code_sequence=0,
             visit_schedule_name="visit_schedule",
@@ -128,6 +130,7 @@ class TestFieldsetAdmin(TestCase):
             visit_code_sequence=0,
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
+            timepoint=1.0,
         )
         subject_visit = SubjectVisit.objects.create(appointment=appointment)
 
