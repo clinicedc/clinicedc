@@ -15,7 +15,7 @@ class BaseModelFormMixinError(Exception):
 
 class BaseModelFormMixin(ReportDatetimeModelFormMixin):
 
-    """Base modeform mixin for edc forms.
+    """Base modelform mixin for edc forms.
 
     If this is a CRF, use together with the modelform mixin
     from edc-visit-tracking.
