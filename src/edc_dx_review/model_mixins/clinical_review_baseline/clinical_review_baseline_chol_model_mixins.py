@@ -43,7 +43,9 @@ class ClinicalReviewBaselineCholModelMixin(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        self.chol_test_estimated_date = estimated_date_from_ago(self, "chol_test_ago")
+        self.chol_test_estimated_date = estimated_date_from_ago(
+            instance=self, ago_field="chol_test_ago"
+        )
         super().save(*args, **kwargs)
 
     class Meta:

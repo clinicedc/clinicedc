@@ -47,7 +47,9 @@ class ClinicalReviewBaselineHivModelMixin(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        self.hiv_test_estimated_date = estimated_date_from_ago(self, "hiv_test_ago")
+        self.hiv_test_estimated_date = estimated_date_from_ago(
+            instance=self, ago_field="hiv_test_ago"
+        )
         super().save(*args, **kwargs)  # type: ignore
 
     class Meta:

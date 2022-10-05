@@ -4,30 +4,28 @@ from edc_crf.crf_form_validator_mixins import CrfFormValidatorMixin
 from edc_crf.modelform_mixins import CrfModelFormMixin
 from edc_dx import get_diagnosis_labels_prefixes
 from edc_form_validators.form_validator import FormValidator
-from edc_model_form.mixins import EstimatedDateFromAgoFormMixin
+from edc_model import estimated_date_from_ago
 from edc_visit_schedule.utils import raise_if_not_baseline
 
 from ..models import ClinicalReviewBaseline
 
 
-class ClinicalReviewBaselineFormValidator(
-    CrfFormValidatorMixin, EstimatedDateFromAgoFormMixin, FormValidator
-):
+class ClinicalReviewBaselineFormValidator(CrfFormValidatorMixin, FormValidator):
     def clean(self):
         raise_if_not_baseline(self.cleaned_data.get("subject_visit"))
         if HIV.lower() in get_diagnosis_labels_prefixes():
-            self.estimated_date_from_ago("hiv_test_ago")
+            estimated_date_from_ago(cleaned_data=self.cleaned_data, ago_field="hiv_test_ago")
             self.when_tested_required(cond="hiv")
         if HTN.lower() in get_diagnosis_labels_prefixes():
-            self.estimated_date_from_ago("htn_test_ago")
+            estimated_date_from_ago(cleaned_data=self.cleaned_data, ago_field="htn_test_ago")
             self.when_tested_required(cond="htn")
             self.required_if(YES, field="htn_test", field_required="htn_dx")
         if DM.lower() in get_diagnosis_labels_prefixes():
-            self.estimated_date_from_ago("dm_test_ago")
+            estimated_date_from_ago(cleaned_data=self.cleaned_data, ago_field="dm_test_ago")
             self.when_tested_required(cond="diabetes")
             self.required_if(YES, field="dm_test", field_required="dm_dx")
         if CHOL.lower() in get_diagnosis_labels_prefixes():
-            self.estimated_date_from_ago("chol_test_ago")
+            estimated_date_from_ago(cleaned_data=self.cleaned_data, ago_field="chol_test_ago")
             self.when_tested_required(cond="cholesterol")
             self.required_if(YES, field="chol_test", field_required="chol_dx")
 

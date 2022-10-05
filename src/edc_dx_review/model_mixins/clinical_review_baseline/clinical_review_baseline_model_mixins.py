@@ -22,7 +22,7 @@ class ClinicalReviewBaselineModelMixin(models.Model):
             setattr(
                 self,
                 f"{prefix}_test_estimated_date",
-                estimated_date_from_ago(self, f"{prefix}_test_ago"),
+                estimated_date_from_ago(instance=self, ago_field=f"{prefix}_test_ago"),
             )
         super().save(*args, **kwargs)
 

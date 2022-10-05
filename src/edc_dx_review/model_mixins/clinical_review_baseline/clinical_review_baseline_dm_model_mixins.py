@@ -43,7 +43,9 @@ class ClinicalReviewBaselineDmModelMixin(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        self.dm_test_estimated_date = estimated_date_from_ago(self, "dm_test_ago")
+        self.dm_test_estimated_date = estimated_date_from_ago(
+            instance=self, ago_field="dm_test_ago"
+        )
         super().save(*args, **kwargs)  # type: ignore
 
     class Meta:

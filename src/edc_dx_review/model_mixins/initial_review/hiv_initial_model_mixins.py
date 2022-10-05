@@ -48,9 +48,9 @@ class HivArvInitiationModelMixin(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        self.dx_estimated_date = estimated_date_from_ago(self, "dx_ago")
+        self.dx_estimated_date = estimated_date_from_ago(instance=self, ago_field="dx_ago")
         self.arv_initiation_estimated_date = estimated_date_from_ago(
-            self, "arv_initiation_ago"
+            instance=self, ago_field="arv_initiation_ago"
         )
         super().save(*args, **kwargs)
 

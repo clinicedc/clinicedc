@@ -43,7 +43,9 @@ class ClinicalReviewBaselineHtnModelMixin(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        self.htn_test_estimated_date = estimated_date_from_ago(self, "htn_test_ago")
+        self.htn_test_estimated_date = estimated_date_from_ago(
+            instance=self, ago_field="htn_test_ago"
+        )
         super().save(*args, **kwargs)
 
     class Meta:
