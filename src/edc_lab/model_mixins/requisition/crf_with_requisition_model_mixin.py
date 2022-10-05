@@ -18,7 +18,7 @@ class CrfWithRequisitionModelMixin(models.Model):
     )
 
     assay_datetime = models.DateTimeField(
-        verbose_name="Result Report Date and Time",
+        verbose_name="Result assay date and time",
         validators=[datetime_not_future],
         null=True,
         blank=True,
