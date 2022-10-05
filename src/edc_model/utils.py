@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 from datetime import date, datetime, timedelta
 from typing import Optional, Union
@@ -6,7 +8,7 @@ from dateutil.relativedelta import relativedelta
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.db.models import CharField, DateField, DateTimeField
+from django.db.models import CharField, DateField, DateTimeField, Model
 
 from .constants import REPORT_DATETIME_FIELD_NAME
 
@@ -27,10 +29,11 @@ class InvalidFieldName(Exception):
 
 
 def estimated_date_from_ago(
-    data: Union[dict, models.Model],
-    ago_field: str,
-    reference_field: Optional[str] = None,
-    future: Optional[bool] = None,
+    cleaned_data: dict = None,
+    instance: Model = None,
+    ago_field: str = None,
+    reference_field: str = None,
+    future: bool | None = None,
 ) -> Optional[date]:
     """Wrapper function for `duration_to_date` typically called in
     modelform.clean() and model.save().
@@ -41,7 +44,7 @@ def estimated_date_from_ago(
     """
 
     estimated_date = None
-    is_form_data = False
+    data = instance or cleaned_data
     reference_field = reference_field or REPORT_DATETIME_FIELD_NAME
     raise_on_invalid_field_name(data, ago_field)
     raise_on_invalid_field_name(data, reference_field)
@@ -51,8 +54,6 @@ def estimated_date_from_ago(
     except AttributeError:
         ago_str = getattr(data, ago_field, None)
         reference_date = getattr(data, reference_field, None)
-    else:
-        is_form_data = True
     try:
         reference_date = reference_date.date()
     except AttributeError:
@@ -61,7 +62,7 @@ def estimated_date_from_ago(
         try:
             estimated_date = duration_to_date(ago_str, reference_date, future=future)
         except InvalidFormat as e:
-            if is_form_data:
+            if cleaned_data:
                 raise forms.ValidationError({ago_field: str(e)})
             raise
     return estimated_date

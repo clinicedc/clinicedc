@@ -57,59 +57,75 @@ class TestUtils(TestCase):
         reference_date = date(2015, 6, 15)
         dte = duration_to_date("5d", reference_date, future=True)
         cleaned_data = {"dx_ago": "5d", "report_datetime": reference_date}
-        estimated_date = estimated_date_from_ago(cleaned_data, "dx_ago", future=True)
+        estimated_date = estimated_date_from_ago(
+            cleaned_data=cleaned_data, ago_field="dx_ago", future=True
+        )
         self.assertEqual(dte, estimated_date)
 
         cleaned_data = {"dx_ago": "md", "report_datetime": reference_date}
         self.assertRaises(
-            forms.ValidationError, estimated_date_from_ago, cleaned_data, "dx_ago", future=True
+            forms.ValidationError,
+            estimated_date_from_ago,
+            cleaned_data=cleaned_data,
+            ago_field="dx_ago",
+            future=True,
         )
 
         self.assertRaises(
             InvalidFieldName,
             estimated_date_from_ago,
-            cleaned_data,
-            "dx_ago_blah",
+            cleaned_data=cleaned_data,
+            ago_field="dx_ago_blah",
         )
 
         reference_datetime = datetime(2015, 6, 15).astimezone(ZoneInfo("UTC"))
         obj = SimpleModel.objects.create(ago="5d", report_datetime=reference_datetime)
-        estimated_date = estimated_date_from_ago(obj, "ago", future=True)
+        estimated_date = estimated_date_from_ago(instance=obj, ago_field="ago", future=True)
         self.assertEqual(estimated_date, date(2015, 6, 20))
 
         reference_date = datetime(2015, 6, 15)
         obj = SimpleModel.objects.create(ago="5d", d1=reference_date)
-        estimated_date = estimated_date_from_ago(obj, "ago", reference_field="d1", future=True)
+        estimated_date = estimated_date_from_ago(
+            instance=obj, ago_field="ago", reference_field="d1", future=True
+        )
         self.assertEqual(estimated_date, date(2015, 6, 20))
 
         obj = SimpleModel.objects.create(ago="5m6d", d1=reference_date)
         self.assertRaises(
             InvalidFormat,
             estimated_date_from_ago,
-            obj,
-            "ago",
+            instance=obj,
+            ago_field="ago",
             reference_field="d1",
             future=True,
         )
 
         obj = SimpleModel.objects.create(ago=None, d1=reference_date)
-        estimated_date = estimated_date_from_ago(obj, "ago", reference_field="d1", future=True)
+        estimated_date = estimated_date_from_ago(
+            instance=obj, ago_field="ago", reference_field="d1", future=True
+        )
         self.assertIsNone(estimated_date)
 
         obj = SimpleModel.objects.create(ago=None, d1=None)
-        estimated_date = estimated_date_from_ago(obj, "ago", reference_field="d1", future=True)
+        estimated_date = estimated_date_from_ago(
+            instance=obj, ago_field="ago", reference_field="d1", future=True
+        )
         self.assertIsNone(estimated_date)
 
         obj = SimpleModel.objects.create(ago=None)
-        estimated_date = estimated_date_from_ago(obj, "ago")
+        estimated_date = estimated_date_from_ago(instance=obj, ago_field="ago")
         self.assertIsNone(estimated_date)
 
         obj = SimpleModel.objects.create(ago="5d", report_datetime=reference_datetime)
-        self.assertRaises(InvalidFieldName, estimated_date_from_ago, obj, "ago_blah")
+        self.assertRaises(
+            InvalidFieldName, estimated_date_from_ago, instance=obj, ago_field="ago_blah"
+        )
 
-        self.assertRaises(InvalidFieldName, estimated_date_from_ago, obj, "")
+        self.assertRaises(
+            InvalidFieldName, estimated_date_from_ago, instance=obj, ago_field=""
+        )
 
-        self.assertRaises(InvalidFieldName, estimated_date_from_ago, obj, None)
+        self.assertRaises(InvalidFieldName, estimated_date_from_ago, instance=obj)
 
     def test_valid_duration_dh_to_timedelta_ok(self):
         test_cases = [
