@@ -5,7 +5,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django_revision.views import RevisionMixin
-from edc_protocol import Protocol
 from edc_sites.view_mixins import SiteViewMixin
 
 from .message_view_mixin import MessageViewMixin
@@ -21,7 +20,6 @@ class EdcViewMixin(
 ):
     """Adds common template variables and warning messages."""
 
-    edc_protocol_app = "edc_protocol"
     edc_device_app = "edc_device"
 
     def get_context_data(self, **kwargs) -> dict:
@@ -32,17 +30,10 @@ class EdcViewMixin(
             edc_device_app_config = None
             warnings.warn(str(e))
         live_system = getattr(settings, "LIVE_SYSTEM", "TEST")
-        protocol = Protocol()
         context.update(
             {
-                "copyright": getattr(protocol, "copyright", "copyright?"),
                 "device_id": getattr(edc_device_app_config, "device_id", "device_id?"),
                 "device_role": getattr(edc_device_app_config, "device_role", "device_role?"),
-                "disclaimer": getattr(protocol, "disclaimer", "disclaimer?"),
-                "institution": getattr(protocol, "institution", "institution?"),
-                "license": getattr(protocol, "license", "license?"),
-                "project_name": getattr(protocol, "project_name", "project_name?"),
-                "project_repo": getattr(protocol, "project_repo", "project_repo?"),
                 "live_system": live_system,
             }
         )
