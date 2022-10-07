@@ -3,17 +3,20 @@
 {% load i18n admin_urls static admin_modify %}
 {% load edc_dashboard_extras edc_admin_modify edc_navbar_extras %}
 
-{% block extrahead %}{{ block.super }}
+{% block extrahead %}
+  {{ block.super }}
     <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
 {% endblock %}
 
 {% block extrastyle %}{{ block.super }}
-    <link rel="stylesheet" type="text/css" href="{% static 'edc_dashboard/css/dark_mode.css' %}">
-    {%  for css in edc_model_admin_css_theme_path %}
-        <link rel='stylesheet' type="text/css" href='{% static css %}'>
-    {% endfor %}
+{%  for css in edc_model_admin_css_theme_path %}
+<link rel='stylesheet' type="text/css" href='{% static css %}'>
+{% endfor %}
 {% endblock %}
 
+{% block dark-mode-vars %}
+<link rel="stylesheet" type="text/css" href="{% static 'edc_model_admin/css/dark_mode.css' %}">
+{% endblock %}
 
 {% block breadcrumbs %}{% endblock %}
 
@@ -44,26 +47,28 @@
 {% if has_absolute_url %}<li><a href="{{ absolute_url }}" class="viewsitelink">{% translate view_on_site_label|default:"View on site" %}</a></li>{% endif %}
 {% endblock %}
 
-
-
 {% block field_sets %}
-
-    {% instructions %}
-
-    {% additional_instructions %}
-
-    {% for fieldset in adminform %}
-        {% include "admin/includes/fieldset.html" %}
-        {# % include "edc_model_admin/admin/fieldset.html" with inline_admin_formsets=inline_admin_formsets % #}
+{% instructions %}
+{% additional_instructions %}
+{% for fieldset in adminform %}
+    {% for inline_admin_formset in inline_admin_formsets %}
+      {% if inline_admin_formset.formset.insert_before_fieldset and inline_admin_formset.formset.insert_before_fieldset == fieldset.name %}
+        {% include inline_admin_formset.opts.template %}
+      {% endif  %}
     {% endfor %}
+    {% include "admin/includes/fieldset.html" %}
+{% endfor %}
 {% endblock %}
 
 
-
 {% block inline_field_sets %}
+    <!--begin inline_field_sets -->
     {% for inline_admin_formset in inline_admin_formsets %}
+      {% if not inline_admin_formset.formset.insert_before_fieldset %}
         {% include inline_admin_formset.opts.template %}
+      {% endif  %}
     {% endfor %}
+    <!--end inline_field_sets -->
 {% endblock %}
 
 {% block submit_buttons_top %}{% edc_submit_row %}{% endblock %}
