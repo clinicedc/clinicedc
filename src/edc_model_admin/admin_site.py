@@ -42,8 +42,8 @@ class EdcAdminSite(DjangoAdminSite):
     app_index_template = "edc_model_admin/admin/app_index.html"
     login_template = f"edc_auth/bootstrap{get_bootstrap_version()}/login.html"
     logout_template = f"edc_auth/bootstrap{get_bootstrap_version()}/login.html"
-    enable_nav_sidebar = False  # DJ 3.1
-    final_catch_all_view = True  # DJ 3.2
+    enable_nav_sidebar = False
+    final_catch_all_view = True
     site_url = "/administration/"
 
     def __init__(

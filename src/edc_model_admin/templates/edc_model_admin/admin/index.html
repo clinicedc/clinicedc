@@ -6,11 +6,14 @@
 {% endblock %}
 
 {% block extrastyle %}{{ block.super }}
-    <link rel="stylesheet" type="text/css" href="{% static 'edc_dashboard/css/dark_mode.css' %}">
-    <link rel="stylesheet" href="{% static "admin/css/dashboard.css" %}">
-    {%  for css in edc_model_admin_css_theme_path %}
-        <link rel='stylesheet' type="text/css" href='{% static css %}'>
-    {% endfor %}
+<link rel="stylesheet" href="{% static "admin/css/dashboard.css" %}">
+{%  for css in edc_model_admin_css_theme_path %}
+<link rel='stylesheet' type="text/css" href='{% static css %}'>
+{% endfor %}
+{% endblock %}
+
+{% block dark-mode-vars %}
+<link rel="stylesheet" type="text/css" href="{% static 'edc_model_admin/css/dark_mode.css' %}">
 {% endblock %}
 
 {% block coltype %}colMS{% endblock %}
