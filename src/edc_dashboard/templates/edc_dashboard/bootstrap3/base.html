@@ -1,17 +1,9 @@
-{% extends "edc_dashboard/bootstrap3/base_dj3.html" %}
+{% extends "edc_dashboard/bootstrap3/base_dj4.html" %}
 {% load edc_navbar_extras %}
 {% load static %}
 {% load tz %}
 
 {% block title %}{{ project_name|default_if_none:"clinicedc.org" }}{% endblock title %}
-
-{% block jquery %}
-  {% if DEBUG %}
-    <script src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
-  {% else %}
-    <script src="{% static 'admin/js/vendor/jquery/jquery.min.js' %}"></script>
-  {% endif %}
-{% endblock %}
 
 {% block extrastyle %}
     {{ block.super }}
