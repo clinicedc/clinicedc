@@ -10,11 +10,7 @@ allow_password_reset = getattr(settings, "ALLOW_PASSWORD_RESET", None)
 
 urlpatterns = [
     path("login/", LoginView.as_view(), name="login"),
-    path(
-        "logout/",
-        LogoutView.as_view(template_name="edc_auth/login.html"),
-        name="logout",
-    ),
+    path("logout/", LogoutView.as_view(), name="logout"),
 ]
 
 if allow_password_reset:
