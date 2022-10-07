@@ -1,9 +1,11 @@
 import sys
 
 from django.apps import AppConfig as DjangoAppConfig
+from django.core.checks import register
 from django.core.management.color import color_style
 
 from .protocol import Protocol
+from .system_checks import middleware_check
 
 style = color_style()
 
@@ -15,6 +17,7 @@ class AppConfig(DjangoAppConfig):
     messages_written = False
 
     def ready(self):
+        register(middleware_check)
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
         protocol = Protocol()
         sys.stdout.write(f" * {protocol.protocol}: {protocol.protocol_name}.\n")
