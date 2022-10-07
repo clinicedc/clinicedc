@@ -37,7 +37,7 @@ class AppointmentForm(
                 attrs={
                     "label": appt_reason_fld.verbose_name,
                     "required": True,
-                    "help_text": appt_reason_fld.help_text,
+                    "class": "radiolist",
                 },
                 choices=get_appt_reason_choices(),
             ),

@@ -57,9 +57,9 @@ class AppointmentFieldsModelMixin(models.Model):
         max_length=25,
         choices=DEFAULT_APPT_REASON_CHOICES,
         help_text=(
-            "The visit report's `reason for visit` will be validated against this. "
-            "Refer to the protocol's documentation for the definition of a `scheduled` "
-            "appointment."
+            "The reason for visit from the visit report will be validated against "
+            "this response. Refer to the protocol documentation for the definition "
+            "of a scheduled appointment."
         ),
     )
 
@@ -69,9 +69,9 @@ class AppointmentFieldsModelMixin(models.Model):
         choices=APPT_TIMING,
         default=ONTIME_APPT,
         help_text=(
-            "If late, you may be required to complete a Protocol Deviation / Violation form. "
-            "Refer to the protocol/SOP for the definition of scheduled appointment "
-            "window periods."
+            "If late, you may be required to complete a protocol incident report. "
+            "Refer to the protocol documentation for the allowed window periods "
+            "of scheduled appointments."
         ),
     )
 
