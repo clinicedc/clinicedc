@@ -5,6 +5,14 @@
 
 {% block title %}{{ project_name|default_if_none:"clinicedc.org" }}{% endblock title %}
 
+{% block jquery %}
+   {% if DEBUG %}
+     <script src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+   {% else %}
+     <script src="{% static 'admin/js/vendor/jquery/jquery.min.js' %}"></script>
+   {% endif %}
+ {% endblock %}
+
 {% block extrastyle %}
     {{ block.super }}
     <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
