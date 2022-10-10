@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from django.apps import apps as django_apps
 
@@ -48,8 +49,8 @@ class FormsReference:
                         {visit_code: {"crfs": crfs, "requisitions": requisitions}}
                     )
 
-    def to_file(self, path=None, exists_ok=None):
-        markdown_writer = self.markdown_writer_cls(path=path, exists_ok=exists_ok)
+    def to_file(self, path: Optional[str] = None, overwrite: Optional[bool] = None):
+        markdown_writer = self.markdown_writer_cls(path=path, overwrite=overwrite)
         markdown_writer.to_file(markdown=self.markdown, pad=2)
 
     def insert_toc(self, toc=None, markdown=None):
