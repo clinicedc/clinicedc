@@ -12,6 +12,12 @@
 {%  for css in edc_model_admin_css_theme_path %}
 <link rel='stylesheet' type="text/css" href='{% static css %}'>
 {% endfor %}
+<!-- hack to fix wrapping radiolists -->
+<style>
+  form div.radiolist label {
+    width: 600px;
+}
+</style>
 {% endblock %}
 
 {% block dark-mode-vars %}
