@@ -61,7 +61,7 @@ class CrfInlineModelMixin(InlineVisitMethodsModelMixin, SiteModelMixin, models.M
         """Return the class of the inline parent model."""
         field = getattr(self.__class__, self._meta.crf_inline_parent).field
         try:
-            return field.rel.to
+            return field.related_model
         except AttributeError:
             return field.remote_field.model  # django 2.0 +
 
