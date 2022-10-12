@@ -1,59 +1,19 @@
-from collections.abc import Callable
-from typing import Optional, Union
+from __future__ import annotations
 
-from django.db import models
+from typing import Any
+
 from django.utils.html import format_html
 from edc_constants.constants import NO, PENDING, TBD, YES
 
+from .exceptions import (
+    ScreeningEligibilityAttributeError,
+    ScreeningEligibilityError,
+    ScreeningEligibilityInvalidCombination,
+    ScreeningEligibilityModelAttributeError,
+)
+from .fc import FC
 
-class FC:
-    """A simple class of the eligible criteria for a field.
-
-    value: value if eligible
-    msg: message if value is NOT met / ineligible
-    ignore_if_missing: skip assessment if the field does not have a value
-
-    if value is a callable it must return True/False, True means eligible.
-    """
-
-    def __init__(
-        self,
-        value: Optional[Union[str, list, tuple, range, Callable[..., bool]]] = None,
-        msg: Optional[str] = None,
-        ignore_if_missing: Optional[bool] = False,
-        missing_value: Optional[str] = None,
-    ):
-        self.value = value
-        self.msg = msg
-        self.ignore_if_missing = ignore_if_missing
-        self.missing_value = missing_value
-
-    def __repr__(self):
-        return f"{self.__class__.__name__}({self.value, self.msg, self.ignore_if_missing})"
-
-
-class ScreeningEligibilityError(Exception):
-    pass
-
-
-class ScreeningEligibilityAttributeError(Exception):
-    pass
-
-
-class ScreeningEligibilityModelAttributeError(Exception):
-    pass
-
-
-class ScreeningEligibilityCleanedDataKeyError(Exception):
-    pass
-
-
-class ScreeningEligibilityInvalidCombination(Exception):
-    pass
-
-
-class RequiredFieldValueMissing(Exception):
-    pass
+__all__ = ["ScreeningEligibility"]
 
 
 class ScreeningEligibility:
@@ -73,35 +33,37 @@ class ScreeningEligibility:
 
     def __init__(
         self,
-        model_obj: Optional[models.Model] = None,
-        cleaned_data: Optional[dict] = None,
-        eligible_value_default: Optional[str] = None,
-        eligible_values_list: Optional[list] = None,
-        is_eligible_value: Optional[str] = None,
-        is_ineligible_value: Optional[str] = None,
-        eligible_display_label: Optional[str] = None,
-        ineligible_display_label: Optional[str] = None,
-        update_model: Optional[bool] = None,
+        model_obj: Any = None,
+        cleaned_data: dict = None,
+        eligible_value_default: str | None = None,
+        eligible_values_list: list | None = None,
+        is_eligible_value: str | None = None,
+        is_ineligible_value: str | None = None,
+        eligible_display_label: str | None = None,
+        ineligible_display_label: str | None = None,
+        update_model: bool | None = None,
     ) -> None:
 
         self.eligible: str = ""
-        self.update_model = True if update_model is None else update_model
+        self.reasons_ineligible: dict[str, str] = {}
+        self.model_obj = model_obj
+        self.update_model: bool = True if update_model is None else update_model
         self.cleaned_data = cleaned_data
         if eligible_value_default:
-            self.eligible_value_default: str = eligible_value_default
+            self.eligible_value_default = eligible_value_default
         if eligible_values_list:
-            self.eligible_values_list: list = eligible_values_list
+            self.eligible_values_list = eligible_values_list
         if is_eligible_value:
-            self.is_eligible_value: str = is_eligible_value
+            self.is_eligible_value = is_eligible_value
         if is_ineligible_value:
-            self.is_ineligible_value: str = is_ineligible_value
+            self.is_ineligible_value = is_ineligible_value
         if eligible_display_label:
-            self.eligible_display_label: str = eligible_display_label
+            self.eligible_display_label = eligible_display_label
         if ineligible_display_label:
-            self.ineligible_display_label: str = ineligible_display_label
-        self.model_obj = model_obj
-        self.reasons_ineligible: dict = {}
+            self.ineligible_display_label = ineligible_display_label
+
         self._assess_eligibility()
+
         if self.eligible not in self.eligible_values_list:
             raise ScreeningEligibilityError(
                 f"Invalid value. See attr `eligible`. Expected one of "
