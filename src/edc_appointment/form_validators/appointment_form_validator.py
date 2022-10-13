@@ -12,6 +12,7 @@ from django.utils.html import format_html
 from edc_consent import NotConsentedError
 from edc_consent.requires_consent import RequiresConsent
 from edc_consent.site_consents import SiteConsentError, site_consents
+from edc_facility.utils import get_facilities
 from edc_form_validators import INVALID_ERROR
 from edc_form_validators.form_validator import FormValidator
 from edc_metadata.metadata_helper import MetadataHelperMixin
@@ -429,8 +430,7 @@ class AppointmentFormValidator(
     def validate_facility_name(self: Any) -> None:
         """Raises if facility_name not found in edc_facility.AppConfig."""
         if self.cleaned_data.get("facility_name"):
-            app_config = django_apps.get_app_config("edc_facility")
-            if self.cleaned_data.get("facility_name") not in app_config.facilities:
+            if self.cleaned_data.get("facility_name") not in get_facilities():
                 self.raise_validation_error(
                     {"__all__": f"Facility '{self.facility_name}' does not exist."},
                     INVALID_ERROR,
