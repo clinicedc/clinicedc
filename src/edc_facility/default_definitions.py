@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE
 
 from .constants import (
@@ -8,7 +10,7 @@ from .constants import (
     TU_WE_TH_CLINIC,
 )
 
-default_definitions = {
+default_definitions: dict[str, dict[str, list | bool]] = {
     SEVEN_DAY_CLINIC: dict(
         days=[MO, TU, WE, TH, FR, SA, SU], slots=[100, 100, 100, 100, 100, 100, 100]
     ),

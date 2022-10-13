@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import csv
 import os
 import sys
 from datetime import datetime
+from typing import TYPE_CHECKING
 
-from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
@@ -11,21 +13,19 @@ from edc_sites import get_current_country
 from edc_utils import get_utcnow
 from tqdm import tqdm
 
+from .exceptions import HolidayFileNotFoundError, HolidayImportError
+from .utils import get_holiday_model_cls
+
+if TYPE_CHECKING:
+    from .models import Holiday
+
 LOCAL_DATE = 0
 LABEL = 1
 COUNTRY = 2
 
 
-class HolidayImportError(Exception):
-    pass
-
-
-class HolidayFileNotFoundError(Exception):
-    pass
-
-
-def import_holidays(verbose=None, test=None):
-    model_cls = django_apps.get_model("edc_facility.holiday")
+def import_holidays(verbose: bool | None = None, test: bool | None = None) -> None:
+    model_cls = get_holiday_model_cls()
     if test:
         import_for_tests(model_cls)
     else:
@@ -49,7 +49,7 @@ def import_holidays(verbose=None, test=None):
             sys.stdout.write("Done.\n")
 
 
-def check_for_duplicates_in_file(path):
+def check_for_duplicates_in_file(path) -> list:
     """Returns a list of records."""
     with open(path, "r") as f:
         reader = csv.DictReader(f, fieldnames=["local_date", "label", "country"])
@@ -59,7 +59,7 @@ def check_for_duplicates_in_file(path):
     return recs
 
 
-def import_file(path, recs, model_cls):
+def import_file(path: str, recs: list, model_cls: Holiday):
     with open(path, "r") as f:
         reader = csv.DictReader(f, fieldnames=["local_date", "label", "country"])
         for index, row in tqdm(enumerate(reader), total=len(recs)):
