@@ -4,8 +4,10 @@ from collections import namedtuple
 
 from django.conf import settings
 from django.core.checks import Error, Warning
+from django.core.exceptions import ImproperlyConfigured
 from django.core.management import color_style
 
+from .blinding import get_unblinded_users, trial_is_blinded
 from .site_randomizers import site_randomizers
 
 err = namedtuple("Err", "id cls")
@@ -21,14 +23,15 @@ style = color_style()
 def blinded_trial_settings_check(app_configs, **kwargs) -> list:
     errors = []
     error = error_configs.get("blinded_trial_settings_check")
-    blinded_trial = getattr(settings, "EDC_RANDOMIZATION_BLINDED_TRIAL", None)
-    unblinded_users = getattr(settings, "EDC_RANDOMIZATION_UNBLINDED_USERS", None)
-    if not blinded_trial and unblinded_users:
-        error_msg = (
-            "Trial is not a blinded trial but users are listed as unblinded. "
-            "See EDC_RANDOMIZATION_UNBLINDED_USERS"
-        )
-        errors.append(error.cls(error_msg, hint=None, obj=None, id=error.id))
+    if not trial_is_blinded():
+        try:
+            get_unblinded_users()
+        except ImproperlyConfigured:
+            error_msg = (
+                "Trial is not a blinded trial but users are listed as unblinded. "
+                "See EDC_RANDOMIZATION_UNBLINDED_USERS"
+            )
+            errors.append(error.cls(error_msg, hint=None, obj=None, id=error.id))
     return errors
 
 
