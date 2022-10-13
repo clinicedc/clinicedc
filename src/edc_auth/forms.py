@@ -5,8 +5,8 @@ from django.utils.html import format_html
 from edc_notification.utils import get_email_enabled
 from edc_randomization.auth_objects import RANDO_UNBLINDED
 from edc_randomization.blinding import (
-    is_blinded_user,
     raise_if_prohibited_from_unblinded_rando_group,
+    user_is_blinded,
 )
 
 from .models import UserProfile
@@ -60,7 +60,7 @@ class UserProfileForm(forms.ModelForm):
             for role in qs:
                 if RANDO_UNBLINDED in [
                     obj.name for obj in role.groups.all()
-                ] and is_blinded_user(self.instance.user.username):
+                ] and user_is_blinded(self.instance.user.username):
                     raise forms.ValidationError(
                         {
                             "roles": format_html(
