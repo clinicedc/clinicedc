@@ -5,7 +5,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
-from django.conf import settings
+from edc_facility.utils import get_default_facility_name, get_facility
 from edc_utils import to_utc
 
 from .window_period import WindowPeriod
@@ -152,7 +152,7 @@ class Visit:
         )
         self.title = title or f"Visit {self.code}"
         self.name = self.code
-        self.facility_name = facility_name or settings.EDC_FACILITY_DEFAULT_FACILITY_NAME
+        self.facility_name = facility_name or get_default_facility_name()
         self.allow_unscheduled = allow_unscheduled
         if timepoint is None:
             raise VisitError(f"Timepoint not specified. Got None. See Visit {code}.")
@@ -234,8 +234,7 @@ class Visit:
     def facility(self) -> Facility | None:
         """Returns a Facility object."""
         if self.facility_name:
-            app_config = django_apps.get_app_config("edc_facility")
-            return app_config.get_facility(name=self.facility_name)
+            return get_facility(name=self.facility_name)
         return None
 
     @property

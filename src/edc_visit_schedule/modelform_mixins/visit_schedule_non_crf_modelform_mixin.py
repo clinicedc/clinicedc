@@ -51,7 +51,7 @@ class VisitScheduleNonCrfModelFormMixin:
             else:
                 raise VisitScheduleNonCrfModelFormMixinError(
                     "Unable to determine `visit schedule`. "
-                    f"See model and modeform for {self._meta.model}."
+                    f"See model and modelform for {self._meta.model}."
                 )
         return visit_schedule
 
