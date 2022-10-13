@@ -1,15 +1,13 @@
 from datetime import date
-from typing import List
-from zoneinfo import ZoneInfo
 
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Model, QuerySet
+from django.db.models import QuerySet
+from edc_utils.date import to_local
 
-
-class HolidayError(Exception):
-    pass
+from .exceptions import HolidayError
+from .holidays_disabled import holidays_disabled
 
 
 class Holidays:
@@ -43,7 +41,7 @@ class Holidays:
         return self.holidays.count()
 
     @property
-    def country(self) -> Model:
+    def country(self) -> str:
         if not self._country:
             self._country = self.site_model_cls.objects.get_current().siteprofile.country
             if not self._country:
@@ -54,21 +52,26 @@ class Holidays:
         return self._country
 
     @property
-    def local_dates(self) -> List[date]:
+    def local_dates(self) -> list[date]:
         return [obj.local_date for obj in self.holidays]
 
     @property
     def holidays(self) -> QuerySet:
         """Returns a holiday model instance for this country."""
         if not self._holidays:
-            self._holidays = self.model_cls.objects.filter(country=self.country)
-            if not self._holidays:
-                raise HolidayError(f"No holidays found for '{self.country}. See {self.model}.")
+            if holidays_disabled():
+                self._holidays = self.model_cls.objects.none()
+            else:
+                self._holidays = self.model_cls.objects.filter(country=self.country)
+                if not self._holidays:
+                    raise HolidayError(
+                        f"No holidays found for '{self.country}. See {self.model}."
+                    )
         return self._holidays
 
     def is_holiday(self, utc_datetime=None) -> bool:
         """Returns True if the UTC datetime is a holiday."""
-        local_date = utc_datetime.astimezone(ZoneInfo(settings.TIME_ZONE)).date()
+        local_date = to_local(utc_datetime).date()
         try:
             self.model_cls.objects.get(country=self.country, local_date=local_date)
         except ObjectDoesNotExist:

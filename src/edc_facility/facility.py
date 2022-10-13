@@ -1,7 +1,8 @@
-from collections import OrderedDict
+from __future__ import annotations
+
 from datetime import datetime
 from operator import methodcaller
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, List, Tuple, Union
 from zoneinfo import ZoneInfo
 
 import arrow
@@ -9,13 +10,10 @@ from arrow import Arrow
 from dateutil._common import weekday
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
-from edc_utils import convert_php_dateformat, get_utcnow
+from edc_utils import convert_php_dateformat, get_utcnow, to_utc
 
+from .exceptions import FacilityError
 from .holidays import Holidays
-
-
-class FacilityError(Exception):
-    pass
 
 
 class Facility:
@@ -33,13 +31,18 @@ class Facility:
 
     def __init__(
         self,
-        name: Optional[str] = None,
-        days: Optional[List[Union[str, Any]]] = None,
-        slots: Optional[List[int]] = None,
-        best_effort_available_datetime: Optional[datetime] = None,
+        name: str = None,
+        days: list = None,
+        slots: list[int] = None,
+        best_effort_available_datetime: datetime | None = None,
     ):
         self.days = []
         self.name = name
+        if not name:
+            raise FacilityError(f"Name cannot be None. See {repr(self)}")
+        self.best_effort_available_datetime = (
+            True if best_effort_available_datetime is None else best_effort_available_datetime
+        )
         for day in days:
             try:
                 day.weekday
@@ -47,13 +50,8 @@ class Facility:
                 day = weekday(day)
             self.days.append(day)
         self.slots = slots or [99999 for _ in self.days]
-        self.config = OrderedDict(zip([str(d) for d in self.days], self.slots))
+        self.config = dict(zip([str(d) for d in self.days], self.slots))
         self.holidays = self.holiday_cls()
-        if not name:
-            raise FacilityError(f"Name cannot be None. See {repr(self)}")
-        self.best_effort_available_datetime = (
-            True if best_effort_available_datetime is None else best_effort_available_datetime
-        )
 
     def __repr__(self):
         return f"{self.__class__.__name__}(name={self.name}, days={self.days})"
@@ -72,7 +70,7 @@ class Facility:
         return slots_per_day
 
     @property
-    def weekdays(self) -> List[int]:
+    def weekdays(self) -> list[int]:
         return [d.weekday for d in self.days]
 
     @staticmethod
@@ -84,8 +82,8 @@ class Facility:
         """
         return arr
 
-    def is_holiday(self, arr_utc=None) -> bool:
-        return self.holidays.is_holiday(utc_datetime=arr_utc.datetime)
+    def is_holiday(self, dt: datetime) -> bool:
+        return self.holidays.is_holiday(utc_datetime=to_utc(dt))
 
     def available_datetime(self, **kwargs) -> datetime:
         return self.available_arr(**kwargs).datetime
@@ -162,7 +160,7 @@ class Facility:
             if arr.date().weekday() in self.weekdays and (
                 min_arr.date() <= arr.date() < max_arr.date()
             ):
-                is_holiday = False if schedule_on_holidays else self.is_holiday(arr)
+                is_holiday = False if schedule_on_holidays else self.is_holiday(arr.datetime)
                 if (
                     not is_holiday
                     and arr.date() not in [a.date() for a in taken_arr]

@@ -1,20 +1,13 @@
 import sys
-from warnings import warn
 
 from django.apps import AppConfig as DjangoAppConfig
-from django.conf import settings
 from django.core.checks.registry import register
 from django.core.management.color import color_style
 
-from .default_definitions import default_definitions
-from .facility import Facility, FacilityError
 from .system_checks import holiday_country_check, holiday_path_check
+from .utils import get_facilities
 
 style = color_style()
-
-
-def get_definitions():
-    return getattr(settings, "EDC_FACILITY_DEFINITIONS", default_definitions)
 
 
 class AppConfig(DjangoAppConfig):
@@ -22,7 +15,6 @@ class AppConfig(DjangoAppConfig):
     name = "edc_facility"
     verbose_name = "Edc Facility"
     include_in_administration_section = True
-    definitions = get_definitions()
 
     def ready(self):
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
@@ -33,34 +25,6 @@ class AppConfig(DjangoAppConfig):
             sys.stdout.write(
                 style.NOTICE(" * not registering system checks for migrations.\n")
             )
-        for facility in self.facilities.values():
+        for facility in get_facilities().values():
             sys.stdout.write(f" * {facility}.\n")
         sys.stdout.write(f" Done loading {self.verbose_name}.\n")
-
-    @property
-    def facilities(self):
-        """Returns a dictionary of facilities."""
-        if self.definitions == default_definitions:
-            try:
-                warn_user = not settings.EDC_FACILITY_USE_DEFAULTS
-            except AttributeError:
-                warn_user = True
-            if warn_user:
-                warn(
-                    f"Facility definitions not defined. See {self.name} "
-                    "app_config.definitions. Using defaults. "
-                    "To silence, set EDC_FACILITY_USE_DEFAULTS=True in settings."
-                )
-        return {k: Facility(name=k, **v) for k, v in self.definitions.items()}
-
-    def get_facility(self, name=None):
-        """Returns a facility instance for this name
-        if it exists.
-        """
-        facility = self.facilities.get(name)
-        if not facility:
-            raise FacilityError(
-                f"Facility '{name}' does not exist. Expected one "
-                f"of {self.facilities}. See {repr(self)}.definitions"
-            )
-        return facility
