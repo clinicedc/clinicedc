@@ -5,31 +5,26 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin import sites
 from django.core.exceptions import ObjectDoesNotExist
-from edc_randomization.blinding import is_blinded_user
 from edc_randomization.site_randomizers import site_randomizers
 
 from .auth_objects import EXPORT
 from .model_options import ModelOptions
 
 
-def is_randomization_list_model(model=None, user=None):
-    """Returns True if user has permission to access
-    randomization list models."""
-    is_randomization_list_model = False
+def is_randomization_list_model(model=None) -> bool:
+    """Returns True if model is a randomization list model."""
     for randomizer in site_randomizers._registry.values():
         if (
             model._meta.label_lower == randomizer.model
             or model._meta.label_lower
             == randomizer.model_cls().history.model._meta.label_lower
         ):
-            if is_blinded_user(user.username):
-                is_randomization_list_model = True
-                break
-    return is_randomization_list_model
+            return True
+    return False
 
 
 class Exportable(OrderedDict):
-    def __init__(self, app_config=None, user=None):
+    def __init__(self, app_config=None):
         super().__init__()
         self._inlines = {}
         self.app_config = app_config
@@ -39,7 +34,7 @@ class Exportable(OrderedDict):
         self.name = app_config.name
         self.verbose_name = app_config.verbose_name
         for model in app_config.get_models():
-            if is_randomization_list_model(model=model, user=user):
+            if is_randomization_list_model(model=model):
                 continue
             model_opts = ModelOptions(model=model._meta.label_lower)
             if model_opts.is_historical:
@@ -110,7 +105,7 @@ class Exportables(OrderedDict):
             messages.error(request, "You do not have sufficient permissions to export data.")
         else:
             for app_config in app_configs:
-                self.update({app_config.name: Exportable(app_config=app_config, user=user)})
+                self.update({app_config.name: Exportable(app_config=app_config)})
 
     def get_app_configs(self):
         """Returns a list of app_configs with exportable data."""
