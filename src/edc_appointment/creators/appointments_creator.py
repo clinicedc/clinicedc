@@ -4,9 +4,9 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
-from django.apps import apps as django_apps
 from django.db.models.deletion import ProtectedError
-from edc_facility import FacilityError
+from edc_facility.exceptions import FacilityError
+from edc_facility.utils import get_facility
 
 from .appointment_creator import AppointmentCreator, CreateAppointmentError
 
@@ -52,7 +52,6 @@ class AppointmentsCreator:
         Timepoint datetimes are adjusted according to the available
         days in the facility.
         """
-        app_config = django_apps.get_app_config("edc_facility")
         appointments = []
         taken_datetimes = taken_datetimes or []
         base_appt_datetime = (base_appt_datetime or self.report_datetime).astimezone(
@@ -61,7 +60,7 @@ class AppointmentsCreator:
         timepoint_dates = self.schedule.visits.timepoint_dates(dt=base_appt_datetime)
         for visit, timepoint_datetime in timepoint_dates.items():
             try:
-                facility = app_config.get_facility(visit.facility_name)
+                facility = get_facility(visit.facility_name)
             except FacilityError as e:
                 raise CreateAppointmentError(
                     f"{e} See {repr(visit)}. Got facility_name={visit.facility_name}"

@@ -4,11 +4,11 @@ from unittest import skip
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-from django.apps import apps as django_apps
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 from edc_facility.import_holidays import import_holidays
+from edc_facility.utils import get_facility
 from edc_utils import get_utcnow
 from edc_visit_schedule import Schedule, Visit, VisitSchedule, site_visit_schedules
 
@@ -71,8 +71,6 @@ class AppointmentCreatorTestCase(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=self.visit_schedule)
 
-        app_config = django_apps.get_app_config("edc_facility")
-
         self.onschedule = OnSchedule.objects.create(
             subject_identifier=self.subject_identifier,
             onschedule_datetime=get_utcnow() - relativedelta(days=1),
@@ -85,7 +83,7 @@ class AppointmentCreatorTestCase(TestCase):
             subject_identifier = self.subject_identifier
             visit_schedule = self.visit_schedule
             schedule = self.schedule
-            facility = app_config.get_facility(name="7-day-clinic")
+            facility = get_facility(name="7-day-clinic")
             _meta = Meta()
 
         self.model_obj = DummyAppointmentObj()

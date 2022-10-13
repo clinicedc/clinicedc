@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, TypeVar
 
-from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from edc_facility import Facility
+from edc_facility.facility import Facility
+from edc_facility.utils import get_facility
 from edc_visit_tracking.model_mixins import get_related_visit_model_attr
 
 from ..utils import get_next_appointment, get_previous_appointment
@@ -29,8 +29,7 @@ class AppointmentMethodsModelMixin(models.Model):
     @property
     def facility(self: Appointment) -> Facility:
         """Returns the facility instance for this facility name"""
-        app_config = django_apps.get_app_config("edc_facility")
-        return app_config.get_facility(name=self.facility_name)
+        return get_facility(name=self.facility_name)
 
     @property
     def visit_label(self: Appointment) -> str:
