@@ -94,7 +94,7 @@ class Randomizer:
         settings, "EDC_RANDOMIZATION_LIST_PATH", os.path.join(settings.BASE_DIR, ".etc")
     )
     extra_csv_fieldnames: Optional[List[str]] = None
-    is_blinded_trial: bool = True
+    trial_is_blinded: bool = True
     importer_cls: Any = RandomizationListImporter
     apps = None  # if not using django_apps
 

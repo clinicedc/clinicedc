@@ -14,7 +14,7 @@ def get_rando_permissions_tuples() -> list:
         app_label, model = randomizer_cls.model_cls()._meta.label_lower.split(".")
         verbose_name = randomizer_cls.model_cls()._meta.verbose_name
         rando_tuples.append((f"{app_label}.view_{model}", f"Can view {verbose_name}"))
-        if not randomizer_cls.is_blinded_trial:
+        if not randomizer_cls.trial_is_blinded:
             rando_tuples.append(
                 (
                     f"{app_label}.display_{model}",

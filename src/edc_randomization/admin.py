@@ -12,7 +12,7 @@ from edc_protocol import Protocol
 
 from .admin_site import edc_randomization_admin
 from .auth_objects import RANDO_UNBLINDED
-from .blinding import is_blinded_user
+from .blinding import user_is_blinded
 from .site_randomizers import site_randomizers
 
 
@@ -100,8 +100,8 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
             "allocated_site",
             "randomizer_name",
         ]
-        if is_blinded_user(request.user.username) or (
-            not is_blinded_user(request.user.username)
+        if user_is_blinded(request.user.username) or (
+            not user_is_blinded(request.user.username)
             and RANDO_UNBLINDED not in [g.name for g in request.user.groups.all()]
         ):
             list_display.remove("assignment")
@@ -124,8 +124,8 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
             "allocated_site",
             "randomizer_name",
         ]
-        if is_blinded_user(request.user.username) or (
-            not is_blinded_user(request.user.username)
+        if user_is_blinded(request.user.username) or (
+            not user_is_blinded(request.user.username)
             and RANDO_UNBLINDED not in [g.name for g in request.user.groups.all()]
         ):
             fields.remove("assignment")
@@ -144,8 +144,8 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
         ).get_extra_list_filter():
             for pos, fldname in flds:
                 list_filter.insert(pos, fldname)
-        if is_blinded_user(request.user.username) or (
-            not is_blinded_user(request.user.username)
+        if user_is_blinded(request.user.username) or (
+            not user_is_blinded(request.user.username)
             and RANDO_UNBLINDED not in [g.name for g in request.user.groups.all()]
         ):
             list_filter.remove("assignment")
