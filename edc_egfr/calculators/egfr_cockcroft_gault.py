@@ -48,7 +48,17 @@ class EgfrCockcroftGault(BaseEgfr):
             and self.scr.get(MICROMOLES_PER_LITER)
         ):
             gender_factor = 1.05 if self.gender == FEMALE else 1.23
-            return (
-                float(140 - self.age_in_years) * float(self.weight) * float(gender_factor)
-            ) / float(self.scr.get(MICROMOLES_PER_LITER))
-        raise EgfrCalculatorError("Unable to calculate egfr_value. Insufficient information.")
+            adjusted_age = 140.00 - self.age_in_years
+            value = (adjusted_age * self.weight * gender_factor) / float(
+                self.scr.get(MICROMOLES_PER_LITER)
+            )
+            return value
+        opts = dict(
+            gender=self.gender,
+            age_in_years=self.age_in_years,
+            weight=self.weight,
+            scr=self.scr.get(MICROMOLES_PER_LITER),
+        )
+        raise EgfrCalculatorError(
+            f"Unable to calculate egfr_value. Insufficient information. Got {opts}."
+        )
