@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from decimal import Decimal
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models, transaction
 from edc_lab_panel.model_mixin_factory import reportable_result_model_mixin_factory
@@ -7,6 +9,7 @@ from edc_registration.models import RegisteredSubject
 from edc_reportable.units import EGFR_UNITS, PERCENT
 from edc_reportable.utils import get_reference_range_collection_name
 
+from ..calculators import EgfrCalculatorError
 from ..egfr import Egfr
 
 
@@ -41,16 +44,31 @@ class EgfrModelMixin(
     percent_drop_threshold: float = 20.0
     baseline_timepoint: int = 0
     egfr_formula_name: str = None
+    egfr_cls = Egfr
 
     def save(self, *args, **kwargs):
-        egfr = Egfr(**self.egfr_options)
-        self.egfr_value = egfr.egfr_value
-        self.egfr_units = egfr.egfr_units
-        self.egfr_grade = egfr.egfr_grade
-        self.egfr_drop_value = egfr.egfr_drop_value
-        self.egfr_drop_units = egfr.egfr_drop_units
-        self.egfr_drop_grade = egfr.egfr_drop_grade
+        self.set_egfr_value_or_raise()
         super().save(*args, **kwargs)
+
+    def set_egfr_value_or_raise(self) -> None:
+        egfr = self.egfr_cls(**self.egfr_options)
+        try:
+            self.egfr_value = egfr.egfr_value
+        except EgfrCalculatorError:
+            if self.creatinine_value:
+                raise
+            self.egfr_value = None
+            self.egfr_units = None
+            self.egfr_grade = None
+            self.egfr_drop_value = None
+            self.egfr_drop_units = None
+            self.egfr_drop_grade = None
+        else:
+            self.egfr_units = egfr.egfr_units
+            self.egfr_grade = egfr.egfr_grade
+            self.egfr_drop_value = egfr.egfr_drop_value
+            self.egfr_drop_units = egfr.egfr_drop_units
+            self.egfr_drop_grade = egfr.egfr_drop_grade
 
     @property
     def egfr_options(self) -> dict:
@@ -62,6 +80,7 @@ class EgfrModelMixin(
             dob=rs.dob,
             gender=rs.gender,
             ethnicity=rs.ethnicity,
+            weight_in_kgs=self.get_weight_in_kgs_for_egfr(),
             percent_drop_threshold=self.percent_drop_threshold,
             value_threshold=45.0000,
             report_datetime=self.report_datetime,
@@ -92,6 +111,9 @@ class EgfrModelMixin(
             except ObjectDoesNotExist:
                 pass
         return egfr_value
+
+    def get_weight_in_kgs_for_egfr(self) -> Decimal | None:
+        return None
 
     class Meta:
         abstract = True
