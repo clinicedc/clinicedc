@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from uuid import uuid4
 
+from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.conf import settings
 from edc_utils import get_utcnow
@@ -19,6 +21,17 @@ class Helper:
         self.now = now or get_utcnow()
 
     @property
+    def screening_model_cls(self):
+        """Returns a screening model class.
+
+        Defaults to edc_appointment.subjectscreening
+        """
+        try:
+            return django_apps.get_model(settings.SUBJECT_SCREENING_MODEL)
+        except LookupError:
+            return django_apps.get_model("edc_appointment_app.subjectscreening")
+
+    @property
     def consent_model_cls(self):
         """Returns a consent model class.
 
@@ -34,10 +47,19 @@ class Helper:
         subject_identifier=None,
         visit_schedule_name=None,
         schedule_name=None,
+        age_in_years=None,
     ):
         subject_identifier = subject_identifier or self.subject_identifier
+        self.screening_model_cls.objects.create(
+            subject_identifier=subject_identifier,
+            report_datetime=self.now,
+            screening_identifier=uuid4(),
+            age_in_years=age_in_years or 25,
+        )
         subject_consent = self.consent_model_cls.objects.create(
-            subject_identifier=subject_identifier, consent_datetime=self.now
+            subject_identifier=subject_identifier,
+            consent_datetime=self.now,
+            dob=self.now - relativedelta(years=age_in_years or 25),
         )
         visit_schedule = site_visit_schedules.get_visit_schedule(
             visit_schedule_name or "visit_schedule1"
