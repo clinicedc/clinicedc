@@ -33,13 +33,14 @@ class TestAdherence(TestCase):
         self.subject_identifier = "1234"
         self.helper = Helper(subject_identifier=self.subject_identifier)
         self.helper.consent_and_put_on_schedule(
-            visit_schedule_name="visit_schedule", schedule_name="schedule"
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
+            age_in_years=25,
         )
         appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
         self.subject_visit = SubjectVisit.objects.create(appointment=appointments[0])
 
     def test_ok(self):
-
         opts = dict(
             visual_score_slider=90,
             visual_score_confirmed=90,
@@ -48,11 +49,9 @@ class TestAdherence(TestCase):
             pill_count=30,
             other_missed_pill_reason=None,
         )
-
         obj = MedicationAdherence(subject_visit=self.subject_visit, **opts)
         obj.save()
         obj.delete()
-
         opts = dict(
             visual_score_slider=90,
             visual_score_confirmed=90,
