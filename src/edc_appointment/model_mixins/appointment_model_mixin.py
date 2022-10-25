@@ -20,7 +20,7 @@ from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 from edc_visit_schedule.subject_schedule import NotOnScheduleError
 from edc_visit_schedule.utils import is_baseline
 
-from ..constants import IN_PROGRESS_APPT
+from ..constants import CANCELLED_APPT, IN_PROGRESS_APPT
 from ..exceptions import AppointmentDatetimeError, UnknownVisitCode
 from ..managers import AppointmentManager
 from ..utils import update_appt_status
@@ -151,7 +151,7 @@ class AppointmentModelMixin(
         return self.pk
 
     def validate_appt_datetime_not_after_next(self) -> None:
-        if self.appt_datetime and self.relative_next:
+        if self.appt_status != CANCELLED_APPT and self.appt_datetime and self.relative_next:
             if self.appt_datetime >= self.relative_next.appt_datetime:
                 appt_datetime = formatted_datetime(self.appt_datetime)
                 next_appt_datetime = formatted_datetime(self.relative_next.appt_datetime)
