@@ -1,4 +1,1 @@
-class SiteModelFormMixin:
-    def clean(self):
-        cleaned_data = super().clean()
-        return cleaned_data
+from .modelform_mixins import SiteModelFormMixin  # noqa
