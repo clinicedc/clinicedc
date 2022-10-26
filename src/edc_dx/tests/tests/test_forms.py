@@ -18,6 +18,9 @@ class DiagnosisFormValidator(CrfFormValidatorMixin, DiagnosisFormValidatorMixin)
                 label=label,
             )
 
+    def get_consent_for_period_or_raise(self):
+        pass
+
 
 class MyModel:
     @classmethod
