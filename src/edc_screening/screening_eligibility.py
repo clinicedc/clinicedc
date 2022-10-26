@@ -92,11 +92,11 @@ class ScreeningEligibility:
         """Override to add additional assessments after the default
         assessment is complete.
 
-        Will only run if the default assessment returns is eligible
+        Will only run if the default assessment returns `is eligible`
         """
         pass
 
-    def get_required_fields(self) -> dict[str, FC]:
+    def get_required_fields(self) -> dict[str, FC | None]:
         """Returns a dict of {field_name: FC(value, msg), ...} needed
         to determine eligibility.
 
@@ -175,6 +175,7 @@ class ScreeningEligibility:
 
     def set_fld_attrs_on_self(self) -> None:
         """Adds fld attrs from the model / cleaned_data to self"""
+
         for fldattr in self.get_required_fields():
             try:
                 getattr(self, fldattr)
@@ -204,7 +205,7 @@ class ScreeningEligibility:
     def get_missing_data(self) -> dict:
         missing_responses = {}
         for fldattr, fc in self.get_required_fields().items():
-            if not fc.ignore_if_missing:
+            if fc and not fc.ignore_if_missing:
                 value = getattr(self, fldattr)
                 if value:
                     if fc.missing_value and value == fc.missing_value:
