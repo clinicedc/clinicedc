@@ -1,3 +1,7 @@
+from importlib.metadata import version
+
+__version__ = version("edc_pdutils")
+
 from .column_handlers import ColumnApply, ColumnMap
 from .constants import SYSTEM_COLUMNS
 from .database import Database
