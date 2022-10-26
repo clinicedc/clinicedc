@@ -1,6 +1,11 @@
-from typing import List, Optional, Tuple
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Tuple
 
 from django_audit_fields import audit_fieldset_tuple
+
+if TYPE_CHECKING:
+    from edc_lab import RequisitionPanel
 
 panel_conclusion_fieldset: Tuple[str, dict] = (
     "Conclusion",
@@ -39,12 +44,13 @@ class BloodResultFieldset:
 
     def __init__(
         self,
-        panel,
-        title=None,
-        model_cls=None,
-        extra_fieldsets: Optional[List[Tuple[int, Tuple[str, dict]]]] = None,
-        excluded_utest_ids=None,
-        exclude_units=None,
+        panel: RequisitionPanel,
+        title: str = None,
+        model_cls: Any = None,
+        extra_fieldsets: list[Tuple[int, Tuple[str, dict]]] | None = None,
+        excluded_utest_ids: list[str] = None,
+        exclude_units: bool = None,
+        exclude_reportable: bool = None,
     ):
         self.panel = panel
         self.title = title or panel.name
@@ -52,6 +58,7 @@ class BloodResultFieldset:
         self.extra_fieldsets = extra_fieldsets
         self.excluded_utest_ids = excluded_utest_ids or []
         self.exclude_units = exclude_units
+        self.exclude_reportable = exclude_reportable
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.panel})"
@@ -65,22 +72,18 @@ class BloodResultFieldset:
             (None, {"fields": ("subject_visit", "report_datetime")}),
             (self.title, {"fields": ["requisition", "assay_datetime"]}),
         ]
-        for item in self.panel.utest_ids:
-            if item in self.excluded_utest_ids:
+        for utest_id in self.panel.utest_ids:
+            if utest_id in self.excluded_utest_ids:
                 continue
-            try:
-                code, title = item
-            except ValueError:
-                code = item
+            if isinstance(utest_id, (tuple,)):
+                code, title = utest_id
+            else:
+                code = utest_id
                 title = code.upper()
             fieldsets.append(self.get_panel_item_fieldset(code, title=title))
-        fieldsets.extend(
-            [
-                panel_conclusion_fieldset,
-                panel_summary_fieldset,
-                audit_fieldset_tuple,
-            ]
-        )
+        if not self.exclude_reportable:
+            fieldsets.extend([panel_conclusion_fieldset, panel_summary_fieldset])
+        fieldsets.append(audit_fieldset_tuple)
         for pos, fieldset in self.extra_fieldsets or []:
             if pos < 0:
                 fieldsets.append(fieldset)
@@ -94,9 +97,15 @@ class BloodResultFieldset:
         model_fields = [
             f"{code}_value",
             f"{code}_units",
-            f"{code}_abnormal",
-            f"{code}_reportable",
         ]
+        if not self.exclude_reportable:
+            model_fields.extend(
+                [
+                    f"{code}_abnormal",
+                    f"{code}_reportable",
+                ]
+            )
+
         if self.exclude_units:
             model_fields.remove(f"{code}_units")
         if self.model_cls:

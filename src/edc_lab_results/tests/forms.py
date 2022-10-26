@@ -12,9 +12,17 @@ from .models import BloodResultsFbc, BloodResultsHba1c
 class BloodResultsFbcFormValidator(BloodResultsFormValidatorMixin, CrfFormValidator):
     panel = fbc_panel
 
+    def validate_demographics(self) -> None:
+        """Skip for tests"""
+        pass
+
 
 class BloodResultsHba1cFormValidator(BloodResultsFormValidatorMixin, CrfFormValidator):
     panel = hba1c_panel
+
+    def validate_demographics(self) -> None:
+        """Skip for tests"""
+        pass
 
 
 class BloodResultsFbcForm(ActionItemFormMixin, CrfModelFormMixin, forms.ModelForm):
