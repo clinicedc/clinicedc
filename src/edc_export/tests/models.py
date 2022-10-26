@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models.deletion import PROTECT
 from django_crypto_fields.fields import EncryptedCharField
 from edc_constants.constants import YES
+from edc_crf.model_mixins import CrfWithActionModelMixin
 from edc_identifier.managers import SubjectIdentifierManager
 from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
 from edc_lab.model_mixins import RequisitionModelMixin
@@ -16,7 +17,10 @@ from edc_visit_schedule.model_mixins.off_schedule_model_mixin import (
     OffScheduleModelMixin,
 )
 from edc_visit_schedule.model_mixins.on_schedule_model_mixin import OnScheduleModelMixin
-from edc_visit_tracking.model_mixins import VisitModelMixin
+from edc_visit_tracking.model_mixins import (
+    SubjectVisitMissedModelMixin,
+    VisitModelMixin,
+)
 
 from ..managers import ExportHistoryManager
 from ..model_mixins import ExportTrackingFieldsModelMixin
@@ -30,6 +34,30 @@ class SubjectVisit(VisitModelMixin, BaseUuidModel):
 
     class Meta:
         ordering = ["report_datetime"]
+
+
+class SubjectVisitMissedReasons(ListModelMixin):
+    class Meta(ListModelMixin.Meta):
+        verbose_name = "Subject Missed Visit Reasons"
+        verbose_name_plural = "Subject Missed Visit Reasons"
+
+
+class SubjectVisitMissed(
+    SubjectVisitMissedModelMixin,
+    CrfWithActionModelMixin,
+    BaseUuidModel,
+):
+
+    missed_reasons = models.ManyToManyField(
+        SubjectVisitMissedReasons, blank=True, related_name="+"
+    )
+
+    class Meta(
+        SubjectVisitMissedModelMixin.Meta,
+        BaseUuidModel.Meta,
+    ):
+        verbose_name = "Missed Visit Report"
+        verbose_name_plural = "Missed Visit Report"
 
 
 class SubjectConsent(BaseUuidModel, SiteModelMixin, UniqueSubjectIdentifierModelMixin):

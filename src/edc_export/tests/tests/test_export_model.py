@@ -6,7 +6,7 @@ from time import sleep
 from unittest.case import skip
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
 from edc_pdutils.model_to_dataframe import ValueGetterInvalidLookup
 from edc_utils import get_utcnow
@@ -125,7 +125,6 @@ class TestExportModel(TestCase):
         for i, name in enumerate(model_exporter.audit_fields):
             self.assertEqual(name, model_exporter.field_names[i])
 
-    @tag("1")
     def test_with_queryset(self):
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(
