@@ -11,6 +11,7 @@ from .requisition import (
     RequisitionIdentifierMixin,
     RequisitionModelMixin,
     RequisitionStatusMixin,
+    requisition_fk_options,
 )
 from .result import ResultItemModelMixin, ResultModelMixin
 from .shipping import ManifestModelMixin, VerifyBoxModelMixin, VerifyModelMixin

@@ -6,20 +6,23 @@ from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
+from edc_crf.modelform_mixins import RequisitionModelFormMixin
 from edc_facility.import_holidays import import_holidays
-from edc_form_validators import FormValidator, FormValidatorMixin
+from edc_form_validators import FormValidator
 from edc_sites import add_or_update_django_sites
 from edc_sites.single_site import SingleSite
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
-from edc_lab.form_validators import RequisitionFormValidator
-from edc_lab.forms import BoxForm, BoxTypeForm, ManifestForm, RequisitionFormMixin
+from edc_lab.form_validators import (
+    RequisitionFormValidator as BaseRequisitionFormValidator,
+)
+from edc_lab.forms import BoxForm, BoxTypeForm, ManifestForm
 from edc_lab.models import Aliquot
 
 from ...form_validators.requisition_form_validator import RequisitionFormValidatorMixin
-from ..models import SubjectConsent, SubjectRequisition, SubjectVisit
+from ..models import SubjectConsent, SubjectRequisition, SubjectScreening, SubjectVisit
 from ..site_labs_test_helper import SiteLabsTestHelper
 from ..visit_schedules import visit_schedule
 
@@ -195,9 +198,16 @@ class TestForms2(TestCase):
         site_visit_schedules.register(visit_schedule)
         self.lab_helper.setup_site_labs()
 
-        class RequisitionForm(RequisitionFormMixin, FormValidatorMixin, forms.ModelForm):
+        class RequisitionFormValidator(BaseRequisitionFormValidator):
+            def validate_demographics(self):
+                pass
+
+        class RequisitionForm(RequisitionModelFormMixin, forms.ModelForm):
 
             form_validator_cls = RequisitionFormValidator
+
+            def validate_against_consent(self):
+                pass
 
             class Meta:
                 fields = "__all__"
@@ -213,9 +223,17 @@ class TestForms2(TestCase):
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
         )
+        SubjectScreening.objects.create(
+            subject_identifier=self.subject_identifier,
+            report_datetime=get_utcnow(),
+            age_in_years=25,
+        )
         appointment = Appointment.objects.get(visit_code="1000")
         self.subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+            appointment=appointment,
+            report_datetime=appointment.appt_datetime,
+            reason=SCHEDULED,
+            subject_identifier=self.subject_identifier,
         )
 
     def test_requisition_form_packed_cannot_change(self):
@@ -288,6 +306,7 @@ class TestForms2(TestCase):
 
     def test_requisition_form_cannot_be_changed_if_received(self):
         obj = SubjectRequisition.objects.create(
+            report_datetime=self.subject_visit.report_datetime,
             subject_visit=self.subject_visit,
             panel=self.lab_helper.panel.panel_model_obj,
             received=True,
@@ -300,7 +319,11 @@ class TestForms2(TestCase):
         )
 
     def test_requisition_form_dates(self):
-        class RequisitionForm(RequisitionFormMixin, FormValidatorMixin, forms.ModelForm):
+        class RequisitionFormValidator(BaseRequisitionFormValidator):
+            def validate_demographics(self):
+                pass
+
+        class RequisitionForm(RequisitionModelFormMixin, forms.ModelForm):
 
             form_validator_cls = RequisitionFormValidator
 
@@ -314,8 +337,10 @@ class TestForms2(TestCase):
             "requisition_datetime": self.subject_visit.report_datetime - timedelta(days=3),
             "subject_visit": self.subject_visit.pk,
             "report_datetime": self.subject_visit.report_datetime - timedelta(days=3),
+            "subject_identifier": self.subject_visit.subject_identifier,
+            "panel": self.lab_helper.panel.panel_model_obj,
         }
-        form = RequisitionForm(data=data)
+        form = RequisitionForm(data=data, instance=SubjectRequisition())
         form.is_valid()
         self.assertIn("requisition_datetime", form._errors)
         self.assertIn(
