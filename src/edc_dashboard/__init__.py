@@ -1,3 +1,7 @@
+from importlib.metadata import version
+
+__version__ = version("edc_dashboard")
+
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
