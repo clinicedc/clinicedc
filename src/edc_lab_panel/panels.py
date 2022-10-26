@@ -2,6 +2,7 @@ from edc_lab import RequisitionPanel
 
 from .processing_profiles import (
     blood_glucose_processing,
+    cd4_processing,
     fbc_processing,
     hba1c_processing,
     insulin_processing,
@@ -10,6 +11,7 @@ from .processing_profiles import (
     poc_processing,
     rft_processing,
     sputum_processing,
+    vl_processing,
 )
 
 hba1c_panel = RequisitionPanel(
@@ -61,6 +63,21 @@ blood_glucose_poc_panel = RequisitionPanel(
     abbreviation="BGL-POC",
     processing_profile=poc_processing,
     utest_ids=[("glucose", "Glucose")],
+)
+
+cd4_panel = RequisitionPanel(
+    name="CD4",
+    verbose_name="CD4",
+    abbreviation="CD4",
+    processing_profile=cd4_processing,
+    utest_ids=["cd4"],
+)
+vl_panel = RequisitionPanel(
+    name="viral_load",
+    verbose_name="Viral Load",
+    abbreviation="VL",
+    processing_profile=vl_processing,
+    utest_ids=["vl"],
 )
 
 
