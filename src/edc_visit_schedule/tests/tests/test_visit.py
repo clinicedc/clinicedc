@@ -41,7 +41,6 @@ class TestVisit(TestCase):
         self.assertEqual(visit.title, "Visit 1000")
         self.assertEqual(str(visit), "Visit 1000")
 
-    @tag("2")
     def test_visit_datetime(self):
         visit = Visit(
             code="1000",
@@ -64,7 +63,6 @@ class TestVisit(TestCase):
             datetime(2001, 12, 7, 23, 59, 59, 999999, tzinfo=ZoneInfo("UTC")),
         )
 
-    @tag("2")
     def test_visit_datetime_other_timezone(self):
         visit = Visit(
             code="1000",
