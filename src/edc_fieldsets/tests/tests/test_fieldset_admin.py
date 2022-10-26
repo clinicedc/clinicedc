@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Permission, User
 from django.test import TestCase
 from django.test.client import RequestFactory
+from edc_appointment.constants import SCHEDULED_APPT
 from edc_appointment.models import Appointment
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
@@ -38,6 +39,7 @@ class TestFieldsetAdmin(TestCase):
             visit_code_sequence=0,
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
+            appt_reason=SCHEDULED_APPT,
         )
         subject_visit = SubjectVisit.objects.create(appointment=appointment)
 
@@ -74,6 +76,7 @@ class TestFieldsetAdmin(TestCase):
             visit_code_sequence=0,
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
+            appt_reason=SCHEDULED_APPT,
         )
         SubjectVisit.objects.create(appointment=appointment)
         appointment = Appointment.objects.create(
@@ -84,6 +87,7 @@ class TestFieldsetAdmin(TestCase):
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
             timepoint=1.0,
+            appt_reason=SCHEDULED_APPT,
         )
 
         subject_visit = SubjectVisit.objects.create(appointment=appointment)
@@ -121,6 +125,7 @@ class TestFieldsetAdmin(TestCase):
             visit_code_sequence=0,
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
+            appt_reason=SCHEDULED_APPT,
         )
         SubjectVisit.objects.create(appointment=appointment)
         appointment = Appointment.objects.create(
@@ -131,6 +136,7 @@ class TestFieldsetAdmin(TestCase):
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
             timepoint=1.0,
+            appt_reason=SCHEDULED_APPT,
         )
         subject_visit = SubjectVisit.objects.create(appointment=appointment)
 
