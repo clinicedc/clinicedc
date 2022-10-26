@@ -6,5 +6,5 @@ class SiteModelAdminMixin:
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         form = super().get_form(request, obj=obj, change=change, **kwargs)
-        form.currrent_site = request.site
+        form.currrent_site = getattr(request, "site", None)
         return form
