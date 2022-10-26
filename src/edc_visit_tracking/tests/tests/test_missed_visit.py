@@ -1,5 +1,8 @@
 from dateutil.relativedelta import relativedelta
+from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
+from edc_appointment.constants import MISSED_APPT, ONTIME_APPT, SCHEDULED_APPT
+from edc_appointment.exceptions import AppointmentBaselineError
 from edc_appointment.models import Appointment
 from edc_constants.constants import (
     ALIVE,
@@ -16,9 +19,10 @@ from edc_metadata.models import CrfMetadata
 from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule import Crf, FormsCollection, Schedule, Visit, VisitSchedule
+from edc_visit_schedule.constants import DAY1
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from edc_visit_tracking.constants import MISSED_VISIT
+from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.models import SubjectVisitMissedReasons
 
 from ..forms import SubjectVisitMissedForm
@@ -95,11 +99,47 @@ class TestVisit(TestCase):
         )
 
     @staticmethod
-    def get_subject_visit():
-        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
-        subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, reason=MISSED_VISIT
+    def get_subject_visit(
+        visit_code=None,
+        visit_code_sequence=None,
+        appt_timing=None,
+        visit_reason=None,
+    ):
+
+        appt_timing = appt_timing or ONTIME_APPT
+        if visit_reason == MISSED_VISIT:
+            appt_timing = MISSED_APPT
+        visit_code = visit_code or DAY1
+        visit_code_sequence = 0 if visit_code_sequence is None else visit_code_sequence
+        if not visit_reason:
+            if visit_code_sequence > 0:
+                visit_reason = UNSCHEDULED
+            else:
+                visit_reason = MISSED_VISIT if appt_timing == MISSED_APPT else SCHEDULED_APPT
+        appointment = Appointment.objects.get(
+            visit_code=visit_code,
+            visit_code_sequence=visit_code_sequence,
         )
+        appointment.appt_timing = appt_timing
+        appointment.save()
+        opts = dict(
+            appointment=appointment,
+            report_datetime=appointment.appt_datetime,
+            reason=visit_reason,
+            visit_code=visit_code,
+            visit_code_sequence=visit_code_sequence,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+        )
+        try:
+            subject_visit = SubjectVisit.objects.get(appointment=appointment)
+        except ObjectDoesNotExist:
+            subject_visit = SubjectVisit.objects.create(**opts)
+        else:
+            for k, v in opts.items():
+                setattr(subject_visit, k, v)
+            subject_visit.save()
+            subject_visit.refresh_from_db()
         return appointment, subject_visit
 
     @override_settings(
@@ -107,7 +147,15 @@ class TestVisit(TestCase):
     )
     def test_(self):
         self.helper.consent_and_put_on_schedule()
-        appointment, subject_visit = self.get_subject_visit()
+        # baseline
+        appointment, _ = self.get_subject_visit(appt_timing=ONTIME_APPT)
+        appointment = appointment.next
+        appointment.appt_timing = MISSED_APPT
+        appointment.save()
+        appointment.refresh_from_db()
+        appointment, subject_visit = self.get_subject_visit(
+            appt_timing=MISSED_APPT, visit_code=appointment.visit_code
+        )
         opts = dict(
             visit_schedule_name=appointment.visit_schedule_name,
             schedule_name=appointment.schedule_name,
@@ -118,6 +166,75 @@ class TestVisit(TestCase):
         subject_visit.reason = MISSED_VISIT
         subject_visit.save()
         self.assertEqual(1, CrfMetadata.objects.filter(**opts).count())
+
+    @override_settings(
+        SUBJECT_MISSED_VISIT_REASONS_MODEL="edc_visit_tracking.subjectvisitmissed"
+    )
+    def test_baseline_appt_can_never_be_missed(self):
+        self.helper.consent_and_put_on_schedule()
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
+        appointment.appt_timing = MISSED_APPT
+        self.assertRaises(AppointmentBaselineError, appointment.save)
+
+    @override_settings(
+        SUBJECT_MISSED_VISIT_REASONS_MODEL="edc_visit_tracking.subjectvisitmissed"
+    )
+    def test_baseline_visit_can_never_be_missed(self):
+        self.helper.consent_and_put_on_schedule()
+        self.assertRaises(
+            AppointmentBaselineError, self.get_subject_visit, visit_reason=MISSED_VISIT
+        )
+
+    @override_settings(
+        SUBJECT_MISSED_VISIT_REASONS_MODEL="edc_visit_tracking.subjectvisitmissed"
+    )
+    def test_missed_appt_updates_subject_visit_as_missed(self):
+        self.helper.consent_and_put_on_schedule()
+        appointment, _ = self.get_subject_visit()
+        appointment = appointment.next
+        appointment.appt_timing = ONTIME_APPT
+        appointment, subject_visit = self.get_subject_visit(
+            visit_code=appointment.visit_code, visit_reason=SCHEDULED
+        )
+        self.assertEqual(subject_visit.reason, SCHEDULED)
+        appointment.appt_timing = MISSED_APPT
+        appointment.save()
+        appointment.refresh_from_db()
+        self.assertEqual(appointment.visit_code, "2000")
+        subject_visit.refresh_from_db()
+        self.assertEqual(subject_visit.reason, MISSED_VISIT)
+        self.assertEqual(subject_visit.visit_code, "2000")
+
+    @override_settings(
+        SUBJECT_MISSED_VISIT_REASONS_MODEL="edc_visit_tracking.subjectvisitmissed"
+    )
+    def test_missed_appt_updates_subject_visit_as_missed2(self):
+        self.helper.consent_and_put_on_schedule(
+            consent_datetime=get_utcnow() - relativedelta(months=6)
+        )
+        appointment, _ = self.get_subject_visit()
+        appointment = appointment.next
+        appointment.appt_timing = MISSED_APPT
+        appointment.save()
+        appointment, subject_visit = self.get_subject_visit(
+            visit_code=appointment.visit_code, visit_reason=MISSED_VISIT
+        )
+        data = dict(
+            subject_visit=subject_visit,
+            report_datetime=subject_visit.report_datetime,
+            contact_last_date=subject_visit.report_datetime,
+            survival_status=ALIVE,
+            contact_attempted=YES,
+            contact_made=YES,
+            contact_attempts_count=3,
+            missed_reasons=[SubjectVisitMissedReasons.objects.get(name=HOSPITALIZED)],
+            ltfu=NO,
+        )
+        form = SubjectVisitMissedForm(data=data)
+        form.is_valid()
+        self.assertEqual({}, form._errors)
+
+        form.save(commit=True)
 
     def test_subject_visit_missed_form_survivial_and_ltfu(self):
         self.helper.consent_and_put_on_schedule()
@@ -202,3 +319,37 @@ class TestVisit(TestCase):
         form = SubjectVisitMissedForm(data=data)
         form.is_valid()
         self.assertNotIn("contact_attempts_explained", form._errors)
+
+    def test_baseline_subject_visit_cannot_be_missed(self):
+        self.helper.consent_and_put_on_schedule()
+        self.assertRaises(
+            AppointmentBaselineError, self.get_subject_visit, visit_reason=MISSED_VISIT
+        )
+
+    def test_subject_visit_missed_form(self):
+        self.helper.consent_and_put_on_schedule()
+        _, subject_visit = self.get_subject_visit()
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[1]
+        appointment.appt_timing = MISSED_APPT
+        appointment.save()
+        _, subject_visit = self.get_subject_visit(
+            visit_code=appointment.visit_code,
+            visit_code_sequence=appointment.visit_code_sequence,
+            appt_timing=MISSED_APPT,
+        )
+
+        self.assertEqual(subject_visit.reason, MISSED_VISIT)
+        self.assertEqual(subject_visit.appointment.appt_timing, MISSED_APPT)
+
+        data = dict(
+            subject_visit=subject_visit,
+            report_datetime=subject_visit.report_datetime,
+            survival_status=ALIVE,
+            contact_attempted=NO,
+            contact_made=NOT_APPLICABLE,
+            contact_attempts_count=None,
+            missed_reasons=[SubjectVisitMissedReasons.objects.get(name=HOSPITALIZED)],
+            ltfu=YES,
+        )
+        form = SubjectVisitMissedForm(data=data)
+        form.is_valid()

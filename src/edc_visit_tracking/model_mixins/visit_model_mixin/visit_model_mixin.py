@@ -10,16 +10,13 @@ from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_metadata.model_mixins import MetadataHelperModelMixin
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 
-from edc_visit_tracking.stubs import SubjectVisitModelStub
-
 from ...constants import MISSED_VISIT, NO_FOLLOW_UP_REASONS
 from ...managers import VisitModelManager
-from ...reason_updater import SubjectVisitReasonUpdater
 from .previous_visit_model_mixin import PreviousVisitModelMixin
 from .visit_model_fields_mixin import VisitModelFieldsMixin
 
 
-class SubjectVisitMissedError(Exception):
+class SubjectVisitReasonError(Exception):
     pass
 
 
@@ -60,9 +57,16 @@ class VisitModelMixin(
         self.visit_code_sequence = self.appointment.visit_code_sequence
         self.require_crfs = NO if self.reason == MISSED_VISIT else YES
         if self.appointment.appt_timing == MISSED_APPT and self.reason != MISSED_VISIT:
-            reason_updater = SubjectVisitReasonUpdater(appointment=self.appointment)
-            reason_updater.update_or_raise()
-        super().save(*args, **kwargs)  # type:ignore
+            raise SubjectVisitReasonError(
+                "Invalid. Appointment is missed. Expected visit to be missed also. "
+                f"Got visit.reason=`{self.reason}`. Perhaps catch this in the form."
+            )
+        if self.appointment.appt_timing != MISSED_APPT and self.reason == MISSED_VISIT:
+            raise SubjectVisitReasonError(
+                "Invalid. Appointment is not missed. Did not expected a missed visit. "
+                f"Got visit.reason=`{self.reason}`. Perhaps catch this in the form."
+            )
+        super().save(*args, **kwargs)
 
     def natural_key(self) -> tuple:
         return (
@@ -76,7 +80,7 @@ class VisitModelMixin(
     natural_key.dependencies = ["edc_appointment.appointment"]  # type:ignore
 
     @property
-    def timepoint(self: SubjectVisitModelStub) -> int:
+    def timepoint(self) -> int:
         return self.appointment.timepoint
 
     @staticmethod
@@ -89,7 +93,7 @@ class VisitModelMixin(
             dct.update({item: item})
         return dct
 
-    def check_appointment_in_progress(self: Any) -> None:
+    def check_appointment_in_progress(self) -> None:
         AppointmentStatusUpdater(self.appointment)
 
     class Meta:

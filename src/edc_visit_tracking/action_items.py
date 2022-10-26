@@ -37,3 +37,7 @@ class VisitMissedAction(ActionWithNotification):
             required=self.reference_obj.survival_status == DEAD,
         )
         return next_actions
+
+
+class MissedVisitAction(VisitMissedAction):
+    pass

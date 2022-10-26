@@ -19,13 +19,11 @@ class Helper:
             onschedule_model_name or "edc_visit_tracking.onscheduleone"
         )
 
-    def consent_and_put_on_schedule(
-        self,
-        subject_identifier=None,
-    ):
+    def consent_and_put_on_schedule(self, subject_identifier=None, consent_datetime=None):
         subject_identifier = subject_identifier or self.subject_identifier
+        consent_datetime = consent_datetime or get_utcnow()
         subject_consent = self.subject_consent_model_cls.objects.create(
-            subject_identifier=subject_identifier, consent_datetime=get_utcnow()
+            subject_identifier=subject_identifier, consent_datetime=consent_datetime
         )
         _, schedule = site_visit_schedules.get_by_onschedule_model(self.onschedule_model_name)
         schedule.put_on_schedule(
