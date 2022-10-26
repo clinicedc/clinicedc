@@ -22,14 +22,8 @@ from edc_utils.date import to_local
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_schedule.subject_schedule import NotOnScheduleError
 from edc_visit_schedule.utils import get_onschedule_model_instance
-from edc_visit_tracking.reason_updater import (
-    SubjectVisitReasonUpdater,
-    SubjectVisitReasonUpdaterBaselineError,
-    SubjectVisitReasonUpdaterCrfsExistsError,
-    SubjectVisitReasonUpdaterMissedVisitNotAllowed,
-    SubjectVisitReasonUpdaterRequisitionsExistsError,
-)
 
+from ..appointment_reason_updater import AppointmentReasonUpdater
 from ..constants import (
     CANCELLED_APPT,
     COMPLETE_APPT,
@@ -40,7 +34,14 @@ from ..constants import (
     NEW_APPT,
     UNSCHEDULED_APPT,
 )
-from ..utils import get_previous_appointment
+from ..exceptions import (
+    AppointmentBaselineError,
+    AppointmentReasonUpdaterCrfsExistsError,
+    AppointmentReasonUpdaterError,
+    AppointmentReasonUpdaterRequisitionsExistsError,
+    UnscheduledAppointmentError,
+)
+from ..utils import get_previous_appointment, raise_on_appt_may_not_be_missed
 from .utils import validate_appt_datetime_unique
 from .window_period_form_validator_mixin import WindowPeriodFormValidatorMixin
 
@@ -53,6 +54,7 @@ INVALID_APPT_REASON = "invalid_appt_reason"
 INVALID_PREVIOUS_VISIT_MISSING = "previous_visit_missing"
 INVALID_MISSED_APPT_NOT_ALLOWED = "invalid_missed_appt_not_allowed"
 INVALID_MISSED_APPT_NOT_ALLOWED_AT_BASELINE = "invalid_missed_appt_not_allowed_at_baseline"
+INVALID_APPT_TIMING = "invalid_appt_timing"
 INVALID_APPT_TIMING_CRFS_EXIST = "invalid_appt_timing_crfs_exist"
 INVALID_APPT_TIMING_REQUISITIONS_EXIST = "invalid_appt_timing_requisitions_exist"
 
@@ -243,32 +245,36 @@ class AppointmentFormValidator(
 
         Data is not updated here (commit=False), see the model_mixin save().
         """
-        subject_visit_reason_updater = SubjectVisitReasonUpdater(
-            appointment=self.instance,
-            appt_timing=self.cleaned_data.get("appt_timing"),
-            appt_reason=self.cleaned_data.get("appt_reason"),
-            commit=False,
-        )
         try:
-            subject_visit_reason_updater.update_or_raise()
-        except SubjectVisitReasonUpdaterBaselineError as e:
+            raise_on_appt_may_not_be_missed(
+                appointment=self.instance, appt_timing=self.cleaned_data.get("appt_timing")
+            )
+        except AppointmentBaselineError as e:
             self.raise_validation_error(
                 {"appt_timing": str(e)}, INVALID_MISSED_APPT_NOT_ALLOWED_AT_BASELINE
             )
-        except SubjectVisitReasonUpdaterMissedVisitNotAllowed as e:
+        except UnscheduledAppointmentError as e:
             self.raise_validation_error(
                 {"appt_timing": str(e)}, INVALID_MISSED_APPT_NOT_ALLOWED
             )
 
-        except SubjectVisitReasonUpdaterCrfsExistsError as e:
+        try:
+            AppointmentReasonUpdater(
+                appointment=self.instance,
+                appt_timing=self.cleaned_data.get("appt_timing"),
+                appt_reason=self.cleaned_data.get("appt_reason"),
+                commit=False,
+            )
+        except AppointmentReasonUpdaterCrfsExistsError as e:
             self.raise_validation_error(
                 {"appt_timing": str(e)}, INVALID_APPT_TIMING_CRFS_EXIST
             )
-
-        except SubjectVisitReasonUpdaterRequisitionsExistsError as e:
+        except AppointmentReasonUpdaterRequisitionsExistsError as e:
             self.raise_validation_error(
                 {"appt_timing": str(e)}, INVALID_APPT_TIMING_REQUISITIONS_EXIST
             )
+        except AppointmentReasonUpdaterError as e:
+            self.raise_validation_error({"appt_timing": str(e)}, INVALID_APPT_TIMING)
 
     def validate_appt_datetime_not_after_next_appt_datetime(self: Any) -> None:
         appt_datetime = self.cleaned_data.get("appt_datetime")

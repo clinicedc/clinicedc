@@ -6,8 +6,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from edc_constants.constants import INCOMPLETE
 from edc_visit_tracking.constants import MISSED_VISIT
-from edc_visit_tracking.reason_updater import SubjectVisitReasonUpdater
 
+from ..appointment_reason_updater import AppointmentReasonUpdater
 from ..constants import IN_PROGRESS_APPT, MISSED_APPT
 
 if TYPE_CHECKING:
@@ -36,17 +36,17 @@ class MissedAppointmentModelMixin(models.Model):
         """
         if (
             self.id
+            and self.related_visit
             and self.appt_status == IN_PROGRESS_APPT
             and self.appt_timing
             and self.appt_reason
         ):
-            reason_updater = SubjectVisitReasonUpdater(
+            AppointmentReasonUpdater(
                 appointment=self,
                 appt_timing=self.appt_timing,
                 appt_reason=self.appt_reason,
                 commit=True,
             )
-            reason_updater.update_or_raise()
 
     class Meta:
         abstract = True

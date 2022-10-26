@@ -23,7 +23,7 @@ from edc_visit_schedule.utils import is_baseline
 from ..constants import CANCELLED_APPT, IN_PROGRESS_APPT
 from ..exceptions import AppointmentDatetimeError, UnknownVisitCode
 from ..managers import AppointmentManager
-from ..utils import update_appt_status
+from ..utils import raise_on_appt_may_not_be_missed, update_appt_status
 from .appointment_fields_model_mixin import AppointmentFieldsModelMixin
 from .appointment_methods_model_mixin import AppointmentMethodsModelMixin
 from .missed_appointment_model_mixin import MissedAppointmentModelMixin
@@ -128,6 +128,7 @@ class AppointmentModelMixin(
                     )
             else:
                 self.validate_appt_datetime_not_after_next()
+            raise_on_appt_may_not_be_missed(appointment=self)
             self.update_subject_visit_reason_or_raise()
             if self.appt_status != IN_PROGRESS_APPT and getattr(
                 settings, "EDC_APPOINTMENT_CHECK_APPT_STATUS", True
