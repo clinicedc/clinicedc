@@ -18,5 +18,9 @@ class ScreeningModelMixin(
 
     identifier_cls = ScreeningIdentifier
 
+    # add this to your concrete model if asking for site confirmation
+    # on the screening form to make the field editable.
+    # site = models.ForeignKey(Site, on_delete=models.PROTECT, null=True, related_name="+")
+
     class Meta:
         abstract = True

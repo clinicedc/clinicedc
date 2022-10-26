@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Type
 from django import forms
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
+from edc_consent.utils import get_consent_for_period_or_raise
 
 from .utils import get_subject_screening_model
 
@@ -16,7 +17,14 @@ class SubjectScreeningFormValidatorMixin:
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._subject_screening = None
-        self.screening_identifier = self.cleaned_data.get("screening_identifier")
+
+    @property
+    def screening_identifier(self):
+        return self.cleaned_data.get("screening_identifier")
+
+    @property
+    def report_datetime(self):
+        return self.cleaned_data.get("report_datetime")
 
     @property
     def subject_screening_model(self) -> str:
@@ -39,3 +47,6 @@ class SubjectScreeningFormValidatorMixin:
                     code="missing_subject_screening",
                 )
         return self._subject_screening
+
+    def get_consent_for_period_or_raise(self):
+        return get_consent_for_period_or_raise(self.report_datetime)
