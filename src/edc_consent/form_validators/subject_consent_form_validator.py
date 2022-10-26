@@ -4,11 +4,14 @@ from datetime import datetime
 from typing import Any
 
 from django import forms
+from django.apps import apps as django_apps
 from django.conf import settings
 from edc_screening.form_validator_mixins import SubjectScreeningFormValidatorMixin
 from edc_utils import AgeValueError, age
 from edc_utils.date import to_local, to_utc
 from edc_utils.text import convert_php_dateformat
+
+from ..utils import get_consent_for_period_or_raise
 
 
 class SubjectConsentFormValidatorMixin(SubjectScreeningFormValidatorMixin):
@@ -18,16 +21,39 @@ class SubjectConsentFormValidatorMixin(SubjectScreeningFormValidatorMixin):
     def __init__(self: Any, **kwargs):
         super().__init__(**kwargs)
         self._consent_datetime = None
-        self.dob = self.cleaned_data.get("dob")
-        self.gender = self.cleaned_data.get("gender")
-        self.guardian_name = self.cleaned_data.get("guardian_name")
 
     def _clean(self) -> None:
+        self.validate_demographics()
+        super()._clean()
+
+    @property
+    def gender(self):
+        return self.cleaned_data.get("gender")
+
+    @property
+    def dob(self):
+        return self.cleaned_data.get("dob")
+
+    @property
+    def guardian_name(self):
+        return self.cleaned_data.get("guardian_name")
+
+    @property
+    def consent_model(self):
+        return settings.SUBJECT_CONSENT_MODEL
+
+    @property
+    def consent_model_cls(self):
+        return django_apps.get_model(self.consent_model)
+
+    def get_consent_for_period_or_raise(self):
+        return get_consent_for_period_or_raise(self.consent_datetime)
+
+    def validate_demographics(self) -> None:
         self.validate_consent_datetime()
         self.validate_age()
         self.validate_gender()
         self.validate_identity()
-        super()._clean()
 
     @property
     def consent_datetime(self) -> datetime | None:
@@ -72,6 +98,7 @@ class SubjectConsentFormValidatorMixin(SubjectScreeningFormValidatorMixin):
                     "gender": "Gender mismatch. The gender entered does "
                     f"not match that reported at screening. "
                     f"Expected '{self.subject_screening.get_gender_display()}'. "
+                    f"Got `{self.gender}`."
                 }
             )
 
