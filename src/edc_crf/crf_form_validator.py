@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from edc_appointment.form_validators import WindowPeriodFormValidatorMixin
-from edc_consent.form_validators import ConsentFormValidatorMixin
+from edc_consent.form_validators import SubjectConsentFormValidatorMixin
 from edc_form_validators import INVALID_ERROR, FormValidator
 from edc_registration import get_registered_subject_model_cls
 from edc_utils import floor_secs, formatted_datetime, to_utc
@@ -24,7 +24,7 @@ class CrfFormValidatorError(Exception):
 
 class CrfFormValidator(
     WindowPeriodFormValidatorMixin,
-    ConsentFormValidatorMixin,
+    SubjectConsentFormValidatorMixin,
     CrfFormValidatorMixin,
     FormValidator,
 ):
@@ -38,6 +38,24 @@ class CrfFormValidator(
     def _clean(self) -> None:
         self.validate_crf_report_datetime()
         super()._clean()
+
+    @property
+    def registered_subject(self):
+        return get_registered_subject_model_cls().objects.get(
+            subject_identifier=self.subject_identifier
+        )
+
+    @property
+    def screening_identifier(self) -> str:
+        return self.registered_subject.screening_identifier
+
+    @property
+    def gender(self):
+        return self.registered_subject.gender
+
+    @property
+    def dob(self):
+        return self.registered_subject.dob
 
     def validate_crf_report_datetime(self) -> None:
         if self.report_datetime:
