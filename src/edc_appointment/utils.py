@@ -23,7 +23,12 @@ from .constants import (
     SCHEDULED_APPT,
     UNSCHEDULED_APPT,
 )
-from .exceptions import AppointmentMissingValuesError, AppointmentWindowError
+from .exceptions import (
+    AppointmentBaselineError,
+    AppointmentMissingValuesError,
+    AppointmentWindowError,
+    UnscheduledAppointmentError,
+)
 
 if TYPE_CHECKING:
     from .models import Appointment
@@ -35,6 +40,34 @@ def get_appointment_model_name() -> str:
 
 def get_appointment_model_cls() -> Appointment:
     return django_apps.get_model(get_appointment_model_name())
+
+
+def get_allow_missed_unscheduled_appts() -> bool:
+    """Returns value of settings attr or False"""
+    return getattr(settings, "EDC_VISIT_TRACKING_ALLOW_MISSED_UNSCHEDULED", False)
+
+
+def raise_on_appt_may_not_be_missed(
+    appointment: Appointment = None,
+    appt_timing: str | None = None,
+):
+    if appointment.id:
+        appt_timing = appt_timing or appointment.appt_timing
+        if appt_timing and appt_timing == MISSED_APPT and is_baseline(instance=appointment):
+            raise AppointmentBaselineError(
+                "Invalid. A baseline appointment may not be reported as missed"
+            )
+        if (
+            appointment.visit_code_sequence is not None
+            and appt_timing
+            and appointment.visit_code_sequence > 0
+            and appt_timing == MISSED_APPT
+            and not get_allow_missed_unscheduled_appts()
+        ):
+            raise UnscheduledAppointmentError(
+                "Invalid. An unscheduled appointment may not be reported as missed."
+                "Try to cancel the appointment instead. "
+            )
 
 
 def get_appt_reason_choices() -> Tuple[str, ...]:
@@ -145,7 +178,7 @@ def delete_appointment_in_sequence(appointment: Any, from_post_delete=None) -> N
 
 
 def raise_on_appt_datetime_not_in_window(appointment: Appointment) -> None:
-    if not is_baseline(instance=appointment):
+    if appointment.appt_status != CANCELLED_APPT and not is_baseline(instance=appointment):
         baseline_timepoint_datetime = appointment.__class__.objects.first_appointment(
             subject_identifier=appointment.subject_identifier,
             visit_schedule_name=appointment.visit_schedule_name,

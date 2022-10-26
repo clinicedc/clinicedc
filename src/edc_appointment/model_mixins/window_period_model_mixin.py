@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 from django.db import models
 
+from ..constants import CANCELLED_APPT
 from ..exceptions import AppointmentWindowError
 from ..utils import raise_on_appt_datetime_not_in_window
 
@@ -24,7 +25,12 @@ class WindowPeriodModelMixin(models.Model):
         super().save(*args, **kwargs)
 
     def raise_on_appt_datetime_not_in_window(self: Appointment) -> None:
-        if self.id and self.appt_datetime and self.timepoint_datetime:
+        if (
+            self.id
+            and self.appt_status != CANCELLED_APPT
+            and self.appt_datetime
+            and self.timepoint_datetime
+        ):
             if not self.ignore_window_period:
                 try:
                     raise_on_appt_datetime_not_in_window(self)

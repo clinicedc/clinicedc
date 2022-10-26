@@ -4,7 +4,7 @@ from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.db import transaction
 from django.db.models.deletion import ProtectedError
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from edc_constants.constants import INCOMPLETE
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
@@ -12,6 +12,9 @@ from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
+from edc_visit_tracking.model_mixins.visit_model_mixin.visit_model_mixin import (
+    SubjectVisitReasonError,
+)
 
 from edc_appointment.utils import get_appt_reason_choices
 from edc_appointment_app.models import (
@@ -30,7 +33,7 @@ from ...constants import (
     SCHEDULED_APPT,
     UNSCHEDULED_APPT,
 )
-from ...exceptions import AppointmentDatetimeError
+from ...exceptions import AppointmentBaselineError, AppointmentDatetimeError
 from ...managers import AppointmentDeleteError
 from ...models import Appointment
 from ..helper import Helper
@@ -585,6 +588,40 @@ class TestAppointment(TestCase):
             ),
         )
 
+    def test_raises_appt_timing_missed_at_baseline(self):
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.filter(
+            subject_identifier=self.subject_identifier
+        ).order_by("timepoint")
+        self.assertEqual(appointments.count(), 4)
+        appointment = appointments.first()
+        appointment.appt_status = IN_PROGRESS_APPT
+        appointment.appt_timing = MISSED_APPT
+        self.assertRaises(AppointmentBaselineError, appointment.save)
+
+    def test_appt_timing(self):
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.filter(
+            subject_identifier=self.subject_identifier
+        ).order_by("timepoint")
+        self.assertEqual(appointments.count(), 4)
+        # create report for baseline visit
+        appointment = appointments.first()
+        SubjectVisit.objects.create(
+            appointment=appointment,
+            report_datetime=appointment.appt_datetime,
+            reason=SCHEDULED,
+        )
+        appointment.appt_status = INCOMPLETE_APPT
+        appointment.save()
+
+        # next appt
+        appointment = appointment.next
+        appointment.appt_timing = MISSED_APPT
+        appointment.save()
+        appointment.refresh_from_db()
+        self.assertEqual(appointment.appt_timing, MISSED_APPT)
+
     def test_appointment_creates_subject_visit_if_missed(self):
         self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
@@ -612,6 +649,7 @@ class TestAppointment(TestCase):
         # resave does not cause error
         appointment.save()
 
+    @tag("1")
     def test_raises_if_subject_visit_reason_out_of_sync_with_appt(self):
         self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
@@ -637,7 +675,9 @@ class TestAppointment(TestCase):
             appointment__visit_code=appointment.visit_code
         )
         subject_visit.reason = SCHEDULED
-        subject_visit.save()
+        self.assertRaises(SubjectVisitReasonError, subject_visit.save)
+
+        subject_visit.refresh_from_db()
         self.assertEqual(subject_visit.reason, MISSED_VISIT)
         self.assertEqual(appointment.appt_timing, MISSED_APPT)
 

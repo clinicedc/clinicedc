@@ -169,6 +169,7 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
                 visit_code_sequence=i + 1,
                 visit_schedule_name=appointments[i].visit_schedule_name,
                 schedule_name=appointments[i].schedule_name,
+                appt_reason=UNSCHEDULED_APPT,
             )
 
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
