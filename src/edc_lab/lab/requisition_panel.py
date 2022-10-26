@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Type
 
 from django.apps import apps as django_apps
@@ -44,7 +46,7 @@ class RequisitionPanel:
         processing_profile: ProcessingProfile = None,
         verbose_name: str = None,
         abbreviation: str = None,
-        utest_ids=None,
+        utest_ids: list[str | tuple] = None,
         is_poc=None,
         reference_range_collection_name=None,
     ) -> None:
