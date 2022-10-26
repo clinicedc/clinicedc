@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from copy import copy
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any
 
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.forms import ValidationError, forms
@@ -101,7 +101,7 @@ class BaseFormValidator:
                 field_value = self.cleaned_data.get(field)
         return field_value
 
-    def raise_validation_error(self, message: Union[dict, str], error_code: str) -> None:
+    def raise_validation_error(self, message: dict[str, str] | str, error_code: str) -> None:
         if isinstance(message, str):
             message = {NON_FIELD_ERRORS: message}
         self._errors.update(message)
