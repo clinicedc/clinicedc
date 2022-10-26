@@ -20,6 +20,7 @@ from edc_reference.model_mixins import (
     RequisitionReferenceModelMixin,
 )
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
+from edc_screening.model_mixins import ScreeningModelMixin
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
@@ -57,6 +58,10 @@ class DeathReport(UniqueSubjectIdentifierFieldMixin, BaseUuidModel):
 
     def natural_key(self):
         return (self.subject_identifier,)  # noqa
+
+
+class SubjectScreening(ScreeningModelMixin, BaseUuidModel):
+    objects = SubjectIdentifierManager()
 
 
 class SubjectConsent(

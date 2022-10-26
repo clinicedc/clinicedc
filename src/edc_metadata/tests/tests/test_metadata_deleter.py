@@ -1,17 +1,17 @@
 from django.db.models import ProtectedError
-from django.test import TestCase, tag
+from django.test import TestCase
+from edc_appointment.constants import INCOMPLETE_APPT, MISSED_APPT
 from edc_appointment.models import Appointment
 from edc_lab.models import Panel
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 
-from ...constants import KEYED
+from ...constants import KEYED, REQUIRED
 from ...models import CrfMetadata, RequisitionMetadata
 from ..models import CrfOne, SubjectRequisition, SubjectVisit
 from .metadata_test_mixin import TestMetadataMixin
 
 
 class TestDeletesMetadata(TestMetadataMixin, TestCase):
-    @tag("101")
     def test_deletes_metadata_on_changed_reason_toggled(self):
         SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
         appointment = Appointment.objects.get(
@@ -24,22 +24,44 @@ class TestDeletesMetadata(TestMetadataMixin, TestCase):
             RequisitionMetadata.objects.filter(visit_code="2000").count(),
             8,
         )
+        appointment.appt_timing = MISSED_APPT
+        appointment.save()
         obj.reason = MISSED_VISIT
         obj.save()
         self.assertEqual(CrfMetadata.objects.filter(visit_code="2000").count(), 1)
         self.assertEqual(RequisitionMetadata.objects.filter(visit_code="2000").count(), 0)
 
-    @tag("101")
     def test_deletes_metadata_on_changed_reason(self):
-        obj = SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
+        SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
+        self.appointment.appt_status = INCOMPLETE_APPT
+        self.appointment.save()
+
+        appointment = self.appointment.next
+        obj = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
         self.assertGreater(CrfMetadata.objects.all().count(), 0)
         self.assertGreater(RequisitionMetadata.objects.all().count(), 0)
-        obj.reason = MISSED_VISIT
-        obj.save()
-        self.assertEqual(CrfMetadata.objects.all().count(), 0)
-        self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
 
-    @tag("101")
+        appointment.appt_timing = MISSED_APPT
+        appointment.save()
+        appointment.refresh_from_db()
+        self.assertEqual(appointment.appt_timing, MISSED_APPT)
+
+        obj.refresh_from_db()
+        self.assertEqual(obj.reason, MISSED_VISIT)
+        obj.save()
+        self.assertEqual(
+            CrfMetadata.objects.filter(
+                entry_status=REQUIRED, visit_code=appointment.visit_code
+            ).count(),
+            1,
+        )
+        self.assertEqual(
+            RequisitionMetadata.objects.filter(
+                entry_status=REQUIRED, visit_code=appointment.visit_code
+            ).count(),
+            0,
+        )
+
     def test_deletes_metadata_on_changed_reason_adds_back_crfs_missed(self):
         SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
         appointment = Appointment.objects.get(
@@ -49,12 +71,13 @@ class TestDeletesMetadata(TestMetadataMixin, TestCase):
         obj = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
         self.assertGreater(CrfMetadata.objects.all().count(), 0)
         self.assertGreater(RequisitionMetadata.objects.all().count(), 0)
+        appointment.appt_timing = MISSED_APPT
+        appointment.save()
         obj.reason = MISSED_VISIT
         obj.save()
         self.assertEqual(CrfMetadata.objects.filter(visit_code="2000").count(), 1)
         self.assertEqual(RequisitionMetadata.objects.filter(visit_code="2000").count(), 0)
 
-    @tag("101")
     def test_deletes_metadata_on_delete_visit(self):
         obj = SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
         self.assertGreater(CrfMetadata.objects.all().count(), 0)
@@ -63,7 +86,6 @@ class TestDeletesMetadata(TestMetadataMixin, TestCase):
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
         self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
 
-    @tag("101")
     def test_deletes_metadata_on_delete_visit_even_for_missed(self):
         SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
         appointment = Appointment.objects.get(
@@ -71,13 +93,14 @@ class TestDeletesMetadata(TestMetadataMixin, TestCase):
             visit_code="2000",
         )
         subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
+        appointment.appt_timing = MISSED_APPT
+        appointment.save()
         subject_visit.reason = MISSED_VISIT
         subject_visit.save()
         subject_visit.delete()
         self.assertEqual(CrfMetadata.objects.filter(visit_code="2000").count(), 0)
         self.assertEqual(RequisitionMetadata.objects.filter(visit_code="2000").count(), 0)
 
-    @tag("101")
     def test_delete_visit_for_keyed_crf(self):
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED
@@ -98,7 +121,6 @@ class TestDeletesMetadata(TestMetadataMixin, TestCase):
         subject_visit.delete()
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
 
-    @tag("101")
     def test_delete_visit_for_keyed_requisition(self):
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED
