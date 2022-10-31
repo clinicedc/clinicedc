@@ -108,7 +108,7 @@ class TimepointModelMixin(models.Model):
         elif self.timepoint_status == CLOSED_TIMEPOINT:
             raise TimepointClosed(
                 f"This '{self._meta.verbose_name}' instance is closed "
-                f"for data entry. See Timpoint."
+                f"for data entry. See Timepoint."
             )
         return True
 

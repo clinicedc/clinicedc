@@ -20,6 +20,6 @@ class TimepointFormMixin:
         if timepoint_status == CLOSED_TIMEPOINT:
             raise forms.ValidationError(
                 f"This '{self._meta.verbose_name}' record is closed "
-                "for data entry. See Timpoint."
+                "for data entry. See Timepoint."
             )
         return cleaned_data
