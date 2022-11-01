@@ -14,6 +14,7 @@ class SingleSite:
         self,
         site_id,
         name,
+        *,
         title=None,
         country=None,
         country_code=None,
