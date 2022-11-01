@@ -162,3 +162,13 @@ WARN = "warn"
 WEEKDAYS = "weekdays"
 WEEKENDS = "weekends"
 YES = "Yes"
+
+
+FUTURE_DATE = "future_date"
+LAST_WEEK = "last_week"
+NEXT_WEEK = "next_week"
+NOT_NULL = "not_null"
+PAST_DATE = "past_date"
+THIS_WEEK = "this_week"
+TODAY = "today"
+TOMORROW = "tomorrow"
