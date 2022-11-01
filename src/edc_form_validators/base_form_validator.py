@@ -1,15 +1,10 @@
 from __future__ import annotations
 
 from copy import copy
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.forms import ValidationError, forms
-
-if TYPE_CHECKING:
-    from django.db.models import Model
-    from django_mock_queries.query import MockModel
-    from edc_model.models import BaseUuidModel
 
 APPLICABLE_ERROR = "applicable"
 INVALID_ERROR = "invalid"
@@ -40,9 +35,9 @@ class BaseFormValidator:
     def __init__(
         self,
         cleaned_data: dict = None,
-        instance: Model = None,
+        instance: Any = None,
         data: dict = None,
-        model: (Model | BaseUuidModel | MockModel) = None,  # model class
+        model: Any = None,  # model class
     ) -> None:
         self._errors: dict = {}
         self._error_codes: list = []
