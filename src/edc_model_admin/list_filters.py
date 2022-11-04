@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.db.models import QuerySet
 from edc_constants.constants import (
     FUTURE_DATE,
+    IS_NULL,
     LAST_WEEK,
     NEXT_WEEK,
     NOT_NULL,
@@ -31,7 +32,7 @@ class FutureDateListFilter(admin.SimpleListFilter):
             (NEXT_WEEK, "Next week"),
             (FUTURE_DATE, "Any future date"),
             (PAST_DATE, "Any past date"),
-            (None, "No date"),
+            (IS_NULL, "No date"),
             (NOT_NULL, "Has date"),
         )
 
@@ -99,7 +100,7 @@ class FutureDateListFilter(admin.SimpleListFilter):
                 **{f"{self.field_name}__isnull": False},
                 **self.extra_queryset_options,
             ).order_by(self.field_name)
-        if not self.value():
+        if self.value() == IS_NULL:
             qs = queryset.filter(
                 **{f"{self.field_name}__isnull": True},
                 **self.extra_queryset_options,
@@ -120,7 +121,7 @@ class PastDateListFilter(admin.SimpleListFilter):
             (THIS_WEEK, "This week"),
             (LAST_WEEK, "Last week"),
             (PAST_DATE, "Any past date"),
-            (None, "No date"),
+            (IS_NULL, "No date"),
             (NOT_NULL, "Has date"),
         )
 
@@ -180,7 +181,7 @@ class PastDateListFilter(admin.SimpleListFilter):
                 **{f"{self.field_name}__isnull": False},
                 **self.extra_queryset_options,
             ).order_by(self.field_name)
-        if not self.value():
+        if self.value() == IS_NULL:
             qs = queryset.filter(
                 **{f"{self.field_name}__isnull": True},
                 **self.extra_queryset_options,
