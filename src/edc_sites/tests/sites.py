@@ -6,7 +6,7 @@ sites = [
     SingleSite(
         10,
         "mochudi",
-        "Mochudi",
+        title="Mochudi",
         country="botswana",
         country_code="bw",
         domain=f"mochudi.bw.{fqdn}",
@@ -14,7 +14,7 @@ sites = [
     SingleSite(
         20,
         "molepolole",
-        "molepolole",
+        title="Molepolole",
         country="botswana",
         country_code="bw",
         fqdn=fqdn,
@@ -22,7 +22,7 @@ sites = [
     SingleSite(
         30,
         "lobatse",
-        "lobatse",
+        title="Lobatse",
         country="botswana",
         country_code="bw",
         fqdn=fqdn,
@@ -30,7 +30,7 @@ sites = [
     SingleSite(
         40,
         "gaborone",
-        "gaborone",
+        title="Gaborone",
         country="botswana",
         country_code="bw",
         fqdn=fqdn,
@@ -38,7 +38,7 @@ sites = [
     SingleSite(
         50,
         "karakobis",
-        "karakobis",
+        title="Karakobis",
         country="botswana",
         country_code="bw",
         fqdn=fqdn,
@@ -46,7 +46,7 @@ sites = [
     SingleSite(
         60,
         "windhoek",
-        "windhoek",
+        title="Windhoek",
         country="namibia",
         country_code="na",
         fqdn=fqdn,
@@ -58,7 +58,7 @@ more_sites = [
     SingleSite(
         60,
         "windhoek",
-        "windhoek",
+        title="Windhoek",
         country="namibia",
         country_code="na",
         fqdn=fqdn,
