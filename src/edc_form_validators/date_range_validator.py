@@ -48,7 +48,6 @@ class DateRangeFieldValidator(BaseFormValidator):
         date2 = self.cleaned_data.get(date_field2)
         msg = msg or f"Invalid. Expected {date_field2} to be the same as {date_field1}."
         if date1 and date2:
-            print(date1, date2)
             if date1 != date2:
                 raise forms.ValidationError({message_on_field or date_field2: f"{msg}"})
 
@@ -60,7 +59,6 @@ class DateRangeFieldValidator(BaseFormValidator):
         date2 = self.cleaned_data.get(date_field2)
         msg = msg or f"Invalid. Expected {date_field2} to be the same as {date_field1}."
         if date1 and date2:
-            print(date1, date2)
             if date1 == date2:
                 raise forms.ValidationError({message_on_field or date_field2: f"{msg}"})
 
