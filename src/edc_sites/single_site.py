@@ -12,15 +12,15 @@ class SiteCountryRequiredError(Exception):
 class SingleSite:
     def __init__(
         self,
-        site_id,
-        name,
+        site_id: int,
+        name: str,
         *,
-        title=None,
-        country=None,
-        country_code=None,
-        domain=None,
-        description=None,
-        fqdn=None,
+        title: str = None,
+        country: str = None,
+        country_code: str = None,
+        domain: str = None,
+        description: str = None,
+        fqdn: str = None,
     ):
         if not domain and not fqdn:
             raise ValueError("Require either domain and/or fqdn. Got both as None.")
@@ -43,7 +43,7 @@ class SingleSite:
         return str(self.domain)
 
     @property
-    def domain(self):
+    def domain(self) -> str:
         """Returns the domain, inserts `uat` if this is a
         UAT server instance.
         """
@@ -60,7 +60,7 @@ class SingleSite:
         return self._domain
 
     @property
-    def site(self):
+    def site(self) -> tuple:
         return (
             self.site_id,
             self.name,
@@ -69,7 +69,7 @@ class SingleSite:
             self.domain,
         )
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         return dict(
             site_id=self.site_id,
             name=self.name,
@@ -79,7 +79,7 @@ class SingleSite:
         )
 
     def save(self, force_insert=False, force_update=False):
-        raise NotImplementedError("RequestSite cannot be saved.")
+        raise NotImplementedError(f"{self.__class__.__name__} cannot be saved.")
 
     def delete(self):
         raise NotImplementedError("RequestSite cannot be deleted.")
