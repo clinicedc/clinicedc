@@ -2,7 +2,7 @@ from edc_sites.single_site import SingleSite
 
 fqdn = "clinicedc.org"
 
-sites = [
+sites: list[SingleSite] = [
     SingleSite(
         10,
         "mochudi",
