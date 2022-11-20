@@ -183,13 +183,13 @@ class FormDescriber:
             if field_cls.choices:
                 self.markdown.append("- responses:")
                 for response in [f"`{tpl[0]}`: *{tpl[1]}*" for tpl in field_cls.choices]:
-                    self.markdown.append(f"  - {response} ")
+                    self.markdown.append(f"  - {response}")
             else:
                 self.markdown.append("- responses: *free text*")
         elif field_cls.get_internal_type() == "ManyToManyField":
             self.markdown.append("- responses: *Select all that apply*")
             for obj in field_cls.related_model.objects.all().order_by("display_index"):
-                self.markdown.append(f"  - `{obj.name}`: *{obj.display_name}* ")
+                self.markdown.append(f"  - `{obj.name}`: *{obj.display_name}*")
 
     def get_next_number(self, number=None, fname=None):
         if "_other" in fname:
