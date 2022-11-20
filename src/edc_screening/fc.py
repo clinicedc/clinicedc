@@ -6,7 +6,7 @@ from collections.abc import Callable
 class FC:
     """A simple class of the eligible criteria for a field.
 
-    value: value if eligible
+    value: value expected IF ELIGIBLE
     msg: message if value is NOT met / ineligible
     ignore_if_missing: skip assessment if the field does not have a value
 
