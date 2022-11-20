@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import copy
 import sys
 
@@ -77,7 +79,7 @@ class SiteRandomizers:
     def randomize(
         self,
         name,
-        subject_identifier=None,
+        identifier: str | None = None,
         report_datetime=None,
         site=None,
         user=None,
@@ -85,7 +87,7 @@ class SiteRandomizers:
     ):
         randomizer_cls = self.get(name)
         return randomizer_cls(
-            subject_identifier=subject_identifier,
+            identifier=identifier,
             report_datetime=report_datetime,
             site=site,
             user=user,
