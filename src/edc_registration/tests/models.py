@@ -47,5 +47,5 @@ class SubjectModelThree(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
         return "my_identifier"
 
     @property
-    def registered_subject_unique_field(self):
+    def registered_model_unique_field(self):
         return "registration_identifier"

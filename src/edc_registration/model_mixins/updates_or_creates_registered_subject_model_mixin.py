@@ -10,13 +10,13 @@ class UpdatesOrCreatesRegistrationModelError(Exception):
 
 class UpdatesOrCreatesRegistrationModelMixin(models.Model):
 
-    """A model mixin that creates or updates RegisteredSubject
-    on post_save signal.
+    """A model mixin that creates or updates Registration model
+    (e.g. RegisteredSubject) on post_save signal.
     """
 
     @property
     def registration_model(self):
-        """Returns the RegisteredSubject model, Do not override."""
+        """Returns the Registration model"""
         return django_apps.get_app_config("edc_registration").model
 
     def registration_update_or_create(self):
@@ -30,7 +30,7 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
         """
         if not getattr(self, self.registration_unique_field):
             raise UpdatesOrCreatesRegistrationModelError(
-                f"Cannot update or create RegisteredSubject. "
+                f"Cannot update or create Registration model. "
                 f"Field value for '{self.registration_unique_field}' is None."
             )
 
@@ -38,17 +38,17 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
         registration_value = self.to_string(registration_value)
         try:
             obj = self.registration_model.objects.get(
-                **{self.registered_subject_unique_field: registration_value}
+                **{self.registered_model_unique_field: registration_value}
             )
         except ObjectDoesNotExist:
             pass
         else:
             self.registration_raise_on_illegal_value_change(obj)
-        registered_subject, created = self.registration_model.objects.update_or_create(
-            **{self.registered_subject_unique_field: registration_value},
+        registration_obj, created = self.registration_model.objects.update_or_create(
+            **{self.registered_model_unique_field: registration_value},
             defaults=self.registration_options,
         )
-        return registered_subject, created
+        return registration_obj, created
 
     def to_string(self, value):
         """Returns a string.
@@ -64,20 +64,21 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
     @property
     def registration_unique_field(self):
         """Returns the field attr on YOUR model that will update
-        `registered_subject_unique_field`.
+        `registered_model_unique_field`.
+
+        Typically, `subject_identifier`.
         """
         return "subject_identifier"
 
     @property
-    def registered_subject_unique_field(self):
-        """Returns the field attr on THIS model, registered subject,
-        to be queried against by the value of `registration_unique_field`.
+    def registered_model_unique_field(self):
+        """Returns the field attr on THIS model to be queried against
+        the value of `registration_unique_field`.
         """
         return self.registration_unique_field
 
-    def registration_raise_on_illegal_value_change(self, registered_subject):
-        """Raises an exception if a value changes between
-        updates.
+    def registration_raise_on_illegal_value_change(self, registration_obj):
+        """Raises an exception if a value changes between updates.
 
         Values are available in `registration_options`.
         """
