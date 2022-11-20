@@ -1,10 +1,14 @@
+from __future__ import annotations
+
 import os
+import warnings
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.db import models
 from edc_registration.utils import get_registered_subject_model_cls
 
 from .constants import (
@@ -100,15 +104,20 @@ class Randomizer:
 
     def __init__(
         self,
-        subject_identifier: str = None,
+        identifier: str | None = None,
+        subject_identifier: str | None = None,
+        identifier_attr: str | None = None,
+        identifier_object_name: str | None = None,
         report_datetime: datetime = None,
         site: Any = None,
         user: str = None,
         **kwargs,
     ):
         self._model_obj = None
-        self._registered_subject = None
-        self.subject_identifier = subject_identifier
+        self._registration_obj = None
+        self.identifier_attr = identifier_attr or "subject_identifier"
+        self.identifier_object_name = identifier_object_name or "subject"
+        setattr(self, self.identifier_attr, identifier or subject_identifier)
         self.allocated_datetime = report_datetime
         self.site = site
         self.user = user
@@ -128,12 +137,11 @@ class Randomizer:
         Will raise AlreadyRandomized if already randomized.
         """
         self.raise_if_already_randomized()
-
         required_instance_attrs = dict(
-            subject_identifier=self.subject_identifier,
             allocated_datetime=self.allocated_datetime,
             user=self.user,
             site=self.site,
+            **self.identifier_opts,
             **self.extra_required_instance_attrs,
         )
 
@@ -141,7 +149,11 @@ class Randomizer:
             raise RandomizationError(
                 f"Randomization failed. Insufficient data. Got {required_instance_attrs}."
             )
-        self.model_obj.subject_identifier = self.subject_identifier
+        setattr(
+            self.model_obj,
+            self.identifier_attr,
+            getattr(self, self.identifier_attr),
+        )
         self.model_obj.allocated_datetime = self.allocated_datetime
         self.model_obj.allocated_user = self.user
         self.model_obj.allocated_site = self.site
@@ -149,19 +161,27 @@ class Randomizer:
         self.model_obj.save()
         # requery
         self._model_obj = self.model_cls().objects.get(
-            subject_identifier=self.subject_identifier,
             allocated=True,
             allocated_datetime=self.allocated_datetime,
+            **self.identifier_opts,
         )
-        self.registered_subject.sid = self.sid
-        self.registered_subject.randomization_datetime = self.model_obj.allocated_datetime
-        self.registered_subject.registration_status = RANDOMIZED
-        self.registered_subject.randomization_list_model = self.model_obj._meta.label_lower
-        self.registered_subject.save()
+        self.registration_obj.sid = self.sid
+        self.registration_obj.randomization_datetime = self.model_obj.allocated_datetime
+        self.registration_obj.registration_status = RANDOMIZED
+        self.registration_obj.randomization_list_model = self.model_obj._meta.label_lower
+        self.registration_obj.save()
         # requery
-        self._registered_subject = get_registered_subject_model_cls().objects.get(
-            subject_identifier=self.subject_identifier, sid=self.model_obj.sid
+        self._registration_obj = self.get_registration_model_cls().objects.get(
+            sid=self.model_obj.sid, **self.identifier_opts
         )
+
+    @property
+    def identifier_opts(self) -> dict[str, str]:
+        return {self.identifier_attr: getattr(self, self.identifier_attr)}
+
+    @classmethod
+    def get_registration_model_cls(cls) -> models.Model:
+        return get_registered_subject_model_cls()
 
     @property
     def extra_required_instance_attrs(self):
@@ -195,12 +215,12 @@ class Randomizer:
         """
         if not self._model_obj:
             try:
-                obj = self.model_cls().objects.get(subject_identifier=self.subject_identifier)
+                obj = self.model_cls().objects.get(**self.identifier_opts)
             except ObjectDoesNotExist:
                 opts = dict(site_name=self.site.name, **self.extra_model_obj_options)
                 self._model_obj = (
                     self.model_cls()
-                    .objects.filter(subject_identifier__isnull=True, **opts)
+                    .objects.filter(**{f"{self.identifier_attr}__isnull": True}, **opts)
                     .order_by("sid")
                     .first()
                 )
@@ -211,9 +231,10 @@ class Randomizer:
                     )
             else:
                 raise AlreadyRandomized(
-                    "Subject already randomized. "
-                    f"Got {obj.subject_identifier} SID={obj.sid}. "
-                    "Something is wrong. Are registered_subject and "
+                    f"{self.identifier_object_name.title()} already randomized. "
+                    f"Got {getattr(obj, self.identifier_attr)} SID={obj.sid}. "
+                    f"Something is wrong. Are "
+                    f"{self.get_registration_model_cls()._meta.label_lower} and "
                     f"{self.model_cls()._meta.label_lower} out of sync?.",
                     code=self.model_cls()._meta.label_lower,
                 )
@@ -221,7 +242,7 @@ class Randomizer:
 
     def raise_if_already_randomized(self) -> Any:
         """Forces a query, will raise if already randomized."""
-        return self.registered_subject
+        return self.registration_obj
 
     def validate_assignment_description_map(self) -> None:
         """Raises an exception if the assignment description map
@@ -238,30 +259,43 @@ class Randomizer:
             )
 
     @property
-    def registered_subject(self):
-        """Returns an instance of the registered subject model."""
-        if not self._registered_subject:
+    def registration_obj(self):
+        """Returns an instance of the registration model.
+
+        (e.g. RegisteredSubject).
+        """
+
+        if not self._registration_obj:
             try:
-                self._registered_subject = get_registered_subject_model_cls().objects.get(
-                    subject_identifier=self.subject_identifier, sid__isnull=True
+                self._registration_obj = self.get_registration_model_cls().objects.get(
+                    sid__isnull=True, **self.identifier_opts
                 )
             except ObjectDoesNotExist:
                 try:
-                    obj = get_registered_subject_model_cls().objects.get(
-                        subject_identifier=self.subject_identifier
-                    )
+                    obj = self.get_registration_model_cls().objects.get(**self.identifier_opts)
                 except ObjectDoesNotExist:
                     raise RandomizationError(
-                        f"Subject does not exist. Got {self.subject_identifier}"
+                        f"{self.identifier_object_name.title()} does not exist. "
+                        f"Got {getattr(self, self.identifier_attr)}"
                     )
                 else:
                     raise AlreadyRandomized(
-                        "Subject already randomized. See RegisteredSubject. "
-                        f"Got {obj.subject_identifier} "
+                        f"{self.identifier_object_name.title()} already randomized. "
+                        f"See {self.get_registration_model_cls()._meta.verbose_name}. "
+                        f"Got {getattr(obj, self.identifier_attr)} "
                         f"SID={obj.sid}",
-                        code=get_registered_subject_model_cls()._meta.label_lower,
+                        code=self.get_registration_model_cls()._meta.label_lower,
                     )
-        return self._registered_subject
+        return self._registration_obj
+
+    @property
+    def registered_subject(self):
+        warnings.warn(
+            "This property is decrecated in favor of `registration_obj`.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.registration_obj
 
     @classmethod
     def get_extra_list_display(cls) -> Tuple[Tuple[int, str], ...]:

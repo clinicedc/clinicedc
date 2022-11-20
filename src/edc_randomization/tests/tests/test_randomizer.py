@@ -207,8 +207,8 @@ class TestRandomizer(TestCaseMixin, TestCase):
             user=subject_consent.user_created,
         )
         randomizer.randomize()
-        randomizer.registered_subject.sid = None
-        randomizer.registered_subject.save()
+        randomizer.registration_obj.sid = None
+        randomizer.registration_obj.save()
         with self.assertRaises(AlreadyRandomized) as cm:
             Randomizer(
                 subject_identifier=subject_consent.subject_identifier,
@@ -232,8 +232,8 @@ class TestRandomizer(TestCaseMixin, TestCase):
             user=subject_consent.user_created,
         )
         randomizer.randomize()
-        randomizer.registered_subject.sid = None
-        randomizer.registered_subject.save()
+        randomizer.registration_obj.sid = None
+        randomizer.registration_obj.save()
         with self.assertRaises(AlreadyRandomized) as cm:
             Randomizer(
                 subject_identifier=subject_consent.subject_identifier,
