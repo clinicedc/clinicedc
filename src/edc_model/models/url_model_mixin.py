@@ -28,6 +28,12 @@ class UrlModelMixin(models.Model):
             )
         return absolute_url
 
+    def get_changelist_url(self, search_term=None) -> str:
+        url = reverse(f"{self.admin_site_name}:{self._meta.label_lower()}_changelist")
+        if search_term:
+            url = f"{url}?q={str(search_term)}"
+        return url
+
     @property
     def admin_url_name(self) -> str:
         """Returns the django admin add or change url name
