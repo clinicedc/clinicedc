@@ -212,6 +212,8 @@ class Randomizer:
     def model_obj(self):
         """Returns a "rando" model instance by selecting
         the next available SID.
+
+        (e.g. RandomizationList)
         """
         if not self._model_obj:
             try:
@@ -258,18 +260,29 @@ class Randomizer:
                 f"Got {self.assignment_description_map}."
             )
 
+    def get_unallocated_registration_obj(self):
+        """Returns an unallocated registration model instance
+        or raises.
+
+        Called by `registration_obj`.
+        """
+        return self.get_registration_model_cls().objects.get(
+            sid__isnull=True, **self.identifier_opts
+        )
+
     @property
     def registration_obj(self):
-        """Returns an instance of the registration model.
+        """Returns an unrandomized instance of the registration model
+        for this identifier or raises.
+
+        By default, if SID is null, the instance has not been randomized.
 
         (e.g. RegisteredSubject).
         """
 
         if not self._registration_obj:
             try:
-                self._registration_obj = self.get_registration_model_cls().objects.get(
-                    sid__isnull=True, **self.identifier_opts
-                )
+                self._registration_obj = self.get_unallocated_registration_obj()
             except ObjectDoesNotExist:
                 try:
                     obj = self.get_registration_model_cls().objects.get(**self.identifier_opts)
