@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 class TemplatesModelAdminMixin:
     """Override admin templates.
 
@@ -20,6 +23,9 @@ class TemplatesModelAdminMixin:
     add_form_template: str = "edc_model_admin/admin/change_form.html"
     change_form_template: str = "edc_model_admin/admin/change_form.html"
     change_list_template: str = "edc_model_admin/admin/change_list.html"
+    change_list_title: str | None = None
+    change_list_note: str | None = None
+    change_list_help: str | None = None
     view_on_site_label: str = "View on site"
     history_label: str = "Audit trail"
     delete_confirmation_template: str = "edc_model_admin/admin/delete_confirmation.html"
@@ -41,6 +47,10 @@ class TemplatesModelAdminMixin:
         extra_context.update(
             {
                 "show_object_tools": self.show_object_tools,
+                "change_list_note": self.change_list_note,
+                "change_list_help": self.change_list_help,
             }
         )
+        if self.change_list_title:
+            extra_context.update({"title": self.change_list_title.title()})
         return super().changelist_view(request, extra_context=extra_context)

@@ -15,11 +15,16 @@
 <link rel="stylesheet" type="text/css" href="{% static 'edc_model_admin/css/dark_mode.css' %}">
 {% endblock %}
 
-{% block object-tools-items %}
-  {% if show_object_tools %}
-    {{ block.super }}
-  {% endif %}
-{% endblock object-tools-items %}
+{% block object-tools %}
+    <ul class="object-tools">
+      {% block object-tools-items %}
+          {% if show_object_tools %}
+            {% change_list_object_tools %}
+          {% endif %}
+      {% endblock %}
+    </ul>
+  {% if change_list_note %}<h5><span style="color:orange;">Note:</span></h5><p style="width:80%">{{ change_list_note }}</p>{% endif %}
+{% endblock %}
 
 {% block breadcrumbs %}{% endblock %}
 
@@ -40,11 +45,13 @@
 
 {% block userlinks %}{% logout_row %}{% endblock %}
 
+{% block pagination %}
+{{ block.super }}
+{% if change_list_help %}<p style="width:80%">{{ change_list_help }}</p>{% endif %}
+{% endblock %}
 
 {% block content %}
     {{ block.super }}
-
-{% revision_row %}
-
+  {% revision_row %}
 {% endblock content %}
 
