@@ -138,19 +138,26 @@ class CustomValidationMixin:
         cleaned_data = self.cleaned_data
         first_name = cleaned_data.get("first_name")
         initials = cleaned_data.get("initials")
+        familiar_name = cleaned_data.get("familiar_name")
         dob = cleaned_data.get("dob")
+        opts = dict(
+            initials=initials,
+            dob=dob,
+            version=self.consent_config.version,
+        )
+        if familiar_name:
+            opts.update(familiar_name=familiar_name)
+            msg_word = "familiar name"
+        else:
+            opts.update(first_name=first_name)
+            msg_word = "first name"
         if (
-            subject_consent := self._meta.model.objects.filter(
-                first_name=first_name,
-                initials=initials,
-                dob=dob,
-                version=self.consent_config.version,
-            )
+            subject_consent := self._meta.model.objects.filter(**opts)
             .exclude(identity=self.identity)
             .last()
         ):
             raise forms.ValidationError(
-                f"These personal details (first name, initials, dob) describe "
+                f"These personal details ({msg_word}, initials, dob) describe "
                 f"another subject. See {subject_consent.subject_identifier} (1)."
             )
 

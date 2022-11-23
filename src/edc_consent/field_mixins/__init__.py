@@ -1,6 +1,6 @@
 from .citizen_fields_mixin import CitizenFieldsMixin
 from .identity_fields_mixin import IdentityFieldsMixin, IdentityFieldsMixinError
-from .personal_fields_mixin import PersonalFieldsMixin
+from .personal_fields_mixin import FullNamePersonalFieldsMixin, PersonalFieldsMixin
 from .review_fields_mixin import ReviewFieldsMixin
 from .sample_collection_fields_mixin import SampleCollectionFieldsMixin
 from .scored_review_fields_mixin import ScoredReviewFieldsMixin

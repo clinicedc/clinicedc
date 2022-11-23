@@ -8,37 +8,13 @@ from django_crypto_fields.fields import (
 )
 from django_crypto_fields.models import CryptoMixin
 from edc_constants.choices import GENDER_UNDETERMINED
+from edc_model.models import NameFieldsModelMixin
 from edc_model_fields.fields import IsDateEstimatedField
 
 from ..validators import FullNameValidator
 
 
-class PersonalFieldsMixin(CryptoMixin, models.Model):
-
-    first_name = FirstnameField(
-        null=True,
-        blank=False,
-        validators=[
-            RegexValidator(
-                regex=r"^([A-Z]+$|[A-Z]+\ [A-Z]+)$",
-                message="Ensure name consist of letters only in upper case",
-            )
-        ],
-        help_text="Use UPPERCASE letters only.",
-    )
-
-    last_name = LastnameField(
-        verbose_name="Surname",
-        null=True,
-        blank=False,
-        validators=[
-            RegexValidator(
-                regex=r"^([A-Z]+$|[A-Z]+\ [A-Z]+)$",
-                message="Ensure name consist of letters only in upper case",
-            )
-        ],
-        help_text="Use UPPERCASE letters only.",
-    )
+class BaseFieldsMixin(models.Model):
 
     initials = EncryptedCharField(
         validators=[
@@ -78,6 +54,44 @@ class PersonalFieldsMixin(CryptoMixin, models.Model):
     )
 
     subject_type = models.CharField(max_length=25)
+
+    class Meta:
+        abstract = True
+
+
+class FullNamePersonalFieldsMixin(
+    CryptoMixin, NameFieldsModelMixin, BaseFieldsMixin, models.Model
+):
+    class Meta:
+        abstract = True
+
+
+class PersonalFieldsMixin(CryptoMixin, BaseFieldsMixin, models.Model):
+
+    first_name = FirstnameField(
+        null=True,
+        blank=False,
+        validators=[
+            RegexValidator(
+                regex=r"^([A-Z]+$|[A-Z]+\ [A-Z]+)$",
+                message="Ensure name consist of letters only in upper case",
+            )
+        ],
+        help_text="Use UPPERCASE letters only.",
+    )
+
+    last_name = LastnameField(
+        verbose_name="Surname",
+        null=True,
+        blank=False,
+        validators=[
+            RegexValidator(
+                regex=r"^([A-Z]+$|[A-Z]+\ [A-Z]+)$",
+                message="Ensure name consist of letters only in upper case",
+            )
+        ],
+        help_text="Use UPPERCASE letters only.",
+    )
 
     class Meta:
         abstract = True

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from django import forms
 from django.apps import apps as django_apps
@@ -59,9 +59,9 @@ def get_default_consent_group() -> str:
 
 
 def verify_initials_against_full_name(
-    first_name: Optional[str] = None,
-    last_name: Optional[str] = None,
-    initials: Optional[str] = None,
+    first_name: str | None = None,
+    last_name: str | None = None,
+    initials: str | None = None,
     **kwargs,  # noqa
 ) -> None:
     if first_name and initials and last_name:
@@ -72,7 +72,7 @@ def verify_initials_against_full_name(
             raise InvalidInitials("Initials do not match full name.")
 
 
-def values_as_string(*values) -> Optional[str]:
+def values_as_string(*values) -> str | None:
     if not any([True for v in values if v is None]):
         as_string = ""
         for value in values:

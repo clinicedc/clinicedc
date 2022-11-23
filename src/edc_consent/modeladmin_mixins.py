@@ -12,6 +12,10 @@ from .actions import flag_as_verified_against_paper, unflag_as_verified_against_
 
 
 class ModelAdminConsentMixin:
+
+    name_fields: list[str] = ["first_name", "last_name"]
+    name_display_field: str = "first_name"
+
     def __init__(self, *args):
         self.get_radio_fields()
         super().__init__(*args)
@@ -38,8 +42,7 @@ class ModelAdminConsentMixin:
     def get_fields(self, request, obj=None) -> Tuple[str, ...]:
         return (
             "subject_identifier",
-            "first_name",
-            "last_name",
+            *self.name_fields,
             "initials",
             "language",
             "is_literate",
@@ -79,8 +82,7 @@ class ModelAdminConsentMixin:
                 + (
                     "id",
                     "subject_identifier",
-                    "first_name",
-                    "last_name",
+                    *self.name_fields,
                     "identity",
                 )
             )
@@ -92,7 +94,7 @@ class ModelAdminConsentMixin:
             "subject_identifier",
             "is_verified",
             "is_verified_datetime",
-            "first_name",
+            self.name_display_field,
             "initials",
             "gender",
             "dob",

@@ -109,6 +109,11 @@ class SubjectConsentFormValidatorMixin(SubjectScreeningFormValidatorMixin):
 
         Watchout for timezone, cleaned_data has local TZ.
         """
+        if not self.subject_screening.eligibility_datetime:
+            raise forms.ValidationError(
+                "Unable to determine the eligibility datetime from the screening form. "
+                f"Got {self.subject_screening._meta.verbose_name}({self.subject_screening})."
+            )
         if self.consent_datetime:
             if (
                 self.consent_datetime - self.subject_screening.eligibility_datetime
