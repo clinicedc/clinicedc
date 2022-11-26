@@ -7,21 +7,19 @@ from ..stubs import SubjectScreeningModelStub
 
 class EligibilityFieldsModelMixin(models.Model):
 
-    eligible = models.BooleanField(default=False, editable=False)
+    eligible = models.BooleanField(default=False)
 
     reasons_ineligible = models.TextField(
-        verbose_name="Reason not eligible", max_length=150, null=True, editable=False
+        verbose_name="Reason not eligible", max_length=150, null=True
     )
 
     eligibility_datetime = models.DateTimeField(
         null=True,
-        editable=False,
         help_text="Date and time eligibility was determined relative to report_datetime",
     )
 
     real_eligibility_datetime = models.DateTimeField(
         null=True,
-        editable=False,
         help_text="Date and time eligibility was determined relative to now",
     )
 
