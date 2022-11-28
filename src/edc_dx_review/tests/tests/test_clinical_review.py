@@ -190,3 +190,32 @@ class TestClinicalReview(TestCaseMixin, TestCase):
         form = ClinicalReviewFollowupForm(data=self.followup_data)
         form.is_valid()
         self.assertIn("Complete the `HIV Initial Review`", str(form._errors.get("__all__")))
+
+    @override_settings(EDC_DX_LABELS={HIV: "HIV"})
+    def test_dx_field_applicable_if_tested_yes(self):
+        data = self.baseline_data
+        data.update(
+            {
+                "hiv_test": YES,
+                "hiv_test_ago": "5y",
+                "hiv_dx": NOT_APPLICABLE,
+            }
+        )
+        form = ClinicalReviewBaselineForm(data=data)
+        form.is_valid()
+        self.assertIn("This field is applicable", str(form._errors.get("hiv_dx")))
+
+    @override_settings(EDC_DX_LABELS={CHOL: "Cholesterol"})
+    def test_dx_field_not_applicable_if_tested_no(self):
+        for dx in [YES, NO]:
+            data = self.baseline_data
+            data.update(
+                {
+                    "chol_test": NO,
+                    "chol_test_ago": None,
+                    "chol_dx": dx,
+                }
+            )
+            form = ClinicalReviewBaselineForm(data=data)
+            form.is_valid()
+            self.assertIn("This field is not applicable", str(form._errors.get("chol_dx")))

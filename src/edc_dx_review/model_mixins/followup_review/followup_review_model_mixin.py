@@ -16,7 +16,7 @@ class FollowupReviewModelMixin(models.Model):
     )
 
     care_delivery_other = models.TextField(
-        verbose_name="If no, please explain", null=True, blank=True
+        verbose_name="If NO, please explain", null=True, blank=True
     )
 
     class Meta:

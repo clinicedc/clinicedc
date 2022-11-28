@@ -16,7 +16,7 @@ class ClinicalReviewBaselineDmModelMixin(models.Model):
     )
 
     dm_test_ago = edc_models.DurationYMDField(
-        verbose_name="If Yes, how long ago was the patient tested for Diabetes?",
+        verbose_name="If YES, how long ago was the patient's most recent test for Diabetes?",
         null=True,
         blank=True,
     )
@@ -39,7 +39,7 @@ class ClinicalReviewBaselineDmModelMixin(models.Model):
         max_length=15,
         choices=YES_NO_NA,
         default=NOT_APPLICABLE,
-        help_text="If yes, complete form `Diabetes Initial Review`",
+        help_text="If YES, complete form `Diabetes Initial Review`",
     )
 
     def save(self, *args, **kwargs):
