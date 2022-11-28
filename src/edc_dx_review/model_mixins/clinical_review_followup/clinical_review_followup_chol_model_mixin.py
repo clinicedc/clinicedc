@@ -21,6 +21,7 @@ class ClinicalReviewCholModelMixin(models.Model):
             "If `not applicable`, complete the review CRF."
         ),
     )
+
     chol_test_date = models.DateField(
         verbose_name="Date test requested",
         null=True,

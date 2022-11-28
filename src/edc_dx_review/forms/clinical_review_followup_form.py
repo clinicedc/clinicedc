@@ -2,31 +2,22 @@ from django import forms
 from edc_constants.constants import YES
 from edc_crf.crf_form_validator_mixins import CrfFormValidatorMixin
 from edc_crf.modelform_mixins import CrfModelFormMixin
-from edc_dx import get_diagnosis_labels
 from edc_dx.form_validators import DiagnosisFormValidatorMixin
 from edc_form_validators.form_validator import FormValidator
-from edc_visit_schedule.utils import raise_if_baseline
 
+from ..form_validator_mixins.clinical_review_followup_form_validator_mixin import (
+    ClinicalReviewFollowupFormValidatorMixin,
+)
 from ..models import ClinicalReview
 
 
 class ClinicalReviewFollowupFormValidator(
+    ClinicalReviewFollowupFormValidatorMixin,
     CrfFormValidatorMixin,
     DiagnosisFormValidatorMixin,
     FormValidator,
 ):
     def clean(self):
-        raise_if_baseline(self.cleaned_data.get("subject_visit"))
-        for prefix, label in get_diagnosis_labels().items():
-            self.applicable_if_not_diagnosed(
-                prefix=prefix,
-                field_applicable=f"{prefix}_test",
-                label=label,
-            )
-            self.required_if(YES, field=f"{prefix}_test", field_required=f"{prefix}_test_date")
-            self.required_if(YES, field=f"{prefix}_test", field_required=f"{prefix}_reason")
-            self.applicable_if(YES, field=f"{prefix}_test", field_applicable=f"{prefix}_dx")
-
         self.required_if(
             YES,
             field="health_insurance",

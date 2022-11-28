@@ -16,10 +16,10 @@ class ClinicalReviewBaselineHivModelMixin(models.Model):
     )
 
     hiv_test_ago = edc_models.DurationYMDField(
-        verbose_name="How long ago was the patient's most recent HIV test?",
+        verbose_name="If YES, how long ago was the patient's most recent HIV test?",
         null=True,
         blank=True,
-        help_text="If positive, most recent HIV(+) test",
+        help_text="If positive, most recent HIV(+) test.",
     )
 
     hiv_test_estimated_date = models.DateField(
@@ -43,7 +43,7 @@ class ClinicalReviewBaselineHivModelMixin(models.Model):
         max_length=15,
         choices=YES_NO_NA,
         default=NOT_APPLICABLE,
-        help_text="If yes, complete form `HIV Initial Review`",
+        help_text="If YES, complete form `HIV Initial Review`",
     )
 
     def save(self, *args, **kwargs):

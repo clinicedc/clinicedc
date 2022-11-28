@@ -19,10 +19,10 @@ clinicalreviewbaseline = Recipe(
     hiv_dx=YES,
     htn_test=NO,
     htn_test_ago=None,
-    hypertension=NOT_APPLICABLE,
+    htn_dx=NOT_APPLICABLE,
     dm_test=NO,
     dm_test_ago=None,
-    diabetes=NOT_APPLICABLE,
+    dm_dx=NOT_APPLICABLE,
 )
 
 clinicalreview = Recipe(

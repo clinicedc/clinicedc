@@ -11,7 +11,7 @@ class ClinicalReviewModelMixin(models.Model):
         verbose_name="Since last seen, has the patient had any complications",
         max_length=15,
         choices=YES_NO,
-        help_text="If Yes, complete the `Complications` CRF",
+        help_text="If YES, complete the `Complications` CRF",
     )
 
     def save(self, *args, **kwargs):

@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils.html import format_html
 from edc_constants.choices import YES_NO, YES_NO_NA
 from edc_constants.constants import NOT_APPLICABLE
 from edc_model import models as edc_models
@@ -16,7 +15,9 @@ class ClinicalReviewBaselineHtnModelMixin(models.Model):
     )
 
     htn_test_ago = edc_models.DurationYMDField(
-        verbose_name="If Yes, how long ago was the patient tested for Hypertension?",
+        verbose_name=(
+            "If YES, how long ago was the patient's most recent test for Hypertension?"
+        ),
         null=True,
         blank=True,
     )
@@ -35,11 +36,11 @@ class ClinicalReviewBaselineHtnModelMixin(models.Model):
     )
 
     htn_dx = models.CharField(
-        verbose_name=format_html("Has the patient ever been diagnosed with Hypertension"),
+        verbose_name="Has the patient ever been diagnosed with Hypertension",
         max_length=15,
         choices=YES_NO_NA,
         default=NOT_APPLICABLE,
-        help_text="If yes, complete form `Hypertension Initial Review`",
+        help_text="If YES, complete form `Hypertension Initial Review`",
     )
 
     def save(self, *args, **kwargs):
