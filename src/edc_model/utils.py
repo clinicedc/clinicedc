@@ -135,9 +135,7 @@ def model_exists_or_raise(
     try:
         model_cls.objects.get(**opts)
     except ObjectDoesNotExist:
-        raise forms.ValidationError(
-            f"Complete the `{model_cls._meta.verbose_name}` CRF first."
-        )
+        raise ObjectDoesNotExist(f"{model_cls._meta.verbose_name} does not exist.")
     return True
 
 
