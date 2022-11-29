@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from datetime import date, datetime
-from typing import Dict, Optional
+from typing import Dict
 
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from edc_constants.constants import YES
@@ -38,8 +40,8 @@ class Diagnoses:
         subject_identifier: str = None,
         report_datetime: datetime = None,
         subject_visit=None,
-        lte: Optional[bool] = None,
-        limit_to_single_condition_prefix=None,
+        lte: bool | None = None,
+        limit_to_single_condition_prefix: str | None = None,
     ) -> None:
         self.single_condition_prefix = (
             limit_to_single_condition_prefix.lower()
@@ -87,7 +89,7 @@ class Diagnoses:
             )
         return dx
 
-    def get_dx_date(self, prefix: str) -> Optional[date]:
+    def get_dx_date(self, prefix: str) -> date | None:
         """Returns a dx date from the initial review for the condition.
 
         Raises if initial review does not exist."""
@@ -96,7 +98,7 @@ class Diagnoses:
             return self.initial_reviews.get(prefix).get_best_dx_date()
         return None
 
-    def get_dx(self, prefix: str) -> Optional[str]:
+    def get_dx(self, prefix: str) -> str | None:
         """Returns YES if any diagnoses for this condition otherwise None.
 
         References clinical_review_baseline

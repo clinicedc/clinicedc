@@ -1,3 +1,8 @@
+from __future__ import annotations
+
+from datetime import date, datetime
+from typing import Any, Tuple
+
 from django.conf import settings
 from edc_constants.constants import NO, YES
 from edc_model.utils import duration_to_date
@@ -17,10 +22,10 @@ except AttributeError as e:
 
 
 def calculate_dx_date_if_estimated(
-    dx_date,
-    dx_ago,
-    report_datetime,
-):
+    dx_date: date | None,
+    dx_ago: str | None,
+    report_datetime: datetime | None,
+) -> Tuple[date, date]:
     if dx_ago and not dx_date:
         dx_estimated_date = duration_to_date(dx_ago, report_datetime)
         dx_date_is_estimated = YES
@@ -30,7 +35,7 @@ def calculate_dx_date_if_estimated(
     return dx_estimated_date, dx_date_is_estimated
 
 
-def get_diagnosis_labels():
+def get_diagnosis_labels() -> dict:
     try:
         diagnosis_labels = getattr(settings, "EDC_DX_LABELS")
     except AttributeError as e:
@@ -42,11 +47,11 @@ def get_diagnosis_labels():
     return {k.lower(): v for k, v in diagnosis_labels.items()}
 
 
-def get_diagnosis_labels_prefixes():
+def get_diagnosis_labels_prefixes() -> list[str]:
     return [k for k in get_diagnosis_labels()]
 
 
-def raise_on_unknown_diagnosis_labels(obj, fld_suffix, fld_value):
+def raise_on_unknown_diagnosis_labels(obj: Any, fld_suffix: str, fld_value: Any) -> None:
     """Raises an exception if a diagnosis field has a response
     but is not an expected condition.
 

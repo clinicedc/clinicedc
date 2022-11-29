@@ -2,7 +2,7 @@ from django import forms
 from edc_constants.constants import YES
 from edc_form_validators import FormValidator
 
-from .diagnoses import (
+from ..diagnoses import (
     ClinicalReviewBaselineRequired,
     Diagnoses,
     InitialReviewRequired,
