@@ -1,8 +1,9 @@
-from django import forms
 from edc_constants.constants import YES
-from edc_dx import get_diagnosis_labels_prefixes
+from edc_dx import get_diagnosis_labels, get_diagnosis_labels_prefixes
 from edc_model import estimated_date_from_ago
 from edc_visit_schedule.utils import raise_if_not_baseline
+
+MISSING_TEST_DATE = "MISSING_TEST_DATE"
 
 
 class ClinicalReviewBaselineFormValidatorMixin:
@@ -22,7 +23,12 @@ class ClinicalReviewBaselineFormValidatorMixin:
             if not self.cleaned_data.get(f"{cond}_test_ago") and not self.cleaned_data.get(
                 f"{cond}_test_date"
             ):
-                raise forms.ValidationError(
-                    f"{cond.title()}: When was the subject tested? Either provide an "
-                    "estimated time 'ago' or provide the exact date. See below."
+                label = get_diagnosis_labels().get(cond)
+                raise self.raise_validation_error(
+                    (
+                        f"When was the subject tested for {label}? Either provide an "
+                        f"estimated time 'ago' or provide the exact date. See {label} "
+                        "section below."
+                    ),
+                    MISSING_TEST_DATE,
                 )

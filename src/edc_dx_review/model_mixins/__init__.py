@@ -12,7 +12,6 @@ from .clinical_review_followup import (
     ClinicalReviewHtnModelMixin,
     ClinicalReviewModelMixin,
 )
-from .crf_model_mixin import CrfModelMixin
 from .dx_location_model_mixin import DxLocationModelMixin
 from .followup_review import FollowupReviewModelMixin, HivFollowupReviewModelMixin
 from .initial_review import (

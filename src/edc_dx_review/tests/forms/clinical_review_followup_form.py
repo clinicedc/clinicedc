@@ -5,9 +5,8 @@ from edc_crf.modelform_mixins import CrfModelFormMixin
 from edc_dx.form_validators import DiagnosisFormValidatorMixin
 from edc_form_validators.form_validator import FormValidator
 
-from ..form_validator_mixins.clinical_review_followup_form_validator_mixin import (
-    ClinicalReviewFollowupFormValidatorMixin,
-)
+from edc_dx_review.form_validator_mixins import ClinicalReviewFollowupFormValidatorMixin
+
 from ..models import ClinicalReview
 
 

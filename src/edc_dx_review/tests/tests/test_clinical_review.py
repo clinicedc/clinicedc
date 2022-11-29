@@ -13,9 +13,7 @@ from edc_constants.constants import (
 )
 from edc_dx.utils import DiagnosisLabelError
 
-from edc_dx_review.forms import ClinicalReviewFollowupForm
-
-from ..forms import ClinicalReviewBaselineForm
+from ..forms import ClinicalReviewBaselineForm, ClinicalReviewFollowupForm
 from ..test_case_mixin import TestCaseMixin
 
 

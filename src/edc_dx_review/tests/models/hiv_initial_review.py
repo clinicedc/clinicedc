@@ -2,11 +2,11 @@ from django.db import models
 from django.utils.html import format_html
 from edc_constants.choices import YES_NO
 from edc_constants.constants import NOT_APPLICABLE
+from edc_crf.model_mixins import CrfModelMixin
 from edc_model import models as edc_models
 
-from ..choices import CARE_ACCESS
-from ..model_mixins import (
-    CrfModelMixin,
+from edc_dx_review.choices import CARE_ACCESS
+from edc_dx_review.model_mixins import (
     DxLocationModelMixin,
     HivArvInitiationModelMixin,
     HivArvMonitoringModelMixin,

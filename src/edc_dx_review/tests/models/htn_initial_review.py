@@ -1,34 +1,32 @@
 from django.db import models
 from edc_constants.constants import NOT_APPLICABLE
+from edc_crf.model_mixins import CrfModelMixin
 from edc_model import models as edc_models
 
-from ..choices import DM_MANAGEMENT
-from ..model_mixins import (
-    CrfModelMixin,
+from edc_dx_review.choices import HTN_MANAGEMENT
+from edc_dx_review.model_mixins import (
     DxLocationModelMixin,
     InitialReviewModelMixin,
     NcdInitialReviewModelMixin,
 )
 
 
-class DmInitialReview(
+class HtnInitialReview(
     InitialReviewModelMixin,
     DxLocationModelMixin,
     NcdInitialReviewModelMixin,
     CrfModelMixin,
     edc_models.BaseUuidModel,
 ):
-
-    ncd_condition_label = "diabetes"
+    ncd_condition_label = "hypertension"
 
     managed_by = models.CharField(
-        verbose_name="How is the patient's diabetes managed?",
-        max_length=25,
-        choices=DM_MANAGEMENT,
+        verbose_name="How is the patient's hypertension managed?",
+        max_length=15,
+        choices=HTN_MANAGEMENT,
         default=NOT_APPLICABLE,
-        help_text="If insulin or oral drugs, diet and lifestyle is assumed.",
     )
 
     class Meta(CrfModelMixin.Meta, edc_models.BaseUuidModel.Meta):
-        verbose_name = "Diabetes Initial Review"
-        verbose_name_plural = "Diabetes Initial Reviews"
+        verbose_name = "Hypertension Initial Review"
+        verbose_name_plural = "Hypertension Initial Reviews"

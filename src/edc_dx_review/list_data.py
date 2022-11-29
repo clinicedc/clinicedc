@@ -6,8 +6,14 @@ list_data = {
         ("gov_clinic", "Government clinic"),
         ("private_clinic", "Private clinic"),
         ("private_doctor", "Private doctor"),
-        ("mocca_clinic", "MOCCA study clinic"),
+        ("study_clinic", "Study clinic"),
         (UNKNOWN, "Don't recall"),
         (OTHER, "Other, specify"),
+    ],
+    "edc_dx_review.reasonsfortesting": [
+        ("patient_request", "Patient was well and made a request"),
+        ("patient_complication", "Patient had a clinical complication"),
+        ("signs_symptoms", "Patient had suggestive signs and symptoms"),
+        (OTHER, "Other reason (specify below)"),
     ],
 }

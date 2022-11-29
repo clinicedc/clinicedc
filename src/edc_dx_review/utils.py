@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from edc_constants.constants import HIV, YES
 from edc_model.utils import model_exists_or_raise
+from edc_visit_schedule.baseline import VisitScheduleBaselineError
 from edc_visit_schedule.utils import is_baseline
 
 EDC_DX_REVIEW_APP_LABEL = getattr(settings, "EDC_DX_REVIEW_APP_LABEL", "edc_dx_review")
@@ -46,15 +47,19 @@ def get_review_model_cls(prefix):
 
 
 def raise_if_clinical_review_does_not_exist(subject_visit) -> None:
-    if is_baseline(instance=subject_visit):
-        model_exists_or_raise(
-            subject_visit=subject_visit,
-            model_cls=get_clinical_review_baseline_model_cls(),
-        )
+    try:
+        baseline = is_baseline(instance=subject_visit)
+    except VisitScheduleBaselineError as e:
+        forms.ValidationError(e)
     else:
-        model_exists_or_raise(
-            subject_visit=subject_visit, model_cls=get_clinical_review_model_cls()
-        )
+        if baseline:
+            model_cls = get_clinical_review_baseline_model_cls()
+        else:
+            model_cls = get_clinical_review_model_cls()
+        try:
+            model_exists_or_raise(subject_visit=subject_visit, model_cls=model_cls)
+        except ObjectDoesNotExist:
+            raise forms.ValidationError(f"Complete {model_cls._meta.verbose_mame} CRF first.")
 
 
 def raise_if_both_ago_and_actual_date(dx_ago: str, dx_date: date, cleaned_data=None) -> None:

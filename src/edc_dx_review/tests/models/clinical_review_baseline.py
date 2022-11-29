@@ -1,12 +1,12 @@
+from edc_crf.model_mixins import CrfModelMixin
 from edc_model import models as edc_models
 
-from ..model_mixins import (
+from edc_dx_review.model_mixins import (
     ClinicalReviewBaselineCholModelMixin,
     ClinicalReviewBaselineDmModelMixin,
     ClinicalReviewBaselineHivModelMixin,
     ClinicalReviewBaselineHtnModelMixin,
     ClinicalReviewBaselineModelMixin,
-    CrfModelMixin,
 )
 
 

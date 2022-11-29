@@ -1,11 +1,12 @@
 from django.db import models
 from edc_constants.choices import YES_NO_NA
 from edc_constants.constants import NOT_APPLICABLE
+from edc_crf.model_mixins import CrfModelMixin
 from edc_model import models as edc_models
 from edc_vitals.model_mixins import SimpleBloodPressureModelMixin
 
-from ..choices import HTN_MANAGEMENT
-from ..model_mixins import CrfModelMixin, FollowupReviewModelMixin
+from edc_dx_review.choices import HTN_MANAGEMENT
+from edc_dx_review.model_mixins import FollowupReviewModelMixin
 
 
 class HtnReview(

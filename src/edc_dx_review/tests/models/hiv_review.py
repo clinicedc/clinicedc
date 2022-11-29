@@ -1,6 +1,7 @@
+from edc_crf.model_mixins import CrfModelMixin
 from edc_model import models as edc_models
 
-from ..model_mixins import CrfModelMixin, HivFollowupReviewModelMixin
+from edc_dx_review.model_mixins import HivFollowupReviewModelMixin
 
 
 class HivReview(HivFollowupReviewModelMixin, CrfModelMixin, edc_models.BaseUuidModel):

@@ -1,9 +1,10 @@
 from django import forms
 from edc_crf.crf_form_validator_mixins import CrfFormValidatorMixin
-from edc_crf.modelform_mixins import CrfModelFormMixin
+from edc_form_validators import FormValidatorMixin
 from edc_form_validators.form_validator import FormValidator
 
-from ..form_validator_mixins import ClinicalReviewBaselineFormValidatorMixin
+from edc_dx_review.form_validator_mixins import ClinicalReviewBaselineFormValidatorMixin
+
 from ..models import ClinicalReviewBaseline
 
 
@@ -13,7 +14,7 @@ class ClinicalReviewBaselineFormValidator(
     pass
 
 
-class ClinicalReviewBaselineForm(CrfModelFormMixin, forms.ModelForm):
+class ClinicalReviewBaselineForm(FormValidatorMixin, forms.ModelForm):
 
     form_validator_cls = ClinicalReviewBaselineFormValidator
 
