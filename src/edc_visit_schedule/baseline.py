@@ -42,7 +42,7 @@ class Baseline:
             self.visit_code_sequence = visit_code_sequence
             self.timepoint = timepoint
             if self.timepoint is None:
-                raise VisitScheduleBaselineError("timpoint may not be None")
+                raise VisitScheduleBaselineError("timepoint may not be None")
         if not any([x == self.timepoint for x in self.timepoints.values()]):
             raise VisitScheduleBaselineError(
                 f"Unknown timepoint. For schedule {self.visit_schedule}.{self.schedule}. "
