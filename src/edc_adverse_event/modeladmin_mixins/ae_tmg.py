@@ -6,12 +6,13 @@ from django.core.exceptions import ObjectDoesNotExist
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_action_item import action_fieldset_tuple
 from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
-from edc_constants.constants import OTHER
+from edc_constants.constants import NOT_APPLICABLE, OTHER
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_utils import convert_php_dateformat
 
 from ..forms import AeTmgForm
 from ..get_ae_model import get_ae_model
+from ..models import AeClassification
 from .modeladmin_mixins import NonAeInitialModelAdminMixin
 
 
@@ -51,7 +52,9 @@ class AeTmgModelAdminMixin(
                     "clinical_review_datetime",
                     "investigator_comments",
                     "original_report_agreed",
-                    "narrative",
+                    "investigator_narrative",
+                    "investigator_ae_classification",
+                    "investigator_ae_classification_other",
                     "officials_notified",
                     "report_status",
                     "report_closed_datetime",
@@ -65,7 +68,14 @@ class AeTmgModelAdminMixin(
     radio_fields = {
         "report_status": admin.VERTICAL,
         "original_report_agreed": admin.VERTICAL,
+        "investigator_ae_classification": admin.VERTICAL,
     }
+
+    readonly_fields = (
+        "ae_description",
+        "ae_classification",
+        "ae_classification_other",
+    )
 
     def get_list_display(self, request) -> Tuple[str, ...]:
         list_display = super().get_list_display(request)
@@ -121,5 +131,8 @@ class AeTmgModelAdminMixin(
             initial.update(
                 ae_classification=ae_classification,
                 ae_description=f"{ae_initial.ae_description} (reported: {report_datetime})",
+                investigator_ae_classification=AeClassification.objects.get(
+                    name=NOT_APPLICABLE
+                ).id,
             )
         return initial
