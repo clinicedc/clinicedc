@@ -10,12 +10,13 @@ from django.utils.safestring import mark_safe
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_action_item import action_fieldset_tuple
 from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
-from edc_constants.constants import DEAD
+from edc_constants.constants import DEAD, NOT_APPLICABLE
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_notification.utils import get_email_contacts
 
 from ..forms import AeInitialForm
 from ..get_ae_model import get_ae_model
+from ..models import AeClassification
 from ..templatetags.edc_adverse_event_extras import (
     format_ae_description,
     select_description_template,
@@ -160,3 +161,8 @@ class AeInitialModelAdminMixin(
         """
         context = format_ae_description({}, obj, 50)
         return render_to_string(select_description_template("aeinitial"), context)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "ae_classification":
+            kwargs["queryset"] = AeClassification.objects.exclude(name=NOT_APPLICABLE)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)

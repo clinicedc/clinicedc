@@ -7,7 +7,7 @@ from edc_list_data.site_list_data import site_list_data
 from edc_sites.tests import SiteTestCaseMixin
 
 from adverse_event_app import list_data
-from edc_adverse_event.models import SaeReason
+from edc_adverse_event.models import AeClassification, SaeReason
 
 from ...constants import AE_WITHDRAWN
 from ...form_validators import (
@@ -56,15 +56,22 @@ class TestFormValidators(SiteTestCaseMixin, TestCase):
         self.assertIn("susar_reported", form_validator._errors)
 
     def test_ae_tmg_reported_ae_classification(self):
-        cleaned_data = {"ae_classification": OTHER, "ae_classification_other": None}
+        ae_classification = AeClassification.objects.get(name=OTHER)
+        cleaned_data = {
+            "investigator_ae_classification": ae_classification,
+            "investigator_ae_classification_other": None,
+        }
         form_validator = AeTmgFormValidator(cleaned_data=cleaned_data)
         self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn("ae_classification_other", form_validator._errors)
+        self.assertIn("investigator_ae_classification_other", form_validator._errors)
 
-        cleaned_data = {"ae_classification": OTHER, "ae_classification_other": None}
+        cleaned_data = {
+            "investigator_ae_classification": ae_classification,
+            "investigator_ae_classification_other": None,
+        }
         form_validator = AeTmgFormValidator(cleaned_data=cleaned_data)
         self.assertRaises(ValidationError, form_validator.validate)
-        self.assertIn("ae_classification_other", form_validator._errors)
+        self.assertIn("investigator_ae_classification_other", form_validator._errors)
 
     def test_ae_followup(self):
         cleaned_data = {"outcome": None, "followup": None}
