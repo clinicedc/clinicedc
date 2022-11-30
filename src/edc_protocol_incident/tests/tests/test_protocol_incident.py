@@ -10,7 +10,7 @@ from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
 
 from edc_protocol_incident import list_data
-from edc_protocol_incident.constants import DEVIATION
+from edc_protocol_incident.constants import DEVIATION, WITHDRAWN
 from edc_protocol_incident.forms import ProtocolIncidentForm
 from edc_protocol_incident.models import (
     ActionsRequired,
@@ -46,6 +46,7 @@ class TestProtocolIncident(TestCase):
                 "subject_identifier": self.subject_identifier,
                 "report_datetime": get_utcnow(),
                 "report_status": OPEN,
+                "reasons_withdrawn": None,
                 "report_type": DEVIATION,
                 "safety_impact": NOT_APPLICABLE,
                 "short_description": "sdasd asd asdasd ",
@@ -62,6 +63,7 @@ class TestProtocolIncident(TestCase):
                 "subject_identifier": "1234",
                 "report_datetime": get_utcnow(),
                 "report_status": OPEN,
+                "reasons_withdrawn": None,
                 "report_type": DEVIATION,
                 "safety_impact": NO,
                 "short_description": "sdasd asd asdasd ",
@@ -86,6 +88,7 @@ class TestProtocolIncident(TestCase):
                 "subject_identifier": "1234",
                 "report_datetime": get_utcnow() - relativedelta(days=1),
                 "report_status": OPEN,
+                "reasons_withdrawn": None,
                 "report_type": DEVIATION,
                 "safety_impact": NO,
                 "short_description": "sdasd asd asdasd ",
@@ -128,6 +131,16 @@ class TestProtocolIncident(TestCase):
         self.assertIn("report_closed_datetime", form._errors)
 
         data.update(report_closed_datetime=get_utcnow())
+        form = ProtocolIncidentForm(data=data, instance=ProtocolIncident())
+        form.is_valid()
+        self.assertEqual({}, form._errors)
+
+        data.update(report_status=WITHDRAWN)
+        form = ProtocolIncidentForm(data=data, instance=ProtocolIncident())
+        form.is_valid()
+        self.assertIn("reasons_withdrawn", form._errors)
+
+        data.update(reasons_withdrawn="cause i feel like it")
         form = ProtocolIncidentForm(data=data, instance=ProtocolIncident())
         form.is_valid()
         self.assertEqual({}, form._errors)

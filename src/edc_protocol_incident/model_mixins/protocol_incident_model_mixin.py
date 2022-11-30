@@ -1,10 +1,9 @@
 from django.db import models
 from edc_constants.choices import YES_NO
-from edc_model import REPORT_STATUS
 from edc_model.validators import datetime_not_future
 from edc_utils import get_utcnow
 
-from ..choices import DEVIATION_VIOLATION
+from ..choices import DEVIATION_VIOLATION, REPORT_STATUS
 from ..models import ActionsRequired, ProtocolViolations
 
 
@@ -119,6 +118,8 @@ class ProtocolIncidentModelMixin(models.Model):
         max_length=25,
         choices=REPORT_STATUS,
     )
+
+    reasons_withdrawn = models.TextField(null=True, blank=True)
 
     report_closed_datetime = models.DateTimeField(
         blank=True,

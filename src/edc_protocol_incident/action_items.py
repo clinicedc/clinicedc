@@ -1,7 +1,11 @@
 from edc_action_item import ActionWithNotification
 from edc_constants.constants import CLOSED, HIGH_PRIORITY
 
-from .constants import PROTOCOL_DEVIATION_VIOLATION_ACTION, PROTOCOL_INCIDENT_ACTION
+from .constants import (
+    PROTOCOL_DEVIATION_VIOLATION_ACTION,
+    PROTOCOL_INCIDENT_ACTION,
+    WITHDRAWN,
+)
 
 
 class ProtocolDeviationViolationAction(ActionWithNotification):
@@ -35,4 +39,4 @@ class ProtocolIncidentAction(ActionWithNotification):
     priority = HIGH_PRIORITY
 
     def close_action_item_on_save(self):
-        return self.reference_obj.report_status == CLOSED
+        return self.reference_obj.report_status in [CLOSED, WITHDRAWN]
