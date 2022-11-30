@@ -20,8 +20,11 @@ class NameFieldsModelMixin(models.Model):
     )
 
     familiar_name = EncryptedCharField(
-        verbose_name="How should we refer to you? (if we speak to you)",
+        verbose_name="By what NAME should we refer to you? (if we speak to you)",
         blank=False,
+        help_text=(
+            "Should be a name. Do NOT use MR, MRS, MISS, SIR, MADAM and other such titles."
+        ),
         validators=[
             RegexValidator(
                 regex=r"^(([A-Z]+ )*[A-Z]+)?$",
