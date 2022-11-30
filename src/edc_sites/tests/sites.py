@@ -9,6 +9,7 @@ sites: list[SingleSite] = [
         title="Mochudi",
         country="botswana",
         country_code="bw",
+        languages={"tn": "Tswana"},
         domain=f"mochudi.bw.{fqdn}",
     ),
     SingleSite(
@@ -17,6 +18,7 @@ sites: list[SingleSite] = [
         title="Molepolole",
         country="botswana",
         country_code="bw",
+        languages={"tn": "Tswana"},
         fqdn=fqdn,
     ),
     SingleSite(
@@ -25,6 +27,7 @@ sites: list[SingleSite] = [
         title="Lobatse",
         country="botswana",
         country_code="bw",
+        languages={"tn": "Tswana"},
         fqdn=fqdn,
     ),
     SingleSite(
@@ -33,6 +36,7 @@ sites: list[SingleSite] = [
         title="Gaborone",
         country="botswana",
         country_code="bw",
+        languages={"tn": "Tswana"},
         fqdn=fqdn,
     ),
     SingleSite(
@@ -41,6 +45,7 @@ sites: list[SingleSite] = [
         title="Karakobis",
         country="botswana",
         country_code="bw",
+        languages={"tn": "Tswana"},
         fqdn=fqdn,
     ),
     SingleSite(
@@ -49,6 +54,7 @@ sites: list[SingleSite] = [
         title="Windhoek",
         country="namibia",
         country_code="na",
+        languages={"tn": "Tswana"},
         fqdn=fqdn,
     ),
 ]
