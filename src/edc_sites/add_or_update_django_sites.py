@@ -1,12 +1,18 @@
+from __future__ import annotations
+
+import json
 import sys
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.utils import OperationalError, ProgrammingError
 
 from .get_sites_module import get_sites_module
 from .single_site import SiteDomainRequiredError
+
+if TYPE_CHECKING:
+    from .models import SiteProfile
 
 
 class InvalidSiteError(Exception):
@@ -34,7 +40,6 @@ def add_or_update_django_sites(apps=None, sites=None, verbose=None):
         all_sites = get_sites_module().all_sites
     elif isinstance(sites, (list, tuple)):
         all_sites = {"default": sites}
-
     for sites in all_sites.values():
         for single_site in sites:
             if get_sites_module() and single_site.name == "edc_sites.sites":
@@ -65,21 +70,21 @@ def get_or_create_site_obj(single_site, apps):
     return site_obj
 
 
-def get_or_create_site_profile_obj(single_site, site_obj, apps):
+def get_or_create_site_profile_obj(single_site, site_obj, apps) -> SiteProfile | None:
     site_profile_model_cls = apps.get_model("edc_sites", "SiteProfile")
     opts = dict(
         title=single_site.title,
         country=single_site.country,
         country_code=single_site.country_code,
         description=single_site.description or single_site.title,
+        languages=json.dumps(single_site.languages) if single_site.languages else None,
     )
     try:
         site_profile = site_profile_model_cls.objects.get(site=site_obj)
     except ObjectDoesNotExist:
-        site_profile_model_cls.objects.create(site=site_obj, **opts)
-    except (OperationalError, ProgrammingError):
-        pass
+        site_profile = site_profile_model_cls.objects.create(site=site_obj, **opts)
     else:
         for k, v in opts.items():
             setattr(site_profile, k, v)
         site_profile.save()
+    return site_profile

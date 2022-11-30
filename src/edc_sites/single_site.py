@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.conf import settings
 
 
@@ -6,6 +8,10 @@ class SiteDomainRequiredError(Exception):
 
 
 class SiteCountryRequiredError(Exception):
+    pass
+
+
+class SiteLanguagesError(Exception):
     pass
 
 
@@ -18,6 +24,7 @@ class SingleSite:
         title: str = None,
         country: str = None,
         country_code: str = None,
+        languages: dict[str, str] | None = None,
         domain: str = None,
         description: str = None,
         fqdn: str = None,
@@ -25,6 +32,17 @@ class SingleSite:
         if not domain and not fqdn:
             raise ValueError("Require either domain and/or fqdn. Got both as None.")
         self._domain = domain or f"{name}.{fqdn}"
+        if languages:
+            if unknown_languages := {
+                k: v for k, v in languages.items() if k not in self.languages_from_settings
+            }:
+                raise SiteLanguagesError(
+                    f"Unknown language code(s) associated with site. Language code must be "
+                    f"included in settings.LANGUAGES. Expected one of settings.LANGUAGES "
+                    f"{self.languages_from_settings}. Got {unknown_languages} for site "
+                    f"{site_id}."
+                )
+        self.languages = languages or self.languages_from_settings
         self.site_id = site_id
         self.name = name
         self.title = title or name.title()
@@ -41,6 +59,14 @@ class SingleSite:
 
     def __str__(self):
         return str(self.domain)
+
+    @property
+    def languages_from_settings(self) -> dict[str, str]:
+        try:
+            lang_iterator = settings.LANGUAGES.items()
+        except AttributeError:
+            lang_iterator = settings.LANGUAGES
+        return {k: v for k, v in lang_iterator}
 
     @property
     def domain(self) -> str:

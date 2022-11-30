@@ -1,7 +1,7 @@
 from django import forms
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.test import TestCase, tag  # noqa
+from django.test import TestCase
 from django.test.utils import override_settings
 from multisite import SiteID
 from multisite.models import Alias
@@ -13,6 +13,7 @@ from edc_sites.sites import all_sites
 from ..add_or_update_django_sites import add_or_update_django_sites
 from ..forms import SiteModelFormMixin
 from ..get_site_id import InvalidSiteError, get_site_id
+from ..single_site import SingleSite, SiteLanguagesError
 from .models import TestModelWithSite
 from .site_test_case_mixin import SiteTestCaseMixin
 from .sites import all_test_sites
@@ -133,3 +134,46 @@ class TestSites(SiteTestCaseMixin, TestCase):
         site = Site.objects.get(id=10)
         self.assertEqual(get_current_country(), "botswana")
         self.assertEqual(Alias.objects.get(site=site).domain, "mochudi.bw.clinicedc.org")
+
+    @override_settings(LANGUAGES={"xx": "XXX"})
+    def test_languages_not_found(self):
+        self.assertRaises(
+            SiteLanguagesError,
+            SingleSite,
+            10,
+            "mochudi",
+            title="Mochudi",
+            country="botswana",
+            country_code="bw",
+            languages={"tn": "Tswana"},
+            domain="mochudi.bw.xxx",
+        ),
+
+    @override_settings(LANGUAGES={"tn": "Setswana"})
+    def test_languages_ok(self):
+        try:
+            SingleSite(
+                10,
+                "mochudi",
+                title="Mochudi",
+                country="botswana",
+                country_code="bw",
+                languages={"tn": "Setswana"},
+                domain="mochudi.bw.xxx",
+            )
+        except SiteLanguagesError:
+            self.fail("SiteLanguagesError unexpectedly raised")
+
+    @override_settings(LANGUAGES={})
+    def test_languages_ok_default(self):
+        try:
+            SingleSite(
+                10,
+                "mochudi",
+                title="Mochudi",
+                country="botswana",
+                country_code="bw",
+                domain="mochudi.bw.xxx",
+            )
+        except SiteLanguagesError:
+            self.fail("SiteLanguagesError unexpectedly raised")
