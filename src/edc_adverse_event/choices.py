@@ -11,6 +11,7 @@ from edc_reportable import (
 )
 
 from .constants import (
+    AE_WITHDRAWN,
     CONTINUING_UPDATE,
     NOT_RECOVERED,
     RECOVERED,
@@ -48,6 +49,7 @@ AE_OUTCOME = (
     (LOST_TO_FOLLOWUP, "Unknown/Lost to follow-up"),
     (RECOVERED_WITH_SEQUELAE, "Recovered with sequelae"),
     (DEAD, "Death"),
+    (AE_WITHDRAWN, "Adverse event report withdrawn after TMG review"),
 )
 
 CONTACT = (

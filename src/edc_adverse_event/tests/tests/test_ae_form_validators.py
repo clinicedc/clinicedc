@@ -9,11 +9,16 @@ from edc_sites.tests import SiteTestCaseMixin
 from adverse_event_app import list_data
 from edc_adverse_event.models import SaeReason
 
-from ...form_validators import AeInitialFormValidator, AeTmgFormValidator
+from ...constants import AE_WITHDRAWN
+from ...form_validators import (
+    AeFollowupFormValidator,
+    AeInitialFormValidator,
+    AeTmgFormValidator,
+)
 
 
 @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
-class TestAeInitialFormValidator(SiteTestCaseMixin, TestCase):
+class TestFormValidators(SiteTestCaseMixin, TestCase):
     @classmethod
     def setUpClass(cls):
         site_list_data.initialize()
@@ -60,3 +65,30 @@ class TestAeInitialFormValidator(SiteTestCaseMixin, TestCase):
         form_validator = AeTmgFormValidator(cleaned_data=cleaned_data)
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn("ae_classification_other", form_validator._errors)
+
+    def test_ae_followup(self):
+        cleaned_data = {"outcome": None, "followup": None}
+        form_validator = AeFollowupFormValidator(cleaned_data=cleaned_data)
+        try:
+            form_validator.validate()
+        except forms.ValidationError as e:
+            self.fail(f"ValidationError unexpectedly raised. Got {e}")
+
+        cleaned_data = {"outcome": AE_WITHDRAWN, "followup": None}
+        form_validator = AeFollowupFormValidator(cleaned_data=cleaned_data)
+        try:
+            form_validator.validate()
+        except forms.ValidationError as e:
+            self.fail(f"ValidationError unexpectedly raised. Got {e}")
+
+        cleaned_data = {"outcome": AE_WITHDRAWN, "followup": NO}
+        form_validator = AeFollowupFormValidator(cleaned_data=cleaned_data)
+        try:
+            form_validator.validate()
+        except forms.ValidationError as e:
+            self.fail(f"ValidationError unexpectedly raised. Got {e}")
+
+        cleaned_data = {"outcome": AE_WITHDRAWN, "followup": YES}
+        form_validator = AeFollowupFormValidator(cleaned_data=cleaned_data)
+        self.assertRaises(ValidationError, form_validator.validate)
+        self.assertIn("followup", form_validator._errors)

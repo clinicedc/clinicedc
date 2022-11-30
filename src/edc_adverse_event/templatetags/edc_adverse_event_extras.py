@@ -9,6 +9,8 @@ from edc_constants.constants import OTHER, YES
 from edc_dashboard.utils import get_bootstrap_version
 from edc_utils import get_utcnow
 
+from edc_adverse_event.constants import AE_WITHDRAWN
+
 register = template.Library()
 
 
@@ -58,6 +60,7 @@ def format_ae_description(context, ae_initial, wrap_length):
 
 @register.inclusion_tag(select_description_template("aefollowup"), takes_context=True)
 def format_ae_followup_description(context, ae_followup, wrap_length):
+    context["AE_WITHDRAWN"] = AE_WITHDRAWN
     context["utc_date"] = get_utcnow().date()
     context["SHORT_DATE_FORMAT"] = settings.SHORT_DATE_FORMAT
     context["OTHER"] = OTHER

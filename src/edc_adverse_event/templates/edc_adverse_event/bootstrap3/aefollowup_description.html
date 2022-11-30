@@ -5,7 +5,11 @@
 {% load l10n %}
 
 <B>{{ ae_initial.subject_identifier }}</B>
-<BR><b>Followup required: <font color="{% if ae_followup.followup == YES%}red{%else%}green{%endif%}">{{ ae_followup.get_followup_display }}</font></b>
+<BR>
+  {% if  ae_followup.outcome == AE_WITHDRAWN %}
+    <span style="color:darkorange;">WITHDRAWN</span>
+  {% endif %}
+<BR><b>Followup required: <span style="color:{% if ae_followup.followup == YES%}red{%else%}green{%endif%};">{{ ae_followup.get_followup_display }}</span>
 <BR><b>Followup reported:</b> {{ ae_followup.report_datetime|date:SHORT_DATE_FORMAT}} ({{ utc_date|timeuntil:ae_initial.report_datetime.date }} ago)
 <BR><b>This followup:</b>
 <BR>{{ relevant_history|default:ae_followup.relevant_history }}
