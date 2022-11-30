@@ -82,7 +82,7 @@ class AeFollowupModelAdminMixin(
 
     def get_list_filter(self, request) -> tuple:
         list_filter = super().get_list_filter(request)
-        custom_fields = ("ae_grade", "followup", "outcome_date", "report_datetime")
+        custom_fields = ("ae_grade", "followup", "outcome_date", "outcome", "report_datetime")
         return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
 
     def description(self, obj):
