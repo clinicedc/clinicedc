@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin import AdminSite as DjangoAdminSite
 from django.contrib.sites.shortcuts import get_current_site
@@ -63,6 +64,8 @@ class EdcAdminSite(DjangoAdminSite):
             site_header=self.get_edc_site_header(request),
             global_site=get_current_site(request),
             protocol_name=Protocol().protocol_name,
+            live_system=settings.LIVE_SYSTEM,
+            DEBUG=settings.DEBUG,
         )
         return context
 
