@@ -5,6 +5,7 @@ from .constants import (
     ABSENT,
     AFTERNOON,
     ALIVE,
+    ALWAYS,
     ANYTIME,
     AWAITING_RESULTS,
     COMPLETE,
@@ -45,11 +46,14 @@ from .constants import (
     PRESENT,
     PURPOSIVELY_SELECTED,
     RANDOM_SAMPLING,
+    RARELY,
     REFUSED,
     SMOKER,
+    SOMETIMES,
     TBD,
     TRUE,
     UNKNOWN,
+    VERY_OFTEN,
     WEEKDAYS,
     WEEKENDS,
     YES,
@@ -338,6 +342,14 @@ IDENTITY_TYPE = (
     ("PASSPORT", "Passport"),
     ("OMANG_RCPT", "Omang Receipt"),
     (OTHER, "Other"),
+)
+
+LIKERT_FREQUENCY = (
+    (ALWAYS, "Always"),
+    (VERY_OFTEN, "Very Often"),
+    (SOMETIMES, "Sometimes"),
+    (RARELY, "Rarely"),
+    (NEVER, "Never"),
 )
 
 MARITAL_STATUS = (
