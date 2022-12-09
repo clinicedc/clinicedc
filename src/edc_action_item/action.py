@@ -111,7 +111,8 @@ class Action:
             raise ActionError(
                 f"Action class received an unlisted parent_action_item. "
                 f"Expected one of {self.parent_action_names}. "
-                f"Got '{self.parent_action_item.action_cls.name}'. "
+                f"Got '{self.parent_action_item.action_cls.name}' "
+                f"subject_identifier `{self.subject_identifier}`."
                 f"See Action {self.__class__}."
             )
         if not self.related_action_item and self.related_reference_fk_attr:
