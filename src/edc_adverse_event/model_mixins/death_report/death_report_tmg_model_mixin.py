@@ -75,7 +75,6 @@ class DeathReportTmgFieldsModelMixin(models.Model):
         verbose_name="Is the cause of death agreed between study doctor and TMG member?",
         max_length=15,
         choices=YES_NO,
-        blank=True,
         null=True,
         help_text="If No, explain in the narrative below",
     )
