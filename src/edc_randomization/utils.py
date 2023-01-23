@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import csv
 import os
 from typing import Any, Optional
@@ -20,18 +22,22 @@ class SubjectNotRandomization(Exception):
     pass
 
 
-def get_assignment_for_subject(subject_identifier: str, randomizer_name: str = None) -> str:
+def get_assignment_for_subject(
+    subject_identifier: str, randomizer_name: str = None, identifier_fld: str | None = None
+) -> str:
     """Returns the assignment for a randomized subject.
 
     Calling this method before a subject is randomized will
     raise a SubjectNotRandomization error.
     """
-    obj = get_object_for_subject(subject_identifier, randomizer_name)
+    obj = get_object_for_subject(
+        subject_identifier, randomizer_name, identifier_fld=identifier_fld
+    )
     return obj.assignment
 
 
 def get_assignment_description_for_subject(
-    subject_identifier: str, randomizer_name: str = None
+    subject_identifier: str, randomizer_name: str = None, identifier_fld: str | None = None
 ) -> str:
     """Returns the assignment description for a randomized subject.
 
@@ -40,11 +46,15 @@ def get_assignment_description_for_subject(
     """
     randomizer_cls = site_randomizers.get(randomizer_name)
     return randomizer_cls.assignment_description_map.get(
-        get_assignment_for_subject(subject_identifier, randomizer_name)
+        get_assignment_for_subject(
+            subject_identifier, randomizer_name, identifier_fld=identifier_fld
+        )
     )
 
 
-def get_object_for_subject(subject_identifier: str, randomizer_name: str = None) -> Any:
+def get_object_for_subject(
+    subject_identifier: str, randomizer_name: str = None, identifier_fld: str | None = None
+) -> Any:
     """Returns a randomization list model instance or raises
     for the given subject.
 
@@ -52,13 +62,14 @@ def get_object_for_subject(subject_identifier: str, randomizer_name: str = None)
     raise a SubjectNotRandomization error.
     """
     randomizer_cls = site_randomizers.get(randomizer_name)
+    opts = {
+        identifier_fld or "subject_identifier": subject_identifier,
+        "randomizer_name": randomizer_name,
+        "allocated": True,
+        "allocated_datetime__isnull": False,
+    }
     try:
-        obj = randomizer_cls.model_cls().objects.get(
-            subject_identifier=subject_identifier,
-            randomizer_name=randomizer_name,
-            allocated=True,
-            allocated_datetime__isnull=False,
-        )
+        obj = randomizer_cls.model_cls().objects.get(**opts)
     except ObjectDoesNotExist:
         raise SubjectNotRandomization(
             f"Subject not randomized. Randomizer name is `{randomizer_name}`. "
