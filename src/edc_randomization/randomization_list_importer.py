@@ -325,7 +325,7 @@ class RandomizationListImporter:
     def validate_site_name(self, row) -> str:
         """Returns the site name or raises"""
         try:
-            site_name = self.get_site_names()[row["site_name"]]
+            site_name = self.get_site_names()[row["site_name"].lower()]
         except KeyError:
             raise RandomizationListImportError(
                 f"Invalid site. Got {row['site_name']}. "
