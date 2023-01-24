@@ -1,7 +1,11 @@
+from django.conf import settings
 from django.db import models
 
 from ..choices import APPT_STATUS, APPT_TIMING, APPT_TYPE, DEFAULT_APPT_REASON_CHOICES
 from ..constants import NEW_APPT, ONTIME_APPT
+
+APPT_TYPE = getattr(settings, "EDC_APPOINTMENT_APPT_TYPE_CHOICES", APPT_TYPE)
+APPT_TYPE_DEFAULT = getattr(settings, "EDC_APPOINTMENT_APPT_TYPE_DEFAULT", "clinic")
 
 
 class AppointmentFieldsModelMixin(models.Model):
@@ -34,7 +38,7 @@ class AppointmentFieldsModelMixin(models.Model):
     appt_type = models.CharField(
         verbose_name="Appointment type",
         choices=APPT_TYPE,
-        default="clinic",
+        default=APPT_TYPE_DEFAULT,
         max_length=20,
         help_text="Default for subject may be edited Subject Configuration.",
     )

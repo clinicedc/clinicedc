@@ -206,7 +206,7 @@ class AppointmentFormValidator(
         if appt_datetime and appt_status != NEW_APPT:
             if to_utc(appt_datetime) > get_utcnow():
                 self.raise_validation_error(
-                    {"appt_datetime": "Cannot be a future date."}, INVALID_APPT_DATE
+                    {"appt_datetime": "Cannot be a future date/time."}, INVALID_APPT_DATE
                 )
 
     def validate_appt_datetime_not_before_consent_datetime(self: Any) -> None:
@@ -550,7 +550,7 @@ class AppointmentFormValidator(
                     subject_identifier=subject_identifier,
                     visit_schedule_name=self.instance.visit_schedule_name,
                     schedule_name=self.instance.schedule_name,
-                    reference_datetime=appt_datetime,
+                    reference_datetime=to_utc(appt_datetime),
                 )
             except NotOnScheduleError:
                 self.raise_validation_error(
