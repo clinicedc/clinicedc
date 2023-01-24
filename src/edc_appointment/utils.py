@@ -13,9 +13,10 @@ from edc_visit_schedule.schedule.window import (
 )
 from edc_visit_schedule.utils import is_baseline
 
-from .choices import DEFAULT_APPT_REASON_CHOICES
+from .choices import APPT_TYPE, DEFAULT_APPT_REASON_CHOICES
 from .constants import (
     CANCELLED_APPT,
+    CLINIC,
     COMPLETE_APPT,
     INCOMPLETE_APPT,
     MISSED_APPT,
@@ -82,6 +83,26 @@ def get_appt_reason_choices() -> Tuple[str, ...]:
                 f"Missing key `{key}`. See {settings_attr}."
             )
     return appt_reason_choices
+
+
+def get_appt_type_choices() -> Tuple[str, ...]:
+    """Returns a customized tuple of choices otherwise the default"""
+    settings_attr = "EDC_APPOINTMENT_APPT_TYPE_CHOICES"
+    appt_type_choices = getattr(settings, settings_attr, APPT_TYPE)
+    if get_appt_type_default() and not [
+        choice[0] for choice in appt_type_choices if get_appt_type_default() == choice[0]
+    ]:
+        raise ImproperlyConfigured(
+            "Missing default value in EDC_APPOINTMENT_APPT_TYPE_CHOICES. "
+            f"Missing key `{get_appt_type_default()}`. See {settings_attr} and "
+            "EDC_APPOINTMENT_APPT_TYPE_DEFAULT."
+        )
+    return appt_type_choices
+
+
+def get_appt_type_default():
+    settings_attr = "EDC_APPOINTMENT_APPT_TYPE_DEFAULT"
+    return getattr(settings, settings_attr, CLINIC)
 
 
 def cancelled_appointment(appointment: Appointment) -> None:

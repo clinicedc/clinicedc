@@ -1,4 +1,5 @@
 from .appointment import Appointment
+from .appointment_type import AppointmentType
 from .signals import (
     appointment_post_save,
     appointments_on_post_delete,

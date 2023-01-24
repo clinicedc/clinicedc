@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from django.conf import settings
 from edc_utils import convert_php_dateformat, to_utc
+from edc_utils.date import ceil_datetime, floor_secs
 from edc_visit_schedule.schedule.window import (
     ScheduledVisitWindowError,
     UnScheduledVisitWindowError,
@@ -60,8 +61,13 @@ class WindowPeriodFormValidatorMixin:
                 if not self.ignore_window_period_for_unscheduled(
                     appointment, proposed_appt_datetime
                 ):
-                    lower = get_lower_datetime(appointment).strftime(datetimestring)
-                    upper = get_lower_datetime(appointment.next).strftime(datetimestring)
+                    # TODO: fix the dates on this message to match e.message
+                    lower = floor_secs(get_lower_datetime(appointment)).strftime(
+                        datetimestring
+                    )
+                    upper = floor_secs(get_lower_datetime(appointment.next)).strftime(
+                        datetimestring
+                    )
                     self.raise_validation_error(
                         {
                             form_field: (
@@ -72,9 +78,11 @@ class WindowPeriodFormValidatorMixin:
                         UNSCHEDULED_WINDOW_ERROR,
                     )
             except ScheduledVisitWindowError:
-                lower = get_lower_datetime(appointment).strftime(datetimestring)
-                upper = get_upper_datetime(appointment).strftime(datetimestring)
-                proposed = proposed_appt_datetime.strftime(datetimestring)
+                lower = floor_secs(get_lower_datetime(appointment)).strftime(datetimestring)
+                upper = floor_secs(ceil_datetime(get_upper_datetime(appointment))).strftime(
+                    datetimestring
+                )
+                proposed = floor_secs(proposed_appt_datetime).strftime(datetimestring)
                 # TODO: check this is correctly limiting (e.g. requistions)
                 self.raise_validation_error(
                     {

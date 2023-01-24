@@ -20,6 +20,7 @@ from ..admin_site import edc_appointment_admin
 from ..constants import NEW_APPT
 from ..forms import AppointmentForm
 from ..models import Appointment
+from ..utils import get_appt_reason_choices
 from .actions import appointment_mark_as_done, appointment_mark_as_new
 from .list_filters import AppointmentListFilter
 
@@ -179,3 +180,8 @@ class AppointmentAdmin(
             call_url=call_url,
         )
         return render_to_string("button.html", context=context)
+
+    def formfield_for_choice_field(self, db_field, request, **kwargs):
+        if db_field.name == "appt_reason":
+            kwargs["choices"] = get_appt_reason_choices()
+        return super().formfield_for_choice_field(db_field, request, **kwargs)
