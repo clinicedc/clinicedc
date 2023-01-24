@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from django.conf import settings
-from edc_utils import convert_php_dateformat
+from edc_utils import convert_php_dateformat, to_utc
 from edc_visit_schedule.schedule.window import (
     ScheduledVisitWindowError,
     UnScheduledVisitWindowError,
@@ -35,7 +35,7 @@ class WindowPeriodFormValidatorMixin:
             and appointment.visit_code_sequence > 0
             and appointment.next
             and appointment.next.appt_status in [INCOMPLETE_APPT, COMPLETE_APPT]
-            and proposed_appt_datetime < appointment.next.appt_datetime
+            and to_utc(proposed_appt_datetime) < appointment.next.appt_datetime
         ):
             value = True
         return value
@@ -75,6 +75,7 @@ class WindowPeriodFormValidatorMixin:
                 lower = get_lower_datetime(appointment).strftime(datetimestring)
                 upper = get_upper_datetime(appointment).strftime(datetimestring)
                 proposed = proposed_appt_datetime.strftime(datetimestring)
+                # TODO: check this is correctly limiting (e.g. requistions)
                 self.raise_validation_error(
                     {
                         form_field: (
