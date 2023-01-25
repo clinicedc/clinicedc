@@ -71,12 +71,6 @@ class AeTmgModelAdminMixin(
         "investigator_ae_classification": admin.VERTICAL,
     }
 
-    readonly_fields = (
-        "ae_description",
-        "ae_classification",
-        "ae_classification_other",
-    )
-
     def get_list_display(self, request) -> Tuple[str, ...]:
         list_display = super().get_list_display(request)
         custom_fields = (
