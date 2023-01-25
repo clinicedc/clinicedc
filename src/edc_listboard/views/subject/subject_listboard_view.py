@@ -30,6 +30,9 @@ class SubjectListboardView(
     navbar_selected_item = "consented_subject"
     search_form_url = "subject_listboard_url"
 
+    name_search_field: str = "first_name"
+    identity_regex: str = r"^[0-9]+$"
+
     def get_queryset_filter_options(self, request, *args, **kwargs):
         options = super().get_queryset_filter_options(request, *args, **kwargs)
         if kwargs.get("subject_identifier"):
@@ -37,17 +40,18 @@ class SubjectListboardView(
         return options
 
     def extra_search_options(self, search_term):
+        search_term = search_term.strip()
         q_objects = [
             Q(user_created__iexact=search_term),
             Q(user_modified__iexact=search_term),
         ]
-        if re.match(r"^[A-Za-z\-]+$", search_term):
+        if re.match(r"^[A-Za-z\-\s]+$", search_term):
             q_objects.append(Q(initials__exact=search_term.upper()))
-            q_objects.append(Q(first_name__exact=search_term.upper()))
+            q_objects.append(Q(**{f"{self.name_search_field}__exact": search_term.upper()}))
             q_objects.append(
                 Q(screening_identifier__icontains=search_term.replace("-", "").upper())
             )
             q_objects.append(Q(subject_identifier__icontains=search_term))
-        if re.match(r"^[0-9]+$", search_term):
+        if re.match(self.identity_regex, search_term):
             q_objects.append(Q(identity__exact=search_term))
         return q_objects
