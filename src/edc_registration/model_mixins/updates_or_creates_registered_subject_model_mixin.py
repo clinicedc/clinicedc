@@ -85,7 +85,7 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
         pass
 
     @property
-    def registration_options(self):
+    def registration_options(self) -> dict:
         """Gathers values for common attributes between the
         registration model and this instance.
         """

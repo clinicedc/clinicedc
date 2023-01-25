@@ -37,6 +37,10 @@ class RegisteredSubject(
     # subject before consent)
     last_name = LastnameField(verbose_name="Last name", null=True)
 
+    full_name = LastnameField(verbose_name="Full name", null=True)
+
+    familiar_name = LastnameField(verbose_name="Familiar name", null=True)
+
     # may not be available when instance created (e.g. infants)
     initials = EncryptedCharField(
         validators=[
