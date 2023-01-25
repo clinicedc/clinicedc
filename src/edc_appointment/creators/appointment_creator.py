@@ -14,9 +14,10 @@ from edc_facility.facility import Facility, FacilityError
 from edc_visit_schedule.utils import is_baseline
 
 from ..constants import CLINIC, SCHEDULED_APPT
+from ..utils import get_appt_type_default
 
 if TYPE_CHECKING:
-    from ..models import Appointment
+    from ..models import Appointment, AppointmentType
 
 
 class CreateAppointmentError(Exception):
@@ -206,15 +207,24 @@ class AppointmentCreator:
         return django_apps.get_model("edc_appointment.appointment")
 
     @property
-    def default_appt_type(self) -> str:
-        """Returns a string that is the default appointment
-        type, e.g. 'clinic'.
+    def default_appt_type(self) -> AppointmentType | None:
+        """Returns an AppointmentType instance or None for
+        the default appointment type, e.g. 'clinic'.
         """
         if not self._default_appt_type:
             try:
-                self._default_appt_type = settings.EDC_APPOINTMENT_DEFAULT_APPT_TYPE
+                default_appt_type = get_appt_type_default()
             except AttributeError:
-                self._default_appt_type = CLINIC
+                default_appt_type = CLINIC
+            if not default_appt_type:
+                self._default_appt_type = default_appt_type
+            else:
+                appointment_type_model_cls = django_apps.get_model(
+                    "edc_appointment.appointmenttype"
+                )
+                self._default_appt_type = appointment_type_model_cls.objects.get(
+                    name=default_appt_type
+                )
         return self._default_appt_type
 
     @property
