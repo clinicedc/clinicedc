@@ -9,6 +9,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from edc_utils import floor_secs, formatted_datetime, to_utc
+from edc_utils.date import to_local
 
 from .baseline import Baseline
 from .exceptions import OffScheduleError, OnScheduleError
@@ -27,7 +28,7 @@ def get_lower_datetime(instance) -> datetime:
 def get_upper_datetime(instance) -> datetime:
     """Returns the datetime of the upper window"""
     instance.visit.dates.base = to_utc(instance.first.timepoint_datetime)
-    return instance.visit.dates.lower
+    return instance.visit.dates.upper
 
 
 def is_baseline(
@@ -252,7 +253,7 @@ def get_onschedule_model_instance(
             onschedule_datetime__lte=reference_datetime,
         )
     except ObjectDoesNotExist as e:
-        dte_as_str = formatted_datetime(reference_datetime)
+        dte_as_str = formatted_datetime(to_local(reference_datetime))
         raise OffScheduleError(
             "Subject is not on a schedule. Using subject_identifier="
             f"`{subject_identifier}` and appt_datetime=`{dte_as_str}`. Got {e}"

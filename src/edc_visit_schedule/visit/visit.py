@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from edc_facility.utils import get_default_facility_name, get_facility
-from edc_utils import to_utc
+from edc_utils import get_utcnow, to_utc
 
 from .window_period import WindowPeriod
 
@@ -98,6 +98,8 @@ class Visit:
         rbase: relativedelta = None,
         rlower: relativedelta = None,
         rupper: relativedelta = None,
+        rlower_late: relativedelta = None,
+        rupper_late: relativedelta = None,
         crfs: FormsCollection | None = None,
         requisitions: FormsCollection | None = None,
         crfs_unscheduled: FormsCollection | None = None,
@@ -139,6 +141,8 @@ class Visit:
         self.rbase = rbase
         self.rlower = rlower
         self.rupper = rupper
+        self.rlower_late = self.rlower if rlower_late is None else rlower_late
+        self.rupper_late = self.rupper if rupper_late is None else rupper_late
         self.grouping = grouping
         if not code or isinstance(code, int) or not re.match(self.code_regex, code):
             raise VisitCodeError(f"Invalid visit code. Got '{code}'")
@@ -150,6 +154,15 @@ class Visit:
             timepoint=self.timepoint,
             base_timepoint=self.base_timepoint,
         )
+        self.late_dates = self.visit_date_cls(
+            rlower=rlower_late or rlower,
+            rupper=rupper_late or rupper,
+            timepoint=self.timepoint,
+            base_timepoint=self.base_timepoint,
+        )
+        utcnow = get_utcnow()
+        self.validate_rlower_late(utcnow)
+        self.validate_rupper_late(utcnow)
         self.title = title or f"Visit {self.code}"
         self.name = self.code
         self.facility_name = facility_name or get_default_facility_name()
@@ -276,3 +289,17 @@ class Visit:
                 for requisition in self.requisitions_unscheduled
             ],
         )
+
+    def validate_rlower_late(self, utcnow):
+        if utcnow - self.rlower_late < utcnow - self.rlower:
+            raise VisitDateError(
+                "Lower bound error. `Late` lower boundary cannot exceed "
+                f"lower boundary. See {self}."
+            )
+
+    def validate_rupper_late(self, utcnow):
+        if utcnow + self.rupper_late < utcnow + self.rupper:
+            raise VisitDateError(
+                "Upper bound error. `Late` upper boundary cannot be exceed "
+                f"upper boundary. See {self}."
+            )
