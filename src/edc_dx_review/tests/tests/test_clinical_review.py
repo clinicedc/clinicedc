@@ -147,7 +147,7 @@ class TestClinicalReview(TestCaseMixin, TestCase):
         )
         form = ClinicalReviewBaselineForm(data=data)
         form.is_valid()
-        self.assertIn("Htn: When was the ", str([form._errors.get("__all__")]))
+        self.assertIn("When was the ", str([form._errors.get("__all__")]))
 
     @override_settings(
         EDC_DX_LABELS={

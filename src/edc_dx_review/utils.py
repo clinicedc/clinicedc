@@ -59,7 +59,7 @@ def raise_if_clinical_review_does_not_exist(subject_visit) -> None:
         try:
             model_exists_or_raise(subject_visit=subject_visit, model_cls=model_cls)
         except ObjectDoesNotExist:
-            raise forms.ValidationError(f"Complete {model_cls._meta.verbose_mame} CRF first.")
+            raise forms.ValidationError(f"Complete {model_cls._meta.verbose_name} CRF first.")
 
 
 def raise_if_both_ago_and_actual_date(dx_ago: str, dx_date: date, cleaned_data=None) -> None:

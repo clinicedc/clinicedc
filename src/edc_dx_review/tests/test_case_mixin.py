@@ -35,6 +35,7 @@ class TestCaseMixin(TestCase):
         site_reportables.register(
             name="my_reportables", normal_data=normal_data, grading_data=grading_data
         )
+
         site_labs.register(lab_profile=subject_lab_profile)
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
