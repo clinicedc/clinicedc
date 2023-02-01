@@ -35,6 +35,9 @@ class CrfRuleGroup(RuleGroup, metaclass=RuleGroupMetaclass):
         rule_results = OrderedDict()
         metadata_objects = OrderedDict()
         for rule in cls._meta.options.get("rules"):
+            # skip if source model is not in visit.crfs (including PRNs)
+            if rule.source_model not in [c.model for c in cls.crfs_for_visit(visit)]:
+                continue
             rule_results.update({str(rule): rule.run(visit=visit)})
             for target_model, entry_status in rule_results[str(rule)].items():
                 if target_model == visit._meta.label_lower:
