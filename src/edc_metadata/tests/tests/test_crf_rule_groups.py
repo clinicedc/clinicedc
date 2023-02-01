@@ -1,6 +1,7 @@
 from collections import OrderedDict
 
 from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from edc_constants.constants import MALE
 from edc_facility.import_holidays import import_holidays
@@ -363,14 +364,17 @@ class CrfRuleGroupTestCase(TestCase):
             ).entry_status,
             REQUIRED,
         )
-        self.assertEqual(
+        try:
             CrfMetadata.objects.get(
                 model="edc_metadata.prnone",
                 visit_code=subject_visit_two.visit_code,
                 visit_code_sequence=subject_visit_two.visit_code_sequence,
-            ).entry_status,
-            NOT_REQUIRED,
-        )
+            )
+        except ObjectDoesNotExist:
+            pass
+        else:
+            self.fail("CrfMetadata model instance unexpectedly exists")
+
         crf_one.f1 = "caufield"
         crf_one.save()
         self.assertEqual(
@@ -381,14 +385,16 @@ class CrfRuleGroupTestCase(TestCase):
             ).entry_status,
             NOT_REQUIRED,
         )
-        self.assertEqual(
+        try:
             CrfMetadata.objects.get(
                 model="edc_metadata.prnone",
                 visit_code=subject_visit_two.visit_code,
                 visit_code_sequence=subject_visit_two.visit_code_sequence,
-            ).entry_status,
-            NOT_REQUIRED,
-        )
+            )
+        except ObjectDoesNotExist:
+            pass
+        else:
+            self.fail("CrfMetadata model instance unexpectedly exists")
         crf_one.f1 = "holden"
         crf_one.save()
         self.assertEqual(
@@ -399,14 +405,16 @@ class CrfRuleGroupTestCase(TestCase):
             ).entry_status,
             REQUIRED,
         )
-        self.assertEqual(
+        try:
             CrfMetadata.objects.get(
                 model="edc_metadata.prnone",
                 visit_code=subject_visit_two.visit_code,
                 visit_code_sequence=subject_visit_two.visit_code_sequence,
-            ).entry_status,
-            NOT_REQUIRED,
-        )
+            )
+        except ObjectDoesNotExist:
+            pass
+        else:
+            self.fail("CrfMetadata model instance unexpectedly exists")
 
     def test_prn_rule_acts_on_correct_visit2(self):
         """Asserts handles PRNs correctly"""
@@ -423,9 +431,9 @@ class CrfRuleGroupTestCase(TestCase):
 
         self.get_next_subject_visit(subject_visit)
 
-        self.assertEqual(2, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
+        self.assertEqual(1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
         self.assertEqual(
-            2,
+            1,
             CrfMetadata.objects.filter(
                 model="edc_metadata.prnone", entry_status=NOT_REQUIRED
             ).count(),
@@ -446,7 +454,7 @@ class CrfRuleGroupTestCase(TestCase):
             ).count(),
         )
         self.assertEqual(
-            1,
+            0,
             CrfMetadata.objects.filter(
                 model="edc_metadata.prnone", entry_status=NOT_REQUIRED
             ).count(),
