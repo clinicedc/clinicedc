@@ -10,6 +10,7 @@ from .auth_objects import (
     DATA_MANAGER,
     DATA_MANAGER_EXPORT,
     DATA_MANAGER_ROLE,
+    DATA_MANAGER_SUPER,
     DATA_QUERY,
     DATA_QUERY_VIEW,
     SITE_DATA_MANAGER_ROLE,
@@ -19,6 +20,11 @@ from .auth_objects import (
 
 site_auths.add_custom_permissions_tuples(
     model="edc_data_manager.edcpermissions", codename_tuples=custom_codename_tuples
+)
+
+site_auths.add_custom_permissions_tuples(
+    model="edc_data_manager.edcpermissions",
+    codename_tuples=[("edc_data_manager.special_bypassmodelform", "Can bypass modelform")],
 )
 
 
@@ -35,6 +41,18 @@ site_auths.add_group(
     "edc_data_manager.export_queryrule",
     name=DATA_MANAGER_EXPORT,
 )
+
+site_auths.add_group(*data_manager, name=DATA_MANAGER_SUPER)
+site_auths.update_group("edc_data_manager.change_dataquery", name=DATA_MANAGER_SUPER)
+site_auths.update_group(
+    "edc_data_manager.export_datadictionary",
+    "edc_data_manager.export_dataquery",
+    "edc_data_manager.export_queryrule",
+    "edc_data_manager.special_bypassvalidation",
+    "edc_data_manager.change_dataquery",
+    name=DATA_MANAGER_SUPER,
+)
+
 
 # roles
 site_auths.add_role(CELERY_MANAGER, DATA_MANAGER, name=DATA_MANAGER_ROLE)
