@@ -2,6 +2,7 @@ from edc_dashboard.auth_objects import dashboard_tuples
 
 # group names
 DATA_MANAGER = "DATA_MANAGER"
+DATA_MANAGER_SUPER = "DATA_MANAGER_SUPER"
 DATA_MANAGER_EXPORT = "DATA_MANAGER_EXPORT"
 DATA_QUERY = "DATA_QUERY"
 DATA_QUERY_VIEW = "DATA_QUERY_VIEW"
