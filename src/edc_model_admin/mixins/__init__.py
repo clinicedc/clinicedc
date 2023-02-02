@@ -6,6 +6,7 @@ from .inlines import (
 )
 from .model_admin_form_auto_number_mixin import ModelAdminFormAutoNumberMixin
 from .model_admin_form_instructions_mixin import ModelAdminFormInstructionsMixin
+from .model_admin_get_form_cls_mixin import ModelAdminGetFormClsMixin
 from .model_admin_institution_mixin import ModelAdminInstitutionMixin
 from .model_admin_model_redirect_mixin import ModelAdminModelRedirectMixin
 from .model_admin_next_url_redirect_mixin import (
