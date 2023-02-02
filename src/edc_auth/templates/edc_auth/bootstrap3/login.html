@@ -12,7 +12,7 @@
           <div class="panel-heading">
             <h4 class="text-muted text-center">{{ project_name }}</h4>
             <h6 class="text-muted text-center">{{ request.site.name|title }}</h6>
-            {% if not live_system or DEBUG %}<h6 class="text-center">This site is for testing and UAT only.</h6>{% endif %}
+            {% if live_system and not DEBUG %}<h6 class="text-center">LIVE</h6>{% else %}<h6 class="text-center">This site is for testing and UAT only.</h6>{% endif %}
           </div>
             <div class="panel-body text-center">
             {% if failure_limit %}
@@ -40,6 +40,7 @@
               <div class="form-group">
                   <input type="submit" class="btn btn-default" value="Login" />
                   <input type="hidden" name="next" value="{{ next }}" />
+                  <input type="hidden" name="live_system" value="{{ live_system }}" />
               </div>
 
               {% if ALLOW_PASSWORD_RESET %}

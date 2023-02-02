@@ -65,6 +65,7 @@ class GroupUpdater:
             "export",
             "nav",
             "display",
+            "special",
         ]
 
     def update_groups(self):
