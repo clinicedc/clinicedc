@@ -39,12 +39,18 @@ class ModelAdminGetFormClsMixin:
     custom_form_codename: str | None = None  # "e.g. edc_data_manager.special_bypassmodelform"
 
     def custom_modelform_factory(self):
-        """Returns a basic modelform with no validation checks"""
+        """Returns a basic modelform (with no validation checks)"""
+
+        meta_cls = getattr(
+            self.form,
+            "Meta",
+            type("Meta", (object,), {"model": self.model, "fields": "__all__"}),
+        )
 
         class BasicModelForm(SiteModelFormMixin, forms.ModelForm):
-            Meta = type("Meta", (object,), {"model": self.model, "fields": "__all__"})
+            Meta = meta_cls
 
-        BasicModelForm.__name__ = self.model.__name__ + "BasicForm"
+        BasicModelForm.__name__ = meta_cls.model.__name__ + "BasicForm"
         return BasicModelForm
 
     def get_form_cls(self, request):
