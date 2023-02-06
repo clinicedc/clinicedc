@@ -50,7 +50,6 @@ class AppConfig(DjangoAppConfig):
 
 
 if settings.APP_NAME == "edc_data_manager":
-
     from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE
     from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
     from edc_metadata.apps import AppConfig as BaseEdcMetadataAppConfig

@@ -10,7 +10,6 @@ class Manager(models.Manager):
 
 
 class DataManagerActionItem(BaseActionItem):
-
     objects = Manager()
 
     class Meta:

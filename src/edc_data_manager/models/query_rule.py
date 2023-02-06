@@ -70,7 +70,6 @@ class CrfDataDictionaryManager(DataDictionaryManager):
 
 
 class CrfDataDictionary(DataDictionary):
-
     objects = CrfDataDictionaryManager()
 
     class Meta:
@@ -84,7 +83,6 @@ class VisitDataDictionaryManager(DataDictionaryManager):
 
 
 class VisitDataDictionary(DataDictionary):
-
     objects = VisitDataDictionaryManager()
 
     class Meta:
@@ -98,7 +96,6 @@ class RequisitionDataDictionaryManager(DataDictionaryManager):
 
 
 class RequisitionDataDictionary(DataDictionary):
-
     objects = RequisitionDataDictionaryManager()
 
     class Meta:
@@ -107,7 +104,6 @@ class RequisitionDataDictionary(DataDictionary):
 
 
 class QueryRule(BaseUuidModel):
-
     active = models.BooleanField(default=True)
 
     title = models.CharField(max_length=150, unique=True)

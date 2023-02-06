@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_data_manager", "0022_alter_dataquery_recipients_and_more"),
     ]

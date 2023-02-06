@@ -49,7 +49,6 @@ QUERY_PRIORITY = ((HIGH_PRIORITY, "High"), (NORMAL, "Normal"))
 
 
 class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
-
     action_name = DATA_QUERY_ACTION
 
     report_datetime = models.DateTimeField(verbose_name="Query date", default=get_utcnow)
