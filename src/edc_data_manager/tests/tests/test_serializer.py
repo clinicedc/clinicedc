@@ -30,7 +30,6 @@ class TestSerializer(TestCase):
         populate_visit_schedule()
 
     def test_(self):
-
         self.assertGreater(QueryVisitSchedule.objects.all().count(), 0)
         self.assertGreater(CrfDataDictionary.objects.all().count(), 0)
         self.assertGreater(DataManagerUser.objects.all().count(), 0)

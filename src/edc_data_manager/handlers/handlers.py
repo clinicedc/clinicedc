@@ -32,7 +32,6 @@ class CrfInspectionFailed(Exception):
 
 
 class DoNothingHandler:
-
     name = "do_nothing"
     display_name = "Do Nothing"
 

@@ -10,7 +10,6 @@ import django_revision.revision_field
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_data_manager", "0024_alter_dataquery_action_identifier_and_more"),
     ]
