@@ -9,7 +9,6 @@ from ..models import DataQuery
 
 class DataQueryFormValidator(FormValidator):
     def clean(self):
-
         if self.cleaned_data.get("data_dictionaries"):
             models = list(
                 set([obj.model for obj in self.cleaned_data.get("data_dictionaries")])
@@ -70,7 +69,6 @@ class DataQueryFormValidator(FormValidator):
 
 
 class DataQueryForm(ActionItemFormMixin, FormValidatorMixin, forms.ModelForm):
-
     form_validator_cls = DataQueryFormValidator
 
     class Meta:

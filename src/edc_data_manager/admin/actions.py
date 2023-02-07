@@ -69,7 +69,6 @@ copy_query_rule_action.short_description = f"Copy {QueryRule._meta.verbose_name}
 
 
 def update_query_rules_action(modeladmin, request, queryset):
-
     if not DATA_MANAGER_ENABLED:
         msg = (
             "Data manager features are currently disabled. "

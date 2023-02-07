@@ -108,7 +108,6 @@ class TestQueryRules(TestCase):
         return subject_visit
 
     def test_data_inspector(self):
-
         for schedule in visit_schedule.schedules.values():
             for visit in schedule.visits.values():
                 self.create_subject_visit(visit.code)
@@ -164,7 +163,6 @@ class TestQueryRules(TestCase):
         self.assertEqual(len(inspector.keyed), 0)
 
     def test_crf_rule(self):
-
         # create a rule
         question = CrfDataDictionary.objects.get(
             model="data_manager_app.crfone", field_name="f1"
@@ -270,7 +268,6 @@ class TestQueryRules(TestCase):
         )
 
     def test_crf_rule_with_requisition(self):
-
         # create a rule
         question = CrfDataDictionary.objects.get(
             model="data_manager_app.crfone", field_name="f1"
@@ -405,7 +402,6 @@ class TestQueryRules(TestCase):
 
     @skip("fix later")
     def test_crf_rule_with_requisition_prn_visit(self):
-
         # create a rule
         question = CrfDataDictionary.objects.get(
             model="data_manager_app.crfone", field_name="f1"
