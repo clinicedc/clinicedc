@@ -34,14 +34,17 @@ class BaseResultsAction(Action):
 
     def get_next_actions(self):
         next_actions = []
-        if (
-            self.reference_obj.results_abnormal == YES
-            and self.reference_obj.results_reportable == YES
-            and not is_baseline(instance=self.reference_obj.related_visit)
-        ):
-            # AE for reportable result, though not on DAY1.0
+        if self.is_reportable and not is_baseline(instance=self.reference_obj.related_visit):
+            # AE for reportable result, though at baseline
             next_actions = [AE_INITIAL_ACTION]
         return next_actions
+
+    @property
+    def is_reportable(self):
+        return (
+            self.reference_obj.results_abnormal == YES
+            and self.reference_obj.results_reportable == YES
+        )
 
 
 class BloodResultsLftAction(BaseResultsAction):
@@ -113,7 +116,6 @@ def register_actions():
         BloodResultsLipidAction,
         BloodResultsRftAction,
     ]:
-
         try:
             django_apps.get_model(action_item.reference_model)
         except LookupError:

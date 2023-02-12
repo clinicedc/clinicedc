@@ -53,7 +53,7 @@ class BloodResultFieldset:
         exclude_reportable: bool = None,
     ):
         self.panel = panel
-        self.title = title or panel.name
+        self.title = (title or panel.name).replace("_", " ").title()
         self.model_cls = model_cls
         self.extra_fieldsets = extra_fieldsets
         self.excluded_utest_ids = excluded_utest_ids or []
@@ -70,7 +70,7 @@ class BloodResultFieldset:
     def fieldsets(self):
         fieldsets = [
             (None, {"fields": ("subject_visit", "report_datetime")}),
-            (self.title, {"fields": ["requisition", "assay_datetime"]}),
+            ("Requisition and Result Date", {"fields": ["requisition", "assay_datetime"]}),
         ]
         for utest_id in self.panel.utest_ids:
             if utest_id in self.excluded_utest_ids:
