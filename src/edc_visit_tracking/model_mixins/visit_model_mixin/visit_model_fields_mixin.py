@@ -13,7 +13,6 @@ from ...choices import VISIT_REASON_UNSCHEDULED
 
 
 class VisitModelFieldsMixin(models.Model):
-
     report_datetime = models.DateTimeField(
         verbose_name="Report date and time",
         validators=[datetime_not_before_study_start, datetime_not_future],

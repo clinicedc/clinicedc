@@ -105,7 +105,6 @@ class TestVisit(TestCase):
         appt_timing=None,
         visit_reason=None,
     ):
-
         appt_timing = appt_timing or ONTIME_APPT
         if visit_reason == MISSED_VISIT:
             appt_timing = MISSED_APPT

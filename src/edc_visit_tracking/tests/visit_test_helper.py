@@ -15,7 +15,6 @@ class VisitTestHelperError(Exception):
 
 
 class VisitTestHelper:
-
     appointment_model = "edc_appointment.appointment"
 
     @property
