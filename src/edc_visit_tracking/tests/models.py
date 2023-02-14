@@ -108,7 +108,6 @@ class SubjectRequisition(RequisitionModelMixin, BaseUuidModel):
 
 
 class CrfOne(VisitTrackingCrfModelMixin, BaseUuidModel):
-
     f1 = models.CharField(max_length=50, null=True)
 
     f2 = models.CharField(max_length=50, null=True)
@@ -120,7 +119,6 @@ class CrfOne(VisitTrackingCrfModelMixin, BaseUuidModel):
 
 
 class CrfTwo(VisitTrackingCrfModelMixin, BaseUuidModel):
-
     f1 = models.CharField(max_length=50, null=True)
 
     f2 = models.CharField(max_length=50, null=True)
@@ -132,7 +130,6 @@ class CrfTwo(VisitTrackingCrfModelMixin, BaseUuidModel):
 
 
 class CrfThree(VisitTrackingCrfModelMixin, BaseUuidModel):
-
     f1 = models.CharField(max_length=50, null=True)
 
     f2 = models.CharField(max_length=50, null=True)
@@ -144,7 +141,6 @@ class CrfThree(VisitTrackingCrfModelMixin, BaseUuidModel):
 
 
 class CrfFour(VisitTrackingCrfModelMixin, BaseUuidModel):
-
     f1 = models.CharField(max_length=50, null=True)
 
     f2 = models.CharField(max_length=50, null=True)
@@ -156,7 +152,6 @@ class CrfFour(VisitTrackingCrfModelMixin, BaseUuidModel):
 
 
 class CrfFive(VisitTrackingCrfModelMixin, BaseUuidModel):
-
     f1 = models.CharField(max_length=50, null=True)
 
     f2 = models.CharField(max_length=50, null=True)
@@ -168,7 +163,6 @@ class CrfFive(VisitTrackingCrfModelMixin, BaseUuidModel):
 
 
 class BadCrfNoRelatedVisit(VisitTrackingCrfModelMixin, BaseUuidModel):
-
     subject_visit = None
 
     f1 = models.CharField(max_length=50, null=True)

@@ -12,7 +12,6 @@ class SubjectVisitMissed(
     SubjectVisitMissedModelMixin,
     edc_models.BaseUuidModel,
 ):
-
     subject_visit = models.OneToOneField(
         settings.SUBJECT_VISIT_MODEL,
         on_delete=models.PROTECT,

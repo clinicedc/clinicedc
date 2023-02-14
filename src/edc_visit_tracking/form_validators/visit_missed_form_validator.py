@@ -4,7 +4,6 @@ from edc_form_validators import FormValidator
 
 class VisitMissedFormValidator(FormValidator):
     def clean(self) -> None:
-
         self.applicable_if(YES, field="contact_attempted", field_applicable="contact_made")
         self.required_if(
             YES,

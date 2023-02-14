@@ -109,14 +109,12 @@ class VisitModelManager(models.Manager):
 
 
 class VisitCurrentSiteManager(DjangoCurrentSiteManager, VisitModelManager):
-
     use_in_migrations = True
 
     pass
 
 
 class CrfCurrentSiteManager(DjangoCurrentSiteManager, CrfModelManager):
-
     use_in_migrations = True
 
     pass
