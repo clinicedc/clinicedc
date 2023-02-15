@@ -14,7 +14,6 @@ class BloodResultsFormValidatorMixin(
     ReportablesFormValidatorMixin,
     CrfRequisitionFormValidatorMixin,
 ):
-
     value_field_suffix = "_value"
     panel = None
     panels = None

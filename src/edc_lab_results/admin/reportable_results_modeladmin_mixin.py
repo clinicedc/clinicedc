@@ -4,7 +4,6 @@ from edc_action_item import ActionItemModelAdminMixin
 
 
 class ReportableResultsModelAdminMixin(ActionItemModelAdminMixin, ModelAdmin):
-
     form = None
 
     fieldsets = None

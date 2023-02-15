@@ -7,7 +7,6 @@ from edc_reportable.choices import REPORTABLE
 
 
 class Hba1cModelMixin(models.Model):
-
     is_poc = models.CharField(
         verbose_name="Was a point-of-care test used?",
         max_length=15,
