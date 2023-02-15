@@ -15,8 +15,7 @@ class BloodResultsFieldsModelMixin(models.Model):
         choices=YES_NO,
         max_length=25,
         help_text=(
-            "Abnormal results at present at baseline or continuing from baseline "
-            "not included."
+            "Abnormal results present at baseline or continuing from baseline not included."
         ),
     )
 
