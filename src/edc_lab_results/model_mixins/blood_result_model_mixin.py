@@ -10,7 +10,6 @@ from ..calculate_missing import calculate_missing
 
 
 class BloodResultsFieldsModelMixin(models.Model):
-
     results_abnormal = models.CharField(
         verbose_name="Are any of the above results abnormal?",
         choices=YES_NO,

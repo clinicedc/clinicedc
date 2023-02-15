@@ -26,7 +26,6 @@ class BloodResultsHba1cFormValidator(BloodResultsFormValidatorMixin, CrfFormVali
 
 
 class BloodResultsFbcForm(ActionItemFormMixin, CrfModelFormMixin, forms.ModelForm):
-
     form_validator_cls = BloodResultsFbcFormValidator
 
     def validate_against_consent(self):
@@ -39,7 +38,6 @@ class BloodResultsFbcForm(ActionItemFormMixin, CrfModelFormMixin, forms.ModelFor
 
 
 class BloodResultsHba1cForm(CrfModelFormMixin, forms.ModelForm):
-
     form_validator_cls = BloodResultsHba1cFormValidator
 
     def validate_against_consent(self):

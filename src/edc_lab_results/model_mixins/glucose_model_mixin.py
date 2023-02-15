@@ -28,7 +28,6 @@ class GlucoseModelMixin(
     ),
     models.Model,
 ):
-
     is_poc = models.CharField(
         verbose_name="Was a point-of-care test used?",
         max_length=15,
