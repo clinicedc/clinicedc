@@ -5,7 +5,6 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from edc_appointment.form_validators import WindowPeriodFormValidatorMixin
-from edc_consent.form_validators import SubjectConsentFormValidatorMixin
 from edc_form_validators import INVALID_ERROR, FormValidator
 from edc_registration import get_registered_subject_model_cls
 from edc_utils import floor_secs, formatted_datetime, to_utc
@@ -24,7 +23,6 @@ class CrfFormValidatorError(Exception):
 
 class CrfFormValidator(
     WindowPeriodFormValidatorMixin,
-    SubjectConsentFormValidatorMixin,
     CrfFormValidatorMixin,
     FormValidator,
 ):
@@ -57,12 +55,21 @@ class CrfFormValidator(
     def dob(self):
         return self.registered_subject.dob
 
+    def get_consent_for_period_or_raise(self):
+        """Assert falls within a valid consent period
+
+        See also: modelform (self.get_consent_for_period_or_raise())
+        """
+        pass
+
     def validate_crf_report_datetime(self) -> None:
         if self.report_datetime:
             # falls within appointment's window period
             self.validate_crf_datetime_in_window_period()
+
             # falls within a valid consent period
             self.get_consent_for_period_or_raise()
+
             # not before consent date
             if floor_secs(self.report_datetime) < floor_secs(self.consent_datetime):
                 self.raise_validation_error(
