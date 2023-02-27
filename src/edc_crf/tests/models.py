@@ -6,7 +6,6 @@ from edc_crf.model_mixins import CrfModelMixin, CrfStatusModelMixin
 
 
 class Crf(CrfModelMixin, CrfStatusModelMixin, BaseUuidModel):
-
     f1 = models.CharField(max_length=50, null=True, blank=True)
 
     f2 = models.CharField(max_length=50, null=True, blank=True)
@@ -18,7 +17,6 @@ class Crf(CrfModelMixin, CrfStatusModelMixin, BaseUuidModel):
 
 
 class CrfReportDatetimeNotRequired(CrfModelMixin, CrfStatusModelMixin, BaseUuidModel):
-
     report_datetime = models.DateTimeField(default=get_utcnow, null=True, blank=True)
 
     f1 = models.CharField(max_length=50, null=True, blank=True)

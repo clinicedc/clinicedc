@@ -5,5 +5,4 @@ from edc_crf.update_crf_status_command import update_crf_status_command
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-
         update_crf_status_command(app_label=None)

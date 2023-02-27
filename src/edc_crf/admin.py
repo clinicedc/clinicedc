@@ -27,7 +27,6 @@ class CrfStatusModelAdminMixin:
 
 @admin.register(CrfStatus, site=edc_crf_admin)
 class CrfStatusAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
-
     list_display = (
         "subject_identifier",
         "crf",

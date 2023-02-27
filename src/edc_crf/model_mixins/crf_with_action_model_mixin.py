@@ -11,7 +11,6 @@ class CrfWithActionModelMixin(
     CrfNoManagerModelMixin,
     ActionNoManagersModelMixin,
 ):
-
     action_name = None
 
     on_site = CrfCurrentSiteManager()
