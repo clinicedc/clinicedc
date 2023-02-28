@@ -6,7 +6,6 @@ from .crf_no_manager_model_mixin import CrfNoManagerModelMixin
 
 
 class CrfModelMixin(SiteModelMixin, CrfNoManagerModelMixin):
-
     on_site = CrfCurrentSiteManager()
     objects = CrfModelManager()
     history = HistoricalRecords(inherit=True)

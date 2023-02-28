@@ -130,7 +130,6 @@ class EdcCrfTestCase(TestCase):
                 _ = self.report_datetime
 
         class MyForm(CrfModelFormMixin, FormValidatorMixin, forms.ModelForm):
-
             form_validator_cls = MyFormValidator
 
             def validate_against_consent(self):

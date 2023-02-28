@@ -40,7 +40,6 @@ class CrfModelFormMixin(
 
 
 class RequisitionModelFormMixin(CrfModelFormMixin):
-
     report_datetime_field_attr = "requisition_datetime"
 
 
