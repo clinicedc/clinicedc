@@ -6,7 +6,6 @@ from edc_navbar import NavbarViewMixin
 
 
 class HomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
-
     template_name = f"edc_data_manager/bootstrap{get_bootstrap_version()}/home.html"
     navbar_name = settings.APP_NAME
     navbar_selected_item = "data_manager_home"

@@ -38,7 +38,6 @@ from .actions import toggle_dm_status
 class DataQueryAdmin(
     DataManagerModelAdminMixin, ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin
 ):
-
     status_column_template_name = (
         f"edc_data_manager/bootstrap{get_bootstrap_version()}/columns/status.html"
     )

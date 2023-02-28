@@ -7,15 +7,7 @@ from django.db.models.deletion import PROTECT
 from django.template.loader import render_to_string
 from django.urls.base import reverse
 from edc_action_item.models.action_model_mixin import ActionModelMixin
-from edc_constants.constants import (
-    CLOSED,
-    FEEDBACK,
-    HIGH_PRIORITY,
-    NEW,
-    NORMAL,
-    OPEN,
-    RESOLVED,
-)
+from edc_constants.constants import CLOSED, RESOLVED
 from edc_dashboard.url_names import InvalidUrlName, url_names
 from edc_dashboard.utils import get_bootstrap_version
 from edc_model.models import BaseUuidModel
@@ -24,58 +16,18 @@ from edc_utils.date import get_utcnow
 from edc_visit_tracking.utils import get_related_visit_model_cls
 
 from ..action_items import DATA_QUERY_ACTION
-from ..constants import AUTO_RESOLVED, CLOSED_WITH_ACTION
+from ..constants import AUTO_RESOLVED
 from .data_dictionary import DataDictionary
+from .model_mixins import DataQueryModelMixin
 from .query_subject import QuerySubject
 from .query_visit_schedule import QueryVisitSchedule
 from .requisition_panel import RequisitionPanel
-from .user import DataManagerUser, QueryUser
-
-RESPONSE_STATUS = (
-    (NEW, "New"),
-    (OPEN, "Open"),
-    (FEEDBACK, "Feedback, awaiting data manager"),
-    (RESOLVED, "Resolved"),
-)
 
 
-DM_STATUS = (
-    (OPEN, "Open, awaiting site"),
-    (CLOSED, "Closed"),
-    (CLOSED_WITH_ACTION, "Closed, with plan of action"),
-)
-
-QUERY_PRIORITY = ((HIGH_PRIORITY, "High"), (NORMAL, "Normal"))
-
-
-class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
-
+class DataQuery(DataQueryModelMixin, ActionModelMixin, SiteModelMixin, BaseUuidModel):
     action_name = DATA_QUERY_ACTION
 
-    report_datetime = models.DateTimeField(verbose_name="Query date", default=get_utcnow)
-
     subject_identifier = models.CharField(max_length=50, null=True, editable=False)
-
-    title = models.CharField(max_length=150, null=True, blank=False)
-
-    sender = models.ForeignKey(
-        DataManagerUser,
-        related_name="+",
-        on_delete=PROTECT,
-        verbose_name="Query raised by",
-        help_text="Select a name from the list",
-    )
-
-    recipients = models.ManyToManyField(
-        QueryUser,
-        related_name="+",
-        verbose_name="Sent to",
-        help_text=(
-            "Select any additional recipients. Users in the `Site Data Manager` "
-            "group are automatically included."
-        ),
-        blank=True,
-    )
 
     registered_subject = models.ForeignKey(
         QuerySubject,
@@ -83,10 +35,6 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
         on_delete=PROTECT,
         null=True,
         blank=False,
-    )
-
-    query_priority = models.CharField(
-        verbose_name="Priority", max_length=25, choices=QUERY_PRIORITY, default=NORMAL
     )
 
     visit_schedule = models.ForeignKey(
@@ -128,58 +76,10 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
         help_text="Requisition will be expected on day of visit.",
     )
 
-    query_text = models.TextField(help_text="Describe the query in detail.")
-
-    site_resolved_datetime = models.DateTimeField(
-        verbose_name="Site resolved on", null=True, blank=True
-    )
-
-    site_response_text = models.TextField(null=True, blank=True)
-
-    site_response_status = models.CharField(
-        verbose_name="Site status", max_length=25, choices=RESPONSE_STATUS, default=NEW
-    )
-
-    status = models.CharField(
-        verbose_name="DM status", max_length=25, choices=DM_STATUS, default=OPEN
-    )
-
-    dm_user = models.ForeignKey(
-        DataManagerUser,
-        verbose_name="DM resolved by",
-        related_name="dm_user",
-        on_delete=PROTECT,
-        null=True,
-        blank=True,
-        help_text="select a name from the list",
-    )
-
-    resolved_datetime = models.DateTimeField(
-        verbose_name="DM resolved on", null=True, blank=True
-    )
-
-    auto_resolved = models.BooleanField(default=False)
-
-    plan_of_action = models.TextField(
-        null=True, blank=True, help_text="If required, provide a plan of action"
-    )
-
     missed_visit = models.BooleanField(
         verbose_name="Visit reported as missed",
         default=False,
         help_text="If visit/timepoint was missed, data is not expected",
-    )
-
-    locked = models.BooleanField(
-        default=False,
-        help_text="If locked, this query will NEVER be reopened.",
-    )
-
-    locked_reason = models.TextField(
-        verbose_name="Reason query locked",
-        null=True,
-        blank=True,
-        help_text="If required, the reason the query cannot be resolved.",
     )
 
     rule_generated = models.BooleanField(
@@ -213,14 +113,6 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
             self.status = CLOSED
             self.resolved_datetime = get_utcnow()
             self.dm_user = self.sender
-
-    @property
-    def dm_resolved(self):
-        return self.status in [CLOSED, CLOSED_WITH_ACTION]
-
-    @property
-    def site_resolved(self):
-        return self.site_response_status == RESOLVED
 
     def form_and_numbers_to_string(self):
         ret = []

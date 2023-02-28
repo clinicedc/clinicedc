@@ -12,9 +12,9 @@ from edc_dashboard.utils import get_bootstrap_version
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_visit_schedule.constants import DAYS, HOURS, MONTHS, WEEKS
 
+from ..choices import QUERY_PRIORITY
 from ..site_data_manager import site_data_manager
 from .data_dictionary import DataDictionary, DataDictionaryManager
-from .data_query import QUERY_PRIORITY
 from .query_visit_schedule import QueryVisitSchedule
 from .requisition_panel import RequisitionPanel
 from .user import DataManagerUser, QueryUser
@@ -70,7 +70,6 @@ class CrfDataDictionaryManager(DataDictionaryManager):
 
 
 class CrfDataDictionary(DataDictionary):
-
     objects = CrfDataDictionaryManager()
 
     class Meta:
@@ -84,7 +83,6 @@ class VisitDataDictionaryManager(DataDictionaryManager):
 
 
 class VisitDataDictionary(DataDictionary):
-
     objects = VisitDataDictionaryManager()
 
     class Meta:
@@ -98,7 +96,6 @@ class RequisitionDataDictionaryManager(DataDictionaryManager):
 
 
 class RequisitionDataDictionary(DataDictionary):
-
     objects = RequisitionDataDictionaryManager()
 
     class Meta:
@@ -107,7 +104,6 @@ class RequisitionDataDictionary(DataDictionary):
 
 
 class QueryRule(BaseUuidModel):
-
     active = models.BooleanField(default=True)
 
     title = models.CharField(max_length=150, unique=True)

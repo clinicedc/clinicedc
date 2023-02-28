@@ -15,7 +15,6 @@ from .actions import (
 
 
 class QueryRuleModelAdminMixin:
-
     readonly_fields = ("reference",)
 
     def formfield_for_choice_field(self, db_field, request, **kwargs):
@@ -60,7 +59,6 @@ class QueryRuleModelAdminMixin:
 class QueryRuleAdmin(
     QueryRuleModelAdminMixin, ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin
 ):
-
     form = QueryRuleForm
 
     actions = (

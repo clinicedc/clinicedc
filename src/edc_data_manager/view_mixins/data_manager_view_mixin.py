@@ -6,7 +6,6 @@ from edc_data_manager.models import DataQuery
 
 
 class DataManagerViewMixin:
-
     action_item_model_wrapper_cls = ActionItemModelWrapper
 
     def get_context_data(self, **kwargs):

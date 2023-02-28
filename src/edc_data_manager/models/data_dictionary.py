@@ -9,7 +9,6 @@ class DataDictionaryManager(models.Manager):
 
 
 class DataDictionary(BaseUuidModel):
-
     model = models.CharField(max_length=250, help_text="label_lower")
 
     model_verbose_name = models.CharField(max_length=250, null=True)

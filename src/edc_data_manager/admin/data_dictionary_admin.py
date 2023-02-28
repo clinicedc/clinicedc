@@ -16,7 +16,6 @@ from ..populate_data_dictionary import populate_data_dictionary
 
 @register(DataDictionary, site=edc_data_manager_admin)
 class DataDictionaryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
-
     fieldsets = (
         [
             None,

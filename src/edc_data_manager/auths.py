@@ -48,7 +48,7 @@ site_auths.update_group(
     "edc_data_manager.export_datadictionary",
     "edc_data_manager.export_dataquery",
     "edc_data_manager.export_queryrule",
-    "edc_data_manager.special_bypassvalidation",
+    "edc_data_manager.special_bypassmodelform",
     "edc_data_manager.change_dataquery",
     name=DATA_MANAGER_SUPER,
 )
