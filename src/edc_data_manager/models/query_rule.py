@@ -12,9 +12,9 @@ from edc_dashboard.utils import get_bootstrap_version
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_visit_schedule.constants import DAYS, HOURS, MONTHS, WEEKS
 
+from ..choices import QUERY_PRIORITY
 from ..site_data_manager import site_data_manager
 from .data_dictionary import DataDictionary, DataDictionaryManager
-from .data_query import QUERY_PRIORITY
 from .query_visit_schedule import QueryVisitSchedule
 from .requisition_panel import RequisitionPanel
 from .user import DataManagerUser, QueryUser
