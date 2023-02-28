@@ -7,6 +7,11 @@ from edc_constants.constants import OTHER
 
 
 def get_language_choices_for_site(site, other=None) -> tuple | None:
+    """Returns a choices tuple of languages from the site object to
+    be used on the `languages` modelform field.
+
+    See also: SingleSite and SiteModelAdminMixin.
+    """
     site_profile_model_cls = django_apps.get_model("edc_sites.siteprofile")
     obj = site_profile_model_cls.objects.get(site=site)
     if obj.languages:
