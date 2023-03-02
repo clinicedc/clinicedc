@@ -1,7 +1,6 @@
 import pandas as pd
-from edc_action_item.constants import ACTION_ITEM_COLUMNS
 
-from ..constants import SYSTEM_COLUMNS
+from ..constants import ACTION_ITEM_COLUMNS, SYSTEM_COLUMNS
 from ..dialects import CrfDialect
 from .df_handler import DfHandler
 
