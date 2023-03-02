@@ -3,7 +3,6 @@ class ColumnMapError(Exception):
 
 
 class ColumnMap:
-
     column_names = None
     mappings = {}
 

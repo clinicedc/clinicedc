@@ -12,7 +12,6 @@ from ..visit_schedule import get_visit_schedule
 
 @override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp())
 class TestExport(TestCase):
-
     helper = Helper()
 
     @classmethod

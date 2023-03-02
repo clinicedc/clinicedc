@@ -22,7 +22,6 @@ class OffSchedule(SiteModelMixin, OffScheduleModelMixin, BaseUuidModel):
 
 
 class SubjectVisit(VisitModelMixin, BaseUuidModel):
-
     appointment = models.OneToOneField(Appointment, on_delete=models.PROTECT)
 
     subject_identifier = models.CharField(max_length=25)
@@ -42,7 +41,6 @@ class SubjectVisit(VisitModelMixin, BaseUuidModel):
 
 
 class SubjectConsent(BaseUuidModel):
-
     subject_identifier = models.CharField(max_length=25)
 
     consent_datetime = models.DateTimeField(default=get_utcnow)
@@ -59,12 +57,10 @@ class SubjectConsent(BaseUuidModel):
 
 
 class SubjectLocator(BaseUuidModel):
-
     subject_identifier = models.CharField(max_length=25)
 
 
 class CrfModelMixin(models.Model):
-
     subject_visit = models.OneToOneField(SubjectVisit, on_delete=PROTECT)
 
     report_datetime = models.DateTimeField(null=True)
@@ -86,17 +82,14 @@ class CrfModelMixin(models.Model):
 
 
 class SubjectRequisition(CrfModelMixin, BaseUuidModel):
-
     panel_name = models.CharField(max_length=25, default="Microtube")
 
 
 class ListModel(ListModelMixin):
-
     pass
 
 
 class Crf(CrfModelMixin, BaseUuidModel):
-
     char1 = models.CharField(max_length=25, null=True)
 
     date1 = models.DateTimeField(null=True)
@@ -109,22 +102,18 @@ class Crf(CrfModelMixin, BaseUuidModel):
 
 
 class CrfOne(CrfModelMixin, BaseUuidModel):
-
     dte = models.DateTimeField(default=get_utcnow)
 
 
 class CrfTwo(CrfModelMixin, BaseUuidModel):
-
     dte = models.DateTimeField(default=get_utcnow)
 
 
 class CrfThree(CrfModelMixin, BaseUuidModel):
-
     UPPERCASE = models.DateTimeField(default=get_utcnow)
 
 
 class CrfInline(BaseUuidModel):
-
     crf_one = models.ForeignKey(CrfOne, on_delete=models.PROTECT)
 
     crf_two = models.ForeignKey(CrfTwo, on_delete=models.PROTECT)
@@ -133,5 +122,4 @@ class CrfInline(BaseUuidModel):
 
 
 class CrfEncrypted(CrfModelMixin, BaseUuidModel):
-
     encrypted1 = EncryptedCharField(null=True)

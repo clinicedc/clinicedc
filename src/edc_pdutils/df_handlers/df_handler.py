@@ -10,7 +10,6 @@ class DfHandlerDuplicateColumn(Exception):
 
 
 class DfHandler:
-
     column_handler_cls = None
     na_value = np.nan
     sort_by = None

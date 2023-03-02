@@ -4,7 +4,6 @@ from edc_constants.constants import NO, YES
 
 
 class Helper:
-
     to_dataframe_cls = None
 
     def __init__(self, local_tz=None, date_format=None):

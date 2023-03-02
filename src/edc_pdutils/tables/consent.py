@@ -4,7 +4,6 @@ from .table import Table
 
 
 class Consent(Table):
-
     default_columns = [
         "subject_identifier",
         "gender",

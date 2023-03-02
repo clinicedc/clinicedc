@@ -4,7 +4,6 @@ from .table import Table
 
 
 class Visit(Table):
-
     default_columns = ["id", "subject_identifier", "report_datetime", "visit_code"]
 
     def prepare(self, df_subjects=None, **kwargs):

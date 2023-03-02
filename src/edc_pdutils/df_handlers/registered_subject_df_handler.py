@@ -6,7 +6,6 @@ from .df_handler import DfHandler
 
 
 class RegisteredSubjectDfHandler(DfHandler):
-
     rs_dialect_cls = RsDialect
 
     registered_subject_tbl = "edc_registration_registeredsubject"

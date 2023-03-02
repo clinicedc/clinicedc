@@ -1,5 +1,4 @@
 class ColumnApply:
-
     column_names = None
 
     def __init__(self, dataframe=None):

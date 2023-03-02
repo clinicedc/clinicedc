@@ -7,7 +7,6 @@ from .table import Table
 
 
 class Requisition(Table):
-
     default_columns = [
         "subject_visit_id",
         "requisition_identifier",

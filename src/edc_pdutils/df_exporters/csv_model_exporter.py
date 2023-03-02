@@ -7,7 +7,6 @@ style = color_style()
 
 
 class CsvModelExporter:
-
     df_maker_cls = ModelToDataframe
     csv_exporter_cls = CsvExporter
 

@@ -2,7 +2,6 @@ from edc_pdutils.df_handlers.crf_df_handler import CrfDfHandler
 
 
 class NonCrfDfHandler(CrfDfHandler):
-
     sort_by = None
 
     def prepare_dataframe(self, **kwargs):
