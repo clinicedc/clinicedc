@@ -1,10 +1,15 @@
 import os
 import sys
 
+import pandas as pd
+from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.management.color import color_style
+from django.db.models import QuerySet
 from edc_export.utils import get_export_folder
 from edc_utils import get_utcnow
+
+from edc_pdutils.site_values_mappings import site_values_mappings
 
 style = color_style()
 
@@ -35,7 +40,6 @@ class Exported:
 
 
 class CsvExporter:
-
     date_format = None
     delimiter = "|"
     encoding = "utf-8"
@@ -66,9 +70,10 @@ class CsvExporter:
             raise ExporterExportFolder("Invalid export folder. Got None")
         if not os.path.exists(self.export_folder):
             raise ExporterExportFolder(f"Invalid export folder. Got {self.export_folder}")
-        self.data_label = data_label
+        self.data_label = data_label  # model_name
+        self.model_cls = django_apps.get_model(self.data_label)
 
-    def to_format(self, export_format, dataframe=None, export_folder=None):
+    def to_format(self, export_format, dataframe=None, export_folder=None, **kwargs):
         """Returns the full path of the written CSV file if the
         dataframe is exported otherwise None.
 
@@ -85,6 +90,8 @@ class CsvExporter:
         if export_folder:
             self.export_folder = export_folder
         if not dataframe.empty:
+            for column in list(dataframe.select_dtypes(include=["timedelta64"]).columns):
+                dataframe[column] = dataframe[column].dt.total_seconds()
             path = self.get_path()
             if self.sort_by:
                 dataframe.sort_values(by=self.sort_by, inplace=True)
@@ -95,7 +102,7 @@ class CsvExporter:
                 dataframe.to_csv(path_or_buf=path, **self.csv_options)
             elif export_format == "stata":
                 path = ".".join([path, "dta"])
-                dataframe.to_stata(path=path, **self.stata_options)
+                dataframe.to_stata(path=path, **self.stata_options, **kwargs)
             else:
                 raise ExporterInvalidExportFormat(
                     f"Invalid export format. Got {export_format}"
@@ -126,7 +133,12 @@ class CsvExporter:
         """Returns the full path of the written STATA file if the
         dataframe is exported otherwise None.
         """
-        return self.to_format("stata", dataframe=dataframe, export_folder=export_folder)
+        opts = dict(
+            dataframe=dataframe,
+            export_folder=export_folder,
+            variable_labels=self.stata_variable_labels(dataframe),
+        )
+        return self.to_format("stata", **opts)
 
     @property
     def csv_options(self):
@@ -168,3 +180,40 @@ class CsvExporter:
             suffix = f"_{get_utcnow().strftime(timestamp_format)}"
         prefix = self.data_label.replace("-", "_").replace(".", "_")
         return f"{prefix}{suffix}"
+
+    def stata_variable_labels(self, dataframe: pd.DataFrame) -> dict[str, str]:
+        return {obj.field_name: obj.prompt[:79] for obj in self.data_dictionary_qs(dataframe)}
+
+    def stata_value_labels(self, dataframe: pd.DataFrame):
+        commands = []
+        choices = {}
+        for field_cls in self.model_cls._meta.get_fields():
+            if field_cls.get_internal_type() == "CharField":
+                if field_cls.choices:
+                    responses = []
+                    for tpl in field_cls.choices:
+                        if mapped_choice := site_values_mappings.get_by_choices(tpl):
+                            responses.append([mapped_choice[0], mapped_choice[1]])
+                        else:
+                            responses.append([tpl[0], tpl[1]])
+                    choices.update({field_cls.name: responses})
+        for fname, responses in choices.items():
+            labels = []
+            if fname in list(dataframe.columns):
+                for stored, displayed in responses:
+                    labels.append(f'"{stored}" "{displayed}"')
+                commands.append(f'label define {fname}l {" ".join(labels)}')
+                commands.append(f"encode {fname}, generate({fname}_encoded) {fname}l")
+                commands.append(f"ren {fname} {fname}_edc")
+                commands.append(f"ren {fname}_encoded {fname}")
+                commands.append("")
+        with open(f"{self.get_path()}.do", "w") as f:
+            for command in commands:
+                f.write(f"{command}\n")
+        return commands
+
+    def data_dictionary_qs(self, dataframe: pd.DataFrame) -> QuerySet:
+        data_dictionary_model_cls = django_apps.get_model("edc_data_manager.DataDictionary")
+        return data_dictionary_model_cls.objects.filter(
+            model=self.data_label, field_name__in=list(dataframe.columns)
+        )

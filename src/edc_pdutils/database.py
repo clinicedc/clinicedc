@@ -12,12 +12,11 @@ class DatabaseNameError(Exception):
 
 
 class Database:
-
     dialect_cls = MysqlDialect
     lowercase_columns = True
     DATABASES_NAME = "default"
 
-    def __init__(self, **kwargs):
+    def __init__(self):
         self._database = None
         self._tables = pd.DataFrame()
         self.dialect = self.dialect_cls(dbname=self.database)
