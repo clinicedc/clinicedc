@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import sys
 
@@ -10,7 +12,6 @@ from edc_export.utils import get_export_folder
 from edc_utils import get_utcnow
 
 from ..site_values_mappings import site_values_mappings
-from ..utils import get_model_from_table_name
 
 style = color_style()
 
@@ -28,36 +29,37 @@ class ExporterFileExists(Exception):
 
 
 class Exported:
-    def __init__(self, path=None, data_label=None, record_count=None):
+    def __init__(
+        self, path: str = None, model_name: str = None, record_count: int | None = None
+    ):
         self.path = path
-        self.data_label = data_label
+        self.model_name = model_name
         self.record_count = record_count
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(data_label={self.data_label})"
+        return f"{self.__class__.__name__}(model_name={self.model_name})"
 
     def __str__(self):
-        return f"{self.data_label} {self.record_count}"
+        return f"{self.model_name} {self.record_count}"
 
 
 class CsvExporter:
-    date_format = None
-    delimiter = "|"
-    encoding = "utf-8"
-    file_exists_ok = False
-    index = False
-    sort_by = None
+    date_format: str | None = None
+    delimiter: str = "|"
+    encoding: str = "utf-8"
+    file_exists_ok: bool = False
+    index: bool = False
+    sort_by: list | tuple | str | None = None
 
     def __init__(
         self,
-        data_label=None,
-        sort_by=None,
-        export_folder=None,
-        delimiter=None,
-        date_format=None,
-        index=None,
+        model_name: str = None,
+        sort_by: list | tuple | str | None = None,
+        export_folder: str = None,
+        delimiter: str | None = None,
+        date_format: str | None = None,
+        index: bool | None = None,
         verbose=None,
-        **kwargs,
     ):
         self.delimiter = delimiter or self.delimiter
         self.date_format = date_format or self.date_format
@@ -71,8 +73,8 @@ class CsvExporter:
             raise ExporterExportFolder("Invalid export folder. Got None")
         if not os.path.exists(self.export_folder):
             raise ExporterExportFolder(f"Invalid export folder. Got {self.export_folder}")
-        self.data_label = data_label  # model_name
-        self.model_cls = get_model_from_table_name(self.data_label)
+        self.model_name = model_name
+        self.model_cls = django_apps.get_model(self.model_name)
 
     def to_format(self, export_format, dataframe=None, export_folder=None, **kwargs):
         """Returns the full path of the written CSV file if the
@@ -87,17 +89,15 @@ class CsvExporter:
         path = None
         record_count = 0
         if self.verbose:
-            sys.stdout.write(self.data_label + "\r")
+            sys.stdout.write(self.model_name + "\r")
         if export_folder:
             self.export_folder = export_folder
         if not dataframe.empty:
-            for column in list(dataframe.select_dtypes(include=["timedelta64"]).columns):
-                dataframe[column] = dataframe[column].dt.total_seconds()
             path = self.get_path()
             if self.sort_by:
                 dataframe.sort_values(by=self.sort_by, inplace=True)
             if self.verbose:
-                sys.stdout.write(f"( ) {self.data_label} ...     \r")
+                sys.stdout.write(f"( ) {self.model_name} ...     \r")
             if export_format == "csv":
                 path = ".".join([path, "csv"])
                 dataframe.to_csv(path_or_buf=path, **self.csv_options)
@@ -111,12 +111,12 @@ class CsvExporter:
             record_count = len(dataframe)
             if self.verbose:
                 sys.stdout.write(
-                    f'({style.SUCCESS("*")}) {self.data_label} {record_count}       \n'
+                    f'({style.SUCCESS("*")}) {self.model_name} {record_count}       \n'
                 )
         else:
             if self.verbose:
-                sys.stdout.write(f"(?) {self.data_label} empty  \n")
-        return Exported(path, self.data_label, record_count)
+                sys.stdout.write(f"(?) {self.model_name} empty  \n")
+        return Exported(path, self.model_name, record_count)
 
     def to_csv(self, dataframe=None, export_folder=None):
         """Returns the full path of the written CSV file if the
@@ -155,7 +155,7 @@ class CsvExporter:
     def stata_options(self):
         """Returns default options for dataframe.to_stata()."""
         return dict(
-            data_label=f"{self.data_label}.dta",
+            data_label=f"{self.model_name}.dta",
             version=118,
         )
 
@@ -164,7 +164,7 @@ class CsvExporter:
         path = os.path.join(self.export_folder, self.filename)
         if os.path.exists(path) and not self.file_exists_ok:
             raise ExporterFileExists(
-                f"File '{path}' exists! Not exporting {self.data_label}.\n"
+                f"File '{path}' exists! Not exporting {self.model_name}.\n"
             )
         return path
 
@@ -179,7 +179,7 @@ class CsvExporter:
             suffix = ""
         else:
             suffix = f"_{get_utcnow().strftime(timestamp_format)}"
-        prefix = self.data_label.replace("-", "_").replace(".", "_")
+        prefix = self.model_name.replace("-", "_").replace(".", "_")
         return f"{prefix}{suffix}"
 
     def stata_variable_labels(self, dataframe: pd.DataFrame) -> dict[str, str]:
@@ -216,5 +216,5 @@ class CsvExporter:
     def data_dictionary_qs(self, dataframe: pd.DataFrame) -> QuerySet:
         data_dictionary_model_cls = django_apps.get_model("edc_data_manager.DataDictionary")
         return data_dictionary_model_cls.objects.filter(
-            model=self.data_label, field_name__in=list(dataframe.columns)
+            model=self.model_name, field_name__in=list(dataframe.columns)
         )

@@ -34,29 +34,38 @@ class Command(BaseCommand):
             help="export format (csv, stata)",
         )
 
+        parser.add_argument(
+            "--include-historical",
+            action="store_true",
+            dest="include_historical",
+            default=False,
+            help="export historical tables",
+        )
+
     def handle(self, *args, **options):
-        date_format = "%Y-%m-%d"
+        date_format = "%Y-%m-%d %H:%M:%S"
         sep = "|"
         export_format = options["format"]
         app_label = options["app_label"]
         csv_path = options["path"]
+        include_historical = options["include_historical"]
         if not csv_path or not os.path.exists(csv_path):
             raise CommandError(f"Path does not exist. Got `{csv_path}`")
         model_names = get_model_names(app_label=app_label)
         if not app_label or not model_names:
             raise CommandError(f"Nothing to do. No models found in app `{app_label}`")
+        if not include_historical:
+            model_names = [m for m in model_names if "historical" not in m]
         for model_name in model_names:
-            if "historical" not in model_name:
-                m = ModelToDataframe(model=model_name, drop_sys_columns=False)
-                exporter = CsvExporter(
-                    data_label=model_name,
-                    date_format=date_format,
-                    delimiter=sep,
-                    export_folder=csv_path,
-                )
-                if not export_format or export_format == "csv":
-                    exporter.to_csv(dataframe=m.dataframe)
-                elif export_format == "stata":
-                    # remove timezone info
-                    print(f" * {model_name}")
-                    exporter.to_stata(dataframe=m.dataframe)
+            m = ModelToDataframe(model=model_name, drop_sys_columns=False)
+            exporter = CsvExporter(
+                model_name=model_name,
+                date_format=date_format,
+                delimiter=sep,
+                export_folder=csv_path,
+            )
+            if not export_format or export_format == "csv":
+                exporter.to_csv(dataframe=m.dataframe)
+            elif export_format == "stata":
+                exporter.to_stata(dataframe=m.dataframe)
+            print(f" * {model_name}")

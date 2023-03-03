@@ -23,7 +23,7 @@ class ModelToDataframe:
     """
 
     value_getter_cls = ValueGetter
-    sys_field_names = ["_state", "_user_container_instance", "_domain_cache", "using"]
+    sys_field_names = ["_state", "_user_container_instance", "_domain_cache", "using", "slug"]
     edc_sys_columns = SYSTEM_COLUMNS
     action_item_columns = ACTION_ITEM_COLUMNS
 
@@ -37,9 +37,11 @@ class ModelToDataframe:
         drop_action_item_columns=None,
         verbose=None,
         remove_timezone=None,
+        include_historical: bool | None = None,
         **kwargs,
     ):
         self._columns = None
+        self._list_columns = None
         self._encrypted_columns = None
         self._dataframe = pd.DataFrame()
         self.drop_sys_columns = True if drop_sys_columns is None else drop_sys_columns
@@ -69,21 +71,16 @@ class ModelToDataframe:
                     self._dataframe = self.get_dataframe_without_encrypted_fields()
                 self.merge_dataframe_with_pivoted_m2ms()
                 self._dataframe.rename(columns=self.columns, inplace=True)
-                self._dataframe.fillna(value=np.nan, inplace=True)
-                self.convert_datetimetz_to_date()
+                self.convert_datetimetz_to_datetime()
+                self.convert_bool_types_to_int()
                 self.convert_unknown_types_to_str()
-                if self.drop_sys_columns:
-                    self.drop_sys_columns_from_dataframe()
-                else:
-                    self.move_sys_columns_to_end()
-                if self.drop_action_item_columns:
-                    self.drop_action_item_columns_from_dataframe()
+                self.convert_timedelta_to_secs()
+                self._dataframe.fillna(value=np.nan, axis=0, inplace=True)
         return self._dataframe
 
     def get_dataframe_without_encrypted_fields(self) -> pd.DataFrame:
-        columns = [col for col in self.columns if col not in self.encrypted_columns]
-        queryset = self.queryset.values_list(*columns).filter(**self.query_filter)
-        return pd.DataFrame(list(queryset), columns=columns)
+        queryset = self.queryset.values_list(*self.columns).filter(**self.query_filter)
+        return pd.DataFrame(list(queryset), columns=[v for v in self.columns])
 
     def get_dataframe_with_encrypted_fields(self, row_count: int) -> pd.DataFrame:
         if self.verbose:
@@ -104,39 +101,40 @@ class ModelToDataframe:
             data.append(row)
         return pd.DataFrame(data, columns=[col for col in self.columns])
 
-    def convert_datetimetz_to_date(self) -> None:
+    def convert_datetimetz_to_datetime(self) -> None:
         if self.remove_timezone:
             for column in list(self._dataframe.select_dtypes(include=["datetimetz"]).columns):
-                self._dataframe[column] = pd.to_datetime(self._dataframe[column]).dt.date
+                self._dataframe[column] = pd.to_datetime(
+                    self._dataframe[column]
+                ).dt.tz_localize(None)
+
+    def convert_bool_types_to_int(self):
+        for column in list(self._dataframe.select_dtypes(include=["bool"]).columns):
+            self._dataframe[column] = self._dataframe[column].replace({True: 1, False: 0})
 
     def convert_unknown_types_to_str(self):
-        for column in list(self._dataframe.select_dtypes(include=["O"]).columns):
-            self._dataframe[column] = self._dataframe[column].astype(str)
+        for column in list(self._dataframe.select_dtypes(include=["object"]).columns):
+            self._dataframe[column].fillna(value="", inplace=True)
+            self._dataframe[column] = self._dataframe[column].astype("str")
 
-    def drop_sys_columns_from_dataframe(self):
-        try:
-            self._dataframe = self._dataframe.drop(self.edc_sys_columns, axis=1)
-        except KeyError:
-            pass
+    def convert_timedelta_to_secs(self):
+        for column in list(self._dataframe.select_dtypes(include=["timedelta64"]).columns):
+            self._dataframe[column] = self._dataframe[column].dt.total_seconds()
 
-    def drop_action_item_columns_from_dataframe(self):
-        try:
-            self._dataframe = self._dataframe.drop(self.action_item_columns, axis=1)
-        except KeyError:
-            pass
+    def move_sys_columns_to_end(self, columns: dict[str, str]):
+        new_columns = {k: v for k, v in columns.items() if k not in SYSTEM_COLUMNS}
+        if len(new_columns.keys()) != len(columns.keys()) and not self.drop_sys_columns:
+            new_columns.update({k: k for k in SYSTEM_COLUMNS})
+        return new_columns
 
-    def move_sys_columns_to_end(self):
-        sys_columns = copy(SYSTEM_COLUMNS)
-        sys_columns.reverse()
-        for colname in sys_columns:
-            try:
-                col = self._dataframe.pop(colname)
-            except KeyError:
-                pass
-            else:
-                self._dataframe.insert(len(self._dataframe.columns), col.name, col)
-                # defragment dataframe
-                self._dataframe = self._dataframe.copy()
+    def move_action_item_columns(self, columns: dict[str, str]):
+        new_columns = {k: v for k, v in columns.items() if k not in ACTION_ITEM_COLUMNS}
+        if (
+            len(new_columns.keys()) != len(columns.keys())
+            and not self.drop_action_item_columns
+        ):
+            new_columns.update({k: k for k in ACTION_ITEM_COLUMNS})
+        return new_columns
 
     def merge_dataframe_with_pivoted_m2ms(self) -> list[str]:
         """For each m2m field, merge in a single pivoted field."""
@@ -191,6 +189,38 @@ class ModelToDataframe:
         return False
 
     @property
+    def columns(self) -> dict[str, str]:
+        """Return a dictionary of column names."""
+        if not self._columns:
+            columns_list = list(self.queryset[0].__dict__.keys())
+            for name in self.sys_field_names:
+                try:
+                    columns_list.remove(name)
+                except ValueError:
+                    pass
+            if not self.decrypt and self.has_encrypted_fields:
+                columns_list = [
+                    col for col in columns_list if col not in self.encrypted_columns
+                ]
+            columns = dict(zip(columns_list, columns_list))
+            for column_name in columns_list:
+                if column_name.endswith("_visit") or column_name.endswith("_visit_id"):
+                    columns = self.add_columns_for_subject_visit(
+                        column_name=column_name, columns=columns
+                    )
+                if column_name.endswith("_requisition") or column_name.endswith(
+                    "requisition_id"
+                ):
+                    columns = self.add_columns_for_subject_requisitions(columns)
+            columns = self.add_list_model_name_columns(columns)
+            columns = self.add_other_columns(columns)
+            columns = self.add_subject_identifier_column(columns)
+            columns = self.move_action_item_columns(columns)
+            columns = self.move_sys_columns_to_end(columns)
+            self._columns = columns
+        return self._columns
+
+    @property
     def encrypted_columns(self):
         """Return a list of column names that use encryption."""
         if not self._encrypted_columns:
@@ -203,28 +233,40 @@ class ModelToDataframe:
         return self._encrypted_columns
 
     @property
-    def columns(self) -> dict[str, str]:
-        """Return a dictionary of column names."""
-        if not self._columns:
-            columns_list = list(self.queryset[0].__dict__.keys())
-            for name in self.sys_field_names:
-                try:
-                    columns_list.remove(name)
-                except ValueError:
-                    pass
-            columns = dict(zip(columns_list, columns_list))
-            for column_name in columns_list:
-                if column_name.endswith("_visit") or column_name.endswith("_visit_id"):
-                    columns = self.add_columns_for_subject_visit(
-                        column_name=column_name, columns=columns
-                    )
-                if column_name.endswith("_requisition") or column_name.endswith(
-                    "requisition_id"
+    def list_columns(self):
+        """Return a list of column names with fk to a list model."""
+        from edc_list_data.model_mixins import ListModelMixin
+
+        if not self._list_columns:
+            list_columns = []
+            for fld_cls in self.queryset.model._meta.get_fields():
+                if (
+                    hasattr(fld_cls, "related_model")
+                    and fld_cls.related_model
+                    and issubclass(fld_cls.related_model, (ListModelMixin,))
                 ):
-                    columns = self.add_columns_for_subject_requisitions(columns=columns)
-            columns = self.add_subject_identifier_column(columns)
-            self._columns = columns
-        return self._columns
+                    list_columns.append(fld_cls.attname)
+            self._list_columns = list(set(list_columns))
+        return self._list_columns
+
+    @property
+    def other_columns(self):
+        """Return other column names with fk to a common models."""
+        from edc_lab.models import Panel
+        from edc_sites.models import Site
+
+        related_model = [Site, Panel]
+        if not self._list_columns:
+            list_columns = []
+            for fld_cls in self.queryset.model._meta.get_fields():
+                if (
+                    hasattr(fld_cls, "related_model")
+                    and fld_cls.related_model
+                    and fld_cls.related_model in related_model
+                ):
+                    list_columns.append(fld_cls.attname)
+            self._list_columns = list(set(list_columns))
+        return self._list_columns
 
     def add_subject_identifier_column(self, columns: dict[str, str]) -> dict[str, str]:
         if "subject_identifier" not in [v for v in columns.values()]:
@@ -277,4 +319,18 @@ class ModelToDataframe:
                     {f"{column_name}__drawn_datetime": f"{col_prefix}_drawn_datetime"}
                 )
                 columns.update({f"{column_name}__is_drawn": f"{col_prefix}_is_drawn"})
+        return columns
+
+    def add_list_model_name_columns(self, columns: dict[str, str] = None) -> dict[str, str]:
+        for col in copy(columns):
+            if col in self.list_columns:
+                column_name = col.split("_id")[0]
+                columns.update({f"{column_name}__name": f"{column_name}_name"})
+        return columns
+
+    def add_other_columns(self, columns: dict[str, str] = None) -> dict[str, str]:
+        for col in copy(columns):
+            if col in self.other_columns:
+                column_name = col.split("_id")[0]
+                columns.update({f"{column_name}__name": f"{column_name}_name"})
         return columns
