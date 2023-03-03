@@ -72,8 +72,7 @@ class CsvExporter:
         if not os.path.exists(self.export_folder):
             raise ExporterExportFolder(f"Invalid export folder. Got {self.export_folder}")
         self.data_label = data_label  # model_name
-        model_name = get_model_from_table_name(self.data_label)
-        self.model_cls = django_apps.get_model(model_name)
+        self.model_cls = get_model_from_table_name(self.data_label)
 
     def to_format(self, export_format, dataframe=None, export_folder=None, **kwargs):
         """Returns the full path of the written CSV file if the
