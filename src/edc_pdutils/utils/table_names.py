@@ -12,7 +12,8 @@ def get_table_names(
     db_cls: Type[Database] | None = None,
 ) -> list[str]:
     """Returns a list of table names for this app_label."""
-    db = db_cls or Database()
+    db = (db_cls or Database)()
+
     if with_columns:
         df = db.show_tables_with_columns(app_label, with_columns)
     elif without_columns:
