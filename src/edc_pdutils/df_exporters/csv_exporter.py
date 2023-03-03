@@ -12,6 +12,7 @@ from edc_export.utils import get_export_folder
 from edc_utils import get_utcnow
 
 from ..site_values_mappings import site_values_mappings
+from ..utils import get_model_from_table_name
 
 style = color_style()
 
@@ -53,7 +54,9 @@ class CsvExporter:
 
     def __init__(
         self,
-        model_name: str = None,
+        model_name: str | None = None,
+        table_name: str | None = None,
+        data_label: str | None = None,
         sort_by: list | tuple | str | None = None,
         export_folder: str = None,
         delimiter: str | None = None,
@@ -73,8 +76,12 @@ class CsvExporter:
             raise ExporterExportFolder("Invalid export folder. Got None")
         if not os.path.exists(self.export_folder):
             raise ExporterExportFolder(f"Invalid export folder. Got {self.export_folder}")
-        self.model_name = model_name
+        if not model_name:
+            self.model_name = get_model_from_table_name(table_name)
+        else:
+            self.model_name = model_name
         self.model_cls = django_apps.get_model(self.model_name)
+        self.data_label = data_label or model_name or table_name
 
     def to_format(self, export_format, dataframe=None, export_folder=None, **kwargs):
         """Returns the full path of the written CSV file if the
@@ -155,7 +162,7 @@ class CsvExporter:
     def stata_options(self):
         """Returns default options for dataframe.to_stata()."""
         return dict(
-            data_label=f"{self.model_name}.dta",
+            data_label=f"{self.data_label}.dta",
             version=118,
         )
 

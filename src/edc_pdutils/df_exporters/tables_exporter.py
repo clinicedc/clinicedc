@@ -96,7 +96,7 @@ class TablesExporter:
         for table_name in self.table_names:
             df = self.to_df(table_name=table_name, **kwargs)
             exporter = self.csv_exporter_cls(
-                data_label=table_name, export_folder=export_folder, **kwargs
+                table_name=table_name, export_folder=export_folder, **kwargs
             )
             exported = exporter.to_csv(dataframe=df, export_folder=export_folder)
             if exported.path:
