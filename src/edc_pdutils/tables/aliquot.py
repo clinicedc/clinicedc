@@ -1,8 +1,8 @@
 from copy import copy
 
 import pandas as pd
-from edc_model import DEFAULT_BASE_FIELDS
 
+from ..constants import SYSTEM_COLUMNS
 from ..mappings import yes_no
 from .table import Table
 
@@ -31,7 +31,8 @@ class Aliquot(Table):
         self.dataframe["aliquot_date"] = self.dataframe["aliquot_datetime"].dt.normalize()
 
         # drop sys and other unwanted columns
-        base_cols = copy(DEFAULT_BASE_FIELDS)
+        base_cols = copy(SYSTEM_COLUMNS)
+        base_cols.append("id")
         base_cols.pop(base_cols.index("hostname_created"))
         base_cols = base_cols + ["slug", "comment", "shipped"]
         self.dataframe = self.dataframe.drop(base_cols, axis=1)
