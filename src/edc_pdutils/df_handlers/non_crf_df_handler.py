@@ -1,4 +1,4 @@
-from edc_pdutils.df_handlers.crf_df_handler import CrfDfHandler
+from .crf_df_handler import CrfDfHandler
 
 
 class NonCrfDfHandler(CrfDfHandler):

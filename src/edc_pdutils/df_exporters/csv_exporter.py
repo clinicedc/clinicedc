@@ -8,11 +8,10 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.management.color import color_style
 from django.db.models import QuerySet
-from edc_export.utils import get_export_folder
 from edc_utils import get_utcnow
 
 from ..site_values_mappings import site_values_mappings
-from ..utils import get_model_from_table_name
+from ..utils import get_export_folder, get_model_from_table_name
 
 style = color_style()
 

@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-from edc_export.utils import get_export_folder
-
 from ..database import Database
 from ..df_handlers import DfHandler
-from ..utils import get_table_names
+from ..utils import get_export_folder, get_table_names
 from .csv_exporter import CsvExporter
 
 

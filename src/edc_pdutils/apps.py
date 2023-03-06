@@ -3,9 +3,10 @@ import sys
 
 from django.apps import AppConfig as DjangoApponfig
 from django.core.management import color_style
-from edc_export.utils import get_export_folder
 
 from edc_pdutils.site_values_mappings import site_values_mappings
+
+from .utils import get_export_folder
 
 style = color_style()
 
