@@ -6,11 +6,11 @@ class MysqlDialect:
         return f"{self.__class__.__name__}({self.dbname})"
 
     @staticmethod
-    def show_databases():
+    def show_databases() -> tuple[str, None]:
         sql = "SELECT SCHEMA_NAME AS `database` FROM INFORMATION_SCHEMA.SCHEMATA"
         return sql, None
 
-    def show_tables(self, app_label=None):
+    def show_tables(self, app_label: str = None) -> tuple[str, dict]:
         params = {"dbname": self.dbname, "app_label": f"{app_label}%"}
         select = "SELECT table_name FROM information_schema.tables"
         where = ["table_schema=%(dbname)s"]
@@ -19,7 +19,9 @@ class MysqlDialect:
         sql = f'{select} WHERE {" AND ".join(where)}'
         return sql, params
 
-    def show_tables_with_columns(self, app_label=None, column_names=None):
+    def show_tables_with_columns(
+        self, app_label: str = None, column_names: list[str] = None
+    ) -> tuple[str, dict]:
         column_names = "','".join(column_names)
         params = {
             "dbname": self.dbname,
@@ -34,7 +36,9 @@ class MysqlDialect:
         )
         return sql, params
 
-    def show_tables_without_columns(self, app_label=None, column_names=None):
+    def show_tables_without_columns(
+        self, app_label: str = None, column_names: list[str] = None
+    ) -> tuple[str, dict]:
         column_names = "','".join(column_names)
         params = {
             "dbname": self.dbname,
@@ -55,13 +59,13 @@ class MysqlDialect:
         return sql, params
 
     @staticmethod
-    def select_table(table_name=None):
+    def select_table(table_name: str = None) -> tuple[str, dict]:
         params = {}
         sql = f"select * from {table_name}"  # nosec B608
         return sql, params
 
     @staticmethod
-    def show_inline_tables(referenced_table_name=None):
+    def show_inline_tables(referenced_table_name: str = None) -> tuple[str, dict]:
         params = {"referenced_table_name": referenced_table_name}
         sql = (
             "SELECT DISTINCT referenced_table_name, table_name, "

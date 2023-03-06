@@ -2,7 +2,6 @@ from ..database import Database
 
 
 class TableToDataframe:
-
     db_cls = Database
 
     def __init__(

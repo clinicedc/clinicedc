@@ -7,7 +7,6 @@ style = color_style()
 
 
 class CsvModelExporter:
-
     df_maker_cls = ModelToDataframe
     csv_exporter_cls = CsvExporter
 
@@ -17,7 +16,7 @@ class CsvModelExporter:
             model=model, queryset=queryset, decrypt=decrypt, **kwargs
         )
         self.csv_exporter = self.csv_exporter_cls(
-            data_label=self.model, sort_by=sort_by, **kwargs
+            model_name=self.model, sort_by=sort_by, **kwargs
         )
 
     def to_csv(self):

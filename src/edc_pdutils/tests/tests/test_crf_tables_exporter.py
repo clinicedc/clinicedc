@@ -14,7 +14,6 @@ app_config = django_apps.get_app_config("edc_pdutils")
 
 
 class TestExport(TestCase):
-
     helper = Helper()
 
     def setUp(self):

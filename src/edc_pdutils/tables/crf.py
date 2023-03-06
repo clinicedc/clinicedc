@@ -7,7 +7,6 @@ from .table import Table
 
 
 class Crf(Table):
-
     default_columns = [
         "subject_visit_id",
         "report_datetime",

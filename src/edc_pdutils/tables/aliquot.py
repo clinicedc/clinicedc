@@ -8,7 +8,6 @@ from .table import Table
 
 
 class Aliquot(Table):
-
     default_columns = None
     requisition_columns = [
         "requisition_identifier",

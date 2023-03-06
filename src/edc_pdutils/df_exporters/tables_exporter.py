@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 from edc_export.utils import get_export_folder
 
 from ..database import Database
 from ..df_handlers import DfHandler
+from ..utils import get_table_names
 from .csv_exporter import CsvExporter
 
 
@@ -38,12 +41,12 @@ class TablesExporter:
 
     def __init__(
         self,
-        app_label=None,
-        with_columns=None,
-        without_columns=None,
-        exclude_history_tables=None,
-        exclude_table_hints=None,
-        export_folder=None,
+        app_label: str | None = None,
+        with_columns: list[str] | None = None,
+        without_columns: list[str] | None = None,
+        exclude_history_tables: bool | None = None,
+        exclude_table_hints: bool | None = None,
+        export_folder: str | None = None,
         **kwargs,
     ):
         self.app_label = app_label or self.app_label
@@ -59,8 +62,12 @@ class TablesExporter:
             else exclude_history_tables
         )
         self.exported_paths = {}
-        self.db = self.db_cls(**kwargs)
+        self.db = self.db_cls()
         self.table_names = self.get_table_names()
+        if not self.table_names:
+            raise TablesExporterError(
+                f"No tables found for app_label. Got {self.app_label}. See {repr(self)}"
+            )
         for hint in exclude_table_hints:
             for table_name in self.get_table_names():
                 if hint in table_name:
@@ -75,8 +82,13 @@ class TablesExporter:
     def __repr__(self):
         return f"{self.__class__.__name__}(app_label='{self.app_label}')"
 
-    def to_csv(self, table_names=None, export_folder=None, **kwargs):
-        """Exports all tables to CSV."""
+    def to_csv(
+        self, table_names: list[str] | None = None, export_folder: str | None = None, **kwargs
+    ):
+        """Exports all tables to CSV as raw tables.
+
+        See also `ModelToDataframe` for less generic export options.
+        """
         self.exported_paths = {}
         export_folder = export_folder or self.export_folder
         if table_names:
@@ -87,24 +99,22 @@ class TablesExporter:
         for table_name in self.table_names:
             df = self.to_df(table_name=table_name, **kwargs)
             exporter = self.csv_exporter_cls(
-                data_label=table_name, export_folder=export_folder, **kwargs
+                table_name=table_name, export_folder=export_folder, **kwargs
             )
             exported = exporter.to_csv(dataframe=df, export_folder=export_folder)
             if exported.path:
                 self.exported_paths.update({table_name: exported.path})
 
-    def get_table_names(self):
+    def get_table_names(self) -> list[str]:
         """Returns a list of table names for this app_label."""
-        if self.with_columns:
-            df = self.db.show_tables_with_columns(self.app_label, self.with_columns)
-        elif self.without_columns:
-            df = self.db.show_tables_without_columns(self.app_label, self.without_columns)
-        else:
-            df = self.db.show_tables(self.app_label)
-        df = df.rename(columns={"TABLE_NAME": "table_name"})
-        return list(df.table_name)
+        return get_table_names(
+            app_label=self.app_label,
+            with_columns=self.with_columns,
+            without_columns=self.without_columns,
+            db_cls=self.db_cls,
+        )
 
-    def to_df(self, table_name=None, **kwargs):
+    def to_df(self, table_name: str = None, **kwargs):
         """Returns a dataframe after passing the raw df
         through the df_handler class.
         """
@@ -116,7 +126,7 @@ class TablesExporter:
             df = df_handler.dataframe
         return df
 
-    def get_raw_df(self, table_name=None):
+    def get_raw_df(self, table_name: str = None):
         """Returns a df for the given table_name
         from an SQL statement, that is; raw).
         """

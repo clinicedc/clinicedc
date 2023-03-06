@@ -1,6 +1,6 @@
 import pandas as pd
 
-from ..constants import SYSTEM_COLUMNS
+from ..constants import ACTION_ITEM_COLUMNS, SYSTEM_COLUMNS
 from ..dialects import CrfDialect
 from .df_handler import DfHandler
 
@@ -10,7 +10,6 @@ class CrfDfHandlerError(Exception):
 
 
 class CrfDfHandler(DfHandler):
-
     crf_dialect_cls = CrfDialect
     visit_tbl = None
     visit_column = "subject_visit_id"
@@ -18,6 +17,7 @@ class CrfDfHandler(DfHandler):
     registered_subject_tbl = "edc_registration_registeredsubject"
     dialect_select_visit_and_related = "select_visit_and_related"
 
+    action_item_columns = ACTION_ITEM_COLUMNS
     system_columns = SYSTEM_COLUMNS
     sort_by = ["subject_identifier", "visit_datetime"]
     exclude_export_columns = True
@@ -44,7 +44,7 @@ class CrfDfHandler(DfHandler):
             right=self.df_visit_and_related,
             how="left",
             on=self.visit_column,
-            suffixes=["_notused", ""],
+            suffixes=("_notused", ""),
         )
         self.dataframe = self.dataframe[self.columns]
 
@@ -59,10 +59,13 @@ class CrfDfHandler(DfHandler):
         # "export_" columns
         if self.exclude_export_columns:
             columns = [col for col in columns if not col.startswith("export_")]
-
         if self.exclude_system_columns:
             columns = [col for col in columns if col not in self.system_columns]
         else:
+            if [col for col in columns if col in self.action_item_columns]:
+                # "action_item" columns, move to the end
+                columns = [col for col in columns if col not in self.action_item_columns]
+                columns.extend(self.action_item_columns)
             # "system" columns, move to the end
             columns = [col for col in columns if col not in self.system_columns]
             columns.extend(self.system_columns)

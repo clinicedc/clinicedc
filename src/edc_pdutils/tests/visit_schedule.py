@@ -20,7 +20,6 @@ class Panel(DummyPanel):
 
 
 def get_visit_schedule(i=None):
-
     i = i or 4
 
     crfs = FormsCollection(

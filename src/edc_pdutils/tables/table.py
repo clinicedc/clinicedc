@@ -4,7 +4,6 @@ from ..table_to_dataframe import Helper, TableToDataframe
 
 
 class Table:
-
     default_columns = None
     helper_cls = Helper
     table_to_dataframe_cls = TableToDataframe

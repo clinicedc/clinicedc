@@ -8,7 +8,6 @@ from .table_to_dataframe import TableToDataframe
 
 
 class Helper(BaseHelper):
-
     to_dataframe_cls = TableToDataframe
 
     def get_raw_dataframe(
