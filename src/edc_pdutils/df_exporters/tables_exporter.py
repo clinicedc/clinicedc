@@ -85,7 +85,10 @@ class TablesExporter:
     def to_csv(
         self, table_names: list[str] | None = None, export_folder: str | None = None, **kwargs
     ):
-        """Exports all tables to CSV."""
+        """Exports all tables to CSV as raw tables.
+
+        See also `ModelToDataframe` for less generic export options.
+        """
         self.exported_paths = {}
         export_folder = export_folder or self.export_folder
         if table_names:

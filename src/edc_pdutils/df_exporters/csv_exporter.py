@@ -17,6 +17,10 @@ from ..utils import get_model_from_table_name
 style = color_style()
 
 
+class ExporterError(Exception):
+    pass
+
+
 class ExporterExportFolder(Exception):
     pass
 
@@ -64,6 +68,9 @@ class CsvExporter:
         index: bool | None = None,
         verbose=None,
     ):
+        self.model_cls = None
+        self.model_name = model_name
+        self.table_name = table_name
         self.delimiter = delimiter or self.delimiter
         self.date_format = date_format or self.date_format
         self.index = index or self.index
@@ -76,11 +83,15 @@ class CsvExporter:
             raise ExporterExportFolder("Invalid export folder. Got None")
         if not os.path.exists(self.export_folder):
             raise ExporterExportFolder(f"Invalid export folder. Got {self.export_folder}")
-        if not model_name:
-            self.model_name = get_model_from_table_name(table_name)
-        else:
-            self.model_name = model_name
-        self.model_cls = django_apps.get_model(self.model_name)
+        if self.model_name:
+            try:
+                self.model_cls = django_apps.get_model(self.model_name)
+            except (LookupError, AttributeError):
+                pass
+        elif self.table_name:
+            self.model_cls = get_model_from_table_name(table_name)
+            if self.model_cls:
+                self.model_name = self.model_cls._meta.label_lower
         self.data_label = data_label or model_name or table_name
 
     def to_format(self, export_format, dataframe=None, export_folder=None, **kwargs):
@@ -186,7 +197,7 @@ class CsvExporter:
             suffix = ""
         else:
             suffix = f"_{get_utcnow().strftime(timestamp_format)}"
-        prefix = self.model_name.replace("-", "_").replace(".", "_")
+        prefix = (self.model_name or self.data_label).replace("-", "_").replace(".", "_")
         return f"{prefix}{suffix}"
 
     def stata_variable_labels(self, dataframe: pd.DataFrame) -> dict[str, str]:
@@ -195,29 +206,30 @@ class CsvExporter:
     def stata_value_labels(self, dataframe: pd.DataFrame):
         commands = []
         choices = {}
-        for field_cls in self.model_cls._meta.get_fields():
-            if field_cls.get_internal_type() == "CharField":
-                if field_cls.choices:
-                    responses = []
-                    for tpl in field_cls.choices:
-                        if mapped_choice := site_values_mappings.get_by_choices(tpl):
-                            responses.append([mapped_choice[0], mapped_choice[1]])
-                        else:
-                            responses.append([tpl[0], tpl[1]])
-                    choices.update({field_cls.name: responses})
-        for fname, responses in choices.items():
-            labels = []
-            if fname in list(dataframe.columns):
-                for stored, displayed in responses:
-                    labels.append(f'"{stored}" "{displayed}"')
-                commands.append(f'label define {fname}l {" ".join(labels)}')
-                commands.append(f"encode {fname}, generate({fname}_encoded) {fname}l")
-                commands.append(f"ren {fname} {fname}_edc")
-                commands.append(f"ren {fname}_encoded {fname}")
-                commands.append("")
-        with open(f"{self.get_path()}.do", "w") as f:
-            for command in commands:
-                f.write(f"{command}\n")
+        if self.model_cls:
+            for field_cls in self.model_cls._meta.get_fields():
+                if field_cls.get_internal_type() == "CharField":
+                    if field_cls.choices:
+                        responses = []
+                        for tpl in field_cls.choices:
+                            if mapped_choice := site_values_mappings.get_by_choices(tpl):
+                                responses.append([mapped_choice[0], mapped_choice[1]])
+                            else:
+                                responses.append([tpl[0], tpl[1]])
+                        choices.update({field_cls.name: responses})
+            for fname, responses in choices.items():
+                labels = []
+                if fname in list(dataframe.columns):
+                    for stored, displayed in responses:
+                        labels.append(f'"{stored}" "{displayed}"')
+                    commands.append(f'label define {fname}l {" ".join(labels)}')
+                    commands.append(f"encode {fname}, generate({fname}_encoded) {fname}l")
+                    commands.append(f"ren {fname} {fname}_edc")
+                    commands.append(f"ren {fname}_encoded {fname}")
+                    commands.append("")
+            with open(f"{self.get_path()}.do", "w") as f:
+                for command in commands:
+                    f.write(f"{command}\n")
         return commands
 
     def data_dictionary_qs(self, dataframe: pd.DataFrame) -> QuerySet:

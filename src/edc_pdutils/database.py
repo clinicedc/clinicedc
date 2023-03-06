@@ -92,4 +92,13 @@ class Database:
 
     def show_inline_tables(self, referenced_table_name: str = None):
         sql, params = self.dialect.show_inline_tables(referenced_table_name)
-        return self.read_sql(sql, params=params)
+        df = self.read_sql(sql, params=params)
+        df = df.rename(
+            columns={
+                "TABLE_NAME": "table_name",
+                "REFERENCED_COLUMN_NAME": "referenced_column_name",
+                "REFERENCED_TABLE_NAME": "referenced_table_name",
+                "COLUMN_NAME": "column_name",
+            }
+        )
+        return df
