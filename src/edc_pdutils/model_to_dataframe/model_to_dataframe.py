@@ -9,7 +9,7 @@ from django.apps import apps as django_apps
 from django.db.models.constants import LOOKUP_SEP
 
 from ..constants import ACTION_ITEM_COLUMNS, SYSTEM_COLUMNS
-from .value_getter import ValueGetter
+from .value_getter import ValueGetter, ValueGetterInvalidLookup
 
 
 class ModelToDataframeError(Exception):
@@ -92,12 +92,16 @@ class ModelToDataframe:
                 sys.stdout.write(f"   {self.model} {index + 1}/{row_count} ... \r")
             row = []
             for lookup, column_name in self.columns.items():
-                value = self.get_column_value(
-                    model_obj=model_obj,
-                    column_name=column_name,
-                    lookup=lookup,
-                )
-                row.append(value)
+                try:
+                    value = self.get_column_value(
+                        model_obj=model_obj,
+                        column_name=column_name,
+                        lookup=lookup,
+                    )
+                except ValueGetterInvalidLookup as e:
+                    print(f"{e.message}. Model: {model_obj._meta.label_lower}.")
+                else:
+                    row.append(value)
             data.append(row)
         return pd.DataFrame(data, columns=[col for col in self.columns])
 

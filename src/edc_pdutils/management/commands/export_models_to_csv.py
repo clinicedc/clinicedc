@@ -42,12 +42,21 @@ class Command(BaseCommand):
             help="export historical tables",
         )
 
+        parser.add_argument(
+            "--decrypt",
+            action="store_true",
+            dest="decrypt",
+            default=False,
+            help="decrypt",
+        )
+
     def handle(self, *args, **options):
         date_format = "%Y-%m-%d %H:%M:%S"
         sep = "|"
         export_format = options["format"]
         app_label = options["app_label"]
         csv_path = options["path"]
+        decrypt = options["decrypt"]
         include_historical = options["include_historical"]
         if not csv_path or not os.path.exists(csv_path):
             raise CommandError(f"Path does not exist. Got `{csv_path}`")
@@ -57,7 +66,7 @@ class Command(BaseCommand):
         if not include_historical:
             model_names = [m for m in model_names if "historical" not in m]
         for model_name in model_names:
-            m = ModelToDataframe(model=model_name, drop_sys_columns=False)
+            m = ModelToDataframe(model=model_name, drop_sys_columns=False, decrypt=decrypt)
             exporter = CsvExporter(
                 model_name=model_name,
                 date_format=date_format,
