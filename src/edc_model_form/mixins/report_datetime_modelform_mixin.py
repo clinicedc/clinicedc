@@ -6,7 +6,6 @@ from edc_utils import to_utc
 
 
 class ReportDatetimeModelFormMixin:
-
     # may also be appt_datetime or requisition_datetime
     report_datetime_field_attr: str = "report_datetime"
 
