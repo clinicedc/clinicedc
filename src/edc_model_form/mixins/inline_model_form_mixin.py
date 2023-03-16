@@ -39,7 +39,7 @@ class InlineModelFormMixin:
         if len(items) != len(list(set(items))):
             field_label = field_label or field
             raise forms.ValidationError(
-                f"{field_label}: The list of value below must be unique"
+                f"{field_label}: The list of values below must be unique"
             )
 
     def dates_not_after_report_datetime(self, field=None, inline_model=None, field_label=None):
