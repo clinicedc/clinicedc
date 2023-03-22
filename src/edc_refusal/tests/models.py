@@ -4,7 +4,6 @@ from edc_utils import get_utcnow
 
 
 class SubjectScreening(BaseUuidModel):
-
     screening_identifier = models.CharField(max_length=25, unique=True)
 
     report_datetime = models.DateTimeField(default=get_utcnow)
