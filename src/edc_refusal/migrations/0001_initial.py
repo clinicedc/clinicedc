@@ -14,7 +14,6 @@ import edc_utils.date
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
