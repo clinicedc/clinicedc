@@ -20,7 +20,6 @@ class TestForms(TestCase):
         }
 
     def test_subject_refusal_ok(self):
-
         SubjectScreening.objects.create(
             screening_identifier="12345",
             report_datetime=get_utcnow() - relativedelta(days=1),

@@ -11,7 +11,6 @@ from .models import SubjectRefusal
 
 
 class SubjectRefusalModelAdminMixin:
-
     fieldsets = (
         [
             None,
@@ -47,7 +46,6 @@ class SubjectRefusalModelAdminMixin:
 class SubjectRefusalAdmin(
     SubjectRefusalModelAdminMixin, ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin
 ):
-
     form = SubjectRefusalForm
 
     post_url_on_delete_name = "screening_listboard_url"

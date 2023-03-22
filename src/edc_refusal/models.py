@@ -19,7 +19,6 @@ class RefusalReasons(ListModelMixin):
 
 
 class SubjectRefusalModelMixin(models.Model):
-
     screening_identifier = models.CharField(max_length=50, unique=True)
 
     report_datetime = models.DateTimeField(
