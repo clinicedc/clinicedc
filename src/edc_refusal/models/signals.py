@@ -13,7 +13,7 @@ from ..utils import get_subject_refusal_model_cls
     dispatch_uid="subject_refusal_on_post_save",
 )
 def subject_refusal_on_post_save(sender, instance, raw, created, **kwargs):
-    """Updates `refused` field on SUbjectScreening"""
+    """Updates `refused` field on SubjectScreening"""
     if not raw:
         try:
             obj = get_subject_screening_model_cls().objects.get(

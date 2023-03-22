@@ -1,15 +1,17 @@
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from edc_utils.date import get_utcnow
 
 from edc_refusal.forms import SubjectRefusalForm
 from edc_refusal.models import RefusalReasons, SubjectRefusal
 
+from ...utils import get_subject_refusal_model, get_subject_refusal_model_cls
 from ..models import SubjectScreening
 
 
 class TestForms(TestCase):
-    def get_data(self):
+    @staticmethod
+    def get_data():
         refusal_reason = RefusalReasons.objects.all()[0]
         return {
             "screening_identifier": "12345",
@@ -18,6 +20,11 @@ class TestForms(TestCase):
             "other_reason": None,
             "comment": None,
         }
+
+    @override_settings(SUBJECT_REFUSAL_MODEL="edc_refusal.subjectrefusal")
+    def test_model_funcs(self):
+        self.assertEqual(get_subject_refusal_model(), "edc_refusal.subjectrefusal")
+        self.assertEqual(get_subject_refusal_model_cls(), SubjectRefusal)
 
     def test_subject_refusal_ok(self):
         SubjectScreening.objects.create(
