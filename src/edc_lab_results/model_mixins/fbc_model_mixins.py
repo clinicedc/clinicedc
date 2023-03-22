@@ -75,8 +75,8 @@ class NeutrophilModelMixin(
         utest_id="neutrophil",
         verbose_name="Neutrophil (abs)",
         units_choices=((TEN_X_9_PER_LITER, TEN_X_9_PER_LITER),),
-        decimal_places=0,
-        validators=[MinValueValidator(1), MaxValueValidator(9999)],
+        decimal_places=2,
+        validators=[MinValueValidator(0.00), MaxValueValidator(9999)],
     ),
     models.Model,
 ):
@@ -89,8 +89,8 @@ class NeutrophilDiffModelMixin(
         utest_id="neutrophil_diff",
         verbose_name="Neutrophil (diff)",
         units_choices=((PERCENT, PERCENT),),
-        decimal_places=0,
-        validators=[MinValueValidator(1), MaxValueValidator(9999)],
+        decimal_places=2,
+        validators=[MinValueValidator(0.00), MaxValueValidator(9999)],
     ),
     models.Model,
 ):
@@ -103,8 +103,8 @@ class LymphocyteModelMixin(
         utest_id="lymphocyte",
         verbose_name="Lymphocyte (abs)",
         units_choices=((TEN_X_9_PER_LITER, TEN_X_9_PER_LITER),),
-        decimal_places=0,
-        validators=[MinValueValidator(1), MaxValueValidator(9999)],
+        decimal_places=2,
+        validators=[MinValueValidator(0.00), MaxValueValidator(9999)],
     ),
     models.Model,
 ):
@@ -117,8 +117,8 @@ class LymphocyteDiffModelMixin(
         utest_id="lymphocyte_diff",
         verbose_name="Lymphocyte (diff)",
         units_choices=((PERCENT, PERCENT),),
-        decimal_places=0,
-        validators=[MinValueValidator(1), MaxValueValidator(9999)],
+        decimal_places=2,
+        validators=[MinValueValidator(0.00), MaxValueValidator(9999)],
     ),
     models.Model,
 ):
