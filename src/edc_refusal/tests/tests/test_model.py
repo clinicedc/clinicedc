@@ -26,6 +26,7 @@ class TestForms(TestCase):
         self.assertEqual(get_subject_refusal_model(), "edc_refusal.subjectrefusal")
         self.assertEqual(get_subject_refusal_model_cls(), SubjectRefusal)
 
+    @override_settings(SUBJECT_REFUSAL_MODEL="edc_refusal.subjectrefusal")
     def test_subject_refusal_ok(self):
         SubjectScreening.objects.create(
             screening_identifier="12345",
