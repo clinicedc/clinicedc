@@ -1,5 +1,5 @@
 from django.apps import apps as django_apps
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_constants.constants import NO, NOT_APPLICABLE, YES
 from edc_lab.models import Panel
@@ -32,7 +32,6 @@ class TestBloodResult(TestCaseMixin, TestCase):
         )
         self.data = dict(subject_visit=subject_visit, requisition=requisition)
 
-    @tag("1")
     def test_ok(self):
         BloodResultsFbc.objects.create(**self.data)
 
