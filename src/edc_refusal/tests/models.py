@@ -11,3 +11,5 @@ class SubjectScreening(BaseUuidModel):
     age_in_years = models.IntegerField()
 
     eligible = models.BooleanField(default=True)
+
+    refused = models.BooleanField(default=True)
