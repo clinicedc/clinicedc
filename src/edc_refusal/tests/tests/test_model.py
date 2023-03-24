@@ -33,9 +33,49 @@ class TestForms(TestCase):
             report_datetime=get_utcnow() - relativedelta(days=1),
             age_in_years=25,
             eligible=True,
+            refused=False,
         )
         form = SubjectRefusalForm(data=self.get_data(), instance=None)
         form.is_valid()
         self.assertEqual(form._errors, {})
         form.save()
         self.assertEqual(SubjectRefusal.objects.all().count(), 1)
+
+    @override_settings(SUBJECT_REFUSAL_MODEL="edc_refusal.subjectrefusal")
+    def test_add_subject_refusal_set_subject_screening_refused_true(self):
+        subject_screening = SubjectScreening.objects.create(
+            screening_identifier="12345",
+            report_datetime=get_utcnow() - relativedelta(days=1),
+            age_in_years=25,
+            eligible=True,
+            refused=False,
+        )
+        self.assertFalse(subject_screening.refused)
+
+        form = SubjectRefusalForm(data=self.get_data(), instance=None)
+        form.save()
+        subject_screening.refresh_from_db()
+        self.assertTrue(subject_screening.refused)
+
+    @override_settings(SUBJECT_REFUSAL_MODEL="edc_refusal.subjectrefusal")
+    def test_delete_subject_refusal_sets_subject_screening_refused_false(self):
+        subject_screening = SubjectScreening.objects.create(
+            screening_identifier="12345",
+            report_datetime=get_utcnow() - relativedelta(days=1),
+            age_in_years=25,
+            eligible=True,
+            refused=False,
+        )
+        self.assertFalse(subject_screening.refused)
+
+        form = SubjectRefusalForm(data=self.get_data(), instance=None)
+        form.save()
+        subject_screening.refresh_from_db()
+        self.assertTrue(subject_screening.refused)
+
+        subject_refusal = SubjectRefusal.objects.get(
+            screening_identifier=subject_screening.screening_identifier
+        )
+        subject_refusal.delete()
+        subject_screening.refresh_from_db()
+        self.assertFalse(subject_screening.refused)
