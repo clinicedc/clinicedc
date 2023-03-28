@@ -35,7 +35,7 @@ class DrugRefillModelMixin(models.Model):
     )
 
     modifications_reason = models.ManyToManyField(
-        f"{settings.LIST_MODEL_APP_LABEL}.RxModificationsReasons",
+        f"{settings.LIST_MODEL_APP_LABEL}.RxModificationReasons",
         verbose_name="Why did the patient’s previous prescription change?",
         blank=True,
     )
