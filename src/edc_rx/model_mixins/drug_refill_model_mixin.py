@@ -1,11 +1,9 @@
+from django.conf import settings
 from django.db import models
 from edc_constants.choices import YES_NO
 
-from ..models import RxModificationReasons, RxModifications
-
 
 class DrugRefillModelMixin(models.Model):
-
     rx_other = models.CharField(
         verbose_name="If other, please specify ...",
         max_length=150,
@@ -24,7 +22,7 @@ class DrugRefillModelMixin(models.Model):
     )
 
     modifications = models.ManyToManyField(
-        RxModifications,
+        f"{settings.LIST_MODEL_APP_LABEL}.RxModifications",
         verbose_name="Which changes occurred?",
         blank=True,
     )
@@ -37,7 +35,7 @@ class DrugRefillModelMixin(models.Model):
     )
 
     modifications_reason = models.ManyToManyField(
-        RxModificationReasons,
+        f"{settings.LIST_MODEL_APP_LABEL}.RxModificationsReasons",
         verbose_name="Why did the patient’s previous prescription change?",
         blank=True,
     )
