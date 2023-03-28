@@ -4,7 +4,6 @@ from edc_constants.constants import NOT_APPLICABLE
 
 
 class FollowupReviewModelMixin(models.Model):
-
     care_delivery = models.CharField(
         verbose_name=(
             "Was care for this `condition` delivered in an integrated care clinic today?"

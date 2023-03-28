@@ -8,7 +8,6 @@ from ...utils import get_list_model_app
 
 
 class ClinicalReviewCholModelMixin(models.Model):
-
     chol_test = models.CharField(
         verbose_name="Since last seen, was the patient tested for high cholesterol?",
         max_length=15,

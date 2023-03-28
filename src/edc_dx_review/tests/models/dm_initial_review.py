@@ -18,7 +18,6 @@ class DmInitialReview(
     CrfModelMixin,
     edc_models.BaseUuidModel,
 ):
-
     ncd_condition_label = "diabetes"
 
     managed_by = models.CharField(

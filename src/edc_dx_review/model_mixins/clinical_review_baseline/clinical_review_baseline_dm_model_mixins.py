@@ -8,7 +8,6 @@ from edc_model.validators import date_not_future
 
 
 class ClinicalReviewBaselineDmModelMixin(models.Model):
-
     dm_test = models.CharField(
         verbose_name="Has the patient ever tested for Diabetes?",
         max_length=15,

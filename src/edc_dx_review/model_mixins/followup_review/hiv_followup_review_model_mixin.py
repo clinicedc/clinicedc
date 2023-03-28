@@ -6,7 +6,6 @@ from .followup_review_model_mixin import FollowupReviewModelMixin
 
 
 class HivFollowupReviewModelMixin(FollowupReviewModelMixin, models.Model):
-
     dx = models.CharField(
         verbose_name="Has the patient been infected with HIV?",
         max_length=15,

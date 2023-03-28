@@ -3,7 +3,6 @@ from edc_model import models as edc_models
 
 
 class DxLocationModelMixin(models.Model):
-
     dx_location = models.ForeignKey(
         "edc_dx_review.diagnosislocations",
         verbose_name="Where was the diagnosis made?",

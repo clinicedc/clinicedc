@@ -63,7 +63,6 @@ class HivArvInitiationModelMixin(models.Model):
 
 
 class HivArvMonitoringModelMixin(models.Model):
-
     # Viral Load
     has_vl = models.CharField(
         verbose_name="Is the patient's most recent viral load result available?",

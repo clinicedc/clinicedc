@@ -15,7 +15,6 @@ class ClinicalReviewBaselineFormValidator(
 
 
 class ClinicalReviewBaselineForm(FormValidatorMixin, forms.ModelForm):
-
     form_validator_cls = ClinicalReviewBaselineFormValidator
 
     class Meta:

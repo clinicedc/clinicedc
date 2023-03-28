@@ -22,7 +22,6 @@ class HivInitialReview(
     CrfModelMixin,
     edc_models.BaseUuidModel,
 ):
-
     receives_care = models.CharField(
         verbose_name="Is the patient receiving care for HIV?",
         max_length=15,

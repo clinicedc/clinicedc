@@ -7,7 +7,6 @@ from edc_dx_review.choices import CHOL_MANAGEMENT
 
 
 class CholReview(CrfModelMixin, edc_models.BaseUuidModel):
-
     managed_by = models.CharField(
         verbose_name="How will the patient's High Cholesterol be managed going forward?",
         max_length=25,

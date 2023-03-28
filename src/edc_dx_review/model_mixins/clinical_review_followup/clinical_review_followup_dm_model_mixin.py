@@ -8,7 +8,6 @@ from ...utils import get_list_model_app
 
 
 class ClinicalReviewDmModelMixin(models.Model):
-
     dm_test = models.CharField(
         verbose_name="Since last seen, was the patient tested for diabetes?",
         max_length=15,
