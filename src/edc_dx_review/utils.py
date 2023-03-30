@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import date, datetime
 
 from django import forms
@@ -62,7 +64,9 @@ def raise_if_clinical_review_does_not_exist(subject_visit) -> None:
             raise forms.ValidationError(f"Complete {model_cls._meta.verbose_name} CRF first.")
 
 
-def raise_if_both_ago_and_actual_date(dx_ago: str, dx_date: date, cleaned_data=None) -> None:
+def raise_if_both_ago_and_actual_date(
+    dx_ago: str | None = None, dx_date: date | None = None, cleaned_data: dict | None = None
+) -> None:
     if cleaned_data:
         dx_ago = cleaned_data.get("dx_ago")
         dx_date = cleaned_data.get("dx_date")
