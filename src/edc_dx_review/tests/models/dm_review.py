@@ -8,7 +8,6 @@ from edc_dx_review.model_mixins import FollowupReviewModelMixin
 
 
 class DmReview(FollowupReviewModelMixin, CrfModelMixin, edc_models.BaseUuidModel):
-
     managed_by = models.CharField(
         verbose_name="How will the patient's diabetes be managed going forward?",
         max_length=25,

@@ -32,7 +32,6 @@ class ClinicalReviewFollowupFormValidator(
 
 
 class ClinicalReviewFollowupForm(CrfModelFormMixin, forms.ModelForm):
-
     form_validator_cls = ClinicalReviewFollowupFormValidator
 
     class Meta:

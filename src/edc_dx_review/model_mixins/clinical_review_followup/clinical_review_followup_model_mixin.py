@@ -6,7 +6,6 @@ from edc_visit_schedule.utils import raise_if_baseline
 
 
 class ClinicalReviewModelMixin(models.Model):
-
     complications = models.CharField(
         verbose_name="Since last seen, has the patient had any complications",
         max_length=15,

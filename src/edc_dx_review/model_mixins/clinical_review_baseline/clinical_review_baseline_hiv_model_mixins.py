@@ -8,7 +8,6 @@ from edc_model.validators import date_not_future
 
 
 class ClinicalReviewBaselineHivModelMixin(models.Model):
-
     hiv_test = models.CharField(
         verbose_name="Has the patient ever tested for HIV infection?",
         max_length=15,

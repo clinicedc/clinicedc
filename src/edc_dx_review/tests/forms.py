@@ -8,7 +8,6 @@ from edc_dx_review.models import ClinicalReviewBaseline
 
 
 class ClinicalReviewBaselineForm(CrfModelFormMixin, forms.ModelForm):
-
     form_validator_cls = ClinicalReviewBaselineFormValidator
 
     def validate_against_consent(self):

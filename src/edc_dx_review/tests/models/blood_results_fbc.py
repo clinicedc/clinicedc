@@ -23,7 +23,6 @@ class BloodResultsFbc(
     BloodResultsModelMixin,
     edc_models.BaseUuidModel,
 ):
-
     action_name = BLOOD_RESULTS_FBC_ACTION
 
     class Meta(CrfWithActionModelMixin.Meta, edc_models.BaseUuidModel.Meta):

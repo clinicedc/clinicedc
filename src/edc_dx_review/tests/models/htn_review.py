@@ -15,7 +15,6 @@ class HtnReview(
     CrfModelMixin,
     edc_models.BaseUuidModel,
 ):
-
     test_date = models.DateField(
         verbose_name="Date tested for Hypertension",
         null=True,

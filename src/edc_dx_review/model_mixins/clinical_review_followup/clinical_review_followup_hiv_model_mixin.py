@@ -8,7 +8,6 @@ from ...utils import get_list_model_app
 
 
 class ClinicalReviewHivModelMixin(models.Model):
-
     hiv_test = models.CharField(
         verbose_name="Since last seen, was the patient tested for HIV infection?",
         max_length=15,

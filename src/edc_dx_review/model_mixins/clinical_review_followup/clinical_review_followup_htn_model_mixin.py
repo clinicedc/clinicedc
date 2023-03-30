@@ -8,7 +8,6 @@ from ...utils import get_list_model_app
 
 
 class ClinicalReviewHtnModelMixin(models.Model):
-
     htn_test = models.CharField(
         verbose_name="Since last seen, was the patient tested for hypertension?",
         max_length=15,

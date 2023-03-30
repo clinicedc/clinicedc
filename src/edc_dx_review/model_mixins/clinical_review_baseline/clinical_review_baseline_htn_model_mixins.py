@@ -7,7 +7,6 @@ from edc_model.validators import date_not_future
 
 
 class ClinicalReviewBaselineHtnModelMixin(models.Model):
-
     htn_test = models.CharField(
         verbose_name="Has the patient ever tested for Hypertension?",
         max_length=15,

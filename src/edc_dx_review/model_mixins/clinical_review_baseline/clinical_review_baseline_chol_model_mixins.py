@@ -7,7 +7,6 @@ from edc_model.validators import date_not_future
 
 
 class ClinicalReviewBaselineCholModelMixin(models.Model):
-
     chol_test = models.CharField(
         verbose_name="Has the patient ever tested for High Cholesterol?",
         max_length=15,

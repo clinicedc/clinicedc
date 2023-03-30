@@ -13,7 +13,6 @@ class CholInitialReviewModelMixin(
     DxLocationModelMixin,
     NcdInitialReviewModelMixin,
 ):
-
     ncd_condition_label = "cholesterol"
 
     managed_by = models.CharField(

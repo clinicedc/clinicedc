@@ -6,7 +6,6 @@ from edc_model.utils import duration_to_date
 
 
 class NcdInitialReviewModelMixin(models.Model):
-
     ncd_condition_label: str = None
 
     med_start_ago = edc_models.DurationYMDField(
