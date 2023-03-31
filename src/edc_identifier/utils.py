@@ -1,4 +1,5 @@
 import re
+import secrets
 
 from edc_protocol import Protocol
 
@@ -24,3 +25,16 @@ def is_subject_identifier_or_raise(subject_identifier, reference_obj=None, raise
                 f"Expected pattern `{Protocol().subject_identifier_pattern}`"
             )
     return subject_identifier
+
+
+def get_human_phrase(no_hyphen: bool = None) -> str:
+    """Returns 6 digits split by a '-', e.g. DEC-96E.
+
+    There are 213,127,200 permutations from an unambiguous alphabet.
+    """
+
+    alphabet = "ABCDEFGHKMNPRTUVWXYZ2346789"
+    phrase = "".join(secrets.choice(alphabet) for i in range(6)).upper()
+    if no_hyphen:
+        return phrase
+    return phrase[0:3] + "-" + phrase[3:6]
