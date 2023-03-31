@@ -25,7 +25,7 @@ def glucose_model_mixin_factory(utest_id: str, **kwargs):
             verbose_name="Glucose quantifier",
             max_length=10,
             choices=RESULT_QUANTIFIER_NA,
-            default=EQ,
+            default=NOT_APPLICABLE,
         ),
         f"{utest_id}_units": models.CharField(
             verbose_name="Glucose units",
