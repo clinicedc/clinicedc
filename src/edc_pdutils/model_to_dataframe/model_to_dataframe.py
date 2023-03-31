@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 from django.apps import apps as django_apps
 from django.db.models.constants import LOOKUP_SEP
+from django_crypto_fields.utils import has_encrypted_fields
 
 from ..constants import ACTION_ITEM_COLUMNS, SYSTEM_COLUMNS
 from .value_getter import ValueGetter, ValueGetterInvalidLookup
@@ -41,6 +42,7 @@ class ModelToDataframe:
         **kwargs,
     ):
         self._columns = None
+        self._has_encrypted_fields = None
         self._list_columns = None
         self._encrypted_columns = None
         self._dataframe = pd.DataFrame()
@@ -163,9 +165,26 @@ class ModelToDataframe:
             values = []
             for m2m_obj in getattr(obj, m2m_field.name).all():
                 try:
+                    # assumes is related to a list model
                     values.append(m2m_obj.name)
                 except AttributeError:
-                    values.append(str(m2m_obj))
+                    if self.decrypt and self.has_encrypted_fields:
+                        values.append(str(m2m_obj))
+                    elif not self.decrypt and has_encrypted_fields(m2m_obj.__class__):
+                        try:
+                            values.append(m2m_obj.__str_safe__())
+                        except AttributeError as e:
+                            if "__str_safe__" in str(e):
+                                raise ModelToDataframeError(
+                                    "Not allowed. M2M model has encrypted fields. "
+                                    f"See model class `{m2m_obj.__class__}`. "
+                                    "Declare special method `__str_safe__` on the model "
+                                    "to ensure the value returned is not from an encrypted "
+                                    f"field. Got {e}"
+                                )
+                            raise
+                    else:
+                        values.append(str(m2m_obj))
             m2m_values_list.update(**{str(obj.id): (obj.id, ";".join(values))})
         return tuple(v for v in m2m_values_list.values())
 
@@ -187,10 +206,9 @@ class ModelToDataframe:
     @property
     def has_encrypted_fields(self):
         """Returns True if at least one field uses encryption."""
-        for field in self.queryset.model._meta.get_fields():
-            if hasattr(field, "field_cryptor"):
-                return True
-        return False
+        if self._has_encrypted_fields is None:
+            self._has_encrypted_fields = has_encrypted_fields(self.queryset.model)
+        return self._has_encrypted_fields
 
     @property
     def columns(self) -> dict[str, str]:
