@@ -74,7 +74,7 @@ class Command(BaseCommand):
         use_simple_filename = options["use_simple_filename"]
         include_historical = options["include_historical"]
         self.decrypt = options["decrypt"]
-        # self.validate_user_perms_or_raise()
+        self.validate_user_perms_or_raise()
         if not export_path or not os.path.exists(export_path):
             raise CommandError(f"Path does not exist. Got `{export_path}`")
         model_names = get_model_names(app_label=app_label)
