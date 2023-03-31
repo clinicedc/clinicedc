@@ -20,11 +20,13 @@ class InitialReviewFormValidatorMixin:
                 )
 
     def validate_test_date_within_6m(self: FormValidator, date_fld: str):
+        try:
+            dt = self.cleaned_data.get(date_fld).date()
+        except AttributeError:
+            dt = self.cleaned_data.get(date_fld)
+        report_datetime = self.cleaned_data.get("report_datetime").date()
         if self.cleaned_data.get(date_fld) and self.cleaned_data.get("report_datetime"):
-            rdelta = relativedelta(
-                self.cleaned_data.get("report_datetime"),
-                self.cleaned_data.get(date_fld),
-            )
+            rdelta = relativedelta(report_datetime, dt)
             months = rdelta.months + (12 * rdelta.years)
             if months >= 6 or months < 0:
                 if months < 0:
