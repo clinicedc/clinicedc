@@ -60,20 +60,24 @@ class CsvExporter:
         model_name: str | None = None,
         table_name: str | None = None,
         data_label: str | None = None,
+        app_label: str | None = None,
         sort_by: list | tuple | str | None = None,
         export_folder: str = None,
         delimiter: str | None = None,
         date_format: str | None = None,
         index: bool | None = None,
+        use_simple_filename: bool | None = None,
         verbose=None,
     ):
         self.model_cls = None
         self.model_name = model_name
+        self.app_label = app_label
         self.table_name = table_name
         self.delimiter = delimiter or self.delimiter
         self.date_format = date_format or self.date_format
         self.index = index or self.index
         self.sort_by = sort_by or self.sort_by
+        self.use_simple_filename = use_simple_filename
         if self.sort_by and not isinstance(self.sort_by, (list, tuple)):
             self.sort_by = [self.sort_by]
         self.export_folder = export_folder or get_export_folder()
@@ -187,20 +191,28 @@ class CsvExporter:
 
     @property
     def filename(self):
-        """Returns a CSV filename based on the timestamp."""
-        try:
-            timestamp_format = settings.EXPORT_FILENAME_TIMESTAMP_FORMAT
-        except AttributeError:
-            timestamp_format = "%Y%m%d%H%M%S"
-        if not timestamp_format:
-            suffix = ""
+        """Returns a filename based on the timestamp."""
+        if self.use_simple_filename:
+            filename = self.model_name.split(".")[1].upper()
         else:
-            suffix = f"_{get_utcnow().strftime(timestamp_format)}"
-        prefix = (self.model_name or self.data_label).replace("-", "_").replace(".", "_")
-        return f"{prefix}{suffix}"
+            try:
+                timestamp_format = settings.EXPORT_FILENAME_TIMESTAMP_FORMAT
+            except AttributeError:
+                timestamp_format = "%Y%m%d%H%M%S"
+            if not timestamp_format:
+                suffix = ""
+            else:
+                suffix = f"_{get_utcnow().strftime(timestamp_format)}"
+            prefix = (self.model_name or self.data_label).replace("-", "_").replace(".", "_")
+            filename = f"{prefix}{suffix}"
+        return filename
 
     def stata_variable_labels(self, dataframe: pd.DataFrame) -> dict[str, str]:
-        return {obj.field_name: obj.prompt[:79] for obj in self.data_dictionary_qs(dataframe)}
+        variable_labels = dict(id="primary key")
+        variable_labels.update(
+            {obj.field_name: obj.prompt[:79] for obj in self.data_dictionary_qs(dataframe)}
+        )
+        return variable_labels
 
     def stata_value_labels(self, dataframe: pd.DataFrame):
         commands = []
@@ -236,3 +248,7 @@ class CsvExporter:
         return data_dictionary_model_cls.objects.filter(
             model=self.model_name, field_name__in=list(dataframe.columns)
         )
+
+
+class Exporter(CsvExporter):
+    pass
