@@ -1,6 +1,7 @@
 from copy import copy
 from typing import Optional, Union
 
+from django.db.models import QuerySet
 from edc_constants.constants import DWTA, NOT_APPLICABLE
 
 from .base_form_validator import (
@@ -9,6 +10,10 @@ from .base_form_validator import (
     BaseFormValidator,
     InvalidModelFormFieldValidator,
 )
+
+
+class RequiredFieldValidatorError(Exception):
+    pass
 
 
 class RequiredFieldValidator(BaseFormValidator):
@@ -70,6 +75,12 @@ class RequiredFieldValidator(BaseFormValidator):
         )
         self._inspect_params(*responses, field=field, field_required=field_required)
         field_value = self.get(field)
+
+        if isinstance(field_value, (QuerySet,)):
+            raise RequiredFieldValidatorError(
+                "Field value is a QuerySet, is this an M2M? "
+                f"Field='{field}'. See {self.__class__.__name__}."
+            )
 
         if field_required_evaluate_as_int:
             field_required_has_value = (
