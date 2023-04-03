@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import re
 from datetime import date, datetime, timedelta
-from typing import Optional, Union
 
 from dateutil.relativedelta import relativedelta
 from django import forms
@@ -34,7 +33,7 @@ def estimated_date_from_ago(
     ago_field: str = None,
     reference_field: str = None,
     future: bool | None = None,
-) -> Optional[date]:
+) -> date:
     """Wrapper function for `duration_to_date` typically called in
     modelform.clean() and model.save().
 
@@ -69,9 +68,9 @@ def estimated_date_from_ago(
 
 
 def duration_to_date(
-    duration_text: Union[str, CharField],
-    reference_date: Union[date, datetime, DateField, DateTimeField],
-    future: Optional[bool] = None,
+    duration_text: str | CharField,
+    reference_date: date | datetime | DateField | DateTimeField,
+    future: bool | None = None,
 ) -> date:
     """Returns the estimated date from a well-formatted string
     relative to a reference date/datetime.
@@ -106,7 +105,7 @@ def duration_to_date(
     return reference_date - delta
 
 
-def raise_on_invalid_field_name(data: Union[dict, models.Model], attrname: str) -> None:
+def raise_on_invalid_field_name(data: dict | models.Model, attrname: str) -> None:
     if attrname is not None:
         try:
             data[attrname]
@@ -149,8 +148,8 @@ def is_inline_model(instance):
 
 
 def timedelta_from_duration_dh_field(
-    data: Union[dict, models.Model], duration_dh_field: str
-) -> Optional[timedelta]:
+    data: dict | models.Model, duration_dh_field: str
+) -> timedelta | None:
     """Wrapper function for `duration_dh_to_timedelta` typically called in
     modelform.clean() and model.save().
 
@@ -178,7 +177,7 @@ def timedelta_from_duration_dh_field(
     return duration_timedelta
 
 
-def duration_dh_to_timedelta(duration_text: Union[str, CharField]) -> timedelta:
+def duration_dh_to_timedelta(duration_text: str | CharField) -> timedelta:
     """Returns timedelta from a well-formatted string
     (specified in days and/or hours).
 
