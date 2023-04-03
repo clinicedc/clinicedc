@@ -189,3 +189,10 @@ WEEKDAYS = "weekdays"
 WEEKENDS = "weekends"
 YES = "Yes"
 YESTERDAY = "yesterday"
+
+# operators
+EQ = "="
+GT = ">"
+GTE = ">="
+LT = "<"
+LTE = "<="
