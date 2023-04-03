@@ -65,17 +65,21 @@ def raise_if_clinical_review_does_not_exist(subject_visit) -> None:
 
 
 def raise_if_both_ago_and_actual_date(
-    dx_ago: str | None = None, dx_date: date | None = None, cleaned_data: dict | None = None
+    cleaned_data: dict | None = None,
+    date_fld: str | None = None,
+    ago_fld: str | None = None,
+    dx_ago: str | None = None,
+    dx_date: date | None = None,
 ) -> None:
     if cleaned_data:
-        dx_ago = cleaned_data.get("dx_ago")
-        dx_date = cleaned_data.get("dx_date")
+        dx_ago = cleaned_data.get(date_fld)
+        dx_date = cleaned_data.get(ago_fld)
     if dx_ago and dx_date:
         raise forms.ValidationError(
             {
-                "dx_ago": (
+                ago_fld: (
                     "Date conflict. Do not provide a response "
-                    "here if the exact data of diagnosis is available."
+                    "here if the date of diagnosis is available."
                 )
             }
         )
