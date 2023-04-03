@@ -15,7 +15,7 @@ class TestDateFieldValidator(TestCase):
         past = now - relativedelta(days=1)
         form_validator = FormValidator(cleaned_data=dict(my_date=past, report_datetime=now))
         with self.assertRaises(TypeError) as cm:
-            form_validator.date_is_past_or_raise(field="my_date", field_value=past)
+            form_validator.date_is_before_or_raise(field="my_date", field_value=past)
         self.assertIn("Expected field name or field value but not both", str(cm.exception))
 
     def test_one_or_none_given_ok(self):
@@ -38,8 +38,10 @@ class TestDateFieldValidator(TestCase):
 
     def test_date_is_before_report_datetime_or_raise(self):
         now = get_utcnow()
-        future = now + relativedelta(days=1)
-        form_validator = FormValidator(cleaned_data=dict(my_date=future, report_datetime=now))
+        not_before = now + relativedelta(days=1)
+        form_validator = FormValidator(
+            cleaned_data=dict(my_date=not_before, report_datetime=now)
+        )
         self.assertRaises(
             forms.ValidationError,
             form_validator.date_before_report_datetime_or_raise,
@@ -48,65 +50,73 @@ class TestDateFieldValidator(TestCase):
 
     def test_date_is_after_report_datetime_or_raise(self):
         now = get_utcnow()
-        past = now - relativedelta(days=1)
-        form_validator = FormValidator(cleaned_data=dict(my_date=past, report_datetime=now))
+        after = now + relativedelta(days=1)
+        form_validator = FormValidator(cleaned_data=dict(my_date=after, report_datetime=now))
+        try:
+            form_validator.date_after_report_datetime_or_raise(field="my_date")
+        except forms.ValidationError:
+            self.fail("ValidationError unexpectedly raised")
+
+        not_after = now - relativedelta(days=1)
+        form_validator = FormValidator(
+            cleaned_data=dict(my_date=not_after, report_datetime=now)
+        )
         self.assertRaises(
             forms.ValidationError,
             form_validator.date_after_report_datetime_or_raise,
             field="my_date",
         )
 
-        future = now + relativedelta(days=1)
-        form_validator = FormValidator(cleaned_data=dict(my_date=future, report_datetime=now))
-        try:
-            form_validator.date_after_report_datetime_or_raise(field="my_date")
-        except forms.ValidationError:
-            self.fail("ValidationError unexpectedly raised")
-
-    def test_date_is_future_or_raise(self):
+    def test_date_is_after_or_raise(self):
         now = get_utcnow()
-        past = now - relativedelta(days=1)
-        form_validator = FormValidator(cleaned_data=dict(my_date=past, report_datetime=now))
+        not_after = now - relativedelta(days=1)
+        form_validator = FormValidator(
+            cleaned_data=dict(my_date=not_after, report_datetime=now)
+        )
         self.assertRaises(
             forms.ValidationError,
-            form_validator.date_is_future_or_raise,
+            form_validator.date_is_after_or_raise,
             field="my_date",
         )
         with self.assertRaises(forms.ValidationError) as cm:
-            form_validator.date_is_future_or_raise(field="my_date")
-        self.assertIn("Expected a future date", str(cm.exception.messages))
+            form_validator.date_is_after_or_raise(field="my_date")
+        self.assertIn("Expected a date after", str(cm.exception.messages))
 
-        future = now + relativedelta(days=1)
-        form_validator = FormValidator(cleaned_data=dict(my_date=future, report_datetime=now))
+        after = now + relativedelta(days=1)
+        form_validator = FormValidator(cleaned_data=dict(my_date=after, report_datetime=now))
         try:
-            form_validator.date_is_future_or_raise(field="my_date")
+            form_validator.date_is_after_or_raise(field="my_date")
         except forms.ValidationError:
             self.fail("ValidationError unexpectedly raised")
 
-    def test_date_is_past_or_raise(self):
+    def test_date_is_before_or_raise(self):
         now = get_utcnow()
-        future = now + relativedelta(days=1)
-        form_validator = FormValidator(cleaned_data=dict(my_date=future, report_datetime=now))
+        before = now - relativedelta(days=1)
+        form_validator = FormValidator(cleaned_data=dict(my_date=before, report_datetime=now))
+        try:
+            form_validator.date_is_before_or_raise(field="my_date")
+        except forms.ValidationError:
+            self.fail("ValidationError unexpectedly raised")
+
+        not_before = now + relativedelta(days=1)
+        form_validator = FormValidator(
+            cleaned_data=dict(my_date=not_before, report_datetime=now)
+        )
         self.assertRaises(
             forms.ValidationError,
-            form_validator.date_is_past_or_raise,
+            form_validator.date_is_before_or_raise,
             field="my_date",
         )
         with self.assertRaises(forms.ValidationError) as cm:
-            form_validator.date_is_past_or_raise(field="my_date")
-        self.assertIn("Expected a past date", str(cm.exception.messages))
-
-        past = now - relativedelta(days=1)
-        form_validator = FormValidator(cleaned_data=dict(my_date=past, report_datetime=now))
-        try:
-            form_validator.date_is_past_or_raise(field="my_date")
-        except forms.ValidationError:
-            self.fail("ValidationError unexpectedly raised")
+            form_validator.date_is_before_or_raise(field="my_date")
+        self.assertIn("Expected a date before", str(cm.exception.messages))
 
     def test_date_is_equal_or_raise(self):
         now = get_utcnow()
-        past = now - relativedelta(days=1)
-        form_validator = FormValidator(cleaned_data=dict(my_date=past, report_datetime=now))
+        not_equal = now - relativedelta(days=1)
+        form_validator = FormValidator(
+            cleaned_data=dict(my_date=not_equal, report_datetime=now)
+        )
         self.assertRaises(
             forms.ValidationError,
             form_validator.date_is_equal_or_raise,
@@ -115,6 +125,7 @@ class TestDateFieldValidator(TestCase):
         with self.assertRaises(forms.ValidationError) as cm:
             form_validator.date_is_equal_or_raise(field="my_date")
         self.assertIn("Expected dates to match", str(cm.exception.messages))
+
         form_validator = FormValidator(cleaned_data=dict(my_date=now, report_datetime=now))
         try:
             form_validator.date_is_equal_or_raise(field="my_date")
@@ -123,13 +134,15 @@ class TestDateFieldValidator(TestCase):
 
     def test_date_timezone(self):
         now = datetime.now().astimezone(ZoneInfo("Africa/Gaborone"))
-        future = now + relativedelta(days=1)
-        form_validator = FormValidator(cleaned_data=dict(my_date=future, report_datetime=now))
+        not_before = now + relativedelta(days=1)
+        form_validator = FormValidator(
+            cleaned_data=dict(my_date=not_before, report_datetime=now)
+        )
         self.assertRaises(
             forms.ValidationError,
-            form_validator.date_is_past_or_raise,
+            form_validator.date_is_before_or_raise,
             field="my_date",
         )
         with self.assertRaises(forms.ValidationError) as cm:
-            form_validator.date_is_past_or_raise(field="my_date")
-        self.assertIn("Expected a past date", str(cm.exception.messages))
+            form_validator.date_is_before_or_raise(field="my_date")
+        self.assertIn("Expected a date before ", str(cm.exception.messages))

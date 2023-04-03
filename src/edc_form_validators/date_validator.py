@@ -4,6 +4,7 @@ from datetime import date, datetime
 
 from django.conf import settings
 from edc_constants.constants import EQ, GT, GTE, LT, LTE
+from edc_model import estimated_date_from_ago
 from edc_utils import convert_php_dateformat
 from edc_utils.date import to_local
 
@@ -67,6 +68,10 @@ class DateValidator(BaseFormValidator):
             value = self.cleaned_data.get(key_or_value)
         except KeyError:
             value = key_or_value
+        if isinstance(value, (str,)):
+            value = estimated_date_from_ago(
+                cleaned_data=self.cleaned_data, ago_field=key_or_value
+            )
         if value:
             try:
                 value.date()
@@ -76,36 +81,47 @@ class DateValidator(BaseFormValidator):
                 value = to_local(value).date()
         return value
 
-    def date_is_future_or_raise(
+    def date_is_after_or_raise(
         self,
         field=None,
         reference_field=None,
         field_value: datetime | date | None = None,
+        inclusive: bool = None,
         msg=None,
         extra_msg=None,
     ):
-        """Raises if date/datetime field is future relative
-        to reference_field.
-        """
-        msg = msg or f"Invalid. Expected a future date. {extra_msg or ''}".strip()
+        """Raises if date/datetime field is not future to reference_field."""
+        msg = (
+            msg
+            or f"Invalid. Expected a date after `{reference_field}`. {extra_msg or ''}".strip()
+        )
         self._date_is(
-            GT, field=field, reference_field=reference_field, field_value=field_value, msg=msg
+            GTE if inclusive else GT,
+            field=field,
+            reference_field=reference_field,
+            field_value=field_value,
+            msg=msg,
         )
 
-    def date_is_past_or_raise(
+    def date_is_before_or_raise(
         self,
         field=None,
         reference_field=None,
         field_value: datetime | date | None = None,
+        inclusive: bool = None,
         msg=None,
         extra_msg=None,
     ):
-        """Raises if date/datetime field is past relative
-        to reference_field.
-        """
-        msg = msg or f"Invalid. Expected a past date. {extra_msg or ''}".strip()
+        """Raises if date/datetime field is not before the reference_field."""
+        msg = msg or (
+            f"Invalid. Expected a date before `{reference_field}`. {extra_msg or ''}".strip()
+        )
         self._date_is(
-            LT, field=field, reference_field=reference_field, field_value=field_value, msg=msg
+            LTE if inclusive else LT,
+            field=field,
+            reference_field=reference_field,
+            field_value=field_value,
+            msg=msg,
         )
 
     def date_is_equal_or_raise(
@@ -116,9 +132,7 @@ class DateValidator(BaseFormValidator):
         msg=None,
         extra_msg=None,
     ):
-        """Raises if date/datetime field is equal
-        to reference_field.
-        """
+        """Raises if date/datetime field is not equal the reference_field."""
         msg = msg or f"Invalid. Expected dates to match. {extra_msg or ''}".strip()
         self._date_is(
             EQ, field=field, reference_field=reference_field, field_value=field_value, msg=msg
@@ -136,8 +150,8 @@ class DateValidator(BaseFormValidator):
             dte = self.cleaned_data.get(report_datetime_field).strftime(
                 convert_php_dateformat(settings.DATETIME_FORMAT)
             )
-            msg = f"Invalid. Cannot be before report date/time. Got {dte}"
-        return self.date_is_past_or_raise(
+            msg = f"Invalid. Must be before report date/time. Got {dte}"
+        return self.date_is_before_or_raise(
             field=field,
             reference_field=report_datetime_field,
             msg=msg,
@@ -154,8 +168,8 @@ class DateValidator(BaseFormValidator):
             dte = self.cleaned_data.get(report_datetime_field).strftime(
                 convert_php_dateformat(settings.DATETIME_FORMAT)
             )
-            msg = f"Invalid. Cannot be after report date/time. Got {dte}"
-        return self.date_is_future_or_raise(
+            msg = f"Invalid. Must be after report date/time. Got {dte}"
+        return self.date_is_after_or_raise(
             field=field,
             reference_field=report_datetime_field,
             msg=msg,
