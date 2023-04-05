@@ -22,6 +22,7 @@ class DateValidator(BaseFormValidator):
         field: str | None = None,
         reference_field: str = None,
         field_value: datetime | date | None = None,
+        reference_value: datetime | date | None = None,
         msg: str | None = None,
     ):
         operators = [LT, GT, EQ, LTE, GTE]
@@ -29,8 +30,14 @@ class DateValidator(BaseFormValidator):
             raise TypeError(f"Invalid operator. Expected on of {operators}.")
         if field and field_value:
             raise TypeError("Expected field name or field value but not both.")
-        reference_value = self._get_as_date(reference_field or "report_datetime")
-        field_value = self._get_as_date(field or field_value)
+        if reference_field and reference_value:
+            raise TypeError(
+                "Expected reference field name or reference field value but not both."
+            )
+        reference_value = reference_value or self._get_as_date(
+            reference_field or "report_datetime"
+        )
+        field_value = field_value or self._get_as_date(field)
         if field_value and reference_value:
             if not self._compare_date_to_reference_value(op, field_value, reference_value):
                 if field:
@@ -47,7 +54,7 @@ class DateValidator(BaseFormValidator):
         if op == LT:
             value = field_value < reference_value
         elif op == LTE:
-            value = field_value >= reference_value
+            value = field_value <= reference_value
         elif op == GT:
             value = field_value > reference_value
         elif op == GTE:
@@ -86,20 +93,25 @@ class DateValidator(BaseFormValidator):
         field=None,
         reference_field=None,
         field_value: datetime | date | None = None,
+        reference_value: datetime | date | None = None,
         inclusive: bool = None,
         msg=None,
         extra_msg=None,
     ):
         """Raises if date/datetime field is not future to reference_field."""
-        msg = (
-            msg
-            or f"Invalid. Expected a date after `{reference_field}`. {extra_msg or ''}".strip()
+
+        msg = msg or self.get_msg(
+            "after",
+            reference_value=reference_value,
+            reference_field=reference_field,
+            extra_msg=extra_msg,
         )
         self._date_is(
             GTE if inclusive else GT,
             field=field,
             reference_field=reference_field,
             field_value=field_value,
+            reference_value=reference_value,
             msg=msg,
         )
 
@@ -108,20 +120,48 @@ class DateValidator(BaseFormValidator):
         field=None,
         reference_field=None,
         field_value: datetime | date | None = None,
+        reference_value: datetime | date | None = None,
         inclusive: bool = None,
         msg=None,
         extra_msg=None,
     ):
         """Raises if date/datetime field is not before the reference_field."""
-        msg = msg or (
-            f"Invalid. Expected a date before `{reference_field}`. {extra_msg or ''}".strip()
+        msg = msg or self.get_msg(
+            "before",
+            reference_value=reference_value,
+            reference_field=reference_field,
+            extra_msg=extra_msg,
+            inclusive=inclusive,
         )
         self._date_is(
             LTE if inclusive else LT,
             field=field,
             reference_field=reference_field,
             field_value=field_value,
+            reference_value=reference_value,
             msg=msg,
+        )
+
+    @staticmethod
+    def get_msg(
+        word: str,
+        reference_value: date | datetime | None = None,
+        reference_field: str | None = None,
+        extra_msg: str | None = None,
+        inclusive: bool | None = None,
+    ) -> str:
+        formatted_reference = (
+            reference_value.strftime(convert_php_dateformat(settings.DATE_FORMAT))
+            if reference_value
+            else None
+        )
+        if inclusive:
+            phrase = f"Expected a date on or {word}"
+        else:
+            phrase = f"Expected a date {word}"
+        return (
+            f"Invalid. {phrase} `{formatted_reference or reference_field}`. "
+            f"{extra_msg or ''}".strip()
         )
 
     def date_is_equal_or_raise(
@@ -129,13 +169,19 @@ class DateValidator(BaseFormValidator):
         field=None,
         reference_field=None,
         field_value: datetime | date | None = None,
+        reference_value: datetime | date | None = None,
         msg=None,
         extra_msg=None,
     ):
         """Raises if date/datetime field is not equal the reference_field."""
         msg = msg or f"Invalid. Expected dates to match. {extra_msg or ''}".strip()
         self._date_is(
-            EQ, field=field, reference_field=reference_field, field_value=field_value, msg=msg
+            EQ,
+            field=field,
+            reference_field=reference_field,
+            field_value=field_value,
+            reference_value=reference_value,
+            msg=msg,
         )
 
     def date_before_report_datetime_or_raise(
