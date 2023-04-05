@@ -100,7 +100,7 @@ class MedicalDate(date):
                 {
                     cls._ago_field: (
                         "Date conflict. Do not provide a response "
-                        f"here if a date of {cls._label} is available."
+                        f"here if {cls._label} date is available."
                     )
                 },
                 DATE_AND_AGO_CONFLICT,
@@ -177,11 +177,7 @@ class DxDate(MedicalDate):
 
 
 class RxDate(MedicalDate):
-    def __new__(
-        cls,
-        cleaned_data: dict,
-        reference_date: date | DxDate,
-    ) -> RxDate:
+    def __new__(cls, cleaned_data: dict, reference_date: date | DxDate) -> RxDate:
         return super().__new__(
             cls,
             "med_start_date",
