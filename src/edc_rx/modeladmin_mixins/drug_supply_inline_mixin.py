@@ -1,5 +1,4 @@
 class DrugSupplyInlineMixin:
-
     extra = 1
     view_on_site = False
 

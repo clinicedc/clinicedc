@@ -5,7 +5,6 @@ from edc_constants.constants import UNKNOWN
 
 
 class TreatmentPayMethodsModelMixin(models.Model):
-
     health_insurance = models.CharField(
         verbose_name="Does the patient have any private or work-place health insurance?",
         max_length=15,

@@ -4,7 +4,6 @@ from ..utils import TotalDaysMismatch, validate_total_days
 
 
 class DrugSupplyNcdModelFormMixin:
-
     list_model_cls = None
 
     def clean(self):
