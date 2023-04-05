@@ -8,11 +8,10 @@ from django.test import TestCase
 if TYPE_CHECKING:
     from edc_model.models import BaseUuidModel
 
-    from edc_form_validators import FormValidator
+    from edc_form_validators.form_validator import FormValidator
 
 
 class FormValidatorTestCaseMixin:
-
     form_validator_cls: Type[FormValidator] = None
     form_validator_model_cls: Type[BaseUuidModel] = None
 

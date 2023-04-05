@@ -163,6 +163,21 @@ class ManyToManyFieldValidator(BaseFormValidator):
                     raise ValidationError(message, code=M2M_INVALID_COMBINATION)
         return False
 
+    def required_if_m2m(
+        self,
+        *responses: Union[str, int, bool],
+        field: str = None,
+        field_required: Optional[str] = None,
+        field_other_evaluate_as_int: Optional[bool] = None,
+    ) -> bool:
+        """Same as required_if() but where field is an m2m field."""
+        return self.m2m_other_specify(
+            *responses,
+            m2m_field=field,
+            field_other=field_required,
+            field_other_evaluate_as_int=field_other_evaluate_as_int,
+        )
+
     def m2m_other_specify(
         self,
         *responses: Union[str, int, bool],
