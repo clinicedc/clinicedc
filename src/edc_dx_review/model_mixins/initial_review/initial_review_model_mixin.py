@@ -23,7 +23,7 @@ def initial_dx_model_mixin_factory(dx_field_prefix: Optional[str] = None):
 
     opts = {
         f"{dx_field_prefix}dx_ago": edc_models.DurationYMDField(
-            verbose_name="How long ago was the patient diagnosed?",
+            verbose_name="If date not know, how long ago was the patient diagnosed?",
             null=True,
             blank=True,
             help_text="If possible, provide the exact date below instead of estimating here.",
@@ -33,7 +33,7 @@ def initial_dx_model_mixin_factory(dx_field_prefix: Optional[str] = None):
             null=True,
             blank=True,
             validators=[date_not_future],
-            help_text="If possible, provide the exact date here instead of estimating above.",
+            help_text="If possible, provide the exact date here instead of estimating.",
         ),
         f"{dx_field_prefix}dx_estimated_date": models.DateField(
             verbose_name="Estimated diagnoses date",
