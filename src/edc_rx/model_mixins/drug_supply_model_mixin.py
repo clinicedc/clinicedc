@@ -3,7 +3,6 @@ from django.db import models
 
 
 class DrugSupplyModelMixin(models.Model):
-
     clinic_days = models.IntegerField(
         verbose_name="Clinic",
         validators=[MinValueValidator(0), MaxValueValidator(180)],
