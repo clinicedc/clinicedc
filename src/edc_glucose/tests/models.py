@@ -14,7 +14,6 @@ class Appointment(
 class SubjectVisit(
     NonUniqueSubjectIdentifierFieldMixin, VisitCodeFieldsModelMixin, BaseUuidModel
 ):
-
     appointment = models.ForeignKey(Appointment, on_delete=models.PROTECT, related_name="+")
 
     class Meta(BaseUuidModel.Meta):
