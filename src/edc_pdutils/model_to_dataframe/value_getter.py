@@ -115,7 +115,9 @@ class ValueGetter:
             try:
                 value = getattr(value, attr)
             except AttributeError:
-                raise ValueGetterInvalidLookup(f"Invalid lookup string. Got {lookup_string}")
+                raise ValueGetterInvalidLookup(
+                    f"Invalid lookup string or value not set. Got {lookup_string}"
+                )
         return value
 
     @property

@@ -45,6 +45,7 @@ class ModelToDataframe:
         self._has_encrypted_fields = None
         self._list_columns = None
         self._encrypted_columns = None
+        self._site_columns = None
         self._dataframe = pd.DataFrame()
         self.drop_sys_columns = True if drop_sys_columns is None else drop_sys_columns
         self.drop_action_item_columns = (
@@ -94,6 +95,7 @@ class ModelToDataframe:
                 sys.stdout.write(f"   {self.model} {index + 1}/{row_count} ... \r")
             row = []
             for lookup, column_name in self.columns.items():
+                value = None
                 try:
                     value = self.get_column_value(
                         model_obj=model_obj,
@@ -102,7 +104,7 @@ class ModelToDataframe:
                     )
                 except ValueGetterInvalidLookup as e:
                     print(f"{e.message}. Model: {model_obj._meta.label_lower}.")
-                else:
+                finally:
                     row.append(value)
             data.append(row)
         return pd.DataFrame(data, columns=[col for col in self.columns])
@@ -234,6 +236,7 @@ class ModelToDataframe:
                     "requisition_id"
                 ):
                     columns = self.add_columns_for_subject_requisitions(columns)
+            columns = self.add_columns_for_site(columns=columns)
             columns = self.add_list_model_name_columns(columns)
             columns = self.add_other_columns(columns)
             columns = self.add_subject_identifier_column(columns)
@@ -270,6 +273,23 @@ class ModelToDataframe:
                     list_columns.append(fld_cls.attname)
             self._list_columns = list(set(list_columns))
         return self._list_columns
+
+    @property
+    def site_columns(self):
+        """Return a list of column names with fk to a site model."""
+        from django.contrib.sites.models import Site
+
+        if not self._site_columns:
+            site_columns = []
+            for fld_cls in self.queryset.model._meta.get_fields():
+                if (
+                    hasattr(fld_cls, "related_model")
+                    and fld_cls.related_model
+                    and issubclass(fld_cls.related_model, (Site,))
+                ):
+                    site_columns.append(fld_cls.attname)
+            self._site_columns = list(set(site_columns))
+        return self._site_columns
 
     @property
     def other_columns(self):
@@ -341,6 +361,13 @@ class ModelToDataframe:
                     {f"{column_name}__drawn_datetime": f"{col_prefix}_drawn_datetime"}
                 )
                 columns.update({f"{column_name}__is_drawn": f"{col_prefix}_is_drawn"})
+        return columns
+
+    def add_columns_for_site(self, columns: dict[str, str] = None) -> dict[str, str]:
+        for col in copy(columns):
+            if col in self.site_columns:
+                col_prefix = col.split("_id")[0]
+                columns.update({f"{col_prefix}__name": f"{col_prefix}_name"})
         return columns
 
     def add_list_model_name_columns(self, columns: dict[str, str] = None) -> dict[str, str]:
