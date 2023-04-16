@@ -53,7 +53,10 @@ def get_assignment_description_for_subject(
 
 
 def get_object_for_subject(
-    subject_identifier: str, randomizer_name: str = None, identifier_fld: str | None = None
+    subject_identifier: str,
+    randomizer_name: str = None,
+    identifier_fld: str | None = None,
+    label: str | None = None,
 ) -> Any:
     """Returns a randomization list model instance or raises
     for the given subject.
@@ -61,9 +64,11 @@ def get_object_for_subject(
     Calling this method before a subject is randomized will
     raise a SubjectNotRandomization error.
     """
+    identifier_fld = identifier_fld or "subject_identifier"
+    label = label or "subject"
     randomizer_cls = site_randomizers.get(randomizer_name)
     opts = {
-        identifier_fld or "subject_identifier": subject_identifier,
+        identifier_fld: subject_identifier,
         "randomizer_name": randomizer_name,
         "allocated": True,
         "allocated_datetime__isnull": False,
@@ -72,8 +77,8 @@ def get_object_for_subject(
         obj = randomizer_cls.model_cls().objects.get(**opts)
     except ObjectDoesNotExist:
         raise SubjectNotRandomization(
-            f"Subject not randomized. Randomizer name is `{randomizer_name}`. "
-            f"Got {subject_identifier}."
+            f"{label.title()} not randomized. See Randomizer `{randomizer_name}`. "
+            f"Got {identifier_fld}=`{subject_identifier}`."
         )
     return obj
 
