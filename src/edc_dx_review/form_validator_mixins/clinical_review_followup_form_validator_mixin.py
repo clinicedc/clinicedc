@@ -22,3 +22,4 @@ class ClinicalReviewFollowupFormValidatorMixin(DiagnosisFormValidatorMixin):
                 field_other=f"{cond}_reason_other",
             )
             self.applicable_if(YES, field=f"{cond}_test", field_applicable=f"{cond}_dx")
+        super()._clean()

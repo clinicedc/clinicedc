@@ -29,23 +29,52 @@ def get_list_model_app():
 
 
 def get_clinical_review_baseline_model_cls():
-    return django_apps.get_model(f"{EDC_DX_REVIEW_APP_LABEL}.clinicalreviewbaseline")
+    clinicalreviewbaseline = get_extra_attrs().get(
+        "clinicalreviewbaseline", "clinicalreviewbaseline"
+    )
+
+    return django_apps.get_model(f"{EDC_DX_REVIEW_APP_LABEL}.{clinicalreviewbaseline}")
 
 
 def get_clinical_review_model_cls():
-    return django_apps.get_model(f"{EDC_DX_REVIEW_APP_LABEL}.clinicalreview")
+    clinicalreview = get_extra_attrs().get("clinicalreview", "clinicalreview")
+    return django_apps.get_model(f"{EDC_DX_REVIEW_APP_LABEL}.{clinicalreview}")
 
 
 def get_medication_model_cls():
-    return django_apps.get_model(f"{EDC_DX_REVIEW_APP_LABEL}.medications")
+    medications = get_extra_attrs().get("medications", "medications")
+    return django_apps.get_model(f"{EDC_DX_REVIEW_APP_LABEL}.{medications}")
 
 
 def get_initial_review_model_cls(prefix):
-    return django_apps.get_model(f"{EDC_DX_REVIEW_APP_LABEL}.{prefix.lower()}initialreview")
+    initialreview = get_extra_attrs().get("initialreview", "initialreview")
+    return django_apps.get_model(f"{EDC_DX_REVIEW_APP_LABEL}.{prefix.lower()}{initialreview}")
 
 
 def get_review_model_cls(prefix):
-    return django_apps.get_model(f"{EDC_DX_REVIEW_APP_LABEL}.{prefix.lower()}review")
+    review = get_extra_attrs().get("review", "review")
+    return django_apps.get_model(f"{EDC_DX_REVIEW_APP_LABEL}.{prefix.lower()}{review}")
+
+
+def get_extra_attrs():
+    """Settings from EDC_DX_REVIEW_EXTRA_ATTRS.
+
+    See model name suffixes used in model_cls getters in utils.py.
+    """
+    extra_attrs = {
+        "clinicalreview": "clinicalreview",
+        "clinicalreviewbaseline": "clinicalreviewbaseline",
+        "initialreview": "initialreview",
+        "medications": "medications",
+        "review": "review",
+    }
+    try:
+        data = getattr(settings, "EDC_DX_REVIEW_EXTRA_ATTRS")
+    except AttributeError:
+        pass
+    else:
+        extra_attrs.update(data)
+    return extra_attrs
 
 
 def raise_if_clinical_review_does_not_exist(subject_visit) -> None:

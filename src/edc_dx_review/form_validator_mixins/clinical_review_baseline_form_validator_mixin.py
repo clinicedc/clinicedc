@@ -17,6 +17,7 @@ class ClinicalReviewBaselineFormValidatorMixin:
             )
             self.when_tested_required(cond=cond)
             self.applicable_if(YES, field=f"{cond}_test", field_applicable=f"{cond}_dx")
+        super()._clean()
 
     def when_tested_required(self, cond=None):
         if self.cleaned_data.get(f"{cond}_test") == YES:

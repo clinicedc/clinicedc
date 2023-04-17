@@ -4,12 +4,10 @@ from edc_constants.constants import NOT_APPLICABLE
 
 from ...choices import CHOL_MANAGEMENT
 from ..dx_location_model_mixin import DxLocationModelMixin
-from .initial_review_model_mixin import InitialReviewModelMixin
 from .ncd_initial_review_model_mixin import NcdInitialReviewModelMixin
 
 
 class CholInitialReviewModelMixin(
-    InitialReviewModelMixin,
     DxLocationModelMixin,
     NcdInitialReviewModelMixin,
 ):
