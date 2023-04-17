@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from django.db import models
-from edc_constants.choices import YES_NO_NA
-from edc_constants.constants import CHOL, DM, HIV, HTN, NOT_APPLICABLE
+from edc_constants.choices import YES_NO
+from edc_constants.constants import CHOL, DM, HIV, HTN
 from edc_dx import get_diagnosis_labels
 
 default_prompts = {
@@ -27,8 +27,7 @@ def baseline_review_model_mixin_factory(prompts: dict[str, str] | None = None):
                 f"{dx}_dx": models.CharField(
                     verbose_name=prompts.get(dx),
                     max_length=15,
-                    choices=YES_NO_NA,
-                    default=NOT_APPLICABLE,
+                    choices=YES_NO,
                 )
             }
         )

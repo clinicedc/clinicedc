@@ -10,9 +10,9 @@ def get_clinical_review_baseline_cond_fieldset(
         title,
         {
             "fields": (
-                f"{cond}_test",
-                f"{cond}_test_ago",
-                f"{cond}_test_date",
+                # f"{cond}_test",
+                # f"{cond}_test_ago",
+                # f"{cond}_test_date",
                 f"{cond}_dx",
             )
         },
