@@ -1,6 +1,5 @@
 from django import forms
 from edc_constants.constants import YES
-from edc_form_validators import FormValidator
 
 from ..diagnoses import (
     ClinicalReviewBaselineRequired,
@@ -10,7 +9,7 @@ from ..diagnoses import (
 )
 
 
-class DiagnosisFormValidatorMixin(FormValidator):
+class DiagnosisFormValidatorMixin:
     def get_diagnoses(self) -> Diagnoses:
         try:
             diagnoses = Diagnoses(

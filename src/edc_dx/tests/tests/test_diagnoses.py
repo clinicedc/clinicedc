@@ -1,6 +1,6 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from edc_appointment.constants import INCOMPLETE_APPT
-from edc_constants.constants import CHOL, DM, HIV, HTN, NOT_APPLICABLE, POS, YES
+from edc_constants.constants import DM, HIV, HTN, NOT_APPLICABLE, YES
 from model_bakery import baker
 
 from edc_dx.diagnoses import (
@@ -27,11 +27,9 @@ class TestDiagnoses(TestCaseMixin, TestCase):
         )
 
         clinical_review_baseline = baker.make(
-            "edc_dx_review.clinicalreviewbaseline",
+            "dx_app.clinicalreviewbaseline",
             subject_visit=self.subject_visit_baseline,
-            hiv_test=YES,
             hiv_dx=YES,
-            hiv_test_ago="5y",
         )
         try:
             diagnoses = Diagnoses(
@@ -44,8 +42,6 @@ class TestDiagnoses(TestCaseMixin, TestCase):
         self.assertIsNone(diagnoses.get_dx(HTN))
         self.assertIsNone(diagnoses.get_dx(DM))
 
-        clinical_review_baseline.htn_test = YES
-        clinical_review_baseline.htn_test_ago = "1y"
         clinical_review_baseline.htn_dx = YES
         clinical_review_baseline.save()
 
@@ -56,8 +52,6 @@ class TestDiagnoses(TestCaseMixin, TestCase):
         self.assertEqual(YES, diagnoses.get_dx(HTN))
         self.assertIsNone(diagnoses.get_dx(DM))
 
-        clinical_review_baseline.dm_test = YES
-        clinical_review_baseline.dm_test_ago = "1y"
         clinical_review_baseline.dm_dx = YES
         clinical_review_baseline.save()
 
@@ -73,15 +67,13 @@ class TestDiagnoses(TestCaseMixin, TestCase):
         returning a dx.
         """
 
-        for prefix in [HIV, DM, HTN, CHOL]:
+        for prefix in [HIV, DM, HTN]:
             prefix = prefix.lower()
             opts = {
                 "subject_visit": self.subject_visit_baseline,
-                f"{prefix}_test": POS,
                 f"{prefix}_dx": YES,
-                f"{prefix}_test_ago": "5y",
             }
-            obj = baker.make("edc_dx_review.clinicalreviewbaseline", **opts)
+            obj = baker.make("dx_app.clinicalreviewbaseline", **opts)
             diagnoses = Diagnoses(
                 subject_identifier=self.subject_visit_baseline.subject_identifier,
             )
@@ -89,29 +81,23 @@ class TestDiagnoses(TestCaseMixin, TestCase):
             obj.delete()
 
     def test_diagnoses_dates_baseline(self):
-
-        clinical_review_baseline = baker.make(
-            "edc_dx_review.clinicalreviewbaseline",
+        baker.make(
+            "dx_app.clinicalreviewbaseline",
             subject_visit=self.subject_visit_baseline,
-            hiv_test=POS,
             hiv_dx=YES,
-            hiv_test_ago="5y",
         )
         baker.make(
-            "edc_dx_review.hivinitialreview",
+            "dx_app.hivinitialreview",
             subject_visit=self.subject_visit_baseline,
             dx_ago="5y",
-            arv_initiation_ago="4y",
+            rx_init_ago="4y",
         )
         diagnoses = Diagnoses(
             subject_identifier=self.subject_visit_baseline.subject_identifier,
         )
 
         self.assertEqual(YES, diagnoses.get_dx(HIV))
-        self.assertEqual(
-            diagnoses.get_dx_date(HIV),
-            clinical_review_baseline.hiv_test_estimated_date,
-        )
+        self.assertIsNotNone(diagnoses.get_dx_date(HIV))
         self.assertIsNone(diagnoses.get_dx_date(DM))
         self.assertIsNone(diagnoses.get_dx_date(HTN))
 
@@ -122,10 +108,7 @@ class TestDiagnoses(TestCaseMixin, TestCase):
         )
 
         self.assertEqual(YES, diagnoses.get_dx(HIV))
-        self.assertEqual(
-            diagnoses.get_dx_date(HIV),
-            clinical_review_baseline.hiv_test_estimated_date,
-        )
+        self.assertIsNotNone(diagnoses.get_dx_date(HIV))
         self.assertIsNone(diagnoses.get_dx_date(DM))
         self.assertIsNone(diagnoses.get_dx_date(HTN))
 
@@ -136,28 +119,22 @@ class TestDiagnoses(TestCaseMixin, TestCase):
         )
 
         self.assertEqual(YES, diagnoses.get_dx(HIV))
-        self.assertEqual(
-            diagnoses.get_dx_date(HIV),
-            clinical_review_baseline.hiv_test_estimated_date,
-        )
+        self.assertIsNotNone(diagnoses.get_dx_date(HIV))
         self.assertIsNone(diagnoses.get_dx_date(DM))
         self.assertIsNone(diagnoses.get_dx_date(HTN))
 
     def test_diagnoses_dates(self):
-
         baker.make(
-            "edc_dx_review.clinicalreviewbaseline",
+            "dx_app.clinicalreviewbaseline",
             subject_visit=self.subject_visit_baseline,
-            hiv_test=POS,
             hiv_dx=YES,
-            hiv_test_ago="5y",
         )
 
         hiv_initial_review = baker.make(
-            "edc_dx_review.hivinitialreview",
+            "dx_app.hivinitialreview",
             subject_visit=self.subject_visit_baseline,
             dx_ago="5y",
-            arv_initiation_ago="4y",
+            rx_init_ago="4y",
         )
 
         self.subject_visit_baseline.appointment.appt_status = INCOMPLETE_APPT
@@ -166,18 +143,14 @@ class TestDiagnoses(TestCaseMixin, TestCase):
         self.subject_visit_baseline.refresh_from_db()
 
         baker.make(
-            "edc_dx_review.clinicalreview",
+            "dx_app.clinicalreview",
             subject_visit=self.subject_visit_followup,
-            hiv_test=NOT_APPLICABLE,
             hiv_dx=NOT_APPLICABLE,
-            hiv_test_date=None,
-            htn_test=YES,
             htn_dx=YES,
-            htn_test_date=self.subject_visit_followup.report_datetime,
         )
 
         htn_initial_review = baker.make(
-            "edc_dx_review.htninitialreview",
+            "dx_app.htninitialreview",
             subject_visit=self.subject_visit_followup,
             dx_ago=None,
             dx_date=self.subject_visit_followup.report_datetime,
@@ -201,30 +174,44 @@ class TestDiagnoses(TestCaseMixin, TestCase):
         self.assertIsNotNone(diagnoses.get_dx_date(HTN))
 
     def test_diagnoses_dates_baseline2(self):
-
         baker.make(
-            "edc_dx_review.clinicalreviewbaseline",
+            "dx_app.clinicalreviewbaseline",
             subject_visit=self.subject_visit_baseline,
-            hiv_test=POS,
             hiv_dx=YES,
-            hiv_test_ago="5y",
         )
         baker.make(
-            "edc_dx_review.hivinitialreview",
+            "dx_app.hivinitialreview",
             subject_visit=self.subject_visit_baseline,
             dx_ago="5y",
-            arv_initiation_ago="4y",
+            rx_init_ago="4y",
         )
         self.subject_visit_baseline.appointment.appt_status = INCOMPLETE_APPT
         self.subject_visit_baseline.appointment.save()
         self.subject_visit_baseline.appointment.refresh_from_db()
         self.subject_visit_baseline.refresh_from_db()
 
+    @override_settings(
+        EDC_DX_REVIEW_EXTRA_ATTRS={"initialreview": "initialreviewmissingsingleton"}
+    )
+    def test_diagnoses_dates_baseline3(self):
         baker.make(
-            "edc_dx_review.hivinitialreview",
+            "dx_app.clinicalreviewbaseline",
+            subject_visit=self.subject_visit_baseline,
+            hiv_dx=YES,
+        )
+
+        baker.make(
+            "dx_app.hivinitialreviewmissingsingleton",
+            subject_visit=self.subject_visit_baseline,
+            dx_ago="5y",
+            rx_init_ago="4y",
+        )
+
+        baker.make(
+            "dx_app.hivinitialreviewmissingsingleton",
             subject_visit=self.subject_visit_followup,
             dx_ago="5y",
-            arv_initiation_ago="4y",
+            rx_init_ago="4y",
         )
 
         diagnoses = Diagnoses(

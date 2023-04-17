@@ -101,7 +101,7 @@ class Diagnoses:
     def get_dx(self, prefix: str) -> str | None:
         """Returns YES if any diagnoses for this condition otherwise None.
 
-        References clinical_review_baseline
+        References clinical_review_baseline, clinical_review
 
         name is `dm`, `hiv` or `htn`.
         """

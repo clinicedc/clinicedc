@@ -34,7 +34,7 @@ class TestCaseMixin(TestCase):
         )
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
+            visit_models={"edc_appointment.appointment": "dx_app.subjectvisit"}
         )
 
     @staticmethod
@@ -60,23 +60,29 @@ class TestCaseMixin(TestCase):
         appointment = Appointment.objects.get(
             subject_identifier=subject_identifier,
             visit_code="1000",
+            visit_code_sequence=0,
         )
         self.subject_visit_baseline = django_apps.get_model(
-            "edc_metadata.subjectvisit"
+            "dx_app.subjectvisit"
         ).objects.create(
             report_datetime=get_utcnow(),
             appointment=appointment,
             reason=SCHEDULED,
+            visit_code="1000",
+            visit_code_sequence=0,
         )
 
         appointment = Appointment.objects.get(
             subject_identifier=subject_identifier,
             visit_code="1010",
+            visit_code_sequence=0,
         )
         self.subject_visit_followup = django_apps.get_model(
-            "edc_metadata.subjectvisit"
+            "dx_app.subjectvisit"
         ).objects.create(
             report_datetime=get_utcnow(),
             appointment=appointment,
             reason=SCHEDULED,
+            visit_code="1010",
+            visit_code_sequence=0,
         )

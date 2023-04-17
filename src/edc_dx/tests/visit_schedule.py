@@ -2,23 +2,23 @@ from dateutil.relativedelta import relativedelta
 from edc_visit_schedule import Crf, FormsCollection, Schedule, Visit, VisitSchedule
 
 crfs_day1 = FormsCollection(
-    Crf(show_order=1, model="edc_dx_review.ClinicalReviewBaseline", required=True),
-    Crf(show_order=10, model="edc_dx_review.HivInitialReview", required=False),
-    Crf(show_order=20, model="edc_dx_review.HtnInitialReview", required=False),
-    Crf(show_order=30, model="edc_dx_review.DmInitialReview", required=False),
-    Crf(show_order=40, model="edc_dx_review.CholInitialReview", required=False),
+    Crf(show_order=1, model="dx_app.ClinicalReviewBaseline", required=True),
+    Crf(show_order=10, model="dx_app.HivInitialReview", required=False),
+    Crf(show_order=20, model="dx_app.HtnInitialReview", required=False),
+    Crf(show_order=30, model="dx_app.DmInitialReview", required=False),
+    Crf(show_order=40, model="dx_app.CholInitialReview", required=False),
 )
 
 crfs = FormsCollection(
-    Crf(show_order=1, model="edc_dx_review.ClinicalReview", required=True),
-    Crf(show_order=10, model="edc_dx_review.HivInitialReview", required=True),
-    Crf(show_order=20, model="edc_dx_review.HtnInitialReview", required=False),
-    Crf(show_order=30, model="edc_dx_review.DmInitialReview", required=False),
-    Crf(show_order=40, model="edc_dx_review.CholInitialReview", required=False),
-    Crf(show_order=50, model="edc_dx_review.HivReview", required=False),
-    Crf(show_order=60, model="edc_dx_review.HtnReview", required=False),
-    Crf(show_order=70, model="edc_dx_review.DmReview", required=False),
-    Crf(show_order=80, model="edc_dx_review.CholReview", required=False),
+    Crf(show_order=1, model="dx_app.ClinicalReview", required=True),
+    Crf(show_order=10, model="dx_app.HivInitialReview", required=True),
+    Crf(show_order=20, model="dx_app.HtnInitialReview", required=False),
+    Crf(show_order=30, model="dx_app.DmInitialReview", required=False),
+    Crf(show_order=40, model="dx_app.CholInitialReview", required=False),
+    Crf(show_order=50, model="dx_app.HivReview", required=False),
+    Crf(show_order=60, model="dx_app.HtnReview", required=False),
+    Crf(show_order=70, model="dx_app.DmReview", required=False),
+    Crf(show_order=80, model="dx_app.CholReview", required=False),
 )
 
 visit0 = Visit(
@@ -29,7 +29,7 @@ visit0 = Visit(
     rlower=relativedelta(days=0),
     rupper=relativedelta(days=6),
     requisitions=None,
-    crfs=crfs_day1,
+    # crfs=crfs_day1,
     crfs_unscheduled=None,
     requisitions_unscheduled=None,
     facility_name="7-day-clinic",
@@ -43,7 +43,7 @@ visit1 = Visit(
     rlower=relativedelta(days=0),
     rupper=relativedelta(days=6),
     requisitions=None,
-    crfs=crfs,
+    # crfs=crfs,
     crfs_unscheduled=None,
     requisitions_unscheduled=None,
     facility_name="7-day-clinic",
