@@ -109,8 +109,7 @@ class Command(BaseCommand):
             raise CommandError("You are not authorized to export data. (1)")
         if not user.check_password(passwd):
             raise CommandError("You are not authorized to export data. (2)")
-        group = Group.objects.get(name="EXPORT")
-        if not user.has_perms([o.codename for o in group.permissions.all()]):
+        if not user.groups.filter(name="EXPORT").exists():
             raise CommandError("You are not authorized to export data. (3)")
         if self.decrypt:
             group = Group.objects.get(name="PII")
