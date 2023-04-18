@@ -6,10 +6,10 @@ from edc_constants.constants import CHOL, DM, HIV, HTN, NOT_APPLICABLE
 from edc_dx import get_diagnosis_labels
 
 default_prompts = {
-    HIV: "Since last seen, has the patient tested <U>positive</U> for HIV infection?",
-    DM: "Since last seen, has the patient been diagnosed with Diabetes",
-    HTN: "Since last seen, has the patient been diagnosed with Hypertension",
-    CHOL: "Since last seen, has the patient been diagnosed with High Cholesterol",
+    HIV.lower(): "Since last seen, has the patient tested <U>positive</U> for HIV infection?",
+    DM: "Since last seen, has the patient been diagnosed with Diabetes?",
+    HTN: "Since last seen, has the patient been diagnosed with Hypertension?",
+    CHOL: "Since last seen, has the patient been diagnosed with High Cholesterol?",
 }
 
 
