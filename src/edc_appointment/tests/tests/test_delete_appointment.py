@@ -7,14 +7,14 @@ from edc_reference import site_reference_configs
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
+from edc_appointment.constants import INCOMPLETE_APPT
+from edc_appointment.creators import UnscheduledAppointmentCreator
+from edc_appointment.managers import AppointmentDeleteError
+from edc_appointment.models import Appointment, appointments_on_post_delete
+from edc_appointment.utils import delete_appointment_in_sequence
 from edc_appointment_app.models import SubjectVisit
 from edc_appointment_app.visit_schedule import visit_schedule1, visit_schedule2
 
-from ...constants import INCOMPLETE_APPT
-from ...creators import UnscheduledAppointmentCreator
-from ...managers import AppointmentDeleteError
-from ...models import Appointment, appointments_on_post_delete
-from ...utils import delete_appointment_in_sequence
 from ..helper import Helper
 
 
