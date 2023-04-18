@@ -5,6 +5,7 @@ from datetime import date, datetime, timedelta
 
 from dateutil.relativedelta import relativedelta
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import CharField, DateField, DateTimeField, Model
@@ -25,6 +26,10 @@ class InvalidFormat(Exception):
 
 class InvalidFieldName(Exception):
     pass
+
+
+def get_report_datetime_field_name():
+    return getattr(settings, "EDC_MODEL_REPORT_DATETIME_FIELD_NAME", "report_datetime")
 
 
 def estimated_date_from_ago(
