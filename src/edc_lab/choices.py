@@ -1,4 +1,15 @@
-from edc_constants.constants import COMPLETE, NOT_APPLICABLE, OTHER, PARTIAL, PENDING
+from edc_constants.constants import (
+    COMPLETE,
+    EQ,
+    GT,
+    GTE,
+    LT,
+    LTE,
+    NOT_APPLICABLE,
+    OTHER,
+    PARTIAL,
+    PENDING,
+)
 from edc_metadata.constants import NOT_REQUIRED
 from edc_reportable import (
     MICROMOLES_PER_LITER,
@@ -8,7 +19,7 @@ from edc_reportable import (
     MILLIMOLES_PER_LITER_DISPLAY,
 )
 
-from .constants import EQ, FILL_ACROSS, FILL_DOWN, FINGER_PRICK, GT, GTE, LT, LTE, TUBE
+from .constants import FILL_ACROSS, FILL_DOWN, FINGER_PRICK, TUBE
 
 ABS_CALC = (("absolute", "Absolute"), ("calculated", "Calculated"))
 
@@ -57,17 +68,6 @@ SERUM_CREATININE_UNITS_NA = (
     (NOT_APPLICABLE, "Not applicable"),
 )
 
-
-REASON_NOT_DRAWN = (
-    (NOT_APPLICABLE, "Not applicable"),
-    ("collection_failed", "Tried, but unable to obtain sample from patient"),
-    ("absent", "Patient did not attend visit"),
-    ("refused", "Patient refused"),
-    ("no_supplies", "No supplies"),
-    (NOT_REQUIRED, "No longer required for this visit"),
-    (OTHER, "Other"),
-)
-
 RESULT_RELEASE_STATUS = (
     ("NEW", "New"),
     ("RELEASED", "Released"),
@@ -79,18 +79,26 @@ RESULT_VALIDATION_STATUS = (("P", "Preliminary"), ("F", "Final"), ("R", "Rejecte
 RESULT_QUANTIFIER = ((EQ, EQ), (GT, GT), (GTE, GTE), (LT, LT), (LTE, LTE))
 
 RESULT_QUANTIFIER_NA = (
-    (NOT_APPLICABLE, ""),
     (EQ, EQ),
     (GT, GT),
     (GTE, GTE),
     (LT, LT),
     (LTE, LTE),
+    (NOT_APPLICABLE, "Not applicable"),
 )
 
-VL_QUANTIFIER_NA = (
+VL_QUANTIFIER = (
     (EQ, EQ),
     (GT, GT),
     (LT, LT),
+)
+
+VL_QUANTIFIER_NA = (
+    (NOT_APPLICABLE, "Not applicable"),
+    (EQ, EQ),
+    (GT, GT),
+    (LT, LT),
+    (NOT_APPLICABLE, "Not applicable"),
 )
 
 
@@ -98,7 +106,7 @@ SPECIMEN_MEASURE_UNITS = (
     ("mL", "mL"),
     ("uL", "uL"),
     ("spots", "spots"),
-    ("n/a", "Not Applicable"),
+    ("n/a", "Not applicable"),
 )
 
 SPECIMEN_MEDIUM = (
