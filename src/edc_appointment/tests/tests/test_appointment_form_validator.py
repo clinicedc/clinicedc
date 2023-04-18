@@ -17,34 +17,33 @@ from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.model_mixins import PreviousVisitError
 from edc_visit_tracking.utils import get_subject_visit_missed_model_cls
 
-from edc_appointment_app.models import SubjectVisit
-from edc_appointment_app.visit_schedule import visit_schedule1, visit_schedule2
-
-from ...constants import (
+from edc_appointment.constants import (
     IN_PROGRESS_APPT,
     MISSED_APPT,
     ONTIME_APPT,
     SCHEDULED_APPT,
     UNSCHEDULED_APPT,
 )
-from ...form_validators import (
+from edc_appointment.form_validators import (
     INVALID_APPT_TIMING_CRFS_EXIST,
     INVALID_APPT_TIMING_REQUISITIONS_EXIST,
     INVALID_PREVIOUS_VISIT_MISSING,
     AppointmentFormValidator,
 )
-from ...form_validators.appointment_form_validator import (
+from edc_appointment.form_validators.appointment_form_validator import (
     INVALID_MISSED_APPT_NOT_ALLOWED,
     INVALID_MISSED_APPT_NOT_ALLOWED_AT_BASELINE,
 )
-from ...models import Appointment
-from ...utils import get_previous_appointment
+from edc_appointment.models import Appointment
+from edc_appointment.utils import get_previous_appointment
+from edc_appointment_app.models import SubjectVisit
+from edc_appointment_app.visit_schedule import visit_schedule1, visit_schedule2
+
 from ..appointment_test_case_mixin import AppointmentTestCaseMixin
 from ..helper import Helper
 
 
 class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
-
     helper_cls = Helper
 
     @classmethod

@@ -16,6 +16,20 @@ from edc_visit_tracking.model_mixins.visit_model_mixin.visit_model_mixin import 
     SubjectVisitReasonError,
 )
 
+from edc_appointment.constants import (
+    IN_PROGRESS_APPT,
+    INCOMPLETE_APPT,
+    MISSED_APPT,
+    ONTIME_APPT,
+    SCHEDULED_APPT,
+    UNSCHEDULED_APPT,
+)
+from edc_appointment.exceptions import (
+    AppointmentBaselineError,
+    AppointmentDatetimeError,
+)
+from edc_appointment.managers import AppointmentDeleteError
+from edc_appointment.models import Appointment
 from edc_appointment.utils import get_appt_reason_choices
 from edc_appointment_app.models import (
     OnScheduleOne,
@@ -25,17 +39,6 @@ from edc_appointment_app.models import (
 )
 from edc_appointment_app.visit_schedule import visit_schedule1, visit_schedule2
 
-from ...constants import (
-    IN_PROGRESS_APPT,
-    INCOMPLETE_APPT,
-    MISSED_APPT,
-    ONTIME_APPT,
-    SCHEDULED_APPT,
-    UNSCHEDULED_APPT,
-)
-from ...exceptions import AppointmentBaselineError, AppointmentDatetimeError
-from ...managers import AppointmentDeleteError
-from ...models import Appointment
 from ..helper import Helper
 
 

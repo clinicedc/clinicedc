@@ -6,12 +6,12 @@ from edc_reference import site_reference_configs
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
+from edc_appointment.appointment_status_updater import AppointmentStatusUpdater
+from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT, NEW_APPT
+from edc_appointment.models import Appointment
 from edc_appointment_app.models import SubjectVisit
 from edc_appointment_app.visit_schedule import visit_schedule1, visit_schedule2
 
-from ...appointment_status_updater import AppointmentStatusUpdater
-from ...constants import IN_PROGRESS_APPT, INCOMPLETE_APPT, NEW_APPT
-from ...models import Appointment
 from ..helper import Helper
 
 
