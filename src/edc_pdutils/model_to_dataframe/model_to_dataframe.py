@@ -260,7 +260,7 @@ class ModelToDataframe:
     @property
     def list_columns(self):
         """Return a list of column names with fk to a list model."""
-        from edc_list_data.model_mixins import ListModelMixin
+        from edc_list_data.model_mixins import ListModelMixin, ListUuidModelMixin
 
         if not self._list_columns:
             list_columns = []
@@ -268,7 +268,7 @@ class ModelToDataframe:
                 if (
                     hasattr(fld_cls, "related_model")
                     and fld_cls.related_model
-                    and issubclass(fld_cls.related_model, (ListModelMixin,))
+                    and issubclass(fld_cls.related_model, (ListModelMixin, ListUuidModelMixin))
                 ):
                     list_columns.append(fld_cls.attname)
             self._list_columns = list(set(list_columns))
