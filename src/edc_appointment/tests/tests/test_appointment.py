@@ -4,7 +4,7 @@ from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.db import transaction
 from django.db.models.deletion import ProtectedError
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_constants.constants import INCOMPLETE
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
@@ -649,7 +649,6 @@ class TestAppointment(TestCase):
         # resave does not cause error
         appointment.save()
 
-    @tag("1")
     def test_raises_if_subject_visit_reason_out_of_sync_with_appt(self):
         self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
