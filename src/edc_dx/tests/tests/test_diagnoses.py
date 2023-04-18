@@ -1,6 +1,6 @@
 from django.test import TestCase, override_settings
 from edc_appointment.constants import INCOMPLETE_APPT
-from edc_constants.constants import DM, HIV, HTN, NOT_APPLICABLE, YES
+from edc_constants.constants import DM, HIV, HTN, NO, YES
 from model_bakery import baker
 
 from edc_dx.diagnoses import (
@@ -30,6 +30,8 @@ class TestDiagnoses(TestCaseMixin, TestCase):
             "dx_app.clinicalreviewbaseline",
             subject_visit=self.subject_visit_baseline,
             hiv_dx=YES,
+            dm_dx=NO,
+            htn_dx=NO,
         )
         try:
             diagnoses = Diagnoses(
@@ -68,11 +70,14 @@ class TestDiagnoses(TestCaseMixin, TestCase):
         """
 
         for prefix in [HIV, DM, HTN]:
-            prefix = prefix.lower()
             opts = {
                 "subject_visit": self.subject_visit_baseline,
-                f"{prefix}_dx": YES,
+                "hiv_dx": NO,
+                "dm_dx": NO,
+                "htn_dx": NO,
             }
+            prefix = prefix.lower()
+            opts.update({f"{prefix}_dx": YES})
             obj = baker.make("dx_app.clinicalreviewbaseline", **opts)
             diagnoses = Diagnoses(
                 subject_identifier=self.subject_visit_baseline.subject_identifier,
@@ -85,6 +90,8 @@ class TestDiagnoses(TestCaseMixin, TestCase):
             "dx_app.clinicalreviewbaseline",
             subject_visit=self.subject_visit_baseline,
             hiv_dx=YES,
+            dm_dx=NO,
+            htn_dx=NO,
         )
         baker.make(
             "dx_app.hivinitialreview",
@@ -128,6 +135,8 @@ class TestDiagnoses(TestCaseMixin, TestCase):
             "dx_app.clinicalreviewbaseline",
             subject_visit=self.subject_visit_baseline,
             hiv_dx=YES,
+            dm_dx=NO,
+            htn_dx=NO,
         )
 
         hiv_initial_review = baker.make(
@@ -145,8 +154,9 @@ class TestDiagnoses(TestCaseMixin, TestCase):
         baker.make(
             "dx_app.clinicalreview",
             subject_visit=self.subject_visit_followup,
-            hiv_dx=NOT_APPLICABLE,
+            hiv_dx=NO,
             htn_dx=YES,
+            dm_dx=NO,
         )
 
         htn_initial_review = baker.make(
@@ -178,6 +188,8 @@ class TestDiagnoses(TestCaseMixin, TestCase):
             "dx_app.clinicalreviewbaseline",
             subject_visit=self.subject_visit_baseline,
             hiv_dx=YES,
+            htn_dx=NO,
+            dm_dx=NO,
         )
         baker.make(
             "dx_app.hivinitialreview",
@@ -198,6 +210,8 @@ class TestDiagnoses(TestCaseMixin, TestCase):
             "dx_app.clinicalreviewbaseline",
             subject_visit=self.subject_visit_baseline,
             hiv_dx=YES,
+            htn_dx=NO,
+            dm_dx=NO,
         )
 
         baker.make(

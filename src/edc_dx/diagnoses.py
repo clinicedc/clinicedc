@@ -106,8 +106,11 @@ class Diagnoses:
         name is `dm`, `hiv` or `htn`.
         """
         diagnoses = [
-            getattr(self.clinical_review_baseline, f"{prefix.lower()}_dx") == YES,
-            *[(getattr(obj, f"{prefix.lower()}_dx") == YES) for obj in self.clinical_reviews],
+            getattr(self.clinical_review_baseline, f"{prefix.lower()}_dx", "") == YES,
+            *[
+                (getattr(obj, f"{prefix.lower()}_dx", "") == YES)
+                for obj in self.clinical_reviews
+            ],
         ]
         if any(diagnoses):
             return YES

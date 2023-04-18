@@ -1,5 +1,5 @@
 from django.contrib.sites.models import Site
-from edc_constants.constants import NOT_APPLICABLE, YES
+from edc_constants.constants import NO
 from model_bakery.recipe import Recipe
 
 from dx_app.models import (
@@ -12,9 +12,9 @@ from dx_app.models import (
 clinicalreviewbaseline = Recipe(
     ClinicalReviewBaseline,
     site=Site.objects.get_current(),
-    hiv_dx=YES,
-    htn_dx=NOT_APPLICABLE,
-    dm_dx=NOT_APPLICABLE,
+    hiv_dx=NO,
+    htn_dx=NO,
+    dm_dx=NO,
 )
 
 
