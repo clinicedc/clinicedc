@@ -26,6 +26,14 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
+            "-m",
+            "--model",
+            dest="model_name",
+            default=False,
+            help="model name in label_lower format",
+        )
+
+        parser.add_argument(
             "-p",
             "--path",
             dest="path",
@@ -71,14 +79,20 @@ class Command(BaseCommand):
         export_format = options["format"]
         app_label = options["app_label"]
         export_path = options["path"]
+        model_name = options["model_name"]
+        if app_label and model_name:
+            raise CommandError("Either provide the app label or a model name but not both")
         use_simple_filename = options["use_simple_filename"]
         include_historical = options["include_historical"]
         self.decrypt = options["decrypt"]
         self.validate_user_perms_or_raise()
         if not export_path or not os.path.exists(export_path):
             raise CommandError(f"Path does not exist. Got `{export_path}`")
-        model_names = get_model_names(app_label=app_label)
-        if not app_label or not model_names:
+        if app_label:
+            model_names = get_model_names(app_label=app_label)
+        else:
+            model_names = [model_name]
+        if not model_names:
             raise CommandError(f"Nothing to do. No models found in app `{app_label}`")
         if not include_historical:
             model_names = [m for m in model_names if "historical" not in m]

@@ -1,4 +1,4 @@
-from django.test import TestCase, tag  # noqa
+from django.test import TestCase
 
 from ...df_handlers import DfHandler
 from ...site import (
