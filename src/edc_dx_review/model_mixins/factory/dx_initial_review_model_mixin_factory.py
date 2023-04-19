@@ -62,18 +62,18 @@ def dx_initial_review_model_mixin_factory(fld_prefix: str | None = None):
 
     opts = {
         "fld_prefix": fld_prefix,
-        f"{fld_prefix}_ago": DurationYMDField(
-            verbose_name="If date not know, how long ago was the patient diagnosed?",
-            null=True,
-            blank=True,
-            help_text="If possible, provide the exact date below instead of estimating here.",
-        ),
         f"{fld_prefix}_date": models.DateField(
             verbose_name="Date patient diagnosed",
             null=True,
             blank=True,
             validators=[date_not_future],
             help_text="If possible, provide the exact date here instead of estimating.",
+        ),
+        f"{fld_prefix}_ago": DurationYMDField(
+            verbose_name="If date not known, how long ago was the patient diagnosed?",
+            null=True,
+            blank=True,
+            help_text="If possible, provide the exact date above instead of estimating here.",
         ),
         f"{fld_prefix}_calculated_date": models.DateField(
             verbose_name="Estimated diagnosis date",

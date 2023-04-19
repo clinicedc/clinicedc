@@ -32,18 +32,20 @@ def rx_initial_review_model_mixin_factory(
             choices=YES_NO,
             default=YES,
         ),
-        f"{fld_prefix}_ago": DurationYMDField(
-            verbose_name=f"How long ago did the patient start {verbose_name_label}?",
-            null=True,
-            blank=True,
-            help_text="If possible, provide the exact date below instead of estimating here.",
-        ),
         f"{fld_prefix}_date": models.DateField(
             verbose_name=f"Date started {verbose_name_label}",
             validators=[date_not_future],
             null=True,
             blank=True,
-            help_text="If possible, provide the exact date here instead of estimating above.",
+            help_text="If possible, provide the exact date here instead of estimating.",
+        ),
+        f"{fld_prefix}_ago": DurationYMDField(
+            verbose_name=(
+                f"If date not known, how long ago did the patient start {verbose_name_label}?"
+            ),
+            null=True,
+            blank=True,
+            help_text="If possible, provide the exact date above instead of estimating here.",
         ),
         f"{fld_prefix}_calculated_date": models.DateField(
             verbose_name=f"Estimated date started {verbose_name_label}",
