@@ -17,7 +17,7 @@ DATE_AND_AGO_CONFLICT = "DATE_AND_AGO_CONFLICT"
 
 
 class MedicalDateError(ValidationError):
-    def __init__(self, message, code=None, params=None):
+    def __init__(self, message: dict, code: str = None, params=None):
         self.code = code
         super().__init__(message, code, params)
 
@@ -90,7 +90,7 @@ class MedicalDate(date):
     def _report_date_or_raise(cls):
         if not cls._cleaned_data.get("report_datetime"):
             raise MedicalDateError(
-                "Complete the report date first.", code=MISSING_REPORT_DATETIME
+                {"__all__": "Complete the report date first."}, code=MISSING_REPORT_DATETIME
             )
 
     @classmethod
@@ -112,14 +112,15 @@ class MedicalDate(date):
             cls._ago_field
         ):
             raise MedicalDateError(
-                f"Complete the {cls._label or '????'} date first.", code=MISSING_DATE_AND_AGO
+                {"__all__": f"Complete the {cls._label or '????'} date first."},
+                code=MISSING_DATE_AND_AGO,
             )
 
     @classmethod
     def _get_operator(cls):
         msg = f"Is `{cls._field}` supposed to be before or after `{cls._label}` date?"
         if cls._before_reference and cls._after_reference:
-            raise MedicalDateError(msg, code=BEFORE_AFTER_BOTH_TRUE)
+            raise MedicalDateError({"__all__": msg}, code=BEFORE_AFTER_BOTH_TRUE)
         if cls._before_reference:
             op = LTE if cls._inclusive else LT
             word = "before"
@@ -127,7 +128,7 @@ class MedicalDate(date):
             op = GTE if cls._inclusive else GT
             word = "after"
         else:
-            raise MedicalDateError(msg, code=BEFORE_AFTER_BOTH_FALSE)
+            raise MedicalDateError({"__all__": msg}, code=BEFORE_AFTER_BOTH_FALSE)
         return op, word
 
     @classmethod
