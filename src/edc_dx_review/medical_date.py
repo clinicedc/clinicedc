@@ -180,8 +180,8 @@ class RxDate(MedicalDate):
     def __new__(cls, cleaned_data: dict, reference_date: date | DxDate) -> RxDate:
         return super().__new__(
             cls,
-            "med_start_date",
-            "med_start_ago",
+            "rx_init_date",
+            "rx_init_ago",
             cleaned_data,
             after_reference=True,
             reference_date=reference_date,

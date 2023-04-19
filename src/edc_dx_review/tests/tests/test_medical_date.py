@@ -180,7 +180,7 @@ class TestMedicalDate(TestCase):
         cleaned_data = {
             "report_datetime": get_utcnow(),
             "dx_date": get_utcnow().date() - relativedelta(years=3),
-            "med_start_date": get_utcnow().date()
+            "rx_init_date": get_utcnow().date()
             - relativedelta(years=3)
             - relativedelta(days=1),
         }
@@ -191,7 +191,7 @@ class TestMedicalDate(TestCase):
         cleaned_data = {
             "report_datetime": get_utcnow(),
             "dx_date": get_utcnow().date() - relativedelta(years=3),
-            "med_start_date": get_utcnow().date()
+            "rx_init_date": get_utcnow().date()
             - relativedelta(years=3)
             + relativedelta(days=1),
         }
