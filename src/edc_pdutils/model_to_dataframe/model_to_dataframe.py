@@ -315,8 +315,8 @@ class ModelToDataframe:
             subject_identifier_column = None
             id_columns = [col.replace("_id", "") for col in columns if col.endswith("_id")]
             for col in id_columns:
-                field = getattr(self.model_cls, col)
-                if [
+                field = getattr(self.model_cls, col, None)
+                if field and [
                     fld.name
                     for fld in field.field.related_model._meta.get_fields()
                     if fld.name == "subject_identifier"
