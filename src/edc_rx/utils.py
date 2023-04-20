@@ -8,21 +8,14 @@ class TotalDaysMismatch(Exception):
 
 
 def validate_total_days(form: Any, return_in_days: int | None = None) -> None:
-    return_in_days = return_in_days or form.cleaned_data.get("return_in_days")
-    if (
-        form.cleaned_data.get("clinic_days")
-        and form.cleaned_data.get("club_days")
-        and form.cleaned_data.get("purchased_days")
-        and int(return_in_days or 0)
-    ):
-        total = (
-            form.cleaned_data.get("clinic_days")
-            or 0 + form.cleaned_data.get("club_days")
-            or 0 + form.cleaned_data.get("purchased_days")
-            or 0
+    return_in_days = return_in_days or form.cleaned_data.get("return_in_days") or 0
+    clinic_days = form.cleaned_data.get("clinic_days") or 0
+    club_days = form.cleaned_data.get("club_days") or 0
+    purchased_days = form.cleaned_data.get("purchased_days") or 0
+
+    total_days = clinic_days + club_days + purchased_days
+    if total_days != return_in_days:
+        raise TotalDaysMismatch(
+            f"Patient to return for a drug refill in {return_in_days} days. "
+            f"Check that the total days supplied ({total_days}) matches."
         )
-        if total != int(return_in_days or 0):
-            raise TotalDaysMismatch(
-                f"Patient to return for a drug refill in {return_in_days} days. "
-                "Check that the total days match."
-            )
