@@ -3,7 +3,7 @@ from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_facility.import_holidays import import_holidays
 from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
@@ -288,7 +288,6 @@ class TestUnscheduledAppointmentCreator(TestCase):
 
         self.assertEqual(creator.appointment.title, "Day 2.1")
 
-    @tag("2")
     def test_appointment_title_if_visit_schedule_changes(self):
         self.helper.consent_and_put_on_schedule()
         appointment = Appointment.objects.first_appointment(
