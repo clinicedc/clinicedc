@@ -17,5 +17,6 @@ def validate_total_days(form: Any, return_in_days: int | None = None) -> None:
     if total_days != return_in_days:
         raise TotalDaysMismatch(
             f"Patient to return for a drug refill in {return_in_days} days. "
-            f"Check that the total days supplied ({total_days}) matches."
+            f"Check that the total days supplied "
+            f"({clinic_days} + {club_days} + {purchased_days}) matches this."
         )
