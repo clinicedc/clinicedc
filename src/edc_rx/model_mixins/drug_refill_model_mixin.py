@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from edc_constants.choices import YES_NO
 
@@ -51,7 +52,8 @@ class DrugRefillModelMixin(models.Model):
         verbose_name=(
             "In how many days has the patient been asked "
             "to return to clinic for a drug refill?"
-        )
+        ),
+        validators=[MinValueValidator(0), MaxValueValidator(180)],
     )
 
     class Meta:
