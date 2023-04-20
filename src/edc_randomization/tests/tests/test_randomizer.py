@@ -4,7 +4,7 @@ from tempfile import mkstemp
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.test import TestCase
-from django.test.utils import override_settings, tag
+from django.test.utils import override_settings
 from edc_constants.constants import FEMALE
 from edc_registration.models import RegisteredSubject
 from multisite import SiteID
@@ -620,7 +620,6 @@ class TestRandomizer(TestCaseMixin, TestCase):
         self.assertRaises(RandomizationListAlreadyImported, importer.import_list)
         self.assertEqual(randomizer_cls.model_cls().objects.all().count(), 50)
 
-    @tag("1")
     @override_settings(SITE_ID=SiteID(40), EXPORT_FOLDER=tmpdir)
     def test_randomization_list_exporter(self):
         user = get_user_model().objects.create(
