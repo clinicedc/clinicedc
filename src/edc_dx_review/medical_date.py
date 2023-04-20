@@ -82,6 +82,14 @@ class MedicalDate(date):
         cls._op, cls._word = cls._get_operator()
         if not cls._compare_date_and_reference():
             cls._raise_on_failed_comparison()
+        if (
+            cls._cleaned_data.get("report_datetime").date() != cls._reference_date
+            and cls._value > cls._cleaned_data.get("report_datetime").date()
+        ):
+            raise MedicalDateError(
+                {cls._field: "Cannot be after report date"},
+                code=FAILED_COMPARISON,
+            )
         return super().__new__(
             cls, year=cls._value.year, month=cls._value.month, day=cls._value.day
         )
@@ -90,7 +98,7 @@ class MedicalDate(date):
     def _report_date_or_raise(cls):
         if not cls._cleaned_data.get("report_datetime"):
             raise MedicalDateError(
-                {"__all__": "Complete the report date first."}, code=MISSING_REPORT_DATETIME
+                {"__all__": "Complete the report date."}, code=MISSING_REPORT_DATETIME
             )
 
     @classmethod
@@ -112,7 +120,7 @@ class MedicalDate(date):
             cls._ago_field
         ):
             raise MedicalDateError(
-                {"__all__": f"Complete the {cls._label or '????'} date first."},
+                {"__all__": f"Complete the {cls._label or '????'} date."},
                 code=MISSING_DATE_AND_AGO,
             )
 
@@ -163,30 +171,25 @@ class MedicalDate(date):
 
 
 class DxDate(MedicalDate):
-    def __new__(cls, cleaned_data: dict) -> DxDate:
-        return super().__new__(
-            cls,
-            "dx_date",
-            "dx_ago",
-            cleaned_data,
+    def __new__(cls, cleaned_data: dict, **kwargs) -> DxDate:
+        defaults = dict(
             before_reference=True,
             reference_date=cleaned_data.get("report_datetime"),
             reference_is_none_msg="Complete the report date first.",
             inclusive=True,
             label="diagnosis",
         )
+        defaults.update(**kwargs)
+        return super().__new__(cls, "dx_date", "dx_ago", cleaned_data, **defaults)
 
 
 class RxDate(MedicalDate):
-    def __new__(cls, cleaned_data: dict, reference_date: date | DxDate) -> RxDate:
-        return super().__new__(
-            cls,
-            "rx_init_date",
-            "rx_init_ago",
-            cleaned_data,
+    def __new__(cls, cleaned_data: dict, reference_date: date | DxDate, **kwargs) -> RxDate:
+        defaults = dict(
             after_reference=True,
-            reference_date=reference_date,
-            reference_is_none_msg="Complete the diagnosis date first.",
+            reference_is_none_msg="Complete the diagnosis date.",
             inclusive=True,
             label="treatment",
         )
+        defaults.update(reference_date=reference_date, **kwargs)
+        return super().__new__(cls, "rx_init_date", "rx_init_ago", cleaned_data, **defaults)

@@ -22,7 +22,7 @@ class TestMedicalDate(TestCase):
         opts = dict(
             after_reference=True,
             reference_date=cleaned_data.get("report_datetime"),
-            reference_is_none_msg="Complete the report date first.",
+            reference_is_none_msg="Complete the report date.",
             inclusive=True,
             label="medical",
         )
@@ -43,7 +43,7 @@ class TestMedicalDate(TestCase):
         opts = dict(
             before_reference=True,
             reference_date=cleaned_data.get("report_datetime"),
-            reference_is_none_msg="Complete the report date first.",
+            reference_is_none_msg="Complete the report date.",
             inclusive=True,
             label="medical",
         )
@@ -115,12 +115,12 @@ class TestMedicalDate(TestCase):
         cleaned_data = {"report_datetime": get_utcnow()}
         with self.assertRaises(MedicalDateError) as cm:
             DxDate(cleaned_data)
-        self.assertIn("Complete the diagnosis date first", str(cm.exception))
+        self.assertIn("Complete the diagnosis date", str(cm.exception))
 
         cleaned_data = {"report_datetime": get_utcnow(), "dx_ago": None}
         with self.assertRaises(MedicalDateError) as cm:
             DxDate(cleaned_data)
-        self.assertIn("Complete the diagnosis date first", str(cm.exception))
+        self.assertIn("Complete the diagnosis date", str(cm.exception))
 
         cleaned_data = {"report_datetime": get_utcnow(), "dx_ago": "1y"}
         try:
@@ -175,7 +175,7 @@ class TestMedicalDate(TestCase):
         }
         with self.assertRaises(MedicalDateError) as cm:
             RxDate(cleaned_data, reference_date=dx_date)
-        self.assertIn("Complete the treatment date first", str(cm.exception))
+        self.assertIn("Complete the treatment date", str(cm.exception))
 
         cleaned_data = {
             "report_datetime": get_utcnow(),
