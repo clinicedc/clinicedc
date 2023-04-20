@@ -8,7 +8,7 @@ def get_clinical_review_baseline_cond_fieldset(
         title = cond.upper()
     return (
         title,
-        {"fields": (f"{cond}_dx",)},
+        {"fields": (f"{cond}_dx", f"{cond}_dx_at_screening")},
     )
 
 

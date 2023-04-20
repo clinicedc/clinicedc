@@ -24,6 +24,7 @@ def get_clinical_review_baseline_cond_radio_fields() -> Dict[str, int]:
         radio_fields.update(
             {
                 f"{cond}_dx": admin.VERTICAL,
+                f"{cond}_dx_at_screening": admin.VERTICAL,
             }
         )
     return radio_fields
