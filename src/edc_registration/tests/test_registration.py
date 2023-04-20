@@ -1,7 +1,7 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
-from django.test.utils import override_settings, tag  # noqa
+from django.test.utils import override_settings
 from edc_sites import add_or_update_django_sites
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
