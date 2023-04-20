@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_constants.constants import MALE
 from edc_facility.import_holidays import import_holidays
 
@@ -51,7 +51,6 @@ class RuleGroupWithRules2(CrfRuleGroup):
         source_model = "edc_metadata.subjectvisit"
 
 
-@tag("12")
 class TestSiteMetadataRules(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -115,7 +114,6 @@ class TestSiteMetadataRules(TestCase):
         self.assertIn("edc_metadata", site_metadata_rules.registry)
 
     def test_register_decorator_raises(self):
-
         try:
 
             @register()
