@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from django.db import models
-from edc_constants.choices import YES_NO
+from edc_constants.choices import YES_NO, YES_NO_NA
 from edc_constants.constants import NOT_APPLICABLE, YES
 from edc_model.models import DurationYMDField
 from edc_model.validators import date_not_future
@@ -29,7 +29,7 @@ def rx_initial_review_model_mixin_factory(
         f"{fld_prefix}": models.CharField(
             verbose_name=f"Has the patient started {verbose_name_label}?",
             max_length=15,
-            choices=YES_NO,
+            choices=YES_NO_NA,
             default=YES,
         ),
         f"{fld_prefix}_date": models.DateField(
