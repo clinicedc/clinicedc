@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_constants.constants import FEMALE
 from edc_list_data import site_list_data
 from edc_randomization.site_randomizers import site_randomizers
@@ -21,7 +21,6 @@ from edc_pharmacy.models import (
 from edc_pharmacy.prescribe import create_prescription
 
 
-@tag("rx")
 class TestPrescription(TestCase):
     def setUp(self):
         site_list_data.initialize()
