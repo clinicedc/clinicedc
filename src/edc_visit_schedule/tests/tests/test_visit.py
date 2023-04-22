@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 from arrow import Arrow
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase
 
 from edc_visit_schedule.visit import Visit, VisitCodeError, WindowPeriod
 from edc_visit_schedule.visit.visit import BaseDatetimeNotSet
@@ -107,7 +107,6 @@ class TestVisit(TestCase):
         except BaseDatetimeNotSet:
             pass
 
-    @tag("arr")
     def test_visit_lower_upper(self):
         visit = Visit(
             code="1000",
