@@ -1,5 +1,5 @@
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_facility import import_holidays
 from edc_list_data import site_list_data
 from edc_randomization.constants import ACTIVE, PLACEBO
@@ -29,7 +29,6 @@ from edc_pharmacy.models import (
 
 
 class TestPackaging(TestCaseMixin, TestCase):
-
     import_randomization_list = True
     site_names = [x.name for x in all_sites]
     sid_count_for_tests = 5
@@ -71,7 +70,6 @@ class TestPackaging(TestCaseMixin, TestCase):
             assignment=PLACEBO,
         )
 
-    @tag("11")
     def test_repack(self):
         container_type = ContainerType.objects.create(name="bottle")
 
@@ -113,7 +111,6 @@ class TestPackaging(TestCaseMixin, TestCase):
         for obj in PillBottle.objects.filter(source_container=source_pill_bottle):
             self.assertEquals(obj.unit_qty, 128)
 
-    @tag("11")
     def test_repack_for_subject(self):
         container_type = ContainerType.objects.create(name="bottle")
         location = Location.objects.create(name="LOCATION_ONE")
