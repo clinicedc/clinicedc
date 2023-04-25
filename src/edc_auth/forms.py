@@ -2,6 +2,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.forms import UserChangeForm as BaseForm
 from django.utils.html import format_html
+from edc_export.utils import raise_if_prohibited_from_export_pii_group
 from edc_notification.utils import get_email_enabled
 from edc_randomization.auth_objects import RANDO_UNBLINDED
 from edc_randomization.blinding import (
@@ -24,6 +25,7 @@ class UserChangeForm(BaseForm):
         qs = self.cleaned_data.get("groups")
         if qs and qs.count() > 0:
             raise_if_prohibited_from_unblinded_rando_group(self.instance.username, qs)
+            raise_if_prohibited_from_export_pii_group(self.instance.username, qs)
         return cleaned_data
 
 
