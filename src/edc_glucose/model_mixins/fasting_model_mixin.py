@@ -1,12 +1,16 @@
-from typing import Optional
+from __future__ import annotations
 
 from django.db import models
-from edc_constants.choices import YES_NO
+from edc_constants.choices import YES_NO_NA
+from edc_constants.constants import NOT_APPLICABLE
 from edc_model.validators import hm_validator
 
 
-def fasting_model_mixin_factory(prefix: Optional[str] = None, **kwargs):
+def fasting_model_mixin_factory(
+    prefix: str = None, verbose_names: dict | None = None, **kwargs
+):
     prefix = "" if prefix is None else f"{prefix}_"
+    verbose_names = verbose_names or {}
 
     class AbstractModel(models.Model):
         class Meta:
@@ -14,15 +18,18 @@ def fasting_model_mixin_factory(prefix: Optional[str] = None, **kwargs):
 
     opts = {
         f"{prefix}fasting": models.CharField(
-            verbose_name="Has the participant fasted?",
+            verbose_name=verbose_names.get(f"{prefix}fasting", "Has the participant fasted?"),
             max_length=15,
-            choices=YES_NO,
-            null=True,
+            choices=YES_NO_NA,
+            default=NOT_APPLICABLE,
             blank=False,
             help_text="As reported by patient",
         ),
         f"{prefix}fasting_duration_str": models.CharField(
-            verbose_name="How long have they fasted in hours and/or minutes?",
+            verbose_name=verbose_names.get(
+                f"{prefix}fasting_duration_str",
+                "How long have they fasted in hours and/or minutes?",
+            ),
             max_length=8,
             validators=[hm_validator],
             null=True,
