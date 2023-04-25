@@ -1,7 +1,7 @@
 import getpass
 import os.path
 
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import CommandError
 from django.core.management.base import BaseCommand
@@ -120,12 +120,10 @@ class Command(BaseCommand):
         try:
             user = User.objects.get(username=username, is_superuser=False, is_active=True)
         except ObjectDoesNotExist:
-            raise CommandError("You are not authorized to export data. (1)")
+            raise CommandError("Invalid username or password.")
         if not user.check_password(passwd):
-            raise CommandError("You are not authorized to export data. (2)")
+            raise CommandError("Invalid username or password.")
         if not user.groups.filter(name="EXPORT").exists():
-            raise CommandError("You are not authorized to export data. (3)")
-        if self.decrypt:
-            group = Group.objects.get(name="PII")
-            if not user.has_perms([o.codename for o in group.permissions.all()]):
-                raise CommandError("You are not authorized to export data. (4)")
+            raise CommandError("You are not authorized to export data.")
+        if self.decrypt and not user.groups.filter(name="EXPORT_PII").exists():
+            raise CommandError("You are not authorized to export sensitive data.")

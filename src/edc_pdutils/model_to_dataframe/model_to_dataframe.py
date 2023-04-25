@@ -6,6 +6,7 @@ from copy import copy
 import numpy as np
 import pandas as pd
 from django.apps import apps as django_apps
+from django.core.exceptions import FieldError
 from django.db.models.constants import LOOKUP_SEP
 from django_crypto_fields.utils import has_encrypted_fields
 
@@ -228,10 +229,13 @@ class ModelToDataframe:
                 ]
             columns = dict(zip(columns_list, columns_list))
             for column_name in columns_list:
-                if column_name.endswith("_visit") or column_name.endswith("_visit_id"):
-                    columns = self.add_columns_for_subject_visit(
-                        column_name=column_name, columns=columns
-                    )
+                if column_name.endswith("_visit_id"):
+                    try:
+                        columns = self.add_columns_for_subject_visit(
+                            column_name=column_name, columns=columns
+                        )
+                    except FieldError:
+                        pass
                 if column_name.endswith("_requisition") or column_name.endswith(
                     "requisition_id"
                 ):
