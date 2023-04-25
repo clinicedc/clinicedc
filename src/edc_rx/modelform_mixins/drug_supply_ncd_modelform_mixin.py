@@ -13,10 +13,11 @@ class DrugSupplyNcdModelFormMixin:
         rx_names = [obj.display_name for obj in rx]
         inline_drug_names = self.raise_on_duplicates()
 
-        try:
-            validate_total_days(self)
-        except TotalDaysMismatch as e:
-            raise forms.ValidationError(e)
+        if data.get("return_in_days")[0] is not None and data.get("return_in_days")[0] != "":
+            try:
+                validate_total_days(self, return_in_days=int(data.get("return_in_days")[0]))
+            except TotalDaysMismatch as e:
+                raise forms.ValidationError(e)
 
         if (
             self.cleaned_data.get("drug")
