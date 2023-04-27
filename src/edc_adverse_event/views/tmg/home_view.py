@@ -11,7 +11,6 @@ from ...constants import AE_TMG_ACTION
 
 
 class TmgHomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
-
     template_name = f"edc_adverse_event/bootstrap{get_bootstrap_version()}/tmg/tmg_home.html"
     navbar_selected_item = "tmg_home"
 

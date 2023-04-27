@@ -6,7 +6,6 @@ from edc_adverse_event.models import AeActionClassification
 
 
 class AeInitialAeModelMixin(models.Model):
-
     ae_study_relation_possibility = models.CharField(
         verbose_name="Is the incident related to the patient involvement in the study?",
         max_length=10,

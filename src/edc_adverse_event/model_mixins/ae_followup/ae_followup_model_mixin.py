@@ -20,7 +20,6 @@ class AeFollowupModelMixin(
     AeFollowupMethodsModelMixin,
     models.Model,
 ):
-
     action_name = AE_FOLLOWUP_ACTION
 
     on_site = ActionIdentifierSiteManager()

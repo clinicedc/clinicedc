@@ -202,7 +202,6 @@ class TestNotifications(DeathReportTestMixin, TestCase):
         )
 
     def test_notifies_initial_ae_death_with_tmg(self):
-
         self.get_death_report()
 
         self.assertEqual(len(mail.outbox), 7)
@@ -239,7 +238,6 @@ class TestNotifications(DeathReportTestMixin, TestCase):
         )
 
     def test_notifies_initial_ae_susar(self):
-
         baker.make_recipe(
             "adverse_event_app.aeinitial",
             subject_identifier=self.subject_identifier,

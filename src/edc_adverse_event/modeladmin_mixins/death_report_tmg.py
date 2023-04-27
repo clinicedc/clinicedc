@@ -13,7 +13,6 @@ from ..get_ae_model import get_ae_model
 class DeathReportTmgModelAdminMixin(
     ModelAdminSubjectDashboardMixin, ActionItemModelAdminMixin
 ):
-
     fieldsets = (
         (None, {"fields": ("subject_identifier", "death_report", "report_datetime")}),
         (

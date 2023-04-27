@@ -67,7 +67,6 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         self.assertEqual(action_item.status, CLOSED)
 
     def test_death_tmg_agrees(self):
-
         death_report = self.get_death_report()
 
         # confirm death report tmg action item is created
@@ -99,7 +98,6 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         self.assertEqual(action_item.status, CLOSED)
 
     def test_death_tmg_disagrees_still_closes(self):
-
         death_report = self.get_death_report()
 
         # confirm death report tmg action item is created
@@ -131,7 +129,6 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         self.assertEqual(action_item.status, CLOSED)
 
     def test_death_tmg_disagrees_creates_new_second_tmg_action(self):
-
         death_report = self.get_death_report()
 
         action_item = ActionItem.objects.get(
@@ -281,7 +278,6 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         )
 
     def test_tmg_once_closed_does_not_repopen(self):
-
         death_report = self.get_death_report()
 
         action_item = ActionItem.objects.get(
@@ -312,7 +308,6 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         self.assertEqual(action_item.status, CLOSED)
 
     def test_2nd_tmg_once_closed_does_not_repopen(self):
-
         death_report = self.get_death_report()
 
         action_item = ActionItem.objects.get(
@@ -363,7 +358,6 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         self.assertEqual(action_item_two.status, CLOSED)
 
     def test_delete_second_tmg_and_change_agreed_to_yes(self):
-
         death_report = self.get_death_report()
 
         action_item_one = ActionItem.objects.get(
