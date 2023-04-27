@@ -29,7 +29,6 @@ class DeathReportTestMixin:
         )
 
     def get_death_report(self, cause_of_death=None, cause_of_death_other=None):
-
         causes_qs = CauseOfDeath.objects.exclude(name=OTHER)
         cause_of_death = (
             cause_of_death

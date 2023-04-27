@@ -18,7 +18,6 @@ from ...pdf_reports import AeReport
 
 
 class ActionItemModelWrapper(BaseActionItemModelWrapper):
-
     ae_initial_model_wrapper = AeInitialModelWrapper
     death_report_model_wrapper = DeathReportModelWrapper
     next_url_name = "ae_listboard_url"
@@ -51,7 +50,6 @@ class AeListboardViewMixin(
     SearchFormViewMixin,
     BaseListboardView,
 ):
-
     pdf_report_cls = AeReport
 
     listboard_back_url = "ae_home_url"

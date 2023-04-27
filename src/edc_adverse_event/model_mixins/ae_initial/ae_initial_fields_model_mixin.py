@@ -9,7 +9,6 @@ from ...models import AeClassification
 
 
 class AeInitialFieldsModelMixin(models.Model):
-
     ae_auto_created = models.BooleanField(max_length=25, default=False, editable=False)
 
     ae_auto_created_criteria = models.CharField(

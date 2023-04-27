@@ -36,7 +36,6 @@ class DeathReportModelWrapper(ModelWrapper):
 
     @property
     def tmg_death_reports(self):
-
         model_wrappers = []
 
         action_item = ActionItem.objects.get(action_identifier=self.object.action_identifier)

@@ -41,7 +41,6 @@ class DeathReportListboardViewMixin(
     SearchFormViewMixin,
     BaseListboardView,
 ):
-
     listboard_back_url = "ae_home_url"
     home_url = "ae_home_url"
     pdf_report_cls = DeathReport

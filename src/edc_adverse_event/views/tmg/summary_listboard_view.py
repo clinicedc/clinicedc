@@ -27,7 +27,6 @@ class SummaryListboardView(
     SearchFormViewMixin,
     BaseListboardView,
 ):
-
     listboard_back_url = "tmg_home_url"
 
     ae_tmg_model = f"{settings.ADVERSE_EVENT_APP_LABEL}.aetmg"

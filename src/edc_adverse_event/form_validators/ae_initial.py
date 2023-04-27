@@ -4,7 +4,6 @@ from edc_form_validators import FormValidator
 
 class AeInitialFormValidator(FormValidator):
     def clean(self):
-
         self.validate_other_specify(field="ae_classification")
 
         self.validate_relationship_to_study_drug()

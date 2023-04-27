@@ -9,7 +9,6 @@ from ...view_mixins import StatusTmgAeListboardView
 
 
 class NewTmgAeListboardView(StatusTmgAeListboardView):
-
     listboard_url = "new_tmg_ae_listboard_url"
     search_form_url = "new_tmg_ae_listboard_url"
     status = NEW
@@ -18,7 +17,6 @@ class NewTmgAeListboardView(StatusTmgAeListboardView):
 
 
 class OpenTmgAeListboardView(StatusTmgAeListboardView):
-
     listboard_url = "open_tmg_ae_listboard_url"
     search_form_url = "open_tmg_ae_listboard_url"
     status = OPEN
@@ -27,7 +25,6 @@ class OpenTmgAeListboardView(StatusTmgAeListboardView):
 
 
 class ClosedTmgAeListboardView(StatusTmgAeListboardView):
-
     listboard_url = "closed_tmg_ae_listboard_url"
     search_form_url = "closed_tmg_ae_listboard_url"
     status = CLOSED

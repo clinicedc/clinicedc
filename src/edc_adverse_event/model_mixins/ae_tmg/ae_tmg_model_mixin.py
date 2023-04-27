@@ -24,7 +24,6 @@ class AeTmgModelMixin(
     SearchSlugModelMixin,
     models.Model,
 ):
-
     action_name = AE_TMG_ACTION
 
     on_site = ActionIdentifierSiteManager()
