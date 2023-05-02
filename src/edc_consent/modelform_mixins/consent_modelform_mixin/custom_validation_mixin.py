@@ -148,7 +148,7 @@ class CustomValidationMixin:
         if familiar_name:
             opts.update(familiar_name=familiar_name)
             msg_word = "familiar name"
-        else:
+        elif first_name:
             opts.update(first_name=first_name)
             msg_word = "first name"
         if (

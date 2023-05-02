@@ -83,3 +83,7 @@ def values_as_string(*values) -> str | None:
             as_string = f"{as_string}{value}"
         return as_string
     return None
+
+
+def get_remove_patient_names_from_countries() -> list[str]:
+    return getattr(settings, "EDC_CONSENT_REMOVE_PATIENT_NAMES_FROM_COUNTRIES", [])

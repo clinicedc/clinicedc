@@ -8,19 +8,17 @@ from django.urls import reverse
 from django.utils.html import format_html
 from edc_identifier import SubjectIdentifierError, is_subject_identifier_or_raise
 
-from .actions import flag_as_verified_against_paper, unflag_as_verified_against_paper
+from ..actions import flag_as_verified_against_paper, unflag_as_verified_against_paper
 
 
-class ModelAdminConsentMixin:
-
+class ConsentModelAdminMixin:
     name_fields: list[str] = ["first_name", "last_name"]
     name_display_field: str = "first_name"
+    actions = (flag_as_verified_against_paper, unflag_as_verified_against_paper)
 
     def __init__(self, *args):
         self.get_radio_fields()
         super().__init__(*args)
-
-    actions = (flag_as_verified_against_paper, unflag_as_verified_against_paper)
 
     def get_radio_fields(self):
         self.radio_fields.update(
@@ -40,6 +38,7 @@ class ModelAdminConsentMixin:
         )
 
     def get_fields(self, request, obj=None) -> Tuple[str, ...]:
+        original_fields = super().get_fields(request, obj=obj)
         return (
             "subject_identifier",
             *self.name_fields,
@@ -62,7 +61,7 @@ class ModelAdminConsentMixin:
             "study_questions",
             "assessment_score",
             "consent_copy",
-        ) + super().get_fields(request, obj=obj)
+        ) + original_fields
 
     def get_readonly_fields(self, request, obj=None) -> Tuple[str, ...]:
         readonly_fields = super().get_readonly_fields(request, obj)
@@ -108,7 +107,10 @@ class ModelAdminConsentMixin:
         if request.user.has_perm("edc_data_manager.add_dataquery"):
             custom_fields = list(custom_fields)
             custom_fields.insert(3, self.queries)
-        return tuple(custom_fields) + tuple(f for f in list_display if f not in custom_fields)
+        fields = tuple(custom_fields) + tuple(
+            f for f in list_display if f not in custom_fields
+        )
+        return fields
 
     def get_list_filter(self, request) -> Tuple[str, ...]:
         list_filter = super().get_list_filter(request)
@@ -192,3 +194,7 @@ class ModelAdminConsentMixin:
                     f'subject_identifier={obj.subject_identifier}">Add query</A>'
                 )
         return formatted_html
+
+
+class ModelAdminConsentMixin(ConsentModelAdminMixin):
+    pass
