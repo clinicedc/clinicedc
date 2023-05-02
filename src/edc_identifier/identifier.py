@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import re
-from typing import Optional
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -9,18 +10,15 @@ from .models import IdentifierModel
 
 
 class Identifier:
-
     name = "identifier"
     identifier_model_cls = IdentifierModel
     identifier_pattern = "^\d+$"  # noqa
-    prefix_pattern: Optional[str] = None
-    prefix: Optional[str] = None
+    prefix_pattern: str | None = None
+    prefix: str | None = None
     seed: str = "0"
-    separator: Optional[str] = None
+    separator: str | None = None
 
-    def __init__(
-        self, last_identifier: Optional[str] = None, prefix: Optional[str] = None
-    ) -> None:
+    def __init__(self, last_identifier: str | None = None, prefix: str | None = None) -> None:
         self.identifier_as_list: list = []
         self.prefix: str = prefix or self.prefix or ""
         edc_device_app_config = django_apps.get_app_config("edc_device")
@@ -55,7 +53,8 @@ class Identifier:
         self.validate_identifier_pattern(self.identifier)
         self.update_identifier_model()
 
-    def increment(self, identifier):
+    @staticmethod
+    def increment(identifier: int | str):
         return str(int(identifier or 0) + 1)
 
     def validate_identifier_pattern(self, identifier, pattern=None, error_msg=None):
