@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.core.validators import RegexValidator
 from django.db import models
 from django_crypto_fields.fields import EncryptedCharField
@@ -35,6 +37,13 @@ class NameFieldsModelMixin(models.Model):
             )
         ],
     )
+
+    def save(self, *args, **kwargs):
+        if not self.familiar_name:
+            self.familiar_name = str(uuid4())
+        if not self.legal_name:
+            self.legal_name = str(uuid4())
+        super().save(*args, **kwargs)
 
     class Meta:
         abstract = True
