@@ -9,7 +9,12 @@ from django_revision.revision import Revision
 from edc_protocol import Protocol
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import ParagraphStyle, _baseFontNameB, getSampleStyleSheet
+from reportlab.lib.styles import (
+    ParagraphStyle,
+    StyleSheet1,
+    _baseFontNameB,
+    getSampleStyleSheet,
+)
 from reportlab.lib.units import cm
 from reportlab.platypus import Paragraph, SimpleDocTemplate
 
@@ -59,7 +64,6 @@ class Report(ABC):
         self.draw_footer(canvas, doc)
 
     def render(self, message_user=None, **kwargs):
-
         message_user = True if message_user is None else message_user
         response = HttpResponse(content_type="application/pdf")
         response["Content-Disposition"] = f'attachment; filename="{self.report_filename}"'
@@ -113,7 +117,7 @@ class Report(ABC):
             styles.add(ParagraphStyle(name="header", fontSize=6, alignment=TA_CENTER))
             styles.add(ParagraphStyle(name="footer", fontSize=6, alignment=TA_RIGHT))
             styles.add(ParagraphStyle(name="center", alignment=TA_CENTER))
-            styles.add(ParagraphStyle(name="Right", alignment=TA_RIGHT))
+            styles.add(ParagraphStyle(name="right", alignment=TA_RIGHT))
             styles.add(ParagraphStyle(name="left", alignment=TA_LEFT))
             styles.add(
                 ParagraphStyle(name="line_data", alignment=TA_LEFT, fontSize=8, leading=10)
@@ -167,5 +171,8 @@ class Report(ABC):
             styles.add(
                 ParagraphStyle(name="row_data", fontSize=7, leading=7, alignment=TA_CENTER)
             )
-            self._styles = styles
+            self._styles = self.add_to_styles(styles)
         return self._styles
+
+    def add_to_styles(self, styles: StyleSheet1) -> StyleSheet1:
+        return styles
