@@ -18,11 +18,12 @@ class IdentifierError(Exception):
 
 
 def convert_to_human_readable(identifier: str) -> str:
+    if not identifier:
+        return ""
     return "-".join(re.findall(r".{1,4}", identifier))
 
 
 class SimpleIdentifier:
-
     random_string_length: int = 5
     template: str = "{device_id}{random_string}"
     identifier_prefix: str = None
@@ -64,7 +65,6 @@ class SimpleIdentifier:
 
 
 class SimpleTimestampIdentifier(SimpleIdentifier):
-
     timestamp_format: str = "%y%m%d%H%M%S%f"
     timestamp_length: int = 14
 
@@ -84,7 +84,6 @@ class SimpleTimestampIdentifier(SimpleIdentifier):
 
 
 class SimpleSequentialIdentifier:
-
     prefix: Optional[str] = None
 
     def __init__(self):
