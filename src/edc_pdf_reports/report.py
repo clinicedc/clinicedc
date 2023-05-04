@@ -1,3 +1,8 @@
+from __future__ import annotations
+
+import os.path
+import sys
+import warnings
 from abc import ABC
 from io import BytesIO
 from uuid import uuid4
@@ -19,6 +24,12 @@ from reportlab.lib.units import cm
 from reportlab.platypus import Paragraph, SimpleDocTemplate
 
 from .numbered_canvas import NumberedCanvas
+
+
+class ReportError(Exception):
+    def __init__(self, message, code=None):
+        super().__init__(message)
+        self.code = code
 
 
 class Report(ABC):
@@ -63,30 +74,50 @@ class Report(ABC):
         """Callback for onLaterPages"""
         self.draw_footer(canvas, doc)
 
-    def render(self, message_user=None, **kwargs):
-        message_user = True if message_user is None else message_user
-        response = HttpResponse(content_type="application/pdf")
-        response["Content-Disposition"] = f'attachment; filename="{self.report_filename}"'
-
+    def render_to_buffer(self, **kwargs):
         buffer = BytesIO()
-
         document_template = self.document_template(buffer, **self.page)
-
         story = self.get_report_story(**kwargs)
-
         document_template.build(
             story,
             onFirstPage=self.on_first_page,
             onLaterPages=self.on_later_pages,
             canvasmaker=NumberedCanvas,
         )
-
-        pdf = buffer.getvalue()
+        buffer_value = buffer.getvalue()
         buffer.close()
-        response.write(pdf)
+        return buffer_value
+
+    def render(self, message_user: bool | None = None, **kwargs):
+        """Deprecated wrapper for render_to_response"""
+        warnings.warn(
+            "Method `render` has been deprecated. Use `render_to_response` instead.",
+            DeprecationWarning,
+        )
+        return self.render_to_response(message_user=message_user, **kwargs)
+
+    def render_to_response(self, message_user: bool | None = None, **kwargs):
+        """Render buffer to HTTP response"""
+        message_user = True if message_user is None else message_user
+        response = HttpResponse(content_type="application/pdf")
+        response["Content-Disposition"] = f'attachment; filename="{self.report_filename}"'
+        buffer_value = self.render_to_buffer()
+        response.write(buffer_value)
         if message_user and self.request:
             self.message_user(**kwargs)
         return response
+
+    def render_to_file(self, path: str):
+        """Render buffer to file"""
+        buffer_value = self.render_to_buffer()
+        if not os.path.exists(path):
+            raise ReportError(f"Path does not exist. Got {path}")
+        else:
+            filename = os.path.join(path, self.report_filename)
+            with open(filename, "wb") as f:
+                f.write(buffer_value)
+                sys.stdout.write(f"Created file {filename}\n")
+        return None
 
     def message_user(self, **kwargs):
         messages.success(
