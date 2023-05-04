@@ -94,7 +94,6 @@ VL_QUANTIFIER = (
 )
 
 VL_QUANTIFIER_NA = (
-    (NOT_APPLICABLE, "Not applicable"),
     (EQ, EQ),
     (GT, GT),
     (LT, LT),
