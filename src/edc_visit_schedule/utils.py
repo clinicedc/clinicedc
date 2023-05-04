@@ -4,6 +4,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any
 
+from dateutil.relativedelta import relativedelta
 from django import forms
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -242,7 +243,11 @@ def get_onschedule_model_instance(
     visit_schedule_name: str,
     schedule_name: str,
 ) -> OnScheduleModelMixin:
-    """Returns the onschedule model instance"""
+    """Returns the onschedule model instance
+
+    Increment reference_datetime by 1 sec to avoid millisecond
+    in lte comparison.
+    """
     schedule = site_visit_schedules.get_visit_schedule(visit_schedule_name).schedules.get(
         schedule_name
     )
@@ -250,7 +255,7 @@ def get_onschedule_model_instance(
     try:
         onschedule_obj = model_cls.objects.get(
             subject_identifier=subject_identifier,
-            onschedule_datetime__lte=reference_datetime,
+            onschedule_datetime__lte=to_utc(reference_datetime) + relativedelta(seconds=1),
         )
     except ObjectDoesNotExist as e:
         dte_as_str = formatted_datetime(to_local(reference_datetime))
