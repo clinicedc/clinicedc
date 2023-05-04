@@ -1,5 +1,4 @@
 import random
-import re
 from typing import Any, Optional, Type
 
 from django.apps import apps as django_apps
@@ -8,6 +7,8 @@ from django.db import models
 from django.utils import timezone
 from edc_utils import get_utcnow
 
+from .utils import convert_to_human_readable
+
 
 class DuplicateIdentifierError(Exception):
     pass
@@ -15,12 +16,6 @@ class DuplicateIdentifierError(Exception):
 
 class IdentifierError(Exception):
     pass
-
-
-def convert_to_human_readable(identifier: str) -> str:
-    if not identifier:
-        return ""
-    return "-".join(re.findall(r".{1,4}", identifier))
 
 
 class SimpleIdentifier:
@@ -131,6 +126,7 @@ class SimpleUniqueIdentifier:
         site_id: Optional[str] = None,
     ):
         self._identifier: Optional[str] = None
+        self.site_id = None
         self.model = model or self.model
         self.identifier_attr = identifier_attr or self.identifier_attr
         self.identifier_type = identifier_type or self.identifier_type
@@ -141,21 +137,19 @@ class SimpleUniqueIdentifier:
             )
         self.make_human_readable = make_human_readable or self.make_human_readable
         self.device_id = django_apps.get_app_config("edc_device").device_id
+        if site:
+            self.site_id = site.id
+        elif site_id:
+            self.site_id = site_id
         opts = dict(
-            identifier_type=self.identifier_type,
             sequence_number=1,
-            device_id=self.device_id,
             linked_identifier=linked_identifier,
             protocol_number=protocol_number,
             model=source_model,
             subject_identifier=subject_identifier,
         )
         opts.update({self.identifier_attr: self.identifier})
-        if site:
-            opts.update(site=site)
-        elif site_id:
-            opts.update(site_id=site_id)
-        self.model_cls.objects.create(**opts)
+        self.update_identifier_model(**opts)
 
     def __str__(self):
         return self.identifier
@@ -199,3 +193,21 @@ class SimpleUniqueIdentifier:
     @property
     def model_cls(self) -> Type[models.Model]:
         return django_apps.get_model(self.model)
+
+    def update_identifier_model(self, **kwargs) -> bool:
+        """Attempts to update identifier_model and returns True (or instance)
+        if successful else False if identifier already exists.
+        """
+        opts = dict(
+            identifier=self.identifier,
+            identifier_type=self.identifier_type,
+            identifier_prefix=self.identifier_prefix,
+            device_id=self.device_id,
+            site_id=self.site_id,
+        )
+        opts.update(**kwargs)
+        try:
+            self.model_cls.objects.get(identifier=self.identifier)
+        except ObjectDoesNotExist:
+            return self.model_cls.objects.create(**opts)
+        return False
