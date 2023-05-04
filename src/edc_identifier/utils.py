@@ -38,3 +38,9 @@ def get_human_phrase(no_hyphen: bool = None) -> str:
     if no_hyphen:
         return phrase
     return phrase[0:3] + "-" + phrase[3:6]
+
+
+def convert_to_human_readable(identifier: str) -> str:
+    if not identifier:
+        return ""
+    return "-".join(re.findall(r".{1,4}", identifier))
