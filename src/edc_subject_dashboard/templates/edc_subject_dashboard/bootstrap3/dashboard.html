@@ -15,7 +15,7 @@
                             <span class="text text-danger"><i class="fas fa-user-secret fa-2x fa-fw"></i></span>
                         {% else %}
                             <i class="{% if gender == MALE %}fas fa-male{% else %}fas fa-female{% endif %} fa-lg fa-fw"></i>
-                            <a id="demographics-panel-title">{{ subject_identifier }} </a> {% copy_string_to_clipboard_button subject_identifier %}
+                            <a id="demographics-panel-title">{{ subject_identifier }} </a> {% copy_string_to_clipboard_button subject_identifier %} {% block extra_demographic_title %}{% endblock extra_demographic_title %}
                         {% endif %}
                               <span class="pull-right">
                               <div class="btn-group">
