@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import TYPE_CHECKING, Any, Dict, Tuple
 
 from django.apps import apps as django_apps
@@ -33,6 +34,10 @@ from .exceptions import (
 
 if TYPE_CHECKING:
     from .models import Appointment
+
+
+class AppointmentDateWindowPeriodGapError(Exception):
+    pass
 
 
 def get_appointment_model_name() -> str:
@@ -175,7 +180,6 @@ def update_unscheduled_appointment_sequence(subject_identifier: str) -> None:
             )
             .order_by("appt_datetime")
         ):
-
             appointment.visit_code_sequence = index + 1
             appointment.save_base(update_fields=["visit_code_sequence"])
             related_visit = appointment.related_visit
@@ -350,3 +354,58 @@ def check_appointment_required_values_or_raise(appointment: Appointment) -> None
         raise AppointmentMissingValuesError(
             f"Appointment instance is missing required values. See {appointment}."
         )
+
+
+def get_appointment_by_datetime(
+    suggested_appt_datetime: datetime,
+    subject_identifier: str,
+    visit_schedule_name: str,
+    schedule_name: str,
+    verbose: bool | None = None,
+) -> Appointment | None:
+    """Returns an appointment where the suggested datetime falls
+    within the window period.
+
+    * Returns None if no appointment is found.
+    * Raises an exception if there is a gap between upper and lower
+      boundaries and the date falls within the gap.
+    """
+    appointment = None
+    appointments = (
+        django_apps.get_model("edc_appointment.appointment")
+        .objects.filter(
+            subject_identifier=subject_identifier,
+            visit_schedule_name=visit_schedule_name,
+            schedule_name=schedule_name,
+            visit_code_sequence=0,
+        )
+        .order_by("appt_datetime")
+    )
+    for appointment in appointments:
+        if is_baseline(appointment):
+            continue
+        try:
+            appointment.schedule.datetime_in_window(
+                dt=suggested_appt_datetime,
+                timepoint_datetime=appointment.timepoint_datetime,
+                visit_code=appointment.visit_code,
+                visit_code_sequence=0,
+                baseline_timepoint_datetime=appointment.first.timepoint_datetime,
+            )
+        except ScheduledVisitWindowError as e:
+            if verbose:
+                print(str(e))
+            if (
+                appointment.next
+                and appointment.timepoint_datetime + appointment.visit.rupper
+                < suggested_appt_datetime
+                < appointment.next.timepoint_datetime - appointment.next.visit.rlower
+            ):
+                raise AppointmentDateWindowPeriodGapError(
+                    f"Date falls in a `window period gap` between {appointment.visit_code} "
+                    f"and {appointment.next.visit_code}."
+                )
+            appointment = appointment.next
+        else:
+            break
+    return appointment
