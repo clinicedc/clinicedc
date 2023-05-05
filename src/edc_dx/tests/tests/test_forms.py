@@ -88,8 +88,8 @@ class TestApplicableIfDiagnosedFormValidation(TestCaseMixin, TestCase):
         )
         cleaned_data = {
             "subject_visit": self.subject_visit_baseline,
-            "dm_test": NOT_APPLICABLE,
             "hiv_test": NOT_APPLICABLE,
+            "dm_test": NOT_APPLICABLE,
             "htn_test": NOT_APPLICABLE,
         }
         form_validator = ApplicableIfDiagnosedFormValidator(
@@ -109,13 +109,13 @@ class TestApplicableIfDiagnosedFormValidation(TestCaseMixin, TestCase):
             htn_dx=NO,
         )
 
-        for cond in [DM, HIV.lower(), HTN]:
+        for cond in [HIV.lower(), DM, HTN]:
             for answer in [YES, NO]:
                 with self.subTest(cond=cond, answer=answer):
                     cleaned_data = {
                         "subject_visit": self.subject_visit_baseline,
-                        "dm_test": NOT_APPLICABLE,
                         "hiv_test": NOT_APPLICABLE,
+                        "dm_test": NOT_APPLICABLE,
                         "htn_test": NOT_APPLICABLE,
                     }
 
@@ -149,8 +149,8 @@ class TestApplicableIfDiagnosedFormValidation(TestCaseMixin, TestCase):
         )
         cleaned_data = {
             "subject_visit": self.subject_visit_baseline,
-            "dm_test": NOT_APPLICABLE,
             "hiv_test": NOT_APPLICABLE,
+            "dm_test": NOT_APPLICABLE,
             "htn_test": NOT_APPLICABLE,
         }
         form_validator = ApplicableIfDiagnosedFormValidator(
@@ -204,8 +204,8 @@ class TestApplicableIfDiagnosedFormValidation(TestCaseMixin, TestCase):
 
         cleaned_data = {
             "subject_visit": self.subject_visit_baseline,
-            "dm_test": YES,
             "hiv_test": YES,
+            "dm_test": YES,
             "htn_test": YES,
         }
         form_validator = ApplicableIfDiagnosedFormValidator(
@@ -216,12 +216,12 @@ class TestApplicableIfDiagnosedFormValidation(TestCaseMixin, TestCase):
         except forms.ValidationError as e:
             self.fail(f"ValidationError unexpectedly raised. Got {e}")
 
-        for cond in [DM, HIV.lower(), HTN]:
+        for cond in [HIV.lower(), DM, HTN]:
             with self.subTest(cond=cond):
                 cleaned_data = {
                     "subject_visit": self.subject_visit_baseline,
-                    "dm_test": YES,
                     "hiv_test": YES,
+                    "dm_test": YES,
                     "htn_test": YES,
                 }
                 cleaned_data.update({f"{cond}_test": NOT_APPLICABLE})
