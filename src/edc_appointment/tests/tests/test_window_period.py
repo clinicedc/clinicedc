@@ -25,6 +25,7 @@ from edc_appointment.models import Appointment
 from edc_appointment_app.models import SubjectVisit
 from edc_appointment_app.visit_schedule import visit_schedule3
 
+from ...utils import AppointmentDateWindowPeriodGapError, get_appointment_by_datetime
 from ..helper import Helper
 
 
@@ -360,3 +361,103 @@ class TestAppointmentWindowPeriod(TestCase):
         self.assertIn(
             "Falls outside of the window period", form._errors.get("appt_datetime")[0]
         )
+
+    def test_match_appt_date_to_visit_code(self):
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule3",
+            schedule_name="three_monthly_schedule",
+        )
+        appointments = Appointment.objects.filter(
+            subject_identifier=self.subject_identifier
+        ).order_by("appt_datetime")
+        self.assertEqual(appointments.count(), 5)
+        appointment_1000 = appointments[0]
+
+        suggested_appt_datetime = appointment_1000.appt_datetime + relativedelta(months=3)
+        appointment = get_appointment_by_datetime(
+            suggested_appt_datetime,
+            appointment_1000.subject_identifier,
+            appointment_1000.visit_schedule_name,
+            appointment_1000.schedule_name,
+        )
+        self.assertIsNotNone(appointment)
+        self.assertEqual(appointment.visit_code, "1030")
+
+        suggested_appt_datetime = appointment_1000.appt_datetime + relativedelta(months=6)
+        appointment = get_appointment_by_datetime(
+            suggested_appt_datetime,
+            appointment_1000.subject_identifier,
+            appointment_1000.visit_schedule_name,
+            appointment_1000.schedule_name,
+        )
+        self.assertIsNotNone(appointment)
+        self.assertEqual(appointment.visit_code, "1060")
+
+    def test_match_appt_date_to_visit_code2(self):
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule3",
+            schedule_name="three_monthly_schedule",
+        )
+        appointments = Appointment.objects.filter(
+            subject_identifier=self.subject_identifier
+        ).order_by("appt_datetime")
+        self.assertEqual(appointments.count(), 5)
+        appointment_1000 = appointments[0]
+        appointment_1030 = appointments[1]
+        appointment_1120 = appointments[4]
+
+        suggested_appt_datetime = (
+            appointment_1030.appt_datetime + appointment_1030.visit.rupper
+        )
+        appointment = get_appointment_by_datetime(
+            suggested_appt_datetime,
+            appointment_1000.subject_identifier,
+            appointment_1000.visit_schedule_name,
+            appointment_1000.schedule_name,
+        )
+        self.assertIsNotNone(appointment)
+        self.assertEqual(appointment.visit_code, "1030")
+
+        suggested_appt_datetime = (
+            appointment_1030.appt_datetime
+            + appointment_1030.visit.rupper
+            + relativedelta(days=1)
+        )
+        with self.assertRaises(AppointmentDateWindowPeriodGapError) as cm:
+            get_appointment_by_datetime(
+                suggested_appt_datetime,
+                appointment_1000.subject_identifier,
+                appointment_1000.visit_schedule_name,
+                appointment_1000.schedule_name,
+            )
+        self.assertIn(
+            "Date falls in a `window period gap` between 1030 and 1060", str(cm.exception)
+        )
+
+        suggested_appt_datetime = (
+            appointment_1030.appt_datetime
+            + appointment_1030.visit.rupper
+            + relativedelta(months=2)
+        )
+        appointment = get_appointment_by_datetime(
+            suggested_appt_datetime,
+            appointment_1000.subject_identifier,
+            appointment_1000.visit_schedule_name,
+            appointment_1000.schedule_name,
+        )
+
+        self.assertIsNotNone(appointment)
+        self.assertEqual(appointment.visit_code, "1060")
+
+        suggested_appt_datetime = (
+            appointment_1120.appt_datetime
+            + appointment_1120.visit.rupper
+            + relativedelta(days=1)
+        )
+        appointment = get_appointment_by_datetime(
+            suggested_appt_datetime,
+            appointment_1000.subject_identifier,
+            appointment_1000.visit_schedule_name,
+            appointment_1000.schedule_name,
+        )
+        self.assertIsNone(appointment)
