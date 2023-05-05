@@ -43,8 +43,9 @@ class DiagnosisFormValidatorMixin:
         self, diagnoses=None, prefix=None, field_applicable=None, label=None
     ) -> bool:
         diagnoses = diagnoses or self.get_diagnoses()
+        diagnosed = diagnoses.get_dx(prefix) == YES
         return self.applicable_if_true(
-            diagnoses.get_dx(prefix) != YES,
+            diagnosed,
             field_applicable=field_applicable,
             applicable_msg=(
                 f"Patient was previously diagnosed with {label}. Expected YES or NO."
