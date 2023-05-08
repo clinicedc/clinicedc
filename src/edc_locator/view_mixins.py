@@ -1,5 +1,5 @@
 from django.apps import apps as django_apps
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from edc_action_item.site_action_items import site_action_items
 
 from .action_items import SUBJECT_LOCATOR_ACTION
@@ -53,6 +53,13 @@ class SubjectLocatorViewMixin:
                     action_type__name=SUBJECT_LOCATOR_ACTION,
                 )
             except ObjectDoesNotExist:
+                action_cls(subject_identifier=subject_identifier)
+            except MultipleObjectsReturned:
+                # if condition exists, correct here
+                action_item_model_cls.objects.filter(
+                    subject_identifier=subject_identifier,
+                    action_type__name=SUBJECT_LOCATOR_ACTION,
+                ).delete()
                 action_cls(subject_identifier=subject_identifier)
         return obj
 

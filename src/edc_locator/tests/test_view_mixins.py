@@ -4,8 +4,11 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http.request import HttpRequest
 from django.test import TestCase
 from django.views.generic.base import ContextMixin
+from edc_action_item import site_action_items
+from edc_action_item.models import ActionItem
 from edc_registration.models import RegisteredSubject
 
+from ..action_items import SUBJECT_LOCATOR_ACTION
 from ..view_mixins import SubjectLocatorViewMixin, SubjectLocatorViewMixinError
 
 
@@ -47,7 +50,7 @@ class TestViewMixins(TestCase):
         setattr(mixin.request, "_messages", messages)
         self.assertGreater(len(mixin.request._messages._queued_messages), 0)
 
-    def test_subject_locator_ok(self):
+    def test_subject_locator_view_ok(self):
         class MySubjectLocatorViewMixin(SubjectLocatorViewMixin, ContextMixin):
             subject_locator_model_wrapper_cls = DummyModelWrapper
             subject_locator_model = "edc_locator.subjectlocator"
@@ -63,3 +66,37 @@ class TestViewMixins(TestCase):
             mixin.get_context_data()
         except SubjectLocatorViewMixinError as e:
             self.fail(e)
+
+    def test_subject_locator_self_corrects_if_multiple_actionitems(self):
+        class MySubjectLocatorViewMixin(SubjectLocatorViewMixin, ContextMixin):
+            subject_locator_model_wrapper_cls = DummyModelWrapper
+            subject_locator_model = "edc_locator.subjectlocator"
+
+        mixin = MySubjectLocatorViewMixin()
+        mixin.request = HttpRequest()
+        setattr(mixin.request, "session", "session")
+        messages = FallbackStorage(mixin.request)
+        setattr(mixin.request, "_messages", messages)
+        mixin.kwargs = {"subject_identifier": self.subject_identifier}
+        try:
+            mixin.get_context_data()
+        except SubjectLocatorViewMixinError as e:
+            self.fail(e)
+        action_cls = site_action_items.get(SUBJECT_LOCATOR_ACTION)
+        action_item_model_cls = action_cls.action_item_model_cls()
+        action_cls(subject_identifier=self.subject_identifier)
+        action_item = ActionItem.objects.get(subject_identifier=self.subject_identifier)
+        self.assertEqual(action_item_model_cls.objects.all().count(), 1)
+        action_item.subject_identifier = f"{self.subject_identifier}-bad"
+        action_item.save()
+        self.assertEqual(action_item_model_cls.objects.all().count(), 1)
+        action_cls = site_action_items.get(SUBJECT_LOCATOR_ACTION)
+        action_cls(subject_identifier=self.subject_identifier)
+        action_item.subject_identifier = self.subject_identifier
+        action_item.save()
+        self.assertEqual(action_item_model_cls.objects.all().count(), 2)
+        try:
+            mixin.get_context_data()
+        except SubjectLocatorViewMixinError as e:
+            self.fail(e)
+        self.assertEqual(action_item_model_cls.objects.all().count(), 1)
