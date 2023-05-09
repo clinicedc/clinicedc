@@ -38,7 +38,7 @@
                     <td>{% show_crf_totals wrapped_appointment=wrapped request=request %}</td>
                     <td>
                         <!--begin show missed label or nothing -->
-                        {{ wrapped.object.title }}&nbsp{% if wrapped.object.related_visit.reason == MISSED_VISIT %}<span class="label label-default">MISSED</span>{% endif %}
+                        {{ wrapped.object.title }}{% block show_missed_label %}&nbsp{% if wrapped.object.related_visit.reason == MISSED_VISIT %}<span class="label label-default">MISSED</span>{% endif %}{% endblock show_missed_label %}
                         <!--end show missed label or nothing -->
                     </td>
 
