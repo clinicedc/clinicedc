@@ -4,6 +4,7 @@ from django.urls.conf import path
 from edc_dashboard import url_names
 
 from .views import (
+    RefreshAppointmentsView,
     RefreshMetadataActionsView,
     RequisitionPrintActionsView,
     RequisitionVerifyActionsView,
@@ -28,6 +29,11 @@ urlpatterns = [
         RefreshMetadataActionsView.as_view(),
         name="refresh_metadata_actions_url",
     ),
+    path(
+        "refresh_appointments/<str:visit_schedule>/<str:schedule>/<str:subject_identifier>/",
+        RefreshAppointmentsView.as_view(),
+        name="refresh_appointments_url",
+    ),
 ]
 
 url_names.register(url="requisition_print_actions_url", namespace=app_name)
@@ -36,7 +42,6 @@ url_names.register(url="refresh_metadata_actions_url", namespace=app_name)
 
 
 if settings.APP_NAME == app_name:
-
     from edc_appointment.admin_site import edc_appointment_admin
 
     from edc_subject_dashboard.tests.admin import edc_subject_dashboard_admin

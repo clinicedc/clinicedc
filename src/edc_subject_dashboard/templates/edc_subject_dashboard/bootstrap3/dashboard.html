@@ -23,6 +23,10 @@
                                   <a href="{% url 'edc_subject_dashboard:refresh_metadata_actions_url' related_visit.id %}" data-toggle="tooltip" title="Refresh data collection schedule" role="button" class="btn btn-sm btn-default">
                                     <i class="fas fa-arrows-rotate fa-1x fa-fw" aria-hidden="true"></i>
                                   </a>
+                                {% else %}
+                                  <a href="{% url 'edc_subject_dashboard:refresh_appointments_url' current_visit_schedule current_schedule subject_identifier %}" data-toggle="tooltip" title="Refresh appointments" role="button" class="btn btn-sm btn-default">
+                                    <i class="fas fa-arrows-rotate fa-1x fa-fw" aria-hidden="true"></i>
+                                  </a>
                                 {% endif %}
                                 {% if perms.edc_data_manager.add_dataquery %}
                                   <a href="{% url 'edc_data_manager_admin:edc_data_manager_dataquery_add' %}?registered_subject={{ registered_subject_pk }}&sender={{ request.user.id }}&visit_schedule={{visit_schedule_pk|default:''}}&visit_code_sequence={{ appointment.visit_code_sequence }}"
