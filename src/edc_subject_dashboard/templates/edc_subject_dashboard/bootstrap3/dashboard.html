@@ -32,6 +32,7 @@
                                   <a href="{% url 'edc_data_manager_admin:edc_data_manager_dataquery_add' %}?registered_subject={{ registered_subject_pk }}&sender={{ request.user.id }}&visit_schedule={{visit_schedule_pk|default:''}}&visit_code_sequence={{ appointment.visit_code_sequence }}"
                                     role="button" class="btn btn-sm btn-default" data-toggle="tooltip" title="Add new data query">Query</a>
                                 {% endif %}
+                                {% block top_bar_buttons_extra %}{% endblock top_bar_buttons_extra %}
                                     {% block schedule_button %}
                                         {% if related_visit %}
                                             <a href="{% url subject_dashboard_url|default:'subject_dashboard_url_cannot_be_none' subject_identifier=subject_identifier %}"
