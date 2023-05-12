@@ -17,7 +17,6 @@ class SubjectListboardView(
     SearchFormViewMixin,
     ListboardView,
 ):
-
     listboard_model = get_consent_model_name()
     model_wrapper_cls = SubjectConsentModelWrapper
 
@@ -32,6 +31,7 @@ class SubjectListboardView(
 
     name_search_field: str = "first_name"
     identity_regex: str = r"^[0-9]+$"
+    identity_fields = ["identity"]
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
         options = super().get_queryset_filter_options(request, *args, **kwargs)
@@ -53,5 +53,6 @@ class SubjectListboardView(
             )
             q_objects.append(Q(subject_identifier__icontains=search_term))
         if re.match(self.identity_regex, search_term):
-            q_objects.append(Q(identity__exact=search_term))
+            for field in self.identity_fields:
+                q_objects.append(Q(**{f"{field}__exact": search_term}))
         return q_objects
