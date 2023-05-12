@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 
 from django import forms
@@ -21,11 +23,19 @@ class AlreadyConsentedFormMixin:
                 url_name,
                 kwargs={"subject_identifier": self.instance.subject_identifier},
             )
-            msg = format_html(
-                "Not allowed. Subject has already consented. "
-                'See subject <A href="{}">{}</A>',
-                url,
-                self.instance.subject_identifier,
-            )
-            raise forms.ValidationError(msg)
+            raise forms.ValidationError(self.already_consented_validation_message(url))
         return cleaned_data
+
+    def already_consented_validation_url(self, cleaned_data: dict | None = None) -> str:
+        url_name = url_names.get("subject_dashboard_url")
+        return reverse(
+            url_name,
+            kwargs={"subject_identifier": self.instance.subject_identifier},
+        )
+
+    def already_consented_validation_message(self, cleaned_data: dict | None = None) -> str:
+        return format_html(
+            "Not allowed. Subject has already consented. " 'See subject <A href="{}">{}</A>',
+            self.already_consented_validation_url(cleaned_data),
+            self.instance.subject_identifier,
+        )
