@@ -39,12 +39,15 @@ class UrlMaker:
 
 @register.simple_tag(takes_context=True)
 def age_in_years(context, born):
-    reference_datetime = context.get("reference_datetime") or get_utcnow()
-    try:
-        age_in_years_ = age(born, reference_datetime).years
-    except AgeValueError:
-        age_in_years_ = None
-    return age_in_years_ or born
+    if born:
+        reference_datetime = context.get("reference_datetime") or get_utcnow()
+        try:
+            _age_in_years = age(born, reference_datetime).years
+        except AgeValueError:
+            _age_in_years = None
+    else:
+        _age_in_years = context.get("age_in_years")
+    return _age_in_years or born
 
 
 def page_numbers(page, numpages):
