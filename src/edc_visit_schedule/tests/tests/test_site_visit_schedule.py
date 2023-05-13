@@ -12,7 +12,6 @@ from visit_schedule_app.models import OffSchedule, OnSchedule
 
 class TestSiteVisitSchedule(TestCase):
     def setUp(self):
-
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
@@ -47,7 +46,6 @@ class TestSiteVisitSchedule(TestCase):
 
 class TestSiteVisitSchedule1(TestCase):
     def setUp(self):
-
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",

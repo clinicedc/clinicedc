@@ -204,7 +204,6 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
 )
 class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
     def setUp(self):
-
         v1_consent = Consent(
             "visit_schedule_app.subjectconsent",
             version="1",

@@ -14,7 +14,6 @@ class VisitScheduleManager(models.Manager):
 
 
 class VisitSchedule(VisitScheduleMethodsModelMixin, edc_models.BaseUuidModel):
-
     visit_schedule_name = models.CharField(max_length=150)
 
     schedule_name = models.CharField(max_length=150)

@@ -51,7 +51,6 @@ class SubjectScheduleHistory(
     VisitScheduleFieldsModelMixin,
     BaseUuidModel,
 ):
-
     onschedule_model = models.CharField(max_length=100)
 
     offschedule_model = models.CharField(max_length=100)

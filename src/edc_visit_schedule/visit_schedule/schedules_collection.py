@@ -7,7 +7,6 @@ class SchedulesCollectionError(Exception):
 
 
 class SchedulesCollection(OrderedCollection):
-
     key = "name"
     ordering_attr = "sequence"
 

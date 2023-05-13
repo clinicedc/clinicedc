@@ -10,7 +10,6 @@ from .visit_schedule_non_crf_modelform_mixin import VisitScheduleNonCrfModelForm
 
 
 class OffScheduleModelFormMixin(VisitScheduleNonCrfModelFormMixin):
-
     offschedule_datetime_field_attr = "offschedule_datetime"
 
     def clean(self):

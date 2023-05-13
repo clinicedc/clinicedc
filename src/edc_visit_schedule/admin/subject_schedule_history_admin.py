@@ -13,7 +13,6 @@ from ..models import SubjectScheduleHistory
 
 @admin.register(SubjectScheduleHistory, site=edc_visit_schedule_admin)
 class SubjectScheduleHistoryAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
-
     form = SubjectScheduleHistoryForm
 
     date_hierarchy = "onschedule_datetime"

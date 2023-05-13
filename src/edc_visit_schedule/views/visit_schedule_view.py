@@ -7,7 +7,6 @@ from ..site_visit_schedules import SiteVisitScheduleError, site_visit_schedules
 
 
 class VisitScheduleView(EdcViewMixin, NavbarViewMixin, TemplateView):
-
     template_name = (
         f"edc_visit_schedule/bootstrap{get_bootstrap_version()}/visit_schedule.html"
     )
