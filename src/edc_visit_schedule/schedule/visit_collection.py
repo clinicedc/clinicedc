@@ -10,7 +10,6 @@ class VisitCollectionError(Exception):
 
 
 class VisitCollection(OrderedCollection):
-
     key: str = "code"
     ordering_attr: str = "timepoint"
 

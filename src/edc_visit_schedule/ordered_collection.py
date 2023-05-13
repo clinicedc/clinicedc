@@ -3,7 +3,6 @@ from collections import OrderedDict
 
 
 class OrderedCollection(OrderedDict):
-
     key: str = None  # key name in dictionary key/value pair
     ordering_attr: str = None  # value.attrname to order dictionary on.
 
