@@ -9,14 +9,12 @@ from .eligibility import MyScreeningEligibility
 
 
 class SubjectScreening(ScreeningModelMixin, BaseUuidModel):
-
     thing = models.CharField(max_length=10, null=True)
 
 
 class SubjectScreeningWithEligibility(
     ScreeningModelMixin, EligibilityModelMixin, BaseUuidModel
 ):
-
     eligibility_cls = MyScreeningEligibility
 
     alive = models.CharField(max_length=10, default=YES)
@@ -25,5 +23,4 @@ class SubjectScreeningWithEligibility(
 class SubjectScreeningWithEligibilitySimple(
     ScreeningModelMixin, EligibilityModelMixin, BaseUuidModel
 ):
-
     pass

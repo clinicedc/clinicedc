@@ -22,7 +22,6 @@ class SubjectConsentModelWrapper(BaseModelWrapper):
 class SubjectScreeningModelWrapper(
     SubjectRefusalModelWrapperMixin, ConsentModelWrapperMixin, ModelWrapper
 ):
-
     consent_model_wrapper_cls = SubjectConsentModelWrapper
     refusal_model_wrapper_cls = SubjectRefusalModelWrapper
     model = get_subject_screening_model()

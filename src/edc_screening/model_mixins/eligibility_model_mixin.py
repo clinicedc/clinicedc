@@ -6,7 +6,6 @@ from ..stubs import SubjectScreeningModelStub
 
 
 class EligibilityFieldsModelMixin(models.Model):
-
     eligible = models.BooleanField(default=False)
 
     reasons_ineligible = models.TextField(
@@ -36,7 +35,6 @@ class EligibilityFieldsModelMixin(models.Model):
 
 
 class EligibilityModelMixin(EligibilityFieldsModelMixin, models.Model):
-
     eligibility_cls = ScreeningEligibility
 
     def save(self: SubjectScreeningModelStub, *args, **kwargs):
