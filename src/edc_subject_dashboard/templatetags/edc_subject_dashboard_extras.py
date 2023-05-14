@@ -73,7 +73,6 @@ def forms_button(wrapper=None):
     f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/appointment_in_progress.html"
 )
 def appointment_in_progress(subject_identifier=None, visit_schedule=None, schedule=None):
-
     try:
         appointment = Appointment.objects.get(
             subject_identifier=subject_identifier,
@@ -179,7 +178,6 @@ def show_crf_totals(wrapped_appointment=None, request=None):
     f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/dashboard/visit_button.html"
 )
 def show_dashboard_visit_button(wrapped_appointment=None, request=None):
-
     title = None
     label = None
     btn_class = None

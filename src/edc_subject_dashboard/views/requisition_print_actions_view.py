@@ -16,7 +16,6 @@ from .base_requisition_view import BaseRequisitionView
 
 
 class RequisitionPrintActionsView(BaseRequisitionView):
-
     job_result_cls = JobResult
     requisition_report_cls = RequisitionReport
     requisition_labels_cls = RequisitionLabels

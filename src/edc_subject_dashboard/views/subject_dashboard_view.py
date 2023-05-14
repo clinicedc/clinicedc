@@ -43,7 +43,6 @@ class SubjectDashboardView(
     VerifyRequisitionMixin,
     DashboardView,
 ):
-
     navbar_selected_item = "consented_subject"
 
     dashboard_url_name = "subject_dashboard_url"

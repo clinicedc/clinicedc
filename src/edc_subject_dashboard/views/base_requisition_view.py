@@ -7,7 +7,6 @@ from edc_label.printers_mixin import PrintersMixin
 
 
 class BaseRequisitionView(LoginRequiredMixin, PrintersMixin, View):
-
     success_url_name = "subject_dashboard_url"
 
     def get_success_url(self):
