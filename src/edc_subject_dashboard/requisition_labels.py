@@ -5,7 +5,6 @@ from edc_lab.labels import RequisitionLabel
 
 
 class RequisitionLabels:
-
     label_cls = RequisitionLabel
     label_template_name = "requisition"
 

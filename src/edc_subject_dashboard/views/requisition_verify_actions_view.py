@@ -6,7 +6,6 @@ from .base_requisition_view import BaseRequisitionView
 
 
 class RequisitionVerifyActionsView(BaseRequisitionView):
-
     requisition_verifier_cls = RequisitionVerifier
 
     def post(self, request, *args, **kwargs):
