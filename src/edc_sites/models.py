@@ -11,7 +11,6 @@ class SiteModelError(Exception):
 
 
 class SiteProfile(models.Model):
-
     id = models.BigAutoField(primary_key=True)
 
     country = models.CharField(max_length=250, null=True)

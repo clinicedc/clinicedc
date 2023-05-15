@@ -4,7 +4,6 @@ from django.db import models
 
 
 class CurrentSiteManager(BaseCurrentSiteManager):
-
     use_in_migrations = True
 
     def get_by_natural_key(self, subject_identifier):
@@ -12,7 +11,6 @@ class CurrentSiteManager(BaseCurrentSiteManager):
 
 
 class SiteModelMixin(models.Model):
-
     site = models.ForeignKey(
         Site, on_delete=models.PROTECT, null=True, editable=False, related_name="+"
     )
