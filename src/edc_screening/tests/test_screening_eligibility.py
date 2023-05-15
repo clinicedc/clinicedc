@@ -314,7 +314,6 @@ class TestScreening(TestCase):
         self.assertTrue(eligibility.is_eligible)
 
     def test_eligibility_display_label(self):
-
         required_fields = dict(
             thing_one=FC(YES, "thing one must be YES"),
         )
@@ -340,7 +339,6 @@ class TestScreening(TestCase):
         self.assertEqual(eligibility.display_label, "E")
 
     def test_missing_data(self):
-
         required_fields = dict(
             thing_one=FC(YES, "thing one must be YES"),
             thing_two=FC(ignore_if_missing=True),
@@ -387,7 +385,6 @@ class TestScreening(TestCase):
         self.assertEqual(eligibility.eligible, eligibility.is_ineligible_value)
 
     def test_missing_data_with_custom_missing_value(self):
-
         required_fields = dict(
             thing_one=FC(YES, "thing one must be YES"),
             thing_two=FC(YES, missing_value="NOT_ANSWERED"),

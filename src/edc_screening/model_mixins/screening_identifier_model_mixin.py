@@ -9,7 +9,6 @@ from ..stubs import SubjectScreeningModelStub
 class ScreeningIdentifierModelMixin(
     NonUniqueSubjectIdentifierModelMixin, SearchSlugModelMixin, models.Model
 ):
-
     identifier_cls = ScreeningIdentifier
     screening_identifier_field_name: str = "screening_identifier"
 

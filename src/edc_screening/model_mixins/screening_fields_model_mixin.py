@@ -18,7 +18,6 @@ from edc_utils.date import get_utcnow
 
 
 class ScreeningManager(SearchSlugManager, models.Manager):
-
     use_in_migrations = True
 
     def get_by_natural_key(self, screening_identifier):

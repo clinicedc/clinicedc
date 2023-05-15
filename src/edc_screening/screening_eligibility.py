@@ -43,7 +43,6 @@ class ScreeningEligibility:
         ineligible_display_label: str | None = None,
         update_model: bool | None = None,
     ) -> None:
-
         self.eligible: str = ""
         self.reasons_ineligible: dict[str, str] = {}
         self.model_obj = model_obj

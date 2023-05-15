@@ -31,7 +31,6 @@ class TestScreening(TestCase):
         self.assertEqual(get_subject_screening_model_cls(), SubjectScreening)
 
     def test_format_reasons_ineligible(self):
-
         str_values = ["age_in_years", "on_art"]
         self.assertEqual(format_reasons_ineligible(*str_values), "age_in_years|on_art")
 

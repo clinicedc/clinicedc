@@ -29,7 +29,6 @@ class Eligibility:
         breast_feeding: bool = None,
         **additional_criteria,
     ) -> None:
-
         self.criteria = dict(**additional_criteria)
         if len(self.criteria) == 0:
             raise EligibilityError("No criteria provided.")
