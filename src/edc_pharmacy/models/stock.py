@@ -9,12 +9,10 @@ from .product import Product
 
 
 class Manager(models.Manager):
-
     use_in_migrations = True
 
 
 class Stock(SiteModelMixin, edc_models.BaseUuidModel):
-
     stock_identifier = models.CharField(max_length=36, default=uuid4, unique=True)
 
     product = models.ForeignKey(Product, on_delete=PROTECT)

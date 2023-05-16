@@ -41,7 +41,6 @@ class TestPrescription(TestCase):
         )
 
     def test_build_location(self):
-
         location = Location.objects.create(name="LOCATION_ONE")
         room = Room.objects.create(name="ROOM_ONE", location=location)
         shelf = Shelf.objects.create(name="SHELF_ONE", room=room)

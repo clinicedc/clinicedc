@@ -11,12 +11,10 @@ from .medication_lot import MedicationLot
 
 
 class Manager(models.Manager):
-
     use_in_migrations = True
 
 
 class Product(SiteModelMixin, edc_models.BaseUuidModel):
-
     product_identifier = models.CharField(max_length=36, default=uuid4, unique=True)
 
     name = models.CharField(max_length=250, unique=True, editable=False)

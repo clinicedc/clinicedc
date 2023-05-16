@@ -6,7 +6,6 @@ from edc_utils import get_utcnow
 
 
 class Location(BaseUuidModel):
-
     location_identifier = models.CharField(max_length=36, default=uuid4, unique=True)
 
     location_datetime = models.DateTimeField(default=get_utcnow)

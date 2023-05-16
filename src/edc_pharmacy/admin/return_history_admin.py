@@ -13,7 +13,6 @@ from .model_admin_mixin import ModelAdminMixin
 
 @admin.register(ReturnHistory, site=edc_pharmacy_admin)
 class ReturnHistoryAdmin(ModelAdminMixin, admin.ModelAdmin):
-
     form = ReturnHistoryForm
 
     fieldsets = (

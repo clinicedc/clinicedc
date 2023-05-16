@@ -3,7 +3,6 @@ class PrescriptionApprovalValidatorError(Exception):
 
 
 class ApprovePrescription:
-
     prescription_model = "edc_pharmacy.rx"
 
     def __init__(self, rx_model_obj=None):

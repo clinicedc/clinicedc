@@ -11,7 +11,6 @@ from .model_admin_mixin import ModelAdminMixin
 
 @admin.register(MedicationLot, site=edc_pharmacy_admin)
 class MedicationLotAdmin(ModelAdminMixin, admin.ModelAdmin):
-
     show_object_tools = True
 
     form = MedicationLotForm

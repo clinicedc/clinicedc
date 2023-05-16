@@ -22,7 +22,6 @@ class StudyMedicationCrfModelMixin(PreviousNextModelMixin, StudyMedicationRefill
     """Declare with field subject_visit using a CRF model mixin"""
 
     def save(self, *args, **kwargs):
-
         if not self.formulation:
             raise StudyMedicationError(
                 f"Formulation cannot be None. Perhaps catch this in the form. See {self}."

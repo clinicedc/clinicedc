@@ -9,7 +9,6 @@ from .model_admin_mixin import ModelAdminMixin
 
 @admin.register(StockReceiving, site=edc_pharmacy_admin)
 class StockReceivingAdmin(ModelAdminMixin, admin.ModelAdmin):
-
     show_object_tools = True
 
     form = StockReceivingForm

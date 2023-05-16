@@ -38,7 +38,6 @@ from ..visit_schedule import visit_schedule
 
 @override_settings(SUBJECT_CONSENT_MODEL="edc_pharmacy.subjectconsent")
 class TestMedicationCrf(TestCase):
-
     helper_cls = Helper
 
     @classmethod

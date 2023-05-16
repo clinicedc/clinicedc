@@ -31,7 +31,6 @@ import edc_pharmacy.models.stock_receiving
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [

@@ -3,7 +3,6 @@ from django.db.models import PROTECT
 
 
 class MedicationOrderModelMixin(models.Model):
-
     stock = models.ForeignKey(
         "edc_pharmacy.stock",
         null=True,

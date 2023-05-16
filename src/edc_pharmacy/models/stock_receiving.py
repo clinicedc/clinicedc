@@ -6,12 +6,10 @@ from .product import Product
 
 
 class Manager(models.Manager):
-
     use_in_migrations = True
 
 
 class StockReceiving(edc_models.BaseUuidModel):
-
     product = models.ForeignKey(Product, on_delete=PROTECT)
 
     qty = models.IntegerField()

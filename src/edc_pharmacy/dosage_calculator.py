@@ -13,7 +13,6 @@ class DosageCalculator:
         formulation: Optional[Any] = None,
         weight_in_kgs: Optional[Union[float, Decimal]] = None,
     ) -> None:
-
         self.dosage_guideline = dosage_guideline
         self.formulation = formulation
         if formulation.medication != dosage_guideline.medication:

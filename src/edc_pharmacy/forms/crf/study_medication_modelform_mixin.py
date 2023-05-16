@@ -4,7 +4,6 @@ from ...form_validators import StudyMedicationFormValidator
 
 
 class StudyMedicationModelFormMixin:
-
     form_validator_cls = StudyMedicationFormValidator
 
     def clean(self):

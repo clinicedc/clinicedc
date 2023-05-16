@@ -11,7 +11,6 @@ class ReturnError(Exception):
 
 
 class Manager(models.Manager):
-
     use_in_migrations = True
 
     def get_by_natural_key(self, prescription_item, return_datetime):
@@ -19,7 +18,6 @@ class Manager(models.Manager):
 
 
 class ReturnHistory(edc_models.BaseUuidModel):
-
     rx_refill = models.ForeignKey(RxRefill, on_delete=PROTECT)
 
     return_datetime = models.DateTimeField(default=get_utcnow)

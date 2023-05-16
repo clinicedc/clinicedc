@@ -9,7 +9,6 @@ from .model_admin_mixin import ModelAdminMixin
 
 @admin.register(Product, site=edc_pharmacy_admin)
 class ProductAdmin(ModelAdminMixin, admin.ModelAdmin):
-
     show_object_tools = True
 
     form = ProductForm

@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_pharmacy", "0006_historicalrxrefill_roundup_divisible_by_and_more"),
     ]

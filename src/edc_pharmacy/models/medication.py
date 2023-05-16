@@ -3,7 +3,6 @@ from edc_model import models as edc_models
 
 
 class Manager(models.Manager):
-
     use_in_migrations = True
 
     def get_by_natural_key(self, name):
@@ -11,7 +10,6 @@ class Manager(models.Manager):
 
 
 class Medication(edc_models.BaseUuidModel):
-
     name = models.CharField(max_length=35, unique=True)
 
     display_name = models.CharField(max_length=50, unique=True)
