@@ -6,7 +6,6 @@ from .updater import SearchSlugUpdater
 
 
 class SearchSlugManager(models.Manager):
-
     search_slug_updater_cls = SearchSlugUpdater
     search_slug_field_name = "slug"
 
@@ -20,7 +19,6 @@ class SearchSlugManager(models.Manager):
 
 
 class SearchSlugModelMixin(models.Model):
-
     search_slug_warning = None
     search_slug_updater_cls = SearchSlugUpdater
 

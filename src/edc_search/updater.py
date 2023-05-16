@@ -6,7 +6,6 @@ class SearchSlugDuplicateFields(Exception):
 
 
 class SearchSlugUpdater:
-
     search_slug_cls = SearchSlug
     sep = "|"
 

@@ -6,7 +6,6 @@ from ..model_mixins import SearchSlugManager, SearchSlugModelMixin
 
 
 class Dummy:
-
     attr = "dummy_attr"
 
     def __str__(self):
@@ -14,7 +13,6 @@ class Dummy:
 
 
 class TestModelMixin(SearchSlugModelMixin, models.Model):
-
     f1 = models.CharField(max_length=25, null=True)
 
     f2 = models.DateTimeField(null=True)
@@ -41,12 +39,10 @@ class TestModelMixin(SearchSlugModelMixin, models.Model):
 
 
 class TestModel(TestModelMixin, models.Model):
-
     pass
 
 
 class TestModelExtra(TestModelMixin, models.Model):
-
     f4 = models.CharField(max_length=25, null=True)
 
     def get_search_slug_fields(self):
@@ -56,7 +52,6 @@ class TestModelExtra(TestModelMixin, models.Model):
 
 
 class TestModelDuplicate(TestModelMixin, models.Model):
-
     f4 = models.CharField(max_length=25, null=True)
 
     def get_search_slug_fields(self):
