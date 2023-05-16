@@ -15,7 +15,6 @@ class Ltfu(
     ActionModelMixin,
     edc_models.BaseUuidModel,
 ):
-
     action_name = LTFU_ACTION
 
     class Meta:

@@ -6,7 +6,6 @@ from .forms import LtfuForm
 
 
 class LtfuModelAdminMixin:
-
     form = LtfuForm
 
     fieldsets = (

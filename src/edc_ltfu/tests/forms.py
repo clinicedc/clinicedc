@@ -5,7 +5,6 @@ from edc_visit_tracking.form_validators import VisitMissedFormValidator
 
 
 class SubjectVisitMissedForm(CrfModelFormMixin, ModelForm):
-
     form_validator_cls = VisitMissedFormValidator
 
     def validate_against_consent(self):

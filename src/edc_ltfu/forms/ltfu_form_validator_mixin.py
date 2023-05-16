@@ -8,7 +8,6 @@ from ..utils import get_ltfu_model_name
 
 
 class LtfuFormValidatorMixin(FormValidator):
-
     ltfu_model = get_ltfu_model_name()
     offschedule_reason_field = "offschedule_reason"
 
@@ -17,7 +16,6 @@ class LtfuFormValidatorMixin(FormValidator):
         return django_apps.get_model(self.ltfu_model)
 
     def validate_ltfu(self):
-
         subject_identifier = (
             self.cleaned_data.get("subject_identifier") or self.instance.subject_identifier
         )

@@ -9,7 +9,6 @@ from .choices import LTFU_CHOICES
 
 
 class LtfuModelMixin(models.Model):
-
     report_datetime = models.DateTimeField(
         verbose_name="Report Date and Time",
         default=get_utcnow,

@@ -8,7 +8,6 @@ from .utils import get_ltfu_model_name
 
 
 class LtfuAction(ActionWithNotification):
-
     reference_model = get_ltfu_model_name()
     admin_site_name = "edc_ltfu_admin"
 
