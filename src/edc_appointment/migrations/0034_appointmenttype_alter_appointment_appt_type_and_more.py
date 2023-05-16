@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_appointment", "0033_alter_appointment_appt_reason_and_more"),
     ]

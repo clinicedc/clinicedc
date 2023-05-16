@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_appointment", "0021_auto_20191024_1000"),
     ]

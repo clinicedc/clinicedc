@@ -10,7 +10,6 @@ def close_appointments():
     for obj in Appointment.objects.filter(appt_status=INCOMPLETE_APPT).order_by(
         "subject_identifier", "visit_code", "visit_code_sequence"
     ):
-
         data = obj.__dict__
         data.update(appt_status=COMPLETE_APPT, appt_close_datetime=obj.modified)
         form = AppointmentForm(data=data, instance=obj)

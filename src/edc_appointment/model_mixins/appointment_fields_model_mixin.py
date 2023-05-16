@@ -5,7 +5,6 @@ from ..constants import NEW_APPT, ONTIME_APPT
 
 
 class AppointmentFieldsModelMixin(models.Model):
-
     timepoint = models.DecimalField(
         null=True, decimal_places=1, max_digits=6, help_text="timepoint from schedule"
     )

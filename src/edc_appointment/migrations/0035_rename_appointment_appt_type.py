@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_appointment", "0034_appointmenttype_alter_appointment_appt_type_and_more"),
     ]
