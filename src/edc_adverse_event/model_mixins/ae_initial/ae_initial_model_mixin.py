@@ -28,7 +28,6 @@ class AeInitialModelMixin(
     AeInitialTmgModelMixin,
     models.Model,
 ):
-
     action_name = AE_INITIAL_ACTION
 
     on_site = ActionIdentifierSiteManager()

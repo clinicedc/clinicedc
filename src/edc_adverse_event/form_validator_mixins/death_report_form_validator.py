@@ -21,7 +21,6 @@ class DeathReportFormValidatorMixin:
         return django_apps.get_model("edc_adverse_event.causeofdeath")
 
     def clean(self: Any) -> None:
-
         self.validate_study_day_with_death_report_date()
 
         cause_of_death = self.cause_of_death_model_cls.objects.get(name=OTHER)

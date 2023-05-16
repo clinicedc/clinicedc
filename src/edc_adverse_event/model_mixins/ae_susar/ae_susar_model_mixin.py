@@ -23,7 +23,6 @@ class AeSusarModelMixin(
     ReportStatusModelMixin,
     models.Model,
 ):
-
     action_name = AE_SUSAR_ACTION
 
     on_site = ActionIdentifierSiteManager()

@@ -4,7 +4,6 @@ from edc_constants.choices import YES_NO
 
 
 class AeInitialSaeModelMixin(models.Model):
-
     sae = models.CharField(
         verbose_name="Is this event a SAE?",
         max_length=5,

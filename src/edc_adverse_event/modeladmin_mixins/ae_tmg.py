@@ -21,7 +21,6 @@ class AeTmgModelAdminMixin(
     NonAeInitialModelAdminMixin,
     ActionItemModelAdminMixin,
 ):
-
     form = AeTmgForm
 
     additional_instructions = "For completion by TMG Investigators Only"

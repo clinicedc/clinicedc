@@ -8,7 +8,6 @@ from .ae_modelform_mixin import AeModelFormMixin
 
 
 class AeFollowupModelFormMixin(AeModelFormMixin):
-
     form_validator_cls = AeFollowupFormValidator
 
     def clean(self):

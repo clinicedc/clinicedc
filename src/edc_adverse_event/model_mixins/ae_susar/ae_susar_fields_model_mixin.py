@@ -5,7 +5,6 @@ from edc_utils import get_utcnow
 
 
 class AeSusarFieldsModelMixin(models.Model):
-
     ae_initial = models.ForeignKey(
         f"{settings.ADVERSE_EVENT_APP_LABEL}.aeinitial", on_delete=models.PROTECT
     )

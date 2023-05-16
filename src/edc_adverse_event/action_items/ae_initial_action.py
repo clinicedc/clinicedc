@@ -14,7 +14,6 @@ from ..constants import ADVERSE_EVENT_ADMIN_SITE, ADVERSE_EVENT_APP_LABEL
 
 
 class AeInitialAction(ActionWithNotification):
-
     name = AE_INITIAL_ACTION
     display_name = "Submit AE Initial Report"
     notification_display_name = "AE Initial Report"

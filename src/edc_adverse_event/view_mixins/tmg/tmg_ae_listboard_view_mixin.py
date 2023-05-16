@@ -20,7 +20,6 @@ class TmgAeListboardViewMixin(
     SearchFormViewMixin,
     BaseListboardView,
 ):
-
     listboard_back_url = "tmg_home_url"
 
     ae_tmg_model = f"{settings.ADVERSE_EVENT_APP_LABEL}.aetmg"
@@ -99,7 +98,6 @@ class TmgAeListboardViewMixin(
 
 
 class StatusTmgAeListboardView(TmgAeListboardViewMixin):
-
     status = None
 
     def get_context_data(self, **kwargs):

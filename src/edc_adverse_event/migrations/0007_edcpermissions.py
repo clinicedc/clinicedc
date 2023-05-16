@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_auth", "0026_rename_permissions_edcpermissions"),
         ("edc_adverse_event", "0006_auto_20210425_1628"),
