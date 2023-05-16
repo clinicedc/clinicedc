@@ -7,7 +7,6 @@ from edc_crf.fieldset import crf_status_fieldset
 
 
 class EgfrDropNotificationAdminMixin:
-
     radio_fields = {
         "report_status": admin.VERTICAL,
         "creatinine_units": admin.VERTICAL,
