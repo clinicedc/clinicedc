@@ -6,7 +6,6 @@ from edc_model.validators import cell_number, telephone_number
 
 
 class SubjectContactFieldsMixin(models.Model):
-
     may_call = models.CharField(
         max_length=25,
         choices=YES_NO,

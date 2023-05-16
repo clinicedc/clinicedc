@@ -15,7 +15,6 @@ from .models import SubjectLocator
 
 @admin.register(SubjectLocator, site=edc_locator_admin)
 class SubjectLocatorAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
-
     form = SubjectLocatorForm
 
     fieldsets = (

@@ -8,7 +8,6 @@ import edc_locator.model_mixins.locator_model_mixin
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_action_item", "0011_auto_20181009_2236"),
         ("edc_locator", "0010_auto_20180809_0301"),

@@ -3,7 +3,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_action_item", "0010_auto_20181009_0445"),
         ("edc_locator", "0011_auto_20181007_0053"),

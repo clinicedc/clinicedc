@@ -6,7 +6,6 @@ from edc_model.validators import cell_number, telephone_number
 
 
 class SubjectIndirectContactFieldsMixin(models.Model):
-
     may_contact_indirectly = models.CharField(
         max_length=25,
         choices=YES_NO,

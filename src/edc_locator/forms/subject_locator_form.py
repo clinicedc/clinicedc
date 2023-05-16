@@ -7,7 +7,6 @@ from .subject_locator_form_validator import SubjectLocatorFormValidator
 
 
 class SubjectLocatorForm(FormValidatorMixin, ActionItemFormMixin, forms.ModelForm):
-
     form_validator_cls = SubjectLocatorFormValidator
 
     subject_identifier = forms.CharField(
