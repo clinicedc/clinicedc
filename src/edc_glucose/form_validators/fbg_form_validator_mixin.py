@@ -11,9 +11,9 @@ class FbgFormValidatorMixin:
             :param fbg_prefix: e.g. fbg, fbg2, etc
         """
 
-        self.invalid_if_before_report_datetime(
-            f"{fbg_prefix}_datetime",
-            report_datetime_field=self.report_datetime_field_attr,
+        self.date_is_after_or_raise(
+            field=f"{fbg_prefix}_datetime",
+            reference_field=self.report_datetime_field_attr,
         )
         self.required_if_true(
             self.cleaned_data.get(f"{fbg_prefix}_datetime"),
