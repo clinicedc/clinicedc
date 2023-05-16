@@ -6,7 +6,6 @@ from edc_constants.constants import COMPLETE
 
 
 class DocumentStatusModelMixin(models.Model):
-
     document_status = models.CharField(
         verbose_name="Document status",
         max_length=25,
