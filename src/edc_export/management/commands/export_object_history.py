@@ -6,11 +6,9 @@ from ...model_exporter import ModelExporter
 
 
 class Command(BaseCommand):
-
     help = "Export model objects history for a given app_label.modelname."
 
     def add_arguments(self, parser):
-
         parser.add_argument(
             "--models",
             dest="models",

@@ -8,7 +8,6 @@ from ..model_options import ModelOptions
 
 
 class DataRequest(BaseUuidModel):
-
     name = models.CharField(max_length=25)
 
     description = models.TextField(null=True)

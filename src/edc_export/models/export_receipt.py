@@ -8,7 +8,6 @@ class ExportReceiptManager(models.Manager):
 
 
 class ExportReceipt(BaseUuidModel):
-
     export_uuid = models.UUIDField(
         editable=False, help_text="system field for export tracking."
     )

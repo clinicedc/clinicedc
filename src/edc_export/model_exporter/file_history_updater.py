@@ -5,7 +5,6 @@ from edc_utils import get_utcnow
 
 
 class FileHistoryUpdater:
-
     file_history_model = "edc_export.filehistory"
 
     def __init__(

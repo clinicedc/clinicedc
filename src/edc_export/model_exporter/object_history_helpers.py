@@ -12,7 +12,6 @@ class ObjectHistoryUpdaterError(Exception):
 
 
 class Base:
-
     history_model = "edc_export.objecthistory"
 
     @property
@@ -65,7 +64,6 @@ class ObjectHistoryCreator(Base):
 
 
 class ObjectHistoryGetter(Base):
-
     object_creator = ObjectHistoryCreator()
 
     def get_not_exported(self, model_obj=None, create=None):
@@ -101,7 +99,6 @@ class ObjectHistoryUpdater(Base):
 
 
 class ObjectHistoryHelper:
-
     obj_getter = ObjectHistoryGetter()
     obj_updater = ObjectHistoryUpdater()
 

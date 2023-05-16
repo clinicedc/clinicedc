@@ -16,7 +16,6 @@ class PlanManager(models.Manager):
 
 
 class Plan(BaseUuidModel):
-
     name = models.CharField(max_length=25, unique=True)
 
     model = models.CharField(max_length=50)

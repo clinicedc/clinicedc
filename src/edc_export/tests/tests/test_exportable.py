@@ -23,7 +23,6 @@ class TestExportable(TestCase):
         self.user = user
 
     def test_model_options(self):
-
         model_opts = ModelOptions(model="edc_registration.registeredsubject")
         self.assertTrue(model_opts.label_lower)
         self.assertTrue(model_opts.verbose_name)

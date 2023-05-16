@@ -34,7 +34,6 @@ class AppConfig(DjangoApponfig):
 
 
 if settings.APP_NAME == "edc_export":
-
     from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE
     from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
 

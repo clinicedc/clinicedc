@@ -4,7 +4,6 @@ from .model_exporter import ObjectHistoryCreator
 
 
 class ExportHistoryManager(models.Manager):
-
     obj_creator = ObjectHistoryCreator()
 
     def serialize_to_exported_object_history(

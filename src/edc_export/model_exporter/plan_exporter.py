@@ -4,7 +4,6 @@ from .model_exporter import ModelExporter
 
 
 class PlanExporter:
-
     notification_cls = None
     model_exporter_cls = ModelExporter
     plan_model = "edc_export.plan"

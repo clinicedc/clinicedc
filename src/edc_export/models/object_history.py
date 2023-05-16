@@ -14,7 +14,6 @@ class ObjectHistoryManager(models.Manager):
 
 
 class ObjectHistory(ExportTrackingFieldsModelMixin, BaseUuidModel):
-
     model = models.CharField(max_length=64)
 
     tx_pk = models.UUIDField()

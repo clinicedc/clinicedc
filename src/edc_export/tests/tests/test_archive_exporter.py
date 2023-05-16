@@ -14,14 +14,12 @@ from edc_export.archive_exporter import ArchiveExporter, ArchiveExporterNothingE
 @override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp())
 class TestArchiveExporter(TestCase):
     def setUp(self):
-
         self.user = User.objects.create(username="erikvw")
         Site.objects.get_current()
         RegisteredSubject.objects.create(subject_identifier="12345")
         self.models = ["auth.user", "edc_registration.registeredsubject"]
 
     def test_request_archive(self):
-
         exporter = ArchiveExporter(models=self.models, user=self.user, archive=True)
         folder = mkdtemp()
         shutil.unpack_archive(exporter.archive_filename, folder, "zip")
@@ -29,7 +27,6 @@ class TestArchiveExporter(TestCase):
         self.assertGreater(len([f for f in filenames]), 0)
 
     def test_request_archive_filename_exists(self):
-
         exporter = ArchiveExporter(models=self.models, user=self.user, archive=True)
         filename = exporter.archive_filename
         self.assertIsNotNone(filename)

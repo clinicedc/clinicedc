@@ -31,7 +31,6 @@ class ExportModelsViewError(Exception):
 
 
 class ExportSelectedModelsView(EdcViewMixin, TemplateView):
-
     post_action_url = "edc_export:export_models_url"
     template_name = f"edc_export/bootstrap{get_bootstrap_version()}/export_models.html"
 

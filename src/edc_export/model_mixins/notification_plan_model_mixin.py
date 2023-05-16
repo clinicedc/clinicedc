@@ -2,7 +2,6 @@ from django.db import models
 
 
 class NotificationPlanMixin(models.Model):
-
     name = models.CharField(max_length=50, unique=True)
 
     friendly_name = models.CharField(max_length=50)

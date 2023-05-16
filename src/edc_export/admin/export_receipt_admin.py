@@ -6,7 +6,6 @@ from ..models import ExportReceipt
 
 @admin.register(ExportReceipt, site=edc_export_admin)
 class ExportReceiptAdmin(admin.ModelAdmin):
-
     date_hierarchy = "received_datetime"
     list_display = ("export_uuid", "model", "timestamp", "received_datetime")
     list_filter = ("model", "received_datetime", "created", "modified")

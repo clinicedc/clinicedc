@@ -6,7 +6,6 @@ from ..models import DataRequestHistory
 
 @admin.register(DataRequestHistory, site=edc_export_admin)
 class DataRequestHistoryAdmin(admin.ModelAdmin):
-
     date_hierarchy = "exported_datetime"
 
     fields = (
@@ -40,7 +39,6 @@ class DataRequestHistoryAdmin(admin.ModelAdmin):
 
 
 class DataRequestHistoryInline(admin.TabularInline):
-
     model = DataRequestHistory
 
     fields = ("archive_filename", "emailed_to", "emailed_datetime", "exported_datetime")

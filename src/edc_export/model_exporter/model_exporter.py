@@ -33,7 +33,6 @@ class AdditionalValues:
 
 
 class ModelExporter(object):
-
     delimiter = "|"
     file_history_updater_cls = FileHistoryUpdater
     object_history_helper_cls = ObjectHistoryHelper
