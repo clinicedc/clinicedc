@@ -7,7 +7,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("edc_registration", "0016_historicalregisteredsubject")]
 
     operations = [

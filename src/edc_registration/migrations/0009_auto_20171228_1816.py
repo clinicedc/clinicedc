@@ -7,7 +7,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("sites", "0002_alter_domain_unique"),
         ("edc_registration", "0008_auto_20170810_1032"),

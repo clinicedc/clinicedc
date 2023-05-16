@@ -6,7 +6,6 @@ from .utils import get_registered_subject_model_cls
 
 
 class ModelFormSubjectIdentifierMixin(SiteModelFormMixin):
-
     subject_identifier = forms.CharField(
         label="Subject Identifier",
         required=False,

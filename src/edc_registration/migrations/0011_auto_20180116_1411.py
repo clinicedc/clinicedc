@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("edc_registration", "0010_registeredsubject_consent_datetime")]
 
     operations = [

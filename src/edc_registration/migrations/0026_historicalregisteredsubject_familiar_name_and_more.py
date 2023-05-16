@@ -5,7 +5,6 @@ import django_crypto_fields.fields.lastname_field
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_registration", "0025_auto_20220914_0038"),
     ]

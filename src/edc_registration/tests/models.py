@@ -7,7 +7,6 @@ from ..model_mixins import UpdatesOrCreatesRegistrationModelMixin
 
 
 class SubjectModelOne(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
-
     screening_identifier = models.CharField(max_length=25, null=True)
 
     registration_identifier = models.UUIDField(unique=True, default=uuid.uuid4)
