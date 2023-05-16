@@ -13,10 +13,15 @@ from edc_reportable import (
 from .constants import (
     AE_WITHDRAWN,
     CONTINUING_UPDATE,
+    DEFINITELY_RELATED,
     NOT_RECOVERED,
+    NOT_RELATED,
+    POSSIBLY_RELATED,
+    PROBABLY_RELATED,
     RECOVERED,
     RECOVERED_WITH_SEQUELAE,
     RECOVERING,
+    UNLIKELY_RELATED,
 )
 
 AE_INTENSITY = ((MILD, "Mild"), (MODERATE, "Moderate"), (SEVERE, "Severe"))
@@ -92,10 +97,10 @@ SAE_REASONS = (
 )
 
 STUDY_DRUG_RELATIONSHIP = (
-    ("not_related", "Not related"),
-    ("unlikely_related", "Unlikely related"),
-    ("possibly_related", "Possibly related"),
-    ("probably_related", "Probably related"),
-    ("definitely_related", "Definitely related"),
+    (NOT_RELATED, "Not related"),
+    (UNLIKELY_RELATED, "Unlikely related"),
+    (POSSIBLY_RELATED, "Possibly related"),
+    (PROBABLY_RELATED, "Probably related"),
+    (DEFINITELY_RELATED, "Definitely related"),
     (NOT_APPLICABLE, "Not applicable"),
 )
