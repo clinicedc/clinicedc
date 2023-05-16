@@ -9,7 +9,6 @@ class SubjectTransfer(
     SubjectTransferModelMixin,
     edc_models.BaseUuidModel,
 ):
-
     on_site = CurrentSiteManager()
 
     class Meta(SubjectTransferModelMixin.Meta, edc_models.BaseUuidModel.Meta):

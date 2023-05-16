@@ -12,5 +12,4 @@ from .models import SubjectTransfer
 class SubjectTransferAdmin(
     SubjectTransferModelAdminMixin, ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin
 ):
-
     form = SubjectTransferForm

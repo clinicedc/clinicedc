@@ -6,7 +6,6 @@ from .constants import SUBJECT_TRANSFER_ACTION
 
 
 class SubjectTransferAction(ActionWithNotification):
-
     reference_model = None  # "inte_prn.subjecttransfer"
     admin_site_name = None  # "inte_prn_admin"
 

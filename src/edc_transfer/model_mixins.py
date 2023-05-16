@@ -18,7 +18,6 @@ class SubjectTransferModelMixin(
     UniqueSubjectIdentifierFieldMixin,
     models.Model,
 ):
-
     action_name = SUBJECT_TRANSFER_ACTION
 
     report_datetime = models.DateTimeField(

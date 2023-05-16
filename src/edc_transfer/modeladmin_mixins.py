@@ -6,7 +6,6 @@ from edc_action_item import action_fieldset_tuple
 
 
 class SubjectTransferModelAdminMixin:
-
     form = None
 
     fieldsets = (

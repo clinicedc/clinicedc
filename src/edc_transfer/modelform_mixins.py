@@ -4,7 +4,6 @@ from edc_adverse_event import get_ae_model
 
 
 class SubjectTransferModelFormMixin:
-
     # verify transfer date is not on or after death
     def validate_death_date(self):
         if self.death_report.death_date <= self.cleaned_data.get("transfer_date"):

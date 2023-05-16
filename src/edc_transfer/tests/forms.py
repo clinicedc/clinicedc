@@ -12,7 +12,6 @@ class SubjectTransferForm(
     FormValidatorMixin,
     forms.ModelForm,
 ):
-
     form_validator_cls = SubjectTransferFormValidator
 
     subject_identifier = forms.CharField(

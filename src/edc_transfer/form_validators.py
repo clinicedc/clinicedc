@@ -14,7 +14,6 @@ class SubjectTransferFormValidator(PrnFormValidatorMixin, FormValidator):
     """For use with the SubjectTransferForm"""
 
     def clean(self):
-
         # verify on study
 
         self.validate_other_specify("initiated_by", other_specify_field="initiated_by_other")
