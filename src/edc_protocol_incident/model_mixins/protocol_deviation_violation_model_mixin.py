@@ -10,7 +10,6 @@ from ..models import ActionsRequired, ProtocolViolations
 
 
 class ProtocolDeviationViolationModelMixin(models.Model):
-
     report_datetime = models.DateTimeField(
         verbose_name="Report Date and Time", default=get_utcnow
     )

@@ -9,5 +9,4 @@ from ..models import ProtocolIncident
 
 @admin.register(ProtocolIncident, site=edc_protocol_incident_admin)
 class ProtocolIncidentAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
-
     form = ProtocolIncidentForm

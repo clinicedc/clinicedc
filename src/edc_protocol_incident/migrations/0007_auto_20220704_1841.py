@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_protocol_incident", "0006_protocolincidents_and_more"),
     ]

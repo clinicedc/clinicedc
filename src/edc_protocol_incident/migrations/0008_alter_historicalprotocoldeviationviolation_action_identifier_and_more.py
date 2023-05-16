@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_protocol_incident", "0007_auto_20220704_1841"),
     ]

@@ -9,7 +9,6 @@ from edc_protocol_incident.constants import WITHDRAWN
 
 
 class ProtocolIncidentModelAdminMixin:
-
     fieldsets = (
         (
             None,

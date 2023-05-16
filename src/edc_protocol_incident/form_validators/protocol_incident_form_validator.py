@@ -10,7 +10,6 @@ class ProtocolIncidentFormValidator(
     IncidentFormvalidatorMixin, PrnFormValidatorMixin, FormValidator
 ):
     def clean(self):
-
         self.required_if(YES, field="safety_impact", field_required="safety_impact_details")
 
         self.required_if(

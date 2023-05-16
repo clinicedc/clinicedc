@@ -9,7 +9,6 @@ from .constants import (
 
 
 class ProtocolDeviationViolationAction(ActionWithNotification):
-
     reference_model = None  # "my_app.protocolincident"
     admin_site_name = None  # "my_app_admin"
 
@@ -26,7 +25,6 @@ class ProtocolDeviationViolationAction(ActionWithNotification):
 
 
 class ProtocolIncidentAction(ActionWithNotification):
-
     reference_model = None  # "my_app.protocolincident"
     admin_site_name = None  # "my_app"
 
