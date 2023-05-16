@@ -10,7 +10,6 @@ style = color_style()
 
 
 class AppConfig(DjangoAppConfig):
-
     device_cls = Device
 
     def __init__(self, app_name, app_module):
@@ -31,7 +30,6 @@ class AppConfig(DjangoAppConfig):
     node_server_id_list = ["98"]
 
     def ready(self):
-
         from .signals import check_device_on_pre_save  # noqa
 
         device = Device(
