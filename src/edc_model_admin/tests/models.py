@@ -24,7 +24,6 @@ from edc_visit_tracking.model_mixins import VisitModelMixin, VisitTrackingCrfMod
 
 
 class BasicModel(SiteModelMixin, BaseUuidModel):
-
     f1 = models.CharField(max_length=10)
     f2 = models.CharField(max_length=10)
     f3 = models.CharField(max_length=10, null=True, blank=False)
@@ -35,17 +34,14 @@ class BasicModel(SiteModelMixin, BaseUuidModel):
 
 
 class OnSchedule(SiteModelMixin, OnScheduleModelMixin, BaseUuidModel):
-
     pass
 
 
 class OffSchedule(SiteModelMixin, OffScheduleModelMixin, BaseUuidModel):
-
     pass
 
 
 class DeathReport(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidModel):
-
     objects = SubjectIdentifierManager()
 
     def natural_key(self):
@@ -64,7 +60,6 @@ class SubjectConsent(
     VisitScheduleMethodsModelMixin,
     BaseUuidModel,
 ):
-
     objects = SubjectIdentifierManager()
 
     def natural_key(self):
@@ -82,7 +77,6 @@ class Requisition(RequisitionModelMixin, BaseUuidModel):
 
 
 class BaseCrfModel(VisitTrackingCrfModelMixin, SiteModelMixin, models.Model):
-
     f1 = models.CharField(max_length=50, default=uuid.uuid4)
 
     class Meta:
@@ -118,10 +112,8 @@ class CrfSeven(BaseCrfModel, BaseUuidModel):
 
 
 class RedirectModel(BaseUuidModel):
-
     subject_identifier = models.CharField(max_length=25)
 
 
 class RedirectNextModel(BaseUuidModel):
-
     subject_identifier = models.CharField(max_length=25)

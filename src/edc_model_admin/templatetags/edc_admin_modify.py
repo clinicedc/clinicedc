@@ -78,7 +78,6 @@ def get_cancel_url(context, cancel_attr=None):
 
 @register.inclusion_tag("edc_submit_line.html", takes_context=True)
 def edc_submit_row(context):
-
     request = get_request_object(context)
     if request:
         if int(request.site.id) == int(context.get("reviewer_site_id", 0)):
@@ -102,7 +101,6 @@ def logout_row(context):
 
 @register.inclusion_tag("edc_revision_line.html", takes_context=True)
 def revision_row(context):
-
     return dict(
         copyright=context.get("copyright") or Protocol().copyright,
         institution=context.get("institution") or Protocol().institution,

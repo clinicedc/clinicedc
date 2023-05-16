@@ -3,7 +3,6 @@ from django.utils.html import format_html
 
 
 class ModelAdminChangelistButtonMixin:
-
     changelist_model_button_template = (
         '<a href="{{url}}" class="button" title="{{title}}" {{disabled}}>{label}</a>'
     )

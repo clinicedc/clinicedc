@@ -32,7 +32,6 @@ class ModelAdminSubjectDashboardMixin(
     ModelAdminReplaceLabelTextMixin,
     ModelAdminAuditFieldsMixin,
 ):
-
     date_hierarchy = "modified"
     empty_value_display = "-"
     list_per_page = 10

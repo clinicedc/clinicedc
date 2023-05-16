@@ -12,7 +12,6 @@ class ModelAdminCrfDashboardMixin(
     ModelAdminSubjectDashboardMixin,
     CrfModelAdminMixin,
 ):
-
     show_save_next = True
     show_cancel = True
     show_dashboard_in_list_display_pos = 1

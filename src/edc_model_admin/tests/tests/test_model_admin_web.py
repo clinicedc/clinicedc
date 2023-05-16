@@ -285,7 +285,6 @@ class ModelAdminSiteTest(WebTest):
         self.assertIn(self.subject_identifier, response)
 
     def test_redirect_on_delete_with_url_name_from_settings(self):
-
         self.login()
 
         self.app.get(

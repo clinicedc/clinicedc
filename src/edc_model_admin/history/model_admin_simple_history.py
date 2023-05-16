@@ -7,7 +7,6 @@ from simple_history.admin import SimpleHistoryAdmin as BaseSimpleHistoryAdmin
 
 
 class SimpleHistoryAdmin(BaseSimpleHistoryAdmin):
-
     history_list_display: Tuple[str, ...] = ("dashboard", "change_message")
     object_history_template = "edc_model_admin/admin/object_history.html"
     object_history_form_template = "edc_model_admin/admin/object_history_form.html"

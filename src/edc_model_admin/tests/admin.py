@@ -35,7 +35,6 @@ from ..dashboard import ModelAdminCrfDashboardMixin
 
 
 class BaseModelAdmin(TemplatesModelAdminMixin):
-
     search_fields = ("subject_identifier",)
 
 
@@ -74,7 +73,6 @@ class RequisitionAdmin(BaseModelAdmin, ModelAdminNextUrlRedirectMixin, admin.Mod
 
 @admin.register(CrfFour)
 class CrfFourAdmin(BaseModelAdmin, ModelAdminRedirectOnDeleteMixin, admin.ModelAdmin):
-
     post_url_on_delete_name = "dashboard_url"
 
     def post_url_on_delete_kwargs(self, request, obj):
@@ -83,7 +81,6 @@ class CrfFourAdmin(BaseModelAdmin, ModelAdminRedirectOnDeleteMixin, admin.ModelA
 
 @admin.register(CrfFive)
 class CrfFiveAdmin(BaseModelAdmin, ModelAdminRedirectOnDeleteMixin, admin.ModelAdmin):
-
     post_url_on_delete_name = "dashboard2_url"
 
     def post_url_on_delete_kwargs(self, request, obj):
@@ -92,7 +89,6 @@ class CrfFiveAdmin(BaseModelAdmin, ModelAdminRedirectOnDeleteMixin, admin.ModelA
 
 @admin.register(CrfSix)
 class CrfSixAdmin(BaseModelAdmin, ModelAdminRedirectOnDeleteMixin, admin.ModelAdmin):
-
     post_url_on_delete_name = None
 
     def post_url_on_delete_kwargs(self, request, obj):
@@ -107,7 +103,6 @@ class CrfSevenForm(CrfModelFormMixin, forms.ModelForm):
 
 @admin.register(CrfSeven)
 class CrfSevenAdmin(ModelAdminCrfDashboardMixin, admin.ModelAdmin):
-
     show_save_next = True
     show_cancel = False
 

@@ -5,7 +5,6 @@ from django.urls.exceptions import NoReverseMatch
 
 
 def get_next_url(request, next_attr=None, warn_to_console=None):
-
     url = None
     next_value = request.GET.dict().get(next_attr or "next")
     warn_to_console = True if warn_to_console is None else warn_to_console
