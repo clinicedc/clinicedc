@@ -4,7 +4,6 @@ from ..filters import ListboardViewFilters
 
 
 class ListboardFilterViewMixin:
-
     listboard_view_filters = ListboardViewFilters()
     listboard_filter_url = None
 

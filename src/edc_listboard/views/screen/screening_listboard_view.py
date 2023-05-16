@@ -20,7 +20,6 @@ class ScreeningListboardView(
     SearchFormViewMixin,
     ListboardView,
 ):
-
     listboard_model = get_subject_screening_model()
     model_wrapper_cls = SubjectScreeningModelWrapper
     listboard_view_filters = ScreeningListboardViewFilters()

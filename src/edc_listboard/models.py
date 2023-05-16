@@ -3,7 +3,6 @@ from edc_model.models import BaseUuidModel
 
 
 class Listboard(BaseUuidModel):
-
     # see edc_auth for permissions attached to this model
     # create_edc_listboard_permissions
 

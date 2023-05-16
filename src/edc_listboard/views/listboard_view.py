@@ -21,7 +21,6 @@ class ListboardViewError(Exception):
 
 
 class BaseListboardView(TemplateRequestContextMixin, ListView):
-
     cleaned_search_term: str | None = None
     context_object_name: str = "results"
     empty_queryset_message: str = _("Nothing to display.")

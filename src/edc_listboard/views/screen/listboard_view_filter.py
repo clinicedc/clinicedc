@@ -3,7 +3,6 @@ from ...filters import ListboardViewFilters as Base
 
 
 class ScreeningListboardViewFilters(Base):
-
     all = ListboardFilter(name="all", label="All", lookup={})
 
     eligible = ListboardFilter(label="Eligible", position=10, lookup={"eligible": True})

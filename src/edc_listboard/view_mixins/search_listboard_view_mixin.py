@@ -4,7 +4,6 @@ from django.utils.text import slugify
 
 
 class SearchListboardMixin:
-
     search_fields = ["slug"]
 
     default_querystring_attrs = "q"

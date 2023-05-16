@@ -8,7 +8,6 @@ class SearchFormViewError(Exception):
 
 
 class SearchFormViewMixin:
-
     search_form_url = None
 
     def get_context_data(self, **kwargs):
