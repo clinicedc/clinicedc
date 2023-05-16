@@ -25,7 +25,6 @@ class AppConfig(DjangoAppConfig):
 
 
 if "edc_registration" in settings.APP_NAME:
-
     from edc_protocol.apps import AppConfig as BaseEdcProtocolAppConfig
 
     class EdcProtocolAppConfig(BaseEdcProtocolAppConfig):

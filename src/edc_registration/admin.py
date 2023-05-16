@@ -12,7 +12,6 @@ from .utils import get_registered_subject_model_cls
 class RegisteredSubjectAdmin(
     DataManagerModelAdminMixin, RegisteredSubjectModelAdminMixin, SimpleHistoryAdmin
 ):
-
     ordering = ("subject_identifier",)
 
     fieldsets = (

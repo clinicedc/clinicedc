@@ -7,7 +7,6 @@ import edc_registration.models.managers
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("edc_registration", "0014_auto_20180814_2017")]
 
     operations = [

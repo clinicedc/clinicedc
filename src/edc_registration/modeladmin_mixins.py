@@ -7,7 +7,6 @@ from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
 
 class RegisteredSubjectModelAdminMixin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
-
     ordering = ("registration_datetime",)
 
     date_hierarchy = "registration_datetime"
