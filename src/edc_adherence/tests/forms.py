@@ -14,7 +14,6 @@ class MedicationAdherenceFormValidator(MedicationAdherenceFormValidatorMixin, Fo
 class MedicationAdherenceForm(
     MedicationAdherenceFormMixin, FormValidatorMixin, forms.ModelForm
 ):
-
     form_validator_cls = MedicationAdherenceFormValidator
 
     class Meta:

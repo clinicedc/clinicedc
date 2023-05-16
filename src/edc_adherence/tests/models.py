@@ -66,7 +66,6 @@ class SubjectVisit(
     SiteModelMixin,
     BaseUuidModel,
 ):
-
     appointment = models.OneToOneField(
         Appointment, on_delete=PROTECT, related_name="edc_adherence_appointment"
     )
@@ -87,7 +86,6 @@ class SubjectVisitMissed(
     CrfWithActionModelMixin,
     BaseUuidModel,
 ):
-
     missed_reasons = models.ManyToManyField(
         SubjectVisitMissedReasons, blank=True, related_name="+"
     )

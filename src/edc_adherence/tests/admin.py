@@ -10,7 +10,6 @@ from .models import MedicationAdherence
 
 
 class CrfModelAdmin(ModelAdminCrfDashboardMixin, SimpleHistoryAdmin):
-
     pass
 
 
@@ -23,5 +22,4 @@ my_admin_site = AdminSite(name="my_admin_site")
 
 @admin.register(MedicationAdherence)
 class MedicationAdherenceAdmin(MedicationAdherenceAdminMixin, CrfModelAdmin):
-
     form = MedicationAdherenceForm

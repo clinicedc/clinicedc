@@ -10,7 +10,6 @@ from .choices import MISSED_PILLS
 
 
 class MedicationAdherenceModelMixin(models.Model):
-
     visual_score_slider = models.CharField(
         verbose_name="Visual score", max_length=3, help_text="%"
     )
