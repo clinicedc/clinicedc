@@ -5,7 +5,6 @@ from reportlab.pdfgen import canvas
 
 
 class NumberedCanvas(canvas.Canvas):
-
     static_footer_text = None
 
     def __init__(self, *args, **kwargs):
