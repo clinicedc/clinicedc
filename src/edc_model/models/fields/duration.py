@@ -6,7 +6,6 @@ from ...validators import dh_validator, ymd_validator
 
 
 class DurationDHField(models.CharField):
-
     description = "Duration in d/h"
 
     def __init__(self, *args, **kwargs) -> None:
@@ -29,7 +28,6 @@ class DurationDHField(models.CharField):
 
 
 class DurationYMDField(models.CharField):
-
     description = "Duration in y/m"
 
     def __init__(self, *args, **kwargs) -> None:

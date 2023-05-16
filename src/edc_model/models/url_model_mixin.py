@@ -10,7 +10,6 @@ class UrlModelMixinNoReverseMatch(Exception):
 
 
 class UrlModelMixin(models.Model):
-
     ADMIN_SITE_NAME = None  # default is '{app_label}_admin'
 
     def get_absolute_url(self) -> str:

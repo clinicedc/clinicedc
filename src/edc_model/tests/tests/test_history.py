@@ -40,7 +40,6 @@ class TestHistory(TestCase):
             self.fail("'get_by_natural_key' unexpectedly does not exist")
 
     def test_history_is_serializable_deserializable(self):
-
         model_obj = ModelWithHistory.objects.create()
 
         json_text = serializers.serialize(
@@ -70,7 +69,6 @@ class TestHistory(TestCase):
         self.assertEqual(model_obj.history.all().count(), 1)
 
     def test_history_is_serializable_deserializable_using(self):
-
         model_obj = ModelWithHistory.objects.using("client").create()
 
         self.assertEqual(model_obj.history.using("client").all().count(), 1)

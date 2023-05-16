@@ -5,7 +5,6 @@ from django.utils.translation import gettext as _
 
 
 class HostnameModificationField(CharField):
-
     description = _("Custom field for hostname modified")
 
     def __init__(self, *args, **kwargs):

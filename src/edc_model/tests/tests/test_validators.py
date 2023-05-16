@@ -30,7 +30,6 @@ class PhoneForm(forms.ModelForm):
 
 class TestValidators(TestCase):
     def test_date_validators(self):
-
         future_datetime = get_utcnow() + relativedelta(days=10)
         form = DateForm(data={"datetime_not_future": future_datetime})
         self.assertFalse(form.is_valid())

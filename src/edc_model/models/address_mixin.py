@@ -2,7 +2,6 @@ from django.db import models
 
 
 class AddressMixin(models.Model):
-
     contact_name = models.CharField(max_length=50, null=True, blank=True)
 
     address = models.CharField(verbose_name="Address", max_length=50)
