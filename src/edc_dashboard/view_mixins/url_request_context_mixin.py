@@ -10,7 +10,6 @@ class UrlRequestContextError(Exception):
 
 
 class UrlRequestContextMixin:
-
     urlconfig_getattr = "dashboard_urls"
     urlconfig_identifier_label = "subject_identifier"
     urlconfig_identifier_pattern = Protocol().subject_identifier_pattern

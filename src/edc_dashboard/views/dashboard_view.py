@@ -6,7 +6,6 @@ from ..view_mixins import TemplateRequestContextMixin, UrlRequestContextMixin
 
 
 class DashboardView(UrlRequestContextMixin, TemplateRequestContextMixin, TemplateView):
-
     dashboard_url_name = None
     dashboard_template = None  # may be None if `dashboard_template_name` is defined
     dashboard_template_name = None  # may be None if `dashboard_template` is defined
