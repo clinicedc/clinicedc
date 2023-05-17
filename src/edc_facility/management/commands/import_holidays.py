@@ -4,7 +4,6 @@ from ...import_holidays import HolidayImportError, import_holidays
 
 
 class Command(BaseCommand):
-
     help = "Import country holidays"
 
     def handle(self, *args, **options):

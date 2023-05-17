@@ -11,7 +11,6 @@ from .holidays_disabled import holidays_disabled
 
 
 class Holiday(models.Model):
-
     id = models.BigAutoField(primary_key=True)
 
     country = models.CharField(max_length=50)
