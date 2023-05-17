@@ -14,7 +14,6 @@ class UnblindingRequestFormValidator(FormValidator):
 class UnblindingRequestForm(
     SiteModelFormMixin, FormValidatorMixin, ActionItemFormMixin, forms.ModelForm
 ):
-
     form_validator_cls = UnblindingRequestFormValidator
 
     subject_identifier = forms.CharField(

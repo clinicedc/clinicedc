@@ -11,7 +11,6 @@ from ..models import UnblindingReview
 
 @admin.register(UnblindingReview, site=edc_unblinding_admin)
 class UnblindingReviewAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
-
     form = UnblindingReviewForm
 
     fieldsets = (

@@ -23,7 +23,6 @@ class UnblindingRequest(
     ActionModelMixin,
     BaseUuidModel,
 ):
-
     action_name = UNBLINDING_REQUEST_ACTION
 
     report_datetime = models.DateTimeField(

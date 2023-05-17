@@ -18,7 +18,6 @@ class UnblindingReview(
     ActionModelMixin,
     BaseUuidModel,
 ):
-
     action_name = UNBLINDING_REVIEW_ACTION
 
     report_datetime = models.DateTimeField(

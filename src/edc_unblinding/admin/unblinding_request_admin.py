@@ -11,7 +11,6 @@ from ..models import UnblindingRequest
 
 @admin.register(UnblindingRequest, site=edc_unblinding_admin)
 class UnblindingRequestAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
-
     form = UnblindingRequestForm
 
     additional_instructions = (
