@@ -8,7 +8,6 @@ from ..site_consents import site_consents
 
 
 class ConsentModelWrapperMixin(ModelWrapper):
-
     consent_model_wrapper_cls = None
 
     @property

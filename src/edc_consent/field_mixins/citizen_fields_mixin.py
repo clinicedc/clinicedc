@@ -4,7 +4,6 @@ from edc_constants.constants import NOT_APPLICABLE
 
 
 class CitizenFieldsMixin(models.Model):
-
     citizen = models.CharField(
         verbose_name="Is the participant a Botswana citizen? ",
         max_length=3,

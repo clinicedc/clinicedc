@@ -18,7 +18,6 @@ class RequiresConsent:
         consent_model: Optional[str] = None,
         consent_group: Optional[str] = None,
     ):
-
         self.version = None
         self.model = model
         self.subject_identifier = subject_identifier

@@ -3,7 +3,6 @@ from edc_constants.choices import YES_NO
 
 
 class SampleCollectionFieldsMixin(models.Model):
-
     may_store_genetic_samples = models.CharField(
         verbose_name=(
             "Does the participant agree that a portion of "

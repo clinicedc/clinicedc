@@ -5,7 +5,6 @@ from ..validators import eligible_if_yes
 
 
 class ScoredReviewFieldsMixin(models.Model):
-
     consent_reviewed = models.CharField(
         verbose_name="I have reviewed the consent with the client",
         max_length=3,

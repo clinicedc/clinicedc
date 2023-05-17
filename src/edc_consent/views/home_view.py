@@ -8,7 +8,6 @@ from ..site_consents import site_consents
 
 
 class HomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
-
     template_name = f"edc_consent/bootstrap{get_bootstrap_version()}/home.html"
     navbar_name = "edc_consent"
     navbar_selected_item = "consent"

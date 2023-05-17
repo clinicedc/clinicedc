@@ -2,7 +2,6 @@ from django.db import models
 
 
 class SiteFieldsMixin(models.Model):
-
     site_code = models.CharField(
         verbose_name="Site",
         max_length=25,

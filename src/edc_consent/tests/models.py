@@ -19,7 +19,6 @@ from edc_consent.model_mixins import ConsentModelMixin, RequiresConsentFieldsMod
 
 
 class SubjectScreening(models.Model):
-
     screening_identifier = models.CharField(max_length=25, unique=True)
 
     initials = models.CharField(max_length=5, default="TO")
@@ -105,7 +104,6 @@ class SubjectConsent2(
 
 
 class SubjectVisit(SiteModelMixin, BaseUuidModel):
-
     subject_identifier = models.CharField(max_length=25)
 
     # appointment = models.OneToOneField(Appointment, on_delete=CASCADE)
@@ -116,12 +114,10 @@ class SubjectVisit(SiteModelMixin, BaseUuidModel):
 class TestModel(
     NonUniqueSubjectIdentifierModelMixin, RequiresConsentFieldsModelMixin, BaseUuidModel
 ):
-
     report_datetime = models.DateTimeField(default=get_utcnow)
 
 
 class CrfOne(NonUniqueSubjectIdentifierModelMixin, BaseUuidModel):
-
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     report_datetime = models.DateTimeField(default=get_utcnow)

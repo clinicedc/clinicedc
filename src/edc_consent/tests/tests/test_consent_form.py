@@ -31,7 +31,6 @@ class SubjectConsentFormValidator(
 
 
 class SubjectConsentForm(ConsentModelFormMixin, FormValidatorMixin, forms.ModelForm):
-
     form_validator_cls = SubjectConsentFormValidator
 
     screening_identifier = forms.CharField(

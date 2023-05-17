@@ -15,7 +15,6 @@ from ..validators import FullNameValidator
 
 
 class BaseFieldsMixin(models.Model):
-
     initials = EncryptedCharField(
         validators=[
             RegexValidator(
@@ -67,7 +66,6 @@ class FullNamePersonalFieldsMixin(
 
 
 class PersonalFieldsMixin(CryptoMixin, BaseFieldsMixin, models.Model):
-
     first_name = FirstnameField(
         null=True,
         blank=False,
