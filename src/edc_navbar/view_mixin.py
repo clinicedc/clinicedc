@@ -5,7 +5,6 @@ from .site_navbars import site_navbars
 
 
 class NavbarViewMixin:
-
     navbar_selected_item = None
     navbar_name = get_default_navbar()
 

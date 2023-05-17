@@ -3,7 +3,6 @@ from django.urls import path
 from django.views.generic.base import View
 
 if settings.APP_NAME == "edc_navbar":
-
     # needed for tests
     app_name = "edc_navbar"
 
