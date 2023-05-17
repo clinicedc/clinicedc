@@ -5,7 +5,6 @@ from .research_identifier import ResearchIdentifier
 
 
 class SubjectIdentifier(ResearchIdentifier):
-
     template: str = "{protocol_number}-{site_id}{device_id}{sequence}"
     label: str = "subjectidentifier"
     padding: int = 4

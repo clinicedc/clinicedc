@@ -25,7 +25,6 @@ class DuplicateIdentifierError(Exception):
 
 
 class ShortIdentifier:
-
     name = "shortidentifier"
     template = "{prefix}{random_string}"
     random_string_pattern = r"[A-Z0-9]+"  # alhpanumeric

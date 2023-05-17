@@ -20,7 +20,6 @@ class AppConfig(DjangoAppConfig):
 
 
 if settings.APP_NAME == "edc_identifier":
-
     from edc_device.apps import AppConfig as BaseEdcDeviceAppConfig
     from edc_device.constants import CLIENT
 
