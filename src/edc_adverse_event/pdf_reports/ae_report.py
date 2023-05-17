@@ -14,7 +14,6 @@ p = inflect.engine()
 
 
 class AeReport(CrfPdfReport):
-
     model_attr = "ae_initial"
 
     def __init__(self, ae_initial=None, **kwargs):
@@ -26,7 +25,6 @@ class AeReport(CrfPdfReport):
         return f"ADVERSE EVENT REPORT FOR {self.ae_initial.subject_identifier}"
 
     def get_report_story(self, **kwargs):
-
         story = []
 
         self.draw_demographics(story)
@@ -118,7 +116,6 @@ class AeReport(CrfPdfReport):
         story.append(t)
 
     def _draw_ae_descripion(self, story):
-
         self.draw_narrative(
             story, title="Description of AE:", text=self.ae_initial.ae_description
         )
@@ -140,7 +137,6 @@ class AeReport(CrfPdfReport):
         story.append(t)
 
     def _draw_ae_cause(self, story):
-
         # cause (Part3)
         left_width = 40 if self.ae_initial.ae_cause == YES else 80
         rows = [
@@ -169,7 +165,6 @@ class AeReport(CrfPdfReport):
         story.append(Spacer(0.1 * cm, 0.5 * cm))
 
     def _draw_ae_action_taken(self, story):
-
         self.draw_narrative(
             story,
             title="Action taken for treatment of AE:",

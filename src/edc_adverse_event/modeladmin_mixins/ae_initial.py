@@ -74,7 +74,6 @@ class AeInitialModelAdminMixin(
     ModelAdminSubjectDashboardMixin,
     ActionItemModelAdminMixin,
 ):
-
     form = AeInitialForm
 
     email_contact = get_email_contacts("ae_reports")

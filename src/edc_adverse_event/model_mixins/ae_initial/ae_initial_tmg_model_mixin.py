@@ -2,7 +2,6 @@ from django.db import models
 
 
 class AeInitialTmgModelMixin(models.Model):
-
     tmg_report_datetime = models.DateTimeField(
         verbose_name="Date and time AE reported to TMG",
         blank=True,

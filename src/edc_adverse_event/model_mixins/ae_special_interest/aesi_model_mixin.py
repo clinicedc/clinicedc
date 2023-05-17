@@ -23,7 +23,6 @@ class AesiModelMixin(
     ReportStatusModelMixin,
     models.Model,
 ):
-
     action_name = AESI_ACTION
 
     on_site = ActionIdentifierSiteManager()

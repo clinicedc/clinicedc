@@ -8,7 +8,6 @@ from ..constants import ADVERSE_EVENT_ADMIN_SITE, ADVERSE_EVENT_APP_LABEL
 
 
 class AeHomeView(UrlRequestContextMixin, EdcViewMixin, NavbarViewMixin, TemplateView):
-
     ae_listboard_url = "ae_listboard_url"
     death_report_listboard_url = "death_report_listboard_url"
     navbar_selected_item = "ae_home"

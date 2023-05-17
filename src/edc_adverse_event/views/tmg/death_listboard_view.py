@@ -22,7 +22,6 @@ class DeathListboardView(
     SearchFormViewMixin,
     BaseListboardView,
 ):
-
     listboard_back_url = "tmg_home_url"
 
     listboard_template = "tmg_death_listboard_template"
