@@ -13,7 +13,6 @@ from ..diagnoses import ClinicalReviewBaselineRequired, Diagnoses, InitialReview
 
 
 class ResultFormValidatorMixin(FormValidator):
-
     dx: Tuple[str, str]  # e.g. (HIV, "HIV Infection")
 
     def clean(self):
