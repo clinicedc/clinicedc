@@ -9,7 +9,6 @@ from ..view_mixins import EdcLabelViewMixin
 
 
 class PrinterSetupView(EdcViewMixin, NavbarViewMixin, EdcLabelViewMixin, TemplateView):
-
     template_name = f"edc_label/bootstrap{get_bootstrap_version()}/printer_setup.html"
     navbar_name = "edc_label"
     navbar_selected_item = "label"

@@ -5,7 +5,6 @@ from .printers_mixin import PrinterError, PrintersMixin, PrintServerError
 
 
 class EdcLabelViewMixin(PrintersMixin, ContextMixin):
-
     error_messages = []
 
     def get_context_data(self, **kwargs):

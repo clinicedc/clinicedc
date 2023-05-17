@@ -5,7 +5,6 @@ from .printers_mixin import PrinterError, PrintersMixin, PrintServerError
 
 
 class LabPrintersMixin(PrintersMixin):
-
     label_cls = None
     job_result_cls = JobResult
 

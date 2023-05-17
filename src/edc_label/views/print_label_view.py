@@ -10,7 +10,6 @@ from ..printers_mixin import PrintersMixin
 
 
 class PrintLabelView(LoginRequiredMixin, PrintersMixin, ProcessFormView):
-
     success_url = "edc_label:home_url"
     label_cls = Label
     job_result_cls = JobResult

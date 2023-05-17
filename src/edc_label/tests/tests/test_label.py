@@ -4,7 +4,6 @@ from ...printer import Printer
 
 
 class DummyCupsConnection:
-
     printer_name = "test_printer"
 
     properties = {"printer-state-reasons": [""]}
