@@ -19,7 +19,6 @@ class UserProfileInline(admin.StackedInline):
 
 @admin.register(UserProfile, site=edc_auth_admin)
 class UserProfileAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
-
     filter_horizontal = ("email_notifications", "sms_notifications", "sites")
 
     list_display = (

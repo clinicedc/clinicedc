@@ -10,7 +10,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("edc_auth", "0011_auto_20191025_2335")]
 
     operations = [

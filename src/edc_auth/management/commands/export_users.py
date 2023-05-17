@@ -4,7 +4,6 @@ from edc_auth.export_users import export_users
 
 
 class Command(BaseCommand):
-
     help = "Export users to a CSV file in the current directory"
 
     def add_arguments(self, parser):
@@ -27,5 +26,4 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-
         export_users(options["csvfile"])

@@ -10,7 +10,6 @@ import django_revision.revision_field
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_auth", "0024_alter_userprofile_export_format"),
     ]

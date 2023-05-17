@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("edc_auth", "0009_userprofile_alternate_email")]
 
     operations = [

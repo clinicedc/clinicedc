@@ -5,7 +5,6 @@ from edc_dashboard.utils import get_bootstrap_version, get_template_path_with_bo
 
 
 class LogoutView(BaseLogoutView):
-
     template_name = f"edc_auth/bootstrap{get_bootstrap_version()}/login.html"
     next_page = "edc_auth/login"
 

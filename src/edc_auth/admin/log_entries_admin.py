@@ -10,7 +10,6 @@ admin.site.unregister(LogEntry)
 
 @admin.register(LogEntry, site=edc_auth_admin)
 class LogEntriesAdmin(TemplatesModelAdminMixin, LogEntryAdmin):
-
     list_filter = (
         "action_time",
         ActionListFilter,

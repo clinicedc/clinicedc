@@ -4,7 +4,6 @@ from django.contrib.sites.models import Site
 
 
 class SitesListFilter(SimpleListFilter):
-
     title = "Site"
     parameter_name = "site_name"
 

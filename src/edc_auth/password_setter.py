@@ -13,7 +13,6 @@ class PasswordSetterError(Exception):
 
 
 class PasswordSetter:
-
     email_body_template = Template(
         "Hi $first_name, \n\n"
         "Your clinicedc.org password has been reset.\n\n"
