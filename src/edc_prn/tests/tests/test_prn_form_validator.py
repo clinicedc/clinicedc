@@ -66,7 +66,6 @@ class EdcCrfTestCase(TestCase):
             FormValidatorMixin,
             forms.ModelForm,
         ):
-
             form_validator_cls = MyFormValidator
 
             def validate_against_consent(self):

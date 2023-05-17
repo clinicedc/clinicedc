@@ -7,7 +7,6 @@ from edc_utils import get_utcnow
 
 
 class TestModel(models.Model):
-
     f1 = models.CharField(max_length=10, null=True)
 
     class Meta:
@@ -18,7 +17,6 @@ admin.site.register(TestModel)
 
 
 class Crf(CrfModelMixin, CrfStatusModelMixin, BaseUuidModel):
-
     subject_visit = models.ForeignKey(settings.SUBJECT_VISIT_MODEL, on_delete=models.PROTECT)
 
     report_datetime = models.DateTimeField(default=get_utcnow)
@@ -34,7 +32,6 @@ class Crf(CrfModelMixin, CrfStatusModelMixin, BaseUuidModel):
 
 
 class Prn(BaseUuidModel):
-
     subject_identifier = models.CharField(max_length=50, null=True, blank=True)
 
     report_datetime = models.DateTimeField(default=get_utcnow)
