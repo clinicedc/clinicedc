@@ -5,7 +5,6 @@ from ..models import HeightField, WeightField
 
 
 class WeightHeightBmiModelMixin(models.Model):
-
     lower_bmi_value = 5.0
 
     upper_bmi_value = 60.0

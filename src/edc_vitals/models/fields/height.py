@@ -3,7 +3,6 @@ from django.db import models
 
 
 class HeightField(models.DecimalField):
-
     description = "Height in cm"
 
     def __init__(self, *args, **kwargs):

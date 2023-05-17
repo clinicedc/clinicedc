@@ -3,7 +3,6 @@ from django.db import models
 
 
 class WaistCircumferenceField(models.DecimalField):
-
     description = "Waist circumference"
 
     def __init__(self, *args, **kwargs):

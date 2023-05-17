@@ -3,7 +3,6 @@ from django.db import models
 
 
 class TemperatureField(models.DecimalField):
-
     description = "Temperature in degrees Celsius"
 
     def __init__(self, *args, **kwargs):

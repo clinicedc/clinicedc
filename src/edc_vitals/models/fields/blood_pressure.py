@@ -3,7 +3,6 @@ from django.db import models
 
 
 class SystolicPressureField(models.IntegerField):
-
     description = "Systolic pressure"
 
     def __init__(self, *args, verbose_name=None, **kwargs):
@@ -21,7 +20,6 @@ class SystolicPressureField(models.IntegerField):
 
 
 class DiastolicPressureField(models.IntegerField):
-
     description = "Diastolic pressure"
 
     def __init__(self, *args, verbose_name=None, **kwargs):

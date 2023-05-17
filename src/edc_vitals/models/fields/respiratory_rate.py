@@ -3,7 +3,6 @@ from django.db import models
 
 
 class RespiratoryRateField(models.IntegerField):
-
     description = "Respiratory rate in breaths/min"
 
     def __init__(self, *args, **kwargs):

@@ -3,7 +3,6 @@ from django.db import models
 
 
 class WeightField(models.DecimalField):
-
     description = "Weight in Kg"
 
     def __init__(self, *args, **kwargs):

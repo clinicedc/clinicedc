@@ -14,7 +14,6 @@ class BloodPressure(BloodPressureModelMixin, models.Model):
 
 
 class HeartRate(models.Model):
-
     heart_rate = HeartRateField(
         null=True,
         blank=True,
@@ -22,7 +21,6 @@ class HeartRate(models.Model):
 
 
 class RespiratoryRate(models.Model):
-
     respiratory_rate = RespiratoryRateField(
         null=True,
         blank=True,
@@ -34,7 +32,6 @@ class SimpleBloodPressure(SimpleBloodPressureModelMixin, models.Model):
 
 
 class Temperature(models.Model):
-
     temperature = TemperatureField(
         null=True,
         blank=True,
@@ -42,7 +39,6 @@ class Temperature(models.Model):
 
 
 class WeightHeightBmi(WeightHeightBmiModelMixin, models.Model):
-
     report_datetime = models.DateTimeField(default=get_utcnow)
 
     dob = models.DateField(null=True)

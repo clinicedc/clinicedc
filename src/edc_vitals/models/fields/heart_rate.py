@@ -3,7 +3,6 @@ from django.db import models
 
 
 class HeartRateField(models.IntegerField):
-
     description = "Heart rate in BPM"
 
     def __init__(self, *args, **kwargs):

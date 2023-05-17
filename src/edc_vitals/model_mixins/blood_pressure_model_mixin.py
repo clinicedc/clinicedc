@@ -6,7 +6,6 @@ from ..utils import calculate_avg_bp
 
 
 class SimpleBloodPressureModelMixin(models.Model):
-
     sys_blood_pressure = SystolicPressureField(
         null=True,
         blank=True,
