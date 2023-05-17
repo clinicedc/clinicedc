@@ -47,7 +47,6 @@ def print_pharmacy_labels(modeladmin, request, queryset):
 
 
 class RandomizationListModelAdmin(admin.ModelAdmin):
-
     list_per_page = 15
 
     actions = (print_pharmacy_labels,)
