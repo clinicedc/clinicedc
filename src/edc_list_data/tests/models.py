@@ -25,7 +25,6 @@ class Symptom(BaseListModelMixin, BaseUuidModel):
 
 
 class Consignee(BaseUuidModel):
-
     name = models.CharField(max_length=25)
 
     contact = models.CharField(max_length=25)
@@ -37,7 +36,6 @@ class Consignee(BaseUuidModel):
 
 
 class Customer(BaseUuidModel):
-
     name = models.CharField(max_length=25, unique=True)
 
     contact = models.CharField(max_length=25)

@@ -9,7 +9,6 @@ class ListModelManager(models.Manager):
 
 
 class BaseListModelMixin(models.Model):
-
     # FIXME: this should be a short string, e.g. 15-25 chars!
     name = models.CharField(
         verbose_name="Stored value",
