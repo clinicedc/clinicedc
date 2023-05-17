@@ -19,7 +19,6 @@ class OrderManager(models.Manager):
 
 
 class Order(SiteModelMixin, edc_models.BaseUuidModel):
-
     aliquot = models.ForeignKey(Aliquot, on_delete=PROTECT)
 
     order_identifier = models.CharField(max_length=25, editable=False, unique=True)

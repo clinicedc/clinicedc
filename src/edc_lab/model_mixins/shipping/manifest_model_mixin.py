@@ -13,7 +13,6 @@ MANIFEST_CATEGORY = ((TESTING, "Testing"), (STORAGE, "Storage"), (OTHER, "Other"
 
 
 class ManifestModelMixin(SiteModelMixin, models.Model):
-
     manifest_identifier = models.CharField(
         verbose_name="Manifest Identifier", max_length=25, editable=False, unique=True
     )

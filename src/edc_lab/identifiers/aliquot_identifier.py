@@ -10,7 +10,6 @@ class AliquotIdentifierCountError(Exception):
 
 
 class AliquotIdentifier:
-
     count_padding: int = 2
     identifier_length: int = 18
     primary_aliquot_segment: str = "0000"

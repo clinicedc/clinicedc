@@ -36,7 +36,6 @@ class Specimen(SpecimenBase):
 
 
 class TestSpecimen(SiteTestCaseMixin, TestCase):
-
     lab_helper = SiteLabsTestHelper()
 
     @classmethod
@@ -117,7 +116,6 @@ class TestSpecimen(SiteTestCaseMixin, TestCase):
 
 
 class TestSpecimen2(SiteTestCaseMixin, TestCase):
-
     lab_helper = SiteLabsTestHelper()
 
     @classmethod

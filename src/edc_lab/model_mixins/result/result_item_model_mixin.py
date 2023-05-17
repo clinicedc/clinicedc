@@ -4,7 +4,6 @@ from edc_sites.models import SiteModelMixin
 
 
 class ResultItemModelMixin(SiteModelMixin, models.Model):
-
     report_datetime = models.DateTimeField(null=True)
 
     utestid = models.CharField(max_length=25, null=True)

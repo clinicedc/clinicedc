@@ -42,7 +42,6 @@ class RequisitionModelMixin(
     UpdatesRequisitionMetadataModelMixin,
     models.Model,
 ):
-
     requisition_datetime = models.DateTimeField(
         validators=[datetime_not_before_study_start, datetime_not_future],
         default=timezone.now,

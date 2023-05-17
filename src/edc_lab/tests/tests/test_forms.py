@@ -174,7 +174,6 @@ class TestForms(TestCase):
 
 
 class TestForms2(TestCase):
-
     lab_helper = SiteLabsTestHelper()
 
     @classmethod
@@ -203,7 +202,6 @@ class TestForms2(TestCase):
                 pass
 
         class RequisitionForm(RequisitionModelFormMixin, forms.ModelForm):
-
             form_validator_cls = RequisitionFormValidator
 
             def validate_against_consent(self):
@@ -324,7 +322,6 @@ class TestForms2(TestCase):
                 pass
 
         class RequisitionForm(RequisitionModelFormMixin, forms.ModelForm):
-
             form_validator_cls = RequisitionFormValidator
 
             class Meta:

@@ -3,7 +3,6 @@ from edc_label import Label
 
 
 class BaseLabel(Label):
-
     model = None  # lower_label
     template_name = None
 

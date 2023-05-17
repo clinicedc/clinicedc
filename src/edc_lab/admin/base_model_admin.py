@@ -18,7 +18,6 @@ class BaseModelAdmin(
     FieldsetsModelAdminMixin,
     admin.ModelAdmin,
 ):
-
     list_per_page = 10
     date_hierarchy = "modified"
     empty_value_display = "-"

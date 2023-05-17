@@ -11,7 +11,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("edc_lab", "0011_delete_identifierhistory")]
 
     operations = [

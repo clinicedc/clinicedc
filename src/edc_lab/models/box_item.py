@@ -20,7 +20,6 @@ class BoxItemManager(SearchSlugManager, models.Manager):
 
 
 class BoxItem(SearchSlugModelMixin, VerifyModelMixin, edc_models.BaseUuidModel):
-
     box = models.ForeignKey(Box, on_delete=PROTECT)
 
     position = models.IntegerField()

@@ -8,7 +8,6 @@ class ConsigneeManager(models.Manager):
 
 
 class Consignee(edc_models.AddressMixin, edc_models.BaseUuidModel):
-
     name = models.CharField(unique=True, max_length=50, help_text="Company name")
 
     objects = ConsigneeManager()

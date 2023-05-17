@@ -1,5 +1,4 @@
 class RequisitionFormMixin:
-
     default_item_type = "tube"
     default_item_count = 1
     default_estimated_volume = 5.0

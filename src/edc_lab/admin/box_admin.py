@@ -9,7 +9,6 @@ from .base_model_admin import BaseModelAdmin
 
 @admin.register(Box, site=edc_lab_admin)
 class BoxAdmin(BaseModelAdmin, admin.ModelAdmin):
-
     form = BoxForm
 
     fieldsets = (

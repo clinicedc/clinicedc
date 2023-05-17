@@ -15,7 +15,6 @@ class ManifestItemInlineAdmin(admin.TabularInline):
 
 @admin.register(ManifestItem, site=edc_lab_admin)
 class ManifestItemAdmin(BaseModelAdmin, admin.ModelAdmin):
-
     form = ManifestItemForm
 
     fieldsets = (

@@ -6,7 +6,6 @@ from ...constants import VERIFIED
 
 
 class VerifyModelMixin(models.Model):
-
     verified = models.IntegerField(default=0)
 
     verified_datetime = models.DateTimeField(null=True)

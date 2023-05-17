@@ -13,7 +13,6 @@ from ...choices import (
 
 
 class AliquotModelMixin(SiteModelMixin, models.Model):
-
     aliquot_datetime = models.DateTimeField(
         verbose_name="Date and time aliquot created", default=timezone.now
     )

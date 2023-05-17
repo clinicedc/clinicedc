@@ -8,7 +8,6 @@ class ShipperManager(models.Manager):
 
 
 class Shipper(edc_models.AddressMixin, edc_models.BaseUuidModel):
-
     name = models.CharField(unique=True, max_length=50)
 
     objects = ShipperManager()

@@ -6,7 +6,6 @@ from ..panel_model_mixin import PanelModelMixin
 
 
 class ResultModelMixin(PanelModelMixin, SiteModelMixin, models.Model):
-
     report_datetime = models.DateTimeField(null=True)
 
     pending_datetime = models.DateTimeField(default=timezone.now)

@@ -26,7 +26,6 @@ class Specimen:
     specimen_processor_cls = SpecimenProcessor
 
     def __init__(self, requisition=None):
-
         self.requisition = requisition
 
         if not self.requisition.is_drawn == YES:
