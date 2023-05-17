@@ -4,7 +4,6 @@ from .model_notification import ModelNotification
 
 
 class GradedEventNotification(ModelNotification):
-
     grade: Optional[int] = None
     model: Optional[str] = None
     create_fields = ["ae_grade"]

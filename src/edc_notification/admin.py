@@ -8,7 +8,6 @@ from .models import Notification
 
 @register(Notification, site=edc_notification_admin)
 class NotificationAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
-
     model = Notification
 
     list_display = ("name", "display_name", "mailing_list_address")

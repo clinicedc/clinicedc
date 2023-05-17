@@ -10,7 +10,6 @@ def register(**kwargs):
     """Registers a notification_cls."""
 
     def _wrapper(notification_cls):
-
         if not issubclass(notification_cls, (Notification,)):
             raise RegisterNotificationError(
                 f"Wrapped class must be a 'Notification' class. "

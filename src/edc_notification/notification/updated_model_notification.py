@@ -3,7 +3,6 @@ from .model_notification import ModelNotification
 
 
 class UpdatedModelNotification(ModelNotification):
-
     model_operations = [UPDATE]
 
     update_fields = ["modified"]
