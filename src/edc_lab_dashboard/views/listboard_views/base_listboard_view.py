@@ -14,5 +14,4 @@ class BaseListboardView(
     ListboardFilterViewMixin,
     ListboardView,
 ):
-
     navbar_name = "specimens"

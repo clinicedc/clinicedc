@@ -5,7 +5,6 @@ from .base_listboard_view import BaseListboardView
 
 
 class BaseBoxItemListboardView(BoxViewMixin, BaseListboardView):
-
     navbar_selected_item = "pack"
     ordering = ("-position",)
     listboard_model = BoxItem

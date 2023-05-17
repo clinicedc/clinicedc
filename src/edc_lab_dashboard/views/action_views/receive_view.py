@@ -12,7 +12,6 @@ from .action_view import ActionView
 
 
 class ReceiveView(EdcViewMixin, ProcessRequisitionViewMixin, ActionView):
-
     post_action_url = "receive_listboard_url"
     valid_form_actions = ["receive", "receive_and_process"]
     label_cls = AliquotLabel

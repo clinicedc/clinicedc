@@ -3,7 +3,6 @@ from edc_listboard.filters import ListboardFilter, ListboardViewFilters
 
 
 class PackListboardViewFilters(ListboardViewFilters):
-
     all = ListboardFilter(name="all", label="All", lookup={})
 
     verified = ListboardFilter(label="Verified", lookup={"status": VERIFIED})

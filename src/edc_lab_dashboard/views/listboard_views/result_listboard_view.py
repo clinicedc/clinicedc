@@ -5,7 +5,6 @@ from .base_listboard_view import BaseListboardView
 
 
 class ResultListboardView(BaseListboardView):
-
     form_action_url = "aliquot_form_action_url"
     listboard_template = "result_listboard_template"
     listboard_url = "result_listboard_url"

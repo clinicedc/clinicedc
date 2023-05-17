@@ -6,7 +6,6 @@ from .base_listboard_view import BaseListboardView
 
 
 class AliquotListboardView(BaseListboardView):
-
     form_action_url = "aliquot_form_action_url"
     listboard_template = "aliquot_listboard_template"
     listboard_url = "aliquot_listboard_url"

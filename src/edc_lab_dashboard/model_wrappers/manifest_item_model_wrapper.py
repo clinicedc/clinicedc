@@ -3,7 +3,6 @@ from edc_model_wrapper import ModelWrapper
 
 
 class ManifestItemModelWrapper(ModelWrapper):
-
     model_cls = ManifestItem
     next_url_name = "manage_manifest_listboard_url"
     action_name = "manage"

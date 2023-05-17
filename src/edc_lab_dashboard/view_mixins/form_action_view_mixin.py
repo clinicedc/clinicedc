@@ -8,7 +8,6 @@ class FormActionViewError(Exception):
 
 
 class FormActionViewMixin(ContextMixin):
-
     action_name = None
     form_action_name = "form_action"
     form_action_selected_items_name = "selected_items"

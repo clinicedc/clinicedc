@@ -7,7 +7,6 @@ from .base_listboard_view import BaseListboardView
 
 
 class ManageManifestListboardView(ManifestViewMixin, BaseListboardView):
-
     action_name = "manage"
     navbar_selected_item = "manifest"
     form_action_url = "manage_manifest_item_form_action_url"

@@ -7,7 +7,6 @@ def get_box_items():
 
 
 class AliquotListboardViewFilters(ListboardViewFilters):
-
     all = ListboardFilter(name="all", label="All", lookup={})
 
     is_primary = ListboardFilter(label="Primary", lookup={"is_primary": True})

@@ -2,7 +2,6 @@ from edc_listboard.filters import ListboardFilter, ListboardViewFilters
 
 
 class ManifestListboardViewFilters(ListboardViewFilters):
-
     all = ListboardFilter(name="all", label="All", lookup={})
 
     shipped = ListboardFilter(label="Shipped", lookup={"shipped": True})

@@ -9,7 +9,6 @@ from .base_listboard_view import BaseListboardView
 
 
 class RequisitionListboardView(BaseListboardView):
-
     listboard_model = settings.SUBJECT_REQUISITION_MODEL
 
     form_action_url = "requisition_form_action_url"

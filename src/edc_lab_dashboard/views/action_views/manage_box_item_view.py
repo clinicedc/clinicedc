@@ -12,7 +12,6 @@ from .action_view import ActionView
 
 
 class ManageBoxItemView(EdcViewMixin, BoxViewMixin, ActionView):
-
     post_action_url = "manage_box_listboard_url"
     valid_form_actions = ["add_item", "renumber_items", "remove_selected_items"]
 

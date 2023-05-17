@@ -9,7 +9,6 @@ from .base_box_item_listboard_view import BaseBoxItemListboardView
 
 
 class ManageBoxListboardView(BaseBoxItemListboardView):
-
     action_name = "manage"
     form_action_url = "manage_box_item_form_action_url"
     listboard_url = "manage_box_listboard_url"
