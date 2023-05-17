@@ -115,7 +115,6 @@ class TestSpecimenResultForm(TestCase):
         self.assertIn("creatinine", form_validator._errors)
 
     def test_creatinine_mg(self):
-
         self.cleaned_data.update(
             creatinine=1.3,
             creatinine_units=MILLIGRAMS_PER_DECILITER,
@@ -143,7 +142,6 @@ class TestSpecimenResultForm(TestCase):
         self.assertIn("creatinine", form_validator._errors)
 
     def test_creatinine_umol(self):
-
         self.cleaned_data.update(creatinine=100, creatinine_units=MICROMOLES_PER_LITER)
         form_validator = SpecimenResultFormValidator(
             cleaned_data=self.cleaned_data, instance=SpecimenResult()
@@ -178,7 +176,6 @@ class TestSpecimenResultForm(TestCase):
         self.assertIn("potassium", form_validator._errors)
 
     def test_potassium_high(self):
-
         self.cleaned_data.update(potassium=6.8, results_abnormal=YES, results_reportable=NO)
         form_validator = SpecimenResultFormValidator(
             cleaned_data=self.cleaned_data, instance=SpecimenResult()
@@ -241,7 +238,6 @@ class TestSpecimenResultForm(TestCase):
         self.assertIn("alt", form_validator._errors)
 
     def test_alt(self):
-
         self.cleaned_data.update(alt=10, results_abnormal=NO)
         form_validator = SpecimenResultFormValidator(
             cleaned_data=self.cleaned_data, instance=SpecimenResult()
@@ -252,7 +248,6 @@ class TestSpecimenResultForm(TestCase):
             self.fail(f"ValidationError unexpectedly raised. Got{e}")
 
     def test_platelets_invalid(self):
-
         self.cleaned_data.update(platelets=50, results_abnormal=YES)
         form_validator = SpecimenResultFormValidator(
             cleaned_data=self.cleaned_data, instance=SpecimenResult()
@@ -261,7 +256,6 @@ class TestSpecimenResultForm(TestCase):
         self.assertIn("platelets", form_validator._errors)
 
     def test_platelets(self):
-
         self.cleaned_data.update(platelets=450, results_abnormal=NO)
         form_validator = SpecimenResultFormValidator(
             cleaned_data=self.cleaned_data, instance=SpecimenResult()
@@ -280,7 +274,6 @@ class TestSpecimenResultForm(TestCase):
         self.assertIn("neutrophil", form_validator._errors)
 
     def test_neutrophil(self):
-
         self.cleaned_data.update(neutrophil=4, results_abnormal=NO)
         form_validator = SpecimenResultFormValidator(
             cleaned_data=self.cleaned_data, instance=SpecimenResult()

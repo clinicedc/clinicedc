@@ -7,7 +7,6 @@ class GradeError(Exception):
 
 
 class GradeReference(ValueReference):
-
     grades: list[str] = [GRADE0, GRADE1, GRADE2, GRADE3, GRADE4, GRADE5]
 
     def __init__(self, grade: int = None, normal_references: dict = None, func=None, **kwargs):

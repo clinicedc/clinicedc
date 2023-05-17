@@ -21,7 +21,6 @@ def export_daids_grading(path: Optional[str]):
 
 
 class Command(BaseCommand):
-
     help = "Export export DAIDS grading to document (.csv)"
 
     def add_arguments(self, parser):
@@ -34,5 +33,4 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-
         export_daids_grading(path=options["path"])
