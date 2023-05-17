@@ -6,7 +6,6 @@ import edc_action_item.models.action_type
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_action_item", "0024_auto_20191024_1000"),
     ]

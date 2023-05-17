@@ -10,7 +10,6 @@ from edc_action_item.site_action_items import site_action_items
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
-
         parser.add_argument(
             "--dry-run",
             action="store_true",

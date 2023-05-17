@@ -18,7 +18,6 @@ class ActionItemHelperError(Exception):
 
 
 class ActionItemHelper:
-
     action_item_reason_template_name = (
         f"edc_action_item/bootstrap{get_bootstrap_version()}/action_item_reason.html"
     )

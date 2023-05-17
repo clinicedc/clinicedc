@@ -7,7 +7,6 @@ from ..test_case_mixin import TestCaseMixin
 
 
 class TestNaturalKey(TestCaseMixin, TestCase):
-
     natural_key_helper = NaturalKeyTestHelper()
 
     def setUp(self):

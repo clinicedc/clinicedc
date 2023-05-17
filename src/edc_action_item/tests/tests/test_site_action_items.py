@@ -21,18 +21,15 @@ class TestSiteActionItems(TestCaseMixin, TestCase):
         self.action_type = ActionType.objects.get(name=FormZeroAction.name)
 
     def test_action_raises_if_not_registered(self):
-
         self.assertRaises(
             SiteActionError, FormZeroAction, subject_identifier=self.subject_identifier
         )
 
     def test_action_raises_if_already_registered(self):
-
         site_action_items.register(FormZeroAction)
         self.assertRaises(AlreadyRegistered, site_action_items.register, FormZeroAction)
 
     def test_action_instance_creates_action_type(self):
-
         ActionType.objects.all().delete()
         self.assertRaises(ObjectDoesNotExist, ActionType.objects.get, name=FormZeroAction.name)
         site_action_items.register(FormZeroAction)

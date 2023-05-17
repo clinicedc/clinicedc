@@ -74,7 +74,6 @@ class Action:
         using: Optional[str] = None,
         readonly: Optional[bool] = None,
     ) -> None:
-
         self._action_item = action_item
         self._reference_obj = reference_obj
 

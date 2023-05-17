@@ -29,7 +29,6 @@ class TestHelpers(TestCaseMixin, TestCase):
         self.assertTrue(helper.get_context())
 
     def test_new_action(self):
-
         action = CrfOneAction(subject_identifier=self.subject_identifier)
 
         self.assertIsNone(action.reference_obj)
@@ -74,7 +73,6 @@ class TestHelpers(TestCaseMixin, TestCase):
         self.assertIsNone(context["related_reference_url"])
 
     def test_reference_obj_and_url(self):
-
         helper = ActionItemHelper(
             action_item=self.model_wrapper.object, href=self.model_wrapper.href
         )

@@ -5,7 +5,6 @@ from ..models import ActionItem
 
 
 class ActionItemForm(forms.ModelForm):
-
     subject_identifier = forms.CharField(
         label="Subject Identifier",
         required=False,

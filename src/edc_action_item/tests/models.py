@@ -18,7 +18,6 @@ class SubjectIdentifierModelManager(models.Manager):
 
 
 class SubjectIdentifierModel(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
-
     objects = SubjectIdentifierModelManager()
 
     history = HistoricalRecords()
@@ -28,7 +27,6 @@ class SubjectIdentifierModel(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel
 
 
 class TestModelWithoutMixin(BaseUuidModel):
-
     subject_identifier = models.CharField(max_length=25)
     history = HistoricalRecords()
 
@@ -39,7 +37,6 @@ class TestModelWithActionDoesNotCreateAction(
     SiteModelMixin,
     BaseUuidModel,
 ):
-
     action_name = "test-nothing-prn-action"
 
 
@@ -49,7 +46,6 @@ class TestModelWithAction(
     SiteModelMixin,
     BaseUuidModel,
 ):
-
     action_name = "submit-form-zero"
 
 
@@ -59,7 +55,6 @@ class FormZero(
     SiteModelMixin,
     BaseUuidModel,
 ):
-
     action_name = "submit-form-zero"
 
     f1 = models.CharField(max_length=100, null=True)
@@ -71,7 +66,6 @@ class FormOne(
     SiteModelMixin,
     BaseUuidModel,
 ):
-
     action_name = "submit-form-one"
 
     f1 = models.CharField(max_length=100, null=True)
@@ -83,7 +77,6 @@ class FormTwo(
     SiteModelMixin,
     BaseUuidModel,
 ):
-
     form_one = models.ForeignKey(FormOne, on_delete=PROTECT)
 
     action_name = "submit-form-two"
@@ -95,7 +88,6 @@ class FormThree(
     SiteModelMixin,
     BaseUuidModel,
 ):
-
     action_name = "submit-form-three"
 
 
@@ -105,7 +97,6 @@ class FormFour(
     SiteModelMixin,
     BaseUuidModel,
 ):
-
     action_name = "submit-form-four"
 
     happy = models.CharField(max_length=10, choices=YES_NO, default=YES)
@@ -117,7 +108,6 @@ class Initial(
     SiteModelMixin,
     BaseUuidModel,
 ):
-
     action_name = "submit-initial"
 
 
@@ -127,7 +117,6 @@ class Followup(
     SiteModelMixin,
     BaseUuidModel,
 ):
-
     initial = models.ForeignKey(Initial, on_delete=CASCADE)
 
     action_name = "submit-followup"
@@ -139,12 +128,10 @@ class MyAction(
     SiteModelMixin,
     BaseUuidModel,
 ):
-
     action_name = "my-action"
 
 
 class CrfOne(ActionModelMixin, SiteModelMixin, BaseUuidModel):
-
     subject_visit = models.OneToOneField(
         "edc_metadata.subjectvisit",  # noqa
         on_delete=CASCADE,
@@ -167,7 +154,6 @@ class CrfOne(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
 
 class CrfTwo(ActionModelMixin, SiteModelMixin, BaseUuidModel):
-
     subject_visit = models.OneToOneField(
         "edc_metadata.subjectvisit",  # noqa
         on_delete=CASCADE,

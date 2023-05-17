@@ -10,7 +10,6 @@ from ..models import ActionType
 
 @admin.register(ActionType, site=edc_action_item_admin)
 class ActionTypeAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
-
     form = ActionTypeForm
 
     fieldsets = (

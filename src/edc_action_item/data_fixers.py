@@ -1,3 +1,4 @@
+import re
 import sys
 
 from django.core.exceptions import (
@@ -16,11 +17,15 @@ def fix_null_historical_action_identifier(app_label, models):
     """Fix null action_identifiers from previous versions."""
     with connection.cursor() as cursor:
         for model in models:
-            cursor.execute(
-                f"update {app_label}_historical{model} "
-                "set action_identifier=id "
-                "where action_identifier is null"
+            tbl = f"{app_label}_historical{model}"
+            if not re.match("([a-z]+)_historical_([a-z]+)", tbl):
+                raise ValueError("Invalid table name when building sql statement")
+            tbl = re.match("([a-z]+)_historical_([a-z]+)", tbl).group()
+            sql = (
+                f"update {tbl} set action_identifier=id "  # nosec B608
+                "where action_identifier is null"  # nosec B608
             )
+            cursor.execute(sql)
 
 
 def fix_null_action_item_fk(apps, app_label, models):
@@ -62,7 +67,6 @@ def fix_null_action_item_fk(apps, app_label, models):
 
 
 def fix_null_action_items(apps):
-
     action_item_cls = apps.get_model("edc_action_item", "ActionItem")
     try:
         action_items = action_item_cls.objects.filter(
@@ -193,7 +197,6 @@ def fix_action_item_sequence(action_item_cls, action_identifier=None, subject_id
 
 
 def fix_duplicate_singleton_action_items(apps, name=None):
-
     post_delete.disconnect(dispatch_uid="serialize_on_post_delete")
     post_save.disconnect(dispatch_uid="serialize_on_save")
     pre_save.disconnect(dispatch_uid="requires_consent_on_pre_save")

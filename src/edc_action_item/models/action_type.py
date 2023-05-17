@@ -18,7 +18,6 @@ class ActionTypeManager(models.Manager):
 
 
 class ActionType(BaseUuidModel):
-
     name = models.CharField(max_length=50, unique=True)
 
     display_name = models.CharField(max_length=100)
