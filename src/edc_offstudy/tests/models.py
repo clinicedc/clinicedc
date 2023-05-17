@@ -78,7 +78,6 @@ class SubjectVisit(
 
 
 class CrfOne(OffstudyCrfModelMixin, VisitTrackingCrfModelMixin, BaseUuidModel):
-
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     report_datetime = models.DateTimeField(default=get_utcnow)
@@ -91,7 +90,6 @@ class CrfOne(OffstudyCrfModelMixin, VisitTrackingCrfModelMixin, BaseUuidModel):
 
 
 class NonCrfOne(NonUniqueSubjectIdentifierFieldMixin, OffstudyNonCrfModelMixin, BaseUuidModel):
-
     report_datetime = models.DateTimeField(default=get_utcnow)
 
     class Meta(OffstudyNonCrfModelMixin.Meta):
@@ -99,5 +97,4 @@ class NonCrfOne(NonUniqueSubjectIdentifierFieldMixin, OffstudyNonCrfModelMixin, 
 
 
 class SubjectOffstudy2(OffstudyModelMixin, BaseUuidModel):
-
     pass

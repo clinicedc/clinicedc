@@ -15,7 +15,6 @@ class SubjectOffstudy(
     ActionNoManagersModelMixin,
     edc_models.BaseUuidModel,
 ):
-
     action_name = END_OF_STUDY_ACTION
 
     on_site = CurrentSiteManager()

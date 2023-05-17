@@ -9,7 +9,6 @@ register = template.Library()
 
 @register.inclusion_tag("edc_offstudy/visit_schedule_row.html")
 def offstudy_visit_schedule_row(subject_identifier, visit_schedule, subject_dashboard_url):
-
     context = {}
     offstudy_model = visit_schedule.offstudy_model
     offstudy_model_cls = django_apps.get_model(offstudy_model)

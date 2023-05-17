@@ -33,7 +33,6 @@ class CrfOneForm(
 
 
 class NonCrfOneForm(OffstudyNonCrfModelFormMixin, BaseModelFormMixin, forms.ModelForm):
-
     report_datetime_field_attr = "report_datetime"
 
     class Meta:
