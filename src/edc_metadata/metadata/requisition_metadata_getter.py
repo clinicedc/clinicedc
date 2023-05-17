@@ -10,7 +10,6 @@ class RequisitionMetadataValidator(MetadataValidator):
 
 
 class RequisitionMetadataGetter(MetadataGetter):
-
     metadata_model = "edc_metadata.requisitionmetadata"
 
     metadata_validator_cls = RequisitionMetadataValidator

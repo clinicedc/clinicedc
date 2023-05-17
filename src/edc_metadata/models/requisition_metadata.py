@@ -8,7 +8,6 @@ from .crf_metadata_model_mixin import CrfMetadataModelMixin
 
 
 class RequisitionMetadata(CrfMetadataModelMixin, SiteModelMixin, edc_models.BaseUuidModel):
-
     panel_name = models.CharField(max_length=50, null=True)
 
     on_site = CurrentSiteManager()

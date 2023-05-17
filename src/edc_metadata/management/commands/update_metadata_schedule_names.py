@@ -10,7 +10,6 @@ style = color_style()
 
 
 class Command(BaseCommand):
-
     help = "Update metadata for changed visit_schedule/schedule names"
     pattern = "^[0-9a-z_]+$"
     fieldnames = ["visit_schedule_name", "schedule_name"]

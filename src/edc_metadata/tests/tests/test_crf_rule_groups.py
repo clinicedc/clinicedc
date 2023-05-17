@@ -24,7 +24,6 @@ edc_registration_app_config = django_apps.get_app_config("edc_registration")
 
 
 class CrfRuleGroupOne(CrfRuleGroup):
-
     crfs_car = CrfRule(
         predicate=P("f1", "eq", "car"),
         consequence=REQUIRED,
@@ -45,7 +44,6 @@ class CrfRuleGroupOne(CrfRuleGroup):
 
 
 class CrfRuleGroupTwo(CrfRuleGroup):
-
     crfs_truck = CrfRule(
         predicate=P("f1", "eq", "truck"),
         consequence=REQUIRED,
@@ -66,7 +64,6 @@ class CrfRuleGroupTwo(CrfRuleGroup):
 
 
 class CrfRuleGroupThree(CrfRuleGroup):
-
     crfs_truck = CrfRule(
         predicate=P("f1", "eq", "holden"),
         consequence=REQUIRED,

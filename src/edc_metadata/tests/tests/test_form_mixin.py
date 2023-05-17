@@ -23,7 +23,6 @@ from .test_view_mixin import MyView
 
 
 class MyForm(MetadataHelperMixin, FormValidator):
-
     pass
 
 

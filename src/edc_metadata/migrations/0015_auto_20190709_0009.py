@@ -7,7 +7,6 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
 def update_metadata_timepoint(apps, schema_editor):
-
     CrfMetadata = apps.get_model("edc_metadata", "CrfMetadata")
     RequisitionMetadata = apps.get_model("edc_metadata", "RequisitionMetadata")
     for visit_schedule in site_visit_schedules.visit_schedules.values():
@@ -35,7 +34,6 @@ def update_metadata_timepoint(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("edc_metadata", "0014_auto_20190707_0002")]
 
     operations = [migrations.RunPython(update_metadata_timepoint)]

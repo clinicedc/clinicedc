@@ -47,7 +47,6 @@ class TargetHandler:
     metadata_model = "edc_metadata.crfmetadata"
 
     def __init__(self, model: str = None, related_visit: VisitModelMixin = None):
-
         self.model = model
         self.related_visit = related_visit  # visit model instance
         self.metadata_model_cls = django_apps.get_model(

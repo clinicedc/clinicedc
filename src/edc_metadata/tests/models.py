@@ -43,17 +43,14 @@ class CrfModelMixin(VisitTrackingCrfModelMixin, SiteModelMixin, models.Model):
 
 
 class OnSchedule(SiteModelMixin, OnScheduleModelMixin, BaseUuidModel):
-
     pass
 
 
 class OffSchedule(SiteModelMixin, OffScheduleModelMixin, BaseUuidModel):
-
     pass
 
 
 class DeathReport(UniqueSubjectIdentifierFieldMixin, BaseUuidModel):
-
     objects = SubjectIdentifierManager()
 
     def natural_key(self):
@@ -71,7 +68,6 @@ class SubjectConsent(
     SiteModelMixin,
     BaseUuidModel,
 ):
-
     consent_datetime = models.DateTimeField(default=get_utcnow)
 
     version = models.CharField(max_length=25, default="1")
@@ -103,7 +99,6 @@ class SubjectVisit(
     SiteModelMixin,
     BaseUuidModel,
 ):
-
     appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
 
     subject_identifier = models.CharField(max_length=50)
@@ -118,7 +113,6 @@ class SubjectRequisition(
     UpdatesRequisitionMetadataModelMixin,
     BaseUuidModel,
 ):
-
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     requisition_datetime = models.DateTimeField(null=True)
@@ -129,7 +123,6 @@ class SubjectRequisition(
 
 
 class CrfOne(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
-
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
@@ -140,7 +133,6 @@ class CrfOne(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, B
 
 
 class CrfTwo(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
-
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
@@ -149,28 +141,24 @@ class CrfTwo(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, B
 class CrfThree(
     CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel
 ):
-
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
 class CrfFour(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
-
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
 class CrfFive(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
-
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
 class Crfsix(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
-
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
@@ -179,21 +167,18 @@ class Crfsix(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, B
 class CrfSeven(
     CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel
 ):
-
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
 class PrnOne(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
-
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
 class PrnTwo(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
-
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
@@ -202,14 +187,12 @@ class PrnTwo(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, B
 class MissedVisit(
     CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel
 ):
-
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
 class CrfMissingManager(ReferenceModelMixin, BaseUuidModel):
-
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
@@ -226,7 +209,6 @@ class SubjectVisitMissed(
     CrfWithActionModelMixin,
     BaseUuidModel,
 ):
-
     missed_reasons = models.ManyToManyField(
         SubjectVisitMissedReasons, blank=True, related_name="+"
     )

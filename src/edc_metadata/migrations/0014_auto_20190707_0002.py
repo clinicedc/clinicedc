@@ -7,7 +7,6 @@ import edc_metadata.managers
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("edc_metadata", "0013_auto_20190706_0706")]
 
     operations = [

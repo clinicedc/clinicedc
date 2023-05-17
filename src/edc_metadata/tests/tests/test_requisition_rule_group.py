@@ -110,7 +110,6 @@ class RequisitionRuleGroup3(RequisitionRuleGroup):
 
 
 class BaseRequisitionRuleGroup(RequisitionRuleGroup):
-
     male = RequisitionRule(
         predicate=P("gender", "eq", MALE),
         consequence=REQUIRED,
@@ -215,7 +214,6 @@ class TestRequisitionRuleGroup(TestCase):
                     self.assertEqual(rule_result.entry_status, NOT_REQUIRED)
 
     def test_source_panel_required_raises(self):
-
         try:
 
             class BadRequisitionRuleGroup(BaseRequisitionRuleGroup):
@@ -236,7 +234,6 @@ class TestRequisitionRuleGroup(TestCase):
         try:
 
             class BadRequisitionRuleGroup(RequisitionRuleGroup):
-
                 male = RequisitionRule(
                     predicate=P("gender", "eq", MALE),
                     consequence=REQUIRED,

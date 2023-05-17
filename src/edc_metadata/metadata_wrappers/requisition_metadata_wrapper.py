@@ -9,7 +9,6 @@ if TYPE_CHECKING:
 
 
 class RequisitionMetadataWrapper(MetadataWrapper):
-
     label = "Requisition"
 
     def __init__(self, metadata_obj: RequisitionMetadata = None, **kwargs) -> None:

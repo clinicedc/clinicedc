@@ -12,7 +12,6 @@ class RuleError(Exception):
 
 
 class Rule:
-
     rule_evaluator_cls = RuleEvaluator
     logic_cls = Logic
 

@@ -9,7 +9,6 @@ style = color_style()
 
 
 class Command(BaseCommand):
-
     help = "Update references, metadata and re-run metadatarules"
 
     def add_arguments(self, parser):

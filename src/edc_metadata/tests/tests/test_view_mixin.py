@@ -54,7 +54,6 @@ class TestViewMixin(TestCase):
         return super().setUpTestData()
 
     def setUp(self):
-
         self.user = User.objects.create(username="erik")
 
         for name in ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]:

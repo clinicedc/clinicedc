@@ -17,7 +17,6 @@ if TYPE_CHECKING:
 
 
 class NextFormGetter:
-
     crf_metadata_getter_cls = CrfMetadataGetter
     requisition_metadata_getter_cls = RequisitionMetadataGetter
 

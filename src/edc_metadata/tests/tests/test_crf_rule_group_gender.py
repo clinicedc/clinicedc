@@ -55,7 +55,6 @@ class CrfRuleGroupWithSourceModel(CrfRuleGroup):
 
 
 class CrfRuleGroupWithoutSourceModel(CrfRuleGroup):
-
     crfs_male = CrfRule(
         predicate=P("gender", "eq", MALE),
         consequence=REQUIRED,
@@ -75,7 +74,6 @@ class CrfRuleGroupWithoutSourceModel(CrfRuleGroup):
 
 
 class CrfRuleGroupWithoutExplicitReferenceModel(CrfRuleGroup):
-
     crfs_male = CrfRule(
         predicate=P("gender", "eq", MALE),
         consequence=REQUIRED,
@@ -96,7 +94,6 @@ class CrfRuleGroupWithoutExplicitReferenceModel(CrfRuleGroup):
 
 
 class CrfRuleGroupGender(CrfRuleGroup):
-
     crfs_male = CrfRule(
         predicate=P("gender", "eq", MALE),
         consequence=REQUIRED,
@@ -378,7 +375,6 @@ class TestMetadataRulesWithGender(TestCase):
         )
 
     def test_bad_rule_group_target_model_cannot_also_be_source_model(self):
-
         site_metadata_rules.registry = OrderedDict()
         subject_visit = self.enroll(gender=MALE)
 
@@ -543,7 +539,6 @@ class TestMetadataRulesWithGender(TestCase):
         self.assertEqual(obj.entry_status, REQUIRED)
 
     def test_p_repr(self):
-
         p = P("blah", "eq", "car")
         self.assertTrue(repr(p))
 
@@ -591,7 +586,6 @@ class TestMetadataRulesWithGender(TestCase):
                 abstract = True
 
         class NewCrfRuleGroup(CrfRuleGroup):
-
             rule2 = CrfRule(
                 predicate=P("f1", "eq", "car"),
                 consequence=REQUIRED,
@@ -606,7 +600,6 @@ class TestMetadataRulesWithGender(TestCase):
         self.assertTrue(len(NewCrfRuleGroup()._meta.options.get("rules")), 2)
 
     def test_rule_group_missing_meta(self):
-
         try:
 
             class MyCrfRuleGroup(CrfRuleGroup):
@@ -623,7 +616,6 @@ class TestMetadataRulesWithGender(TestCase):
             self.fail("AttributeError not raised.")
 
     def test_rule_group_invalid_meta_option(self):
-
         try:
 
             class MyCrfRuleGroup(CrfRuleGroup):

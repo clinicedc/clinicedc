@@ -6,6 +6,5 @@ from .requisition_metadata_wrapper import RequisitionMetadataWrapper
 
 
 class RequisitionMetadataWrappers(MetadataWrappers):
-
     metadata_getter_cls: RequisitionMetadataGetter = RequisitionMetadataGetter
     metadata_wrapper_cls: RequisitionMetadataWrapper = RequisitionMetadataWrapper

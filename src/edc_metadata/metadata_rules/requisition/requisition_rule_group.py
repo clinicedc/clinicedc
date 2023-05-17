@@ -54,12 +54,10 @@ class RequisitionRuleGroupMetaOptions(RuleGroupMetaOptions):
 
 
 class RequisitionMetaclass(RuleGroupMetaclass):
-
     rule_group_meta = RequisitionRuleGroupMetaOptions
 
 
 class RequisitionRuleGroup(RuleGroup, metaclass=RequisitionMetaclass):
-
     metadata_updater_cls = RequisitionMetadataUpdater
 
     @classmethod

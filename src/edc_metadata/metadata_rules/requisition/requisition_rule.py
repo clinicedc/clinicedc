@@ -16,7 +16,6 @@ class RequisitionRuleEvaluator(RuleEvaluator):
 
 
 class RequisitionRule(Rule):
-
     rule_evaluator_cls = RequisitionRuleEvaluator
 
     def __init__(

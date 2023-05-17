@@ -16,7 +16,6 @@ class MetadataViewError(Exception):
 
 
 class MetadataViewMixin:
-
     crf_model_wrapper_cls: CrfModelWrapper = CrfModelWrapper
     requisition_model_wrapper_cls: RequisitionModelWrapper = RequisitionModelWrapper
     crf_metadata_wrappers_cls: CrfMetadataWrappers = CrfMetadataWrappers

@@ -30,7 +30,6 @@ fake = Faker()
 
 @unittest.skip("2")
 class TestNaturalKey(TestCase):
-
     exclude_models = [
         "edc_metadata.enrollment",
         "edc_metadata.disenrollment",

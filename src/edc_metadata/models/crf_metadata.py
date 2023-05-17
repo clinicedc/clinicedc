@@ -8,7 +8,6 @@ from .crf_metadata_model_mixin import CrfMetadataModelMixin
 
 
 class CrfMetadata(CrfMetadataModelMixin, SiteModelMixin, edc_models.BaseUuidModel):
-
     on_site = CurrentSiteManager()
 
     objects = CrfMetadataManager()

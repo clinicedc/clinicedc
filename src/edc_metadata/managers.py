@@ -2,7 +2,6 @@ from django.db import models
 
 
 class CrfMetadataManager(models.Manager):
-
     use_in_migrations = True
 
     def get_by_natural_key(
@@ -14,7 +13,6 @@ class CrfMetadataManager(models.Manager):
         visit_code,
         visit_code_sequence,
     ):
-
         return self.get(
             model=model,
             subject_identifier=subject_identifier,
@@ -26,7 +24,6 @@ class CrfMetadataManager(models.Manager):
 
 
 class RequisitionMetadataManager(models.Manager):
-
     use_in_migrations = True
 
     def get_by_natural_key(

@@ -4,6 +4,5 @@ from .metadata_wrappers import MetadataWrappers
 
 
 class CrfMetadataWrappers(MetadataWrappers):
-
     metadata_getter_cls = CrfMetadataGetter
     metadata_wrapper_cls = CrfMetadataWrapper
