@@ -6,6 +6,7 @@ from edc_action_item.get_action_type import get_action_type
 from edc_action_item.models import SubjectDoesNotExist
 from edc_action_item.models.action_item import ActionItem
 from edc_constants.constants import CLOSED, DEAD, NEW, NO, YES
+from edc_constants.disease_constants import ANAEMIA
 from edc_list_data.site_list_data import site_list_data
 from edc_ltfu.constants import LOST_TO_FOLLOWUP
 from edc_registration.models import RegisteredSubject
@@ -439,7 +440,7 @@ class TestAeAndActions(TestCase):
         )
 
     def test_next_action5(self):
-        anaemia = AeClassification.objects.get(name="anaemia")
+        anaemia = AeClassification.objects.get(name=ANAEMIA)
         ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial",
             subject_identifier=self.subject_identifier,
