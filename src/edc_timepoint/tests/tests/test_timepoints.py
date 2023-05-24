@@ -56,7 +56,6 @@ class Helper:
 
 
 class TimepointTests(TestCase):
-
     helper_cls = Helper
 
     @classmethod

@@ -48,7 +48,6 @@ class SubjectVisit(
     TimepointLookupModelMixin,
     BaseUuidModel,
 ):
-
     timepoint_lookup_cls = VisitTimepointLookup
 
     class Meta(VisitModelMixin.Meta):
@@ -56,27 +55,22 @@ class SubjectVisit(
 
 
 class CrfOne(CrfModelMixin, TimepointLookupModelMixin, BaseUuidModel):
-
     timepoint_lookup_cls = CrfTimepointLookup
 
 
 class CrfTwo(CrfModelMixin, TimepointLookupModelMixin, BaseUuidModel):
-
     timepoint_lookup_cls = CrfTimepointLookup
 
 
 class OnSchedule(SiteModelMixin, OnScheduleModelMixin, BaseUuidModel):
-
     pass
 
 
 class OffSchedule(SiteModelMixin, OffScheduleModelMixin, BaseUuidModel):
-
     pass
 
 
 class DeathReport(SiteModelMixin, UniqueSubjectIdentifierFieldMixin, BaseUuidModel):
-
     objects = SubjectIdentifierManager()
 
     def natural_key(self):
