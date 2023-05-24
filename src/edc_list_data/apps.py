@@ -10,7 +10,6 @@ style = color_style()
 
 
 def post_migrate_list_data(sender=None, **kwargs):
-
     sys.stdout.write(style.MIGRATE_HEADING("Updating list data:\n"))
 
     site_list_data.autodiscover()
