@@ -3,7 +3,6 @@ from edc_model.models import BaseUuidModel
 
 
 class TestModel(BaseUuidModel):
-
     f1 = models.CharField(max_length=10)
     f2 = models.CharField(max_length=10)
     f3 = models.CharField(max_length=10, null=True, blank=False)

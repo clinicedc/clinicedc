@@ -6,7 +6,6 @@ from django.utils.translation import gettext as _
 
 
 class UserField(CharField):
-
     description = _("Custom field for user created")
 
     def __init__(self, *args, **kwargs):

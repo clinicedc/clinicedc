@@ -6,7 +6,6 @@ from django.utils.translation import gettext as _
 
 
 class InitialsField(CharField):
-
     description = _("Custom field for a person's initials")
 
     def __init__(self, *args, **kwargs):
