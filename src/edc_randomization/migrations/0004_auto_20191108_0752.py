@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("edc_randomization", "0003_auto_20191024_0426")]
 
     operations = [

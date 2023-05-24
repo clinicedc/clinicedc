@@ -5,7 +5,6 @@ from edc_navbar import NavbarViewMixin
 
 
 class HomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
-
     template_name = f"edc_randomization/bootstrap{get_bootstrap_version()}/home.html"
     navbar_name = "edc_randomization"
     navbar_selected_item = "edc_randomization"

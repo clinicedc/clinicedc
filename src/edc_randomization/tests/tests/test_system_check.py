@@ -44,7 +44,6 @@ class TestRandomizer(TestCaseMixin, TestCase):
         EDC_RANDOMIZATION_BLINDED_TRIAL=False, EDC_RANDOMIZATION_UNBLINDED_USERS=["audrey"]
     )
     def test_blinded_trial_settings_check(self):
-
         errors = blinded_trial_settings_check(
             app_configs=django_apps.get_app_config("edc_randomization")
         )
@@ -54,7 +53,6 @@ class TestRandomizer(TestCaseMixin, TestCase):
         EDC_RANDOMIZATION_BLINDED_TRIAL=True, EDC_RANDOMIZATION_UNBLINDED_USERS=["audrey"]
     )
     def test_blinded_trial_settings_check2(self):
-
         errors = blinded_trial_settings_check(
             app_configs=django_apps.get_app_config("edc_randomization")
         )

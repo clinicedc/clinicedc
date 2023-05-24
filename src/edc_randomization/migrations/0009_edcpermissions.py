@@ -10,7 +10,6 @@ import django_revision.revision_field
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_randomization", "0008_auto_20220704_1841"),
     ]
