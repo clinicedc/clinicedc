@@ -7,7 +7,6 @@ from ..models import Plan
 
 @admin.register(Plan, site=edc_export_admin)
 class PlanAdmin(admin.ModelAdmin):
-
     fieldsets = (
         [None, {"fields": ("name", "model", "model_type")}],
         [

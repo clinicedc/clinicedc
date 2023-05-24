@@ -2,7 +2,6 @@ from django.db import models
 
 
 class NotificationMixin(models.Model):
-
     notification_plan_name = models.CharField(max_length=200)
 
     notification_datetime = models.DateTimeField()

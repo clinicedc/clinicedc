@@ -7,7 +7,6 @@ from .data_request import DataRequest
 
 
 class DataRequestHistory(BaseUuidModel):
-
     data_request = models.ForeignKey(DataRequest, on_delete=PROTECT)
 
     archive_filename = models.CharField(max_length=200, null=True)

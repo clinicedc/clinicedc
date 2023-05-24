@@ -10,7 +10,6 @@ from ...models import ExportPlan, ExportReceipt, ExportTransaction
 
 
 class Command(BaseCommand):
-
     args = "<receipt filename>"
     help = "Import a receipt file for recently exported transactions."
     option_list = BaseCommand.option_list
@@ -31,7 +30,7 @@ class Command(BaseCommand):
         error_filepath = os.path.join(
             os.path.expanduser(self.export_plan.target_path) or "", self.error_filename
         )
-        with open(self.ack_filename, "r") as f, (open(error_filepath, "w")) as error_file:
+        with open(self.ack_filename, "r") as f, open(error_filepath, "w") as error_file:
             rows = csv.reader(f, delimiter="|")
             writer = csv.writer(error_file, delimiter="|")
             for row in rows:

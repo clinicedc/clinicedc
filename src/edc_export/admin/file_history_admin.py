@@ -6,7 +6,6 @@ from ..models import FileHistory
 
 @admin.register(FileHistory, site=edc_export_admin)
 class FileHistoryAdmin(admin.ModelAdmin):
-
     date_hierarchy = "sent_datetime"
     list_display = (
         "model",

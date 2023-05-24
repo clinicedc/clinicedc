@@ -9,7 +9,6 @@ from ..exportables import Exportables
 
 
 class ExportModelsView(EdcViewMixin, NavbarViewMixin, TemplateView):
-
     template_name = f"edc_export/bootstrap{get_bootstrap_version()}/export_models.html"
     navbar_name = "edc_export"
     navbar_selected_item = "export"

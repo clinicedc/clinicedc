@@ -6,7 +6,6 @@ from ..models import ObjectHistory
 
 @admin.register(ObjectHistory, site=edc_export_admin)
 class ObjectHistoryAdmin(admin.ModelAdmin):
-
     date_hierarchy = "created"
     list_display = (
         "export_uuid",

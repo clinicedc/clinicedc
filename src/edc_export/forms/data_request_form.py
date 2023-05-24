@@ -6,12 +6,10 @@ from ..models import DataRequest
 
 
 class DataRequestFormValidator(FormValidator):
-
     pass
 
 
 class DataRequestForm(FormValidatorMixin, forms.ModelForm):
-
     form_validator_cls = DataRequestFormValidator
 
     def clean(self):

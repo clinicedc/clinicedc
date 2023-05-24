@@ -23,7 +23,6 @@ class TestExportable(TestCase):
         self.user = user
 
     def test_model_options(self):
-
         model_opts = ModelOptions(model="edc_registration.registeredsubject")
         self.assertTrue(model_opts.label_lower)
         self.assertTrue(model_opts.verbose_name)
@@ -74,8 +73,11 @@ class TestExportable(TestCase):
             "edc_appointment.historicalappointment",
             [o.label_lower for o in exportables.get("edc_appointment").historical_models],
         )
+        self.assertIn(
+            "edc_appointment.appointmenttype",
+            [o.label_lower for o in exportables.get("edc_appointment").list_models],
+        )
         self.assertFalse(exportables.get("edc_registration").list_models)
-        self.assertFalse(exportables.get("edc_appointment").list_models)
 
     def test_default_exportables(self):
         exportables = Exportables(

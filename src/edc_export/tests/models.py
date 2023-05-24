@@ -27,7 +27,6 @@ from ..model_mixins import ExportTrackingFieldsModelMixin
 
 
 class SubjectVisit(VisitModelMixin, BaseUuidModel):
-
     survival_status = models.CharField(max_length=25, null=True)
 
     last_alive_date = models.DateTimeField(null=True)
@@ -47,7 +46,6 @@ class SubjectVisitMissed(
     CrfWithActionModelMixin,
     BaseUuidModel,
 ):
-
     missed_reasons = models.ManyToManyField(
         SubjectVisitMissedReasons, blank=True, related_name="+"
     )
@@ -61,7 +59,6 @@ class SubjectVisitMissed(
 
 
 class SubjectConsent(BaseUuidModel, SiteModelMixin, UniqueSubjectIdentifierModelMixin):
-
     consent_datetime = models.DateTimeField(default=get_utcnow)
 
     dob = models.DateField(null=True)
@@ -76,12 +73,10 @@ class SubjectConsent(BaseUuidModel, SiteModelMixin, UniqueSubjectIdentifierModel
 
 
 class SubjectLocator(BaseUuidModel):
-
     subject_identifier = models.CharField(max_length=36)
 
 
 class CrfModelMixin(models.Model):
-
     subject_visit = models.OneToOneField(SubjectVisit, on_delete=PROTECT)
 
     report_datetime = models.DateTimeField(null=True)
@@ -99,7 +94,6 @@ class CrfModelMixin(models.Model):
 
 
 class SubjectRequisition(RequisitionModelMixin, BaseUuidModel):
-
     panel_name = models.CharField(max_length=25, default="Microtube")
 
 
@@ -108,7 +102,6 @@ class ListModel(ListModelMixin):
 
 
 class Crf(CrfModelMixin, ExportTrackingFieldsModelMixin, BaseUuidModel):
-
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     char1 = models.CharField(max_length=25, null=True)
@@ -125,7 +118,6 @@ class Crf(CrfModelMixin, ExportTrackingFieldsModelMixin, BaseUuidModel):
 
 
 class CrfEncrypted(CrfModelMixin, ExportTrackingFieldsModelMixin, BaseUuidModel):
-
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     encrypted1 = EncryptedCharField(null=True)
@@ -134,36 +126,30 @@ class CrfEncrypted(CrfModelMixin, ExportTrackingFieldsModelMixin, BaseUuidModel)
 
 
 class CrfOne(CrfModelMixin, BaseUuidModel):
-
     dte = models.DateTimeField(default=get_utcnow)
 
 
 class CrfTwo(CrfModelMixin, BaseUuidModel):
-
     dte = models.DateTimeField(default=get_utcnow)
 
 
 class CrfThree(CrfModelMixin, BaseUuidModel):
-
     UPPERCASE = models.DateTimeField(default=get_utcnow)
 
 
 class ListOne(BaseListModelMixin, BaseUuidModel):
-
     char1 = models.CharField(max_length=25, null=True)
 
     dte = models.DateTimeField(default=get_utcnow)
 
 
 class ListTwo(BaseListModelMixin, BaseUuidModel):
-
     char1 = models.CharField(max_length=25, null=True)
 
     dte = models.DateTimeField(default=get_utcnow)
 
 
 class CrfWithInline(CrfModelMixin, BaseUuidModel):
-
     list_one = models.ForeignKey(ListOne, on_delete=models.PROTECT)
 
     list_two = models.ForeignKey(ListTwo, on_delete=models.PROTECT)
@@ -179,10 +165,8 @@ class OnScheduleOne(SiteModelMixin, OnScheduleModelMixin, BaseUuidModel):
 
 
 class OffScheduleOne(SiteModelMixin, OffScheduleModelMixin, BaseUuidModel):
-
     pass
 
 
 class SubjectOffstudy(SiteModelMixin, OffstudyModelMixin, BaseUuidModel):
-
     objects = SubjectIdentifierManager()

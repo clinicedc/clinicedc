@@ -16,7 +16,6 @@ class UploadExportReceiptFileManager(models.Manager):
 
 
 class UploadExportReceiptFile(BaseUuidModel):
-
     export_receipt_file = models.FileField(
         upload_to=os.path.join("media", "edc_export", "uploads")
     )

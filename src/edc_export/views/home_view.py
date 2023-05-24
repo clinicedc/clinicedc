@@ -5,7 +5,6 @@ from edc_navbar import NavbarViewMixin
 
 
 class HomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
-
     template_name = f"edc_export/bootstrap{get_bootstrap_version()}/home.html"
     navbar_name = "edc_export"
     navbar_selected_item = "export"

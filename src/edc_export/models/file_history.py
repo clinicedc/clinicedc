@@ -11,7 +11,6 @@ class FileHistoryManager(models.Manager):
 
 
 class FileHistory(BaseUuidModel):
-
     history_uuid = models.UUIDField(
         editable=False,
         default=uuid4,

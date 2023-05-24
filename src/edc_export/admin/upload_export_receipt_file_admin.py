@@ -6,7 +6,6 @@ from ..models import UploadExportReceiptFile
 
 @admin.register(UploadExportReceiptFile, site=edc_export_admin)
 class UploadExportReceiptFileAdmin(admin.ModelAdmin):
-
     date_hierarchy = "created"
 
     list_display = (

@@ -43,7 +43,7 @@ class TestExport(TestCase):
 
     def test_columns(self):
         model = "edc_export.crf"
-        m = ModelToDataframe(model=model)
+        m = ModelToDataframe(model=model, drop_sys_columns=False)
         self.assertEqual(len(list(m.dataframe.columns)), 26)
 
     def test_values(self):
@@ -77,7 +77,6 @@ class TestExport(TestCase):
         CrfEncrypted.objects.create(subject_visit=self.subject_visit, encrypted1="encrypted1")
         model_exporter = CsvModelExporter(
             queryset=CrfEncrypted.objects.all(),
-            add_columns_for="subject_visit",
             export_folder=get_export_folder(),
         )
         model_exporter.to_csv()
@@ -86,7 +85,6 @@ class TestExport(TestCase):
         CrfEncrypted.objects.create(subject_visit=self.subject_visit, encrypted1="encrypted1")
         model_exporter = CsvModelExporter(
             model="edc_export.CrfEncrypted",
-            add_columns_for="subject_visit",
             export_folder=get_export_folder(),
         )
         model_exporter.to_csv()
