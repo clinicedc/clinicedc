@@ -13,7 +13,6 @@ class AdministrationDashboardError(Exception):
 
 
 class AdministrationViewMixin(ContextMixin):
-
     template_name = f"edc_dashboard/bootstrap{get_bootstrap_version()}/administration.html"
 
     edc_module_prefix = "Edc"
