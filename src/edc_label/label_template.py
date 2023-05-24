@@ -11,7 +11,6 @@ class LabelTemplateError(Exception):
 
 
 class LabelTemplate:
-
     template_name = None
 
     def __init__(self, template_name=None, static_files_path=None):

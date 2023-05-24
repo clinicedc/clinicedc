@@ -5,7 +5,6 @@ from edc_navbar import NavbarViewMixin
 
 
 class BrowserPrintLabelsView(EdcViewMixin, NavbarViewMixin, TemplateView):
-
     template_name = "edc_label/browser_print_labels.html"
     navbar_name = "edc_label"
     navbar_selected_item = "label"

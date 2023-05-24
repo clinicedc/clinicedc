@@ -12,12 +12,10 @@ from ..constants import (
 
 
 class ChangePrinterView(LoginRequiredMixin, ProcessFormView):
-
     success_url = "edc_label:home_url"
     empty_selection = "--"
 
     def post(self, request, *args, **kwargs):
-
         user_profile = UserProfile.objects.get(user=self.request.user)
 
         print_server_name = request.POST.get(PRINT_SERVER_NAME)
