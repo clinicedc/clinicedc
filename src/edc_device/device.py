@@ -15,7 +15,6 @@ class DeviceRoleError(ValidationError):
 
 
 class Device:
-
     default_central_server_id = "99"
     default_device_id = "99"
 
@@ -28,7 +27,6 @@ class Device:
         middlemen=None,
         **kwargs,
     ):
-
         self.central_server_id = central_server_id or self.default_central_server_id
         self.nodes = nodes or []
         self.middlemen = middlemen or []

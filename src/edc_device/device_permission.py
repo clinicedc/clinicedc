@@ -15,7 +15,6 @@ class DevicePermissionError(Exception):
 
 
 class BaseDevicePermission:
-
     label = None
     exception_cls = None
     device_roles = []
@@ -68,7 +67,6 @@ class BaseDevicePermission:
 
 
 class DeviceAddPermission(BaseDevicePermission):
-
     label = "ADD"
     exception_cls = DevicePermissionAddError
 
@@ -80,7 +78,6 @@ class DeviceAddPermission(BaseDevicePermission):
 
 
 class DeviceChangePermission(BaseDevicePermission):
-
     label = "CHANGE"
     exception_cls = DevicePermissionChangeError
 
