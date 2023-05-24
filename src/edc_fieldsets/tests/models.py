@@ -11,7 +11,6 @@ from edc_visit_tracking.model_mixins import (
 
 
 class SubjectVisit(VisitModelMixin, BaseUuidModel):
-
     subject_identifier = models.CharField(max_length=25)
 
     report_datetime = models.DateTimeField(default=get_utcnow)
@@ -28,7 +27,6 @@ class SubjectVisitMissed(
     CrfWithActionModelMixin,
     BaseUuidModel,
 ):
-
     missed_reasons = models.ManyToManyField(
         SubjectVisitMissedReasons, blank=True, related_name="+"
     )
@@ -42,7 +40,6 @@ class SubjectVisitMissed(
 
 
 class MyModel(CrfModelMixin, BaseUuidModel):
-
     f1 = models.CharField(verbose_name="Are you circumcised?", max_length=10, choices=YES_NO)
 
     f2 = models.CharField(max_length=10, null=True, blank=True)
