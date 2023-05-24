@@ -657,7 +657,22 @@ YES_NO_DONT_KNOW = ((YES, YES), (NO, NO), ("Dont_know", "Do not know"))
 YES_NO_DONT_KNOW_NA = (
     (YES, YES),
     (NO, NO),
-    ("Dont_know", "Do not know"),
+    (DONT_KNOW, "Do not know"),
+    (NOT_APPLICABLE, "Not applicable"),
+)
+
+YES_NO_DONT_KNOW_DWTA = (
+    (YES, YES),
+    (NO, NO),
+    (DONT_KNOW, "Do not know"),
+    (DWTA, "Don't want to answer"),
+)
+
+YES_NO_DONT_KNOW_DWTA_NA = (
+    (YES, YES),
+    (NO, NO),
+    (DONT_KNOW, "Do not know"),
+    (DWTA, "Don't want to answer"),
     (NOT_APPLICABLE, "Not applicable"),
 )
 
