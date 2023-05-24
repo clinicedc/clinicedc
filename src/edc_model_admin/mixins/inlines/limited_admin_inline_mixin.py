@@ -42,7 +42,7 @@ class LimitedAdminInlineMixin:
     def get_formset(self, request, obj=None, **kwargs):
         formset = super(LimitedAdminInlineMixin, self).get_formset(request, obj, **kwargs)
 
-        for (field, filters) in self.get_filters(obj):
+        for field, filters in self.get_filters(obj):
             if obj:
                 self.limit_inline_choices(formset, field, **filters)
             else:

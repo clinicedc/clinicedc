@@ -3,7 +3,6 @@ from django_audit_fields.admin import audit_fieldset_tuple
 
 
 class AddressModelAdminMixin(admin.ModelAdmin):
-
     fieldsets = (
         (
             None,
