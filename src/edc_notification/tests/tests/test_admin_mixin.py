@@ -13,7 +13,6 @@ from ..models import AE
 
 
 class Mixin(NotificationModelAdminMixin, ModelAdminFormInstructionsMixin):
-
     model = AE
 
 
@@ -26,7 +25,6 @@ class G3EventNotification(GradedEventNotification):
 
 class TestAdminMixin(TestCase):
     def setUp(self):
-
         self.user = User.objects.create(username="erikvw", is_active=True, is_staff=True)
         site_notifications._registry = {}
         site_notifications.register(G3EventNotification)
@@ -46,7 +44,6 @@ class TestAdminMixin(TestCase):
         return_value=200,
     )
     def test_notification_instructions(self, mock_create, mock_subscribe, mock_unsubscribe):
-
         rf = RequestFactory()
         request = rf.get("/")
         request.user = self.user
@@ -77,7 +74,6 @@ class TestAdminMixin(TestCase):
         return_value=200,
     )
     def test_add_change_instructions(self, mock_create, mock_subscribe, mock_unsubscribe):
-
         rf = RequestFactory()
         request = rf.get("/")
         request.user = self.user

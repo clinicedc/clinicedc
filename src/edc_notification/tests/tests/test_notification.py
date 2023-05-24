@@ -38,7 +38,6 @@ class TestNotification(TestCase):
         Condition.objects.create(name="arthritis")
 
     def test_register(self):
-
         with self.assertRaises(RegisterNotificationError) as cm:
 
             @register()
@@ -48,7 +47,6 @@ class TestNotification(TestCase):
         self.assertIn("Wrapped class must be a 'Notification' class.", str(cm.exception))
 
         class G4EventNotification(GradedEventNotification):
-
             name = "g4_event"
             display_name = "a grade 4 event has occured"
             grade = 4
@@ -85,7 +83,6 @@ class TestNotification(TestCase):
         self.assertEqual(cm.exception.__class__, AlreadyRegistered)
 
     def test_site_notifications(self):
-
         site_notifications._registry = {}
         site_notifications.loaded = False
         # registry
@@ -164,7 +161,6 @@ class TestNotification(TestCase):
         self.assertTrue(str(SomeNotification()))
 
     def test_default_notification(self):
-
         site_notifications._registry = {}
 
         @register()
@@ -187,11 +183,9 @@ class TestNotification(TestCase):
         ae.conditions.add(Condition.objects.all()[1])
 
     def test_any_model_passes_notification_on_post_create_historical_record(self):
-
         AnyModel.objects.create()
 
     def test_graded_event_grade3(self):
-
         site_notifications._registry = {}
         site_notifications.update_notification_list()
 
@@ -222,7 +216,6 @@ class TestNotification(TestCase):
         self.assertEqual(len(mail.outbox), 2)
 
     def test_graded_event_grade4_on_create(self):
-
         site_notifications._registry = {}
         site_notifications.update_notification_list()
 
@@ -240,7 +233,6 @@ class TestNotification(TestCase):
         self.assertEqual(len(mail.outbox), 1)
 
     def test_graded_event_grade4_on_create_then_escalate(self):
-
         site_notifications._registry = {}
         site_notifications.update_notification_list()
 
@@ -262,7 +254,6 @@ class TestNotification(TestCase):
         self.assertEqual(len(mail.outbox), 1)
 
     def test_graded_event_grade4(self):
-
         site_notifications._registry = {}
         site_notifications.update_notification_list()
 
@@ -300,7 +291,6 @@ class TestNotification(TestCase):
         self.assertEqual(len(mail.outbox), 1)
 
     def test_graded_event_grade3_and_grade4(self):
-
         site_notifications._registry = {}
         site_notifications.update_notification_list()
 
@@ -353,7 +343,6 @@ class TestNotification(TestCase):
         str(DeathNotification())
 
     def test_new_model_notification(self):
-
         site_notifications._registry = {}
         site_notifications.update_notification_list()
 
@@ -370,7 +359,6 @@ class TestNotification(TestCase):
         self.assertEqual(len(mail.outbox), 1)
 
     def test_model_notification(self):
-
         site_notifications._registry = {}
         site_notifications.update_notification_list()
 
@@ -401,7 +389,6 @@ class TestNotification(TestCase):
         self.assertEqual(len(mail.outbox), 3)
 
     def test_model_notification2(self):
-
         site_notifications._registry = {}
         site_notifications.update_notification_list()
 
@@ -433,7 +420,6 @@ class TestNotification(TestCase):
         self.assertEqual(len(mail.outbox), 4)
 
     def test_model_notification3(self):
-
         site_notifications._registry = {}
         site_notifications.update_notification_list()
 
@@ -467,7 +453,6 @@ class TestNotification(TestCase):
 
     @override_settings(EDC_PROTOCOL_PROJECT_NAME="Mashi Trial")
     def test_model_notification_mail_subject(self):
-
         site_notifications._registry = {}
         site_notifications.update_notification_list()
 
@@ -495,7 +480,6 @@ class TestNotification(TestCase):
         self.assertIn("DELETED*", mail.outbox[3].subject)
 
     def test_notification_model_is_updated(self):
-
         site_notifications._registry = {}
         site_notifications.update_notification_list()
 
@@ -531,7 +515,6 @@ class TestNotification(TestCase):
             self.fail("NotificationModel unexpectedly does not exist")
 
     def test_notification_model_is_updated_message_content(self):
-
         site_notifications._registry = {}
 
         @register()
@@ -556,7 +539,6 @@ class TestNotification(TestCase):
         self.assertIn("*UPDATE*", mail.outbox[1].__dict__.get("subject"))
 
     def test_notification_model_disables_unused(self):
-
         site_notifications._registry = {}
         site_notifications.update_notification_list()
 
@@ -597,7 +579,6 @@ class TestNotification(TestCase):
         )
 
     def test_graded_event_grade3_as_test_email_message(self):
-
         site_notifications._registry = {}
         site_notifications.update_notification_list()
 
@@ -612,7 +593,6 @@ class TestNotification(TestCase):
         G3EventNotification().send_test_email("someone@example.com")
 
     def test_graded_event_grade3_as_test_sms_message(self):
-
         site_notifications._registry = {}
         site_notifications.update_notification_list()
 
@@ -628,7 +608,6 @@ class TestNotification(TestCase):
         G3EventNotification().send_test_sms(sms_recipient=settings.TWILIO_TEST_RECIPIENT)
 
     def test_graded_event_grade3_as_test_sms_message_to_subscribed_user(self, *args):
-
         user = User.objects.create(username="erikvw", is_active=True, is_staff=True)
 
         class G3EventNotification(GradedEventNotification):
@@ -654,7 +633,6 @@ class TestNotification(TestCase):
         self.assertNotIn(settings.TWILIO_TEST_RECIPIENT, G3EventNotification().sms_recipients)
 
     def test_notification_model_instance_deletes_for_unregistered(self):
-
         User.objects.create(username="erikvw", is_active=True, is_staff=True)
 
         site_notifications._registry = {}

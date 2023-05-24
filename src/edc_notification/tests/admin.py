@@ -8,11 +8,9 @@ from .models import AE
 
 
 class ModelAdminMixin(NotificationModelAdminMixin, ModelAdminFormInstructionsMixin):
-
     pass
 
 
 @register(AE, site=edc_notification_admin)
 class AEAdmin(ModelAdminMixin, admin.ModelAdmin):
-
     model = AE

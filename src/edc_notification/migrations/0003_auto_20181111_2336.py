@@ -6,7 +6,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("edc_notification", "0002_update_notifications")]
 
     # this is now run as in post migrate

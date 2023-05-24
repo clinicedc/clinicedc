@@ -4,7 +4,6 @@ from ..models import Notification
 
 
 class NotificationUserProfileModelMixin(models.Model):
-
     email_notifications = models.ManyToManyField(
         Notification,
         related_name="email_notifications",
