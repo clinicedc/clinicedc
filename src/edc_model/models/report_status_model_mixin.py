@@ -5,7 +5,6 @@ from ..validators import datetime_not_future
 
 
 class ReportStatusModelMixin(models.Model):
-
     report_status = models.CharField(
         verbose_name="What is the status of this report?",
         max_length=25,
