@@ -30,7 +30,6 @@ class SubjectReviewListboardView(
     SearchFormViewMixin,
     ListboardView,
 ):
-
     listboard_model = get_subject_visit_model_cls()
     navbar_selected = "subject_review"
 
