@@ -13,7 +13,6 @@ class BoxTypeManager(models.Manager):
 
 
 class BoxType(edc_models.BaseUuidModel):
-
     name = models.CharField(
         max_length=25, unique=True, help_text="a unique name to describe this box type"
     )

@@ -3,7 +3,6 @@ from django.db import models
 
 
 class AliquotTypeModelMixin(models.Model):
-
     aliquot_type = models.CharField(verbose_name="Aliquot Type Name", max_length=25)
 
     alpha_code = models.CharField(

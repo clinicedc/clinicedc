@@ -22,7 +22,6 @@ class TestPanel(TestCase):
         )
 
     def test_panel2(self):
-
         wb = AliquotType(name="Whole Blood", alpha_code="WB", numeric_code="02")
 
         whole_blood_processing = ProcessingProfile(name="whole_blood_store", aliquot_type=wb)

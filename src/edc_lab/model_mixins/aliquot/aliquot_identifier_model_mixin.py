@@ -2,7 +2,6 @@ from django.db import models
 
 
 class AliquotIdentifierModelMixin(models.Model):
-
     # NOTE: aliquot_identifier is allocated by the Specimen object
     aliquot_identifier = models.CharField(max_length=25, unique=True)
 

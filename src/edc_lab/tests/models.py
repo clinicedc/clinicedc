@@ -60,7 +60,6 @@ class SubjectVisitMissed(
     CrfWithActionModelMixin,
     BaseUuidModel,
 ):
-
     missed_reasons = models.ManyToManyField(
         SubjectVisitMissedReasons, blank=True, related_name="+"
     )
@@ -82,17 +81,14 @@ class SubjectRequisition(RequisitionModelMixin, BaseUuidModel):
 
 
 class OnSchedule(SiteModelMixin, OnScheduleModelMixin, BaseUuidModel):
-
     pass
 
 
 class OffSchedule(SiteModelMixin, OffScheduleModelMixin, BaseUuidModel):
-
     pass
 
 
 class DeathReport(SiteModelMixin, UniqueSubjectIdentifierFieldMixin, BaseUuidModel):
-
     objects = SubjectIdentifierManager()
 
     def natural_key(self):
@@ -115,7 +111,6 @@ class SubjectConsent(
     VisitScheduleMethodsModelMixin,
     BaseUuidModel,
 ):
-
     objects = SubjectIdentifierManager()
 
     def natural_key(self):
@@ -126,5 +121,4 @@ class SubjectConsent(
 
 
 class CrfOne(CrfModelMixin, BaseUuidModel):
-
     dte = models.DateTimeField(default=get_utcnow)

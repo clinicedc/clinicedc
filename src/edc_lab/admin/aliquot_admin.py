@@ -21,7 +21,6 @@ aliquot_identifiers_fieldset_tuple = Fieldset(
 
 @admin.register(Aliquot, site=edc_lab_admin)
 class AliquotAdmin(BaseModelAdmin, admin.ModelAdmin):
-
     form = AliquotForm
 
     fieldsets = (

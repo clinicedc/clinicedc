@@ -3,7 +3,6 @@ from edc_model import models as edc_models
 
 
 class PanelManager(models.Manager):
-
     use_in_migrations = True
 
     def get_by_natural_key(self, name, lab_profile_name):
@@ -11,7 +10,6 @@ class PanelManager(models.Manager):
 
 
 class Panel(edc_models.BaseUuidModel):
-
     name = models.CharField(max_length=50)
 
     display_name = models.CharField(max_length=50)

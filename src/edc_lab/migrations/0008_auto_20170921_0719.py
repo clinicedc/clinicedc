@@ -12,7 +12,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("edc_lab", "0007_auto_20170321_1119")]
 
     operations = [

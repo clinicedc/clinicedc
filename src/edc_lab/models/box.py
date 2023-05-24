@@ -37,7 +37,6 @@ class BoxManager(SearchSlugManager, models.Manager):
 
 
 class Box(SearchSlugModelMixin, VerifyBoxModelMixin, SiteModelMixin, edc_models.BaseUuidModel):
-
     search_slug_fields = ["box_identifier", "human_readable_identifier", "name"]
 
     box_identifier = models.CharField(max_length=25, editable=False, unique=True)

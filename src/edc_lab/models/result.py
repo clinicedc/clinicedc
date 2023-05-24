@@ -17,7 +17,6 @@ class ResultManager(models.Manager):
 
 
 class Result(ResultModelMixin, edc_models.BaseUuidModel):
-
     order = models.ForeignKey(Order, on_delete=PROTECT)
 
     on_site = CurrentSiteManager()

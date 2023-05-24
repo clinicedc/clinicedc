@@ -20,7 +20,6 @@ from ..visit_schedules import visit_schedule
 
 
 class TestLabels(TestCase):
-
     lab_helper = SiteLabsTestHelper()
 
     @classmethod

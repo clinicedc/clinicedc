@@ -2,7 +2,6 @@ from django.db import models
 
 
 class RequisitionStatusMixin(models.Model):
-
     received = models.BooleanField(default=False)
 
     received_datetime = models.DateTimeField(null=True, blank=True)

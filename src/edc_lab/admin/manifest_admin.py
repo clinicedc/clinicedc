@@ -9,7 +9,6 @@ from .base_model_admin import BaseModelAdmin
 
 @admin.register(Manifest, site=edc_lab_admin)
 class ManifestAdmin(BaseModelAdmin, admin.ModelAdmin):
-
     form = ManifestForm
 
     fieldsets = (

@@ -14,7 +14,6 @@ import edc_sites.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_lab", "0021_auto_20200513_0034"),
     ]

@@ -17,7 +17,6 @@ class RequisitionFormValidatorError(Exception):
 
 
 class RequisitionFormValidatorMixin:
-
     aliquot_model: str = "edc_lab.aliquot"
 
     def clean(self) -> None:

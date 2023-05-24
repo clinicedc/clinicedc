@@ -8,7 +8,6 @@ from .base_model_admin import BaseModelAdmin
 
 @admin.register(Panel, site=edc_lab_admin)
 class PanelAdmin(BaseModelAdmin, admin.ModelAdmin):
-
     fieldsets = (
         (None, {"fields": ("name", "display_name", "lab_profile_name")}),
         audit_fieldset_tuple,

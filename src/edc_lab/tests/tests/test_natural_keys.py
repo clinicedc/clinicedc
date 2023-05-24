@@ -7,7 +7,6 @@ from edc_test_utils.natural_key_test_helper import NaturalKeyTestHelper
 
 
 class TestNaturalKey(SiteTestCaseMixin, TestCase):
-
     nk_test_helper = NaturalKeyTestHelper()
 
     @classmethod

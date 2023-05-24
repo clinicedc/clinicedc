@@ -24,7 +24,6 @@ class SiteLabsLabProfileError(Exception):
 
 
 class SiteLabs:
-
     panel_model = "edc_lab.panel"
 
     def __init__(self):

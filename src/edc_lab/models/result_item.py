@@ -18,7 +18,6 @@ class ResultItemManager(models.Manager):
 
 
 class ResultItem(ResultItemModelMixin, edc_models.BaseUuidModel):
-
     result = models.ForeignKey(Result, on_delete=PROTECT)
 
     on_site = CurrentSiteManager()

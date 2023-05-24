@@ -17,7 +17,6 @@ class NothingPanel:
 
 
 class PanelModelMixin(models.Model):
-
     panel = models.ForeignKey("edc_lab.Panel", on_delete=PROTECT, null=True)
 
     @property

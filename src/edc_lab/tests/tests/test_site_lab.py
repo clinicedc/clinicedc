@@ -61,7 +61,6 @@ class TestSiteLab(TestCase):
 
 
 class TestSiteLab2(TestCase):
-
     lab_helper = SiteLabsTestHelper()
 
     @classmethod
