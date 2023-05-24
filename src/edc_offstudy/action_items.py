@@ -9,7 +9,6 @@ from .utils import get_offstudy_model
 
 
 class EndOfStudyAction(ActionWithNotification):
-
     admin_site_name = None  # "inte_prn_admin"
 
     name = END_OF_STUDY_ACTION

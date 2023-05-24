@@ -36,7 +36,6 @@ class TestOffstudy(TestCase):
         super().tearDownClass()
 
     def setUp(self):
-
         self.visit_schedule_name = "visit_schedule1"
         self.schedule_name = "schedule1"
 
@@ -74,7 +73,6 @@ class TestOffstudy(TestCase):
         )
 
     def test_offstudy_model(self):
-
         self.assertRaises(
             OffScheduleError,
             SubjectOffstudy.objects.create,
@@ -100,7 +98,6 @@ class TestOffstudy(TestCase):
         self.assertTrue(str(obj))
 
     def test_offstudy_cls_raises_before_offstudy_date(self):
-
         OffScheduleOne.objects.create(
             subject_identifier=self.subject_identifier,
             report_datetime=get_utcnow(),
@@ -115,7 +112,6 @@ class TestOffstudy(TestCase):
         )
 
     def test_offstudy_not_before_offschedule(self):
-
         OffScheduleOne.objects.create(
             subject_identifier=self.subject_identifier,
             report_datetime=get_utcnow(),
@@ -165,7 +161,6 @@ class TestOffstudy(TestCase):
         self.assertRaises(OffstudyError, subject_visit.save)
 
     def test_crf_model_mixin(self):
-
         # get subject's appointments
         appointments = Appointment.objects.filter(
             subject_identifier=self.subject_identifier
@@ -337,7 +332,6 @@ class TestOffstudy(TestCase):
 
     @override_settings(EDC_OFFSTUDY_OFFSTUDY_MODEL="edc_offstudy.SubjectOffstudy")
     def test_non_crf_modelform1(self):
-
         data = dict(
             subject_identifier=self.subject_identifier,
             report_datetime=self.consent_datetime,
@@ -348,7 +342,6 @@ class TestOffstudy(TestCase):
 
     @override_settings(EDC_OFFSTUDY_OFFSTUDY_MODEL="edc_offstudy.SubjectOffstudy")
     def test_non_crf_modelform2(self):
-
         data = dict(
             subject_identifier=self.subject_identifier,
             report_datetime=self.consent_datetime,

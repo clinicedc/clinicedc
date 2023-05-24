@@ -8,7 +8,6 @@ from .models import SubjectOffstudy
 
 @admin.register(SubjectOffstudy, site=edc_offstudy_admin)
 class SubjectOffstudyAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
-
     fieldsets = (
         [
             None,
