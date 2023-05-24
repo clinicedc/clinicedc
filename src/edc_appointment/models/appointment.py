@@ -8,7 +8,6 @@ from .appointment_type import AppointmentType
 
 
 class Appointment(AppointmentModelMixin, SiteModelMixin, BaseUuidModel):
-
     appt_type = models.ForeignKey(
         AppointmentType,
         verbose_name="Appointment type",

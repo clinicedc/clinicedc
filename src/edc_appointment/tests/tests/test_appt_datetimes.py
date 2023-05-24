@@ -16,7 +16,6 @@ from ..helper import Helper
 
 
 class TestApptDatetimes(TestCase):
-
     helper_cls = Helper
 
     """Note: visit schedule has appointments on days 0, 1, 2, 3, etc.

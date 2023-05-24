@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_appointment", "0028_appointment_document_status_comments_and_more"),
     ]

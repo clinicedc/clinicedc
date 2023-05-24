@@ -23,7 +23,6 @@ class SubjectOnScheduleError(Exception):
 
 
 class AppointmentManager(models.Manager):
-
     use_in_migrations = True
 
     def get_by_natural_key(

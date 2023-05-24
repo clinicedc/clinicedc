@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("sites", "0002_alter_domain_unique"),
         ("edc_appointment", "0013_delete_holiday"),

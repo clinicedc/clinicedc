@@ -21,7 +21,6 @@ def update_new_appt_type(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_appointment", "0035_rename_appointment_appt_type"),
     ]

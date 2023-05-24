@@ -7,7 +7,6 @@ import edc_appointment.managers
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_appointment", "0023_auto_20200821_2119"),
     ]

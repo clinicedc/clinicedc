@@ -29,7 +29,6 @@ from .list_filters import AppointmentListFilter
 class AppointmentAdmin(
     ModelAdminSubjectDashboardMixin, DocumentStatusModelAdminMixin, SimpleHistoryAdmin
 ):
-
     show_cancel = True
     form = AppointmentForm
     actions = [appointment_mark_as_done, appointment_mark_as_new]
