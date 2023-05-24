@@ -30,7 +30,6 @@ class SubjectDoesNotExist(Exception):
 
 
 class CurrentSiteManager(BaseCurrentSiteManager):
-
     use_in_migrations = True
 
     def get_by_natural_key(self, action_identifier):
@@ -38,7 +37,6 @@ class CurrentSiteManager(BaseCurrentSiteManager):
 
 
 class ActionItemManager(models.Manager):
-
     use_in_migrations = True
 
     def get_by_natural_key(self, action_identifier):
@@ -51,7 +49,6 @@ class ActionItem(
     NotificationModelMixin,
     BaseUuidModel,
 ):
-
     subject_identifier_model = "edc_registration.registeredsubject"
 
     action_identifier = models.CharField(max_length=50, unique=True)

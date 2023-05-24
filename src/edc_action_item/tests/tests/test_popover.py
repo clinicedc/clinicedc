@@ -28,7 +28,6 @@ class TestPopover(TestCaseMixin, TestCase):
 
     def test_popover_templatetag(self):
         class ActionItemModelWrapper(ModelWrapper):
-
             model = "edc_action_item.actionitem"
             next_url_attrs = ["subject_identifier"]
             next_url_name = "subject_dashboard_url"
@@ -64,7 +63,6 @@ class TestPopover(TestCaseMixin, TestCase):
         """
 
         class ActionItemModelWrapper(ModelWrapper):
-
             model = "edc_action_item.actionitem"
             next_url_attrs = ["subject_identifier"]
             next_url_name = "subject_dashboard_url"
@@ -92,7 +90,6 @@ class TestPopover(TestCaseMixin, TestCase):
 
     def test_popover_templatetag2(self):
         class ActionItemModelWrapper(ModelWrapper):
-
             model = "edc_action_item.actionitem"
             next_url_attrs = ["subject_identifier"]
             next_url_name = "subject_dashboard_url"
@@ -166,7 +163,6 @@ class TestPopover(TestCaseMixin, TestCase):
 
     def test_popover_templatetag3(self):
         class ActionItemModelWrapper(ModelWrapper):
-
             model = "edc_action_item.actionitem"
             next_url_attrs = ["subject_identifier"]
             next_url_name = "subject_dashboard_url"
@@ -201,7 +197,6 @@ class TestPopover(TestCaseMixin, TestCase):
 
     def test_popover_templatetag4(self):
         class ActionItemModelWrapper(ModelWrapper):
-
             model = "edc_action_item.actionitem"
             next_url_attrs = ["subject_identifier"]
             next_url_name = "subject_dashboard_url"

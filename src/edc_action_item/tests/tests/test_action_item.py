@@ -74,7 +74,6 @@ class TestActionItem(TestCaseMixin, TestCase):
             self.fail("ActionItem unexpectedly does not exist")
 
     def test_changes_action_item_status_from_new_to_open_on_edit(self):
-
         action_type = ActionType.objects.get(name=FormZeroAction.name)
 
         obj = ActionItem.objects.create(

@@ -3,7 +3,6 @@ from edc_sites.models import CurrentSiteManager as BaseCurrentSiteManager
 
 
 class ActionIdentifierSiteManager(BaseCurrentSiteManager):
-
     use_in_migrations = True
 
     def get_by_natural_key(self, action_identifier):
@@ -11,7 +10,6 @@ class ActionIdentifierSiteManager(BaseCurrentSiteManager):
 
 
 class ActionIdentifierModelManager(models.Manager):
-
     use_in_migrations = True
 
     def get_by_natural_key(self, action_identifier):

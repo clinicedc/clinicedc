@@ -23,7 +23,6 @@ class TestActionNotification(TestCaseMixin, TestCase):
         self.subject_identifier = self.fake_enroll()
 
     def test_sends_correct_number_of_emails(self):
-
         self.assertIn(FormZeroAction, site_action_items.registry.values())
 
         # action without reference obj

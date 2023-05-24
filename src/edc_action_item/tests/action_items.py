@@ -19,14 +19,12 @@ class FormZeroAction(ActionWithNotification):
 
 
 class TestDoNothingPrnAction(Action):
-
     name = "test-nothing-prn-action"
     display_name = "Test Nothing Prn Action"
     parent_action_names = None
 
 
 class TestPrnAction(Action):
-
     name = "test-prn-action"
     display_name = "Test Prn Action"
     next_actions = [FormZeroAction.name]

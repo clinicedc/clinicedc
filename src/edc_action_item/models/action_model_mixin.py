@@ -18,7 +18,6 @@ class ActionItemError(Exception):
 
 
 class ActionNoManagersModelMixin(models.Model):
-
     action_name: str = None
 
     action_item_model: str = "edc_action_item.actionitem"
@@ -128,7 +127,6 @@ class ActionNoManagersModelMixin(models.Model):
 
 
 class ActionModelMixin(ActionNoManagersModelMixin):
-
     objects = ActionIdentifierModelManager()
 
     history = HistoricalRecords(inherit=True)

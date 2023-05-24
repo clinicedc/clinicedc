@@ -103,7 +103,6 @@ class TestAction(TestCaseMixin, TestCase):
         self.assertEqual(get_action_type(action), action_type)
 
     def test_check_attrs_for_form_one_next_action(self):
-
         form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
 
         action_type_two = get_action_type(site_action_items.get(FormTwo.action_name))
@@ -290,7 +289,6 @@ class TestAction(TestCaseMixin, TestCase):
         FormThree.objects.create(subject_identifier=self.subject_identifier)
 
     def test_action_is_closed_if_model_creates_action(self):
-
         # form_one next_actions = [FormTwoAction, FormThreeAction]
         form_one_obj = FormOne.objects.create(subject_identifier=self.subject_identifier)
         self.assertEqual(ActionItem.objects.all().count(), 3)
@@ -390,7 +388,6 @@ class TestAction(TestCaseMixin, TestCase):
         )
 
     def test_create_singleton(self):
-
         action1 = SingletonAction(subject_identifier=self.subject_identifier)
 
         try:
@@ -426,7 +423,6 @@ class TestAction(TestCaseMixin, TestCase):
         self.assertEqual(action_item.status, NEW)
 
     def test_add_action_if_required(self):
-
         FormFourAction(subject_identifier=self.subject_identifier)
         form_four = FormFour.objects.create(
             subject_identifier=self.subject_identifier, happy=YES

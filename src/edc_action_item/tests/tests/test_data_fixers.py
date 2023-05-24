@@ -51,7 +51,6 @@ class TestUtils(TestCaseMixin, TestCase):
         self.assertEqual(form_one.action_item, form_two.action_item.related_action_item)
 
     def test_fix_null_related_action_items2(self):
-
         fix_null_related_action_items(django_apps)
 
         form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
@@ -92,7 +91,6 @@ class TestUtils(TestCaseMixin, TestCase):
         self.assertEqual(form_two_a.action_item, form_two_b.parent_action_item)
 
     def test_fix_null_related_action_items3(self):
-
         # fix_null_related_action_items(django_apps)
 
         # form_one -> form_two_a -> form_two_b

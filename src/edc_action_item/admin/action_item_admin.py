@@ -13,7 +13,6 @@ from ..models import ActionItem
 
 @admin.register(ActionItem, site=edc_action_item_admin)
 class ActionItemAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
-
     form = ActionItemForm
 
     save_on_top = True

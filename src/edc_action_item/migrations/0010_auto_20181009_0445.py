@@ -7,7 +7,6 @@ import edc_action_item.models.action_item
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("edc_action_item", "0009_auto_20180927_0306")]
 
     operations = [
