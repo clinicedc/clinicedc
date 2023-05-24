@@ -10,7 +10,6 @@ import django_revision.revision_field
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = []
