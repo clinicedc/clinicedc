@@ -11,7 +11,6 @@ def delete_old_permissions(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_navbar", "0004_auto_20220825_0451"),
     ]

@@ -7,7 +7,6 @@ from .site_navbars import site_navbars
 app_config = django_apps.get_app_config("edc_navbar")
 
 if app_config.register_default_navbar:
-
     default_navbar = Navbar(name=app_config.default_navbar_name)
 
     default_navbar.append_item(
