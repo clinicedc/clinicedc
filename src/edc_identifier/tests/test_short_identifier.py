@@ -88,7 +88,6 @@ class TestShortIdentifier(TestCase):
             self.fail("ObjectDoesNotExist unexpectedly raised")
 
     def test_short_identifier_with_last1(self):
-
         prefix = "22"
         IdentifierModel.objects.create(
             identifier="22KVTB4",
@@ -101,7 +100,6 @@ class TestShortIdentifier(TestCase):
         self.assertNotEqual(short_identifier.identifier, "22KVTB4")
 
     def test_short_identifier_with_last2(self):
-
         prefix = "22"
         random_string_length = 5
         prefix_pattern = "^[0-9]{2}$"

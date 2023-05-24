@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("edc_identifier", "0014_auto_20180103_1322")]
 
     operations = [migrations.AlterModelManagers(name="identifiermodel", managers=[])]

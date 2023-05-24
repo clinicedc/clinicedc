@@ -10,7 +10,6 @@ from .models import IdentifierModel
 
 @admin.register(IdentifierModel, site=edc_identifier_admin)
 class IdentifierModelAdmin(admin.ModelAdmin):
-
     fieldsets = (
         [
             None,

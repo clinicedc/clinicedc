@@ -7,7 +7,6 @@ from edc_utils import get_utcnow
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("edc_identifier", "0008_identifiermodel_linked_identifier")]
 
     operations = [

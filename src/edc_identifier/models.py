@@ -19,7 +19,6 @@ class IdentifierModelManager(models.Manager):
 
 
 class IdentifierModel(SiteModelMixin, edc_models.BaseUuidModel):
-
     name = models.CharField(max_length=100)
 
     subject_identifier = models.CharField(max_length=50, null=True)

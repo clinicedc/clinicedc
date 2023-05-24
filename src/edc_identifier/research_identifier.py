@@ -34,7 +34,6 @@ class ResearchIdentifier:
         requesting_model: Optional[str] = None,
         identifier: Optional[str] = None,
     ) -> None:
-
         self._identifier = None
         self.requesting_model = requesting_model
         if not self.requesting_model:
