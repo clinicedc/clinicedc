@@ -9,7 +9,6 @@ from .models import MyModel
 
 @register(MyModel)
 class MyModelAdmin(ModelAdminFormInstructionsMixin, admin.ModelAdmin):
-
     form = MyForm
 
     fieldsets = (
