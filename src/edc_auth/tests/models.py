@@ -4,7 +4,6 @@ from edc_randomization.model_mixins import RandomizationListModelMixin
 
 
 class PiiModel(models.Model):
-
     name = models.CharField(max_length=50, null=True)
 
     class Meta:
@@ -12,7 +11,6 @@ class PiiModel(models.Model):
 
 
 class AuditorModel(models.Model):
-
     name = models.CharField(max_length=50, null=True)
 
     class Meta:
@@ -20,31 +18,26 @@ class AuditorModel(models.Model):
 
 
 class TestModel(BaseUuidModel):
-
     name = models.CharField(max_length=50, null=True)
 
 
 class SubjectRequisition(BaseUuidModel):
-
     name = models.CharField(max_length=50, null=True)
 
     history = HistoricalRecords()
 
 
 class SubjectConsent(models.Model):
-
     name = models.CharField(max_length=50, null=True)
 
     history = HistoricalRecords()
 
 
 class SubjectReconsent(models.Model):
-
     name = models.CharField(max_length=50, null=True)
 
     history = HistoricalRecords()
 
 
 class CustomRandomizationList(RandomizationListModelMixin, BaseUuidModel):
-
     pass

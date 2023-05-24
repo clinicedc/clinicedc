@@ -10,7 +10,6 @@ class RoleModelManager(models.Manager):
 
 
 class Role(BaseUuidModel):
-
     display_name = models.CharField(
         verbose_name="Display Name",
         max_length=250,

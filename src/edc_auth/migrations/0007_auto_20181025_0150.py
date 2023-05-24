@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_notification", "0002_update_notifications"),
         ("edc_auth", "0006_userprofile_notifications"),

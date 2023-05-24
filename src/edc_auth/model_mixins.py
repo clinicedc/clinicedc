@@ -7,7 +7,6 @@ class EdcPermissionsManager(models.Manager):
 
 
 class EdcPermissionsModelMixin(models.Model):
-
     objects = EdcPermissionsManager()
 
     def __str__(self):

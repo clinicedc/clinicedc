@@ -14,7 +14,6 @@ from .role import Role
 
 
 class UserProfile(NotificationUserProfileModelMixin, models.Model):
-
     id = models.AutoField(primary_key=True)
 
     user = models.OneToOneField(User, on_delete=CASCADE)

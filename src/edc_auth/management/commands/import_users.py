@@ -4,7 +4,6 @@ from edc_auth.import_users import import_users
 
 
 class Command(BaseCommand):
-
     help = "Import users from a CSV file"
 
     def add_arguments(self, parser):
@@ -67,7 +66,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-
         import_users(
             options["csvfile"],
             resource_name=options["resource_name"],

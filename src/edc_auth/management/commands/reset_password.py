@@ -8,7 +8,6 @@ from edc_auth.password_setter import PasswordSetter
 
 
 class Command(BaseCommand):
-
     help = "Reset a user's password"
 
     def add_arguments(self, parser):

@@ -31,7 +31,6 @@ class CodenameDoesNotExist(Exception):
 
 
 class GroupUpdater:
-
     default_model_name = "edcpermissions"
 
     def __init__(
