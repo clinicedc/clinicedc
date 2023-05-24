@@ -28,7 +28,6 @@ class EgfrDropNotificationModelMixin(
     ),
     models.Model,
 ):
-
     creatinine_date = models.DateField(verbose_name="Serum creatinine date")
 
     weight = WeightField(null=True, blank=True)

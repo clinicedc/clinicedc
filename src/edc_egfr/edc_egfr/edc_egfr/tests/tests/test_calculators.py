@@ -73,7 +73,6 @@ class TestCalculators(TestCase):
         )
 
     def test_egfr_ckd_epi_calculator(self):
-
         # raises on invalid gender
         self.assertRaises(
             EgfrCalculatorError,
@@ -214,7 +213,6 @@ class TestCalculators(TestCase):
         self.assertEqual(round_half_away_from_zero(egfr.value, 4), 36.8341)
 
     def test_egfr_cockcroft_gault_calculator(self):
-
         # raises on invalid gender
         self.assertRaises(
             EgfrCalculatorError,

@@ -8,14 +8,12 @@ from edc_utils.date import get_utcnow
 
 
 class SpecimenResultFormValidator(ReportablesFormValidatorMixin, FormValidator):
-
     reference_range_collection_name = "my_reference_list"
 
     def clean(self):
         self.validate_reportable_fields()
 
     def validate_reportable_fields(self, *args, **kwargs):
-
         reportables = self.reportables_cls(
             self.reference_range_collection_name,
             cleaned_data=copy(self.cleaned_data),

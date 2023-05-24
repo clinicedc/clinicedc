@@ -34,7 +34,6 @@ class SubjectScreening(ScreeningIdentifierModelMixin, BaseUuidModel):
 
 
 class Appointment(BaseUuidModel):
-
     subject_identifier = models.CharField(max_length=25, null=True)
 
     appt_datetime = models.DateTimeField(
@@ -76,7 +75,6 @@ class SubjectVisit(SiteModelMixin, BaseUuidModel):
 
 
 class SubjectRequisition(PanelModelMixin, BaseUuidModel):
-
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     subject_identifier = models.CharField(max_length=25, null=True)
@@ -131,7 +129,6 @@ class ResultCrf(BloodResultsMethodsModelMixin, EgfrModelMixin, models.Model):
 
 
 class EgfrDropNotification(SiteModelMixin, EgfrDropNotificationModelMixin, BaseUuidModel):
-
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     report_datetime = models.DateTimeField(
