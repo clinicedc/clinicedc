@@ -2,7 +2,6 @@ import re
 
 
 class CleanSearchTermViewMixin:
-
     search_term_pattern = None
 
     def clean_search_term(self):

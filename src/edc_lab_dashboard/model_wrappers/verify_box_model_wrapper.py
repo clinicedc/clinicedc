@@ -6,6 +6,5 @@ app_config = django_apps.get_app_config("edc_lab_dashboard")
 
 
 class VerifyBoxItemModelWrapper(BaseBoxItemModelWrapper):
-
     next_url_name = "verify_box_listboard_url"
     action_name = "verify"

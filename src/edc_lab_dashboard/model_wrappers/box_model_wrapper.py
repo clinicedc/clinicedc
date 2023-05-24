@@ -3,7 +3,6 @@ from edc_model_wrapper import ModelWrapper
 
 
 class BoxModelWrapper(ModelWrapper):
-
     model_cls = Box
     next_url_name = "pack_listboard_url"
 

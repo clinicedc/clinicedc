@@ -9,7 +9,6 @@ from .base_listboard_view import BaseListboardView
 
 
 class ManifestListboardView(BaseListboardView):
-
     navbar_selected_item = "manifest"
 
     form_action_url = "manifest_form_action_url"

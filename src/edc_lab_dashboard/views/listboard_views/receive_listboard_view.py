@@ -10,7 +10,6 @@ app_config = django_apps.get_app_config("edc_lab_dashboard")
 
 
 class ReceiveListboardView(RequisitionListboardView):
-
     action_name = "receive"
     form_action_url = "receive_form_action_url"
     listboard_template = "receive_listboard_template"

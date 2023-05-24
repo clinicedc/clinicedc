@@ -11,7 +11,6 @@ from .action_view import ActionView
 
 
 class ManifestView(EdcViewMixin, ManifestViewMixin, LabPrintersMixin, ActionView):
-
     post_action_url = "manifest_listboard_url"
     valid_form_actions = [
         "remove_selected_items",

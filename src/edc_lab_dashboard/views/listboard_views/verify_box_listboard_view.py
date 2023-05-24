@@ -9,7 +9,6 @@ from .base_box_item_listboard_view import BaseBoxItemListboardView
 
 
 class VerifyBoxListboardView(BaseBoxItemListboardView):
-
     action_name = "verify"
     form_action_url = "verify_box_item_form_action_url"
     listboard_template = "verify_box_listboard_template"

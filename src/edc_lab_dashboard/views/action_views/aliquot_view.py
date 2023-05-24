@@ -7,7 +7,6 @@ from .action_view import ActionView
 
 
 class AliquotView(EdcViewMixin, LabPrintersMixin, ActionView):
-
     post_action_url = "aliquot_listboard_url"
     valid_form_actions = ["print_labels"]
     action_name = "aliquot"

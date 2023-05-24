@@ -12,7 +12,6 @@ from .action_view import ActionView
 
 
 class PackView(EdcViewMixin, LabPrintersMixin, ActionView):
-
     post_action_url = "pack_listboard_url"
     valid_form_actions = [
         "add_selected_to_manifest",

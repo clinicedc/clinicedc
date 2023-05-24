@@ -10,7 +10,6 @@ app_config = django_apps.get_app_config("edc_lab_dashboard")
 
 
 class ProcessListboardView(RequisitionListboardView):
-
     action_name = "process"
     empty_queryset_message = "All specimens have been process"
     form_action_url = "process_form_action_url"

@@ -6,6 +6,5 @@ edc_lab_app_config = django_apps.get_app_config("edc_lab")
 
 
 class ManifestModelWrapper(ModelWrapper):
-
     model_cls = Manifest
     next_url_name = "manifest_listboard_url"

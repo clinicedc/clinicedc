@@ -3,7 +3,6 @@ from edc_model_wrapper import ModelWrapper
 
 
 class AliquotModelWrapper(ModelWrapper):
-
     model_cls = Aliquot
     next_url_name = "aliquot_listboard_url"
 
