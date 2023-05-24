@@ -81,7 +81,6 @@ class ApplicableFieldValidator(BaseFormValidator):
     def not_applicable_only_if(
         self, *responses, field=None, field_applicable=None, is_instance_field=None
     ) -> bool:
-
         if is_instance_field:
             self.update_cleaned_data_from_instance(field)
         field_value = self.get(field)

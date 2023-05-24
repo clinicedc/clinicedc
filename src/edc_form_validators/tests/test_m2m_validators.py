@@ -50,7 +50,6 @@ class TestApplicableFieldValidator(TestCase):
         )
 
     def test_m2m_applicable_if2(self):
-
         cleaned_data = dict(f1=YES, alphabet=Alphabet.objects.filter(name__in=["A", "B"]))
 
         form_validator = FormValidator(cleaned_data=cleaned_data)
@@ -61,7 +60,6 @@ class TestApplicableFieldValidator(TestCase):
             self.fail("ValidationError unexpectedly raised")
 
     def test_m2m_required(self):
-
         cleaned_data = dict(f1=YES, alphabet=Alphabet.objects.none())
 
         form_validator = FormValidator(cleaned_data=cleaned_data)
@@ -178,7 +176,6 @@ class TestApplicableFieldValidator(TestCase):
             self.fail("ValidationError unexpectedly raised")
 
     def test_m2m_other_specify_with_zero(self):
-
         cleaned_data = dict(
             f1=YES, f3=0, alphabet=Alphabet.objects.filter(name__in=["A", "B"])
         )

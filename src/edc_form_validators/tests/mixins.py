@@ -2,7 +2,6 @@ from typing import Any
 
 
 class FormValidatorTestMixin:
-
     consent_model = None
 
     def validate_demographics(self) -> None:

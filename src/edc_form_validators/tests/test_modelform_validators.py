@@ -66,7 +66,6 @@ class TestFormValidatorInForm(TestCase):
                 self.required_if(YES, field="f1", field_required="f2")
 
         class TestModelForm(FormValidatorMixin, forms.ModelForm):
-
             form_validator_cls = TestFormValidator
 
             class Meta:
