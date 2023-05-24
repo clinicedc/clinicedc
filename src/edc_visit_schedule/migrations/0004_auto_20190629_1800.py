@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("edc_visit_schedule", "0003_historicalvisitschedule_visitschedule")]
 
     operations = [
