@@ -73,8 +73,11 @@ class TestExportable(TestCase):
             "edc_appointment.historicalappointment",
             [o.label_lower for o in exportables.get("edc_appointment").historical_models],
         )
+        self.assertIn(
+            "edc_appointment.appointmenttype",
+            [o.label_lower for o in exportables.get("edc_appointment").list_models],
+        )
         self.assertFalse(exportables.get("edc_registration").list_models)
-        self.assertFalse(exportables.get("edc_appointment").list_models)
 
     def test_default_exportables(self):
         exportables = Exportables(
