@@ -6,6 +6,7 @@ from edc_action_item.get_action_type import get_action_type
 from edc_action_item.models import SubjectDoesNotExist
 from edc_action_item.models.action_item import ActionItem
 from edc_constants.constants import CLOSED, DEAD, NEW, NO, YES
+from edc_constants.disease_constants import ANAEMIA
 from edc_list_data.site_list_data import site_list_data
 from edc_ltfu.constants import LOST_TO_FOLLOWUP
 from edc_registration.models import RegisteredSubject
@@ -92,7 +93,6 @@ class TestAeAndActions(TestCase):
             )
 
     def test_fk1(self):
-
         ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
         )
@@ -348,7 +348,6 @@ class TestAeAndActions(TestCase):
         )
 
     def test_next_action3(self):
-
         ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
         )
@@ -391,7 +390,6 @@ class TestAeAndActions(TestCase):
         )
 
     def test_next_action4(self):
-
         ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
         )
@@ -442,7 +440,7 @@ class TestAeAndActions(TestCase):
         )
 
     def test_next_action5(self):
-        anaemia = AeClassification.objects.get(name="anaemia")
+        anaemia = AeClassification.objects.get(name=ANAEMIA)
         ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial",
             subject_identifier=self.subject_identifier,
@@ -515,7 +513,6 @@ class TestAeAndActions(TestCase):
     def test_ae_followup_outcome_ltfu_creates_action(
         self, mock_onschedule_models, mock_offschedule_models, mock_get_by_model
     ):
-
         mock_onschedule_models.return_value = ["adverse_event_app.subjectconsent"]
         mock_offschedule_models.return_value = ["adverse_event_app.studyterminationconclusion"]
         mock_get_by_model.return_value = StudyTerminationConclusionAction
@@ -545,7 +542,6 @@ class TestAeAndActions(TestCase):
     def test_ae_followup_outcome_ltfu_raises(
         self, mock_onschedule_models, mock_offschedule_models, mock_get_by_model
     ):
-
         mock_onschedule_models.return_value = []  # not on schedule
         mock_offschedule_models.return_value = []
         mock_get_by_model.return_value = StudyTerminationConclusionAction
@@ -567,7 +563,6 @@ class TestAeAndActions(TestCase):
     @patch("edc_adverse_event.action_items.ae_followup_action.site_action_items.get_by_model")
     @patch.object(AeFollowupAction, "offschedule_models", new_callable=PropertyMock)
     def test_ae_followup_outcome_not_ltfu(self, mock_offschedule_models, mock_get_by_model):
-
         mock_offschedule_models.return_value = ["adverse_event_app.studyterminationconclusion"]
         mock_get_by_model.return_value = StudyTerminationConclusionAction
 
@@ -594,7 +589,6 @@ class TestAeAndActions(TestCase):
             self.fail("ObjectDoesNotExist unexpectedly raised")
 
     def test_ae_creates_death_report_action(self):
-
         ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial",
             subject_identifier=self.subject_identifier,
@@ -613,7 +607,6 @@ class TestAeAndActions(TestCase):
         )
 
     def test_ae_initial_creates_susar_if_not_reported(self):
-
         ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial",
             subject_identifier=self.subject_identifier,
@@ -643,7 +636,6 @@ class TestAeAndActions(TestCase):
         )
 
     def test_susar_updates_aeinitial_if_submitted(self):
-
         # create ae initial
         ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial",
@@ -678,7 +670,6 @@ class TestAeAndActions(TestCase):
         self.assertEqual(ae_initial.susar_reported, YES)
 
     def test_aeinitial_can_close_action_without_susar_model(self):
-
         # create ae initial
         ae_initial = baker.make_recipe(
             "adverse_event_app.aeinitial",

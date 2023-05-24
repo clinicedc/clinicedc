@@ -16,7 +16,6 @@ def get_investigator_ae_classification_choices():
 
 
 class AeTmgFieldsModelMixin(models.Model):
-
     ae_initial = models.ForeignKey(
         f"{settings.ADVERSE_EVENT_APP_LABEL}.aeinitial", on_delete=models.PROTECT
     )

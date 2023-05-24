@@ -43,7 +43,6 @@ class DeathReportTmgSecondSiteManager(ActionIdentifierSiteManager):
 
 
 class DeathReportTmgFieldsModelMixin(models.Model):
-
     death_report = models.ForeignKey(
         f"{settings.ADVERSE_EVENT_APP_LABEL}.deathreport", on_delete=PROTECT
     )
@@ -111,7 +110,6 @@ class DeathReportTmgModelMixin(
     ReportStatusModelMixin,
     models.Model,
 ):
-
     action_name = DEATH_REPORT_TMG_ACTION
 
     on_site = DeathReportTmgSiteManager()
@@ -128,7 +126,6 @@ class DeathReportTmgModelMixin(
 
 
 class DeathReportTmgSecondModelMixin(DeathReportTmgModelMixin):
-
     action_name = DEATH_REPORT_TMG_SECOND_ACTION
 
     on_site = DeathReportTmgSecondSiteManager()

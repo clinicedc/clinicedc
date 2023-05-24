@@ -17,7 +17,6 @@ p = inflect.engine()
 
 
 class DeathReport(CrfPdfReport):
-
     model_attr = "death_report"
     not_reported_text = "not reported"
 
@@ -26,7 +25,6 @@ class DeathReport(CrfPdfReport):
         self.death_report = death_report
 
     def get_report_story(self, **kwargs):
-
         story = []
 
         self.draw_demographics(story)

@@ -8,7 +8,6 @@ from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
 
 class DeathReportModelAdminMixin(ModelAdminSubjectDashboardMixin, ActionItemModelAdminMixin):
-
     form = None
 
     fieldsets = (

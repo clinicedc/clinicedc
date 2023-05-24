@@ -18,7 +18,6 @@ AeSusar = get_ae_model("AeSusar")
 def update_ae_notifications_for_tmg_group(
     action, instance, reverse, model, pk_set, using, **kwargs
 ):
-
     try:
         instance.userprofile
     except AttributeError:
@@ -79,7 +78,6 @@ def post_delete_ae_susar(instance, **kwargs):
 def update_death_notifications_for_tmg_group(
     action, instance, reverse, model, pk_set, using, **kwargs
 ):
-
     try:
         instance.userprofile
     except AttributeError:

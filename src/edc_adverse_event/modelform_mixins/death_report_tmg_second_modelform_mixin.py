@@ -5,7 +5,6 @@ from .ae_modelform_mixin import AeModelFormMixin
 
 
 class DeathReportTmgSecondModelFormMixin(AeModelFormMixin):
-
     form_validator_cls = DeathReportTmgFormValidator
 
     class Meta:

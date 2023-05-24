@@ -19,7 +19,6 @@ class SimpleDeathReportModelMixin(
     ActionModelMixin,
     models.Model,
 ):
-
     action_name = DEATH_REPORT_ACTION
 
     death_date_field = "death_date"

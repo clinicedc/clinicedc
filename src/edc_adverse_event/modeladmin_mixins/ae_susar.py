@@ -21,7 +21,6 @@ class AeSusarModelAdminMixin(
     AdverseEventModelAdminMixin,
     ActionItemModelAdminMixin,
 ):
-
     form = AeSusarForm
 
     search_fields = (

@@ -12,7 +12,6 @@ from .ae_modelform_mixin import AeModelFormMixin
 
 
 class AeInitialModelFormMixin(AeModelFormMixin):
-
     form_validator_cls = AeInitialFormValidator
 
     def clean(self):

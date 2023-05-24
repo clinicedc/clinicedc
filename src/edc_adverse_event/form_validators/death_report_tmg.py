@@ -4,7 +4,6 @@ from edc_form_validators import FormValidator
 
 class DeathReportTmgFormValidator(FormValidator):
     def clean(self):
-
         self.required_if(
             CLOSED,
             field="report_status",

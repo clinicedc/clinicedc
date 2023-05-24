@@ -9,7 +9,6 @@ from ...choices import AE_GRADE_SIMPLE, AE_OUTCOME
 
 
 class AeFollowupFieldsModelMixin(models.Model):
-
     ae_initial = models.ForeignKey(
         f"{settings.ADVERSE_EVENT_APP_LABEL}.aeinitial", on_delete=models.PROTECT
     )
