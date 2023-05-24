@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("edc_locator", "0014_auto_20181009_0545")]
 
     operations = [

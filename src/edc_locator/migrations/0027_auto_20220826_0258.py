@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_locator", "0026_alter_historicalsubjectlocator_action_identifier_and_more"),
     ]
