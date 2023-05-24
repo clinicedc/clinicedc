@@ -18,7 +18,6 @@ from .rx import Rx
 
 
 class Manager(models.Manager):
-
     use_in_migrations = True
 
     def get_by_natural_key(self, prescription, medication, refill_start_datetime):
@@ -31,7 +30,6 @@ class RxRefill(
     SiteModelMixin,
     edc_models.BaseUuidModel,
 ):
-
     rx = models.ForeignKey(Rx, on_delete=PROTECT)
 
     refill_identifier = models.CharField(max_length=36, default=uuid4, editable=False)

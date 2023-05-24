@@ -19,7 +19,6 @@ from .model_admin_mixin import ModelAdminMixin
 
 @admin.register(RxRefill, site=edc_pharmacy_admin)
 class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
-
     show_object_tools = True
 
     ordering: Tuple[str, ...] = ("refill_start_datetime",)
@@ -210,7 +209,6 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
 
 
 class RxRefillInlineAdmin(admin.StackedInline):
-
     form = RxRefillForm
 
     model = RxRefill

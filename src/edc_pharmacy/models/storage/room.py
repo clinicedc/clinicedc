@@ -8,7 +8,6 @@ from .location import Location
 
 
 class Room(BaseUuidModel):
-
     room_identifier = models.CharField(max_length=36, default=uuid4, unique=True)
 
     room_datetime = models.DateTimeField(default=get_utcnow)

@@ -14,7 +14,6 @@ class StudyMedicationFormValidator(BaseStudyMedicationFormValidator):
 
 
 class StudyMedicationForm(CrfModelFormMixin, forms.ModelForm):
-
     form_validator_cls = StudyMedicationFormValidator
 
     def validate_against_consent(self):

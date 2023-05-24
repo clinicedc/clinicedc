@@ -7,12 +7,10 @@ from .product import Product
 
 
 class Manager(models.Manager):
-
     use_in_migrations = True
 
 
 class Order(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
-
     order_datetime = models.DateTimeField(verbose_name="Order date/time")
 
     product = models.ForeignKey(Product, on_delete=PROTECT)

@@ -8,7 +8,6 @@ from ..container_type import ContainerType
 
 
 class ContainerModelMixin(models.Model):
-
     container_identifier = models.CharField(max_length=36, default=uuid4, unique=True)
 
     container_datetime = models.DateTimeField(default=get_utcnow)

@@ -7,12 +7,10 @@ from .formulation import Formulation
 
 
 class Manager(models.Manager):
-
     use_in_migrations = True
 
 
 class MedicationLot(BaseUuidModel):
-
     lot_no = models.CharField(max_length=50, unique=True)
 
     assignment = EncryptedCharField(null=True)

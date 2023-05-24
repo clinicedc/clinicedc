@@ -9,7 +9,6 @@ from .medication import Medication
 
 
 class Manager(models.Manager):
-
     use_in_migrations = True
 
     def get_by_natural_key(self, medication_name, dose, dose_units, dose_per_kg):

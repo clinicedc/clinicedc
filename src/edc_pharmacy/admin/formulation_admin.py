@@ -11,7 +11,6 @@ from .model_admin_mixin import ModelAdminMixin
 
 @admin.register(Formulation, site=edc_pharmacy_admin)
 class FormulationAdmin(ModelAdminMixin, admin.ModelAdmin):
-
     show_object_tools = True
 
     autocomplete_fields = ["medication"]

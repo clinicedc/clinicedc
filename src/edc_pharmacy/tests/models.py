@@ -36,7 +36,6 @@ class StudyMedication(
     CrfModelMixin,
     BaseUuidModel,
 ):
-
     subject_visit = models.OneToOneField(SubjectVisit, on_delete=models.PROTECT)
 
     report_datetime = models.DateTimeField(default=get_utcnow)
@@ -55,10 +54,8 @@ class StudyMedication(
 
 
 class OnSchedule(SiteModelMixin, OnScheduleModelMixin, BaseUuidModel):
-
     pass
 
 
 class OffSchedule(SiteModelMixin, OffScheduleModelMixin, BaseUuidModel):
-
     pass

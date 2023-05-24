@@ -8,7 +8,6 @@ from .model_admin_mixin import ModelAdminMixin
 
 @admin.register(Order, site=edc_pharmacy_admin)
 class OrderAdmin(ModelAdminMixin, admin.ModelAdmin):
-
     show_object_tools = True
 
     # autocomplete_fields = (

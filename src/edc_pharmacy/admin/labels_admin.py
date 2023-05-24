@@ -10,7 +10,6 @@ from .model_admin_mixin import ModelAdminMixin
 
 @admin.register(Labels, site=edc_pharmacy_admin)
 class LabelsAdmin(ModelAdminMixin, admin.ModelAdmin):
-
     show_object_tools = True
 
     form = LabelsForm

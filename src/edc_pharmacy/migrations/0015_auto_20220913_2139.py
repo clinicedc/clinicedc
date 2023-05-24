@@ -17,7 +17,6 @@ import uuid
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("edc_pharmacy", "0014_auto_20220907_0207"),

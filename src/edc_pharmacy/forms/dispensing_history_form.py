@@ -21,7 +21,6 @@ class DispensingHistoryForm(forms.ModelForm):
 
 
 class DispensingHistoryReadonlyForm(forms.ModelForm):
-
     count = forms.DecimalField(
         label="Count", widget=forms.TextInput(attrs={"readonly": "readonly"})
     )

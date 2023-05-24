@@ -8,7 +8,6 @@ from .shelf import Shelf
 
 
 class Box(BaseUuidModel):
-
     box_identifier = models.CharField(max_length=36, default=uuid4, unique=True)
 
     box_datetime = models.DateTimeField(default=get_utcnow)

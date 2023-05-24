@@ -11,7 +11,6 @@ class PillBottleError(Exception):
 
 
 class PillBottleModelMixin(ContainerModelMixin, BaseUuidModel):
-
     formulation = models.ForeignKey(Formulation, on_delete=models.PROTECT, blank=True)
 
     medication_lot = models.ForeignKey(MedicationLot, on_delete=models.PROTECT)

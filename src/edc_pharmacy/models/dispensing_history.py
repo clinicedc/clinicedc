@@ -10,7 +10,6 @@ from .rx_refill import RxRefill
 
 
 class Manager(models.Manager):
-
     use_in_migrations = True
 
     def get_by_natural_key(self, rx_refill, dispensed_datetime):

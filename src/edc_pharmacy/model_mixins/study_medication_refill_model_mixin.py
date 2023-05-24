@@ -7,7 +7,6 @@ from edc_constants.constants import YES
 
 
 class StudyMedicationRefillModelMixin(models.Model):
-
     refill = models.CharField(
         verbose_name="Will the subject receive study medication for this visit",
         max_length=15,

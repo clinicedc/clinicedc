@@ -5,7 +5,6 @@ from ..models import Medication, Rx
 
 
 class MedicationsListFilter(SimpleListFilter):
-
     title = "Medication"
     parameter_name = "medication_name"
 
