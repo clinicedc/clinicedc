@@ -13,7 +13,6 @@ class ParserError(Exception):
 
 
 def unparse(**kwargs) -> str:
-
     lower = kwargs.get("lower") or ""
     upper = kwargs.get("upper") or ""
     lower_op = "" if not lower else "<=" if kwargs.get("lower_inclusive") else "<"
@@ -38,7 +37,6 @@ def unparse(**kwargs) -> str:
 
 
 def parse(phrase: Optional[str] = None, *, fasting=None, uln=None, lln=None, **kwargs) -> dict:
-
     pattern = r"(([\d+\.\d+]|[\.\d+])?(<|<=)?)+x((<|<=)?([\d+\.\d+]|[\.\d+])+)?"
     lln = f"*{LLN}"
     uln = f"*{ULN}"

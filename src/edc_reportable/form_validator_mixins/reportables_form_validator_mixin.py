@@ -7,7 +7,6 @@ from ..reportables_evaluator import ReportablesEvaluator
 
 
 class ReportablesFormValidatorMixin:
-
     reportables_cls = ReportablesEvaluator
     value_field_suffix = "_value"
 

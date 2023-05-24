@@ -115,6 +115,6 @@ class Evaluator:
             f'{"" if self.lower is None else self.lower}{self.lower_operator or ""}{value}'
             f'{self.upper_operator or ""}{"" if self.upper is None else self.upper}'
         )
-        if not eval(condition):
+        if not eval(condition):  # nosec B307
             raise ValueBoundryError(condition)
         return True

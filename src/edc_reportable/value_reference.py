@@ -10,7 +10,6 @@ class ValueReferenceError(Exception):
 
 
 class ValueReference:
-
     age_evaluator_cls = AgeEvaluator
     evaluator_cls = Evaluator
 
