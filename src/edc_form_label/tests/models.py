@@ -11,7 +11,6 @@ from edc_visit_tracking.model_mixins import VisitModelMixin
 
 
 class SubjectVisit(SiteModelMixin, VisitModelMixin, BaseUuidModel):
-
     subject_identifier = models.CharField(max_length=25)
 
     report_datetime = models.DateTimeField(default=get_utcnow)
@@ -20,7 +19,6 @@ class SubjectVisit(SiteModelMixin, VisitModelMixin, BaseUuidModel):
 
 
 class MyModel(CrfModelMixin, BaseUuidModel):
-
     subject_visit = models.OneToOneField(SubjectVisit, on_delete=PROTECT)
 
     report_datetime = models.DateTimeField(default=get_utcnow)

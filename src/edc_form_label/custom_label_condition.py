@@ -7,7 +7,6 @@ class CustomFormLabelError(Exception):
 
 
 class CustomLabelCondition:
-
     appointment_model = "edc_appointment.appointment"
 
     def __init__(self, request=None, obj=None, model=None):

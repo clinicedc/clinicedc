@@ -56,7 +56,6 @@ class TestFormLabel(TestCase):
                 break
 
     def test_init(self):
-
         form_label = FormLabel(
             field="circumcised",
             custom_label="New label",
@@ -140,7 +139,6 @@ class TestFormLabel(TestCase):
         )
 
     def test_custom_form_labels_default(self):
-
         for model, model_admin in admin.site._registry.items():
             if model == MyModel:
                 my_model_admin = model_admin.admin_site._registry.get(MyModel)
@@ -154,7 +152,6 @@ class TestFormLabel(TestCase):
 
     @skip
     def test_custom_form_labels_2(self):
-
         MyModel.objects.create(subject_visit=self.subject_visit_one, circumcised=NO)
 
         for model, model_admin in admin.site._registry.items():
