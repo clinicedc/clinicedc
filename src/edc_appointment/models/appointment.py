@@ -37,7 +37,7 @@ class Appointment(AppointmentModelMixin, SiteModelMixin, BaseUuidModel):
     natural_key.dependencies = ["sites.Site"]  # type: ignore
 
     def get_appt_type_display(self):
-        return AppointmentType.objects.get(id=self.appt_type.id).display_name
+        return AppointmentType.objects.get(id=self.appt_type_id).display_name
 
     class Meta(AppointmentModelMixin.Meta, BaseUuidModel.Meta):
         pass
