@@ -61,8 +61,8 @@ class VisitModelAdminMixin(DocumentStatusModelAdminMixin):
     search_fields = (
         "id",
         "reason",
-        "appointment__visit_code",
-        "appointment__subject_identifier",
+        "visit_code",
+        "subject_identifier",
     )
 
     @staticmethod
@@ -114,8 +114,8 @@ class VisitModelAdminMixin(DocumentStatusModelAdminMixin):
         list_filter = super().get_list_filter(request)
         custom_fields = (
             "report_datetime",
-            "appointment__visit_code",
-            "appointment__visit_code_sequence",
+            "visit_code",
+            "visit_code_sequence",
             "reason",
             "require_crfs",
         )
