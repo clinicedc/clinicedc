@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from edc_model import model_exists_or_raise
 
 
-def raise_if_crf_review_does_not_exist(subject_visit, model: str) -> None:
+def raise_if_crf_does_not_exist(subject_visit, model: str) -> None:
     model_cls = django_apps.get_model(model)
     try:
         model_exists_or_raise(subject_visit=subject_visit, model_cls=model_cls)
