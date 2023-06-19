@@ -81,7 +81,7 @@ def raise_if_clinical_review_does_not_exist(subject_visit) -> None:
     try:
         baseline = is_baseline(instance=subject_visit)
     except VisitScheduleBaselineError as e:
-        forms.ValidationError(e)
+        raise forms.ValidationError(e)
     else:
         if baseline:
             model_cls = get_clinical_review_baseline_model_cls()
