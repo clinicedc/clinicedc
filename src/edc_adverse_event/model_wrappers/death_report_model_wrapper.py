@@ -3,6 +3,7 @@ from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from edc_action_item.models import ActionItem
 from edc_model_wrapper import ModelWrapper
 
+from ..constants import DEATH_REPORT_TMG_ACTION
 from ..get_ae_model import get_ae_model
 from .death_report_tmg_model_wrapper import DeathReportTmgModelWrapper
 from .death_report_tmg_second_model_wrapper import DeathReportTmgSecondModelWrapper
@@ -44,6 +45,7 @@ class DeathReportModelWrapper(ModelWrapper):
             subject_identifier=self.object.subject_identifier,
             parent_action_item=action_item,
             related_action_item=action_item.related_action_item,
+            action_type__name=DEATH_REPORT_TMG_ACTION,
         )
         try:
             action_item = ActionItem.objects.get(**opts)
@@ -62,6 +64,7 @@ class DeathReportModelWrapper(ModelWrapper):
                 subject_identifier=self.object.subject_identifier,
                 parent_action_item=action_item,
                 related_action_item=action_item.related_action_item,
+                action_type__name=DEATH_REPORT_TMG_ACTION,
             )
             try:
                 action_item = ActionItem.objects.get(**opts)
