@@ -25,6 +25,7 @@ class FormsReference:
         admin_site=None,
         include_hidden_fields=None,
         title=None,
+        add_per_form_timestamp: bool | None = None,
     ):
         self.toc = []
         self.title = title or "Forms Reference"
@@ -34,6 +35,9 @@ class FormsReference:
         self.admin_site = admin_site
         self.include_hidden_fields = include_hidden_fields
         self.plans = {}
+        self.add_per_form_timestamp = (
+            True if add_per_form_timestamp is None else add_per_form_timestamp
+        )
         self.timestamp = datetime.today().strftime("%Y-%m-%d %H:%M")
         for visit_schedule in self.visit_schedules:
             self.plans.update({visit_schedule.name: {}})
@@ -94,6 +98,7 @@ class FormsReference:
                             visit_code=visit_code,
                             level=self.h4,
                             anchor_prefix=self.anchor_prefix,
+                            add_timestamp=self.add_per_form_timestamp,
                         )
                         describer.markdown.append("\n")
                         anchor = f"{self.get_anchor(describer.anchor)}"
