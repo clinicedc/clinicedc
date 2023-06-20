@@ -61,10 +61,12 @@ class TestDateFieldValidator(TestCase):
         form_validator = FormValidator(
             cleaned_data=dict(my_date=not_after, report_datetime=now)
         )
-        self.assertRaises(
-            forms.ValidationError,
-            form_validator.date_after_report_datetime_or_raise,
-            field="my_date",
+        with self.assertRaises(forms.ValidationError) as cm:
+            form_validator.date_after_report_datetime_or_raise(field="my_date")
+        self.assertIn("my_date", cm.exception.error_dict)
+        self.assertIn(
+            "Invalid. Expected a date after",
+            str(cm.exception.error_dict.get("my_date")),
         )
 
     def test_date_is_after_or_raise(self):
@@ -86,6 +88,39 @@ class TestDateFieldValidator(TestCase):
         form_validator = FormValidator(cleaned_data=dict(my_date=after, report_datetime=now))
         try:
             form_validator.date_is_after_or_raise(field="my_date")
+        except forms.ValidationError:
+            self.fail("ValidationError unexpectedly raised")
+
+    def test_date_is_on_or_after_or_raise(self):
+        now = get_utcnow()
+        not_after = now - relativedelta(days=1)
+        form_validator = FormValidator(
+            cleaned_data=dict(my_date=not_after, report_datetime=now)
+        )
+        with self.assertRaises(forms.ValidationError) as cm:
+            form_validator.date_is_after_or_raise(
+                field="my_date",
+                inclusive=True,
+            )
+        self.assertIn("Expected a date on or after", str(cm.exception.messages))
+
+        on = now + relativedelta(minutes=10)
+        form_validator = FormValidator(cleaned_data=dict(my_date=on, report_datetime=now))
+        try:
+            form_validator.date_is_after_or_raise(
+                field="my_date",
+                inclusive=True,
+            )
+        except forms.ValidationError:
+            self.fail("ValidationError unexpectedly raised")
+
+        after = now + relativedelta(days=1)
+        form_validator = FormValidator(cleaned_data=dict(my_date=after, report_datetime=now))
+        try:
+            form_validator.date_is_after_or_raise(
+                field="my_date",
+                inclusive=True,
+            )
         except forms.ValidationError:
             self.fail("ValidationError unexpectedly raised")
 
