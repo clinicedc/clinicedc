@@ -41,7 +41,31 @@ class TestGlucose(TestCase):
         cleaned_data = dict(
             subject_visit=self.subject_visit_baseline,
             glucose_performed=YES,
-            glucose_units=MILLIMOLES_PER_LITER,
+            glucose_fasting=NOT_APPLICABLE,
+            glucose_units=NOT_APPLICABLE,
+        )
+        form_validator = MyGlucoseFormValidator(cleaned_data=cleaned_data)
+        with self.assertRaises(ValidationError) as cm:
+            form_validator.validate()
+        self.assertIn("glucose_fasting", cm.exception.error_dict)
+
+        cleaned_data = dict(
+            subject_visit=self.subject_visit_baseline,
+            glucose_performed=YES,
+            glucose_fasting=YES,
+            glucose_units=NOT_APPLICABLE,
+        )
+        form_validator = MyGlucoseFormValidator(cleaned_data=cleaned_data)
+        with self.assertRaises(ValidationError) as cm:
+            form_validator.validate()
+        self.assertIn("glucose_fasting_duration_str", cm.exception.error_dict)
+
+        cleaned_data = dict(
+            subject_visit=self.subject_visit_baseline,
+            glucose_performed=YES,
+            glucose_fasting=YES,
+            glucose_fasting_duration_str="12h",
+            glucose_units=NOT_APPLICABLE,
         )
         form_validator = MyGlucoseFormValidator(cleaned_data=cleaned_data)
         with self.assertRaises(ValidationError) as cm:
@@ -51,20 +75,10 @@ class TestGlucose(TestCase):
         cleaned_data = dict(
             subject_visit=self.subject_visit_baseline,
             glucose_performed=YES,
+            glucose_fasting=YES,
+            glucose_fasting_duration_str="12h",
             glucose_date=get_utcnow().date,
-            glucose_units=MILLIMOLES_PER_LITER,
-        )
-        form_validator = MyGlucoseFormValidator(cleaned_data=cleaned_data)
-        with self.assertRaises(ValidationError) as cm:
-            form_validator.validate()
-        self.assertIn("fasting", cm.exception.error_dict)
-
-        cleaned_data = dict(
-            subject_visit=self.subject_visit_baseline,
-            glucose_performed=YES,
-            glucose_date=get_utcnow().date,
-            fasting=YES,
-            glucose_units=MILLIMOLES_PER_LITER,
+            glucose_units=NOT_APPLICABLE,
         )
         form_validator = MyGlucoseFormValidator(cleaned_data=cleaned_data)
         with self.assertRaises(ValidationError) as cm:
@@ -74,8 +88,9 @@ class TestGlucose(TestCase):
         cleaned_data = dict(
             subject_visit=self.subject_visit_baseline,
             glucose_performed=YES,
+            glucose_fasting=YES,
+            glucose_fasting_duration_str="12h",
             glucose_date=get_utcnow().date,
-            fasting=YES,
             glucose_value=5.3,
             glucose_units=MILLIMOLES_PER_LITER,
             glucose_quantifier=None,
@@ -88,8 +103,9 @@ class TestGlucose(TestCase):
         cleaned_data = dict(
             subject_visit=self.subject_visit_baseline,
             glucose_performed=YES,
+            glucose_fasting=YES,
+            glucose_fasting_duration_str="12h",
             glucose_date=get_utcnow().date,
-            fasting=YES,
             glucose_value=5.3,
             glucose_units=NOT_APPLICABLE,
             glucose_quantifier=EQ,
@@ -102,8 +118,9 @@ class TestGlucose(TestCase):
         cleaned_data = dict(
             subject_visit=self.subject_visit_baseline,
             glucose_performed=YES,
+            glucose_fasting=YES,
+            glucose_fasting_duration_str="12h",
             glucose_date=get_utcnow().date,
-            fasting=YES,
             glucose_value=5.3,
             glucose_units=MILLIMOLES_PER_LITER,
             glucose_quantifier=EQ,
@@ -112,4 +129,4 @@ class TestGlucose(TestCase):
         try:
             form_validator.validate()
         except ValidationError:
-            self.fail("ValidationError unexceptedly raised")
+            self.fail("ValidationError unexpectedly raised")
