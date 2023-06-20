@@ -14,6 +14,7 @@ class FbgFormValidatorMixin:
         self.date_is_after_or_raise(
             field=f"{fbg_prefix}_datetime",
             reference_field=self.report_datetime_field_attr,
+            inclusive=True,
         )
         self.required_if_true(
             self.cleaned_data.get(f"{fbg_prefix}_datetime"),
