@@ -105,6 +105,7 @@ class DateValidator(BaseFormValidator):
             reference_value=reference_value,
             reference_field=reference_field,
             extra_msg=extra_msg,
+            inclusive=inclusive,
         )
         self._date_is(
             GTE if inclusive else GT,
