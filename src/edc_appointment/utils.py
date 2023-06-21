@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import ProtectedError
+from edc_constants.constants import CLINIC
 from edc_visit_schedule.schedule.window import (
     ScheduledVisitWindowError,
     UnScheduledVisitWindowError,
@@ -17,7 +18,6 @@ from edc_visit_schedule.utils import is_baseline
 from .choices import APPT_TYPE, DEFAULT_APPT_REASON_CHOICES
 from .constants import (
     CANCELLED_APPT,
-    CLINIC,
     COMPLETE_APPT,
     INCOMPLETE_APPT,
     MISSED_APPT,
