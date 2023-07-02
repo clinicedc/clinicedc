@@ -1,4 +1,5 @@
 from typing import Optional
+from urllib.parse import urlencode
 
 from django.contrib import messages
 from django.http.response import HttpResponseRedirect
@@ -9,32 +10,48 @@ from edc_dashboard.url_names import InvalidUrlName, url_names
 
 class ModelAdminRedirectOnDeleteMixin:
 
-    """A mixin to redirect on delete.
+    """A mixin to redirect post delete.
 
-    If `post_url_on_delete_name` is not set, does nothing.
+    If `post_url_on_delete_name` and `post_full_url_on_delete` are
+    not set, does nothing.
     """
 
     post_url_on_delete_name = "subject_dashboard_url"  # lookup key for url_names dict
+    post_full_url_on_delete = None
 
     def __init__(self, *args):
         self.post_url_on_delete = None
         super().__init__(*args)
 
     def get_post_url_on_delete(self, request, obj) -> Optional[str]:
-        try:
-            url_name = url_names.get(self.post_url_on_delete_name)
-        except InvalidUrlName:
-            if self.post_url_on_delete_name:
-                raise
-            url_name = None
-        if url_name:
-            kwargs = self.post_url_on_delete_kwargs(request, obj)
-            post_url_on_delete = reverse(url_name, kwargs=kwargs)
-            return post_url_on_delete
-        return None
+        """Returns a url for the redirect after delete."""
+        post_url_on_delete = None
+        querystring = urlencode(self.post_url_on_delete_querystring_kwargs(request, obj))
+        if self.post_full_url_on_delete:
+            post_url_on_delete = reverse(self.post_full_url_on_delete)
+        else:
+            try:
+                url_name = url_names.get(self.post_url_on_delete_name)
+            except InvalidUrlName:
+                if self.post_url_on_delete_name:
+                    raise
+                url_name = None
+            if url_name:
+                kwargs = self.post_url_on_delete_kwargs(request, obj)
+                post_url_on_delete = reverse(url_name, kwargs=kwargs)
+        if post_url_on_delete and querystring:
+            post_url_on_delete = f"{post_url_on_delete}?{querystring}"
+        return post_url_on_delete
 
     def post_url_on_delete_kwargs(self, request, obj) -> dict:
         """Returns kwargs needed to reverse the url.
+
+        Override.
+        """
+        return {}
+
+    def post_url_on_delete_querystring_kwargs(self, request, obj) -> dict:
+        """Returns kwargs for a querystring for the reversed url.
 
         Override.
         """

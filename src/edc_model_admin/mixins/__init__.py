@@ -13,6 +13,9 @@ from .model_admin_next_url_redirect_mixin import (
     ModelAdminNextUrlRedirectError,
     ModelAdminNextUrlRedirectMixin,
 )
+from .model_admin_redirect_all_to_changelist_mixin import (
+    ModelAdminRedirectAllToChangelistMixin,
+)
 from .model_admin_redirect_on_delete_mixin import ModelAdminRedirectOnDeleteMixin
 from .model_admin_replace_label_text_mixin import ModelAdminReplaceLabelTextMixin
 from .templates_model_admin_mixin import TemplatesModelAdminMixin

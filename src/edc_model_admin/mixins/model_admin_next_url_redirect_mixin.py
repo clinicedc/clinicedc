@@ -25,7 +25,7 @@ class ModelAdminNextUrlError(Exception):
 
 class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
 
-    """Redirect on add, change, delete by reversing a url_name
+    """Redirect on add, change, delete by reversing url_name
     in the querystring OR clicking Save Next.
 
     In your url &next=my_app:my_url_name,arg1,arg2&agr1=value1&arg2=

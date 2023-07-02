@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+from urllib.parse import urlencode
 from warnings import warn
 
 from django import template
@@ -72,25 +75,39 @@ def get_cancel_url(context, cancel_attr=None):
                     cancel_url = reverse(url, kwargs=kwargs)
                 except NoReverseMatch:
                     cancel_url = None
-                    # warn(f"{str(e)} kwargs={kwargs}. See 'get_cancel_url'.")
     return cancel_url
 
 
 @register.inclusion_tag("edc_submit_line.html", takes_context=True)
-def edc_submit_row(context):
+def edc_submit_row(
+    context,
+    cancel_url: str | None = None,
+    cancel_url_kwargs: dict | None = None,
+    cancel_url_querystring_data: dict | None = None,
+    show_delete: bool | None = None,
+):
+    """Returns context to django_submit_row.
+
+    Add to context in add_view or change_view.
+
+    See also ModelAdminRedirectAllToChangelistMixin
+    """
     request = get_request_object(context)
     if request:
         if int(request.site.id) == int(context.get("reviewer_site_id", 0)):
             context.update({"save_next": None})
             context.update({"show_delete": None})
-
     show_save = context.get("show_save")
     if "save_next" in context:
         context["save_next"] = show_save
-
     if "show_cancel" in context:
-        context["cancel_url"] = get_cancel_url(context)
-
+        if cancel_url:
+            cancel_url = reverse(cancel_url, kwargs=(cancel_url_kwargs or {}))
+            if cancel_url_querystring_data:
+                cancel_url = f"{cancel_url}?{urlencode(cancel_url_querystring_data)}"
+        context["cancel_url"] = cancel_url or get_cancel_url(context)
+    if show_delete is False:
+        context["show_delete"] = show_delete
     return django_submit_row(context)
 
 
@@ -116,9 +133,7 @@ def instructions(context):
 
 @register.inclusion_tag("edc_additional_instructions.html", takes_context=True)
 def additional_instructions(context):
-    additional_instructions = context.get("additional_instructions")
-    notification_instructions = context.get("notification_instructions")
     return {
-        "additional_instructions": additional_instructions,
-        "notification_instructions": notification_instructions,
+        "additional_instructions": context.get("additional_instructions"),
+        "notification_instructions": context.get("notification_instructions"),
     }
