@@ -2,6 +2,7 @@ from django import template
 from django.apps import apps as django_apps
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
+from edc_constants.constants import CLINIC, HOME, TELEPHONE
 
 register = template.Library()
 
@@ -83,11 +84,11 @@ def continuation_appointment_anchor(parser, token):
 @register.filter(name="appt_type")
 def appt_type(value):
     """Filters appointment.appt_type."""
-    if value == "clinic":
+    if value == CLINIC:
         retval = "Clin"
-    elif value == "telephone":
+    elif value == TELEPHONE:
         retval = "Tele"
-    elif value == "home":
+    elif value == HOME:
         retval = "Home"
     else:
         retval = None

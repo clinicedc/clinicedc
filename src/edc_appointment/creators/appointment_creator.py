@@ -10,10 +10,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.utils import IntegrityError
 from django.utils.timezone import is_naive
+from edc_constants.constants import CLINIC
 from edc_facility.facility import Facility, FacilityError
 from edc_visit_schedule.utils import is_baseline
 
-from ..constants import CLINIC, SCHEDULED_APPT
+from ..constants import SCHEDULED_APPT
 from ..utils import get_appt_type_default
 
 if TYPE_CHECKING:

@@ -1,3 +1,5 @@
+from edc_constants.constants import CLINIC, HOME, HOSPITAL, TELEPHONE
+
 from .constants import (
     CANCELLED_APPT,
     COMPLETE_APPT,
@@ -32,10 +34,10 @@ APPT_TIMING = (
 )
 
 APPT_TYPE = (
-    ("clinic", "In clinic"),
-    ("home", "At home"),
-    ("hospital", "In hospital"),
-    ("telephone", "By telephone"),
+    (CLINIC, "In clinic"),
+    (HOME, "At home"),
+    (HOSPITAL, "In hospital"),
+    (TELEPHONE, "By telephone"),
 )
 
 INFO_PROVIDER = (("subject", "Subject"), ("other", "Other person"))
