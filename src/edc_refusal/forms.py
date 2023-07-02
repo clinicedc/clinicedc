@@ -6,7 +6,7 @@ from edc_constants.constants import OTHER
 from edc_dashboard.url_names import url_names
 from edc_form_validators import FormValidator, FormValidatorMixin
 from edc_registration.models import RegisteredSubject
-from edc_screening.utils import get_subject_screening_model_cls
+from edc_screening.utils import get_subject_screening_model_cls, is_eligible_or_raise
 
 from .models import SubjectRefusal
 
@@ -26,20 +26,7 @@ class ScreeningFormMixin:
             subject_screening = get_subject_screening_model_cls().objects.get(
                 screening_identifier=screening_identifier
             )
-            if not subject_screening.eligible:
-                url_name = url_names.get("screening_listboard_url")
-                url = reverse(
-                    url_name,
-                    kwargs={"screening_identifier": screening_identifier},
-                )
-                msg = format_html(
-                    "Not allowed. Subject is not eligible. "
-                    'See subject <A href="{}?q={}">{}</A>',
-                    url,
-                    screening_identifier,
-                    screening_identifier,
-                )
-                raise forms.ValidationError(msg)
+            is_eligible_or_raise(subject_screening=subject_screening)
         return cleaned_data
 
 
