@@ -56,7 +56,7 @@ class DeathReportTmgFieldsModelMixin(models.Model):
     cause_of_death = models.ForeignKey(
         CauseOfDeath,
         on_delete=PROTECT,
-        verbose_name=("Main cause of death"),
+        verbose_name="Main cause of death",
         help_text=(
             "Main cause of death in the opinion of the " "local study doctor and local PI"
         ),

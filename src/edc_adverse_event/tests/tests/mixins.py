@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from random import choice
 
 from edc_action_item.models import ActionItem
@@ -28,7 +30,11 @@ class DeathReportTestMixin:
             onschedule_datetime=subject_consent.consent_datetime,
         )
 
-    def get_death_report(self, cause_of_death=None, cause_of_death_other=None):
+    def get_death_report(
+        self,
+        cause_of_death: str | None = None,
+        cause_of_death_other: str | None = None,
+    ):
         causes_qs = CauseOfDeath.objects.exclude(name=OTHER)
         cause_of_death = (
             cause_of_death
