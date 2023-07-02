@@ -1,3 +1,6 @@
+INVALID_SCREENING_IDENTIFIER = "INVALID_SCREENING_IDENTIFIER"
+
+
 class ScreeningEligibilityError(Exception):
     pass
 
@@ -20,3 +23,9 @@ class ScreeningEligibilityInvalidCombination(Exception):
 
 class RequiredFieldValueMissing(Exception):
     pass
+
+
+class InvalidScreeningIdentifierFormat(Exception):
+    def __init__(self, *args, **kwargs):
+        self.code = INVALID_SCREENING_IDENTIFIER
+        super().__init__(*args, **kwargs)
