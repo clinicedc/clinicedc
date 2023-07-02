@@ -33,6 +33,8 @@ class SubjectScreening(models.Model):
 
     report_datetime = models.DateTimeField()
 
+    eligible = models.BooleanField(default=False)
+
     eligibility_datetime = models.DateTimeField()
 
     class Meta:

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from django import forms
 from django.apps import apps as django_apps
@@ -26,7 +26,7 @@ def get_consent_model_name() -> str:
     return settings.SUBJECT_CONSENT_MODEL
 
 
-def get_consent_model_cls() -> models.Model:
+def get_consent_model_cls() -> Any:
     return django_apps.get_model(get_consent_model_name())
 
 

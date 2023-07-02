@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any
 from dateutil.relativedelta import relativedelta
 from django import forms
 from edc_constants.constants import NO, YES
+from edc_model_form.utils import get_field_or_raise
 from edc_utils import AgeValueError, age, formatted_age
 
 from ...site_consents import ConsentObjectDoesNotExist, SiteConsentError, site_consents
@@ -36,15 +37,9 @@ class CustomValidationMixin:
         return consent_config
 
     def get_field_or_raise(self, name: str, msg: str) -> Any:
-        """Returns a field value from cleaned_data if the key
-        exists, or from the model instance.
-        """
-        if name in self.cleaned_data and not self.cleaned_data.get(name):
-            raise forms.ValidationError({"__all__": msg})
-        value = self.cleaned_data.get(name, getattr(self.instance, name))
-        if not value:
-            raise forms.ValidationError({"__all__": msg})
-        return value
+        return get_field_or_raise(
+            name, msg, cleaned_data=self.cleaned_data, instance=self.instance
+        )
 
     @property
     def consent_datetime(self) -> datetime:

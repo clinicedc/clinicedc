@@ -1,3 +1,5 @@
+from edc_screening.utils import is_eligible_or_raise
+
 from ...consent_helper import ConsentHelper
 from ...site_consents import site_consents
 from .clean_fields_modelform_mixin import CleanFieldsModelformMixin
@@ -7,6 +9,7 @@ from .custom_validation_mixin import CustomValidationMixin
 class ConsentModelFormMixin(CleanFieldsModelformMixin, CustomValidationMixin):
     def clean(self) -> dict:
         cleaned_data = super().clean()
+        self.validate_is_eligible_or_raise()
         self.validate_initials_with_full_name()
         self.validate_gender_of_consent()
         self.validate_is_literate_and_witness()
@@ -29,3 +32,9 @@ class ConsentModelFormMixin(CleanFieldsModelformMixin, CustomValidationMixin):
         self.validate_identity_with_unique_fields()
         self.validate_identity_plus_version_is_unique()
         return cleaned_data
+
+    def validate_is_eligible_or_raise(self) -> None:
+        screening_identifier = self.get_field_or_raise(
+            "screening_identifier", "Screening identifier is required."
+        )
+        is_eligible_or_raise(screening_identifier=screening_identifier)

@@ -152,6 +152,7 @@ class TestConsentForm(TestCase):
                 gender=gender,
                 screening_identifier=screening_identifier,
                 report_datetime=consent_datetime,
+                eligible=True,
                 eligibility_datetime=consent_datetime,
             )
         subject_consent = baker.prepare_recipe(

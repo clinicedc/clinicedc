@@ -4,7 +4,10 @@ from typing import TYPE_CHECKING
 
 from django import forms
 from edc_constants.constants import NO, YES
-from edc_screening.utils import get_subject_screening_model_cls
+from edc_screening.utils import (
+    get_subject_screening_model_cls,
+    get_subject_screening_or_raise,
+)
 
 if TYPE_CHECKING:
     from edc_screening.model_mixins import ScreeningModelMixin
@@ -29,13 +32,20 @@ class CleanFieldsModelformMixin:
             "screening_identifier"
         ) or self.initial.get("screening_identifier")
         if not screening_identifier:
-            raise ConsentModelFormMixinError(
+            raise forms.ValidationError(
                 "Unable to determine the screening identifier. "
                 f"This should be part of the initial form data. Got {self.cleaned_data}"
             )
-        return self.subject_screening_model_cls.objects.get(
-            screening_identifier=screening_identifier
-        )
+        # try:
+        #     subject_screening = self.subject_screening_model_cls.objects.get(
+        #         screening_identifier=screening_identifier
+        #     )
+        # except ObjectDoesNotExist:
+        #     raise forms.ValidationError(
+        #         "Unable to find screening form. Invalid screening identifier. "
+        #         f"Got `{screening_identifier}`"
+        #     )
+        return get_subject_screening_or_raise(screening_identifier, is_modelform=True)
 
     def clean_consent_reviewed(self) -> str:
         consent_reviewed = self.cleaned_data.get("consent_reviewed")
