@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 import string
 import sys
@@ -96,6 +98,7 @@ class FormDescriber:
                     self.fieldsets = fieldsets.fieldsets
             if include_hidden_fields:
                 self.add_hidden_fields()
+                self.add_field(fname="site")
             if add_timestamp:
                 self.markdown.append(f"\n\n*Rendered on {timestamp}*\n")
             self.describe()
