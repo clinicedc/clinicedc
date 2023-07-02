@@ -35,7 +35,7 @@ class AlreadyConsentedFormMixin:
 
     def already_consented_validation_message(self, cleaned_data: dict | None = None) -> str:
         return format_html(
-            "Not allowed. Subject has already consented. " 'See subject <A href="{}">{}</A>',
+            'Not allowed. Subject has already consented. See subject <A href="{}">{}</A>',
             self.already_consented_validation_url(cleaned_data),
             self.instance.subject_identifier,
         )
