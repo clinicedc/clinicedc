@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_constants.constants import NOT_APPLICABLE, YES
 from edc_lab.constants import EQ
 from edc_reportable import MILLIMOLES_PER_LITER
@@ -32,7 +32,6 @@ class TestGlucose(TestCase):
             visit_code_sequence=0,
         )
 
-    @tag("1")
     def test_glucose_result(self):
         class MyGlucoseFormValidator(GlucoseFormValidator):
             def clean(self):
