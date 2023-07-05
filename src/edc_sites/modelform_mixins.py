@@ -23,11 +23,11 @@ class SiteModelFormMixin:
         return cleaned_data
 
     def validate_with_current_site(self, cleaned_data: dict) -> None:
-        currrent_site = getattr(self, "currrent_site", None)
+        current_site = getattr(self, "current_site", None)
         if (
-            currrent_site
+            current_site
             and cleaned_data.get("site")
-            and currrent_site.id != cleaned_data.get("site").id
+            and current_site.id != cleaned_data.get("site").id
         ):
             raise forms.ValidationError(
                 {
