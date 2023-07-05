@@ -33,7 +33,7 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
     listboard_panel_style: str = "default"
     listboard_fa_icon: str | None = None
     listboard_model: str | None = None  # label_lower model name or model class
-    listboard_model_manager_name: str = "_default_manager"
+    listboard_model_manager_name: str = "on_site"
     listboard_panel_title: str | None = None
     listboard_instructions: str | None = None
 
