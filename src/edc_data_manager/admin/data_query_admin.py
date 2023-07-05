@@ -29,14 +29,14 @@ from ..admin_site import edc_data_manager_admin
 from ..auth_objects import DATA_MANAGER
 from ..constants import CLOSED_WITH_ACTION
 from ..forms import DataQueryForm
-from ..modeladmin_mixins import DataManagerModelAdminMixin
+from ..modeladmin_mixins import DataManagerSiteModelAdminMixin
 from ..models import DataDictionary, DataQuery
 from .actions import toggle_dm_status
 
 
 @register(DataQuery, site=edc_data_manager_admin)
 class DataQueryAdmin(
-    DataManagerModelAdminMixin, ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin
+    DataManagerSiteModelAdminMixin, ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin
 ):
     status_column_template_name = (
         f"edc_data_manager/bootstrap{get_bootstrap_version()}/columns/status.html"
