@@ -33,7 +33,7 @@ class CountriesListFilter(SimpleListFilter):
 
     def queryset(self, request, queryset):
         """Returns a queryset if the country name is in a site's siteprofile,
-        in the list of sites
+        in the list of sites.
         """
         qs = None
         if self.value():
