@@ -9,7 +9,7 @@ from edc_model_admin.mixins import TemplatesModelAdminMixin
 from ..admin_site import edc_auth_admin
 from ..forms import UserChangeForm
 from ..send_new_credentials_to_user import send_new_credentials_to_user
-from .list_filters import SitesListFilter
+from .list_filters import CountriesListFilter, SitesListFilter
 from .user_profile_admin import UserProfileInline
 
 admin.site.unregister(User)
@@ -58,6 +58,7 @@ class UserAdmin(TemplatesModelAdminMixin, BaseUserAdmin):
         "is_staff",
         "is_superuser",
         "is_active",
+        CountriesListFilter,
         SitesListFilter,
         "userprofile__roles",
         "groups",
