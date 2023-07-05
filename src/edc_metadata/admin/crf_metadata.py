@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from edc_appointment.models import Appointment
-from edc_data_manager.modeladmin_mixins import DataManagerModelAdminMixin
+from edc_data_manager.modeladmin_mixins import DataManagerSiteModelAdminMixin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
 from edc_metadata import KEYED, REQUIRED
@@ -12,7 +12,7 @@ from ..models import CrfMetadata
 
 @admin.register(CrfMetadata, site=edc_metadata_admin)
 class CrfMetadataAdmin(
-    DataManagerModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.ModelAdmin
+    DataManagerSiteModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.ModelAdmin
 ):
     @staticmethod
     def seq(obj=None):
