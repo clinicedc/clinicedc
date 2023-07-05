@@ -1,6 +1,7 @@
 import collections
 
 from django.contrib import admin
+from django.core.exceptions import FieldError
 
 from .get_country import get_current_country
 from .get_language_choices_for_site import get_language_choices_for_site
@@ -30,9 +31,13 @@ class SiteModelAdminMixin:
 
     def get_queryset(self, request):
         """Limit modeladmin queryset for the current site only"""
+        qs = super().get_queryset(request)
         if getattr(request, "site", None):
-            return super().get_queryset(request).filter(site_id=request.site.id)
-        return super().get_queryset(request)
+            try:
+                qs = qs.filter(site_id=request.site.id)
+            except FieldError:
+                pass
+        return qs
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         """Add current_site attr to form instance"""
