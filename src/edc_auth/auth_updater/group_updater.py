@@ -12,6 +12,7 @@ from django.core.exceptions import (
 from django.core.management.color import color_style
 
 from ..auth_objects import PII, PII_VIEW
+from ..utils import make_view_only_group_permissions
 
 style = color_style()
 
@@ -91,6 +92,7 @@ class GroupUpdater:
             group.permissions.clear()
         self.add_permissions_to_group_by_codenames(group, codenames)
         self.remove_historical_group_permissions(group)
+        make_view_only_group_permissions("site", group)
 
     def add_permissions_to_group_by_codenames(self, group=None, codenames=None):
         if codenames:
@@ -181,19 +183,11 @@ class GroupUpdater:
 
     @staticmethod
     def remove_historical_group_permissions(group=None, model=None):
-        """Removes permissions for historical models from this
-        group.
+        """Removes permissions for historical models from this group.
 
         Default removes all except `view`.
         """
-
-        opts = dict(codename__contains="_historical")
-        if model:
-            opts.update(model=model)
-        for permission in group.permissions.filter(**opts).exclude(
-            codename__startswith="view_historical"
-        ):
-            group.permissions.remove(permission)
+        make_view_only_group_permissions("_historical", group=group, model=model)
 
     def remove_permissions_by_model(self, group=None, model=None):
         try:

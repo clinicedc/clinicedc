@@ -1,11 +1,11 @@
 from pprint import pprint
 from typing import Any
 
-from django.contrib.auth.models import Group
+from django.apps import apps as django_apps
 
 
 def compare_codenames_for_group(group_name=None, expected=None):
-    group = Group.objects.get(name=group_name)
+    group = django_apps.get_model("auth.group").objects.get(name=group_name)
     codenames = [p.codename for p in group.permissions.all()]
     new_expected = []
     for c in expected:
@@ -36,3 +36,20 @@ def remove_default_model_permissions_from_edc_permissions(auth_updater: Any, app
                 f"{app_label}.view_edcpermissions",
             ],
         )
+
+
+def make_view_only_group_permissions(prefix: str = None, group=None, model=None):
+    """Remove all but view permissions for model.
+
+    Accepts a prefix as well, e.g. `historical'.
+
+    Default removes all except `view`.
+    """
+
+    opts = dict(codename__contains=f"_{prefix}")
+    if model:
+        opts.update(model=model)
+    for permission in group.permissions.filter(**opts).exclude(
+        codename__startswith=f"view_{prefix}"
+    ):
+        group.permissions.remove(permission)
