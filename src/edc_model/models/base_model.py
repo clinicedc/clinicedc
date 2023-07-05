@@ -19,3 +19,4 @@ class BaseModel(UrlModelMixin, AuditModelMixin, models.Model):
     class Meta(AuditModelMixin.Meta):
         abstract = True
         default_permissions = ("add", "change", "delete", "view", "export", "import")
+        default_manager_name = "objects"
