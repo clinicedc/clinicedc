@@ -1,8 +1,9 @@
+from collections import defaultdict
+
 from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
-from django.utils.html import format_html
 from edc_dashboard import select_edc_template
 from edc_model_admin.mixins import TemplatesModelAdminMixin
 
@@ -92,11 +93,16 @@ class UserAdmin(TemplatesModelAdminMixin, BaseUserAdmin):
 
     @staticmethod
     def sites(obj=None) -> str:
-        sites = []
-        for site in obj.userprofile.sites.all():
-            sites.append(site.name.replace("_", " ").title())
-        sites.sort()
-        return format_html("<BR>".join(sites))
+        country_sites = defaultdict(list)
+        for site in obj.userprofile.sites.all().order_by("siteprofile__country", "name"):
+            country_name = site.siteprofile.country.replace("_", " ").title()
+            site_name = site.name.replace("_", " ").title()
+            country_sites[country_name].append(site_name)
+        country_sites.default_factory = None
+
+        context = dict(country_sites=country_sites)
+        template_obj = select_edc_template("user_country_sites.html", "edc_auth")
+        return render_to_string(template_obj.template.name, context)
 
     @staticmethod
     def groups_in_role(obj=None) -> str:
