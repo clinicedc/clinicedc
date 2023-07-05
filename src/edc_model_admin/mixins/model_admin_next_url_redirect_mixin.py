@@ -87,7 +87,7 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
                 redirect_url = self.get_next_redirect_url(request=request, obj=obj)
         elif self.show_cancel and request.POST.get("_cancel"):
             redirect_url = self.get_next_redirect_url(request=request, obj=obj)
-        elif request.GET.dict().get(self.next_querystring_attr):
+        elif request.GET.get(self.next_querystring_attr):
             redirect_url = self.get_next_redirect_url(request=request, obj=obj)
         if not redirect_url:
             redirect_url = super().redirect_url(
@@ -100,7 +100,7 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
         in the querystring.
         """
         redirect_url = None
-        if next_querystring := request.GET.dict().get(self.next_querystring_attr):
+        if next_querystring := request.GET.get(self.next_querystring_attr):
             url_name = next_querystring.split(",")[0]
             options = self.get_next_options(request=request, **kwargs)
             try:
@@ -143,7 +143,7 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
                 redirect_url = reverse(f"{url_name}_add")
             else:
                 redirect_url = reverse(f"{url_name}_change", args=(next_obj.id,))
-        next_querystring = request.GET.dict().get(self.next_querystring_attr)
+        next_querystring = request.GET.get(self.next_querystring_attr)
         querystring_opts = self.get_next_options(request=request)
         querystring_opts.update({obj.related_visit_model_attr(): str(obj.related_visit.id)})
         if panel_name:
@@ -162,5 +162,5 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
         """Returns the key/value pairs from the "next" querystring
         as a dictionary.
         """
-        attrs = request.GET.dict().get(self.next_querystring_attr).split(",")[1:]
-        return {k: request.GET.dict().get(k) for k in attrs if request.GET.dict().get(k)}
+        attrs = request.GET.get(self.next_querystring_attr).split(",")[1:]
+        return {k: request.GET.get(k) for k in attrs if request.GET.get(k)}

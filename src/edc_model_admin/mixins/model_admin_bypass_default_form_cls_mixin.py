@@ -12,7 +12,7 @@ from django.utils.html import format_html
 from edc_sites.modelform_mixins import SiteModelFormMixin
 
 
-class ModelAdminGetFormClsMixin:
+class ModelAdminBypassDefaultFormClsMixin:
 
     """A modeladmin mixin to set the admin class's modelform conditionally
     based on a special data manager permission codename.
@@ -36,6 +36,7 @@ class ModelAdminGetFormClsMixin:
         allow the user to update the screening form.
     """
 
+    # if custom_form_codename is None, this mixin does nothing
     custom_form_codename: str | None = None  # "e.g. edc_data_manager.special_bypassmodelform"
 
     def custom_modelform_factory(self):
