@@ -26,11 +26,8 @@ class CountriesListFilter(SimpleListFilter):
     parameter_name = "country_name"
 
     def lookups(self, request, model_admin):
-        countries = set(
-            (s.siteprofile.country, s.siteprofile.country.replace("_", " ").title())
-            for s in Site.objects.all()
-        )
-        return tuple(countries)
+        countries = set(s.siteprofile.country for s in Site.objects.all())
+        return tuple((c, c.replace("_", " ").title()) for c in sorted(countries))
 
     def queryset(self, request, queryset):
         """Returns a queryset if the country name is in a site's siteprofile,
