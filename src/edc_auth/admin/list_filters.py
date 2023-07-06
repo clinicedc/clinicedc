@@ -27,7 +27,8 @@ class CountriesListFilter(SimpleListFilter):
 
     def lookups(self, request, model_admin):
         countries = set(
-            (s.siteprofile.country, s.siteprofile.country.title()) for s in Site.objects.all()
+            (s.siteprofile.country, s.siteprofile.country.replace("_", " ").title())
+            for s in Site.objects.all()
         )
         return tuple(countries)
 
