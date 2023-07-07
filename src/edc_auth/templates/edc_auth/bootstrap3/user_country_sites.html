@@ -1,0 +1,11 @@
+{% if country_sites %}
+  {% for country, sites in country_sites.items %}
+    {{ country }}:<BR>
+    {% for site in sites %}
+      &nbsp;&nbsp;-{{ site }}<BR>
+    {% endfor %}
+    <BR>
+  {% endfor %}
+{% else %}
+  <span style="color: red; ">Sites not defined!<BR></span>
+{% endif %}
