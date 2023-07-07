@@ -2,14 +2,13 @@ from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
-from django.utils.html import format_html
 from edc_dashboard import select_edc_template
 from edc_model_admin.mixins import TemplatesModelAdminMixin
 
 from ..admin_site import edc_auth_admin
 from ..forms import UserChangeForm
 from ..send_new_credentials_to_user import send_new_credentials_to_user
-from .list_filters import SitesListFilter
+from .list_filters import CountriesListFilter, SitesListFilter
 from .user_profile_admin import UserProfileInline
 
 admin.site.unregister(User)
@@ -58,6 +57,7 @@ class UserAdmin(TemplatesModelAdminMixin, BaseUserAdmin):
         "is_staff",
         "is_superuser",
         "is_active",
+        CountriesListFilter,
         SitesListFilter,
         "userprofile__roles",
         "groups",
@@ -91,11 +91,18 @@ class UserAdmin(TemplatesModelAdminMixin, BaseUserAdmin):
 
     @staticmethod
     def sites(obj=None) -> str:
-        sites = []
-        for site in obj.userprofile.sites.all():
-            sites.append(site.name.replace("_", " ").title())
-        sites.sort()
-        return format_html("<BR>".join(sites))
+        country_sites = {}
+        for site in obj.userprofile.sites.all().order_by("siteprofile__country", "name"):
+            country_name = site.siteprofile.country.replace("_", " ").title()
+            site_name = site.name.replace("_", " ").title()
+            try:
+                country_sites[country_name].append(site_name)
+            except KeyError:
+                country_sites[country_name] = [site_name]
+
+        context = dict(country_sites=country_sites)
+        template_obj = select_edc_template("user_country_sites.html", "edc_auth")
+        return render_to_string(template_obj.template.name, context)
 
     @staticmethod
     def groups_in_role(obj=None) -> str:
