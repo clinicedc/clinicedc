@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
@@ -93,12 +91,14 @@ class UserAdmin(TemplatesModelAdminMixin, BaseUserAdmin):
 
     @staticmethod
     def sites(obj=None) -> str:
-        country_sites = defaultdict(list)
+        country_sites = {}
         for site in obj.userprofile.sites.all().order_by("siteprofile__country", "name"):
             country_name = site.siteprofile.country.replace("_", " ").title()
             site_name = site.name.replace("_", " ").title()
-            country_sites[country_name].append(site_name)
-        country_sites.default_factory = None
+            try:
+                country_sites[country_name].append(site_name)
+            except KeyError:
+                country_sites[country_name] = [site_name]
 
         context = dict(country_sites=country_sites)
         template_obj = select_edc_template("user_country_sites.html", "edc_auth")
