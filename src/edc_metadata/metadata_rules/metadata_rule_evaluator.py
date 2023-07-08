@@ -1,6 +1,13 @@
-from typing import Any, Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from edc_visit_tracking.utils import get_related_visit_model_cls
 
 from .site import site_metadata_rules
+
+if TYPE_CHECKING:
+    related_visit_model_cls = get_related_visit_model_cls()
 
 
 class MetadataRuleEvaluator:
@@ -11,7 +18,7 @@ class MetadataRuleEvaluator:
     """
 
     def __init__(
-        self, related_visit: Optional[Any] = None, app_label: Optional[str] = None
+        self, related_visit: related_visit_model_cls = None, app_label: str | None = None
     ) -> None:
         self.related_visit = related_visit
         self.app_label = app_label or related_visit._meta.app_label

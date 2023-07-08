@@ -37,7 +37,7 @@ class MetadataUpdater:
             entry_status = KEYED
         if entry_status and metadata_obj.entry_status != entry_status:
             metadata_obj.entry_status = entry_status
-            metadata_obj.save()
+            metadata_obj.save(update_fields=["entry_status"])
             metadata_obj.refresh_from_db()
             if metadata_obj.entry_status != entry_status:
                 raise MetadataUpdaterError(

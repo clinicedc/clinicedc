@@ -116,7 +116,7 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
         schedule.add_visit(visit)
         new_visit_schedule = VisitSchedule(
             name="visit_schedule",
-            offstudy_model="edc_metadata.subjectoffstudy",
+            offstudy_model="edc_offstudy.subjectoffstudy",
             death_report_model="edc_metadata.deathreport",
         )
         new_visit_schedule.add_schedule(schedule)
@@ -138,13 +138,14 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
         self.assertEqual(CrfMetadata.objects.all().count(), 5)
         metadata_refresher = MetadataRefresher()
         metadata_refresher.run()
-        self.assertEqual(CrfMetadata.objects.all().count(), 5)
+        # CrfFive is no longer in visit schedule, so one less
+        # CRFMetadata instance
+        self.assertEqual(CrfMetadata.objects.all().count(), 4)
         expected = {
             "edc_metadata.crfone": REQUIRED,
             "edc_metadata.crftwo": REQUIRED,
             "edc_metadata.crfthree": REQUIRED,
             "edc_metadata.crfFour": REQUIRED,
-            "edc_metadata.crfFive": KEYED,
         }
         self.check(expected, subject_visit=subject_visit)
 

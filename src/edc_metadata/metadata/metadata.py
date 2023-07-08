@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Type, Union
-from warnings import warn
+from typing import TYPE_CHECKING, Any, Type
 
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib.admin.sites import all_sites
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError, transaction
 from django.db.models import Model
 from edc_reference import site_reference_configs
 from edc_visit_schedule import Crf, FormsCollection, Requisition, site_visit_schedules
@@ -56,7 +56,7 @@ class CrfCreator:
         self,
         related_visit: VisitModelMixin,
         update_keyed: bool,
-        crf: Union[Crf, Requisition],
+        crf: Crf | Requisition,
     ) -> None:
         self._metadata_obj = None
         self.update_keyed = update_keyed
@@ -94,15 +94,22 @@ class CrfCreator:
         CRF, if it does not already exist.
         """
         if not self._metadata_obj:
+            metadata_obj = None
             try:
                 metadata_obj = self.metadata_model_cls.objects.get(**self.query_options)
             except ObjectDoesNotExist:
-                metadata_obj = self.metadata_model_cls.objects.create(
-                    entry_status=REQUIRED if self.crf.required else NOT_REQUIRED,
-                    show_order=self.crf.show_order,
-                    site=self.related_visit.site,
-                    **self.query_options,
-                )
+                with transaction.atomic():
+                    opts = dict(
+                        entry_status=REQUIRED if self.crf.required else NOT_REQUIRED,
+                        show_order=self.crf.show_order,
+                        site=self.related_visit.site,
+                    )
+                    opts.update(**self.query_options)
+                    try:
+                        metadata_obj = self.metadata_model_cls.objects.create(**opts)
+                    except IntegrityError as e:
+                        msg = f"Integrity error creating. Tried with {opts}. Got {e}."
+                        raise CreatesMetadataError(msg)
             if not model_cls_registered_with_admin_site(self.crf.model_cls):
                 metadata_obj.delete()
                 metadata_obj = None
@@ -127,19 +134,19 @@ class CrfCreator:
 
         See also edc_reference.
         """
-        exists_instance = (
-            django_apps.get_model(self.crf.model)
-            .objects.filter(subject_visit=self.related_visit)
-            .exists()
-        )
-        exists_reference = self.reference_model_cls.objects.filter_crf_for_visit(
-            name=self.crf.model, visit=self.related_visit
-        ).exists()
-        if exists_reference != exists_instance:
-            print(
-                f"is_keyed mismatch: {self.crf.model}, {self.related_visit}, "
-                f"ref={exists_reference}, instance={exists_instance}. Fixed"
-            )
+        # exists_instance = (
+        #     django_apps.get_model(self.crf.model)
+        #     .objects.filter(subject_visit=self.related_visit)
+        #     .exists()
+        # )
+        # exists_reference = self.reference_model_cls.objects.filter_crf_for_visit(
+        #     name=self.crf.model, visit=self.related_visit
+        # ).exists()
+        # if exists_reference != exists_instance:
+        #     print(
+        #         f"is_keyed mismatch: {self.crf.model}, {self.related_visit}, "
+        #         f"ref={exists_reference}, instance={exists_instance}. Fixed"
+        #     )
         return (
             django_apps.get_model(self.crf.model)
             .objects.filter(subject_visit=self.related_visit)
@@ -147,24 +154,25 @@ class CrfCreator:
         )
 
     def _verify_entry_status_with_model_obj(self, metadata_obj):
-        # TODO maybe just call metadata_obj.reset_entry_status() ?
         if metadata_obj.entry_status != KEYED and self.is_keyed:
-            warn(
-                "Incorrect metadata entry_status. Model instance exists! "
-                f"Got {metadata_obj._meta.label_lower}.entry_status="
-                f"{metadata_obj.entry_status} for model {metadata_obj.model}. Fixed"
-            )
+            # warn(
+            #     "Incorrect metadata entry_status. Model instance exists. "
+            #     f"Got {metadata_obj.subject_identifier}.{metadata_obj.visit_code}."
+            #     f"{metadata_obj.visit_code_sequence}. {metadata_obj._meta.label_lower}."
+            #     f"entry_status={metadata_obj.entry_status} for model {metadata_obj.model}. "
+            #     "Fixed."
+            # )
             metadata_obj.entry_status = KEYED
-            metadata_obj.save()
+            metadata_obj.save(update_fields=["entry_status"])
             metadata_obj.refresh_from_db()
         elif metadata_obj.entry_status in [REQUIRED, NOT_REQUIRED]:
             if self.crf.required and metadata_obj.entry_status == NOT_REQUIRED:
                 metadata_obj.entry_status = REQUIRED
-                metadata_obj.save()
+                metadata_obj.save(update_fields=["entry_status"])
                 metadata_obj.refresh_from_db()
             elif (not self.crf.required) and (metadata_obj.entry_status == REQUIRED):
                 metadata_obj.entry_status = NOT_REQUIRED
-                metadata_obj.save()
+                metadata_obj.save(update_fields=["entry_status"])
                 metadata_obj.refresh_from_db()
         return metadata_obj
 

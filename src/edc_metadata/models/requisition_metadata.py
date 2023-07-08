@@ -1,18 +1,18 @@
 from django.db import models
-from edc_model import models as edc_models
-from edc_sites.models import CurrentSiteManager, SiteModelMixin
+from edc_model.models import BaseUuidModel
+from edc_sites.models import CurrentSiteManager
 
 from .. import KEYED, NOT_REQUIRED, REQUIRED
 from ..managers import RequisitionMetadataManager
 from .crf_metadata_model_mixin import CrfMetadataModelMixin
 
 
-class RequisitionMetadata(CrfMetadataModelMixin, SiteModelMixin, edc_models.BaseUuidModel):
+class RequisitionMetadata(CrfMetadataModelMixin, BaseUuidModel):
     panel_name = models.CharField(max_length=50, null=True)
 
-    on_site = CurrentSiteManager()
-
     objects = RequisitionMetadataManager()
+
+    on_site = CurrentSiteManager()
 
     def __str__(self) -> str:
         return (
@@ -65,7 +65,7 @@ class RequisitionMetadata(CrfMetadataModelMixin, SiteModelMixin, edc_models.Base
         self.save_base(update_fields=["entry_status"])
         return self.entry_status
 
-    class Meta(CrfMetadataModelMixin.Meta, edc_models.BaseUuidModel.Meta):
+    class Meta(CrfMetadataModelMixin.Meta, BaseUuidModel.Meta):
         app_label = "edc_metadata"
         verbose_name = "Requisition Metadata"
         verbose_name_plural = "Requisition Metadata"

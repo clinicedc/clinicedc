@@ -35,7 +35,7 @@ class TestNaturalKey(TestCase):
         "edc_metadata.disenrollment",
         "edc_metadata.subjectrequisition",
         "edc_metadata.subjectvisit",
-        "edc_metadata.subjectoffstudy",
+        "edc_offstudy.subjectoffstudy",
         "edc_metadata.crfone",
         "edc_metadata.crftwo",
         "edc_metadata.crfthree",

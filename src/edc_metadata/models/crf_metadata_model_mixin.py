@@ -1,9 +1,12 @@
-from typing import Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
+from edc_sites.model_mixins import SiteModelMixin
 from edc_visit_schedule.model_mixins import (
     VisitScheduleFieldsModelMixin,
     VisitScheduleMethodsModelMixin,
@@ -12,9 +15,13 @@ from edc_visit_schedule.model_mixins import (
 from ..choices import ENTRY_STATUS, NOT_REQUIRED, REQUIRED
 from ..constants import KEYED
 
+if TYPE_CHECKING:
+    from django.contrib.sites.models import Site
+
 
 class CrfMetadataModelMixin(
     NonUniqueSubjectIdentifierFieldMixin,
+    SiteModelMixin,
     VisitScheduleMethodsModelMixin,
     VisitScheduleFieldsModelMixin,
     models.Model,
@@ -68,11 +75,12 @@ class CrfMetadataModelMixin(
         models_cls = django_apps.get_model(self.model)
         attr = models_cls.related_visit_model_attr()
         return {
-            f"{attr}__subject_identifier": self.subject_identifier,
-            f"{attr}__visit_schedule_name": self.visit_schedule_name,
             f"{attr}__schedule_name": self.schedule_name,
+            f"{attr}__site": self.site,
+            f"{attr}__subject_identifier": self.subject_identifier,
             f"{attr}__visit_code": self.visit_code,
             f"{attr}__visit_code_sequence": self.visit_code_sequence,
+            f"{attr}__visit_schedule_name": self.visit_schedule_name,
         }
 
     @property
@@ -104,6 +112,12 @@ class CrfMetadataModelMixin(
 
     def get_entry_status(self) -> str:
         return self.refresh_entry_status()
+
+    def get_site_on_create(self) -> Site:
+        """Expect site instance to be set from the reference model
+        instance.
+        """
+        return self.site
 
     class Meta:
         abstract = True

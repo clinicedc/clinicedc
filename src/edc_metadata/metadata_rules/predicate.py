@@ -64,6 +64,7 @@ class BasePredicate:
                 visit_code=visit.visit_code,
                 visit_code_sequence=visit.visit_code_sequence,
                 timepoint=visit.timepoint,
+                site=visit.site,
             )
         except AttributeError as e:
             raise PredicateError(f"Invalid visit model or None. Got {e}")
