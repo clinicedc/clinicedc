@@ -13,8 +13,8 @@ class CrfWithActionModelMixin(
 ):
     action_name = None
 
-    on_site = CrfCurrentSiteManager()
     objects = CrfModelManager()
+    on_site = CrfCurrentSiteManager()
     history = HistoricalRecords(inherit=True)
 
     class Meta(CrfNoManagerModelMixin.Meta):
