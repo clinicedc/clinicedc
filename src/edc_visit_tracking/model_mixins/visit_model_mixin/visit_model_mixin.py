@@ -59,12 +59,14 @@ class VisitModelMixin(
         if self.appointment.appt_timing == MISSED_APPT and self.reason != MISSED_VISIT:
             raise SubjectVisitReasonError(
                 "Invalid. Appointment is missed. Expected visit to be missed also. "
-                f"Got visit.reason=`{self.reason}`. Perhaps catch this in the form."
+                f"Got visit.reason=`{self.reason}`. See {self.appointment}. "
+                "Perhaps catch this in the form."
             )
         if self.appointment.appt_timing != MISSED_APPT and self.reason == MISSED_VISIT:
             raise SubjectVisitReasonError(
                 "Invalid. Appointment is not missed. Did not expected a missed visit. "
-                f"Got visit.reason=`{self.reason}`. Perhaps catch this in the form."
+                f"Got visit.reason=`{self.reason}`. See {self.appointment}. "
+                "Perhaps catch this in the form."
             )
         super().save(*args, **kwargs)
 
