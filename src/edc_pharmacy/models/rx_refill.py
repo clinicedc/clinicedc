@@ -110,9 +110,9 @@ class RxRefill(
 
     as_string = models.CharField(max_length=150, editable=False)
 
-    on_site = CurrentSiteManager()
-
     objects = Manager()
+
+    on_site = CurrentSiteManager()
 
     history = edc_models.HistoricalRecords()
 
