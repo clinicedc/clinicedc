@@ -9,7 +9,6 @@ class NameFieldsModelMixin(models.Model):
     legal_name = EncryptedCharField(
         verbose_name="Full name",
         blank=False,
-        unique=True,
         validators=[
             RegexValidator(
                 regex=r"^(([A-Z]+ )*[A-Z]+)?$",
@@ -36,6 +35,17 @@ class NameFieldsModelMixin(models.Model):
                 ),
             )
         ],
+    )
+
+    initials = EncryptedCharField(
+        validators=[
+            RegexValidator(
+                regex=r"^[A-Z]{2,3}$",
+                message="Ensure initials consist of letters only in upper case, no spaces.",
+            )
+        ],
+        null=True,
+        blank=False,
     )
 
     def save(self, *args, **kwargs):
