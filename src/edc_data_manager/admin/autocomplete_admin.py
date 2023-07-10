@@ -4,7 +4,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from edc_auth.admin import UserAdmin as BaseUserAdmin
 from edc_lab.admin import PanelAdmin as BasePanelAdmin
 from edc_model_admin.mixins import TemplatesModelAdminMixin
-from edc_registration.admin import RegisteredSubjectAdmin as BaseRegisteredSubjectAdmin
+from edc_sites.admin import SiteModelAdminMixin
 from edc_visit_schedule.admin import VisitScheduleAdmin as BaseVisitScheduleAdmin
 
 from ..admin_site import edc_data_manager_admin
@@ -40,7 +40,7 @@ class RequisitionDataDictionaryAdmin(TemplatesModelAdminMixin, admin.ModelAdmin)
 
 
 @register(QuerySubject, site=edc_data_manager_admin)
-class QuerySubjectAdmin(BaseRegisteredSubjectAdmin):
+class QuerySubjectAdmin(SiteModelAdminMixin, admin.ModelAdmin):
     ordering = ("subject_identifier",)
     search_fields = ("subject_identifier",)
 

@@ -90,9 +90,9 @@ class DataQuery(DataQueryModelMixin, ActionModelMixin, SiteModelMixin, BaseUuidM
         verbose_name="Query rule reference", max_length=150, null=True, default=uuid4
     )
 
-    on_site = CurrentSiteManager()
-
     objects = models.Manager()
+
+    on_site = CurrentSiteManager()
 
     def __str__(self):
         return f"{self.action_identifier[-9:]}, {self.status}"

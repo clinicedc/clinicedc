@@ -23,21 +23,19 @@ from edc_constants.constants import (
 from edc_dashboard.utils import get_bootstrap_version
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_model_admin.history import SimpleHistoryAdmin
+from edc_sites.admin import SiteModelAdminMixin
 from edc_utils import formatted_datetime
 
 from ..admin_site import edc_data_manager_admin
 from ..auth_objects import DATA_MANAGER
 from ..constants import CLOSED_WITH_ACTION
 from ..forms import DataQueryForm
-from ..modeladmin_mixins import DataManagerSiteModelAdminMixin
 from ..models import DataDictionary, DataQuery
 from .actions import toggle_dm_status
 
 
 @register(DataQuery, site=edc_data_manager_admin)
-class DataQueryAdmin(
-    DataManagerSiteModelAdminMixin, ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin
-):
+class DataQueryAdmin(SiteModelAdminMixin, ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
     status_column_template_name = (
         f"edc_data_manager/bootstrap{get_bootstrap_version()}/columns/status.html"
     )
