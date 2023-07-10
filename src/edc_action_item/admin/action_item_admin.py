@@ -5,6 +5,7 @@ from django.utils.safestring import mark_safe
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_model_admin.history import SimpleHistoryAdmin
+from edc_sites.modeladmin_mixins import SiteModelAdminMixin
 
 from ..admin_site import edc_action_item_admin
 from ..forms import ActionItemForm
@@ -12,7 +13,11 @@ from ..models import ActionItem
 
 
 @admin.register(ActionItem, site=edc_action_item_admin)
-class ActionItemAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
+class ActionItemAdmin(
+    SiteModelAdminMixin,
+    ModelAdminSubjectDashboardMixin,
+    SimpleHistoryAdmin,
+):
     form = ActionItemForm
 
     save_on_top = True

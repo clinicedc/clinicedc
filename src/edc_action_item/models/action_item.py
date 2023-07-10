@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from datetime import datetime
-from typing import Any, Optional, Type
+from typing import Any, Type
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -13,20 +15,12 @@ from edc_sites.models import CurrentSiteManager as BaseCurrentSiteManager
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
 
-from edc_action_item.stubs import ActionStub
-
+from .. import Action
 from ..choices import ACTION_STATUS, PRIORITY
+from ..exceptions import SubjectDoesNotExist
 from ..identifiers import ActionIdentifier
 from ..site_action_items import site_action_items
 from .action_type import ActionType
-
-
-class ActionItemUpdatesRequireFollowup(Exception):
-    pass
-
-
-class SubjectDoesNotExist(Exception):
-    pass
 
 
 class CurrentSiteManager(BaseCurrentSiteManager):
@@ -137,13 +131,13 @@ class ActionItem(
 
     auto_created_comment = models.CharField(max_length=25, null=True, blank=True)
 
-    on_site = CurrentSiteManager()
-
     objects = ActionItemManager()
+
+    on_site = CurrentSiteManager()
 
     history = HistoricalRecords()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             f"{self.action_type.display_name} {self.action_identifier[-9:]} "
             f"for {self.subject_identifier} ({self.get_status_display()})"
@@ -174,24 +168,24 @@ class ActionItem(
             self.instructions = self.action_type.instructions
         super().save(*args, **kwargs)
 
-    def natural_key(self) -> tuple:
+    def natural_key(self) -> tuple[str]:
         return (self.action_identifier,)  # noqa
 
     @property
-    def last_updated(self) -> Optional[datetime]:
+    def last_updated(self) -> datetime | str:
         return None if self.status == NEW else self.modified
 
     @property
-    def user_last_updated(self) -> Optional[str]:
+    def user_last_updated(self) -> str | None:
         return None if self.status == NEW else self.user_modified or self.user_created
 
     @property
-    def action_cls(self) -> Type[ActionStub]:
+    def action_cls(self) -> Type[Action]:
         """Returns the action_cls."""
         return site_action_items.get(self.action_type.name)
 
     @property
-    def action(self) -> ActionStub:
+    def action(self) -> Action:
         """Returns the instantiated action_cls."""
         return self.action_cls(
             subject_identifier=self.subject_identifier,
@@ -208,7 +202,7 @@ class ActionItem(
         return self.reference_model_cls.objects.get(action_identifier=self.action_identifier)
 
     @property
-    def parent_reference_obj(self: Any) -> Any:
+    def parent_reference_obj(self) -> Any:
         if not self.parent_action_item:
             raise ObjectDoesNotExist(
                 f"Parent ActionItem does not exist for {self.action_identifier}."
@@ -216,7 +210,7 @@ class ActionItem(
         return self.parent_action_item.reference_obj
 
     @property
-    def related_reference_obj(self) -> BaseUuidModel:
+    def related_reference_obj(self) -> Any:
         if not self.related_action_item:
             raise ObjectDoesNotExist(
                 f"Related ActionItem does not exist for {self.action_identifier}."

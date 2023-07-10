@@ -5,9 +5,10 @@ from edc_constants.constants import CLOSED, NEW, OPEN
 
 from edc_action_item.action import Action
 from edc_action_item.create_or_update_action_type import create_or_update_action_type
+from edc_action_item.exceptions import SubjectDoesNotExist
 from edc_action_item.forms import ActionItemForm
 from edc_action_item.get_action_type import get_action_type
-from edc_action_item.models import ActionItem, ActionType, SubjectDoesNotExist
+from edc_action_item.models import ActionItem, ActionType
 from edc_action_item.site_action_items import site_action_items
 
 from ..action_items import FormOneAction, FormThreeAction, FormTwoAction, FormZeroAction

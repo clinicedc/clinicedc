@@ -1,6 +1,6 @@
 from django import forms
 
-from ..action import ActionError
+from ..exceptions import ActionError
 
 
 class ActionItemModelFormMixin:

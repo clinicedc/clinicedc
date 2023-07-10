@@ -10,6 +10,8 @@ from edc_notification import site_notifications
 from edc_prn.prn import Prn
 from edc_prn.site_prn_forms import AlreadyRegistered as PrnAlreadyRegistered
 from edc_prn.site_prn_forms import site_prn_forms
+from edc_sites import InvalidSiteError
+from edc_sites.valid_site_for_subject_or_raise import valid_site_for_subject_or_raise
 
 from .create_or_update_action_type import create_or_update_action_type
 from .get_action_type import get_action_type
@@ -92,15 +94,21 @@ class SiteActionItemCollection:
                 return self.get(action_cls.name)
         return None
 
-    def get_show_link_to_add_actions(self):
+    def get_show_link_to_add_actions(self, subject_identifier=None):
         class Wrapper:
             def __init__(self, action_cls=None):
                 self.name = action_cls.name
                 self.display_name = action_cls.display_name
                 self.action_type_id = str(get_action_type(action_cls).pk)
 
-        names = [v.name for v in self.registry.values() if v.show_link_to_add]
-        return [Wrapper(action_cls=self.get(name)) for name in names]
+        try:
+            valid_site_for_subject_or_raise(subject_identifier)
+        except InvalidSiteError:
+            wrappers = []
+        else:
+            names = [v.name for v in self.registry.values() if v.show_link_to_add]
+            wrappers = [Wrapper(action_cls=self.get(name)) for name in names]
+        return wrappers
 
     def create_or_update_action_types(self):
         """Populates the ActionType model."""

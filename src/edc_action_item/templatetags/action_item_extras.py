@@ -14,7 +14,9 @@ register = template.Library()
 )
 def add_action_item_popover(subject_identifier, subject_dashboard_url):
     action_item_add_url = "edc_action_item_admin:edc_action_item_actionitem_add"
-    show_link_to_add_actions = site_action_items.get_show_link_to_add_actions()
+    show_link_to_add_actions = site_action_items.get_show_link_to_add_actions(
+        subject_identifier
+    )
     return dict(
         action_item_add_url=action_item_add_url,
         subject_identifier=subject_identifier,
