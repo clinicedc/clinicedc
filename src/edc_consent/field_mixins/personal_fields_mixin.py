@@ -15,17 +15,6 @@ from ..validators import FullNameValidator
 
 
 class BaseFieldsMixin(models.Model):
-    initials = EncryptedCharField(
-        validators=[
-            RegexValidator(
-                regex=r"^[A-Z]{2,3}$",
-                message="Ensure initials consist of letters only in upper case, no spaces.",
-            )
-        ],
-        null=True,
-        blank=False,
-    )
-
     dob = models.DateField(verbose_name="Date of birth", null=True, blank=False)
 
     is_dob_estimated = IsDateEstimatedField(
@@ -89,6 +78,17 @@ class PersonalFieldsMixin(CryptoMixin, BaseFieldsMixin, models.Model):
             )
         ],
         help_text="Use UPPERCASE letters only.",
+    )
+
+    initials = EncryptedCharField(
+        validators=[
+            RegexValidator(
+                regex=r"^[A-Z]{2,3}$",
+                message="Ensure initials consist of letters only in upper case, no spaces.",
+            )
+        ],
+        null=True,
+        blank=False,
     )
 
     class Meta:
