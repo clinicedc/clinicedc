@@ -20,9 +20,9 @@ class SubjectLocator(
 
     action_name = SUBJECT_LOCATOR_ACTION
 
-    on_site = CurrentSiteManager()
-
     objects = LocatorManager()
+
+    on_site = CurrentSiteManager()
 
     def natural_key(self):
         return (self.subject_identifier,)
