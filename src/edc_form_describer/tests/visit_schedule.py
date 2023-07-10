@@ -7,7 +7,6 @@ crfs = FormsCollection(
     Crf(show_order=3, model="edc_fieldsets.mymodel3", required=True),
 )
 
-
 visit0 = Visit(
     code="1000",
     title="Day 1",
