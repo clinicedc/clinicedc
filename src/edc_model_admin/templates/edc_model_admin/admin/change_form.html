@@ -36,8 +36,8 @@
         <a href="{{ site_url }}">{% translate 'Administration' %}</a>
     {% endif %}
 &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
-&rsaquo; {% if has_view_permission %}<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}
-&rsaquo; {% if add %}{% blocktranslate with name=opts.verbose_name %}Add {{ name }}{% endblocktranslate %}{% else %}{{ original|truncatewords:"18" }}{% endif %}
+&rsaquo; {% if has_view_permission %}<a href="{% url opts|admin_urlname:'changelist' %}">{{ form_verbose_name|default:opts.verbose_name_plural|capfirst }}</a>{% else %}{{ form_verbose_name|default:opts.verbose_name_plural|capfirst }}{% endif %}
+&rsaquo; {% if add %}{% blocktranslate with name=form_verbose_name|default:opts.verbose_name %}Add {{ name }}{% endblocktranslate %}{% else %}{{ original|truncatewords:"18" }}{% endif %}
 
 {% endblock %}
 
@@ -45,17 +45,23 @@
 
 {% block userlinks %}{% logout_row %}{% endblock %}
 
+
 {% block object-tools-items %}
-<li>
+  {% if show_history_label %}
+  <li>
     {% url opts|admin_urlname:'history' original.pk|admin_urlquote as history_url %}
     <a href="{% add_preserved_filters history_url %}" class="historylink">{% translate history_label|default:"History" %}</a>
-</li>
-{% if has_absolute_url %}<li><a href="{{ absolute_url }}" class="viewsitelink">{% translate view_on_site_label|default:"View on site" %}</a></li>{% endif %}
+  </li>
+  {% endif %}
+  {% if has_absolute_url %}<li><a href="{{ absolute_url }}" class="viewsitelink">{% translate view_on_site_label|default:"View on site" %}</a></li>{% endif %}
+{% endblock %}
+
+{% block form_top %}
+  {% instructions %}
+  {% additional_instructions %}
 {% endblock %}
 
 {% block field_sets %}
-{% instructions %}
-{% additional_instructions %}
 {% for fieldset in adminform %}
     {% for inline_admin_formset in inline_admin_formsets %}
       {% if inline_admin_formset.formset.insert_before_fieldset and inline_admin_formset.formset.insert_before_fieldset == fieldset.name %}

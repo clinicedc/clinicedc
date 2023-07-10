@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Tuple
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -41,7 +43,10 @@ class ModelAdminSubjectDashboardMixin(
     show_dashboard_in_list_display_pos = None
     view_on_site_label = "Subject dashboard"
 
-    def get_subject_dashboard_url_name(self) -> str:
+    def get_subject_dashboard_url(self, obj=None) -> str | None:
+        return None
+
+    def get_subject_dashboard_url_name(self, obj=None) -> str:
         return url_names.get(self.subject_dashboard_url_name)
 
     def get_subject_dashboard_url_kwargs(self, obj) -> dict:
@@ -57,10 +62,12 @@ class ModelAdminSubjectDashboardMixin(
         return self.get_subject_dashboard_url_kwargs(obj)
 
     def dashboard(self, obj=None, label=None) -> str:
-        url = reverse(
-            self.get_subject_dashboard_url_name(),
-            kwargs=self.get_subject_dashboard_url_kwargs(obj),
-        )
+        url = self.get_subject_dashboard_url(obj=obj)
+        if not url:
+            url = reverse(
+                self.get_subject_dashboard_url_name(obj=obj),
+                kwargs=self.get_subject_dashboard_url_kwargs(obj),
+            )
         context = dict(title="Go to subject's dashboard", url=url, label=label)
         return render_to_string("dashboard_button.html", context=context)
 

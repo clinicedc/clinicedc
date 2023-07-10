@@ -14,7 +14,10 @@ class ModelAdminHideDeleteButtonOnCondition:
             extra_context = extra_context or {}
             extra_context["show_delete"] = False
         elif extra_context:
-            del extra_context["show_delete"]
+            try:
+                del extra_context["show_delete"]
+            except KeyError:
+                pass
         return super().change_view(
             request, object_id, form_url=form_url, extra_context=extra_context
         )
