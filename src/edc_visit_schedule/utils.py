@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from edc_utils import floor_secs, formatted_datetime, to_utc
@@ -18,6 +19,10 @@ from .site_visit_schedules import site_visit_schedules
 
 if TYPE_CHECKING:
     from .model_mixins import OnScheduleModelMixin
+
+
+def get_default_max_visit_window_gap():
+    return getattr(settings, "EDC_VISIT_SCHEDULE_DEFAULT_MAX_VISIT_GAP_ALLOWED", 7)
 
 
 def get_lower_datetime(instance) -> datetime:

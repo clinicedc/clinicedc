@@ -100,6 +100,8 @@ class Visit:
         rupper: relativedelta = None,
         rlower_late: relativedelta = None,
         rupper_late: relativedelta = None,
+        add_window_gap_to_lower: bool | None = None,
+        max_window_gap_to_lower: int | None = None,
         crfs: FormsCollection | None = None,
         requisitions: FormsCollection | None = None,
         crfs_unscheduled: FormsCollection | None = None,
@@ -114,6 +116,7 @@ class Visit:
         base_timepoint: int | float | Decimal | None = None,
         grouping=None,
     ):
+        self.next = None
         if isinstance(base_timepoint, (float,)):
             base_timepoint = Decimal(str(base_timepoint))
         elif isinstance(base_timepoint, (int,)):
@@ -143,6 +146,8 @@ class Visit:
         self.rupper = rupper
         self.rlower_late = self.rlower if rlower_late is None else rlower_late
         self.rupper_late = self.rupper if rupper_late is None else rupper_late
+        self.add_window_gap_to_lower = add_window_gap_to_lower
+        self.max_window_gap_to_lower = max_window_gap_to_lower
         self.grouping = grouping
         if not code or isinstance(code, int) or not re.match(self.code_regex, code):
             raise VisitCodeError(f"Invalid visit code. Got '{code}'")

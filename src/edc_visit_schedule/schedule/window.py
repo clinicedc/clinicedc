@@ -1,5 +1,6 @@
+from dateutil.relativedelta import relativedelta
 from django.conf import settings
-from edc_utils import floor_secs, to_utc
+from edc_utils import convert_php_dateformat, floor_secs, to_utc
 
 from .exceptions import ScheduleError
 
@@ -57,6 +58,17 @@ class Window:
     def is_scheduled_visit(self):
         return self.visit_code_sequence == 0 or self.visit_code_sequence is None
 
+    def get_window_gap_days(self) -> int:
+        days = 0
+        visit = self.visits.get(self.visit_code)
+        next_visit = self.visits.next(self.visit_code)
+        if visit.add_window_gap_to_lower and next_visit:
+            days = abs(
+                (self.timepoint_datetime + visit.rupper)
+                - (self.timepoint_datetime - next_visit.rlower)
+            ).days
+        return days
+
     def raise_for_scheduled_not_in_window(self):
         """Returns the datetime if it falls within the
         window period for a scheduled `visit` otherwise
@@ -67,17 +79,23 @@ class Window:
         """
         visit = self.visits.get(self.visit_code)
         visit.timepoint_datetime = self.timepoint_datetime
-        if not (
-            floor_secs(to_utc(visit.dates.lower))
-            <= floor_secs(to_utc(self.dt))
-            <= floor_secs(to_utc(visit.dates.upper))
-        ):
+        gap_days = self.get_window_gap_days()
+        lower = floor_secs(to_utc(visit.dates.lower) - relativedelta(days=gap_days))
+        upper = floor_secs(to_utc(visit.dates.upper))
+        if not (lower <= floor_secs(to_utc(self.dt)) <= upper):
+            lower_date = visit.dates.lower.strftime(
+                convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
+            )
+            upper_date = visit.dates.upper.strftime(
+                convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
+            )
+            dt = self.dt.strftime(convert_php_dateformat(settings.SHORT_DATETIME_FORMAT))
+
             raise ScheduledVisitWindowError(
                 "Invalid datetime. Falls outside of the "
                 f"window period for this `scheduled` visit. "
-                f"Expected a datetime between {visit.dates.lower} "
-                f"and {visit.dates.upper} "
-                f"Got `{self.visit_code}`@`{self.dt}`. "
+                f"Expected a datetime between {lower_date} "
+                f"and {upper_date} for {self.visit_code}. Got `{dt}`."
             )
 
     def raise_for_unscheduled_not_in_window(self):
