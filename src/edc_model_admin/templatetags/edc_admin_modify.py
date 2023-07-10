@@ -137,3 +137,13 @@ def additional_instructions(context):
         "additional_instructions": context.get("additional_instructions"),
         "notification_instructions": context.get("notification_instructions"),
     }
+
+
+@register.filter
+def get_label_lower(model) -> str:
+    """
+    Returns label_lower for a model.
+    """
+    if model:
+        return model._meta.label_lower
+    return ""

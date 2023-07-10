@@ -1,5 +1,6 @@
 from .address_model_admin_mixin import AddressModelAdminMixin
 from .inlines import (
+    InlineHideOriginalObjectNameMixin,
     LimitedAdminInlineMixin,
     StackedInlineModelAdminMixin,
     TabularInlineMixin,

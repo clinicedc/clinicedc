@@ -19,6 +19,9 @@ class TemplatesModelAdminMixin:
     """
 
     show_object_tools: bool = False
+    view_on_site_label: str = "View on site"
+    history_label: str = "Audit trail"
+    show_history_label: bool = True
 
     add_form_template: str = "edc_model_admin/admin/change_form.html"
     change_form_template: str = "edc_model_admin/admin/change_form.html"
@@ -26,16 +29,17 @@ class TemplatesModelAdminMixin:
     change_list_title: str | None = None
     change_list_note: str | None = None
     change_list_help: str | None = None
-    view_on_site_label: str = "View on site"
-    history_label: str = "Audit trail"
     delete_confirmation_template: str = "edc_model_admin/admin/delete_confirmation.html"
+    change_form_title: str | None = None
 
     def change_view(self, request, object_id, form_url="", extra_context=None):
         extra_context = extra_context or {}
         extra_context.update(
             {
                 "view_on_site_label": self.view_on_site_label,
+                "show_history_label": self.show_history_label,
                 "history_label": self.history_label,
+                "title": self.change_form_title,
             }
         )
         return super().change_view(
