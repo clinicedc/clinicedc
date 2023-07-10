@@ -112,9 +112,9 @@ class DeathReportTmgModelMixin(
 ):
     action_name = DEATH_REPORT_TMG_ACTION
 
-    on_site = DeathReportTmgSiteManager()
-
     objects = DeathReportTmgManager()
+
+    on_site = DeathReportTmgSiteManager()
 
     class Meta:
         abstract = True
@@ -128,9 +128,9 @@ class DeathReportTmgModelMixin(
 class DeathReportTmgSecondModelMixin(DeathReportTmgModelMixin):
     action_name = DEATH_REPORT_TMG_SECOND_ACTION
 
-    on_site = DeathReportTmgSecondSiteManager()
-
     objects = DeathReportTmgSecondManager()
+
+    on_site = DeathReportTmgSecondSiteManager()
 
     class Meta:
         abstract = True

@@ -22,9 +22,9 @@ class AeFollowupModelMixin(
 ):
     action_name = AE_FOLLOWUP_ACTION
 
-    on_site = ActionIdentifierSiteManager()
-
     objects = ActionIdentifierModelManager()
+
+    on_site = ActionIdentifierSiteManager()
 
     class Meta:
         abstract = True

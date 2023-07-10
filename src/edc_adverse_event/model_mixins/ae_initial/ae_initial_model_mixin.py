@@ -30,9 +30,9 @@ class AeInitialModelMixin(
 ):
     action_name = AE_INITIAL_ACTION
 
-    on_site = ActionIdentifierSiteManager()
-
     objects = ActionIdentifierModelManager()
+
+    on_site = ActionIdentifierSiteManager()
 
     class Meta:
         abstract = True

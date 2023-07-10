@@ -45,9 +45,9 @@ class SimpleDeathReportModelMixin(
 
     narrative = models.TextField(verbose_name="Narrative")
 
-    on_site = ActionIdentifierSiteManager()
-
     objects = ActionIdentifierModelManager()
+
+    on_site = ActionIdentifierSiteManager()
 
     def natural_key(self):
         return (self.action_identifier,)

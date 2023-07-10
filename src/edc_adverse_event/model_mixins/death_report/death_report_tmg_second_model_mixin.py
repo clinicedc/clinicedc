@@ -23,9 +23,9 @@ class DeathReportTmgSecondSiteManager(ActionIdentifierSiteManager):
 class DeathReportTmgSecondModelMixin(DeathReportTmgModelMixin):
     action_name = DEATH_REPORT_TMG_SECOND_ACTION
 
-    on_site = DeathReportTmgSecondSiteManager()
-
     objects = DeathReportTmgSecondManager()
+
+    on_site = DeathReportTmgSecondSiteManager()
 
     class Meta:
         abstract = True

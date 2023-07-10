@@ -79,9 +79,9 @@ class DeathReportModelMixin(
 
     narrative = models.TextField(verbose_name="Narrative", blank=False, null=True)
 
-    on_site = ActionIdentifierSiteManager()
-
     objects = ActionIdentifierModelManager()
+
+    on_site = ActionIdentifierSiteManager()
 
     history = HistoricalRecords(inherit=True)
 
