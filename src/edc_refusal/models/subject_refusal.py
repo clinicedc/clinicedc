@@ -6,9 +6,9 @@ from ..model_mixins import SubjectRefusalModelMixin
 
 
 class SubjectRefusal(SubjectRefusalModelMixin, SiteModelMixin, BaseUuidModel):
-    on_site = CurrentSiteManager()
-
     objects = SubjectRefusalManager()
+
+    on_site = CurrentSiteManager()
 
     history = HistoricalRecords()
 
