@@ -1,7 +1,7 @@
 from django.db import models
 from edc_action_item.models.action_model_mixin import ActionModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
-from edc_model import models as edc_models
+from edc_model.models import BaseUuidModel
 from edc_sites.models import SiteModelMixin
 
 from .constants import LTFU_ACTION
@@ -13,11 +13,11 @@ class Ltfu(
     LtfuModelMixin,
     SiteModelMixin,
     ActionModelMixin,
-    edc_models.BaseUuidModel,
+    BaseUuidModel,
 ):
     action_name = LTFU_ACTION
 
-    class Meta:
+    class Meta(BaseUuidModel.Meta):
         verbose_name = "Loss to Follow Up"
         verbose_name_plural = "Loss to Follow Ups"
         indexes = [
