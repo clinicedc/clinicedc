@@ -1,11 +1,17 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.admin import ModelAdmin
 from django.contrib.messages import get_messages
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from .auth_objects import DATA_MANAGER_ROLE
+
+if TYPE_CHECKING:
+    from django.contrib.admin import ModelAdmin
 
 
 class DataManagerSiteModelAdminMixin:
