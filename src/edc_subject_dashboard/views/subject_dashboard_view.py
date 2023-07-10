@@ -6,7 +6,7 @@ from edc_dashboard.view_mixins import EdcViewMixin
 from edc_dashboard.views import DashboardView
 from edc_data_manager.view_mixins import DataManagerViewMixin
 from edc_locator.view_mixins import SubjectLocatorViewMixin
-from edc_metadata.view_mixins import MetadataViewMixin, RefreshMetadataViewMixin
+from edc_metadata.view_mixins import MetadataViewMixin
 from edc_navbar.view_mixin import NavbarViewMixin
 from edc_subject_model_wrappers import (
     AppointmentModelWrapper,
@@ -31,7 +31,6 @@ class SubjectDashboardView(
     EdcViewMixin,
     NavbarViewMixin,
     MetadataViewMixin,
-    RefreshMetadataViewMixin,
     ConsentViewMixin,
     SubjectLocatorViewMixin,
     ActionItemViewMixin,

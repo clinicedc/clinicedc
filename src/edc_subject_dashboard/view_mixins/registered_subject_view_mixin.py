@@ -25,20 +25,26 @@ class RegisteredSubjectViewMixin:
                     f"Got `{self.subject_identifier}`."
                 )
             try:
-                obj = RegisteredSubject.objects.get(subject_identifier=self.subject_identifier)
+                obj = RegisteredSubject.on_site.get(subject_identifier=self.subject_identifier)
             except ObjectDoesNotExist:
-                raise RegisteredSubjectError(
-                    f"Unknown subject identifier. " f"Got `{self.subject_identifier}`."
+                try:
+                    RegisteredSubject.objects.get(subject_identifier=self.subject_identifier)
+                except ObjectDoesNotExist:
+                    raise RegisteredSubjectError(
+                        f"Invalid subject identifier. Got {self.subject_identifier}."
+                    )
+                else:
+                    context.update(subject_identifier=self.subject_identifier)
+            else:
+                context.update(
+                    subject_identifier=obj.subject_identifier,
+                    gender=obj.gender,
+                    dob=obj.dob,
+                    initials=obj.initials,
+                    identity=obj.identity,
+                    firstname=obj.first_name,
+                    lastname=obj.last_name,
+                    registered_subject=obj,
+                    registered_subject_pk=str(obj.pk),
                 )
-            context.update(
-                subject_identifier=obj.subject_identifier,
-                gender=obj.gender,
-                dob=obj.dob,
-                initials=obj.initials,
-                identity=obj.identity,
-                firstname=obj.first_name,
-                lastname=obj.last_name,
-                registered_subject=obj,
-                registered_subject_pk=str(obj.pk),
-            )
         return context

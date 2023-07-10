@@ -2,10 +2,10 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls.conf import path
 from edc_dashboard import url_names
+from edc_metadata.views import RefreshMetadataActionsView
 
 from .views import (
     RefreshAppointmentsView,
-    RefreshMetadataActionsView,
     RequisitionPrintActionsView,
     RequisitionVerifyActionsView,
 )
