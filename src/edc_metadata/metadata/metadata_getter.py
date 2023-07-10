@@ -10,6 +10,7 @@ from django.core.exceptions import (
     MultipleObjectsReturned,
     ObjectDoesNotExist,
 )
+from django.db.models import QuerySet
 
 from ..constants import KEYED
 from .metadata import model_cls_registered_with_admin_site
@@ -49,7 +50,6 @@ class MetadataValidator:
                         "Model class not registered with Admin. "
                         f"Deleting related metadata. Got {model_cls}."
                     )
-                    # TODO: delete all metadata instances for this model cls?
                     self.metadata_obj.delete()
                     self.metadata_obj = None
                 else:
@@ -80,7 +80,7 @@ class MetadataValidator:
             # TODO: add test, fixes on the fly
             if model_obj and model_obj.id and self.metadata_obj.entry_status != KEYED:
                 self.metadata_obj.entry_status = KEYED
-                self.metadata_obj.save()
+                self.metadata_obj.save(update_fields=["entry_status"])
                 self.metadata_obj.refresh_from_db()
                 break
             # TODO: add test, how can the entry status be reset?
@@ -92,6 +92,10 @@ class MetadataValidator:
                     self.related_visit.save()
                     self.metadata_obj.refresh_from_db()
                     continue
+                else:
+                    break
+            else:
+                break
 
     @staticmethod
     def model_cls_registered_with_admin_site(model_cls: Any) -> bool:
@@ -106,6 +110,12 @@ class MetadataGetter:
 
     """A class that gets a filtered queryset of metadata --
     `metadata_objects`.
+
+    * gets a queryset of CrfMetadata/RequisitionMetadata instances for
+      the given appointment;
+    * validates the entry status of each using the
+      `metadata_validator_cls` and;
+    * returns a requeried queryset.
     """
 
     metadata_model: str = None
@@ -129,10 +139,10 @@ class MetadataGetter:
             visit_schedule_name=instance.visit_schedule_name,
             schedule_name=instance.schedule_name,
         )
-        self.validate_metadata_objects(query_options)
-        self.metadata_objects = self.metadata_model_cls.objects.filter(
-            **query_options
-        ).order_by("show_order")
+        queryset = self.metadata_model_cls.objects.filter(**query_options).order_by(
+            "show_order"
+        )
+        self.metadata_objects = self.validate_metadata_objects(queryset)
 
     @property
     def metadata_model_cls(self) -> CrfMetadata | RequisitionMetadata:
@@ -151,7 +161,10 @@ class MetadataGetter:
             metadata_obj = self.metadata_objects.filter(**opts).order_by("show_order").first()
         return metadata_obj
 
-    def validate_metadata_objects(self, query_options: dict) -> None:
-        qs = self.metadata_model_cls.objects.filter(**query_options)
-        for metadata_obj in qs:
+    def validate_metadata_objects(
+        self, queryset: QuerySet[CrfMetadata | RequisitionMetadata]
+    ) -> QuerySet[CrfMetadata | RequisitionMetadata]:
+        metadata_obj: CrfMetadata | RequisitionMetadata
+        for metadata_obj in queryset:
             self.metadata_validator_cls(metadata_obj, self.related_visit)
+        return queryset.all()

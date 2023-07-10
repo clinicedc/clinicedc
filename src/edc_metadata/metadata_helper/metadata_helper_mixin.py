@@ -8,7 +8,8 @@ class MetadataHelperMixin:
     """A mixin class to help with common queries against
     CRF and Requisition metadata.
 
-    Always assumes the model instance `instance_attr` exists.
+    Always assumes the attr `metadata_helper_instance_attr` is set
+    and refers to the model instance.
     """
 
     metadata_helper_instance_attr = "instance"

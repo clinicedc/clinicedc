@@ -67,8 +67,8 @@ class RequisitionMetadata(CrfMetadataModelMixin, BaseUuidModel):
 
     class Meta(CrfMetadataModelMixin.Meta, BaseUuidModel.Meta):
         app_label = "edc_metadata"
-        verbose_name = "Requisition Metadata"
-        verbose_name_plural = "Requisition Metadata"
+        verbose_name = "Requisition collection status"
+        verbose_name_plural = "Requisition collection status"
         unique_together = (
             (
                 "subject_identifier",

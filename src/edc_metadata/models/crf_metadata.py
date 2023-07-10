@@ -38,8 +38,8 @@ class CrfMetadata(CrfMetadataModelMixin, BaseUuidModel):
         return model._meta.verbose_name
 
     class Meta(CrfMetadataModelMixin.Meta, BaseUuidModel.Meta):
-        verbose_name = "Crf Metadata"
-        verbose_name_plural = "Crf Metadata"
+        verbose_name = "Crf collection status"
+        verbose_name_plural = "Crf collection status"
         unique_together = (
             (
                 "subject_identifier",

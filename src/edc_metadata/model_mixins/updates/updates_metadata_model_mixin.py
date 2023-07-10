@@ -37,10 +37,11 @@ class UpdatesMetadataModelMixin(models.Model):
         self.related_visit.run_metadata_rules()
 
     @property
-    def metadata_updater(self: CrfModelMixin) -> None:
+    def metadata_updater(self: CrfModelMixin) -> MetadataUpdater:
         """Returns an instance of MetadataUpdater."""
         return self.metadata_updater_cls(
-            related_visit=self.related_visit, target_model=self._meta.label_lower
+            related_visit=self.related_visit,
+            target_model=self._meta.label_lower,
         )
 
     def metadata_reset_on_delete(self: CrfModelMixin) -> None:

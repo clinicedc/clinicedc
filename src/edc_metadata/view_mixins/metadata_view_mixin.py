@@ -55,7 +55,11 @@ class MetadataViewMixin:
         return context
 
     def get_crf_model_wrappers(self):
-        """Returns a list of model wrappers."""
+        """Returns a list of model wrappers.
+
+        Gets each CrfMetadata instance, validates the entry status and wraps
+        in a model wrapper.
+        """
         model_wrappers = []
         crf_metadata_wrappers = self.crf_metadata_wrappers_cls(appointment=self.appointment)
         for metadata_wrapper in crf_metadata_wrappers.objects:

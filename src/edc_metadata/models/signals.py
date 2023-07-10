@@ -11,10 +11,12 @@ def metadata_create_on_post_save(
     CreatesMetaDataModelMixin.
 
     For example, when saving the visit model.
+
+    See also edc_reference.ReferenceModelMixin and
+    RequisitionReferenceModelMixin .
     """
     if not raw:
         try:
-            # instance.reference_creator_cls(model_obj=instance)
             # update_reference_on_save (from edc-reference) called here
             # to ensure called before metadata funcs below
             instance.update_reference_on_save()

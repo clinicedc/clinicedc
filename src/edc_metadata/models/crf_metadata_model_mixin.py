@@ -84,12 +84,15 @@ class CrfMetadataModelMixin(
         }
 
     @property
+    def model_cls(self):
+        return django_apps.get_model(self.model)
+
+    @property
     def model_instance(self: Any) -> Any:
         """Returns the CRF/Requisition model instance or None"""
         instance = None
-        models_cls = django_apps.get_model(self.model)
         try:
-            instance = models_cls.objects.get(**self.model_instance_query_opts())
+            instance = self.model_cls.objects.get(**self.model_instance_query_opts())
         except ObjectDoesNotExist:
             pass
         return instance
