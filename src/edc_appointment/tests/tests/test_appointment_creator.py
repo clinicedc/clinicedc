@@ -6,9 +6,10 @@ from zoneinfo import ZoneInfo
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.test import TestCase
-from django.test.utils import override_settings
+from django.test.utils import override_settings, tag
 from edc_facility.import_holidays import import_holidays
 from edc_facility.utils import get_facility
+from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from edc_visit_schedule import Schedule, Visit, VisitSchedule, site_visit_schedules
 
@@ -20,6 +21,7 @@ from edc_appointment_app.models import OnSchedule
 class AppointmentCreatorTestCase(TestCase):
     def setUp(self):
         Appointment.objects.all().delete()
+        RegisteredSubject.objects.create(subject_identifier="12345")
         self.subject_identifier = "12345"
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
@@ -105,6 +107,7 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
             )
         )
 
+    @tag("1")
     def test_str(self):
         creator = AppointmentCreator(
             subject_identifier=self.subject_identifier,

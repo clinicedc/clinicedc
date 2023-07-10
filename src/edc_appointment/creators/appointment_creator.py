@@ -12,6 +12,7 @@ from django.db.utils import IntegrityError
 from django.utils.timezone import is_naive
 from edc_constants.constants import CLINIC
 from edc_facility.facility import Facility, FacilityError
+from edc_sites.valid_site_for_subject_or_raise import valid_site_for_subject_or_raise
 from edc_visit_schedule.utils import is_baseline
 
 from ..constants import SCHEDULED_APPT
@@ -146,6 +147,7 @@ class AppointmentCreator:
 
     def _create(self) -> Appointment:
         """Returns a newly created appointment model instance."""
+        valid_site_for_subject_or_raise(self.options.get("subject_identifier"))
         try:
             with transaction.atomic():
                 appointment = self.appointment_model_cls.objects.create(
