@@ -25,9 +25,9 @@ class AesiModelMixin(
 ):
     action_name = AESI_ACTION
 
-    on_site = ActionIdentifierSiteManager()
-
     objects = ActionIdentifierModelManager()
+
+    on_site = ActionIdentifierSiteManager()
 
     class Meta:
         abstract = True
