@@ -9,7 +9,7 @@ from typing import Optional
 
 from django.core.management.color import color_style
 from edc_fieldsets import Fieldsets
-from edc_model import DEFAULT_BASE_FIELDS
+from edc_model.constants import DEFAULT_BASE_FIELDS
 
 from .markdown_writer import MarkdownWriter
 

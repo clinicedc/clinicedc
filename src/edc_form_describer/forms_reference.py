@@ -8,9 +8,6 @@ from .markdown_writer import MarkdownWriter
 
 
 class FormsReference:
-
-    """"""
-
     describer_cls = FormDescriber
     markdown_writer_cls = MarkdownWriter
     anchor_prefix = "user-content"
