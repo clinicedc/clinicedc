@@ -1,0 +1,10 @@
+<div class="list-group">
+    <a class="list-group-item" href="{% url "edc_metadata_admin:edc_metadata_crfmetadata_changelist" %}?q={{ subject_identifier }}&entry_status__exact=REQUIRED&visit_code={{ appointment.visit_code }}&visit_code_sequence={{ appointment.visit_code_sequence }}&schedule_name={{ appointment.schedule_name }}&visit_schedule_name={{ appointment.visit_schedule_name }}"
+      title="Click to view list">
+        <small>CRFs <i class="fas fa-share"></i></small>
+    </a>
+    <a class="list-group-item" href="{% url "edc_metadata_admin:edc_metadata_requisitionmetadata_changelist" %}?q={{ subject_identifier }}&entry_status__exact=REQUIRED&visit_code={{ appointment.visit_code }}&visit_code_sequence={{ appointment.visit_code_sequence }}&schedule_name={{ appointment.schedule_name }}&visit_schedule_name={{ appointment.visit_schedule_name }}"
+      title="Click to view list">
+        <small>Requisitions <i class="fas fa-share"></i></small>
+    </a>
+</div>
