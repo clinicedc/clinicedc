@@ -140,11 +140,11 @@ class RegisteredSubject(
 
     randomization_list_model = models.CharField(max_length=150, null=True)
 
-    on_site = CurrentSiteManager()
+    objects = RegisteredSubjectManager()
 
     history = edc_models.HistoricalRecords()
 
-    objects = RegisteredSubjectManager()
+    on_site = CurrentSiteManager()
 
     def save(self, *args, **kwargs):
         if self.identity:
