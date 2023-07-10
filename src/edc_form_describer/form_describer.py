@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 import string
 import sys
@@ -156,7 +158,7 @@ class FormDescriber:
         for fname in base_fields:
             self.add_field(fname=fname)
 
-    def add_field(self, fname=None, number=None):
+    def add_field(self, fname: str | None = None, number: float | None = None) -> None:
         number = number or "@"
         field_cls = self.models_fields.get(fname)
         if not field_cls:
@@ -191,10 +193,11 @@ class FormDescriber:
             for obj in field_cls.related_model.objects.all().order_by("display_index"):
                 self.markdown.append(f"  - `{obj.name}`: *{obj.display_name}*")
 
-    def get_next_number(self, number=None, fname=None):
+    @staticmethod
+    def get_next_number(number: float | None = None, fname: str | None = None) -> float:
         if "_other" in fname:
             number += 0.1
         else:
             number = floor(number)
             number += 1.0
-        return number
+        return round(number, ndigits=1)
