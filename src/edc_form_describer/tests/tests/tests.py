@@ -1,6 +1,6 @@
 from tempfile import mkstemp
 
-from django.test import TestCase, tag
+from django.test import TestCase
 
 from ...form_describer import FormDescriber
 from ..admin import MyModelAdmin
@@ -16,7 +16,6 @@ class TestForDescribter(TestCase):
                 fields.append(f)
         return fields
 
-    @tag("1")
     def test_ok(self):
         describer = FormDescriber(admin_cls=MyModelAdmin, include_hidden_fields=True)
         txt = " ".join(describer.markdown)
