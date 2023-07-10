@@ -1,26 +1,27 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Type
+
 from django.core.exceptions import ObjectDoesNotExist
 
+from .exceptions import SingletonActionItemError
 from .get_action_type import get_action_type
 
-
-class SingletonActionItemError(Exception):
-    pass
-
-
-class CreateActionItemError(Exception):
-    pass
+if TYPE_CHECKING:
+    from .action import Action
+    from .models import ActionItem
 
 
 def create_action_item(
-    action_cls,
-    subject_identifier=None,
-    action_identifier=None,
-    related_action_item=None,
-    parent_action_item=None,
-    priority=None,
-    using=None,
+    action_cls: Type[Action],
+    subject_identifier: str = None,
+    action_identifier: str | None = None,
+    related_action_item: ActionItem | None = None,
+    parent_action_item: ActionItem | None = None,
+    priority: bool | None = None,
+    using: str | None = None,
     **kwargs,  # noqa
-):
+) -> ActionItem:
     action_item = None
     if action_cls.singleton:
         try:

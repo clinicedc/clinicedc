@@ -1,13 +1,14 @@
+from __future__ import annotations
+
+from typing import Any
+
 from django.apps import apps as django_apps
 from django.db import models
 from edc_constants.constants import HIGH_PRIORITY
 from edc_model.models import BaseUuidModel
 
 from ..choices import PRIORITY
-
-
-class ActionTypeError(Exception):
-    pass
+from ..exceptions import ActionTypeError
 
 
 class ActionTypeManager(models.Manager):
@@ -48,14 +49,14 @@ class ActionType(BaseUuidModel):
 
     objects = ActionTypeManager()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.display_name
 
-    def natural_key(self):
+    def natural_key(self) -> tuple:
         return (self.name,)  # noqa
 
     @property
-    def reference_model_cls(self):
+    def reference_model_cls(self) -> Any:
         model_cls = None
         if self.reference_model:
             try:

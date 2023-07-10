@@ -1,20 +1,18 @@
-from typing import Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Type
 
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_model.models import HistoricalRecords
 
+from ..exceptions import ActionClassNotDefined, ActionItemError
 from ..managers import ActionIdentifierModelManager
 from ..site_action_items import site_action_items
 from .action_item import ActionItem
 
-
-class ActionClassNotDefined(Exception):
-    pass
-
-
-class ActionItemError(Exception):
-    pass
+if TYPE_CHECKING:
+    from ..action import Action
 
 
 class ActionNoManagersModelMixin(models.Model):
@@ -54,7 +52,7 @@ class ActionNoManagersModelMixin(models.Model):
 
     action_item_reason = models.TextField(null=True, editable=False)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.action_identifier[-9:]}"
 
     def save(self: Any, *args, **kwargs):
@@ -103,7 +101,7 @@ class ActionNoManagersModelMixin(models.Model):
     natural_key.dependencies = ["edc_action_item.actionitem"]  # type:ignore
 
     @classmethod
-    def get_action_cls(cls):
+    def get_action_cls(cls) -> Type[Action]:
         return site_action_items.get(cls.action_name)
 
     @property

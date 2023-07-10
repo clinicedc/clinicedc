@@ -1,22 +1,22 @@
+from __future__ import annotations
+
 import logging
 from typing import List, Optional
 
 from django.apps import apps as django_apps
 from django.conf import settings
-from django.core.exceptions import (
-    MultipleObjectsReturned,
-    ObjectDoesNotExist,
-    ValidationError,
-)
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.core.management.color import color_style
 from django.db import models
 from django.utils.formats import localize
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_model.constants import DEFAULT_BASE_FIELDS
+from edc_sites.valid_site_for_subject_or_raise import valid_site_for_subject_or_raise
 
 from edc_action_item.stubs import ActionItemStub
 
 from .create_action_item import SingletonActionItemError, create_action_item
+from .exceptions import ActionError
 from .get_action_type import get_action_type
 from .site_action_items import site_action_items
 
@@ -24,14 +24,6 @@ logger = logging.getLogger(__name__)
 style = color_style()
 
 REFERENCE_MODEL_ERROR_CODE = "reference_model"
-
-
-class ActionError(ValidationError):
-    pass
-
-
-class RelatedReferenceObjectDoesNotExist(ObjectDoesNotExist):
-    pass
 
 
 class Action:
@@ -59,9 +51,7 @@ class Action:
 
     action_item_model: str = "edc_action_item.actionitem"
     action_type_model: str = "edc_action_item.actiontype"
-    next_actions: Optional[
-        List[str]
-    ] = None  # a list of Action classes which may include 'self'
+    next_actions: list[str] | None = None  # a list of Action classes which may include 'self'
 
     def __init__(
         self,
@@ -167,7 +157,7 @@ class Action:
                     and self.action_item.status == CLOSED
                 ):
                     self.action_item.status = OPEN
-                    self.action_item.save(using=self.using)
+                    self.action_item.save(update_fields=["status"], using=self.using)
                     self.action_item.refresh_from_db()
         return self._reference_obj
 
@@ -223,14 +213,16 @@ class Action:
                 raise ActionError(f"Unable to get or create ActionItem. Got {opts}.")
         return self._action_item
 
-    def _create_new_action_item(self, **opts):
+    def _create_new_action_item(self, subject_identifier: str = None, **opts):
         """Create a new action item.
 
         Called only after checking.
         """
+        valid_site_for_subject_or_raise(subject_identifier)
         try:
             self._action_item = create_action_item(
                 self.__class__,
+                subject_identifier=subject_identifier,
                 parent_action_item=self.parent_action_item,
                 priority=self.get_priority(),
                 using=self.using,

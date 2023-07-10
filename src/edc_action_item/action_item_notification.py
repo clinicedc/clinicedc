@@ -12,10 +12,6 @@ NOTIFY_ON_CLOSE = "notify_on_closed"
 NOTIFY_ON_CHANGED_REFERENCE_OBJ = "notify_on_changed_reference_obj"
 
 
-class ActionItemNotificationError(Exception):
-    pass
-
-
 class ActionItemNotification(Notification):
     """A Notification class for the action item model.
 
