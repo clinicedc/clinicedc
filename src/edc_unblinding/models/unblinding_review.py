@@ -36,9 +36,9 @@ class UnblindingReview(
 
     comment = models.TextField(verbose_name="Comment", null=True)
 
-    on_site = CurrentSiteManager()
-
     objects = SubjectIdentifierManager()
+
+    on_site = CurrentSiteManager()
 
     def natural_key(self):
         return (self.action_identifier,)
