@@ -71,12 +71,12 @@ class AppointmentViewMixin:
         if not self._appointment:
             if self.appointment_id:
                 try:
-                    self._appointment = Appointment.objects.get(id=self.appointment_id)
+                    self._appointment = Appointment.on_site.get(id=self.appointment_id)
                 except ObjectDoesNotExist:
                     opts = self.appointment_options
                     if opts:
                         try:
-                            self._appointment = self.appointment_model_cls.objects.get(**opts)
+                            self._appointment = self.appointment_model_cls.on_site.get(**opts)
                         except ObjectDoesNotExist:
                             pass
         return self._appointment
@@ -91,7 +91,7 @@ class AppointmentViewMixin:
     def appointments(self):
         """Returns a Queryset of all appointments for this subject."""
         if not self._appointments:
-            self._appointments = self.appointment_model_cls.objects.filter(
+            self._appointments = self.appointment_model_cls.on_site.filter(
                 subject_identifier=self.subject_identifier
             ).order_by("timepoint", "visit_code_sequence")
         return self._appointments
