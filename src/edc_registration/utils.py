@@ -1,7 +1,13 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import models
+
+if TYPE_CHECKING:
+    from edc_registration.models import RegisteredSubject
 
 
 def get_registered_subject_model_name() -> str:
@@ -12,13 +18,13 @@ def get_registered_subject_model_name() -> str:
     )
 
 
-def get_registered_subject_model_cls() -> models.Model:
+def get_registered_subject_model_cls() -> RegisteredSubject:
     return django_apps.get_model(get_registered_subject_model_name())
 
 
-def get_registered_subject(subject_identifier):
+def get_registered_subject(subject_identifier) -> RegisteredSubject:
     try:
-        registered_subject = get_registered_subject_model_cls().get(
+        registered_subject = get_registered_subject_model_cls().objects.get(
             subject_identifier=subject_identifier
         )
     except ObjectDoesNotExist:
