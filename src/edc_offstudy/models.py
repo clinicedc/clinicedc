@@ -17,9 +17,9 @@ class SubjectOffstudy(
 ):
     action_name = END_OF_STUDY_ACTION
 
-    on_site = CurrentSiteManager()
-
     objects = SubjectIdentifierManager()
+
+    on_site = CurrentSiteManager()
 
     history = edc_models.HistoricalRecords()
 
