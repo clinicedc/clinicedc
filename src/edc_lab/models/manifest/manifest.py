@@ -27,9 +27,9 @@ class Manifest(ManifestModelMixin, SearchSlugModelMixin, edc_models.BaseUuidMode
 
     shipper = models.ForeignKey(Shipper, verbose_name="Shipper/Exporter", on_delete=PROTECT)
 
-    on_site = CurrentSiteManager()
-
     objects = Manager()
+
+    on_site = CurrentSiteManager()
 
     history = edc_models.HistoricalRecords()
 

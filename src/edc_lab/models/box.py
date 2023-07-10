@@ -68,9 +68,9 @@ class Box(SearchSlugModelMixin, VerifyBoxModelMixin, SiteModelMixin, edc_models.
 
     comment = models.TextField(null=True, blank=True)
 
-    on_site = CurrentSiteManager()
-
     objects = BoxManager()
+
+    on_site = CurrentSiteManager()
 
     history = edc_models.HistoricalRecords()
 

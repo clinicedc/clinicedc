@@ -112,9 +112,9 @@ class RequisitionModelMixin(
 
     comments = models.TextField(max_length=25, null=True, blank=True)
 
-    on_site = CrfCurrentSiteManager()
-
     objects = RequisitionManager()
+
+    on_site = CrfCurrentSiteManager()
 
     history = HistoricalRecords(inherit=True)
 

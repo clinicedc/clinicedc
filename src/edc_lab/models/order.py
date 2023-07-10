@@ -27,9 +27,9 @@ class Order(SiteModelMixin, edc_models.BaseUuidModel):
 
     panel_name = models.CharField(max_length=25)
 
-    on_site = CurrentSiteManager()
-
     objects = OrderManager()
+
+    on_site = CurrentSiteManager()
 
     history = edc_models.HistoricalRecords()
 

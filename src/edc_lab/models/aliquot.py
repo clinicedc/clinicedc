@@ -32,9 +32,9 @@ class Aliquot(
             "requisition_identifier",
         ]
 
-    on_site = CurrentSiteManager()
-
     objects = Manager()
+
+    on_site = CurrentSiteManager()
 
     history = edc_models.HistoricalRecords()
 
