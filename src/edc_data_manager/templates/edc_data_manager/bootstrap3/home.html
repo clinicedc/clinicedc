@@ -19,7 +19,7 @@
         <a id="home_list_group_queryvisitschedule" href="{% url 'edc_data_manager_admin:edc_data_manager_queryvisitschedule_changelist' %}" class="list-group-item">Visit schedule</a>
 
         {% if perms.edc_metadata %}
-          <a id="home_edc_metadata_admin" href="{% url 'edc_metadata_admin:app_list' 'edc_metadata' %}" class="list-group-item">Review CRF/Requisition Submission status</a>
+          <a id="home_edc_metadata_admin" href="{% url 'edc_metadata_admin:app_list' 'edc_metadata' %}" class="list-group-item">Review CRF/Requisition collection status</a>
         {% endif %}
         {% if perms.edc_crf %}
           <a id="home_edc_crf_admin" href="{% url 'edc_crf_admin:edc_crf_crfstatus_changelist' %}" class="list-group-item">Review CRFs Flagged as Incomplete</a>
