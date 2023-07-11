@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from django.contrib.sites.managers import CurrentSiteManager as BaseCurrentSiteManager
 from django.contrib.sites.models import Site
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 
@@ -24,7 +25,7 @@ class SiteModelMixin(models.Model):
     on_site = CurrentSiteManager()
 
     def save(self, *args, **kwargs):
-        if not self.id:
+        if not self.id and not self.site:
             self.site = self.get_site_on_create()
         elif "update_fields" in kwargs and "site" not in kwargs.get("update_fields"):
             pass
@@ -37,8 +38,13 @@ class SiteModelMixin(models.Model):
 
         See also django-multisite.
         """
-        current_site = Site.objects.get_current()
-        return current_site if not self.site else self.site
+        site = None
+        if not self.site:
+            try:
+                site = Site.objects.get_current()
+            except ObjectDoesNotExist as e:
+                raise SiteModelMixinError(e)
+        return site or self.site
 
     def validate_site_against_current(self) -> None:
         """Validate existing site instance matches current_site."""
