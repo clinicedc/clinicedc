@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.contrib.sites.managers import CurrentSiteManager as BaseCurrentSiteManager
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import models
+from django.db import models, transaction
 
 
 class SiteModelMixinError(Exception):
@@ -41,7 +41,8 @@ class SiteModelMixin(models.Model):
         site = None
         if not self.site:
             try:
-                site = Site.objects.get_current()
+                with transaction.atomic():
+                    site = Site.objects.get_current()
             except ObjectDoesNotExist as e:
                 raise SiteModelMixinError(e)
         return site or self.site
@@ -49,13 +50,6 @@ class SiteModelMixin(models.Model):
     def validate_site_against_current(self) -> None:
         """Validate existing site instance matches current_site."""
         pass
-        # current_site = Site.objects.get_current()
-        # if self.site != current_site:
-        #     site = current_site
-        #     raise SiteModelMixinError(
-        #         f"Invalid attempt to change site! Expected `{self.site}`. "
-        #         f"Tried to change to `{current_site}`. Model=`{self}`. id=`{self.id}`."
-        #     )
 
     class Meta:
         abstract = True
