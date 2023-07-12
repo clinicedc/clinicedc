@@ -12,7 +12,6 @@ from django.core.exceptions import (
 )
 from django.db.models import QuerySet
 
-from ..constants import KEYED
 from .metadata import model_cls_registered_with_admin_site
 
 if TYPE_CHECKING:
@@ -54,13 +53,12 @@ class MetadataValidator:
                     self.metadata_obj = None
                 else:
                     # confirm metadata.entry_status is correct
-                    model_obj = None
                     query_attrs = {
                         f"{model_cls.related_visit_model_attr()}": self.related_visit
                     }
                     query_attrs.update(**self.extra_query_attrs)
                     try:
-                        model_obj = model_cls.objects.get(**query_attrs)
+                        model_cls.objects.get(**query_attrs)
                     except AttributeError as e:
                         if "related_visit_model_attr" not in str(e):
                             raise ImproperlyConfigured(f"{e} See {repr(model_cls)}")
@@ -69,33 +67,30 @@ class MetadataValidator:
                         pass
                     except MultipleObjectsReturned:
                         raise
-                    self.verify_entry_status_with_model_obj(model_obj)
+                    # self.verify_entry_status_with_model_obj(model_obj)
 
-    def verify_entry_status_with_model_obj(self, model_obj: Any) -> None:
-        """Verifies that entry_status is set to KEYED if the model
-        instance exists, etc.
-
-        Fixes on the fly if model obj exists and entry status != KEYED."""
-        for i in range(2):
-            # TODO: add test, fixes on the fly
-            if model_obj and model_obj.id and self.metadata_obj.entry_status != KEYED:
-                self.metadata_obj.entry_status = KEYED
-                self.metadata_obj.save(update_fields=["entry_status"])
-                self.metadata_obj.refresh_from_db()
-                break
-            # TODO: add test, how can the entry status be reset?
-            #  Do we need to recalculate the visit's metadata??
-            # what about metadata rules?
-            elif not model_obj and self.metadata_obj.entry_status == KEYED:
-                if self.related_visit:
-                    # resave subject visit to recreate / calculate metadata
-                    self.related_visit.save()
-                    self.metadata_obj.refresh_from_db()
-                    continue
-                else:
-                    break
-            else:
-                break
+    # def verify_entry_status_with_model_obj(self, model_obj: Any) -> None:
+    #     """Verifies that entry_status is set to KEYED if the model
+    #     instance exists, etc.
+    #
+    #     Fixes on the fly if model obj exists and entry status != KEYED."""
+    #     for i in range(2):
+    #         if model_obj and model_obj.id and self.metadata_obj.entry_status != KEYED:
+    #             self.metadata_obj.entry_status = KEYED
+    #             self.metadata_obj.save(update_fields=["entry_status"])
+    #             self.metadata_obj.refresh_from_db()
+    #             break
+    #         # what about metadata rules?
+    #         elif not model_obj and self.metadata_obj.entry_status == KEYED:
+    #             if self.related_visit:
+    #                 # resave subject visit to recreate / calculate metadata
+    #                 self.related_visit.save()
+    #                 self.metadata_obj.refresh_from_db()
+    #                 continue
+    #             else:
+    #                 break
+    #         else:
+    #             break
 
     @staticmethod
     def model_cls_registered_with_admin_site(model_cls: Any) -> bool:

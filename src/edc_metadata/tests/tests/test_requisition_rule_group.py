@@ -1,5 +1,4 @@
-from collections import OrderedDict
-
+from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
@@ -164,7 +163,7 @@ class TestRequisitionRuleGroup(TestCase):
         _, self.schedule = site_visit_schedules.get_by_onschedule_model(
             "edc_metadata.onschedule"
         )
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
 
     def enroll(self, gender=None):
         """Returns a subject visit model after enrolling a
@@ -193,7 +192,7 @@ class TestRequisitionRuleGroup(TestCase):
 
     def test_rule_male(self):
         subject_visit = self.enroll(gender=MALE)
-        rule_results, _ = MyRequisitionRuleGroup().evaluate_rules(visit=subject_visit)
+        rule_results, _ = MyRequisitionRuleGroup().evaluate_rules(related_visit=subject_visit)
         for panel in [self.panel_one, self.panel_two]:
             with self.subTest(panel=panel):
                 key = "edc_metadata.subjectrequisition"
@@ -204,7 +203,7 @@ class TestRequisitionRuleGroup(TestCase):
 
     def test_rule_female(self):
         subject_visit = self.enroll(gender=FEMALE)
-        rule_results, _ = MyRequisitionRuleGroup().evaluate_rules(visit=subject_visit)
+        rule_results, _ = MyRequisitionRuleGroup().evaluate_rules(related_visit=subject_visit)
         for panel in [self.panel_one, self.panel_two]:
             with self.subTest(panel=panel):
                 key = "edc_metadata.subjectrequisition"
@@ -265,7 +264,7 @@ class TestRequisitionRuleGroup(TestCase):
 
     def test_rule_male_with_source_model_as_requisition(self):
         subject_visit = self.enroll(gender=MALE)
-        rule_results, _ = RequisitionRuleGroup2().evaluate_rules(visit=subject_visit)
+        rule_results, _ = RequisitionRuleGroup2().evaluate_rules(related_visit=subject_visit)
         for panel_name in ["one", "two"]:
             with self.subTest(panel_name=panel_name):
                 key = "edc_metadata.subjectrequisition"
@@ -276,7 +275,7 @@ class TestRequisitionRuleGroup(TestCase):
 
     def test_metadata_for_rule_male_with_source_model_as_requisition1(self):
         """RequisitionRuleGroup2"""
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup2)
         subject_visit = self.enroll(gender=MALE)
         SubjectRequisition.objects.create(subject_visit=subject_visit, panel=self.panel_five)
@@ -292,7 +291,7 @@ class TestRequisitionRuleGroup(TestCase):
 
     def test_metadata_for_rule_male_with_source_model_as_requisition2(self):
         subject_visit = self.enroll(gender=MALE)
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup2)
         SubjectRequisition.objects.create(subject_visit=subject_visit, panel=self.panel_five)
         for panel_name in ["three", "four"]:
@@ -307,7 +306,7 @@ class TestRequisitionRuleGroup(TestCase):
 
     def test_metadata_for_rule_female_with_source_model_as_requisition1(self):
         subject_visit = self.enroll(gender=FEMALE)
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup2)
         Reference.objects.create(
             visit_schedule_name=subject_visit.visit_schedule_name,
@@ -332,7 +331,7 @@ class TestRequisitionRuleGroup(TestCase):
 
     def test_metadata_for_rule_female_with_source_model_as_requisition2(self):
         subject_visit = self.enroll(gender=FEMALE)
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup2)
         SubjectRequisition.objects.create(subject_visit=subject_visit, panel=self.panel_five)
         for panel in [self.panel_one, self.panel_two]:
@@ -346,7 +345,7 @@ class TestRequisitionRuleGroup(TestCase):
                 self.assertEqual(obj.entry_status, NOT_REQUIRED)
 
     def test_metadata_requisition(self):
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup3)
 
         subject_visit = self.enroll(gender=FEMALE)
@@ -394,7 +393,7 @@ class TestRequisitionRuleGroup(TestCase):
     # TODO: fix
     def test_keyed_instance_ignores_rules(self):
         """Asserts if instance exists, rule is ignored"""
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup3)
 
         subject_visit = self.enroll(gender=FEMALE)
@@ -477,7 +476,7 @@ class TestRequisitionRuleGroup(TestCase):
     def test_recovers_from_sequence_problem(self):
         """Asserts if instance exists, rule is ignored."""
         subject_visit = self.enroll(gender=FEMALE)
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup3)
         Reference.objects.create(
             visit_schedule_name=subject_visit.visit_schedule_name,
@@ -527,21 +526,21 @@ class TestRequisitionRuleGroup(TestCase):
         self.assertEqual(metadata_obj.entry_status, KEYED)
 
     def test_recovers_from_missing_metadata(self):
-        subject_visit = self.enroll(gender=FEMALE)
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup3)
-        Reference.objects.create(
-            visit_schedule_name=subject_visit.visit_schedule_name,
-            schedule_name=subject_visit.schedule_name,
-            visit_code=subject_visit.visit_code,
-            timepoint=subject_visit.timepoint,
-            identifier=subject_visit.subject_identifier,
-            report_datetime=subject_visit.report_datetime,
-            field_name="panel",
-            value_uuid=self.panel_five.id,
-        )
+        subject_visit = self.enroll(gender=FEMALE)
+        try:
+            RequisitionMetadata.objects.get(
+                model="edc_metadata.subjectrequisition",
+                subject_identifier=subject_visit.subject_identifier,
+                visit_code=subject_visit.visit_code,
+                panel_name=self.panel_six.name,
+                entry_status=NOT_REQUIRED,
+            )
+        except ObjectDoesNotExist:
+            self.fail("RequisitionMetadata unexepectedly does not exist")
 
-        # create CRF that triggers rule to REQUIRED
+        # create CRF that triggers rule to panel_six = REQUIRED
         crf_one = CrfOne.objects.create(subject_visit=subject_visit, f1="hello")
         metadata_obj = RequisitionMetadata.objects.get(
             model="edc_metadata.subjectrequisition",

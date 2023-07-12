@@ -1,12 +1,12 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_visit_tracking.constants import SCHEDULED
 
 from ...constants import KEYED, NOT_REQUIRED, REQUIRED
+from ...metadata_handler import MetadataHandlerError
 from ...metadata_inspector import MetaDataInspector
 from ...metadata_updater import MetadataUpdater
 from ...models import CrfMetadata, RequisitionMetadata
-from ...target_handler import TargetModelLookupError, TargetModelNotScheduledForVisit
 from ..models import CrfOne, CrfThree, CrfTwo, SubjectRequisition, SubjectVisit
 from .metadata_test_mixin import TestMetadataMixin
 
@@ -141,6 +141,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
             1,
         )
 
+    @tag("2")
     def test_resets_requisition_metadata_on_delete2(self):
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED
@@ -235,7 +236,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
             related_visit=subject_visit,
             target_model="edc_metadata.crfone",
         )
-        metadata_updater.update(entry_status=NOT_REQUIRED)
+        metadata_updater.get_and_update(entry_status=NOT_REQUIRED)
         self.assertRaises(
             ObjectDoesNotExist,
             CrfMetadata.objects.get,
@@ -272,7 +273,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
             target_model="edc_metadata.blah",
         )
         self.assertRaises(
-            TargetModelLookupError, metadata_updater.update, entry_status=NOT_REQUIRED
+            MetadataHandlerError, metadata_updater.get_and_update, entry_status=NOT_REQUIRED
         )
 
     def test_crf_model_not_scheduled(self):
@@ -284,7 +285,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
             target_model="edc_metadata.crfseven",
         )
         self.assertRaises(
-            TargetModelNotScheduledForVisit,
-            metadata_updater.update,
+            MetadataHandlerError,
+            metadata_updater.get_and_update,
             entry_status=NOT_REQUIRED,
         )

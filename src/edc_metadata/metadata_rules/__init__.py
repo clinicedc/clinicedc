@@ -12,6 +12,7 @@ from .requisition import (
 )
 from .rule import Rule, RuleError
 from .rule_evaluator import RuleEvaluatorError, RuleEvaluatorRegisterSubjectError
+from .rule_group import TargetModelConflict
 from .rule_group_meta_options import RuleGroupMetaError
 from .rule_group_metaclass import RuleGroupError
 from .site import (

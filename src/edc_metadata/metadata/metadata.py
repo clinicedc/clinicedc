@@ -9,17 +9,23 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError, transaction
 from django.db.models import Model
 from edc_reference import site_reference_configs
-from edc_visit_schedule import Crf, FormsCollection, Requisition, site_visit_schedules
+from edc_visit_schedule import FormsCollection, site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT
 
 from ..constants import KEYED, NOT_REQUIRED, REQUIRED
 
 if TYPE_CHECKING:
     from edc_reference.models import Reference
-    from edc_visit_tracking.model_mixins import VisitModelMixin
+    from edc_sites.model_mixins import SiteModelMixin
+    from edc_visit_schedule import Crf, Requisition
+    from edc_visit_tracking.model_mixins import VisitModelMixin as Base
 
     from ..model_mixins.creates import CreatesMetadataModelMixin
     from ..models import CrfMetadata, RequisitionMetadata
+
+    class RelatedVisitModel(SiteModelMixin, CreatesMetadataModelMixin, Base):
+        pass
+
 
 verify_model_cls_registered_with_admin: bool = getattr(
     settings, "EDC_METADATA_VERIFY_MODELS_REGISTERED_WITH_ADMIN", False
@@ -54,7 +60,7 @@ class CrfCreator:
 
     def __init__(
         self,
-        related_visit: VisitModelMixin,
+        related_visit: RelatedVisitModel,
         update_keyed: bool,
         crf: Crf | Requisition,
     ) -> None:
@@ -87,34 +93,37 @@ class CrfCreator:
         return query_options
 
     @property
-    def metadata_obj(self) -> CrfMetadata | RequisitionMetadata:
-        """Returns a metadata model instance.
+    def metadata_obj(self) -> CrfMetadata | RequisitionMetadata | None:
+        """Gets or creates a metadata model instance.
 
-        Gets or creates the metadata model instance to represent a
-        CRF, if it does not already exist.
+        If the source model is not registered in an admin_site, deletes
+        the metadata_obj, if it exists, and returns None.
         """
         if not self._metadata_obj:
             metadata_obj = None
+            registered = model_cls_registered_with_admin_site(self.crf.model_cls)
             try:
                 metadata_obj = self.metadata_model_cls.objects.get(**self.query_options)
             except ObjectDoesNotExist:
-                with transaction.atomic():
-                    opts = dict(
-                        entry_status=REQUIRED if self.crf.required else NOT_REQUIRED,
-                        show_order=self.crf.show_order,
-                        site=self.related_visit.site,
-                    )
-                    opts.update(**self.query_options)
-                    try:
-                        metadata_obj = self.metadata_model_cls.objects.create(**opts)
-                    except IntegrityError as e:
-                        msg = f"Integrity error creating. Tried with {opts}. Got {e}."
-                        raise CreatesMetadataError(msg)
-            if not model_cls_registered_with_admin_site(self.crf.model_cls):
-                metadata_obj.delete()
-                metadata_obj = None
+                if registered:
+                    with transaction.atomic():
+                        opts = dict(
+                            entry_status=REQUIRED if self.crf.required else NOT_REQUIRED,
+                            show_order=self.crf.show_order,
+                            site=self.related_visit.site,
+                        )
+                        opts.update(**self.query_options)
+                        try:
+                            metadata_obj = self.metadata_model_cls.objects.create(**opts)
+                        except IntegrityError as e:
+                            msg = f"Integrity error creating. Tried with {opts}. Got {e}."
+                            raise CreatesMetadataError(msg)
             else:
-                metadata_obj = self._verify_entry_status_with_model_obj(metadata_obj)
+                if not registered:
+                    metadata_obj.delete()
+                    metadata_obj = None
+            if metadata_obj:
+                metadata_obj = self.update_entry_status_to_default_or_keyed(metadata_obj)
             self._metadata_obj = metadata_obj
         return self._metadata_obj
 
@@ -129,39 +138,27 @@ class CrfCreator:
         """Returns True if CRF is keyed determined by
         querying the reference model.
 
-        If model instance actually exists, warns then returns True
-        regardless of `reference` data.
-
         See also edc_reference.
         """
-        # exists_instance = (
-        #     django_apps.get_model(self.crf.model)
-        #     .objects.filter(subject_visit=self.related_visit)
-        #     .exists()
-        # )
-        # exists_reference = self.reference_model_cls.objects.filter_crf_for_visit(
-        #     name=self.crf.model, visit=self.related_visit
-        # ).exists()
-        # if exists_reference != exists_instance:
-        #     print(
-        #         f"is_keyed mismatch: {self.crf.model}, {self.related_visit}, "
-        #         f"ref={exists_reference}, instance={exists_instance}. Fixed"
-        #     )
         return (
             django_apps.get_model(self.crf.model)
             .objects.filter(subject_visit=self.related_visit)
             .exists()
         )
 
-    def _verify_entry_status_with_model_obj(self, metadata_obj):
+    def update_entry_status_to_default_or_keyed(
+        self, metadata_obj: CrfMetadata | RequisitionMetadata
+    ):
+        """Sets the `entry_status` to the default unless source model
+         already exists.
+
+        If the source model instance already exists (is_keyed),
+        `entry_status` will set to KEYED.
+
+        Note: that the default `entry_status` may be changed by rules
+        later on.
+        """
         if metadata_obj.entry_status != KEYED and self.is_keyed:
-            # warn(
-            #     "Incorrect metadata entry_status. Model instance exists. "
-            #     f"Got {metadata_obj.subject_identifier}.{metadata_obj.visit_code}."
-            #     f"{metadata_obj.visit_code_sequence}. {metadata_obj._meta.label_lower}."
-            #     f"entry_status={metadata_obj.entry_status} for model {metadata_obj.model}. "
-            #     "Fixed."
-            # )
             metadata_obj.entry_status = KEYED
             metadata_obj.save(update_fields=["entry_status"])
             metadata_obj.refresh_from_db()
@@ -184,7 +181,7 @@ class RequisitionCreator(CrfCreator):
         self,
         requisition: Requisition,
         update_keyed: bool,
-        related_visit: VisitModelMixin,
+        related_visit: RelatedVisitModel,
     ) -> None:
         super().__init__(
             crf=requisition,
@@ -228,7 +225,7 @@ class Creator:
     def __init__(
         self,
         update_keyed: bool,
-        related_visit: VisitModelMixin,
+        related_visit: RelatedVisitModel,
     ) -> None:
         self.related_visit = related_visit
         self.update_keyed = update_keyed
@@ -286,7 +283,7 @@ class Destroyer:
     metadata_crf_model = "edc_metadata.crfmetadata"
     metadata_requisition_model = "edc_metadata.requisitionmetadata"
 
-    def __init__(self, related_visit: VisitModelMixin | CreatesMetadataModelMixin) -> None:
+    def __init__(self, related_visit: RelatedVisitModel) -> None:
         self.related_visit = related_visit
 
     @property

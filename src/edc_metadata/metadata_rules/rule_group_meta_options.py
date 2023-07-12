@@ -1,4 +1,4 @@
-from typing import List
+from __future__ import annotations
 
 from edc_reference import ReferenceGetter
 
@@ -51,5 +51,5 @@ class RuleGroupMetaOptions:
             self.options.update(source_model=self.source_model)
 
     @property
-    def default_meta_options(self) -> List[str]:
+    def default_meta_options(self) -> list[str]:
         return ["app_label", "source_model"]

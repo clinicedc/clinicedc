@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.db import models
 from edc_visit_tracking.model_mixins import VisitModelMixin
 
@@ -26,14 +28,16 @@ class CreatesMetadataModelMixin(models.Model):
         metadata = self.metadata_cls(related_visit=self, update_keyed=True)
         metadata.prepare()
 
-    def run_metadata_rules(self) -> None:
+    def run_metadata_rules(self, allow_create: bool | None = None) -> None:
         """Runs all the metadata rules.
 
         Initially called by post_save signal.
 
         Also called by post_save signal after metadata is updated.
         """
-        metadata_rule_evaluator = self.metadata_rule_evaluator_cls(related_visit=self)
+        metadata_rule_evaluator = self.metadata_rule_evaluator_cls(
+            related_visit=self, allow_create=allow_create
+        )
         metadata_rule_evaluator.evaluate_rules()
 
     @property

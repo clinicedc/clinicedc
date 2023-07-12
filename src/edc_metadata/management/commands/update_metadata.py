@@ -63,6 +63,17 @@ class Command(BaseCommand):
                 "separately may lead to unexpected results."
             )
         metadata_refresher = MetadataRefresher(verbose=True)
+        if delete_metadata:
+            sys.stdout.write("Deleting all CrfMetadata...     \r")
+            CrfMetadata.objects.all().delete()
+            sys.stdout.write("Deleting all CrfMetadata...done.                    \n")
+            sys.stdout.write("Deleting all RequisitionMetadata...     \r")
+            RequisitionMetadata.objects.all().delete()
+            sys.stdout.write("Deleting all RequisitionMetadata...done.            \n")
+        if delete_references:
+            sys.stdout.write("Deleting all References...     \r")
+            Reference.objects.all().delete()
+            sys.stdout.write("Deleting all References...done.                    \n")
         if update_metadata_only:
             sys.stdout.write("Updating metadata for all post consent models ...     \n")
             sys.stdout.write("  Note: References will not be updated;\n")
@@ -71,17 +82,6 @@ class Command(BaseCommand):
         elif update_references_only:
             sys.stdout.write("Updating references for all source models ...     \n")
             sys.stdout.write("  Note: Metadata will not be updated.\n\n")
-            metadata_refresher.update_references_for_all()
+            metadata_refresher.create_or_update_references_for_all()
         else:
-            if delete_metadata:
-                sys.stdout.write("Deleting all CrfMetadata...     \r")
-                CrfMetadata.objects.all().delete()
-                sys.stdout.write("Deleting all CrfMetadata...done.                    \n")
-                sys.stdout.write("Deleting all RequisitionMetadata...     \r")
-                sys.stdout.write("Deleting all RequisitionMetadata...done.            \n")
-                RequisitionMetadata.objects.all().delete()
-            if delete_references:
-                sys.stdout.write("Deleting all References...     \r")
-                Reference.objects.all().delete()
-                sys.stdout.write("Deleting all References...done.                    \n")
             metadata_refresher.run()

@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from typing import Any, Optional, Union
 
-from edc_reference.reference import ReferenceObjectDoesNotExist
+from edc_reference.reference import ReferenceGetterError, ReferenceObjectDoesNotExist
 
 
 class PredicateError(Exception):
@@ -14,8 +16,8 @@ class NoValueError(Exception):
 class BasePredicate:
     def get_value(
         self,
-        attr: Optional[str] = None,
-        source_model: Optional[Any] = None,
+        attr: str = None,
+        source_model: str | None = None,
         reference_getter_cls: Optional[Any] = None,
         **kwargs,
     ) -> Any:
@@ -43,7 +45,7 @@ class BasePredicate:
             )
             try:
                 reference = reference_getter_cls(**opts)
-            except ReferenceObjectDoesNotExist as e:
+            except (ReferenceGetterError, ReferenceObjectDoesNotExist) as e:
                 raise NoValueError(f"No value found for {attr}. Given {kwargs}. Got {e}.")
             else:
                 if reference.has_value:
@@ -143,7 +145,7 @@ class PF(BasePredicate):
 
     """
 
-    def __init__(self, *attrs, func: Optional[Any] = None) -> None:
+    def __init__(self, *attrs, func: callable = None) -> None:
         self.attrs = attrs
         self.func = func
 

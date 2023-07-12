@@ -1,11 +1,21 @@
-from collections import OrderedDict
-from typing import Any, Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Tuple
 
 from ...constants import NOT_REQUIRED, REQUIRED
 from ...metadata_updater import MetadataUpdater
-from ...target_handler import TargetModelConflict
-from ..rule_group import RuleGroup
+from ..rule_group import RuleGroup, RuleGroupError, TargetModelConflict
 from ..rule_group_metaclass import RuleGroupMetaclass
+
+if TYPE_CHECKING:
+    from edc_visit_schedule import FormsCollection
+    from edc_visit_tracking.model_mixins import VisitModelMixin as Base
+
+    from ...model_mixins.creates import CreatesMetadataModelMixin
+    from ...models import CrfMetadata
+
+    class RelatedVisitModel(CreatesMetadataModelMixin, Base):
+        pass
 
 
 class CrfRuleGroup(RuleGroup, metaclass=RuleGroupMetaclass):
@@ -20,7 +30,7 @@ class CrfRuleGroup(RuleGroup, metaclass=RuleGroupMetaclass):
         return f"{self.__class__.__name__}({self.name})"
 
     @classmethod
-    def crfs_for_visit(cls, visit=None):
+    def crfs_for_visit(cls, visit=None) -> FormsCollection:
         """Returns a list of scheduled or unscheduled
         CRFs + PRNs depending on visit_code_sequence.
         """
@@ -31,40 +41,51 @@ class CrfRuleGroup(RuleGroup, metaclass=RuleGroupMetaclass):
         return crfs
 
     @classmethod
-    def evaluate_rules(cls: Any, visit: Any = None) -> tuple:
-        rule_results = OrderedDict()
-        metadata_objects = OrderedDict()
+    def evaluate_rules(
+        cls: Any,
+        related_visit: RelatedVisitModel = None,
+        allow_create: bool | None = None,
+    ) -> Tuple[dict[str, dict[str, dict]], dict[str, CrfMetadata]]:
+        rule_results = {}
+        metadata_objects = {}
         for rule in cls._meta.options.get("rules"):
             # skip if source model is not in visit.crfs (including PRNs)
             if (
                 rule.source_model
-                and rule.source_model != visit._meta.label_lower
-                and rule.source_model not in [c.model for c in cls.crfs_for_visit(visit)]
+                and rule.source_model != related_visit._meta.label_lower
+                and rule.source_model
+                not in [c.model for c in cls.crfs_for_visit(related_visit)]
             ):
                 continue
-            rule_results.update({str(rule): rule.run(visit=visit)})
-            for target_model, entry_status in rule_results[str(rule)].items():
-                if target_model == visit._meta.label_lower:
-                    raise TargetModelConflict(
-                        f"Target model and visit model are the same! "
-                        f"Got {target_model}=={visit._meta.label_lower}"
-                    )
-                # only do something if target model is in visit.crfs (including PRNs)
-                if target_model in [c.model for c in cls.crfs_for_visit(visit)]:
-                    metadata_updater = cls.metadata_updater_cls(
-                        related_visit=visit, target_model=target_model
-                    )
-                    metadata_obj = metadata_updater.update(
-                        entry_status=entry_status
-                        or cls.default_entry_status(visit, target_model)
-                    )
-                    metadata_objects.update({target_model: metadata_obj})
+            if result := rule.run(related_visit=related_visit):
+                rule_results.update({str(rule): result})
+                for target_model, entry_status in rule_results[str(rule)].items():
+                    if not entry_status:
+                        raise RuleGroupError("Cannot be None. Got `entry_status`.")
+                    if target_model == related_visit._meta.label_lower:
+                        raise TargetModelConflict(
+                            f"Target model and visit model are the same! "
+                            f"Got {target_model}=={related_visit._meta.label_lower}"
+                        )
+                    # only do something if target model is in visit.crfs (including PRNs)
+                    if target_model in [c.model for c in cls.crfs_for_visit(related_visit)]:
+                        metadata_updater = cls.metadata_updater_cls(
+                            related_visit=related_visit,
+                            target_model=target_model,
+                            allow_create=allow_create,
+                        )
+                        metadata_obj = metadata_updater.get_and_update(
+                            entry_status=entry_status
+                        )
+                        metadata_objects.update({target_model: metadata_obj})
         return rule_results, metadata_objects
 
     @classmethod
-    def default_entry_status(cls, visit: Any, target_model: Any) -> Optional[str]:
+    def default_entry_status(
+        cls, related_visit: RelatedVisitModel, target_model: Any
+    ) -> str | None:
         """Returns the default `entry_status` or None"""
-        for c in cls.crfs_for_visit(visit):
+        for c in cls.crfs_for_visit(related_visit):
             if c.model == target_model:
                 return REQUIRED if c.required else NOT_REQUIRED
         return None
