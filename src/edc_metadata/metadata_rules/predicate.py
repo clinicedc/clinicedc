@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Optional, Union
 
-from edc_reference.reference import ReferenceObjectDoesNotExist
+from edc_reference.reference import ReferenceGetterError, ReferenceObjectDoesNotExist
 
 
 class PredicateError(Exception):
@@ -45,7 +45,7 @@ class BasePredicate:
             )
             try:
                 reference = reference_getter_cls(**opts)
-            except ReferenceObjectDoesNotExist as e:
+            except (ReferenceGetterError, ReferenceObjectDoesNotExist) as e:
                 raise NoValueError(f"No value found for {attr}. Given {kwargs}. Got {e}.")
             else:
                 if reference.has_value:
