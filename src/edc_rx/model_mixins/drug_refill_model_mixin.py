@@ -48,12 +48,9 @@ class DrugRefillModelMixin(models.Model):
         blank=True,
     )
 
-    return_in_days = models.IntegerField(
-        verbose_name=(
-            "In how many days has the patient been asked "
-            "to return to clinic for a drug refill?"
-        ),
-        validators=[MinValueValidator(0), MaxValueValidator(180)],
+    rx_days = models.IntegerField(
+        verbose_name=("Number of days of medication prescribed?"),
+        validators=[MinValueValidator(0), MaxValueValidator(186)],
     )
 
     class Meta:

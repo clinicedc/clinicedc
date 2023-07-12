@@ -27,7 +27,7 @@ class TestRxUtils(TestCase):
                 purchased_days=purchased_days,
             ):
                 form.cleaned_data = {
-                    "return_in_days": 30,
+                    "rx_days": 30,
                     "clinic_days": clinic_days,
                     "club_days": club_days,
                     "purchased_days": purchased_days,
@@ -59,7 +59,7 @@ class TestRxUtils(TestCase):
                 purchased_days=purchased_days,
             ):
                 form.cleaned_data = {
-                    "return_in_days": 30,
+                    "rx_days": 30,
                     "clinic_days": clinic_days,
                     "club_days": club_days,
                     "purchased_days": purchased_days,
@@ -89,7 +89,7 @@ class TestRxUtils(TestCase):
                 purchased_days=purchased_days,
             ):
                 form.cleaned_data = {
-                    "return_in_days": 0,
+                    "rx_days": 0,
                     "clinic_days": clinic_days,
                     "club_days": club_days,
                     "purchased_days": purchased_days,
@@ -114,7 +114,7 @@ class TestRxUtils(TestCase):
                 purchased_days=purchased_days,
             ):
                 form.cleaned_data = {
-                    "return_in_days": 0,
+                    "rx_days": 0,
                     "clinic_days": clinic_days,
                     "club_days": club_days,
                     "purchased_days": purchased_days,

@@ -6,7 +6,10 @@ from edc_crf.admin import crf_status_fieldset_tuple
 
 class DrugRefillAdminMixin:
     form = None
+
     inlines = []
+
+    fieldsets_move_to_end = [crf_status_fieldset_tuple[0], audit_fieldset_tuple[0]]
 
     additional_instructions = format_html(
         '<span style="color:orange">Note: Medications CRF must be completed first.</span>'
@@ -25,7 +28,7 @@ class DrugRefillAdminMixin:
                     "modifications_other",
                     "modifications_reason",
                     "modifications_reason_other",
-                    "return_in_days",
+                    "rx_days",
                 )
             },
         ),

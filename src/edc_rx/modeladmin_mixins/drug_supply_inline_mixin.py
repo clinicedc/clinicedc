@@ -3,7 +3,7 @@ class DrugSupplyInlineMixin:
     view_on_site = False
 
     min_num = 1
-    insert_after = "return_in_days"
+    insert_after = "rx_days"
 
     fieldsets = (
         [
