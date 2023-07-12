@@ -8,10 +8,12 @@ from django.contrib.admin.sites import all_sites
 from django.db.models import Count
 from edc_appointment.models import Appointment
 from edc_visit_schedule import site_visit_schedules
-from edc_visit_tracking.utils import get_subject_visit_model_cls
+from edc_visit_tracking.utils import (
+    get_related_visit_model_cls,
+    get_subject_visit_model_cls,
+)
 from tqdm import tqdm
 
-from edc_metadata import InvalidTargetPanel, TargetModelNotScheduledForVisit
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 
 from .metadata import CrfMetadataGetter, RequisitionMetadataGetter
@@ -32,15 +34,19 @@ class MetadataRefresher:
 
     def run(self) -> None:
         self._message("Updating references ...     \n")
-        self.update_references_for_all()
+        self.create_or_update_references_for_all()
+
         self._message("Updating metadata ...     \n")
         self.create_or_update_metadata_for_all()
+
         # note: only need to run metadata rules on the related
         # visit model
         self._message("Running metadata rules ...\n")
         total = get_subject_visit_model_cls().objects.all().count()
         self.run_metadata_rules(get_subject_visit_model_cls(), total)
-        self.validate_metadata_for_all()
+
+        # self._message("Validating ...\n")
+        # self.validate_metadata_for_all()
         self._message("Done.\n")
 
     @property
@@ -68,7 +74,6 @@ class MetadataRefresher:
 
     def run_metadata_rules(self, source_model_cls: Any, total: int) -> None:
         """Updates rules for all instances of this source model"""
-        self._message(f"   - Running rules for {source_model_cls._meta.label_lower}...     \n")
         for instance in tqdm(source_model_cls.objects.all(), total=total):
             if django_apps.get_app_config("edc_metadata").metadata_rules_enabled:
                 instance.run_metadata_rules()
@@ -83,11 +88,7 @@ class MetadataRefresher:
             except AttributeError:
                 try:
                     instance.metadata_update()
-                except (
-                    AttributeError,
-                    TargetModelNotScheduledForVisit,
-                    InvalidTargetPanel,
-                ) as e:
+                except (AttributeError,) as e:
                     self._message(f"      skipping (got {e})     \n")
                     break
 
@@ -131,6 +132,7 @@ class MetadataRefresher:
             ):
                 count = CrfMetadata.objects.filter(model=model).delete()
                 self._message(f"   * deleted {count} metadata records for model {model}.\n")
+        self._message("    Done.\n")
 
     def verifying_requisition_metadata_with_visit_schedule_and_admin(self) -> None:
         self._message(
@@ -143,25 +145,28 @@ class MetadataRefresher:
             ):
                 count = RequisitionMetadata.objects.filter(model=model).delete()
                 self._message(f"   * deleted {count} metadata records for model {model}.\n")
+        self._message("    Done.\n")
 
     def create_or_update_metadata_for_all(self) -> None:
         self.verifying_crf_metadata_with_visit_schedule_and_admin()
         self.verifying_requisition_metadata_with_visit_schedule_and_admin()
+        # TODO: perhaps always delete before running
         self._message("- Updating metadata for all post consent models...     \n")
         models = dict(sorted(site_visit_schedules.all_post_consent_models.items()))
         model_count = len(list(models))
-        self._message(f"   - {model_count} models found           \n")
-        for index, model in enumerate(models):
-            model_cls = django_apps.get_model(model)
-            total = model_cls.objects.all().count()
-            self._message(
-                f"    * {index + 1}/{model_count} {model_cls._meta.label_lower} ...     \n"
-            )
-            self.create_or_update_metadata(model_cls, total)
+        related_visits = get_related_visit_model_cls().objects.all()
+        total = related_visits.count()
+        self._message(
+            f"   - {model_count} post-consent models found for {total} visits ... \n"
+        )
+        for related_visit in tqdm(related_visits, total=total):
+            related_visit.metadata_create()
+        self._message("    Done.\n")
 
-    def update_references_for_all(self) -> None:
+    def create_or_update_references_for_all(self) -> None:
         self.verifying_crf_metadata_with_visit_schedule_and_admin()
         self.verifying_requisition_metadata_with_visit_schedule_and_admin()
+        # TODO: perhaps always delete before running
         self._message("- Updating references for all rule models...     \n")
         for index, source_model in enumerate(self.source_models):
             self._message(f"  {index + 1}/{len(self.source_models)}. {source_model}\n")

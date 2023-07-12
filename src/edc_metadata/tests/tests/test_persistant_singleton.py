@@ -1,4 +1,3 @@
-from collections import OrderedDict
 from copy import deepcopy
 
 from dateutil.relativedelta import relativedelta
@@ -18,15 +17,10 @@ from edc_visit_schedule.constants import DAY1, MONTH1, MONTH3, MONTH6, WEEK2
 from edc_visit_tracking.constants import SCHEDULED
 from model_bakery import baker
 
-from edc_metadata import (
-    KEYED,
-    NOT_REQUIRED,
-    REQUIRED,
-    TargetModelNotScheduledForVisit,
-    site_metadata_rules,
-)
+from edc_metadata import KEYED, NOT_REQUIRED, REQUIRED, site_metadata_rules
 from edc_metadata.metadata import CrfMetadataGetter
 
+from ...metadata_handler import MetadataHandlerError
 from ...metadata_rules import (
     CrfRule,
     CrfRuleGroup,
@@ -62,7 +56,7 @@ class TestPersistantSingleton(TestCase):
             visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
         )
 
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
         site_metadata_rules.register(self.rule_group)
 
         self.user = User.objects.create(username="erik")
@@ -190,12 +184,12 @@ class TestPersistantSingleton(TestCase):
         return RuleGroup
 
     def test_baseline_not_required(self):
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
         site_metadata_rules.register(self.rule_group)
         form = CrfOneForm(data=self.data)
         form.is_valid()
         self.assertEqual({}, form._errors)
-        self.assertRaises(TargetModelNotScheduledForVisit, form.save)
+        self.assertRaises(MetadataHandlerError, form.save)
 
         crf_metadata_getter = CrfMetadataGetter(appointment=self.subject_visit.appointment)
         self.assertFalse(
@@ -205,7 +199,7 @@ class TestPersistantSingleton(TestCase):
         )
 
     def test_1005_required(self):
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
         site_metadata_rules.register(self.rule_group)
         subject_visit = self.get_next_subject_visit(self.subject_visit)
         self.assertEqual(subject_visit.visit_code, WEEK2)
@@ -235,7 +229,7 @@ class TestPersistantSingleton(TestCase):
         )
 
     def test_visit_required_if_not_submitted(self):
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
         site_metadata_rules.register(self.rule_group)
         subject_visit = self.get_next_subject_visit(self.subject_visit)
         self.assertEqual(subject_visit.visit_code, WEEK2)
@@ -295,7 +289,7 @@ class TestPersistantSingleton(TestCase):
         )
 
     def test_1010_required_if_not_submitted(self):
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
         site_metadata_rules.register(self.rule_group)
         subject_visit = self.get_next_subject_visit(self.subject_visit)
         subject_visit = self.get_next_subject_visit(subject_visit)
@@ -323,7 +317,7 @@ class TestPersistantSingleton(TestCase):
         )
 
     def test_1030_required_if_not_submitted(self):
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
         site_metadata_rules.register(self.rule_group)
         subject_visit = self.get_next_subject_visit(self.subject_visit)
         subject_visit = self.get_next_subject_visit(subject_visit)
@@ -352,7 +346,7 @@ class TestPersistantSingleton(TestCase):
         )
 
     def test_1030_not_required_if_submitted(self):
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
         site_metadata_rules.register(self.rule_group)
         subject_visit_1005 = self.get_next_subject_visit(self.subject_visit)
         subject_visit_1010 = self.get_next_subject_visit(subject_visit_1005)

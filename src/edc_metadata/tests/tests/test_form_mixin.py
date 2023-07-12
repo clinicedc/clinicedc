@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.client import RequestFactory
@@ -32,7 +30,7 @@ class TestForm(TestCase):
         import_holidays()
 
     def setUp(self):
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
 
         self.user = User.objects.create(username="erik")
 

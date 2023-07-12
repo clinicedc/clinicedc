@@ -1,10 +1,21 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Type
+
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from edc_visit_tracking.constants import MISSED_VISIT
 
 from .metadata import Creator
+
+if TYPE_CHECKING:
+    from edc_visit_tracking.model_mixins import VisitModelMixin as Base
+
+    from .model_mixins.creates import CreatesMetadataModelMixin
+    from .models import CrfMetadata, RequisitionMetadata
+
+    class RelatedVisitModel(CreatesMetadataModelMixin, Base):
+        pass
 
 
 class MetadataHandlerError(Exception):
@@ -21,29 +32,39 @@ class MetadataHandler:
 
     creator_cls = Creator
 
-    def __init__(self, metadata_model=None, related_visit=None, model=None):
-        self.metadata_model = metadata_model
-        self.model = model
-        self.related_visit = related_visit
+    def __init__(
+        self,
+        metadata_model: str = None,
+        related_visit: RelatedVisitModel = None,
+        model: str = None,
+        allow_create: bool | None = None,
+    ):
+        self.allow_create = True if allow_create is None else allow_create
+        self.metadata_model: str = metadata_model
+        self.model: str = model
+        self.related_visit: RelatedVisitModel = related_visit
         self.creator = self.creator_cls(related_visit=self.related_visit, update_keyed=True)
 
     @property
-    def metadata_model_cls(self):
+    def metadata_model_cls(self) -> Type[CrfMetadata] | Type[RequisitionMetadata]:
         return django_apps.get_model(self.metadata_model)
 
     @property
-    def metadata_obj(self):
+    def metadata_obj(self) -> CrfMetadata | RequisitionMetadata:
         """Returns a metadata model instance.
 
-        Creates if it does not exist.
+        Creates if it does not exist and is allowed.
         """
         try:
             metadata_obj = self.metadata_model_cls.objects.get(**self.query_options)
-        except ObjectDoesNotExist:
-            metadata_obj = self._create()
+        except ObjectDoesNotExist as e:
+            if self.allow_create:
+                metadata_obj = self._create()
+            else:
+                raise MetadataObjectDoesNotExist(f"Unable to metadata run rule. Got `{e}`")
         return metadata_obj
 
-    def _create(self):
+    def _create(self) -> CrfMetadata | RequisitionMetadata:
         """Returns a new metadata model instance for this CRF."""
         metadata_obj = None
         try:
@@ -60,7 +81,7 @@ class MetadataHandler:
         return metadata_obj
 
     @property
-    def query_options(self):
+    def query_options(self) -> dict:
         """Returns a dict of options to query the `metadata` model.
 
         Note: the metadata model instance shares many field attributes

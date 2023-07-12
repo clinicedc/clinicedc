@@ -1,6 +1,5 @@
 import copy
 import sys
-from collections import OrderedDict
 from typing import Any, Optional
 
 from django.apps import apps as django_apps
@@ -20,7 +19,7 @@ class SiteMetadataRules:
     """Main controller of :class:`MetadataRules` objects."""
 
     def __init__(self) -> None:
-        self.registry = OrderedDict()
+        self.registry = {}
 
     def register(self, rule_group_cls: Optional[Any] = None) -> None:
         """Register MetadataRules to a list per app_label

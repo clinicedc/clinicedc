@@ -8,6 +8,14 @@ from edc_reference.site_reference import site_reference_configs
 style = color_style()
 
 
+class RuleGroupError(Exception):
+    pass
+
+
+class TargetModelConflict(Exception):
+    pass
+
+
 class RuleGroup:
 
     """Base class for CRF and Requisition rule groups."""

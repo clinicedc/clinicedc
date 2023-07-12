@@ -1,19 +1,32 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
 
-from django.apps import apps as django_apps
 from django.db import models
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from ...constants import CRF, NOT_REQUIRED, REQUIRED, REQUISITION
+from ...constants import CRF, REQUIRED
 from ...metadata_updater import MetadataUpdater
 
 if TYPE_CHECKING:
-    from edc_crf.model_mixins import CrfModelMixin
+    from edc_crf.model_mixins import CrfModelMixin as Base
     from edc_visit_schedule import Visit
 
     from ...models import CrfMetadata, RequisitionMetadata
+    from ..creates import CreatesMetadataModelMixin
+    from .updates_crf_metadata_model_mixin import UpdatesCrfMetadataModelMixin
+    from .updates_requisition_metadata_model_mixin import (
+        UpdatesRequisitionMetadataModelMixin,
+    )
+
+    class RelatedVisitModel(CreatesMetadataModelMixin, Base):
+        pass
+
+    class CrfModel(UpdatesCrfMetadataModelMixin, Base):
+        related_visit = models.ForeignKey(RelatedVisitModel, on_delete=models.PROTECT)
+
+    class RequisitionModel(UpdatesRequisitionMetadataModelMixin, Base):
+        related_visit = models.ForeignKey(RelatedVisitModel, on_delete=models.PROTECT)
 
 
 class MetadataError(Exception):
@@ -25,26 +38,58 @@ class UpdatesMetadataModelMixin(models.Model):
     update metadata upon save and delete.
     """
 
-    metadata_updater_cls: MetadataUpdater = MetadataUpdater
+    metadata_updater_cls = MetadataUpdater
     metadata_category: str = CRF
 
-    def metadata_update(self: CrfModelMixin, entry_status: str = None) -> None:
+    def metadata_update(self: CrfModel | RequisitionModel, entry_status: str = None) -> None:
         """Updates metatadata."""
-        self.metadata_updater.update(entry_status=entry_status)
+        self.metadata_updater.get_and_update(entry_status=entry_status)
 
-    def run_metadata_rules_for_crf(self: CrfModelMixin) -> None:
-        """Runs all the metadata rules."""
-        self.related_visit.run_metadata_rules()
+    def run_metadata_rules_for_crf(
+        self: CrfModel | RequisitionModel, allow_create: bool | None = None
+    ) -> None:
+        """Runs all the metadata rules for this timepoint."""
+        self.related_visit.run_metadata_rules(allow_create=allow_create)
 
     @property
-    def metadata_updater(self: CrfModelMixin) -> MetadataUpdater:
-        """Returns an instance of MetadataUpdater."""
-        return self.metadata_updater_cls(
-            related_visit=self.related_visit,
-            target_model=self._meta.label_lower,
-        )
+    def metadata_updater(self: CrfModel | RequisitionModel) -> MetadataUpdater:
+        """Returns an instance of MetadataUpdater.
 
-    def metadata_reset_on_delete(self: CrfModelMixin) -> None:
+        Override
+        """
+        raise NotImplementedError("Method not implemented")
+
+    @property
+    def metadata_query_options(self: CrfModel | RequisitionModel) -> dict:
+        options = self.related_visit.metadata_query_options
+        options.update(
+            {
+                "subject_identifier": self.related_visit.subject_identifier,
+                "model": self._meta.label_lower,
+            }
+        )
+        return options
+
+    @property
+    def metadata_model(
+        self: CrfModel | RequisitionModel,
+    ) -> Type[CrfMetadata] | Type[RequisitionMetadata]:
+        """Returns the metadata model associated with self.
+
+        Override
+        """
+        raise NotImplementedError("Method not implemented")
+
+    @property
+    def metadata_default_entry_status(self: CrfModel | RequisitionModel) -> str:
+        """Returns a string that represents the default entry status
+        of the CRF in the visit schedule.
+
+        Override
+        """
+        raise NotImplementedError("Method not implemented")
+
+    def metadata_reset_on_delete(self: CrfModel | RequisitionModel) -> None:
         """Sets this model instance`s metadata model instance
         to its original entry_status.
         """
@@ -62,47 +107,12 @@ class UpdatesMetadataModelMixin(models.Model):
             obj.save()
 
     @property
-    def metadata_default_entry_status(self: CrfModelMixin) -> str:
-        """Returns a string that represents the default entry status
-        of the CRF in the visit schedule.
-        """
-        crfs_prn = self.metadata_visit_object.crfs_prn
-        if self.related_visit.visit_code_sequence != 0:
-            crfs = self.metadata_visit_object.crfs_unscheduled + crfs_prn
-        else:
-            crfs = self.metadata_visit_object.crfs + crfs_prn
-        crf = [c for c in crfs if c.model == self._meta.label_lower][0]
-        return REQUIRED if crf.required else NOT_REQUIRED
-
-    @property
-    def metadata_visit_object(self: CrfModelMixin) -> Visit:
+    def metadata_visit_object(self: CrfModel | RequisitionModel) -> Visit:
         visit_schedule = site_visit_schedules.get_visit_schedule(
             visit_schedule_name=self.related_visit.visit_schedule_name
         )
         schedule = visit_schedule.schedules.get(self.related_visit.schedule_name)
         return schedule.visits.get(self.related_visit.visit_code)
-
-    @property
-    def metadata_query_options(self: CrfModelMixin) -> dict:
-        options = self.related_visit.metadata_query_options
-        options.update(
-            {
-                "subject_identifier": self.related_visit.subject_identifier,
-                "model": self._meta.label_lower,
-            }
-        )
-        return options
-
-    @property
-    def metadata_model(self: CrfModelMixin) -> CrfMetadata | RequisitionMetadata:
-        """Returns the metadata model associated with self."""
-        if self.metadata_category == CRF:
-            metadata_model = "edc_metadata.crfmetadata"
-        elif self.metadata_category == REQUISITION:
-            metadata_model = "edc_metadata.requisitionmetadata"
-        else:
-            raise MetadataError(f"Unknown metadata catergory. Got {self.metadata_category}")
-        return django_apps.get_model(metadata_model)
 
     class Meta:
         abstract = True

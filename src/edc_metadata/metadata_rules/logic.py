@@ -1,6 +1,17 @@
-from typing import Any, Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from ..constants import DO_NOTHING, NOT_REQUIRED, REQUIRED
+
+if TYPE_CHECKING:
+    from edc_visit_tracking.model_mixins import VisitModelMixin as Base
+
+    from ..model_mixins.creates import CreatesMetadataModelMixin
+    from .predicate import PF, P
+
+    class RelatedVisitModel(CreatesMetadataModelMixin, Base):
+        pass
 
 
 class RuleLogicError(Exception):
@@ -18,11 +29,10 @@ class Logic:
 
     def __init__(
         self,
-        predicate: Optional[Any] = None,
-        consequence: Optional[str] = None,
-        alternative: Optional[str] = None,
-        comment: Optional[str] = None,
-        **kwargs,  # noqa
+        predicate: P | PF | callable = None,
+        consequence: str = None,
+        alternative: str = None,
+        comment: str | None = None,
     ) -> None:
         if not hasattr(predicate, "__call__"):
             raise RuleLogicError(

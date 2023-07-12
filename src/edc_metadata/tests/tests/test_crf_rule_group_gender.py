@@ -1,6 +1,4 @@
-from collections import OrderedDict
-
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_reference.site_reference import site_reference_configs
@@ -22,10 +20,10 @@ from ...metadata_rules import (
     PredicateError,
     RuleEvaluatorRegisterSubjectError,
     RuleGroupMetaError,
+    TargetModelConflict,
     site_metadata_rules,
 )
 from ...models import CrfMetadata
-from ...target_handler import TargetModelConflict
 from ..models import Appointment, CrfOne, SubjectConsent, SubjectVisit
 from ..visit_schedule import visit_schedule
 
@@ -112,6 +110,7 @@ class CrfRuleGroupGender(CrfRuleGroup):
         app_label = "edc_metadata"
 
 
+@tag("1")
 class TestMetadataRulesWithGender(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -133,7 +132,7 @@ class TestMetadataRulesWithGender(TestCase):
             "edc_metadata.onschedule"
         )
 
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
         site_metadata_rules.register(rule_group_cls=CrfRuleGroupGender)
 
     def enroll(self, gender=None):
@@ -211,7 +210,7 @@ class TestMetadataRulesWithGender(TestCase):
                         },
                     )
 
-    def test_rules_skipped_if_no_source_model_instance(self):
+    def test_rules_if_no_source_model_instance(self):
         subject_visit = self.enroll(MALE)
         for rule in CrfRuleGroupWithSourceModel._meta.options.get("rules"):
             with self.subTest(rule=rule):
@@ -220,16 +219,16 @@ class TestMetadataRulesWithGender(TestCase):
                     self.assertEqual(
                         result,
                         {
-                            "edc_metadata.crffive": None,
-                            "edc_metadata.crffour": None,
+                            "edc_metadata.crffive": NOT_REQUIRED,
+                            "edc_metadata.crffour": NOT_REQUIRED,
                         },
                     )
                 elif rule.name == "crfs_female":
                     self.assertEqual(
                         result,
                         {
-                            "edc_metadata.crfthree": None,
-                            "edc_metadata.crftwo": None,
+                            "edc_metadata.crfthree": NOT_REQUIRED,
+                            "edc_metadata.crftwo": NOT_REQUIRED,
                         },
                     )
 
@@ -343,7 +342,7 @@ class TestMetadataRulesWithGender(TestCase):
 
     def test_rule_group_metadata_objects(self):
         subject_visit = self.enroll(gender=MALE)
-        _, metadata_objects = CrfRuleGroupGender().evaluate_rules(visit=subject_visit)
+        _, metadata_objects = CrfRuleGroupGender().evaluate_rules(related_visit=subject_visit)
         self.assertEqual(metadata_objects.get("edc_metadata.crffour").entry_status, REQUIRED)
         self.assertEqual(metadata_objects.get("edc_metadata.crffive").entry_status, REQUIRED)
         self.assertEqual(
@@ -356,7 +355,7 @@ class TestMetadataRulesWithGender(TestCase):
 
     def test_rule_group_rule_results(self):
         subject_visit = self.enroll(gender=MALE)
-        rule_results, _ = CrfRuleGroupGender().evaluate_rules(visit=subject_visit)
+        rule_results, _ = CrfRuleGroupGender().evaluate_rules(related_visit=subject_visit)
         self.assertEqual(
             rule_results["CrfRuleGroupGender.crfs_male"].get("edc_metadata.crffour"),
             REQUIRED,
@@ -375,7 +374,7 @@ class TestMetadataRulesWithGender(TestCase):
         )
 
     def test_bad_rule_group_target_model_cannot_also_be_source_model(self):
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
         subject_visit = self.enroll(gender=MALE)
 
         class BadCrfRuleGroup(CrfRuleGroup):
@@ -391,11 +390,11 @@ class TestMetadataRulesWithGender(TestCase):
                 source_model = "edc_metadata.crfone"
 
         self.assertRaises(
-            CrfRuleModelConflict, BadCrfRuleGroup().evaluate_rules, visit=subject_visit
+            CrfRuleModelConflict, BadCrfRuleGroup().evaluate_rules, related_visit=subject_visit
         )
 
     def test_rule_group_target_model_cannot_be_visit_model(self):
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
 
         subject_visit = self.enroll(gender=MALE)
 
@@ -412,7 +411,7 @@ class TestMetadataRulesWithGender(TestCase):
                 source_model = "edc_metadata.crfone"
 
         self.assertRaises(
-            TargetModelConflict, BadCrfRuleGroup().evaluate_rules, visit=subject_visit
+            TargetModelConflict, BadCrfRuleGroup().evaluate_rules, related_visit=subject_visit
         )
 
     def test_bad_predicate_blah_is_not_an_operator(self):
@@ -436,8 +435,6 @@ class TestMetadataRulesWithGender(TestCase):
             self.fail("PredicateError not raised.")
 
     def test_predicate_pf(self):
-        """Asserts entry status unchanged if source model does not exist."""
-
         def func(f1, f2):
             return True if f1 == "f1" and f2 == "f2" else False
 
@@ -453,17 +450,17 @@ class TestMetadataRulesWithGender(TestCase):
                 app_label = "edc_metadata"
                 source_model = "edc_metadata.crfone"
 
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
         subject_visit = self.enroll(gender=MALE)
 
-        MyCrfRuleGroup().evaluate_rules(visit=subject_visit)
+        MyCrfRuleGroup().evaluate_rules(related_visit=subject_visit)
 
         obj = CrfMetadata.objects.get(
             model="edc_metadata.crftwo",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
         )
-        self.assertEqual(obj.entry_status, REQUIRED)
+        self.assertEqual(obj.entry_status, NOT_REQUIRED)
 
     @override_settings(DEBUG=True)
     def test_predicate_pf2(self):
@@ -486,7 +483,7 @@ class TestMetadataRulesWithGender(TestCase):
                 app_label = "edc_metadata"
                 source_model = "edc_metadata.crfone"
 
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
         site_metadata_rules.register(MyCrfRuleGroup)
         subject_visit = self.enroll(gender=MALE)
         obj = CrfMetadata.objects.get(
@@ -494,10 +491,10 @@ class TestMetadataRulesWithGender(TestCase):
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
         )
-        self.assertEqual(obj.entry_status, REQUIRED)
+        self.assertEqual(obj.entry_status, NOT_REQUIRED)
         CrfOne.objects.create(subject_visit=subject_visit, f1="blah", f2="f2_value")
         self.assertFalse(func("blah", "f2_value"))
-        # MyCrfRuleGroup().evaluate_rules(visit=subject_visit)
+        # MyCrfRuleGroup().evaluate_rules(related_visit=subject_visit)
         obj = CrfMetadata.objects.get(
             model="edc_metadata.crftwo",
             subject_identifier=subject_visit.subject_identifier,
@@ -526,10 +523,10 @@ class TestMetadataRulesWithGender(TestCase):
                 app_label = "edc_metadata"
                 source_model = "edc_metadata.crfone"
 
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
         subject_visit = self.enroll(gender=MALE)
         CrfOne.objects.create(subject_visit=subject_visit, f1="f1", f2="f2")
-        MyCrfRuleGroup().evaluate_rules(visit=subject_visit)
+        MyCrfRuleGroup().evaluate_rules(related_visit=subject_visit)
 
         obj = CrfMetadata.objects.get(
             model="edc_metadata.crftwo",

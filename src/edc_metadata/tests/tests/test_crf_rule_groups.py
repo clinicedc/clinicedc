@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
@@ -96,7 +94,7 @@ class CrfRuleGroupTestCase(TestCase):
             "edc_metadata.onschedule"
         )
 
-        site_metadata_rules.registry = OrderedDict()
+        site_metadata_rules.registry = {}
         site_metadata_rules.register(rule_group_cls=CrfRuleGroupOne)
         site_metadata_rules.register(rule_group_cls=CrfRuleGroupTwo)
         site_metadata_rules.register(rule_group_cls=CrfRuleGroupThree)
@@ -138,16 +136,43 @@ class CrfRuleGroupTestCase(TestCase):
             visit_code_sequence=self.appointment.next.visit_code_sequence,
         )
 
+    def test_default_d1(self):
+        """Test before any CRFs are submitted"""
+        self.enroll(gender=MALE)
+        self.assertEqual(
+            CrfMetadata.objects.get(model="edc_metadata.crfone").entry_status,
+            REQUIRED,
+        )
+        # set to NOT_REQUIRED by CrfRuleGroupOne.crfs_car
+        self.assertEqual(
+            CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
+            NOT_REQUIRED,
+        )
+        # set to NOT_REQUIRED by CrfRuleGroupOne.crfs_bicycle
+        self.assertEqual(
+            CrfMetadata.objects.get(model="edc_metadata.crfthree").entry_status,
+            NOT_REQUIRED,
+        )
+        self.assertEqual(
+            CrfMetadata.objects.get(model="edc_metadata.crffour").entry_status,
+            REQUIRED,
+        )
+        # set to NOT_REQUIRED by CrfRuleGroupTwo.crfs_truck
+        self.assertEqual(
+            CrfMetadata.objects.get(model="edc_metadata.crffive").entry_status,
+            NOT_REQUIRED,
+        )
+
     def test_example1(self):
         """Asserts CrfTwo is REQUIRED if f1==\'car\' as specified."""
         subject_visit = self.enroll(gender=MALE)
         self.assertEqual(
             CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
-            REQUIRED,
+            NOT_REQUIRED,
         )
         self.assertEqual(
             CrfMetadata.objects.get(model="edc_metadata.crfthree").entry_status,
-            REQUIRED,
+            NOT_REQUIRED,
         )
 
         CrfOne.objects.create(subject_visit=subject_visit, f1="car")
@@ -167,11 +192,11 @@ class CrfRuleGroupTestCase(TestCase):
         subject_visit = self.enroll(gender=MALE)
         self.assertEqual(
             CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
-            REQUIRED,
+            NOT_REQUIRED,
         )
         self.assertEqual(
             CrfMetadata.objects.get(model="edc_metadata.crfthree").entry_status,
-            REQUIRED,
+            NOT_REQUIRED,
         )
 
         CrfOne.objects.create(subject_visit=subject_visit, f3="bicycle")
@@ -204,11 +229,11 @@ class CrfRuleGroupTestCase(TestCase):
         subject_visit = self.enroll(gender=MALE)
         self.assertEqual(
             CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
-            REQUIRED,
+            NOT_REQUIRED,
         )
         self.assertEqual(
             CrfMetadata.objects.get(model="edc_metadata.crfthree").entry_status,
-            REQUIRED,
+            NOT_REQUIRED,
         )
 
         crf_one = CrfOne.objects.create(subject_visit=subject_visit, f1="not car")
@@ -251,7 +276,7 @@ class CrfRuleGroupTestCase(TestCase):
         subject_visit = self.enroll(gender=MALE)
         self.assertEqual(
             CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
-            REQUIRED,
+            NOT_REQUIRED,
         )
 
         CrfTwo.objects.create(subject_visit=subject_visit)
@@ -279,9 +304,13 @@ class CrfRuleGroupTestCase(TestCase):
     def test_recovers_from_missing_metadata(self):
         subject_visit = self.enroll(gender=MALE)
         metadata_obj = CrfMetadata.objects.get(model="edc_metadata.crftwo")
-        self.assertEqual(metadata_obj.entry_status, REQUIRED)
+        self.assertEqual(metadata_obj.entry_status, NOT_REQUIRED)
 
+        # note, does not automatically recreate
         metadata_obj.delete()
+        self.assertRaises(
+            ObjectDoesNotExist, CrfMetadata.objects.get, model="edc_metadata.crftwo"
+        )
 
         CrfTwo.objects.create(subject_visit=subject_visit)
 
@@ -293,7 +322,7 @@ class CrfRuleGroupTestCase(TestCase):
         subject_visit = self.enroll(gender=MALE)
         self.assertEqual(
             CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
-            REQUIRED,
+            NOT_REQUIRED,
         )
 
         crf_two = CrfTwo.objects.create(subject_visit=subject_visit)
@@ -307,7 +336,7 @@ class CrfRuleGroupTestCase(TestCase):
 
         self.assertEqual(
             CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
-            REQUIRED,
+            NOT_REQUIRED,
         )
 
     def test_delete_2(self):
@@ -315,7 +344,7 @@ class CrfRuleGroupTestCase(TestCase):
         subject_visit = self.enroll(gender=MALE)
         self.assertEqual(
             CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
-            REQUIRED,
+            NOT_REQUIRED,
         )
 
         crf_two = CrfTwo.objects.create(subject_visit=subject_visit)

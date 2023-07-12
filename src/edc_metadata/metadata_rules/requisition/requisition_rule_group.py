@@ -1,5 +1,7 @@
-from collections import OrderedDict, namedtuple
-from typing import Any, List, Optional
+from __future__ import annotations
+
+from collections import namedtuple
+from typing import TYPE_CHECKING, Any, Tuple
 
 from django.core.exceptions import ValidationError
 
@@ -9,6 +11,16 @@ from ..rule_group_meta_options import RuleGroupMetaOptions
 from ..rule_group_metaclass import RuleGroupMetaclass
 
 RuleResult = namedtuple("RuleResult", "target_panel entry_status")
+
+if TYPE_CHECKING:
+    from edc_visit_schedule import FormsCollection
+    from edc_visit_tracking.model_mixins import VisitModelMixin as Base
+
+    from ...model_mixins.creates import CreatesMetadataModelMixin
+    from ...models import RequisitionMetadata
+
+    class RelatedVisitModel(CreatesMetadataModelMixin, Base):
+        pass
 
 
 class RequisitionRuleGroupMetaOptionsError(ValidationError):
@@ -47,7 +59,7 @@ class RequisitionRuleGroupMetaOptions(RuleGroupMetaOptions):
                         )
 
     @property
-    def default_meta_options(self) -> List[str]:
+    def default_meta_options(self) -> list[str]:
         opts = super().default_meta_options
         opts.extend(["requisition_model"])
         return opts
@@ -61,7 +73,7 @@ class RequisitionRuleGroup(RuleGroup, metaclass=RequisitionMetaclass):
     metadata_updater_cls = RequisitionMetadataUpdater
 
     @classmethod
-    def requisitions_for_visit(cls, visit=None) -> Any:
+    def requisitions_for_visit(cls, visit=None) -> list[FormsCollection]:
         """Returns a list of scheduled or unscheduled
         Requisitions depending on visit_code_sequence.
         """
@@ -72,30 +84,37 @@ class RequisitionRuleGroup(RuleGroup, metaclass=RequisitionMetaclass):
         return requisitions
 
     @classmethod
-    def evaluate_rules(cls: Any, visit: Optional[Any] = None) -> tuple:
+    def evaluate_rules(
+        cls: Any,
+        related_visit: RelatedVisitModel = None,
+        allow_create: bool | None = None,
+    ) -> Tuple[dict[str, dict[str, list[RuleResult]]], dict[str, RequisitionMetadata]]:
         """Returns a tuple of (rule_results, metadata_objects) where
         rule_results ...
 
         Metadata must exist.
         """
-        rule_results = OrderedDict()
-        metadata_objects = OrderedDict()
+        rule_results = {}
+        metadata_objects = {}
         for rule in cls._meta.options.get("rules"):
-            rule_results[str(rule)] = OrderedDict()
-            for target_model, entry_status in rule.run(visit=visit).items():
+            rule_results[str(rule)] = {}
+            for target_model, entry_status in rule.run(related_visit=related_visit).items():
                 rule_results[str(rule)].update({target_model: []})
                 for target_panel in rule.target_panels:
                     # only do something if target_panel is in
                     # visit.requisitions
                     if target_panel.name in [
-                        r.panel.name for r in cls.requisitions_for_visit(visit)
+                        r.panel.name for r in cls.requisitions_for_visit(related_visit)
                     ]:
                         metadata_updater = cls.metadata_updater_cls(
-                            related_visit=visit,
+                            related_visit=related_visit,
                             target_model=target_model,
                             target_panel=target_panel,
+                            allow_create=allow_create,
                         )
-                        metadata_obj = metadata_updater.update(entry_status=entry_status)
+                        metadata_obj = metadata_updater.get_and_update(
+                            entry_status=entry_status
+                        )
                         metadata_objects.update({target_panel: metadata_obj})
                         rule_results[str(rule)][target_model].append(
                             RuleResult(target_panel, entry_status)

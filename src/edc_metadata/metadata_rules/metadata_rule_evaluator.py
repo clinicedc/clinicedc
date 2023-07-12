@@ -18,11 +18,17 @@ class MetadataRuleEvaluator:
     """
 
     def __init__(
-        self, related_visit: related_visit_model_cls = None, app_label: str | None = None
+        self,
+        related_visit: related_visit_model_cls = None,
+        app_label: str | None = None,
+        allow_create: bool | None = None,
     ) -> None:
         self.related_visit = related_visit
         self.app_label = app_label or related_visit._meta.app_label
+        self.allow_create = allow_create
 
     def evaluate_rules(self) -> None:
         for rule_group in site_metadata_rules.registry.get(self.app_label, []):
-            rule_group.evaluate_rules(visit=self.related_visit)
+            rule_group.evaluate_rules(
+                related_visit=self.related_visit, allow_create=self.allow_create
+            )
