@@ -29,11 +29,15 @@ def get_model_names(
     with_columns: list[str] | None = None,
     without_columns: list[str] | None = None,
     db_cls: Type[Database] | None = None,
+    exclude_historical: bool | None = None,
 ) -> list[str]:
     """Returns a list of table names for this app_label."""
     model_names = []
     for table_name in get_table_names(
         app_label, with_columns=with_columns, without_columns=without_columns, db_cls=db_cls
     ):
-        model_names.append(f"{app_label}.{table_name.split(app_label)[1][1::]}")
+        model_name = table_name.split(app_label)[1][1::]
+        if exclude_historical and model_name.startswith("historical"):
+            continue
+        model_names.append(f"{app_label}.{model_name}")
     return model_names

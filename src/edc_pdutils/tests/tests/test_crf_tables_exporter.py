@@ -2,7 +2,9 @@ import csv
 from tempfile import mkdtemp
 
 from django.apps import apps as django_apps
-from django.test import TestCase
+from django.test import TransactionTestCase, override_settings
+from edc_appointment import list_data as appointment_list_data
+from edc_list_data import site_list_data
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ...df_exporters import CsvCrfInlineTablesExporter, CsvCrfTablesExporter
@@ -13,13 +15,20 @@ from ..visit_schedule import get_visit_schedule
 app_config = django_apps.get_app_config("edc_pdutils")
 
 
-class TestExport(TestCase):
+@override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
+class TestExport(TransactionTestCase):
     helper = Helper()
 
     def setUp(self):
         self.path = mkdtemp()
+
+    def setup_test_data(self):
+        """Setup for each test"""
         site_visit_schedules._registry = {}
         site_visit_schedules.register(get_visit_schedule(5))
+        site_list_data.initialize()
+        site_list_data.register(appointment_list_data, app_name="edc_appointment")
+        site_list_data.load_data()
         for i in range(0, 5):
             self.helper.create_crf(i)
 
@@ -35,6 +44,8 @@ class TestExport(TestCase):
             df_handler_cls = MyCrfDfHandler
             app_label = "edc_pdutils"
             export_folder = self.path
+
+        self.setup_test_data()
 
         exporter = MyCsvCrfTablesExporter()
         exporter.to_csv()
@@ -57,6 +68,8 @@ class TestExport(TestCase):
             df_handler_cls = MyDfHandler
             app_label = "edc_pdutils"
             export_folder = self.path
+
+        self.setup_test_data()
 
         exporter = MyCsvCrfInlineTablesExporter()
         exporter.to_csv()

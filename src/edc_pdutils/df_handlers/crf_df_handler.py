@@ -11,11 +11,11 @@ class CrfDfHandlerError(Exception):
 
 class CrfDfHandler(DfHandler):
     crf_dialect_cls = CrfDialect
-    visit_tbl = None
-    visit_column = "subject_visit_id"
-    appointment_tbl = "edc_appointment_appointment"
-    registered_subject_tbl = "edc_registration_registeredsubject"
-    dialect_select_visit_and_related = "select_visit_and_related"
+    # visit_tbl = None
+    visit_column: str = "subject_visit_id"
+    appointment_tbl: str = "edc_appointment_appointment"
+    registered_subject_tbl: str = "edc_registration_registeredsubject"
+    dialect_select_visit_and_related: str = "select_visit_and_related"
 
     action_item_columns = ACTION_ITEM_COLUMNS
     system_columns = SYSTEM_COLUMNS
