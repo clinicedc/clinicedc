@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING
 
 from edc_utils import get_utcnow
 
+from edc_export.utils import get_base_dir
+
 if TYPE_CHECKING:
     from datetime import datetime
 
@@ -25,9 +27,11 @@ class FilesArchiver:
         verbose: bool | None = None,
     ):
         self.exported_datetime: datetime = exported_datetime or get_utcnow()
-        formatted_date = self.exported_datetime.strftime(date_format)
+        formatted_date: str = self.exported_datetime.strftime(date_format)
+        base_dir: str = get_base_dir()
+        archive_name: str = os.path.join(path, f"{user.username}_{formatted_date}")
         self.archive_filename: str = shutil.make_archive(
-            os.path.join(path, f"{user.username}_{formatted_date}"), "zip", path
+            archive_name, "zip", root_dir=path, base_dir=base_dir
         )
         if verbose:
             sys.stdout.write(f"\nExported archive to {self.archive_filename}.\n")
