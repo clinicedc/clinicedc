@@ -1,12 +1,18 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+from urllib import parse
 from uuid import UUID
 
 import numpy as np
 import pandas as pd
-from django.db import connection
+from django.conf import settings
+from sqlalchemy import TextClause, create_engine, text
 
 from .dialects import MysqlDialect
+
+if TYPE_CHECKING:
+    from sqlalchemy import Engine
 
 
 class DatabaseNameError(Exception):
@@ -20,21 +26,38 @@ class Database:
 
     def __init__(self):
         self._database = None
+        self._engine: Engine | None = None
         self._tables = pd.DataFrame()
         self.dialect = self.dialect_cls(dbname=self.database)
 
     @property
+    def engine(self) -> Engine:
+        if not self._engine:
+            db_settings = settings.DATABASES.get("default")
+            user = db_settings.get("USER")
+            pwd = parse.quote(db_settings.get("PASSWORD"))
+            name = db_settings.get("NAME")
+            host = db_settings.get("HOST")
+            port = db_settings.get("PORT")
+            uri = f"mysql://{user}:{pwd}@{host}:{port}/{name}?charset=utf8"
+            self._engine = create_engine(uri)
+        return self._engine
+
+    @property
     def database(self) -> dict:
         """Returns the database name."""
-        return connection.settings_dict["NAME"]
+        return settings.DATABASES[self.DATABASES_NAME]["NAME"]
 
-    @staticmethod
-    def read_sql(sql: str, params: list | tuple | dict | None = None) -> pd.DataFrame:
+    def read_sql(
+        self, sql: TextClause, params: list | tuple | dict | None = None
+    ) -> pd.DataFrame:
         """Returns a dataframe.
 
         A simple wrapper for pd.read_sql().
         """
-        return pd.read_sql(sql, connection, params=params)
+        with self.engine.connect() as conn:
+            df = pd.read_sql(sql, conn, params=params)
+        return df
 
     def show_databases(self) -> pd.DataFrame:
         """Returns a dataframe of database names in the schema."""
@@ -58,7 +81,7 @@ class Database:
         lowercase_columns = lowercase_columns or self.lowercase_columns
         sql, params = self.dialect.select_table(table_name)
         if limit:
-            sql = f"{sql} LIMIT {int(limit)}"
+            sql = text(f"{sql.text} LIMIT {int(limit)}")
         df = self.read_sql(sql, params=params)
         if lowercase_columns:
             columns = {col: col.lower() for col in list(df.columns)}

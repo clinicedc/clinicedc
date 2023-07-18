@@ -1,9 +1,19 @@
+from __future__ import annotations
+
 import string
+from typing import TYPE_CHECKING, Any, Type
 
 from django.core.exceptions import ValidationError
 from django.db.models import Manager
 from django.db.models.constants import LOOKUP_SEP
 from django_crypto_fields.fields import BaseField as BaseEncryptedField
+
+if TYPE_CHECKING:
+    from edc_model.models import BaseUuidModel
+
+    class MyModel(BaseUuidModel):
+        class Meta(BaseUuidModel.Meta):
+            pass
 
 
 class ValueGetterUnknownField(ValidationError):
@@ -32,18 +42,18 @@ class ValueGetter:
             not a lookup.
     """
 
-    encrypted_label = "<encrypted>"
-    m2m_delimiter = ";"
+    encrypted_label: str = "<encrypted>"
+    m2m_delimiter: str = ";"
 
     def __init__(
         self,
-        field_name=None,
+        field_name: str = None,
         model_obj=None,
-        lookups=None,
-        encrypt=None,
+        lookups: dict | None = None,
+        encrypt: bool | None = None,
         additional_values=None,
     ):
-        self._value = None
+        self._value: Any = None
         self.additional_values = additional_values
         self.encrypt = encrypt
         self.field_name = field_name
@@ -52,7 +62,7 @@ class ValueGetter:
         self.model_cls = self.model_obj.__class__
 
     @property
-    def value(self):
+    def value(self) -> Any:
         """Returns the "value"."""
         if not self._value:
             try:
@@ -70,7 +80,7 @@ class ValueGetter:
             self._value = self.strip_value(self._value)
         return self._value
 
-    def _get_field_value(self, model_obj=None, field_name=None):
+    def _get_field_value(self, model_obj: Type[MyModel] = None, field_name: str = None) -> Any:
         """Returns a field value.
 
         1. Tries to access a field as a model instance attribute;
@@ -105,7 +115,7 @@ class ValueGetter:
                     )
         return value
 
-    def get_lookup_value(self, model_obj=None, field_name=None):
+    def get_lookup_value(self, model_obj: Type[MyModel] = None, field_name: str = None) -> Any:
         """Returns the field value by following the lookup string
         to a related instance.
         """
@@ -121,17 +131,17 @@ class ValueGetter:
         return value
 
     @property
-    def m2m_field_names(self):
+    def m2m_field_names(self) -> list[str]:
         """Returns the list of m2m field names for this model."""
         return [m2m.name for m2m in self.model_cls._meta.many_to_many]
 
-    def get_m2m_value(self, model_obj=None, field_name=None):
+    def get_m2m_value(self, model_obj: Type[MyModel] = None, field_name: str = None) -> str:
         """Returns an m2m field value as a delimited string."""
         return self.m2m_delimiter.join(
             [value.name for value in getattr(model_obj, field_name).all()]
         )
 
-    def strip_value(self, value):
+    def strip_value(self, value: Any) -> Any:
         """Returns a string cleaned of \n\t\r and double spaces."""
         try:
             value = value.replace(string.whitespace, " ")

@@ -97,7 +97,9 @@ class CsvExporter:
                 self.model_name = self.model_cls._meta.label_lower
         self.data_label = data_label or model_name or table_name
 
-    def to_format(self, export_format, dataframe=None, export_folder=None, **kwargs):
+    def to_format(
+        self, export_format, dataframe=None, export_folder=None, **kwargs
+    ) -> Exported:
         """Returns the full path of the written CSV file if the
         dataframe is exported otherwise None.
 
@@ -139,7 +141,7 @@ class CsvExporter:
                 sys.stdout.write(f"(?) {self.model_name} empty  \n")
         return Exported(path, self.model_name, record_count)
 
-    def to_csv(self, dataframe=None, export_folder=None):
+    def to_csv(self, dataframe: pd.DataFrame = None, export_folder: str = None) -> Exported:
         """Returns the full path of the written CSV file if the
         dataframe is exported otherwise None.
 
@@ -151,7 +153,7 @@ class CsvExporter:
         """
         return self.to_format("csv", dataframe=dataframe, export_folder=export_folder)
 
-    def to_stata(self, dataframe=None, export_folder=None):
+    def to_stata(self, dataframe: pd.DataFrame = None, export_folder: str = None) -> Exported:
         """Returns the full path of the written STATA file if the
         dataframe is exported otherwise None.
         """
@@ -163,7 +165,7 @@ class CsvExporter:
         return self.to_format("stata", **opts)
 
     @property
-    def csv_options(self):
+    def csv_options(self) -> dict:
         """Returns default options for dataframe.to_csv()."""
         return dict(
             index=self.index,
@@ -173,14 +175,14 @@ class CsvExporter:
         )
 
     @property
-    def stata_options(self):
+    def stata_options(self) -> dict:
         """Returns default options for dataframe.to_stata()."""
         return dict(
             data_label=f"{self.data_label}.dta",
             version=118,
         )
 
-    def get_path(self):
+    def get_path(self) -> str:
         """Returns a full path and filename."""
         path = os.path.join(self.export_folder, self.filename)
         if os.path.exists(path) and not self.file_exists_ok:
@@ -190,7 +192,7 @@ class CsvExporter:
         return path
 
     @property
-    def filename(self):
+    def filename(self) -> str:
         """Returns a filename based on the timestamp."""
         if self.use_simple_filename:
             filename = self.model_name.split(".")[1].upper()
@@ -214,7 +216,7 @@ class CsvExporter:
         )
         return variable_labels
 
-    def stata_value_labels(self, dataframe: pd.DataFrame):
+    def stata_value_labels(self, dataframe: pd.DataFrame) -> list:
         commands = []
         choices = {}
         if self.model_cls:

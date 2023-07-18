@@ -2,16 +2,27 @@ from __future__ import annotations
 
 import sys
 from copy import copy
+from typing import TYPE_CHECKING, Any, Type
 
 import numpy as np
 import pandas as pd
 from django.apps import apps as django_apps
 from django.core.exceptions import FieldError
+from django.db import models
 from django.db.models.constants import LOOKUP_SEP
 from django_crypto_fields.utils import has_encrypted_fields
 
 from ..constants import ACTION_ITEM_COLUMNS, SYSTEM_COLUMNS
 from .value_getter import ValueGetter, ValueGetterInvalidLookup
+
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
+    from edc_model.models import BaseUuidModel
+    from edc_sites.model_mixins import SiteModelMixin
+
+    class MyModel(SiteModelMixin, BaseUuidModel):
+        class Meta(BaseUuidModel.Meta):
+            pass
 
 
 class ModelToDataframeError(Exception):
@@ -25,22 +36,28 @@ class ModelToDataframe:
     """
 
     value_getter_cls = ValueGetter
-    sys_field_names = ["_state", "_user_container_instance", "_domain_cache", "using", "slug"]
-    edc_sys_columns = SYSTEM_COLUMNS
-    action_item_columns = ACTION_ITEM_COLUMNS
+    sys_field_names: list[str] = [
+        "_state",
+        "_user_container_instance",
+        "_domain_cache",
+        "using",
+        "slug",
+    ]
+    edc_sys_columns: list[str] = SYSTEM_COLUMNS
+    action_item_columns: list[str] = ACTION_ITEM_COLUMNS
 
     def __init__(
         self,
-        model=None,
-        queryset=None,
-        query_filter=None,
-        decrypt=None,
-        drop_sys_columns=None,
-        drop_action_item_columns=None,
-        verbose=None,
-        remove_timezone=None,
+        model: str | None = None,
+        queryset: QuerySet | None = None,
+        query_filter: dict | None = None,
+        decrypt: bool | None = None,
+        drop_sys_columns: bool | None = None,
+        drop_action_item_columns: bool | None = None,
+        verbose: bool | None = None,
+        remove_timezone: bool | None = None,
+        sites: list[int] | None = None,
         include_historical: bool | None = None,
-        **kwargs,
     ):
         self._columns = None
         self._has_encrypted_fields = None
@@ -48,6 +65,7 @@ class ModelToDataframe:
         self._encrypted_columns = None
         self._site_columns = None
         self._dataframe = pd.DataFrame()
+        self.sites = sites
         self.drop_sys_columns = True if drop_sys_columns is None else drop_sys_columns
         self.drop_action_item_columns = (
             True if drop_action_item_columns is None else drop_action_item_columns
@@ -61,10 +79,21 @@ class ModelToDataframe:
             self.model = queryset.model._meta.label_lower
         else:
             self.model = model
-        self.queryset = queryset or self.model_cls.objects.all()
+        if self.sites:
+            try:
+                if queryset:
+                    self.queryset = queryset.filter(site__in=sites)
+                else:
+                    self.queryset = self.model_cls.objects.filter(site__in=sites)
+            except FieldError as e:
+                if "Cannot resolve keyword 'site' into field" not in str(e):
+                    raise
+                self.queryset = queryset or self.model_cls.objects.all()
+        else:
+            self.queryset = queryset or self.model_cls.objects.all()
 
     @property
-    def dataframe(self):
+    def dataframe(self) -> pd.DataFrame:
         """Returns a pandas dataframe."""
         if self._dataframe.empty:
             row_count = self.queryset.count()
@@ -117,26 +146,26 @@ class ModelToDataframe:
                     self._dataframe[column]
                 ).dt.tz_localize(None)
 
-    def convert_bool_types_to_int(self):
+    def convert_bool_types_to_int(self) -> None:
         for column in list(self._dataframe.select_dtypes(include=["bool"]).columns):
             self._dataframe[column] = self._dataframe[column].replace({True: 1, False: 0})
 
-    def convert_unknown_types_to_str(self):
+    def convert_unknown_types_to_str(self) -> None:
         for column in list(self._dataframe.select_dtypes(include=["object"]).columns):
             self._dataframe[column].fillna(value="", inplace=True)
             self._dataframe[column] = self._dataframe[column].astype("str")
 
-    def convert_timedelta_to_secs(self):
+    def convert_timedelta_to_secs(self) -> None:
         for column in list(self._dataframe.select_dtypes(include=["timedelta64"]).columns):
             self._dataframe[column] = self._dataframe[column].dt.total_seconds()
 
-    def move_sys_columns_to_end(self, columns: dict[str, str]):
+    def move_sys_columns_to_end(self, columns: dict[str, str]) -> dict[str, str]:
         new_columns = {k: v for k, v in columns.items() if k not in SYSTEM_COLUMNS}
         if len(new_columns.keys()) != len(columns.keys()) and not self.drop_sys_columns:
             new_columns.update({k: k for k in SYSTEM_COLUMNS})
         return new_columns
 
-    def move_action_item_columns(self, columns: dict[str, str]):
+    def move_action_item_columns(self, columns: dict[str, str]) -> dict[str, str]:
         new_columns = {k: v for k, v in columns.items() if k not in ACTION_ITEM_COLUMNS}
         if (
             len(new_columns.keys()) != len(columns.keys())
@@ -162,7 +191,7 @@ class ModelToDataframe:
             self._dataframe = pd.merge(self._dataframe, df_pivot, how="left", on="id")
         return m2m_fields
 
-    def get_m2m_values_list(self, m2m_field):
+    def get_m2m_values_list(self, m2m_field: models.Field) -> tuple:
         m2m_values_list = {}
         for obj in self.queryset.model.objects.filter(**{f"{m2m_field.name}__isnull": False}):
             values = []
@@ -191,7 +220,9 @@ class ModelToDataframe:
             m2m_values_list.update(**{str(obj.id): (obj.id, ";".join(values))})
         return tuple(v for v in m2m_values_list.values())
 
-    def get_column_value(self, model_obj=None, column_name=None, lookup=None):
+    def get_column_value(
+        self, model_obj: MyModel = None, column_name: str = None, lookup: str = None
+    ) -> Any:
         """Returns the column value."""
         lookups = {column_name: lookup} if LOOKUP_SEP in lookup else None
         value_getter = self.value_getter_cls(
@@ -203,11 +234,11 @@ class ModelToDataframe:
         return value_getter.value
 
     @property
-    def model_cls(self):
+    def model_cls(self) -> Type[MyModel]:
         return django_apps.get_model(self.model)
 
     @property
-    def has_encrypted_fields(self):
+    def has_encrypted_fields(self) -> bool:
         """Returns True if at least one field uses encryption."""
         if self._has_encrypted_fields is None:
             self._has_encrypted_fields = has_encrypted_fields(self.queryset.model)
@@ -250,7 +281,7 @@ class ModelToDataframe:
         return self._columns
 
     @property
-    def encrypted_columns(self):
+    def encrypted_columns(self) -> list[str]:
         """Return a list of column names that use encryption."""
         if not self._encrypted_columns:
             self._encrypted_columns = ["identity"]
@@ -262,7 +293,7 @@ class ModelToDataframe:
         return self._encrypted_columns
 
     @property
-    def list_columns(self):
+    def list_columns(self) -> list[str]:
         """Return a list of column names with fk to a list model."""
         from edc_list_data.model_mixins import ListModelMixin, ListUuidModelMixin
 
@@ -279,7 +310,7 @@ class ModelToDataframe:
         return self._list_columns
 
     @property
-    def site_columns(self):
+    def site_columns(self) -> list[str]:
         """Return a list of column names with fk to a site model."""
         from django.contrib.sites.models import Site
 
@@ -296,7 +327,7 @@ class ModelToDataframe:
         return self._site_columns
 
     @property
-    def other_columns(self):
+    def other_columns(self) -> list[str]:
         """Return other column names with fk to a common models."""
         from edc_lab.models import Panel
         from edc_sites.models import Site
