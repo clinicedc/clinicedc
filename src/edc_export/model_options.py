@@ -8,15 +8,17 @@ class ModelOptions(dict):
 
     def __init__(self, model=None, **kwargs):
         model_cls = django_apps.get_model(model)
-        self.model = str(model)
-        self.app_label = str(model_cls._meta.app_label)
-        self.app_name = " ".join(model_cls._meta.app_label.split("_")).title()
-        self.verbose_name = str(model_cls._meta.verbose_name)
-        self.label_lower = str(model_cls._meta.label_lower)
-        self.fields = [f.name for f in model_cls._meta.get_fields()]
-        self.is_historical = model_cls._meta.label_lower.split(".")[1].startswith("historical")
-        self.is_list_model = issubclass(model_cls, (ListModelMixin,))
-        self.db_table = str(model_cls._meta.db_table)
+        self.model: str = str(model)
+        self.app_label: str = str(model_cls._meta.app_label)
+        self.app_name: str = " ".join(model_cls._meta.app_label.split("_")).title()
+        self.verbose_name: str = str(model_cls._meta.verbose_name)
+        self.label_lower: str = str(model_cls._meta.label_lower)
+        self.fields: list[str] = [f.name for f in model_cls._meta.get_fields()]
+        self.is_historical: bool = model_cls._meta.label_lower.split(".")[1].startswith(
+            "historical"
+        )
+        self.is_list_model: bool = issubclass(model_cls, (ListModelMixin,))
+        self.db_table: str = str(model_cls._meta.db_table)
         dict.__init__(
             self,
             app_label=self.app_label,
@@ -30,9 +32,9 @@ class ModelOptions(dict):
             db_table=self.db_table,
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(model='{self.label_lower}')"
 
     @property
-    def is_inline(self):
+    def is_inline(self) -> bool:
         return False

@@ -1,11 +1,17 @@
+from __future__ import annotations
+
 import os
 import socket
 import sys
+from typing import TYPE_CHECKING
 
 from django.core.exceptions import ValidationError
 from django.core.mail.message import EmailMessage
 from edc_notification.utils import get_email_contacts
 from edc_protocol.protocol import Protocol
+
+if TYPE_CHECKING:
+    from django.contrib.auth.models import User
 
 
 class FilesEmailerError(ValidationError):
@@ -13,7 +19,14 @@ class FilesEmailerError(ValidationError):
 
 
 class FilesEmailer:
-    def __init__(self, path=None, user=None, file_ext=None, summary=None, verbose=None):
+    def __init__(
+        self,
+        path: str = None,
+        user: User = None,
+        file_ext: str | None = None,
+        summary: str | None = None,
+        verbose: bool | None = None,
+    ):
         self.file_ext = file_ext or ".csv"
         self.user = user
         self.path = path
@@ -21,7 +34,7 @@ class FilesEmailer:
         self.verbose = verbose
         self.email_files()
 
-    def get_email_message(self):
+    def get_email_message(self) -> EmailMessage:
         body = [
             f"Hello {self.user.first_name or self.user.username}",
             "The data you requested are attached.",
@@ -51,19 +64,21 @@ class FilesEmailer:
             to=[self.user.email],
         )
 
-    def send(self, email_message):
+    @staticmethod
+    def send(email_message) -> None:
         try:
             email_message.send()
         except socket.gaierror:
             raise FilesEmailerError("Unable to connect to email server.", code="gaierror")
 
-    def email_files(self):
+    def email_files(self) -> None:
         email_message = self.get_email_message()
         files = []
         for filename in os.listdir(self.path):
             if os.path.splitext(filename)[1] == self.file_ext:
                 files.append(os.path.join(self.path, filename))
         x = 0
+        index = 0
         for index, file in enumerate(files):
             email_message.attach_file(file)
             x += 1
