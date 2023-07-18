@@ -2,6 +2,7 @@ import os
 import shutil
 from tempfile import mkdtemp
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.test import TestCase
@@ -15,6 +16,7 @@ from edc_export.archive_exporter import ArchiveExporter, ArchiveExporterNothingE
 class TestArchiveExporter(TestCase):
     def setUp(self):
         self.user = User.objects.create(username="erikvw")
+        self.user.userprofile.sites.add(Site.objects.get(id=settings.SITE_ID))
         Site.objects.get_current()
         RegisteredSubject.objects.create(subject_identifier="12345")
         self.models = ["auth.user", "edc_registration.registeredsubject"]
