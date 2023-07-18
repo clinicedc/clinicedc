@@ -8,28 +8,18 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.management.color import color_style
 from django.db.models import QuerySet
+from edc_export.exceptions import (
+    ExporterExportFolder,
+    ExporterFileExists,
+    ExporterInvalidExportFormat,
+)
+from edc_export.utils import get_base_dir
 from edc_utils import get_utcnow
 
 from ..site_values_mappings import site_values_mappings
 from ..utils import get_export_folder, get_model_from_table_name
 
 style = color_style()
-
-
-class ExporterError(Exception):
-    pass
-
-
-class ExporterExportFolder(Exception):
-    pass
-
-
-class ExporterInvalidExportFormat(Exception):
-    pass
-
-
-class ExporterFileExists(Exception):
-    pass
 
 
 class Exported:
@@ -183,8 +173,14 @@ class CsvExporter:
         )
 
     def get_path(self) -> str:
-        """Returns a full path and filename."""
-        path = os.path.join(self.export_folder, self.filename)
+        """Returns a full path with filename."""
+        root_dir = self.export_folder
+        if not os.path.exists(root_dir):
+            raise ExporterExportFolder(f"Base folder does not exist. Got {root_dir}.")
+        base_dir: str = get_base_dir()
+        if not os.path.exists(os.path.join(root_dir, base_dir)):
+            os.makedirs(os.path.join(root_dir, base_dir))
+        path = os.path.join(root_dir, base_dir, self.filename)
         if os.path.exists(path) and not self.file_exists_ok:
             raise ExporterFileExists(
                 f"File '{path}' exists! Not exporting {self.model_name}.\n"
