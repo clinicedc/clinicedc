@@ -7,9 +7,7 @@ from uuid import UUID
 import numpy as np
 import pandas as pd
 from django.conf import settings
-
-# from django.db import connection
-from sqlalchemy import create_engine
+from sqlalchemy import TextClause, create_engine, text
 
 from .dialects import MysqlDialect
 
@@ -50,7 +48,9 @@ class Database:
         """Returns the database name."""
         return settings.DATABASES[self.DATABASES_NAME]["NAME"]
 
-    def read_sql(self, sql: str, params: list | tuple | dict | None = None) -> pd.DataFrame:
+    def read_sql(
+        self, sql: TextClause, params: list | tuple | dict | None = None
+    ) -> pd.DataFrame:
         """Returns a dataframe.
 
         A simple wrapper for pd.read_sql().
@@ -81,7 +81,7 @@ class Database:
         lowercase_columns = lowercase_columns or self.lowercase_columns
         sql, params = self.dialect.select_table(table_name)
         if limit:
-            sql = f"{sql} LIMIT {int(limit)}"
+            sql = text(f"{sql.text} LIMIT {int(limit)}")
         df = self.read_sql(sql, params=params)
         if lowercase_columns:
             columns = {col: col.lower() for col in list(df.columns)}
