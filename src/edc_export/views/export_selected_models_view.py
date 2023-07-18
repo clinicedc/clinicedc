@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 
 from django.conf import settings
@@ -41,7 +43,7 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
         self._user = None
         super().__init__(*args, **kwargs)
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict:
         context = super().get_context_data(**kwargs)
         if self.request.session.get("selected_models"):
             context.update(
@@ -51,7 +53,7 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
             )
         return context
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs) -> HttpResponseRedirect:
         if not request.user.email:
             user_url = reverse("admin:auth_user_change", args=(request.user.id,))
             messages.error(
@@ -81,7 +83,7 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
         return HttpResponseRedirect(url)
 
     @staticmethod
-    def check_export_permissions(selected_models):
+    def check_export_permissions(selected_models) -> list[ModelOptions]:
         return selected_models
 
     def export_models(self, request=None, email_to_user=None):
@@ -94,7 +96,7 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
         try:
             exporter = ArchiveExporter(
                 models=selected_models,
-                add_columns_for=["subject_visit_id", "requisition_id"],
+                # add_columns_for=["subject_visit_id", "requisition_id"],
                 user=self.user,
                 request=request,
                 email_to_user=email_to_user,
@@ -133,45 +135,57 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
             )
 
     @property
-    def allowed_selected_models(self):
+    def allowed_selected_models(self) -> list[ModelOptions] | list:
         """Returns a list of selected models as ModelOptions."""
         if self._selected_models:
             selected_models = self.get_selected_models_from_session()
             self._selected_models = self.check_export_permissions(selected_models)
         return self._selected_models or []
 
-    def get_selected_models_from_post(self):
+    def get_selected_models_from_post(self) -> list[ModelOptions]:
         """Returns a list of selected models from the POST
         as ModelOptions.
         """
-        exportables = Exportables(request=self.request, user=self.user)
-        selected_models = []
-        for exportable in exportables:
-            selected_models.extend(self.request.POST.getlist(f"chk_{exportable}_models") or [])
-            selected_models.extend(
-                self.request.POST.getlist(f"chk_{exportable}_historicals") or []
-            )
-            selected_models.extend(self.request.POST.getlist(f"chk_{exportable}_lists") or [])
-            selected_models.extend(
-                self.request.POST.getlist(f"chk_{exportable}_inlines") or []
-            )
-        return [ModelOptions(model=m).__dict__ for m in selected_models if m]
+        if not self._selected_models_from_post:
+            exportables = Exportables(request=self.request, user=self.user)
+            selected_models = []
+            for exportable in exportables:
+                selected_models.extend(
+                    self.request.POST.getlist(f"chk_{exportable}_models") or []
+                )
+                selected_models.extend(
+                    self.request.POST.getlist(f"chk_{exportable}_historicals") or []
+                )
+                selected_models.extend(
+                    self.request.POST.getlist(f"chk_{exportable}_lists") or []
+                )
+                selected_models.extend(
+                    self.request.POST.getlist(f"chk_{exportable}_inlines") or []
+                )
+            self._selected_models_from_post = [
+                ModelOptions(model=m).__dict__ for m in selected_models if m
+            ]
+        return self._selected_models_from_post
 
-    def get_selected_models_from_session(self):
+    def get_selected_models_from_session(self) -> list[ModelOptions]:
         """Returns a list of selected models from the session object
         as ModelOptions.
         """
-        try:
-            selected_models = self.request.session.pop("selected_models")
-        except KeyError:
-            raise NothingToExport("KeyError")
-        else:
-            if not selected_models:
-                raise NothingToExport("Nothing to export")
-        return [ModelOptions(**dct) for dct in selected_models]
+        if not self._selected_models_from_session:
+            try:
+                selected_models = self.request.session.pop("selected_models")
+            except KeyError:
+                raise NothingToExport("KeyError")
+            else:
+                if not selected_models:
+                    raise NothingToExport("Nothing to export")
+            self._selected_models_from_session = [
+                ModelOptions(**dct) for dct in selected_models
+            ]
+        return self._selected_models_from_session
 
     @property
-    def user(self):
+    def user(self) -> User:
         """Returns an instance of the User model."""
         if not self._user:
             self._user = User.objects.get(username=self.request.user)
