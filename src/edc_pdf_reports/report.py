@@ -107,7 +107,7 @@ class Report(ABC):
             self.message_user(**kwargs)
         return response
 
-    def render_to_file(self, path: str):
+    def render_to_file(self, path: str, verbose: bool | None = None):
         """Render buffer to file"""
         buffer_value = self.render_to_buffer()
         if not os.path.exists(path):
@@ -116,7 +116,8 @@ class Report(ABC):
             filename = os.path.join(path, self.report_filename)
             with open(filename, "wb") as f:
                 f.write(buffer_value)
-                sys.stdout.write(f"Created file {filename}\n")
+                if verbose:
+                    sys.stdout.write(f"Created file {filename}\n")
         return None
 
     def message_user(self, **kwargs):
