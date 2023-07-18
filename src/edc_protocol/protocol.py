@@ -53,7 +53,8 @@ class Protocol:
             "EDC_PROTOCOL_PROJECT_NAME",
             "Project Name (set EDC_PROTOCOL_PROJECT_NAME)",
         )
-        self.protocol_name = self.project_name
+        self.protocol_name: str = self.project_name
+        self.protocol_lower_name = "_".join(self.protocol_name.lower().split(" "))
         self.disclaimer = "For research purposes only."
         self.copyright = f"2010-{get_utcnow().year}"
         self.license = "GNU GENERAL PUBLIC LICENSE Version 3"
