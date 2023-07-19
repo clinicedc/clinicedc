@@ -1,13 +1,14 @@
 from django.apps import apps as django_apps
 from django.db import models
 from edc_model.models import BaseUuidModel, HistoricalRecords
+from edc_sites.model_mixins import SiteModelMixin
 
 from ..choices import EXPORT_FORMATS
 from ..constants import CSV
 from ..model_options import ModelOptions
 
 
-class DataRequest(BaseUuidModel):
+class DataRequest(SiteModelMixin, BaseUuidModel):
     name = models.CharField(max_length=25)
 
     description = models.TextField(null=True)
