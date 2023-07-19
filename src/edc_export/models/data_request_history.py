@@ -1,12 +1,13 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_model.models import BaseUuidModel
+from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
 
 from .data_request import DataRequest
 
 
-class DataRequestHistory(BaseUuidModel):
+class DataRequestHistory(SiteModelMixin, BaseUuidModel):
     data_request = models.ForeignKey(DataRequest, on_delete=PROTECT)
 
     archive_filename = models.CharField(max_length=200, null=True)

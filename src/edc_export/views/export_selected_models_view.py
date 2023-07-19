@@ -128,6 +128,7 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
                 name=f'Data request {datetime.now().strftime("%Y%m%d%H%M")}',
                 models="\n".join(selected_models),
                 user_created=request.user.username,
+                site=request.site,
             )
             DataRequestHistory.objects.create(
                 data_request=data_request,
@@ -138,6 +139,7 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
                 archive_filename=exporter.archive_filename,
                 emailed_to=exporter.emailed_to,
                 emailed_datetime=exporter.emailed_datetime,
+                site=request.site,
             )
 
     def get_selected_models_from_post(self, request: WSGIRequest) -> list[ModelOptions]:
