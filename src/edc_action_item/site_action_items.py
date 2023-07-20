@@ -16,12 +16,12 @@ from edc_prn.site_prn_forms import site_prn_forms
 from edc_sites import InvalidSiteError
 from edc_sites.valid_site_for_subject_or_raise import valid_site_for_subject_or_raise
 
-from . import ActionWithNotification
 from .create_or_update_action_type import create_or_update_action_type
 from .get_action_type import get_action_type
 
 if TYPE_CHECKING:
     from .action import Action
+    from .action_with_notification import ActionWithNotification
 
 
 class AlreadyRegistered(Exception):
