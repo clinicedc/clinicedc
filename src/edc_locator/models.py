@@ -31,3 +31,4 @@ class SubjectLocator(
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Subject Locator"
+        verbose_name_plural = "Subject Locators"
