@@ -12,7 +12,7 @@ register = template.Library()
 @register.inclusion_tag(
     f"edc_action_item/bootstrap{get_bootstrap_version()}/add_action_item_popover.html"
 )
-def add_action_item_popover(subject_identifier, subject_dashboard_url):
+def add_action_item_popover(subject_identifier, subject_dashboard_url) -> dict[str, str]:
     action_item_add_url = "edc_action_item_admin:edc_action_item_actionitem_add"
     show_link_to_add_actions = site_action_items.get_show_link_to_add_actions(
         subject_identifier
