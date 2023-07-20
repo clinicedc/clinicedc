@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import copy
 import sys
 from importlib import import_module
+from typing import TYPE_CHECKING, Type
 
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
@@ -13,8 +16,12 @@ from edc_prn.site_prn_forms import site_prn_forms
 from edc_sites import InvalidSiteError
 from edc_sites.valid_site_for_subject_or_raise import valid_site_for_subject_or_raise
 
+from . import ActionWithNotification
 from .create_or_update_action_type import create_or_update_action_type
 from .get_action_type import get_action_type
+
+if TYPE_CHECKING:
+    from .action import Action
 
 
 class AlreadyRegistered(Exception):
@@ -25,10 +32,17 @@ class SiteActionError(Exception):
     pass
 
 
+class Wrapper:
+    def __init__(self, action_cls: Type[Action] | Type[ActionWithNotification] = None):
+        self.name = action_cls.name
+        self.display_name = action_cls.display_name
+        self.action_type_id = str(get_action_type(action_cls).pk)
+
+
 class SiteActionItemCollection:
     def __init__(self):
-        self.registry = {}
-        self.updated_action_types = None
+        self.registry: dict[str, Type[Action] | Type[ActionWithNotification]] = {}
+        self.updated_action_types: bool | None = None
         prn = Prn(model="edc_action_item.actionitem", url_namespace="edc_action_item_admin")
         site_prn_forms.register(prn)
 
@@ -41,7 +55,16 @@ class SiteActionItemCollection:
     def __iter__(self):
         return iter(self.registry.values())
 
-    def register(self, action_cls=None):
+    def unregister(self, action_cls: Type[Action] | Type[ActionWithNotification]) -> None:
+        if action_cls.name in self.registry:
+            del self.registry[action_cls.name]
+            prn = Prn(
+                model=action_cls.get_reference_model(),
+                url_namespace=action_cls.admin_site_name,
+            )
+            site_prn_forms.unregister(prn)
+
+    def register(self, action_cls: Type[Action] | Type[ActionWithNotification] = None) -> None:
         if action_cls.name in self.registry:
             raise AlreadyRegistered(
                 f"Action class is already registered. Got name='{action_cls.name}' "
@@ -66,7 +89,7 @@ class SiteActionItemCollection:
             self.register_notifications(action_cls)
 
     @staticmethod
-    def register_notifications(action_cls):
+    def register_notifications(action_cls: Type[Action] | Type[ActionWithNotification]):
         """Registers a new model notification and an updated model
         notification for this action cls.
 
@@ -78,7 +101,7 @@ class SiteActionItemCollection:
             except NotificationAlreadyRegistered:
                 pass
 
-    def get(self, name):
+    def get(self, name) -> Type[Action] | Type[ActionWithNotification]:
         """Returns an action class."""
         if name not in self.registry:
             raise SiteActionError(
@@ -87,20 +110,14 @@ class SiteActionItemCollection:
             )
         return self.registry.get(name)
 
-    def get_by_model(self, model=None):
+    def get_by_model(self, model=None) -> Type[Action] | Type[ActionWithNotification] | None:
         """Returns the action_cls linked to this reference model."""
         for action_cls in self.registry.values():
             if action_cls.get_reference_model() == model:
                 return self.get(action_cls.name)
         return None
 
-    def get_show_link_to_add_actions(self, subject_identifier=None):
-        class Wrapper:
-            def __init__(self, action_cls=None):
-                self.name = action_cls.name
-                self.display_name = action_cls.display_name
-                self.action_type_id = str(get_action_type(action_cls).pk)
-
+    def get_show_link_to_add_actions(self, subject_identifier: str = None) -> list[Wrapper]:
         try:
             valid_site_for_subject_or_raise(subject_identifier)
         except InvalidSiteError:
@@ -110,7 +127,7 @@ class SiteActionItemCollection:
             wrappers = [Wrapper(action_cls=self.get(name)) for name in names]
         return wrappers
 
-    def create_or_update_action_types(self):
+    def create_or_update_action_types(self) -> None:
         """Populates the ActionType model."""
         for action_cls in self.registry.values():
             create_or_update_action_type(**action_cls.as_dict())
