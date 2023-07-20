@@ -3,17 +3,19 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Dict, Tuple
 
+from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import ProtectedError
 from edc_constants.constants import CLINIC
+from edc_utils import convert_php_dateformat
 from edc_visit_schedule.schedule.window import (
     ScheduledVisitWindowError,
     UnScheduledVisitWindowError,
 )
-from edc_visit_schedule.utils import is_baseline
+from edc_visit_schedule.utils import get_default_max_visit_window_gap, is_baseline
 
 from .choices import APPT_TYPE, DEFAULT_APPT_REASON_CHOICES
 from .constants import (
@@ -202,31 +204,6 @@ def delete_appointment_in_sequence(appointment: Any, from_post_delete=None) -> N
     return None
 
 
-def raise_on_appt_datetime_not_in_window(appointment: Appointment) -> None:
-    if appointment.appt_status != CANCELLED_APPT and not is_baseline(instance=appointment):
-        baseline_timepoint_datetime = appointment.__class__.objects.first_appointment(
-            subject_identifier=appointment.subject_identifier,
-            visit_schedule_name=appointment.visit_schedule_name,
-            schedule_name=appointment.schedule_name,
-        ).timepoint_datetime
-        try:
-            appointment.schedule.datetime_in_window(
-                dt=appointment.appt_datetime,
-                timepoint_datetime=appointment.timepoint_datetime,
-                visit_code=appointment.visit_code,
-                visit_code_sequence=appointment.visit_code_sequence,
-                baseline_timepoint_datetime=baseline_timepoint_datetime,
-            )
-        except ScheduledVisitWindowError as e:
-            msg = str(e)
-            msg.replace("Invalid datetime", "Invalid appointment datetime (S)")
-            raise AppointmentWindowError(msg)
-        except UnScheduledVisitWindowError as e:
-            msg = str(e)
-            msg.replace("Invalid datetime", "Invalid appointment datetime (U)")
-            raise AppointmentWindowError(msg)
-
-
 def update_appt_status(appointment: Appointment, save: bool | None = None):
     """Sets appt_status, and if save is True, calls save_base().
 
@@ -309,12 +286,6 @@ def get_next_appointment(appointment: Appointment, include_interim=None) -> Appo
     """
     next_appt: Appointment | None = None
     check_appointment_required_values_or_raise(appointment)
-    if (
-        not appointment.visit_schedule_name
-        or not appointment.schedule_name
-        or appointment.timepoint is None
-    ):
-        raise
     opts: Dict[Any] = dict(
         subject_identifier=appointment.subject_identifier,
         visit_schedule_name=appointment.visit_schedule_name,
@@ -356,12 +327,111 @@ def check_appointment_required_values_or_raise(appointment: Appointment) -> None
         )
 
 
+def raise_on_appt_datetime_not_in_window(
+    appointment: Appointment,
+    appt_datetime: datetime | None = None,
+    baseline_timepoint_datetime: datetime | None = None,
+) -> None:
+    if appointment.appt_status != CANCELLED_APPT and not is_baseline(instance=appointment):
+        baseline_timepoint_datetime = baseline_timepoint_datetime or (
+            baseline_timepoint_datetime
+            or appointment.__class__.objects.first_appointment(
+                subject_identifier=appointment.subject_identifier,
+                visit_schedule_name=appointment.visit_schedule_name,
+                schedule_name=appointment.schedule_name,
+            ).timepoint_datetime
+        )
+        try:
+            appointment.schedule.datetime_in_window(
+                dt=appt_datetime or appointment.appt_datetime,
+                timepoint_datetime=appointment.timepoint_datetime,
+                visit_code=appointment.visit_code,
+                visit_code_sequence=appointment.visit_code_sequence,
+                baseline_timepoint_datetime=baseline_timepoint_datetime,
+            )
+        except ScheduledVisitWindowError as e:
+            msg = str(e)
+            msg.replace("Invalid datetime", "Invalid appointment datetime (S)")
+            raise AppointmentWindowError(msg)
+        except UnScheduledVisitWindowError as e:
+            msg = str(e)
+            msg.replace("Invalid datetime", "Invalid appointment datetime (U)")
+            raise AppointmentWindowError(msg)
+
+
+def get_window_gap_days(appointment) -> int:
+    """Return the number of days betwen this visit's upper and the
+    next visit's lower.
+
+    See get_default_max_visit_window_gap and settings attr.
+    """
+    if not appointment.next:
+        gap_days = 0
+    else:
+        gap_days = abs(
+            (appointment.timepoint_datetime + appointment.visit.rupper)
+            - (appointment.next.timepoint_datetime - appointment.next.visit.rlower)
+        ).days
+    return gap_days
+
+
+def appt_datetime_in_gap(appointment: Appointment, suggested_appt_datetime: datetime) -> bool:
+    """Return True if datetime falls in a gap between this and the
+    next appointment window.
+    """
+    in_gap = False
+    if get_window_gap_days(appointment) > 0:
+        next_lower_datetime = (
+            appointment.next.timepoint_datetime - appointment.next.visit.rlower
+        )
+        upper_datetime = appointment.timepoint_datetime + appointment.visit.rupper
+        if upper_datetime < suggested_appt_datetime < next_lower_datetime:
+            in_gap = True
+    return in_gap
+
+
+def get_max_window_gap_to_lower(appointment) -> int:
+    if (
+        appointment.visit.max_window_gap_to_lower is not None
+        and appointment.visit.max_window_gap_to_lower < get_default_max_visit_window_gap()
+    ):
+        max_gap = appointment.visit.max_window_gap_to_lower
+    else:
+        max_gap = get_default_max_visit_window_gap()
+    return max_gap
+
+
+def appt_datetime_in_next_window_adjusted_for_gap(
+    appointment: Appointment, suggested_appt_datetime: datetime
+) -> bool:
+    """Returns True if `suggest_datetime` falls between the
+    NEXT appointment's lower and upper window period datetime after
+    adding gap_days to the lower datetime.
+    """
+    in_window = False
+    gap_days = get_window_gap_days(appointment)
+    max_gap = get_max_window_gap_to_lower(appointment)
+    gap_days = max_gap if gap_days > max_gap else gap_days
+    if gap_days > 0:
+        next_lower_datetime = (
+            appointment.next.timepoint_datetime
+            - appointment.next.visit.rlower
+            - relativedelta(days=gap_days)
+        )
+        next_upper_datetime = (
+            appointment.next.timepoint_datetime + appointment.next.visit.rupper
+        )
+        if next_lower_datetime <= suggested_appt_datetime <= next_upper_datetime:
+            in_window = True
+    return in_window
+
+
 def get_appointment_by_datetime(
     suggested_appt_datetime: datetime,
     subject_identifier: str,
     visit_schedule_name: str,
     schedule_name: str,
-    verbose: bool | None = None,
+    raise_if_in_gap: bool | None = None,
 ) -> Appointment | None:
     """Returns an appointment where the suggested datetime falls
     within the window period.
@@ -371,6 +441,7 @@ def get_appointment_by_datetime(
       boundaries and the date falls within the gap.
     """
     appointment = None
+    raise_if_in_gap = True if raise_if_in_gap is None else raise_if_in_gap
     appointments = (
         django_apps.get_model("edc_appointment.appointment")
         .objects.filter(
@@ -379,33 +450,44 @@ def get_appointment_by_datetime(
             schedule_name=schedule_name,
             visit_code_sequence=0,
         )
-        .order_by("appt_datetime")
+        .order_by("timepoint_datetime")
     )
     for appointment in appointments:
-        if is_baseline(appointment):
+        if appointment.appt_status == CANCELLED_APPT or is_baseline(appointment):
             continue
         try:
-            appointment.schedule.datetime_in_window(
-                dt=suggested_appt_datetime,
-                timepoint_datetime=appointment.timepoint_datetime,
-                visit_code=appointment.visit_code,
-                visit_code_sequence=0,
-                baseline_timepoint_datetime=appointment.first.timepoint_datetime,
+            raise_on_appt_datetime_not_in_window(
+                appointment, appt_datetime=suggested_appt_datetime
             )
-        except ScheduledVisitWindowError as e:
-            if verbose:
-                print(str(e))
-            if (
-                appointment.next
-                and appointment.timepoint_datetime + appointment.visit.rupper
-                < suggested_appt_datetime
-                < appointment.next.timepoint_datetime - appointment.next.visit.rlower
-            ):
+        except AppointmentWindowError:
+            in_gap = appt_datetime_in_gap(appointment, suggested_appt_datetime)
+            in_next_window_adjusted = appt_datetime_in_next_window_adjusted_for_gap(
+                appointment, suggested_appt_datetime
+            )
+            if in_gap and raise_if_in_gap:
+                dt = suggested_appt_datetime.strftime(
+                    convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+                )
                 raise AppointmentDateWindowPeriodGapError(
                     f"Date falls in a `window period gap` between {appointment.visit_code} "
-                    f"and {appointment.next.visit_code}."
+                    f"and {appointment.next.visit_code}. Got {dt}."
                 )
-            appointment = appointment.next
+            elif (
+                in_gap
+                and in_next_window_adjusted
+                and appointment.next.visit.add_window_gap_to_lower
+            ):
+                appointment = appointment.next
+                break
+            elif (
+                in_gap
+                and not in_next_window_adjusted
+                and appointment.next.visit.add_window_gap_to_lower
+            ):
+                appointment = None
+                break
+            else:
+                appointment = appointment.next
         else:
             break
     return appointment
