@@ -22,6 +22,7 @@ from .model_admin_next_url_redirect_mixin import (
     ModelAdminNextUrlRedirectError,
     ModelAdminNextUrlRedirectMixin,
 )
+from .model_admin_protect_pii_mixin import ModelAdminProtectPiiMixin
 from .model_admin_redirect_all_to_changelist_mixin import (
     ModelAdminRedirectAllToChangelistMixin,
 )
