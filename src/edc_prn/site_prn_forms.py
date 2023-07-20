@@ -1,12 +1,17 @@
+from __future__ import annotations
+
 import copy
 import sys
-from collections import OrderedDict
 from copy import deepcopy
 from importlib import import_module
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.utils.module_loading import module_has_submodule
+
+if TYPE_CHECKING:
+    from edc_prn import Prn
 
 
 class AlreadyRegistered(Exception):
@@ -19,7 +24,7 @@ class SitePrnFormsError(Exception):
 
 class PrnFormsCollection:
     def __init__(self):
-        self.registry = OrderedDict()
+        self.registry: dict[str, Prn] = {}
 
     def __repr__(self):
         return f"{self.__class__.__name__}()"
@@ -30,20 +35,26 @@ class PrnFormsCollection:
     def __iter__(self):
         return iter(self.registry.values())
 
-    def register(self, prn=None):
+    def register(self, prn: Prn = None) -> None:
         if prn.model in self.registry:
             raise AlreadyRegistered(f"PRN form {prn.model} is already registered.")
         else:
             self.registry.update({prn.model: prn})
         self.reorder_registry()
 
-    def reorder_registry(self):
+    def unregister(self, prn: Prn = None) -> None:
+        if prn.model in self.registry:
+            del self.registry[prn.model]
+
+    def reorder_registry(self) -> None:
         keys = [k for k in self.registry]
         keys.sort()
         registry = deepcopy(self.registry)
         self.registry = {k: registry.get(k) for k in keys}
 
-    def autodiscover(self, module_name=None, verbose=True):
+    def autodiscover(
+        self, module_name: str | None = None, verbose: bool | None = True
+    ) -> None:
         module_name = module_name or "prn_forms"
         writer = sys.stdout.write if verbose else lambda x: x
         style = color_style()

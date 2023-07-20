@@ -18,7 +18,6 @@ class Prn:
         dashboard_url_name=None,
         fa_icon=None,
     ):
-
         self._verbose_name = verbose_name
         self._verbose_name_plural = verbose_name_plural
         self.url_namespace = url_namespace or ""
