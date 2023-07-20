@@ -5,6 +5,7 @@ from edc_consent.view_mixins import ConsentViewMixin
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_dashboard.views import DashboardView
 from edc_data_manager.view_mixins import DataManagerViewMixin
+from edc_locator.utils import get_locator_model
 from edc_locator.view_mixins import SubjectLocatorViewMixin
 from edc_metadata.view_mixins import MetadataViewMixin
 from edc_navbar.view_mixin import NavbarViewMixin
@@ -53,7 +54,7 @@ class SubjectDashboardView(
     consent_model = None
     consent_model_wrapper_cls = SubjectConsentModelWrapper
 
-    subject_locator_model = "edc_locator.subjectlocator"
+    subject_locator_model = get_locator_model()
     subject_locator_model_wrapper_cls = SubjectLocatorModelWrapper
 
     visit_model = None
