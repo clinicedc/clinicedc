@@ -8,9 +8,9 @@ from edc_sites import add_or_update_django_sites
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
 
-from ...facility import Facility
-from ...import_holidays import import_holidays
-from ...models import Holiday
+from edc_facility.facility import Facility
+from edc_facility.import_holidays import import_holidays
+from edc_facility.models import Holiday
 
 
 class TestFacility(SiteTestCaseMixin, TestCase):
