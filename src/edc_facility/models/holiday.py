@@ -7,7 +7,7 @@ from django.db.utils import OperationalError, ProgrammingError
 from edc_sites import get_current_country
 from edc_utils import convert_php_dateformat
 
-from .holidays_disabled import holidays_disabled
+from ..holidays_disabled import holidays_disabled
 
 
 class Holiday(models.Model):
