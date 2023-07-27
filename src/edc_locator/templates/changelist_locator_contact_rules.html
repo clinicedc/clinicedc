@@ -1,7 +1,7 @@
-{% load crypto_tags %}
 <table>
-  <tr style="white-space: nowrap"><td>Mobile</td><td>{{subject_cell|default:''|encrypted}}</td></tr>
-  <tr style="white-space: nowrap"><td>alt</td><td>{{subject_cell_alt|default:''|encrypted}}</td></tr>
-  <tr style="white-space: nowrap"><td>Tel</td><td>{{subject_phone|default:''|encrypted}}</td></tr>
-  <tr style="white-space: nowrap"><td>alt</td><td>{{subject_phone_alt|default:''|encrypted}}</td></tr>
+  <tr style="white-space: nowrap"><td>Home visit</td><td>{% if may_visit_home == YES %}<span style="color:green">Yes</span>{% elif may_visit_home == NO %}<span style="color:red">No</span>{% else %}{{ may_visit_home }}{% endif %}</td></tr>
+  <tr style="white-space: nowrap"><td>Call patient</td><td>{% if may_call == YES %}<span style="color:green">Yes</span>{% elif may_call == NO %}<span style="color:red">No</span>{% else %}{{ may_call }}{% endif %}</td></tr>
+  <tr style="white-space: nowrap"><td>SMS patient</td><td>{% if sms == YES %}<span style="color:green">Yes</span>{% elif sms == NO %}<span style="color:red">No</span>{% else %}{{ sms }}{% endif %}</td></tr>
+  <tr style="white-space: nowrap"><td>Call work</td><td>{% if call_work == YES %}<span style="color:green">Yes</span>{% elif call_work == NO %}<span style="color:red">No</span>{% else %}{{ call_work }}{% endif %}</td></tr>
+  <tr style="white-space: nowrap"><td>Call friend/relative</td><td>{% if contact_indirectly == YES %}<span style="color:green">Yes</span>{% elif contact_indirectly == NO %}<span style="color:red">No</span>{% else %}{{ contact_indirectly }}{% endif %}</td></tr>
 </table>

@@ -16,6 +16,9 @@ class LoctorModelError(Exception):
 
 def get_locator_model(visit_schedule_name: str | None = None) -> str:
     """Returns the locator model name in label_lower format"""
+    # TODO: is visit_schedule_name always available?? What if the
+    #  values are not the same?
+    #  (EDC_LOCATOR_LOCATOR_MODEL and visit_schedule.locator_model)??
     if visit_schedule_name:
         visit_schedule = site_visit_schedules.get_visit_schedule(visit_schedule_name)
         return visit_schedule.locator_model

@@ -1,8 +1,10 @@
 from django.contrib import admin
 from django.template.loader import render_to_string
 from django_audit_fields.admin import audit_fieldset_tuple
+from edc_consent.utils import get_consent_model_cls
 from edc_constants.constants import NO, YES
 from edc_model_admin.mixins import ModelAdminProtectPiiMixin
+from edc_utils import age, get_utcnow
 
 from .fieldsets import (
     indirect_contacts_fieldset,
@@ -42,14 +44,10 @@ class SubjectLocatorModelAdminMixin(ModelAdminProtectPiiMixin):
     )
 
     list_display = (
-        "subject_identifier",
+        "subject",
         "dashboard",
-        "visit_home",
         "contacts",
-        "call",
-        "sms",
-        "call_work",
-        "contact_indirectly",
+        "contact_rules",
     )
 
     search_fields = (
@@ -65,25 +63,31 @@ class SubjectLocatorModelAdminMixin(ModelAdminProtectPiiMixin):
         "indirect_contact_phone__exact",
     )
 
-    @admin.display(description="Call", ordering="may_call")
-    def call(self, obj):
-        context = dict(response=obj.may_call, YES=YES, NO=NO)
-        return render_to_string("yes_no_coloring.html", context=context)
+    @admin.display(description="Subject", ordering="subject_identifier")
+    def subject(self, obj):
+        consent = get_consent_model_cls().objects.get(
+            subject_identifier=obj.subject_identifier
+        )
+        context = dict(
+            subject_identifier=obj.subject_identifier,
+            gender=consent.gender.upper(),
+            age_in_years=age(born=consent.dob, reference_dt=get_utcnow()).years,
+            initials=consent.initials,
+        )
+        return render_to_string("changelist_locator_subject.html", context=context)
 
-    @admin.display(description="SMS", ordering="sms")
-    def sms(self, obj):
-        context = dict(response=obj.sms, YES=YES, NO=NO)
-        return render_to_string("yes_no_coloring.html", context=context)
-
-    @admin.display(description="Call work", ordering="call_work")
-    def call_work(self, obj):
-        context = dict(response=obj.call_work, YES=YES, NO=NO)
-        return render_to_string("yes_no_coloring.html", context=context)
-
-    @admin.display(description="Contact indirectly", ordering="contact_indirectly")
-    def contact_indirectly(self, obj):
-        context = dict(response=obj.contact_indirectly, YES=YES, NO=NO)
-        return render_to_string("yes_no_coloring.html", context=context)
+    @admin.display(description="Contact Rules", ordering="may_call")
+    def contact_rules(self, obj):
+        context = dict(
+            may_visit_home=obj.may_visit_home,
+            may_call=obj.may_call,
+            sms=obj.sms,
+            call_work=obj.call_work,
+            contact_indirectly=obj.contact_indirectly,
+            YES=YES,
+            NO=NO,
+        )
+        return render_to_string("changelist_locator_contact_rules.html", context=context)
 
     @admin.display(description="Contacts")
     def contacts(self, obj):
