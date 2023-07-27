@@ -7,8 +7,8 @@ from django.test.utils import override_settings
 from edc_sites import add_or_update_django_sites
 from edc_sites.tests import SiteTestCaseMixin
 
-from ...holidays import HolidayError, Holidays
-from ...import_holidays import import_holidays
+from edc_facility.holidays import HolidayError, Holidays
+from edc_facility.import_holidays import import_holidays
 
 
 class TestHolidays(SiteTestCaseMixin, TestCase):

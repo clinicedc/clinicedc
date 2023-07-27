@@ -8,8 +8,8 @@ from edc_sites import add_or_update_django_sites
 from edc_sites.tests import SiteTestCaseMixin
 from multisite import SiteID
 
-from ...import_holidays import import_holidays
-from ...system_checks import holiday_country_check, holiday_path_check
+from edc_facility.import_holidays import import_holidays
+from edc_facility.system_checks import holiday_country_check, holiday_path_check
 
 
 class TestSystemChecks(SiteTestCaseMixin, TestCase):

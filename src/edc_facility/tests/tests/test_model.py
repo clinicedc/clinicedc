@@ -1,7 +1,7 @@
 from django.test import TestCase
 from edc_utils import get_utcnow
 
-from ...models import HealthFacility, HealthFacilityTypes, Holiday
+from edc_facility.models import HealthFacility, HealthFacilityTypes, Holiday
 
 
 class TestModel(TestCase):
