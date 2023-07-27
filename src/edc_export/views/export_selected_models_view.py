@@ -41,13 +41,6 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
     post_action_url = "edc_export:export_models_url"
     template_name = f"edc_export/bootstrap{get_bootstrap_version()}/export_models.html"
 
-    def __init__(self, *args, **kwargs):
-        self._selected_models_from_post = None
-        self._selected_models_from_session = None
-        self._selected_models = None
-        self._user = None
-        super().__init__(*args, **kwargs)
-
     def get_context_data(self, **kwargs) -> dict:
         context = super().get_context_data(**kwargs)
         if self.request.session.get("selected_models"):
@@ -76,14 +69,10 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
             try:
                 self.export_models(request=request, email_to_user=True)
             except NothingToExport:
-                selected_models = self.get_selected_models_from_post(request)
-                if selected_models:
-                    request.session["selected_models"] = selected_models
-                else:
-                    messages.warning(
-                        request,
-                        "Nothing to do. Select one or more models and try again.",
-                    )
+                messages.warning(
+                    request,
+                    "Nothing to do. Select one or more models and try again.",
+                )
             except FilesEmailerError as e:
                 messages.error(request, f"Failed to send the data you requested. Got '{e}'")
         url = reverse(self.post_action_url, kwargs=self.kwargs)
@@ -142,46 +131,40 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
                 site=request.site,
             )
 
-    def get_selected_models_from_post(self, request: WSGIRequest) -> list[ModelOptions]:
+    @staticmethod
+    def get_selected_models_from_post(request: WSGIRequest) -> list[ModelOptions]:
         """Returns a list of selected models from the POST
         as ModelOptions.
         """
-        if not self._selected_models_from_post:
-            exportables = Exportables(request=request, user=request.user)
-            selected_models = []
-            for exportable in exportables:
-                selected_models.extend(request.POST.getlist(f"chk_{exportable}_models") or [])
-                selected_models.extend(
-                    request.POST.getlist(f"chk_{exportable}_historicals") or []
-                )
-                selected_models.extend(request.POST.getlist(f"chk_{exportable}_lists") or [])
-                selected_models.extend(request.POST.getlist(f"chk_{exportable}_inlines") or [])
-            self._selected_models_from_post = [
-                ModelOptions(model=m) for m in selected_models if m
-            ]
-        return self._selected_models_from_post
+        exportables = Exportables(request=request, user=request.user)
+        selected_models = []
+        for exportable in exportables:
+            selected_models.extend(request.POST.getlist(f"chk_{exportable}_models") or [])
+            selected_models.extend(
+                request.POST.getlist(f"chk_{exportable}_historical_models") or []
+            )
+            selected_models.extend(request.POST.getlist(f"chk_{exportable}_list_models") or [])
+            selected_models.extend(request.POST.getlist(f"chk_{exportable}_inlines") or [])
+        if selected_models:
+            selected_models = [ModelOptions(model=m) for m in selected_models if m]
+        return selected_models
 
-    def get_selected_models_from_session(self, request: WSGIRequest) -> list[ModelOptions]:
+    @staticmethod
+    def get_selected_models_from_session(request: WSGIRequest) -> list[ModelOptions]:
         """Returns a list of selected models from the session object
         as ModelOptions.
         """
-        if not self._selected_models_from_session:
-            try:
-                selected_models = request.session.pop("selected_models")
-            except KeyError:
-                # raise NothingToExport("KeyError")
-                selected_models = []
-            else:
-                if not selected_models:
-                    raise NothingToExport("Nothing to export")
-            self._selected_models_from_session = [
-                ModelOptions(**dct) for dct in selected_models
-            ]
-        return self._selected_models_from_session
+        try:
+            selected_models = request.session.pop("selected_models")
+        except KeyError:
+            selected_models = []
+        else:
+            selected_models = [ModelOptions(**dct) for dct in selected_models]
+        return selected_models
 
     def check_user(self, request) -> bool:
         try:
-            valid_user = self._user = User.objects.filter(username=self.request.user).exists()
+            valid_user = User.objects.filter(username=self.request.user).exists()
         except ObjectDoesNotExist:
             messages.error(request, "Invalid user.")
             valid_user = False

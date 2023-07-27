@@ -6,7 +6,7 @@ class ModelOptions(dict):
 
     """A serializable object of a selection of model attrs."""
 
-    def __init__(self, model=None, **kwargs):
+    def __init__(self, model: str = None):
         model_cls = django_apps.get_model(model)
         self.model: str = str(model)
         self.app_label: str = str(model_cls._meta.app_label)
