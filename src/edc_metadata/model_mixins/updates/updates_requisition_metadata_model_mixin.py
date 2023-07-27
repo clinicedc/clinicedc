@@ -6,7 +6,6 @@ from django.apps import apps as django_apps
 from django.db import models
 
 from ...constants import NOT_REQUIRED, REQUIRED, REQUISITION
-from ...models import RequisitionMetadata
 from ...requisition import RequisitionMetadataUpdater
 from .updates_metadata_model_mixin import UpdatesMetadataModelMixin
 
@@ -14,6 +13,7 @@ if TYPE_CHECKING:
     from edc_crf.model_mixins import CrfModelMixin as Base
     from edc_lab.models import Panel
 
+    from ...models import RequisitionMetadata
     from ..creates import CreatesMetadataModelMixin
     from .updates_requisition_metadata_model_mixin import (
         UpdatesRequisitionMetadataModelMixin,
