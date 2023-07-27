@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from decimal import Decimal
+from typing import Type
 
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
@@ -43,7 +44,7 @@ class Schedule:
 
     name_regex = r"[a-z0-9\_\-]+$"
     visit_cls = Visit
-    visit_collection_cls = VisitCollection
+    visit_collection_cls: Type[VisitCollection] = VisitCollection
     window_cls = Window
 
     def __init__(

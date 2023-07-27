@@ -33,10 +33,7 @@ class VisitSchedule(VisitScheduleMethodsModelMixin, edc_models.BaseUuidModel):
     history = edc_models.HistoricalRecords()
 
     def __str__(self):
-        return (
-            f"{self.visit_code}@{self.timepoint}: {self.visit_title} "
-            f"({self.visit_schedule_name}.{self.schedule_name})"
-        )
+        return f"{self.visit_code}.0: {self.visit_title}"
 
     def natural_key(self):
         return (
