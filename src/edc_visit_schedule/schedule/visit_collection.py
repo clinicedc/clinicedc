@@ -1,8 +1,13 @@
+from __future__ import annotations
+
 from collections import OrderedDict
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from ..ordered_collection import OrderedCollection
+
+if TYPE_CHECKING:
+    from .. import Visit
 
 
 class VisitCollectionError(Exception):
@@ -13,7 +18,7 @@ class VisitCollection(OrderedCollection):
     key: str = "code"
     ordering_attr: str = "timepoint"
 
-    def __get__(self, instance: Any, owner: Any):
+    def __get__(self, instance: Visit, owner: Any):
         value = super().__get__(instance, owner)  # type: ignore
         if value is None:
             raise VisitCollectionError(f"Unknown visit. Got {instance}")
