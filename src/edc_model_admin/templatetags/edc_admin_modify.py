@@ -10,6 +10,7 @@ from django.contrib.admin.templatetags.admin_modify import (
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
 from django_revision.revision import site_revision
+from edc_constants.constants import NO, YES
 from edc_protocol import Protocol
 
 from edc_model_admin.utils import get_next_url
@@ -147,3 +148,13 @@ def get_label_lower(model) -> str:
     if model:
         return model._meta.label_lower
     return ""
+
+
+@register.inclusion_tag("yes_no_coloring.html", takes_context=False)
+def yes_no_coloring(value) -> dict:
+    context = dict(value=value)
+    if value == YES:
+        context.update(color="green")
+    elif value == NO:
+        context.update(color="red")
+    return context

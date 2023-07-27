@@ -1,12 +1,15 @@
 from __future__ import annotations
 
-from typing import Tuple
+from typing import TYPE_CHECKING, Tuple
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, reverse
 from edc_dashboard.url_names import url_names
-from edc_registration.models import RegisteredSubject
+from edc_registration import get_registered_subject_model_cls
+
+if TYPE_CHECKING:
+    from edc_registration.models import RegisteredSubject
 
 
 class ModelAdminDashboardMixin:
@@ -44,7 +47,9 @@ class ModelAdminDashboardMixin:
         return self.get_subject_dashboard_url_kwargs(obj)
 
     def get_registered_subject(self, obj) -> RegisteredSubject:
-        return RegisteredSubject.objects.get(subject_identifier=obj.subject_identifier)
+        return get_registered_subject_model_cls().objects.get(
+            subject_identifier=obj.subject_identifier
+        )
 
     def get_list_display(self, request) -> Tuple[str, ...]:
         list_display = super().get_list_display(request)
