@@ -170,7 +170,19 @@ class ModelAdminSiteTest(WebTest):
         self.assertIn("You are at the subject dashboard", response)
 
         response = self.app.get(url, user=self.user)
-        self.assertIn("Change crf two", response)
+        self.assertIn("crftwo change-form", response)
+        form_data = {
+            "subject_visit": str(self.subject_visit.id),
+            "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
+            "report_datetime_1": "00:00:00",
+        }
+        form = get_webtest_form(response)
+        for key, value in form_data.items():
+            form[key] = value
+        response = form.submit(name="_savenext").follow()
+
+        self.assertIn("crfthree change-form", response)
+
         form_data = {
             "subject_visit": str(self.subject_visit.id),
             "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
@@ -269,7 +281,7 @@ class ModelAdminSiteTest(WebTest):
             + f"?{query_string}&panel={str(panel_one.id)}"
         )
         response = self.app.get(url, user=self.user)
-        self.assertIn("Change requisition", response)
+        self.assertIn("requisition change-form", response)
         self.assertIn("ABCDE0001", response)
         self.assertIn(f'{str(panel_one.id)}" selected>One</option>', response)
         form = get_webtest_form(response)

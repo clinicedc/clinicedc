@@ -6,10 +6,12 @@ from django.db.models import QuerySet
 from edc_constants.constants import (
     FUTURE_DATE,
     IS_NULL,
+    LAST_MONTH,
     LAST_WEEK,
     NEXT_WEEK,
     NOT_NULL,
     PAST_DATE,
+    THIS_MONTH,
     THIS_WEEK,
     TODAY,
     TOMORROW,
@@ -120,6 +122,8 @@ class PastDateListFilter(admin.SimpleListFilter):
             (YESTERDAY, "Yesterday"),
             (THIS_WEEK, "This week"),
             (LAST_WEEK, "Last week"),
+            (THIS_MONTH, "This month"),
+            (LAST_MONTH, "Last month"),
             (PAST_DATE, "Any past date"),
             (IS_NULL, "No date"),
             (NOT_NULL, "Has date"),
@@ -142,7 +146,7 @@ class PastDateListFilter(admin.SimpleListFilter):
                 },
                 **self.extra_queryset_options,
             ).order_by(self.field_name)
-        if self.value() == TODAY:
+        elif self.value() == TODAY:
             qs = queryset.filter(
                 **{
                     f"{self.field_name}__gte": morning,
@@ -150,7 +154,7 @@ class PastDateListFilter(admin.SimpleListFilter):
                 },
                 **self.extra_queryset_options,
             ).order_by(self.field_name)
-        if self.value() == YESTERDAY:
+        elif self.value() == YESTERDAY:
             qs = queryset.filter(
                 **{
                     f"{self.field_name}__lte": night,
@@ -158,7 +162,7 @@ class PastDateListFilter(admin.SimpleListFilter):
                 },
                 **self.extra_queryset_options,
             ).order_by(self.field_name)
-        if self.value() == LAST_WEEK:
+        elif self.value() == LAST_WEEK:
             qs = queryset.filter(
                 **{
                     f"{self.field_name}__gte": monday,
@@ -166,22 +170,38 @@ class PastDateListFilter(admin.SimpleListFilter):
                 },
                 **self.extra_queryset_options,
             ).order_by(f"-{self.field_name}")
-        if self.value() == PAST_DATE:
+        elif self.value() == THIS_MONTH:
+            qs = queryset.filter(
+                **{
+                    f"{self.field_name}__gte": monday,
+                    f"{self.field_name}__lt": monday + relativedelta(months=1),
+                },
+                **self.extra_queryset_options,
+            ).order_by(f"-{self.field_name}")
+        elif self.value() == LAST_MONTH:
+            qs = queryset.filter(
+                **{
+                    f"{self.field_name}__gte": monday,
+                    f"{self.field_name}__lt": monday - relativedelta(months=1),
+                },
+                **self.extra_queryset_options,
+            ).order_by(f"-{self.field_name}")
+        elif self.value() == PAST_DATE:
             qs = queryset.filter(
                 **{f"{self.field_name}__lt": morning},
                 **self.extra_queryset_options,
             ).order_by(f"-{self.field_name}")
-        if self.value() == FUTURE_DATE:
+        elif self.value() == FUTURE_DATE:
             qs = queryset.filter(
                 **{f"{self.field_name}__gt": night},
                 **self.extra_queryset_options,
             ).order_by(self.field_name)
-        if self.value() == NOT_NULL:
+        elif self.value() == NOT_NULL:
             qs = queryset.filter(
                 **{f"{self.field_name}__isnull": False},
                 **self.extra_queryset_options,
             ).order_by(self.field_name)
-        if self.value() == IS_NULL:
+        elif self.value() == IS_NULL:
             qs = queryset.filter(
                 **{f"{self.field_name}__isnull": True},
                 **self.extra_queryset_options,

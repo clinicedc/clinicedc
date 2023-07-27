@@ -10,6 +10,8 @@ from edc_auth.auth_objects import PII, PII_VIEW
 class ModelAdminProtectPiiMixin:
     """Removes encrypted fields from changelist.
 
+    Place first in the MRO.
+
     Removes encrypted fields and methods returning encrypted
     field values from changelist for users not in PII / PII_VIEW
     groups.
@@ -20,7 +22,7 @@ class ModelAdminProtectPiiMixin:
 
     extra_pii_attrs: list[str] | None = []
 
-    def get_extra_pii_attrs(self) -> list[str]:
+    def get_extra_pii_attrs(self) -> list[str | tuple[str, str]]:
         return self.extra_pii_attrs or []
 
     def get_encrypted_fields(self) -> list[str]:
@@ -32,6 +34,7 @@ class ModelAdminProtectPiiMixin:
     def get_list_display(self, request) -> tuple[str]:
         list_display = super().get_list_display(request)
         if not request.user.groups.filter(name__in=[PII, PII_VIEW]).exists():
+            # TODO: search replace from list_display if extra_pii_attr has tuple
             list_display = [f for f in list_display if f not in self.get_encrypted_fields()]
             list_display = tuple(list_display)
         return list_display
@@ -57,8 +60,7 @@ class ModelAdminProtectPiiMixin:
                         try:
                             field.split(LOOKUP_SEP)[1]
                         except IndexError:
-                            search_fields.insert(
-                                search_fields.index(field), f"{field}{LOOKUP_SEP}exact"
-                            )
+                            index = search_fields.index(field)
+                            search_fields[index] = f"{field}{LOOKUP_SEP}exact"
             search_fields = tuple(search_fields)
         return search_fields
