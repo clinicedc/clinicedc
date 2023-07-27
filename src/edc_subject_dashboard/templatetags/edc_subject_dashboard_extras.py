@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 from collections import namedtuple
 
 from dateutil.relativedelta import relativedelta
 from django import template
+from django.apps import apps as django_apps
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
@@ -12,10 +15,9 @@ from edc_appointment.constants import (
     INCOMPLETE_APPT,
     NEW_APPT,
 )
-from edc_appointment.models import Appointment
+from edc_appointment.utils import get_appointment_model_cls
 from edc_constants.constants import COMPLETE
 from edc_dashboard.utils import get_bootstrap_version
-from edc_lab.models.manifest.consignee import Consignee
 from edc_metadata import KEYED, REQUIRED
 from edc_metadata.metadata_helper import MetadataHelper
 from edc_utils import get_utcnow
@@ -74,7 +76,7 @@ def forms_button(wrapper=None):
 )
 def appointment_in_progress(subject_identifier=None, visit_schedule=None, schedule=None):
     try:
-        appointment = Appointment.objects.get(
+        appointment = get_appointment_model_cls().objects.get(
             subject_identifier=subject_identifier,
             visit_schedule_name=visit_schedule.name,
             schedule_name=schedule.name,
@@ -83,7 +85,7 @@ def appointment_in_progress(subject_identifier=None, visit_schedule=None, schedu
     except ObjectDoesNotExist:
         visit_code = None
     except MultipleObjectsReturned:
-        qs = Appointment.objects.filter(
+        qs = get_appointment_model_cls().objects.filter(
             subject_identifier=subject_identifier,
             visit_schedule_name=visit_schedule.name,
             schedule_name=schedule.name,
@@ -128,7 +130,7 @@ def requisition_panel_actions(context, requisitions=None):
 def print_requisition_popover(context):
     C = namedtuple("Consignee", "pk name")
     consignees = []
-    for consignee in Consignee.objects.all():
+    for consignee in django_apps.get_model("edc_lab.Consignee").objects.all():
         consignees.append(C(str(consignee.pk), consignee.name))
     context["consignees"] = consignees
     return context
