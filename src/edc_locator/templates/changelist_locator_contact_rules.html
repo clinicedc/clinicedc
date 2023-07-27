@@ -1,0 +1,7 @@
+{% load crypto_tags %}
+<table>
+  <tr style="white-space: nowrap"><td>Mobile</td><td>{{subject_cell|default:''|encrypted}}</td></tr>
+  <tr style="white-space: nowrap"><td>alt</td><td>{{subject_cell_alt|default:''|encrypted}}</td></tr>
+  <tr style="white-space: nowrap"><td>Tel</td><td>{{subject_phone|default:''|encrypted}}</td></tr>
+  <tr style="white-space: nowrap"><td>alt</td><td>{{subject_phone_alt|default:''|encrypted}}</td></tr>
+</table>
