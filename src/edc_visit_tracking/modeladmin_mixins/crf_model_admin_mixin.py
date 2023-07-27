@@ -76,7 +76,11 @@ class CrfModelAdminMixin:
         return self.model.related_visit_model_cls()
 
     def related_visit(self, request: WSGIRequest, obj=None) -> VisitModelMixin | None:
-        """Returns the related_visit from the request object"""
+        """Returns the related_visit from the request object
+
+        You may need to wrap this in an exception in some
+        cases.
+        """
         related_visit = self.related_visit_model_cls.objects.get(
             id=self.related_visit_id(request)
         )
