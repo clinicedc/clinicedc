@@ -49,9 +49,9 @@ class AppointmentAdmin(
     )
     list_filter = (
         AppointmentListFilter,
+        "appt_status",
         "visit_code",
         "appt_type",
-        "appt_status",
         "appt_timing",
     )
 
