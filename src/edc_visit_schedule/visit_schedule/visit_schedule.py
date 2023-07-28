@@ -2,7 +2,7 @@ import json
 import re
 
 from django.apps import apps as django_apps
-from edc_locator.utils import get_locator_model
+from edc_locator.utils import LocatorModelError, get_locator_model
 from edc_offstudy.utils import get_offstudy_model
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.utils import get_related_visit_model
@@ -55,7 +55,15 @@ class VisitSchedule:
         self.schedules = self.schedules_collection(visit_schedule_name=name)
         self.offstudy_model = offstudy_model or get_offstudy_model()
         self.death_report_model = death_report_model
+
+        if locator_model and locator_model != get_locator_model():
+            raise LocatorModelError(
+                f"Ambiguous Locator model. See settings.SUBJECT_LOCATOR_MODEL and "
+                f"{self.name}. Got `{get_locator_model()}` from "
+                f"settings and `{locator_model}` from {self.name}."
+            )
         self.locator_model = locator_model or get_locator_model()
+
         self.previous_visit_schedule = previous_visit_schedule
         self.visit_model = visit_model or get_related_visit_model()
         self.visit_model_reason_field = visit_model_reason_field or "reason"
