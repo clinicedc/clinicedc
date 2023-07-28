@@ -41,10 +41,8 @@ class UrlModelMixin(models.Model):
         (includes namespace).
         """
         mode = "change" if self.id else "add"
-        return (
-            f"{self.admin_site_name}:"
-            f"{self._meta.app_label}_{self._meta.object_name.lower()}_{mode}"
-        )
+        app_name, model_name = self._meta.label_lower.split(".")
+        return f"{self.admin_site_name}:{app_name}_{model_name}_{mode}"
 
     @property
     def admin_site_name(self) -> str:
