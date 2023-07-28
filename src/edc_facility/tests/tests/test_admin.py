@@ -1,7 +1,6 @@
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
-from django.test import tag
 from django.urls import reverse
 from django_webtest import WebTest
 from edc_auth.auth_updater.group_updater import GroupUpdater, PermissionsCodenameError
@@ -45,7 +44,6 @@ class TestAdmin(WebTest):
         opts.update(**kwargs)
         return HealthFacility.objects.create(**opts)
 
-    @tag("1")
     @patch(
         "edc_subject_dashboard.templatetags.edc_subject_dashboard_extras."
         "get_appointment_model_cls"
