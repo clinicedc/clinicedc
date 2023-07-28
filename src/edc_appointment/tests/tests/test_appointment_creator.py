@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.test import TestCase
-from django.test.utils import override_settings, tag
+from django.test.utils import override_settings
 from edc_facility.import_holidays import import_holidays
 from edc_facility.utils import get_facility
 from edc_registration.models import RegisteredSubject
@@ -107,7 +107,6 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
             )
         )
 
-    @tag("1")
     def test_str(self):
         creator = AppointmentCreator(
             subject_identifier=self.subject_identifier,
