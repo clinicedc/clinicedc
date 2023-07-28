@@ -1,4 +1,4 @@
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_reference.site_reference import site_reference_configs
@@ -110,7 +110,6 @@ class CrfRuleGroupGender(CrfRuleGroup):
         app_label = "edc_metadata"
 
 
-@tag("1")
 class TestMetadataRulesWithGender(TestCase):
     @classmethod
     def setUpTestData(cls):
