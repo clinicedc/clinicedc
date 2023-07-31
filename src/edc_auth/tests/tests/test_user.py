@@ -33,7 +33,7 @@ class TestUser(EdcAuthTestCase):
         self.assertEqual(len(mail.outbox), User.objects.all().count())  # noqa
         self.assertEqual(
             mail.outbox[0].subject,
-            f"{Protocol().project_name}: Your example.com user account is ready.",
+            f"{Protocol().project_name} EDC: Your example.com user account is ready.",
         )
 
         # update existing users
@@ -42,7 +42,7 @@ class TestUser(EdcAuthTestCase):
         self.assertEqual(len(mail.outbox), user_count * 2)  # noqa
         self.assertEqual(
             mail.outbox[0].subject,
-            f"{Protocol().project_name}: Your example.com user account is ready.",
+            f"{Protocol().project_name} EDC: Your example.com user account is ready.",
         )
 
     def test_bad_username(self):

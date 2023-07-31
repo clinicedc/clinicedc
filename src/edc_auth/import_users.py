@@ -25,23 +25,23 @@ class UserImporterError(Exception):
 
 add_user_template = Template(
     "Hi $first_name, \n\n"
-    "Your $resource_name user account has been created.\n\n"
-    "Your username is $username.\n\n"
+    "Your `$resource_name` EDC user account for `$project_name` has been created.\n\n"
+    "Your username is `$username`.\n\n"
     "Your password is:\n\n$password\n\n"
     "(Yes, that is your password)\n\n"
     "You are authorized to log into the following sites:\n\n - $site_names.\n\n"
-    "As a $job_title, you have been assigned the following roles:\n\n - $role_names.\n\n"
+    "As a `$job_title`, you have been assigned the following roles:\n\n - $role_names.\n\n"
     "Thanks.\n\n"
     "$project_name"
 )
 
 change_user_template = Template(
     "Hi $first_name, \n\n"
-    "Your `$resource_name` user account has been updated.\n\n"
+    "Your `$resource_name` EDC user account for `$project_name` has been updated.\n\n"
     "Your username is `$username`.\n\n"
     "Your new password is:\n\n$password\n\n"
     "You are authorized to log into the following sites:\n\n - $site_names.\n\n"
-    "As a $job_title, you have been assigned the following roles:\n\n - $role_names.\n\n"
+    "As a `$job_title`, you have been assigned the following roles:\n\n - $role_names.\n\n"
     "Thanks.\n\n"
     "$project_name"
 )
@@ -270,7 +270,7 @@ class UserImporter:
         else:
             body = self.updated_email_template
         return EmailMessage(
-            f"{self.project_name}: Your {self.resource_name} user account is ready.",
+            f"{self.project_name} EDC: Your {self.resource_name} user account is ready.",
             body=body.safe_substitute(self.__dict__),
             from_email="noreply@clinicedc.org",
             to=(self.test_email_address or self.user.email,),
