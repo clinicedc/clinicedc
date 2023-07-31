@@ -25,7 +25,7 @@ class UserImporterError(Exception):
 
 add_user_template = Template(
     "Hi $first_name, \n\n"
-    "Your `$resource_name` EDC user account for `$project_name` has been created.\n\n"
+    "Your `$project_name` EDC user account for `$resource_name` has been created.\n\n"
     "Your username is `$username`.\n\n"
     "Your password is:\n\n$password\n\n"
     "(Yes, that is your password)\n\n"
@@ -37,7 +37,7 @@ add_user_template = Template(
 
 change_user_template = Template(
     "Hi $first_name, \n\n"
-    "Your `$resource_name` EDC user account for `$project_name` has been updated.\n\n"
+    "Your `$project_name` EDC user account for `$resource_name` has been updated.\n\n"
     "Your username is `$username`.\n\n"
     "Your new password is:\n\n$password\n\n"
     "You are authorized to log into the following sites:\n\n - $site_names.\n\n"
