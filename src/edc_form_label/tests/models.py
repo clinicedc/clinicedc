@@ -1,21 +1,12 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_appointment.models import Appointment
 from edc_constants.choices import YES_NO
 from edc_crf.model_mixins import CrfModelMixin
 from edc_model.models import BaseUuidModel
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
-from edc_visit_tracking.model_mixins import VisitModelMixin
-
-
-class SubjectVisit(SiteModelMixin, VisitModelMixin, BaseUuidModel):
-    subject_identifier = models.CharField(max_length=25)
-
-    report_datetime = models.DateTimeField(default=get_utcnow)
-
-    appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
+from edc_visit_tracking.models import SubjectVisit
 
 
 class MyModel(CrfModelMixin, BaseUuidModel):

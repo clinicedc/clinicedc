@@ -1,7 +1,7 @@
 from dateutil.relativedelta import relativedelta
 from edc_visit_schedule import Crf, FormsCollection, Schedule, Visit, VisitSchedule
 
-crfs = FormsCollection(Crf(show_order=1, model="edc_fieldsets.mymodel", required=True))
+crfs = FormsCollection(Crf(show_order=1, model="edc_form_label.mymodel", required=True))
 
 
 visit0 = Visit(
