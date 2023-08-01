@@ -81,7 +81,7 @@ class TestVisitSchedule4(SiteTestCaseMixin, TestCase):
 
         site_reference_configs.registry = {}
         site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "visit_schedule_app.subjectvisit"}
+            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
         )
 
         self.subject_consent = SubjectConsent.objects.create(

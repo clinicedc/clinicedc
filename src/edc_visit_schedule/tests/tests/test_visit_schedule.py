@@ -61,7 +61,7 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
         )
         import_holidays()
         site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "visit_schedule_app.subjectvisit"}
+            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
         )
         site_consents.registry = {}
         site_consents.register(v1_consent)
@@ -249,7 +249,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
 
         site_reference_configs.registry = {}
         site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "visit_schedule_app.subjectvisit"}
+            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
         )
 
         self.subject_consent = SubjectConsent.objects.create(

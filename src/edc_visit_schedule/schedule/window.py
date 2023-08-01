@@ -3,6 +3,7 @@ from django.conf import settings
 from edc_utils import convert_php_dateformat, floor_secs, to_utc
 
 from .exceptions import ScheduleError
+from .visit_collection import VisitCollectionError
 
 
 class ScheduledVisitWindowError(Exception):
@@ -42,12 +43,10 @@ class Window:
         if enforce_window_period_enabled:
             if not self.dt:
                 raise UnScheduledVisitWindowError("Invalid datetime")
-            if not self.visits.get(self.visit_code):
-                raise ScheduleError(
-                    f"Visit not added to schedule. Got visit `{self.visit_code}` "
-                    f"not in schedule `{self.name}`. Expected one of "
-                    f"{[x for x in self.visits]}."
-                )
+            try:
+                self.visits.get(self.visit_code)
+            except VisitCollectionError as e:
+                raise ScheduleError(e)
             if self.is_scheduled_visit or not self.visits.next(self.visit_code):
                 self.raise_for_scheduled_not_in_window()
             else:

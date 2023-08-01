@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import OrderedDict
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ..ordered_collection import OrderedCollection
 
@@ -18,10 +18,13 @@ class VisitCollection(OrderedCollection):
     key: str = "code"
     ordering_attr: str = "timepoint"
 
-    def __get__(self, instance: Visit, owner: Any):
-        value = super().__get__(instance, owner)  # type: ignore
+    def get(self, visit_code: str) -> Visit:
+        """Return a visit for the given visit_code or raise"""
+        value = super().get(visit_code)
         if value is None:
-            raise VisitCollectionError(f"Unknown visit. Got {instance}")
+            raise VisitCollectionError(
+                f"Unknown visit. Check the visit schedule. Got visit_code={visit_code}"
+            )
         return value
 
     def timepoint_dates(self, dt: datetime) -> dict:

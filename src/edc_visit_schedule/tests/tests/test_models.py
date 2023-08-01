@@ -55,7 +55,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "visit_schedule_app.subjectvisit"}
+            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
         )
         v1_consent = Consent(
             "visit_schedule_app.subjectconsent",

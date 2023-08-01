@@ -1,12 +1,14 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from django.db import models
 
 from ...site_visit_schedules import site_visit_schedules
 
 if TYPE_CHECKING:
+    from edc_visit_schedule.typing_stubs import VisitScheduleFieldsProtocol
+
     from ...schedule import Schedule, VisitCollection
     from ...visit import Visit
     from ...visit_schedule import VisitSchedule
@@ -33,7 +35,7 @@ class VisitScheduleMethodsModelMixin(models.Model):
         return self.visit_from_schedule
 
     @property
-    def visit_from_schedule(self) -> Visit:
+    def visit_from_schedule(self: VisitScheduleFieldsProtocol | Self) -> Visit:
         """Returns the visit object from the schedule object
         for this visit code.
 
@@ -53,7 +55,7 @@ class VisitScheduleMethodsModelMixin(models.Model):
         return self.schedule.visits
 
     @property
-    def schedule(self) -> Schedule:
+    def schedule(self: VisitScheduleFieldsProtocol | Self) -> Schedule:
         """Returns a schedule object from Meta.visit_schedule_name or
         self.schedule_name.
 
@@ -63,7 +65,7 @@ class VisitScheduleMethodsModelMixin(models.Model):
         return self.visit_schedule.schedules.get(self.schedule_name)
 
     @property
-    def visit_schedule(self) -> VisitSchedule:
+    def visit_schedule(self: VisitScheduleFieldsProtocol | Self) -> VisitSchedule:
         """Returns a visit schedule object"""
         return site_visit_schedules.get_visit_schedule(
             visit_schedule_name=self.visit_schedule_name
