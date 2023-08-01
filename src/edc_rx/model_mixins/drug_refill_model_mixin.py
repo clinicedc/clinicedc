@@ -49,7 +49,7 @@ class DrugRefillModelMixin(models.Model):
     )
 
     rx_days = models.IntegerField(
-        verbose_name=("Number of days of medication prescribed?"),
+        verbose_name="Number of days of medication prescribed?",
         validators=[MinValueValidator(0), MaxValueValidator(186)],
     )
 
