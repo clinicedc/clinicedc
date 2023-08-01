@@ -8,10 +8,7 @@ from django.contrib.admin.sites import all_sites
 from django.db.models import Count
 from edc_appointment.models import Appointment
 from edc_visit_schedule import site_visit_schedules
-from edc_visit_tracking.utils import (
-    get_related_visit_model_cls,
-    get_subject_visit_model_cls,
-)
+from edc_visit_tracking.utils import get_related_visit_model_cls
 from tqdm import tqdm
 
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
@@ -42,27 +39,27 @@ class MetadataRefresher:
         # note: only need to run metadata rules on the related
         # visit model
         self._message("Running metadata rules ...\n")
-        total = get_subject_visit_model_cls().objects.all().count()
-        self.run_metadata_rules(get_subject_visit_model_cls(), total)
+        total = get_related_visit_model_cls().objects.all().count()
+        self.run_metadata_rules(get_related_visit_model_cls(), total)
 
         # self._message("Validating ...\n")
         # self.validate_metadata_for_all()
         self._message("Done.\n")
 
     @property
-    def source_models(self) -> list:
+    def source_models(self) -> list[str]:
         if not self._source_models:
             self._source_models = []
             for app_label, rule_groups_list in site_metadata_rules.rule_groups.items():
                 for rule_groups in rule_groups_list:
                     if (
                         rule_groups._meta.source_model
-                        != get_subject_visit_model_cls()._meta.label_lower
+                        != get_related_visit_model_cls()._meta.label_lower
                     ):
                         self._source_models.append(rule_groups._meta.source_model)
             self._source_models = list(set(self._source_models))
             self._source_models.sort()
-            self._source_models.insert(0, get_subject_visit_model_cls()._meta.label_lower)
+            self._source_models.insert(0, get_related_visit_model_cls()._meta.label_lower)
             self._message(f"  Found source models: {', '.join(self.source_models)}.\n")
         return self._source_models
 
@@ -72,7 +69,8 @@ class MetadataRefresher:
         for instance in tqdm(source_model_cls.objects.all(), total=total):
             instance.update_reference_on_save()
 
-    def run_metadata_rules(self, source_model_cls: Any, total: int) -> None:
+    @staticmethod
+    def run_metadata_rules(source_model_cls: Any, total: int) -> None:
         """Updates rules for all instances of this source model"""
         for instance in tqdm(source_model_cls.objects.all(), total=total):
             if django_apps.get_app_config("edc_metadata").metadata_rules_enabled:

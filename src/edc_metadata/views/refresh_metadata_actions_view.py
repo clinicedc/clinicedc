@@ -7,7 +7,7 @@ from django.views import View
 from edc_dashboard import url_names
 from edc_utils import get_utcnow
 from edc_utils.round_up import round_half_away_from_zero
-from edc_visit_tracking.utils import get_subject_visit_model_cls
+from edc_visit_tracking.utils import get_related_visit_model_cls
 
 
 class RefreshMetadataActionsView(LoginRequiredMixin, View):
@@ -24,7 +24,7 @@ class RefreshMetadataActionsView(LoginRequiredMixin, View):
     @staticmethod
     def refresh_metadata(subject_visit_id=None, **kwargs):  # noqa
         """Save related visit model instance to run metadata update."""
-        related_visit = get_subject_visit_model_cls().objects.get(id=subject_visit_id)
+        related_visit = get_related_visit_model_cls().objects.get(id=subject_visit_id)
         related_visit.save()
         related_visit.refresh_from_db()
         return related_visit

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Type
+
 from django.db import models
-from edc_visit_tracking.model_mixins import VisitModelMixin
 
 from ...constants import CRF, KEYED, REQUISITION
 from ...metadata import (
@@ -13,15 +14,23 @@ from ...metadata import (
 )
 from ...metadata_rules import MetadataRuleEvaluator
 
+if TYPE_CHECKING:
+    from edc_visit_schedule import Visit
+    from edc_visit_tracking.typing_stubs import RelatedVisitProtocol
+else:
 
-class CreatesMetadataModelMixin(models.Model):
+    class RelatedVisitProtocol:
+        ...
+
+
+class CreatesMetadataModelMixin(RelatedVisitProtocol, models.Model):
     """A model mixin for visit models to enable them to
     create metadata on save.
     """
 
-    metadata_cls: Metadata = Metadata
-    metadata_destroyer_cls: Destroyer = Destroyer
-    metadata_rule_evaluator_cls: MetadataRuleEvaluator = MetadataRuleEvaluator
+    metadata_cls: Type[Metadata] = Metadata
+    metadata_destroyer_cls: Type[Destroyer] = Destroyer
+    metadata_rule_evaluator_cls: Type[MetadataRuleEvaluator] = MetadataRuleEvaluator
 
     def metadata_create(self) -> None:
         """Creates metadata, called by post_save signal."""
@@ -41,11 +50,11 @@ class CreatesMetadataModelMixin(models.Model):
         metadata_rule_evaluator.evaluate_rules()
 
     @property
-    def metadata_query_options(self: VisitModelMixin) -> dict:
+    def metadata_query_options(self) -> dict:
         """Returns a dictionary of query options needed select
         the related_visit.
         """
-        visit = self.visits.get(self.appointment.visit_code)
+        visit: Visit = self.visits.get(self.appointment.visit_code)
         options = dict(
             visit_schedule_name=self.appointment.visit_schedule_name,
             schedule_name=self.appointment.schedule_name,
@@ -56,7 +65,7 @@ class CreatesMetadataModelMixin(models.Model):
         return options
 
     @property
-    def metadata(self: VisitModelMixin) -> dict:
+    def metadata(self) -> dict:
         """Returns a dictionary of metadata querysets for each
         metadata category (CRF or REQUISITION).
         """

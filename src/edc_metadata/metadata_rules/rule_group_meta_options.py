@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from edc_reference import ReferenceGetter
+from edc_visit_tracking.utils import get_related_visit_model
 
 
 class RuleGroupMetaError(Exception):
@@ -49,7 +50,19 @@ class RuleGroupMetaOptions:
             if len(self.source_model.split(".")) != 2:
                 self.source_model = f"{self.app_label}.{self.source_model}"
             self.options.update(source_model=self.source_model)
+        # related visit model
+        self.related_visit_model = self.options.get("related_visit_model")
+        if self.related_visit_model:
+            if len(self.related_visit_model.split(".")) != 2:
+                raise RuleGroupMetaError(
+                    "Invalid _meta attr. Expected _meta.related_visit_model to be in "
+                    f"label_lower format. Got '{self.related_visit_model}'. See {group_name}."
+                )
+
+            self.options.update(related_visit_model=self.related_visit_model)
+        else:
+            self.related_visit_model = get_related_visit_model()
 
     @property
     def default_meta_options(self) -> list[str]:
-        return ["app_label", "source_model"]
+        return ["app_label", "source_model", "related_visit_model"]

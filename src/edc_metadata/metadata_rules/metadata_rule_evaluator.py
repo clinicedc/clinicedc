@@ -24,11 +24,19 @@ class MetadataRuleEvaluator:
         allow_create: bool | None = None,
     ) -> None:
         self.related_visit = related_visit
-        self.app_label = app_label or related_visit._meta.app_label
+        self.app_labels = [app_label] if app_label else []  # or related_visit._meta.app_label
+        self.related_visit_model = related_visit._meta.label_lower
         self.allow_create = allow_create
+        if not self.app_labels:
+            for rule_groups in site_metadata_rules.registry.values():
+                for rule_group in rule_groups:
+                    if rule_group._meta.related_visit_model == self.related_visit_model:
+                        if app_label not in self.app_labels:
+                            self.app_labels.append(rule_group._meta.app_label)
 
     def evaluate_rules(self) -> None:
-        for rule_group in site_metadata_rules.registry.get(self.app_label, []):
-            rule_group.evaluate_rules(
-                related_visit=self.related_visit, allow_create=self.allow_create
-            )
+        for app_label in self.app_labels:
+            for rule_group in site_metadata_rules.registry.get(app_label, []):
+                rule_group.evaluate_rules(
+                    related_visit=self.related_visit, allow_create=self.allow_create
+                )

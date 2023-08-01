@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Type
 
 from django.apps import apps as django_apps
-from django.conf import settings
 from django.contrib.admin.sites import all_sites
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError, transaction
@@ -13,23 +12,14 @@ from edc_visit_schedule import FormsCollection, site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT
 
 from ..constants import KEYED, NOT_REQUIRED, REQUIRED
+from ..utils import verify_model_cls_registered_with_admin
 
 if TYPE_CHECKING:
     from edc_reference.models import Reference
-    from edc_sites.model_mixins import SiteModelMixin
     from edc_visit_schedule import Crf, Requisition
-    from edc_visit_tracking.model_mixins import VisitModelMixin as Base
+    from edc_visit_tracking.typing_stubs import RelatedVisitProtocol
 
-    from ..model_mixins.creates import CreatesMetadataModelMixin
     from ..models import CrfMetadata, RequisitionMetadata
-
-    class RelatedVisitModel(SiteModelMixin, CreatesMetadataModelMixin, Base):
-        pass
-
-
-verify_model_cls_registered_with_admin: bool = getattr(
-    settings, "EDC_METADATA_VERIFY_MODELS_REGISTERED_WITH_ADMIN", False
-)
 
 
 class CreatesMetadataError(Exception):
@@ -46,7 +36,7 @@ def model_cls_registered_with_admin_site(model_cls: Any) -> bool:
     See also settings.EDC_METADATA_VERIFY_MODELS_REGISTERED_WITH_ADMIN
     """
     registered = False
-    if not verify_model_cls_registered_with_admin:
+    if not verify_model_cls_registered_with_admin():
         registered = True
     else:
         for admin_site in all_sites:
@@ -56,11 +46,11 @@ def model_cls_registered_with_admin_site(model_cls: Any) -> bool:
 
 
 class CrfCreator:
-    metadata_model = "edc_metadata.crfmetadata"
+    metadata_model: str = "edc_metadata.crfmetadata"
 
     def __init__(
         self,
-        related_visit: RelatedVisitModel,
+        related_visit: RelatedVisitProtocol,
         update_keyed: bool,
         crf: Crf | Requisition,
     ) -> None:
@@ -181,7 +171,7 @@ class RequisitionCreator(CrfCreator):
         self,
         requisition: Requisition,
         update_keyed: bool,
-        related_visit: RelatedVisitModel,
+        related_visit: RelatedVisitProtocol,
     ) -> None:
         super().__init__(
             crf=requisition,
@@ -225,7 +215,7 @@ class Creator:
     def __init__(
         self,
         update_keyed: bool,
-        related_visit: RelatedVisitModel,
+        related_visit: RelatedVisitProtocol,
     ) -> None:
         self.related_visit = related_visit
         self.update_keyed = update_keyed
@@ -283,7 +273,7 @@ class Destroyer:
     metadata_crf_model = "edc_metadata.crfmetadata"
     metadata_requisition_model = "edc_metadata.requisitionmetadata"
 
-    def __init__(self, related_visit: RelatedVisitModel) -> None:
+    def __init__(self, related_visit: RelatedVisitProtocol) -> None:
         self.related_visit = related_visit
 
     @property
@@ -318,7 +308,7 @@ class Metadata:
 
     def __init__(
         self,
-        related_visit: Any,
+        related_visit: RelatedVisitProtocol,
         update_keyed: bool,
     ) -> None:
         self._reason = None

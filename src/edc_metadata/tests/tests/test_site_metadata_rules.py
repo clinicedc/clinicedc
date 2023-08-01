@@ -20,7 +20,7 @@ from ..reference_configs import register_to_site_reference_configs
 class RuleGroupWithoutRules(CrfRuleGroup):
     class Meta:
         app_label = "edc_metadata"
-        source_model = "edc_metadata.subjectvisit"
+        source_model = "edc_visit_tracking.subjectvisit"
 
 
 class RuleGroupWithRules(CrfRuleGroup):
@@ -33,7 +33,7 @@ class RuleGroupWithRules(CrfRuleGroup):
 
     class Meta:
         app_label = "edc_metadata"
-        source_model = "edc_metadata.subjectvisit"
+        source_model = "edc_visit_tracking.subjectvisit"
 
 
 class RuleGroupWithRules2(CrfRuleGroup):
@@ -46,7 +46,7 @@ class RuleGroupWithRules2(CrfRuleGroup):
 
     class Meta:
         app_label = "edc_metadata"
-        source_model = "edc_metadata.subjectvisit"
+        source_model = "edc_visit_tracking.subjectvisit"
 
 
 class TestSiteMetadataRules(TestCase):
@@ -107,7 +107,7 @@ class TestSiteMetadataRules(TestCase):
 
             class Meta:
                 app_label = "edc_metadata"
-                source_model = "edc_metadata.subjectvisit"
+                source_model = "edc_visit_tracking.subjectvisit"
 
         self.assertIn("edc_metadata", site_metadata_rules.registry)
 
@@ -118,7 +118,7 @@ class TestSiteMetadataRules(TestCase):
             class RuleGroupWithRules:
                 class Meta:
                     app_label = "edc_metadata"
-                    source_model = "edc_metadata.subjectvisit"
+                    source_model = "edc_visit_tracking.subjectvisit"
 
         except RegisterRuleGroupError:
             pass
