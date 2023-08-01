@@ -1,6 +1,7 @@
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from edc_action_item import site_action_items
+from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_constants.constants import DEAD
@@ -10,6 +11,7 @@ from edc_utils import get_dob, get_utcnow
 from edc_visit_schedule.exceptions import OffScheduleError
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.models import SubjectVisit
 
 from edc_offstudy.models import SubjectOffstudy
 from edc_offstudy.utils import OffstudyError
@@ -17,7 +19,7 @@ from edc_offstudy.utils import OffstudyError
 from ...action_items import EndOfStudyAction
 from ..consents import v1_consent
 from ..forms import CrfOneForm, NonCrfOneForm, SubjectOffstudyForm
-from ..models import CrfOne, NonCrfOne, OffScheduleOne, SubjectConsent, SubjectVisit
+from ..models import CrfOne, NonCrfOne, OffScheduleOne, SubjectConsent
 from ..visit_schedule import visit_schedule1
 
 
@@ -44,7 +46,7 @@ class TestOffstudy(TestCase):
         site_visit_schedules.register(visit_schedule1)
 
         site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_offstudy.subjectvisit"}
+            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
         )
         self.schedule1 = visit_schedule1.schedules.get("schedule1")
 
@@ -125,6 +127,7 @@ class TestOffstudy(TestCase):
             offstudy_datetime=self.consent_datetime - relativedelta(days=1),
         )
 
+    @tag("1")
     def test_update_subject_visit_report_date_after_offstudy_date(self):
         appointments = Appointment.objects.filter(
             subject_identifier=self.subject_identifier
@@ -137,6 +140,7 @@ class TestOffstudy(TestCase):
                 visit_schedule_name=appointment.visit_schedule_name,
                 schedule_name=appointment.schedule_name,
                 visit_code=appointment.visit_code,
+                visit_code_sequence=appointment.visit_code_sequence,
                 report_datetime=appointment_datetimes[index],
                 reason=SCHEDULED,
             )
@@ -168,31 +172,43 @@ class TestOffstudy(TestCase):
 
         # get first appointment
         # get first visit
+        appointment = appointments[0]
         subject_visit = SubjectVisit.objects.create(
-            appointment=appointments[0],
-            visit_schedule_name=appointments[0].visit_schedule_name,
-            schedule_name=appointments[0].schedule_name,
-            visit_code=appointments[0].visit_code,
-            report_datetime=appointments[0].appt_datetime,
+            appointment=appointment,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            visit_code=appointment.visit_code,
+            report_datetime=appointment.appt_datetime,
             reason=SCHEDULED,
         )
+
+        appointment.appt_status = INCOMPLETE_APPT
+        appointment.save()
+
         # get crf_one for this visit
         crf_one = CrfOne(
-            subject_visit=subject_visit, report_datetime=appointments[0].appt_datetime
+            subject_visit=subject_visit, report_datetime=appointment.appt_datetime
         )
         crf_one.save()
 
         # get second appointment
 
         # create second visit
+        appointment = appointments[1]
         subject_visit = SubjectVisit.objects.create(
-            appointment=appointments[1],
-            visit_schedule_name=appointments[1].visit_schedule_name,
-            schedule_name=appointments[1].schedule_name,
-            visit_code=appointments[1].visit_code,
-            report_datetime=appointments[1].appt_datetime,
+            appointment=appointment,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            visit_code=appointment.visit_code,
+            report_datetime=appointment.appt_datetime,
             reason=SCHEDULED,
         )
+        appointment.appt_status = INCOMPLETE_APPT
+        appointment.save()
+
+        appointments = Appointment.objects.filter(
+            subject_identifier=self.subject_identifier
+        ).order_by("appt_datetime")
 
         # take off schedule1
         OffScheduleOne.objects.create(
