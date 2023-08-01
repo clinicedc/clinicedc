@@ -45,7 +45,7 @@ class TestCaseMixin(TestCase):
         )
         site_labs.register(lab_profile=subject_lab_profile)
         site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
+            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
         )
         register_actions()
 

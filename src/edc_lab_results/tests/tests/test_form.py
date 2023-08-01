@@ -25,7 +25,9 @@ class TestBloodResultForm(TestCaseMixin, TestCase):
             subject_identifier=self.subject_identifier,
             visit_code="1000",
         )
-        self.subject_visit = django_apps.get_model("edc_metadata.subjectvisit").objects.create(
+        self.subject_visit = django_apps.get_model(
+            "edc_visit_tracking.subjectvisit"
+        ).objects.create(
             report_datetime=get_utcnow(),
             appointment=appointment,
             reason=SCHEDULED,
@@ -128,7 +130,9 @@ class TestBloodResultFormForPoc(TestCaseMixin, TestCase):
             subject_identifier=self.subject_identifier,
             visit_code="1000",
         )
-        self.subject_visit = django_apps.get_model("edc_metadata.subjectvisit").objects.create(
+        self.subject_visit = django_apps.get_model(
+            "edc_visit_tracking.subjectvisit"
+        ).objects.create(
             report_datetime=get_utcnow(),
             appointment=appointment,
             reason=SCHEDULED,
