@@ -9,7 +9,10 @@ from edc_facility.models import HealthFacility, HealthFacilityTypes
 
 class TestForm(TestCase):
     def test_form_validator_ok(self):
-        form_validator = HealthFacilityFormValidator(cleaned_data={}, instance=HealthFacility)
+        form_validator = HealthFacilityFormValidator(
+            cleaned_data=dict(tue=True, thu=True),
+            instance=HealthFacility,
+        )
         form_validator.validate()
         self.assertEqual(form_validator._errors, {})
 
@@ -39,6 +42,18 @@ class TestForm(TestCase):
             report_datetime=get_utcnow(),
             name="My Health Facility",
             health_facility_type=HealthFacilityTypes.objects.all()[0],
+        )
+        form = HealthFacilityForm(data=data, instance=HealthFacility())
+        form.is_valid()
+        self.assertIn("__all__", form._errors)
+        self.assertIn("Select at least one clinic day", str(form._errors))
+
+        data = dict(
+            report_datetime=get_utcnow(),
+            name="My Health Facility",
+            health_facility_type=HealthFacilityTypes.objects.all()[0],
+            tue=True,
+            thu=True,
         )
         form = HealthFacilityForm(data=data, instance=HealthFacility())
         form.is_valid()
