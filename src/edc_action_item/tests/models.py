@@ -133,7 +133,7 @@ class MyAction(
 
 class CrfOne(ActionModelMixin, SiteModelMixin, BaseUuidModel):
     subject_visit = models.OneToOneField(
-        "edc_metadata.subjectvisit",  # noqa
+        "edc_visit_tracking.subjectvisit",  # noqa
         on_delete=CASCADE,
         related_name="edc_action_item_test_visit_one",
     )
@@ -155,7 +155,7 @@ class CrfOne(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
 class CrfTwo(ActionModelMixin, SiteModelMixin, BaseUuidModel):
     subject_visit = models.OneToOneField(
-        "edc_metadata.subjectvisit",  # noqa
+        "edc_visit_tracking.subjectvisit",  # noqa
         on_delete=CASCADE,
         related_name="edc_action_item_test_visit_two",
     )
