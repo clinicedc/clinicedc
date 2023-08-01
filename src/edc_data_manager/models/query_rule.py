@@ -221,7 +221,7 @@ class QueryRule(BaseUuidModel):
     ]
 
     @property
-    def rendered_query_text(self):
+    def rendered_query_text(self) -> str:
         context = dict(model=self)
         return render_to_string(template_name=query_text_template_name, context=context)
 

@@ -2,8 +2,6 @@ from django.contrib import admin
 from django.urls.conf import include, path
 from edc_utils.paths_for_urlpatterns import paths_for_urlpatterns
 
-from data_manager_app.admin_site import data_manager_app_admin
-
 from .views import HomeView
 
 app_name = "edc_data_manager"
@@ -31,9 +29,7 @@ for app_name in [
 
 
 urlpatterns += [
-    path("data_manager_app_admin/", data_manager_app_admin.urls),
     path("accounts/", include("edc_auth.urls")),
-    path("edc_auth/", include("edc_auth.urls")),
     path("admin/", admin.site.urls),
     path("", HomeView.as_view(), name="administration_url"),
     path("", HomeView.as_view(), name="home_url"),

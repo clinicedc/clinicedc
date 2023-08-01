@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import sys
+from datetime import datetime
 from decimal import Decimal
-from typing import Optional, Union
+from typing import TYPE_CHECKING
 
 from edc_metadata import KEYED, REQUIRED
 from edc_metadata.metadata_inspector import MetaDataInspector
@@ -9,9 +12,17 @@ from edc_utils import get_utcnow
 from ..models import QueryVisitSchedule
 from .query_rule_wrapper import QueryRuleWrapper
 
+if TYPE_CHECKING:
+    from ..models import QueryRule
+
 
 class RuleRunner:
-    def __init__(self, query_rule_obj=None, now=None, verbose=None):
+    def __init__(
+        self,
+        query_rule_obj: QueryRule = None,
+        now: datetime = None,
+        verbose: bool | None = None,
+    ):
         self.query_rule_obj = query_rule_obj  # query rule model instance
         self.now = now or get_utcnow()
         self.verbose = verbose
@@ -20,7 +31,7 @@ class RuleRunner:
     def reference(self):
         return self.query_rule_obj.reference
 
-    def run(self, query_rules_data=None):
+    def run(self, query_rules_data: dict[str, list[QueryRuleWrapper]] | None = None):
         """Returns number of created and resolved queries after
         running all wrapped query rule objs included in
         query_rules_data.
@@ -43,11 +54,11 @@ class RuleRunner:
 
     def run_one(
         self,
-        subject_identifier: Optional[str] = None,
-        visit_schedule_name: Optional[str] = None,
-        schedule_name: Optional[str] = None,
-        visit_code: Optional[str] = None,
-        timepoint: Optional[Union[float, Decimal]] = None,
+        subject_identifier: str = None,
+        visit_schedule_name: str = None,
+        schedule_name: str = None,
+        visit_code: str = None,
+        timepoint: Decimal = None,
     ):
         visit_schedule_obj = QueryVisitSchedule.objects.get(
             visit_schedule_name=visit_schedule_name,
@@ -69,7 +80,7 @@ class RuleRunner:
         )
 
     @property
-    def query_rules_data(self):
+    def query_rules_data(self) -> dict[str, list[QueryRuleWrapper]]:
         """Returns a dictionary of QueryRuleWrappers format
         {visit_code: [wrappper, ...]}.
 
