@@ -29,7 +29,7 @@ class TestCaseMixin(TestCase):
         site_visit_schedules.register(visit_schedule)
 
         site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
+            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
         )
 
         subject_consent = SubjectConsent.objects.create(

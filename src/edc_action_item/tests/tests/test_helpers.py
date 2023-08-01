@@ -145,9 +145,9 @@ class TestHelpers(TestCaseMixin, TestCase):
     def test_reference_as_crf(self):
         self.enroll()
         appointment = Appointment.objects.all().order_by("timepoint")[0]
-        subject_visit = django_apps.get_model("edc_metadata.subjectvisit").objects.create(
-            appointment=appointment, reason=SCHEDULED
-        )
+        subject_visit = django_apps.get_model(
+            "edc_visit_tracking.subjectvisit"
+        ).objects.create(appointment=appointment, reason=SCHEDULED)
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
         action_item = ActionItem.objects.get(action_identifier=crf_one.action_identifier)
         model_wrapper = ActionItemModelWrapper(model_obj=action_item)
@@ -163,9 +163,9 @@ class TestHelpers(TestCaseMixin, TestCase):
     def test_reference_as_crf_create_next_model_instance(self):
         subject_identifier = self.enroll()
         appointment = Appointment.objects.all().order_by("timepoint")[0]
-        subject_visit = django_apps.get_model("edc_metadata.subjectvisit").objects.create(
-            appointment=appointment, reason=SCHEDULED
-        )
+        subject_visit = django_apps.get_model(
+            "edc_visit_tracking.subjectvisit"
+        ).objects.create(appointment=appointment, reason=SCHEDULED)
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
         crf_two = CrfTwo.objects.create(subject_visit=subject_visit)
         action_item = ActionItem.objects.get(action_identifier=crf_two.action_identifier)

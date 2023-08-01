@@ -29,7 +29,9 @@ class TestLongitudinal(TestCaseMixin, TestCase):
             subject_identifier=self.subject_identifier,
             visit_code="1000",
         )
-        subject_visit = django_apps.get_model("edc_metadata.subjectvisit").objects.create(
+        subject_visit = django_apps.get_model(
+            "edc_visit_tracking.subjectvisit"
+        ).objects.create(
             appointment=appointment,
             reason=SCHEDULED,
         )
@@ -39,7 +41,9 @@ class TestLongitudinal(TestCaseMixin, TestCase):
             subject_identifier=self.subject_identifier,
             visit_code="2000",
         )
-        subject_visit = django_apps.get_model("edc_metadata.subjectvisit").objects.create(
+        subject_visit = django_apps.get_model(
+            "edc_visit_tracking.subjectvisit"
+        ).objects.create(
             appointment=appointment,
             reason=SCHEDULED,
         )
