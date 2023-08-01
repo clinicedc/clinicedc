@@ -10,6 +10,7 @@ from edc_visit_schedule.schedule import (
     ScheduleNameError,
 )
 from edc_visit_schedule.schedule.schedule import VisitTimepointError
+from edc_visit_schedule.schedule.visit_collection import VisitCollectionError
 from edc_visit_schedule.visit import Visit
 from visit_schedule_app.models import OffSchedule, OnSchedule
 
@@ -391,8 +392,7 @@ class TestScheduleWithVisits(TestCase):
             self.schedule.add_visit(visit=visit)
         visit = self.schedule.visits.get("3")
         self.assertEqual(visit.code, "3")
-        visit = self.schedule.visits.get("BLAH")
-        self.assertIsNone(visit)
+        self.assertRaises(VisitCollectionError, self.schedule.visits.get, "BLAH")
 
     def test_previous_visit(self):
         for i in range(0, 5):

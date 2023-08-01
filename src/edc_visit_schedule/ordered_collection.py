@@ -29,10 +29,14 @@ class OrderedCollection(OrderedDict):
 
     def previous(self, key):
         """Returns the previous item or None."""
+        if self._iter_keys(key=key, reverse=True) is None:
+            return None
         return self.get(self._iter_keys(key=key, reverse=True))
 
     def next(self, key):
         """Returns the next item or None."""
+        if self._iter_keys(key=key) is None:
+            return None
         return self.get(self._iter_keys(key=key))
 
     def _iter_keys(self, key=None, reverse=None):
