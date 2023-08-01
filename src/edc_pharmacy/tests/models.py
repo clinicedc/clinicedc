@@ -40,7 +40,7 @@ class StudyMedication(
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
-    def run_metadata_rules_for_crf(self):
+    def run_metadata_rules_for_crf(self, **kwargs):
         pass
 
     def metadata_update(self, **kwargs):
