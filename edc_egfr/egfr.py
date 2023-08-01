@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
@@ -15,6 +15,9 @@ from edc_utils import age, get_utcnow
 
 from .calculators import EgfrCkdEpi, EgfrCockcroftGault, egfr_percent_change
 from .get_drop_notification_model import get_egfr_drop_notification_model_cls
+
+if TYPE_CHECKING:
+    from edc_visit_tracking.typing_stubs import RelatedVisitProtocol
 
 
 class EgfrError(Exception):
@@ -40,7 +43,7 @@ class Egfr:
         percent_drop_threshold: Decimal | float | None = None,
         reference_range_collection_name: str | None = None,
         calling_crf: Any | None = None,
-        subject_visit: Any | None = None,
+        related_visit: RelatedVisitProtocol | None = None,
         assay_datetime: datetime | None = None,
         egfr_drop_notification_model: str | None = None,
     ):
@@ -49,7 +52,7 @@ class Egfr:
         self._egfr_drop_value: Decimal | None = None
         self._egfr_drop_grade = None
         self.assay_date: date | None = None
-        self.subject_visit = None
+        self.related_visit = None
 
         self.baseline_egfr_value = baseline_egfr_value
         if formula_name not in self.calculators:
@@ -88,14 +91,14 @@ class Egfr:
             self.creatinine_units = calling_crf.creatinine_units
             self.creatinine_value = calling_crf.creatinine_value
             self.percent_drop_threshold = calling_crf.percent_drop_threshold
-            self.subject_visit = calling_crf.subject_visit
+            self.related_visit = calling_crf.related_visit
             self.report_datetime = calling_crf.report_datetime
             self.assay_date = calling_crf.assay_datetime.astimezone(ZoneInfo("UTC")).date()
         else:
             self.creatinine_units = creatinine_units
             self.creatinine_value = creatinine_value
             self.percent_drop_threshold = percent_drop_threshold
-            self.subject_visit = subject_visit
+            self.related_visit = related_visit
             self.report_datetime = report_datetime
             if assay_datetime:
                 self.assay_date = assay_datetime.astimezone(ZoneInfo("UTC")).date()
@@ -191,11 +194,11 @@ class Egfr:
         with transaction.atomic():
             try:
                 obj = self.egfr_drop_notification_model_cls.objects.get(
-                    subject_visit__id=self.subject_visit.id
+                    subject_visit__id=self.related_visit.id
                 )
             except ObjectDoesNotExist:
                 obj = self.egfr_drop_notification_model_cls.objects.create(
-                    subject_visit_id=self.subject_visit.id,
+                    subject_visit_id=self.related_visit.id,
                     report_datetime=self.report_datetime,
                     egfr_value=self.egfr_value,
                     creatinine_date=self.assay_date,
@@ -204,8 +207,7 @@ class Egfr:
                     weight=self.get_weight_in_kgs(),
                     egfr_percent_change=self.egfr_drop_value,
                     report_status=NEW,
-                    consent_version=self.subject_visit.consent_version,
-                    site_id=self.subject_visit.site.id,
+                    site_id=self.related_visit.site.id,
                 )
             else:
                 obj.egfr_value = self.egfr_value
