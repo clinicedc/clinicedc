@@ -40,6 +40,7 @@ class Rule:
         self.group = None  # set by metaclass
         self.name: str | None = None  # set by metaclass
         self.source_model: str | None = None  # set by metaclass
+        self.related_visit_model: str | None = None  # set by metaclass
         self.reference_getter_cls: Type[ReferenceGetter] | None = None  # set by metaclass
         self.field_names = []
         try:
@@ -66,6 +67,18 @@ class Rule:
         See `edc_reference`.
         """
         result = None
+        if (
+            self.related_visit_model
+            and self.related_visit_model != related_visit._meta.label_lower
+        ):
+            raise RuleError(
+                "Conflicting related visit model on rule. "
+                f"Got {self.related_visit_model} != {related_visit._meta.label_lower}."
+                "Try specifying the related visit model on RuleGroup.Meta explicitly. "
+                f'For example, related_visit_model = "{related_visit._meta.label_lower}" '
+                f"See {self}. "
+            )
+
         if related_visit.appointment.appt_timing != MISSED_APPT:
             result = {}
             opts = {k: v for k, v in self.__dict__.items() if k.startswith != "_"}

@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Type
 
 from django.apps import apps as django_apps
+from django.conf import settings
 
 from .constants import CRF, REQUISITION
 
@@ -28,3 +29,7 @@ def get_metadata_model_cls(
     else:
         raise ValueError(f"Invalid metadata category. Got {metadata_category}.")
     return model_cls
+
+
+def verify_model_cls_registered_with_admin():
+    return getattr(settings, "EDC_METADATA_VERIFY_MODELS_REGISTERED_WITH_ADMIN", False)

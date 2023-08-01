@@ -16,7 +16,7 @@ from .metadata import model_cls_registered_with_admin_site
 
 if TYPE_CHECKING:
     from edc_appointment.models import Appointment
-    from edc_visit_tracking.model_mixins import VisitModelMixin
+    from edc_visit_tracking.typing_stubs import RelatedVisitProtocol
 
     from ..models import CrfMetadata, RequisitionMetadata
 
@@ -26,7 +26,11 @@ class MetadataGetterError(Exception):
 
 
 class MetadataValidator:
-    def __init__(self, metadata_obj: Any, related_visit: Any) -> None:
+    def __init__(
+        self,
+        metadata_obj: CrfMetadata | RequisitionMetadata,
+        related_visit: RelatedVisitProtocol,
+    ) -> None:
         self.metadata_obj = metadata_obj
         self.related_visit = related_visit
         self.validate_metadata_object()
@@ -67,30 +71,6 @@ class MetadataValidator:
                         pass
                     except MultipleObjectsReturned:
                         raise
-                    # self.verify_entry_status_with_model_obj(model_obj)
-
-    # def verify_entry_status_with_model_obj(self, model_obj: Any) -> None:
-    #     """Verifies that entry_status is set to KEYED if the model
-    #     instance exists, etc.
-    #
-    #     Fixes on the fly if model obj exists and entry status != KEYED."""
-    #     for i in range(2):
-    #         if model_obj and model_obj.id and self.metadata_obj.entry_status != KEYED:
-    #             self.metadata_obj.entry_status = KEYED
-    #             self.metadata_obj.save(update_fields=["entry_status"])
-    #             self.metadata_obj.refresh_from_db()
-    #             break
-    #         # what about metadata rules?
-    #         elif not model_obj and self.metadata_obj.entry_status == KEYED:
-    #             if self.related_visit:
-    #                 # resave subject visit to recreate / calculate metadata
-    #                 self.related_visit.save()
-    #                 self.metadata_obj.refresh_from_db()
-    #                 continue
-    #             else:
-    #                 break
-    #         else:
-    #             break
 
     @staticmethod
     def model_cls_registered_with_admin_site(model_cls: Any) -> bool:
@@ -120,7 +100,7 @@ class MetadataGetter:
     def __init__(self, appointment: Appointment) -> None:
         self.options = {}
         self.appointment = appointment
-        self.related_visit: VisitModelMixin | None = getattr(
+        self.related_visit: RelatedVisitProtocol | None = getattr(
             self.appointment, "related_visit", None
         )
         instance = self.related_visit or self.appointment

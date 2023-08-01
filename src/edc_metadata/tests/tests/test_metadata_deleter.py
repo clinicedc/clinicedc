@@ -4,21 +4,44 @@ from edc_appointment.constants import INCOMPLETE_APPT, MISSED_APPT
 from edc_appointment.models import Appointment
 from edc_lab.models import Panel
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
+from edc_visit_tracking.models import SubjectVisit
 
 from ...constants import KEYED, REQUIRED
 from ...models import CrfMetadata, RequisitionMetadata
-from ..models import CrfOne, SubjectRequisition, SubjectVisit
+from ..models import CrfOne, SubjectRequisition
 from .metadata_test_mixin import TestMetadataMixin
 
 
 class TestDeletesMetadata(TestMetadataMixin, TestCase):
     def test_deletes_metadata_on_changed_reason_toggled(self):
-        SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
+        appointment = Appointment.objects.get(
+            subject_identifier=self.subject_identifier,
+            visit_code="1000",
+        )
+        SubjectVisit.objects.create(
+            appointment=appointment,
+            subject_identifier=appointment.subject_identifier,
+            report_datetime=appointment.appt_datetime,
+            visit_code=appointment.visit_code,
+            visit_code_sequence=appointment.visit_code_sequence,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            reason=SCHEDULED,
+        )
         appointment = Appointment.objects.get(
             subject_identifier=self.subject_identifier,
             visit_code="2000",
         )
-        obj = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
+        obj = SubjectVisit.objects.create(
+            appointment=appointment,
+            subject_identifier=appointment.subject_identifier,
+            report_datetime=appointment.appt_datetime,
+            visit_code=appointment.visit_code,
+            visit_code_sequence=appointment.visit_code_sequence,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            reason=SCHEDULED,
+        )
         self.assertEqual(CrfMetadata.objects.filter(visit_code="2000").count(), 3)
         self.assertEqual(
             RequisitionMetadata.objects.filter(visit_code="2000").count(),

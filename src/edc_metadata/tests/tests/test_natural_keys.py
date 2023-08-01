@@ -10,11 +10,12 @@ from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.models import SubjectVisit
 from faker import Faker
 
 from edc_metadata.tests.reference_configs import register_to_site_reference_configs
 
-from ..models import SubjectConsent, SubjectVisit
+from ..models import SubjectConsent
 from ..visit_schedule import visit_schedule
 
 skip_condition = "django_collect_offline.apps.AppConfig" not in settings.INSTALLED_APPS
@@ -34,7 +35,7 @@ class TestNaturalKey(TestCase):
         "edc_metadata.enrollment",
         "edc_metadata.disenrollment",
         "edc_metadata.subjectrequisition",
-        "edc_metadata.subjectvisit",
+        "edc_visit_tracking.subjectvisit",
         "edc_offstudy.subjectoffstudy",
         "edc_metadata.crfone",
         "edc_metadata.crftwo",
@@ -80,8 +81,13 @@ class TestNaturalKey(TestCase):
         )
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment,
+            subject_identifier=self.subject_identifier,
+            report_datetime=self.appointment.appt_datetime,
+            visit_code=self.appointment.visit_code,
+            visit_code_sequence=self.appointment.visit_code_sequence,
+            visit_schedule_name=self.appointment.visit_schedule_name,
+            schedule_name=self.appointment.schedule_name,
             reason=SCHEDULED,
-            subject_identifier=subject_identifier,
         )
         return subject_visit
 

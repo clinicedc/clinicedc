@@ -8,10 +8,11 @@ from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.models import SubjectVisit
 from faker import Faker
 
 from ...metadata_rules import PF, P
-from ..models import CrfOne, SubjectConsent, SubjectVisit
+from ..models import CrfOne, SubjectConsent
 from ..reference_configs import register_to_site_reference_configs
 from ..visit_schedule import visit_schedule
 
@@ -31,7 +32,7 @@ class TestPredicates(TestCase):
 
         register_to_site_reference_configs()
         site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
+            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
         )
         _, self.schedule = site_visit_schedules.get_by_onschedule_model(
             "edc_metadata.onschedule"
@@ -57,8 +58,13 @@ class TestPredicates(TestCase):
         )
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment,
-            reason=SCHEDULED,
             subject_identifier=subject_identifier,
+            report_datetime=self.appointment.appt_datetime,
+            visit_code=self.appointment.visit_code,
+            visit_code_sequence=self.appointment.visit_code_sequence,
+            visit_schedule_name=self.appointment.visit_schedule_name,
+            schedule_name=self.appointment.schedule_name,
+            reason=SCHEDULED,
         )
         return subject_visit
 

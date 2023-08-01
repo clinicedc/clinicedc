@@ -8,6 +8,7 @@ from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
 from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT
 from edc_appointment.models import Appointment
+from edc_appointment.tests.test_case_mixins import AppointmentTestCaseMixin
 from edc_constants.constants import FEMALE
 from edc_facility import import_holidays
 from edc_reference import site_reference_configs
@@ -15,6 +16,7 @@ from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_schedule.constants import DAY1, MONTH1, MONTH3, MONTH6, WEEK2
 from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.models import SubjectVisit
 from model_bakery import baker
 
 from edc_metadata import KEYED, NOT_REQUIRED, REQUIRED, site_metadata_rules
@@ -28,7 +30,7 @@ from ...metadata_rules import (
     PredicateCollection,
 )
 from ...models import CrfMetadata
-from ..models import CrfOne, SubjectConsent, SubjectVisit
+from ..models import CrfOne, SubjectConsent
 from ..visit_schedule2 import visit_schedule
 
 
@@ -38,11 +40,81 @@ class CrfOneForm(forms.ModelForm):
         fields = "__all__"
 
 
+class TestCaseMixin(AppointmentTestCaseMixin):
+    @staticmethod
+    def get_subject_consent():
+        return baker.make_recipe(
+            "edc_metadata.subjectconsent",
+            user_created="erikvw",
+            user_modified="erikvw",
+            screening_identifier="1234",
+            initials="XX",
+            gender=FEMALE,
+            dob=get_utcnow().date() - relativedelta(years=25),
+            site=Site.objects.get(id=settings.SITE_ID),
+            consent_datetime=get_utcnow() - relativedelta(months=24),
+        )
+
+    def get_subject_visit(
+        self,
+        visit_code=None,
+        visit_code_sequence=None,
+        reason=None,
+        appt_datetime=None,
+    ):
+        reason = reason or SCHEDULED
+        subject_consent = self.get_subject_consent()
+        options = dict(
+            subject_identifier=subject_consent.subject_identifier,
+            visit_code=visit_code or DAY1,
+            visit_code_sequence=(
+                visit_code_sequence if visit_code_sequence is not None else 0
+            ),
+            reason=reason,
+        )
+        if appt_datetime:
+            options.update(appt_datetime=appt_datetime)
+        appointment = self.get_appointment(**options)
+        subject_visit = SubjectVisit(
+            appointment=appointment,
+            subject_identifier=appointment.subject_identifier,
+            report_datetime=appointment.appt_datetime,
+            visit_code=appointment.visit_code,
+            visit_code_sequence=appointment.visit_code_sequence,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            reason=SCHEDULED,
+        )
+        subject_visit.save()
+        subject_visit.refresh_from_db()
+        return subject_visit
+
+    @staticmethod
+    def get_next_subject_visit(subject_visit):
+        appointment = subject_visit.appointment
+        appointment.appt_status = INCOMPLETE_APPT
+        appointment.save()
+        appointment.refresh_from_db()
+        next_appointment = appointment.next_by_timepoint
+        next_appointment.appt_status = IN_PROGRESS_APPT
+        next_appointment.save()
+        subject_visit = SubjectVisit(
+            appointment=next_appointment,
+            reason=SCHEDULED,
+            report_datetime=next_appointment.appt_datetime,
+            visit_code=next_appointment.visit_code,
+            visit_code_sequence=next_appointment.visit_code_sequence,
+        )
+        subject_visit.save()
+        subject_visit.refresh_from_db()
+        return subject_visit
+
+
 @override_settings(
     EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=3),
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=3),
 )
-class TestPersistantSingleton(TestCase):
+class TestPersistantSingleton(TestCaseMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
@@ -53,7 +125,7 @@ class TestPersistantSingleton(TestCase):
         site_visit_schedules.register(visit_schedule)
 
         site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
+            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
         )
 
         site_metadata_rules.registry = {}
@@ -92,74 +164,11 @@ class TestPersistantSingleton(TestCase):
             f3="blah",
         )
 
-    @staticmethod
-    def get_subject_consent():
-        return baker.make_recipe(
-            "edc_metadata.subjectconsent",
-            user_created="erikvw",
-            user_modified="erikvw",
-            screening_identifier="1234",
-            initials="XX",
-            gender=FEMALE,
-            dob=get_utcnow().date() - relativedelta(years=25),
-            site=Site.objects.get(id=settings.SITE_ID),
-            consent_datetime=get_utcnow() - relativedelta(months=24),
-        )
-
-    def get_subject_visit(
-        self,
-        visit_code=None,
-        visit_code_sequence=None,
-        reason=None,
-        appt_datetime=None,
-    ):
-        reason = reason or SCHEDULED
-        subject_consent = self.get_subject_consent()
-        options = dict(
-            subject_identifier=subject_consent.subject_identifier,
-            visit_code=visit_code or DAY1,
-            visit_code_sequence=(
-                visit_code_sequence if visit_code_sequence is not None else 0
-            ),
-            reason=reason,
-        )
-        if appt_datetime:
-            options.update(appt_datetime=appt_datetime)
-        appointment = self.get_appointment(**options)
-        subject_visit = SubjectVisit(
-            appointment=appointment,
-            reason=SCHEDULED,
-            report_datetime=appointment.appt_datetime,
-        )
-        subject_visit.save()
-        subject_visit.refresh_from_db()
-        return subject_visit
-
-    @staticmethod
-    def get_next_subject_visit(subject_visit):
-        appointment = subject_visit.appointment
-        appointment.appt_status = INCOMPLETE_APPT
-        appointment.save()
-        appointment.refresh_from_db()
-        next_appointment = appointment.next_by_timepoint
-        next_appointment.appt_status = IN_PROGRESS_APPT
-        next_appointment.save()
-        subject_visit = SubjectVisit(
-            appointment=next_appointment,
-            reason=SCHEDULED,
-            report_datetime=next_appointment.appt_datetime,
-            visit_code=next_appointment.visit_code,
-            visit_code_sequence=next_appointment.visit_code_sequence,
-        )
-        subject_visit.save()
-        subject_visit.refresh_from_db()
-        return subject_visit
-
     @property
     def rule_group(self):
         class Predicates(PersistantSingletonMixin, PredicateCollection):
             app_label = "edc_metadata"
-            visit_model = "edc_metadata.subjectvisit"
+            visit_model = "edc_visit_tracking.subjectvisit"
 
             def crfone_required(self, visit, **kwargs):  # noqa
                 model = f"{self.app_label}.crfone"
@@ -179,7 +188,7 @@ class TestPersistantSingleton(TestCase):
 
             class Meta:
                 app_label = "edc_metadata"
-                source_model = "edc_metadata.subjectvisit"
+                source_model = "edc_visit_tracking.subjectvisit"
 
         return RuleGroup
 

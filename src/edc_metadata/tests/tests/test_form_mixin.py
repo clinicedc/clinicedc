@@ -43,7 +43,7 @@ class TestForm(TestCase):
 
         register_to_site_reference_configs()
         site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
+            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
         )
 
         self.subject_identifier = "1111111"
@@ -67,6 +67,11 @@ class TestForm(TestCase):
         self.subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment,
             subject_identifier=self.subject_identifier,
+            report_datetime=self.appointment.appt_datetime,
+            visit_code=self.appointment.visit_code,
+            visit_code_sequence=self.appointment.visit_code_sequence,
+            visit_schedule_name=self.appointment.visit_schedule_name,
+            schedule_name=self.appointment.schedule_name,
             reason=SCHEDULED,
         )
 

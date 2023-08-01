@@ -14,6 +14,11 @@ class TestMetadataGetter(TestMetadataMixin, TestCase):
         self.subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment,
             subject_identifier=self.subject_identifier,
+            report_datetime=self.appointment.appt_datetime,
+            visit_code=self.appointment.visit_code,
+            visit_code_sequence=self.appointment.visit_code_sequence,
+            visit_schedule_name=self.appointment.visit_schedule_name,
+            schedule_name=self.appointment.schedule_name,
             reason=SCHEDULED,
         )
 

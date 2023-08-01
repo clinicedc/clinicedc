@@ -32,6 +32,11 @@ class RuleGroup:
         # TODO: extend this list
         default_fields = ["gender"]
 
+        if cls._meta.related_visit_model:
+            cls._lookup_model(
+                model=cls._meta.related_visit_model, category="related_visit_model"
+            )
+
         # verify models exists
         if cls._meta.source_model:
             cls._lookup_model(model=cls._meta.source_model, category="source")

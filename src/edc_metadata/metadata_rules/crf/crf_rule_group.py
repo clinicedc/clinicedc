@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Tuple
+from typing import TYPE_CHECKING, Any, Self, Tuple
 
 from ...constants import NOT_REQUIRED, REQUIRED
 from ...metadata_updater import MetadataUpdater
@@ -23,14 +23,14 @@ class CrfRuleGroup(RuleGroup, metaclass=RuleGroupMetaclass):
 
     metadata_updater_cls = MetadataUpdater
 
-    def __str__(self: Any):
+    def __str__(self: Self) -> str:
         return f"{self.__class__.__name__}({self.name})"
 
-    def __repr__(self: Any):
+    def __repr__(self: Self) -> str:
         return f"{self.__class__.__name__}({self.name})"
 
     @classmethod
-    def crfs_for_visit(cls, visit=None) -> FormsCollection:
+    def crfs_for_visit(cls, visit: RelatedVisitModel = None) -> FormsCollection:
         """Returns a list of scheduled or unscheduled
         CRFs + PRNs depending on visit_code_sequence.
         """
@@ -57,16 +57,24 @@ class CrfRuleGroup(RuleGroup, metaclass=RuleGroupMetaclass):
                 not in [c.model for c in cls.crfs_for_visit(related_visit)]
             ):
                 continue
+            for target_model in rule.target_models:
+                if target_model == related_visit._meta.label_lower:
+                    raise TargetModelConflict(
+                        f"Target model and visit model are the same! "
+                        f"Got {target_model}=={related_visit._meta.label_lower}"
+                    )
+                elif (
+                    target_model.split(".")[1] == related_visit._meta.label_lower.split(".")[1]
+                ):
+                    raise TargetModelConflict(
+                        f"Target model and visit model might be the same. "
+                        f"Got {target_model}~={related_visit._meta.label_lower}"
+                    )
             if result := rule.run(related_visit=related_visit):
                 rule_results.update({str(rule): result})
                 for target_model, entry_status in rule_results[str(rule)].items():
                     if not entry_status:
                         raise RuleGroupError("Cannot be None. Got `entry_status`.")
-                    if target_model == related_visit._meta.label_lower:
-                        raise TargetModelConflict(
-                            f"Target model and visit model are the same! "
-                            f"Got {target_model}=={related_visit._meta.label_lower}"
-                        )
                     # only do something if target model is in visit.crfs (including PRNs)
                     if target_model in [c.model for c in cls.crfs_for_visit(related_visit)]:
                         metadata_updater = cls.metadata_updater_cls(

@@ -36,7 +36,12 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
 
     def test_updates_crf_metadata_as_keyed(self):
         subject_visit = SubjectVisit.objects.create(
-            appointment=self.appointment, reason=SCHEDULED
+            appointment=self.appointment,
+            visit_code=self.appointment.visit_code,
+            visit_code_sequence=self.appointment.visit_code_sequence,
+            visit_schedule_name=self.appointment.visit_schedule_name,
+            schedule_name=self.appointment.schedule_name,
+            reason=SCHEDULED,
         )
         CrfOne.objects.create(subject_visit=subject_visit)
         CrfMetadata.objects.all().delete()
@@ -51,7 +56,12 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
 
     def test_updates_after_manual_change(self):
         subject_visit = SubjectVisit.objects.create(
-            appointment=self.appointment, reason=SCHEDULED
+            appointment=self.appointment,
+            visit_code=self.appointment.visit_code,
+            visit_code_sequence=self.appointment.visit_code_sequence,
+            visit_schedule_name=self.appointment.visit_schedule_name,
+            schedule_name=self.appointment.schedule_name,
+            reason=SCHEDULED,
         )
         CrfOne.objects.create(subject_visit=subject_visit)
         CrfMetadata.objects.all().delete()
@@ -71,7 +81,12 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
 
     def test_updates_after_manual_change2(self):
         subject_visit = SubjectVisit.objects.create(
-            appointment=self.appointment, reason=SCHEDULED
+            appointment=self.appointment,
+            visit_code=self.appointment.visit_code,
+            visit_code_sequence=self.appointment.visit_code_sequence,
+            visit_schedule_name=self.appointment.visit_schedule_name,
+            schedule_name=self.appointment.schedule_name,
+            reason=SCHEDULED,
         )
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
         CrfMetadata.objects.all().delete()
@@ -124,7 +139,12 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
 
     def test_after_schedule_change(self):
         subject_visit = SubjectVisit.objects.create(
-            appointment=self.appointment, reason=SCHEDULED
+            appointment=self.appointment,
+            visit_code=self.appointment.visit_code,
+            visit_code_sequence=self.appointment.visit_code_sequence,
+            visit_schedule_name=self.appointment.visit_schedule_name,
+            schedule_name=self.appointment.schedule_name,
+            reason=SCHEDULED,
         )
         CrfFive.objects.create(subject_visit=subject_visit)
         self.assertEqual(CrfMetadata.objects.all().count(), 5)
@@ -151,7 +171,14 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
 
     def test_after_schedule_change2(self):
         subject_visit = SubjectVisit.objects.create(
-            appointment=self.appointment, reason=SCHEDULED
+            appointment=self.appointment,
+            subject_identifier=self.subject_identifier,
+            report_datetime=self.appointment.appt_datetime,
+            visit_code=self.appointment.visit_code,
+            visit_code_sequence=self.appointment.visit_code_sequence,
+            visit_schedule_name=self.appointment.visit_schedule_name,
+            schedule_name=self.appointment.schedule_name,
+            reason=SCHEDULED,
         )
         self.assertEqual(CrfMetadata.objects.all().count(), 5)
         crfs = FormsCollection(

@@ -2,7 +2,6 @@ from datetime import date
 
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_appointment.models import Appointment
 from edc_consent.field_mixins import PersonalFieldsMixin
 from edc_constants.choices import YES_NO
 from edc_constants.constants import MALE
@@ -26,11 +25,10 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
 from edc_visit_tracking.model_mixins import (
     SubjectVisitMissedModelMixin,
-    VisitModelMixin,
     VisitTrackingCrfModelMixin,
 )
+from edc_visit_tracking.models import SubjectVisit
 
-from ..model_mixins.creates import CreatesMetadataModelMixin
 from ..model_mixins.updates import (
     UpdatesCrfMetadataModelMixin,
     UpdatesRequisitionMetadataModelMixin,
@@ -90,20 +88,6 @@ class SubjectConsent(
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Subject Consent"
         verbose_name_plural = "Subject Consents"
-
-
-class SubjectVisit(
-    VisitModelMixin,
-    ReferenceModelMixin,
-    CreatesMetadataModelMixin,
-    SiteModelMixin,
-    BaseUuidModel,
-):
-    appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
-
-    subject_identifier = models.CharField(max_length=50)
-
-    reason = models.CharField(max_length=25)
 
 
 class SubjectRequisition(
