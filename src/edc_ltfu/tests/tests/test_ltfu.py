@@ -4,7 +4,7 @@ from django.test import TestCase, override_settings
 from edc_action_item import site_action_items
 from edc_action_item.models import ActionItem
 from edc_adverse_event.constants import DEATH_REPORT_ACTION
-from edc_appointment.tests.appointment_test_case_mixin import AppointmentTestCaseMixin
+from edc_appointment.tests.test_case_mixins import AppointmentTestCaseMixin
 from edc_consent import site_consents
 from edc_constants.constants import CLOSED, HOSPITALIZED, OTHER, YES
 from edc_facility.import_holidays import import_holidays
@@ -60,7 +60,7 @@ class TestLtfu(AppointmentTestCaseMixin, TestCase):
 
         site_reference_configs.registry = {}
         site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
+            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
         )
 
         self.subject_identifier = "111111111"
