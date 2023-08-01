@@ -1,5 +1,4 @@
 from importlib import import_module
-from unittest import skip
 
 from django.contrib.auth import get_user_model
 from django.test import override_settings
@@ -22,6 +21,9 @@ from data_manager_app.visit_schedules import visit_schedule
 from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
 from edc_data_manager.models import CrfDataDictionary, DataQuery
 from edc_data_manager.models.user import DataManagerUser
+from edc_data_manager.populate_data_dictionary import (
+    populate_data_dictionary_from_sites,
+)
 
 User = get_user_model()
 
@@ -38,6 +40,7 @@ class AdminSiteTest(WebTest):
         import_module("edc_dashboard.auths")
         import_module("edc_navbar.auths")
         AuthUpdater(verbose=False)
+        populate_data_dictionary_from_sites()
 
     def setUp(self):
         self.subject_identifier = "101-123456789"
@@ -75,7 +78,6 @@ class AdminSiteTest(WebTest):
         self.assertIn('<option value="do_nothing"', response)
         self.assertIn('<option value="default"', response)
 
-    @skip("webtest1")
     def test_query_rule_questions_from_single_form(self):
         login(self, superuser=False, redirect_url="admin:index")
 
@@ -84,17 +86,17 @@ class AdminSiteTest(WebTest):
             sender=DataManagerUser.objects.get(username=self.user.username),
         )
 
-        crf = CrfDataDictionary.objects.all()[0]
+        crf = CrfDataDictionary.objects.filter(model="data_manager_app.crffive")[0]
         query_rule.data_dictionaries.add(crf)
-        crf = CrfDataDictionary.objects.all()[1]
+        crf = CrfDataDictionary.objects.filter(model="data_manager_app.crffour")[0]
         query_rule.data_dictionaries.add(crf)
 
         url = reverse(
             "edc_data_manager_admin:edc_data_manager_queryrule_change", args=(query_rule.pk,)
         )
         form = self.app.get(url, user=self.user).form
-        response = form.submit().follow()
-        self.assertIn("Invalid. Select questions from one CRF only", str(response.content))
+        response = form.submit()
+        self.assertIn("Invalid. Select questions from one CRF only", str(response.text))
 
     def test_data_query(self):
         login(self, superuser=False, redirect_url="admin:index")

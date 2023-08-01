@@ -8,10 +8,9 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from data_manager_app.lab_profiles import lab_profile
 from data_manager_app.visit_schedules import visit_schedule
+from edc_data_manager.models import CrfDataDictionary, QueryRule, QueryVisitSchedule
 from edc_data_manager.models.requisition_panel import RequisitionPanel
 from edc_data_manager.models.user import DataManagerUser, QueryUser
-
-from ...models import CrfDataDictionary, QueryRule, QueryVisitSchedule
 
 
 class TestSerializer(TestCase):

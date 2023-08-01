@@ -1,19 +1,28 @@
+from __future__ import annotations
+
+from datetime import datetime
+from decimal import Decimal
+from typing import TYPE_CHECKING, LiteralString
+
 from edc_registration.models import RegisteredSubject
 from tqdm import tqdm
 
 from ..site_data_manager import site_data_manager
 
+if TYPE_CHECKING:
+    from ..models import QueryRule, QueryVisitSchedule
+
 
 class QueryRuleWrapper:
     def __init__(
         self,
-        query_rule_obj=None,
-        subject_identifiers=None,
-        visit_schedule_obj=None,
-        timepoint=None,
-        entry_status=None,
-        now=None,
-        verbose=None,
+        query_rule_obj: QueryRule = None,
+        subject_identifiers: list[LiteralString] = None,
+        visit_schedule_obj: QueryVisitSchedule = None,
+        timepoint: Decimal = None,
+        entry_status: str = None,
+        now: datetime = None,
+        verbose: bool | None = None,
     ):
         self.now = now
         self.query_rule_obj = query_rule_obj
