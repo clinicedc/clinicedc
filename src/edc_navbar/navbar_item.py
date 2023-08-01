@@ -1,7 +1,6 @@
 import copy
 
 from django.apps import apps as django_apps
-from django.conf import settings
 from django.core.management.color import color_style
 from django.template.loader import render_to_string
 from django.urls.base import reverse
@@ -11,10 +10,9 @@ from edc_dashboard.url_names import InvalidUrlName, url_names
 from edc_dashboard.utils import get_bootstrap_version
 
 from .exceptions import NavbarItemError, PermissionsCodenameError
+from .utils import get_verify_on_load
 
 style = color_style()
-
-EDC_NAVBAR_VERIFY_ON_LOAD = getattr(settings, "EDC_NAVBAR_VERIFY_ON_LOAD", None)
 
 
 class NavbarItem:
@@ -139,9 +137,9 @@ class NavbarItem:
                 reversed_url = reverse(self.url_name)
             except NoReverseMatch as e:
                 msg = f"{e}. See {repr(self)}."
-                if EDC_NAVBAR_VERIFY_ON_LOAD == IGNORE:
+                if get_verify_on_load() == IGNORE:
                     pass
-                elif EDC_NAVBAR_VERIFY_ON_LOAD == WARN:
+                elif get_verify_on_load() == WARN:
                     print(style.ERROR(msg))
                 else:
                     raise NoReverseMatch(f"{e}. See {repr(self)}.")
