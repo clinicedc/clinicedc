@@ -1,35 +1,66 @@
+from _decimal import Decimal
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from edc_appointment.constants import SCHEDULED_APPT
+from edc_appointment.models import Appointment
 from edc_constants.constants import NOT_APPLICABLE, YES
 from edc_lab.constants import EQ
+from edc_reference import site_reference_configs
 from edc_reportable import MILLIMOLES_PER_LITER
 from edc_utils import get_utcnow
+from edc_visit_schedule import site_visit_schedules
+from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.models import SubjectVisit
 
 from edc_glucose.form_validators import GlucoseFormValidator
-
-from ..models import Appointment, SubjectVisit
+from edc_glucose.tests.visit_schedules import visit_schedule
 
 
 class TestGlucose(TestCase):
     def setUp(self):
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule)
+        site_reference_configs.register_from_visit_schedule(
+            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
+        )
         self.subject_identifier = "1234"
         appointment = Appointment.objects.create(
-            subject_identifier=self.subject_identifier, visit_code=1000, visit_code_sequence=0
+            subject_identifier=self.subject_identifier,
+            visit_code="1000",
+            visit_code_sequence=0,
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
+            timepoint=Decimal("0.0"),
+            appt_datetime=get_utcnow(),
+            appt_reason=SCHEDULED_APPT,
         )
         self.subject_visit_baseline = SubjectVisit.objects.create(
             appointment=appointment,
             subject_identifier=self.subject_identifier,
             visit_code=1000,
             visit_code_sequence=0,
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
+            reason=SCHEDULED,
         )
         appointment = Appointment.objects.create(
-            subject_identifier=self.subject_identifier, visit_code=2000, visit_code_sequence=0
+            subject_identifier=self.subject_identifier,
+            visit_code="2000",
+            visit_code_sequence=0,
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
+            timepoint=Decimal("1.0"),
+            appt_datetime=get_utcnow(),
+            appt_reason=SCHEDULED_APPT,
         )
         self.subject_visit_followup = SubjectVisit.objects.create(
             appointment=appointment,
             subject_identifier=self.subject_identifier,
-            visit_code=2000,
+            visit_code="2000",
             visit_code_sequence=0,
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
+            reason=SCHEDULED,
         )
 
     def test_glucose_result(self):
