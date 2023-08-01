@@ -47,7 +47,7 @@ class VisitSequence:
             schedule_name=self.appointment.schedule_name,
             appt_datetime__lt=self.appointment.appt_datetime,
         )
-        opts.update({f"{self.appointment.related_visit_model_attr()}__isnull": True})
+        opts.update(**{f"{self.appointment.related_visit_model_attr()}__isnull": True})
         if appointments := self.appointment.__class__.objects.filter(**opts).order_by(
             "timepoint", "visit_code_sequence"
         ):

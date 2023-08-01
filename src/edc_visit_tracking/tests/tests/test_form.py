@@ -13,9 +13,10 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.form_validators import VisitFormValidator
 from edc_visit_tracking.modelform_mixins import VisitTrackingCrfModelFormMixin
+from edc_visit_tracking.models import SubjectVisit
 
 from ..helper import Helper
-from ..models import BadCrfNoRelatedVisit, CrfOne, SubjectVisit
+from ..models import BadCrfNoRelatedVisit, CrfOne
 from ..visit_schedule import visit_schedule1, visit_schedule2
 
 

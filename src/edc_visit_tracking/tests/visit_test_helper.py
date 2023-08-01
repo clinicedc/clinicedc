@@ -59,7 +59,7 @@ class VisitTestHelper:
     def add_visits(self, *codes, model_label=None, subject_identifier=None, reason=None):
         """Adds a sequence of visits for the codes provided.
 
-        If a infant visit already exists, it will just pass.
+        If an infant visit already exists, it will just pass.
         """
         visits = []
         for code in codes:
