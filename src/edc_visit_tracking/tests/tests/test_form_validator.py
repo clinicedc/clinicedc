@@ -13,9 +13,9 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.form_validators import VisitFormValidator
+from edc_visit_tracking.models import SubjectVisit
 
 from ..helper import Helper
-from ..models import SubjectVisit
 from ..visit_schedule import visit_schedule1, visit_schedule2
 
 

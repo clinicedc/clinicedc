@@ -10,22 +10,12 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from edc_visit_tracking.admin_site import edc_visit_tracking_admin
 from edc_visit_tracking.constants import SCHEDULED
-from edc_visit_tracking.modeladmin_mixins import (
-    CrfModelAdminMixin,
-    VisitModelAdminMixin,
-)
+from edc_visit_tracking.modeladmin_mixins import CrfModelAdminMixin
+from edc_visit_tracking.models import SubjectVisit
 
 from ..helper import Helper
-from ..models import CrfOne, SubjectVisit
+from ..models import CrfOne
 from ..visit_schedule import visit_schedule1, visit_schedule2
-
-
-@admin.register(SubjectVisit, site=edc_visit_tracking_admin)
-class SubjectVisitModelAdmin(
-    VisitModelAdminMixin, ModelAdminAuditFieldsMixin, admin.ModelAdmin
-):
-    def get_field_queryset(self, db, db_field, request):
-        return SubjectVisit.objects.all()
 
 
 @admin.register(CrfOne, site=edc_visit_tracking_admin)

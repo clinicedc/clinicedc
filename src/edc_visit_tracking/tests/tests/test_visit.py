@@ -10,9 +10,10 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
+from edc_visit_tracking.models import SubjectVisit
 
 from ..helper import Helper
-from ..models import BadCrfOneInline, CrfOne, CrfOneInline, OtherModel, SubjectVisit
+from ..models import BadCrfOneInline, CrfOne, CrfOneInline, OtherModel
 from ..visit_schedule import visit_schedule1, visit_schedule2
 
 
