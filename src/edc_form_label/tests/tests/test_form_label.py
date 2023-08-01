@@ -5,12 +5,15 @@ from django.contrib import admin
 from django.contrib.auth.models import Permission, User
 from django.test import TestCase
 from django.test.client import RequestFactory
+from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.models import Appointment
 from edc_constants.constants import NO
 from edc_facility import import_holidays
+from edc_reference import site_reference_configs
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
+from edc_visit_tracking.constants import SCHEDULED
 
 from ...custom_label_condition import CustomLabelCondition
 from ...form_label import FormLabel
@@ -29,6 +32,9 @@ class TestFormLabel(TestCase):
     def setUp(self):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
+        site_reference_configs.register_from_visit_schedule(
+            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
+        )
         self.user = User.objects.create(username="erikvw", is_staff=True, is_active=True)
         self.subject_identifier = "1234"
         for permission in Permission.objects.filter(
@@ -44,12 +50,27 @@ class TestFormLabel(TestCase):
         )
         self.appointment_one = Appointment.objects.get(visit_code=VISIT_ONE)
 
-        self.subject_visit_one = SubjectVisit.objects.create(appointment=self.appointment_one)
+        self.subject_visit_one = SubjectVisit.objects.create(
+            appointment=self.appointment_one,
+            visit_code=self.appointment_one.visit_code,
+            visit_code_sequence=self.appointment_one.visit_code_sequence,
+            visit_schedule_name=self.appointment_one.visit_schedule_name,
+            schedule_name=self.appointment_one.visit_schedule,
+            reason=SCHEDULED,
+        )
+        self.appointment_one.appt_status = INCOMPLETE_APPT
+        self.appointment_one.save()
 
         self.appointment_two = Appointment.objects.get(visit_code=VISIT_TWO)
 
-        self.subject_visit_two = SubjectVisit.objects.create(appointment=self.appointment_two)
-
+        self.subject_visit_two = SubjectVisit.objects.create(
+            appointment=self.appointment_two,
+            visit_code=self.appointment_two.visit_code,
+            visit_code_sequence=self.appointment_two.visit_code_sequence,
+            visit_schedule_name=self.appointment_two.visit_schedule_name,
+            schedule_name=self.appointment_two.visit_schedule,
+            reason=SCHEDULED,
+        )
         for field in MyModel._meta.get_fields():
             if field.name == "circumcised":
                 self.default_label = field.verbose_name
