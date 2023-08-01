@@ -2,17 +2,18 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.urls.base import reverse
 from django_webtest import WebTest
+from edc_appointment.constants import INCOMPLETE_APPT
+from edc_appointment.models import Appointment
 from edc_facility.import_holidays import import_holidays
 from edc_lab.site_labs import site_labs
-from edc_reference.site_reference import site_reference_configs
 from edc_utils.date import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.models import SubjectVisit
 
 from review_dashboard_app.lab_profiles import lab_profile
-from review_dashboard_app.models import Appointment, SubjectConsent, SubjectVisit
+from review_dashboard_app.models import SubjectConsent
 from review_dashboard_app.reference_configs import register_to_site_reference_configs
-from review_dashboard_app.visit_schedule import visit_schedule
 
 User = get_user_model()
 
@@ -35,41 +36,18 @@ class TestDashboard(WebTest):
         site_labs.register(lab_profile=lab_profile)
 
         register_to_site_reference_configs()
-        site_visit_schedules._registry = {}
-        site_visit_schedules.loaded = False
-        site_visit_schedules.register(visit_schedule)
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "review_dashboard_app.subjectvisit"}
-        )
 
         self.subject_identifiers = ["101-40990028-3", "101-40990029-4"]
 
         for subject_identifier in self.subject_identifiers:
             subject_consent = SubjectConsent.objects.create(
                 subject_identifier=subject_identifier,
-                consent_datetime=get_utcnow(),
+                consent_datetime=get_utcnow() - relativedelta(days=10),
                 identity=subject_identifier,
                 confirm_identity=subject_identifier,
                 dob=get_utcnow() - relativedelta(years=25),
             )
 
-            for schedule in visit_schedule.schedules.values():
-                for visit in schedule.visits.values():
-                    appointment = Appointment.objects.create(
-                        appt_datetime=get_utcnow(),
-                        subject_identifier=subject_identifier,
-                        visit_schedule_name="visit_schedule",
-                        schedule_name="schedule",
-                        timepoint=visit.timepoint,
-                        visit_code=visit.code,
-                        user_created="user_login",
-                    )
-                    SubjectVisit.objects.create(
-                        appointment=appointment,
-                        subject_identifier=subject_identifier,
-                        reason=SCHEDULED,
-                        user_created="user_login",
-                    )
             # put subject on schedule
             _, schedule = site_visit_schedules.get_by_onschedule_model(
                 "review_dashboard_app.onschedule"
@@ -78,6 +56,22 @@ class TestDashboard(WebTest):
                 subject_identifier=subject_consent.subject_identifier,
                 onschedule_datetime=subject_consent.consent_datetime,
             )
+            for appointment in Appointment.objects.filter(
+                subject_identifier=subject_identifier
+            ).order_by("appt_datetime"):
+                SubjectVisit.objects.create(
+                    appointment=appointment,
+                    report_datetime=appointment.appt_datetime,
+                    subject_identifier=subject_identifier,
+                    reason=SCHEDULED,
+                    visit_code=appointment.visit_code,
+                    visit_code_sequence=appointment.visit_code_sequence,
+                    visit_schedule_name=appointment.visit_schedule_name,
+                    schedule_name=appointment.schedule_name,
+                    user_created="user_login",
+                )
+                appointment.appt_status = INCOMPLETE_APPT
+                appointment.save()
 
     def login(self):
         form = self.app.get(reverse("admin:index")).maybe_follow().form
