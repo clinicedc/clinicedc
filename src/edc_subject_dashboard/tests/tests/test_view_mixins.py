@@ -6,22 +6,19 @@ from edc_locator.view_mixins import (
     SubjectLocatorViewMixin,
     SubjectLocatorViewMixinError,
 )
+from edc_reference import site_reference_configs
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
+from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.models import SubjectVisit
 
 from edc_subject_dashboard.view_mixins import (
     SubjectVisitViewMixin,
     SubjectVisitViewMixinError,
 )
 
-from ..models import (
-    Appointment,
-    BadSubjectVisit,
-    OnScheduleOne,
-    SubjectVisit,
-    TestModel,
-)
+from ..models import Appointment, BadSubjectVisit, OnScheduleOne, TestModel
 from ..visit_schedule import visit_schedule1
 
 
@@ -34,6 +31,9 @@ class TestViewMixins(TestCase):
     def setUp(self):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
+        site_reference_configs.register_from_visit_schedule(
+            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
+        )
 
         self.subject_identifier = "12345"
 
@@ -56,6 +56,7 @@ class TestViewMixins(TestCase):
             visit_schedule_name="visit_schedule1",
             schedule_name="schedule1",
             visit_code="1000",
+            reason=SCHEDULED,
         )
         self.bad_subject_visit = BadSubjectVisit.objects.create(
             appointment=self.appointment, subject_identifier=self.subject_identifier
