@@ -1,9 +1,9 @@
-from django.conf import settings
 from django.contrib import admin
 from django.db import models
 from edc_crf.model_mixins import CrfModelMixin, CrfStatusModelMixin
 from edc_model.models import BaseUuidModel
 from edc_utils import get_utcnow
+from edc_visit_tracking.models import SubjectVisit
 
 
 class TestModel(models.Model):
@@ -17,7 +17,7 @@ admin.site.register(TestModel)
 
 
 class Crf(CrfModelMixin, CrfStatusModelMixin, BaseUuidModel):
-    subject_visit = models.ForeignKey(settings.SUBJECT_VISIT_MODEL, on_delete=models.PROTECT)
+    subject_visit = models.ForeignKey(SubjectVisit, on_delete=models.PROTECT)
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
