@@ -31,10 +31,6 @@ class OffStudy(edc_models.BaseUuidModel):
     offstudy_datetime = models.DateTimeField(default=get_utcnow)
 
 
-class Locator(edc_models.BaseUuidModel):
-    subject_identifier = models.CharField(max_length=50)
-
-
 class SubjectScreening(ScreeningModelMixin, BaseUuidModel):
     objects = SubjectIdentifierManager()
 

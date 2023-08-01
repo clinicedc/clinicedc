@@ -32,7 +32,7 @@ visit_schedule = VisitSchedule(
     name="visit_schedule",
     offstudy_model="edc_adherence.offstudy",
     death_report_model="edc_adherence.deathreport",
-    locator_model="edc_adherence.locator",
+    locator_model="edc_locator.subjectlocator",
 )
 
 schedule.add_visit(visit)
