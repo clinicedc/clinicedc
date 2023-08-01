@@ -1,28 +1,39 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
+from edc_appointment.constants import SCHEDULED_APPT
+from edc_appointment.models import Appointment
 from edc_constants.constants import BLACK, CLOSED, COMPLETE, INCOMPLETE, MALE, OPEN
 from edc_lab import site_labs
 from edc_lab.models import Panel
 from edc_lab_panel.panels import rft_panel
+from edc_reference import site_reference_configs
 from edc_registration.models import RegisteredSubject
 from edc_reportable import MICROMOLES_PER_LITER, site_reportables
 from edc_reportable.grading_data.daids_july_2017 import grading_data
 from edc_reportable.normal_data.africa import normal_data
 from edc_utils import get_utcnow
+from edc_visit_schedule import site_visit_schedules
+from edc_visit_schedule.constants import DAY1
+from edc_visit_tracking.constants import SCHEDULED
 
 from edc_egfr.egfr import Egfr
 from egfr_app.lab_profiles import lab_profile
 from egfr_app.models import (
-    Appointment,
     EgfrDropNotification,
     ResultCrf,
     SubjectRequisition,
     SubjectVisit,
 )
+from egfr_app.visit_schedules import visit_schedule
 
 
 class TestEgfr(TestCase):
     def setUp(self) -> None:
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule)
+        site_reference_configs.register_from_visit_schedule(
+            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
+        )
         RegisteredSubject.objects.create(
             subject_identifier="1234",
             gender=MALE,
@@ -33,11 +44,21 @@ class TestEgfr(TestCase):
             subject_identifier="1234",
             appt_datetime=get_utcnow(),
             timepoint=0,
+            visit_code=DAY1,
+            visit_code_sequence=0,
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
+            appt_reason=SCHEDULED_APPT,
         )
         self.subject_visit = SubjectVisit.objects.create(
             subject_identifier="1234",
             appointment=appointment,
             report_datetime=appointment.appt_datetime,
+            visit_code=DAY1,
+            visit_code_sequence=0,
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
+            reason=SCHEDULED,
         )
 
         panel = Panel.objects.get(name=rft_panel.name)

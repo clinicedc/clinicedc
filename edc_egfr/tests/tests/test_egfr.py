@@ -1,9 +1,12 @@
+from _decimal import Decimal
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
+from edc_appointment.models import Appointment
 from edc_constants.constants import BLACK, MALE
 from edc_lab import site_labs
 from edc_lab.models import Panel
 from edc_lab_panel.panels import rft_panel
+from edc_reference import site_reference_configs
 from edc_registration.models import RegisteredSubject
 from edc_reportable import (
     MICROMOLES_PER_LITER,
@@ -14,21 +17,24 @@ from edc_reportable.grading_data.daids_july_2017 import grading_data
 from edc_reportable.normal_data.africa import normal_data
 from edc_utils import get_utcnow
 from edc_utils.round_up import round_half_away_from_zero
+from edc_visit_schedule import site_visit_schedules
+from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.models import SubjectVisit
 
 from edc_egfr.calculators import EgfrCalculatorError
 from edc_egfr.egfr import Egfr, EgfrError
 from egfr_app.lab_profiles import lab_profile
-from egfr_app.models import (
-    Appointment,
-    EgfrDropNotification,
-    ResultCrf,
-    SubjectRequisition,
-    SubjectVisit,
-)
+from egfr_app.models import EgfrDropNotification, ResultCrf, SubjectRequisition
+from egfr_app.visit_schedules import visit_schedule
 
 
 class TestEgfr(TestCase):
     def setUp(self) -> None:
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule)
+        site_reference_configs.register_from_visit_schedule(
+            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
+        )
         RegisteredSubject.objects.create(
             subject_identifier="1234",
             gender=MALE,
@@ -187,12 +193,21 @@ class TestEgfr(TestCase):
         appointment = Appointment.objects.create(
             subject_identifier="1234",
             appt_datetime=get_utcnow(),
-            timepoint=0,
+            visit_code="1000",
+            visit_code_sequence=0,
+            timepoint=Decimal("0.0"),
+            schedule_name="schedule",
+            visit_schedule_name="visit_schedule",
         )
         subject_visit = SubjectVisit.objects.create(
             subject_identifier="1234",
             appointment=appointment,
             report_datetime=appointment.appt_datetime,
+            visit_code="1000",
+            visit_code_sequence=0,
+            reason=SCHEDULED,
+            schedule_name="schedule",
+            visit_schedule_name="visit_schedule",
         )
 
         panel = Panel.objects.get(name=rft_panel.name)
