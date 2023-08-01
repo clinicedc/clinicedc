@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, Tuple
+from typing import TYPE_CHECKING, Any, Dict, Tuple, Type
 
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
@@ -46,7 +46,7 @@ def get_appointment_model_name() -> str:
     return "edc_appointment.appointment"
 
 
-def get_appointment_model_cls() -> Appointment:
+def get_appointment_model_cls() -> Type[Appointment]:
     return django_apps.get_model(get_appointment_model_name())
 
 
@@ -113,6 +113,7 @@ def get_appt_type_default():
 
 
 def cancelled_appointment(appointment: Appointment) -> None:
+    """Try to delete subject visit if appt status = CANCELLED_APPT"""
     try:
         cancelled = appointment.appt_status == CANCELLED_APPT
     except AttributeError as e:
@@ -143,6 +144,9 @@ def cancelled_appointment(appointment: Appointment) -> None:
 
 
 def missed_appointment(appointment: Appointment) -> None:
+    """Try to create_missed_visit_from_appointment if
+    appt_status == missed.
+    """
     try:
         missed = appointment.appt_timing == MISSED_APPT
     except AttributeError as e:

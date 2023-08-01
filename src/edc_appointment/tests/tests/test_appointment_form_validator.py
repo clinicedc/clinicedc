@@ -39,8 +39,8 @@ from edc_appointment.utils import get_previous_appointment
 from edc_appointment_app.models import SubjectVisit
 from edc_appointment_app.visit_schedule import visit_schedule1, visit_schedule2
 
-from ..appointment_test_case_mixin import AppointmentTestCaseMixin
 from ..helper import Helper
+from ..test_case_mixins import AppointmentTestCaseMixin
 
 
 class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
