@@ -1,10 +1,7 @@
 import sys
-from datetime import datetime
 
-from dateutil.tz import gettz
 from django.apps import AppConfig as DjangoAppConfig
 from django.apps import apps as django_apps
-from django.conf import settings
 
 
 class AppConfig(DjangoAppConfig):
@@ -22,17 +19,3 @@ class AppConfig(DjangoAppConfig):
     @property
     def model(self):
         return django_apps.get_model(self.app_label, "registeredsubject")
-
-
-if "edc_registration" in settings.APP_NAME:
-    from edc_protocol.apps import AppConfig as BaseEdcProtocolAppConfig
-
-    class EdcProtocolAppConfig(BaseEdcProtocolAppConfig):
-        protocol = "BHP092"
-        protocol_name = "Ambition"
-        protocol_number = "092"
-        protocol_title = ""
-        site_code = "40"
-        site_name = "Gaborone"
-        study_open_datetime = datetime(2016, 12, 31, 0, 0, 0, tzinfo=gettz("UTC"))
-        study_close_datetime = datetime(2019, 12, 31, 23, 59, 59, tzinfo=gettz("UTC"))
