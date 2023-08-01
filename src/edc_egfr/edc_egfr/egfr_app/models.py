@@ -9,6 +9,7 @@ from edc_reportable import MICROMOLES_PER_LITER
 from edc_screening.model_mixins import ScreeningIdentifierModelMixin
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
+from edc_visit_tracking.models import SubjectVisit
 
 from edc_egfr.model_mixins import EgfrDropNotificationModelMixin, EgfrModelMixin
 
@@ -31,47 +32,6 @@ class SubjectScreening(ScreeningIdentifierModelMixin, BaseUuidModel):
         default=get_utcnow,
         help_text="Date and time of report.",
     )
-
-
-class Appointment(BaseUuidModel):
-    subject_identifier = models.CharField(max_length=25, null=True)
-
-    appt_datetime = models.DateTimeField(
-        verbose_name="Appointment date and time", db_index=True
-    )
-
-    timepoint = models.IntegerField(default=0)
-
-    visit_code_sequence = models.IntegerField(default=0)
-
-    visit_schedule_name = models.CharField(max_length=25, default="visit_schedule")
-
-    schedule_name = models.CharField(max_length=25, default="schedule")
-
-    class Meta(BaseUuidModel.Meta):
-        pass
-
-
-class SubjectVisit(SiteModelMixin, BaseUuidModel):
-    appointment = models.OneToOneField(
-        Appointment,
-        on_delete=PROTECT,
-    )
-
-    subject_identifier = models.CharField(max_length=25, null=True)
-
-    consent_version = models.CharField(max_length=5, default="1")
-
-    report_datetime = models.DateTimeField()
-
-    visit_code_sequence = models.IntegerField(default=0)
-
-    visit_schedule_name = models.CharField(max_length=25, default="visit_schedule")
-
-    schedule_name = models.CharField(max_length=25, default="schedule")
-
-    class Meta(BaseUuidModel.Meta):
-        app_label = "egfr_app"
 
 
 class SubjectRequisition(PanelModelMixin, BaseUuidModel):
