@@ -50,7 +50,7 @@ class EdcunblindingTestCase(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule)
         site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "visit_schedule_app.subjectvisit"}
+            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
         )
         self.subject_consent = self.helper.consent_and_put_on_schedule()
 
