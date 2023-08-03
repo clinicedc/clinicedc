@@ -89,7 +89,7 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
         elif self.instance:
             appointment = self.instance.appointment
         if not appointment:
-            self.raise_validation_error("Appointment is required.")
+            self.raise_validation_error("Appointment is required.", INVALID_ERROR)
         return appointment
 
     @property

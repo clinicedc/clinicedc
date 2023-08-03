@@ -52,7 +52,7 @@ class SiteFieldsProtocol(Protocol):
         ...
 
 
-class RelatedVisitProtocol(VisitScheduleFieldsProtocol, Protocol, metaclass=ModelBase):
+class RelatedVisitProtocol(VisitScheduleFieldsProtocol, Protocol):
     metadata_cls: Type[Metadata]
     metadata_destroyer_cls: Type[Destroyer]
     metadata_rule_evaluator_cls: Type[MetadataRuleEvaluator]

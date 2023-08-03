@@ -8,7 +8,7 @@ from ..exceptions import RelatedVisitFieldError
 
 if TYPE_CHECKING:
     from edc_crf.crf_form_validator import CrfFormValidator
-    from edc_crf.form_validator_mixins import CrfFormValidatorMixin
+    from edc_crf.crf_form_validator_mixins import CrfFormValidatorMixin
     from edc_crf.modelform_mixins import InlineCrfModelFormMixin
 
     from ..model_mixins import VisitModelMixin
