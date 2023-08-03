@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Type
+
 from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from edc_action_item.models import ActionItem
@@ -7,6 +11,9 @@ from ..constants import DEATH_REPORT_TMG_ACTION
 from ..get_ae_model import get_ae_model
 from .death_report_tmg_model_wrapper import DeathReportTmgModelWrapper
 from .death_report_tmg_second_model_wrapper import DeathReportTmgSecondModelWrapper
+
+if TYPE_CHECKING:
+    from ..model_mixins import DeathReportModelMixin
 
 
 class DeathReportModelWrapper(ModelWrapper):
@@ -81,15 +88,15 @@ class DeathReportModelWrapper(ModelWrapper):
         return model_wrappers
 
     @property
-    def death_report_tmg_model_cls(self):
+    def death_report_tmg_model_cls(self) -> Type[DeathReportModelMixin]:
         return get_ae_model("deathreporttmg")
 
     @property
-    def death_report_tmg_second_model_cls(self):
+    def death_report_tmg_second_model_cls(self) -> Type[DeathReportModelMixin]:
         return get_ae_model("deathreporttmgsecond")
 
     @property
-    def death_report_tmg(self):
+    def death_report_tmg(self) -> DeathReportModelMixin:
         if not self._death_report_tmg:
             try:
                 self._death_report_tmg = self.death_report_tmg_model_cls.objects.get(
@@ -100,7 +107,7 @@ class DeathReportModelWrapper(ModelWrapper):
         return self._death_report_tmg
 
     @property
-    def death_report_tmg_second(self):
+    def death_report_tmg_second(self) -> DeathReportModelMixin:
         if not self._death_report_tmg_second:
             try:
                 self._death_report_tmg_second = (
