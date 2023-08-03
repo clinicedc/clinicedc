@@ -12,8 +12,8 @@ from edc_test_utils.webtest import login
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.utils import (
+    get_related_visit_model,
     get_related_visit_model_cls,
-    get_subject_visit_model,
 )
 
 from edc_appointment.admin import AppointmentAdmin
@@ -51,7 +51,7 @@ class TestAdmin(WebTest):
             now=Protocol().study_open_datetime,
         )
         site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": get_subject_visit_model()}
+            visit_models={"edc_appointment.appointment": get_related_visit_model()}
         )
 
     def login(self):

@@ -14,8 +14,8 @@ from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.model_mixins import SubjectVisitReasonError
 from edc_visit_tracking.utils import (
+    get_related_visit_model,
     get_related_visit_model_cls,
-    get_subject_visit_model,
 )
 
 from edc_appointment.constants import (
@@ -56,7 +56,7 @@ class TestAppointment(TestCase):
             now=Protocol().study_open_datetime,
         )
         site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": get_subject_visit_model()}
+            visit_models={"edc_appointment.appointment": get_related_visit_model()}
         )
 
     def test_appointments_creation(self):
