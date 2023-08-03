@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 def get_ae_model(
     model_name,
-) -> DeathReportModelMixin | AeInitialModelMixin | AeFollowupModelMixin:
+) -> Type[DeathReportModelMixin] | Type[AeInitialModelMixin] | Type[AeFollowupModelMixin]:
     return django_apps.get_model(f"{settings.ADVERSE_EVENT_APP_LABEL}.{model_name}")
 
 

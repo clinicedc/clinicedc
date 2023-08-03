@@ -101,7 +101,7 @@ class DeathReportListboardViewMixin(
                 user=self.request.user,
                 request=request,
             )
-            return report.render()
+            return report.render_to_response()
         return None
 
     def get_context_data(self, **kwargs) -> dict:
