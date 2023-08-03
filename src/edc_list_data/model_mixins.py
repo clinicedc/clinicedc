@@ -39,6 +39,8 @@ class BaseListModelMixin(models.Model):
         max_length=25, editable=False, null=True, blank=True, help_text="Not required"
     )
 
+    extra_value = models.CharField(max_length=250, null=True)
+
     version = models.CharField(max_length=35, editable=False, default="1.0")
 
     objects = ListModelManager()

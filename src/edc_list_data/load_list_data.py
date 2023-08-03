@@ -1,8 +1,8 @@
-from typing import Optional
+from __future__ import annotations
 
 from django.apps import AppConfig
-from django.apps import apps as django_apps
-from django.core.exceptions import ObjectDoesNotExist
+
+from .list_model_maker import ListModelMaker, ListModelMakerError
 
 
 class LoadListDataError(Exception):
@@ -10,7 +10,7 @@ class LoadListDataError(Exception):
 
 
 def load_list_data(
-    list_data: dict = None, model_name: Optional[str] = None, apps: Optional[AppConfig] = None
+    list_data: dict = None, model_name: str | None = None, apps: AppConfig | None = None
 ) -> int:
     """Loads data into a list model.
 
@@ -24,7 +24,6 @@ def load_list_data(
          (name2, display_name),...],
         ...}
     """
-    apps = apps or django_apps
     if model_name:
         model_names = [model_name]
     else:
@@ -32,22 +31,10 @@ def load_list_data(
     n = 0
     for model_name in model_names:
         try:
-            model = apps.get_model(model_name)
-            for display_index, value in enumerate(list_data.get(model_name)):
-                store_value, display_value = value
-                try:
-                    obj = model.objects.get(name=store_value)
-                except ObjectDoesNotExist:
-                    model.objects.create(
-                        name=store_value,
-                        display_name=display_value,
-                        display_index=display_index,
-                    )
-                else:
-                    obj.display_name = display_value
-                    obj.display_index = display_index
-                    obj.save()
-        except ValueError as e:
+            for display_index, row in enumerate(list_data.get(model_name)):
+                maker = ListModelMaker(display_index, row, model_name, apps=apps)
+                maker.create_or_update()
+        except ListModelMakerError as e:
             raise LoadListDataError(f"{e} See {list_data.get(model_name)}.")
         n += 1
     return n
