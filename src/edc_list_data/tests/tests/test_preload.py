@@ -164,3 +164,23 @@ class TestPreload(TestCase):
             "edc_list_data.antibiotic",
             site_list_data.registry.get("my_list_app.list_data").get("list_data"),
         )
+
+    @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
+    def test_list_data_with_site(self):
+        site_list_data.initialize()
+        module = import_module("edc_list_data.tests.list_data_with_site")
+        site_list_data.register(module)
+        self.assertIn(
+            "edc_list_data.antibiotic",
+            site_list_data.registry.get("edc_list_data.tests.list_data_with_site").get(
+                "list_data"
+            ),
+        )
+        site_list_data.load_data()
+        self.assertEqual(Antibiotic.objects.all().count(), 8)
+        try:
+            obj = Antibiotic.objects.get(name="amoxicillin_ampicillin")
+        except ObjectDoesNotExist as e:
+            self.fail(f"ObjectDoesNotExist unexpectedly raised. Got {e}")
+        else:
+            self.assertEqual(obj.extra_value, "uganda")
