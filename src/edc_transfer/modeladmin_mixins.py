@@ -49,8 +49,9 @@ class SubjectTransferModelAdminMixin:
         )
         return custom_fields + tuple(f for f in list_display if f not in custom_fields)
 
+    #
     def get_list_filter(self, request) -> Tuple[str, ...]:
-        list_filter = super().get_list_display(request)
+        list_filter = super().get_list_filter(request)
         custom_fields = (
             "transfer_date",
             "initiated_by",
