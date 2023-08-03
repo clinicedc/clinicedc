@@ -1,4 +1,4 @@
-from edc_protocol import Protocol
+from typing import Protocol
 
 
 class VisitScheduleFieldsProtocol(Protocol):
