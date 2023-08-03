@@ -6,6 +6,7 @@ from edc_constants.choices import YES_NO, YES_NO_UNSURE
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_model import models as edc_models
 from edc_sites.models import SiteModelMixin
+from edc_utils import convert_php_dateformat
 from edc_utils.date import get_utcnow
 
 from .choices import TRANSFER_INITIATORS
@@ -57,6 +58,14 @@ class SubjectTransferModelMixin(
     )
 
     comment = EncryptedTextField(verbose_name="Additional Comments")
+
+    def __str__(self):
+        transfer_date = "???"
+        if self.transfer_date:
+            transfer_date = self.transfer_date.strftime(
+                convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+            )
+        return f"{self.subject_identifier} on {transfer_date}."
 
     def natural_key(self):
         return (self.subject_identifier,)  # noqa
