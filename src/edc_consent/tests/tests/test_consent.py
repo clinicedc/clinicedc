@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from edc_protocol import Protocol
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
@@ -212,7 +212,7 @@ class TestConsent(TestCase):
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
             version="1.1",
-            updates_versions="1.0",
+            updates_versions=["1.0"],
         )
 
     def test_consent_model_needs_previous_version(self):
@@ -228,7 +228,7 @@ class TestConsent(TestCase):
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
             version="1.1",
-            updates_versions="1.0",
+            updates_versions=["1.0"],
         )
         self.assertRaises(
             ConsentVersionSequenceError,
@@ -249,7 +249,7 @@ class TestConsent(TestCase):
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
             version="1.1",
-            updates_versions="1.0",
+            updates_versions=["1.0"],
         )
         subject_consent = baker.make_recipe(
             "edc_consent.subjectconsent",
@@ -283,13 +283,13 @@ class TestConsent(TestCase):
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
             version="1.1",
-            updates_versions="1.0",
+            updates_versions=["1.0"],
         )
         consent_object_factory(
             start=self.study_open_datetime + timedelta(days=101),
             end=self.study_open_datetime + timedelta(days=150),
             version="1.2",
-            updates_versions="1.1",
+            updates_versions=["1.1"],
         )
         subject_consent = baker.make_recipe(
             "edc_consent.subjectconsent",
@@ -372,6 +372,7 @@ class TestConsent(TestCase):
             version="1.0",
         )
 
+    @tag("1")
     def test_consent_may_update_more_than_one_version(self):
         consent_object_factory(
             start=self.study_open_datetime,
@@ -387,7 +388,7 @@ class TestConsent(TestCase):
             start=self.study_open_datetime + timedelta(days=101),
             end=self.study_open_datetime + timedelta(days=150),
             version="3.0",
-            updates_versions="1.0, 2.0",
+            updates_versions=["1.0", "2.0"],
         )
 
     def test_consent_object_naive_datetime_start(self):

@@ -11,7 +11,7 @@ def consent_object_factory(
     start: datetime = None,
     end: datetime = None,
     gender: list[str] | None = None,
-    updates_versions: list = None,
+    updates_versions: list[str] | tuple[str] = None,
     version: str | None = None,
     age_min: int | None = None,
     age_max: int | None = None,
