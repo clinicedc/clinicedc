@@ -10,7 +10,7 @@ from edc_document_status.fieldsets import document_status_fieldset_tuple
 from edc_document_status.modeladmin_mixins import DocumentStatusModelAdminMixin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_model_admin.history import SimpleHistoryAdmin
-from edc_sites.modeladmin_mixins import SiteModelAdminMixin
+from edc_sites.admin import SiteModelAdminMixin
 from edc_visit_schedule import OnScheduleError, off_schedule_or_raise
 from edc_visit_schedule.fieldsets import (
     visit_schedule_fields,
