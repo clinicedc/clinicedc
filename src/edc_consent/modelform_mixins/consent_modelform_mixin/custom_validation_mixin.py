@@ -131,6 +131,7 @@ class CustomValidationMixin:
 
     def validate_identity_with_unique_fields(self) -> None:
         cleaned_data = self.cleaned_data
+        msg_word = None
         first_name = cleaned_data.get("first_name")
         initials = cleaned_data.get("initials")
         familiar_name = cleaned_data.get("familiar_name")
