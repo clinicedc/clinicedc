@@ -26,6 +26,14 @@ class MetadataViewMixin:
 
     metadata_show_status: list[str] = [REQUIRED, KEYED]
 
+    def get(self, request, *args, **kwargs):
+        if "subject_review_listboard" in request.headers.get("Referer") and kwargs.get(
+            "appointment"
+        ):
+            self.appointment_id = kwargs.get("appointment")
+            self.refresh_metadata()
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(metadata_show_status=self.metadata_show_status)
@@ -53,6 +61,11 @@ class MetadataViewMixin:
                     KEYED=KEYED,
                 )
         return context
+
+    def refresh_metadata(self):
+        """Save related visit model instance to run metadata update."""
+        self.appointment.related_visit.save()
+        self.appointment.related_visit.refresh_from_db()
 
     def get_crf_model_wrappers(self):
         """Returns a list of model wrappers.

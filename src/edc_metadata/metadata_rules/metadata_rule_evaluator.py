@@ -24,7 +24,7 @@ class MetadataRuleEvaluator:
         allow_create: bool | None = None,
     ) -> None:
         self.related_visit = related_visit
-        self.app_labels = [app_label] if app_label else []  # or related_visit._meta.app_label
+        self.app_labels = [app_label] if app_label else []
         self.related_visit_model = related_visit._meta.label_lower
         self.allow_create = allow_create
         if not self.app_labels:
