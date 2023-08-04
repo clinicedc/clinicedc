@@ -27,11 +27,18 @@ class MetadataViewMixin:
     metadata_show_status: list[str] = [REQUIRED, KEYED]
 
     def get(self, request, *args, **kwargs):
-        if "subject_review_listboard" in request.headers.get("Referer") and kwargs.get(
-            "appointment"
-        ):
-            self.appointment_id = kwargs.get("appointment")
-            self.refresh_metadata()
+        try:
+            referrer = request.headers.get("Referer")
+        except TypeError:
+            pass
+        else:
+            if (
+                referrer
+                and kwargs.get("appointment")
+                and "subject_review_listboard" in referrer
+            ):
+                self.appointment_id = kwargs.get("appointment")
+                self.refresh_metadata()
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
