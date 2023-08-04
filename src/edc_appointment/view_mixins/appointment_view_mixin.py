@@ -26,9 +26,12 @@ class AppointmentViewMixin:
         self.appointment_model = "edc_appointment.appointment"
         self.appointment_id = None
 
+    def get(self, request, *args, **kwargs):
+        self.appointment_id = kwargs.get("appointment")
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        self.appointment_id = kwargs.get("appointment")
         update_unscheduled_appointment_sequence(
             subject_identifier=self.kwargs.get("subject_identifier"),
         )
