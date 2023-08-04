@@ -1,8 +1,10 @@
 from django.apps import apps as django_apps
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
+from edc_crf.model_mixins import SingletonCrfModelMixin
 
 from edc_metadata import KEYED
+from edc_metadata.utils import refresh_references_and_metadata_for_timepoint
 
 
 @receiver(post_save, weak=False, dispatch_uid="metadata_create_on_post_save")
@@ -12,7 +14,14 @@ def metadata_create_on_post_save(
     """Creates all metadata on post save of model using
     CreatesMetaDataModelMixin.
 
-    For example, when saving the visit model.
+    For example, when saving the related_visit model.
+
+    A related_visit model instance will:
+      * update it`s own references (`update_reference_on_save`)
+      * delete and re-create ALL metadata for the timepoint
+        (`metadata_create`)
+      * run ALL metadata rules for the timepoint
+        (`run_metadata_rules_for_related_visit`).
 
     See also edc_reference.ReferenceModelMixin and
     RequisitionReferenceModelMixin .
@@ -24,8 +33,6 @@ def metadata_create_on_post_save(
         and not instance._meta.label_lower.split(".")[1].startswith("historical")
     ):
         try:
-            # update_reference_on_save (from edc-reference) called here
-            # to ensure called before metadata funcs below
             instance.update_reference_on_save()
         except AttributeError as e:
             if "update_reference_on_save" not in str(e):
@@ -44,9 +51,16 @@ def metadata_create_on_post_save(
 def metadata_update_on_post_save(
     sender, instance, raw, created, using, update_fields, **kwargs
 ) -> None:
-    """Updates the single metadata record on post save of a CRF model.
+    """Updates the single metadata record on post save of a
+    CRF/Requisition model.
 
-    Does not "create" metadata.
+    Does NOT "create" metadata.
+
+    A CRF/Requisition model instance will:
+      * update it`s own references (`update_reference_on_save`)
+      * update it`s own metadata (`metadata_update`)
+      * run ALL metadata rules for the timepoint
+        (`run_metadata_rules_for_related_visit`).
     """
     if (
         not raw
@@ -54,7 +68,6 @@ def metadata_update_on_post_save(
         and not hasattr(instance, "metadata_create")
         and not instance._meta.label_lower.split(".")[1].startswith("historical")
     ):
-        # if not raw and not update_fields:
         try:
             instance.update_reference_on_save()
         except AttributeError as e:
@@ -67,7 +80,7 @@ def metadata_update_on_post_save(
                 raise
         else:
             if django_apps.get_app_config("edc_metadata").metadata_rules_enabled:
-                instance.run_metadata_rules_for_crf(allow_create=True)
+                instance.run_metadata_rules_for_related_visit(allow_create=True)
 
 
 @receiver(post_delete, weak=False, dispatch_uid="metadata_reset_on_post_delete")
@@ -91,10 +104,29 @@ def metadata_reset_on_post_delete(sender, instance, using, **kwargs) -> None:
             raise
     else:
         if django_apps.get_app_config("edc_metadata").metadata_rules_enabled:
-            instance.run_metadata_rules_for_crf()
+            instance.run_metadata_rules_for_related_visit()
     # deletes all for a visit used by CreatesMetadataMixin
     try:
         instance.metadata_delete_for_visit()
     except AttributeError as e:
         if "metadata_delete_for_visit" not in str(e):
             raise
+
+
+@receiver(
+    post_save,
+    weak=False,
+    dispatch_uid="metadata_update_previous_timepoints_for_singleton_on_post_save",
+)
+def metadata_update_previous_timepoints_for_singleton_on_post_save(
+    sender, instance, raw, created, using, **kwargs
+):
+    if not raw and not kwargs.get("update_fields"):
+        if isinstance(instance, (SingletonCrfModelMixin,)):
+            related_visit = instance.related_visit
+            while related_visit:
+                related_visit = related_visit.previous_visit
+                if related_visit:
+                    refresh_references_and_metadata_for_timepoint(
+                        related_visit, skip_references=True
+                    )

@@ -33,3 +33,26 @@ def get_metadata_model_cls(
 
 def verify_model_cls_registered_with_admin():
     return getattr(settings, "EDC_METADATA_VERIFY_MODELS_REGISTERED_WITH_ADMIN", False)
+
+
+def refresh_references_and_metadata_for_timepoint(
+    appointment_or_related_visit, skip_references: bool | None = None
+):
+    """Refresh references and metadata for the given timepoint.
+
+    Note: unlike the signal we call `update_references_on_save`
+    (note the `s` in `references`) instead.
+
+    See also `metadata_create_on_post_save`, `ReferenceModelMixin`
+    and `CreatesMetadataModelMixin`.
+    """
+    if appointment_or_related_visit:
+        try:
+            related_visit = appointment_or_related_visit.related_visit
+        except AttributeError:
+            related_visit = appointment_or_related_visit
+        if not skip_references:
+            related_visit.update_references_on_save()
+        related_visit.metadata_create()
+        if django_apps.get_app_config("edc_metadata").metadata_rules_enabled:
+            related_visit.run_metadata_rules()
