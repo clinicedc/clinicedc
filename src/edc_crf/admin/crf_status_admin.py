@@ -2,27 +2,13 @@ from django.apps import apps as django_apps
 from django.contrib import admin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
-from .admin_site import edc_crf_admin
-from .models import CrfStatus
+from ..admin_site import edc_crf_admin
+from ..models import CrfStatus
 
 crf_status_fieldset_tuple = (
     "CRF status",
     {"fields": ("crf_status", "crf_status_comments")},
 )
-
-
-class CrfStatusModelAdminMixin:
-    def get_list_display(self, request) -> tuple:
-        list_display = super().get_list_display(request)
-        if "crf_status" not in list_display:
-            list_display = list_display + ("crf_status",)
-        return list_display
-
-    def get_list_filter(self, request) -> tuple:
-        list_filter = super().get_list_filter(request)
-        if "crf_status" not in list_filter:
-            list_filter = ("crf_status",) + list_filter
-        return list_filter
 
 
 @admin.register(CrfStatus, site=edc_crf_admin)
