@@ -285,9 +285,8 @@ class Destroyer:
         return django_apps.get_model(self.metadata_requisition_model)
 
     def delete(self) -> int:
-        """Deletes all CRF and requisition metadata for
-        the visit instance (self.related_visit) excluding where
-        entry_status = KEYED.
+        """Deletes all CRF and requisition metadata for the
+        related_visit instance excluding where entry_status = KEYED.
         """
         qs = self.metadata_crf_model_cls.objects.filter(
             subject_identifier=self.related_visit.subject_identifier,
@@ -318,8 +317,8 @@ class Metadata:
         self.destroyer = self.destroyer_cls(related_visit=related_visit)
 
     def prepare(self) -> bool:
-        """Creates or deletes metadata, depending on the visit reason,
-        for the visit instance.
+        """Creates and deletes, or just deletes, metadata, depending
+        on the related_visit `reason`.
         """
         metadata_exists = False
         if self.reason in self.related_visit.visit_schedule.delete_metadata_on_reasons:
@@ -341,7 +340,7 @@ class Metadata:
     @property
     def reason(self):
         """Returns the `value` of the reason field on the
-        subject visit model instance.
+        related_visit model instance.
 
         For example: `schedule` or `unscheduled`
         """

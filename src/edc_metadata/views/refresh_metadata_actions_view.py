@@ -9,6 +9,8 @@ from edc_utils import get_utcnow
 from edc_utils.round_up import round_half_away_from_zero
 from edc_visit_tracking.utils import get_related_visit_model_cls
 
+from edc_metadata.utils import refresh_references_and_metadata_for_timepoint
+
 
 class RefreshMetadataActionsView(LoginRequiredMixin, View):
     """A view to refresh metadata.
@@ -22,16 +24,15 @@ class RefreshMetadataActionsView(LoginRequiredMixin, View):
     """
 
     @staticmethod
-    def refresh_metadata(subject_visit_id=None, **kwargs):  # noqa
+    def refresh_references_and_metadata_for_timepoint(subject_visit_id=None, **kwargs):  # noqa
         """Save related visit model instance to run metadata update."""
         related_visit = get_related_visit_model_cls().objects.get(id=subject_visit_id)
-        related_visit.save()
-        related_visit.refresh_from_db()
+        refresh_references_and_metadata_for_timepoint(related_visit, skip_references=True)
         return related_visit
 
     def get(self, request, *args, **kwargs):
         dte1 = get_utcnow()
-        related_visit = self.refresh_metadata(**kwargs)
+        related_visit = self.refresh_references_and_metadata_for_timepoint(**kwargs)
         url_name = url_names.get("subject_dashboard_url")
         args = (
             related_visit.appointment.subject_identifier,

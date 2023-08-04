@@ -45,7 +45,7 @@ class UpdatesMetadataModelMixin(models.Model):
         """Updates metatadata."""
         self.metadata_updater.get_and_update(entry_status=entry_status)
 
-    def run_metadata_rules_for_crf(
+    def run_metadata_rules_for_related_visit(
         self: CrfModel | RequisitionModel, allow_create: bool | None = None
     ) -> None:
         """Runs all the metadata rules for this timepoint."""
