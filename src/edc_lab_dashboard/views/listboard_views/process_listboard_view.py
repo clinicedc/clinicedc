@@ -11,7 +11,6 @@ app_config = django_apps.get_app_config("edc_lab_dashboard")
 
 class ProcessListboardView(RequisitionListboardView):
     action_name = "process"
-    empty_queryset_message = "All specimens have been process"
     form_action_url = "process_form_action_url"
     listboard_template = "process_listboard_template"
     listboard_url = "process_listboard_url"
@@ -25,8 +24,7 @@ class ProcessListboardView(RequisitionListboardView):
         options.update(is_drawn=YES, clinic_verified=YES, received=True, processed=False)
         return options
 
-    @property
-    def empty_queryset_message(self):
+    def get_empty_queryset_message(self):
         href = reverse(url_names.get("pack_listboard_url"))
         return format_html(
             "All specimens have been processed. Continue to "
