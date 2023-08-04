@@ -32,9 +32,6 @@ class RequisitionPrintActionsView(BaseRequisitionView):
         self.consignee = None
         super().__init__(**kwargs)
 
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
     def post(self, request, *args, **kwargs):
         response = None
         if self.selected_panel_names:
@@ -98,7 +95,7 @@ class RequisitionPrintActionsView(BaseRequisitionView):
                 consignee=self.consignee,
                 request=self.request,
             )
-            response = requisition_report.render()
+            response = requisition_report.render_to_response()
         else:
             messages.error(self.request, 'Nothing to do. No "verified" requisitions selected.')
             response = None
