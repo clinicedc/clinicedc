@@ -3,12 +3,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ..constants import KEYED, REQUIRED
-from ..models import CrfMetadata, RequisitionMetadata
 from ..utils import get_crf_metadata_model_cls, get_requisition_metadata_model_cls
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
     from edc_visit_schedule.typing_stubs import VisitScheduleFieldsProtocol
+
+    from ..models import CrfMetadata, RequisitionMetadata
 else:
 
     class VisitScheduleFieldsProtocol:
