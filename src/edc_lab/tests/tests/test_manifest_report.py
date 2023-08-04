@@ -70,7 +70,7 @@ class TestManifestReport(SiteTestCaseMixin, TestCase):
     def test_report(self):
         self.assertEqual(self.manifest.site.name, "test_site")
         report = ManifestReport(manifest=self.manifest, user=self.user)
-        report.render()
+        report.render_to_response()
 
     @override_settings(SITE_ID=SiteID(default=20))
     def test_report_shipped(self):
@@ -78,7 +78,7 @@ class TestManifestReport(SiteTestCaseMixin, TestCase):
         self.manifest.save()
         self.assertEqual(self.manifest.site.name, "test_site")
         report = ManifestReport(manifest=self.manifest, user=self.user)
-        report.render()
+        report.render_to_response()
 
     @override_settings(SITE_ID=SiteID(default=20))
     def test_report_items_not_in_box(self):
@@ -91,9 +91,9 @@ class TestManifestReport(SiteTestCaseMixin, TestCase):
             )
         self.assertEqual(self.manifest.site.name, "test_site")
         report = ManifestReport(manifest=self.manifest, user=self.user)
-        self.assertRaises(ManifestReportError, report.render)
+        self.assertRaises(ManifestReportError, report.render_to_response)
         try:
-            report.render()
+            report.render_to_response()
         except ManifestReportError as e:
             self.assertEqual(e.code, "unboxed_item")
 
@@ -121,9 +121,9 @@ class TestManifestReport(SiteTestCaseMixin, TestCase):
         ManifestItem.objects.create(manifest=self.manifest, identifier=box.box_identifier)
         self.assertEqual(self.manifest.site.name, "test_site")
         report = ManifestReport(manifest=self.manifest, user=self.user)
-        self.assertRaises(ManifestReportError, report.render)
+        self.assertRaises(ManifestReportError, report.render_to_response)
         try:
-            report.render()
+            report.render_to_response()
         except ManifestReportError as e:
             self.assertEqual(e.code, "invalid_aliquot_identifier")
 
@@ -144,8 +144,8 @@ class TestManifestReport(SiteTestCaseMixin, TestCase):
         ManifestItem.objects.create(manifest=self.manifest, identifier=box.box_identifier)
         self.assertEqual(self.manifest.site.name, "test_site")
         report = ManifestReport(manifest=self.manifest, user=self.user)
-        self.assertRaises(ManifestReportError, report.render)
+        self.assertRaises(ManifestReportError, report.render_to_response)
         try:
-            report.render()
+            report.render_to_response()
         except ManifestReportError as e:
             self.assertEqual(e.code, "invalid_requisition_identifier")
