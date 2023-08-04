@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
+from edc_visit_tracking.typing_stubs import RelatedVisitProtocol
 
 if TYPE_CHECKING:
     from edc_crf.model_mixins import CrfModelMixin
-    from edc_visit_tracking.model_mixins import VisitModelMixin
 
     from edc_metadata.models import CrfMetadata, RequisitionMetadata
 
@@ -27,7 +27,7 @@ class MetadataWrapper:
 
     def __init__(
         self,
-        visit: VisitModelMixin,
+        visit: RelatedVisitProtocol,
         metadata_obj: CrfMetadata | RequisitionMetadata,
     ) -> None:
         self._model_obj = None

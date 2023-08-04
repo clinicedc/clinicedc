@@ -9,13 +9,9 @@ from edc_visit_tracking.constants import MISSED_VISIT
 from .metadata import Creator
 
 if TYPE_CHECKING:
-    from edc_visit_tracking.model_mixins import VisitModelMixin as Base
+    from edc_visit_tracking.typing_stubs import RelatedVisitProtocol
 
-    from .model_mixins.creates import CreatesMetadataModelMixin
     from .models import CrfMetadata, RequisitionMetadata
-
-    class RelatedVisitModel(CreatesMetadataModelMixin, Base):
-        pass
 
 
 class MetadataHandlerError(Exception):
@@ -35,14 +31,14 @@ class MetadataHandler:
     def __init__(
         self,
         metadata_model: str = None,
-        related_visit: RelatedVisitModel = None,
+        related_visit: RelatedVisitProtocol = None,
         model: str = None,
         allow_create: bool | None = None,
     ):
         self.allow_create = True if allow_create is None else allow_create
         self.metadata_model: str = metadata_model
         self.model: str = model
-        self.related_visit: RelatedVisitModel = related_visit
+        self.related_visit = related_visit
         self.creator = self.creator_cls(related_visit=self.related_visit, update_keyed=True)
 
     @property
