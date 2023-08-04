@@ -63,7 +63,7 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
         if self.listboard_fa_icon and self.listboard_fa_icon.startswith("fa-"):
             self.listboard_fa_icon = f"fas {self.listboard_fa_icon}"
         context.update(
-            empty_queryset_message=self.empty_queryset_message,
+            empty_queryset_message=self.get_empty_queryset_message(),
             listboard_fa_icon=self.listboard_fa_icon,
             listboard_panel_style=self.listboard_panel_style,
             listboard_panel_title=self.listboard_panel_title,
@@ -98,6 +98,9 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
 
     def get_template_names(self):
         return [self.get_template_from_context(self.listboard_template)]
+
+    def get_empty_queryset_message(self) -> str:
+        return self.empty_queryset_message
 
     @property
     def url_kwargs(self):
