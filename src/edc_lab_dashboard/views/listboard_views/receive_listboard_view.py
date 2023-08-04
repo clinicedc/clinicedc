@@ -26,8 +26,7 @@ class ReceiveListboardView(RequisitionListboardView):
         options.update(is_drawn=YES, clinic_verified=YES, received=False, processed=False)
         return options
 
-    @property
-    def empty_queryset_message(self):
+    def get_empty_queryset_message(self) -> str:
         href = reverse(url_names.get("process_listboard_url"))
         return format_html(
             "All specimens have been received. Continue to "
