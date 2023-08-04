@@ -13,9 +13,12 @@ class RegisteredSubjectViewMixin:
         super().__init__(**kwargs)
         self.subject_identifier = None
 
+    def get(self, request, *args, **kwargs):
+        self.subject_identifier = kwargs.get("subject_identifier")
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        self.subject_identifier = self.kwargs.get("subject_identifier")
         if self.subject_identifier:
             if not re.match(Protocol().subject_identifier_pattern, self.subject_identifier):
                 raise RegisteredSubjectError(
