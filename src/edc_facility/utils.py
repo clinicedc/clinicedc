@@ -50,5 +50,5 @@ def get_health_facility_model_cls() -> Type[HealthFacility]:
 
 def get_health_facility_model() -> str:
     return getattr(
-        settings, "EDC_FACILITY_HEALTH_FACILITY_MODEL", "intecomm_facility.HealthFacility"
+        settings, "EDC_FACILITY_HEALTH_FACILITY_MODEL", "edc_facility.HealthFacility"
     )
