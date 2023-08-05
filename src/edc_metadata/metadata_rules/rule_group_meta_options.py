@@ -62,7 +62,8 @@ class RuleGroupMetaOptions:
             self.options.update(related_visit_model=self.related_visit_model)
         else:
             self.related_visit_model = get_related_visit_model()
+        self.predicates = self.options.get("predicates", None)
 
     @property
     def default_meta_options(self) -> list[str]:
-        return ["app_label", "source_model", "related_visit_model"]
+        return ["app_label", "source_model", "related_visit_model", "predicates"]
