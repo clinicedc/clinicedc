@@ -1,5 +1,6 @@
 from edc_lab import RequisitionPanel
 
+from .constants import BLOOD_GLUCOSE, BLOOD_GLUCOSE_POC, CD4, FBC, HBA1C, HBA1C_POC, VL
 from .processing_profiles import (
     blood_glucose_processing,
     cd4_processing,
@@ -15,16 +16,15 @@ from .processing_profiles import (
 )
 
 hba1c_panel = RequisitionPanel(
-    name="hba1c",
+    name=HBA1C,
     verbose_name="HbA1c (Venous)",
     processing_profile=hba1c_processing,
     abbreviation="HBA1C",
     utest_ids=[("hba1c", "HbA1c")],
 )
 
-
 hba1c_poc_panel = RequisitionPanel(
-    name="hba1c_poc",
+    name=HBA1C_POC,
     verbose_name="HbA1c (POC)",
     abbreviation="HBA1C_POC",
     processing_profile=poc_processing,
@@ -33,7 +33,7 @@ hba1c_poc_panel = RequisitionPanel(
 
 
 fbc_panel = RequisitionPanel(
-    name="fbc",
+    name=FBC,
     verbose_name="Full Blood Count",
     processing_profile=fbc_processing,
     abbreviation="FBC",
@@ -50,7 +50,7 @@ fbc_panel = RequisitionPanel(
 )
 
 blood_glucose_panel = RequisitionPanel(
-    name="blood_glucose",
+    name=BLOOD_GLUCOSE,
     verbose_name="Blood Glucose (Venous)",
     abbreviation="BGL",
     processing_profile=blood_glucose_processing,
@@ -58,7 +58,7 @@ blood_glucose_panel = RequisitionPanel(
 )
 
 blood_glucose_poc_panel = RequisitionPanel(
-    name="blood_glucose_poc",
+    name=BLOOD_GLUCOSE_POC,
     verbose_name="Blood Glucose (POC)",
     abbreviation="BGL-POC",
     processing_profile=poc_processing,
@@ -66,14 +66,14 @@ blood_glucose_poc_panel = RequisitionPanel(
 )
 
 cd4_panel = RequisitionPanel(
-    name="CD4",
+    name=CD4,
     verbose_name="CD4",
     abbreviation="CD4",
     processing_profile=cd4_processing,
     utest_ids=["cd4"],
 )
 vl_panel = RequisitionPanel(
-    name="viral_load",
+    name=VL,
     verbose_name="Viral Load",
     abbreviation="VL",
     processing_profile=vl_processing,

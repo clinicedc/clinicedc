@@ -1,0 +1,7 @@
+HBA1C = "hba1c"
+HBA1C_POC = "hba1c_poc"
+FBC = "fbc"
+BLOOD_GLUCOSE = "blood_glucose"
+BLOOD_GLUCOSE_POC = "blood_glucose_poc"
+CD4 = "CD4"
+VL = "viral_load"
