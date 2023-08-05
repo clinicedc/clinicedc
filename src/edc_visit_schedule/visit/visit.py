@@ -248,6 +248,14 @@ class Visit:
                 break
         return get_requisition
 
+    def get_models(self) -> list:
+        models = []
+        for crf in self.crfs:
+            models.append(django_apps.get_model(crf.model))
+        for crf in self.requisitions:
+            models.append(django_apps.get_model(crf.model))
+        return models
+
     @property
     def facility(self) -> Facility | None:
         """Returns a Facility object."""
