@@ -28,13 +28,13 @@ class Rule:
 
     def __init__(
         self,
-        predicate: P | PF | callable = None,
+        predicate: P | PF | callable | str = None,
         consequence: str = None,
         alternative: str = None,
     ) -> None:
-        self._logic: Logic = self.logic_cls(
-            predicate=predicate, consequence=consequence, alternative=alternative
-        )
+        self.predicate = predicate
+        self.consequence = consequence
+        self.alternative = alternative
         self.target_models: list[str] | None = None
         self.app_label: str | None = None  # set by metaclass
         self.group = None  # set by metaclass
@@ -42,14 +42,6 @@ class Rule:
         self.source_model: str | None = None  # set by metaclass
         self.related_visit_model: str | None = None  # set by metaclass
         self.reference_getter_cls: Type[ReferenceGetter] | None = None  # set by metaclass
-        self.field_names = []
-        try:
-            self.field_names = [predicate.attr]
-        except AttributeError:
-            try:
-                self.field_names = predicate.attrs
-            except AttributeError:
-                pass
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name='{self.name}', group='{self.group}')"
@@ -83,9 +75,29 @@ class Rule:
             result = {}
             opts = {k: v for k, v in self.__dict__.items() if k.startswith != "_"}
             rule_evaluator = self.rule_evaluator_cls(
-                related_visit=related_visit, logic=self._logic, **opts
+                related_visit=related_visit, logic=self.logic, **opts
             )
             entry_status = rule_evaluator.result
             for target_model in self.target_models:
                 result.update({target_model: entry_status})
         return result
+
+    @property
+    def logic(self) -> Logic:
+        return self.logic_cls(
+            predicate=self.predicate,
+            consequence=self.consequence,
+            alternative=self.alternative,
+        )
+
+    @property
+    def field_names(self) -> list[str]:
+        field_names = []
+        try:
+            field_names = [self.predicate.attr]
+        except AttributeError:
+            try:
+                field_names = self.predicate.attrs
+            except AttributeError:
+                pass
+        return field_names

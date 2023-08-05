@@ -64,6 +64,16 @@ class RuleGroupMetaclass(type):
                     rule = value
                     rule.name = key
                     rule.group = name
+                    if isinstance(rule.predicate, (str,)):
+                        predicates = getattr(meta, "predicates", None)
+                        if not predicates:
+                            raise RuleGroupError(
+                                "RuleGroup Meta attr `predicates` may not be `None` if a "
+                                "rule.predicate in the RuleGroup is a string. "
+                                f'See {attrs.get("__qualname__")}.'
+                            )
+                        else:
+                            rule.predicate = getattr(meta.predicates, rule.predicate)
                     for k, v in meta.options.items():
                         setattr(rule, k, v)
                     rule.target_models = mcs.__get_target_models(rule, meta)
