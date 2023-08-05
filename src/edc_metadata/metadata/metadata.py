@@ -204,7 +204,7 @@ class RequisitionCreator(CrfCreator):
         See also edc_reference.
         """
         return self.reference_model_cls.objects.get_requisition_for_visit(
-            name=self.panel_name, visit=self.related_visit
+            name=self.panel_name, related_visit=self.related_visit
         )
 
 
