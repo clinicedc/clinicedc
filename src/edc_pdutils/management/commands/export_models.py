@@ -112,6 +112,7 @@ class Command(BaseCommand):
         self.exclude_historical = not options["include_historical"]
         self.decrypt = options["decrypt"]
 
+        # TODO: inspect username that you are preparing data for
         sites = options["sites"] or []
         if sites:
             sites = options["sites"].split(",")
