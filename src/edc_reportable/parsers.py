@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import re
 from collections import OrderedDict
-from typing import Optional, Tuple
 
 from edc_constants.constants import FEMALE, MALE
 
@@ -13,16 +14,20 @@ class ParserError(Exception):
 
 
 def unparse(**kwargs) -> str:
-    lower = kwargs.get("lower") or ""
-    upper = kwargs.get("upper") or ""
-    lower_op = "" if not lower else "<=" if kwargs.get("lower_inclusive") else "<"
-    upper_op = "" if not upper else "<=" if kwargs.get("upper_inclusive") else "<"
-    gender = kwargs.get("gender", "")
-    age_lower = kwargs.get("age_lower", "")
-    age_upper = kwargs.get("age_upper", "")
-    age_lower_op = "" if not age_lower else "<=" if kwargs.get("age_lower_inclusive") else "<"
-    age_upper_op = "" if not age_upper else "<=" if kwargs.get("age_upper_inclusive") else "<"
-    age = (
+    lower: str = kwargs.get("lower") or ""
+    upper: str = kwargs.get("upper") or ""
+    lower_op: str = "" if not lower else "<=" if kwargs.get("lower_inclusive") else "<"
+    upper_op: str = "" if not upper else "<=" if kwargs.get("upper_inclusive") else "<"
+    gender: str = kwargs.get("gender", "")
+    age_lower: str = kwargs.get("age_lower", "")
+    age_upper: str = kwargs.get("age_upper", "")
+    age_lower_op: str = (
+        "" if not age_lower else "<=" if kwargs.get("age_lower_inclusive") else "<"
+    )
+    age_upper_op: str = (
+        "" if not age_upper else "<=" if kwargs.get("age_upper_inclusive") else "<"
+    )
+    age: str = (
         ""
         if not age_lower and not age_upper
         else f"{age_lower}{age_lower_op}AGE{age_upper_op}{age_upper}"
@@ -32,16 +37,23 @@ def unparse(**kwargs) -> str:
     except KeyError:
         fasting_str = ""
     else:
-        fasting_str = "Fasting " if fasting else ""
+        fasting_str: str = "Fasting " if fasting else ""
     return f"{lower}{lower_op}x{upper_op}{upper} {fasting_str}{gender} {age}".rstrip()
 
 
-def parse(phrase: Optional[str] = None, *, fasting=None, uln=None, lln=None, **kwargs) -> dict:
-    pattern = r"(([\d+\.\d+]|[\.\d+])?(<|<=)?)+x((<|<=)?([\d+\.\d+]|[\.\d+])+)?"
-    lln = f"*{LLN}"
-    uln = f"*{ULN}"
+def parse(
+    phrase: str = None,
+    *,
+    fasting: bool | None = None,
+    uln: str | None = None,
+    lln: str | None = None,
+    **kwargs,
+) -> dict:
+    pattern: str = r"(([\d+\.\d+]|[\.\d+])?(<|<=)?)+x((<|<=)?([\d+\.\d+]|[\.\d+])+)?"
+    lln: str = f"*{LLN}"
+    uln: str = f"*{ULN}"
 
-    def _parse(string: str) -> Tuple[str, Optional[bool]]:
+    def _parse(string: str) -> tuple[str, bool | None]:
         inclusive = True if "=" in string else None
         try:
             value = float(
@@ -79,7 +91,7 @@ def parse(phrase: Optional[str] = None, *, fasting=None, uln=None, lln=None, **k
     return ret_as_dict
 
 
-def parse_boundary(value: str) -> Tuple[Optional[float], Optional[float]]:
+def parse_boundary(value: str) -> tuple[float | None, float | None]:
     uln = lln = None
     value = value.upper()
     pattern = r"(\d+\.\d+)\*[LLN|ULN]"
@@ -94,7 +106,7 @@ def parse_boundary(value: str) -> Tuple[Optional[float], Optional[float]]:
     return lln, uln
 
 
-def dummy_parse(phrase: Optional[str] = None, units: Optional[str] = None) -> dict:
+def dummy_parse(phrase: str = None, units: str = None) -> dict:
     return parse(
         phrase or "0<=x",
         units=units,
