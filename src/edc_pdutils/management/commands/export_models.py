@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import getpass
 import os.path
+import sys
 
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.management import CommandError
+from django.core.management import CommandError, color_style
 from django.core.management.base import BaseCommand
 from edc_sites.get_countries import get_countries
 from edc_sites.get_sites_by_country import get_sites_by_country
@@ -16,6 +17,8 @@ from edc_pdutils.model_to_dataframe import ModelToDataframe
 from edc_pdutils.utils import get_model_names
 
 ALL_COUNTRIES = "all"
+
+style = color_style()
 
 
 class Command(BaseCommand):
@@ -149,22 +152,29 @@ class Command(BaseCommand):
 
         for app_label, model_names in models.items():
             for model_name in model_names:
-                m = ModelToDataframe(
-                    model=model_name, drop_sys_columns=False, decrypt=self.decrypt, sites=sites
-                )
-                exporter = Exporter(
-                    model_name=model_name,
-                    date_format=date_format,
-                    delimiter=sep,
-                    export_folder=export_path,
-                    app_label=app_label,
-                    use_simple_filename=use_simple_filename,
-                )
-                if not export_format or export_format == "csv":
-                    exporter.to_csv(dataframe=m.dataframe)
-                elif export_format == "stata":
-                    exporter.to_stata(dataframe=m.dataframe)
-                print(f" * {model_name}")
+                try:
+                    m = ModelToDataframe(
+                        model=model_name,
+                        drop_sys_columns=False,
+                        decrypt=self.decrypt,
+                        sites=sites,
+                    )
+                except LookupError as e:
+                    sys.stdout.write(style.ERROR(f"     LookupError: {e}\n"))
+                else:
+                    exporter = Exporter(
+                        model_name=model_name,
+                        date_format=date_format,
+                        delimiter=sep,
+                        export_folder=export_path,
+                        app_label=app_label,
+                        use_simple_filename=use_simple_filename,
+                    )
+                    if not export_format or export_format == "csv":
+                        exporter.to_csv(dataframe=m.dataframe)
+                    elif export_format == "stata":
+                        exporter.to_stata(dataframe=m.dataframe)
+                    print(f" * {model_name}")
 
     def validate_user_perms_or_raise(self) -> None:
         username = input("Username:")
