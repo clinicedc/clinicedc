@@ -1,5 +1,5 @@
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_action_item import site_action_items
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.models import Appointment
@@ -127,7 +127,6 @@ class TestOffstudy(TestCase):
             offstudy_datetime=self.consent_datetime - relativedelta(days=1),
         )
 
-    @tag("1")
     def test_update_subject_visit_report_date_after_offstudy_date(self):
         appointments = Appointment.objects.filter(
             subject_identifier=self.subject_identifier
