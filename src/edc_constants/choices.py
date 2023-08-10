@@ -291,6 +291,12 @@ FEEDING = (("BF", "Breast feed"), ("FF", "Formula feed"))
 
 GENDER = ((MALE, _("Male")), (FEMALE, _("Female")))
 
+GENDER_NA = (
+    (MALE, _("Male")),
+    (FEMALE, _("Female")),
+    (NOT_APPLICABLE, "Not applicable"),
+)
+
 GENDER_UNDETERMINED = (
     (MALE, _("Male")),
     (FEMALE, _("Female")),
