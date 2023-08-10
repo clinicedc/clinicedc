@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from datetime import date
 
-from django.conf import settings
 from django.db import models
 from edc_constants.choices import YES_NO
 from edc_constants.constants import NOT_APPLICABLE, YES
 from edc_dx import Diagnoses
 from edc_model.models import DurationYMDField
+from edc_model.utils import get_report_datetime_field_name
 from edc_model.validators import date_not_future
 
 from .calculate_date import update_calculated_date
@@ -28,17 +28,18 @@ def dx_initial_review_methods_model_mixin_factory():
                     "Perhaps catch this in the form."
                 )
             update_calculated_date(
-                self, fld_prefix=self.fld_prefix, reference_field="report_datetime"
+                self,
+                fld_prefix=self.fld_prefix,
+                reference_field=get_report_datetime_field_name(),
             )
             super().save(*args, **kwargs)
 
         @property
         def diagnoses(self):
-            report_datetime = getattr(self, settings.REPORT_DATETIME_FIELD_NAME)
             subject_identifier = getattr(self, "subject_identifier")
             return Diagnoses(
                 subject_identifier=subject_identifier,
-                report_datetime=report_datetime,
+                report_datetime=getattr(self, get_report_datetime_field_name()),
                 lte=True,
             )
 

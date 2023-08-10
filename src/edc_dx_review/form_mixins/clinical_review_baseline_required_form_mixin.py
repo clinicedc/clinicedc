@@ -8,12 +8,13 @@ from ..utils import get_clinical_review_baseline_model_cls
 class ClinicalReviewBaselineRequiredModelFormMixin:
     """Asserts Baseline Clinical Review exists or raise"""
 
-    def clean(self):
+    def clean(self) -> dict:
+        cleaned_data = super().clean()
         model_cls = get_clinical_review_baseline_model_cls()
-        if self._meta.model != model_cls and self.cleaned_data.get("subject_visit"):
+        if self._meta.model != model_cls and cleaned_data.get("subject_visit"):
             try:
                 model_exists_or_raise(
-                    subject_visit=self.cleaned_data.get("subject_visit"),
+                    subject_visit=cleaned_data.get("subject_visit"),
                     model_cls=model_cls,
                     singleton=True,
                 )
@@ -21,4 +22,4 @@ class ClinicalReviewBaselineRequiredModelFormMixin:
                 raise forms.ValidationError(
                     f"Complete the `{model_cls._meta.verbose_name}` CRF first."
                 )
-        return super().clean()
+        return cleaned_data

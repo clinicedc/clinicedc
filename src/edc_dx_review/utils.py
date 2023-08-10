@@ -81,7 +81,7 @@ def raise_if_clinical_review_does_not_exist(subject_visit) -> None:
     try:
         baseline = is_baseline(instance=subject_visit)
     except VisitScheduleBaselineError as e:
-        raise forms.ValidationError(e)
+        raise forms.ValidationError(str(e))
     else:
         if baseline:
             model_cls = get_clinical_review_baseline_model_cls()
@@ -149,6 +149,35 @@ def medications_exists_or_raise(subject_visit) -> bool:
                 f"Complete the `{get_medication_model_cls()._meta.verbose_name}` CRF first."
             )
     return True
+
+
+def is_rx_initiated(
+    subject_identifier: str, report_datetime: datetime, instance_id: str | None = None
+) -> bool:
+    """Return True if already initiated"""
+    try:
+        get_initial_review_model_cls(HIV).objects.get(
+            subject_visit__subject_identifier=subject_identifier,
+            report_datetime__lte=report_datetime,
+            rx_init=YES,
+        )
+    except ObjectDoesNotExist:
+        exclude = {}
+        if instance_id:
+            exclude = {"id": instance_id}
+        rx_initiated = (
+            get_review_model_cls(HIV)
+            .objects.filter(
+                subject_visit__subject_identifier=subject_identifier,
+                report_datetime__lte=report_datetime,
+                rx_init=YES,
+            )
+            .exclude(**exclude)
+            .exists()
+        )
+    else:
+        rx_initiated = True
+    return rx_initiated
 
 
 def art_initiation_date(subject_identifier: str, report_datetime: datetime) -> date:
