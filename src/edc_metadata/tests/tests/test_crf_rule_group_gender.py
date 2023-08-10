@@ -1,4 +1,4 @@
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
@@ -404,7 +404,6 @@ class TestMetadataRulesWithGender(TestCase):
             CrfRuleModelConflict, BadCrfRuleGroup().evaluate_rules, related_visit=subject_visit
         )
 
-    @tag("1")
     def test_rule_group_target_model_cannot_be_visit_model(self):
         site_metadata_rules.registry = {}
 
