@@ -13,6 +13,11 @@ if TYPE_CHECKING:
 
 
 class CrfSingletonModelFormMixin:
+    def clean(self) -> dict:
+        cleaned_data = super().clean()
+        self.raise_if_singleton_exists()
+        return cleaned_data
+
     def raise_if_singleton_exists(self: MyForm) -> None:
         """Raise if singleton model instance exists at another
         timepoint.
