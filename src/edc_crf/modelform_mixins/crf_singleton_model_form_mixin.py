@@ -23,10 +23,11 @@ class CrfSingletonModelFormMixin:
         timepoint.
         """
         if not self.instance.id:
+            opts = {
+                f"{self.related_visit_model_attr}__subject_identifier": self.subject_identifier
+            }
             try:
-                obj = self._meta.model.objects.get(
-                    subject_visit__subject_identifier=self.subject_identifier
-                )
+                obj = self._meta.model.objects.get(**opts)
             except ObjectDoesNotExist:
                 pass
             else:
