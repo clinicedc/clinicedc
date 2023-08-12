@@ -5,7 +5,6 @@ from edc_constants.constants import NO, NOT_APPLICABLE
 from edc_model import models as edc_models
 from edc_model.validators import date_not_future
 from edc_protocol.validators import date_not_before_study_start
-from edc_utils import get_utcnow
 
 from ..constants import VISIT_MISSED_ACTION
 
@@ -79,7 +78,6 @@ class SubjectVisitMissedModelMixin(models.Model):
     contact_last_date = models.DateField(
         verbose_name="Date of last telephone contact/attempt",
         validators=[date_not_future, date_not_before_study_start],
-        default=get_utcnow,
         null=True,
         blank=True,
     )
