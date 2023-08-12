@@ -1,6 +1,8 @@
+import re
 from typing import Tuple
 
 from django.core.handlers.wsgi import WSGIRequest
+from edc_constants.constants import UUID_PATTERN
 
 from ..utils import get_remove_patient_names_from_countries
 
@@ -46,3 +48,10 @@ class PiiNamesModelAdminMixin:
             if site and site.id in [s.site_id for s in self.all_sites.get(country)]:
                 fields = tuple([f for f in fields if f not in self.name_fields])
         return fields
+
+    def get_changeform_initial_data(self, request) -> dict:
+        dct = super().get_changeform_initial_data(request)
+        for field in self.name_fields:
+            if re.match(UUID_PATTERN, dct.get(field, "")):
+                dct.update({field: None})
+        return dct
