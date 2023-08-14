@@ -1,7 +1,7 @@
 from django import forms
 
-from ..get_ae_model import get_ae_model
 from ..modelform_mixins import DeathReportModelFormMixin
+from ..utils import get_ae_model
 
 
 class DeathReportForm(DeathReportModelFormMixin, forms.ModelForm):

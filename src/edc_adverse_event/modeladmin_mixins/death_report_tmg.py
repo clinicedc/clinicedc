@@ -7,7 +7,7 @@ from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
 from edc_constants.constants import OTHER
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
-from ..get_ae_model import get_ae_model
+from ..utils import get_ae_model
 
 
 class DeathReportTmgModelAdminMixin(

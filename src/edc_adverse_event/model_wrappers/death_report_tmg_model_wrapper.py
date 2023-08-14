@@ -1,10 +1,11 @@
-from django.conf import settings
 from edc_model_wrapper import ModelWrapper
+
+from ..utils import get_adverse_event_app_label
 
 
 class DeathReportTmgModelWrapper(ModelWrapper):
     next_url_name = "tmg_death_listboard_url"
-    model = f"{settings.ADVERSE_EVENT_APP_LABEL}.deathreporttmg"
+    model = f"{get_adverse_event_app_label()}.deathreporttmg"
     next_url_attrs = ["subject_identifier"]
 
     @property

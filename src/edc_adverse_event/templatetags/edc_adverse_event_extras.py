@@ -9,14 +9,15 @@ from edc_constants.constants import OTHER, YES
 from edc_dashboard.utils import get_bootstrap_version
 from edc_utils import get_utcnow
 
-from edc_adverse_event.constants import AE_WITHDRAWN
+from ..constants import AE_WITHDRAWN
+from ..utils import get_adverse_event_app_label
 
 register = template.Library()
 
 
 def select_ae_template(relative_path):
     """Returns a template object."""
-    local_path = f"{settings.ADVERSE_EVENT_APP_LABEL}/bootstrap{get_bootstrap_version()}/"
+    local_path = f"{get_adverse_event_app_label()}/bootstrap{get_bootstrap_version()}/"
     default_path = f"edc_adverse_event/bootstrap{get_bootstrap_version()}/"
     return select_template(
         [

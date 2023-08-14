@@ -11,7 +11,7 @@ from edc_constants.constants import DEAD
 from edc_utils import convert_php_dateformat
 
 from ..constants import DEATH_REPORT_NOT_FOUND
-from ..get_ae_model import get_ae_model
+from ..utils import get_ae_model
 
 if TYPE_CHECKING:
     from ..model_mixins import DeathReportModelMixin

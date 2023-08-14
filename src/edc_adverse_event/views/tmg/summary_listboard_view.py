@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
@@ -14,6 +13,7 @@ from ...constants import (
     DEATH_REPORT_TMG_ACTION,
 )
 from ...model_wrappers import TmgActionItemModelWrapper as BaseTmgActionItemModelWrapper
+from ...utils import get_adverse_event_app_label
 
 
 class TmgActionItemModelWrapper(BaseTmgActionItemModelWrapper):
@@ -29,7 +29,7 @@ class SummaryListboardView(
 ):
     listboard_back_url = "tmg_home_url"
 
-    ae_tmg_model = f"{settings.ADVERSE_EVENT_APP_LABEL}.aetmg"
+    ae_tmg_model = f"{get_adverse_event_app_label()}.aetmg"
     listboard_template = "tmg_summary_listboard_template"
     listboard_url = "tmg_summary_listboard_url"
     listboard_panel_style = "warning"

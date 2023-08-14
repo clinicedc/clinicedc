@@ -1,6 +1,5 @@
 import re
 
-from django.conf import settings
 from django.db.models import Q
 from edc_dashboard.url_names import url_names
 from edc_dashboard.view_mixins import EdcViewMixin
@@ -9,6 +8,7 @@ from edc_listboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
 
 from ...model_wrappers import DeathReportModelWrapper as ModelWrapper
+from ...utils import get_adverse_event_app_label
 
 
 class DeathReportModelWrapper(ModelWrapper):
@@ -27,7 +27,7 @@ class DeathListboardView(
     listboard_template = "tmg_death_listboard_template"
     listboard_url = "tmg_death_listboard_url"
     listboard_panel_style = "warning"
-    listboard_model = f"{settings.ADVERSE_EVENT_APP_LABEL}.deathreport"
+    listboard_model = f"{get_adverse_event_app_label()}.deathreport"
     listboard_model_manager_name = "objects"
     listboard_panel_title = "TMG: Death Reports"
     listboard_view_permission_codename = "edc_adverse_event.view_tmg_listboard"

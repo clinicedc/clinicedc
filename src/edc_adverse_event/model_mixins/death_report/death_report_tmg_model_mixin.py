@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_action_item.managers import (
@@ -16,6 +15,7 @@ from edc_utils import get_utcnow
 
 from ...constants import DEATH_REPORT_TMG_ACTION, DEATH_REPORT_TMG_SECOND_ACTION
 from ...models import CauseOfDeath
+from ...utils import get_adverse_event_app_label
 
 
 class DeathReportTmgManager(ActionIdentifierModelManager):
@@ -44,7 +44,7 @@ class DeathReportTmgSecondSiteManager(ActionIdentifierSiteManager):
 
 class DeathReportTmgFieldsModelMixin(models.Model):
     death_report = models.ForeignKey(
-        f"{settings.ADVERSE_EVENT_APP_LABEL}.deathreport", on_delete=PROTECT
+        f"{get_adverse_event_app_label()}.deathreport", on_delete=PROTECT
     )
 
     report_datetime = models.DateTimeField(

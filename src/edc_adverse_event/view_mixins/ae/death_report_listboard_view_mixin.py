@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.html import format_html
 from edc_action_item.model_wrappers import (
@@ -12,9 +11,9 @@ from edc_navbar import NavbarViewMixin
 from edc_utils import get_utcnow
 
 from ...constants import DEATH_REPORT_ACTION
-from ...get_ae_model import get_ae_model
 from ...model_wrappers import DeathReportModelWrapper as BaseDeathReportModelWrapper
 from ...pdf_reports import DeathReport
+from ...utils import get_adverse_event_app_label, get_ae_model
 
 
 class DeathReportModelWrapper(BaseDeathReportModelWrapper):
@@ -23,7 +22,7 @@ class DeathReportModelWrapper(BaseDeathReportModelWrapper):
 
 class ActionItemModelWrapper(BaseActionItemModelWrapper):
     next_url_name = "death_report_listboard_url"
-    death_report_model = f"{settings.ADVERSE_EVENT_APP_LABEL}.deathreport"
+    death_report_model = f"{get_adverse_event_app_label()}.deathreport"
 
     def __init__(self, model_obj=None, **kwargs):
         self._death_report = None

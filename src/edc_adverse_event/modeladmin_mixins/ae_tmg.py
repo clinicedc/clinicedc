@@ -11,8 +11,8 @@ from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_utils import convert_php_dateformat
 
 from ..forms import AeTmgForm
-from ..get_ae_model import get_ae_model
 from ..models import AeClassification
+from ..utils import get_adverse_event_app_label, get_ae_model
 from .modeladmin_mixins import NonAeInitialModelAdminMixin
 
 
@@ -95,7 +95,7 @@ class AeTmgModelAdminMixin(
     def get_queryset(self, request):
         """Returns for the current user if has `view_aetmg` permissions."""
         # TODO: this used to look at group membership?
-        if request.user.has_perm(f"{settings.ADVERSE_EVENT_APP_LABEL}.view_aetmg"):
+        if request.user.has_perm(f"{get_adverse_event_app_label()}.view_aetmg"):
             return super().get_queryset(request).all()
         return super().get_queryset(request)
 

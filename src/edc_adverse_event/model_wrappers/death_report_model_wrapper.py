@@ -2,13 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Type
 
-from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from edc_action_item.models import ActionItem
 from edc_model_wrapper import ModelWrapper
 
 from ..constants import DEATH_REPORT_TMG_ACTION
-from ..get_ae_model import get_ae_model
+from ..utils import get_adverse_event_app_label, get_ae_model
 from .death_report_tmg_model_wrapper import DeathReportTmgModelWrapper
 from .death_report_tmg_second_model_wrapper import DeathReportTmgSecondModelWrapper
 
@@ -18,7 +17,7 @@ if TYPE_CHECKING:
 
 class DeathReportModelWrapper(ModelWrapper):
     next_url_name = "tmg_death_listboard_url"
-    model = f"{settings.ADVERSE_EVENT_APP_LABEL}.deathreport"
+    model = f"{get_adverse_event_app_label()}.deathreport"
     next_url_attrs = ["subject_identifier"]
     death_report_tmg_model_wrapper_cls = DeathReportTmgModelWrapper
     death_report_tmg_second_model_wrapper_cls = DeathReportTmgSecondModelWrapper

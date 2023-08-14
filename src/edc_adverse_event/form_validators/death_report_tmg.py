@@ -6,11 +6,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from edc_constants.constants import CLOSED, NO, OTHER
 from edc_form_validators import INVALID_ERROR, FormValidator
 
-from edc_adverse_event import get_ae_model
-from edc_adverse_event.form_validator_mixins import (
+from ..form_validator_mixins import (
     BaseRequiresDeathReportFormValidatorMixin,
     DeathReportFormValidatorMixin,
 )
+from ..utils import get_ae_model
 
 
 class DeathReportTmgFormValidator(

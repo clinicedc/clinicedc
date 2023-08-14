@@ -4,7 +4,7 @@ from edc_action_item.model_wrappers import (
 )
 from edc_constants.constants import NEW
 
-from ...get_ae_model import get_ae_model
+from ...utils import get_ae_model
 from ..death_report_model_wrapper import DeathReportModelWrapper
 from ..death_report_tmg_model_wrapper import DeathReportTmgModelWrapper
 

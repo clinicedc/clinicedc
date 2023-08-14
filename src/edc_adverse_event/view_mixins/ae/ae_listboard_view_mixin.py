@@ -12,9 +12,9 @@ from edc_navbar import NavbarViewMixin
 from edc_utils import get_utcnow
 
 from ...constants import AE_INITIAL_ACTION
-from ...get_ae_model import get_ae_model
 from ...model_wrappers import AeInitialModelWrapper, DeathReportModelWrapper
 from ...pdf_reports import AeReport
+from ...utils import get_ae_model
 
 
 class ActionItemModelWrapper(BaseActionItemModelWrapper):

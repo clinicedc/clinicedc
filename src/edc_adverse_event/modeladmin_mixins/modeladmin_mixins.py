@@ -4,7 +4,7 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from edc_utils.text import convert_php_dateformat
 
-from ..get_ae_model import get_ae_model
+from ..utils import get_ae_model
 
 
 class NonAeInitialModelAdminMixin:

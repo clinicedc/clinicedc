@@ -1,7 +1,7 @@
 from django import forms
 
-from ..get_ae_model import get_ae_model
 from ..modelform_mixins import AeFollowupModelFormMixin, AeModelFormMixin
+from ..utils import get_ae_model
 
 
 class AeFollowupForm(AeFollowupModelFormMixin, AeModelFormMixin, forms.ModelForm):
