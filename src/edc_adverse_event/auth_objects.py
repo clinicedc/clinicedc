@@ -1,4 +1,4 @@
-from .utils import get_adverse_event_app_label
+from .utils import get_adverse_event_app_label, get_hospitalization_model_app_label
 
 AE = "AE"
 AE_REVIEW = "AE_REVIEW"
@@ -19,14 +19,17 @@ ae_codenames = [
     f"{get_adverse_event_app_label()}.add_aeinitial",
     f"{get_adverse_event_app_label()}.add_aesusar",
     f"{get_adverse_event_app_label()}.add_deathreport",
+    f"{get_hospitalization_model_app_label()}.add_hospitalization",
     f"{get_adverse_event_app_label()}.change_aefollowup",
     f"{get_adverse_event_app_label()}.change_aeinitial",
     f"{get_adverse_event_app_label()}.change_aesusar",
     f"{get_adverse_event_app_label()}.change_deathreport",
+    f"{get_hospitalization_model_app_label()}.change_hospitalization",
     f"{get_adverse_event_app_label()}.delete_aefollowup",
     f"{get_adverse_event_app_label()}.delete_aeinitial",
     f"{get_adverse_event_app_label()}.delete_aesusar",
     f"{get_adverse_event_app_label()}.delete_deathreport",
+    f"{get_hospitalization_model_app_label()}.delete_hospitalization",
     f"{get_adverse_event_app_label()}.view_aefollowup",
     f"{get_adverse_event_app_label()}.view_aeinitial",
     f"{get_adverse_event_app_label()}.view_aesusar",
@@ -34,6 +37,7 @@ ae_codenames = [
     f"{get_adverse_event_app_label()}.view_deathreport",
     f"{get_adverse_event_app_label()}.view_deathreporttmg",
     f"{get_adverse_event_app_label()}.view_deathreporttmgsecond",
+    f"{get_hospitalization_model_app_label()}.view_hospitalization",
     f"{get_adverse_event_app_label()}.view_historicalaefollowup",
     f"{get_adverse_event_app_label()}.view_historicalaeinitial",
     f"{get_adverse_event_app_label()}.view_historicalaesusar",
@@ -41,6 +45,7 @@ ae_codenames = [
     f"{get_adverse_event_app_label()}.view_historicaldeathreport",
     f"{get_adverse_event_app_label()}.view_historicaldeathreporttmg",
     f"{get_adverse_event_app_label()}.view_historicaldeathreporttmgsecond",
+    f"{get_hospitalization_model_app_label()}.view_historicalhospitalization",
 ]
 
 tmg_codenames = [
@@ -65,6 +70,7 @@ tmg_codenames = [
     f"{get_adverse_event_app_label()}.view_deathreport",
     f"{get_adverse_event_app_label()}.view_deathreporttmg",
     f"{get_adverse_event_app_label()}.view_deathreporttmgsecond",
+    f"{get_hospitalization_model_app_label()}.view_hospitalization",
     f"{get_adverse_event_app_label()}.view_historicalaefollowup",
     f"{get_adverse_event_app_label()}.view_historicalaeinitial",
     f"{get_adverse_event_app_label()}.view_historicalaesusar",
@@ -72,6 +78,7 @@ tmg_codenames = [
     f"{get_adverse_event_app_label()}.view_historicaldeathreport",
     f"{get_adverse_event_app_label()}.view_historicaldeathreporttmg",
     f"{get_adverse_event_app_label()}.view_historicaldeathreporttmgsecond",
+    f"{get_hospitalization_model_app_label()}.view_historicalhospitalization",
 ]
 
 tmg_view_codenames = [c for c in tmg_codenames if "view_" in c]

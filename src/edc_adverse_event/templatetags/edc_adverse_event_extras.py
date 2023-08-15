@@ -50,9 +50,12 @@ def format_ae_description(context, ae_initial, wrap_length):
     context["OTHER"] = OTHER
     context["YES"] = YES
     context["ae_initial"] = ae_initial
-    context["sae_reason"] = format_html(
-        "<BR>".join(wrap(ae_initial.sae_reason.name, wrap_length or 35))
-    )
+    try:
+        context["sae_reason"] = format_html(
+            "<BR>".join(wrap(ae_initial.sae_reason.name, wrap_length or 35))
+        )
+    except AttributeError:
+        context["sae_reason"] = ""
     context["ae_description"] = format_html(
         "<BR>".join(wrap(ae_initial.ae_description, wrap_length or 35))
     )
@@ -68,9 +71,12 @@ def format_ae_followup_description(context, ae_followup, wrap_length):
     context["YES"] = YES
     context["ae_followup"] = ae_followup
     context["ae_initial"] = ae_followup.ae_initial
-    context["sae_reason"] = format_html(
-        "<BR>".join(wrap(ae_followup.ae_initial.sae_reason.name, wrap_length or 35))
-    )
+    try:
+        context["sae_reason"] = format_html(
+            "<BR>".join(wrap(ae_followup.ae_initial.sae_reason.name, wrap_length or 35))
+        )
+    except AttributeError:
+        context["sae_reason"] = ""
     context["relevant_history"] = format_html(
         "<BR>".join(wrap(ae_followup.relevant_history, wrap_length or 35))
     )
