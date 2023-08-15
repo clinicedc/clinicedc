@@ -1,0 +1,1 @@
+from .hospitalization_model_mixin import HospitalizationModelMixin

@@ -10,4 +10,5 @@ from .ae_susar import AeSusarModelAdminMixin
 from .ae_tmg import AeTmgModelAdminMixin
 from .death_report import DeathReportModelAdminMixin
 from .death_report_tmg import DeathReportTmgModelAdminMixin
+from .hospitalization import HospitalizationModelAdminMixin
 from .modeladmin_mixins import AdverseEventModelAdminMixin, NonAeInitialModelAdminMixin

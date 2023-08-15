@@ -25,3 +25,4 @@ from .death_report import (
     DeathReportTmgSecondSiteManager,
     SimpleDeathReportModelMixin,
 )
+from .hospitaization import HospitalizationModelMixin
