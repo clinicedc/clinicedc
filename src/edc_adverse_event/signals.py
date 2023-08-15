@@ -40,15 +40,16 @@ def update_ae_notifications_for_tmg_group(
 @receiver(post_save, sender=AeSusar, weak=False, dispatch_uid="update_ae_initial_for_susar")
 def update_ae_initial_for_susar(sender, instance, raw, update_fields, **kwargs):
     if not raw and not update_fields:
-        if instance.submitted_datetime:
-            if instance.ae_initial.susar_reported != YES:
+        if getattr(instance.ae_initial, "susar", None):
+            if instance.submitted_datetime:
+                if instance.ae_initial.susar_reported != YES:
+                    instance.ae_initial.susar = YES
+                    instance.ae_initial.susar_reported = YES
+                    instance.ae_initial.save(update_fields=["susar", "susar_reported"])
+            elif instance.ae_initial.susar_reported != NO:
                 instance.ae_initial.susar = YES
-                instance.ae_initial.susar_reported = YES
+                instance.ae_initial.susar_reported = NO
                 instance.ae_initial.save(update_fields=["susar", "susar_reported"])
-        elif instance.ae_initial.susar_reported != NO:
-            instance.ae_initial.susar = YES
-            instance.ae_initial.susar_reported = NO
-            instance.ae_initial.save(update_fields=["susar", "susar_reported"])
 
 
 @receiver(
@@ -59,12 +60,15 @@ def update_ae_initial_for_susar(sender, instance, raw, update_fields, **kwargs):
 )
 def update_ae_initial_susar_reported(sender, instance, raw, update_fields, **kwargs):
     if not raw and not update_fields:
-        if instance.susar == YES and instance.susar_reported == YES:
-            try:
-                with transaction.atomic():
-                    AeSusar.objects.get(ae_initial=instance)
-            except ObjectDoesNotExist:
-                AeSusar.objects.create(ae_initial=instance, submitted_datetime=get_utcnow())
+        if getattr(instance, "susar", None):
+            if instance.susar == YES and instance.susar_reported == YES:
+                try:
+                    with transaction.atomic():
+                        AeSusar.objects.get(ae_initial=instance)
+                except ObjectDoesNotExist:
+                    AeSusar.objects.create(
+                        ae_initial=instance, submitted_datetime=get_utcnow()
+                    )
 
 
 @receiver(post_delete, sender=AeSusar, weak=False, dispatch_uid="post_delete_ae_susar")
