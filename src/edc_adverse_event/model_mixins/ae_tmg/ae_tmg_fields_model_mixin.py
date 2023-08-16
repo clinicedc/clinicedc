@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.db import models
 from edc_constants.choices import YES_NO, YES_NO_NA
 from edc_constants.constants import NOT_APPLICABLE
@@ -6,7 +5,8 @@ from edc_model.validators import datetime_not_future
 from edc_model_fields.fields import OtherCharField
 from edc_utils import get_utcnow
 
-from edc_adverse_event.models import AeClassification
+from ...models import AeClassification
+from ...utils import get_adverse_event_app_label
 
 
 def get_investigator_ae_classification_choices():
@@ -17,7 +17,7 @@ def get_investigator_ae_classification_choices():
 
 class AeTmgFieldsModelMixin(models.Model):
     ae_initial = models.ForeignKey(
-        f"{settings.ADVERSE_EVENT_APP_LABEL}.aeinitial", on_delete=models.PROTECT
+        f"{get_adverse_event_app_label()}.aeinitial", on_delete=models.PROTECT
     )
 
     report_datetime = models.DateTimeField(

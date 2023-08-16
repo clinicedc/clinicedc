@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_dashboard.view_mixins import EdcViewMixin
@@ -11,6 +10,7 @@ from edc_utils import get_utcnow
 from ...auth_objects import TMG
 from ...constants import AE_TMG_ACTION
 from ...model_wrappers import TmgActionItemModelWrapper
+from ...utils import get_adverse_event_app_label
 
 
 class TmgAeListboardViewMixin(
@@ -22,7 +22,7 @@ class TmgAeListboardViewMixin(
 ):
     listboard_back_url = "tmg_home_url"
 
-    ae_tmg_model = f"{settings.ADVERSE_EVENT_APP_LABEL}.aetmg"
+    ae_tmg_model = f"{get_adverse_event_app_label()}.aetmg"
     listboard_template = "tmg_ae_listboard_template"
     listboard_url = "tmg_ae_listboard_url"
     listboard_panel_style = "warning"

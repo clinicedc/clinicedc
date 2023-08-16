@@ -7,7 +7,7 @@ from edc_constants.constants import YES
 from edc_reportable import GRADE4, GRADE5
 
 from ..form_validators import AeInitialFormValidator
-from ..get_ae_model import get_ae_model
+from ..utils import get_ae_model
 from .ae_modelform_mixin import AeModelFormMixin
 
 

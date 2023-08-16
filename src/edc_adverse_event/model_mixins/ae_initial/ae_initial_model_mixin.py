@@ -8,6 +8,7 @@ from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_sites.models import SiteModelMixin
 
 from ...constants import AE_INITIAL_ACTION
+from ...pdf_reports import AePdfReport
 from .ae_initial_ae_model_mixin import AeInitialAeModelMixin
 from .ae_initial_fields_model_mixin import AeInitialFieldsModelMixin
 from .ae_initial_methods_model_mixin import AeInitialMethodsModelMixin
@@ -29,6 +30,8 @@ class AeInitialModelMixin(
     models.Model,
 ):
     action_name = AE_INITIAL_ACTION
+
+    pdf_report_cls = AePdfReport
 
     objects = ActionIdentifierModelManager()
 

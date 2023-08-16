@@ -6,3 +6,4 @@ from .ae_tmg_modelform_mixin import AeTmgModelFormMixin
 from .death_report_modelform_mixin import DeathReportModelFormMixin
 from .death_report_tmg_modelform_mixin import DeathReportTmgModelFormMixin
 from .death_report_tmg_second_modelform_mixin import DeathReportTmgSecondModelFormMixin
+from .hospitalization_modelform_mixin import HospitalizationModelFormMixin

@@ -9,14 +9,15 @@ from edc_constants.constants import OTHER, YES
 from edc_dashboard.utils import get_bootstrap_version
 from edc_utils import get_utcnow
 
-from edc_adverse_event.constants import AE_WITHDRAWN
+from ..constants import AE_WITHDRAWN
+from ..utils import get_adverse_event_app_label
 
 register = template.Library()
 
 
 def select_ae_template(relative_path):
     """Returns a template object."""
-    local_path = f"{settings.ADVERSE_EVENT_APP_LABEL}/bootstrap{get_bootstrap_version()}/"
+    local_path = f"{get_adverse_event_app_label()}/bootstrap{get_bootstrap_version()}/"
     default_path = f"edc_adverse_event/bootstrap{get_bootstrap_version()}/"
     return select_template(
         [
@@ -49,9 +50,12 @@ def format_ae_description(context, ae_initial, wrap_length):
     context["OTHER"] = OTHER
     context["YES"] = YES
     context["ae_initial"] = ae_initial
-    context["sae_reason"] = format_html(
-        "<BR>".join(wrap(ae_initial.sae_reason.name, wrap_length or 35))
-    )
+    try:
+        context["sae_reason"] = format_html(
+            "<BR>".join(wrap(ae_initial.sae_reason.name, wrap_length or 35))
+        )
+    except AttributeError:
+        context["sae_reason"] = ""
     context["ae_description"] = format_html(
         "<BR>".join(wrap(ae_initial.ae_description, wrap_length or 35))
     )
@@ -67,9 +71,12 @@ def format_ae_followup_description(context, ae_followup, wrap_length):
     context["YES"] = YES
     context["ae_followup"] = ae_followup
     context["ae_initial"] = ae_followup.ae_initial
-    context["sae_reason"] = format_html(
-        "<BR>".join(wrap(ae_followup.ae_initial.sae_reason.name, wrap_length or 35))
-    )
+    try:
+        context["sae_reason"] = format_html(
+            "<BR>".join(wrap(ae_followup.ae_initial.sae_reason.name, wrap_length or 35))
+        )
+    except AttributeError:
+        context["sae_reason"] = ""
     context["relevant_history"] = format_html(
         "<BR>".join(wrap(ae_followup.relevant_history, wrap_length or 35))
     )

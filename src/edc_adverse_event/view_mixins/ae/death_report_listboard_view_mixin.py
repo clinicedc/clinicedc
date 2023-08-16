@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.html import format_html
 from edc_action_item.model_wrappers import (
@@ -12,9 +11,9 @@ from edc_navbar import NavbarViewMixin
 from edc_utils import get_utcnow
 
 from ...constants import DEATH_REPORT_ACTION
-from ...get_ae_model import get_ae_model
 from ...model_wrappers import DeathReportModelWrapper as BaseDeathReportModelWrapper
-from ...pdf_reports import DeathReport
+from ...pdf_reports import DeathPdfReport
+from ...utils import get_adverse_event_app_label, get_ae_model
 
 
 class DeathReportModelWrapper(BaseDeathReportModelWrapper):
@@ -23,7 +22,7 @@ class DeathReportModelWrapper(BaseDeathReportModelWrapper):
 
 class ActionItemModelWrapper(BaseActionItemModelWrapper):
     next_url_name = "death_report_listboard_url"
-    death_report_model = f"{settings.ADVERSE_EVENT_APP_LABEL}.deathreport"
+    death_report_model = f"{get_adverse_event_app_label()}.deathreport"
 
     def __init__(self, model_obj=None, **kwargs):
         self._death_report = None
@@ -43,7 +42,7 @@ class DeathReportListboardViewMixin(
 ):
     listboard_back_url = "ae_home_url"
     home_url = "ae_home_url"
-    pdf_report_cls = DeathReport
+    pdf_report_cls = DeathPdfReport
 
     listboard_template = "ae_death_report_listboard_template"
     listboard_url = "death_report_listboard_url"
@@ -83,25 +82,21 @@ class DeathReportListboardViewMixin(
             return response
         return super().get(request, *args, **kwargs)
 
-    @property
-    def death_report_model_cls(self):
-        return get_ae_model("deathreport")
-
     def print_pdf_report(self, action_identifier=None, request=None):
         try:
-            death_report = self.death_report_model_cls.objects.get(
+            death_report_obj = self.death_report_model_cls.objects.get(
                 action_identifier=action_identifier
             )
         except ObjectDoesNotExist:
             pass
         else:
-            report = self.pdf_report_cls(
-                death_report=death_report,
-                subject_identifier=death_report.subject_identifier,
+            pdf_report = self.get_pdf_report(
+                death_report=death_report_obj,
+                subject_identifier=death_report_obj.subject_identifier,
                 user=self.request.user,
                 request=request,
             )
-            return report.render_to_response()
+            return pdf_report.render_to_response()
         return None
 
     def get_context_data(self, **kwargs) -> dict:
@@ -121,3 +116,13 @@ class DeathReportListboardViewMixin(
         if kwargs.get("subject_identifier"):
             options.update({"subject_identifier": kwargs.get("subject_identifier")})
         return options
+
+    @property
+    def death_report_model_cls(self):
+        return get_ae_model("deathreport")
+
+    def get_pdf_report(self, **kwargs) -> DeathPdfReport:
+        pdf_report_cls = getattr(self.death_report_model_cls, "pdf_report_cls", None)
+        if not pdf_report_cls:
+            pdf_report_cls = getattr(self, "pdf_report_cls", None)
+        return pdf_report_cls(**kwargs)

@@ -1,6 +1,5 @@
 from typing import Tuple
 
-from django.conf import settings
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
@@ -15,12 +14,12 @@ from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_notification.utils import get_email_contacts
 
 from ..forms import AeInitialForm
-from ..get_ae_model import get_ae_model
 from ..models import AeClassification
 from ..templatetags.edc_adverse_event_extras import (
     format_ae_description,
     select_description_template,
 )
+from ..utils import get_adverse_event_app_label, get_ae_model
 from .modeladmin_mixins import AdverseEventModelAdminMixin
 
 fieldset_part_one = (
@@ -138,7 +137,7 @@ class AeInitialModelAdminMixin(
             except ObjectDoesNotExist:
                 link = '<font color="red">Death report pending</font>'
             else:
-                url_name = f"{settings.ADVERSE_EVENT_APP_LABEL}_deathreport"
+                url_name = f"{get_adverse_event_app_label()}_deathreport"
                 namespace = self.admin_site.name
                 url = reverse(f"{namespace}:{url_name}_changelist")
                 link = format_html(  # nosec B308, B703

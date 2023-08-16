@@ -8,12 +8,12 @@ from reportlab.lib.units import cm
 from reportlab.platypus import Paragraph, Table
 from reportlab.platypus.flowables import KeepTogether, Spacer
 
-from ..get_ae_model import get_ae_model
+from ..utils import get_ae_model
 
 p = inflect.engine()
 
 
-class AeReport(CrfPdfReport):
+class AePdfReport(CrfPdfReport):
     model_attr = "ae_initial"
 
     def __init__(self, ae_initial=None, **kwargs):

@@ -17,6 +17,7 @@ from edc_utils import get_utcnow
 
 from ...constants import DEATH_REPORT_ACTION
 from ...models import CauseOfDeath
+from ...pdf_reports import DeathPdfReport
 
 
 class DeathReportModelMixin(
@@ -26,6 +27,8 @@ class DeathReportModelMixin(
     models.Model,
 ):
     action_name = DEATH_REPORT_ACTION
+
+    pdf_report_cls = DeathPdfReport
 
     death_date_field = "death_datetime"
 
