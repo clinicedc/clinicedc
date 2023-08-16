@@ -16,7 +16,7 @@ User = get_user_model()
 p = inflect.engine()
 
 
-class DeathReport(CrfPdfReport):
+class DeathPdfReport(CrfPdfReport):
     model_attr = "death_report"
     not_reported_text = "not reported"
 

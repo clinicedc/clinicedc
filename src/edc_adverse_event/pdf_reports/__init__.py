@@ -1,2 +1,2 @@
-from .ae_report import AeReport
-from .death_report import DeathReport
+from .ae_pdf_report import AePdfReport
+from .death_pdf_report import DeathPdfReport

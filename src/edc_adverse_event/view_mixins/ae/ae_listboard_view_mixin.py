@@ -13,7 +13,7 @@ from edc_utils import get_utcnow
 
 from ...constants import AE_INITIAL_ACTION
 from ...model_wrappers import AeInitialModelWrapper, DeathReportModelWrapper
-from ...pdf_reports import AeReport
+from ...pdf_reports import AePdfReport
 from ...utils import get_ae_model
 
 
@@ -50,7 +50,7 @@ class AeListboardViewMixin(
     SearchFormViewMixin,
     BaseListboardView,
 ):
-    pdf_report_cls = AeReport
+    pdf_report_cls = AePdfReport
 
     listboard_back_url = "ae_home_url"
     home_url = "ae_home_url"
@@ -98,19 +98,19 @@ class AeListboardViewMixin(
 
     def print_pdf_report(self, action_identifier=None, request=None):
         try:
-            ae_initial = get_ae_model("aeinitial").objects.get(
+            ae_initial_obj = self.ae_initial_model_cls.objects.get(
                 action_identifier=action_identifier
             )
         except ObjectDoesNotExist:
             pass
         else:
-            report = self.pdf_report_cls(
-                ae_initial=ae_initial,
-                subject_identifier=ae_initial.subject_identifier,
+            pdf_report = self.get_pdf_report(
+                ae_initial=ae_initial_obj,
+                subject_identifier=ae_initial_obj.subject_identifier,
                 user=self.request.user,
                 request=request,
             )
-            return report.render_to_response()
+            return pdf_report.render_to_response()
         return None
 
     def get_context_data(self, **kwargs) -> dict:
@@ -139,3 +139,13 @@ class AeListboardViewMixin(
             except ObjectDoesNotExist:
                 pks.append(obj.pk)
         return queryset.exclude(pk__in=pks)
+
+    @property
+    def ae_initial_model_cls(self):
+        return get_ae_model("aeinitial")
+
+    def get_pdf_report(self, **kwargs) -> AePdfReport:
+        pdf_report_cls = getattr(self.ae_initial_model_cls, "pdf_report_cls", None)
+        if not pdf_report_cls:
+            pdf_report_cls = getattr(self, "pdf_report_cls", None)
+        return pdf_report_cls(**kwargs)

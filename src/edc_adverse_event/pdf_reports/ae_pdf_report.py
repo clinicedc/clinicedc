@@ -13,7 +13,7 @@ from ..utils import get_ae_model
 p = inflect.engine()
 
 
-class AeReport(CrfPdfReport):
+class AePdfReport(CrfPdfReport):
     model_attr = "ae_initial"
 
     def __init__(self, ae_initial=None, **kwargs):
