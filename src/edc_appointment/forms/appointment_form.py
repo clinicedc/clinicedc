@@ -9,6 +9,7 @@ from edc_visit_schedule.modelform_mixins import VisitScheduleNonCrfModelFormMixi
 
 from ..form_validators import AppointmentFormValidator
 from ..models import Appointment
+from ..utils import get_appointment_form_meta_options
 
 appt_reason_fld = Appointment._meta.get_field("appt_reason")
 appt_type_fld = Appointment._meta.get_field("appt_type")
@@ -32,3 +33,5 @@ class AppointmentForm(
     class Meta:
         model = Appointment
         fields = "__all__"
+        labels = get_appointment_form_meta_options()["labels"]
+        help_texts = get_appointment_form_meta_options()["help_texts"]

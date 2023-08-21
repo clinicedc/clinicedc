@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Dict, Tuple, Type
 
@@ -17,7 +18,7 @@ from edc_visit_schedule.schedule.window import (
 )
 from edc_visit_schedule.utils import get_default_max_visit_window_gap, is_baseline
 
-from .choices import APPT_TYPE, DEFAULT_APPT_REASON_CHOICES
+from .choices import DEFAULT_APPT_REASON_CHOICES
 from .constants import (
     CANCELLED_APPT,
     COMPLETE_APPT,
@@ -35,7 +36,7 @@ from .exceptions import (
 )
 
 if TYPE_CHECKING:
-    from .models import Appointment
+    from .models import Appointment, AppointmentType
 
 
 class AppointmentDateWindowPeriodGapError(Exception):
@@ -48,6 +49,14 @@ def get_appointment_model_name() -> str:
 
 def get_appointment_model_cls() -> Type[Appointment]:
     return django_apps.get_model(get_appointment_model_name())
+
+
+def get_appointment_type_model_name() -> str:
+    return "edc_appointment.appointmenttype"
+
+
+def get_appointment_type_model_cls() -> Type[AppointmentType]:
+    return django_apps.get_model(get_appointment_type_model_name())
 
 
 def get_allow_missed_unscheduled_appts() -> bool:
@@ -78,38 +87,52 @@ def raise_on_appt_may_not_be_missed(
             )
 
 
+def get_appointment_form_meta_options() -> dict:
+    options = getattr(
+        settings, "EDC_APPOINTMENT_FORM_META_OPTIONS", dict(labels={}, help_texts={})
+    )
+    return options
+
+
 def get_appt_reason_choices() -> Tuple[str, ...]:
-    """Returns a customized tuple of choices otherwise the default"""
+    """Returns a customized tuple of choices otherwise the default.
+
+    Note: You can only change the right side of any tuple.
+
+    For example:
+      ((SCHEDULED_APPT, "some custom text"),
+        (UNSCHEDULED_APPT, "some custom text"))
+
+    See also: formfield_for_choice_field in modeladmin class.
+    """
     settings_attr = "EDC_APPOINTMENT_APPT_REASON_CHOICES"
     appt_reason_choices = getattr(settings, settings_attr, DEFAULT_APPT_REASON_CHOICES)
-    required_keys = [choice[0] for choice in appt_reason_choices]
-    for key in [SCHEDULED_APPT, UNSCHEDULED_APPT]:
-        if key not in required_keys:
-            raise ImproperlyConfigured(
-                "Invalid value for EDC_APPOINTMENT_APPT_REASON_CHOICES. "
-                f"Missing key `{key}`. See {settings_attr}."
-            )
+    required_keys = sorted([choice[0] for choice in appt_reason_choices])
+    if required_keys != [SCHEDULED_APPT, UNSCHEDULED_APPT]:
+        raise ImproperlyConfigured(
+            "Invalid value for EDC_APPOINTMENT_APPT_REASON_CHOICES. "
+            f"Expected a choices tuple with keys `{SCHEDULED_APPT}` and `{UNSCHEDULED_APPT}`. "
+            f"See {settings_attr}."
+        )
     return appt_reason_choices
 
 
-def get_appt_type_choices() -> Tuple[str, ...]:
-    """Returns a customized tuple of choices otherwise the default"""
-    settings_attr = "EDC_APPOINTMENT_APPT_TYPE_CHOICES"
-    appt_type_choices = getattr(settings, settings_attr, APPT_TYPE)
-    if get_appt_type_default() and not [
-        choice[0] for choice in appt_type_choices if get_appt_type_default() == choice[0]
-    ]:
-        raise ImproperlyConfigured(
-            "Missing default value in EDC_APPOINTMENT_APPT_TYPE_CHOICES. "
-            f"Missing key `{get_appt_type_default()}`. See {settings_attr} and "
-            "EDC_APPOINTMENT_APPT_TYPE_DEFAULT."
+def get_appt_type_default() -> str:
+    """Returns the default appointment type name."""
+    return getattr(settings, "EDC_APPOINTMENT_APPT_TYPE_DEFAULT", None)
+
+
+def get_appt_reason_default() -> str:
+    """Returns the default appointment reason."""
+    value = getattr(settings, "EDC_APPOINTMENT_APPT_REASON_DEFAULT", None)
+    if not value:
+        value = getattr(settings, "EDC_APPOINTMENT_DEFAULT_APPT_REASON", None)
+        warnings.warn(
+            "Settings attribute `EDC_APPOINTMENT_DEFAULT_APPT_REASON` has "
+            "been deprecated in favor of `EDC_APPOINTMENT_APPT_REASON_DEFAULT`. ",
+            DeprecationWarning,
         )
-    return appt_type_choices
-
-
-def get_appt_type_default():
-    settings_attr = "EDC_APPOINTMENT_APPT_TYPE_DEFAULT"
-    return getattr(settings, settings_attr, CLINIC)
+    return value or CLINIC
 
 
 def cancelled_appointment(appointment: Appointment) -> None:
