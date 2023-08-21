@@ -5,18 +5,20 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.utils import IntegrityError
 from django.utils.timezone import is_naive
-from edc_constants.constants import CLINIC
 from edc_facility.facility import Facility, FacilityError
 from edc_sites.valid_site_for_subject_or_raise import valid_site_for_subject_or_raise
 from edc_visit_schedule.utils import is_baseline
 
 from ..constants import SCHEDULED_APPT
-from ..utils import get_appt_type_default
+from ..utils import (
+    get_appointment_type_model_cls,
+    get_appt_reason_default,
+    get_appt_type_default,
+)
 
 if TYPE_CHECKING:
     from ..models import Appointment, AppointmentType
@@ -216,18 +218,11 @@ class AppointmentCreator:
         """
         if not self._default_appt_type:
             try:
-                default_appt_type = get_appt_type_default()
-            except AttributeError:
-                default_appt_type = CLINIC
-            if not default_appt_type:
-                self._default_appt_type = default_appt_type
-            else:
-                appointment_type_model_cls = django_apps.get_model(
-                    "edc_appointment.appointmenttype"
+                self._default_appt_type = get_appointment_type_model_cls().objects.get(
+                    name=get_appt_type_default()
                 )
-                self._default_appt_type = appointment_type_model_cls.objects.get(
-                    name=default_appt_type
-                )
+            except ObjectDoesNotExist:
+                self._default_appt_type = None
         return self._default_appt_type
 
     @property
@@ -237,7 +232,7 @@ class AppointmentCreator:
         """
         if not self._default_appt_reason:
             try:
-                self._default_appt_reason = settings.EDC_APPOINTMENT_DEFAULT_APPT_REASON
+                self._default_appt_reason = get_appt_reason_default()
             except AttributeError:
                 self._default_appt_reason = SCHEDULED_APPT
         return self._default_appt_reason
