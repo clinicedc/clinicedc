@@ -4,6 +4,7 @@
 {% load tz %}
 {% load static %}
 {% load l10n %}
+{% load i18n %}
 
 
 {% block listboard_table_header %}
@@ -25,7 +26,7 @@
     <td>
         <small>
             <a id="{{ result.object.action_identifier }}" name="{{ result.object.action_identifier }}"></a>
-            <a class="btn btn-primary" href="{% url subject_dashboard_url subject_identifier=result.subject_identifier %}" title="Go to subject dashboard"><small>{{ result.subject_identifier }}
+            <a class="btn btn-primary" href="{% url subject_dashboard_url subject_identifier=result.subject_identifier %}" title={%  translate "Go to subject dashboard" %}><small>{{ result.subject_identifier }}
                 <i class="fas fa-share"></i></small></a> {% copy_string_to_clipboard_button result.subject_identifier %}
 
     </td>
