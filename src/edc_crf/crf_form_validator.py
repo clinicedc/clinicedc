@@ -4,6 +4,8 @@ import warnings
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+from django.utils.text import format_lazy
+from django.utils.translation import gettext_lazy as _
 from edc_appointment.form_validators import WindowPeriodFormValidatorMixin
 from edc_form_validators import INVALID_ERROR, FormValidator
 from edc_registration import get_registered_subject_model_cls
@@ -72,14 +74,13 @@ class CrfFormValidator(
 
             # not before consent date
             if floor_secs(self.report_datetime) < floor_secs(self.consent_datetime):
+                msg = _("Invalid. Cannot be before date of consent. Participant consent on ")
+                formatted_date = formatted_datetime(self.consent_datetime)
+                err_message = format_lazy(
+                    "{msg} {formatted_date}", msg=msg, formatted_date=formatted_date
+                )
                 self.raise_validation_error(
-                    {
-                        self.report_datetime_field_attr: (
-                            "Invalid. Cannot be before date of consent. "
-                            "Participant consent on "
-                            f"{formatted_datetime(self.consent_datetime)}"
-                        )
-                    },
+                    {self.report_datetime_field_attr: err_message},
                     INVALID_ERROR,
                 )
 
@@ -96,8 +97,11 @@ class CrfFormValidator(
         try:
             return self.related_visit.appointment
         except AttributeError:
+            msg = _("is required")
+            verbose_name = self.related_visit._meta.verbose_name
             self.raise_validation_error(
-                f"{self.related_visit._meta.verbose_name} is required.", INVALID_ERROR
+                format_lazy("{verbose_name} {msg}.", msg=msg, verbose_name=verbose_name),
+                INVALID_ERROR,
             )
 
     @property
@@ -145,7 +149,7 @@ class CrfFormValidator(
             > floor_secs(self.report_datetime)
         ):
             self.raise_validation_error(
-                {field: "Cannot be after report datetime"}, INVALID_ERROR
+                {field: _("Cannot be after report datetime")}, INVALID_ERROR
             )
 
     def validate_date_against_report_datetime(self, field: str) -> None:
@@ -156,7 +160,7 @@ class CrfFormValidator(
             and self.cleaned_data.get(field) > self.report_datetime.date()
         ):
             self.raise_validation_error(
-                {field: "Cannot be after report datetime"}, INVALID_ERROR
+                {field: _("Cannot be after report datetime")}, INVALID_ERROR
             )
 
     @property

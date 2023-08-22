@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING
 
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.text import format_lazy
+from django.utils.translation import gettext_lazy as _
 
 if TYPE_CHECKING:
     from .crf_model_form_mixin import CrfModelFormMixin
@@ -31,7 +33,9 @@ class CrfSingletonModelFormMixin:
             except ObjectDoesNotExist:
                 pass
             else:
-                raise forms.ValidationError(
-                    f"Invalid.  This form has already been submittted. "
-                    f"See '{obj.visit_code}.{obj.visit_code_sequence}'."
+                msg_string = _("Invalid. This form has already been submittted. See")
+                visit_code = f"{obj.visit_code}.{obj.visit_code_sequence}"
+                error_msg = format_lazy(
+                    "{msg_string} {visit_code}", msg_string=msg_string, visit_code=visit_code
                 )
+                raise forms.ValidationError(error_msg)
