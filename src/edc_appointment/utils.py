@@ -107,8 +107,8 @@ def get_appt_reason_choices() -> Tuple[str, ...]:
     """
     settings_attr = "EDC_APPOINTMENT_APPT_REASON_CHOICES"
     appt_reason_choices = getattr(settings, settings_attr, DEFAULT_APPT_REASON_CHOICES)
-    required_keys = sorted([choice[0] for choice in appt_reason_choices])
-    if required_keys != [SCHEDULED_APPT, UNSCHEDULED_APPT]:
+    keys = sorted([choice[0] for choice in appt_reason_choices])
+    if SCHEDULED_APPT not in keys or UNSCHEDULED_APPT not in keys:
         raise ImproperlyConfigured(
             "Invalid value for EDC_APPOINTMENT_APPT_REASON_CHOICES. "
             f"Expected a choices tuple with keys `{SCHEDULED_APPT}` and `{UNSCHEDULED_APPT}`. "
@@ -119,7 +119,7 @@ def get_appt_reason_choices() -> Tuple[str, ...]:
 
 def get_appt_type_default() -> str:
     """Returns the default appointment type name."""
-    return getattr(settings, "EDC_APPOINTMENT_APPT_TYPE_DEFAULT", None)
+    return getattr(settings, "EDC_APPOINTMENT_APPT_TYPE_DEFAULT", CLINIC)
 
 
 def get_appt_reason_default() -> str:
@@ -132,7 +132,7 @@ def get_appt_reason_default() -> str:
             "been deprecated in favor of `EDC_APPOINTMENT_APPT_REASON_DEFAULT`. ",
             DeprecationWarning,
         )
-    return value or CLINIC
+    return value or SCHEDULED_APPT
 
 
 def cancelled_appointment(appointment: Appointment) -> None:

@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import include, path
 from django.views.generic import RedirectView
 from edc_dashboard.views import AdministrationView
 from edc_subject_dashboard.views import SubjectDashboardView
@@ -31,6 +31,7 @@ urlpatterns.extend(
 urlpatterns.extend(
     [
         path("administration/", AdministrationView.as_view(), name="administration_url"),
+        path("i18n/", include("django.conf.urls.i18n")),
         path("", RedirectView.as_view(url="admin/"), name="home_url"),
         path("", RedirectView.as_view(url="admin/"), name="logout"),
     ]
