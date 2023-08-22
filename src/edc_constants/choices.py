@@ -59,56 +59,60 @@ from .constants import (
     YES,
 )
 
-BLANK_CHOICE_DASH = [("", "---------")]
-
-ACU_EST = (("Acute", "Acute"), ("Established", "Established"))
-
-ACU_EST_NEG = (
-    ("Acute", "Acute"),
-    ("Established", "Established"),
-    ("Negative", "Negative"),
+ACU_EST = (
+    ("Acute", _("Acute")),
+    ("Established", _("Established")),
 )
 
-ALIVE_DEAD = ((ALIVE, "Alive"), (DEAD, "Dead"))
+ACU_EST_NEG = (
+    ("Acute", _("Acute")),
+    ("Established", _("Established")),
+    ("Negative", _("Negative")),
+)
+
+ALIVE_DEAD = (
+    (ALIVE, _("Alive")),
+    (DEAD, _("Dead")),
+)
 
 ALIVE_DEAD_UNKNOWN = (
-    (ALIVE, "Alive"),
-    (DEAD, "Deceased"),
-    (UNKNOWN, "Unknown"),
+    (ALIVE, _("Alive")),
+    (DEAD, _("Deceased")),
+    (UNKNOWN, _("Unknown")),
 )
 
 ALIVE_DEAD_UNKNOWN_NA = (
-    (ALIVE, "Alive"),
-    (DEAD, "Deceased"),
-    (UNKNOWN, "Unknown"),
-    (NOT_APPLICABLE, "Not applicable"),
+    (ALIVE, _("Alive")),
+    (DEAD, _("Deceased")),
+    (UNKNOWN, _("Unknown")),
+    (NOT_APPLICABLE, _("Not applicable")),
 )
 
 ALIVE_DEAD_UNKNOWN_NA_MISSED = (
-    (ALIVE, "Alive"),
-    (DEAD, "Deceased"),
-    (UNKNOWN, "Unknown"),
-    (NOT_APPLICABLE, "Not applicable (if missed)"),
+    (ALIVE, _("Alive")),
+    (DEAD, _("Deceased")),
+    (UNKNOWN, _("Unknown")),
+    (NOT_APPLICABLE, _("Not applicable (if missed)")),
 )
 
 
 ART_STATUS = (
-    ("ON", "Yes, on ART"),
-    ("STOPPED", "No, stopped ART"),
-    (NAIVE, "No, have never taken ART"),
+    ("ON", _("Yes, on ART")),
+    ("STOPPED", _("No, stopped ART")),
+    (NAIVE, _("No, have never taken ART")),
 )
 
 ART_STATUS_UNKNOWN = (
-    ("ON", "ON ART"),
-    ("STOPPED", "Stopped"),
-    (NAIVE, "Naive"),
-    (UNKNOWN, "Unknown"),
+    ("ON", _("ON ART")),
+    ("STOPPED", _("Stopped")),
+    (NAIVE, _("Naive")),
+    (UNKNOWN, _("Unknown")),
 )
 
 ART_STATUS_CONFIRM = (
-    ("OPD", "1. Show OPD/IDCC card"),
-    ("Pills", "2. Show pills"),
-    ("Pic", "3. Identify pictorial"),
+    ("OPD", _("1. Show OPD/IDCC card")),
+    ("Pills", _("2. Show pills")),
+    ("Pic", _("3. Identify pictorial")),
 )
 
 ARV_DRUG_LIST = (
@@ -130,70 +134,75 @@ ARV_DRUG_LIST = (
     ("Raltegravir", "RAL"),
     ("Saquinavir,soft gel capsule", "FOR"),
     ("Saquinavir,hard capsule", "INV"),
-    ("Kaletra or Aluvia", "KAL or ALU"),
+    ("Kaletra or Aluvia", _("KAL or ALU")),
     ("Atripla", "ATR"),
-    ("HAART,unknown", "HAART,unknown"),
+    ("HAART,unknown", _("HAART,unknown")),
 )
 
 ARV_MODIFICATION_REASON = (
-    ("Initial dose", "Initial dose"),
-    ("Never started", "Never started"),
-    ("Toxicity decreased_resolved", "Toxicity decreased/resolved"),
-    ("Completed PMTCT intervention", "Completed PMTCT intervention"),
-    ("Completed postpartum tail", 'Completed post-partum "tail"'),
-    ("Scheduled dose increase", "Scheduled dose increase"),
+    ("Initial dose", _("Initial dose")),
+    ("Never started", _("Never started")),
+    ("Toxicity decreased_resolved", _("Toxicity decreased/resolved")),
+    ("Completed PMTCT intervention", _("Completed PMTCT intervention")),
+    ("Completed postpartum tail", _('Completed post-partum "tail"')),
+    ("Scheduled dose increase", _("Scheduled dose increase")),
     (
         "Confirmed infant HIV infection, ending study drug",
-        "Confirmed infant HIV infection, ending study drug",
+        _("Confirmed infant HIV infection, ending study drug"),
     ),
-    ("completed protocol", "Completion of protocol-required period of study treatment"),
-    ("HAART not available", "HAART not available"),
-    ("Anemia", "Anemia"),
-    ("Bleeding", "Bleeding"),
-    ("CNS symptoms", "CNS symptoms (sleep, psych, etc)"),
-    ("Diarrhea", "Diarrhea"),
-    ("Fatigue", "Fatigue"),
-    ("Headache", "Headache"),
-    ("Hepatotoxicity", "Hepatotoxicity"),
-    ("Nausea", "Nausea"),
-    ("Neutropenia", "Neutropenia"),
-    ("Thrombocytopenia", "Thrombocytopenia"),
-    ("Vomiting", "Vomiting"),
-    ("Rash", "Rash"),
-    ("Rash resolved", "Rash resolved"),
-    ("Neuropathy", "Neuropathy"),
-    ("Hypersensitivity_allergic reaction", "Hypersensitivity / allergic reaction"),
-    ("Pancreatitis", "Pancreatitis"),
-    ("Lactic Acidiosis", "Lactic Acidiosis"),
-    ("Pancytopenia", "Pancytopenia"),
-    ("Virologic failure", "Virologic failure"),
-    ("Immunologic failure", "Immunologic failure(CD4)"),
-    ("Clinical failure", "Clinical failure"),
-    ("Clinician request", "Clinician request, other reason (including convenience)"),
-    ("Subject request", "Subject request, other reason (including convenience)"),
-    ("Non-adherence with clinic visits", "Non-adherence with clinic visits"),
-    ("Non-adherence with ARVs", "Non-adherence with ARVs"),
-    ("Death", "Death"),
-    (OTHER, "Other"),
+    ("completed protocol", _("Completion of protocol-required period of study treatment")),
+    ("HAART not available", _("HAART not available")),
+    ("Anemia", _("Anemia")),
+    ("Bleeding", _("Bleeding")),
+    ("CNS symptoms", _("CNS symptoms (sleep, psych, etc)")),
+    ("Diarrhea", _("Diarrhea")),
+    ("Fatigue", _("Fatigue")),
+    ("Headache", _("Headache")),
+    ("Hepatotoxicity", _("Hepatotoxicity")),
+    ("Nausea", _("Nausea")),
+    ("Neutropenia", _("Neutropenia")),
+    ("Thrombocytopenia", _("Thrombocytopenia")),
+    ("Vomiting", _("Vomiting")),
+    ("Rash", _("Rash")),
+    ("Rash resolved", _("Rash resolved")),
+    ("Neuropathy", _("Neuropathy")),
+    ("Hypersensitivity_allergic reaction", _("Hypersensitivity / allergic reaction")),
+    ("Pancreatitis", _("Pancreatitis")),
+    ("Lactic Acidiosis", _("Lactic Acidiosis")),
+    ("Pancytopenia", _("Pancytopenia")),
+    ("Virologic failure", _("Virologic failure")),
+    ("Immunologic failure", _("Immunologic failure(CD4)")),
+    ("Clinical failure", _("Clinical failure")),
+    ("Clinician request", _("Clinician request, other reason (including convenience)")),
+    ("Subject request", _("Subject request, other reason (including convenience)")),
+    ("Non-adherence with clinic visits", _("Non-adherence with clinic visits")),
+    ("Non-adherence with ARVs", _("Non-adherence with ARVs")),
+    ("Death", _("Death")),
+    (OTHER, _("Other")),
 )
 
 
 ARV_STATUS = (
-    ("no_mod", "1. No modifications made to existing HAART treatment"),
+    ("no_mod", _("1. No modifications made to existing HAART treatment")),
     (
         "start",
         (
-            "2. Started antriretroviral treatment since last "
-            "attended scheduled visit(including today)"
+            _(
+                "2. Started antriretroviral treatment since last "
+                "attended scheduled visit(including today)"
+            )
         ),
     ),
     (
         "discontinued",
-        "3. Permanently discontinued antiretroviral treatment at or before last study visit",
+        _(
+            "3. Permanently discontinued antiretroviral treatment at "
+            "or before last study visit"
+        ),
     ),
     (
         "modified",
-        (
+        _(
             "4. Change in at least one antiretroviral medication since last "
             "attended scheduled visit (including today)(dose modification, "
             "permanent discontinuation, temporary hold, resumption / initiation "
@@ -205,96 +214,102 @@ ARV_STATUS = (
 ARV_STATUS_WITH_NEVER = (
     (
         "no_mod",
-        "1. No modifications made since the last attended scheduled visit or today",
+        _("1. No modifications made since the last attended scheduled visit or today"),
     ),
-    ("start", "2. Starting today or has started since last attended scheduled visit"),
+    ("start", _("2. Starting today or has started since last attended scheduled visit")),
     (
         "discontinued",
-        "3. Permanently discontinued at or before the last attended scheduled visit",
+        _("3. Permanently discontinued at or before the last attended scheduled visit"),
     ),
-    ("never started", "4. Never started"),
+    ("never started", _("4. Never started")),
     (
         "modified",
-        (
+        _(
             "5. Change in at least one medication since the "
             "last attended scheduled visit or today"
         ),
     ),
-    (NOT_APPLICABLE, "Not applicable"),
+    (NOT_APPLICABLE, _("Not applicable")),
 )
 
-CONFIRMED_SUSPECTED = (("CONFIRMED", "Confirmed"), ("SUSPECTED", "Suspected"))
+CONFIRMED_SUSPECTED = (
+    ("CONFIRMED", _("Confirmed")),
+    ("SUSPECTED", _("Suspected")),
+)
 
 COUNTRY = (
-    ("botswana", "Botswana"),
-    ("zimbabwe", "Zimbabwe"),
-    ("rsa", "South Africa"),
-    ("zambia", "Zambia"),
-    ("namibia", "Namibia"),
-    ("nigeria", "Nigeria"),
-    ("china", "China"),
-    ("india", "India"),
-    ("OTHER", "Other"),
+    ("botswana", _("Botswana")),
+    ("zimbabwe", _("Zimbabwe")),
+    ("rsa", _("South Africa")),
+    ("zambia", _("Zambia")),
+    ("namibia", _("Namibia")),
+    ("nigeria", _("Nigeria")),
+    ("china", _("China")),
+    ("india", _("India")),
+    ("OTHER", _("Other")),
 )
 
 DAYS_OF_WEEK = (
-    ("Monday", "Monday"),
-    ("Tuesday", "Tuesday"),
-    ("Wednesday", "Wednesday"),
-    ("Thursday", "Thursday"),
-    ("Friday", "Friday"),
-    ("Saturday", "Saturday"),
-    ("Sunday", "Sunday"),
-    ("AnyDay", "Any day"),
+    ("Monday", _("Monday")),
+    ("Tuesday", _("Tuesday")),
+    ("Wednesday", _("Wednesday")),
+    ("Thursday", _("Thursday")),
+    ("Friday", _("Friday")),
+    ("Saturday", _("Saturday")),
+    ("Sunday", _("Sunday")),
+    ("AnyDay", _("Any day")),
 )
 
 DATE_ESTIMATED_NA = (
-    (NOT_APPLICABLE, "Not applicable"),
-    (NOT_ESTIMATED, "No."),
-    ("D", "Yes, estimated the Day"),
-    ("MD", "Yes, estimated Month and Day"),
-    ("YMD", "Yes, estimated Year, Month and Day"),
+    (NOT_APPLICABLE, _("Not applicable")),
+    (NOT_ESTIMATED, _("No")),
+    ("D", _("Yes, estimated the Day")),
+    ("MD", _("Yes, estimated Month and Day")),
+    ("YMD", _("Yes, estimated Year, Month and Day")),
 )
 
 DATE_ESTIMATED = (
-    ("-", "No"),
-    ("D", "Yes, estimated the Day"),
-    ("MD", "Yes, estimated Month and Day"),
-    ("YMD", "Yes, estimated Year, Month and Day"),
+    ("-", _("No")),
+    ("D", _("Yes, estimated the Day")),
+    ("MD", _("Yes, estimated Month and Day")),
+    ("YMD", _("Yes, estimated Year, Month and Day")),
 )
 
 DEATH_RELATIONSIP_TO_STUDY = (
-    ("Definitely not related", "Definitely not related"),
-    ("Probably not related", "Probably not related"),
-    ("Possible related", "Possible related"),
-    ("Probably related", "Probably related"),
-    ("Definitely related", "Definitely related"),
+    ("Definitely not related", _("Definitely not related")),
+    ("Probably not related", _("Probably not related")),
+    ("Possible related", _("Possible related")),
+    ("Probably related", _("Probably related")),
+    ("Definitely related", _("Definitely related")),
 )
 
 DOCUMENT_STATUS = (
-    (INCOMPLETE, "Incomplete (some data pending)"),
-    (COMPLETE, "Complete"),
+    (INCOMPLETE, _("Incomplete (some data pending)")),
+    (COMPLETE, _("Complete")),
 )
 
 DOSE_STATUS = (
-    ("New", "New"),
-    ("Permanently discontinued", "Permanently discontinued"),
-    ("Temporarily held", "Temporarily held"),
-    ("Dose modified", "Dose modified"),
-    ("Resumed", "Resumed"),
-    ("Not initiated", "Not initiated"),
+    ("New", _("New")),
+    ("Permanently discontinued", _("Permanently discontinued")),
+    ("Temporarily held", _("Temporarily held")),
+    ("Dose modified", _("Dose modified")),
+    ("Resumed", _("Resumed")),
+    ("Not initiated", _("Not initiated")),
 )
 
-FASTING_CHOICES = ((FASTING, "Fasting"), (NON_FASTING, "Non-fasting"))
+FASTING_CHOICES = ((FASTING, _("Fasting")), (NON_FASTING, _("Non-fasting")))
 
-FEEDING = (("BF", "Breast feed"), ("FF", "Formula feed"))
+FEEDING = (
+    ("BF", _("Breast feed")),
+    ("FF", _("Formula feed")),
+)
 
 GENDER = ((MALE, _("Male")), (FEMALE, _("Female")))
 
 GENDER_NA = (
     (MALE, _("Male")),
     (FEMALE, _("Female")),
-    (NOT_APPLICABLE, "Not applicable"),
+    (NOT_APPLICABLE, _("Not applicable")),
 )
 
 GENDER_UNDETERMINED = (
@@ -304,104 +319,123 @@ GENDER_UNDETERMINED = (
 )
 
 GRADING_SCALE = (
-    (1, "Grade 1"),
-    (2, "Grade 2"),
-    (3, "Grade 3"),
-    (4, "Grade 4"),
-    (5, "Grade 5"),
+    (1, _("Grade 1")),
+    (2, _("Grade 2")),
+    (3, _("Grade 3")),
+    (4, _("Grade 4")),
+    (5, _("Grade 5")),
 )
 
 GRADING_SCALE_WITH_NOT_GRADED = (
-    (0, "Not graded"),
-    (1, "Grade 1"),
-    (2, "Grade 2"),
-    (3, "Grade 3"),
-    (4, "Grade 4"),
-    (5, "Grade 5"),
+    (0, _("Not graded")),
+    (1, _("Grade 1")),
+    (2, _("Grade 2")),
+    (3, _("Grade 3")),
+    (4, _("Grade 4")),
+    (5, _("Grade 5")),
 )
 
-GRADING_SCALE_234 = ((2, "Grade 2"), (3, "Grade 3"), (4, "Grade 4"))
+GRADING_SCALE_234 = (
+    (2, _("Grade 2")),
+    (3, _("Grade 3")),
+    (4, _("Grade 4")),
+)
 
-GRADING_SCALE_34 = ((3, "Grade 3"), (4, "Grade 4"))
+
+GRADING_SCALE_34 = (
+    (3, _("Grade 3")),
+    (4, _("Grade 4")),
+)
 
 HIGH_LOW_NA = (
-    (HIGH, "High"),
-    (LOW, "Low"),
-    (NOT_APPLICABLE, "Not applicable"),
+    (HIGH, _("High")),
+    (LOW, _("Low")),
+    (NOT_APPLICABLE, _("Not applicable")),
 )
 
 HIV_RESULT = (
-    (POS, "HIV Positive (Reactive)"),
-    (NEG, "HIV Negative (Non-reactive)"),
-    (IND, "Indeterminate"),
-    (DECLINED, "Participant declined testing"),
+    (POS, _("HIV Positive (Reactive)")),
+    (NEG, _("HIV Negative (Non-reactive)")),
+    (IND, _("Indeterminate")),
+    (DECLINED, _("Participant declined testing")),
     (
         "Not performed",
-        "Test could not be performed (e.g. supply outage, technical problem)",
+        _("Test could not be performed (e.g. supply outage, technical problem)"),
     ),
 )
 
 # do not change without inspecting implication to check_omang_field() in utils.py
 IDENTITY_TYPE = (
-    (OMANG, "Omang"),
-    ("DRIVERS", "Driver's License"),
-    ("PASSPORT", "Passport"),
-    ("OMANG_RCPT", "Omang Receipt"),
-    (OTHER, "Other"),
+    (OMANG, _("Omang")),
+    ("DRIVERS", _("Driver's License")),
+    ("PASSPORT", _("Passport")),
+    ("OMANG_RCPT", _("Omang Receipt")),
+    (OTHER, _("Other")),
 )
 
 LIKERT_FREQUENCY = (
-    (ALWAYS, "Always"),
-    (VERY_OFTEN, "Very Often"),
-    (SOMETIMES, "Sometimes"),
-    (RARELY, "Rarely"),
-    (NEVER, "Never"),
+    (ALWAYS, _("Always")),
+    (VERY_OFTEN, _("Very Often")),
+    (SOMETIMES, _("Sometimes")),
+    (RARELY, _("Rarely")),
+    (NEVER, _("Never")),
 )
 
 MARITAL_STATUS = (
-    ("never_married", "Never married"),
-    ("married", "Currently married"),
-    ("separated", "Separated"),
-    ("divorced", "Divorced"),
-    ("widowed", "Widow / Spinster"),
+    ("never_married", _("Never married")),
+    ("married", _("Currently married")),
+    ("separated", _("Separated")),
+    ("divorced", _("Divorced")),
+    ("widowed", _("Widow / Spinster")),
 )
 
-NORMAL_ABNORMAL = ((NORMAL, "Normal"), (ABNORMAL, "Abnormal"))
+NORMAL_ABNORMAL = (
+    (NORMAL, _("Normal")),
+    (ABNORMAL, _("Abnormal")),
+)
 
 NORMAL_ABNORMAL_NOEXAM = (
-    (NORMAL, "Normal"),
-    (ABNORMAL, "Abnormal"),
-    ("NO_EXAM", "No exam performed"),
+    (NORMAL, _("Normal")),
+    (ABNORMAL, _("Abnormal")),
+    ("NO_EXAM", _("No exam performed")),
 )
 
 NORMAL_ABNORMAL_NOTEVALUATED = (
-    (NORMAL, "Normal"),
-    (ABNORMAL, "Abnormal"),
-    ("NOT_EVAL", "Not evaluated"),
+    (NORMAL, _("Normal")),
+    (ABNORMAL, _("Abnormal")),
+    ("NOT_EVAL", _("Not evaluated")),
 )
 
-POS_NEG = ((POS, "Positive"), (NEG, "Negative"), (IND, "Indeterminate"))
+POS_NEG = (
+    (POS, _("Positive")),
+    (NEG, _("Negative")),
+    (IND, _("Indeterminate")),
+)
 
 POS_NEG_REFUSED = (
-    (POS, "Positive"),
-    (NEG, "Negative"),
-    (IND, "Indeterminate"),
-    ("REF", "Refused to disclose"),
+    (POS, _("Positive")),
+    (NEG, _("Negative")),
+    (IND, _("Indeterminate")),
+    ("REF", _("Refused to disclose")),
 )
 
 POS_NEG_IND_NA = (
-    (POS, "Positive"),
-    (NEG, "Negative"),
-    (IND, "Indeterminate"),
-    (NOT_APPLICABLE, "Not applicable"),
+    (POS, _("Positive")),
+    (NEG, _("Negative")),
+    (IND, _("Indeterminate")),
+    (NOT_APPLICABLE, _("Not applicable")),
 )
 
-POS_NEG_ANY = ((POS, "Positive"), (NEG, "Negative"), ("ANY", "Any"))
+POS_NEG_ANY = (
+    (POS, _("Positive")),
+    (NEG, _("Negative")),
+    ("ANY", _("Any")),
+)
 
 POS_NEG_NA = (
     (POS, _("Positive")),
     (NEG, _("Negative")),
-    (NOT_APPLICABLE, "Not applicable"),
+    (NOT_APPLICABLE, _("Not applicable")),
 )
 
 POS_NEG_ONLY = ((POS, _("Positive")), (NEG, _("Negative")))
@@ -411,124 +445,142 @@ POS_NEG_UNKNOWN = ((POS, _("Positive")), (NEG, _("Negative")), (UNKNOWN, _("Unkn
 POS_NEG_IND_UNKNOWN = (
     (POS, _("Positive")),
     (NEG, _("Negative")),
-    (IND, "Indeterminate"),
+    (IND, _("Indeterminate")),
     (UNKNOWN, _("Unknown")),
 )
 
 POS_NEG_ACU = (
-    ("Positive", "Positive"),
-    ("Negative", "Negative"),
-    ("Possible Acute", "Possible acute"),
-    ("Indeterminate", "Indeterminate"),
+    ("Positive", _("Positive")),
+    ("Negative", _("Negative")),
+    ("Possible Acute", _("Possible acute")),
+    ("Indeterminate", _("Indeterminate")),
 )
 
 POS_NEG_NOTESTED = (
-    (POS, "Positive"),
-    (NEG, "Negative"),
-    (NEVER, "Never tested for HIV"),
+    (POS, _("Positive")),
+    (NEG, _("Negative")),
+    (NEVER, _("Never tested for HIV")),
 )
 
 POS_NEG_NOT_DONE = (
-    (POS, "Positive"),
-    (NEG, "Negative"),
-    (NOT_DONE, "Not done"),
+    (POS, _("Positive")),
+    (NEG, _("Negative")),
+    (NOT_DONE, _("Not done")),
 )
 
 POS_NEG_NOT_DONE_NA = (
-    (POS, "Positive"),
-    (NEG, "Negative"),
-    (NOT_DONE, "Not done"),
-    (NOT_APPLICABLE, "Not applicable"),
+    (POS, _("Positive")),
+    (NEG, _("Negative")),
+    (NOT_DONE, _("Not done")),
+    (NOT_APPLICABLE, _("Not applicable")),
 )
 
 POS_NEG_NOT_DONE_NOT_EVALUATED = (
-    (POS, "Positive"),
-    (NEG, "Negative"),
-    (NOT_DONE, "Not done"),
-    (NOT_EVALUATED, "Not evaluated"),
+    (POS, _("Positive")),
+    (NEG, _("Negative")),
+    (NOT_DONE, _("Not done")),
+    (NOT_EVALUATED, _("Not evaluated")),
 )
 
 POS_NEG_UNTESTED_REFUSAL = (
-    (POS, "Positive"),
-    (NEG, "Negative"),
-    (IND, "Indeterminate"),
-    (NEVER, "Never tested for HIV"),
-    (UNKNOWN, "Unknown"),
-    (DWTA, "Don't want to answer"),
+    (POS, _("Positive")),
+    (NEG, _("Negative")),
+    (IND, _("Indeterminate")),
+    (NEVER, _("Never tested for HIV")),
+    (UNKNOWN, _("Unknown")),
+    (DWTA, _("Don't want to answer")),
 )
 
 PREG_YES_NO_NA = (
-    (YES, "Yes"),
-    (NO, "No"),
-    (NOT_APPLICABLE, "Not Applicable: e.g. male or post-menopausal"),
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (NOT_APPLICABLE, _("Not Applicable: e.g. male or post-menopausal")),
 )
 
-PRESENT_ABSENT = ((PRESENT, "Present"), (ABSENT, "Absent"))
+PRESENT_ABSENT = (
+    (PRESENT, _("Present")),
+    (ABSENT, _("Absent")),
+)
 
 PRESENT_ABSENT_NA = (
-    (PRESENT, "Present"),
-    (ABSENT, "Absent"),
-    (NOT_APPLICABLE, "Not Applicable"),
+    (PRESENT, _("Present")),
+    (ABSENT, _("Absent")),
+    (NOT_APPLICABLE, _("Not Applicable")),
 )
 
-REFUSAL_STATUS = ((REFUSED, "Refused"), ("NOT_REFUSED", "No longer refusing"))
+REFUSAL_STATUS = (
+    (REFUSED, _("Refused")),
+    ("NOT_REFUSED", _("No longer refusing")),
+)
 
 SELECTION_METHOD = (
-    (RANDOM_SAMPLING, "Random sampling"),
-    (PURPOSIVELY_SELECTED, "Purposively selected"),
+    (RANDOM_SAMPLING, _("Random sampling")),
+    (PURPOSIVELY_SELECTED, _("Purposively selected")),
 )
 
-SEVERITY_LEVEL = (("mild", "Mild"), ("moderate", "Moderate"), ("severe", "Severe"))
+SEVERITY_LEVEL = (
+    ("mild", _("Mild")),
+    ("moderate", _("Moderate")),
+    ("severe", _("Severe")),
+)
 
-SEXUAL_DEBUT = (("<=14", "14 or under"), ("15-17", " 15 - 17"), (">=18", "18 or above"))
+SEXUAL_DEBUT = (
+    ("<=14", _("14 or under")),
+    ("15-17", _("15 - 17")),
+    (">=18", _("18 or above")),
+)
 
 SMOKER_STATUS_SIMPLE = (
-    (SMOKER, "Currently smoke"),
-    (FORMER_SMOKER, "Used to smoke but stopped"),
-    (NONSMOKER, "Never smoked"),
+    (SMOKER, _("Currently smoke")),
+    (FORMER_SMOKER, _("Used to smoke but stopped")),
+    (NONSMOKER, _("Never smoked")),
 )
 
 SMOKER_STATUS = (
-    (SMOKER, "Currently smoke"),
-    (FORMER_SMOKER, "Used to smoke but stopped"),
-    (NONSMOKER, "Never smoked"),
-    (NOT_RECORDED, "Not recorded"),
+    (SMOKER, _("Currently smoke")),
+    (FORMER_SMOKER, _("Used to smoke but stopped")),
+    (NONSMOKER, _("Never smoked")),
+    (NOT_RECORDED, _("Not recorded")),
 )
 
 
-TIME_OF_WEEK = ((WEEKDAYS, "Weekdays"), (WEEKENDS, "Weekends"), (ANYTIME, "Anytime"))
+TIME_OF_WEEK = (
+    (WEEKDAYS, _("Weekdays")),
+    (WEEKENDS, _("Weekends")),
+    (ANYTIME, _("Anytime")),
+)
 
 TIME_OF_DAY = (
-    (MORNING, "Morning"),
-    (AFTERNOON, "Afternoon"),
-    (EVENING, "Evening"),
-    (ANYTIME, "Anytime"),
+    (MORNING, _("Morning")),
+    (AFTERNOON, _("Afternoon")),
+    (EVENING, _("Evening")),
+    (ANYTIME, _("Anytime")),
 )
 
 TIME_UNITS = (
-    ("TODAY", "Today"),
-    ("DAYS", "Days"),
-    ("WEEKS", "Weeks"),
-    ("MONTHS", "Months"),
-    ("YEARS", "Years"),
+    ("TODAY", _("Today")),
+    ("DAYS", _("Days")),
+    ("WEEKS", _("Weeks")),
+    ("MONTHS", _("Months")),
+    ("YEARS", _("Years")),
 )
 
 TRUE_FALSE_DONT_KNOW = (
-    (TRUE, "True"),
-    (FALSE, "False"),
-    (DONT_KNOW, "Don't know"),
+    (TRUE, _("True")),
+    (FALSE, _("False")),
+    (DONT_KNOW, _("Don't know")),
 )
 
 
 URINALYSIS = (
     ("NAD", "NAD"),
-    ("Sugar Neg", "Sugar Neg"),
-    ("Sugar +", "Sugar +"),
-    ("Sugar ++", "Sugar ++"),
-    ("Sugar +++", "Sugar +++"),
-    ("Blood", "Blood"),
-    ("Protein", "Protein"),
-    ("Cells", "Cells"),
+    ("Sugar Neg", _("Sugar Neg")),
+    ("Sugar +", _("Sugar +")),
+    ("Sugar ++", _("Sugar ++")),
+    ("Sugar +++", _("Sugar +++")),
+    ("Blood", _("Blood")),
+    ("Protein", _("Protein")),
+    ("Cells", _("Cells")),
 )
 
 YES_NO = ((YES, _(YES)), (NO, _(NO)))
@@ -536,59 +588,79 @@ YES_NO = ((YES, _(YES)), (NO, _(NO)))
 YESDEFAULT_NO = ((YES, _("Yes (default)")), (NO, _(NO)))
 
 YES_NO_AWAITING_RESULTS = (
-    (YES, YES),
-    (NO, NO),
-    (AWAITING_RESULTS, "Awaiting results"),
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (AWAITING_RESULTS, _("Awaiting results")),
 )
 
 YES_NO_NOT_DONE_AWAITING_RESULTS = (
-    (YES, YES),
-    (NO, NO),
-    (AWAITING_RESULTS, "Awaiting results"),
-    (NOT_DONE, "Not done"),
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (AWAITING_RESULTS, _("Awaiting results")),
+    (NOT_DONE, _("Not done")),
 )
 
 YES_NO_NOT_DONE_AWAITING_RESULTS_NA = (
-    (YES, YES),
-    (NO, NO),
-    (AWAITING_RESULTS, "Awaiting results"),
-    (NOT_DONE, "Not done"),
-    (NOT_APPLICABLE, "Not applicable"),
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (AWAITING_RESULTS, _("Awaiting results")),
+    (NOT_DONE, _("Not done")),
+    (NOT_APPLICABLE, _("Not applicable")),
 )
 
-YES_NO_DECLINED = ((YES, YES), (NO, NO), (DECLINED, "Yes, but subject declined copy"))
+YES_NO_DECLINED = (
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (DECLINED, _("Yes, but subject declined copy")),
+)
 
-YES_NO_OPTIONAL = ((YES, YES), (NO, NO), ("Optional", "Optional"))
+YES_NO_OPTIONAL = (
+    (YES, _(YES)),
+    (NO, _(NO)),
+    ("Optional", _("Optional")),
+)
 
-YES_NO_REFUSED = ((YES, _(YES)), (NO, _(NO)), (REFUSED, _("Refused to answer")))
+YES_NO_REFUSED = (
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (REFUSED, _("Refused to answer")),
+)
 
-YES_NO_DWTA = ((YES, _(YES)), (NO, _(NO)), (DWTA, _("Don't want to answer")))
+YES_NO_DWTA = (
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (DWTA, _("Don't want to answer")),
+)
 
 YES_NO_NA_SPECIFY = (
-    (YES, "Yes, (Specify below)"),
-    (NO, NO),
-    (NOT_APPLICABLE, "Not applicable"),
+    (YES, _("Yes, (Specify below)")),
+    (NO, _(NO)),
+    (NOT_APPLICABLE, _("Not applicable")),
 )
 
-YES_NO_NA = ((YES, YES), (NO, NO), (NOT_APPLICABLE, "Not applicable"))
+YES_NO_NA = (
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (NOT_APPLICABLE, _("Not applicable")),
+)
 
 YES_NO_PENDING = (
-    (YES, YES),
-    (NO, NO),
-    (PENDING, "Pending"),
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (PENDING, _("Pending")),
 )
 
 YES_NO_PENDING_NA = (
-    (YES, YES),
-    (NO, NO),
-    (PENDING, "Pending"),
-    (NOT_APPLICABLE, "Not applicable"),
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (PENDING, _("Pending")),
+    (NOT_APPLICABLE, _("Not applicable")),
 )
 
 YES_NO_PENDING_NA_GLUCOSE_SCREENING = (
-    (PENDING, "Pending (scheduled for 3 days from first)"),
-    (YES, YES),
-    (NOT_APPLICABLE, "Not applicable"),
+    (PENDING, _("Pending (scheduled for 3 days from first)")),
+    (YES, _(YES)),
+    (NOT_APPLICABLE, _("Not applicable")),
 )
 
 
@@ -596,93 +668,121 @@ YES_NO_NA_DWTA = (
     (YES, _(YES)),
     (NO, _(NO)),
     (DWTA, _("Don't want to answer")),
-    (NOT_APPLICABLE, "Not applicable"),
+    (NOT_APPLICABLE, _("Not applicable")),
 )
 
-YES_NO_NOT_EVALUATED = ((YES, YES), (NO, NO), (NOT_EVALUATED, "Not evaluated"))
+YES_NO_NOT_EVALUATED = (
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (NOT_EVALUATED, _("Not evaluated")),
+)
 
 YES_NO_NOT_EVALUATED_NA = (
-    (YES, YES),
-    (NO, NO),
-    (NOT_APPLICABLE, "Not applicable"),
-    (NOT_EVALUATED, "Not evaluated"),
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (NOT_APPLICABLE, _("Not applicable")),
+    (NOT_EVALUATED, _("Not evaluated")),
 )
 
 YES_NO_NOT_EXAMINED = (
-    (YES, YES),
-    (NO, NO),
-    (NOT_EXAMINED, "Not examined"),
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (NOT_EXAMINED, _("Not examined")),
 )
 
 
-YES_NO_NOT_DONE = ((YES, YES), (NO, NO), (NOT_DONE, "Not done"))
+YES_NO_NOT_DONE = (
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (NOT_DONE, _("Not done")),
+)
 
-YES_NO_UNKNOWN = ((YES, YES), (NO, NO), (UNKNOWN, "Unknown"))
+YES_NO_UNKNOWN = (
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (UNKNOWN, _("Unknown")),
+)
 
 YES_NO_NA_DWTA_DNK = (
     (YES, _(YES)),
     (NO, _(NO)),
     (DWTA, _("Don't want to answer")),
-    ("cant_remember", "Cannot remember"),
+    ("cant_remember", _("Cannot remember")),
 )
 
-YES_NO_TBD = ((YES, YES), (NO, NO), (TBD, "To be determined"))
+YES_NO_TBD = (
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (TBD, _("To be determined")),
+)
 
 YES_NO_UNKNOWN_NA = (
-    (YES, YES),
-    (NO, NO),
-    (UNKNOWN, "Unknown"),
-    (NOT_APPLICABLE, "Not applicable"),
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (UNKNOWN, _("Unknown")),
+    (NOT_APPLICABLE, _("Not applicable")),
 )
 
 YES_NO_UNKNOWN_NA_MISSED = (
-    (YES, YES),
-    (NO, NO),
-    (UNKNOWN, "Unknown"),
-    (NOT_APPLICABLE, "Not applicable (if missed)"),
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (UNKNOWN, _("Unknown")),
+    (NOT_APPLICABLE, _("Not applicable (if missed)")),
 )
 
-YES_NO_UNSURE = ((YES, YES), (NO, NO), (NOT_SURE, "Not sure"))
+YES_NO_UNSURE = (
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (NOT_SURE, _("Not sure")),
+)
 
 YES_NO_UNSURE_DWTA = (
-    (YES, YES),
-    (NO, NO),
-    (NOT_SURE, "Not sure"),
-    (DWTA, "Don't want to answer"),
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (NOT_SURE, _("Not sure")),
+    (DWTA, _("Don't want to answer")),
 )
 
 YES_NO_UNSURE_NA = (
-    (YES, YES),
-    (NO, NO),
-    (NOT_SURE, "Not sure"),
-    (NOT_APPLICABLE, "Not applicable"),
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (NOT_SURE, _("Not sure")),
+    (NOT_APPLICABLE, _("Not applicable")),
 )
 
-YES_NO_DONT_KNOW = ((YES, YES), (NO, NO), ("Dont_know", "Do not know"))
+YES_NO_DONT_KNOW = (
+    (YES, _(YES)),
+    (NO, _(NO)),
+    ("Dont_know", _("Don't know")),
+)
 
 YES_NO_DONT_KNOW_NA = (
-    (YES, YES),
-    (NO, NO),
-    (DONT_KNOW, "Do not know"),
-    (NOT_APPLICABLE, "Not applicable"),
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (DONT_KNOW, _("Don't know")),
+    (NOT_APPLICABLE, _("Not applicable")),
 )
 
 YES_NO_DONT_KNOW_DWTA = (
-    (YES, YES),
-    (NO, NO),
-    (DONT_KNOW, "Do not know"),
-    (DWTA, "Don't want to answer"),
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (DONT_KNOW, _("Don't know")),
+    (DWTA, _("Don't want to answer")),
 )
 
 YES_NO_DONT_KNOW_DWTA_NA = (
-    (YES, YES),
-    (NO, NO),
-    (DONT_KNOW, "Do not know"),
-    (DWTA, "Don't want to answer"),
-    (NOT_APPLICABLE, "Not applicable"),
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (DONT_KNOW, _("Don't know")),
+    (DWTA, _("Don't want to answer")),
+    (NOT_APPLICABLE, _("Not applicable")),
 )
 
-YES_NO_DOESNT_WORK = ((YES, YES), (NO, NO), ("Doesnt_work", "Doesn't work"))
+YES_NO_DOESNT_WORK = (
+    (YES, _(YES)),
+    (NO, _(NO)),
+    ("Doesnt_work", _("Doesn't work")),
+)
 
 YES_NO_NOT_REQUIRED = ((YES, _(YES)), (NO, _(NO)), (NOT_REQUIRED, _("Not required")))
 
@@ -706,7 +806,7 @@ WHYNOPARTICIPATE_CHOICE = (
         _("Have a newly born baby, not permitted"),
     ),
     ("The appointment was not honoured", _("The appointment was not honoured")),
-    ("not_sure", _("I am not sure")),
+    ("not_sure", _("I'm not sure")),
     ("OTHER", _("Other, specify:")),
     ("not_answering", _("Don't want to answer")),
 )
