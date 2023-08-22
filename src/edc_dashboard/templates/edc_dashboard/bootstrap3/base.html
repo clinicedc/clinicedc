@@ -2,7 +2,7 @@
 {% load edc_navbar_extras %}
 {% load static %}
 {% load tz %}
-
+{% load i18n %}
 {% block title %}{{ project_name|default_if_none:"clinicedc.org" }}{% endblock title %}
 
 {% block jquery %}
@@ -81,14 +81,7 @@
                 </button>
 
                 {% block topbar_title %}
-                    <span class="navbar-brand hidden-sm">
-                      {% if live_system and not DEBUG %}
-                        <span class="label label-success">Live</span>{% else %}
-                        <span class="label label-danger">Test</span>
-                      {% endif %}&nbsp
-                      <small>{{ protocol_name |default:project_name }}: {{ request.site.name|title }} ({{ request.site.id }})</small>
-                    </span>
-
+                  {% include "edc_dashboard/bootstrap3/navbar_topbar_title.html" %}
                 {% endblock topbar_title %}
 
             </div>

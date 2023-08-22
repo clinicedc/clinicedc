@@ -1,3 +1,4 @@
+{% load i18n %}
 
 <!--  begin paginator -->
 {% if show %}
@@ -24,7 +25,7 @@
 		<span class="text small">
 		   <a role="button" href="{{paginator_url}}"
 		       class="btn btn-default btn-sm">
-		           <i class="fas fa-undo fa-sm"></i>&nbsp;Clear search filter</a></span>
+		           <i class="fas fa-undo fa-sm"></i>&nbsp;{%  trans "Clear search filter" %}</a></span>
 	</div>
 {% endif %}
 
