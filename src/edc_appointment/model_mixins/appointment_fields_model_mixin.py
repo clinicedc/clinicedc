@@ -1,7 +1,9 @@
 from django.db import models
+from edc_model_fields.fields import OtherCharField
 
-from ..choices import APPT_STATUS, APPT_TIMING, DEFAULT_APPT_REASON_CHOICES
+from ..choices import APPT_STATUS, APPT_TIMING
 from ..constants import NEW_APPT, ONTIME_APPT
+from ..utils import get_appt_reason_choices
 
 
 class AppointmentFieldsModelMixin(models.Model):
@@ -30,6 +32,20 @@ class AppointmentFieldsModelMixin(models.Model):
         verbose_name="Appointment date and time", db_index=True
     )
 
+    appt_type = models.ForeignKey(
+        "edc_appointment.AppointmentType",
+        verbose_name="Appointment type",
+        on_delete=models.PROTECT,
+        default=None,
+        null=True,
+        blank=False,
+        help_text="",
+    )
+
+    appt_type_other = OtherCharField(
+        verbose_name="If other appointment type, please specify ...",
+    )
+
     appt_status = models.CharField(
         verbose_name="Status",
         choices=APPT_STATUS,
@@ -46,7 +62,7 @@ class AppointmentFieldsModelMixin(models.Model):
     appt_reason = models.CharField(
         verbose_name="Reason for appointment",
         max_length=25,
-        choices=DEFAULT_APPT_REASON_CHOICES,
+        choices=get_appt_reason_choices(),
         help_text=(
             "The reason for visit from the visit report will be validated against "
             "this response. Refer to the protocol documentation for the definition "
@@ -60,7 +76,7 @@ class AppointmentFieldsModelMixin(models.Model):
         choices=APPT_TIMING,
         default=ONTIME_APPT,
         help_text=(
-            "If late, you may be required to complete a protocol incident report. "
+            "If late, you may also be required to complete a protocol incident report. "
             "Refer to the protocol documentation for the allowed window periods "
             "of scheduled appointments."
         ),

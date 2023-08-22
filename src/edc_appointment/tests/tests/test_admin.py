@@ -30,6 +30,7 @@ def get_url_name():
 
 class TestAdmin(WebTest):
     helper_cls = Helper
+    extra_environ = {"HTTP_ACCEPT_LANGUAGE": "en"}
 
     @classmethod
     def setUpClass(cls):
@@ -54,8 +55,21 @@ class TestAdmin(WebTest):
             visit_models={"edc_appointment.appointment": get_related_visit_model()}
         )
 
+    def get_app_form(self, url_name=None, response=None):
+        form = None
+        if not response:
+            response = self.app.get(
+                reverse(url_name), extra_environ={"HTTP_ACCEPT_LANGUAGE": "en"}
+            ).maybe_follow()
+        for index, form in response.forms.items():
+            if form.action == "/i18n/setlang/":
+                continue
+            else:
+                break
+        return form
+
     def login(self):
-        form = self.app.get(reverse("admin:index")).maybe_follow().form
+        form = self.get_app_form("admin:index")
         form["username"] = self.user.username
         form["password"] = "pass"  # nosec B105
         return form.submit()
@@ -77,6 +91,7 @@ class TestAdmin(WebTest):
         login(self, user=self.user, redirect_url=changelist_url_name)
 
         url = reverse(changelist_url_name)
+
         response = self.app.get(url, user=self.user)
         self.assertIn("1000", response.text)
         self.assertIn("2000", response.text)
