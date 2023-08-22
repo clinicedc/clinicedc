@@ -1,4 +1,5 @@
 {% extends 'edc_dashboard/bootstrap3/base.html' %}
+{% load i18n %}
 
 {% block extrastyle %}
 {{ block.super }}
@@ -19,8 +20,8 @@
             <h1>404</h1>
             <h2>The requested page was not found.</h2>
         <br>
-        <a class="btn btn-primary" onclick="window.history.back();">Go Back</a>&nbsp;or&nbsp;
-        <a class="btn btn-primary" href="/">Return to the home page</a>
+        <a class="btn btn-primary" onclick="window.history.back();">{% trans "Go Back" %}</a>&nbsp;or&nbsp;
+        <a class="btn btn-primary" href="/">{% trans "Return to the home page" %}</a>
     </div>
 {% endblock main %}
 
