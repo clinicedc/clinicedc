@@ -917,7 +917,7 @@ msgstr "sina uhakika"
 
 #: edc_constants/choices.py:810
 msgid "Other, specify:"
-msgstr ""
+msgstr "Nyingine, taja:"
 
 #~ msgid "Yes"
 #~ msgstr "Ndiyo"
