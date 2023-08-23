@@ -9,6 +9,9 @@
 {%  for css in edc_model_admin_css_theme_path %}
 <link rel='stylesheet' type="text/css" href='{% static css %}'>
 {% endfor %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
 {% endblock %}
 
 {% block dark-mode-vars %}
@@ -29,16 +32,7 @@
 {% block breadcrumbs %}{% endblock %}
 
 {% block branding %}
-  <button type="button" class="btn btn-{% if LIVE_SYSTEM and not DEBUG %}live{% else %}test{% endif %}">
-    {% if LIVE_SYSTEM and not DEBUG %}{{ LIVE|title }}{% else %}{{ TEST|title }}{% endif %}
-  </button>&nbsp;
-  {{ protocol_name |default:project_name }}: {{ request.site.name|title }} ({{ request.site.id }}) &nbsp;
-  <a href="/">{% translate 'Home' %}</a> &rsaquo;
-    {% if site_url %}
-        <a href="{{ site_url }}">{% translate 'Administration' %}</a>
-    {% endif %}
-&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
-&rsaquo; {% if has_view_permission %}<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}
+  {% show_navbar_for_admin_templates_b3 %}
 {% endblock %}
 
 {% block welcome-msg %}{% endblock %}

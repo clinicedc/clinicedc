@@ -5,6 +5,7 @@
 
 {% block extrahead %}
   {{ block.super }}
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
 {% endblock %}
 
@@ -27,18 +28,7 @@
 {% block breadcrumbs %}{% endblock %}
 
 {% block branding %}
-  <button type="button" class="btn btn-{% if LIVE_SYSTEM and not DEBUG %}live{% else %}test{% endif %}">
-    {% if LIVE_SYSTEM and not DEBUG %}{{ LIVE|title }}{% else %}{{ TEST|title }}{% endif %}
-  </button>&nbsp;
-  {{ protocol_name |default:project_name }}: {{ request.site.name|title }} ({{ request.site.id }}) &nbsp;
-  <a href="/">{% translate 'Home' %}</a> &rsaquo;
-    {% if site_url %}
-        <a href="{{ site_url }}">{% translate 'Administration' %}</a>
-    {% endif %}
-&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
-&rsaquo; {% if has_view_permission %}<a href="{% url opts|admin_urlname:'changelist' %}">{{ form_verbose_name|default:opts.verbose_name_plural|capfirst }}</a>{% else %}{{ form_verbose_name|default:opts.verbose_name_plural|capfirst }}{% endif %}
-&rsaquo; {% if add %}{% blocktranslate with name=form_verbose_name|default:opts.verbose_name %}Add {{ name }}{% endblocktranslate %}{% else %}{{ original|truncatewords:"18" }}{% endif %}
-
+  {% show_navbar_for_admin_templates_b3 %}
 {% endblock %}
 
 {% block welcome-msg %}{% endblock %}
