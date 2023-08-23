@@ -1,0 +1,201 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-08-21 11:23-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: edc_model_admin/dashboard/model_admin_dashboard_mixin.py:20
+msgid "Subject dashboard"
+msgstr "Dashibodi ya mgonjwa"
+
+#: edc_model_admin/dashboard/model_admin_dashboard_mixin.py:29
+msgid "Go to subject's dashboard"
+msgstr "nenda kwenye dashibodi ya mgonjwa"
+
+#: edc_model_admin/mixins/model_admin_form_instructions_mixin.py:34
+msgid ""
+"Please complete the form below. Required questions are in bold. When all "
+"required questions are complete click SAVE or, if available, SAVE NEXT. "
+"Based on your responses, additional questions may be required or some "
+"answers may need to be corrected."
+msgstr ""
+"Tafadhali jaza fomu iliyo hapa chini. Maswali yanayohitajika "
+"yameandikwa kwa herufi nzito. Maswali yote yanayohitajika "
+"yanapokamilika bofya HIFADHI au, ikiwa inapatikana, HIFADHI "
+"INAYOFUATA. Kulingana na majibu yako, maswali ya ziada yanaweza "
+"kuhitajika au baadhi ya majibu yanaweza kuhitaji kusahihishwa"
+
+#: edc_model_admin/mixins/templates_model_admin_mixin.py:24
+#: edc_model_admin/templates/edc_model_admin/admin/tabular.html:37
+msgid "View on site"
+msgstr ""
+
+#: edc_model_admin/mixins/templates_model_admin_mixin.py:25
+msgid "Audit trail"
+msgstr "Maagizo ya Ziada"
+
+#: edc_model_admin/templates/edc_additional_instructions.html:4
+msgid "Additional Instructions"
+msgstr ""
+
+#: edc_model_admin/templates/edc_additional_instructions.html:8
+msgid "Notifications"
+msgstr "Arifa"
+
+#: edc_model_admin/templates/edc_instructions.html:3
+#, fuzzy
+#| msgid "Administration"
+msgid "Instructions"
+msgstr "Utawala"
+
+#: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:30
+#: edc_model_admin/templates/edc_model_admin/admin/object_history.html:24
+#: edc_model_admin/templates/edc_model_admin/admin/object_history_form.html:23
+#: edc_model_admin/templates/logout_row.html:6
+#: edc_model_admin/templates/navbar_for_admin_templates_b3.html:3
+msgid "Home"
+msgstr "Nyumbani"
+
+#: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:32
+#: edc_model_admin/templates/edc_model_admin/admin/object_history.html:26
+#: edc_model_admin/templates/edc_model_admin/admin/object_history_form.html:25
+#: edc_model_admin/templates/logout_row.html:9
+#: edc_model_admin/templates/navbar_for_admin_templates.html:44
+#: edc_model_admin/templates/navbar_for_admin_templates_b3.html:3
+msgid "Administration"
+msgstr "Utawala"
+
+#: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:37
+#: edc_model_admin/templates/edc_submit_line.html:6
+msgid "Delete"
+msgstr "Futa"
+
+#: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:46
+#, python-format
+msgid ""
+"Deleting the %(object_name)s '%(escaped_object)s' would result in deleting "
+"related objects, but your account doesn't have permission to delete the "
+"following types of objects:"
+msgstr ""
+
+#: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:53
+#, python-format
+msgid ""
+"Deleting the %(object_name)s '%(escaped_object)s' would require deleting the "
+"following protected related objects:"
+msgstr ""
+
+#: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:60
+#, python-format
+msgid ""
+"Are you sure you want to delete the %(object_name)s \"%(escaped_object)s\"? "
+"All of the following related items will be deleted:"
+msgstr ""
+
+#: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:62
+msgid "Objects"
+msgstr ""
+
+#: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:69
+msgid "Yes, I’m sure"
+msgstr "Ndiyo, nina uhakika"
+
+#: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:70
+msgid "No, take me back"
+msgstr "Hapana, nirudishe"
+
+#: edc_model_admin/templates/edc_model_admin/admin/index.html:36
+msgid "Recent actions"
+msgstr "Vitendo vya hivi karibuni"
+
+#: edc_model_admin/templates/edc_model_admin/admin/index.html:37
+msgid "My actions"
+msgstr "Matendo yangu"
+
+#: edc_model_admin/templates/edc_model_admin/admin/index.html:41
+msgid "None available"
+msgstr ""
+
+#: edc_model_admin/templates/edc_model_admin/admin/index.html:55
+msgid "Unknown content"
+msgstr ""
+
+#: edc_model_admin/templates/edc_model_admin/admin/object_history.html:45
+msgid "Current document"
+msgstr "Hati ya sasa"
+
+#: edc_model_admin/templates/edc_model_admin/admin/tabular.html:22
+msgid "Delete?"
+msgstr ""
+
+#: edc_model_admin/templates/edc_model_admin/admin/tabular.html:35
+msgid "Change"
+msgstr "Badilika"
+
+#: edc_model_admin/templates/edc_model_admin/admin/tabular.html:35
+msgid "View"
+msgstr ""
+
+#: edc_model_admin/templates/edc_revision_line.html:6
+msgid "Licensed for use under"
+msgstr "Imepewa leseni ya matumizi chini ya"
+
+#: edc_model_admin/templates/edc_revision_line.html:7
+msgid "Revision"
+msgstr "Marudio"
+
+#: edc_model_admin/templates/edc_submit_line.html:3
+msgid "Save"
+msgstr "Hifadhi"
+
+#: edc_model_admin/templates/edc_submit_line.html:10
+#: edc_model_admin/templates/edc_submit_line.html:13
+#: edc_model_admin/templates/edc_submit_line.html:16
+msgid "Leave form without saving"
+msgstr "Ondoka fomu bila kuweka akiba"
+
+#: edc_model_admin/templates/edc_submit_line.html:10
+#: edc_model_admin/templates/edc_submit_line.html:13
+#: edc_model_admin/templates/edc_submit_line.html:16
+msgid "Cancel"
+msgstr "Ghairi"
+
+#: edc_model_admin/templates/edc_submit_line.html:20
+msgid "Save and go to next form in schedule"
+msgstr "Hifadhi na uende kwenye fomu inayofuata katika ratiba"
+
+#: edc_model_admin/templates/edc_submit_line.html:20
+msgid "Save and next"
+msgstr "Hifadhi na ijayo"
+
+#: edc_model_admin/templates/logout_row.html:12
+#: edc_model_admin/templates/navbar_for_admin_templates.html:60
+msgid "Logout"
+msgstr "Ondoka"
+
+#: edc_model_admin/templates/navbar_for_admin_templates.html:40
+#: edc_model_admin/templates/navbar_for_admin_templates.html:64
+msgid "Go to user account"
+msgstr "Nenda kwa akaunti ya mtumiaji"
+
+#: edc_model_admin/tests/templates/dashboard.html:10
+msgid "You are at the subject dashboard"
+msgstr "Uko kwenye dashibodi ya mgonjwa"
+
+#, python-format
+#~ msgid "Add %(name)s"
+#~ msgstr "Ongeza %(name)s"

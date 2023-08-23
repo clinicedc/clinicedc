@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django.utils.translation import gettext_lazy as _
+
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
@@ -11,7 +13,7 @@ class ModelAdminFormInstructionsMixin:
 
     Override the change_form.html to add instructions.
 
-    Copy change_form.html from this apps templates/<app>/admin/ into
+    Copy change_form.html from the apps templates/<app>/admin/ into
     /templates/admin/<your_app> or create a blank change_form.html in your
     /templates/admin/<your_app> folder and add this:
 
@@ -28,7 +30,7 @@ class ModelAdminFormInstructionsMixin:
     non-admin templates.
     """
 
-    instructions = (
+    instructions = _(
         "Please complete the form below. "
         "Required questions are in bold. "
         "When all required questions are complete click SAVE "

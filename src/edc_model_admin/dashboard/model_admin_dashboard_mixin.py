@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Tuple
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, reverse
+from django.utils.translation import gettext_lazy as _
 from edc_dashboard.url_names import url_names
 from edc_registration import get_registered_subject_model_cls
 
@@ -16,7 +17,7 @@ class ModelAdminDashboardMixin:
     subject_dashboard_url_name = "subject_dashboard_url"
     subject_listboard_url_name = "subject_listboard_url"
     show_dashboard_in_list_display_pos = None
-    view_on_site_label = "Subject dashboard"
+    view_on_site_label = _("Subject dashboard")
 
     def dashboard(self, obj=None, label=None) -> str:
         url = self.get_subject_dashboard_url(obj=obj)
@@ -25,7 +26,7 @@ class ModelAdminDashboardMixin:
                 self.get_subject_dashboard_url_name(obj=obj),
                 kwargs=self.get_subject_dashboard_url_kwargs(obj),
             )
-        context = dict(title="Go to subject's dashboard", url=url, label=label)
+        context = dict(title=_("Go to subject's dashboard"), url=url, label=label)
         return render_to_string("dashboard_button.html", context=context)
 
     def get_subject_listboard_url_name(self) -> str:

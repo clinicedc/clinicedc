@@ -26,6 +26,7 @@ for app_name in [
 
 urlpatterns += [
     path("admin/", admin.site.urls),
+    path("i18n/", include("django.conf.urls.i18n")),
     path("", CrfOneListView.as_view(), name="crfone-list"),
     path("", include("edc_model_admin.tests.dashboard_app.urls")),
     path("", include("edc_model_admin.tests.dashboard2_app.urls")),

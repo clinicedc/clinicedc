@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from django.utils.translation import gettext_lazy as _
+
 
 class TemplatesModelAdminMixin:
     """Override admin templates.
@@ -19,8 +21,8 @@ class TemplatesModelAdminMixin:
     """
 
     show_object_tools: bool = False
-    view_on_site_label: str = "View on site"
-    history_label: str = "Audit trail"
+    view_on_site_label: str = _("View on site")
+    history_label: str = _("Audit trail")
     show_history_label: bool = True
 
     add_form_template: str = "edc_model_admin/admin/change_form.html"

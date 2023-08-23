@@ -1,0 +1,71 @@
+{% load i18n admin_urls static admin_modify %}
+{% get_current_language as LANGUAGE_CODE %}
+{% get_available_languages as LANGUAGES%}
+{% get_language_info_list for LANGUAGES as languages %}
+
+<!-- begin navbar_for_admin_templates -->
+<nav class="navbar navbar-expand-lg sticky-top bg-body-tertiary" data-bs-theme="dark">
+
+  <div class="container-fluid">
+
+  <a class="navbar-brand" href="/">
+    <button type="button" class="btn btn-{% if LIVE_SYSTEM and not DEBUG %}succes{% else %}danger{% endif %}">
+      {% if LIVE_SYSTEM and not DEBUG %}{{ LIVE|title }}{% else %}{{ TEST|title }}{% endif %}&nbsp;INTECOMM {{ request.site.name| upper }} {{ request.site.id }}
+    </button>
+  </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerChangeForm" aria-controls="navbarTogglerChangeForm" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarTogglerChangeForm">
+      <div class="navbar-nav">
+
+        <span class="nav-item">
+          <a class="nav-link" href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+        </span>
+
+      {% if has_view_permission %}
+        <span class="nav-item">
+          <a class="nav-link" href="{% url opts|admin_urlname:'changelist' %}">{{ form_verbose_name|default:opts.verbose_name_plural|capfirst }} (All)</a>
+        </span>
+      {% else %}
+        <span class="nav-item">
+          <a class="nav-link">{{ form_verbose_name|default:opts.verbose_name_plural|capfirst }}</a>
+        </span>
+      {% endif %}
+
+
+      <span class="nav-item">
+        <A class="nav-link" title="{% translate 'Go to user account'  %}" href="{% url 'home_url' %}"><i class="fa-solid fa-home fa-fw"></i></A>
+      </span>
+
+      <span class="nav-item">
+        <A class="nav-link" title="{% translate 'Administration'  %}" href="{% url 'administration_url' %}"><i class="fa-solid fa-gear fa-fw"></i></A>
+      </span>
+
+
+      <span class="nav-item">
+        <form  class="nav-link" action="{% url 'set_language' %}" method="post">{% csrf_token %}
+          <input name="next" type="hidden" value="{{ redirect_to }}">
+          <select class="form-select form-select-sm" name="language" onchange="this.form.submit()" title="Select language" aria-label="Select language">
+            {% for language in languages %}
+              <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>{{ language.code }}</option>
+            {% endfor %}
+          </select>
+        </form>
+      </span>
+
+      <span class="nav-item">
+        <A class="nav-link" title="{% translate 'Logout' %}" href="{% url 'edc_auth_admin:logout' %}"><i class="fa-solid fa-sign-out-alt"></i></A>
+      </span>
+
+      <span class="nav-item">
+        <A class="nav-link" title="{% translate 'Go to user account'  %}" href="{% url 'edc_auth_admin:auth_user_change' user.id %}">{{ user.get_username }}</A>
+      </span>
+
+    </div>
+    </div>
+</div>
+</nav>
+<!-- end navbar_for_admin_templates -->

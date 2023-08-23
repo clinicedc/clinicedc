@@ -66,7 +66,13 @@ class ModelAdminSiteTest(WebTest):
         )
 
     def login(self):
-        form = self.app.get(reverse("admin:index")).maybe_follow().form
+        response = self.app.get(reverse("admin:index")).maybe_follow()
+        for index, form in response.forms.items():
+            if form.action == "/i18n/setlang/":
+                # exclude the locale form
+                continue
+            else:
+                break
         form["username"] = self.user.username
         form["password"] = "pass"  # nosec B105
         return form.submit()
