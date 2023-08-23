@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.translation import gettext_lazy as _
 from edc_utils import get_utcnow
 
 from .address import Address
@@ -55,7 +56,7 @@ class Protocol:
         )
         self.protocol_name: str = self.project_name
         self.protocol_lower_name = "_".join(self.protocol_name.lower().split(" "))
-        self.disclaimer = "For research purposes only."
+        self.disclaimer = _("For research purposes only")
         self.copyright = f"2010-{get_utcnow().year}"
         self.license = "GNU GENERAL PUBLIC LICENSE Version 3"
 
