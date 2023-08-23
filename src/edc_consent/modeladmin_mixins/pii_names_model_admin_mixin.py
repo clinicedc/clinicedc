@@ -57,10 +57,10 @@ class PiiNamesModelAdminMixin:
         site_id = validated_site_id(all_sites=self.all_sites, request=request)
         if site_id and site_id not in get_site_ids_with_pii_perms(self.all_sites):
             for index, fieldset in enumerate(self._original_fieldsets):
-                fields = fieldset[1].get("fields")
-                fieldsets[index][1]["fields"] = [
-                    f for f in fields if f not in self.name_fields
-                ]
+                fields = tuple(fieldset[1].get("fields"))
+                filtered_fields = tuple([f for f in fields if f not in self.name_fields])
+                if fields != filtered_fields:
+                    fieldsets[index][1]["fields"] = filtered_fields
         return fieldsets
 
     def filter_fields_for_pii_permissions(
@@ -68,23 +68,31 @@ class PiiNamesModelAdminMixin:
     ) -> Tuple[str, ...]:
         site_id = validated_site_id(all_sites=self.all_sites, request=request)
         if site_id and site_id not in get_site_ids_with_pii_perms(self.all_sites):
-            fields = tuple([f for f in self._original_fields if f not in self.name_fields])
+            filtered_fields = tuple(
+                [f for f in self._original_fields if f not in self.name_fields]
+            )
+            if tuple(fields) != filtered_fields:
+                fields = filtered_fields
         return fields
 
     def filter_list_display_for_pii_permissions(self, fields, request):
         site_id = validated_site_id(all_sites=self.all_sites, request=request)
         if site_id and site_id not in get_site_ids_with_pii_perms(self.all_sites):
-            fields = tuple(
+            filtered_fields = tuple(
                 [f for f in self._original_list_display if f not in self.name_fields]
             )
+            if tuple(fields) != filtered_fields:
+                fields = filtered_fields
         return fields
 
     def filter_search_fields_for_pii_permissions(self, fields, request):
         site_id = validated_site_id(all_sites=self.all_sites, request=request)
         if site_id and site_id not in get_site_ids_with_pii_perms(self.all_sites):
-            fields = tuple(
+            filtered_fields = tuple(
                 [f for f in self._original_search_fields if f not in self.name_fields]
             )
+            if tuple(fields) != filtered_fields:
+                fields = filtered_fields
         return fields
 
     def get_changeform_initial_data(self, request) -> dict:
