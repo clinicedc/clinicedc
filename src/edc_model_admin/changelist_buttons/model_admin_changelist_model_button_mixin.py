@@ -1,4 +1,5 @@
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from .model_admin_changelist_button_mixin import ModelAdminChangelistButtonMixin
 
@@ -55,10 +56,10 @@ class ChangelistButtonModelAdminMixin(ModelAdminChangelistButtonMixin):
         namespace=None,
         title=None,
     ):
-        label = label or "change"
+        label = label or _("change")
         namespace = namespace or "admin"
         url = reverse(f"{namespace}:{app_label}_{model_name}_change", args=reverse_args)
-        return self.button_template(label, url=url, title=title)
+        return self.button_template(label=label, url=url, title=title)
 
     def add_model_button(
         self,
@@ -69,10 +70,10 @@ class ChangelistButtonModelAdminMixin(ModelAdminChangelistButtonMixin):
         namespace=None,
         title=None,
     ):
-        label = label or "add"
+        label = label or _("add")
         namespace = namespace or "admin"
-        url = reverse((f"{namespace}:{app_label}_{model_name}_add") + (querystring or ""))
-        return self.button_template(label, url=url, title=title)
+        url = reverse(f"{namespace}:{app_label}_{model_name}_add") + (querystring or "")
+        return self.button_template(label=label, url=url, title=title)
 
     def changelist_list_button(
         self,
@@ -87,13 +88,13 @@ class ChangelistButtonModelAdminMixin(ModelAdminChangelistButtonMixin):
         """Return a button that goes to the app changelist filter for
         this model instance.
         """
-        label = label or "change"
+        label = label or _("change")
         namespace = namespace or "admin"
         querystring = ""
         if querystring_value:
             querystring = f"?q={querystring_value}"
-        url = reverse((f"{namespace}:{app_label}_{model_name}_changelist") + querystring)
-        return self.button_template(label, disabled=disabled, title=title, url=url)
+        url = reverse(f"{namespace}:{app_label}_{model_name}_changelist") + querystring
+        return self.button_template(label=label, disabled=disabled, title=title, url=url)
 
     def disabled_button(self, label):
-        return self.button_template(label, disabled="disabled", url="#")
+        return self.button_template(label=label, disabled="disabled", url="#")

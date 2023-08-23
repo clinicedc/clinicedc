@@ -2,8 +2,12 @@ from typing import Optional, Tuple
 
 from django.apps import apps as django_apps
 from django.contrib import admin
+from django.utils.functional import lazy
 from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
 from simple_history.admin import SimpleHistoryAdmin as BaseSimpleHistoryAdmin
+
+format_html_lazy = lazy(format_html, str)
 
 
 class SimpleHistoryAdmin(BaseSimpleHistoryAdmin):
@@ -14,7 +18,7 @@ class SimpleHistoryAdmin(BaseSimpleHistoryAdmin):
     save_as = False
     save_as_continue = False
 
-    @admin.display(description="Change Message")
+    @admin.display(description=_("Change Message"))
     def change_message(self, obj) -> Optional[str]:
         log_entry_model_cls = django_apps.get_model("admin.logentry")
         log_entry = (
@@ -30,7 +34,9 @@ class SimpleHistoryAdmin(BaseSimpleHistoryAdmin):
 
     def dashboard(self, obj) -> Optional[str]:
         if callable(self.view_on_site):
-            return format_html('<A href="{}">Dashboard</A>', self.view_on_site(obj))
+            return format_html_lazy(
+                _('<A href="%(url)s">Dashboard</A>') % {"url": self.view_on_site(obj)}
+            )
         return None
 
     def get_list_display(self, request) -> Tuple[str, ...]:
@@ -46,9 +52,10 @@ class SimpleHistoryAdmin(BaseSimpleHistoryAdmin):
         return tuple(super().get_readonly_fields(request, obj=obj))
 
     def history_view_title(self, request, obj):
-        word = "View" if self.revert_disabled else "Revert"
-        return f"{word} {obj._meta.verbose_name.title()} Audit Trail"
+        word = _("View") if self.revert_disabled else _("Revert")
+        return _("%(word)s %(verbose_name)s Audit Trail") % dict(
+            word=str(word), verbose_name=obj._meta.verbose_name.title()
+        )
 
     def history_form_view_title(self, request, obj):
-        word = "View" if self.revert_disabled else "Revert"
-        return f"{word} {obj._meta.verbose_name.title()} Audit Trail"
+        return self.history_view_title(request, obj)

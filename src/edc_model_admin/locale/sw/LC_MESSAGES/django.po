@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-21 11:23-0500\n"
+"POT-Creation-Date: 2023-08-23 14:56-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,6 +18,20 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: edc_model_admin/changelist_buttons/model_admin_changelist_button_mixin.py:19
+#: edc_model_admin/changelist_buttons/model_admin_changelist_button_mixin.py:34
+#: edc_model_admin/changelist_buttons/model_admin_changelist_model_button_mixin.py:59
+#: edc_model_admin/changelist_buttons/model_admin_changelist_model_button_mixin.py:91
+#, fuzzy
+#| msgid "Change"
+msgid "change"
+msgstr "Badilika"
+
+#: edc_model_admin/changelist_buttons/model_admin_changelist_button_mixin.py:49
+#: edc_model_admin/changelist_buttons/model_admin_changelist_model_button_mixin.py:73
+msgid "add"
+msgstr "ongeza"
+
 #: edc_model_admin/dashboard/model_admin_dashboard_mixin.py:20
 msgid "Subject dashboard"
 msgstr "Dashibodi ya mgonjwa"
@@ -26,6 +40,31 @@ msgstr "Dashibodi ya mgonjwa"
 msgid "Go to subject's dashboard"
 msgstr "nenda kwenye dashibodi ya mgonjwa"
 
+#: edc_model_admin/history/model_admin_simple_history.py:21
+#, fuzzy
+#| msgid "Change"
+msgid "Change Message"
+msgstr "Maelezo"
+
+#: edc_model_admin/history/model_admin_simple_history.py:38
+#, python-format
+msgid "<A href=\"%(url)s\">Dashboard</A>"
+msgstr "<A href=\"%(url)s\">Dashibodi</A>"
+
+#: edc_model_admin/history/model_admin_simple_history.py:55
+#: edc_model_admin/templates/edc_model_admin/admin/tabular.html:35
+msgid "View"
+msgstr "Hakiki"
+
+#: edc_model_admin/history/model_admin_simple_history.py:55
+msgid "Revert"
+msgstr "Rudisha"
+
+#: edc_model_admin/history/model_admin_simple_history.py:56
+#, python-format
+msgid "%(word)s %(verbose_name)s Audit Trail"
+msgstr "%(word)s %(verbose_name)s rekodi ya ukaguzi"
+
 #: edc_model_admin/mixins/model_admin_form_instructions_mixin.py:34
 msgid ""
 "Please complete the form below. Required questions are in bold. When all "
@@ -33,11 +72,10 @@ msgid ""
 "Based on your responses, additional questions may be required or some "
 "answers may need to be corrected."
 msgstr ""
-"Tafadhali jaza fomu iliyo hapa chini. Maswali yanayohitajika "
-"yameandikwa kwa herufi nzito. Maswali yote yanayohitajika "
-"yanapokamilika bofya HIFADHI au, ikiwa inapatikana, HIFADHI "
-"INAYOFUATA. Kulingana na majibu yako, maswali ya ziada yanaweza "
-"kuhitajika au baadhi ya majibu yanaweza kuhitaji kusahihishwa"
+"Tafadhali jaza fomu iliyo hapa chini. Maswali yanayohitajika yameandikwa kwa "
+"herufi nzito. Maswali yote yanayohitajika yanapokamilika bofya HIFADHI au, "
+"ikiwa inapatikana, HIFADHI INAYOFUATA. Kulingana na majibu yako, maswali ya "
+"ziada yanaweza kuhitajika au baadhi ya majibu yanaweza kuhitaji kusahihishwa"
 
 #: edc_model_admin/mixins/templates_model_admin_mixin.py:24
 #: edc_model_admin/templates/edc_model_admin/admin/tabular.html:37
@@ -46,11 +84,11 @@ msgstr ""
 
 #: edc_model_admin/mixins/templates_model_admin_mixin.py:25
 msgid "Audit trail"
-msgstr "Maagizo ya Ziada"
+msgstr "Rekodi ya ukaguzi"
 
 #: edc_model_admin/templates/edc_additional_instructions.html:4
 msgid "Additional Instructions"
-msgstr ""
+msgstr "Maagizo ya ziada"
 
 #: edc_model_admin/templates/edc_additional_instructions.html:8
 msgid "Notifications"
@@ -108,7 +146,7 @@ msgstr ""
 
 #: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:62
 msgid "Objects"
-msgstr ""
+msgstr "Vitu"
 
 #: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:69
 msgid "Yes, I’m sure"
@@ -128,11 +166,11 @@ msgstr "Matendo yangu"
 
 #: edc_model_admin/templates/edc_model_admin/admin/index.html:41
 msgid "None available"
-msgstr ""
+msgstr "Hakuna inayopatikana"
 
 #: edc_model_admin/templates/edc_model_admin/admin/index.html:55
 msgid "Unknown content"
-msgstr ""
+msgstr "Maudhui yasiyojulikana"
 
 #: edc_model_admin/templates/edc_model_admin/admin/object_history.html:45
 msgid "Current document"
@@ -140,15 +178,11 @@ msgstr "Hati ya sasa"
 
 #: edc_model_admin/templates/edc_model_admin/admin/tabular.html:22
 msgid "Delete?"
-msgstr ""
+msgstr "Futa?"
 
 #: edc_model_admin/templates/edc_model_admin/admin/tabular.html:35
 msgid "Change"
 msgstr "Badilika"
-
-#: edc_model_admin/templates/edc_model_admin/admin/tabular.html:35
-msgid "View"
-msgstr ""
 
 #: edc_model_admin/templates/edc_revision_line.html:6
 msgid "Licensed for use under"
