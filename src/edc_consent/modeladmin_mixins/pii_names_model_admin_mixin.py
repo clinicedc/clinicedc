@@ -56,9 +56,11 @@ class PiiNamesModelAdminMixin:
     ) -> tuple:
         site_id = validated_site_id(all_sites=self.all_sites, request=request)
         if site_id and site_id not in get_site_ids_with_pii_perms(self.all_sites):
-            for fieldset in self._original_fieldsets:
+            for index, fieldset in enumerate(self._original_fieldsets):
                 fields = fieldset[1].get("fields")
-                fieldsets[1]["fields"] = [f for f in fields if f not in self.name_fields]
+                fieldsets[index][1]["fields"] = [
+                    f for f in fields if f not in self.name_fields
+                ]
         return fieldsets
 
     def filter_fields_for_pii_permissions(
