@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_utils import get_utcnow
@@ -18,10 +19,10 @@ class VisitTrackingRequisitionModelMixin(
     subject_visit = models.ForeignKey(settings.SUBJECT_VISIT_MODEL, on_delete=models.PROTECT)
 
     report_datetime = models.DateTimeField(
-        verbose_name="Report Date",
+        verbose_name=_("Report Date"),
         validators=[datetime_not_before_study_start, datetime_not_future],
         default=get_utcnow,
-        help_text=(
+        help_text=_(
             "If reporting today, use today's date/time, otherwise use "
             "the date/time this information was reported."
         ),

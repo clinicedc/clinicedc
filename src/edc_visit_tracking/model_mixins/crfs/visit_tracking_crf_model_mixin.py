@@ -28,7 +28,7 @@ class VisitTrackingCrfModelMixin(VisitMethodsModelMixin, CrfScheduleModelMixin, 
     )
 
     report_datetime = models.DateTimeField(
-        verbose_name="Report Date",
+        verbose_name=_("Report Date"),
         validators=[datetime_not_before_study_start, datetime_not_future],
         default=get_utcnow,
         help_text=_(
