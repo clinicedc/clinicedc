@@ -77,7 +77,7 @@
 										{% endif %}
 		       						</a>
 	                               {% if requisition.object.history_url %}
-	                                   <a href="{{ requisition.object.history_url }}" role="button" class="btn btn-sm btn-default">{% trans history_button_label|default:'History' %}</a>
+	                                   <a href="{{ requisition.object.history_url }}" role="button" class="btn btn-sm btn-default">{{ history_button_label|default:'History' }}</a>
 	                               {% else %}
 	                                   <a disabled role="button" class="btn btn-sm btn-default">{% trans history_button_label|default:'History' %}</a>
 	                               {% endif %}

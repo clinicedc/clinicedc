@@ -1,4 +1,5 @@
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.translation import gettext_lazy as _
 from edc_action_item.view_mixins import ActionItemViewMixin
 from edc_appointment.view_mixins import AppointmentViewMixin
 from edc_consent.view_mixins import ConsentViewMixin
@@ -60,7 +61,7 @@ class SubjectDashboardView(
     visit_model = None
     visit_model_wrapper_cls = SubjectVisitModelWrapper
 
-    history_button_label = None
+    history_button_label = _("Audit")
 
     def __init__(self, **kwargs):
         if not self.navbar_name:
