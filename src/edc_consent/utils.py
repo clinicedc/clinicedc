@@ -6,6 +6,7 @@ from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.db import models
+from edc_sites.get_countries import get_countries
 
 from edc_consent import site_consents
 from edc_consent.site_consents import SiteConsentError
@@ -86,4 +87,15 @@ def values_as_string(*values) -> str | None:
 
 
 def get_remove_patient_names_from_countries() -> list[str]:
+    """Returns a list of country names."""
     return getattr(settings, "EDC_CONSENT_REMOVE_PATIENT_NAMES_FROM_COUNTRIES", [])
+
+
+def get_site_ids_with_pii_perms(all_sites) -> list[int]:
+    site_ids = []
+    countries_with_pii_perms = [
+        c for c in get_countries() if c not in get_remove_patient_names_from_countries()
+    ]
+    for country in countries_with_pii_perms:
+        site_ids.extend([s.site_id for s in all_sites.get(country)])
+    return site_ids
