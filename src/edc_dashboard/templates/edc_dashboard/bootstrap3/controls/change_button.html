@@ -1,7 +1,7 @@
 {% load i18n %}
 <!-- begin change button -->
 
-<a title="{% if wrapped %}{% trans "Change" %}{% else %}{%trans "Add" %}{% endif %} {{ wrapped.verbose_name|title }}"
+<a title="{% if wrapped %}{% trans 'Change' %}{% else %}{%trans 'Add' %}{% endif %} {{ wrapped.verbose_name|title }}"
  role="button"
     class="btn btn-{% if wrapped %}{{ change_color|default:'success' }}{% else %}{{ add_color|default:'warning' }}{% endif %}"
         href="{{ wrapped.href }}">
