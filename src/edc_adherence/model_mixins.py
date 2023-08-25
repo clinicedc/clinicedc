@@ -17,7 +17,7 @@ class MedicationAdherenceModelMixin(models.Model):
     visual_score_confirmed = models.IntegerField(
         verbose_name=format_html(
             "<B><font color='orange'>Interviewer</font></B>: "
-            "please confirm the score indicated from above."
+            "please transcribe the score indicated from above."
         ),
         validators=[MinValueValidator(0), MaxValueValidator(100)],
         help_text="%",
