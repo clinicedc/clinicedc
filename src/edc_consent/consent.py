@@ -32,6 +32,7 @@ class Consent:
         age_max: int = None,
         age_is_adult: int | None = None,
         subject_type: str | None = None,
+        proxy_models: list[str] | None = None,
     ):
         """A class that represents the general attributes
         of a consent.
@@ -43,6 +44,7 @@ class Consent:
         if MALE not in gender and FEMALE not in gender:
             raise InvalidGender(f"Invalid gender. Got {gender}.")
         self.model = model
+        self.proxy_models = proxy_models or []
         self.group = group or self.default_consent_group
         self.start = start
         self.end = end
