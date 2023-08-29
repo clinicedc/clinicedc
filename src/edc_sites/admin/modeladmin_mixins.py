@@ -68,7 +68,7 @@ class SiteModelAdminMixin:
         )
         if db_field.name in (self.limit_related_to_current_country or []):
             self.raise_on_queryset_exists(db_field, kwargs)
-            country = get_current_country(request)
+            country = get_current_country(request=request)
             model_cls = getattr(self.model, db_field.name).field.related_model
             kwargs["queryset"] = model_cls.objects.filter(siteprofile__country=country)
         elif db_field.name in (self.limit_related_to_current_site or []) and getattr(
@@ -98,7 +98,7 @@ class SiteModelAdminMixin:
             model_cls = getattr(self.model, db_field.name).remote_field.model
             kwargs["queryset"] = model_cls.on_site.all()
         elif db_field.name in (self.limit_related_to_current_country or []):
-            country = get_current_country(request)
+            country = get_current_country(request=request)
             model_cls = getattr(self.model, db_field.name).remote_field.model
             kwargs["queryset"] = model_cls.objects.filter(siteprofile__country=country)
         return super().formfield_for_manytomany(db_field, request, **kwargs)
