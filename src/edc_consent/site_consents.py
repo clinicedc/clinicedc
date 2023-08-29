@@ -55,7 +55,11 @@ class SiteConsents:
         """Returns a list of consents for the given
         consent model label_lower.
         """
-        return [consent for consent in self.consents if consent.model == model]
+        return [
+            consent
+            for consent in self.consents
+            if model in ([consent.model] + consent.proxy_models)
+        ]
 
     def get_consent_for_period(
         self,
@@ -75,7 +79,9 @@ class SiteConsents:
         consent_group = consent_group or app_config.default_consent_group
         registered_consents = self.registry.values()
         registered_consents = [
-            c for c in registered_consents if c.group == consent_group and c.model == model
+            c
+            for c in registered_consents
+            if c.group == consent_group and model in ([c.model] + c.proxy_models)
         ]
         if not registered_consents:
             raise SiteConsentError(
@@ -119,7 +125,9 @@ class SiteConsents:
                 f"Got consent_group={consent_group}, version={version}."
             )
         if consent_model:
-            registered_consents = [c for c in registered_consents if c.model == consent_model]
+            registered_consents = [
+                c for c in registered_consents if consent_model in ([c.model] + c.proxy_models)
+            ]
         if not registered_consents:
             raise ConsentObjectDoesNotExist(
                 f"No matching consent in site consents. "
