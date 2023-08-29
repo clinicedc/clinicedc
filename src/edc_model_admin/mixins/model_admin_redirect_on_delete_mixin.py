@@ -23,17 +23,23 @@ class ModelAdminRedirectOnDeleteMixin:
         self.post_url_on_delete = None
         super().__init__(*args)
 
+    def get_post_url_on_delete_name(self, request):
+        return self.post_url_on_delete_name
+
+    def get_post_full_url_on_delete(self, request):
+        return self.post_full_url_on_delete
+
     def get_post_url_on_delete(self, request, obj) -> Optional[str]:
         """Returns a url for the redirect after delete."""
         post_url_on_delete = None
         querystring = urlencode(self.post_url_on_delete_querystring_kwargs(request, obj))
-        if self.post_full_url_on_delete:
-            post_url_on_delete = reverse(self.post_full_url_on_delete)
+        if self.get_post_full_url_on_delete(request):
+            post_url_on_delete = reverse(self.get_post_full_url_on_delete(request))
         else:
             try:
-                url_name = url_names.get(self.post_url_on_delete_name)
+                url_name = url_names.get(self.get_post_url_on_delete_name(request))
             except InvalidUrlName:
-                if self.post_url_on_delete_name:
+                if self.get_post_url_on_delete_name(request):
                     raise
                 url_name = None
             if url_name:
