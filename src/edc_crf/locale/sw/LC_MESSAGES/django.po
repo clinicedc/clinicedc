@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-18 21:43-0500\n"
+"POT-Creation-Date: 2023-09-07 19:30+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,7 +23,7 @@ msgid "CRF status"
 msgstr "Hali ya CRF"
 
 #: edc_crf/crf_form_validator.py:77
-msgid "Invalid. Cannot be before date of consent. Participant consent on "
+msgid "Invalid. Cannot be before date of consent. Participant consent on"
 msgstr ""
 
 #: edc_crf/crf_form_validator.py:100
@@ -53,7 +53,7 @@ msgid "for example, why some data is still pending"
 msgstr ""
 
 #: edc_crf/modelform_mixins/crf_singleton_model_form_mixin.py:36
-msgid "Invalid. This form has already been submittted. See"
+msgid "Invalid. This form has already been submitted. See"
 msgstr ""
 
 #: edc_crf/utils.py:14
