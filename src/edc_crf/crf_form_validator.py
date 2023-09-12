@@ -74,7 +74,7 @@ class CrfFormValidator(
 
             # not before consent date
             if floor_secs(self.report_datetime) < floor_secs(self.consent_datetime):
-                msg = _("Invalid. Cannot be before date of consent. Participant consent on ")
+                msg = _("Invalid. Cannot be before date of consent. Participant consent on")
                 formatted_date = formatted_datetime(self.consent_datetime)
                 err_message = format_lazy(
                     "{msg} {formatted_date}", msg=msg, formatted_date=formatted_date
