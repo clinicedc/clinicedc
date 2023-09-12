@@ -282,7 +282,7 @@ class Migration(migrations.Migration):
                         null=True,
                         on_delete=django.db.models.deletion.DO_NOTHING,
                         related_name="+",
-                        to="intecomm_subject.subjectvisit",
+                        to="edc_visit_tracking.subjectvisit",
                     ),
                 ),
             ],
@@ -859,7 +859,7 @@ class Migration(migrations.Migration):
                     models.OneToOneField(
                         on_delete=django.db.models.deletion.PROTECT,
                         related_name="edc_subject_visit",
-                        to="intecomm_subject.subjectvisit",
+                        to="edc_visit_tracking.subjectvisit",
                     ),
                 ),
             ],

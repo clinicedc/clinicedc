@@ -1,6 +1,7 @@
 from typing import Any, Tuple
 
 from django.contrib import admin
+from django.core.exceptions import ObjectDoesNotExist
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_appointment.utils import get_appointment_model_cls
 from edc_constants.constants import OTHER
@@ -135,9 +136,16 @@ class VisitModelAdminMixin(DocumentStatusModelAdminMixin):
         """
         initial_data = super().get_changeform_initial_data(request)
         appointment_id = request.GET.get("appointment")
-        appointment = get_appointment_model_cls().objects.get(id=appointment_id)
-        initial_data.update(
-            report_datetime=appointment.appt_datetime,
-            reason=SCHEDULED if appointment.visit_code_sequence == 0 else UNSCHEDULED,
-        )
+        try:
+            appointment = get_appointment_model_cls().objects.get(id=appointment_id)
+        except ObjectDoesNotExist:
+            initial_data.update(
+                report_datetime=None,
+                reason=None,
+            )
+        else:
+            initial_data.update(
+                report_datetime=appointment.appt_datetime,
+                reason=SCHEDULED if appointment.visit_code_sequence == 0 else UNSCHEDULED,
+            )
         return initial_data
