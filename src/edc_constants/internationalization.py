@@ -1,6 +1,6 @@
 """
 EXTRA_LANG_INFO is a dictionary structure to provide meta information about
-'custom' languages not provided by Django (and already defined in:
+'custom' languages not provided by Django (i.e. those not already defined in:
 django.conf.locale.LANG_INFO).
 """
 
