@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from django.conf import settings
 
+from .get_language_codes_from_settings import get_language_codes_from_settings
+from .get_language_name import get_language_name
+
 
 class SiteDomainRequiredError(Exception):
     pass
@@ -24,7 +27,7 @@ class SingleSite:
         title: str = None,
         country: str = None,
         country_code: str = None,
-        languages: dict[str, str] | None = None,
+        language_codes: list[str] | None = None,
         domain: str = None,
         description: str = None,
         fqdn: str = None,
@@ -32,17 +35,22 @@ class SingleSite:
         if not domain and not fqdn:
             raise ValueError("Require either domain and/or fqdn. Got both as None.")
         self._domain = domain or f"{name}.{fqdn}"
-        if languages:
-            if unknown_languages := {
-                k: v for k, v in languages.items() if k not in self.languages_from_settings
-            }:
+
+        if language_codes:
+            if unknown_language_codes := [
+                c for c in language_codes if c not in get_language_codes_from_settings()
+            ]:
                 raise SiteLanguagesError(
-                    f"Unknown language code(s) associated with site. Language code must be "
-                    f"included in settings.LANGUAGES. Expected one of settings.LANGUAGES "
-                    f"{self.languages_from_settings}. Got {unknown_languages} for site "
-                    f"{site_id}."
+                    "Unknown language code(s) associated with site. Language code must be "
+                    "defined in settings.LANGUAGES. "
+                    f"Expected one of {get_language_codes_from_settings()}. "
+                    f"Got {unknown_language_codes} for site {site_id}."
                 )
-        self.languages = languages or self.languages_from_settings
+        self.language_codes = language_codes or get_language_codes_from_settings()
+
+        self.languages: dict[str, str] = {
+            code: get_language_name(code) for code in self.language_codes
+        }
         self.site_id = site_id
         self.name = name
         self.title = title or name.title()
@@ -59,14 +67,6 @@ class SingleSite:
 
     def __str__(self):
         return str(self.domain)
-
-    @property
-    def languages_from_settings(self) -> dict[str, str]:
-        try:
-            lang_iterator = settings.LANGUAGES.items()
-        except AttributeError:
-            lang_iterator = settings.LANGUAGES
-        return {k: v for k, v in lang_iterator}
 
     @property
     def domain(self) -> str:
