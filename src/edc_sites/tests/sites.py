@@ -1,7 +1,7 @@
 from edc_sites.single_site import SingleSite
 
 fqdn = "clinicedc.org"
-languages = {"en": "English"}
+language_codes = ["en"]
 sites: list[SingleSite] = [
     SingleSite(
         10,
@@ -9,7 +9,7 @@ sites: list[SingleSite] = [
         title="Mochudi",
         country="botswana",
         country_code="bw",
-        languages=languages,
+        language_codes=language_codes,
         domain=f"mochudi.bw.{fqdn}",
     ),
     SingleSite(
@@ -18,7 +18,7 @@ sites: list[SingleSite] = [
         title="Molepolole",
         country="botswana",
         country_code="bw",
-        languages=languages,
+        language_codes=language_codes,
         fqdn=fqdn,
     ),
     SingleSite(
@@ -27,7 +27,7 @@ sites: list[SingleSite] = [
         title="Lobatse",
         country="botswana",
         country_code="bw",
-        languages=languages,
+        language_codes=language_codes,
         fqdn=fqdn,
     ),
     SingleSite(
@@ -36,7 +36,7 @@ sites: list[SingleSite] = [
         title="Gaborone",
         country="botswana",
         country_code="bw",
-        languages=languages,
+        language_codes=language_codes,
         fqdn=fqdn,
     ),
     SingleSite(
@@ -45,7 +45,7 @@ sites: list[SingleSite] = [
         title="Karakobis",
         country="botswana",
         country_code="bw",
-        languages=languages,
+        language_codes=language_codes,
         fqdn=fqdn,
     ),
     SingleSite(
@@ -54,7 +54,7 @@ sites: list[SingleSite] = [
         title="Windhoek",
         country="namibia",
         country_code="na",
-        languages=languages,
+        language_codes=language_codes,
         fqdn=fqdn,
     ),
 ]
@@ -67,7 +67,7 @@ more_sites = [
         title="Windhoek",
         country="namibia",
         country_code="na",
-        languages=languages,
+        language_codes=language_codes,
         fqdn=fqdn,
     ),
 ]

@@ -18,7 +18,9 @@ def get_sites_from_model() -> list[SingleSite]:
                 country=obj.country,
                 country_code=obj.country_code,
                 domain=obj.domain,
-                languages=json.loads(obj.languages) if obj.languages else None,
+                language_codes=(
+                    list(json.loads(obj.languages).keys()) if obj.languages else None
+                ),
             )
         )
     return sites
