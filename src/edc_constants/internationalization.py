@@ -1,14 +1,15 @@
 """
-EXTRA_LANG_INFO is a dictionary structure to provide meta information about
-'custom' languages not provided by Django (i.e. those not already defined in:
-django.conf.locale.LANG_INFO).
+EXTRA_LANG_INFO is a dictionary structure to provide meta information
+about 'custom' languages not provided by Django (i.e. those not already
+defined in: django.conf.locale.LANG_INFO).
+
+Use 2 digit (639-1) code over 3 digit (639-2) code where available
+
+`code` src: https://www.loc.gov/standards/iso639-2/php/code_list.php
+`name_local` src: https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes
 """
 
 EXTRA_LANG_INFO = {
-    # Where available, use 2 digit (639-1) code over 3 digit (639-2) code
-    #
-    # Codes source: https://www.loc.gov/standards/iso639-2/php/code_list.php
-    # Local names source: https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes
     "lg": {
         "bidi": False,
         "code": "lg",
