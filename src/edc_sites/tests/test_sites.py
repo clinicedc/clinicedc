@@ -8,12 +8,10 @@ from multisite import SiteID
 from multisite.models import Alias
 
 from edc_sites import (
-    InvalidLanguageCodeError,
     InvalidSiteError,
     get_all_sites,
     get_current_country,
     get_language_choices_for_site,
-    get_language_name,
     get_site_id,
     get_sites_by_country,
 )
@@ -85,12 +83,6 @@ class TestSites(SiteTestCaseMixin, TestCase):
             language_choices,
             (("en", "English"), ("sw", "Swahili"), (OTHER, "Other")),
         )
-
-    def test_get_language_name_ok(self):
-        self.assertEqual(get_language_name("en"), "English")
-
-    def test_get_language_name_raises_if_unknown(self):
-        self.assertRaises(InvalidLanguageCodeError, get_language_name, "xx")
 
     def test_get_site_id_by_name(self):
         add_or_update_django_sites(sites=self.default_sites)
@@ -180,7 +172,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
         self.assertEqual(Alias.objects.get(site=site).domain, "mochudi.bw.clinicedc.org")
 
     @override_settings(LANGUAGES={"xx": "XXX"})
-    def test_language_code_not_found_raises(self):
+    def test_site_language_code_not_found_raises(self):
         self.assertRaises(
             SiteLanguagesError,
             SingleSite,
@@ -193,8 +185,22 @@ class TestSites(SiteTestCaseMixin, TestCase):
             domain="mochudi.bw.xxx",
         ),
 
+    @override_settings(LANGUAGES=[])
+    def test_site_language_code_and_no_settings_languages_raises(self):
+        self.assertRaises(
+            SiteLanguagesError,
+            SingleSite,
+            10,
+            "mochudi",
+            title="Mochudi",
+            country="botswana",
+            country_code="bw",
+            language_codes=["sw"],
+            domain="mochudi.bw.xxx",
+        ),
+
     @override_settings(LANGUAGES={"en": "English", "tn": "Setswana"})
-    def test_languages_ok(self):
+    def test_site_languages_codes_ok(self):
         try:
             obj = SingleSite(
                 10,
@@ -211,7 +217,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
         self.assertDictEqual(obj.languages, {"tn": "Setswana"})
 
     @override_settings(LANGUAGES=[("en", "English"), ("sw", "Swahili")])
-    def test_no_language_codes_defaults_ok(self):
+    def test_no_site_language_codes_defaults_to_settings_languages_ok(self):
         try:
             obj = SingleSite(
                 10,
@@ -223,7 +229,6 @@ class TestSites(SiteTestCaseMixin, TestCase):
             )
         except SiteLanguagesError:
             self.fail("SiteLanguagesError unexpectedly raised")
-        self.assertListEqual(obj.language_codes, ["en", "sw"])
         self.assertDictEqual(obj.languages, {"en": "English", "sw": "Swahili"})
 
         try:
@@ -238,11 +243,10 @@ class TestSites(SiteTestCaseMixin, TestCase):
             )
         except SiteLanguagesError:
             self.fail("SiteLanguagesError unexpectedly raised")
-        self.assertListEqual(obj.language_codes, ["en", "sw"])
         self.assertDictEqual(obj.languages, {"en": "English", "sw": "Swahili"})
 
     @override_settings(LANGUAGES=[])
-    def test_no_language_codes_no_languages_ok(self):
+    def test_no_site_language_codes_and_no_settings_languages_ok(self):
         try:
             obj = SingleSite(
                 10,
@@ -254,5 +258,4 @@ class TestSites(SiteTestCaseMixin, TestCase):
             )
         except SiteLanguagesError:
             self.fail("SiteLanguagesError unexpectedly raised")
-        self.assertListEqual(obj.language_codes, [])
         self.assertDictEqual(obj.languages, {})

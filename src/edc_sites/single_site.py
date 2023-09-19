@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from django.conf import settings
 
-from .get_language_codes_from_settings import get_language_codes_from_settings
-from .get_language_name import get_language_name
+from .get_languages_from_settings import get_languages_from_settings
 
 
 class SiteDomainRequiredError(Exception):
@@ -36,21 +35,21 @@ class SingleSite:
             raise ValueError("Require either domain and/or fqdn. Got both as None.")
         self._domain = domain or f"{name}.{fqdn}"
 
+        defined_languages = get_languages_from_settings()
         if language_codes:
             if unknown_language_codes := [
-                c for c in language_codes if c not in get_language_codes_from_settings()
+                c for c in language_codes if c not in defined_languages
             ]:
                 raise SiteLanguagesError(
                     "Unknown language code(s) associated with site. Language code must be "
                     "defined in settings.LANGUAGES. "
-                    f"Expected one of {get_language_codes_from_settings()}. "
+                    f"Expected one of {list(defined_languages.keys())}. "
                     f"Got {unknown_language_codes} for site {site_id}."
                 )
-        self.language_codes = language_codes or get_language_codes_from_settings()
+            self.languages = {code: defined_languages[code] for code in language_codes}
+        else:
+            self.languages = defined_languages
 
-        self.languages: dict[str, str] = {
-            code: get_language_name(code) for code in self.language_codes
-        }
         self.site_id = site_id
         self.name = name
         self.title = title or name.title()
