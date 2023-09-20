@@ -110,9 +110,9 @@ ART_STATUS_UNKNOWN = (
 )
 
 ART_STATUS_CONFIRM = (
-    ("OPD", _("1. Show OPD/IDCC card")),
-    ("Pills", _("2. Show pills")),
-    ("Pic", _("3. Identify pictorial")),
+    ("OPD", _("%(num)s Show OPD/IDCC card" % {"num": "1."})),
+    ("Pills", _("%(num)s Show pills" % {"num": "2."})),
+    ("Pic", _("%(num)s Identify pictorial" % {"num": "3."})),
 )
 
 ARV_DRUG_LIST = (
@@ -258,6 +258,16 @@ DAYS_OF_WEEK = (
     ("Saturday", _("Saturday")),
     ("Sunday", _("Sunday")),
     ("AnyDay", _("Any day")),
+)
+
+DAYS_OF_WEEK_ONLY = (
+    ("Monday", _("Monday")),
+    ("Tuesday", _("Tuesday")),
+    ("Wednesday", _("Wednesday")),
+    ("Thursday", _("Thursday")),
+    ("Friday", _("Friday")),
+    ("Saturday", _("Saturday")),
+    ("Sunday", _("Sunday")),
 )
 
 DATE_ESTIMATED_NA = (
