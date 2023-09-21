@@ -24,7 +24,7 @@ class ModelAdminRedirectOnDeleteMixin:
         super().__init__(*args)
 
     def get_post_url_on_delete_name(self, request):
-        return self.post_url_on_delete_name
+        return url_names.get(self.post_url_on_delete_name)
 
     def get_post_full_url_on_delete(self, request):
         return self.post_full_url_on_delete
@@ -37,9 +37,9 @@ class ModelAdminRedirectOnDeleteMixin:
             post_url_on_delete = reverse(self.get_post_full_url_on_delete(request))
         else:
             try:
-                url_name = url_names.get(self.get_post_url_on_delete_name(request))
+                url_name = self.get_post_url_on_delete_name(request)
             except InvalidUrlName:
-                if self.get_post_url_on_delete_name(request):
+                if self.post_url_on_delete_name:
                     raise
                 url_name = None
             if url_name:
