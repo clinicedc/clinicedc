@@ -11,8 +11,11 @@ from ..appointment_status_updater import (
 )
 from ..constants import IN_PROGRESS_APPT
 from ..managers import AppointmentDeleteError
+from ..skip_appointments import SkipAppointments
 from ..utils import (
+    InvalidModelForSkippedAppts,
     cancelled_appointment,
+    get_allow_skipped_appt_using,
     get_appointment_model_cls,
     get_appointment_model_name,
     missed_appointment,
@@ -127,3 +130,17 @@ def appointments_on_post_delete(sender, instance, using, **kwargs):
             update_unscheduled_appointment_sequence(
                 subject_identifier=instance.subject_identifier
             )
+
+
+@receiver(
+    post_save,
+    weak=False,
+    dispatch_uid="update_appointments_to_next_on_post_save",
+)
+def update_appointments_to_next_on_post_save(sender, instance, raw, created, using, **kwargs):
+    if not raw and not kwargs.get("update_fields") and get_allow_skipped_appt_using():
+        try:
+            if get_allow_skipped_appt_using(instance):
+                SkipAppointments(instance)
+        except InvalidModelForSkippedAppts:
+            pass

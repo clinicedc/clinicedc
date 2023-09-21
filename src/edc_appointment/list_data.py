@@ -1,4 +1,4 @@
-from edc_constants.constants import CLINIC, HOME, HOSPITAL, TELEPHONE
+from edc_constants.constants import CLINIC, HOME, HOSPITAL, NOT_APPLICABLE, TELEPHONE
 
 list_data = {
     "edc_appointment.appointmenttype": [
@@ -6,5 +6,6 @@ list_data = {
         (HOME, "At home"),
         (HOSPITAL, "In hospital"),
         (TELEPHONE, "By telephone"),
+        (NOT_APPLICABLE, "Not applicable"),
     ],
 }

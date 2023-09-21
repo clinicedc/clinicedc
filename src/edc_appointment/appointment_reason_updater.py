@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.core.exceptions import ObjectDoesNotExist
-from edc_constants.constants import INCOMPLETE
+from edc_constants.constants import INCOMPLETE, NOT_APPLICABLE
 from edc_metadata import KEYED
 from edc_metadata.metadata_helper import MetadataHelperMixin
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
@@ -21,7 +21,7 @@ from .exceptions import (
     AppointmentReasonUpdaterRequisitionsExistsError,
     UnscheduledAppointmentError,
 )
-from .utils import raise_on_appt_may_not_be_missed
+from .utils import get_allow_skipped_appt_using, raise_on_appt_may_not_be_missed
 
 if TYPE_CHECKING:
     from edc_visit_tracking.model_mixins import VisitModelMixin
@@ -60,10 +60,11 @@ class AppointmentReasonUpdater(MetadataHelperMixin):
             )
         self.commit = commit
         self.appt_timing = appt_timing or self.appointment.appt_timing
-        if self.appt_timing not in [a for a, b in APPT_TIMING]:
+        if self.appt_timing not in [a for a, b in self.get_appt_timing_choices()]:
             raise AppointmentReasonUpdaterError(
                 f"Invalid value for appt_timing. "
-                f"Expected on of {[a for a, b in APPT_TIMING]}. Got {self.appt_timing}"
+                f"Expected on of {[a for a, b in self.get_appt_timing_choices()]}. "
+                f"Got {self.appt_timing}"
             )
         try:
             raise_on_appt_may_not_be_missed(
@@ -192,3 +193,9 @@ class AppointmentReasonUpdater(MetadataHelperMixin):
                 f"Got visit_code_sequence > 0 for appt_reason={appt_reason}"
             )
         return visit_reason
+
+    @staticmethod
+    def get_appt_timing_choices():
+        if not get_allow_skipped_appt_using():
+            return tuple([tpl for tpl in APPT_TIMING if tpl[0] != NOT_APPLICABLE])
+        return APPT_TIMING

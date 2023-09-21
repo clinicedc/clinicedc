@@ -82,14 +82,19 @@ class TestAdmin(WebTest):
     def test_admin_ok(self, mock_get_subject_dashboard_url_name):
         subject_consent = self.helper.consent_and_put_on_schedule()
         appointments = get_appointment_model_cls().objects.all()
+        # there are 4 appts
         self.assertEqual(appointments.count(), 4)
+        # all appts are new
         self.assertEqual(
             [appt.appt_status for appt in appointments],
             [NEW_APPT, NEW_APPT, NEW_APPT, NEW_APPT],
         )
+
+        # login
         changelist_url_name = "edc_appointment_admin:edc_appointment_appointment_changelist"
         login(self, user=self.user, redirect_url=changelist_url_name)
 
+        # go to changelist
         url = reverse(changelist_url_name)
 
         response = self.app.get(url, user=self.user)

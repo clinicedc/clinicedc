@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import calendar
+from typing import TYPE_CHECKING, Any
 
 from django.contrib import admin
 from django.template.loader import render_to_string
@@ -6,6 +9,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
 from django_audit_fields.admin import audit_fieldset_tuple
+from edc_constants.constants import NOT_APPLICABLE
 from edc_document_status.fieldsets import document_status_fieldset_tuple
 from edc_document_status.modeladmin_mixins import DocumentStatusModelAdminMixin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
@@ -18,12 +22,16 @@ from edc_visit_schedule.fieldsets import (
 )
 
 from ..admin_site import edc_appointment_admin
-from ..constants import NEW_APPT
+from ..choices import APPT_STATUS, APPT_TIMING
+from ..constants import NEW_APPT, SKIPPED_APPT
 from ..forms import AppointmentForm
-from ..models import Appointment
-from ..utils import get_appt_reason_choices
+from ..models import Appointment, AppointmentType
+from ..utils import get_allow_skipped_appt_using, get_appt_reason_choices
 from .actions import appointment_mark_as_done, appointment_mark_as_new
 from .list_filters import AppointmentListFilter
+
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
 
 
 @admin.register(Appointment, site=edc_appointment_admin)
@@ -184,7 +192,43 @@ class AppointmentAdmin(
         )
         return render_to_string("button.html", context=context)
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "appt_type":
+            kwargs["queryset"] = self.get_appt_type_queryset(request)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
     def formfield_for_choice_field(self, db_field, request, **kwargs):
         if db_field.name == "appt_reason":
-            kwargs["choices"] = get_appt_reason_choices()
+            kwargs["choices"] = self.get_appt_reason_choices(request)
+        if db_field.name == "appt_status":
+            kwargs["choices"] = self.get_appt_status_choices(request)
+        if db_field.name == "appt_timing":
+            kwargs["choices"] = self.get_appt_timing_choices(request)
         return super().formfield_for_choice_field(db_field, request, **kwargs)
+
+    def get_appt_type_queryset(self, request) -> QuerySet:
+        if not self.allow_skipped_appointments(request):
+            return AppointmentType.objects.exclude(name=NOT_APPLICABLE).order_by(
+                "display_index"
+            )
+        return AppointmentType.objects.all().order_by("display_index")
+
+    def get_appt_reason_choices(self, request) -> tuple[Any, ...]:
+        return get_appt_reason_choices()
+
+    def get_appt_status_choices(self, request) -> tuple[Any, ...]:
+        if not self.allow_skipped_appointments(request):
+            return tuple([tpl for tpl in APPT_STATUS if tpl[0] != SKIPPED_APPT])
+        return APPT_STATUS
+
+    def get_appt_timing_choices(self, request) -> tuple[Any, ...]:
+        if not self.allow_skipped_appointments(request):
+            return tuple([tpl for tpl in APPT_TIMING if tpl[0] != NOT_APPLICABLE])
+        return APPT_TIMING
+
+    def allow_skipped_appointments(self, request) -> list[tuple]:
+        """Returns value of settings.EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING.
+
+        See also edc-next-appointment and use of `SKIPPED_APPT`.
+        """
+        return get_allow_skipped_appt_using()
