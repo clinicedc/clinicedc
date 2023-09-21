@@ -34,7 +34,7 @@ class UrlNames:
     def get(self, name):
         if name not in self.registry:
             raise InvalidUrlName(
-                "Invalid url name. Expected one of " f"{self.registry.keys()}. Got '{name}'."
+                f"Invalid url name. Expected one of {self.registry.keys()}. Got '{name}'."
             )
         return self.registry.get(name)
 
