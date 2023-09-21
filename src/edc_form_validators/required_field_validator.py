@@ -2,6 +2,7 @@ from copy import copy
 from typing import Optional, Union
 
 from django.db.models import QuerySet
+from django.utils.translation import gettext_lazy as _
 from edc_constants.constants import DWTA, NOT_APPLICABLE
 
 from .base_form_validator import (
@@ -21,13 +22,11 @@ class RequiredFieldValidator(BaseFormValidator):
         self, field: str, msg: Optional[str] = None, inline_set: Optional[str] = None
     ) -> None:
         if inline_set:
-            message = {
-                "__all__": (
-                    msg or "Based on your responses, inline information is required."
-                ).strip()
-            }
+            default_errmsg = _("Based on your responses, inline information is required.")
+            message = {"__all__": (msg or default_errmsg).strip()}
         else:
-            message = {field: f"This field is required. {msg or ''}".strip()}
+            errmsg = _("This field is required")
+            message = {field: f"{errmsg}. {msg or ''}".strip()}
         self.raise_validation_error(message, REQUIRED_ERROR)
         return None
 
@@ -35,13 +34,11 @@ class RequiredFieldValidator(BaseFormValidator):
         self, field: str, msg: Optional[str] = None, inline_set: Optional[str] = None
     ) -> None:
         if inline_set:
-            message = {
-                "__all__": (
-                    msg or "Based on your responses, inline information is not required."
-                ).strip()
-            }
+            default_errmsg = _("Based on your responses, inline information is not required.")
+            message = {"__all__": (msg or default_errmsg).strip()}
         else:
-            message = {field: f"This field is not required. {msg or ''}".strip()}
+            errmsg = _("This field is not required")
+            message = {field: f"{errmsg}. {msg or ''}".strip()}
         self.raise_validation_error(message, NOT_REQUIRED_ERROR)
         return None
 
@@ -131,7 +128,8 @@ class RequiredFieldValidator(BaseFormValidator):
     ) -> bool:
         inverse = True if inverse is None else inverse
         if not field_required:
-            raise InvalidModelFormFieldValidator("The required field cannot be None.")
+            errmsg = _("The required field cannot be None.")
+            raise InvalidModelFormFieldValidator(errmsg)
         if self.cleaned_data and field_required in self.cleaned_data:
             if condition and (
                 self.cleaned_data.get(field_required) is None
@@ -161,7 +159,8 @@ class RequiredFieldValidator(BaseFormValidator):
         The inverse is not tested.
         """
         if not field:
-            raise InvalidModelFormFieldValidator("The required field cannot be None.")
+            errmsg = _("The required field cannot be None.")
+            raise InvalidModelFormFieldValidator(errmsg)
         if is_instance_field:
             self.update_cleaned_data_from_instance(field)
         if self.cleaned_data and field in self.cleaned_data:
@@ -192,7 +191,8 @@ class RequiredFieldValidator(BaseFormValidator):
         if is_instance_field:
             self.update_cleaned_data_from_instance(field)
         if not field_required:
-            raise InvalidModelFormFieldValidator("The required field cannot be None.")
+            errmsg = _("The required field cannot be None.")
+            raise InvalidModelFormFieldValidator(errmsg)
         if optional_if_dwta and self.cleaned_data.get(field) == DWTA:
             field_value = None
         else:
@@ -289,11 +289,11 @@ class RequiredFieldValidator(BaseFormValidator):
     ) -> bool:
         """Inspects params and raises if any are None"""
         if not field:
-            raise InvalidModelFormFieldValidator('"field" cannot be None.')
+            errmsg = _("`field` cannot be `None`")
+            raise InvalidModelFormFieldValidator(f"{errmsg}.")
         elif not responses:
-            raise InvalidModelFormFieldValidator(
-                f"At least one valid response for field '{field}' must be provided."
-            )
+            errmsg = _(f"At least one valid response for field '{field}' must be provided.")
+            raise InvalidModelFormFieldValidator(errmsg)
         elif not field_required:
             raise InvalidModelFormFieldValidator('"field_required" cannot be None.')
         return False
