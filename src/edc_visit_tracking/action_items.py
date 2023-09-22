@@ -2,8 +2,7 @@ from typing import List
 
 from edc_action_item import Action
 from edc_action_item.action_with_notification import ActionWithNotification
-from edc_adverse_event.constants import DEATH_REPORT_ACTION
-from edc_constants.constants import DEAD, HIGH_PRIORITY, YES
+from edc_constants.constants import HIGH_PRIORITY, YES
 from edc_ltfu.constants import LTFU_ACTION
 
 from .constants import VISIT_MISSED_ACTION
@@ -24,17 +23,15 @@ class VisitMissedAction(ActionWithNotification):
     def get_loss_to_followup_action_name(self) -> str:
         return self.loss_to_followup_action_name
 
+    def is_ltfu(self) -> bool:
+        return self.reference_obj.ltfu == YES
+
     def get_next_actions(self) -> List[Action]:
         next_actions: List[Action] = []
         next_actions = self.append_to_next_if_required(
             next_actions=next_actions,
             action_name=self.get_loss_to_followup_action_name(),
-            required=self.reference_obj.ltfu == YES,
-        )
-        next_actions = self.append_to_next_if_required(
-            next_actions=next_actions,
-            action_name=DEATH_REPORT_ACTION,
-            required=self.reference_obj.survival_status == DEAD,
+            required=self.is_ltfu(),
         )
         return next_actions
 

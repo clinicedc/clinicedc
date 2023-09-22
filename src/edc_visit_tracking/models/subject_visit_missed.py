@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from edc_crf.model_mixins import CrfModelMixin
 from edc_model.models import BaseUuidModel
 
@@ -23,5 +24,5 @@ class SubjectVisitMissed(
     )
 
     class Meta(CrfModelMixin.Meta, BaseUuidModel.Meta):
-        verbose_name = "Missed Visit Report"
-        verbose_name_plural = "Missed Visit Report"
+        verbose_name = _("Missed Visit Report")
+        verbose_name_plural = _("Missed Visit Report")
