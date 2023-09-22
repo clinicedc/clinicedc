@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from dateutil.relativedelta import relativedelta
 from edc_constants.constants import YES
-from edc_form_validators import INVALID_ERROR
 
 from ..utils import validate_glucose_as_millimoles_per_liter
+
+INVALID_GLUCOSE_DATE = "INVALID_GLUCOSE_DATE"
 
 
 class GlucoseFormValidatorMixin:
@@ -46,7 +47,4 @@ class GlucoseFormValidatorMixin:
                         f"Invalid. Must be within the last {max_months} months. "
                         f"Got {abs(months)}m ago."
                     )
-                self.raise_validation_error(
-                    {date_fld: msg},
-                    INVALID_ERROR,
-                )
+                self.raise_validation_error({date_fld: msg}, INVALID_GLUCOSE_DATE)
