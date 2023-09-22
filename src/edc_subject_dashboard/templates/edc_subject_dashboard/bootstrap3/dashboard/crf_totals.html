@@ -1,1 +1,1 @@
-{% if complete %}<i class="fas fa-check fa-sm"></i> {% elif show_totals %} {{ keyed }}/{{total}} {% else %} -- {% endif %}
+{% if complete %}<i class="fas fa-check fa-sm"></i>{% elif skipped %}<i class="fas fa-minus fa-fw"></i>{% elif show_totals %} {{ keyed }}/{{total}} {% else %}<i class="fas fa-ellipsis-h fa-sm"></i>{% endif %}

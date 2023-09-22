@@ -1,4 +1,4 @@
-{% load l10n %}
+{% load l10n i18n %}
 {% load edc_subject_dashboard_extras %}
 
 <!-- start appointments -->
@@ -23,7 +23,7 @@
                                 {% if visit.id %}
                                     <a id="visit_report_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" class="btn btn-sm btn-{% if wrapped.wrapped_visit.object.document_status == INCOMPLETE%}warning{% else %}default{% endif %}"
                                        {% if wrapped.object.site.id != request.site.id %} disabled {% endif %}
-                                       href="{% if wrapped.object.site.id != request.site.id %}#{% else %}{{ visit.href }}{% endif %}" data-toggle="tooltip" title="Add/edit visit report">
+                                       href="{% if wrapped.object.site.id != request.site.id %}#{% else %}{{ visit.href }}{% endif %}" data-toggle="tooltip" title={% translate "Add/edit visit report" %} >
                                         <i class="fas fa-pencil-alt fa-sm" aria-hidden="true"></i> Visit Report
                                     </a>
                                 {% endif %}

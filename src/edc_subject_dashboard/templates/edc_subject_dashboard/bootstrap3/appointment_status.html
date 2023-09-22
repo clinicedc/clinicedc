@@ -21,5 +21,7 @@
   </span>
 {% elif appt_status == CANCELLED_APPT %}
   <i class="fas fa-minus fa-fw" aria-hidden="true" data-toggle="tooltip" title="Cancelled"></i>
+{% elif appt_status == SKIPPED_APPT %}
+  <i class="fas fa-minus fa-fw" aria-hidden="true" data-toggle="tooltip" title="Skipped"></i>
 {% endif %}
 <!-- END appointment status -->
