@@ -226,9 +226,10 @@ class AppointmentAdmin(
             return tuple([tpl for tpl in APPT_TIMING if tpl[0] != NOT_APPLICABLE])
         return APPT_TIMING
 
-    def allow_skipped_appointments(self, request) -> list[tuple]:
-        """Returns value of settings.EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING.
+    def allow_skipped_appointments(self, request) -> bool:
+        """Returns True if settings.EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING
+        has value.
 
-        See also edc-next-appointment and use of `SKIPPED_APPT`.
+        Relates to use of `SKIPPED_APPT` feature.
         """
-        return get_allow_skipped_appt_using()
+        return True if get_allow_skipped_appt_using() else False
