@@ -6,6 +6,7 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms import ValidationError
 from django.test import TestCase, override_settings
+from edc_constants.constants import NOT_APPLICABLE
 from edc_facility.import_holidays import import_holidays
 from edc_form_validators import ModelFormFieldValidatorError
 from edc_metadata import KEYED, REQUIRED
@@ -19,9 +20,11 @@ from edc_visit_tracking.utils import get_subject_visit_missed_model_cls
 
 from edc_appointment.constants import (
     IN_PROGRESS_APPT,
+    INCOMPLETE_APPT,
     MISSED_APPT,
     ONTIME_APPT,
     SCHEDULED_APPT,
+    SKIPPED_APPT,
     UNSCHEDULED_APPT,
 )
 from edc_appointment.form_validators import (
@@ -31,8 +34,10 @@ from edc_appointment.form_validators import (
     AppointmentFormValidator,
 )
 from edc_appointment.form_validators.appointment_form_validator import (
+    INVALID_APPT_STATUS,
+    INVALID_APPT_STATUS_AT_BASELINE,
     INVALID_MISSED_APPT_NOT_ALLOWED,
-    INVALID_MISSED_APPT_NOT_ALLOWED_AT_BASELINE,
+    INVALID_PREVIOUS_APPOINTMENT_NOT_UPDATED,
 )
 from edc_appointment.models import Appointment
 from edc_appointment.utils import get_previous_appointment
@@ -105,6 +110,28 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
             AppointmentFormValidator(cleaned_data={})
         except ModelFormFieldValidatorError as e:
             self.fail(f"ModelFormFieldValidatorError unexpectedly raised. Got {e}")
+
+    def test_appointment_sequence(self):
+        """Asserts a sequence error is raised if previous appointment
+        is still NEW_APPT.
+        """
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.all()
+        form_validator = AppointmentFormValidator(
+            cleaned_data=dict(appt_status=IN_PROGRESS_APPT), instance=appointments[1]
+        )
+        with self.assertRaises(ValidationError) as cm:
+            form_validator.validate()
+        self.assertIn(INVALID_PREVIOUS_APPOINTMENT_NOT_UPDATED, form_validator._error_codes)
+        self.assertIn("1000.0", str(cm.exception))
+
+        form_validator = AppointmentFormValidator(
+            cleaned_data=dict(appt_status=IN_PROGRESS_APPT), instance=appointments[2]
+        )
+        with self.assertRaises(ValidationError) as cm:
+            form_validator.validate()
+        self.assertIn(INVALID_PREVIOUS_APPOINTMENT_NOT_UPDATED, form_validator._error_codes)
+        self.assertIn("1000.0", str(cm.exception))
 
     def test_visit_report_sequence(self):
         """Asserts a sequence error is raised if previous visit
@@ -279,7 +306,24 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
         with self.assertRaises(ValidationError) as cm:
             form_validator.validate_appointment_timing()
         self.assertIsNotNone(cm.exception)
-        self.assertIn(INVALID_MISSED_APPT_NOT_ALLOWED_AT_BASELINE, form_validator._error_codes)
+        self.assertIn(INVALID_APPT_STATUS_AT_BASELINE, form_validator._error_codes)
+
+    def test_baseline_appt_cannot_be_skipped(self):
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        form_validator = AppointmentFormValidator(
+            cleaned_data=dict(
+                subject_identifier=self.subject_identifier,
+                appt_status=SKIPPED_APPT,
+                appt_timing=NOT_APPLICABLE,
+                appt_reason=SCHEDULED_APPT,
+            ),
+            instance=appointments[0],
+        )
+        with self.assertRaises(ValidationError) as cm:
+            form_validator.validate_appointment_timing()
+        self.assertIsNotNone(cm.exception)
+        self.assertIn(INVALID_APPT_STATUS_AT_BASELINE, form_validator._error_codes)
 
     def test_can_miss_scheduled_appt_if_not_baseline(self):
         self.helper.consent_and_put_on_schedule()
@@ -563,3 +607,78 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
             report_datetime=appointments[0].appt_datetime,
             reason=SCHEDULED,
         )
+
+    @override_settings(
+        EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING=[("nextappointment", "appt_date")]
+    )
+    def test_skipped_never_allowed_at_baseline(self):
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        self.assertEqual(appointments[0].appt_timing, ONTIME_APPT)
+        form_validator = AppointmentFormValidator(
+            cleaned_data=dict(
+                subject_identifier=self.subject_identifier,
+                appt_status=SKIPPED_APPT,
+                appt_timing=NOT_APPLICABLE,
+                appt_reason=SCHEDULED_APPT,
+            ),
+            instance=appointments[0],
+        )
+        with self.assertRaises(ValidationError) as cm:
+            form_validator.validate()
+        self.assertIsNotNone(cm.exception)
+        self.assertIn(INVALID_APPT_STATUS_AT_BASELINE, form_validator._error_codes)
+
+    @override_settings(
+        EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING=[("nextappointment", "appt_date")]
+    )
+    def test_skipped_allowed(self):
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        SubjectVisit.objects.create(
+            appointment=appointments[0],
+            report_datetime=appointments[0].appt_datetime,
+            reason=SCHEDULED,
+        )
+        appointments[0].appt_status = INCOMPLETE_APPT
+        appointments[0].save()
+
+        form_validator = AppointmentFormValidator(
+            cleaned_data=dict(
+                subject_identifier=self.subject_identifier,
+                appt_status=SKIPPED_APPT,
+                appt_timing=NOT_APPLICABLE,
+                appt_reason=SCHEDULED_APPT,
+            ),
+            instance=appointments[1],
+        )
+        try:
+            form_validator.validate()
+        except ValidationError as e:
+            self.fail(f"ValidationError unexpectedly raised. Got {e}")
+
+    @override_settings(EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING=None)
+    def test_skipped_not_allowed(self):
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        SubjectVisit.objects.create(
+            appointment=appointments[0],
+            report_datetime=appointments[0].appt_datetime,
+            reason=SCHEDULED,
+        )
+        appointments[0].appt_status = INCOMPLETE_APPT
+        appointments[0].save()
+
+        form_validator = AppointmentFormValidator(
+            cleaned_data=dict(
+                subject_identifier=self.subject_identifier,
+                appt_status=SKIPPED_APPT,
+                appt_timing=NOT_APPLICABLE,
+                appt_reason=SCHEDULED_APPT,
+            ),
+            instance=appointments[1],
+        )
+        with self.assertRaises(ValidationError) as cm:
+            form_validator.validate()
+        self.assertIsNotNone(cm.exception)
+        self.assertIn(INVALID_APPT_STATUS, form_validator._error_codes)

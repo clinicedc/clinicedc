@@ -7,6 +7,7 @@ from ..constants import (
     IN_PROGRESS_APPT,
     INCOMPLETE_APPT,
     NEW_APPT,
+    SKIPPED_APPT,
 )
 from ..models import Appointment
 from ..utils import update_unscheduled_appointment_sequence
@@ -44,6 +45,7 @@ class AppointmentViewMixin:
             INCOMPLETE_APPT=INCOMPLETE_APPT,
             IN_PROGRESS_APPT=IN_PROGRESS_APPT,
             NEW_APPT=NEW_APPT,
+            SKIPPED_APPT=SKIPPED_APPT,
             has_call_manager=has_call_manager,
         )
         return context

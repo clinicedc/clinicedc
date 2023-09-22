@@ -10,13 +10,14 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import ProtectedError
-from edc_constants.constants import CLINIC
+from edc_constants.constants import CLINIC, NOT_APPLICABLE
 from edc_utils import convert_php_dateformat
 from edc_visit_schedule.schedule.window import (
     ScheduledVisitWindowError,
     UnScheduledVisitWindowError,
 )
 from edc_visit_schedule.utils import get_default_max_visit_window_gap, is_baseline
+from edc_visit_tracking.utils import get_allow_missed_unscheduled_appts
 
 from .choices import DEFAULT_APPT_REASON_CHOICES
 from .constants import (
@@ -26,6 +27,7 @@ from .constants import (
     MISSED_APPT,
     NEW_APPT,
     SCHEDULED_APPT,
+    SKIPPED_APPT,
     UNSCHEDULED_APPT,
 )
 from .exceptions import (
@@ -40,6 +42,10 @@ if TYPE_CHECKING:
 
 
 class AppointmentDateWindowPeriodGapError(Exception):
+    pass
+
+
+class InvalidModelForSkippedAppts(Exception):
     pass
 
 
@@ -59,9 +65,22 @@ def get_appointment_type_model_cls() -> Type[AppointmentType]:
     return django_apps.get_model(get_appointment_type_model_name())
 
 
-def get_allow_missed_unscheduled_appts() -> bool:
-    """Returns value of settings attr or False"""
-    return getattr(settings, "EDC_VISIT_TRACKING_ALLOW_MISSED_UNSCHEDULED", False)
+def get_allow_skipped_appt_using(
+    instance: Any | None = None,
+) -> list[tuple[str, str]] | tuple[str, str]:
+    model_and_fields: list[tuple[str, str]] = getattr(
+        settings, "EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING", []
+    )
+    if instance and model_and_fields:
+        for tpl in model_and_fields:
+            if tpl[0] == instance._meta.label_lower:
+                return tpl
+        raise InvalidModelForSkippedAppts(
+            "Invalid model for skipped appts. Expected one of "
+            f"{''.join([tpl[0] for tpl in model_and_fields])}. "
+            f"Got {instance._meta.label_lower}."
+        )
+    return model_and_fields
 
 
 def raise_on_appt_may_not_be_missed(
@@ -70,10 +89,15 @@ def raise_on_appt_may_not_be_missed(
 ):
     if appointment.id:
         appt_timing = appt_timing or appointment.appt_timing
-        if appt_timing and appt_timing == MISSED_APPT and is_baseline(instance=appointment):
-            raise AppointmentBaselineError(
-                "Invalid. A baseline appointment may not be reported as missed"
-            )
+        if (
+            appt_timing
+            and appt_timing in [MISSED_APPT, NOT_APPLICABLE]
+            and is_baseline(instance=appointment)
+        ):
+            errmsg = "Invalid. A baseline appointment may not be reported as missed"
+            if appt_timing == NOT_APPLICABLE:
+                errmsg = "This field is applicable"
+            raise AppointmentBaselineError(errmsg)
         if (
             appointment.visit_code_sequence is not None
             and appt_timing
@@ -238,7 +262,7 @@ def update_appt_status(appointment: Appointment, save: bool | None = None):
     relative to the visit tracking model and CRFs and
     requisitions
     """
-    if appointment.appt_status == CANCELLED_APPT:
+    if appointment.appt_status == CANCELLED_APPT or appointment.appt_status == SKIPPED_APPT:
         pass
     elif not appointment.related_visit:
         appointment.appt_status = NEW_APPT
@@ -518,3 +542,22 @@ def get_appointment_by_datetime(
         else:
             break
     return appointment
+
+
+def reset_appointment(appointment: Appointment):
+    appointment.appt_status = appointment._meta.get_field("appt_status").default
+    appointment.appt_timing = appointment._meta.get_field("appt_timing").default
+    appointment.appt_type = None
+    appointment.appt_type_other = None
+    appointment.appt_datetime = appointment.timepoint_datetime
+    appointment.comment = ""
+    appointment.save_base(
+        update_fields=[
+            "appt_status",
+            "appt_timing",
+            "appt_datetime",
+            "appt_type",
+            "appt_type_other",
+            "comment",
+        ]
+    )

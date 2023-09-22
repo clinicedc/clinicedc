@@ -6,9 +6,9 @@ from typing import TYPE_CHECKING, Any
 
 from django.apps import apps as django_apps
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
 from edc_consent import NotConsentedError
 from edc_consent.requires_consent import RequiresConsent
 from edc_consent.site_consents import SiteConsentError, site_consents
@@ -21,7 +21,7 @@ from edc_utils import formatted_datetime, get_utcnow, to_utc
 from edc_utils.date import to_local
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_schedule.subject_schedule import NotOnScheduleError
-from edc_visit_schedule.utils import get_onschedule_model_instance
+from edc_visit_schedule.utils import get_onschedule_model_instance, is_baseline
 
 from ..appointment_reason_updater import AppointmentReasonUpdater
 from ..constants import (
@@ -29,9 +29,9 @@ from ..constants import (
     COMPLETE_APPT,
     IN_PROGRESS_APPT,
     INCOMPLETE_APPT,
-    LATE_APPT,
     MISSED_APPT,
     NEW_APPT,
+    SKIPPED_APPT,
     UNSCHEDULED_APPT,
 )
 from ..exceptions import (
@@ -41,7 +41,11 @@ from ..exceptions import (
     AppointmentReasonUpdaterRequisitionsExistsError,
     UnscheduledAppointmentError,
 )
-from ..utils import get_previous_appointment, raise_on_appt_may_not_be_missed
+from ..utils import (
+    get_allow_skipped_appt_using,
+    get_previous_appointment,
+    raise_on_appt_may_not_be_missed,
+)
 from .utils import validate_appt_datetime_unique
 from .window_period_form_validator_mixin import WindowPeriodFormValidatorMixin
 
@@ -51,9 +55,11 @@ if TYPE_CHECKING:
 INVALID_APPT_DATE = "invalid_appt_datetime"
 INVALID_APPT_STATUS = "invalid_appt_status"
 INVALID_APPT_REASON = "invalid_appt_reason"
+INVALID_PREVIOUS_APPOINTMENT_NOT_UPDATED = "previous_appointment_not_updated"
 INVALID_PREVIOUS_VISIT_MISSING = "previous_visit_missing"
 INVALID_MISSED_APPT_NOT_ALLOWED = "invalid_missed_appt_not_allowed"
-INVALID_MISSED_APPT_NOT_ALLOWED_AT_BASELINE = "invalid_missed_appt_not_allowed_at_baseline"
+INVALID_APPT_STATUS_AT_BASELINE = "invalid_appt_status_at_baseline"
+INVALID_SKIPPED_APPT_NOT_ALLOWED_AT_BASELINE = "invalid_skipped_appt_not_allowed_at_baseline"
 INVALID_APPT_TIMING = "invalid_appt_timing"
 INVALID_APPT_TIMING_CRFS_EXIST = "invalid_appt_timing_crfs_exist"
 INVALID_APPT_TIMING_REQUISITIONS_EXIST = "invalid_appt_timing_requisitions_exist"
@@ -63,7 +69,7 @@ class AppointmentFormValidator(
     MetadataHelperMixin, WindowPeriodFormValidatorMixin, FormValidator
 ):
     """Note, the appointment is only changed, never added,
-    through this form.
+    through the AppointmentForm.
     """
 
     appointment_model = "edc_appointment.appointment"
@@ -71,22 +77,14 @@ class AppointmentFormValidator(
     def clean(self: Any):
         # TODO: do not allow a missed appt (in window) to be followed by an unscheduled appt
         #  that is also within window.
-        # TODO: handle LATE_APPT
-        # disable LATE_APPT for now
         self.validate_scheduled_parent_not_missed()
-        if (
-            self.cleaned_data.get("appt_timing")
-            and self.cleaned_data.get("appt_timing") == LATE_APPT
-        ):
-            self.raise_validation_error(
-                {"appt_timing": "Invalid. This option is not available."}
-            )
-        if self.cleaned_data.get("appt_status") == CANCELLED_APPT:
-            self.validate_appt_new_or_cancelled()
+        if self.cleaned_data.get("appt_status") in [CANCELLED_APPT, SKIPPED_APPT]:
+            self.validate_appt_status_if_skipped()
+            self.validate_appt_new_or_cancelled_or_skipped()
             self.validate_appt_inprogress_or_incomplete()
         else:
-            self.validate_visit_report_sequence()
             self.validate_appt_sequence()
+            self.validate_visit_report_sequence()
             self.validate_timepoint()
             validate_appt_datetime_unique(
                 form_validator=self,
@@ -104,13 +102,13 @@ class AppointmentFormValidator(
             self.validate_subject_on_schedule()
             self.validate_appt_reason()
             self.validate_appt_incomplete_and_visit_report()
-            self.validate_appt_new_or_cancelled()
+            self.validate_appt_new_or_cancelled_or_skipped()
             self.validate_appt_inprogress_or_incomplete()
             self.validate_appt_new_or_complete()
 
             self.validate_facility_name()
-
-            self.validate_appointment_timing()
+        self.validate_appt_type()
+        self.validate_appointment_timing()
 
     @property
     def appointment_model_cls(self) -> Appointment:
@@ -118,8 +116,10 @@ class AppointmentFormValidator(
 
     @property
     def required_additional_forms_exist(self) -> bool:
-        """Returns True if any additional required forms are
+        """Returns True if any `additional` required forms are
         yet to be keyed.
+
+        Concept of "additional forms" not in use.
         """
         return False
 
@@ -129,7 +129,10 @@ class AppointmentFormValidator(
             self.instance, "id", None
         ):
             previous_appt = get_previous_appointment(self.instance, include_interim=True)
-            if previous_appt and previous_appt.appt_status != CANCELLED_APPT:
+            if previous_appt and previous_appt.appt_status not in [
+                CANCELLED_APPT,
+                SKIPPED_APPT,
+            ]:
                 if not previous_appt.related_visit:
                     self.raise_validation_error(
                         message=(
@@ -142,12 +145,10 @@ class AppointmentFormValidator(
         return True
 
     def validate_appt_sequence(self: Any) -> bool:
-        """Enforce appointment and visit entry sequence.
+        """Enforce appointment follows sequence of
+        timepoint + visit_code_sequence.
 
-        1. Check if previous appointment has a visit report
-        2. If not check which previous appointment, if any,
-        has a completed visit report
-        3. If none, is this the first appointment?
+        Check if previous appointment appt_status is NEW_APPT
 
         """
         if self.cleaned_data.get("appt_status") in [
@@ -155,50 +156,41 @@ class AppointmentFormValidator(
             INCOMPLETE_APPT,
             COMPLETE_APPT,
         ]:
-            try:
-                self.instance.previous.visit
-            except ObjectDoesNotExist:
-                first_new_appt = (
+            if self.instance.previous:
+                if obj := (
                     self.appointment_model_cls.objects.filter(
                         subject_identifier=self.instance.subject_identifier,
                         visit_schedule_name=self.instance.visit_schedule_name,
                         schedule_name=self.instance.schedule_name,
                         appt_status=NEW_APPT,
+                        appt_datetime__lt=self.instance.appt_datetime,
                     )
                     .order_by("timepoint", "visit_code_sequence")
                     .first()
-                )
-                if first_new_appt:
+                ):
                     self.raise_validation_error(
                         {
-                            "__all__": (
+                            "__all__": _(
                                 "A previous appointment requires updating. "
-                                f"Update appointment {first_new_appt.visit_code}."
-                                f"{first_new_appt.visit_code_sequence} first."
+                                f"Update appointment {obj.visit_code}."
+                                f"{obj.visit_code_sequence} first."
                             )
                         },
-                        INVALID_ERROR,
+                        INVALID_PREVIOUS_APPOINTMENT_NOT_UPDATED,
                     )
-            except AttributeError:
-                pass
         return True
 
     def validate_timepoint(self: Any):
-        try:
-            timepoint = self.instance.timepoint
-        except AttributeError:
-            pass
-        else:
-            visit_schedule = site_visit_schedules.get_visit_schedule(
-                self.instance.visit_schedule_name
+        visit_schedule = site_visit_schedules.get_visit_schedule(
+            self.instance.visit_schedule_name
+        )
+        schedule = visit_schedule.schedules.get(self.instance.schedule_name)
+        visit = schedule.visits.get(self.instance.visit_code)
+        if visit and self.instance.timepoint != visit.timepoint:
+            self.raise_validation_error(
+                f"Invalid timepoint. Expected {visit.timepoint} "
+                f"for visit_code={visit.visit_code}. Got {self.instance.timepoint}"
             )
-            schedule = visit_schedule.schedules.get(self.instance.schedule_name)
-            visit = schedule.visits.get(self.instance.visit_code)
-            if visit and timepoint != visit.timepoint:
-                self.raise_validation_error(
-                    f"Invalid timepoint. Expected {visit.timepoint} "
-                    f"for visit_code={visit.visit_code}. Got {timepoint}"
-                )
 
     def validate_not_future_appt_datetime(self: Any) -> None:
         appt_datetime = self.cleaned_data.get("appt_datetime")
@@ -244,15 +236,22 @@ class AppointmentFormValidator(
         """Checks the subject visit report (if it exists) is missed or scheduled
         based on appt_timing OR raises
 
+        Also handles SKIPPED_APPT, if enabled in settings,
+        see also `utils.get_allow_skipped_appt_using`.
+
         Data is not updated here (commit=False), see the model_mixin save().
         """
+
+        self.not_applicable_if(
+            SKIPPED_APPT, field="appt_status", field_applicable="appt_timing"
+        )
         try:
             raise_on_appt_may_not_be_missed(
                 appointment=self.instance, appt_timing=self.cleaned_data.get("appt_timing")
             )
         except AppointmentBaselineError as e:
             self.raise_validation_error(
-                {"appt_timing": str(e)}, INVALID_MISSED_APPT_NOT_ALLOWED_AT_BASELINE
+                {"appt_timing": str(e)}, INVALID_APPT_STATUS_AT_BASELINE
             )
         except UnscheduledAppointmentError as e:
             self.raise_validation_error(
@@ -307,7 +306,7 @@ class AppointmentFormValidator(
                 INVALID_APPT_STATUS,
             )
 
-    def validate_appt_new_or_cancelled(self: Any) -> None:
+    def validate_appt_new_or_cancelled_or_skipped(self: Any) -> None:
         """Don't allow new or cancelled if form data exists
         and don't allow cancelled if visit_code_sequence == 0.
         """
@@ -317,13 +316,26 @@ class AppointmentFormValidator(
                 {"appt_status": "Invalid. A scheduled appointment may not be cancelled."},
                 INVALID_APPT_STATUS,
             )
-        elif appt_status in [NEW_APPT, CANCELLED_APPT] and self.crf_metadata_keyed_exists:
+        elif self.instance.visit_code_sequence != 0 and appt_status == SKIPPED_APPT:
+            self.raise_validation_error(
+                {"appt_status": "Invalid. An unscheduled appointment may not be skipped."},
+                INVALID_APPT_STATUS,
+            )
+        elif is_baseline(self.instance) and appt_status == SKIPPED_APPT:
+            self.raise_validation_error(
+                {"appt_status": "Invalid. Baseline appointment may not be skipped."},
+                INVALID_APPT_STATUS,
+            )
+        elif (
+            appt_status in [NEW_APPT, CANCELLED_APPT, SKIPPED_APPT]
+            and self.crf_metadata_keyed_exists
+        ):
             self.raise_validation_error(
                 {"appt_status": "Invalid. CRF data has already been entered."},
                 INVALID_APPT_STATUS,
             )
         elif (
-            appt_status in [NEW_APPT, CANCELLED_APPT]
+            appt_status in [NEW_APPT, CANCELLED_APPT, SKIPPED_APPT]
             and self.requisition_metadata_keyed_exists
         ):
             self.raise_validation_error(
@@ -333,12 +345,15 @@ class AppointmentFormValidator(
 
     def validate_appt_inprogress_or_incomplete(self: Any) -> None:
         appt_status = self.cleaned_data.get("appt_status")
-        if appt_status == CANCELLED_APPT and self.crf_metadata_keyed_exists:
+        if appt_status in [CANCELLED_APPT, SKIPPED_APPT] and self.crf_metadata_keyed_exists:
             self.raise_validation_error(
                 {"appt_status": format_html("Invalid. Some CRFs have already been keyed")},
                 INVALID_APPT_STATUS,
             )
-        elif appt_status == CANCELLED_APPT and self.requisition_metadata_keyed_exists:
+        elif (
+            appt_status in [CANCELLED_APPT, SKIPPED_APPT]
+            and self.requisition_metadata_keyed_exists
+        ):
             self.raise_validation_error(
                 {
                     "appt_status": format_html(
@@ -349,7 +364,8 @@ class AppointmentFormValidator(
             )
 
         elif (
-            appt_status not in [INCOMPLETE_APPT, IN_PROGRESS_APPT, CANCELLED_APPT]
+            appt_status
+            not in [INCOMPLETE_APPT, IN_PROGRESS_APPT, CANCELLED_APPT, SKIPPED_APPT]
             and self.crf_metadata_required_exists
         ):
             url = self.changelist_url("crfmetadata")
@@ -362,7 +378,8 @@ class AppointmentFormValidator(
                 INVALID_APPT_STATUS,
             )
         elif (
-            appt_status not in [INCOMPLETE_APPT, IN_PROGRESS_APPT, CANCELLED_APPT]
+            appt_status
+            not in [INCOMPLETE_APPT, IN_PROGRESS_APPT, CANCELLED_APPT, SKIPPED_APPT]
             and self.requisition_metadata_required_exists
         ):
             url = self.changelist_url("requisitionmetadata")
@@ -434,14 +451,34 @@ class AppointmentFormValidator(
             .exists()
         )
 
+    def validate_appt_status_if_skipped(self):
+        """Raises validation error by default"""
+        if self.cleaned_data.get("appt_status") == SKIPPED_APPT:
+            if not get_allow_skipped_appt_using():
+                self.raise_validation_error(
+                    {"appt_status": "Invalid. Appointment may not be skipped"},
+                    INVALID_APPT_STATUS,
+                )
+            elif is_baseline(self.instance):
+                self.raise_validation_error(
+                    {"appt_status": "Invalid. Appointment may not be skipped at baseline"},
+                    INVALID_APPT_STATUS_AT_BASELINE,
+                )
+
     def validate_facility_name(self: Any) -> None:
-        """Raises if facility_name not found in edc_facility.AppConfig."""
+        """Raises if facility_name not found in edc_facility.AppConfig.
+
+        Is this still used?
+        """
         if self.cleaned_data.get("facility_name"):
             if self.cleaned_data.get("facility_name") not in get_facilities():
                 self.raise_validation_error(
                     {"__all__": f"Facility '{self.facility_name}' does not exist."},
                     INVALID_ERROR,
                 )
+
+    def validate_appt_type(self):
+        self.not_applicable_if(SKIPPED_APPT, field="appt_status", field_applicable="appt_type")
 
     def validate_appt_reason(self: Any) -> None:
         """Raises if visit_code_sequence is not 0 and appt_reason
@@ -472,6 +509,11 @@ class AppointmentFormValidator(
         ):
             self.raise_validation_error(
                 {"appt_status": "Invalid. A scheduled appointment cannot be cancelled"},
+                INVALID_APPT_STATUS,
+            )
+        elif appt_status and self.instance.visit_code_sequence and appt_status == SKIPPED_APPT:
+            self.raise_validation_error(
+                {"appt_status": "Invalid. An unscheduled appointment cannot be skipped"},
                 INVALID_APPT_STATUS,
             )
 

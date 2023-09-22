@@ -1,10 +1,13 @@
+import datetime as dt
 from unittest.mock import patch
+from zoneinfo import ZoneInfo
 
+import time_machine
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
 from edc_facility.import_holidays import import_holidays
-from edc_protocol import Protocol
 from edc_reference import site_reference_configs
+from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 from tqdm import tqdm
@@ -33,7 +36,10 @@ from ...utils import (
 )
 from ..helper import Helper
 
+utc_tz = ZoneInfo("UTC")
 
+
+@time_machine.travel(dt.datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestAppointmentWindowPeriod(TestCase):
     helper_cls = Helper
 
@@ -48,7 +54,7 @@ class TestAppointmentWindowPeriod(TestCase):
         site_visit_schedules.register(visit_schedule=visit_schedule3)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
-            now=Protocol().study_open_datetime,
+            now=get_utcnow() - relativedelta(years=2),  # Protocol().study_open_datetime,
         )
         site_reference_configs.register_from_visit_schedule(
             visit_models={"edc_appointment.appointment": "edc_appointment_app.subjectvisit"}
@@ -468,6 +474,7 @@ class TestAppointmentWindowPeriod(TestCase):
         self.assertIsNone(appointment)
 
 
+@time_machine.travel(dt.datetime(2019, 7, 11, 8, 00, tzinfo=utc_tz))
 class TestAppointmentWindowPeriod2(TestCase):
     helper_cls = Helper
 
@@ -482,7 +489,7 @@ class TestAppointmentWindowPeriod2(TestCase):
         site_visit_schedules.register(visit_schedule=visit_schedule4)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
-            now=Protocol().study_open_datetime,
+            now=get_utcnow() - relativedelta(years=2),
         )
         site_reference_configs.register_from_visit_schedule(
             visit_models={"edc_appointment.appointment": "edc_appointment_app.subjectvisit"}
