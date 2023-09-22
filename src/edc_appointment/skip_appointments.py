@@ -62,7 +62,7 @@ class SkipAppointments:
             day=self.next_appt_date.day,
             hour=8,
             minute=0,
-            tzinfo=ZoneInfo("utc"),
+            tzinfo=ZoneInfo("UTC"),
         )
 
     def skip_to_next(self):
