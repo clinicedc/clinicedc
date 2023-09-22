@@ -12,8 +12,7 @@ from .exceptions import RelatedVisitModelError
 if TYPE_CHECKING:
     from edc_list_data.model_mixins import ListModelMixin
 
-    from .models import SubjectVisitMissed
-    from .typing_stubs import RelatedVisitProtocol
+    from .models import SubjectVisit, SubjectVisitMissed
 
     ListModel = TypeVar("ListModel", bound=ListModelMixin)
 
@@ -27,7 +26,7 @@ def get_related_visit_model() -> str:
     return getattr(settings, "SUBJECT_VISIT_MODEL", "edc_visit_tracking.subjectvisit")
 
 
-def get_related_visit_model_cls() -> Type[RelatedVisitProtocol]:
+def get_related_visit_model_cls() -> Type[SubjectVisit]:
     model_cls = django_apps.get_model(get_related_visit_model())
     if model_cls._meta.proxy:
         # raise for now until we have a solution
@@ -46,7 +45,7 @@ def get_subject_visit_model() -> str:
     return get_related_visit_model()
 
 
-def get_subject_visit_model_cls() -> Type[RelatedVisitProtocol]:
+def get_subject_visit_model_cls() -> Type[SubjectVisit]:
     warnings.warn(
         "This func has been renamed to `get_related_visit_model_cls`.",
         DeprecationWarning,
@@ -69,6 +68,11 @@ def get_subject_visit_missed_model() -> str:
         if not model:
             raise ImproperlyConfigured(f"{error_msg} Got None.")
     return model
+
+
+def get_allow_missed_unscheduled_appts() -> bool:
+    """Returns value of settings attr or False"""
+    return getattr(settings, "EDC_VISIT_TRACKING_ALLOW_MISSED_UNSCHEDULED", False)
 
 
 def get_subject_visit_missed_model_cls() -> Type[SubjectVisitMissed]:

@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import PROTECT
+from django.utils.translation import gettext_lazy as _
 from edc_appointment.utils import get_appointment_model_name
 from edc_consent.model_mixins import RequiresConsentFieldsModelMixin
 from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
@@ -31,7 +32,7 @@ class SubjectVisit(
     reason = models.CharField(max_length=25, choices=VISIT_REASON)
 
     reason_missed = models.CharField(
-        verbose_name="If 'missed', provide the reason for the missed visit",
+        verbose_name=_("If 'missed', provide the reason for the missed visit"),
         max_length=35,
         choices=VISIT_REASON_MISSED,
         blank=True,
@@ -39,7 +40,7 @@ class SubjectVisit(
     )
 
     info_source = models.CharField(
-        verbose_name="What is the main source of this information?",
+        verbose_name=_("What is the main source of this information?"),
         max_length=25,
         choices=VISIT_INFO_SOURCE,
     )
