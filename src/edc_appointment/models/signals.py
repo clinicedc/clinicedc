@@ -141,6 +141,16 @@ def update_appointments_to_next_on_post_save(sender, instance, raw, created, usi
     if not raw and not kwargs.get("update_fields") and get_allow_skipped_appt_using():
         try:
             if get_allow_skipped_appt_using(instance):
-                SkipAppointments(instance)
+                SkipAppointments(instance).skip_to_next()
+        except InvalidModelForSkippedAppts:
+            pass
+
+
+@receiver(post_delete, weak=False, dispatch_uid="update_appointments_to_next_on_post_delete")
+def update_appointments_to_next_on_post_delete(sender, instance, using, **kwargs):
+    if get_allow_skipped_appt_using():
+        try:
+            if get_allow_skipped_appt_using(instance):
+                SkipAppointments(instance).reset_skipped()
         except InvalidModelForSkippedAppts:
             pass

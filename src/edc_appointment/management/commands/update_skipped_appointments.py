@@ -1,7 +1,7 @@
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.core.management.color import color_style
 from edc_visit_schedule.constants import DAY1
 from tqdm import tqdm
@@ -18,25 +18,31 @@ class Command(BaseCommand):
         parser.add_argument(
             "--model",
             dest="model",
-            default=False,
-            action="store_true",
-            help="CRF label_lower",
+            action="store",
+            nargs="?",
+            help="CRF model in label_lower format",
         )
         parser.add_argument(
             "--related_visit",
             dest="related_visit",
             default=settings.SUBJECT_VISIT_MODEL,
-            action="store_true",
+            action="store",
+            nargs="?",
             help="Related visit model label_lower with or without app_label",
         )
 
     def handle(self, *args, **options) -> None:
-        related_visit_model_cls = django_apps.get_model(options["related_visit"])
+        try:
+            related_visit_model_cls = django_apps.get_model(options["related_visit"])
+        except LookupError as e:
+            raise CommandError(e)
         model = options["model"]
         try:
             app_label = model.split(".")[0]
         except KeyError:
             app_label = options["subject_visit"].split(".")[0]
+        except AttributeError as e:
+            raise CommandError(f"{e}. Specify a CRF model in label_lower format")
         crf_model_cls = django_apps.get_model(f"{app_label}.{model.split('.')[1]}")
         related_visits = related_visit_model_cls.objects.filter(
             visit_code=DAY1, visit_code_sequence=0
@@ -48,5 +54,4 @@ class Command(BaseCommand):
             except ObjectDoesNotExist:
                 pass
             else:
-                instance = SkipAppointments(obj)
-                instance.skip_to_next()
+                SkipAppointments(obj).skip_to_next()
