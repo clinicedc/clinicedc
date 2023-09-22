@@ -14,6 +14,7 @@ from edc_appointment.constants import (
     IN_PROGRESS_APPT,
     INCOMPLETE_APPT,
     NEW_APPT,
+    SKIPPED_APPT,
 )
 from edc_appointment.utils import get_appointment_model_cls
 from edc_constants.constants import COMPLETE
@@ -137,7 +138,7 @@ def print_requisition_popover(context):
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/" f"appointment_status.html"
+    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/appointment_status.html"
 )
 def appointment_status_icon(appt_status=None):
     return dict(
@@ -147,6 +148,7 @@ def appointment_status_icon(appt_status=None):
         INCOMPLETE_APPT=INCOMPLETE_APPT,
         COMPLETE_APPT=COMPLETE_APPT,
         CANCELLED_APPT=CANCELLED_APPT,
+        SKIPPED_APPT=SKIPPED_APPT,
     )
 
 
@@ -155,6 +157,7 @@ def appointment_status_icon(appt_status=None):
 )
 def show_crf_totals(wrapped_appointment=None, request=None):
     helper = MetadataHelper(wrapped_appointment.object)
+    skipped = False
     crf_keyed = helper.get_crf_metadata_by(entry_status=KEYED).count()
     requisition_keyed = helper.get_requisition_metadata_by(entry_status=KEYED).count()
     crf_total = helper.get_crf_metadata_by(entry_status=[REQUIRED, KEYED]).count()
@@ -167,9 +170,13 @@ def show_crf_totals(wrapped_appointment=None, request=None):
         show_totals = False
     else:
         show_totals = False if keyed != 0 and keyed == total else True
+    complete = keyed != 0 and keyed == total
+    if wrapped_appointment.object.appt_status == SKIPPED_APPT:
+        skipped = True
     return dict(
         show_totals=show_totals,
-        complete=keyed != 0 and keyed == total,
+        skipped=skipped,
+        complete=complete,
         request=request,
         keyed=keyed,
         total=total,
@@ -196,7 +203,11 @@ def show_dashboard_visit_button(wrapped_appointment=None, request=None):
         title = _("Continue data collection for this timepoint.")
     elif wrapped_appointment.appt_status == CANCELLED_APPT:
         label = _("Cancelled")
-        title = _("Cancelled.")
+        title = _("Cancelled")
+    elif wrapped_appointment.appt_status == SKIPPED_APPT:
+        label = _("Skipped")
+        title = _("Skipped")
+        btn_class = "success"
     elif wrapped_appointment.appt_status == COMPLETE_APPT:
         # this appt_status is handled by the subject visit button
         label = _("Done")
