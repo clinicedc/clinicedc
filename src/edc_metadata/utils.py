@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING, Any, Type
 
 from django.apps import apps as django_apps
 from django.conf import settings
+from django.db.models import QuerySet
 
 from .constants import CRF, REQUISITION
 
@@ -56,3 +57,27 @@ def refresh_references_and_metadata_for_timepoint(
         related_visit.metadata_create()
         if django_apps.get_app_config("edc_metadata").metadata_rules_enabled:
             related_visit.run_metadata_rules()
+
+
+def get_crf_metadata(instance: Any) -> QuerySet[CrfMetadata]:
+    """Returns a queryset of crf metedata."""
+    opts = dict(
+        subject_identifier=instance.subject_identifier,
+        visit_schedule_name=instance.visit_schedule_name,
+        schedule_name=instance.schedule_name,
+        visit_code=instance.visit_code,
+        visit_code_sequence=instance.visit_code_sequence,
+    )
+    return get_crf_metadata_model_cls().objects.filter(**opts)
+
+
+def get_requisition_metadata(instance: Any) -> QuerySet[RequisitionMetadata]:
+    """Returns a queryset of requisition metadata"""
+    opts = dict(
+        subject_identifier=instance.subject_identifier,
+        visit_schedule_name=instance.visit_schedule_name,
+        schedule_name=instance.schedule_name,
+        visit_code=instance.visit_code,
+        visit_code_sequence=instance.visit_code_sequence,
+    )
+    return get_requisition_metadata_model_cls().objects.filter(**opts)

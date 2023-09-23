@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_visit_tracking.constants import SCHEDULED
 
 from ...constants import KEYED, NOT_REQUIRED, REQUIRED
@@ -148,7 +148,6 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
             1,
         )
 
-    @tag("2")
     def test_resets_requisition_metadata_on_delete2(self):
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED
