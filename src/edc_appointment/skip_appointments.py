@@ -58,6 +58,8 @@ class SkipAppointments:
       is next expected;
     * CRF has a charfield which captures the next visit code that is
       within the window period of the date.
+    * You should validate the next visit code and the date before
+      calling (e.g. on the form).
     """
 
     def __init__(self, crf_obj: AnyCRF):
@@ -216,6 +218,9 @@ class SkipAppointments:
                     "Unknown field name for visit code. See "
                     f"{self.last_crf_obj._meta.label_lower}. Got `{self.visit_code_fld}`."
                 )
+            self._next_visit_code = getattr(
+                self._next_visit_code, "visit_code", self._next_visit_code
+            )
             if self._next_visit_code not in self.visit_codes:
                 raise SkipAppointmentsValueError(
                     "Invalid value for visit code. Expected one of "

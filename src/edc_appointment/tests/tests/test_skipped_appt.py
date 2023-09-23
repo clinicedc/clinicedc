@@ -3,10 +3,12 @@ from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ImproperlyConfigured
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from edc_facility import import_holidays
 from edc_reference import site_reference_configs
 from edc_visit_schedule import site_visit_schedules
+from edc_visit_schedule.apps import populate_visit_schedule
+from edc_visit_schedule.models import VisitSchedule
 from edc_visit_tracking.constants import SCHEDULED
 
 from edc_appointment.constants import (
@@ -48,6 +50,7 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         site_reference_configs.register_from_visit_schedule(
             visit_models={"edc_appointment.appointment": "edc_appointment_app.subjectvisit"}
         )
+        populate_visit_schedule()
 
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
@@ -250,6 +253,30 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         self.assertEqual(appointments[1].appt_status, IN_PROGRESS_APPT)
         self.assertEqual(appointments[2].appt_status, SKIPPED_APPT)
         self.assertEqual(appointments[3].appt_status, NEW_APPT)
+
+    @tag("2")
+    @override_settings(
+        EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
+            "edc_appointment_app.crftwo": ("report_datetime", "visitschedule"),
+        }
+    )
+    def test_visit_code_as_visit_schedule_fk_ok(self):
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments[0].appt_status = IN_PROGRESS_APPT
+        appointments[0].save()
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointments[0],
+            report_datetime=appointments[0].appt_datetime,
+            reason=SCHEDULED,
+        )
+        self.assertRaises(
+            AppointmentWindowError,
+            CrfTwo.objects.create,
+            subject_visit=subject_visit,
+            report_datetime=appointments[1].appt_datetime,
+            visitschedule=VisitSchedule.objects.get(visit_code=appointments[3].visit_code),
+        )
 
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
