@@ -10,8 +10,8 @@ from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
-from edc_metadata import site_metadata_rules
 from edc_metadata.metadata_helper import MetadataHelperMixin
+from edc_metadata.metadata_rules import site_metadata_rules
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 
 from ..models import SubjectConsent, SubjectVisit
