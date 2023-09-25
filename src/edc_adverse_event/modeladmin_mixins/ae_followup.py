@@ -1,4 +1,4 @@
-from typing import Tuple
+from __future__ import annotations
 
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
@@ -54,7 +54,7 @@ class AeFollowupModelAdminMixin(
         "ae_grade": admin.VERTICAL,
     }
 
-    def get_search_fields(self, request) -> Tuple[str, ...]:
+    def get_search_fields(self, request) -> tuple[str]:
         search_fields = super().get_search_fields(request)
         return tuple(
             set(
@@ -67,7 +67,7 @@ class AeFollowupModelAdminMixin(
             )
         )
 
-    def get_list_display(self, request) -> tuple:
+    def get_list_display(self, request) -> tuple[str]:
         list_display = super().get_list_display(request)
         custom_fields = (
             "identifier",
@@ -79,7 +79,7 @@ class AeFollowupModelAdminMixin(
         )
         return custom_fields + tuple(f for f in list_display if f not in custom_fields)
 
-    def get_list_filter(self, request) -> tuple:
+    def get_list_filter(self, request) -> tuple[str]:
         list_filter = super().get_list_filter(request)
         custom_fields = ("ae_grade", "followup", "outcome_date", "outcome", "report_datetime")
         return custom_fields + tuple(f for f in list_filter if f not in custom_fields)

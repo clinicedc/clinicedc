@@ -1,4 +1,4 @@
-from typing import Tuple
+from __future__ import annotations
 
 from django.conf import settings
 from django.contrib import admin
@@ -70,7 +70,7 @@ class AeTmgModelAdminMixin(
         "investigator_ae_classification": admin.VERTICAL,
     }
 
-    def get_list_display(self, request) -> Tuple[str, ...]:
+    def get_list_display(self, request) -> tuple[str]:
         list_display = super().get_list_display(request)
         custom_fields = (
             "subject_identifier",
@@ -83,7 +83,7 @@ class AeTmgModelAdminMixin(
         )
         return custom_fields + tuple(f for f in list_display if f not in custom_fields)
 
-    def get_list_filter(self, request) -> Tuple[str, ...]:
+    def get_list_filter(self, request) -> tuple[str]:
         list_filter = super().get_list_filter(request)
         custom_fields = ("report_datetime", "report_status")
         return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
