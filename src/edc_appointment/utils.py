@@ -11,8 +11,7 @@ from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import ProtectedError
 from edc_constants.constants import CLINIC, NOT_APPLICABLE
-from edc_metadata import KEYED
-from edc_metadata.utils import get_crf_metadata, get_requisition_metadata
+from edc_metadata.utils import has_keyed_metadata
 from edc_utils import convert_php_dateformat
 from edc_visit_schedule.schedule.window import (
     ScheduledVisitWindowError,
@@ -539,26 +538,18 @@ def get_appointment_by_datetime(
     return appointment
 
 
-def reset_appointment(appointment: Appointment):
-    if not any(
-        [
-            get_crf_metadata(appointment).filter(entry_status=KEYED).exists(),
-            get_requisition_metadata(appointment).filter(entry_status=KEYED).exists(),
-        ]
-    ):
-        appointment.appt_status = appointment._meta.get_field("appt_status").default
-        appointment.appt_timing = appointment._meta.get_field("appt_timing").default
-        appointment.appt_type = None
-        appointment.appt_type_other = None
-        appointment.appt_datetime = appointment.timepoint_datetime
-        appointment.comment = ""
-        appointment.save_base(
-            update_fields=[
-                "appt_status",
-                "appt_timing",
-                "appt_datetime",
-                "appt_type",
-                "appt_type_other",
-                "comment",
-            ]
+def reset_appointment(appointment: Appointment, **kwargs):
+    """Reset appointment but only if no related_visit and no keyed data."""
+    if not has_keyed_metadata(appointment) and not appointment.related_visit:
+        defaults = dict(
+            appt_status=appointment._meta.get_field("appt_status").default,
+            appt_timing=appointment._meta.get_field("appt_timing").default,
+            appt_type=None,
+            appt_type_other=None,
+            appt_datetime=appointment.timepoint_datetime,
+            comment="",
         )
+        defaults.update(**kwargs)
+        for k, v in defaults.items():
+            setattr(appointment, k, v)
+        appointment.save_base(update_fields=[*defaults.keys()])

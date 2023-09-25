@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ImproperlyConfigured
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_facility import import_holidays
 from edc_reference import site_reference_configs
 from edc_visit_schedule import site_visit_schedules
@@ -254,7 +254,6 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         self.assertEqual(appointments[2].appt_status, SKIPPED_APPT)
         self.assertEqual(appointments[3].appt_status, NEW_APPT)
 
-    @tag("2")
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
             "edc_appointment_app.crftwo": ("report_datetime", "visitschedule"),
@@ -334,18 +333,21 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
             f1=appointments[3].visit_code,
             appt_date=appointments[3].appt_datetime.date(),
         )
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         self.assertEqual(appointments[0].appt_status, INCOMPLETE_APPT)
         self.assertEqual(appointments[1].appt_status, IN_PROGRESS_APPT)
         self.assertEqual(appointments[2].appt_status, SKIPPED_APPT)
         self.assertEqual(appointments[3].appt_status, NEW_APPT)
 
         crf_three_2000.delete()
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         self.assertEqual(appointments[0].appt_status, INCOMPLETE_APPT)
         self.assertEqual(appointments[1].appt_status, IN_PROGRESS_APPT)
         self.assertEqual(appointments[2].appt_status, NEW_APPT)
         self.assertEqual(appointments[3].appt_status, NEW_APPT)
 
         crf_three_1000.delete()
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         self.assertEqual(appointments[0].appt_status, INCOMPLETE_APPT)
         self.assertEqual(appointments[1].appt_status, IN_PROGRESS_APPT)
         self.assertEqual(appointments[2].appt_status, NEW_APPT)

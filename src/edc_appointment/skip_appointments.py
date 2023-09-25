@@ -8,10 +8,9 @@ from django.apps import apps as django_apps
 from django.core.exceptions import FieldError
 from django.db import IntegrityError
 from edc_constants.constants import NOT_APPLICABLE
-from edc_metadata import KEYED
-from edc_metadata.utils import get_crf_metadata, get_requisition_metadata
+from edc_metadata.utils import HasKeyedMetadata, has_keyed_metadata
 
-from .constants import IN_PROGRESS_APPT, MISSED_APPT, NEW_APPT, SKIPPED_APPT
+from .constants import INCOMPLETE_APPT, MISSED_APPT, NEW_APPT, SKIPPED_APPT
 from .models import Appointment, AppointmentType
 from .utils import (
     get_allow_skipped_appt_using,
@@ -37,16 +36,6 @@ class SkipAppointmentsValueError(Exception):
 
 class SkipAppointmentsFieldError(Exception):
     pass
-
-
-def has_keyed_metadata(appointment) -> bool:
-    """Return True if data has been submitted for this timepoint."""
-    return any(
-        [
-            get_crf_metadata(appointment).filter(entry_status=KEYED).exists(),
-            get_requisition_metadata(appointment).filter(entry_status=KEYED).exists(),
-        ]
-    )
 
 
 class SkipAppointments:
@@ -110,9 +99,8 @@ class SkipAppointments:
         ):
             reset_appointment(appointment)
 
-        # reset SKIPPED_APPT or NEW_APPT
         for appointment in self.scheduled_appointments.filter(
-            appt_status__in=[SKIPPED_APPT, NEW_APPT],
+            appt_status__in=[SKIPPED_APPT, NEW_APPT, INCOMPLETE_APPT],
         ):
             try:
                 reset_appointment(appointment)
@@ -120,23 +108,24 @@ class SkipAppointments:
                 print(e)
 
     def update_appointments(self):
-        """Update Appointments up to n-1 using the next apointment
-        date.
+        """Update Appointments up the next apointment date.
 
-        Set `appt_status` = SKIPPED_APPT up to the date provided from
-        the CRF.
+        Set `appt_status` = SKIPPED_APPT up the appointment BEFORE
+        the date from the CRF.
 
-        The `appt_datetime` for the last appointment in the sequence
-        (n) will set to the date provided from the CRF and left as a
-        NEW_APPT.
-        .
+        Only set the `appt_datetime` for the appointment where the  date
+        from the CRF lands in the window period. Leave status as NEW_APPT.
+
+        Stop if any appointment has keyed data.
         """
         appointment = self.appointment.next_by_timepoint
         while appointment:
-            if self.update_appointment_as_next_scheduled(appointment):
-                break
-            else:
+            try:
+                if self.update_appointment_as_next_scheduled(appointment):
+                    break
                 self.update_appointment_as_skipped(appointment)
+            except HasKeyedMetadata:
+                break
             appointment = appointment.next_by_timepoint
 
     @property
@@ -238,11 +227,10 @@ class SkipAppointments:
         }
 
     def update_appointment_as_skipped(self, appointment: Appointment) -> None:
-        if appointment.appt_status in [
-            NEW_APPT,
-            SKIPPED_APPT,
-            IN_PROGRESS_APPT,
-        ] and not has_keyed_metadata(appointment):
+        if (
+            not has_keyed_metadata(appointment, raise_on_true=True)
+            and not appointment.related_visit
+        ):
             appointment.appt_type = AppointmentType.objects.get(name=NOT_APPLICABLE)
             appointment.appt_status = SKIPPED_APPT
             appointment.appt_timing = NOT_APPLICABLE
@@ -265,8 +253,8 @@ class SkipAppointments:
         )
         if (
             is_next_scheduled_appointment
-            and appointment.appt_status in [NEW_APPT, SKIPPED_APPT, IN_PROGRESS_APPT]
             and not has_keyed_metadata(appointment)
+            and not appointment.related_visit
         ):
             appointment.appt_status = NEW_APPT
             appointment.appt_datetime = self.next_appt_datetime
