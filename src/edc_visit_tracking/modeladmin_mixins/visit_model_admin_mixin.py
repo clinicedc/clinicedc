@@ -1,4 +1,6 @@
-from typing import Any, Tuple
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
@@ -13,6 +15,9 @@ from edc_visit_schedule.fieldsets import (
 )
 
 from ..constants import SCHEDULED, UNSCHEDULED
+
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
 
 
 class VisitModelAdminMixin(DocumentStatusModelAdminMixin):
@@ -89,7 +94,7 @@ class VisitModelAdminMixin(DocumentStatusModelAdminMixin):
     def scheduled_data(obj=None) -> str:
         return obj.get_require_crfs_display()
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+    def formfield_for_foreignkey(self, db_field, request: WSGIRequest, **kwargs):
         db = kwargs.get("using")
         if db_field.name == "appointment" and request.GET.get("appointment"):
             kwargs["queryset"] = db_field.related_model._default_manager.using(db).filter(
@@ -99,7 +104,7 @@ class VisitModelAdminMixin(DocumentStatusModelAdminMixin):
             kwargs["queryset"] = db_field.related_model._default_manager.none()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
-    def get_list_display(self, request) -> Tuple[str, ...]:
+    def get_list_display(self, request: WSGIRequest) -> tuple[str, ...]:
         list_display = super().get_list_display(request)
         custom_fields = (
             "appointment",
@@ -111,7 +116,7 @@ class VisitModelAdminMixin(DocumentStatusModelAdminMixin):
         )
         return custom_fields + tuple(f for f in list_display if f not in custom_fields)
 
-    def get_list_filter(self, request) -> Tuple[str, ...]:
+    def get_list_filter(self, request: WSGIRequest) -> tuple[str, ...]:
         list_filter = super().get_list_filter(request)
         custom_fields = (
             "report_datetime",
@@ -122,11 +127,11 @@ class VisitModelAdminMixin(DocumentStatusModelAdminMixin):
         )
         return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
 
-    def get_readonly_fields(self, request, obj=None) -> Tuple[str, ...]:
+    def get_readonly_fields(self, request, obj=None) -> tuple[str, ...]:
         readonly_fields = super().get_readonly_fields(request, obj=obj)
         return tuple(set(readonly_fields + visit_schedule_fields))
 
-    def get_changeform_initial_data(self, request: Any) -> dict:
+    def get_changeform_initial_data(self, request: WSGIRequest) -> dict:
         """Sets initial data for the form.
 
         Inherit from this add additional fields to set.
