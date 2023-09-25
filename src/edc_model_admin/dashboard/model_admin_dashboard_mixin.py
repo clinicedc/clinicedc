@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
@@ -52,7 +52,7 @@ class ModelAdminDashboardMixin:
             subject_identifier=obj.subject_identifier
         )
 
-    def get_list_display(self, request) -> Tuple[str, ...]:
+    def get_list_display(self, request) -> tuple[str, ...]:
         list_display = super().get_list_display(request)
         if (
             self.show_dashboard_in_list_display_pos is not None

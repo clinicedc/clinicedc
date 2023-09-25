@@ -1,4 +1,5 @@
-from typing import Optional
+from __future__ import annotations
+
 from urllib.parse import urlencode
 
 from django.contrib import messages
@@ -23,13 +24,13 @@ class ModelAdminRedirectOnDeleteMixin:
         self.post_url_on_delete = None
         super().__init__(*args)
 
-    def get_post_url_on_delete_name(self, request):
+    def get_post_url_on_delete_name(self, request) -> str:
         return url_names.get(self.post_url_on_delete_name)
 
-    def get_post_full_url_on_delete(self, request):
+    def get_post_full_url_on_delete(self, request) -> str | None:
         return self.post_full_url_on_delete
 
-    def get_post_url_on_delete(self, request, obj) -> Optional[str]:
+    def get_post_url_on_delete(self, request, obj) -> str | None:
         """Returns a url for the redirect after delete."""
         post_url_on_delete = None
         querystring = urlencode(self.post_url_on_delete_querystring_kwargs(request, obj))
