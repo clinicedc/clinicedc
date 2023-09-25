@@ -1,4 +1,4 @@
-from typing import Tuple
+from __future__ import annotations
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -17,10 +17,10 @@ class ConsentModelAdminMixin:
     actions = (flag_as_verified_against_paper, unflag_as_verified_against_paper)
 
     def __init__(self, *args):
-        self.get_radio_fields()
+        self.update_radio_fields()
         super().__init__(*args)
 
-    def get_radio_fields(self):
+    def update_radio_fields(self) -> None:
         self.radio_fields.update(
             {
                 "language": admin.VERTICAL,
@@ -37,7 +37,7 @@ class ConsentModelAdminMixin:
             }
         )
 
-    def get_fields(self, request, obj=None) -> Tuple[str, ...]:
+    def get_fields(self, request, obj=None) -> tuple[str, ...]:
         original_fields = super().get_fields(request, obj=obj)
         return (
             "subject_identifier",
@@ -63,7 +63,7 @@ class ConsentModelAdminMixin:
             "consent_copy",
         ) + original_fields
 
-    def get_readonly_fields(self, request, obj=None) -> Tuple[str, ...]:
+    def get_readonly_fields(self, request, obj=None) -> tuple[str, ...]:
         readonly_fields = super().get_readonly_fields(request, obj)
         fields = ("subject_identifier", "subject_identifier_as_pk")
         if obj:
@@ -73,22 +73,15 @@ class ConsentModelAdminMixin:
         else:
             return fields + readonly_fields
 
-    def get_search_fields(self, request) -> Tuple[str, ...]:
-        search_fields = super().get_search_fields(request)
+    def get_search_fields(self, request) -> tuple[str, ...]:
+        search_fields: tuple[str] = super().get_search_fields(request)
+        name_fields: tuple[str] = tuple(self.name_fields)
         return tuple(
-            set(
-                search_fields
-                + (
-                    "id",
-                    "subject_identifier",
-                    *self.name_fields,
-                    "identity",
-                )
-            )
+            set(search_fields + ("id", "subject_identifier", *name_fields, "identity"))
         )
 
-    def get_list_display(self, request) -> tuple:
-        list_display = super().get_list_display(request)
+    def get_list_display(self, request) -> tuple[str, ...]:
+        list_display: tuple[str] = super().get_list_display(request)
         custom_fields = (
             "subject_identifier",
             "is_verified",
@@ -112,7 +105,7 @@ class ConsentModelAdminMixin:
         )
         return fields
 
-    def get_list_filter(self, request) -> Tuple[str, ...]:
+    def get_list_filter(self, request) -> tuple[str, ...]:
         list_filter = super().get_list_filter(request)
         custom_fields = (
             "gender",
