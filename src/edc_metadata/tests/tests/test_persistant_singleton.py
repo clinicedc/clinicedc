@@ -19,8 +19,9 @@ from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 from model_bakery import baker
 
-from edc_metadata import KEYED, NOT_REQUIRED, REQUIRED, site_metadata_rules
+from edc_metadata import KEYED, NOT_REQUIRED, REQUIRED
 from edc_metadata.metadata import CrfMetadataGetter
+from edc_metadata.metadata_rules import site_metadata_rules
 
 from ...metadata_handler import MetadataHandlerError
 from ...metadata_rules import (
