@@ -308,23 +308,6 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
         self.assertIsNotNone(cm.exception)
         self.assertIn(INVALID_APPT_STATUS_AT_BASELINE, form_validator._error_codes)
 
-    def test_baseline_appt_cannot_be_skipped(self):
-        self.helper.consent_and_put_on_schedule()
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
-        form_validator = AppointmentFormValidator(
-            cleaned_data=dict(
-                subject_identifier=self.subject_identifier,
-                appt_status=SKIPPED_APPT,
-                appt_timing=NOT_APPLICABLE,
-                appt_reason=SCHEDULED_APPT,
-            ),
-            instance=appointments[0],
-        )
-        with self.assertRaises(ValidationError) as cm:
-            form_validator.validate_appointment_timing()
-        self.assertIsNotNone(cm.exception)
-        self.assertIn(INVALID_APPT_STATUS_AT_BASELINE, form_validator._error_codes)
-
     def test_can_miss_scheduled_appt_if_not_baseline(self):
         self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
@@ -609,7 +592,9 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
         )
 
     @override_settings(
-        EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING=[("nextappointment", "appt_date")]
+        EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
+            "edc_appointment_app.crfone": ("next_appt_date", "next_visit_code")
+        }
     )
     def test_skipped_never_allowed_at_baseline(self):
         self.helper.consent_and_put_on_schedule()
@@ -630,9 +615,11 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
         self.assertIn(INVALID_APPT_STATUS_AT_BASELINE, form_validator._error_codes)
 
     @override_settings(
-        EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING=[("nextappointment", "appt_date")]
+        EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
+            "edc_appointment_app.crfone": ("next_appt_date", "next_visit_code")
+        }
     )
-    def test_skipped_allowed(self):
+    def test_skipped_allowed_after_baseline_and_settings_attr_is_set(self):
         self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         SubjectVisit.objects.create(
@@ -657,8 +644,8 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
         except ValidationError as e:
             self.fail(f"ValidationError unexpectedly raised. Got {e}")
 
-    @override_settings(EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING=None)
-    def test_skipped_not_allowed(self):
+    @override_settings(EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={})
+    def test_skipped_not_allowed_if_settings_attr_not_set(self):
         self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         SubjectVisit.objects.create(
@@ -682,3 +669,21 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
             form_validator.validate()
         self.assertIsNotNone(cm.exception)
         self.assertIn(INVALID_APPT_STATUS, form_validator._error_codes)
+
+    @override_settings(
+        EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
+            "edc_appointment_app.crfone": ("next_appt_date", "next_visit_code")
+        }
+    )
+    def test_skip_appointments(self):
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments[0].appt_status = IN_PROGRESS_APPT
+        appointments[0].save()
+        SubjectVisit.objects.create(
+            appointment=appointments[0],
+            report_datetime=appointments[0].appt_datetime,
+            reason=SCHEDULED,
+        )
+        appointments[0].refresh_from_db()
+        self.assertEqual(appointments[0].appt_status, IN_PROGRESS_APPT)

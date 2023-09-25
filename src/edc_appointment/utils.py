@@ -11,6 +11,8 @@ from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import ProtectedError
 from edc_constants.constants import CLINIC, NOT_APPLICABLE
+from edc_metadata import KEYED
+from edc_metadata.utils import get_crf_metadata, get_requisition_metadata
 from edc_utils import convert_php_dateformat
 from edc_visit_schedule.schedule.window import (
     ScheduledVisitWindowError,
@@ -45,10 +47,6 @@ class AppointmentDateWindowPeriodGapError(Exception):
     pass
 
 
-class InvalidModelForSkippedAppts(Exception):
-    pass
-
-
 def get_appointment_model_name() -> str:
     return "edc_appointment.appointment"
 
@@ -65,22 +63,19 @@ def get_appointment_type_model_cls() -> Type[AppointmentType]:
     return django_apps.get_model(get_appointment_type_model_name())
 
 
-def get_allow_skipped_appt_using(
-    instance: Any | None = None,
-) -> list[tuple[str, str]] | tuple[str, str]:
-    model_and_fields: list[tuple[str, str]] = getattr(
-        settings, "EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING", []
-    )
-    if instance and model_and_fields:
-        for tpl in model_and_fields:
-            if tpl[0] == instance._meta.label_lower:
-                return tpl
-        raise InvalidModelForSkippedAppts(
-            "Invalid model for skipped appts. Expected one of "
-            f"{''.join([tpl[0] for tpl in model_and_fields])}. "
-            f"Got {instance._meta.label_lower}."
+def get_allow_skipped_appt_using() -> dict[str, tuple[str, str]]:
+    """Return dict from settings or empty dictionary.
+
+    For example:
+         = {"my_app.crfone": ("next_appt_date", "next_visit_code")}
+    """
+    dct = getattr(settings, "EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING", {})
+    if len(dct.keys()) > 1:
+        raise ImproperlyConfigured(
+            "Only one model may be specified. See "
+            f"settings.EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING. Got {dct}."
         )
-    return model_and_fields
+    return dct
 
 
 def raise_on_appt_may_not_be_missed(
@@ -545,19 +540,25 @@ def get_appointment_by_datetime(
 
 
 def reset_appointment(appointment: Appointment):
-    appointment.appt_status = appointment._meta.get_field("appt_status").default
-    appointment.appt_timing = appointment._meta.get_field("appt_timing").default
-    appointment.appt_type = None
-    appointment.appt_type_other = None
-    appointment.appt_datetime = appointment.timepoint_datetime
-    appointment.comment = ""
-    appointment.save_base(
-        update_fields=[
-            "appt_status",
-            "appt_timing",
-            "appt_datetime",
-            "appt_type",
-            "appt_type_other",
-            "comment",
+    if not any(
+        [
+            get_crf_metadata(appointment).filter(entry_status=KEYED).exists(),
+            get_requisition_metadata(appointment).filter(entry_status=KEYED).exists(),
         ]
-    )
+    ):
+        appointment.appt_status = appointment._meta.get_field("appt_status").default
+        appointment.appt_timing = appointment._meta.get_field("appt_timing").default
+        appointment.appt_type = None
+        appointment.appt_type_other = None
+        appointment.appt_datetime = appointment.timepoint_datetime
+        appointment.comment = ""
+        appointment.save_base(
+            update_fields=[
+                "appt_status",
+                "appt_timing",
+                "appt_datetime",
+                "appt_type",
+                "appt_type_other",
+                "comment",
+            ]
+        )
