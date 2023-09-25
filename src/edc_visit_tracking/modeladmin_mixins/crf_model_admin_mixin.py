@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING, Type
 from uuid import UUID
 
 from edc_constants.constants import UUID_PATTERN
@@ -18,8 +18,8 @@ class CrfModelAdminMixin:
     visit model(s).
     """
 
-    date_hierarchy = "report_datetime"
-    report_datetime_field_attr = "report_datetime"
+    date_hierarchy: str = "report_datetime"
+    report_datetime_field_attr: str = "report_datetime"
 
     def visit_reason(self, obj: CrfModelMixin | None = None) -> str:
         return getattr(obj, self.related_visit_model_attr).reason
@@ -33,26 +33,29 @@ class CrfModelAdminMixin:
     def subject_identifier(self, obj: CrfModelMixin | None = None) -> str:
         return getattr(obj, self.related_visit_model_attr).subject_identifier
 
-    def get_list_display(self, request: WSGIRequest) -> Tuple[str, ...]:
+    def get_list_display(self, request: WSGIRequest) -> tuple[str, ...]:
         list_display = super().get_list_display(request)
-        fields_first = (
-            self.subject_identifier,
+        fields_first: tuple[str, str, str, str] = (
+            "subject_identifier",
             self.report_datetime_field_attr,
-            self.visit_code,
-            self.visit_reason,
+            "visit_code",
+            "visit_reason",
         )
         return fields_first + tuple(
             f for f in list_display if f not in fields_first + ("__str__",)
         )
 
-    def get_search_fields(self, request: WSGIRequest) -> Tuple[str, ...]:
+    def get_search_fields(self, request: WSGIRequest) -> tuple[str, ...]:
         search_fields = super().get_search_fields(request)
-        field = (f"{self.related_visit_model_attr}__appointment__subject_identifier",)
+        field = (
+            f"{self.related_visit_model_attr}__appointment__subject_identifier",
+            f"{self.related_visit_model_attr}__visit_code",
+        )
         if field not in search_fields:
             return search_fields + field
         return search_fields
 
-    def get_list_filter(self, request: WSGIRequest) -> Tuple[str, ...]:
+    def get_list_filter(self, request: WSGIRequest) -> tuple[str, ...]:
         """Returns a tuple of list_filters.
 
         Not working?? Call `get_list_filter`, don't explicitly set `list_filter`
@@ -72,7 +75,7 @@ class CrfModelAdminMixin:
         return self.model.related_visit_model_attr()
 
     @property
-    def related_visit_model_cls(self) -> VisitModelMixin:
+    def related_visit_model_cls(self) -> Type[VisitModelMixin]:
         return self.model.related_visit_model_cls()
 
     def related_visit(self, request: WSGIRequest, obj=None) -> VisitModelMixin | None:
@@ -109,7 +112,7 @@ class CrfModelAdminMixin:
 
     def get_readonly_fields(
         self, request: WSGIRequest, obj: CrfModelMixin | None = None
-    ) -> Tuple[str, ...]:
+    ) -> tuple[str]:
         readonly_fields = super().get_readonly_fields(request, obj=obj)
         if (
             not self.related_visit_id(request)

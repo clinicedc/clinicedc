@@ -50,7 +50,7 @@ class TestModelAdmin(TestCase):
         factory = RequestFactory()
         request = factory.get("/")
         modeladmin = edc_visit_tracking_admin._registry.get(CrfOne)
-        self.assertIn(modeladmin.subject_identifier, modeladmin.get_list_display(request))
+        self.assertIn("subject_identifier", modeladmin.get_list_display(request))
         self.assertIn("report_datetime", modeladmin.get_list_display(request))
 
     def test_extends_list_filter(self):
