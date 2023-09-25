@@ -1,4 +1,4 @@
-from typing import Tuple
+from __future__ import annotations
 
 from django.contrib import admin
 from django.template.loader import render_to_string
@@ -47,7 +47,7 @@ class AeSusarModelAdminMixin(
 
     radio_fields = {"report_status": admin.VERTICAL}
 
-    def get_list_display(self, request) -> Tuple[str, ...]:
+    def get_list_display(self, request) -> tuple[str]:
         list_display = super().get_list_display(request)
         custom_fields = (
             "subject_identifier",
@@ -58,7 +58,7 @@ class AeSusarModelAdminMixin(
         )
         return custom_fields + tuple(f for f in list_display if f not in custom_fields)
 
-    def get_list_filter(self, request) -> Tuple[str, ...]:
+    def get_list_filter(self, request) -> tuple[str]:
         list_filter = super().get_list_filter(request)
         custom_fields = ("report_datetime", "submitted_datetime")
         return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
