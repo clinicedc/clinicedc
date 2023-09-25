@@ -6,10 +6,14 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.db.models import QuerySet
 
-from .constants import CRF, REQUISITION
+from .constants import CRF, KEYED, REQUISITION
 
 if TYPE_CHECKING:
     from edc_metadata.models import CrfMetadata, RequisitionMetadata
+
+
+class HasKeyedMetadata(Exception):
+    pass
 
 
 def get_crf_metadata_model_cls() -> Type[CrfMetadata]:
@@ -81,3 +85,19 @@ def get_requisition_metadata(instance: Any) -> QuerySet[RequisitionMetadata]:
         visit_code_sequence=instance.visit_code_sequence,
     )
     return get_requisition_metadata_model_cls().objects.filter(**opts)
+
+
+def has_keyed_metadata(appointment, raise_on_true=None) -> bool:
+    """Return True if data has been submitted for this timepoint."""
+    exists = any(
+        [
+            get_crf_metadata(appointment).filter(entry_status=KEYED).exists(),
+            get_requisition_metadata(appointment).filter(entry_status=KEYED).exists(),
+        ]
+    )
+    if exists and raise_on_true:
+        raise HasKeyedMetadata(
+            "Metadata data exists for this timepoint. Got "
+            f"{appointment.visit_code}.{appointment.visit_code_sequence}."
+        )
+    return exists
