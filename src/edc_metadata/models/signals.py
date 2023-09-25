@@ -2,6 +2,7 @@ from django.apps import apps as django_apps
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from edc_crf.model_mixins import SingletonCrfModelMixin
+from edc_reference.reference import ReferenceDeleterError
 
 from edc_metadata import KEYED
 from edc_metadata.utils import refresh_references_and_metadata_for_timepoint
@@ -94,7 +95,10 @@ def metadata_reset_on_post_delete(sender, instance, using, **kwargs) -> None:
     """
     try:
         instance.reference_deleter_cls(model_obj=instance)
-    except AttributeError:
+    except AttributeError as e:
+        if "reference_deleter_cls" not in str(e):
+            raise
+    except ReferenceDeleterError:
         pass
 
     try:
@@ -105,6 +109,7 @@ def metadata_reset_on_post_delete(sender, instance, using, **kwargs) -> None:
     else:
         if django_apps.get_app_config("edc_metadata").metadata_rules_enabled:
             instance.run_metadata_rules_for_related_visit()
+
     # deletes all for a visit used by CreatesMetadataMixin
     try:
         instance.metadata_delete_for_visit()
