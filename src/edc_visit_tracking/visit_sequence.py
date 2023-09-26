@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django.utils.translation import gettext_lazy as _
+from edc_appointment.constants import SKIPPED_APPT
+
 
 class VisitSequenceError(Exception):
     pass
@@ -37,10 +40,13 @@ class VisitSequence:
         self.visit_code = self.appointment.visit_code
         self.visit_code_sequence = self.appointment.visit_code_sequence
 
-    def enforce_sequence(self) -> None:
+    def enforce_sequence(self, document_type: str = None) -> None:
         """Raises an exception if sequence is not adhered to; that is,
         the visit reports are not completed in order.
+
+        Do not enforce for SKIPPED appointments.
         """
+        document_type = document_type or _("report")
         opts = dict(
             subject_identifier=self.appointment.subject_identifier,
             visit_schedule_name=self.appointment.visit_schedule_name,
@@ -48,14 +54,19 @@ class VisitSequence:
             appt_datetime__lt=self.appointment.appt_datetime,
         )
         opts.update(**{f"{self.appointment.related_visit_model_attr()}__isnull": True})
-        if appointments := self.appointment.__class__.objects.filter(**opts).order_by(
-            "timepoint", "visit_code_sequence"
+        if (
+            appointments := self.appointment.__class__.objects.filter(**opts)
+            .exclude(appt_status=SKIPPED_APPT)
+            .order_by("timepoint", "visit_code_sequence")
         ):
-            msg = (
+            msg = _(
                 "Previous visit report required. Enter report for "
-                f"'{appointments.first().visit_code}."
-                f"{appointments.first().visit_code_sequence}' "
-                f"before completing this report."
+                "'%(visit_code)s.%(visit_code_sequence)s' "
+                "before completing this %(document_type)s."
+            ) % dict(
+                visit_code=appointments.first().visit_code,
+                visit_code_sequence=appointments.first().visit_code_sequence,
+                document_type=document_type,
             )
             raise VisitSequenceError(msg)
 
