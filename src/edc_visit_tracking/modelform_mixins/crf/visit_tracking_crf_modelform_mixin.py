@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 from django import forms
 from django.conf import settings
+from edc_form_validators import INVALID_ERROR
 
 from ...crf_date_validator import (
     CrfDateValidator,
@@ -11,6 +12,7 @@ from ...crf_date_validator import (
     CrfReportDateBeforeStudyStart,
     CrfReportDateIsFuture,
 )
+from ...visit_sequence import VisitSequence, VisitSequenceError
 from ..utils import get_related_visit
 
 if TYPE_CHECKING:
@@ -30,6 +32,7 @@ class VisitTrackingCrfModelFormMixin:
 
     crf_date_validator_cls = CrfDateValidator
     report_datetime_allowance = getattr(settings, "DEFAULT_REPORT_DATETIME_ALLOWANCE", 0)
+    visit_sequence_cls = VisitSequence
 
     def clean(self: Any) -> dict:
         """Triggers a validation error if subject visit is None.
@@ -42,6 +45,7 @@ class VisitTrackingCrfModelFormMixin:
                 "Got `report_datetime_field_attr`=None."
             )
         cleaned_data = super().clean()
+        self.validate_visits_completed_in_order()
         self.validate_visit_tracking()
         return cleaned_data
 
@@ -89,14 +93,10 @@ class VisitTrackingCrfModelFormMixin:
             ) as e:
                 raise forms.ValidationError({self.report_datetime_field_attr: str(e)})
 
-    # @property
-    # def report_datetime(self) -> datetime:
-    #     """Overridden. Returns the report_datetime as UTC from directly from
-    #     cleaned_data or via the related_visit, if it exists.
-    #     """
-    #     report_datetime = self.cleaned_data.get(self.report_datetime_field_attr)
-    #     if self.related_visit and not report_datetime:
-    #         report_datetime = getattr(self.related_visit, self.report_datetime_field_attr)
-    #     if report_datetime:
-    #         report_datetime = report_datetime.astimezone(ZoneInfo("UTC"))
-    #     return report_datetime
+    def validate_visits_completed_in_order(self) -> None:
+        """Asserts visits are completed in order."""
+        visit_sequence = self.visit_sequence_cls(appointment=self.related_visit.appointment)
+        try:
+            visit_sequence.enforce_sequence(document_type="CRF")
+        except VisitSequenceError as e:
+            raise forms.ValidationError(e, code=INVALID_ERROR)

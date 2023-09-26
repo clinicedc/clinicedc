@@ -3,6 +3,7 @@ from django.test import TestCase
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.managers import AppointmentDeleteError
 from edc_appointment.models import Appointment
+from edc_appointment.utils import reset_appointment, skip_appointment
 from edc_facility.import_holidays import import_holidays
 from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
@@ -224,3 +225,35 @@ class TestPreviousVisit(TestCase):
             )
             appointment.appt_status = INCOMPLETE_APPT
             appointment.save()
+
+    def test_requires_previous_visit_unless_skipped(self):
+        """Asserts does not require previous visit if previous appt
+        is skipped.
+        """
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        SubjectVisit.objects.create(
+            appointment=appointments[0],
+            report_datetime=get_utcnow() - relativedelta(months=10),
+            reason=SCHEDULED,
+        )
+
+        skip_appointment(appointments[1])
+
+        try:
+            SubjectVisit.objects.create(
+                appointment=appointments[2],
+                report_datetime=get_utcnow() - relativedelta(months=8),
+                reason=SCHEDULED,
+            )
+        except PreviousVisitError:
+            self.fail("PreviousVisitError unexpectedly raised.")
+
+        reset_appointment(appointments[1])
+
+        self.assertRaises(
+            PreviousVisitError,
+            SubjectVisit.objects.create,
+            appointment=appointments[2],
+            report_datetime=get_utcnow() - relativedelta(months=8),
+            reason=SCHEDULED,
+        )
