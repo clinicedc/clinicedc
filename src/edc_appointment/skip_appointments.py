@@ -7,15 +7,18 @@ from zoneinfo import ZoneInfo
 from django.apps import apps as django_apps
 from django.core.exceptions import FieldError
 from django.db import IntegrityError
-from edc_constants.constants import NOT_APPLICABLE
-from edc_metadata.utils import HasKeyedMetadata, has_keyed_metadata
+from edc_metadata.utils import has_keyed_metadata
 
-from .constants import INCOMPLETE_APPT, MISSED_APPT, NEW_APPT, SKIPPED_APPT
-from .models import Appointment, AppointmentType
+from .constants import MISSED_APPT, NEW_APPT, SKIPPED_APPT
+from .exceptions import AppointmentWindowError
+from .models import Appointment
 from .utils import (
+    AppointmentAlreadyStarted,
     get_allow_skipped_appt_using,
+    get_appointment_by_datetime,
     raise_on_appt_datetime_not_in_window,
     reset_appointment,
+    skip_appointment,
 )
 
 if TYPE_CHECKING:
@@ -97,15 +100,20 @@ class SkipAppointments:
         ).exclude(
             appt_status__in=[SKIPPED_APPT, NEW_APPT],
         ):
-            reset_appointment(appointment)
+            try:
+                reset_appointment(appointment)
+            except AppointmentAlreadyStarted:
+                pass
 
         for appointment in self.scheduled_appointments.filter(
-            appt_status__in=[SKIPPED_APPT, NEW_APPT, INCOMPLETE_APPT],
+            appt_datetime__gt=self.appointment.appt_datetime,
         ):
             try:
                 reset_appointment(appointment)
             except IntegrityError as e:
                 print(e)
+            except AppointmentAlreadyStarted:
+                pass
 
     def update_appointments(self):
         """Update Appointments up the next apointment date.
@@ -118,15 +126,46 @@ class SkipAppointments:
 
         Stop if any appointment has keyed data.
         """
+        skip_comment = (
+            f"based on date reported at {self.last_crf_obj.related_visit.visit_code}"
+        )
         appointment = self.appointment.next_by_timepoint
         while appointment:
-            try:
-                if self.update_appointment_as_next_scheduled(appointment):
-                    break
-                self.update_appointment_as_skipped(appointment)
-            except HasKeyedMetadata:
+            if self.is_next_scheduled(appointment):
+                try:
+                    self.update_appointment_as_next_scheduled(appointment)
+                except AppointmentAlreadyStarted:
+                    pass
                 break
+            else:
+                try:
+                    skip_appointment(appointment, comment=skip_comment)
+                except AppointmentAlreadyStarted:
+                    pass
             appointment = appointment.next_by_timepoint
+
+    def is_next_scheduled(self, appointment):
+        return (
+            appointment.visit_code == self.next_visit_code
+            and appointment.visit_code_sequence == 0
+        )
+
+    def update_appointment_as_next_scheduled(self, appointment: Appointment) -> None:
+        """Return True if this is the "next" appointment (the last
+        appointment in the sequence).
+
+        If "next", try to update if CRfs not yet submitted/KEYED.
+        """
+        if has_keyed_metadata(appointment) or appointment.related_visit:
+            raise AppointmentAlreadyStarted(
+                f"Unable update as next. Appointment already started. Got {appointment}."
+            )
+        else:
+            appointment.appt_status = NEW_APPT
+            appointment.appt_datetime = self.next_appt_datetime
+            appointment.comment = ""
+            self.validate_appointment_as_next(appointment)
+            appointment.save(update_fields=["appt_status", "appt_datetime", "comment"])
 
     @property
     def last_crf_obj(self):
@@ -145,6 +184,14 @@ class SkipAppointments:
                     f"{e}. See {self.crf_model_cls._meta.label_lower}."
                 )
         return self._last_crf_obj
+
+    @property
+    def query_opts(self) -> dict[str, str]:
+        return {
+            f"{self.related_visit_model_attr}__subject_identifier": self.subject_identifier,
+            f"{self.related_visit_model_attr}__visit_schedule_name": self.visit_schedule_name,
+            f"{self.related_visit_model_attr}__schedule_name": self.schedule_name,
+        }
 
     @property
     def next_appt_date(self) -> date | None:
@@ -218,48 +265,21 @@ class SkipAppointments:
                 )
         return self._next_visit_code
 
-    @property
-    def query_opts(self) -> dict[str, str]:
-        return {
-            f"{self.related_visit_model_attr}__subject_identifier": self.subject_identifier,
-            f"{self.related_visit_model_attr}__visit_schedule_name": self.visit_schedule_name,
-            f"{self.related_visit_model_attr}__schedule_name": self.schedule_name,
-        }
-
-    def update_appointment_as_skipped(self, appointment: Appointment) -> None:
-        if (
-            not has_keyed_metadata(appointment, raise_on_true=True)
-            and not appointment.related_visit
-        ):
-            appointment.appt_type = AppointmentType.objects.get(name=NOT_APPLICABLE)
-            appointment.appt_status = SKIPPED_APPT
-            appointment.appt_timing = NOT_APPLICABLE
-            appointment.comment = (
-                f"based on date reported at {self.last_crf_obj.related_visit.visit_code}"
-            )
-            appointment.save(
-                update_fields=["appt_type", "appt_status", "appt_timing", "comment"]
-            )
-
-    def update_appointment_as_next_scheduled(self, appointment: Appointment) -> bool:
-        """Return True if this is the "next" appointment (the last
-        appointment in the sequence).
-
-        If "next", try to update if CRfs not yet submitted/KEYED.
-        """
-        is_next_scheduled_appointment = (
-            appointment.visit_code == self.next_visit_code
-            and appointment.visit_code_sequence == 0
-        )
-        if (
-            is_next_scheduled_appointment
-            and not has_keyed_metadata(appointment)
-            and not appointment.related_visit
-        ):
-            appointment.appt_status = NEW_APPT
-            appointment.appt_datetime = self.next_appt_datetime
-            appointment.comment = ""
+    def validate_appointment_as_next(self, appointment):
+        try:
             raise_on_appt_datetime_not_in_window(appointment)
-            appointment.save(update_fields=["appt_status", "appt_datetime", "comment"])
-            return True
-        return is_next_scheduled_appointment
+        except AppointmentWindowError as e:
+            raise SkipAppointmentsValueError(e)
+
+        next_appt = get_appointment_by_datetime(
+            self.next_appt_datetime,
+            appointment.subject_identifier,
+            appointment.visit_schedule_name,
+            appointment.schedule_name,
+        )
+        if next_appt.visit_code != self.next_visit_code:
+            raise SkipAppointmentsValueError(
+                "Visit code is invalid for appointment datetime. "
+                f"You suggested {self.next_visit_code}. "
+                f"The appointment datetime matches with {next_appt.visit_code}."
+            )

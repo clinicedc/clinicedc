@@ -12,12 +12,12 @@ from edc_visit_schedule.models import VisitSchedule
 from edc_visit_tracking.constants import SCHEDULED
 
 from edc_appointment.constants import (
+    COMPLETE_APPT,
     IN_PROGRESS_APPT,
     INCOMPLETE_APPT,
     NEW_APPT,
     SKIPPED_APPT,
 )
-from edc_appointment.exceptions import AppointmentWindowError
 from edc_appointment.models import Appointment
 from edc_appointment.skip_appointments import (
     SkipAppointmentsFieldError,
@@ -26,8 +26,19 @@ from edc_appointment.skip_appointments import (
 from edc_appointment.tests.helper import Helper
 from edc_appointment.tests.test_case_mixins import AppointmentTestCaseMixin
 from edc_appointment.utils import get_allow_skipped_appt_using
-from edc_appointment_app.models import CrfOne, CrfThree, CrfTwo, SubjectVisit
-from edc_appointment_app.visit_schedule import visit_schedule1, visit_schedule2
+from edc_appointment_app.models import (
+    CrfFive,
+    CrfFour,
+    CrfOne,
+    CrfThree,
+    CrfTwo,
+    SubjectVisit,
+)
+from edc_appointment_app.visit_schedule import (
+    visit_schedule1,
+    visit_schedule2,
+    visit_schedule5,
+)
 
 
 class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
@@ -43,6 +54,7 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
+        site_visit_schedules.register(visit_schedule=visit_schedule5)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=datetime(2017, 1, 7, tzinfo=ZoneInfo("UTC")),
@@ -270,11 +282,19 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
             reason=SCHEDULED,
         )
         self.assertRaises(
-            AppointmentWindowError,
+            SkipAppointmentsValueError,
             CrfTwo.objects.create,
             subject_visit=subject_visit,
             report_datetime=appointments[1].appt_datetime,
             visitschedule=VisitSchedule.objects.get(visit_code=appointments[3].visit_code),
+        )
+
+        self.assertRaises(
+            SkipAppointmentsValueError,
+            CrfTwo.objects.create,
+            subject_visit=subject_visit,
+            report_datetime=appointments[3].appt_datetime,
+            visitschedule=VisitSchedule.objects.get(visit_code=appointments[1].visit_code),
         )
 
     @override_settings(
@@ -293,7 +313,7 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
             reason=SCHEDULED,
         )
         self.assertRaises(
-            AppointmentWindowError,
+            SkipAppointmentsValueError,
             CrfThree.objects.create,
             subject_visit=subject_visit,
             appt_date=appointments[1].appt_datetime.date(),
@@ -352,3 +372,145 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         self.assertEqual(appointments[1].appt_status, IN_PROGRESS_APPT)
         self.assertEqual(appointments[2].appt_status, NEW_APPT)
         self.assertEqual(appointments[3].appt_status, NEW_APPT)
+
+    @override_settings(
+        EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
+            "edc_appointment_app.crfthree": ("appt_date", "f1"),
+        }
+    )
+    def test_skip2(self):
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule5", schedule_name="monthly_schedule"
+        )
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments[0].appt_status = IN_PROGRESS_APPT
+        appointments[0].save()
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointments[0],
+            report_datetime=appointments[0].appt_datetime,
+            reason=SCHEDULED,
+        )
+
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        self.assertEqual(appointments[0].appt_status, IN_PROGRESS_APPT)
+        self.assertEqual(appointments[1].appt_status, NEW_APPT)
+
+        for model_cls in [CrfOne, CrfTwo, CrfFour, CrfFive]:
+            model_cls.objects.create(
+                subject_visit=subject_visit,
+                report_datetime=appointments[0].appt_datetime,
+                f1="blah",
+            )
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        self.assertEqual(appointments[0].appt_status, IN_PROGRESS_APPT)
+        self.assertEqual(appointments[1].appt_status, NEW_APPT)
+        CrfThree.objects.create(
+            subject_visit=subject_visit,
+            report_datetime=subject_visit.report_datetime,
+            appt_date=appointments[2].appt_datetime.date(),
+            f1=appointments[2].visit_code,
+        )
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        self.assertEqual(appointments[0].appt_status, IN_PROGRESS_APPT)
+        self.assertEqual(appointments[1].appt_status, SKIPPED_APPT)
+        self.assertEqual(appointments[2].appt_status, NEW_APPT)
+        self.assertEqual(appointments[3].appt_status, NEW_APPT)
+        self.assertEqual(appointments[4].appt_status, NEW_APPT)
+        self.assertEqual(appointments[5].appt_status, NEW_APPT)
+        self.assertEqual(appointments[6].appt_status, NEW_APPT)
+
+        appointments[2].appt_status = IN_PROGRESS_APPT
+        appointments[2].save()
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointments[2],
+            report_datetime=appointments[2].appt_datetime,
+            reason=SCHEDULED,
+        )
+
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        self.assertEqual(appointments[0].appt_status, COMPLETE_APPT)
+        self.assertEqual(appointments[1].appt_status, SKIPPED_APPT)
+        self.assertEqual(appointments[2].appt_status, IN_PROGRESS_APPT)
+
+        for model_cls in [CrfOne, CrfTwo, CrfFour, CrfFive]:
+            model_cls.objects.create(
+                subject_visit=subject_visit,
+                report_datetime=appointments[2].appt_datetime,
+                f1="blah",
+            )
+
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        self.assertEqual(appointments[0].appt_status, COMPLETE_APPT)
+        self.assertEqual(appointments[1].appt_status, SKIPPED_APPT)
+        self.assertEqual(appointments[2].appt_status, IN_PROGRESS_APPT)
+
+        CrfThree.objects.create(
+            subject_visit=subject_visit,
+            report_datetime=subject_visit.report_datetime,
+            appt_date=appointments[3].appt_datetime.date(),
+            f1=appointments[3].visit_code,
+        )
+
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        self.assertEqual(appointments[0].appt_status, COMPLETE_APPT)
+        self.assertEqual(appointments[1].appt_status, SKIPPED_APPT)
+        self.assertEqual(appointments[2].appt_status, IN_PROGRESS_APPT)
+
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments[2].appt_status = COMPLETE_APPT
+        appointments[2].save()
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        self.assertEqual(appointments[0].appt_status, COMPLETE_APPT)
+        self.assertEqual(appointments[1].appt_status, SKIPPED_APPT)
+        self.assertEqual(appointments[2].appt_status, IN_PROGRESS_APPT)
+        self.assertEqual(appointments[3].appt_status, NEW_APPT)
+        self.assertEqual(appointments[4].appt_status, NEW_APPT)
+        self.assertEqual(appointments[5].appt_status, NEW_APPT)
+        self.assertEqual(appointments[6].appt_status, NEW_APPT)
+
+        appointments[3].appt_status = IN_PROGRESS_APPT
+        appointments[3].save()
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointments[3],
+            report_datetime=appointments[3].appt_datetime,
+            reason=SCHEDULED,
+        )
+        CrfOne.objects.create(
+            subject_visit=subject_visit,
+            report_datetime=subject_visit.report_datetime,
+            f1="blah",
+        )
+        CrfThree.objects.create(
+            subject_visit=subject_visit,
+            report_datetime=subject_visit.report_datetime,
+            appt_date=appointments[6].appt_datetime.date(),
+            f1=appointments[6].visit_code,
+        )
+
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        self.assertEqual(appointments[0].appt_status, COMPLETE_APPT)
+        self.assertEqual(appointments[1].appt_status, SKIPPED_APPT)
+        self.assertEqual(appointments[2].appt_status, COMPLETE_APPT)
+        self.assertEqual(appointments[3].appt_status, IN_PROGRESS_APPT)
+        self.assertEqual(appointments[4].appt_status, SKIPPED_APPT)
+        self.assertEqual(appointments[5].appt_status, SKIPPED_APPT)
+        self.assertEqual(appointments[6].appt_status, NEW_APPT)
+
+        appointments[0].appt_status = IN_PROGRESS_APPT
+        appointments[0].save()
+        subject_visit = SubjectVisit.objects.get(appointment=appointments[0])
+        subject_visit.save()
+        CrfThree.objects.create(
+            subject_visit=subject_visit,
+            report_datetime=subject_visit.report_datetime,
+            appt_date=appointments[2].appt_datetime.date(),
+            f1=appointments[2].visit_code,
+        )
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        self.assertEqual(appointments[0].appt_status, IN_PROGRESS_APPT)
+        self.assertEqual(appointments[1].appt_status, SKIPPED_APPT)
+        self.assertEqual(appointments[2].appt_status, COMPLETE_APPT)
+        self.assertEqual(appointments[3].appt_status, INCOMPLETE_APPT)
+        self.assertEqual(appointments[4].appt_status, SKIPPED_APPT)
+        self.assertEqual(appointments[5].appt_status, SKIPPED_APPT)
+        self.assertEqual(appointments[6].appt_status, NEW_APPT)

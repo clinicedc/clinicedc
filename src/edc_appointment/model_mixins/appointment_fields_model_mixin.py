@@ -82,7 +82,7 @@ class AppointmentFieldsModelMixin(models.Model):
         ),
     )
 
-    comment = models.CharField("Comment", max_length=250, blank=True)
+    comment = models.CharField("Comment", max_length=250, blank=True, null=True)
 
     is_confirmed = models.BooleanField(default=False, editable=False)
 
