@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, Dict, Tuple, Type
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.conf import settings
+from django.contrib.admin.utils import NotRelationField, get_model_from_relation
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import ProtectedError
@@ -43,6 +44,10 @@ if TYPE_CHECKING:
 
 
 class AppointmentDateWindowPeriodGapError(Exception):
+    pass
+
+
+class AppointmentAlreadyStarted(Exception):
     pass
 
 
@@ -539,8 +544,20 @@ def get_appointment_by_datetime(
 
 
 def reset_appointment(appointment: Appointment, **kwargs):
-    """Reset appointment but only if no related_visit and no keyed data."""
-    if not has_keyed_metadata(appointment) and not appointment.related_visit:
+    """Reset appointment but only if appointment has not started.
+
+    Will overwrite the default field values with values
+    from kwargs.
+
+    If field in kwargs refers to a field class with a related_model
+    and the value is not found, the field will be set to None without
+    raising an ObjectDoesNotExist exception.
+    """
+    if has_keyed_metadata(appointment) or appointment.related_visit:
+        raise AppointmentAlreadyStarted(
+            f"Unable to reset. Appointment already started. Got {appointment}."
+        )
+    else:
         defaults = dict(
             appt_status=appointment._meta.get_field("appt_status").default,
             appt_timing=appointment._meta.get_field("appt_timing").default,
@@ -551,5 +568,31 @@ def reset_appointment(appointment: Appointment, **kwargs):
         )
         defaults.update(**kwargs)
         for k, v in defaults.items():
-            setattr(appointment, k, v)
+            try:
+                related_model = get_model_from_relation(appointment._meta.get_field(k))
+            except NotRelationField:
+                setattr(appointment, k, v)
+            else:
+                try:
+                    setattr(appointment, k, related_model.objects.get(name=v))
+                except ObjectDoesNotExist:
+                    setattr(appointment, k, None)
         appointment.save_base(update_fields=[*defaults.keys()])
+
+
+def skip_appointment(appointment: Appointment, comment: str | None = None):
+    """Set appointment to `SKIPPED_APPT` if appointment has not
+    started.
+    """
+    if has_keyed_metadata(appointment) or appointment.related_visit:
+        raise AppointmentAlreadyStarted(
+            f"Unable to skip. Appointment already started. Got {appointment}."
+        )
+    else:
+        reset_appointment(
+            appointment,
+            appt_status=SKIPPED_APPT,
+            appt_timing=NOT_APPLICABLE,
+            appt_type=NOT_APPLICABLE,
+            comment=comment,
+        )
