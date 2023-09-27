@@ -20,16 +20,16 @@ class Command(BaseCommand):
             qs = RegisteredSubject.objects.all().order_by("subject_identifier")
             total = qs.count()
             for subject_identifier in tqdm(qs, total=total):
-                subject_visit = (
+                for subject_visit in (
                     crf_model_cls.related_visit_model_cls()
                     .objects.filter(
                         subject_identifier=subject_identifier, visit_code_sequence=0
                     )
-                    .order_by("appointment__timepoint")
-                )
-                try:
-                    crf_obj = crf_model_cls.objects.get(subject_visit=subject_visit)
-                except ObjectDoesNotExist:
-                    pass
-                else:
-                    SkipAppointments(crf_obj).update()
+                    .order_by("report_datetime")
+                ):
+                    try:
+                        crf_obj = crf_model_cls.objects.get(subject_visit=subject_visit)
+                    except ObjectDoesNotExist:
+                        pass
+                    else:
+                        SkipAppointments(crf_obj).update()
