@@ -276,6 +276,7 @@ class SkipAppointments:
             appointment.subject_identifier,
             appointment.visit_schedule_name,
             appointment.schedule_name,
+            raise_if_in_gap=False,
         )
         if next_appt.visit_code != self.next_visit_code:
             raise SkipAppointmentsValueError(
