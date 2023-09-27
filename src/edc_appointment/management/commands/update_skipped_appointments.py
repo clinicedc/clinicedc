@@ -25,7 +25,7 @@ class Command(BaseCommand):
                     .objects.filter(
                         subject_identifier=subject_identifier, visit_code_sequence=0
                     )
-                    .order_by("subject_visit__report_datetime")
+                    .order_by("appointment__timepoint")
                 )
                 try:
                     crf_obj = crf_model_cls.objects.get(subject_visit=subject_visit)
