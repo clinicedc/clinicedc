@@ -5,6 +5,7 @@ from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
+from edc_sites.model_mixins import CurrentSiteManager, SiteModelMixin
 from edc_utils import get_utcnow
 
 from ..choices import SCHEDULE_STATUS
@@ -49,6 +50,7 @@ class SubjectScheduleModelManager(models.Manager):
 class SubjectScheduleHistory(
     NonUniqueSubjectIdentifierFieldMixin,
     VisitScheduleFieldsModelMixin,
+    SiteModelMixin,
     BaseUuidModel,
 ):
     onschedule_model = models.CharField(max_length=100)
@@ -66,6 +68,8 @@ class SubjectScheduleHistory(
     schedule_status = models.CharField(max_length=15, choices=SCHEDULE_STATUS, null=True)
 
     objects = SubjectScheduleModelManager()
+
+    on_site = CurrentSiteManager()
 
     def natural_key(self):
         return (

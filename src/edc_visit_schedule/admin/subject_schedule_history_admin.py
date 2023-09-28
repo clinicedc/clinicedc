@@ -5,6 +5,7 @@ from django.utils.translation import gettext as _
 from django_audit_fields import audit_fields, audit_fieldset_tuple
 from edc_dashboard import url_names
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
+from edc_sites.admin import SiteModelAdminMixin
 
 from ..admin_site import edc_visit_schedule_admin
 from ..forms import SubjectScheduleHistoryForm
@@ -12,7 +13,9 @@ from ..models import SubjectScheduleHistory
 
 
 @admin.register(SubjectScheduleHistory, site=edc_visit_schedule_admin)
-class SubjectScheduleHistoryAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
+class SubjectScheduleHistoryAdmin(
+    SiteModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.ModelAdmin
+):
     form = SubjectScheduleHistoryForm
 
     date_hierarchy = "onschedule_datetime"
