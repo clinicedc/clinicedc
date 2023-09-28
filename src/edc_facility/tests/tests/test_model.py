@@ -41,8 +41,8 @@ class TestModel(TestCase):
             sat=True,
             sun=True,
         )
-        self.assertEqual(obj.clinic_days, [1, 2, 3, 4, 5, 6, 7])
-        self.assertEqual(obj.clinic_days_str, "MTWThFSSu")
+        self.assertEqual(obj.clinic_days, [0, 1, 2, 3, 4, 5, 6])
+        self.assertEqual(obj.clinic_days_str, "Mon,Tue,Wed,Thu,Fri,Sat,Sun")
 
     def test_health_facility_natural_key(self):
         health_facility_type = HealthFacilityTypes.objects.all()[0]

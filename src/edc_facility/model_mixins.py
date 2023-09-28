@@ -1,8 +1,14 @@
+import calendar
+
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from edc_model.models import BaseUuidModel
 from edc_model_fields.fields import OtherCharField
 from edc_utils import get_utcnow
+
+
+class HealthFacilityCalendarError(Exception):
+    pass
 
 
 class Manager(models.Manager):
@@ -79,31 +85,35 @@ class HealthFacilityModelMixin(models.Model):
 
     @property
     def clinic_days(self) -> list[int]:
-        """Using ISO numbering where Monday=1."""
+        """Using non-ISO numbering where Monday=0."""
+        if calendar.firstweekday() != 0:
+            raise HealthFacilityCalendarError(
+                f"Expected first day of week to be 0. Got {calendar.firstweekday()}."
+            )
         days = []
         if self.mon:
-            days.append(1)
+            days.append(0)
         if self.tue:
-            days.append(2)
+            days.append(1)
         if self.wed:
-            days.append(3)
+            days.append(2)
         if self.thu:
-            days.append(4)
+            days.append(3)
         if self.fri:
-            days.append(5)
+            days.append(4)
         if self.sat:
-            days.append(6)
+            days.append(5)
         if self.sun:
-            days.append(7)
+            days.append(6)
         return days
 
     @property
     def clinic_days_str(self) -> str:
         days = []
-        mapping = {1: "M", 2: "T", 3: "W", 4: "Th", 5: "F", 6: "S", 7: "Su"}
+        mapping = {k: v for k, v in enumerate(calendar.weekheader(3).split(" "))}
         for day_int in self.clinic_days:
             days.append(mapping.get(day_int))
-        return "".join(days)
+        return ",".join(days)
 
     class Meta(BaseUuidModel.Meta):
         abstract = True

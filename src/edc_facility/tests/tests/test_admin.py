@@ -33,8 +33,8 @@ class TestAdmin(WebTest):
             report_datetime=get_utcnow(),
             name="HealthFacility",
             health_facility_type=health_facility_type,
-            mon=True,
-            tue=True,
+            mon=False,
+            tue=False,
             wed=False,
             thu=False,
             fri=False,
@@ -54,6 +54,10 @@ class TestAdmin(WebTest):
         url = reverse("edc_facility_admin:edc_facility_healthfacility_changelist")
         url = f"{url}?q={obj.name}"
         response = self.app.get(url, user=self.user)
+        self.assertNotIn(
+            '<td class="field-clinic_days"><span style="white-space:nowrap;">Mon',
+            response.text,
+        )
         self.assertIn(
             '<td class="field-clinic_days"><span style="white-space:nowrap;"></span></td>',
             response.text,
@@ -65,7 +69,7 @@ class TestAdmin(WebTest):
         url = reverse("edc_facility_admin:edc_facility_healthfacility_changelist")
         url = f"{url}?q={obj.name}"
         response = self.app.get(url, user=self.user)
-        self.assertIn(">MTW<", response.text)
+        self.assertIn(">Mon,Tue,Wed<", response.text)
 
         obj.thu = True
         obj.fri = True
@@ -75,7 +79,7 @@ class TestAdmin(WebTest):
         url = reverse("edc_facility_admin:edc_facility_healthfacility_changelist")
         url = f"{url}?q={obj.name}"
         response = self.app.get(url, user=self.user)
-        self.assertIn(">MTWThFSSu<", response.text)
+        self.assertIn(">Mon,Tue,Wed,Thu,Fri,Sat,Sun<", response.text)
 
     def test_auth(self):
         group_updater = GroupUpdater(groups={})
