@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from datetime import datetime
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -18,6 +20,9 @@ from .exceptions import (
     SubjectScheduleError,
     UnknownSubjectError,
 )
+
+if TYPE_CHECKING:
+    from edc_registration.models import RegisteredSubject
 
 
 class SubjectSchedule:
@@ -103,6 +108,7 @@ class SubjectSchedule:
                 visit_schedule_name=self.visit_schedule_name,
                 onschedule_datetime=onschedule_datetime,
                 schedule_status=ON_SCHEDULE,
+                site=self.registered_or_raise(subject_identifier=subject_identifier).site,
             )
         if history_obj.schedule_status == ON_SCHEDULE:
             # create appointments per schedule
@@ -247,17 +253,20 @@ class SubjectSchedule:
         obj = self.onschedule_model_cls.objects.get(subject_identifier=subject_identifier)
         obj.save()
 
-    def registered_or_raise(self, subject_identifier=None):
-        """Raises an exception if RegisteredSubject instance does not exist."""
+    def registered_or_raise(self, subject_identifier=None) -> RegisteredSubject:
+        """Return an instance RegisteredSubject or raise an exception
+        if instance does not exist.
+        """
         model_cls = django_apps.get_model(self.registered_subject_model)
         try:
-            model_cls.objects.get(subject_identifier=subject_identifier)
+            obj = model_cls.objects.get(subject_identifier=subject_identifier)
         except ObjectDoesNotExist:
             raise UnknownSubjectError(
                 f"Failed to put subject on schedule. Unknown subject. "
                 f"Searched `{self.registered_subject_model}`. "
                 f"Got subject_identifier=`{subject_identifier}`."
             )
+        return obj
 
     def consented_or_raise(self, subject_identifier=None):
         """Raises an exception if one or more consents do not exist."""
