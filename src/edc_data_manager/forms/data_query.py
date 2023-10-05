@@ -26,8 +26,9 @@ class DataQueryFormValidator(FormValidator):
         )
 
         self.required_if_not_none(
-            field="visit_code",
+            field="visit_schedule",
             field_required="visit_code_sequence",
+            field_required_evaluate_as_int=True,
         )
 
         # Site
