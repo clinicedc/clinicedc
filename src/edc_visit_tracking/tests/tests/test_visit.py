@@ -141,8 +141,7 @@ class TestVisit(TestCase):
                 visit_schedule_name=appointment.visit_schedule_name,
                 schedule_name=appointment.schedule_name,
                 visit_code=appointment.visit_code,
-                visit_code_sequence=appointment.visit_code_sequence + 1,
-                timepoint=appointment.timepoint,
+                suggested_visit_code_sequence=appointment.visit_code_sequence + 1,
                 facility=appointment.facility,
             ).appointment
             SubjectVisit.objects.create(

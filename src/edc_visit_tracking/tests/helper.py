@@ -38,8 +38,7 @@ class Helper:
             subject_identifier=appointment.subject_identifier,
             visit_schedule_name=appointment.visit_schedule_name,
             schedule_name=appointment.schedule_name,
-            timepoint=appointment.timepoint,
             visit_code=appointment.visit_code,
-            visit_code_sequence=appointment.visit_code_sequence + 1,
+            suggested_visit_code_sequence=appointment.visit_code_sequence + 1,
             facility=appointment.facility,
         ).appointment
