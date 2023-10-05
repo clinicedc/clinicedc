@@ -82,6 +82,19 @@ def get_allow_skipped_appt_using() -> dict[str, tuple[str, str]]:
     return dct
 
 
+def get_max_months_to_next_appointment():
+    return getattr(settings, "EDC_APPOINTMENT_MAX_MONTHS_TO_NEXT_APPT", 6)
+
+
+def allow_clinic_on_weekend():
+    return getattr(settings, "EDC_APPOINTMENT_ALLOW_CLINIC_ON_WEEKENDS", False)
+
+
+def get_max_months_to_next_appointment_as_rdelta():
+    max_months = get_max_months_to_next_appointment()
+    return relativedelta(months=max_months)
+
+
 def raise_on_appt_may_not_be_missed(
     appointment: Appointment = None,
     appt_timing: str | None = None,
