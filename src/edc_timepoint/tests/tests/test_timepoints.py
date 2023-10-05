@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.test import TestCase
@@ -43,14 +41,15 @@ class Helper:
         )
         return subject_consent
 
-    def add_unscheduled_appointment(self, appointment=None):
+    @staticmethod
+    def add_unscheduled_appointment(appointment=None):
         creator = UnscheduledAppointmentCreator(
             subject_identifier=appointment.subject_identifier,
             visit_schedule_name=appointment.visit_schedule_name,
             schedule_name=appointment.schedule_name,
             visit_code=appointment.visit_code,
+            suggested_visit_code_sequence=appointment.visit_code_sequence + 1,
             facility=appointment.facility,
-            timepoint=appointment.timepoint + Decimal("0.1"),
         )
         return creator.appointment
 
@@ -96,7 +95,7 @@ class TimepointTests(TestCase):
         )
 
     def test_timepoint_status_close_attempt_fails1(self):
-        """Assert timepoint does not closed when tried."""
+        """Assert timepoint does not close when tried."""
         self.assertEqual(self.appointment.timepoint_status, OPEN_TIMEPOINT)
         self.assertRaises(UnableToCloseTimepoint, self.appointment.timepoint_close_timepoint)
 
