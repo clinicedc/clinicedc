@@ -1,5 +1,4 @@
 import uuid
-from decimal import Decimal
 
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
@@ -55,7 +54,7 @@ class Helper:
             schedule_name=appointment.schedule_name,
             visit_code=appointment.visit_code,
             facility=appointment.facility,
-            timepoint=appointment.timepoint + Decimal("0.1"),
+            suggested_visit_code_sequence=appointment.visit_code_sequence + 1,
         )
         return creator.appointment
 
