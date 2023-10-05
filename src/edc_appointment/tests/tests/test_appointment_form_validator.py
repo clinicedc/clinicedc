@@ -2,10 +2,12 @@ from datetime import datetime
 from decimal import Decimal
 from zoneinfo import ZoneInfo
 
+import time_machine
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms import ValidationError
 from django.test import TestCase, override_settings
+from edc_consent import site_consents
 from edc_constants.constants import NOT_APPLICABLE
 from edc_facility.import_holidays import import_holidays
 from edc_form_validators import ModelFormFieldValidatorError
@@ -41,13 +43,17 @@ from edc_appointment.form_validators.appointment_form_validator import (
 )
 from edc_appointment.models import Appointment
 from edc_appointment.utils import get_previous_appointment
+from edc_appointment_app.consents import v1_consent
 from edc_appointment_app.models import SubjectVisit
 from edc_appointment_app.visit_schedule import visit_schedule1, visit_schedule2
 
 from ..helper import Helper
 from ..test_case_mixins import AppointmentTestCaseMixin
 
+utc_tz = ZoneInfo("UTC")
 
+
+@time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
     helper_cls = Helper
 
@@ -61,6 +67,8 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
+        site_consents.registry = {}
+        site_consents.register(v1_consent)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=datetime(2017, 1, 7, tzinfo=ZoneInfo("UTC")),

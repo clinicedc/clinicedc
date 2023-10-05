@@ -2,19 +2,25 @@ from copy import deepcopy
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+import time_machine
 from dateutil._common import weekday
 from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
 from django.test import TestCase
+from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_visit_schedule.schedule.visit_collection import VisitCollection
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from edc_appointment.models import Appointment
+from edc_appointment_app.consents import v1_consent
 from edc_appointment_app.visit_schedule import visit_schedule1
 
 from ..helper import Helper
 
+utc_tz = ZoneInfo("UTC")
 
+
+@time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestApptDatetimes(TestCase):
     helper_cls = Helper
 
@@ -29,6 +35,8 @@ class TestApptDatetimes(TestCase):
 
     def setUp(self):
         site_visit_schedules._registry = {}
+        site_consents.registry = {}
+        site_consents.register(v1_consent)
 
     def register_visit_schedule(self, facility_name=None):
         """Overwrite facility name on each visit and register

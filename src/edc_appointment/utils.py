@@ -128,6 +128,7 @@ def get_appt_reason_choices() -> Tuple[str, ...]:
 
     See also: formfield_for_choice_field in modeladmin class.
     """
+
     settings_attr = "EDC_APPOINTMENT_APPT_REASON_CHOICES"
     appt_reason_choices = getattr(settings, settings_attr, DEFAULT_APPT_REASON_CHOICES)
     keys = sorted([choice[0] for choice in appt_reason_choices])

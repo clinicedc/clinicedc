@@ -3,25 +3,33 @@ from datetime import datetime
 from unittest import skip
 from zoneinfo import ZoneInfo
 
+import time_machine
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
+from edc_consent import site_consents
+from edc_consent.consent import Consent
+from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_facility.utils import get_facility
-from edc_registration.models import RegisteredSubject
-from edc_utils import get_utcnow
+from edc_reference import site_reference_configs
 from edc_visit_schedule import Schedule, Visit, VisitSchedule, site_visit_schedules
 
 from edc_appointment.creators import AppointmentCreator
 from edc_appointment.models import Appointment
-from edc_appointment_app.models import OnSchedule
+from edc_appointment.tests.helper import Helper
+from edc_appointment_app.consents import v1_consent
+
+utc_tz = ZoneInfo("UTC")
 
 
+@time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
 class AppointmentCreatorTestCase(TestCase):
+    helper_cls = Helper
+
     def setUp(self):
-        Appointment.objects.all().delete()
-        RegisteredSubject.objects.create(subject_identifier="12345")
+        site_visit_schedules._registry = {}
         self.subject_identifier = "12345"
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
@@ -69,12 +77,11 @@ class AppointmentCreatorTestCase(TestCase):
         self.schedule.add_visit(self.visit1010)
         self.visit_schedule.add_schedule(self.schedule)
 
-        site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=self.visit_schedule)
-
-        self.onschedule = OnSchedule.objects.create(
-            subject_identifier=self.subject_identifier,
-            onschedule_datetime=get_utcnow() - relativedelta(days=1),
+        site_consents.registry = {}
+        site_consents.register(v1_consent)
+        site_reference_configs.register_from_visit_schedule(
+            visit_models={"edc_appointment.appointment": "edc_appointment_app.subjectvisit"}
         )
 
         class Meta:
@@ -89,6 +96,12 @@ class AppointmentCreatorTestCase(TestCase):
 
         self.model_obj = DummyAppointmentObj()
 
+    def put_on_schedule(self, dt):
+        self.helper = self.helper_cls(subject_identifier=self.subject_identifier, now=dt)
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule", schedule_name="schedule"
+        )
+
 
 class TestAppointmentCreator(AppointmentCreatorTestCase):
     @classmethod
@@ -97,41 +110,46 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
         return super().setUpClass()
 
     def test_init(self):
+        appt_datetime = datetime(2017, 1, 1, tzinfo=ZoneInfo("UTC"))
+        self.put_on_schedule(appt_datetime)
         self.assertTrue(
             AppointmentCreator(
                 subject_identifier=self.subject_identifier,
                 visit_schedule_name=self.visit_schedule.name,
                 schedule_name=self.schedule.name,
                 visit=self.visit1000,
-                timepoint_datetime=get_utcnow(),
+                timepoint_datetime=appt_datetime,
             )
         )
 
     def test_str(self):
+        appt_datetime = datetime(2017, 1, 1, tzinfo=ZoneInfo("UTC"))
+        self.put_on_schedule(appt_datetime)
         creator = AppointmentCreator(
             subject_identifier=self.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
             schedule_name=self.schedule.name,
             visit=self.visit1000,
-            timepoint_datetime=get_utcnow(),
+            timepoint_datetime=appt_datetime,
         )
         self.assertEqual(str(creator), self.subject_identifier)
 
     def test_repr(self):
+        appt_datetime = datetime(2017, 1, 1, tzinfo=ZoneInfo("UTC"))
+        self.put_on_schedule(appt_datetime)
         creator = AppointmentCreator(
             subject_identifier=self.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
             schedule_name=self.schedule.name,
             visit=self.visit1000,
-            timepoint_datetime=get_utcnow(),
+            timepoint_datetime=appt_datetime,
         )
         self.assertTrue(creator)
 
     def test_create(self):
         """test create appointment, avoids new years holidays"""
         appt_datetime = datetime(2017, 1, 1, tzinfo=ZoneInfo("UTC"))
-        self.onschedule.onschedule_datetime = appt_datetime
-        self.onschedule.save()
+        self.put_on_schedule(appt_datetime)
         creator = AppointmentCreator(
             subject_identifier=self.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
@@ -149,8 +167,7 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
     def test_create_appt_moves_forward(self):
         """Assert appt datetime moves forward to avoid holidays"""
         appt_datetime = datetime(2017, 1, 1, tzinfo=ZoneInfo("UTC"))
-        self.onschedule.onschedule_datetime = appt_datetime
-        self.onschedule.save()
+        self.put_on_schedule(appt_datetime)
         creator = AppointmentCreator(
             subject_identifier=self.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
@@ -168,8 +185,7 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
     @skip("what is this")
     def test_create_appt_with_lower_greater_than_zero(self):
         appt_datetime = datetime(2017, 1, 10, tzinfo=ZoneInfo("UTC"))
-        self.onschedule.onschedule_datetime = appt_datetime
-        self.onschedule.save()
+        self.put_on_schedule(appt_datetime)
 
         creator = AppointmentCreator(
             subject_identifier=self.subject_identifier,
@@ -191,8 +207,7 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
     @skip("what is this")
     def test_create_appt_with_lower_greater_than_zero2(self):
         appt_datetime = datetime(2017, 1, 10, tzinfo=ZoneInfo("UTC"))
-        self.onschedule.onschedule_datetime = appt_datetime
-        self.onschedule.save()
+        self.put_on_schedule(appt_datetime)
 
         creator = AppointmentCreator(
             subject_identifier=self.subject_identifier,
@@ -213,22 +228,7 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
 
     def test_raise_on_naive_datetime(self):
         appt_datetime = datetime(2017, 1, 1)
-        self.onschedule.onschedule_datetime = datetime(2017, 1, 1, tzinfo=ZoneInfo("UTC"))
-        self.onschedule.save()
-        self.assertRaises(
-            ValueError,
-            AppointmentCreator,
-            subject_identifier=self.subject_identifier,
-            visit_schedule_name=self.visit_schedule.name,
-            schedule_name=self.schedule.name,
-            visit=self.visit1000,
-            timepoint_datetime=appt_datetime,
-        )
-
-    def test_raise_on_naive_datetime2(self):
-        appt_datetime = datetime(2017, 1, 1)
-        self.onschedule.onschedule_datetime = datetime(2017, 1, 1, tzinfo=ZoneInfo("UTC"))
-        self.onschedule.save()
+        self.put_on_schedule(datetime(2017, 1, 1, tzinfo=utc_tz))
         self.assertRaises(
             ValueError,
             AppointmentCreator,
@@ -240,18 +240,32 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
         )
 
 
+@time_machine.travel(datetime(1900, 1, 11, 0, 00, tzinfo=utc_tz))
 class TestAppointmentCreator2(AppointmentCreatorTestCase):
     @override_settings(
         HOLIDAY_FILE=os.path.join(
             settings.BASE_DIR, settings.APP_NAME, "tests", "no_holidays.csv"
-        )
+        ),
+        EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(1900, 1, 1, 0, 0, 0, tzinfo=utc_tz),
+        EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(1901, 10, 2, 0, 0, 0, tzinfo=utc_tz),
     )
     def test_create_no_holidays(self):
         """test create appointment, no holiday to avoid after 1900"""
         import_holidays()
         appt_datetime = datetime(1900, 1, 1, tzinfo=ZoneInfo("UTC"))
-        self.onschedule.onschedule_datetime = appt_datetime
-        self.onschedule.save()
+        site_consents.registry = {}
+        consent = Consent(
+            "edc_appointment_app.subjectconsent",
+            version="1",
+            start=datetime(1900, 1, 1, 0, 0, 0, tzinfo=utc_tz),
+            end=datetime(1901, 10, 2, 0, 0, 0, tzinfo=utc_tz),
+            age_min=18,
+            age_is_adult=18,
+            age_max=64,
+            gender=[MALE, FEMALE],
+        )
+        site_consents.register(consent)
+        self.put_on_schedule(appt_datetime)
 
         expected_appt_datetime = datetime(1900, 1, 2, tzinfo=ZoneInfo("UTC"))
         creator = AppointmentCreator(

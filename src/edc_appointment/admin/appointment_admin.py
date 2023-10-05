@@ -22,11 +22,11 @@ from edc_visit_schedule.fieldsets import (
 )
 
 from ..admin_site import edc_appointment_admin
-from ..choices import APPT_STATUS, APPT_TIMING
+from ..choices import APPT_STATUS, APPT_TIMING, DEFAULT_APPT_REASON_CHOICES
 from ..constants import NEW_APPT, SKIPPED_APPT
 from ..forms import AppointmentForm
 from ..models import Appointment, AppointmentType
-from ..utils import get_allow_skipped_appt_using, get_appt_reason_choices
+from ..utils import get_allow_skipped_appt_using
 from .actions import appointment_mark_as_done, appointment_mark_as_new
 from .list_filters import AppointmentListFilter
 
@@ -214,7 +214,12 @@ class AppointmentAdmin(
         return AppointmentType.objects.all().order_by("display_index")
 
     def get_appt_reason_choices(self, request) -> tuple[Any, ...]:
-        return get_appt_reason_choices()
+        """Return a choices tuple.
+
+        Important: left side of the tuple MUST have the default
+        values of SCHEDULED_APPT and UNSCHEDULED_APPT.
+        """
+        return DEFAULT_APPT_REASON_CHOICES
 
     def get_appt_status_choices(self, request) -> tuple[Any, ...]:
         if not self.allow_skipped_appointments(request):

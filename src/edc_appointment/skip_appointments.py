@@ -67,24 +67,27 @@ class SkipAppointments:
                 f"`{get_allow_skipped_appt_using()}`"
                 f"Got model `{crf_obj._meta.label_lower}`."
             )
+        self.crf_obj = crf_obj
         self.dt_fld, self.visit_code_fld = get_allow_skipped_appt_using().get(
-            crf_obj._meta.label_lower
+            self.crf_obj._meta.label_lower
         )
-        self.crf_model_cls = django_apps.get_model(crf_obj._meta.label_lower)
-        self.related_visit_model_attr: str = crf_obj.related_visit_model_attr()
+        self.crf_model_cls = django_apps.get_model(self.crf_obj._meta.label_lower)
+        self.related_visit_model_attr: str = self.crf_obj.related_visit_model_attr()
         self.appointment: Appointment = getattr(
-            crf_obj, self.related_visit_model_attr
+            self.crf_obj, self.related_visit_model_attr
         ).appointment
         self.subject_identifier: str = self.appointment.subject_identifier
         self.visit_schedule_name: str = self.appointment.visit_schedule_name
         self.schedule_name: str = self.appointment.schedule_name
 
-    def update(self):
+    def update(self) -> bool:
         """Reset appointments and set any as skipped up to the
         date provided from the CRF.
+
+        Return True if next scheduled appointment is updated.
         """
         self.reset_appointments()
-        self.update_appointments()
+        return self.update_appointments()
 
     def reset_appointments(self):
         """Reset any Appointments previously where `appt_status`
@@ -115,8 +118,10 @@ class SkipAppointments:
             except AppointmentAlreadyStarted:
                 pass
 
-    def update_appointments(self):
-        """Update Appointments up the next apointment date.
+    def update_appointments(self) -> bool:
+        """Return True if next scheduled appointment is updated.
+
+        Update Appointments up the next apointment date.
 
         Set `appt_status` = SKIPPED_APPT up the appointment BEFORE
         the date from the CRF.
@@ -126,23 +131,34 @@ class SkipAppointments:
 
         Stop if any appointment has keyed data.
         """
+        next_scheduled_appointment_updated = False
         skip_comment = (
             f"based on date reported at {self.last_crf_obj.related_visit.visit_code}"
         )
-        appointment = self.appointment.next_by_timepoint
+
+        cancelled_appointments = []
+        appointment = self.appointment
         while appointment:
-            if self.is_next_scheduled(appointment):
+            if appointment.visit_code_sequence > 0:
+                if appointment.appt_status == NEW_APPT:
+                    cancelled_appointments.append(appointment)
+            elif self.is_next_scheduled(appointment):
                 try:
                     self.update_appointment_as_next_scheduled(appointment)
                 except AppointmentAlreadyStarted:
                     pass
+                else:
+                    next_scheduled_appointment_updated = True
                 break
             else:
                 try:
                     skip_appointment(appointment, comment=skip_comment)
                 except AppointmentAlreadyStarted:
                     pass
-            appointment = appointment.next_by_timepoint
+            appointment = appointment.relative_next
+        for appointment in cancelled_appointments:
+            appointment.delete()
+        return next_scheduled_appointment_updated
 
     def is_next_scheduled(self, appointment):
         return (
@@ -284,3 +300,24 @@ class SkipAppointments:
                 f"You suggested {self.next_visit_code}. "
                 f"The appointment datetime matches with {next_appt.visit_code}."
             )
+
+        next_appointment = get_appointment_by_datetime(
+            self.next_appt_datetime,
+            appointment.subject_identifier,
+            appointment.visit_schedule_name,
+            appointment.schedule_name,
+            raise_if_in_gap=False,
+        )
+        return self.appointment == next_appointment
+
+        # and getattr(
+        #     self.crf_obj, "allow_create_interim", None
+        # ):
+        #         subject_identifier=self.appointment.subject_identifier,
+        #         visit_schedule_name=self.appointment.visit_schedule_name,
+        #         schedule_name=self.appointment.schedule_name,
+        #         timepoint=self.appointment.timepoint,
+        #         visit_code=self.appointment.visit_code,
+        #         visit_code_sequence=self.appointment.visit_code_sequence + 1,
+        #         facility=self.appointment.facility,
+        #     )

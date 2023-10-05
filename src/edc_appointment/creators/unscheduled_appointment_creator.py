@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from decimal import Decimal
+from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 from dateutil.relativedelta import relativedelta
@@ -69,28 +69,26 @@ class UnscheduledAppointmentCreator:
         visit_schedule_name: str = None,
         schedule_name: str = None,
         visit_code: str = None,
-        visit_code_sequence: int = None,  # suggested for new unsched appt
-        timepoint: Decimal = None,
+        suggested_visit_code_sequence: int = None,
+        suggested_appt_datetime: datetime | None = None,
         facility: Facility = None,
         request: Any | None = None,
-        **kwargs,  # noqa
     ):
         self._parent_appointment = None
-        self._suggested_appt_datetime = None
         self._calling_appointment = None
         self.appointment = None
+        self._suggested_appt_datetime = suggested_appt_datetime
         self.subject_identifier = subject_identifier
         self.visit_schedule_name = visit_schedule_name
         self.schedule_name = schedule_name
         self.visit_code = visit_code
-        self.timepoint = timepoint
-        if self.timepoint is None:
-            raise InvalidTimepointError("timepoint cannot be None")
-        self.visit_code_sequence = visit_code_sequence
+        self.visit_code_sequence = suggested_visit_code_sequence
         if self.visit_code_sequence is None:
             raise InvalidVisitCodeSequencesError("visit code sequence cannot be None")
-        if visit_code_sequence < 1:
-            raise InvalidVisitCodeSequencesError("visit code sequence cannot be less than 1")
+        if self.visit_code_sequence < 1:
+            raise InvalidVisitCodeSequencesError(
+                "suggested visit code sequence cannot be less than 1"
+            )
         self.facility = facility
         self.visit_schedule = site_visit_schedules.get_visit_schedule(visit_schedule_name)
         self.schedule = self.visit_schedule.schedules.get(schedule_name)
@@ -222,7 +220,7 @@ class UnscheduledAppointmentCreator:
                 schedule_name=self.schedule_name,
                 visit_code=self.visit_code,
                 visit_code_sequence=self.visit_code_sequence - 1,
-                timepoint=self.timepoint,
+                timepoint=self.parent_appointment.timepoint,
             )
             self._calling_appointment = self.appointment_model_cls.objects.get(**opts)
         return self._calling_appointment

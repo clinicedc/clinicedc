@@ -36,10 +36,10 @@ from ...utils import (
 )
 from ..helper import Helper
 
-utc_tz = ZoneInfo("UTC")
+utc = ZoneInfo("UTC")
 
 
-@time_machine.travel(dt.datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
+@time_machine.travel(dt.datetime(2019, 6, 11, 8, 00, tzinfo=utc))
 class TestAppointmentWindowPeriod(TestCase):
     helper_cls = Helper
 
@@ -66,9 +66,8 @@ class TestAppointmentWindowPeriod(TestCase):
             subject_identifier=appointment.subject_identifier,
             visit_schedule_name=appointment.visit_schedule_name,
             schedule_name=appointment.schedule_name,
-            timepoint=appointment.timepoint,
             visit_code=appointment.visit_code,
-            visit_code_sequence=appointment.visit_code_sequence + 1,
+            suggested_visit_code_sequence=appointment.visit_code_sequence + 1,
             facility=appointment.facility,
         ).appointment
 
@@ -474,7 +473,7 @@ class TestAppointmentWindowPeriod(TestCase):
         self.assertIsNone(appointment)
 
 
-@time_machine.travel(dt.datetime(2019, 7, 11, 8, 00, tzinfo=utc_tz))
+@time_machine.travel(dt.datetime(2019, 7, 11, 8, 00, tzinfo=utc))
 class TestAppointmentWindowPeriod2(TestCase):
     helper_cls = Helper
 

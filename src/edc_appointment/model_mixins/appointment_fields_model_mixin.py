@@ -1,9 +1,8 @@
 from django.db import models
 from edc_model_fields.fields import OtherCharField
 
-from ..choices import APPT_STATUS, APPT_TIMING
+from ..choices import APPT_STATUS, APPT_TIMING, DEFAULT_APPT_REASON_CHOICES
 from ..constants import NEW_APPT, ONTIME_APPT
-from ..utils import get_appt_reason_choices
 
 
 class AppointmentFieldsModelMixin(models.Model):
@@ -62,7 +61,7 @@ class AppointmentFieldsModelMixin(models.Model):
     appt_reason = models.CharField(
         verbose_name="Reason for appointment",
         max_length=25,
-        choices=get_appt_reason_choices(),
+        choices=DEFAULT_APPT_REASON_CHOICES,
         help_text=(
             "The reason for visit from the visit report will be validated against "
             "this response. Refer to the protocol documentation for the definition "
