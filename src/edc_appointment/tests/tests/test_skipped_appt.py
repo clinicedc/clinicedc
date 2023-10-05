@@ -1,9 +1,11 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+import time_machine
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ImproperlyConfigured
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
+from edc_consent import site_consents
 from edc_facility import import_holidays
 from edc_reference import site_reference_configs
 from edc_visit_schedule import site_visit_schedules
@@ -26,6 +28,8 @@ from edc_appointment.skip_appointments import (
 from edc_appointment.tests.helper import Helper
 from edc_appointment.tests.test_case_mixins import AppointmentTestCaseMixin
 from edc_appointment.utils import get_allow_skipped_appt_using
+from edc_appointment_app.consents import v1_consent
+from edc_appointment_app.forms import CrfThreeForm
 from edc_appointment_app.models import (
     CrfFive,
     CrfFour,
@@ -40,7 +44,11 @@ from edc_appointment_app.visit_schedule import (
     visit_schedule5,
 )
 
+utc = ZoneInfo("UTC")
 
+
+@tag("2")
+@time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc))
 class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
     helper_cls = Helper
 
@@ -55,9 +63,11 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
         site_visit_schedules.register(visit_schedule=visit_schedule5)
+        site_consents.registry = {}
+        site_consents.register(v1_consent)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
-            now=datetime(2017, 1, 7, tzinfo=ZoneInfo("UTC")),
+            now=datetime(2017, 6, 5, 8, 0, 0, tzinfo=utc),
         )
         site_reference_configs.register_from_visit_schedule(
             visit_models={"edc_appointment.appointment": "edc_appointment_app.subjectvisit"}
@@ -297,6 +307,7 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
             visitschedule=VisitSchedule.objects.get(visit_code=appointments[1].visit_code),
         )
 
+    @tag("1")
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
             "edc_appointment_app.crfthree": ("appt_date", "f1"),
@@ -514,3 +525,101 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         self.assertEqual(appointments[4].appt_status, SKIPPED_APPT)
         self.assertEqual(appointments[5].appt_status, SKIPPED_APPT)
         self.assertEqual(appointments[6].appt_status, NEW_APPT)
+
+    @tag("7")
+    # @time_machine.travel(datetime(2021, 10, 6, 8, 00, tzinfo=utc))
+    @override_settings(
+        EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
+            "edc_appointment_app.crfthree": ("appt_date", "f1"),
+        }
+    )
+    def test_when_next_appointment_in_window(self):
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule5", schedule_name="monthly_schedule"
+        )
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments[0].appt_status = IN_PROGRESS_APPT
+        appointments[0].save()
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointments[0],
+            report_datetime=appointments[0].appt_datetime,
+            reason=SCHEDULED,
+        )
+
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        for model_cls in [CrfOne, CrfTwo, CrfFour, CrfFive]:
+            model_cls.objects.create(
+                subject_visit=subject_visit,
+                report_datetime=appointments[0].appt_datetime,
+                f1="blah",
+            )
+        form = CrfThreeForm(
+            data=dict(
+                subject_visit=subject_visit,
+                report_datetime=appointments[0].appt_datetime,
+                appt_date=appointments[0].appt_datetime + relativedelta(days=3),
+                f1=appointments[1].visit_code,
+            )
+        )
+        form.is_valid()
+        self.assertEqual({}, form._errors)
+        form.save(commit=True)
+
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        self.assertEqual(
+            (appointments[0].appt_datetime + relativedelta(days=3)).date(),
+            appointments[1].appt_datetime.date(),
+        )
+
+        traveller = time_machine.travel(appointments[0].appt_datetime + relativedelta(days=3))
+        traveller.start()
+        appointments[1].appt_status = IN_PROGRESS_APPT
+        appointments[1].save()
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointments[1],
+            report_datetime=appointments[1].appt_datetime,
+            reason=SCHEDULED,
+        )
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        for model_cls in [CrfOne, CrfTwo, CrfFour, CrfFive]:
+            model_cls.objects.create(
+                subject_visit=subject_visit,
+                report_datetime=appointments[1].appt_datetime,
+                f1="blah",
+            )
+        form = CrfThreeForm(
+            data=dict(
+                subject_visit=subject_visit,
+                report_datetime=appointments[1].appt_datetime,
+                appt_date=appointments[1].appt_datetime + relativedelta(days=5),
+                f1=appointments[1].visit_code,
+                allow_create_interim=True,
+            )
+        )
+        form.is_valid()
+        self.assertEqual({}, form._errors)
+        form.save(commit=True)
+
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        self.assertEqual(appointments[2].visit_code, "1010")
+        self.assertEqual(appointments[2].visit_code_sequence, 1)
+
+        self.assertEqual(
+            (appointments[1].appt_datetime + relativedelta(days=5)).date(),
+            appointments[2].appt_datetime.date(),
+        )
+
+        # appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        # subject_visit = SubjectVisit.objects.get(appointment=appointments[1])
+        # form = CrfThreeForm(
+        #     data=dict(
+        #         subject_visit=subject_visit,
+        #         report_datetime=appointments[1].appt_datetime,
+        #         appt_date=appointments[1].appt_datetime + relativedelta(days=7),
+        #         f1=appointments[1].visit_code,
+        #         allow_create_interim=True,
+        #     )
+        # )
+        # form.is_valid()
+        # self.assertEqual({}, form._errors)
+        # form.save(commit=True)

@@ -10,6 +10,7 @@ from ..appointment_status_updater import (
     AppointmentStatusUpdaterError,
 )
 from ..constants import IN_PROGRESS_APPT
+from ..creators import create_next_appointment_as_interim
 from ..managers import AppointmentDeleteError
 from ..skip_appointments import SkipAppointments
 from ..utils import (
@@ -139,7 +140,14 @@ def appointments_on_post_delete(sender, instance, using, **kwargs):
 def update_appointments_to_next_on_post_save(sender, instance, raw, created, using, **kwargs):
     if not raw and not kwargs.get("update_fields"):
         if get_allow_skipped_appt_using().get(instance._meta.label_lower):
-            SkipAppointments(instance).update()
+            skip_appt = SkipAppointments(instance)
+            next_appointment_updated = skip_appt.update()
+            allow_create_interim = getattr(instance, "allow_create_interim", False)
+            if not next_appointment_updated and allow_create_interim:
+                create_next_appointment_as_interim(
+                    next_appt_datetime=skip_appt.next_appt_datetime,
+                    appointment=skip_appt.appointment,
+                )
 
 
 @receiver(post_delete, weak=False, dispatch_uid="update_appointments_to_next_on_post_delete")

@@ -1,6 +1,11 @@
+import datetime as dt
+from zoneinfo import ZoneInfo
+
+import time_machine
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
 from django.test import TestCase
+from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
 from edc_reference import site_reference_configs
@@ -12,12 +17,16 @@ from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.managers import AppointmentDeleteError
 from edc_appointment.models import Appointment
 from edc_appointment.utils import delete_appointment_in_sequence, get_next_appointment
+from edc_appointment_app.consents import v1_consent
 from edc_appointment_app.models import SubjectVisit
 from edc_appointment_app.visit_schedule import visit_schedule1, visit_schedule2
 
 from ..helper import Helper
 
+utc_tz = ZoneInfo("UTC")
 
+
+@time_machine.travel(dt.datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestMoveAppointment(TestCase):
     helper_cls = Helper
 
@@ -31,6 +40,8 @@ class TestMoveAppointment(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
+        site_consents.registry = {}
+        site_consents.register(v1_consent)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=Protocol().study_open_datetime,
@@ -62,8 +73,7 @@ class TestMoveAppointment(TestCase):
                 visit_schedule_name=visit_schedule1.name,
                 schedule_name="schedule1",
                 visit_code="1000",
-                timepoint=appointment.timepoint,
-                visit_code_sequence=appointment.visit_code_sequence + 1,
+                suggested_visit_code_sequence=appointment.visit_code_sequence + 1,
             )
             appointment = creator.appointment
             appointment.appt_status = INCOMPLETE_APPT

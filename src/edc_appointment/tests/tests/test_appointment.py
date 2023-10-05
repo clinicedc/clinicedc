@@ -1,10 +1,14 @@
+from datetime import datetime
 from decimal import Context
+from zoneinfo import ZoneInfo
 
+import time_machine
 from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.db import transaction
 from django.db.models.deletion import ProtectedError
 from django.test import TestCase, override_settings
+from edc_consent import site_consents
 from edc_constants.constants import INCOMPLETE
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
@@ -32,12 +36,16 @@ from edc_appointment.exceptions import (
 )
 from edc_appointment.managers import AppointmentDeleteError
 from edc_appointment.utils import get_appointment_model_cls, get_appt_reason_choices
+from edc_appointment_app.consents import v1_consent
 from edc_appointment_app.models import OnScheduleOne, OnScheduleTwo, SubjectConsent
 from edc_appointment_app.visit_schedule import visit_schedule1, visit_schedule2
 
 from ..helper import Helper
 
+utc_tz = ZoneInfo("UTC")
 
+
+@time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestAppointment(TestCase):
     helper_cls = Helper
 
@@ -51,6 +59,8 @@ class TestAppointment(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
+        site_consents.registry = {}
+        site_consents.register(v1_consent)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=Protocol().study_open_datetime,

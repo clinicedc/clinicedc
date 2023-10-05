@@ -8,3 +8,4 @@ from .unscheduled_appointment_creator import (
     UnscheduledAppointmentError,
     UnscheduledAppointmentNotAllowed,
 )
+from .utils import create_next_appointment_as_interim, create_unscheduled_appointment

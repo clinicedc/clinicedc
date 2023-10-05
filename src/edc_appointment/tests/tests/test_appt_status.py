@@ -1,4 +1,9 @@
+import datetime as dt
+from zoneinfo import ZoneInfo
+
+import time_machine
 from django.test import TestCase
+from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_metadata.utils import get_crf_metadata_model_cls
 from edc_protocol import Protocol
@@ -9,12 +14,16 @@ from edc_visit_tracking.constants import SCHEDULED
 from edc_appointment.appointment_status_updater import AppointmentStatusUpdater
 from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT, NEW_APPT
 from edc_appointment.models import Appointment
+from edc_appointment_app.consents import v1_consent
 from edc_appointment_app.models import SubjectVisit
 from edc_appointment_app.visit_schedule import visit_schedule1, visit_schedule2
 
 from ..helper import Helper
 
+utc_tz = ZoneInfo("UTC")
 
+
+@time_machine.travel(dt.datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestAppointmentStatus(TestCase):
     helper_cls = Helper
 
@@ -28,6 +37,8 @@ class TestAppointmentStatus(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
+        site_consents.registry = {}
+        site_consents.register(v1_consent)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=Protocol().study_open_datetime,
