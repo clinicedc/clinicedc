@@ -122,10 +122,10 @@ class Visit:
         elif isinstance(base_timepoint, (int,)):
             base_timepoint = Decimal(str(base_timepoint) + ".0")
         self.base_timepoint = base_timepoint or Decimal("0.0")
-        self.crfs = crfs.forms if crfs else tuple()
-        self.crfs_unscheduled = crfs_unscheduled.forms if crfs_unscheduled else ()
-        self.crfs_missed = crfs_missed.forms if crfs_missed else ()
-        self.crfs_prn = crfs_prn.forms if crfs_prn else ()
+        self.crfs: tuple[str] = crfs.forms if crfs else ()
+        self.crfs_unscheduled: tuple[str] = crfs_unscheduled.forms if crfs_unscheduled else ()
+        self.crfs_missed: tuple[str] = crfs_missed.forms if crfs_missed else ()
+        self.crfs_prn: tuple[str] = crfs_prn.forms if crfs_prn else ()
         for prn in self.crfs_prn:
             prn.required = False
         self.requisitions = requisitions.forms if requisitions else ()
