@@ -24,7 +24,7 @@ class HealthFacilityModelMixin(models.Model):
     visit objects and used to create appointments from the
     visit schedule.
 
-    See also edc_appointment and edc_next_appointment.
+    See also edc_appointment.
     """
 
     report_datetime = models.DateTimeField(default=get_utcnow)
