@@ -41,13 +41,13 @@ from ..exceptions import (
     AppointmentReasonUpdaterRequisitionsExistsError,
     UnscheduledAppointmentError,
 )
+from ..form_validator_mixins import WindowPeriodFormValidatorMixin
 from ..utils import (
     get_allow_skipped_appt_using,
     get_previous_appointment,
     raise_on_appt_may_not_be_missed,
 )
 from .utils import validate_appt_datetime_unique
-from .window_period_form_validator_mixin import WindowPeriodFormValidatorMixin
 
 if TYPE_CHECKING:
     from ..models import Appointment

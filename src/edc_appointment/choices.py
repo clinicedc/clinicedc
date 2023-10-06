@@ -1,4 +1,5 @@
-from edc_constants.constants import NOT_APPLICABLE
+from django.utils.translation import gettext_lazy as _
+from edc_constants.constants import NOT_APPLICABLE, PATIENT
 
 from .constants import (
     CANCELLED_APPT,
@@ -14,23 +15,32 @@ from .constants import (
 )
 
 DEFAULT_APPT_REASON_CHOICES = (
-    (SCHEDULED_APPT, "Scheduled (study-defined)"),
-    (UNSCHEDULED_APPT, "Unscheduled / Routine"),
+    (SCHEDULED_APPT, _("Scheduled (study-defined)")),
+    (UNSCHEDULED_APPT, _("Unscheduled / Routine")),
 )
 
 APPT_STATUS = (
-    (NEW_APPT, "Not started"),
-    (IN_PROGRESS_APPT, "In Progress"),
-    (INCOMPLETE_APPT, "Incomplete"),
-    (COMPLETE_APPT, "Done"),
-    (CANCELLED_APPT, "Cancelled"),
-    (SKIPPED_APPT, "Skipped as per protocol"),
+    (NEW_APPT, _("Not started")),
+    (IN_PROGRESS_APPT, _("In Progress")),
+    (INCOMPLETE_APPT, _("Incomplete")),
+    (COMPLETE_APPT, _("Done")),
+    (CANCELLED_APPT, _("Cancelled")),
+    (SKIPPED_APPT, _("Skipped as per protocol")),
 )
 
 APPT_TIMING = (
-    (ONTIME_APPT, "On time (within window period)"),
-    (MISSED_APPT, "Missed"),
-    (NOT_APPLICABLE, "Not applicable"),
+    (ONTIME_APPT, _("On time (within window period)")),
+    (MISSED_APPT, _("Missed")),
+    (NOT_APPLICABLE, _("Not applicable")),
 )
 
-INFO_PROVIDER = (("subject", "Subject"), ("other", "Other person"))
+INFO_PROVIDER = (
+    ("subject", _("Subject")),
+    ("other", _("Other person")),
+)
+
+APPT_DATE_INFO_SOURCES = (
+    ("health_records", _("Health record")),
+    (PATIENT, _("Patient")),
+    ("estimated", _("I estimated the date")),
+)

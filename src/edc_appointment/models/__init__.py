@@ -1,5 +1,6 @@
 from .appointment import Appointment
 from .appointment_type import AppointmentType
+from .list_models import InfoSources
 from .signals import (
     appointment_post_save,
     appointments_on_post_delete,
