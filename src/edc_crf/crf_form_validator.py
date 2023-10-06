@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
-from edc_appointment.form_validators import WindowPeriodFormValidatorMixin
+from edc_appointment.form_validator_mixins import WindowPeriodFormValidatorMixin
 from edc_form_validators import INVALID_ERROR, FormValidator
 from edc_registration import get_registered_subject_model_cls
 from edc_utils import floor_secs, formatted_datetime, to_utc
