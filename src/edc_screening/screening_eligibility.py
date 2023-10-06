@@ -137,13 +137,13 @@ class ScreeningEligibility:
                     else:
                         is_callable = True
                     if (
-                        (type(value) == str and getattr(self, fldattr) != value)
+                        (isinstance(value, str) and getattr(self, fldattr) != value)
                         or (
-                            type(value) in (list, tuple)
+                            isinstance(value, (list, tuple))
                             and getattr(self, fldattr) not in value
                         )
                         or (
-                            type(value) in (range,)
+                            isinstance(value, range)
                             and not (min(value) <= getattr(self, fldattr) <= max(value))
                         )
                         or (is_callable and value is False)
