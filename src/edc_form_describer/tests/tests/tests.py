@@ -22,7 +22,7 @@ class TestForDescribter(TestCase):
         fields = self.get_fields_from_fieldset(MyModelAdmin)
         for f in MyModel._meta.get_fields():
             if f.name in fields:
-                self.assertIn(f.verbose_name, txt)
+                self.assertIn(str(f.verbose_name), txt)
 
     def test_to_file(self):
         tmp, name = mkstemp()
@@ -33,4 +33,4 @@ class TestForDescribter(TestCase):
             fields = self.get_fields_from_fieldset(MyModelAdmin)
             for f in MyModel._meta.get_fields():
                 if f.name in fields:
-                    self.assertIn(f.verbose_name, txt)
+                    self.assertIn(str(f.verbose_name), txt)
