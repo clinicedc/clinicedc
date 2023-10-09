@@ -9,7 +9,7 @@ from edc_registration.models import RegisteredSubject
 from edc_reportable import site_reportables
 from edc_reportable.grading_data.daids_july_2017 import grading_data
 from edc_reportable.normal_data.africa import normal_data
-from edc_visit_schedule import site_visit_schedules
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from visit_schedule_app.consents import v1_consent
 from visit_schedule_app.models import SubjectConsent
