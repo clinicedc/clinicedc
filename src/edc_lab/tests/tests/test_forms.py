@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.test import TestCase
 from edc_appointment.models import Appointment
+from edc_appointment.tests.helper import Helper
 from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
 from edc_crf.modelform_mixins import RequisitionModelFormMixin
 from edc_facility.import_holidays import import_holidays
@@ -18,11 +19,13 @@ from edc_visit_tracking.constants import SCHEDULED
 from edc_lab.form_validators import (
     RequisitionFormValidator as BaseRequisitionFormValidator,
 )
+from edc_lab.form_validators.requisition_form_validator import (
+    RequisitionFormValidatorMixin,
+)
 from edc_lab.forms import BoxForm, BoxTypeForm, ManifestForm
 from edc_lab.models import Aliquot
+from lab_app.models import SubjectRequisition, SubjectVisit
 
-from ...form_validators.requisition_form_validator import RequisitionFormValidatorMixin
-from ..models import SubjectConsent, SubjectRequisition, SubjectScreening, SubjectVisit
 from ..site_labs_test_helper import SiteLabsTestHelper
 from ..visit_schedules import visit_schedule
 
@@ -213,17 +216,12 @@ class TestForms2(TestCase):
 
         self.form_cls = RequisitionForm
         self.subject_identifier = "12345"
-        SubjectConsent.objects.create(
-            subject_identifier=self.subject_identifier,
-            consent_datetime=get_utcnow(),
-            identity="1111111",
-            confirm_identity="1111111",
+        self.lab_helper.setup_site_labs()
+        self.panel = self.lab_helper.panel
+        self.helper = Helper(subject_identifier=self.subject_identifier)
+        self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
-        )
-        SubjectScreening.objects.create(
-            subject_identifier=self.subject_identifier,
-            report_datetime=get_utcnow(),
             age_in_years=25,
         )
         appointment = Appointment.objects.get(visit_code="1000")

@@ -1,14 +1,13 @@
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.test import TestCase
 from edc_appointment.models import Appointment
+from edc_appointment.tests.helper import Helper
 from edc_constants.constants import NO, YES
 from edc_facility import import_holidays
 from edc_sites import add_or_update_django_sites
 from edc_sites.single_site import SingleSite
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils.date import get_utcnow
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
 from edc_lab.identifiers import AliquotIdentifier as AliquotIdentifierBase
@@ -17,10 +16,9 @@ from edc_lab.lab import AliquotType, Process, ProcessingProfile
 from edc_lab.lab import Specimen as SpecimenBase
 from edc_lab.lab import SpecimenNotDrawnError, SpecimenProcessor
 from edc_lab.models import Aliquot
+from lab_app.models import SubjectRequisition, SubjectVisit
 
-from ..models import SubjectConsent, SubjectRequisition, SubjectVisit
 from ..site_labs_test_helper import SiteLabsTestHelper
-from ..visit_schedules import visit_schedule
 
 
 class AliquotIdentifier(AliquotIdentifierBase):
@@ -55,19 +53,14 @@ class TestSpecimen(SiteTestCaseMixin, TestCase):
         return super().setUpClass()
 
     def setUp(self):
-        site_visit_schedules._registry = {}
-        site_visit_schedules.register(visit_schedule)
-        self.subject_identifier = "1111111111"
         self.lab_helper.setup_site_labs()
         self.panel = self.lab_helper.panel
-        SubjectConsent.objects.create(
-            subject_identifier=self.subject_identifier,
-            consent_datetime=get_utcnow(),
-            identity="1111111",
-            confirm_identity="1111111",
+        self.subject_identifier = "1111111111"
+        self.helper = Helper(subject_identifier=self.subject_identifier)
+        self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
-            site=Site.objects.get_current(),
+            age_in_years=25,
         )
         appointment = Appointment.objects.get(visit_code="1000")
         self.subject_visit = SubjectVisit.objects.create(
@@ -139,14 +132,11 @@ class TestSpecimen2(SiteTestCaseMixin, TestCase):
         self.panel = self.lab_helper.panel
         self.profile_aliquot_count = self.lab_helper.profile_aliquot_count
         self.subject_identifier = "1111111111"
-        Site.objects.get_current()
-        SubjectConsent.objects.create(
-            subject_identifier=self.subject_identifier,
-            consent_datetime=get_utcnow(),
-            identity="1111111",
-            confirm_identity="1111111",
+        self.helper = Helper(subject_identifier=self.subject_identifier)
+        self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
+            age_in_years=25,
         )
         appointment = Appointment.objects.get(visit_code="1000")
         self.subject_visit = SubjectVisit.objects.create(
