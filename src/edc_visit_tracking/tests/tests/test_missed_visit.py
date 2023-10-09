@@ -18,9 +18,11 @@ from edc_list_data import load_list_data
 from edc_metadata.models import CrfMetadata
 from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
-from edc_visit_schedule import Crf, FormsCollection, Schedule, Visit, VisitSchedule
 from edc_visit_schedule.constants import DAY1
+from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_schedule.visit import Crf, FormsCollection, Visit
+from edc_visit_schedule.visit_schedule import VisitSchedule
 
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.models import SubjectVisit, SubjectVisitMissedReasons
