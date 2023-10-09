@@ -94,7 +94,7 @@ class AdminSiteTest(WebTest):
         url = reverse(
             "edc_data_manager_admin:edc_data_manager_queryrule_change", args=(query_rule.pk,)
         )
-        form = self.app.get(url, user=self.user).form
+        form = self.app.get(url, user=self.user).forms[1]
         response = form.submit()
         self.assertIn("Invalid. Select questions from one CRF only", str(response.text))
 
@@ -154,10 +154,7 @@ class AdminSiteTest(WebTest):
             f"registered_subject={str(registered_subject.pk)}&"
             f"sender={str(DataManagerUser.objects.get(username=self.user.username).pk)}"
         )
-        try:
-            form = self.app.get(url, user=self.user).form
-        except TypeError:
-            form = self.app.get(url, user=self.user).forms[1]
+        form = self.app.get(url, user=self.user).forms[1]
         form["title"] = "My first query"
         form["query_text"] = "this is a query"
         response = form.submit().follow()

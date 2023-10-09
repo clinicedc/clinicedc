@@ -31,6 +31,7 @@ for app_name in [
 urlpatterns += [
     path("accounts/", include("edc_auth.urls")),
     path("admin/", admin.site.urls),
+    path("i18n/", include("django.conf.urls.i18n")),
     path("", HomeView.as_view(), name="administration_url"),
     path("", HomeView.as_view(), name="home_url"),
 ]
