@@ -16,8 +16,8 @@ from edc_metadata.model_mixins import MetadataHelperModelMixin
 from edc_offstudy.model_mixins import OffstudyNonCrfModelMixin
 from edc_timepoint.model_mixins import TimepointModelMixin
 from edc_utils import formatted_datetime, to_utc
-from edc_visit_schedule import site_visit_schedules
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.subject_schedule import NotOnScheduleError
 from edc_visit_schedule.utils import is_baseline
 

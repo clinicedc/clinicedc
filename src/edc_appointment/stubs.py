@@ -3,7 +3,7 @@ from typing import Any, Optional, Protocol, TypeVar, Union
 from uuid import UUID
 
 from django.db import models
-from edc_visit_schedule import Schedule
+from edc_visit_schedule.schedule import Schedule
 
 
 class AppointmentModelStub(Protocol):

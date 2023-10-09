@@ -14,7 +14,10 @@ from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_facility.utils import get_facility
 from edc_reference import site_reference_configs
-from edc_visit_schedule import Schedule, Visit, VisitSchedule, site_visit_schedules
+from edc_visit_schedule.schedule import Schedule
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_schedule.visit import Visit
+from edc_visit_schedule.visit_schedule import VisitSchedule
 
 from edc_appointment.creators import AppointmentCreator
 from edc_appointment.models import Appointment

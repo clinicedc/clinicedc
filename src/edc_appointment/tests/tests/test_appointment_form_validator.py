@@ -14,8 +14,8 @@ from edc_form_validators import ModelFormFieldValidatorError
 from edc_metadata import KEYED, REQUIRED
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 from edc_reference import site_reference_configs
-from edc_visit_schedule import site_visit_schedules
 from edc_visit_schedule.constants import DAY01
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.model_mixins import PreviousVisitError
 from edc_visit_tracking.utils import get_subject_visit_missed_model_cls

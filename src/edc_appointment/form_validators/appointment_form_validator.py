@@ -19,7 +19,7 @@ from edc_metadata.metadata_helper import MetadataHelperMixin
 from edc_registration import get_registered_subject_model_cls
 from edc_utils import formatted_datetime, get_utcnow, to_utc
 from edc_utils.date import to_local
-from edc_visit_schedule import site_visit_schedules
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.subject_schedule import NotOnScheduleError
 from edc_visit_schedule.utils import get_onschedule_model_instance, is_baseline
 

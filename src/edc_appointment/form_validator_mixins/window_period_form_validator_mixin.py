@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from django.conf import settings
 from edc_utils import convert_php_dateformat, to_utc
 from edc_utils.date import ceil_datetime, floor_secs
-from edc_visit_schedule.schedule.window import (
+from edc_visit_schedule.exceptions import (
     ScheduledVisitWindowError,
     UnScheduledVisitWindowError,
 )
