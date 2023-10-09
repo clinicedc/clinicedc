@@ -4,19 +4,17 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase
 from edc_appointment.models import Appointment
+from edc_appointment.tests.helper import Helper
 from edc_constants.constants import YES
 from edc_facility.import_holidays import import_holidays
 from edc_utils import get_utcnow
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
 from edc_lab import AliquotCreator, site_labs
 from edc_lab.labels.aliquot_label import AliquotLabel, AliquotLabelError
 from edc_lab.models import Panel
 from edc_lab.tests.site_labs_test_helper import SiteLabsTestHelper
-
-from ..models import SubjectConsent, SubjectRequisition, SubjectVisit
-from ..visit_schedules import visit_schedule
+from lab_app.models import SubjectRequisition, SubjectVisit
 
 
 class TestLabels(TestCase):
@@ -28,24 +26,20 @@ class TestLabels(TestCase):
         return super().setUpClass()
 
     def setUp(self):
-        site_visit_schedules._registry = {}
-        site_visit_schedules.register(visit_schedule)
+        self.lab_helper.setup_site_labs()
+        self.panel = self.lab_helper.panel
+        self.lab_profile = self.lab_helper.lab_profile
         self.subject_identifier = "1111111111"
+        self.helper = Helper(subject_identifier=self.subject_identifier)
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
+            age_in_years=25,
+        )
         self.gender = "M"
         self.initials = "EW"
         self.dob = datetime.now() - relativedelta(years=25)
-        self.lab_helper.setup_site_labs()
-        self.panel = self.lab_helper.panel
 
-        SubjectConsent.objects.create(
-            subject_identifier=self.subject_identifier,
-            consent_datetime=get_utcnow(),
-            identity="1111111",
-            confirm_identity="1111111",
-            visit_schedule_name="visit_schedule",
-            schedule_name="schedule",
-            dob=get_utcnow() - relativedelta(years=25),
-        )
         appointment = Appointment.objects.get(visit_code="1000")
         self.subject_visit = SubjectVisit.objects.create(
             appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED

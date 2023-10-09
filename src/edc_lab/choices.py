@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from edc_constants.constants import (
     COMPLETE,
     EQ,
@@ -26,26 +27,26 @@ ABS_CALC = (("absolute", "Absolute"), ("calculated", "Calculated"))
 ALIQUOT_STATUS = (("available", "available"), ("consumed", "consumed"))
 
 ALIQUOT_CONDITIONS = (
-    ("10", "OK"),
-    ("20", "Inadequate volume for testing"),
-    ("30", "Clotted or haemolised"),
-    ("40", "Wrong tube type, unable to test"),
-    ("50", "Sample degradation has occured. Unsuitable for testing"),
-    ("60", "Expired tube"),
-    ("70", "Technical problem at lab, unable to test"),
+    ("10", _("OK")),
+    ("20", _("Inadequate volume for testing")),
+    ("30", _("Clotted or haemolised")),
+    ("40", _("Wrong tube type, unable to test")),
+    ("50", _("Sample degradation has occured. Unsuitable for testing")),
+    ("60", _("Expired tube")),
+    ("70", _("Technical problem at lab, unable to test")),
 )
 
-FILL_ORDER = ((FILL_ACROSS, "Across"), (FILL_DOWN, "Down"))
+FILL_ORDER = ((FILL_ACROSS, _("Across")), (FILL_DOWN, _("Down")))
 
 MODIFY_ACTIONS = (
-    ("INSERT", "Insert"),
-    ("UPDATE", "Update"),
-    ("DELETE", "Delete"),
-    ("PRINT", "Print"),
-    ("VIEW", "Print"),
+    ("INSERT", _("Insert")),
+    ("UPDATE", _("Update")),
+    ("DELETE", _("Delete")),
+    ("PRINT", _("Print")),
+    ("VIEW", _("Print")),
 )
 
-ORDER_STATUS = ((PENDING, "Pending"), (PARTIAL, "Partial"), (COMPLETE, "Complete"))
+ORDER_STATUS = ((PENDING, _("Pending")), (PARTIAL, _("Partial")), (COMPLETE, _("Complete")))
 
 GLUCOSE_UNITS = (
     (MILLIGRAMS_PER_DECILITER, MILLIGRAMS_PER_DECILITER),
@@ -55,7 +56,7 @@ GLUCOSE_UNITS = (
 GLUCOSE_UNITS_NA = (
     (MILLIGRAMS_PER_DECILITER, MILLIGRAMS_PER_DECILITER),
     (MILLIMOLES_PER_LITER, MILLIMOLES_PER_LITER_DISPLAY),
-    (NOT_APPLICABLE, "Not applicable"),
+    (NOT_APPLICABLE, _("Not applicable")),
 )
 SERUM_CREATININE_UNITS = (
     (MILLIGRAMS_PER_DECILITER, MILLIGRAMS_PER_DECILITER),
@@ -65,16 +66,16 @@ SERUM_CREATININE_UNITS = (
 SERUM_CREATININE_UNITS_NA = (
     (MILLIGRAMS_PER_DECILITER, MILLIGRAMS_PER_DECILITER),
     (MICROMOLES_PER_LITER, MICROMOLES_PER_LITER_DISPLAY),
-    (NOT_APPLICABLE, "Not applicable"),
+    (NOT_APPLICABLE, _("Not applicable")),
 )
 
 RESULT_RELEASE_STATUS = (
-    ("NEW", "New"),
-    ("RELEASED", "Released"),
-    ("AMENDED", "Amended"),
+    ("NEW", _("New")),
+    ("RELEASED", _("Released")),
+    ("AMENDED", _("Amended")),
 )
 
-RESULT_VALIDATION_STATUS = (("P", "Preliminary"), ("F", "Final"), ("R", "Rejected"))
+RESULT_VALIDATION_STATUS = (("P", _("Preliminary")), ("F", _("Final")), ("R", _("Rejected")))
 
 RESULT_QUANTIFIER = ((EQ, EQ), (GT, GT), (GTE, GTE), (LT, LT), (LTE, LTE))
 
@@ -84,7 +85,7 @@ RESULT_QUANTIFIER_NA = (
     (GTE, GTE),
     (LT, LT),
     (LTE, LTE),
-    (NOT_APPLICABLE, "Not applicable"),
+    (NOT_APPLICABLE, _("Not applicable")),
 )
 
 VL_QUANTIFIER = (
@@ -97,22 +98,22 @@ VL_QUANTIFIER_NA = (
     (EQ, EQ),
     (GT, GT),
     (LT, LT),
-    (NOT_APPLICABLE, "Not applicable"),
+    (NOT_APPLICABLE, _("Not applicable")),
 )
 
 
 SPECIMEN_MEASURE_UNITS = (
     ("mL", "mL"),
     ("uL", "uL"),
-    ("spots", "spots"),
-    ("n/a", "Not applicable"),
+    ("spots", _("spots")),
+    ("n/a", _("Not applicable")),
 )
 
 SPECIMEN_MEDIUM = (
-    ("tube_any", "Tube"),
-    ("tube_edta", "Tube EDTA"),
-    ("swab", "Swab"),
-    ("dbs_card", "DBS Card"),
+    ("tube_any", _("Tube")),
+    ("tube_edta", _("Tube EDTA")),
+    ("swab", _("Swab")),
+    ("dbs_card", _("DBS Card")),
 )
 
 UNITS = (
@@ -135,23 +136,23 @@ UNITS = (
     ("umol/L", "umol/L"),
 )
 
-PRIORITY = (("normal", "Normal"), ("urgent", "Urgent"))
+PRIORITY = (("normal", _("Normal")), ("urgent", _("Urgent")))
 
 REASON_NOT_DRAWN = (
-    (NOT_APPLICABLE, "Not applicable"),
-    ("collection_failed", "Tried, but unable to obtain sample from patient"),
-    ("absent", "Patient did not attend visit"),
-    ("refused", "Patient refused"),
-    ("no_supplies", "No supplies"),
-    (NOT_REQUIRED, "No longer required for this visit"),
-    (OTHER, "Other"),
+    (NOT_APPLICABLE, _("Not applicable")),
+    ("collection_failed", _("Tried, but unable to obtain sample from patient")),
+    ("absent", _("Patient did not attend visit")),
+    ("refused", _("Patient refused")),
+    ("no_supplies", _("No supplies")),
+    (NOT_REQUIRED, _("No longer required for this visit")),
+    (OTHER, _("Other")),
 )
 
 ITEM_TYPE = (
-    (NOT_APPLICABLE, "Not applicable"),
-    (TUBE, "Tube"),
-    (FINGER_PRICK, "Finger prick"),
-    ("swab", "Swab"),
-    ("dbs", "DBS Card"),
-    (OTHER, "Other"),
+    (NOT_APPLICABLE, _("Not applicable")),
+    (TUBE, _("Tube")),
+    (FINGER_PRICK, _("Finger prick")),
+    ("swab", _("Swab")),
+    ("dbs", _("DBS Card")),
+    (OTHER, _("Other")),
 )

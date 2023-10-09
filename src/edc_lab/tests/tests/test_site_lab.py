@@ -1,15 +1,14 @@
 import re
 
-from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.test import TestCase
 from edc_appointment.models import Appointment
+from edc_appointment.tests.helper import Helper
 from edc_constants.constants import NO, NOT_APPLICABLE, YES
 from edc_facility import import_holidays
 from edc_sites import add_or_update_django_sites
 from edc_sites.single_site import SingleSite
 from edc_utils.date import get_utcnow
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
 from edc_lab.lab import (
@@ -20,10 +19,9 @@ from edc_lab.lab import (
     ProcessingProfileAlreadyAdded,
 )
 from edc_lab.site_labs import SiteLabs, site_labs
+from lab_app.models import SubjectRequisition, SubjectVisit
 
-from ..models import SubjectConsent, SubjectRequisition, SubjectVisit
 from ..site_labs_test_helper import SiteLabsTestHelper
-from ..visit_schedules import visit_schedule
 
 
 class TestSiteLab(TestCase):
@@ -80,21 +78,15 @@ class TestSiteLab2(TestCase):
         return super().setUpClass()
 
     def setUp(self):
-        site_visit_schedules._registry = {}
-        site_visit_schedules.register(visit_schedule)
         self.lab_helper.setup_site_labs()
         self.panel = self.lab_helper.panel
         self.lab_profile = self.lab_helper.lab_profile
-
         self.subject_identifier = "1111111111"
-        SubjectConsent.objects.create(
-            subject_identifier=self.subject_identifier,
-            consent_datetime=get_utcnow(),
-            identity="1111111",
-            confirm_identity="1111111",
+        self.helper = Helper(subject_identifier=self.subject_identifier)
+        self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
-            dob=get_utcnow() - relativedelta(years=25),
+            age_in_years=25,
         )
         appointment = Appointment.objects.get(visit_code="1000")
         self.subject_visit = SubjectVisit.objects.create(

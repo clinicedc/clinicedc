@@ -9,8 +9,8 @@ from edc_lab.lab import (
     ProcessingProfileInvalidDerivative,
     RequisitionPanel,
 )
+from lab_app.models import SubjectRequisition
 
-from ..models import SubjectRequisition
 from .edc_lab_test_mixin import EdcLabTestMixin
 
 
@@ -20,11 +20,11 @@ class TestBuildProfile(EdcLabTestMixin, TestCase):
         self.bc = AliquotType(name="buffy_coat", numeric_code="12", alpha_code="BC")
 
     def test_repr(self):
-        obj = LabProfile(name="profile", requisition_model="edc_lab.subjectrequisition")
+        obj = LabProfile(name="profile", requisition_model="lab_app.subjectrequisition")
         self.assertTrue(repr(obj))
 
     def test_str(self):
-        obj = LabProfile(name="profile", requisition_model="edc_lab.subjectrequisition")
+        obj = LabProfile(name="profile", requisition_model="lab_app.subjectrequisition")
         self.assertTrue(str(obj))
 
     def test_processing_bad(self):
@@ -64,7 +64,7 @@ class TestBuildProfile(EdcLabTestMixin, TestCase):
         processing_profile.add_processes(process)
         panel = RequisitionPanel(name="some panel", processing_profile=processing_profile)
         lab_profile = LabProfile(
-            name="profile", requisition_model="edc_lab.subjectrequisition"
+            name="profile", requisition_model="lab_app.subjectrequisition"
         )
         lab_profile.add_panel(panel)
         self.assertEqual(panel, lab_profile.panels.get(panel.name))
@@ -78,7 +78,7 @@ class TestBuildProfile(EdcLabTestMixin, TestCase):
         processing_profile.add_processes(process)
         panel = RequisitionPanel(name="Viral Load", processing_profile=processing_profile)
         lab_profile = LabProfile(
-            name="profile", requisition_model="edc_lab.subjectrequisition"
+            name="profile", requisition_model="lab_app.subjectrequisition"
         )
         lab_profile.add_panel(panel)
 
@@ -92,7 +92,7 @@ class TestBuildProfile(EdcLabTestMixin, TestCase):
         processing_profile.add_processes(process)
         panel = RequisitionPanel(name="Viral Load", processing_profile=processing_profile)
         lab_profile = LabProfile(
-            name="profile", requisition_model="edc_lab.subjectrequisition"
+            name="profile", requisition_model="lab_app.subjectrequisition"
         )
         lab_profile.add_panel(panel)
         self.assertRaises(PanelAlreadyRegistered, lab_profile.add_panel, panel)
@@ -107,18 +107,18 @@ class TestBuildProfile(EdcLabTestMixin, TestCase):
         processing_profile.add_processes(process)
         panel = RequisitionPanel(name="Viral Load", processing_profile=processing_profile)
         lab_profile = LabProfile(
-            name="profile", requisition_model="edc_lab.subjectrequisition"
+            name="profile", requisition_model="lab_app.subjectrequisition"
         )
         lab_profile.add_panel(panel)
         panel = lab_profile.panels.get("Viral Load")
-        self.assertEqual(panel.requisition_model, "edc_lab.subjectrequisition")
+        self.assertEqual(panel.requisition_model, "lab_app.subjectrequisition")
         self.assertEqual(panel.requisition_model_cls, SubjectRequisition)
 
     def test_add_panel_group(self):
         panel_group = self.get_panel_group()
         lab_profile = LabProfile(
             name="profile",
-            requisition_model="edc_lab.subjectrequisition",
+            requisition_model="lab_app.subjectrequisition",
         )
         lab_profile.add_panel(panel_group)
         panel = lab_profile.panels.get(panel_group.name)
@@ -130,9 +130,9 @@ class TestBuildProfile(EdcLabTestMixin, TestCase):
         """Assert same panel cannot be added twice."""
         panel_group = self.get_panel_group()
         lab_profile = LabProfile(
-            name="profile", requisition_model="edc_lab.subjectrequisition"
+            name="profile", requisition_model="lab_app.subjectrequisition"
         )
         lab_profile.add_panel(panel_group)
         panel = lab_profile.panels.get(panel_group.name)
-        self.assertEqual(panel.requisition_model, "edc_lab.subjectrequisition")
+        self.assertEqual(panel.requisition_model, "lab_app.subjectrequisition")
         self.assertEqual(panel.requisition_model_cls, SubjectRequisition)
