@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views import View
 from edc_dashboard import url_names
-from edc_visit_schedule import site_visit_schedules
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
 class RefreshAppointmentsView(LoginRequiredMixin, View):
