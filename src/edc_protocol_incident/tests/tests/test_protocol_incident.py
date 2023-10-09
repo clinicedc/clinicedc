@@ -7,7 +7,7 @@ from edc_constants.constants import CLOSED, NO, NOT_APPLICABLE, OPEN, OTHER
 from edc_list_data import site_list_data
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
-from edc_visit_schedule import site_visit_schedules
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from edc_protocol_incident import list_data
 from edc_protocol_incident.constants import DEVIATION, WITHDRAWN
