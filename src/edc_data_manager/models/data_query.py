@@ -47,14 +47,9 @@ class DataQuery(DataQueryModelMixin, ActionModelMixin, SiteModelMixin, BaseUuidM
 
     visit_code_sequence = models.IntegerField(
         verbose_name="Visit code sequence",
-        default=0,
         validators=[MinValueValidator(0), MaxValueValidator(25)],
         null=True,
         blank=True,
-        help_text=(
-            "Defaults to '0'. For example, when combined with the "
-            "visit code `1000` would make `1000.0`."
-        ),
     )
 
     timepoint = models.DecimalField(null=True, decimal_places=1, max_digits=6)
