@@ -1,12 +1,13 @@
 from django import forms
 
-from ... import Schedule, VisitSchedule
+from ...schedule import Schedule
 from ...subject_schedule import (
     NotOnScheduleError,
     NotOnScheduleForDateError,
     SubjectSchedule,
 )
 from ...utils import report_datetime_within_onschedule_offschedule_datetimes
+from ...visit_schedule import VisitSchedule
 
 
 class VisitScheduleCrfModelFormMixin:
