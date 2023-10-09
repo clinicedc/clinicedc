@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.conf import settings
-from edc_visit_schedule import site_visit_schedules
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 if TYPE_CHECKING:
     from .model_mixins import LocatorModelMixin
