@@ -8,9 +8,9 @@ from django.test import TestCase, override_settings, tag
 from edc_consent import site_consents
 from edc_facility import import_holidays
 from edc_reference import site_reference_configs
-from edc_visit_schedule import site_visit_schedules
 from edc_visit_schedule.apps import populate_visit_schedule
 from edc_visit_schedule.models import VisitSchedule
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
 from edc_appointment.constants import (

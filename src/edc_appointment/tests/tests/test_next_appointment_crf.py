@@ -12,9 +12,9 @@ from edc_facility import import_holidays
 from edc_facility.models import HealthFacility, HealthFacilityTypes
 from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
-from edc_visit_schedule import site_visit_schedules
 from edc_visit_schedule.apps import populate_visit_schedule
 from edc_visit_schedule.models import VisitSchedule
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.utils import get_related_visit_model_cls
 

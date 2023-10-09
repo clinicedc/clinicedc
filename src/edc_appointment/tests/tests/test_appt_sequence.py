@@ -9,7 +9,7 @@ from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
 from edc_reference import site_reference_configs
-from edc_visit_schedule import site_visit_schedules
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
 from edc_appointment.constants import INCOMPLETE_APPT

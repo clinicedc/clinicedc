@@ -14,7 +14,7 @@ from django.db.models import ProtectedError
 from edc_constants.constants import CLINIC, NOT_APPLICABLE
 from edc_metadata.utils import has_keyed_metadata
 from edc_utils import convert_php_dateformat
-from edc_visit_schedule.schedule.window import (
+from edc_visit_schedule.exceptions import (
     ScheduledVisitWindowError,
     UnScheduledVisitWindowError,
 )

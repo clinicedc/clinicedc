@@ -7,9 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from edc_form_validators import INVALID_ERROR
 from edc_utils.date import to_local
 
-from edc_appointment.utils import get_allow_skipped_appt_using
-
-from ..utils import allow_clinic_on_weekend
+from ..utils import allow_clinic_on_weekend, get_allow_skipped_appt_using
 
 if TYPE_CHECKING:
     from edc_facility.models import HealthFacility
