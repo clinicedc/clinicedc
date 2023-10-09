@@ -7,14 +7,9 @@ from edc_lab_panel.panels import (
     lipids_panel,
     rft_panel,
 )
-from edc_visit_schedule import (
-    Crf,
-    FormsCollection,
-    Requisition,
-    Schedule,
-    Visit,
-    VisitSchedule,
-)
+from edc_visit_schedule.schedule import Schedule
+from edc_visit_schedule.visit import Crf, FormsCollection, Requisition, Visit
+from edc_visit_schedule.visit_schedule import VisitSchedule
 
 crfs = FormsCollection(
     Crf(show_order=1, model="edc_lab_results.BloodResultsFbc", required=True),

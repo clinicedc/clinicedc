@@ -12,7 +12,7 @@ from edc_reportable import site_reportables
 from edc_reportable.grading_data.daids_july_2017 import grading_data
 from edc_reportable.normal_data.africa import normal_data
 from edc_utils import get_utcnow
-from edc_visit_schedule import site_visit_schedules
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from edc_lab_results.action_items import register_actions
 
