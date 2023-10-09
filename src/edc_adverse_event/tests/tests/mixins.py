@@ -4,7 +4,7 @@ from random import choice
 
 from edc_action_item.models import ActionItem
 from edc_constants.constants import OTHER, YES
-from edc_visit_schedule import site_visit_schedules
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from model_bakery import baker
 
 from adverse_event_app.visit_schedules import visit_schedule
