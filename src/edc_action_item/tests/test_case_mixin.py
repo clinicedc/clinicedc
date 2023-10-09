@@ -4,7 +4,7 @@ from edc_metadata.tests.models import SubjectConsent
 from edc_reference import ReferenceModelConfig, site_reference_configs
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
-from edc_visit_schedule import site_visit_schedules
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from .visit_schedule import visit_schedule
 
