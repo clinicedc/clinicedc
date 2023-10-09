@@ -7,5 +7,6 @@ urlpatterns = [
     path("edc_dashboard/", include("edc_dashboard.urls")),
     path("administration/", AdministrationView.as_view(), name="administration_url"),
     path("edc_device/", include("edc_device.urls")),
+    path("i18n/", include("django.conf.urls.i18n")),
     path("", RedirectView.as_view(url="admin/"), name="home_url"),
 ]
