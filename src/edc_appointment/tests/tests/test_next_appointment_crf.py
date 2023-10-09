@@ -5,7 +5,7 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_consent import site_consents
 from edc_constants.constants import NOT_APPLICABLE, PATIENT
 from edc_facility import import_holidays
@@ -65,7 +65,6 @@ class TestNextAppointmentCrf(TestCase):
             onschedule_datetime=subject_consent.consent_datetime,
         )
 
-    @tag("1")
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
             "edc_appointment_app.nextappointmentcrf": ("appt_date", "visitschedule")
@@ -201,7 +200,6 @@ class TestNextAppointmentCrf(TestCase):
         form.is_valid()
         self.assertEqual({}, form._errors)
 
-    @tag("1")
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
             "edc_appointment_app.nextappointmentcrf": ("appt_date", "visitschedule")
