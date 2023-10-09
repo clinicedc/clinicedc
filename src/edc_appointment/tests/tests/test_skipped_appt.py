@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ImproperlyConfigured
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_consent import site_consents
 from edc_facility import import_holidays
 from edc_reference import site_reference_configs
@@ -47,7 +47,6 @@ from edc_appointment_app.visit_schedule import (
 utc = ZoneInfo("UTC")
 
 
-@tag("2")
 @time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc))
 class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
     helper_cls = Helper
@@ -307,7 +306,6 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
             visitschedule=VisitSchedule.objects.get(visit_code=appointments[1].visit_code),
         )
 
-    @tag("1")
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
             "edc_appointment_app.crfthree": ("appt_date", "f1"),
@@ -526,7 +524,6 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         self.assertEqual(appointments[5].appt_status, SKIPPED_APPT)
         self.assertEqual(appointments[6].appt_status, NEW_APPT)
 
-    @tag("7")
     # @time_machine.travel(datetime(2021, 10, 6, 8, 00, tzinfo=utc))
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
@@ -608,18 +605,3 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
             (appointments[1].appt_datetime + relativedelta(days=5)).date(),
             appointments[2].appt_datetime.date(),
         )
-
-        # appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
-        # subject_visit = SubjectVisit.objects.get(appointment=appointments[1])
-        # form = CrfThreeForm(
-        #     data=dict(
-        #         subject_visit=subject_visit,
-        #         report_datetime=appointments[1].appt_datetime,
-        #         appt_date=appointments[1].appt_datetime + relativedelta(days=7),
-        #         f1=appointments[1].visit_code,
-        #         allow_create_interim=True,
-        #     )
-        # )
-        # form.is_valid()
-        # self.assertEqual({}, form._errors)
-        # form.save(commit=True)
