@@ -15,7 +15,7 @@ from ...metadata import (
 from ...metadata_rules import MetadataRuleEvaluator
 
 if TYPE_CHECKING:
-    from edc_visit_schedule import Visit
+    from edc_visit_schedule.visit import Visit
     from edc_visit_tracking.typing_stubs import RelatedVisitProtocol
 else:
 

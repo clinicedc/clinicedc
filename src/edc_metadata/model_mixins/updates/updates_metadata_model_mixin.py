@@ -10,7 +10,7 @@ from ...metadata_updater import MetadataUpdater
 
 if TYPE_CHECKING:
     from edc_crf.model_mixins import CrfModelMixin as Base
-    from edc_visit_schedule import Visit
+    from edc_visit_schedule.visit import Visit
 
     from ...models import CrfMetadata, RequisitionMetadata
     from ..creates import CreatesMetadataModelMixin

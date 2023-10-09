@@ -13,8 +13,8 @@ from edc_constants.constants import FEMALE
 from edc_facility import import_holidays
 from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
-from edc_visit_schedule import site_visit_schedules
 from edc_visit_schedule.constants import DAY1, MONTH1, MONTH3, MONTH6, WEEK2
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 from model_bakery import baker

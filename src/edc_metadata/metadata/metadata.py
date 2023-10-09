@@ -8,7 +8,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError, transaction
 from django.db.models import Model
 from edc_reference import site_reference_configs
-from edc_visit_schedule import FormsCollection, site_visit_schedules
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_schedule.visit import FormsCollection
 from edc_visit_tracking.constants import MISSED_VISIT
 
 from ..constants import KEYED, NOT_REQUIRED, REQUIRED
@@ -16,7 +17,7 @@ from ..utils import verify_model_cls_registered_with_admin
 
 if TYPE_CHECKING:
     from edc_reference.models import Reference
-    from edc_visit_schedule import Crf, Requisition
+    from edc_visit_schedule.visit import Crf, Requisition
     from edc_visit_tracking.typing_stubs import RelatedVisitProtocol
 
     from ..models import CrfMetadata, RequisitionMetadata

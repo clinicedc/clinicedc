@@ -8,7 +8,7 @@ from ..rule_group import RuleGroup, RuleGroupError, TargetModelConflict
 from ..rule_group_metaclass import RuleGroupMetaclass
 
 if TYPE_CHECKING:
-    from edc_visit_schedule import FormsCollection
+    from edc_visit_schedule.visit import FormsCollection
     from edc_visit_tracking.model_mixins import VisitModelMixin as Base
 
     from ...model_mixins.creates import CreatesMetadataModelMixin
