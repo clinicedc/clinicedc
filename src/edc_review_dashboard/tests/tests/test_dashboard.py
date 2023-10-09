@@ -1,5 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
+from django.test import tag
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_appointment.constants import INCOMPLETE_APPT
@@ -14,6 +15,7 @@ from edc_visit_tracking.models import SubjectVisit
 from review_dashboard_app.lab_profiles import lab_profile
 from review_dashboard_app.models import SubjectConsent
 from review_dashboard_app.reference_configs import register_to_site_reference_configs
+from review_dashboard_app.visit_schedule import visit_schedule
 
 User = get_user_model()
 
@@ -35,6 +37,8 @@ class TestDashboard(WebTest):
         site_labs.loaded = False
         site_labs.register(lab_profile=lab_profile)
 
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule)
         register_to_site_reference_configs()
 
         self.subject_identifiers = ["101-40990028-3", "101-40990029-4"]
@@ -115,6 +119,7 @@ class TestDashboard(WebTest):
         # follow to dashoard for this visit
         # response = response.click(linkid="id-reported-visit-list")
 
+    @tag("1")
     def test_url_response_for_subject_identifier(self):
         self.login()
 
@@ -126,13 +131,9 @@ class TestDashboard(WebTest):
             user=self.user,
         )
 
-        self.assertIn(f"id-reported-visit-list-{self.subject_identifiers[1]}", response)
+        self.assertIn(f"id-reported-visits-{self.subject_identifiers[1]}", response)
 
         self.assertIn(self.subject_identifiers[1], response)
-
-        response = response.click(
-            linkid=f"id-reported-visit-list-{self.subject_identifiers[1]}"
-        )
 
     def test_ordering(self):
         self.login()

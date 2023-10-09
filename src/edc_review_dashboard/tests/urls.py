@@ -1,4 +1,4 @@
-from django.urls.conf import path
+from django.urls.conf import include, path
 from django.views.generic import RedirectView
 from edc_dashboard.views import AdministrationView
 from edc_utils.paths_for_urlpatterns import paths_for_urlpatterns
@@ -30,6 +30,7 @@ for app_name in [
 
 urlpatterns += [
     path("administration/", AdministrationView.as_view(), name="administration_url"),
+    path("i18n/", include("django.conf.urls.i18n")),
     path("", RedirectView.as_view(url="admin/"), name="home_url"),
     path("", RedirectView.as_view(url="admin/"), name="logout"),
 ]
