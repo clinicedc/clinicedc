@@ -10,7 +10,7 @@ from .metadata import CrfMetadataGetter, RequisitionMetadataGetter
 
 if TYPE_CHECKING:
     from edc_appointment.models import Appointment
-    from edc_visit_schedule import Crf, Requisition, Visit
+    from edc_visit_schedule.visit import Crf, Requisition, Visit
 
     from .metadata import MetadataGetter
     from .models import CrfMetadata, RequisitionMetadata

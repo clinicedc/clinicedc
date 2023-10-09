@@ -7,7 +7,7 @@ from django.apps import apps as django_apps
 from django.contrib.admin.sites import all_sites
 from django.db.models import Count
 from edc_appointment.models import Appointment
-from edc_visit_schedule import site_visit_schedules
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.utils import get_related_visit_model_cls
 from tqdm import tqdm
 

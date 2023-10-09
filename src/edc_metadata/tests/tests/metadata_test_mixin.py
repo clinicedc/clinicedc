@@ -4,7 +4,7 @@ from edc_facility import import_holidays
 from edc_lab.models import Panel
 from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
-from edc_visit_schedule import site_visit_schedules
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ...models import CrfMetadata, RequisitionMetadata
 from ..models import SubjectConsent

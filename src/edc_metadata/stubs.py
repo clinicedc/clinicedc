@@ -2,7 +2,8 @@ from typing import Any, Optional, Protocol, Type
 
 from django.db.models import Manager, Model, QuerySet
 from edc_model.stubs import ModelMetaStub
-from edc_visit_schedule import Visit, VisitSchedule
+from edc_visit_schedule.visit import Visit
+from edc_visit_schedule.visit_schedule import VisitSchedule
 from edc_visit_tracking.stubs import SubjectVisitModelStub
 
 
