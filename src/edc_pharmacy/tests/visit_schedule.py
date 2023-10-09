@@ -1,6 +1,8 @@
 from dateutil.relativedelta import relativedelta
 from edc_consent.utils import get_consent_model_name
-from edc_visit_schedule import Crf, FormsCollection, Schedule, Visit, VisitSchedule
+from edc_visit_schedule.schedule import Schedule
+from edc_visit_schedule.visit import Crf, FormsCollection, Visit
+from edc_visit_schedule.visit_schedule import VisitSchedule
 
 app_label = "edc_pharmacy"
 
