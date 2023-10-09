@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from django import forms
 
-from .. import site_visit_schedules
 from ..schedule import Schedule
-from ..site_visit_schedules import SiteVisitScheduleError
+from ..site_visit_schedules import SiteVisitScheduleError, site_visit_schedules
 from ..subject_schedule import (
     NotOnScheduleError,
     NotOnScheduleForDateError,

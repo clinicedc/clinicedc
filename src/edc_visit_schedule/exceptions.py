@@ -36,3 +36,15 @@ class UnknownSubjectError(Exception):
 
 class InvalidOffscheduleDate(Exception):
     pass
+
+
+class ScheduleError(Exception):
+    pass
+
+
+class ScheduledVisitWindowError(Exception):
+    pass
+
+
+class UnScheduledVisitWindowError(Exception):
+    pass

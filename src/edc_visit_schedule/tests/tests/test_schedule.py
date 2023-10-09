@@ -4,12 +4,8 @@ from dateutil.relativedelta import relativedelta
 from django.test import TestCase
 from edc_utils import get_utcnow
 
-from edc_visit_schedule.schedule import (
-    AlreadyRegisteredVisit,
-    Schedule,
-    ScheduleNameError,
-)
-from edc_visit_schedule.schedule.schedule import VisitTimepointError
+from edc_visit_schedule.schedule import AlreadyRegisteredVisit, Schedule
+from edc_visit_schedule.schedule.schedule import ScheduleNameError, VisitTimepointError
 from edc_visit_schedule.schedule.visit_collection import VisitCollectionError
 from edc_visit_schedule.visit import Visit
 from visit_schedule_app.models import OffSchedule, OnSchedule

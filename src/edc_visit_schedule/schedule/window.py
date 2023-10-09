@@ -2,17 +2,12 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from edc_utils import convert_php_dateformat, floor_secs, to_utc
 
-from .exceptions import ScheduleError
+from ..exceptions import (
+    ScheduledVisitWindowError,
+    ScheduleError,
+    UnScheduledVisitWindowError,
+)
 from .visit_collection import VisitCollectionError
-
-
-class ScheduledVisitWindowError(Exception):
-    pass
-
-
-class UnScheduledVisitWindowError(Exception):
-    pass
-
 
 enforce_window_period_enabled = getattr(
     settings, "EDC_VISIT_SCHEDULE_ENFORCE_WINDOW_PERIOD", True
