@@ -5,7 +5,7 @@ from edc_constants.constants import NEVER, NO, OTHER, YES
 from edc_facility import import_holidays
 from edc_list_data import site_list_data
 from edc_reference import site_reference_configs
-from edc_visit_schedule import site_visit_schedules
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from edc_adherence import list_data
 from edc_adherence.models import NonAdherenceReasons
