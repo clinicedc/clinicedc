@@ -1,6 +1,5 @@
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
-from django.test import tag
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_appointment.constants import INCOMPLETE_APPT
@@ -119,7 +118,6 @@ class TestDashboard(WebTest):
         # follow to dashoard for this visit
         # response = response.click(linkid="id-reported-visit-list")
 
-    @tag("1")
     def test_url_response_for_subject_identifier(self):
         self.login()
 
