@@ -494,6 +494,7 @@ chemistries = dict(
             **adult_age_options,
         ),
     ],
+    # TODO: tbil in mmol/L
     tbil=[
         p(
             "1.00*ULN<=x<1.60*ULN",
