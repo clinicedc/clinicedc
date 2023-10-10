@@ -1,36 +1,35 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
+from django.test import tag
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_appointment.models import Appointment
+from edc_appointment.tests.helper import Helper
 from edc_constants.constants import YES
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
-from edc_lab.site_labs import site_labs
-from edc_reference.site_reference import site_reference_configs
+from edc_lab.tests import SiteLabsTestHelper
 from edc_test_utils.get_webtest_form import get_webtest_form
 from edc_utils.date import get_utcnow
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.models import SubjectVisit
 
-from ..lab_profiles import lab_profile
-from ..models import (
+from model_admin_app.models import (
     CrfFive,
     CrfFour,
     CrfOne,
     CrfSix,
+    CrfThree,
     CrfTwo,
     Requisition,
-    SubjectConsent,
-    SubjectVisit,
 )
-from ..reference_configs import register_to_site_reference_configs
-from ..visit_schedule import visit_schedule
 
 User = get_user_model()
 
 
 class ModelAdminSiteTest(WebTest):
+    lab_helper = SiteLabsTestHelper()
+
     @classmethod
     def setUpClass(cls):
         import_holidays()
@@ -39,26 +38,12 @@ class ModelAdminSiteTest(WebTest):
     def setUp(self):
         self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
 
-        site_labs._registry = {}
-        site_labs.loaded = False
-        site_labs.register(lab_profile=lab_profile)
-
-        register_to_site_reference_configs()
-        site_visit_schedules._registry = {}
-        site_visit_schedules.loaded = False
-        site_visit_schedules.register(visit_schedule)
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_model_admin.subjectvisit"}
-        )
-
         self.subject_identifier = "101-12345"
-        SubjectConsent.objects.create(
-            subject_identifier=self.subject_identifier,
-            consent_datetime=get_utcnow(),
-            identity="1111111",
-            confirm_identity="1111111",
+        self.helper = Helper(subject_identifier=self.subject_identifier)
+        self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
+            age_in_years=25,
         )
         appointment = Appointment.objects.get(visit_code="1000")
         self.subject_visit = SubjectVisit.objects.create(
@@ -78,7 +63,7 @@ class ModelAdminSiteTest(WebTest):
         return form.submit()
 
     def test_redirect_next(self):
-        """Assert redirects to "dashboard_url" as give in the
+        """Assert redirects to "dashboard_url" as given in the
         query_string "next=".
         """
         self.login()
@@ -97,7 +82,9 @@ class ModelAdminSiteTest(WebTest):
             f"subject_identifier={self.subject_identifier}"
         )
 
-        url = reverse(f"admin:edc_model_admin_{model}_add") + "?" + query_string
+        url = (
+            reverse(f"model_admin_app_admin:model_admin_app_{model}_add") + "?" + query_string
+        )
 
         response = self.app.get(url, user=self.user)
         form = get_webtest_form(response)
@@ -125,7 +112,9 @@ class ModelAdminSiteTest(WebTest):
             "next=dashboard_app:dashboard_url,subject_identifier&"
             f"subject_identifier={self.subject_identifier}"
         )
-        url = reverse(f"admin:edc_model_admin_{model}_add") + "?" + query_string
+        url = (
+            reverse(f"model_admin_app_admin:model_admin_app_{model}_add") + "?" + query_string
+        )
 
         # oops, cancel
         response = self.app.get(url, user=self.user)
@@ -163,12 +152,8 @@ class ModelAdminSiteTest(WebTest):
         self.assertIn(self.subject_identifier, response)
 
         crftwo = CrfTwo.objects.all()[0]
-
-        url = (
-            reverse(f"admin:edc_model_admin_{model}_change", args=(crftwo.id,))
-            + "?"
-            + query_string
-        )
+        url = reverse("model_admin_app_admin:model_admin_app_crftwo_change", args=(crftwo.id,))
+        url = url + "?" + query_string
 
         response = self.app.get(url, user=self.user)
         form = get_webtest_form(response)
@@ -187,6 +172,17 @@ class ModelAdminSiteTest(WebTest):
             form[key] = value
         response = form.submit(name="_savenext").follow()
 
+        # skips over crfthree to crffour, since crfthree
+        # has been entered already
+        self.assertIn("crffour change-form", response)
+
+        crfthree = CrfThree.objects.all()[0]
+        url = reverse(
+            "model_admin_app_admin:model_admin_app_crfthree_change", args=(crfthree.id,)
+        )
+        url = url + "?" + query_string
+
+        response = self.app.get(url, user=self.user)
         self.assertIn("crfthree change-form", response)
 
         form_data = {
@@ -225,7 +221,7 @@ class ModelAdminSiteTest(WebTest):
         panel_two = Panel.objects.get(name="two")
 
         # got to add and cancel
-        add_url = reverse(f"admin:edc_model_admin_{model}_add")
+        add_url = reverse(f"model_admin_app_admin:model_admin_app_{model}_add")
         url = add_url + f"?{query_string}&panel={str(panel_one.id)}"
         response = self.app.get(url, user=self.user)
         form = get_webtest_form(response)
@@ -283,7 +279,9 @@ class ModelAdminSiteTest(WebTest):
         # dashboard
         requisition = Requisition.objects.get(requisition_identifier="ABCDE0001")
         url = (
-            reverse(f"admin:edc_model_admin_{model}_change", args=(requisition.id,))
+            reverse(
+                f"model_admin_app_admin:model_admin_app_{model}_change", args=(requisition.id,)
+            )
             + f"?{query_string}&panel={str(panel_one.id)}"
         )
         response = self.app.get(url, user=self.user)
@@ -316,7 +314,9 @@ class ModelAdminSiteTest(WebTest):
             "next=dashboard_app:dashboard_url,subject_identifier&"
             f"subject_identifier={self.subject_identifier}"
         )
-        url = reverse(f"admin:edc_model_admin_{model}_add") + "?" + query_string
+        url = (
+            reverse(f"model_admin_app_admin:model_admin_app_{model}_add") + "?" + query_string
+        )
 
         form_data = {
             "subject_visit": str(self.subject_visit.id),
@@ -332,12 +332,16 @@ class ModelAdminSiteTest(WebTest):
         # delete
         crffour = CrfFour.objects.all()[0]
         url = (
-            reverse(f"admin:edc_model_admin_{model}_change", args=(crffour.id,))
+            reverse(
+                f"model_admin_app_admin:model_admin_app_{model}_change", args=(crffour.id,)
+            )
             + "?"
             + query_string
         )
         response = self.app.get(url, user=self.user)
-        delete_url = reverse(f"admin:edc_model_admin_{model}_delete", args=(crffour.id,))
+        delete_url = reverse(
+            f"model_admin_app_admin:model_admin_app_{model}_delete", args=(crffour.id,)
+        )
         response = response.click(href=delete_url)
 
         # submit confirmation page
@@ -356,15 +360,20 @@ class ModelAdminSiteTest(WebTest):
         )
 
         model = "crffive"
-        url = reverse(f"admin:edc_model_admin_{model}_change", args=(crffive.id,))
+        url = reverse(
+            f"model_admin_app_admin:model_admin_app_{model}_change", args=(crffive.id,)
+        )
         response = self.app.get(url, user=self.user)
-        delete_url = reverse(f"admin:edc_model_admin_{model}_delete", args=(crffive.id,))
+        delete_url = reverse(
+            f"model_admin_app_admin:model_admin_app_{model}_delete", args=(crffive.id,)
+        )
         response = response.click(href=delete_url)
         form = get_webtest_form(response)
         response = form.submit().follow()
         self.assertIn("You are at Dashboard Two", response)
         self.assertRaises(ObjectDoesNotExist, CrfFive.objects.get, id=crffive.id)
 
+    @tag("1")
     def test_redirect_on_delete_with_url_name_is_none(self):
         self.login()
 
@@ -373,9 +382,13 @@ class ModelAdminSiteTest(WebTest):
         )
 
         model = "crfsix"
-        url = reverse(f"admin:edc_model_admin_{model}_change", args=(crfsix.id,))
+        url = reverse(
+            f"model_admin_app_admin:model_admin_app_{model}_change", args=(crfsix.id,)
+        )
         response = self.app.get(url, user=self.user)
-        delete_url = reverse(f"admin:edc_model_admin_{model}_delete", args=(crfsix.id,))
+        delete_url = reverse(
+            f"model_admin_app_admin:model_admin_app_{model}_delete", args=(crfsix.id,)
+        )
         response = response.click(href=delete_url)
         form = get_webtest_form(response)
         response = form.submit().follow()
@@ -392,7 +405,7 @@ class ModelAdminSiteTest(WebTest):
         )
 
         model = "crfseven"
-        add_url = reverse(f"admin:edc_model_admin_{model}_add")
+        add_url = reverse(f"model_admin_app_admin:model_admin_app_{model}_add")
 
         form_data = {
             "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
