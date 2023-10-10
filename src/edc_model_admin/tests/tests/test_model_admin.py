@@ -5,8 +5,7 @@ from edc_model_admin.mixins import (
     ModelAdminNextUrlRedirectError,
     ModelAdminNextUrlRedirectMixin,
 )
-
-from ..models import BasicModel
+from model_admin_app.models import BasicModel
 
 
 class TestModelAdmin(TestCase):
