@@ -1,8 +1,8 @@
 from edc_navbar import Navbar, NavbarItem, site_navbars
 
-visit_schedule = Navbar(name="edc_visit_schedule")
+navbar = Navbar(name="edc_visit_schedule")
 
-visit_schedule.append_item(
+navbar.append_item(
     NavbarItem(
         name="visit_schedule",
         title="Visit Schedule",
@@ -13,7 +13,7 @@ visit_schedule.append_item(
     )
 )
 
-visit_schedule.append_item(
+navbar.append_item(
     NavbarItem(
         name="admin",
         title="Subject History",
@@ -27,4 +27,4 @@ visit_schedule.append_item(
     )
 )
 
-site_navbars.register(visit_schedule)
+site_navbars.register(navbar)
