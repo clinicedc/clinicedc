@@ -13,7 +13,6 @@ from edc_visit_tracking.models import SubjectVisit
 
 from review_dashboard_app.lab_profiles import lab_profile
 from review_dashboard_app.models import SubjectConsent
-from review_dashboard_app.reference_configs import register_to_site_reference_configs
 from review_dashboard_app.visit_schedule import visit_schedule
 
 User = get_user_model()
@@ -38,7 +37,6 @@ class TestDashboard(WebTest):
 
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
-        register_to_site_reference_configs()
 
         self.subject_identifiers = ["101-40990028-3", "101-40990029-4"]
 
