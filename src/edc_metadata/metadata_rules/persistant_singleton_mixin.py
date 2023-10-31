@@ -1,4 +1,4 @@
-from typing import List, Optional
+from __future__ import annotations
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -8,7 +8,7 @@ from ..constants import KEYED, NOT_REQUIRED, REQUIRED
 
 
 class PersistantSingletonMixin:
-    """A mixin to be declared with the PredicateCollection.
+    """A mixin to be declared with a `predicates` collection.
 
     Handles a singleton model that needs to be entered
     at some later visit if not at the intended visit.
@@ -18,7 +18,7 @@ class PersistantSingletonMixin:
     """
 
     def persistant_singleton_required(
-        self, visit, model=None, exclude_visit_codes: Optional[List[str]] = None
+        self, visit, model=None, exclude_visit_codes: list[str] | None = None
     ) -> bool:
         """Returns True if the CRF model was not completed from any time
         after the exclude_visit_codes

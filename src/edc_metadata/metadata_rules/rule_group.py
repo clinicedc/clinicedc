@@ -1,9 +1,8 @@
 import sys
-from typing import Any, Optional
+from typing import Any
 
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
-from edc_reference.site_reference import site_reference_configs
 
 style = color_style()
 
@@ -61,20 +60,9 @@ class RuleGroup:
                                 f"is invalid.\n"
                             )
                         )
-                    reference_fields = site_reference_configs.get_fields(
-                        name=cls._meta.source_model
-                    )
-                    reference_fields.extend(default_fields)
-                    if field_name not in reference_fields:
-                        sys.stdout.write(
-                            style.ERROR(
-                                f"  (?) Field {cls._meta.source_model}.{field_name} "
-                                f"not found in site_reference_configs.\n"
-                            )
-                        )
 
     @classmethod
-    def _lookup_model(cls, model: Optional[str] = None, category: Optional[str] = None) -> Any:
+    def _lookup_model(cls, model: str = None, category: str = None) -> Any:
         sys.stdout.write(f"  ( ) {model}\r")
         model_cls = None
         try:

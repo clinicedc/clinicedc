@@ -10,7 +10,6 @@ from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
-from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -19,7 +18,6 @@ from edc_visit_tracking.models import SubjectVisit
 from ...models import CrfMetadata, RequisitionMetadata
 from ...view_mixins import MetadataViewMixin
 from ..models import CrfOne, CrfThree, SubjectConsent
-from ..reference_configs import register_to_site_reference_configs
 from ..visit_schedule import visit_schedule
 
 
@@ -63,11 +61,6 @@ class TestViewMixin(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
-
-        register_to_site_reference_configs()
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
-        )
 
         self.subject_identifier = "1111111"
         self.assertEqual(CrfMetadata.objects.all().count(), 0)

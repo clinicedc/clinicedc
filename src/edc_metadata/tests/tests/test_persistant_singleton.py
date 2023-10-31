@@ -11,7 +11,6 @@ from edc_appointment.models import Appointment
 from edc_appointment.tests.test_case_mixins import AppointmentTestCaseMixin
 from edc_constants.constants import FEMALE
 from edc_facility import import_holidays
-from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule.constants import DAY1, MONTH1, MONTH3, MONTH6, WEEK2
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -24,12 +23,7 @@ from edc_metadata.metadata import CrfMetadataGetter
 from edc_metadata.metadata_rules import site_metadata_rules
 
 from ...metadata_handler import MetadataHandlerError
-from ...metadata_rules import (
-    CrfRule,
-    CrfRuleGroup,
-    PersistantSingletonMixin,
-    PredicateCollection,
-)
+from ...metadata_rules import CrfRule, CrfRuleGroup, PersistantSingletonMixin
 from ...models import CrfMetadata
 from ..models import CrfOne, SubjectConsent
 from ..visit_schedule2 import visit_schedule
@@ -125,10 +119,6 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
 
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
-        )
-
         site_metadata_rules.registry = {}
         site_metadata_rules.register(self.rule_group)
 
@@ -167,9 +157,8 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
 
     @property
     def rule_group(self):
-        class Predicates(PersistantSingletonMixin, PredicateCollection):
+        class Predicates(PersistantSingletonMixin):
             app_label = "edc_metadata"
-            visit_model = "edc_visit_tracking.subjectvisit"
 
             def crfone_required(self, visit, **kwargs):  # noqa
                 model = f"{self.app_label}.crfone"

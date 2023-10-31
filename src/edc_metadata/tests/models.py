@@ -14,10 +14,6 @@ from edc_identifier.model_mixins import (
 from edc_lab.model_mixins import PanelModelMixin
 from edc_list_data.model_mixins import ListModelMixin
 from edc_model.models import BaseUuidModel
-from edc_reference.model_mixins import (
-    ReferenceModelMixin,
-    RequisitionReferenceModelMixin,
-)
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_screening.model_mixins import ScreeningModelMixin
 from edc_sites.models import SiteModelMixin
@@ -92,7 +88,6 @@ class SubjectConsent(
 
 class SubjectRequisition(
     CrfModelMixin,
-    RequisitionReferenceModelMixin,
     PanelModelMixin,
     UpdatesRequisitionMetadataModelMixin,
     BaseUuidModel,
@@ -106,7 +101,7 @@ class SubjectRequisition(
     reason_not_drawn = models.CharField(max_length=25, null=True)
 
 
-class CrfOne(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
+class CrfOne(CrfModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
@@ -116,67 +111,61 @@ class CrfOne(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, B
     f3 = models.CharField(max_length=50, null=True)
 
 
-class CrfTwo(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
+class CrfTwo(CrfModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
-class CrfThree(
-    CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel
-):
+class CrfThree(CrfModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
-class CrfFour(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
+class CrfFour(CrfModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
-class CrfFive(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
+class CrfFive(CrfModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
-class Crfsix(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
+class Crfsix(CrfModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
-class CrfSeven(
-    CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel
-):
+class CrfSeven(CrfModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
-class PrnOne(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
+class PrnOne(CrfModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
-class PrnTwo(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
+class PrnTwo(CrfModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
-class MissedVisit(
-    CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel
-):
+class MissedVisit(CrfModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
-class CrfMissingManager(ReferenceModelMixin, BaseUuidModel):
+class CrfMissingManager(BaseUuidModel):
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)

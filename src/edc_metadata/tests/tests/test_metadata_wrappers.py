@@ -2,7 +2,6 @@ from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
-from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -17,7 +16,6 @@ from ...metadata_wrappers import (
 )
 from ...models import CrfMetadata, RequisitionMetadata
 from ..models import CrfOne, SubjectConsent, SubjectRequisition
-from ..reference_configs import register_to_site_reference_configs
 from ..visit_schedule import visit_schedule
 
 
@@ -32,11 +30,6 @@ class TestMetadataWrapperObjects(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
-
-        register_to_site_reference_configs()
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
-        )
 
         self.subject_identifier = "1111111"
         subject_consent = SubjectConsent.objects.create(

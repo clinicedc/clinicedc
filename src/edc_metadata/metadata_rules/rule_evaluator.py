@@ -1,14 +1,12 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
-from warnings import warn
 
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
 from ..constants import DO_NOTHING
-from .predicate import NoValueError
 
 if TYPE_CHECKING:
     from edc_registration.models import RegisteredSubject
@@ -40,12 +38,6 @@ class RuleEvaluator:
 
     Set as a class attribute on Rule.
 
-    Ensure the `model.field` is registered with `site_reference_configs`.
-
-    Note: the predicate, which is a callable, will create a Reference
-    model instance if it does not exist. See `ReferenceGetter` in
-    `edc_reference`.
-
     See also RuleGroup and its metaclass.
     """
 
@@ -59,22 +51,13 @@ class RuleEvaluator:
         options = dict(
             visit=self.related_visit, registered_subject=self.registered_subject, **kwargs
         )
-        try:
-            predicate = self.logic.predicate(**options)
-        except NoValueError as e:
-            if show_edc_metadata_warnings:
-                warn(
-                    f"{str(e)} To ignore set settings."
-                    "EDC_METADATA_SHOW_NOVALUEERROR_WARNING=False."
-                )
-            pass
+        predicate = self.logic.predicate(**options)
+        if predicate:
+            if self.logic.consequence != DO_NOTHING:
+                self.result = self.logic.consequence
         else:
-            if predicate:
-                if self.logic.consequence != DO_NOTHING:
-                    self.result = self.logic.consequence
-            else:
-                if self.logic.alternative != DO_NOTHING:
-                    self.result = self.logic.alternative
+            if self.logic.alternative != DO_NOTHING:
+                self.result = self.logic.alternative
 
     @property
     def registered_subject_model(self) -> Any:

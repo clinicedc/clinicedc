@@ -2,15 +2,12 @@ from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
-from edc_reference.site_reference import site_reference_configs
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 from faker import Faker
-
-from edc_metadata.tests.reference_configs import register_to_site_reference_configs
 
 from ...constants import NOT_REQUIRED, REQUIRED
 from ...metadata_rules import (
@@ -122,15 +119,9 @@ class TestMetadataRulesWithGender(TestCase):
         import_holidays()
 
     def setUp(self):
-        site_reference_configs.registry = {}
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
-
-        register_to_site_reference_configs()
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
-        )
 
         # note crfs in visit schedule are all set to REQUIRED by default.
         _, self.schedule = site_visit_schedules.get_by_onschedule_model(
@@ -465,6 +456,7 @@ class TestMetadataRulesWithGender(TestCase):
                 related_visit_model = "edc_visit_tracking.subjectvisit"
 
         site_metadata_rules.registry = {}
+        site_metadata_rules.register(MyCrfRuleGroup)
         subject_visit = self.enroll(gender=MALE)
 
         MyCrfRuleGroup().evaluate_rules(related_visit=subject_visit)

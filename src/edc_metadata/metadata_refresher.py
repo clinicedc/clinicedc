@@ -30,9 +30,6 @@ class MetadataRefresher:
         self.verbose = verbose
 
     def run(self) -> None:
-        self._message("Updating references ...     \n")
-        self.create_or_update_references_for_all()
-
         self._message("Updating metadata ...     \n")
         self.create_or_update_metadata_for_all()
 
@@ -41,9 +38,6 @@ class MetadataRefresher:
         self._message("Running metadata rules ...\n")
         total = get_related_visit_model_cls().objects.all().count()
         self.run_metadata_rules(get_related_visit_model_cls(), total)
-
-        # self._message("Validating ...\n")
-        # self.validate_metadata_for_all()
         self._message("Done.\n")
 
     @property
@@ -62,12 +56,6 @@ class MetadataRefresher:
             self._source_models.insert(0, get_related_visit_model_cls()._meta.label_lower)
             self._message(f"  Found source models: {', '.join(self.source_models)}.\n")
         return self._source_models
-
-    @staticmethod
-    def update_references(source_model_cls: Any, total: int) -> None:
-        """Updates references for all instances of this source model"""
-        for instance in tqdm(source_model_cls.objects.all(), total=total):
-            instance.update_reference_on_save()
 
     @staticmethod
     def run_metadata_rules(source_model_cls: Any, total: int) -> None:
@@ -161,19 +149,8 @@ class MetadataRefresher:
             related_visit.metadata_create()
         self._message("    Done.\n")
 
-    def create_or_update_references_for_all(self) -> None:
-        self.verifying_crf_metadata_with_visit_schedule_and_admin()
-        self.verifying_requisition_metadata_with_visit_schedule_and_admin()
-        # TODO: perhaps always delete before running
-        self._message("- Updating references for all rule models...     \n")
-        for index, source_model in enumerate(self.source_models):
-            self._message(f"  {index + 1}/{len(self.source_models)}. {source_model}\n")
-            source_model_cls = django_apps.get_model(source_model)
-            total = source_model_cls.objects.all().count()
-            self.update_references(source_model_cls, total)
-
     def validate_metadata_for_all(self):
-        self._message("- Validating all metadata/references ...     \n")
+        self._message("- Validating all metadata ...     \n")
         appointments = Appointment.objects.all().order_by("site_id")
         total = appointments.count()
         for appointment in tqdm(appointments, total=total):
