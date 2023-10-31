@@ -12,7 +12,6 @@ from edc_list_data import load_list_data
 from edc_metadata.tests.models import SubjectConsent
 from edc_metadata.tests.visit_schedule import visit_schedule
 from edc_offstudy.action_items import EndOfStudyAction as BaseEndOfStudyAction
-from edc_reference import site_reference_configs
 from edc_unblinding.constants import UNBLINDING_REVIEW_ACTION
 from edc_utils import get_dob, get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -57,11 +56,6 @@ class TestLtfu(AppointmentTestCaseMixin, TestCase):
         site_visit_schedules.register(visit_schedule)
 
         self.schedule = visit_schedule.schedules.get("schedule")
-
-        site_reference_configs.registry = {}
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
-        )
 
         self.subject_identifier = "111111111"
         self.subject_identifiers = [
