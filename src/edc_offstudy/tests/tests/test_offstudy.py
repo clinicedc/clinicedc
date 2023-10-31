@@ -6,7 +6,6 @@ from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_constants.constants import DEAD
 from edc_facility.import_holidays import import_holidays
-from edc_reference import site_reference_configs
 from edc_utils import get_dob, get_utcnow
 from edc_visit_schedule.exceptions import OffScheduleError
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -45,9 +44,6 @@ class TestOffstudy(TestCase):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule1)
 
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
-        )
         self.schedule1 = visit_schedule1.schedules.get("schedule1")
 
         self.subject_identifier = "111111111"
