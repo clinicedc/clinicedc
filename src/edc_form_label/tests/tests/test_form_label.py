@@ -9,7 +9,6 @@ from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.models import Appointment
 from edc_constants.constants import NO
 from edc_facility import import_holidays
-from edc_reference import site_reference_configs
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -32,9 +31,6 @@ class TestFormLabel(TestCase):
     def setUp(self):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
-        )
         self.user = User.objects.create(username="erikvw", is_staff=True, is_active=True)
         self.subject_identifier = "1234"
         for permission in Permission.objects.filter(
