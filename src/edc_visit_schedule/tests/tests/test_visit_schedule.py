@@ -8,7 +8,6 @@ from edc_consent.consent import Consent
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
-from edc_reference import site_reference_configs
 from edc_registration.models import RegisteredSubject
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
@@ -60,9 +59,6 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
             gender=[MALE, FEMALE],
         )
         import_holidays()
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
-        )
         site_consents.registry = {}
         site_consents.register(v1_consent)
 
@@ -246,11 +242,6 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         self.visit_schedule.add_schedule(self.schedule)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(self.visit_schedule)
-
-        site_reference_configs.registry = {}
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
-        )
 
         self.subject_consent = SubjectConsent.objects.create(
             subject_identifier="12345",
