@@ -1,7 +1,6 @@
 from django.test import TestCase
 from edc_facility.import_holidays import import_holidays
 from edc_metadata.tests.models import SubjectConsent
-from edc_reference import ReferenceModelConfig, site_reference_configs
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -18,19 +17,9 @@ class TestCaseMixin(TestCase):
     def enroll(subject_identifier=None):
         subject_identifier = subject_identifier or "1111111"
 
-        site_reference_configs.registry = {}
-        reference = ReferenceModelConfig(
-            name="edc_action_item.CrfLongitudinalOne", fields=["f1", "f2", "f3"]
-        )
-        site_reference_configs.register(reference)
-
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
-
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
-        )
 
         subject_consent = SubjectConsent.objects.create(
             subject_identifier=subject_identifier, consent_datetime=get_utcnow()

@@ -18,9 +18,9 @@ def fix_null_historical_action_identifier(app_label, models):
     with connection.cursor() as cursor:
         for model in models:
             tbl = f"{app_label}_historical{model}"
-            if not re.match("([a-z]+)_historical_([a-z]+)", tbl):
-                raise ValueError("Invalid table name when building sql statement")
-            tbl = re.match("([a-z]+)_historical_([a-z]+)", tbl).group()
+            if not re.match("([a-z_]+)_historical([a-z]+)", tbl):
+                raise ValueError(f"Invalid table name when building sql statement. Got {tbl}")
+            tbl = re.match("([a-z_]+)_historical([a-z]+)", tbl).group()
             sql = (
                 f"update {tbl} set action_identifier=id "  # nosec B608
                 "where action_identifier is null"  # nosec B608
