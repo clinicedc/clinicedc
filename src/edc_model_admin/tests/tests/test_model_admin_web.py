@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import tag
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_appointment.models import Appointment
@@ -373,7 +372,6 @@ class ModelAdminSiteTest(WebTest):
         self.assertIn("You are at Dashboard Two", response)
         self.assertRaises(ObjectDoesNotExist, CrfFive.objects.get, id=crffive.id)
 
-    @tag("1")
     def test_redirect_on_delete_with_url_name_is_none(self):
         self.login()
 
