@@ -5,7 +5,6 @@ from edc_identifier.managers import SubjectIdentifierManager
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
 from edc_model.models import BaseUuidModel
-from edc_reference.model_mixins import ReferenceModelMixin
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_sites.models import SiteModelMixin
 from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
@@ -43,7 +42,6 @@ class SubjectConsent(
 class SubjectVisit(
     SiteModelMixin,
     VisitModelMixin,
-    ReferenceModelMixin,
     CreatesMetadataModelMixin,
     TimepointLookupModelMixin,
     BaseUuidModel,
