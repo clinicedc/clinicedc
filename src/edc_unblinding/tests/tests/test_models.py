@@ -4,7 +4,6 @@ from edc_action_item import site_action_items
 from edc_auth.site_auths import site_auths
 from edc_consent import site_consents
 from edc_facility import import_holidays
-from edc_reference import site_reference_configs
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.tests.helper import Helper
 from visit_schedule_app.consents import v1_consent
@@ -49,9 +48,6 @@ class EdcunblindingTestCase(TestCase):
         )
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule)
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
-        )
         self.subject_consent = self.helper.consent_and_put_on_schedule()
 
     def test_ok(self):
