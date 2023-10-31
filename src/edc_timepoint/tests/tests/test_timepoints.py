@@ -6,7 +6,6 @@ from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
-from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -16,7 +15,6 @@ from ...model_mixins import UnableToCloseTimepoint
 from ...timepoint import TimepointClosed
 from ..consents import v1
 from ..models import CrfOne, CrfTwo, SubjectConsent, SubjectVisit
-from ..reference_configs import register_to_site_reference_configs
 from ..visit_schedule import visit_schedule1
 
 
@@ -68,10 +66,6 @@ class TimepointTests(TestCase):
         self.subject_identifier = "12345"
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
-        register_to_site_reference_configs()
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_timepoint.subjectvisit"}
-        )
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=get_utcnow() - relativedelta(years=1),
