@@ -4,7 +4,6 @@ from edc_appointment.tests.helper import Helper
 from edc_constants.constants import NEVER, NO, OTHER, YES
 from edc_facility import import_holidays
 from edc_list_data import site_list_data
-from edc_reference import site_reference_configs
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from edc_adherence import list_data
@@ -27,9 +26,6 @@ class TestAdherence(TestCase):
         site_list_data.load_data()
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_adherence.subjectvisit"}
-        )
         self.subject_identifier = "1234"
         self.helper = Helper(subject_identifier=self.subject_identifier)
         self.helper.consent_and_put_on_schedule(

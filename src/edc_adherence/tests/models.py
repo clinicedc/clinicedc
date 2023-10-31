@@ -7,7 +7,6 @@ from edc_list_data.model_mixins import ListModelMixin
 from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
 from edc_model import models as edc_models
 from edc_model.models import BaseUuidModel
-from edc_reference.model_mixins import ReferenceModelMixin
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_screening.model_mixins import ScreeningModelMixin
 from edc_sites.models import SiteModelMixin
@@ -57,7 +56,6 @@ class OffSchedule(SiteModelMixin, edc_models.BaseUuidModel):
 
 class SubjectVisit(
     VisitModelMixin,
-    ReferenceModelMixin,
     CreatesMetadataModelMixin,
     SiteModelMixin,
     BaseUuidModel,
