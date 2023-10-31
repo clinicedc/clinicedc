@@ -16,7 +16,6 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from model_bakery import baker
 
 from data_manager_app.lab_profiles import lab_profile
-from data_manager_app.reference_model_configs import register_to_site_reference_configs
 from data_manager_app.visit_schedules import visit_schedule
 from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
 from edc_data_manager.models import CrfDataDictionary, DataQuery
@@ -60,7 +59,6 @@ class AdminSiteTest(WebTest):
         site_labs.loaded = False
         site_labs.register(lab_profile=lab_profile)
 
-        register_to_site_reference_configs()
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
