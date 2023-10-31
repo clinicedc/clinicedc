@@ -19,7 +19,6 @@ for app_name in [
     "edc_device",
     "edc_lab_dashboard",
     "edc_protocol",
-    "edc_reference",
     "edc_subject_dashboard",
     "edc_visit_schedule",
     "data_manager_app",

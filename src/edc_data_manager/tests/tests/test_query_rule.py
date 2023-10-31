@@ -15,7 +15,6 @@ from edc_lab.constants import TUBE
 from edc_lab.models.panel import Panel
 from edc_lab.site_labs import site_labs
 from edc_metadata.metadata_inspector import MetaDataInspector
-from edc_reference.site_reference import site_reference_configs
 from edc_utils.date import get_utcnow
 from edc_visit_schedule.apps import populate_visit_schedule
 from edc_visit_schedule.constants import HOURS
@@ -56,10 +55,6 @@ class TestQueryRules(TestCase):
         site_visit_schedules.register(visit_schedule)
 
         populate_visit_schedule()
-
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "data_manager_app.subjectvisit"}
-        )
 
         self.subject_identifier = "101-40990029-4"
         identity = "123456789"
@@ -373,21 +368,6 @@ class TestQueryRules(TestCase):
             ).count(),
             1,
         )
-
-        # # create the CRF, field value missing => query when DUE.
-        # crf_one = CrfOne.objects.create(
-        #     subject_visit=subject_visit,
-        #     report_datetime=subject_visit.report_datetime,
-        #     f1=None,
-        # )
-
-        # # assert DataQuery stays opens.
-        # self.assertEqual(
-        #     DataQuery.objects.filter(
-        #         rule_generated=True, rule_reference=query_rule.reference, status=OPEN
-        #     ).count(),
-        #     1,
-        # )
 
         crf_one.f1 = "erik"
         crf_one.save()
