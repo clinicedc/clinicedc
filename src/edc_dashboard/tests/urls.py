@@ -30,7 +30,6 @@ for app_name in [
     "edc_export",
     "edc_device",
     "edc_protocol",
-    "edc_reference",
     "edc_visit_schedule",
 ]:
     for p in paths_for_urlpatterns(app_name):
