@@ -32,7 +32,6 @@ DEFAULT_SETTINGS = DefaultTestSettings(
         "edc_action_item.apps.AppConfig",
         "edc_lab.apps.AppConfig",
         "edc_lab_results.apps.AppConfig",
-        "edc_reference.apps.AppConfig",
         "edc_registration.apps.AppConfig",
         "edc_sites.apps.AppConfig",
         "edc_notification.apps.AppConfig",
