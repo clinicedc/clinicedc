@@ -4,7 +4,6 @@ from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_constants.constants import COMPLETE, INCOMPLETE
 from edc_facility import import_holidays
-from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -41,9 +40,6 @@ class EdcCrfTestCase(TestCase):
         )
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule)
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
-        )
         self.helper.consent_and_put_on_schedule()
         appointment = Appointment.objects.all()[0]
         self.subject_visit = SubjectVisit.objects.create(

@@ -3,7 +3,6 @@ from django.db import models
 from edc_consent.model_mixins import RequiresConsentFieldsModelMixin
 from edc_metadata.model_mixins.updates import UpdatesCrfMetadataModelMixin
 from edc_offstudy.model_mixins import OffstudyCrfModelMixin
-from edc_reference.model_mixins import ReferenceModelMixin
 from edc_visit_tracking.model_mixins import (
     PreviousVisitModelMixin,
     VisitTrackingCrfModelMixin,
@@ -16,7 +15,6 @@ class CrfNoManagerModelMixin(
     PreviousVisitModelMixin,
     UpdatesCrfMetadataModelMixin,
     OffstudyCrfModelMixin,
-    ReferenceModelMixin,
     models.Model,
 ):
     """Modelmixin for all scheduled CRF models"""
