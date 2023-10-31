@@ -5,7 +5,6 @@ from edc_appointment.constants import SCHEDULED_APPT
 from edc_appointment.models import Appointment
 from edc_constants.constants import NOT_APPLICABLE, YES
 from edc_lab.constants import EQ
-from edc_reference import site_reference_configs
 from edc_reportable import MILLIMOLES_PER_LITER
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -20,9 +19,6 @@ class TestGlucose(TestCase):
     def setUp(self):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
-        )
         self.subject_identifier = "1234"
         appointment = Appointment.objects.create(
             subject_identifier=self.subject_identifier,
