@@ -58,6 +58,7 @@ def create_users(count=None, group_name=None, site_name=None):
             "is_staff": True,
             "is_superuser": False,
         }
+        User.objects.all().delete()
         user = User.objects.create(**user_data)
         user.userprofile.job_title = "Research Assistant"
         site = Site.objects.get(name=site_name or choice([v for v in sites.values()]))
