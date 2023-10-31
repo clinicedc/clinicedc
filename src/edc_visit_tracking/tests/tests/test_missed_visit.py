@@ -16,7 +16,6 @@ from edc_constants.constants import (
 from edc_facility.import_holidays import import_holidays
 from edc_list_data import load_list_data
 from edc_metadata.models import CrfMetadata
-from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule.constants import DAY1
 from edc_visit_schedule.schedule import Schedule
@@ -96,9 +95,6 @@ class TestVisit(TestCase):
         visit_schedule1.add_schedule(schedule1)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
-        )
 
     @staticmethod
     def get_subject_visit(

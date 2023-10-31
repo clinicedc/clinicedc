@@ -5,7 +5,6 @@ from edc_appointment.utils import get_appointment_model_name
 from edc_consent.model_mixins import RequiresConsentFieldsModelMixin
 from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
 from edc_model.models import BaseUuidModel, HistoricalRecords
-from edc_reference.model_mixins import ReferenceModelMixin
 from edc_sites.model_mixins import CurrentSiteManager, SiteModelMixin
 
 from edc_visit_tracking.choices import (
@@ -20,7 +19,6 @@ from edc_visit_tracking.model_mixins import VisitModelMixin
 class SubjectVisit(
     VisitModelMixin,
     RequiresConsentFieldsModelMixin,
-    ReferenceModelMixin,
     CreatesMetadataModelMixin,
     SiteModelMixin,
     BaseUuidModel,
