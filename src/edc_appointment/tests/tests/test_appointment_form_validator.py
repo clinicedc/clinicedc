@@ -13,7 +13,6 @@ from edc_facility.import_holidays import import_holidays
 from edc_form_validators import ModelFormFieldValidatorError
 from edc_metadata import KEYED, REQUIRED
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
-from edc_reference import site_reference_configs
 from edc_visit_schedule.constants import DAY01
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -72,9 +71,6 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=datetime(2017, 1, 7, tzinfo=ZoneInfo("UTC")),
-        )
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_appointment_app.subjectvisit"}
         )
 
     def test_get_previous(self):

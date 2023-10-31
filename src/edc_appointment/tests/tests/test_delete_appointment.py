@@ -8,7 +8,6 @@ from django.test import TestCase
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
-from edc_reference import site_reference_configs
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
@@ -52,9 +51,6 @@ class TestDeleteAppointment(TestCase):
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=Protocol().study_open_datetime,
-        )
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_appointment_app.subjectvisit"}
         )
         self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
