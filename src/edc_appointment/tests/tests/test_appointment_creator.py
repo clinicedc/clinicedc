@@ -13,7 +13,6 @@ from edc_consent.consent import Consent
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_facility.utils import get_facility
-from edc_reference import site_reference_configs
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.visit import Visit
@@ -83,9 +82,6 @@ class AppointmentCreatorTestCase(TestCase):
         site_visit_schedules.register(visit_schedule=self.visit_schedule)
         site_consents.registry = {}
         site_consents.register(v1_consent)
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_appointment_app.subjectvisit"}
-        )
 
         class Meta:
             label_lower = ""

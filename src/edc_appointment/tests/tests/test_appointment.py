@@ -12,15 +12,11 @@ from edc_consent import site_consents
 from edc_constants.constants import INCOMPLETE
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
-from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.model_mixins import SubjectVisitReasonError
-from edc_visit_tracking.utils import (
-    get_related_visit_model,
-    get_related_visit_model_cls,
-)
+from edc_visit_tracking.utils import get_related_visit_model_cls
 
 from edc_appointment.constants import (
     IN_PROGRESS_APPT,
@@ -64,9 +60,6 @@ class TestAppointment(TestCase):
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=Protocol().study_open_datetime,
-        )
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": get_related_visit_model()}
         )
 
     def test_appointments_creation(self):

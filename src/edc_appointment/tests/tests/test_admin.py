@@ -8,14 +8,10 @@ from edc_auth.auth_updater.group_updater import GroupUpdater, PermissionsCodenam
 from edc_consent import site_consents
 from edc_facility import import_holidays
 from edc_protocol import Protocol
-from edc_reference import site_reference_configs
 from edc_test_utils.webtest import login
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
-from edc_visit_tracking.utils import (
-    get_related_visit_model,
-    get_related_visit_model_cls,
-)
+from edc_visit_tracking.utils import get_related_visit_model_cls
 
 from edc_appointment.admin import AppointmentAdmin
 from edc_appointment.auth_objects import codenames
@@ -54,9 +50,6 @@ class TestAdmin(WebTest):
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=Protocol().study_open_datetime,
-        )
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": get_related_visit_model()}
         )
 
     def get_app_form(self, url_name=None, response=None):

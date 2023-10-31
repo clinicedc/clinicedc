@@ -6,7 +6,6 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
 from edc_facility.import_holidays import import_holidays
-from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
@@ -55,9 +54,6 @@ class TestAppointmentWindowPeriod(TestCase):
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=get_utcnow() - relativedelta(years=2),  # Protocol().study_open_datetime,
-        )
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_appointment_app.subjectvisit"}
         )
 
     @staticmethod
@@ -489,9 +485,6 @@ class TestAppointmentWindowPeriod2(TestCase):
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=get_utcnow() - relativedelta(years=2),
-        )
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_appointment_app.subjectvisit"}
         )
 
     @override_settings(EDC_VISIT_SCHEDULE_DEFAULT_MAX_VISIT_GAP_ALLOWED=0)

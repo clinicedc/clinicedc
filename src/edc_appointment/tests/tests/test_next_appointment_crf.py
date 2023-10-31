@@ -10,7 +10,6 @@ from edc_consent import site_consents
 from edc_constants.constants import NOT_APPLICABLE, PATIENT
 from edc_facility import import_holidays
 from edc_facility.models import HealthFacility, HealthFacilityTypes
-from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule.apps import populate_visit_schedule
 from edc_visit_schedule.models import VisitSchedule
@@ -43,9 +42,6 @@ class TestNextAppointmentCrf(TestCase):
 
         populate_visit_schedule()
 
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_appointment_app.subjectvisit"}
-        )
         self.subject_identifier = "101-40990029-4"
         identity = "123456789"
         subject_consent = SubjectConsent.objects.create(

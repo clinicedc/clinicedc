@@ -3,10 +3,9 @@ from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
-from edc_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule.exceptions import ScheduleError
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -32,7 +31,6 @@ from edc_appointment_app.visit_schedule import visit_schedule1, visit_schedule2
 from ..helper import Helper
 
 
-@tag("3")
 class TestUnscheduledAppointmentCreator(TestCase):
     helper_cls = Helper
 
@@ -51,10 +49,6 @@ class TestUnscheduledAppointmentCreator(TestCase):
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=datetime(2017, 1, 7, tzinfo=ZoneInfo("UTC")),
-        )
-
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_appointment_app.subjectvisit"}
         )
 
     def test_unscheduled_allowed_but_raises_on_appt_status(self):
