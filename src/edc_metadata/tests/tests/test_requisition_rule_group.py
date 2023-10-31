@@ -4,8 +4,6 @@ from edc_appointment.models import Appointment
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models import Panel
-from edc_reference import site_reference_configs
-from edc_reference.models import Reference
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -22,7 +20,6 @@ from ...metadata_rules import (
 )
 from ...models import RequisitionMetadata
 from ..models import CrfOne, SubjectConsent, SubjectRequisition
-from ..reference_configs import register_to_site_reference_configs
 from ..visit_schedule import visit_schedule
 
 fake = Faker()
@@ -152,10 +149,6 @@ class TestRequisitionRuleGroup(TestCase):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
 
-        register_to_site_reference_configs()
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
-        )
         _, self.schedule = site_visit_schedules.get_by_onschedule_model(
             "edc_metadata.onschedule"
         )
@@ -309,16 +302,6 @@ class TestRequisitionRuleGroup(TestCase):
         subject_visit = self.enroll(gender=FEMALE)
         site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup2)
-        Reference.objects.create(
-            visit_schedule_name=subject_visit.visit_schedule_name,
-            schedule_name=subject_visit.schedule_name,
-            visit_code=subject_visit.visit_code,
-            timepoint=subject_visit.timepoint,
-            identifier=subject_visit.subject_identifier,
-            report_datetime=subject_visit.report_datetime,
-            field_name="panel",
-            value_uuid=self.panel_five.id,
-        )
         SubjectRequisition.objects.create(subject_visit=subject_visit, panel=self.panel_five)
         for panel in [self.panel_three, self.panel_four]:
             with self.subTest(panel=panel):
@@ -399,17 +382,6 @@ class TestRequisitionRuleGroup(TestCase):
 
         subject_visit = self.enroll(gender=FEMALE)
 
-        Reference.objects.create(
-            visit_schedule_name=subject_visit.visit_schedule_name,
-            schedule_name=subject_visit.schedule_name,
-            visit_code=subject_visit.visit_code,
-            timepoint=subject_visit.timepoint,
-            identifier=subject_visit.subject_identifier,
-            report_datetime=subject_visit.report_datetime,
-            field_name="panel",
-            value_uuid=self.panel_five.id,
-        )
-
         # check default entry status
         metadata_obj = RequisitionMetadata.objects.get(
             model="edc_metadata.subjectrequisition",
@@ -479,17 +451,6 @@ class TestRequisitionRuleGroup(TestCase):
         subject_visit = self.enroll(gender=FEMALE)
         site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup3)
-        Reference.objects.create(
-            visit_schedule_name=subject_visit.visit_schedule_name,
-            schedule_name=subject_visit.schedule_name,
-            visit_code=subject_visit.visit_code,
-            timepoint=subject_visit.timepoint,
-            identifier=subject_visit.subject_identifier,
-            report_datetime=subject_visit.report_datetime,
-            field_name="panel",
-            value_uuid=self.panel_five.id,
-        )
-
         # create CRF that triggers rule to REQUIRED
         crf_one = CrfOne.objects.create(subject_visit=subject_visit, f1="hello")
         metadata_obj = RequisitionMetadata.objects.get(

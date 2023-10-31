@@ -4,7 +4,6 @@ from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_constants.constants import MALE
 from edc_facility.import_holidays import import_holidays
-from edc_reference.site_reference import site_reference_configs
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -16,7 +15,6 @@ from edc_metadata.models import CrfMetadata
 
 from ...metadata_rules import CrfRule, CrfRuleGroup, P, site_metadata_rules
 from ..models import CrfOne, CrfTwo, SubjectConsent
-from ..reference_configs import register_to_site_reference_configs
 from ..visit_schedule import visit_schedule
 
 fake = Faker()
@@ -85,11 +83,6 @@ class CrfRuleGroupTestCase(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
-
-        register_to_site_reference_configs()
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
-        )
 
         # note crfs in visit schedule are all set to REQUIRED by default.
         _, self.schedule = site_visit_schedules.get_by_onschedule_model(

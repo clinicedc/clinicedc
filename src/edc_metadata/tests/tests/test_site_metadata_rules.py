@@ -14,7 +14,6 @@ from ...metadata_rules import (
     register,
     site_metadata_rules,
 )
-from ..reference_configs import register_to_site_reference_configs
 
 
 class RuleGroupWithoutRules(CrfRuleGroup):
@@ -56,7 +55,6 @@ class TestSiteMetadataRules(TestCase):
         return super().setUpClass()
 
     def setUp(self):
-        register_to_site_reference_configs()
         site_metadata_rules.registry = {}
 
     def test_register_rule_group_no_rules_raises_on_register(self):

@@ -9,7 +9,7 @@ from edc_subject_model_wrappers import CrfModelWrapper, RequisitionModelWrapper
 
 from ..constants import CRF, KEYED, NOT_REQUIRED, REQUIRED, REQUISITION
 from ..metadata_wrappers import CrfMetadataWrappers, RequisitionMetadataWrappers
-from ..utils import refresh_references_and_metadata_for_timepoint
+from ..utils import refresh_metadata_for_timepoint
 
 
 class MetadataViewError(Exception):
@@ -39,7 +39,7 @@ class MetadataViewMixin:
                 and "subject_review_listboard" in referrer
             ):
                 self.appointment_id = kwargs.get("appointment")
-                self.refresh_references_and_metadata_for_timepoint()
+                self.refresh_metadata_for_timepoint()
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -70,9 +70,9 @@ class MetadataViewMixin:
                 )
         return context
 
-    def refresh_references_and_metadata_for_timepoint(self):
+    def refresh_metadata_for_timepoint(self):
         """Save related visit model instance to run metadata update."""
-        refresh_references_and_metadata_for_timepoint(self.appointment, skip_references=True)
+        refresh_metadata_for_timepoint(self.appointment)
 
     def get_crf_model_wrappers(self):
         """Returns a list of model wrappers.

@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Type
+from typing import TYPE_CHECKING, Any
 
 from django.apps import apps as django_apps
 from django.contrib.admin.sites import all_sites
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError, transaction
-from django.db.models import Model
-from edc_reference import site_reference_configs
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.visit import FormsCollection
 from edc_visit_tracking.constants import MISSED_VISIT
@@ -16,7 +14,6 @@ from ..constants import KEYED, NOT_REQUIRED, REQUIRED
 from ..utils import verify_model_cls_registered_with_admin
 
 if TYPE_CHECKING:
-    from edc_reference.models import Reference
     from edc_visit_schedule.visit import Crf, Requisition
     from edc_visit_tracking.typing_stubs import RelatedVisitProtocol
 
@@ -65,12 +62,6 @@ class CrfCreator:
         self,
     ) -> CrfMetadata | RequisitionMetadata:
         return django_apps.get_model(self.metadata_model)
-
-    @property
-    def reference_model_cls(self) -> Reference:
-        """Returns model cls edc_reference.reference by default"""
-        reference_model = site_reference_configs.get_reference_model(name=self.crf.model)
-        return django_apps.get_model(reference_model)
 
     @property
     def query_options(self) -> dict:
@@ -127,9 +118,7 @@ class CrfCreator:
     @property
     def is_keyed(self) -> bool:
         """Returns True if CRF is keyed determined by
-        querying the reference model.
-
-        See also edc_reference.
+        querying the CRF model class for this timepoint.
         """
         return (
             django_apps.get_model(self.crf.model)
@@ -182,11 +171,6 @@ class RequisitionCreator(CrfCreator):
         self.panel_name: str = f"{self.requisition.model}.{self.requisition.panel.name}"
 
     @property
-    def reference_model_cls(self) -> Type[Model]:
-        reference_model = site_reference_configs.get_reference_model(name=self.panel_name)
-        return django_apps.get_model(reference_model)
-
-    @property
     def requisition(self) -> Requisition:
         return self.crf
 
@@ -199,13 +183,14 @@ class RequisitionCreator(CrfCreator):
     @property
     def is_keyed(self) -> bool:
         """Returns True if requisition is keyed determined by
-        getting the reference model instance for this
-        requisition+panel_name .
-
-        See also edc_reference.
+        simple requisition model class lookup for this timepoint and panel.
         """
-        return self.reference_model_cls.objects.get_requisition_for_visit(
-            name=self.panel_name, related_visit=self.related_visit
+        return (
+            django_apps.get_model(self.requisition.model)
+            .objects.filter(
+                subject_visit=self.related_visit, panel__name=self.requisition.panel.name
+            )
+            .exists()
         )
 
 

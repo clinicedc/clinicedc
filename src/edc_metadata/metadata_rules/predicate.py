@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, Optional, Union
+from typing import Any
 
-from edc_reference.reference import ReferenceGetterError, ReferenceObjectDoesNotExist
+from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class PredicateError(Exception):
@@ -14,63 +15,40 @@ class NoValueError(Exception):
 
 
 class BasePredicate:
-    def get_value(
-        self,
-        attr: str = None,
-        source_model: str | None = None,
-        reference_getter_cls: Optional[Any] = None,
-        **kwargs,
-    ) -> Any:
+    @staticmethod
+    def get_value(attr: str = None, source_model: str | None = None, **kwargs) -> Any:
         """Returns a value by checking for the attr on each arg.
 
         Each arg in args may be a model instance, queryset, or None.
 
-        A NoValueError is raised if attr is not found on any "instance".
-        in kwargs.
+        If not found, does a lookup on the source_model.
         """
-        found_on_instance: Any = None
-        for instance in kwargs.values():
+        found: bool = False
+        value: Any = None
+        for v in kwargs.values():
             try:
-                getattr(instance, attr)
+                value = getattr(v, attr)
             except AttributeError:
-                pass
+                continue
             else:
-                found_on_instance = instance
+                found = True
                 break
-        if found_on_instance:
-            value = getattr(found_on_instance, attr)
-        else:
-            opts = dict(
-                field_name=attr, name=source_model, **self.opts_from_visit(kwargs.get("visit"))
-            )
+        if not found:
+            visit = kwargs.get("visit")
             try:
-                reference = reference_getter_cls(**opts)
-            except (ReferenceGetterError, ReferenceObjectDoesNotExist) as e:
-                raise NoValueError(f"No value found for {attr}. Given {kwargs}. Got {e}.")
+                obj = django_apps.get_model(source_model).objects.get(
+                    subject_visit__subject_identifier=visit.subject_identifier,
+                    subject_visit__visit_schedule_name=visit.visit_schedule_name,
+                    subject_visit__schedule_name=visit.schedule_name,
+                    subject_visit__visit_code=visit.visit_code,
+                    subject_visit__visit_code_sequence=visit.visit_code_sequence,
+                    subject_visit__site=visit.site,
+                )
+            except ObjectDoesNotExist:
+                value = None
             else:
-                if reference.has_value:
-                    value = getattr(reference, attr)
-                else:
-                    raise NoValueError(f"No value found for {attr}. Given {kwargs}")
+                value = getattr(obj, attr)
         return value
-
-    @staticmethod
-    def opts_from_visit(visit: Any) -> dict:
-        """Returns a dict of values from the visit model instance"""
-        try:
-            opts = dict(
-                subject_identifier=visit.subject_identifier,
-                report_datetime=visit.report_datetime,
-                visit_schedule_name=visit.visit_schedule_name,
-                schedule_name=visit.schedule_name,
-                visit_code=visit.visit_code,
-                visit_code_sequence=visit.visit_code_sequence,
-                timepoint=visit.timepoint,
-                site=visit.site,
-            )
-        except AttributeError as e:
-            raise PredicateError(f"Invalid visit model or None. Got {e}")
-        return opts
 
 
 class P(BasePredicate):
@@ -104,7 +82,7 @@ class P(BasePredicate):
         "in": lambda x, y: True if x in y else False,
     }
 
-    def __init__(self, attr: str, operator: str, expected_value: Union[list, str]) -> None:
+    def __init__(self, attr: str, operator: str, expected_value: list | str) -> None:
         self.attr = attr
         self.expected_value = expected_value
         self.func = self.funcs.get(operator)

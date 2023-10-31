@@ -2,10 +2,9 @@ from django.apps import apps as django_apps
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from edc_crf.model_mixins import SingletonCrfModelMixin
-from edc_reference.reference import ReferenceDeleterError
 
 from edc_metadata import KEYED
-from edc_metadata.utils import refresh_references_and_metadata_for_timepoint
+from edc_metadata.utils import refresh_metadata_for_timepoint
 
 
 @receiver(post_save, weak=False, dispatch_uid="metadata_create_on_post_save")
@@ -18,14 +17,10 @@ def metadata_create_on_post_save(
     For example, when saving the related_visit model.
 
     A related_visit model instance will:
-      * update it`s own references (`update_reference_on_save`)
       * delete and re-create ALL metadata for the timepoint
         (`metadata_create`)
       * run ALL metadata rules for the timepoint
         (`run_metadata_rules_for_related_visit`).
-
-    See also edc_reference.ReferenceModelMixin and
-    RequisitionReferenceModelMixin .
     """
     if (
         not raw
@@ -33,11 +28,6 @@ def metadata_create_on_post_save(
         and not hasattr(instance, "metadata_update")
         and not instance._meta.label_lower.split(".")[1].startswith("historical")
     ):
-        try:
-            instance.update_reference_on_save()
-        except AttributeError as e:
-            if "update_reference_on_save" not in str(e):
-                raise
         try:
             instance.metadata_create()
         except AttributeError as e:
@@ -70,11 +60,6 @@ def metadata_update_on_post_save(
         and not instance._meta.label_lower.split(".")[1].startswith("historical")
     ):
         try:
-            instance.update_reference_on_save()
-        except AttributeError as e:
-            if "update_reference_on_save" not in str(e):
-                raise
-        try:
             instance.metadata_update(entry_status=KEYED)
         except AttributeError as e:
             if "metadata_update" not in str(e):
@@ -89,18 +74,7 @@ def metadata_reset_on_post_delete(sender, instance, using, **kwargs) -> None:
     """Deletes a single model instance used by UpdatesMetadataMixin.
 
     Not used by CrfMetadata and RequisitionMetadata.
-
-    Calls reference_deleter_cls in case this signal fires before
-    the post_delete signal in edc_reference.
     """
-    try:
-        instance.reference_deleter_cls(model_obj=instance)
-    except AttributeError as e:
-        if "reference_deleter_cls" not in str(e):
-            raise
-    except ReferenceDeleterError:
-        pass
-
     try:
         instance.metadata_reset_on_delete()
     except AttributeError as e:
@@ -132,6 +106,4 @@ def metadata_update_previous_timepoints_for_singleton_on_post_save(
             while related_visit:
                 related_visit = related_visit.previous_visit
                 if related_visit:
-                    refresh_references_and_metadata_for_timepoint(
-                        related_visit, skip_references=True
-                    )
+                    refresh_metadata_for_timepoint(related_visit)

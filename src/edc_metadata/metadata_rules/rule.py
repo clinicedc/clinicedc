@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from edc_appointment.constants import MISSED_APPT
 
@@ -8,7 +8,6 @@ from .logic import Logic
 from .rule_evaluator import RuleEvaluator
 
 if TYPE_CHECKING:
-    from edc_reference import ReferenceGetter
     from edc_visit_tracking.model_mixins import VisitModelMixin as Base
 
     from ..model_mixins.creates import CreatesMetadataModelMixin
@@ -41,7 +40,6 @@ class Rule:
         self.name: str | None = None  # set by metaclass
         self.source_model: str | None = None  # set by metaclass
         self.related_visit_model: str | None = None  # set by metaclass
-        self.reference_getter_cls: Type[ReferenceGetter] | None = None  # set by metaclass
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name='{self.name}', group='{self.group}')"
@@ -54,9 +52,6 @@ class Rule:
         by running the rule for each target model given a visit.
 
         Skips run if `appointment.appt_timing` == MISSED_APPT
-
-        Ensure the `model.field` is registered with `site_reference_configs`.
-        See `edc_reference`.
         """
         result = None
         if (
