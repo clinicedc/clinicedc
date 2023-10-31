@@ -7,7 +7,6 @@ from edc_consent.consent import Consent
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
-from edc_reference import site_reference_configs
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
 from edc_visit_tracking.constants import SCHEDULED
@@ -54,9 +53,6 @@ class TestModels(SiteTestCaseMixin, TestCase):
         site_visit_schedules.loaded = False
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
-        )
         v1_consent = Consent(
             "visit_schedule_app.subjectconsent",
             version="1",
