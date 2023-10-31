@@ -10,7 +10,6 @@ from edc_model.models import HistoricalRecords, InitialsField, OtherCharField
 from edc_model.validators import datetime_not_future
 from edc_protocol import Protocol
 from edc_protocol.validators import datetime_not_before_study_start
-from edc_reference.model_mixins import RequisitionReferenceModelMixin
 from edc_search.model_mixins import SearchSlugModelMixin
 from edc_sites.models import SiteModelMixin
 from edc_visit_tracking.managers import CrfCurrentSiteManager
@@ -35,7 +34,6 @@ class RequisitionModelMixin(
     PreviousVisitModelMixin,
     RequiresConsentFieldsModelMixin,
     RequisitionIdentifierMixin,
-    RequisitionReferenceModelMixin,
     RequisitionStatusMixin,
     RequisitionVerifyModelMixin,
     SearchSlugModelMixin,
