@@ -30,7 +30,7 @@ class TestUser(EdcAuthTestCase):
         AuthUpdater(verbose=False)
         # import new users
         import_users(self.filename, resource_name=None, send_email_to_user=True)
-        self.assertEqual(len(mail.outbox), User.objects.all().count())  # noqa
+        self.assertEqual(len(mail.outbox), User.objects.all().count())
         self.assertEqual(
             mail.outbox[0].subject,
             f"{Protocol().project_name} EDC: Your example.com user account is ready.",
@@ -39,7 +39,7 @@ class TestUser(EdcAuthTestCase):
         # update existing users
         import_users(self.filename, resource_name=None, send_email_to_user=True)
         user_count = User.objects.all().count()
-        self.assertEqual(len(mail.outbox), user_count * 2)  # noqa
+        self.assertEqual(len(mail.outbox), user_count * 2)
         self.assertEqual(
             mail.outbox[0].subject,
             f"{Protocol().project_name} EDC: Your example.com user account is ready.",
@@ -141,7 +141,7 @@ class TestUser(EdcAuthTestCase):
         user = User.objects.all()[0]
         pwsetter = PasswordSetter(super_username=user.username)
         pwsetter.reset_all()
-        self.assertEqual(len(mail.outbox), User.objects.all().count())  # noqa
+        self.assertEqual(len(mail.outbox), User.objects.all().count())
 
     def test_password_setter_groups(self):
         AuthUpdater(verbose=False)
@@ -150,7 +150,7 @@ class TestUser(EdcAuthTestCase):
         user = User.objects.all()[0]
         pwsetter = PasswordSetter(super_username=user.username)
         pwsetter.reset_by_groups([CLINIC])
-        self.assertEqual(len(mail.outbox), User.objects.all().count() + count)  # noqa
+        self.assertEqual(len(mail.outbox), User.objects.all().count() + count)
 
     def test_password_setter_sites(self):
         AuthUpdater(verbose=False)
@@ -159,12 +159,12 @@ class TestUser(EdcAuthTestCase):
         user = User.objects.all()[0]
         pwsetter = PasswordSetter(super_username=user.username)
         pwsetter.reset_by_sites(["harare"])
-        self.assertEqual(len(mail.outbox), User.objects.all().count() + count)  # noqa
+        self.assertEqual(len(mail.outbox), User.objects.all().count() + count)
 
     def test_password_setter_user(self):
         AuthUpdater(verbose=False)
         usernames = create_users(5)
-        user = User.objects.all()[0]
+        user = User.objects.first()
         pwsetter = PasswordSetter(super_username=user.username)
         pwsetter.reset_users(usernames)
-        self.assertEqual(len(mail.outbox), 5)  # noqa
+        self.assertEqual(len(mail.outbox), 5)
