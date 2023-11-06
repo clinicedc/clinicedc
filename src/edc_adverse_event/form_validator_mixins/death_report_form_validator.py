@@ -1,5 +1,6 @@
-from datetime import date
-from typing import Any, Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Optional
 from zoneinfo import ZoneInfo
 
 from django import forms
@@ -8,6 +9,9 @@ from django.conf import settings
 from edc_constants.constants import CLOSED, OTHER
 from edc_form_validators.base_form_validator import INVALID_ERROR
 from edc_utils import convert_php_dateformat
+
+if TYPE_CHECKING:
+    from datetime import date
 
 
 class DeathReportFormValidatorMixin:
