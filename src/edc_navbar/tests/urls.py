@@ -18,7 +18,6 @@ for app_name in [
     "edc_protocol",
     "edc_dashboard",
     "edc_export",
-    "edc_reference",
 ]:
     for p in paths_for_urlpatterns(app_name):
         urlpatterns.append(p)
