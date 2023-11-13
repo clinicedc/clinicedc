@@ -6,7 +6,6 @@ from edc_consent.tests.consent_test_utils import consent_object_factory
 from edc_facility.import_holidays import import_holidays
 from edc_lab import site_labs
 from edc_metadata.tests.models import SubjectConsent
-from edc_reference import site_reference_configs
 from edc_registration.models import RegisteredSubject
 from edc_reportable import site_reportables
 from edc_reportable.grading_data.daids_july_2017 import grading_data
@@ -26,7 +25,6 @@ class TestCaseMixin(TestCase):
         site_reportables._registry = {}
         site_labs.initialize()
         site_action_items.registry = {}
-        site_reference_configs.registry = {}
         site_visit_schedules._registry = {}
         site_consents.registry = {}
         super().setUpClass()
@@ -44,9 +42,6 @@ class TestCaseMixin(TestCase):
             name="my_reportables", normal_data=normal_data, grading_data=grading_data
         )
         site_labs.register(lab_profile=subject_lab_profile)
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
-        )
         register_actions()
 
     @staticmethod
