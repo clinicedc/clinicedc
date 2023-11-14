@@ -1,25 +1,44 @@
+from datetime import datetime
 from zoneinfo import ZoneInfo
 
+import time_machine
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.core.exceptions import ImproperlyConfigured
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
+from edc_appointment.constants import MISSED_APPT
 from edc_appointment.models import Appointment
+from edc_constants.constants import (
+    ALIVE,
+    COMPLETE,
+    NO,
+    NOT_APPLICABLE,
+    ON_STUDY,
+    PARTICIPANT,
+    YES,
+)
 from edc_facility.import_holidays import import_holidays
+from edc_metadata.constants import MISSED
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.form_validators import VisitFormValidator
-from edc_visit_tracking.modelform_mixins import VisitTrackingCrfModelFormMixin
+from edc_visit_tracking.modelform_mixins import (
+    VisitTrackingCrfModelFormMixin,
+    VisitTrackingModelFormMixin,
+)
 from edc_visit_tracking.models import SubjectVisit
 
+from ...exceptions import RelatedVisitReasonError
 from ..helper import Helper
 from ..models import BadCrfNoRelatedVisit, CrfOne
 from ..visit_schedule import visit_schedule1, visit_schedule2
 
+utc_tz = ZoneInfo("UTC")
 
-class SubjectVisitForm(forms.ModelForm):
+
+class SubjectVisitForm(VisitTrackingModelFormMixin, forms.ModelForm):
     form_validator_cls = VisitFormValidator
 
     class Meta:
@@ -27,6 +46,7 @@ class SubjectVisitForm(forms.ModelForm):
         fields = "__all__"
 
 
+@time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestForm(TestCase):
     helper_cls = Helper
 
@@ -42,7 +62,165 @@ class TestForm(TestCase):
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
 
+    @tag("1")
+    @override_settings(
+        EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz),
+        EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2022, 6, 11, 8, 00, tzinfo=utc_tz),
+    )
+    @time_machine.travel(datetime(2019, 7, 12, 8, 00, tzinfo=utc_tz))
     def test_visit_tracking_form_ok(self):
+        self.helper.consent_and_put_on_schedule(
+            consent_datetime=datetime(2019, 6, 12, 8, 00, tzinfo=utc_tz)
+        )
+
+        appointment = Appointment.objects.all()[0]
+
+        data = dict(
+            appointment=appointment,
+            subject_identifier=appointment.subject_identifier,
+            report_datetime=appointment.appt_datetime,
+            info_source=PARTICIPANT,
+            study_status=ON_STUDY,
+            survival_status=ALIVE,
+            reason=SCHEDULED,
+            reason_unscheduled=NOT_APPLICABLE,
+            document_status=COMPLETE,
+            require_crfs=YES,
+        )
+        form = SubjectVisitForm(data=data)
+        form.is_valid()
+        self.assertEqual({}, form._errors)
+
+    @tag("1")
+    def test_visit_tracking_form__appt_not_missed_but_visit_missed(self):
+        self.helper.consent_and_put_on_schedule()
+        appointment = Appointment.objects.all()[0]
+        SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
+        appointment = Appointment.objects.all()[1]
+
+        data = dict(
+            appointment=appointment,
+            subject_identifier=appointment.subject_identifier,
+            report_datetime=appointment.appt_datetime,
+            info_source=PARTICIPANT,
+            study_status=ON_STUDY,
+            survival_status=ALIVE,
+            reason=MISSED,
+            reason_unscheduled=NOT_APPLICABLE,
+            document_status=COMPLETE,
+            require_crfs=YES,
+        )
+        form = SubjectVisitForm(data=data)
+        form.is_valid()
+        self.assertIn("reason", form._errors)
+
+    @tag("1")
+    def test_visit_tracking_form__appt_missed_but_visit_not_missed(self):
+        self.helper.consent_and_put_on_schedule(
+            consent_datetime=datetime(2019, 5, 11, 00, tzinfo=utc_tz)
+        )
+        appointment = Appointment.objects.all()[0]
+        SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
+        appointment = Appointment.objects.all()[1]
+
+        appointment.appt_timing = MISSED_APPT
+        appointment.save()
+        appointment.refresh_from_db()
+
+        data = dict(
+            appointment=appointment,
+            subject_identifier=appointment.subject_identifier,
+            report_datetime=appointment.appt_datetime,
+            info_source=PARTICIPANT,
+            study_status=ON_STUDY,
+            survival_status=ALIVE,
+            reason=SCHEDULED,
+            reason_unscheduled=NOT_APPLICABLE,
+            document_status=COMPLETE,
+            require_crfs=YES,
+        )
+        form = SubjectVisitForm(data=data)
+        form.is_valid()
+        self.assertIn("reason", form._errors)
+
+    @tag("1")
+    @override_settings(
+        EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz),
+        EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2022, 6, 11, 8, 00, tzinfo=utc_tz),
+    )
+    @time_machine.travel(datetime(2019, 7, 12, 8, 00, tzinfo=utc_tz))
+    def test_visit_tracking_form__missed_ok(self):
+        self.helper.consent_and_put_on_schedule(
+            consent_datetime=datetime(2019, 6, 12, 8, 00, tzinfo=utc_tz)
+        )
+        appointment = Appointment.objects.all()[0]
+
+        SubjectVisit.objects.create(
+            appointment=appointment,
+            report_datetime=appointment.appt_datetime,
+            reason=SCHEDULED,
+        )
+
+        appointment = Appointment.objects.all()[1]
+
+        appointment.appt_timing = MISSED_APPT
+        appointment.save()
+        appointment = Appointment.objects.all()[1]
+
+        # note if appt_timing = MISSED_APPT, will auto create subject visit
+        # see VisitModelManager
+        subject_visit = SubjectVisit.objects.get(appointment=appointment)
+
+        data = dict(
+            appointment=appointment,
+            subject_identifier=appointment.subject_identifier,
+            report_datetime=appointment.appt_datetime,
+            info_source=PARTICIPANT,
+            study_status=ON_STUDY,
+            survival_status=ALIVE,
+            reason=MISSED,
+            reason_unscheduled=NOT_APPLICABLE,
+            document_status=COMPLETE,
+            require_crfs=YES,
+        )
+        form = SubjectVisitForm(data=data, instance=subject_visit)
+        form.is_valid()
+        form.save(commit=True)
+        obj = SubjectVisit.objects.get(appointment=appointment)
+        self.assertEqual(NO, obj.require_crfs)
+
+    @tag("1")
+    @override_settings(
+        EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz),
+        EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2022, 6, 11, 8, 00, tzinfo=utc_tz),
+    )
+    @time_machine.travel(datetime(2019, 7, 12, 8, 00, tzinfo=utc_tz))
+    def test_visit_tracking_model__appt_missed_but_visit_not_missed(self):
+        self.helper.consent_and_put_on_schedule(
+            consent_datetime=datetime(2019, 6, 12, 00, tzinfo=utc_tz)
+        )
+        appointment = Appointment.objects.all()[0]
+        SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
+        appointment = Appointment.objects.all()[1]
+
+        appointment.appt_timing = MISSED_APPT
+        appointment.save()
+        appointment.refresh_from_db()
+
+        self.assertRaises(
+            RelatedVisitReasonError,
+            SubjectVisit.objects.create,
+            appointment=appointment,
+            reason=SCHEDULED,
+        )
+
+    @tag("1")
+    @override_settings(
+        EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz),
+        EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2022, 6, 11, 8, 00, tzinfo=utc_tz),
+    )
+    @time_machine.travel(datetime(2019, 7, 12, 8, 00, tzinfo=utc_tz))
+    def test_crf_with_visit_tracking_form_ok(self):
         class CrfForm(VisitTrackingCrfModelFormMixin, forms.ModelForm):
             report_datetime_field_attr = "report_datetime"
 
@@ -50,7 +228,9 @@ class TestForm(TestCase):
                 model = CrfOne
                 fields = "__all__"
 
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            consent_datetime=datetime(2019, 6, 12, 00, tzinfo=utc_tz)
+        )
         appointment = Appointment.objects.all()[0]
         subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
         form = CrfForm(
@@ -62,10 +242,11 @@ class TestForm(TestCase):
                 "subject_visit": subject_visit.pk,
             }
         )
+
         self.assertTrue(form.is_valid())
         form.save(commit=True)
 
-    def test_visit_tracking_form_missing_subject_visit(self):
+    def test_crf_with_visit_tracking_form_missing_subject_visit(self):
         class CrfForm(VisitTrackingCrfModelFormMixin, forms.ModelForm):
             report_datetime_field_attr = "report_datetime"
 
@@ -80,7 +261,7 @@ class TestForm(TestCase):
         form.is_valid()
         self.assertIn("subject_visit", form._errors)
 
-    def test_visit_tracking_form_missing_subject_visit_fk_raises(self):
+    def test_crf_with_visit_tracking_form_missing_subject_visit_fk_raises(self):
         class BadCrfNoRelatedVisitorm(VisitTrackingCrfModelFormMixin, forms.ModelForm):
             report_datetime_field_attr = "report_datetime"
 
@@ -94,7 +275,7 @@ class TestForm(TestCase):
         )
         self.assertRaises(ImproperlyConfigured, form.is_valid)
 
-    def test_visit_tracking_form_no_report_datetime(self):
+    def test_crf_with_visit_tracking_form_no_report_datetime(self):
         class CrfForm(VisitTrackingCrfModelFormMixin, forms.ModelForm):
             report_datetime_field_attr = "report_datetime"
 
@@ -109,7 +290,9 @@ class TestForm(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("report_datetime", form._errors)
 
-    def test_visit_tracking_form_report_datetime_validated_against_related_visit(self):
+    def test_crf_with_visit_tracking_form_report_datetime_validated_against_related_visit(
+        self,
+    ):
         class CrfForm(VisitTrackingCrfModelFormMixin, forms.ModelForm):
             report_datetime_field_attr = "report_datetime"
 
@@ -137,7 +320,7 @@ class TestForm(TestCase):
             self.assertIn("report_datetime", form._errors)
 
     @override_settings(TIME_ZONE="Africa/Dar_es_Salaam")
-    def test_visit_tracking_form_report_datetime_zone(self):
+    def test_crf_with_visit_tracking_form_report_datetime_zone(self):
         class CrfForm(VisitTrackingCrfModelFormMixin, forms.ModelForm):
             report_datetime_field_attr = "report_datetime"
 
@@ -169,8 +352,14 @@ class TestForm(TestCase):
             self.assertFalse(form.is_valid())
             self.assertIn("report_datetime", form._errors)
 
-    @override_settings(TIME_ZONE="Africa/Dar_es_Salaam")
-    def test_visit_tracking_form_report_datetime_zone2(self):
+    @tag("1")
+    @override_settings(
+        EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz),
+        EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2022, 6, 11, 8, 00, tzinfo=utc_tz),
+        TIME_ZONE="Africa/Dar_es_Salaam",
+    )
+    @time_machine.travel(datetime(2019, 7, 12, 8, 00, tzinfo=utc_tz))
+    def test_crf_with_visit_tracking_form_report_datetime_zone2(self):
         class CrfForm(VisitTrackingCrfModelFormMixin, forms.ModelForm):
             report_datetime_field_attr = "report_datetime"
 
@@ -178,7 +367,9 @@ class TestForm(TestCase):
                 model = CrfOne
                 fields = "__all__"
 
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            consent_datetime=datetime(2019, 6, 12, 8, 00, tzinfo=utc_tz)
+        )
         appointment = Appointment.objects.all()[0]
         subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
         form = CrfForm(

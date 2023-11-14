@@ -12,13 +12,10 @@ from edc_offstudy.model_mixins import OffstudyNonCrfModelMixin
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 
 from ...constants import MISSED_VISIT, NO_FOLLOW_UP_REASONS
+from ...exceptions import RelatedVisitReasonError
 from ...managers import VisitModelManager
 from .previous_visit_model_mixin import PreviousVisitModelMixin
 from .visit_model_fields_mixin import VisitModelFieldsMixin
-
-
-class SubjectVisitReasonError(Exception):
-    pass
 
 
 class VisitModelMixin(
@@ -59,13 +56,13 @@ class VisitModelMixin(
         self.visit_code_sequence = self.appointment.visit_code_sequence
         self.require_crfs = NO if self.reason == MISSED_VISIT else YES
         if self.appointment.appt_timing == MISSED_APPT and self.reason != MISSED_VISIT:
-            raise SubjectVisitReasonError(
+            raise RelatedVisitReasonError(
                 "Invalid. Appointment is missed. Expected visit to be missed also. "
                 f"Got visit.reason=`{self.reason}`. See {self.appointment}. "
                 "Perhaps catch this in the form."
             )
         if self.appointment.appt_timing != MISSED_APPT and self.reason == MISSED_VISIT:
-            raise SubjectVisitReasonError(
+            raise RelatedVisitReasonError(
                 "Invalid. Appointment is not missed. Did not expected a missed visit. "
                 f"Got visit.reason=`{self.reason}`. See {self.appointment}. "
                 "Perhaps catch this in the form."

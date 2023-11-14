@@ -4,3 +4,7 @@ class RelatedVisitFieldError(Exception):
 
 class RelatedVisitModelError(Exception):
     pass
+
+
+class RelatedVisitReasonError(Exception):
+    pass
