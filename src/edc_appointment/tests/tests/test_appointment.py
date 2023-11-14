@@ -15,7 +15,7 @@ from edc_protocol import Protocol
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
-from edc_visit_tracking.model_mixins import SubjectVisitReasonError
+from edc_visit_tracking.exceptions import RelatedVisitReasonError
 from edc_visit_tracking.utils import get_related_visit_model_cls
 
 from edc_appointment.constants import (
@@ -739,7 +739,7 @@ class TestAppointment(TestCase):
             appointment__visit_code=appointment.visit_code
         )
         subject_visit.reason = SCHEDULED
-        self.assertRaises(SubjectVisitReasonError, subject_visit.save)
+        self.assertRaises(RelatedVisitReasonError, subject_visit.save)
 
         subject_visit.refresh_from_db()
         self.assertEqual(subject_visit.reason, MISSED_VISIT)
