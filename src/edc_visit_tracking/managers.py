@@ -1,15 +1,17 @@
-from typing import Any, Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from django.contrib.sites.managers import CurrentSiteManager as DjangoCurrentSiteManager
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError, models, transaction
-from edc_constants.constants import INCOMPLETE, NOT_APPLICABLE
+from edc_constants.constants import INCOMPLETE, NOT_APPLICABLE, OTHER
 
-from edc_visit_tracking.constants import MISSED_VISIT
+from .constants import MISSED_VISIT
+from .exceptions import RelatedVisitReasonError
 
-
-class MissedVisitError(Exception):
-    pass
+if TYPE_CHECKING:
+    from edc_appointment.models import Appointment
 
 
 class CrfModelManager(models.Manager):
@@ -38,7 +40,7 @@ class CrfModelManager(models.Manager):
 
 
 class VisitModelManager(models.Manager):
-    """A manager class for visit models (e.g. subject_visit)."""
+    """A manager class for related visit models (e.g. subject_visit)."""
 
     use_in_migrations = True
 
@@ -67,7 +69,10 @@ class VisitModelManager(models.Manager):
         return {}
 
     def create_missed_from_appointment(
-        self, appointment: Any, reason_missed: Optional[str] = None
+        self,
+        appointment: Appointment,
+        reason_missed: str | None = None,
+        reason_missed_other: str | None = None,
     ):
         """Creates a subject visit model instance automatically
         for a missed appointment (appt_timing=missed).
@@ -78,13 +83,13 @@ class VisitModelManager(models.Manager):
         try:
             subject_visit = self.get(appointment=appointment)
         except ObjectDoesNotExist:
-            # TODO: reason_missed or "past window period"??
             opts = dict(
                 appointment=appointment,
                 comments="[auto-created]",
                 info_source=NOT_APPLICABLE,
                 reason=MISSED_VISIT,
-                reason_missed=reason_missed or "past window period",
+                reason_missed=reason_missed or OTHER,
+                reason_missed_other=reason_missed_other or "[auto-created]",
                 report_datetime=appointment.appt_datetime,
                 schedule_name=appointment.schedule_name,
                 subject_identifier=appointment.subject_identifier,
@@ -103,7 +108,7 @@ class VisitModelManager(models.Manager):
             obj.save(update_fields=["document_status"])
         else:
             if subject_visit.reason != MISSED_VISIT:
-                raise MissedVisitError(
+                raise RelatedVisitReasonError(
                     f"Subject visit already exists. Reason=`{subject_visit.reason}`"
                 )
 

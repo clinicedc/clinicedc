@@ -6,9 +6,11 @@ from edc_constants.constants import (
     OTHER,
     OTHER_PLEASE_SPECIFY_TEXT,
     OUTPATIENT_CARDS,
+    PARTICIPANT,
     PATIENT,
     PATIENT_REPRESENTATIVE,
     TELEPHONE,
+    TIMEPOINT,
 )
 
 from .constants import (
@@ -45,7 +47,7 @@ VISIT_REASON = (
 )
 
 VISIT_INFO_SOURCE = (
-    ("participant", "1. Clinic visit with participant"),
+    (PARTICIPANT, "1. Clinic visit with participant"),
     ("other_contact", "2. Other contact with participant"),
     ("other_doctor", "3. Contact with external health care provider/medical doctor"),
     (
@@ -79,7 +81,7 @@ VISIT_REASON_UNSCHEDULED = (
 
 # these defaults are not intended for production
 VISIT_REASON_MISSED = (
-    ("timepoint", "Missed timepoint"),
+    (TIMEPOINT, "Missed timepoint"),
     (OTHER, "Other"),
     (NOT_APPLICABLE, "Not applicable"),
 )

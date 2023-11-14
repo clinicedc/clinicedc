@@ -6,7 +6,6 @@ from .visit_model_mixin import (
     CaretakerFieldsMixin,
     PreviousVisitError,
     PreviousVisitModelMixin,
-    SubjectVisitReasonError,
     VisitModelFieldsMixin,
     VisitModelMixin,
 )
