@@ -220,16 +220,16 @@ class Creator:
         if self.related_visit.reason == MISSED_VISIT:
             return self.visit.crfs_missed
         elif self.visit_code_sequence != 0:
-            return self.visit.crfs_unscheduled
-        return self.visit.crfs
+            return self.visit.crfs_unscheduled + self.visit.crfs_prn
+        return self.visit.crfs + self.visit.crfs_prn
 
     @property
     def requisitions(self) -> FormsCollection:
         if self.visit_code_sequence != 0:
-            return self.visit.requisitions_unscheduled
+            return self.visit.requisitions_unscheduled + self.visit.requisitions_prn
         elif self.related_visit.reason == MISSED_VISIT:
             return FormsCollection()
-        return self.visit.requisitions
+        return self.visit.requisitions + self.visit.requisitions_prn
 
     def create(self) -> None:
         """Creates metadata for all CRFs and requisitions for
