@@ -8,6 +8,9 @@ from django.apps import apps as django_apps
 from edc_facility.utils import get_default_facility_name, get_facility
 from edc_utils import get_utcnow, to_utc
 
+from .crf_collection import CrfCollection
+from .forms_collection import FormsCollection
+from .requisition_collection import RequisitionCollection
 from .window_period import WindowPeriod
 
 if TYPE_CHECKING:
@@ -16,7 +19,8 @@ if TYPE_CHECKING:
     from dateutil.relativedelta import relativedelta
     from edc_facility import Facility
 
-    from .forms_collection import FormsCollection
+    from .crf import Crf
+    from .requisition import Requisition
 
 
 class VisitCodeError(Exception):
@@ -102,13 +106,13 @@ class Visit:
         rupper_late: relativedelta = None,
         add_window_gap_to_lower: bool | None = None,
         max_window_gap_to_lower: int | None = None,
-        crfs: FormsCollection | None = None,
-        requisitions: FormsCollection | None = None,
-        crfs_unscheduled: FormsCollection | None = None,
-        crfs_missed: FormsCollection | None = None,
-        requisitions_unscheduled: FormsCollection | None = None,
-        crfs_prn: FormsCollection | None = None,
-        requisitions_prn: FormsCollection | None = None,
+        crfs: CrfCollection | None = None,
+        requisitions: RequisitionCollection | None = None,
+        crfs_unscheduled: CrfCollection | None = None,
+        crfs_missed: CrfCollection | None = None,
+        requisitions_unscheduled: RequisitionCollection | None = None,
+        crfs_prn: CrfCollection | None = None,
+        requisitions_prn: RequisitionCollection | None = None,
         title: str = None,
         allow_unscheduled: bool | None = None,
         facility_name: str | None = None,
@@ -122,17 +126,19 @@ class Visit:
         elif isinstance(base_timepoint, (int,)):
             base_timepoint = Decimal(str(base_timepoint) + ".0")
         self.base_timepoint = base_timepoint or Decimal("0.0")
-        self.crfs: tuple[str] = crfs.forms if crfs else ()
-        self.crfs_unscheduled: tuple[str] = crfs_unscheduled.forms if crfs_unscheduled else ()
-        self.crfs_missed: tuple[str] = crfs_missed.forms if crfs_missed else ()
-        self.crfs_prn: tuple[str] = crfs_prn.forms if crfs_prn else ()
+        self.crfs: CrfCollection = crfs or CrfCollection()
+        self.crfs_unscheduled: CrfCollection = crfs_unscheduled or CrfCollection()
+        self.crfs_missed: CrfCollection = crfs_missed or CrfCollection()
+        self.crfs_prn: CrfCollection = crfs_prn or CrfCollection()
         for prn in self.crfs_prn:
             prn.required = False
-        self.requisitions = requisitions.forms if requisitions else ()
-        self.requisitions_unscheduled = (
-            requisitions_unscheduled.forms if requisitions_unscheduled else ()
+        self.requisitions: RequisitionCollection = requisitions or RequisitionCollection()
+        self.requisitions_unscheduled: RequisitionCollection = (
+            requisitions_unscheduled or RequisitionCollection()
         )
-        self.requisitions_prn = requisitions_prn.forms if requisitions_prn else ()
+        self.requisitions_prn: RequisitionCollection = (
+            requisitions_prn or RequisitionCollection()
+        )
         for prn in self.requisitions_prn:
             prn.required = False
         self.instructions = instructions
@@ -182,57 +188,73 @@ class Visit:
         return self.title
 
     @property
-    def forms(self):
-        """Returns a list of scheduled forms."""
-        return self.crfs + self.requisitions
+    def scheduled_forms(self) -> FormsCollection:
+        """Returns a FormsCollection of scheduled forms."""
+        return FormsCollection(*self.crfs, *self.requisitions, name="scheduled_forms")
 
     @property
-    def unscheduled_forms(self):
-        """Returns a list of unscheduled forms."""
-        return self.crfs_unscheduled + self.requisitions_unscheduled
+    def unscheduled_forms(self) -> FormsCollection:
+        """Returns a FormsCollection of unscheduled forms."""
+        return FormsCollection(
+            *self.crfs_unscheduled, *self.requisitions_unscheduled, name="unscheduled_forms"
+        )
 
     @property
-    def missed_forms(self):
-        """Returns a list of forms to show for a missed visit."""
-        return self.crfs_missed
+    def prn_forms(self) -> FormsCollection:
+        """Returns a FormsCollection of prn forms."""
+        return FormsCollection(*self.crfs_prn, *self.requisitions_prn, name="prn_forms")
 
     @property
-    def prn_forms(self):
-        """Returns a list of PRN forms."""
-        return self.crfs_prn + self.requisitions_prn
+    def all_crfs(self) -> CrfCollection:
+        crfs = list(self.crfs) + [
+            crf
+            for crf in self.crfs_unscheduled
+            if crf.model not in [crf.model for crf in self.crfs]
+        ]
+        crfs = crfs + [
+            crf for crf in self.crfs_missed if crf.model not in [crf.model for crf in crfs]
+        ]
+        crfs = crfs + [
+            crf for crf in self.crfs_prn if crf.model not in [crf.model for crf in crfs]
+        ]
+        return CrfCollection(*crfs, name="all_crfs")
 
     @property
-    def all_crfs(self):
-        return self.crfs + self.crfs_unscheduled + self.crfs_prn + self.crfs_missed
-
-    @property
-    def all_requisitions(self):
-        names = list(set([r.name for r in self.requisitions]))
+    def all_requisitions(self) -> RequisitionCollection:
+        names = [r.name for r in self.requisitions]
         requisitions = list(self.requisitions) + [
             r for r in self.requisitions_unscheduled if r.name not in names
         ]
         names = list(set([r.name for r in requisitions]))
         requisitions = requisitions + [r for r in self.requisitions_prn if r.name not in names]
-        return sorted(requisitions, key=lambda x: x.show_order)
+        return RequisitionCollection(*requisitions, name="all_requisitions")
 
-    def next_form(self, model=None, panel=None):
-        """Returns the next required "form" or None."""
-        next_form = None
-        for index, form in enumerate(self.forms):
-            if form.model == model and form.required:
-                try:
-                    next_form = self.forms[index + 1]
-                except IndexError:
-                    pass
-        return next_form
+    # def next_form(
+    #     self, model: str = None, panel: str | None = None
+    # ) -> Crf | Requisition | None:
+    #     """Returns the next required and scheduled "form" or None."""
+    #     next_form = None
+    #     for index, form in enumerate(self.scheduled_forms):
+    #         if form.model == model and form.required and getattr(form, "panel", "") == panel:
+    #             try:
+    #                 next_form = self.scheduled_forms.forms[index + 1]
+    #             except IndexError:
+    #                 pass
+    #         elif form.model == model and form.required:
+    #             try:
+    #                 next_form = self.scheduled_forms.forms[index + 1]
+    #             except IndexError:
+    #                 pass
+    #     return next_form
 
-    def get_form(self, model=None):
-        for form in self.forms:
-            if form.model == model:
-                return form
-        return None
+    # def get_form(self, model=None) -> Crf | Requisition | None:
+    #     """Returns a schedule form or none"""
+    #     for form in self.scheduled_forms:
+    #         if form.model == model:
+    #             return form
+    #     return None
 
-    def get_crf(self, model=None):
+    def get_crf(self, model=None) -> Crf | None:
         get_crf = None
         for crf in self.crfs:
             if crf.model == model:
@@ -240,7 +262,7 @@ class Visit:
                 break
         return get_crf
 
-    def get_requisition(self, model=None, panel_name=None):
+    def get_requisition(self, model=None, panel_name=None) -> Requisition | None:
         get_requisition = None
         for requisition in self.requisitions:
             if requisition.model == model and requisition.panel.name == panel_name:
@@ -273,26 +295,26 @@ class Visit:
 
     def check(self):
         warnings = []
-        crf = None
-        try:
-            for crf in self.crfs:
-                django_apps.get_model(crf.model)
-            for crf in self.requisitions:
-                django_apps.get_model(crf.model)
-            for crf in self.crfs_unscheduled:
-                django_apps.get_model(crf.model)
-            for crf in self.crfs_missed:
-                django_apps.get_model(crf.model)
-            for crf in self.requisitions_unscheduled:
-                django_apps.get_model(crf.model)
-        except LookupError as e:
-            warnings.append(f"{e} Got Visit {self.code} crf.model={crf.model}.")
+        models = list(set([f.model for f in self.all_crfs]))
+        for model in models:
+            try:
+                django_apps.get_model(model)
+            except LookupError as e:
+                warnings.append(f"{e} Got Visit {self.code} crf.model={model}.")
+        models = list(set([f.model for f in self.all_requisitions]))
+        for model in models:
+            try:
+                django_apps.get_model(model)
+            except LookupError as e:
+                warnings.append(f"{e} Got Visit {self.code} requisition.model={model}.")
         return warnings
 
     def to_dict(self):
         return dict(
             crfs=[(crf.model, crf.required) for crf in self.crfs],
             crfs_unscheduled=[(crf.model, crf.required) for crf in self.crfs_unscheduled],
+            crfs_prn=[(crf.model, crf.required) for crf in self.crfs_prn],
+            crfs_missed=[(crf.model, crf.required) for crf in self.crfs_missed],
             requisitions=[
                 (requisition.panel.name, requisition.required)
                 for requisition in self.requisitions
@@ -300,6 +322,10 @@ class Visit:
             requisitions_unscheduled=[
                 (requisition.panel.name, requisition.required)
                 for requisition in self.requisitions_unscheduled
+            ],
+            requisitions_prn=[
+                (requisition.model, requisition.required)
+                for requisition in self.requisitions_prn
             ],
         )
 

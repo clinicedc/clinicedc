@@ -1,4 +1,5 @@
-from typing import Optional, Tuple, Union
+from __future__ import annotations
+
 from uuid import uuid4
 
 from django.conf import settings
@@ -12,8 +13,9 @@ class FormsCollectionError(Exception):
 
 
 class FormsCollection:
-    def __init__(self, *forms: Union[Crf, Requisition], name: Optional[str] = None, **kwargs):
-        self._forms: Optional[Tuple[Union[Crf, Requisition]]] = None
+    def __init__(self, *forms: Crf | Requisition, name: str | None = None, **kwargs):
+        self.collection_is_unique_or_raise(forms)
+        self._forms: tuple[Crf | Requisition] | None = None
         self.name = name or uuid4().hex
         forms = [] if not forms or forms == (None,) else list(forms)
 
@@ -37,7 +39,7 @@ class FormsCollection:
         # convert to tuple
         self._forms = tuple(forms)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name})"
 
     def __iter__(self):
@@ -45,6 +47,10 @@ class FormsCollection:
 
     def __len__(self):
         return len(self._forms)
+
+    @staticmethod
+    def collection_is_unique_or_raise(forms):
+        pass
 
     def append(self, value):
         if value:
@@ -58,7 +64,7 @@ class FormsCollection:
             forms.sort(key=lambda x: x.show_order)
             self._forms = forms
 
-    def extend(self, value: Union[tuple, list]):
+    def extend(self, value: tuple | list):
         if value:
             for v in value:
                 self.append(v)
@@ -100,5 +106,5 @@ class FormsCollection:
         self.append(value)
 
     @property
-    def forms(self):
+    def forms(self) -> tuple:
         return self._forms

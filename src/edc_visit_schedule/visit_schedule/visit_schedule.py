@@ -143,10 +143,15 @@ class VisitSchedule:
                 models.update({schedule.onschedule_model: schedule.consent_model})
                 models.update({schedule.offschedule_model: schedule.consent_model})
                 for visit in schedule.visits.values():
-                    for crf in visit.forms:
+                    for crf in visit.all_crfs:
                         models.update({crf.model: schedule.consent_model})
-                    for crf in visit.unscheduled_forms:
+                    for crf in visit.all_requisitions:
                         models.update({crf.model: schedule.consent_model})
+                    # for crf in visit.scheduled_forms:
+                    #     models.update({crf.model: schedule.consent_model})
+                    # for crf in visit.unscheduled_forms:
+                    #     models.update({crf.model: schedule.consent_model})
+                    # what about prn forms?
             if None in (list(models.keys())):
                 raise VisitScheduleError(
                     "One or more required models has not been defined. "
