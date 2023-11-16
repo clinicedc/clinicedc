@@ -2,13 +2,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Self, Tuple
 
+from edc_visit_schedule.visit import CrfCollection
+
 from ...constants import NOT_REQUIRED, REQUIRED
 from ...metadata_updater import MetadataUpdater
 from ..rule_group import RuleGroup, RuleGroupError, TargetModelConflict
 from ..rule_group_metaclass import RuleGroupMetaclass
 
 if TYPE_CHECKING:
-    from edc_visit_schedule.visit import FormsCollection
     from edc_visit_tracking.model_mixins import VisitModelMixin as Base
 
     from ...model_mixins.creates import CreatesMetadataModelMixin
@@ -30,14 +31,18 @@ class CrfRuleGroup(RuleGroup, metaclass=RuleGroupMetaclass):
         return f"{self.__class__.__name__}({self.name})"
 
     @classmethod
-    def crfs_for_visit(cls, visit: RelatedVisitModel = None) -> FormsCollection:
+    def crfs_for_visit(cls, visit: RelatedVisitModel = None) -> CrfCollection:
         """Returns a list of scheduled or unscheduled
         CRFs + PRNs depending on visit_code_sequence.
         """
         if visit.visit_code_sequence != 0:
-            crfs = visit.visit.crfs_unscheduled + visit.visit.crfs_prn
+            crfs = CrfCollection(
+                *visit.visit.crfs_unscheduled, *visit.visit.crfs_prn, name="crfs_for_visit"
+            )
         else:
-            crfs = visit.visit.crfs + visit.visit.crfs_prn
+            crfs = CrfCollection(
+                *visit.visit.crfs, *visit.visit.crfs_prn, name="crfs_for_visit"
+            )
         return crfs
 
     @classmethod

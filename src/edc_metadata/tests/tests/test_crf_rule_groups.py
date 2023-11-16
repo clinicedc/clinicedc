@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_appointment.models import Appointment
 from edc_constants.constants import MALE
 from edc_facility.import_holidays import import_holidays
@@ -13,8 +13,9 @@ from faker import Faker
 from edc_metadata import KEYED, NOT_REQUIRED, REQUIRED
 from edc_metadata.models import CrfMetadata
 
+from ...metadata_handler import MetadataHandlerError
 from ...metadata_rules import CrfRule, CrfRuleGroup, P, site_metadata_rules
-from ..models import CrfOne, CrfTwo, SubjectConsent
+from ..models import CrfOne, CrfTwo, PrnOne, SubjectConsent
 from ..visit_schedule import visit_schedule
 
 fake = Faker()
@@ -372,33 +373,15 @@ class CrfRuleGroupTestCase(TestCase):
             NOT_REQUIRED,
         )
 
+    @tag("1")
     def test_prn_rule_acts_on_correct_visit(self):
         """Asserts handles PRNs correctly"""
         # create both visits before going back to add crf_one
         subject_visit = self.enroll(gender=MALE)
-        subject_visit_two = self.get_next_subject_visit(subject_visit)
-        crf_one = CrfOne.objects.create(subject_visit=subject_visit, f1="holden")
-        self.assertEqual(
-            CrfMetadata.objects.get(
-                model="edc_metadata.prnone",
-                visit_code=subject_visit.visit_code,
-                visit_code_sequence=subject_visit.visit_code_sequence,
-            ).entry_status,
-            REQUIRED,
-        )
-        try:
-            CrfMetadata.objects.get(
-                model="edc_metadata.prnone",
-                visit_code=subject_visit_two.visit_code,
-                visit_code_sequence=subject_visit_two.visit_code_sequence,
-            )
-        except ObjectDoesNotExist:
-            pass
-        else:
-            self.fail("CrfMetadata model instance unexpectedly exists")
 
-        crf_one.f1 = "caufield"
-        crf_one.save()
+        # rule = prnone is required if crf_one.f1 == holden
+
+        # not required by default @ 1000
         self.assertEqual(
             CrfMetadata.objects.get(
                 model="edc_metadata.prnone",
@@ -407,18 +390,21 @@ class CrfRuleGroupTestCase(TestCase):
             ).entry_status,
             NOT_REQUIRED,
         )
-        try:
+        # not required by default @ 2000
+        subject_visit_two = self.get_next_subject_visit(subject_visit)
+        self.assertEqual(
             CrfMetadata.objects.get(
                 model="edc_metadata.prnone",
                 visit_code=subject_visit_two.visit_code,
                 visit_code_sequence=subject_visit_two.visit_code_sequence,
-            )
-        except ObjectDoesNotExist:
-            pass
-        else:
-            self.fail("CrfMetadata model instance unexpectedly exists")
-        crf_one.f1 = "holden"
-        crf_one.save()
+            ).entry_status,
+            NOT_REQUIRED,
+        )
+
+        # submit crf_one to trigger rule
+        crf_one = CrfOne.objects.create(subject_visit=subject_visit, f1="holden")
+
+        # should be required @ 1000
         self.assertEqual(
             CrfMetadata.objects.get(
                 model="edc_metadata.prnone",
@@ -427,23 +413,69 @@ class CrfRuleGroupTestCase(TestCase):
             ).entry_status,
             REQUIRED,
         )
-        try:
+        # should still be `not required` @ 2000
+        self.assertEqual(
             CrfMetadata.objects.get(
                 model="edc_metadata.prnone",
                 visit_code=subject_visit_two.visit_code,
                 visit_code_sequence=subject_visit_two.visit_code_sequence,
-            )
-        except ObjectDoesNotExist:
-            pass
-        else:
-            self.fail("CrfMetadata model instance unexpectedly exists")
+            ).entry_status,
+            NOT_REQUIRED,
+        )
 
-    def test_prn_rule_acts_on_correct_visit2(self):
+        crf_one.f1 = "caufield"  # @1000
+        crf_one.save()
+
+        # should change back to not required @ 1000
+        self.assertEqual(
+            CrfMetadata.objects.get(
+                model="edc_metadata.prnone",
+                visit_code=subject_visit.visit_code,
+                visit_code_sequence=subject_visit.visit_code_sequence,
+            ).entry_status,
+            NOT_REQUIRED,
+        )
+
+        # should still be `not required` @ 2000
+        self.assertEqual(
+            CrfMetadata.objects.get(
+                model="edc_metadata.prnone",
+                visit_code=subject_visit_two.visit_code,
+                visit_code_sequence=subject_visit_two.visit_code_sequence,
+            ).entry_status,
+            NOT_REQUIRED,
+        )
+
+        crf_one.f1 = "holden"
+        crf_one.save()
+        # should be required @ 1000
+        self.assertEqual(
+            CrfMetadata.objects.get(
+                model="edc_metadata.prnone",
+                visit_code=subject_visit.visit_code,
+                visit_code_sequence=subject_visit.visit_code_sequence,
+            ).entry_status,
+            REQUIRED,
+        )
+        # should still be `not required` @ 2000
+        self.assertEqual(
+            CrfMetadata.objects.get(
+                model="edc_metadata.prnone",
+                visit_code=subject_visit_two.visit_code,
+                visit_code_sequence=subject_visit_two.visit_code_sequence,
+            ).entry_status,
+            NOT_REQUIRED,
+        )
+
+    @tag("1")
+    def test_prn_rule_acts_on_correct_visit_2000(self):
         """Asserts handles PRNs correctly"""
         # create 1000 then add crf_one then create 2000
         subject_visit = self.enroll(gender=MALE)
+
+        self.assertEqual(1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
+
         crf_one = CrfOne.objects.create(subject_visit=subject_visit, f1="caufield")
-        self.assertEqual(1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
         self.assertEqual(
             1,
             CrfMetadata.objects.filter(
@@ -451,36 +483,60 @@ class CrfRuleGroupTestCase(TestCase):
             ).count(),
         )
 
-        self.get_next_subject_visit(subject_visit)
+        subject_visit_two = self.get_next_subject_visit(subject_visit)
 
-        self.assertEqual(1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
+        self.assertEqual(2, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
         self.assertEqual(
-            1,
+            2,
             CrfMetadata.objects.filter(
                 model="edc_metadata.prnone", entry_status=NOT_REQUIRED
-            ).count(),
-        )
-        self.assertEqual(
-            0,
-            CrfMetadata.objects.filter(
-                model="edc_metadata.prnone", entry_status=REQUIRED
             ).count(),
         )
 
         crf_one.f1 = "holden"
         crf_one.save()
+        # should be required @ 1000
         self.assertEqual(
-            1,
-            CrfMetadata.objects.filter(
-                model="edc_metadata.prnone", entry_status=REQUIRED
-            ).count(),
+            CrfMetadata.objects.get(
+                model="edc_metadata.prnone",
+                visit_code=subject_visit.visit_code,
+                visit_code_sequence=subject_visit.visit_code_sequence,
+            ).entry_status,
+            REQUIRED,
         )
+        # should still be `not required` @ 2000
         self.assertEqual(
-            0,
-            CrfMetadata.objects.filter(
-                model="edc_metadata.prnone", entry_status=NOT_REQUIRED
-            ).count(),
+            CrfMetadata.objects.get(
+                model="edc_metadata.prnone",
+                visit_code=subject_visit_two.visit_code,
+                visit_code_sequence=subject_visit_two.visit_code_sequence,
+            ).entry_status,
+            NOT_REQUIRED,
         )
+
+    @tag("1")
+    def test_crf_cannot_be_saved_if_not_in_visits_crfs(self):
+        subject_visit = self.enroll(gender=MALE)
+        self.assertEqual(1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
+        subject_visit_two = self.get_next_subject_visit(subject_visit)
+        self.assertEqual(2, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
+
+        # note: crf_one is not listed as a crf for visit 2000
+        # trigger exception just to prove that the crf_one cannot be saved
+        # if not listed in crfs for visit 2000
+        try:
+            CrfOne.objects.create(subject_visit=subject_visit_two, f1="caufield")
+        except MetadataHandlerError:
+            pass
+
+    @tag("1")
+    def test_prn_can_be_submitted_if_now_required(self):
+        subject_visit = self.enroll(gender=MALE)
+        self.assertEqual(1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
+        self.get_next_subject_visit(subject_visit)
+        self.assertEqual(2, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
+        CrfOne.objects.create(subject_visit=subject_visit, f1="holden")
+        PrnOne.objects.create(subject_visit=subject_visit)
 
     def test_prn_resets_on_delete(self):
         subject_visit = self.enroll(gender=MALE)

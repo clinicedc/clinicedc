@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Type
 
-from django.db import models
+from django.db import models, transaction
 
 from ...constants import CRF, KEYED, REQUISITION
 from ...metadata import (
@@ -81,14 +81,15 @@ class CreatesMetadataModelMixin(RelatedVisitProtocol, models.Model):
 
         See signals.
         """
-        for key in [CRF, REQUISITION]:
-            if [obj for obj in self.metadata[key] if obj.get_entry_status() == KEYED]:
-                raise DeleteMetadataError(
-                    f"Metadata cannot be deleted. {key}s have been "
-                    f"keyed. Got {repr(self)}."
-                )
-        destroyer = self.metadata_destroyer_cls(related_visit=self)
-        destroyer.delete()
+        with transaction.atomic():
+            for key in [CRF, REQUISITION]:
+                if [obj for obj in self.metadata[key] if obj.get_entry_status() == KEYED]:
+                    raise DeleteMetadataError(
+                        f"Metadata cannot be deleted. {key}s have been "
+                        f"keyed. Got {repr(self)}."
+                    )
+            destroyer = self.metadata_destroyer_cls(related_visit=self)
+            destroyer.delete()
 
     class Meta:
         abstract = True

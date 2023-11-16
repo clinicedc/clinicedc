@@ -14,12 +14,11 @@ if TYPE_CHECKING:
 
     from ...models import CrfMetadata
     from ..creates import CreatesMetadataModelMixin
-    from .updates_crf_metadata_model_mixin import UpdatesCrfMetadataModelMixin
 
     class RelatedVisitModel(CreatesMetadataModelMixin, Base):
         pass
 
-    class CrfModel(UpdatesCrfMetadataModelMixin, Base):
+    class CrfModel(Base):
         related_visit = models.ForeignKey(RelatedVisitModel, on_delete=models.PROTECT)
 
 
@@ -57,9 +56,9 @@ class UpdatesCrfMetadataModelMixin(UpdatesMetadataModelMixin):
         """
         crfs_prn = self.metadata_visit_object.crfs_prn
         if self.related_visit.visit_code_sequence != 0:
-            crfs = self.metadata_visit_object.crfs_unscheduled + crfs_prn
+            crfs = self.metadata_visit_object.crfs_unscheduled.forms + crfs_prn.forms
         else:
-            crfs = self.metadata_visit_object.crfs + crfs_prn
+            crfs = self.metadata_visit_object.crfs.forms + crfs_prn.forms
         crf = [c for c in crfs if c.model == self._meta.label_lower][0]
         return REQUIRED if crf.required else NOT_REQUIRED
 

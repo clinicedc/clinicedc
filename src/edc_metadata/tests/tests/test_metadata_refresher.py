@@ -1,9 +1,9 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_schedule.visit import Crf, FormsCollection, Visit
+from edc_visit_schedule.visit import Crf, CrfCollection, Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
 from edc_visit_tracking.constants import SCHEDULED
 
@@ -133,6 +133,7 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
         new_visit_schedule.add_schedule(schedule)
         site_visit_schedules.register(new_visit_schedule)
 
+    @tag("1")
     def test_after_schedule_change(self):
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment,
@@ -143,28 +144,50 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
             reason=SCHEDULED,
         )
         CrfFive.objects.create(subject_visit=subject_visit)
+        self.assertEqual(len(subject_visit.visit.all_crfs), 7)
+        self.assertEqual(CrfMetadata.objects.all().count(), 7)
+        crfs = CrfCollection(
+            Crf(show_order=1, model="edc_metadata.crfone", required=True),
+            Crf(show_order=2, model="edc_metadata.crftwo", required=True),
+            Crf(show_order=3, model="edc_metadata.crfthree", required=True),
+            Crf(show_order=4, model="edc_metadata.crffour", required=True),
+            Crf(show_order=5, model="edc_metadata.crffive", required=False),
+        )
+        self.register_new_visit_schedule(crfs)
+        self.assertEqual(len(subject_visit.visit.all_crfs), 5)
+        self.assertEqual(CrfMetadata.objects.all().count(), 7)
+
+        metadata_refresher = MetadataRefresher()
+        metadata_refresher.run()
         self.assertEqual(CrfMetadata.objects.all().count(), 5)
-        crfs = FormsCollection(
+        expected = {
+            "edc_metadata.crfone": REQUIRED,
+            "edc_metadata.crftwo": REQUIRED,
+            "edc_metadata.crfthree": REQUIRED,
+            "edc_metadata.crffour": REQUIRED,
+            "edc_metadata.crffive": KEYED,
+        }
+        self.check(expected, subject_visit=subject_visit)
+
+        # you probably should NOT remove crffive from the schedule
+        # if the crffive model instance has been keyed. if you do,
+        # metadata will not be created to represent the crffive
+        # model instance
+        crfs = CrfCollection(
             Crf(show_order=1, model="edc_metadata.crfone", required=True),
             Crf(show_order=2, model="edc_metadata.crftwo", required=True),
             Crf(show_order=3, model="edc_metadata.crfthree", required=True),
             Crf(show_order=4, model="edc_metadata.crffour", required=True),
         )
         self.register_new_visit_schedule(crfs)
+        self.assertEqual(len(subject_visit.visit.all_crfs), 4)
         self.assertEqual(CrfMetadata.objects.all().count(), 5)
         metadata_refresher = MetadataRefresher()
         metadata_refresher.run()
-        # CrfFive is no longer in visit schedule, so one less
-        # CRFMetadata instance
+        # crffive not created!
         self.assertEqual(CrfMetadata.objects.all().count(), 4)
-        expected = {
-            "edc_metadata.crfone": REQUIRED,
-            "edc_metadata.crftwo": REQUIRED,
-            "edc_metadata.crfthree": REQUIRED,
-            "edc_metadata.crfFour": REQUIRED,
-        }
-        self.check(expected, subject_visit=subject_visit)
 
+    @tag("1")
     def test_after_schedule_change2(self):
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment,
@@ -176,15 +199,15 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
             schedule_name=self.appointment.schedule_name,
             reason=SCHEDULED,
         )
-        self.assertEqual(CrfMetadata.objects.all().count(), 5)
-        crfs = FormsCollection(
+        self.assertEqual(CrfMetadata.objects.all().count(), 7)
+        crfs = CrfCollection(
             Crf(show_order=1, model="edc_metadata.crfone", required=True),
             Crf(show_order=2, model="edc_metadata.crftwo", required=True),
             Crf(show_order=3, model="edc_metadata.crfthree", required=True),
             Crf(show_order=4, model="edc_metadata.crffour", required=True),
         )
         self.register_new_visit_schedule(crfs)
-        self.assertEqual(CrfMetadata.objects.all().count(), 5)
+        self.assertEqual(CrfMetadata.objects.all().count(), 7)
         metadata_refresher = MetadataRefresher()
         metadata_refresher.run()
         self.assertEqual(CrfMetadata.objects.all().count(), 4)

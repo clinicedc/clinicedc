@@ -30,13 +30,14 @@ class RequisitionMetadataHandler(MetadataHandler):
         try:
             requisition_object = [
                 requisition
-                for requisition in self.creator.visit.all_requisitions
+                for requisition in self.creator.related_visit.visit.all_requisitions
                 if requisition.panel.name == self.panel.name
             ][0]
         except IndexError as e:
             if self.related_visit.reason != MISSED_VISIT:
                 raise MetadataHandlerError(
-                    f"Model not found. Not in visit.all_crfs. Model {self.model}. Got {e}"
+                    "Model not found. Not in visit.all_requisitions. "
+                    f"Model {self.model}. Got {e}"
                 )
         else:
             metadata_obj = self.creator.create_requisition(requisition_object)

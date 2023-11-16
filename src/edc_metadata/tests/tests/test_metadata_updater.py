@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_visit_tracking.constants import SCHEDULED
 
 from ...constants import KEYED, NOT_REQUIRED, REQUIRED
@@ -175,31 +175,29 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
             1,
         )
 
+    @tag("3")
     def test_get_metadata_for_subject_visit(self):
         """Asserts can get metadata for a subject and visit code."""
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED
         )
+        self.assertEqual(len(subject_visit.visit.all_crfs), 7)
+        self.assertEqual(len(subject_visit.visit.all_requisitions), 9)
+
         metadata_a = []
-        for metadata in subject_visit.metadata.values():
-            for md in metadata:
+        for key, values in subject_visit.metadata.items():
+            for obj in values:
                 try:
-                    metadata_a.append(f"{md.model}.{md.panel_name}")
+                    metadata_a.append(f"{obj.model}.{obj.panel_name}")
                 except AttributeError:
-                    metadata_a.append(md.model)
+                    metadata_a.append(obj.model)
         metadata_a.sort()
-        metadata_b = [
-            crf.model
-            for crf in subject_visit.schedule.visits.get(subject_visit.visit_code).crfs
-        ]
-        metadata_b.extend(
-            [
-                f"{requisition.model}.{requisition.name}"
-                for requisition in subject_visit.schedule.visits.get(
-                    subject_visit.visit_code
-                ).requisitions
-            ]
+        forms = (
+            subject_visit.schedule.visits.get(subject_visit.visit_code).scheduled_forms.forms
+            + subject_visit.schedule.visits.get(subject_visit.visit_code).prn_forms.forms
         )
+        metadata_b = [f.full_name for f in forms]
+        metadata_b = list(set(metadata_b))
         metadata_b.sort()
         self.assertEqual(metadata_a, metadata_b)
 
