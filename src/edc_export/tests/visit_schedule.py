@@ -1,7 +1,13 @@
 from dateutil.relativedelta import relativedelta
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.tests.dummy_panel import DummyPanel
-from edc_visit_schedule.visit import Crf, FormsCollection, Requisition, Visit
+from edc_visit_schedule.visit import (
+    Crf,
+    CrfCollection,
+    Requisition,
+    RequisitionCollection,
+    Visit,
+)
 from edc_visit_schedule.visit_schedule import VisitSchedule
 
 
@@ -21,7 +27,7 @@ panel_four = MockPanel(name="four")
 panel_five = MockPanel(name="five")
 panel_six = MockPanel(name="six")
 
-crfs = FormsCollection(
+crfs = CrfCollection(
     Crf(show_order=1, model="edc_metadata.crfone", required=True),
     Crf(show_order=2, model="edc_metadata.crftwo", required=True),
     Crf(show_order=3, model="edc_metadata.crfthree", required=True),
@@ -29,7 +35,7 @@ crfs = FormsCollection(
     Crf(show_order=5, model="edc_metadata.crffive", required=True),
 )
 
-requisitions = FormsCollection(
+requisitions = RequisitionCollection(
     Requisition(show_order=10, panel=panel_one, required=True, additional=False),
     Requisition(show_order=20, panel=panel_two, required=True, additional=False),
     Requisition(show_order=30, panel=panel_three, required=True, additional=False),
@@ -39,7 +45,7 @@ requisitions = FormsCollection(
 )
 
 
-crfs_unscheduled = FormsCollection(
+crfs_unscheduled = CrfCollection(
     Crf(show_order=1, model="edc_metadata.crfone", required=True),
     Crf(show_order=3, model="edc_metadata.crfthree", required=True),
     Crf(show_order=5, model="edc_metadata.crffive", required=True),
