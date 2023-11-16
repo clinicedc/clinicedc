@@ -12,6 +12,7 @@ from edc_metadata.metadata import Destroyer, Metadata
 from edc_metadata.metadata_rules import MetadataRuleEvaluator
 from edc_visit_schedule.schedule import Schedule, VisitCollection
 from edc_visit_schedule.typing_stubs import VisitScheduleFieldsProtocol
+from edc_visit_schedule.visit import Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
 
 _M = TypeVar("_M", bound=Model)
@@ -94,4 +95,7 @@ class RelatedVisitProtocol(VisitScheduleFieldsProtocol, Protocol):
         ...
 
     def visits(self) -> VisitCollection:
+        ...
+
+    def visit(self) -> Visit:
         ...
