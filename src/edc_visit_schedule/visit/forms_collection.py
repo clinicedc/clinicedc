@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import Counter
 from uuid import uuid4
 
 from django.conf import settings
@@ -31,9 +32,10 @@ class FormsCollection:
         # check sequence
         seq = [item.show_order for item in forms or []]
         if len(list(set(seq))) != len(seq):
+            dups = [k for k, v in Counter(seq).items() if v > 1]
             raise FormsCollectionError(
                 f'{self.__class__.__name__} "show order" must be a '
-                f"unique sequence. Got {seq}."
+                f"unique sequence. Got {seq}.  Duplicates {dups}."
             )
 
         # convert to tuple
