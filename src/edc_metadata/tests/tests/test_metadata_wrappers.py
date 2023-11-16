@@ -140,8 +140,19 @@ class TestMetadataWrapperObjects(TestCase):
         )
 
     def test_get_crfs(self):
+        """Will include CRFs and PRNS"""
         crf_metadata_wrappers = CrfMetadataWrappers(appointment=self.appointment)
-        self.assertEqual(len(crf_metadata_wrappers.objects), 5)
+        self.assertEqual(len(crf_metadata_wrappers.objects), 7)
+        expected = [
+            "edc_metadata.crfone",
+            "edc_metadata.crftwo",
+            "edc_metadata.crfthree",
+            "edc_metadata.crffour",
+            "edc_metadata.crffive",
+            "edc_metadata.prnone",
+            "edc_metadata.prntwo",
+        ]
+        self.assertEqual(expected, [f.model for f in self.appointment.visit.all_crfs])
 
     def test_get_requisitions(self):
         requisition_metadata_wrappers = RequisitionMetadataWrappers(

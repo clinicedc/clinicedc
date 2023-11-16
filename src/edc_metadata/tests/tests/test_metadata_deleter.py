@@ -1,5 +1,5 @@
 from django.db.models import ProtectedError
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_appointment.constants import INCOMPLETE_APPT, MISSED_APPT
 from edc_appointment.models import Appointment
 from edc_lab.models import Panel
@@ -7,13 +7,60 @@ from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 
 from ...constants import KEYED, REQUIRED
+from ...metadata import DeleteMetadataError
 from ...models import CrfMetadata, RequisitionMetadata
 from ..models import CrfOne, SubjectRequisition
 from .metadata_test_mixin import TestMetadataMixin
 
 
 class TestDeletesMetadata(TestMetadataMixin, TestCase):
-    def test_deletes_metadata_on_changed_reason_toggled(self):
+    @tag("1")
+    def test_metadata_ok(self):
+        appointment = Appointment.objects.get(
+            subject_identifier=self.subject_identifier,
+            visit_code="1000",
+        )
+        SubjectVisit.objects.create(
+            appointment=appointment,
+            subject_identifier=appointment.subject_identifier,
+            report_datetime=appointment.appt_datetime,
+            visit_code=appointment.visit_code,
+            visit_code_sequence=appointment.visit_code_sequence,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            reason=SCHEDULED,
+        )
+        appointment = Appointment.objects.get(
+            subject_identifier=self.subject_identifier,
+            visit_code="2000",
+        )
+        SubjectVisit.objects.create(
+            appointment=appointment,
+            subject_identifier=appointment.subject_identifier,
+            report_datetime=appointment.appt_datetime,
+            visit_code=appointment.visit_code,
+            visit_code_sequence=appointment.visit_code_sequence,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            reason=SCHEDULED,
+        )
+        self.assertEqual(CrfMetadata.objects.filter(visit_code="2000").count(), 5)
+        self.assertEqual(
+            CrfMetadata.objects.filter(visit_code="2000", entry_status=REQUIRED).count(), 3
+        )
+        self.assertEqual(
+            RequisitionMetadata.objects.filter(visit_code="2000").count(),
+            8,
+        )
+        self.assertEqual(
+            RequisitionMetadata.objects.filter(
+                visit_code="2000", entry_status=REQUIRED
+            ).count(),
+            2,
+        )
+
+    @tag("1")
+    def test_deletes_metadata_on_change_reason_to_missed(self):
         appointment = Appointment.objects.get(
             subject_identifier=self.subject_identifier,
             visit_code="1000",
@@ -41,11 +88,6 @@ class TestDeletesMetadata(TestMetadataMixin, TestCase):
             visit_schedule_name=appointment.visit_schedule_name,
             schedule_name=appointment.schedule_name,
             reason=SCHEDULED,
-        )
-        self.assertEqual(CrfMetadata.objects.filter(visit_code="2000").count(), 3)
-        self.assertEqual(
-            RequisitionMetadata.objects.filter(visit_code="2000").count(),
-            8,
         )
         appointment.appt_timing = MISSED_APPT
         appointment.save()
@@ -124,6 +166,7 @@ class TestDeletesMetadata(TestMetadataMixin, TestCase):
         self.assertEqual(CrfMetadata.objects.filter(visit_code="2000").count(), 0)
         self.assertEqual(RequisitionMetadata.objects.filter(visit_code="2000").count(), 0)
 
+    @tag("4")
     def test_delete_visit_for_keyed_crf(self):
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED
@@ -141,6 +184,24 @@ class TestDeletesMetadata(TestMetadataMixin, TestCase):
         crf_one.delete()
         # create error condition, keyed but no model instances
         CrfMetadata.objects.all().update(entry_status=KEYED)
+        self.assertRaises(DeleteMetadataError, subject_visit.delete)
+
+    @tag("4")
+    def test_delete_visit_for_keyed_crf2(self):
+        subject_visit = SubjectVisit.objects.create(
+            appointment=self.appointment, reason=SCHEDULED
+        )
+        self.assertGreater(CrfMetadata.objects.all().count(), 0)
+        # delete
+        subject_visit.delete()
+        self.assertEqual(CrfMetadata.objects.all().count(), 0)
+        # recreate
+        subject_visit.save()
+        self.assertGreater(CrfMetadata.objects.all().count(), 0)
+        crf_one = CrfOne(subject_visit=subject_visit)
+        crf_one.save()
+        self.assertRaises(ProtectedError, subject_visit.delete)
+        crf_one.delete()
         subject_visit.delete()
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
 

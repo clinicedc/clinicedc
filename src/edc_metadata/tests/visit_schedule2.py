@@ -2,7 +2,7 @@ from dateutil.relativedelta import relativedelta
 from edc_visit_schedule.constants import DAY1, MONTH1, MONTH3, MONTH6, WEEK2
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.tests import DummyPanel
-from edc_visit_schedule.visit import Crf, FormsCollection, Visit
+from edc_visit_schedule.visit import Crf, CrfCollection, Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
 
 app_label = "edc_metadata"
@@ -17,20 +17,20 @@ class MockPanel(DummyPanel):
         super().__init__(requisition_model="edc_metadata.subjectrequisition", name=name)
 
 
-crfs_prn = FormsCollection(
+crfs_prn = CrfCollection(
     Crf(show_order=100, model=f"{app_label}.prnone"),
     Crf(show_order=200, model=f"{app_label}.prntwo"),
 )
 
-crfs_missed = FormsCollection(
+crfs_missed = CrfCollection(
     Crf(show_order=1, model="edc_metadata.subjectvisitmissed", required=True),
 )
 
-crfs0 = FormsCollection(Crf(show_order=1, model=f"{app_label}.crftwo", required=False))
-crfs1 = FormsCollection(Crf(show_order=1, model=f"{app_label}.crfone", required=True))
-crfs2 = FormsCollection(Crf(show_order=1, model=f"{app_label}.crfone", required=False))
-crfs3 = FormsCollection(Crf(show_order=1, model=f"{app_label}.crfone", required=False))
-crfs4 = FormsCollection(Crf(show_order=1, model=f"{app_label}.crfone", required=False))
+crfs0 = CrfCollection(Crf(show_order=1, model=f"{app_label}.crftwo", required=False))
+crfs1 = CrfCollection(Crf(show_order=1, model=f"{app_label}.crfone", required=True))
+crfs2 = CrfCollection(Crf(show_order=1, model=f"{app_label}.crfone", required=False))
+crfs3 = CrfCollection(Crf(show_order=1, model=f"{app_label}.crfone", required=False))
+crfs4 = CrfCollection(Crf(show_order=1, model=f"{app_label}.crfone", required=False))
 
 
 visit0 = Visit(

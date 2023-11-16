@@ -64,8 +64,8 @@ class MetadataHandler:
         """Returns a new metadata model instance for this CRF."""
         metadata_obj = None
         try:
-            crf_object = [
-                crf for crf in self.creator.visit.all_crfs if crf.model == self.model
+            crf = [
+                f for f in self.creator.related_visit.visit.all_crfs if f.model == self.model
             ][0]
         except IndexError as e:
             if self.related_visit.reason != MISSED_VISIT:
@@ -73,7 +73,7 @@ class MetadataHandler:
                     f"Model not found. Not in visit.all_crfs. Model {self.model}. Got {e}"
                 )
         else:
-            metadata_obj = self.creator.create_crf(crf_object)
+            metadata_obj = self.creator.create_crf(crf)
         return metadata_obj
 
     @property

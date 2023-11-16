@@ -6,8 +6,7 @@ from django.apps import apps as django_apps
 from django.contrib.admin.sites import all_sites
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError, transaction
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_schedule.visit import FormsCollection
+from edc_visit_schedule.visit import CrfCollection, RequisitionCollection
 from edc_visit_tracking.constants import MISSED_VISIT
 
 from ..constants import KEYED, NOT_REQUIRED, REQUIRED
@@ -205,31 +204,54 @@ class Creator:
     ) -> None:
         self.related_visit = related_visit
         self.update_keyed = update_keyed
-        self.visit_code_sequence = self.related_visit.visit_code_sequence
-        self.visit = (
-            site_visit_schedules.get_visit_schedule(self.related_visit.visit_schedule_name)
-            .schedules.get(self.related_visit.schedule_name)
-            .visits.get(self.related_visit.visit_code)
-        )
+        # self.visit_code_sequence = self.related_visit.visit_code_sequence
+        # self.visit = related_visit.visit
+        # visit = (
+        #     site_visit_schedules.get_visit_schedule(self.related_visit.visit_schedule_name)
+        #     .schedules.get(self.related_visit.schedule_name)
+        #     .visits.get(self.related_visit.visit_code)
+        # )
 
     @property
-    def crfs(self) -> FormsCollection:
+    def crfs(self) -> CrfCollection:
         """Returns list of crfs for this visit based on
         values for visit_code_sequence and MISSED_VISIT.
         """
         if self.related_visit.reason == MISSED_VISIT:
-            return self.visit.crfs_missed
-        elif self.visit_code_sequence != 0:
-            return self.visit.crfs_unscheduled + self.visit.crfs_prn
-        return self.visit.crfs + self.visit.crfs_prn
+            # missed visit CRFs only
+            crfs = self.related_visit.visit.crfs_missed.forms
+        elif self.related_visit.visit_code_sequence != 0:
+            # unscheduled + prn CRFs only
+            models = [crf.model for crf in self.related_visit.visit.crfs_unscheduled]
+            crfs = self.related_visit.visit.crfs_unscheduled.forms + tuple(
+                [f for f in self.related_visit.visit.crfs_prn if f.model not in models]
+            )
+        else:
+            # scheduled + prn CRFs only
+            models = [crf.model for crf in self.related_visit.visit.crfs_unscheduled]
+            crfs = self.related_visit.visit.crfs.forms + tuple(
+                [f for f in self.related_visit.visit.crfs_prn if f.model not in models]
+            )
+        return CrfCollection(*crfs, name="crfs")
 
     @property
-    def requisitions(self) -> FormsCollection:
-        if self.visit_code_sequence != 0:
-            return self.visit.requisitions_unscheduled + self.visit.requisitions_prn
+    def requisitions(self) -> RequisitionCollection:
+        if self.related_visit.visit_code_sequence != 0:
+            # unscheduled + prn requisitions only
+            names = [f.name for f in self.related_visit.visit.requisitions_unscheduled]
+            requisitions = self.related_visit.visit.requisitions_unscheduled.forms + tuple(
+                [f for f in self.related_visit.visit.requisitions_prn if f.name not in names]
+            )
         elif self.related_visit.reason == MISSED_VISIT:
-            return FormsCollection()
-        return self.visit.requisitions + self.visit.requisitions_prn
+            # missed visit requisition only -- none
+            requisitions = ()
+        else:
+            # scheduled + prn requisitions only
+            names = [f.name for f in self.related_visit.visit.requisitions]
+            requisitions = self.related_visit.visit.requisitions.forms + tuple(
+                [f for f in self.related_visit.visit.requisitions_prn if f.name not in names]
+            )
+        return RequisitionCollection(*requisitions, name="requisitions")
 
     def create(self) -> None:
         """Creates metadata for all CRFs and requisitions for
@@ -314,10 +336,9 @@ class Metadata:
             self.creator.create()
             metadata_exists = True
         else:
-            visit = self.creator.visit
             raise CreatesMetadataError(
                 f"Undefined 'reason'. Cannot create metadata. Got "
-                f"reason='{self.reason}'. Visit='{visit}'. "
+                f"reason='{self.reason}'. Visit='{self.related_visit.visit}'. "
                 "Check field value and/or edc_metadata.AppConfig."
                 "create_on_reasons/delete_on_reasons."
             )

@@ -15,16 +15,14 @@ if TYPE_CHECKING:
 
     from ...models import RequisitionMetadata
     from ..creates import CreatesMetadataModelMixin
-    from .updates_requisition_metadata_model_mixin import (
-        UpdatesRequisitionMetadataModelMixin,
-    )
 
     class RelatedVisitModel(CreatesMetadataModelMixin, Base):
         pass
 
-    class RequisitionModel(UpdatesRequisitionMetadataModelMixin, Base):
+    class RequisitionModel(Base):
         related_visit = models.ForeignKey(RelatedVisitModel, on_delete=models.PROTECT)
         panel = models.ForeignKey(Panel, on_delete=models.PROTECT)
+        metadata_updater_cls = ...
 
 
 class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
@@ -59,10 +57,13 @@ class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
         requisitions_prn = self.metadata_visit_object.requisitions_prn
         if self.related_visit.visit_code_sequence != 0:
             requisitions = (
-                self.metadata_visit_object.requisitions_unscheduled + requisitions_prn
+                self.metadata_visit_object.requisitions_unscheduled.forms
+                + requisitions_prn.forms
             )
         else:
-            requisitions = self.metadata_visit_object.requisitions + requisitions_prn
+            requisitions = (
+                self.metadata_visit_object.requisitions.forms + requisitions_prn.forms
+            )
         requisition = [r for r in requisitions if r.panel.name == self.panel.name][0]
         return REQUIRED if requisition.required else NOT_REQUIRED
 

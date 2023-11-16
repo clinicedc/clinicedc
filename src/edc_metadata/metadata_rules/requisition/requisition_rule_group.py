@@ -4,6 +4,7 @@ from collections import namedtuple
 from typing import TYPE_CHECKING, Any, Tuple
 
 from django.core.exceptions import ValidationError
+from edc_visit_schedule.visit import RequisitionCollection
 
 from ...requisition import RequisitionMetadataUpdater
 from ..rule_group import RuleGroup
@@ -13,7 +14,6 @@ from ..rule_group_metaclass import RuleGroupMetaclass
 RuleResult = namedtuple("RuleResult", "target_panel entry_status")
 
 if TYPE_CHECKING:
-    from edc_visit_schedule.visit import FormsCollection
     from edc_visit_tracking.model_mixins import VisitModelMixin as Base
 
     from ...model_mixins.creates import CreatesMetadataModelMixin
@@ -73,14 +73,22 @@ class RequisitionRuleGroup(RuleGroup, metaclass=RequisitionMetaclass):
     metadata_updater_cls = RequisitionMetadataUpdater
 
     @classmethod
-    def requisitions_for_visit(cls, visit=None) -> list[FormsCollection]:
+    def requisitions_for_visit(cls, visit=None) -> RequisitionCollection:
         """Returns a list of scheduled or unscheduled
         Requisitions depending on visit_code_sequence.
         """
         if visit.visit_code_sequence != 0:
-            requisitions = visit.visit.requisitions_unscheduled + visit.visit.requisitions_prn
+            requisitions = RequisitionCollection(
+                *visit.visit.requisitions_unscheduled,
+                *visit.visit.requisitions_prn,
+                name="requisitions_for_visit",
+            )
         else:
-            requisitions = visit.visit.requisitions + visit.visit.requisitions_prn
+            requisitions = RequisitionCollection(
+                *visit.visit.requisitions,
+                *visit.visit.requisitions_prn,
+                name="requisitions_for_visit",
+            )
         return requisitions
 
     @classmethod
