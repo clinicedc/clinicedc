@@ -41,6 +41,10 @@ class Requisition(Crf):
     def verbose_name(self):
         return self.panel.verbose_name
 
+    @property
+    def full_name(self):
+        return f"{self.model}.{self.name}"
+
     def validate(self):
         """Raises an exception if a Requisition model lookup fails
         or if a panel is referred to that is not known to any

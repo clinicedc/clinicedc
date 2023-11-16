@@ -5,7 +5,7 @@ from django.test import TestCase
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.system_checks import visit_schedule_check
-from edc_visit_schedule.visit import FormsCollection, Visit
+from edc_visit_schedule.visit import CrfCollection, Visit
 from edc_visit_schedule.visit.crf import Crf
 from edc_visit_schedule.visit_schedule import VisitSchedule
 
@@ -102,7 +102,7 @@ class TestSystemChecks(TestCase):
             consent_model="visit_schedule_app.subjectconsent",
             base_timepoint=1,
         )
-        crfs = FormsCollection(
+        crfs = CrfCollection(
             Crf(show_order=10, model="blah.CrfOne"),
             Crf(show_order=20, model="blah.CrfTwo"),
             Crf(show_order=30, model="blah.CrfThree"),
@@ -120,5 +120,5 @@ class TestSystemChecks(TestCase):
         visit_schedule.add_schedule(schedule)
         site_visit_schedules.register(visit_schedule)
         errors = visit_schedule_check(app_configs=django_apps.get_app_configs())
-        self.assertEqual(len(errors), 1)
+        self.assertEqual(len(errors), 3)
         self.assertEqual("edc_visit_schedule.visits", errors[0].id)

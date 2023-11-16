@@ -1,4 +1,6 @@
-from typing import List, Type
+from __future__ import annotations
+
+from typing import Type
 
 from django.apps import apps as django_apps
 from django.db import models
@@ -15,7 +17,7 @@ class Crf:
         model: str = None,
         required: bool = None,
         additional: bool = None,
-        site_ids: List[int] = None,
+        site_ids: list[int] = None,
     ) -> None:
         self.additional = additional
         self.model = model.lower()
@@ -23,12 +25,12 @@ class Crf:
         self.show_order = show_order
         self.site_ids = site_ids or []
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"{self.__class__.__name__}({self.show_order}, " f"{self.model}, {self.required})"
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         required = "Required" if self.required else ""
         return f"{self.model} {required}"
 
@@ -36,14 +38,14 @@ class Crf:
     def name(self) -> str:
         return f"{self.model}.{'required' if self.required else 'not_required'}"
 
-    def validate(self):
+    def validate(self) -> None:
         """Raises an exception if the model class lookup fails."""
         try:
             self.get_model_cls()
         except LookupError as e:
             raise CrfLookupError(e) from e
 
-    def get_model_cls(self):
+    def get_model_cls(self) -> Type[models.Model]:
         return self.model_cls
 
     @property
@@ -53,3 +55,7 @@ class Crf:
     @property
     def verbose_name(self) -> str:
         return self.model_cls._meta.verbose_name
+
+    @property
+    def full_name(self):
+        return self.model
