@@ -108,6 +108,7 @@ class AppointmentFormValidator(
 
             self.validate_facility_name()
         self.validate_appt_type()
+        self.validate_appt_status()
         self.validate_appointment_timing()
 
     @property
@@ -479,6 +480,9 @@ class AppointmentFormValidator(
 
     def validate_appt_type(self):
         self.not_applicable_if(SKIPPED_APPT, field="appt_status", field_applicable="appt_type")
+
+    def validate_appt_status(self):
+        pass
 
     def validate_appt_reason(self: Any) -> None:
         """Raises if visit_code_sequence is not 0 and appt_reason
