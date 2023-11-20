@@ -102,8 +102,10 @@ def metadata_update_previous_timepoints_for_singleton_on_post_save(
 ):
     if not raw and not kwargs.get("update_fields"):
         if isinstance(instance, (SingletonCrfModelMixin,)):
-            related_visit = instance.related_visit
-            while related_visit:
-                related_visit = related_visit.previous_visit
-                if related_visit:
-                    refresh_metadata_for_timepoint(related_visit)
+            appointment = (
+                instance.related_visit.appointment.relative_previous_with_related_visit
+            )
+            while appointment:
+                if appointment.related_visit:
+                    refresh_metadata_for_timepoint(appointment.related_visit)
+                appointment = appointment.relative_previous_with_related_visit

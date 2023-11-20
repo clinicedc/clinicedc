@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.visit import Crf, CrfCollection, Visit
@@ -102,7 +102,7 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
         self.check(expected, subject_visit=subject_visit)
 
     @staticmethod
-    def register_new_visit_schedule(crfs):
+    def register_new_visit_schedule(crfs, crfs_prn=None):
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
 
@@ -114,6 +114,7 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
             crfs=crfs,
+            crfs_prn=crfs_prn,
             allow_unscheduled=True,
             facility_name="5-day-clinic",
         )
@@ -133,7 +134,6 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
         new_visit_schedule.add_schedule(schedule)
         site_visit_schedules.register(new_visit_schedule)
 
-    @tag("1")
     def test_after_schedule_change(self):
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment,
@@ -187,7 +187,6 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
         # crffive not created!
         self.assertEqual(CrfMetadata.objects.all().count(), 4)
 
-    @tag("1")
     def test_after_schedule_change2(self):
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment,
@@ -218,3 +217,82 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
             "edc_metadata.crfFour": REQUIRED,
         }
         self.check(expected, subject_visit=subject_visit)
+
+    def test_schedule_change_with_overlapping_crfs_prns_using_save(self):
+        subject_visit = SubjectVisit.objects.create(
+            appointment=self.appointment,
+            subject_identifier=self.subject_identifier,
+            report_datetime=self.appointment.appt_datetime,
+            visit_code=self.appointment.visit_code,
+            visit_code_sequence=self.appointment.visit_code_sequence,
+            visit_schedule_name=self.appointment.visit_schedule_name,
+            schedule_name=self.appointment.schedule_name,
+            reason=SCHEDULED,
+        )
+        self.assertEqual(CrfMetadata.objects.filter(entry_status=REQUIRED).count(), 5)
+        crfs = CrfCollection(
+            Crf(show_order=1, model="edc_metadata.crfone", required=True),
+            Crf(show_order=2, model="edc_metadata.crftwo", required=True),
+            Crf(show_order=3, model="edc_metadata.crfthree", required=True),
+            Crf(show_order=4, model="edc_metadata.crffour", required=True),
+        )
+        self.register_new_visit_schedule(crfs)
+        subject_visit.save()
+        self.assertEqual(CrfMetadata.objects.filter(entry_status=REQUIRED).count(), 4)
+        crfs_prns = CrfCollection(
+            Crf(show_order=10, model="edc_metadata.crfone", required=True),
+            Crf(show_order=20, model="edc_metadata.crftwo", required=True),
+        )
+        self.register_new_visit_schedule(crfs, crfs_prn=crfs_prns)
+        subject_visit.save()
+        self.assertEqual(CrfMetadata.objects.filter(entry_status=REQUIRED).count(), 4)
+
+        crfs_prns = CrfCollection(
+            Crf(show_order=10, model="edc_metadata.crfone", required=True),
+            Crf(show_order=20, model="edc_metadata.crftwo", required=True),
+            Crf(show_order=30, model="edc_metadata.crfsix", required=True),
+        )
+        self.register_new_visit_schedule(crfs, crfs_prn=crfs_prns)
+        subject_visit.save()
+        self.assertEqual(CrfMetadata.objects.filter(entry_status=REQUIRED).count(), 4)
+
+    def test_schedule_change_with_overlapping_crfs_prns_using_metadata_refresher(self):
+        SubjectVisit.objects.create(
+            appointment=self.appointment,
+            subject_identifier=self.subject_identifier,
+            report_datetime=self.appointment.appt_datetime,
+            visit_code=self.appointment.visit_code,
+            visit_code_sequence=self.appointment.visit_code_sequence,
+            visit_schedule_name=self.appointment.visit_schedule_name,
+            schedule_name=self.appointment.schedule_name,
+            reason=SCHEDULED,
+        )
+        self.assertEqual(CrfMetadata.objects.filter(entry_status=REQUIRED).count(), 5)
+        crfs = CrfCollection(
+            Crf(show_order=1, model="edc_metadata.crfone", required=True),
+            Crf(show_order=2, model="edc_metadata.crftwo", required=True),
+            Crf(show_order=3, model="edc_metadata.crfthree", required=True),
+            Crf(show_order=4, model="edc_metadata.crffour", required=True),
+        )
+        self.register_new_visit_schedule(crfs)
+        metadata_refresher = MetadataRefresher()
+        metadata_refresher.run()
+        self.assertEqual(CrfMetadata.objects.filter(entry_status=REQUIRED).count(), 4)
+        crfs_prns = CrfCollection(
+            Crf(show_order=10, model="edc_metadata.crfone", required=True),
+            Crf(show_order=20, model="edc_metadata.crftwo", required=True),
+        )
+        self.register_new_visit_schedule(crfs, crfs_prn=crfs_prns)
+        metadata_refresher = MetadataRefresher()
+        metadata_refresher.run()
+        self.assertEqual(CrfMetadata.objects.filter(entry_status=REQUIRED).count(), 4)
+
+        crfs_prns = CrfCollection(
+            Crf(show_order=10, model="edc_metadata.crfone", required=True),
+            Crf(show_order=20, model="edc_metadata.crftwo", required=True),
+            Crf(show_order=30, model="edc_metadata.crfsix", required=True),
+        )
+        self.register_new_visit_schedule(crfs, crfs_prn=crfs_prns)
+        metadata_refresher = MetadataRefresher()
+        metadata_refresher.run()
+        self.assertEqual(CrfMetadata.objects.filter(entry_status=REQUIRED).count(), 4)

@@ -14,7 +14,6 @@ from .metadata_test_mixin import TestMetadataMixin
 
 
 class TestDeletesMetadata(TestMetadataMixin, TestCase):
-    @tag("1")
     def test_metadata_ok(self):
         appointment = Appointment.objects.get(
             subject_identifier=self.subject_identifier,
@@ -59,7 +58,6 @@ class TestDeletesMetadata(TestMetadataMixin, TestCase):
             2,
         )
 
-    @tag("1")
     def test_deletes_metadata_on_change_reason_to_missed(self):
         appointment = Appointment.objects.get(
             subject_identifier=self.subject_identifier,

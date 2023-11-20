@@ -204,13 +204,6 @@ class Creator:
     ) -> None:
         self.related_visit = related_visit
         self.update_keyed = update_keyed
-        # self.visit_code_sequence = self.related_visit.visit_code_sequence
-        # self.visit = related_visit.visit
-        # visit = (
-        #     site_visit_schedules.get_visit_schedule(self.related_visit.visit_schedule_name)
-        #     .schedules.get(self.related_visit.schedule_name)
-        #     .visits.get(self.related_visit.visit_code)
-        # )
 
     @property
     def crfs(self) -> CrfCollection:
@@ -228,7 +221,7 @@ class Creator:
             )
         else:
             # scheduled + prn CRFs only
-            models = [crf.model for crf in self.related_visit.visit.crfs_unscheduled]
+            models = [crf.model for crf in self.related_visit.visit.crfs]
             crfs = self.related_visit.visit.crfs.forms + tuple(
                 [f for f in self.related_visit.visit.crfs_prn if f.model not in models]
             )
