@@ -42,21 +42,6 @@ class AppointmentMethodsModelMixin(models.Model):
     def visit_label(self: Appointment) -> str:
         return f"{self.visit_code}.{self.visit_code_sequence}"
 
-    @property
-    def related_visit(self: Appointment) -> VisitModel | None:
-        """Returns the related visit model instance, or None"""
-        related_visit = None
-        try:
-            related_visit = getattr(self, self.related_visit_model_attr())
-        except ObjectDoesNotExist:
-            pass
-        except AttributeError:
-            query = getattr(self, f"{self.related_visit_model_attr()}_set")
-            if query:
-                if qs := query.all():
-                    related_visit = qs[0]
-        return related_visit
-
     @classmethod
     def related_visit_model_attr(cls: Appointment) -> str:
         """Returns the reversed related visit attr"""
@@ -114,30 +99,6 @@ class AppointmentMethodsModelMixin(models.Model):
             return self.last_visit_code_sequence + 1
         return self.visit_code_sequence + 1
 
-    def get_last_appointment_with_visit_report(
-        self: Appointment,
-    ) -> Appointment | None:
-        """Returns the last appointment model instance,
-        or None, with a completed visit report.
-
-        Ordering is by appointment timepoint/visit_code_sequence
-        with a completed visit report.
-        """
-        appointment = None
-        visit = (
-            self.__class__.related_visit_model_cls()
-            .objects.filter(
-                appointment__subject_identifier=self.subject_identifier,
-                visit_schedule_name=self.visit_schedule_name,
-                schedule_name=self.schedule_name,
-            )
-            .order_by("appointment__timepoint", "appointment__visit_code_sequence")
-            .last()
-        )
-        if visit:
-            appointment = visit.appointment
-        return appointment
-
     @property
     def previous_by_timepoint(self: Appointment) -> Appointment | None:
         """Returns the previous appointment or None by timepoint
@@ -187,6 +148,48 @@ class AppointmentMethodsModelMixin(models.Model):
     @property
     def relative_next(self: Appointment) -> Appointment | None:
         return get_next_appointment(self, include_interim=True)
+
+    @property
+    def related_visit(self: Appointment) -> VisitModel | None:
+        """Returns the related visit model for the current instance."""
+        related_visit = None
+        try:
+            related_visit = getattr(self, self.related_visit_model_attr())
+        except ObjectDoesNotExist:
+            pass
+        return related_visit
+
+    @property
+    def relative_previous_with_related_visit(self: Appointment) -> Appointment | None:
+        """Returns the first "previous" appointment with a related_visit
+        instance.
+
+        Considers interim appointments.
+
+        Note: a NEW or SKIPPED_APPT will not have a related visit
+        """
+        appointment = self.relative_previous
+        while appointment:
+            if appointment.related_visit:
+                break
+            appointment = appointment.relative_previous
+        return appointment
+
+    @property
+    def relative_next_with_related_visit(self: Appointment) -> Appointment | None:
+        """Returns the first "next" appointment with a related_visit
+        instance.
+
+        Considers interim appointments.
+
+        Note: a NEW or SKIPPED_APPT will not have a related visit
+        """
+        appointment = self.relative_next
+        while appointment:
+            if appointment.related_visit:
+                break
+            appointment = appointment.relative_next
+        return appointment
 
     class Meta:
         abstract = True
