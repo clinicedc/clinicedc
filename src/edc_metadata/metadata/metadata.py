@@ -204,13 +204,6 @@ class Creator:
     ) -> None:
         self.related_visit = related_visit
         self.update_keyed = update_keyed
-        # self.visit_code_sequence = self.related_visit.visit_code_sequence
-        # self.visit = related_visit.visit
-        # visit = (
-        #     site_visit_schedules.get_visit_schedule(self.related_visit.visit_schedule_name)
-        #     .schedules.get(self.related_visit.schedule_name)
-        #     .visits.get(self.related_visit.visit_code)
-        # )
 
     @property
     def crfs(self) -> CrfCollection:
