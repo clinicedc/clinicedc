@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_constants.constants import MALE
 from edc_facility.import_holidays import import_holidays
@@ -373,7 +373,6 @@ class CrfRuleGroupTestCase(TestCase):
             NOT_REQUIRED,
         )
 
-    @tag("1")
     def test_prn_rule_acts_on_correct_visit(self):
         """Asserts handles PRNs correctly"""
         # create both visits before going back to add crf_one
@@ -467,7 +466,6 @@ class CrfRuleGroupTestCase(TestCase):
             NOT_REQUIRED,
         )
 
-    @tag("1")
     def test_prn_rule_acts_on_correct_visit_2000(self):
         """Asserts handles PRNs correctly"""
         # create 1000 then add crf_one then create 2000
@@ -514,7 +512,6 @@ class CrfRuleGroupTestCase(TestCase):
             NOT_REQUIRED,
         )
 
-    @tag("1")
     def test_crf_cannot_be_saved_if_not_in_visits_crfs(self):
         subject_visit = self.enroll(gender=MALE)
         self.assertEqual(1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
@@ -529,7 +526,6 @@ class CrfRuleGroupTestCase(TestCase):
         except MetadataHandlerError:
             pass
 
-    @tag("1")
     def test_prn_can_be_submitted_if_now_required(self):
         subject_visit = self.enroll(gender=MALE)
         self.assertEqual(1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())

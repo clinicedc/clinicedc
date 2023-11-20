@@ -228,7 +228,7 @@ class Creator:
             )
         else:
             # scheduled + prn CRFs only
-            models = [crf.model for crf in self.related_visit.visit.crfs_unscheduled]
+            models = [crf.model for crf in self.related_visit.visit.crfs]
             crfs = self.related_visit.visit.crfs.forms + tuple(
                 [f for f in self.related_visit.visit.crfs_prn if f.model not in models]
             )
