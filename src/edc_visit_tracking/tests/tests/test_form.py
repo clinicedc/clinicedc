@@ -5,7 +5,7 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.core.exceptions import ImproperlyConfigured
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_appointment.constants import MISSED_APPT
 from edc_appointment.models import Appointment
 from edc_constants.constants import (
@@ -62,7 +62,6 @@ class TestForm(TestCase):
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
 
-    @tag("1")
     @override_settings(
         EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz),
         EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2022, 6, 11, 8, 00, tzinfo=utc_tz),
@@ -91,7 +90,6 @@ class TestForm(TestCase):
         form.is_valid()
         self.assertEqual({}, form._errors)
 
-    @tag("1")
     def test_visit_tracking_form__appt_not_missed_but_visit_missed(self):
         self.helper.consent_and_put_on_schedule()
         appointment = Appointment.objects.all()[0]
@@ -114,7 +112,6 @@ class TestForm(TestCase):
         form.is_valid()
         self.assertIn("reason", form._errors)
 
-    @tag("1")
     def test_visit_tracking_form__appt_missed_but_visit_not_missed(self):
         self.helper.consent_and_put_on_schedule(
             consent_datetime=datetime(2019, 5, 11, 00, tzinfo=utc_tz)
@@ -143,7 +140,6 @@ class TestForm(TestCase):
         form.is_valid()
         self.assertIn("reason", form._errors)
 
-    @tag("1")
     @override_settings(
         EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz),
         EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2022, 6, 11, 8, 00, tzinfo=utc_tz),
@@ -189,7 +185,6 @@ class TestForm(TestCase):
         obj = SubjectVisit.objects.get(appointment=appointment)
         self.assertEqual(NO, obj.require_crfs)
 
-    @tag("1")
     @override_settings(
         EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz),
         EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2022, 6, 11, 8, 00, tzinfo=utc_tz),
@@ -214,7 +209,6 @@ class TestForm(TestCase):
             reason=SCHEDULED,
         )
 
-    @tag("1")
     @override_settings(
         EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz),
         EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2022, 6, 11, 8, 00, tzinfo=utc_tz),
@@ -352,7 +346,6 @@ class TestForm(TestCase):
             self.assertFalse(form.is_valid())
             self.assertIn("report_datetime", form._errors)
 
-    @tag("1")
     @override_settings(
         EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz),
         EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2022, 6, 11, 8, 00, tzinfo=utc_tz),
