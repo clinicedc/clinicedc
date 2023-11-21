@@ -79,7 +79,7 @@ class AppointmentsCreator:
         """Updates or creates an appointment for this subject
         for the visit.
         """
-        appointment_creator = self.appointment_creator_cls(
+        opts = dict(
             subject_identifier=self.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
             schedule_name=self.schedule.name,
@@ -87,6 +87,7 @@ class AppointmentsCreator:
             skip_baseline=self.skip_baseline,
             **kwargs,
         )
+        appointment_creator = self.appointment_creator_cls(**opts)
         return appointment_creator.appointment
 
     def delete_unused_appointments(self) -> None:

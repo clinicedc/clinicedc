@@ -77,6 +77,7 @@ class AppointmentCreator:
         self.visit = visit
         self.visit_code_sequence = visit_code_sequence or 0
         self.timepoint = timepoint or self.visit.timepoint
+        self.site = valid_site_for_subject_or_raise(self.subject_identifier)
         self.ignore_window_period = ignore_window_period
         if not isinstance(self.timepoint, Decimal):
             self.timepoint = Decimal(str(self.timepoint))
@@ -145,11 +146,12 @@ class AppointmentCreator:
         )
         if self.appt_status:
             options.update(appt_status=self.appt_status)
+        if self.site:
+            options.update(site_id=self.site.id)
         return options
 
     def _create(self) -> Appointment:
         """Returns a newly created appointment model instance."""
-        valid_site_for_subject_or_raise(self.options.get("subject_identifier"))
         try:
             with transaction.atomic():
                 appointment = self.appointment_model_cls.objects.create(
