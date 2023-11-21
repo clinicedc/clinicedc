@@ -1,5 +1,5 @@
 from django.db.models import ProtectedError
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_appointment.constants import INCOMPLETE_APPT, MISSED_APPT
 from edc_appointment.models import Appointment
 from edc_lab.models import Panel
@@ -164,7 +164,6 @@ class TestDeletesMetadata(TestMetadataMixin, TestCase):
         self.assertEqual(CrfMetadata.objects.filter(visit_code="2000").count(), 0)
         self.assertEqual(RequisitionMetadata.objects.filter(visit_code="2000").count(), 0)
 
-    @tag("4")
     def test_delete_visit_for_keyed_crf(self):
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED
@@ -184,7 +183,6 @@ class TestDeletesMetadata(TestMetadataMixin, TestCase):
         CrfMetadata.objects.all().update(entry_status=KEYED)
         self.assertRaises(DeleteMetadataError, subject_visit.delete)
 
-    @tag("4")
     def test_delete_visit_for_keyed_crf2(self):
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED
