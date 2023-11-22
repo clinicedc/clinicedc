@@ -15,6 +15,10 @@ class InvalidSiteForSubjectError(Exception):
     pass
 
 
+class InvalidSubjectError(Exception):
+    pass
+
+
 def valid_site_for_subject_or_raise(subject_identifier: str) -> Site:
     """Raises an InvalidSiteError exception if the subject_identifier is not
     from the current site.
@@ -32,10 +36,11 @@ def valid_site_for_subject_or_raise(subject_identifier: str) -> Site:
             obj = get_registered_subject_model_cls().objects.get(
                 subject_identifier=subject_identifier
             )
-        except ObjectDoesNotExist as e:
-            raise InvalidSiteForSubjectError(
-                "Unable to validate site for subject. subject_identifier="
-                f"`{subject_identifier}`.  Got `{e}`"
+        except ObjectDoesNotExist:
+            raise InvalidSubjectError(
+                "Unknown subject. "
+                f"Searched `{get_registered_subject_model_cls()._meta.label_lower}`. "
+                f"Got subject_identifier=`{subject_identifier}`."
             )
         else:
             raise InvalidSiteForSubjectError(
