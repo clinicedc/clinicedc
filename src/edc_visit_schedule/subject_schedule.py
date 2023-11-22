@@ -9,6 +9,7 @@ from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from edc_appointment.constants import COMPLETE_APPT, IN_PROGRESS_APPT
 from edc_appointment.creators import AppointmentsCreator
 from edc_consent import NotConsentedError
+from edc_sites import valid_site_for_subject_or_raise
 from edc_utils import convert_php_dateformat, formatted_datetime, get_utcnow
 
 from .constants import OFF_SCHEDULE, ON_SCHEDULE
@@ -84,14 +85,15 @@ class SubjectSchedule:
         and updating the history_obj.
         """
         onschedule_datetime = onschedule_datetime or get_utcnow()
+        site = valid_site_for_subject_or_raise(subject_identifier)
         if not self.onschedule_model_cls.objects.filter(
             subject_identifier=subject_identifier
         ).exists():
-            self.registered_or_raise(subject_identifier=subject_identifier)
             self.consented_or_raise(subject_identifier=subject_identifier)
             self.onschedule_model_cls.objects.create(
                 subject_identifier=subject_identifier,
                 onschedule_datetime=onschedule_datetime,
+                site_id=site.id,
             )
         try:
             history_obj = self.history_model_cls.objects.get(
@@ -108,7 +110,7 @@ class SubjectSchedule:
                 visit_schedule_name=self.visit_schedule_name,
                 onschedule_datetime=onschedule_datetime,
                 schedule_status=ON_SCHEDULE,
-                site=self.registered_or_raise(subject_identifier=subject_identifier).site,
+                site_id=site.id,
             )
         if history_obj.schedule_status == ON_SCHEDULE:
             # create appointments per schedule
@@ -137,12 +139,14 @@ class SubjectSchedule:
         * deleting future appointments
         """
         # create offschedule_model_obj if it does not exist
+        rs_obj = self.registered_or_raise(subject_identifier=subject_identifier)
         if not self.offschedule_model_cls.objects.filter(
             subject_identifier=subject_identifier
         ).exists():
             self.offschedule_model_cls.objects.create(
                 subject_identifier=subject_identifier,
                 offschedule_datetime=offschedule_datetime,
+                site=rs_obj.site,
             )
 
         # get existing history obj or raise
