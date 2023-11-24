@@ -4,7 +4,6 @@ from edc_action_item import site_action_items
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
-from edc_reference import site_reference_configs
 from edc_registration.models import RegisteredSubject
 from edc_reportable import site_reportables
 from edc_reportable.grading_data.daids_july_2017 import grading_data
@@ -25,7 +24,6 @@ class LongitudinalTestCaseMixin(TestCase):
     def setUpClass(cls):
         site_reportables._registry = {}
         site_action_items.registry = {}
-        site_reference_configs.registry = {}
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         super().setUpClass()
@@ -36,9 +34,6 @@ class LongitudinalTestCaseMixin(TestCase):
             name="my_reportables", normal_data=normal_data, grading_data=grading_data
         )
         site_visit_schedules.register(cls.visit_schedule)
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
-        )
         site_consents.register(v1_consent)
         import_holidays()
 
