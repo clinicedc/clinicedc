@@ -45,7 +45,7 @@ class ModelToDataframe:
     ]
     edc_sys_columns: list[str] = SYSTEM_COLUMNS
     action_item_columns: list[str] = ACTION_ITEM_COLUMNS
-    illegal_chars: dict[str] = {"\u2019": "***", "\u2018": "==="}
+    illegal_chars: dict[str] = {"\u2019": "'", "\u2018": "'"}
 
     def __init__(
         self,
