@@ -20,7 +20,7 @@ def round_half_up(n, places=0):
 
 
 def round_half_away_from_zero(n: float | Decimal, places: int | None = None):
-    if type(n) == Decimal:
+    if isinstance(n, Decimal):
         places = Decimal("1" if not places else f"1.{str(0) * places}")
         return round_up(n, places=places)
     rounded_abs = round_half_up(abs(n), places)
