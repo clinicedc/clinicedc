@@ -45,6 +45,7 @@ class ModelToDataframe:
     ]
     edc_sys_columns: list[str] = SYSTEM_COLUMNS
     action_item_columns: list[str] = ACTION_ITEM_COLUMNS
+    illegal_chars: dict[str] = {"\u2019": "***", "\u2018": "==="}
 
     def __init__(
         self,
@@ -106,6 +107,7 @@ class ModelToDataframe:
                 self._dataframe.rename(columns=self.columns, inplace=True)
                 self.convert_datetimetz_to_datetime()
                 self.convert_bool_types_to_int()
+                self.remove_illegal_characters()
                 self.convert_unknown_types_to_str()
                 self.convert_timedelta_to_secs()
                 self._dataframe.fillna(value=np.nan, axis=0, inplace=True)
@@ -139,6 +141,21 @@ class ModelToDataframe:
             data.append(row)
         return pd.DataFrame(data, columns=[col for col in self.columns])
 
+    def remove_illegal_characters(self):
+        def clean_chars(s):
+            if s:
+                for k, v in self.illegal_chars.items():
+                    try:
+                        s = s.replace(k, v)
+                    except (AttributeError, TypeError):
+                        break
+            return s
+
+        for column in list(self._dataframe.select_dtypes(include=["object"]).columns):
+            self._dataframe[column] = self._dataframe.apply(
+                lambda x: clean_chars(x[column]), axis=1
+            )
+
     def convert_datetimetz_to_datetime(self) -> None:
         if self.remove_timezone:
             for column in list(self._dataframe.select_dtypes(include=["datetimetz"]).columns):
@@ -153,7 +170,7 @@ class ModelToDataframe:
     def convert_unknown_types_to_str(self) -> None:
         for column in list(self._dataframe.select_dtypes(include=["object"]).columns):
             self._dataframe[column].fillna(value="", inplace=True)
-            self._dataframe[column] = self._dataframe[column].astype("str")
+            self._dataframe[column] = self._dataframe[column].astype(str)
 
     def convert_timedelta_to_secs(self) -> None:
         for column in list(self._dataframe.select_dtypes(include=["timedelta64"]).columns):
