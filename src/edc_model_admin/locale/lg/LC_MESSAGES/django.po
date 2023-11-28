@@ -16,54 +16,49 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: edc_model_admin/changelist_buttons/model_admin_changelist_button_mixin.py:19
 #: edc_model_admin/changelist_buttons/model_admin_changelist_button_mixin.py:34
 #: edc_model_admin/changelist_buttons/model_admin_changelist_model_button_mixin.py:59
 #: edc_model_admin/changelist_buttons/model_admin_changelist_model_button_mixin.py:91
-#, fuzzy
-#| msgid "Change"
 msgid "change"
-msgstr "Badilika"
+msgstr ""
 
 #: edc_model_admin/changelist_buttons/model_admin_changelist_button_mixin.py:49
 #: edc_model_admin/changelist_buttons/model_admin_changelist_model_button_mixin.py:73
 msgid "add"
-msgstr "ongeza"
+msgstr ""
 
 #: edc_model_admin/dashboard/model_admin_dashboard_mixin.py:20
 msgid "Subject dashboard"
-msgstr "Dashibodi ya mgonjwa"
+msgstr ""
 
 #: edc_model_admin/dashboard/model_admin_dashboard_mixin.py:29
 msgid "Go to subject's dashboard"
-msgstr "nenda kwenye dashibodi ya mgonjwa"
+msgstr ""
 
 #: edc_model_admin/history/model_admin_simple_history.py:21
-#, fuzzy
-#| msgid "Change"
 msgid "Change Message"
-msgstr "Maelezo"
+msgstr ""
 
 #: edc_model_admin/history/model_admin_simple_history.py:38
 #, python-format
 msgid "<A href=\"%(url)s\">Dashboard</A>"
-msgstr "<A href=\"%(url)s\">Dashibodi</A>"
+msgstr ""
 
 #: edc_model_admin/history/model_admin_simple_history.py:55
 #: edc_model_admin/templates/edc_model_admin/admin/tabular.html:35
 msgid "View"
-msgstr "Hakiki"
+msgstr ""
 
 #: edc_model_admin/history/model_admin_simple_history.py:55
 msgid "Revert"
-msgstr "Rudisha"
+msgstr ""
 
 #: edc_model_admin/history/model_admin_simple_history.py:56
 #, python-format
 msgid "%(word)s %(verbose_name)s Audit Trail"
-msgstr "%(word)s %(verbose_name)s rekodi ya ukaguzi"
+msgstr ""
 
 #: edc_model_admin/list_filters.py:32 edc_model_admin/list_filters.py:122
 msgid "Today"
@@ -120,10 +115,6 @@ msgid ""
 "Based on your responses, additional questions may be required or some "
 "answers may need to be corrected."
 msgstr ""
-"Tafadhali jaza fomu iliyo hapa chini. Maswali yanayohitajika yameandikwa kwa "
-"herufi nzito. Maswali yote yanayohitajika yanapokamilika bofya HIFADHI au, "
-"ikiwa inapatikana, HIFADHI INAYOFUATA. Kulingana na majibu yako, maswali ya "
-"ziada yanaweza kuhitajika au baadhi ya majibu yanaweza kuhitaji kusahihishwa"
 
 #: edc_model_admin/mixins/templates_model_admin_mixin.py:24
 #: edc_model_admin/templates/edc_model_admin/admin/tabular.html:37
@@ -132,21 +123,19 @@ msgstr ""
 
 #: edc_model_admin/mixins/templates_model_admin_mixin.py:25
 msgid "Audit trail"
-msgstr "Rekodi ya ukaguzi"
+msgstr ""
 
 #: edc_model_admin/templates/edc_additional_instructions.html:4
 msgid "Additional Instructions"
-msgstr "Maagizo ya ziada"
+msgstr ""
 
 #: edc_model_admin/templates/edc_additional_instructions.html:8
 msgid "Notifications"
-msgstr "Arifa"
+msgstr ""
 
 #: edc_model_admin/templates/edc_instructions.html:3
-#, fuzzy
-#| msgid "Administration"
 msgid "Instructions"
-msgstr "Utawala"
+msgstr ""
 
 #: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:30
 #: edc_model_admin/templates/edc_model_admin/admin/object_history.html:24
@@ -154,7 +143,7 @@ msgstr "Utawala"
 #: edc_model_admin/templates/logout_row.html:6
 #: edc_model_admin/templates/navbar_for_admin_templates_b3.html:5
 msgid "Home"
-msgstr "Nyumbani"
+msgstr ""
 
 #: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:32
 #: edc_model_admin/templates/edc_model_admin/admin/object_history.html:26
@@ -163,12 +152,12 @@ msgstr "Nyumbani"
 #: edc_model_admin/templates/navbar_for_admin_templates.html:44
 #: edc_model_admin/templates/navbar_for_admin_templates_b3.html:6
 msgid "Administration"
-msgstr "Utawala"
+msgstr ""
 
 #: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:37
 #: edc_model_admin/templates/edc_submit_line.html:6
 msgid "Delete"
-msgstr "Futa"
+msgstr ""
 
 #: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:46
 #, python-format
@@ -194,90 +183,86 @@ msgstr ""
 
 #: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:62
 msgid "Objects"
-msgstr "Vitu"
+msgstr ""
 
 #: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:69
 msgid "Yes, I’m sure"
-msgstr "Ndiyo, nina uhakika"
+msgstr ""
 
 #: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:70
 msgid "No, take me back"
-msgstr "Hapana, nirudishe"
+msgstr ""
 
 #: edc_model_admin/templates/edc_model_admin/admin/index.html:36
 msgid "Recent actions"
-msgstr "Vitendo vya hivi karibuni"
+msgstr ""
 
 #: edc_model_admin/templates/edc_model_admin/admin/index.html:37
 msgid "My actions"
-msgstr "Matendo yangu"
+msgstr ""
 
 #: edc_model_admin/templates/edc_model_admin/admin/index.html:41
 msgid "None available"
-msgstr "Hakuna inayopatikana"
+msgstr ""
 
 #: edc_model_admin/templates/edc_model_admin/admin/index.html:55
 msgid "Unknown content"
-msgstr "Maudhui yasiyojulikana"
+msgstr ""
 
 #: edc_model_admin/templates/edc_model_admin/admin/object_history.html:45
 msgid "Current document"
-msgstr "Hati ya sasa"
+msgstr ""
 
 #: edc_model_admin/templates/edc_model_admin/admin/tabular.html:22
 msgid "Delete?"
-msgstr "Futa?"
+msgstr ""
 
 #: edc_model_admin/templates/edc_model_admin/admin/tabular.html:35
 msgid "Change"
-msgstr "Badilika"
+msgstr ""
 
 #: edc_model_admin/templates/edc_revision_line.html:6
 msgid "Licensed for use under"
-msgstr "Imepewa leseni ya matumizi chini ya"
+msgstr ""
 
 #: edc_model_admin/templates/edc_revision_line.html:7
 msgid "Revision"
-msgstr "Marudio"
+msgstr ""
 
 #: edc_model_admin/templates/edc_submit_line.html:3
 msgid "Save"
-msgstr "Hifadhi"
+msgstr ""
 
 #: edc_model_admin/templates/edc_submit_line.html:10
 #: edc_model_admin/templates/edc_submit_line.html:13
 #: edc_model_admin/templates/edc_submit_line.html:16
 msgid "Leave form without saving"
-msgstr "Ondoka fomu bila kuweka akiba"
+msgstr ""
 
 #: edc_model_admin/templates/edc_submit_line.html:10
 #: edc_model_admin/templates/edc_submit_line.html:13
 #: edc_model_admin/templates/edc_submit_line.html:16
 msgid "Cancel"
-msgstr "Ghairi"
+msgstr ""
 
 #: edc_model_admin/templates/edc_submit_line.html:20
 msgid "Save and go to next form in schedule"
-msgstr "Hifadhi na uende kwenye fomu inayofuata katika ratiba"
+msgstr ""
 
 #: edc_model_admin/templates/edc_submit_line.html:20
 msgid "Save and next"
-msgstr "Hifadhi na ijayo"
+msgstr ""
 
 #: edc_model_admin/templates/logout_row.html:12
 #: edc_model_admin/templates/navbar_for_admin_templates.html:60
 msgid "Logout"
-msgstr "Ondoka"
+msgstr ""
 
 #: edc_model_admin/templates/navbar_for_admin_templates.html:40
 #: edc_model_admin/templates/navbar_for_admin_templates.html:64
 msgid "Go to user account"
-msgstr "Nenda kwa akaunti ya mtumiaji"
+msgstr ""
 
 #: edc_model_admin/tests/templates/dashboard.html:10
 msgid "You are at the subject dashboard"
-msgstr "Uko kwenye dashibodi ya mgonjwa"
-
-#, python-format
-#~ msgid "Add %(name)s"
-#~ msgstr "Ongeza %(name)s"
+msgstr ""
