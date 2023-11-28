@@ -1,15 +1,10 @@
 from __future__ import annotations
 
-from typing import Type
-
-from django.apps import apps as django_apps
-from django.contrib import admin
 from django.db.models import QuerySet
-from django.forms import ModelForm
 
 from ..models import ValidationErrors
-from .exceptions import FormValidationRunnerError
 from .form_validation_runner import FormValidationRunner
+from .utils import get_modelform_cls
 
 
 class SingleFormValidationRunner(FormValidationRunner):
@@ -28,7 +23,7 @@ class SingleFormValidationRunner(FormValidationRunner):
             ignore_formfields = self.validation_error_obj.ignore_formfields.split(",")
 
         super().__init__(
-            modelform_cls=self.get_modelform_cls(),
+            modelform_cls=get_modelform_cls(self.label_lower),
             extra_formfields=extra_formfields,
             ignore_formfields=ignore_formfields,
             verbose=verbose,
@@ -40,12 +35,3 @@ class SingleFormValidationRunner(FormValidationRunner):
     @property
     def queryset(self) -> QuerySet:
         return self.model_cls.objects.filter(id=self.validation_error_obj.src_id)
-
-    def get_modelform_cls(self) -> Type[ModelForm]:
-        model_cls = django_apps.get_model(self.label_lower)
-        for s in admin.sites.all_sites:
-            if s.name.startswith(model_cls._meta.app_label):
-                return s._registry.get(model_cls).form
-        raise FormValidationRunnerError(
-            f"Unable to determine modelform_cls. Got {self.label_lower}"
-        )
