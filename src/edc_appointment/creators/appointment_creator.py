@@ -60,6 +60,7 @@ class AppointmentCreator:
         suggested_datetime: datetime | None = None,
         skip_baseline: bool | None = None,
         ignore_window_period: bool | None = None,
+        skip_get_current_site: bool | None = None,
     ):
         self._appointment = None
         self._appointment_model_cls = None
@@ -77,7 +78,9 @@ class AppointmentCreator:
         self.visit = visit
         self.visit_code_sequence = visit_code_sequence or 0
         self.timepoint = timepoint or self.visit.timepoint
-        self.site = valid_site_for_subject_or_raise(self.subject_identifier)
+        self.site = valid_site_for_subject_or_raise(
+            self.subject_identifier, skip_get_current_site=skip_get_current_site
+        )
         self.ignore_window_period = ignore_window_period
         if not isinstance(self.timepoint, Decimal):
             self.timepoint = Decimal(str(self.timepoint))
