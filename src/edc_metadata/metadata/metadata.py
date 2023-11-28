@@ -10,6 +10,7 @@ from edc_visit_schedule.visit import CrfCollection, RequisitionCollection
 from edc_visit_tracking.constants import MISSED_VISIT
 
 from ..constants import KEYED, NOT_REQUIRED, REQUIRED
+from ..source_model_metadata_mixin import SourceModelMetadataMixin
 from ..utils import verify_model_cls_registered_with_admin
 
 if TYPE_CHECKING:
@@ -42,7 +43,7 @@ def model_cls_registered_with_admin_site(model_cls: Any) -> bool:
     return registered
 
 
-class CrfCreator:
+class CrfCreator(SourceModelMetadataMixin):
     metadata_model: str = "edc_metadata.crfmetadata"
 
     def __init__(
@@ -51,9 +52,9 @@ class CrfCreator:
         update_keyed: bool,
         crf: Crf | Requisition,
     ) -> None:
+        super().__init__(source_model=crf.model, related_visit=related_visit)
         self._metadata_obj = None
         self.update_keyed = update_keyed
-        self.related_visit = related_visit
         self.crf = crf
 
     @property
@@ -68,7 +69,7 @@ class CrfCreator:
         query_options.update(
             {
                 "subject_identifier": self.related_visit.subject_identifier,
-                "model": self.crf.model,
+                "model": self.source_model,
             }
         )
         return query_options
@@ -82,7 +83,7 @@ class CrfCreator:
         """
         if not self._metadata_obj:
             metadata_obj = None
-            registered = model_cls_registered_with_admin_site(self.crf.model_cls)
+            registered = model_cls_registered_with_admin_site(self.source_model_cls)
             try:
                 metadata_obj = self.metadata_model_cls.objects.get(**self.query_options)
             except ObjectDoesNotExist:
@@ -92,6 +93,10 @@ class CrfCreator:
                             entry_status=REQUIRED if self.crf.required else NOT_REQUIRED,
                             show_order=self.crf.show_order,
                             site=self.related_visit.site,
+                            due_datetime=self.related_visit.report_datetime,
+                            fill_datetime=self.fill_datetime,
+                            document_user=self.document_user,
+                            document_name=self.document_name,
                         )
                         opts.update(**self.query_options)
                         try:
@@ -113,17 +118,6 @@ class CrfCreator:
         CRF, if it does not already exist (get_or_create).
         """
         return self.metadata_obj
-
-    @property
-    def is_keyed(self) -> bool:
-        """Returns True if CRF is keyed determined by
-        querying the CRF model class for this timepoint.
-        """
-        return (
-            django_apps.get_model(self.crf.model)
-            .objects.filter(subject_visit=self.related_visit)
-            .exists()
-        )
 
     def update_entry_status_to_default_or_keyed(
         self, metadata_obj: CrfMetadata | RequisitionMetadata
@@ -180,17 +174,15 @@ class RequisitionCreator(CrfCreator):
         return query_options
 
     @property
-    def is_keyed(self) -> bool:
-        """Returns True if requisition is keyed determined by
-        simple requisition model class lookup for this timepoint and panel.
-        """
-        return (
-            django_apps.get_model(self.requisition.model)
-            .objects.filter(
-                subject_visit=self.related_visit, panel__name=self.requisition.panel.name
-            )
-            .exists()
-        )
+    def source_model_obj(self):
+        if not self._source_model_obj:
+            try:
+                self._source_model_obj = self.source_model_cls.objects.get(
+                    subject_visit=self.related_visit, panel__name=self.requisition.panel.name
+                )
+            except ObjectDoesNotExist:
+                self._source_model_obj = None
+        return self._source_model_obj
 
 
 class Creator:

@@ -19,6 +19,11 @@ from edc_model_admin.mixins import (
 from edc_sites.admin import SiteModelAdminMixin
 
 from edc_metadata import KEYED, REQUIRED
+from edc_metadata.admin.list_filters import (
+    CreatedListFilter,
+    DueDatetimeListFilter,
+    FillDatetimeListFilter,
+)
 
 
 class MetadataModelAdminMixin(
@@ -39,6 +44,7 @@ class MetadataModelAdminMixin(
 
     view_on_site = True
     show_history_label = False
+    list_per_page = 20
 
     change_search_field_name = "subject_identifier"
 
@@ -80,17 +86,23 @@ class MetadataModelAdminMixin(
         audit_fieldset_tuple,
     )
 
-    search_fields = ("subject_identifier", "model", "id")
+    search_fields = (
+        "subject_identifier",
+        "model",
+        "document_name",
+        "document_user",
+        "id",
+    )
     list_display = (
         "subject_identifier",
         "dashboard",
-        "model_verbose_name",
+        "document_name",
         "visit_code",
         "seq",
         "status",
-        "fill_datetime",
-        "due_datetime",
-        "close_datetime",
+        "due",
+        "keyed",
+        "document_user",
         "created",
         "hostname_created",
     )
@@ -100,9 +112,11 @@ class MetadataModelAdminMixin(
         "visit_code_sequence",
         "schedule_name",
         "visit_schedule_name",
-        "model",
-        "fill_datetime",
-        "created",
+        DueDatetimeListFilter,
+        FillDatetimeListFilter,
+        "document_name",
+        "document_user",
+        CreatedListFilter,
         "user_created",
         "hostname_created",
         "site",
@@ -114,12 +128,17 @@ class MetadataModelAdminMixin(
         "schedule_name",
         "visit_schedule_name",
         "show_order",
-        "current_entry_title",
+        "document_name",
+        "document_user",
     )
 
-    @admin.display(description="Model", ordering="model")
-    def model_verbose_name(self, obj):
-        return obj.model_cls()._meta.verbose_name
+    @admin.display(description="Due", ordering="due_datetime")
+    def due(self, obj):
+        return obj.due_datetime
+
+    @admin.display(description="Keyed", ordering="fill_datetime")
+    def keyed(self, obj):
+        return obj.fill_datetime
 
     def extra_context(self, extra_context=None):
         extra_context = extra_context or {}

@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_visit_tracking.constants import SCHEDULED
 
 from ...constants import KEYED, NOT_REQUIRED, REQUIRED
@@ -175,7 +175,6 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
             1,
         )
 
-    @tag("3")
     def test_get_metadata_for_subject_visit(self):
         """Asserts can get metadata for a subject and visit code."""
         subject_visit = SubjectVisit.objects.create(
@@ -238,7 +237,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
         )
         metadata_updater = MetadataUpdater(
             related_visit=subject_visit,
-            target_model="edc_metadata.crfone",
+            source_model="edc_metadata.crfone",
         )
         metadata_updater.get_and_update(entry_status=NOT_REQUIRED)
         self.assertRaises(
@@ -274,7 +273,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
         )
         metadata_updater = MetadataUpdater(
             related_visit=subject_visit,
-            target_model="edc_metadata.blah",
+            source_model="edc_metadata.blah",
         )
         self.assertRaises(
             MetadataHandlerError, metadata_updater.get_and_update, entry_status=NOT_REQUIRED
@@ -286,7 +285,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
         )
         metadata_updater = MetadataUpdater(
             related_visit=subject_visit,
-            target_model="edc_metadata.crfseven",
+            source_model="edc_metadata.crfseven",
         )
         self.assertRaises(
             MetadataHandlerError,

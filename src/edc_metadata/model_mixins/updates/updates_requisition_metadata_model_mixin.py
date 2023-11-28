@@ -38,8 +38,8 @@ class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
         """Returns an instance of RequisitionMetadataUpdater."""
         opts = dict(
             related_visit=self.related_visit,
-            target_model=self._meta.label_lower,
-            target_panel=self.panel,
+            source_model=self._meta.label_lower,
+            source_panel=self.panel,
         )
         return self.metadata_updater_cls(**opts)
 

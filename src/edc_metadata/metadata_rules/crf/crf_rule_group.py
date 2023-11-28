@@ -84,7 +84,7 @@ class CrfRuleGroup(RuleGroup, metaclass=RuleGroupMetaclass):
                     if target_model in [c.model for c in cls.crfs_for_visit(related_visit)]:
                         metadata_updater = cls.metadata_updater_cls(
                             related_visit=related_visit,
-                            target_model=target_model,
+                            source_model=target_model,
                             allow_create=allow_create,
                         )
                         metadata_obj = metadata_updater.get_and_update(

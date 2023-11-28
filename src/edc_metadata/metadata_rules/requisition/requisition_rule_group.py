@@ -116,8 +116,8 @@ class RequisitionRuleGroup(RuleGroup, metaclass=RequisitionMetaclass):
                     ]:
                         metadata_updater = cls.metadata_updater_cls(
                             related_visit=related_visit,
-                            target_model=target_model,
-                            target_panel=target_panel,
+                            source_model=target_model,
+                            source_panel=target_panel,
                             allow_create=allow_create,
                         )
                         metadata_obj = metadata_updater.get_and_update(
