@@ -77,6 +77,7 @@ class SubjectSchedule:
         onschedule_datetime: Optional[datetime] = None,
         first_appt_datetime: Optional[datetime] = None,
         skip_baseline: Optional[bool] = None,
+        skip_get_current_site: bool | None = None,
     ):
         """Puts a subject on-schedule.
 
@@ -85,7 +86,9 @@ class SubjectSchedule:
         and updating the history_obj.
         """
         onschedule_datetime = onschedule_datetime or get_utcnow()
-        site = valid_site_for_subject_or_raise(subject_identifier)
+        site = valid_site_for_subject_or_raise(
+            subject_identifier, skip_get_current_site=skip_get_current_site
+        )
         if not self.onschedule_model_cls.objects.filter(
             subject_identifier=subject_identifier
         ).exists():
