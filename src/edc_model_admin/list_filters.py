@@ -3,6 +3,7 @@ from __future__ import annotations
 from dateutil.relativedelta import MO, relativedelta
 from django.contrib import admin
 from django.db.models import QuerySet
+from django.utils.translation import gettext as _
 from edc_constants.constants import (
     FUTURE_DATE,
     IS_NULL,
@@ -28,14 +29,14 @@ class FutureDateListFilter(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin) -> tuple:
         return (
-            (TODAY, "Today"),
-            (TOMORROW, "Tomorrow"),
-            (THIS_WEEK, "This week"),
-            (NEXT_WEEK, "Next week"),
-            (FUTURE_DATE, "Any future date"),
-            (PAST_DATE, "Any past date"),
-            (IS_NULL, "No date"),
-            (NOT_NULL, "Has date"),
+            (TODAY, _("Today")),
+            (TOMORROW, _("Tomorrow")),
+            (THIS_WEEK, _("This week")),
+            (NEXT_WEEK, _("Next week")),
+            (FUTURE_DATE, _("Any future date")),
+            (PAST_DATE, _("Any past date")),
+            (IS_NULL, _("No date")),
+            (NOT_NULL, _("Has date")),
         )
 
     @property
@@ -118,15 +119,15 @@ class PastDateListFilter(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin) -> tuple:
         return (
-            (TODAY, "Today"),
-            (YESTERDAY, "Yesterday"),
-            (THIS_WEEK, "This week"),
-            (LAST_WEEK, "Last week"),
-            (THIS_MONTH, "This month"),
-            (LAST_MONTH, "Last month"),
-            (PAST_DATE, "Any past date"),
-            (IS_NULL, "No date"),
-            (NOT_NULL, "Has date"),
+            (TODAY, _("Today")),
+            (YESTERDAY, _("Yesterday")),
+            (THIS_WEEK, _("This week")),
+            (LAST_WEEK, _("Last week")),
+            (THIS_MONTH, _("This month")),
+            (LAST_MONTH, _("Last month")),
+            (PAST_DATE, _("Any past date")),
+            (IS_NULL, _("No date")),
+            (NOT_NULL, _("Has date")),
         )
 
     @property
