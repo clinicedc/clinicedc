@@ -1,40 +1,65 @@
 from uuid import uuid4
 
 from django.conf import settings
-from django.contrib import messages
+from django.contrib import admin, messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls.base import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from edc_constants.constants import CLOSED, OPEN
+from edc_appointment.constants import IN_PROGRESS_APPT
+from edc_constants.constants import CLOSED, DONE, NEW, OPEN
 from edc_utils import formatted_datetime, get_utcnow
 
+from ..form_validation_runners import SingleFormValidationRunner
 from ..models import QueryRule
 from ..rule import update_query_rules
 
 DATA_MANAGER_ENABLED = getattr(settings, "DATA_MANAGER_ENABLED", True)
 
 
+@admin.action(description="Refresh selected")
+def validation_error_refresh(modeladmin, request, queryset):
+    for obj in queryset:
+        runner = SingleFormValidationRunner(validation_error_obj=obj)
+        runner.run()
+
+
+@admin.action(description="Mark selected as done")
+def validation_error_flag_as_done(modeladmin, request, queryset):
+    for obj in queryset:
+        obj.status = DONE
+        obj.save()
+
+
+@admin.action(description="Mark selected as in progress")
+def validation_error_flag_as_in_progress(modeladmin, request, queryset):
+    for obj in queryset:
+        obj.status = IN_PROGRESS_APPT
+        obj.save()
+
+
+@admin.action(description="Mark selected as new")
+def validation_error_flag_as_new(modeladmin, request, queryset):
+    for obj in queryset:
+        obj.status = NEW
+        obj.save()
+
+
+@admin.action(description=f"Toggle Active/Inactive {QueryRule._meta.verbose_name_plural}")
 def toggle_active_flag(modeladmin, request, queryset):
     for obj in queryset:
         obj.active = False if obj.active else True
         obj.save()
 
 
-toggle_active_flag.short_description = (
-    f"Toggle Active/Inactive {QueryRule._meta.verbose_name_plural}"
-)
-
-
+@admin.action(description="Toggle DM Status (OPEN/CLOSED)")
 def toggle_dm_status(modeladmin, request, queryset):
     for obj in queryset:
         obj.status = OPEN if obj.status != OPEN else CLOSED
         obj.save()
 
 
-toggle_dm_status.short_description = "Toggle DM Status (OPEN/CLOSED)"
-
-
+@admin.action(description=f"Copy {QueryRule._meta.verbose_name}")
 def copy_query_rule_action(modeladmin, request, queryset):
     if queryset.count() == 1:
         obj = queryset[0]
@@ -65,9 +90,7 @@ def copy_query_rule_action(modeladmin, request, queryset):
         )
 
 
-copy_query_rule_action.short_description = f"Copy {QueryRule._meta.verbose_name}"
-
-
+@admin.action(description=f"Run selected {QueryRule._meta.verbose_name_plural}")
 def update_query_rules_action(modeladmin, request, queryset):
     if not DATA_MANAGER_ENABLED:
         msg = (
@@ -97,8 +120,3 @@ def update_query_rules_action(modeladmin, request, queryset):
                 mark_safe(results.get("resolved")),  # nosec B703, B308
             )
         messages.add_message(request, messages.SUCCESS, msg)
-
-
-update_query_rules_action.short_description = (
-    f"Run selected {QueryRule._meta.verbose_name_plural}"
-)
