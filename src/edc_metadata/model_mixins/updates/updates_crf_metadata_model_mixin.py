@@ -35,7 +35,7 @@ class UpdatesCrfMetadataModelMixin(UpdatesMetadataModelMixin):
         """Returns an instance of MetadataUpdater."""
         return self.metadata_updater_cls(
             related_visit=self.related_visit,
-            target_model=self._meta.label_lower,
+            source_model=self._meta.label_lower,
             allow_create=True,
         )
 

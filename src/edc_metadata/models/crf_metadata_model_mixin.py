@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.utils.translation import gettext as _
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_sites.model_mixins import SiteModelMixin
 from edc_visit_schedule.model_mixins import (
@@ -37,7 +38,7 @@ class CrfMetadataModelMixin(
 
     model = models.CharField(max_length=50)
 
-    current_entry_title = models.CharField(max_length=250, null=True)
+    document_name = models.CharField(verbose_name=_("Document"), max_length=250, null=True)
 
     show_order = models.IntegerField()  # must always be provided!
 
@@ -54,6 +55,8 @@ class CrfMetadataModelMixin(
     close_datetime = models.DateTimeField(null=True, blank=True)
 
     fill_datetime = models.DateTimeField(null=True, blank=True)
+
+    document_user = models.CharField(verbose_name=_("User"), max_length=50, null=True)
 
     def natural_key(self):
         return (

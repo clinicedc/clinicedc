@@ -237,7 +237,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
         )
         metadata_updater = MetadataUpdater(
             related_visit=subject_visit,
-            target_model="edc_metadata.crfone",
+            source_model="edc_metadata.crfone",
         )
         metadata_updater.get_and_update(entry_status=NOT_REQUIRED)
         self.assertRaises(
@@ -273,7 +273,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
         )
         metadata_updater = MetadataUpdater(
             related_visit=subject_visit,
-            target_model="edc_metadata.blah",
+            source_model="edc_metadata.blah",
         )
         self.assertRaises(
             MetadataHandlerError, metadata_updater.get_and_update, entry_status=NOT_REQUIRED
@@ -285,7 +285,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
         )
         metadata_updater = MetadataUpdater(
             related_visit=subject_visit,
-            target_model="edc_metadata.crfseven",
+            source_model="edc_metadata.crfseven",
         )
         self.assertRaises(
             MetadataHandlerError,

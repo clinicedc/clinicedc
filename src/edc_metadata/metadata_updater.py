@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Type
 
-from django.apps import apps as django_apps
-
 from .constants import CRF, KEYED
 from .metadata_handler import MetadataHandler
+from .source_model_metadata_mixin import SourceModelMetadataMixin
 
 if TYPE_CHECKING:
     from edc_visit_tracking.model_mixins import VisitModelMixin as Base
@@ -21,9 +20,9 @@ class MetadataUpdaterError(Exception):
     pass
 
 
-class MetadataUpdater:
+class MetadataUpdater(SourceModelMetadataMixin):
     """A class to update a subject's metadata given
-    the related_visit, target model name and desired entry status.
+    the related_visit, source model name and desired entry status.
     """
 
     metadata_handler_cls: Type[MetadataHandler] = MetadataHandler
@@ -33,28 +32,36 @@ class MetadataUpdater:
     def __init__(
         self,
         related_visit: RelatedVisitModel = None,
-        target_model: str = None,
+        source_model: str = None,
         allow_create: bool | None = None,
     ):
+        super().__init__(source_model, related_visit)
         self._metadata_obj: CrfMetadata | RequisitionMetadata | None = None
         self.allow_create = True if allow_create is None else allow_create
-        self.related_visit = related_visit
-        self.target_model = target_model
 
     def __repr__(self):
         return (
             f"{self.__class__.__name__}"
             f"(related_visit={self.related_visit}, "
-            f"target_model={self.target_model})"
+            f"source_model={self.source_model})"
         )
 
     def get_and_update(self, entry_status: str = None) -> CrfMetadata | RequisitionMetadata:
         metadata_obj = self.metadata_handler.metadata_obj
-        if entry_status != KEYED and self.is_keyed(metadata_obj.model):
+        if entry_status != KEYED and self.is_keyed:
             entry_status = KEYED
         if metadata_obj.entry_status != entry_status:
             metadata_obj.entry_status = entry_status
-            metadata_obj.save(update_fields=["entry_status"])
+            metadata_obj.fill_datetime = self.fill_datetime
+            metadata_obj.document_name = self.document_name
+            metadata_obj.save(
+                update_fields=[
+                    "entry_status",
+                    "fill_datetime",
+                    "document_name",
+                    "document_user",
+                ]
+            )
             metadata_obj.refresh_from_db()
             if metadata_obj.entry_status != entry_status:
                 raise MetadataUpdaterError(
@@ -64,19 +71,11 @@ class MetadataUpdater:
                 )
         return metadata_obj
 
-    def is_keyed(self, model: str) -> bool:
-        """Returns True if source model exists."""
-        return (
-            django_apps.get_model(model)
-            .objects.filter(subject_visit=self.related_visit)
-            .exists()
-        )
-
     @property
     def metadata_handler(self) -> MetadataHandler:
         return self.metadata_handler_cls(
             metadata_model=self.metadata_model,
-            model=self.target_model,
+            model=self.source_model,
             related_visit=self.related_visit,
             allow_create=self.allow_create,
         )
