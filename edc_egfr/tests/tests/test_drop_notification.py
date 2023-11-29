@@ -6,7 +6,6 @@ from edc_constants.constants import BLACK, CLOSED, COMPLETE, INCOMPLETE, MALE, O
 from edc_lab import site_labs
 from edc_lab.models import Panel
 from edc_lab_panel.panels import rft_panel
-from edc_reference import site_reference_configs
 from edc_registration.models import RegisteredSubject
 from edc_reportable import MICROMOLES_PER_LITER, site_reportables
 from edc_reportable.grading_data.daids_july_2017 import grading_data
@@ -31,9 +30,6 @@ class TestEgfr(TestCase):
     def setUp(self) -> None:
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
-        site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_visit_tracking.subjectvisit"}
-        )
         RegisteredSubject.objects.create(
             subject_identifier="1234",
             gender=MALE,
