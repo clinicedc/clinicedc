@@ -17,18 +17,18 @@ if TYPE_CHECKING:
 
 
 @cache
-def get_modelforms_from_admin_site(admin_site):
-    registry = {}
-    for admin_class in admin_site._registry.values():
-        registry.update({admin_class.model._meta.label_lower: admin_class.form})
-    return registry
-
-
-@cache
 def get_modelforms_from_admin_sites():
     registry = {}
     for admin_site in admin.sites.all_sites:
         registry.update(**get_modelforms_from_admin_site(admin_site))
+    return registry
+
+
+@cache
+def get_modelforms_from_admin_site(admin_site):
+    registry = {}
+    for admin_class in admin_site._registry.values():
+        registry.update({admin_class.model._meta.label_lower: admin_class.form})
     return registry
 
 
