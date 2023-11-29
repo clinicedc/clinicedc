@@ -8,7 +8,7 @@ from ..single_form_runner import SingleFormRunner
 def issue_refresh(modeladmin, request, queryset):
     for obj in queryset:
         runner = SingleFormRunner(issue_obj=obj)
-        runner.run()
+        runner.run(field_name=obj.field_name)
 
 
 @admin.action(description="Mark selected issues as done")

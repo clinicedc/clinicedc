@@ -14,23 +14,20 @@ class SingleFormRunner(FormRunner):
         verbose: bool | None = None,
     ):
         extra_formfields = None
-        ignore_formfields = None
+        exclude_formfields = None
         self.issue_obj = issue_obj
         self.label_lower = self.issue_obj.label_lower
         if self.issue_obj.extra_formfields:
             extra_formfields = self.issue_obj.extra_formfields.split(",")
-        if self.issue_obj.ignore_formfields:
-            ignore_formfields = self.issue_obj.ignore_formfields.split(",")
+        if self.issue_obj.exclude_formfields:
+            exclude_formfields = self.issue_obj.exclude_formfields.split(",")
 
         super().__init__(
             modelform_cls=get_modelform_cls(self.label_lower),
             extra_formfields=extra_formfields,
-            ignore_formfields=ignore_formfields,
+            exclude_formfields=exclude_formfields,
             verbose=verbose,
         )
-
-    def delete_issues(self) -> None:
-        self.issue_obj.delete()
 
     @property
     def queryset(self) -> QuerySet:

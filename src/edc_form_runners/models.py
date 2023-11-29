@@ -8,11 +8,13 @@ from edc_model.models import BaseUuidModel
 class Issue(BaseUuidModel):
     session_id = models.UUIDField(null=True)
     session_datetime = models.DateTimeField(null=True)
-    label_lower = models.CharField(max_length=150)
+    label_lower = models.CharField(max_length=50)
     verbose_name = models.CharField(max_length=150)
-    subject_identifier = models.CharField(max_length=150)
-    visit_code = models.CharField(max_length=150)
-    visit_code_sequence = models.CharField(max_length=150)
+    subject_identifier = models.CharField(max_length=50)
+    visit_code = models.CharField(max_length=25)
+    visit_code_sequence = models.IntegerField()
+    visit_schedule_name = models.CharField(max_length=25, null=True)
+    schedule_name = models.CharField(max_length=25, null=True)
     field_name = models.CharField(max_length=150)
     raw_message = models.TextField(null=True)
     message = models.TextField(null=True)
@@ -24,13 +26,14 @@ class Issue(BaseUuidModel):
     src_modified_datetime = models.DateTimeField(null=True)
     src_user_modified = models.CharField(max_length=150, null=True)
     site = models.ForeignKey(Site, on_delete=PROTECT)
+    panel_name = models.CharField(max_length=50, null=True)
     status = models.CharField(
         max_length=15,
         choices=((NEW, "New"), (IN_PROGRESS, "In progress"), (DONE, "Done")),
         default=NEW,
     )
     extra_formfields = models.TextField(null=True)
-    ignore_formfields = models.TextField(null=True)
+    exclude_formfields = models.TextField(null=True)
 
     def __str__(self):
         return (
@@ -45,22 +48,26 @@ class Issue(BaseUuidModel):
         constraints = [
             UniqueConstraint(
                 fields=[
-                    "label_lower",
                     "subject_identifier",
+                    "label_lower",
                     "field_name",
+                    "panel_name",
                     "visit_code",
                     "visit_code_sequence",
+                    "visit_schedule_name",
+                    "schedule_name",
                 ],
                 name="unique_label_lower_subject_identifier_etc",
             )
         ]
         indexes = [
-            Index(fields=["label_lower", "field_name", "short_message"]),
+            Index(fields=["label_lower", "field_name", "panel_name", "short_message"]),
             Index(
                 fields=[
                     "subject_identifier",
                     "visit_code",
                     "visit_code_sequence",
+                    "panel_name",
                     "short_message",
                 ],
             ),

@@ -7,7 +7,7 @@ from .site import site_form_runners
 
 class AppConfig(DjangoAppConfig):
     name = "edc_form_runners"
-    verbose_name = "EDC Form Runners"
+    verbose_name = "Edc Form Runners"
     description = ""
     admin_site_name = "edc_form_runners_admin"
     include_in_administration_section = True
