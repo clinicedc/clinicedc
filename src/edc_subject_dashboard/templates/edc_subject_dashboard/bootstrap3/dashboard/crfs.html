@@ -25,7 +25,9 @@
                                 {{ crf.object.verbose_name }}
                                     {% if crf.object.user_created %}
                                         <p class="text small text-default">
-                                            {% if crf.object.crf_status == INCOMPLETE %}<span class="label label-danger" data-toggle="tooltip" title="CRF is flagged as incomplete"><span class="fas fa-tag"></span></span>{% endif %}                                            {{ crf.object.user_created }} on {{ crf.object.object.created|date:"SHORT_DATETIME_FORMAT" }}
+                                            {% if crf.object.form_runner_issue_messages %}<span class="badge" data-toggle="tooltip" title="{{ crf.object.form_runner_issue_messages|truncatechars_html:150 }}">issue</span>{% endif %}
+                                            {% if crf.object.crf_status == INCOMPLETE %}<span class="label label-danger" data-toggle="tooltip" title="CRF is flagged as incomplete"><span class="fas fa-tag"></span></span>{% endif %}
+                                            {{ crf.object.user_created }} on {{ crf.object.object.created|date:"SHORT_DATETIME_FORMAT" }}
                                             {% if crf.object.user_modified %} | {{ crf.object.user_modified }} on {{ crf.object.object.modified|date:"SHORT_DATETIME_FORMAT" }}{% endif %}
 
                                         </p>

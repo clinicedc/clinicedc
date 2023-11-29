@@ -34,6 +34,7 @@
                                 	<span class="text text-default">{{ requisition.object.panel_display_name }} {{requisition.object.panel.name}}</span>
                                     {% if requisition.object.user_created and requisition.object.is_drawn%}
                                         <p class="text text-default small">
+                                            {% if requisition.object.form_runner_issue_messages %}<span class="badge" data-toggle="tooltip" title="{{ requisition.object.form_runner_issue_messages|truncatechars_html:150 }}">issue</span>{% endif %}
                                             {{ requisition.object.user_created }} on {{ requisition.object.object.created|date:"SHORT_DATETIME_FORMAT" }}
                                             {% if requisition.object.user_modified %} | {{ requisition.object.user_modified }} on {{ requisition.object.object.modified|date:"SHORT_DATETIME_FORMAT" }}{% endif %}
                                         </p>
