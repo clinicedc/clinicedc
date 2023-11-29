@@ -93,7 +93,7 @@ class CrfCreator(SourceModelMetadataMixin):
                             entry_status=REQUIRED if self.crf.required else NOT_REQUIRED,
                             show_order=self.crf.show_order,
                             site=self.related_visit.site,
-                            due_datetime=self.related_visit.report_datetime,
+                            due_datetime=self.due_datetime,
                             fill_datetime=self.fill_datetime,
                             document_user=self.document_user,
                             document_name=self.document_name,

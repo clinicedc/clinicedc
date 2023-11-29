@@ -44,6 +44,10 @@ class SourceModelMetadataMixin:
         return False
 
     @property
+    def due_datetime(self):
+        return self.related_visit.report_datetime
+
+    @property
     def fill_datetime(self):
         if self.source_model_obj:
             return self.source_model_obj.created
@@ -52,8 +56,10 @@ class SourceModelMetadataMixin:
     @property
     def document_user(self):
         if self.source_model_obj:
-            return self.source_model_obj.user_created
-        return None
+            document_user = self.source_model_obj.user_created
+        else:
+            document_user = self.related_visit.user_created
+        return document_user
 
     @property
     def document_name(self):
