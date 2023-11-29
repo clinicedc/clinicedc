@@ -1,2 +1,0 @@
-class FormValidationRunnerError(Exception):
-    pass
