@@ -16,5 +16,5 @@ class FormRunnerModelWrapperMixin:
             getattr(self.object, self.get_related_visit_model_attr()),
             panel_name=getattr(self, "panel_name", None),
         )
-        messages = [obj.message for obj in qs]
+        messages = [f"{obj.message} [{obj.field_name}]" for obj in qs]
         return "<BR>".join(messages)

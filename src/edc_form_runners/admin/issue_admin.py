@@ -11,12 +11,7 @@ from edc_visit_schedule.fieldsets import visit_schedule_only_fieldset_tuple
 
 from ..admin_site import edc_form_runners_admin
 from ..models import Issue
-from .actions import (
-    issue_flag_as_done,
-    issue_flag_as_in_progress,
-    issue_flag_as_new,
-    issue_refresh,
-)
+from .actions import issue_refresh
 
 
 @admin.register(Issue, site=edc_form_runners_admin)
@@ -27,12 +22,7 @@ class IssueAdmin(
 ):
     list_per_page = 15
     show_cancel = True
-    actions = [
-        issue_flag_as_done,
-        issue_flag_as_in_progress,
-        issue_flag_as_new,
-        issue_refresh,
-    ]
+    actions = [issue_refresh]
 
     fieldsets = (
         (
@@ -66,10 +56,6 @@ class IssueAdmin(
             "Session",
             {"fields": ("session_id", "session_datetime")},
         ),
-        (
-            "Status",
-            {"fields": ("status",)},
-        ),
         visit_schedule_only_fieldset_tuple,
         audit_fieldset_tuple,
     )
@@ -82,19 +68,17 @@ class IssueAdmin(
         "field_name",
         "response",
         "visit",
-        "status",
     )
 
     list_filter = (
-        "verbose_name",
-        "field_name",
         "visit_code",
         "visit_code_sequence",
-        "status",
+        "panel_name",
+        "verbose_name",
+        "field_name",
         "short_message",
         "session_id",
         "session_datetime",
-        "panel_name",
         "site",
     )
 
@@ -119,10 +103,6 @@ class IssueAdmin(
         "visit_code_sequence",
         "visit_schedule_name",
     )
-
-    radio_fields = {
-        "status": admin.VERTICAL,
-    }
 
     search_fields = (
         "message",

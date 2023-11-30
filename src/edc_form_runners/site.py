@@ -24,9 +24,9 @@ class SiteFormRunners:
             self._register(runner=runner)
 
     def _register(self, runner=None):
-        if runner.name in self.registry:
+        if runner.model_name in self.registry:
             raise AlreadyRegistered(f"Form runner already registered. Got {runner}.")
-        self.registry.update({runner.name: runner})
+        self.registry.update({runner.model_name: runner})
 
     def autodiscover(self, module_name=None, verbose=True):
         """Autodiscovers query rule classes in the form_runners.py file of

@@ -27,11 +27,6 @@ class Issue(BaseUuidModel):
     src_user_modified = models.CharField(max_length=150, null=True)
     site = models.ForeignKey(Site, on_delete=PROTECT)
     panel_name = models.CharField(max_length=50, null=True)
-    status = models.CharField(
-        max_length=15,
-        choices=((NEW, "New"), (IN_PROGRESS, "In progress"), (DONE, "Done")),
-        default=NEW,
-    )
     extra_formfields = models.TextField(null=True)
     exclude_formfields = models.TextField(null=True)
 

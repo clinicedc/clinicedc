@@ -1,32 +1,13 @@
 from django.contrib import admin
 from edc_constants.constants import DONE, IN_PROGRESS, NEW
 
-from ..single_form_runner import SingleFormRunner
+from ..get_form_runner_by_src_id import get_form_runner_by_src_id
 
 
 @admin.action(description="Refresh selected issues")
 def issue_refresh(modeladmin, request, queryset):
-    for obj in queryset:
-        runner = SingleFormRunner(issue_obj=obj)
-        runner.run(field_name=obj.field_name)
-
-
-@admin.action(description="Mark selected issues as done")
-def issue_flag_as_done(modeladmin, request, queryset):
-    for obj in queryset:
-        obj.status = DONE
-        obj.save()
-
-
-@admin.action(description="Mark selected issues as in progress")
-def issue_flag_as_in_progress(modeladmin, request, queryset):
-    for obj in queryset:
-        obj.status = IN_PROGRESS
-        obj.save()
-
-
-@admin.action(description="Mark selected issues as new")
-def issue_flag_as_new(modeladmin, request, queryset):
-    for obj in queryset:
-        obj.status = NEW
-        obj.save()
+    for issue_obj in queryset:
+        runner = get_form_runner_by_src_id(
+            src_id=issue_obj.src_id, model_name=issue_obj.label_lower
+        )
+        runner.run_one()
