@@ -52,11 +52,14 @@ class MetadataUpdater(SourceModelMetadataMixin):
             entry_status = KEYED
         if metadata_obj.entry_status != entry_status:
             metadata_obj.entry_status = entry_status
+            metadata_obj.due_datetime = self.due_datetime
             metadata_obj.fill_datetime = self.fill_datetime
+            metadata_obj.document_user = self.document_user
             metadata_obj.document_name = self.document_name
             metadata_obj.save(
                 update_fields=[
                     "entry_status",
+                    "due_datetime",
                     "fill_datetime",
                     "document_name",
                     "document_user",
