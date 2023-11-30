@@ -14,6 +14,10 @@ DATA_MANAGER_ROLE = "data_manager"
 
 # codenames
 data_manager = [
+    "edc_data_manager.add_issue",
+    "edc_data_manager.change_issue",
+    "edc_data_manager.delete_issue",
+    "edc_data_manager.view_issue",
     "edc_data_manager.add_dataquery",
     "edc_data_manager.add_queryrule",
     "edc_data_manager.view_validationerrors",

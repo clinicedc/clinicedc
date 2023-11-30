@@ -6,43 +6,13 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.urls.base import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from edc_appointment.constants import IN_PROGRESS_APPT
-from edc_constants.constants import CLOSED, DONE, NEW, OPEN
+from edc_constants.constants import CLOSED, OPEN
 from edc_utils import formatted_datetime, get_utcnow
 
-from ..form_validation_runners import SingleFormValidationRunner
 from ..models import QueryRule
 from ..rule import update_query_rules
 
 DATA_MANAGER_ENABLED = getattr(settings, "DATA_MANAGER_ENABLED", True)
-
-
-@admin.action(description="Refresh selected")
-def validation_error_refresh(modeladmin, request, queryset):
-    for obj in queryset:
-        runner = SingleFormValidationRunner(validation_error_obj=obj)
-        runner.run()
-
-
-@admin.action(description="Mark selected as done")
-def validation_error_flag_as_done(modeladmin, request, queryset):
-    for obj in queryset:
-        obj.status = DONE
-        obj.save()
-
-
-@admin.action(description="Mark selected as in progress")
-def validation_error_flag_as_in_progress(modeladmin, request, queryset):
-    for obj in queryset:
-        obj.status = IN_PROGRESS_APPT
-        obj.save()
-
-
-@admin.action(description="Mark selected as new")
-def validation_error_flag_as_new(modeladmin, request, queryset):
-    for obj in queryset:
-        obj.status = NEW
-        obj.save()
 
 
 @admin.action(description=f"Toggle Active/Inactive {QueryRule._meta.verbose_name_plural}")
