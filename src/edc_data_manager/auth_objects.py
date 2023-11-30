@@ -20,8 +20,6 @@ data_manager = [
     "edc_data_manager.view_issue",
     "edc_data_manager.add_dataquery",
     "edc_data_manager.add_queryrule",
-    "edc_data_manager.view_validationerrors",
-    "edc_data_manager.change_validationerrors",
     "edc_data_manager.change_dataquery",
     "edc_data_manager.change_queryrule",
     "edc_data_manager.delete_dataquery",
