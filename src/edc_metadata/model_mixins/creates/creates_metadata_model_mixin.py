@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING, Any, Type
 
 from django.db import models, transaction
 
@@ -50,7 +50,7 @@ class CreatesMetadataModelMixin(RelatedVisitProtocol, models.Model):
         metadata_rule_evaluator.evaluate_rules()
 
     @property
-    def metadata_query_options(self) -> dict:
+    def metadata_query_options(self) -> dict[str, Any]:
         """Returns a dictionary of query options needed select
         the related_visit.
         """

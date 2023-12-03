@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from edc_visit_tracking.constants import MISSED_VISIT
 
@@ -44,7 +44,7 @@ class RequisitionMetadataHandler(MetadataHandler):
         return metadata_obj
 
     @property
-    def query_options(self) -> dict:
+    def query_options(self) -> dict[str, Any]:
         """Returns a dict of options to query the metadata model."""
         query_options = super().query_options
         query_options.update({"panel_name": self.panel.name})

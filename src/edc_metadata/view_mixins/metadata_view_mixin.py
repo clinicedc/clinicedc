@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Type
+
 from django.apps import apps as django_apps
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
@@ -10,6 +12,9 @@ from edc_subject_model_wrappers import CrfModelWrapper, RequisitionModelWrapper
 from ..constants import CRF, KEYED, NOT_REQUIRED, REQUIRED, REQUISITION
 from ..metadata_wrappers import CrfMetadataWrappers, RequisitionMetadataWrappers
 from ..utils import refresh_metadata_for_timepoint
+
+if TYPE_CHECKING:
+    from edc_lab.models import Panel
 
 
 class MetadataViewError(Exception):
@@ -42,7 +47,7 @@ class MetadataViewMixin:
                 self.refresh_metadata_for_timepoint()
         return super().get(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict:
         context = super().get_context_data(**kwargs)
         context.update(metadata_show_status=self.metadata_show_status)
         if self.appointment:
@@ -70,11 +75,11 @@ class MetadataViewMixin:
                 )
         return context
 
-    def refresh_metadata_for_timepoint(self):
+    def refresh_metadata_for_timepoint(self) -> None:
         """Save related visit model instance to run metadata update."""
         refresh_metadata_for_timepoint(self.appointment)
 
-    def get_crf_model_wrappers(self):
+    def get_crf_model_wrappers(self) -> list[CrfModelWrapper]:
         """Returns a list of model wrappers.
 
         Gets each CrfMetadata instance, validates the entry status and wraps
@@ -83,16 +88,16 @@ class MetadataViewMixin:
         model_wrappers = []
         crf_metadata_wrappers = self.crf_metadata_wrappers_cls(appointment=self.appointment)
         for metadata_wrapper in crf_metadata_wrappers.objects:
-            if not metadata_wrapper.model_obj:
-                metadata_wrapper.model_obj = metadata_wrapper.model_cls(
+            if not metadata_wrapper.source_model_obj:
+                metadata_wrapper.source_model_obj = metadata_wrapper.source_model_cls(
                     **{
-                        metadata_wrapper.model_cls.related_visit_model_attr(): (
+                        metadata_wrapper.source_model_cls.related_visit_model_attr(): (
                             metadata_wrapper.visit
                         )
                     }
                 )
             metadata_wrapper.metadata_obj.object = self.crf_model_wrapper_cls(
-                model_obj=metadata_wrapper.model_obj,
+                model_obj=metadata_wrapper.source_model_obj,
                 model=metadata_wrapper.metadata_obj.model,
                 key=CRF,
                 request=self.request,
@@ -104,25 +109,25 @@ class MetadataViewMixin:
             if model_wrapper.entry_status in self.metadata_show_status
         ]
 
-    def get_requisition_model_wrapper(self):
+    def get_requisition_model_wrapper(self) -> list[RequisitionModelWrapper]:
         """Returns a list of model wrappers."""
         model_wrappers = []
         requisition_metadata_wrappers = self.requisition_metadata_wrappers_cls(
             appointment=self.appointment
         )
         for metadata_wrapper in requisition_metadata_wrappers.objects:
-            if not metadata_wrapper.model_obj:
+            if not metadata_wrapper.source_model_obj:
                 panel = self.get_panel(metadata_wrapper)
-                metadata_wrapper.model_obj = metadata_wrapper.model_cls(
+                metadata_wrapper.source_model_obj = metadata_wrapper.source_model_cls(
                     **{
-                        metadata_wrapper.model_cls.related_visit_model_attr(): (
+                        metadata_wrapper.source_model_cls.related_visit_model_attr(): (
                             metadata_wrapper.visit
                         ),
                         "panel": panel,
                     }
                 )
             metadata_wrapper.metadata_obj.object = self.requisition_model_wrapper_cls(
-                model_obj=metadata_wrapper.model_obj,
+                model_obj=metadata_wrapper.source_model_obj,
                 model=metadata_wrapper.metadata_obj.model,
                 key=REQUISITION,
                 request=self.request,
@@ -134,7 +139,7 @@ class MetadataViewMixin:
             if model_wrapper.entry_status in self.metadata_show_status
         ]
 
-    def get_panel(self, metadata_wrapper=None):
+    def get_panel(self, metadata_wrapper=None) -> Panel:
         try:
             panel = self.panel_model_cls.objects.get(name=metadata_wrapper.panel_name)
         except ObjectDoesNotExist as e:
@@ -145,5 +150,5 @@ class MetadataViewMixin:
         return panel
 
     @property
-    def panel_model_cls(self):
+    def panel_model_cls(self) -> Type[Panel]:
         return django_apps.get_model(self.panel_model)

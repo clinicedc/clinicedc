@@ -10,14 +10,20 @@ from edc_visit_schedule.visit import CrfCollection, RequisitionCollection
 from edc_visit_tracking.constants import MISSED_VISIT
 
 from ..constants import KEYED, NOT_REQUIRED, REQUIRED
-from ..source_model_metadata_mixin import SourceModelMetadataMixin
+from ..metadata_mixins import SourceModelMetadataMixin
 from ..utils import verify_model_cls_registered_with_admin
 
 if TYPE_CHECKING:
+    from edc_model.models import BaseUuidModel
+    from edc_sites.model_mixins import SiteModelMixin
     from edc_visit_schedule.visit import Crf, Requisition
-    from edc_visit_tracking.typing_stubs import RelatedVisitProtocol
+    from edc_visit_tracking.model_mixins import VisitModelMixin as Base
 
+    from ..model_mixins.creates import CreatesMetadataModelMixin
     from ..models import CrfMetadata, RequisitionMetadata
+
+    class RelatedVisitModel(SiteModelMixin, CreatesMetadataModelMixin, Base, BaseUuidModel):
+        pass
 
 
 class CreatesMetadataError(Exception):
@@ -48,7 +54,7 @@ class CrfCreator(SourceModelMetadataMixin):
 
     def __init__(
         self,
-        related_visit: RelatedVisitProtocol,
+        related_visit: RelatedVisitModel,
         update_keyed: bool,
         crf: Crf | Requisition,
     ) -> None:
@@ -131,7 +137,7 @@ class CrfCreator(SourceModelMetadataMixin):
         Note: that the default `entry_status` may be changed by rules
         later on.
         """
-        if metadata_obj.entry_status != KEYED and self.is_keyed:
+        if metadata_obj.entry_status != KEYED and self.source_model_obj_exists:
             metadata_obj.entry_status = KEYED
             metadata_obj.save(update_fields=["entry_status"])
             metadata_obj.refresh_from_db()
@@ -154,7 +160,7 @@ class RequisitionCreator(CrfCreator):
         self,
         requisition: Requisition,
         update_keyed: bool,
-        related_visit: RelatedVisitProtocol,
+        related_visit: RelatedVisitModel,
     ) -> None:
         super().__init__(
             crf=requisition,
@@ -174,15 +180,9 @@ class RequisitionCreator(CrfCreator):
         return query_options
 
     @property
-    def source_model_obj(self):
-        if not self._source_model_obj:
-            try:
-                self._source_model_obj = self.source_model_cls.objects.get(
-                    subject_visit=self.related_visit, panel__name=self.requisition.panel.name
-                )
-            except ObjectDoesNotExist:
-                self._source_model_obj = None
-        return self._source_model_obj
+    def source_model_options(self) -> dict:
+        """Source model query options"""
+        return dict(subject_visit=self.related_visit, panel__name=self.requisition.panel.name)
 
 
 class Creator:
@@ -192,7 +192,7 @@ class Creator:
     def __init__(
         self,
         update_keyed: bool,
-        related_visit: RelatedVisitProtocol,
+        related_visit: RelatedVisitModel,
     ) -> None:
         self.related_visit = related_visit
         self.update_keyed = update_keyed
@@ -266,7 +266,7 @@ class Destroyer:
     metadata_crf_model = "edc_metadata.crfmetadata"
     metadata_requisition_model = "edc_metadata.requisitionmetadata"
 
-    def __init__(self, related_visit: RelatedVisitProtocol) -> None:
+    def __init__(self, related_visit: RelatedVisitModel) -> None:
         self.related_visit = related_visit
 
     @property
@@ -300,7 +300,7 @@ class Metadata:
 
     def __init__(
         self,
-        related_visit: RelatedVisitProtocol,
+        related_visit: RelatedVisitModel,
         update_keyed: bool,
     ) -> None:
         self._reason = None

@@ -42,9 +42,7 @@ class CrfMetadataModelMixin(
 
     show_order = models.IntegerField()  # must always be provided!
 
-    entry_status = models.CharField(
-        max_length=25, choices=ENTRY_STATUS, default=REQUIRED, db_index=True
-    )
+    entry_status = models.CharField(max_length=25, choices=ENTRY_STATUS, default=REQUIRED)
 
     due_datetime = models.DateTimeField(null=True, blank=True)
 
@@ -125,6 +123,5 @@ class CrfMetadataModelMixin(
         """
         return self.site
 
-    class Meta:
+    class Meta(NonUniqueSubjectIdentifierFieldMixin.Meta):
         abstract = True
-        ordering = ("show_order",)

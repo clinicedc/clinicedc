@@ -9,9 +9,15 @@ from edc_visit_tracking.constants import MISSED_VISIT
 from .metadata import Creator
 
 if TYPE_CHECKING:
-    from edc_visit_tracking.typing_stubs import RelatedVisitProtocol
+    from edc_model.models import BaseUuidModel
+    from edc_sites.model_mixins import SiteModelMixin
+    from edc_visit_tracking.model_mixins import VisitModelMixin as Base
 
+    from .model_mixins.creates import CreatesMetadataModelMixin
     from .models import CrfMetadata, RequisitionMetadata
+
+    class RelatedVisitModel(SiteModelMixin, CreatesMetadataModelMixin, Base, BaseUuidModel):
+        pass
 
 
 class MetadataHandlerError(Exception):
@@ -31,7 +37,7 @@ class MetadataHandler:
     def __init__(
         self,
         metadata_model: str = None,
-        related_visit: RelatedVisitProtocol = None,
+        related_visit: RelatedVisitModel = None,
         model: str = None,
         allow_create: bool | None = None,
     ):
@@ -57,7 +63,7 @@ class MetadataHandler:
             if self.allow_create:
                 metadata_obj = self._create()
             else:
-                raise MetadataObjectDoesNotExist(f"Unable to metadata run rule. Got `{e}`")
+                raise MetadataObjectDoesNotExist(f"Unable to run metadata rule. Got `{e}`")
         return metadata_obj
 
     def _create(self) -> CrfMetadata | RequisitionMetadata:

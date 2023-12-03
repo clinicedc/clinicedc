@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Type
 
 from .constants import CRF, KEYED
 from .metadata_handler import MetadataHandler
-from .source_model_metadata_mixin import SourceModelMetadataMixin
+from .metadata_mixins import SourceModelMetadataMixin
 
 if TYPE_CHECKING:
     from edc_visit_tracking.model_mixins import VisitModelMixin as Base
@@ -48,7 +48,7 @@ class MetadataUpdater(SourceModelMetadataMixin):
 
     def get_and_update(self, entry_status: str = None) -> CrfMetadata | RequisitionMetadata:
         metadata_obj = self.metadata_handler.metadata_obj
-        if entry_status != KEYED and self.is_keyed:
+        if entry_status != KEYED and self.source_model_obj_exists:
             entry_status = KEYED
         if metadata_obj.entry_status != entry_status:
             metadata_obj.entry_status = entry_status
