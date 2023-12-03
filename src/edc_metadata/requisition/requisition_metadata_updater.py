@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
-from django.core.exceptions import ObjectDoesNotExist
-
-from .. import REQUISITION
+from ..constants import REQUISITION
 from ..metadata_updater import MetadataUpdater
 from .requisition_metadata_handler import RequisitionMetadataHandler
 
@@ -41,12 +39,8 @@ class RequisitionMetadataUpdater(MetadataUpdater):
         )
 
     @property
-    def source_model_obj(self):
-        if not self._source_model_obj:
-            try:
-                self._source_model_obj = self.source_model_cls.objects.get(
-                    subject_visit=self.related_visit, panel__name=self.source_panel.name
-                )
-            except ObjectDoesNotExist:
-                self._source_model_obj = None
-        return self._source_model_obj
+    def source_model_options(self) -> dict[str, Any]:
+        """Returns a dictionary of query options to filter for, or
+        get, the SubjectRequisition model instance.
+        """
+        return dict(subject_visit_id=self.related_visit.id, panel__name=self.source_panel.name)

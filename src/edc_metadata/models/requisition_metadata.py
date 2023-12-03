@@ -83,16 +83,40 @@ class RequisitionMetadata(CrfMetadataModelMixin, BaseUuidModel):
         indexes = [
             models.Index(
                 fields=[
+                    "site",
+                    "entry_status",
+                    "visit_code",
+                    "visit_code_sequence",
+                    "model",
+                    "panel_name",
+                    "subject_identifier",
+                    "schedule_name",
+                    "visit_schedule_name",
+                ]
+            ),
+            models.Index(
+                fields=[
                     "subject_identifier",
                     "visit_schedule_name",
                     "schedule_name",
                     "visit_code",
                     "visit_code_sequence",
-                    "timepoint",
                     "model",
+                    "panel_name",
                     "entry_status",
                     "show_order",
-                    "panel_name",
                 ]
-            )
+            ),
+            models.Index(
+                fields=[
+                    "entry_status",
+                    "model",
+                    "panel_name",
+                    "schedule_name",
+                    "subject_identifier",
+                    "visit_code",
+                    "visit_code_sequence",
+                    "visit_schedule_name",
+                ]
+            ),
         ]

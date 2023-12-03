@@ -1,5 +1,6 @@
 from django.apps import apps as django_apps
 from django.db import models
+from django.db.models import UniqueConstraint
 from edc_model.models import BaseUuidModel
 
 from ..managers import CrfMetadataManager
@@ -40,17 +41,34 @@ class CrfMetadata(CrfMetadataModelMixin, BaseUuidModel):
     class Meta(CrfMetadataModelMixin.Meta, BaseUuidModel.Meta):
         verbose_name = "Crf collection status"
         verbose_name_plural = "Crf collection status"
-        unique_together = (
-            (
-                "subject_identifier",
-                "visit_schedule_name",
-                "schedule_name",
-                "visit_code",
-                "visit_code_sequence",
-                "model",
-            ),
-        )
+        unique_together = []
+        constraints = [
+            UniqueConstraint(
+                fields=[
+                    "subject_identifier",
+                    "visit_schedule_name",
+                    "schedule_name",
+                    "visit_code",
+                    "visit_code_sequence",
+                    "model",
+                ],
+                name="%(app_label)s_%(class)s_subject_iden_visit_uniq",
+            )
+        ]
         indexes = [
+            models.Index(
+                fields=[
+                    "site",
+                    "entry_status",
+                    "visit_code",
+                    "visit_code_sequence",
+                    "model",
+                    "subject_identifier",
+                    "schedule_name",
+                    "visit_schedule_name",
+                ],
+                name="%(app_label)s_crfm_site_ent_idx",
+            ),
             models.Index(
                 fields=[
                     "subject_identifier",
@@ -58,10 +76,11 @@ class CrfMetadata(CrfMetadataModelMixin, BaseUuidModel):
                     "schedule_name",
                     "visit_code",
                     "visit_code_sequence",
-                    "timepoint",
                     "model",
                     "entry_status",
+                    "timepoint",
                     "show_order",
-                ]
-            )
+                ],
+                name="%(app_label)s_crfm_subjid_v_idx",
+            ),
         ]

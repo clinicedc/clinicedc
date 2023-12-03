@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Type
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
@@ -30,7 +30,7 @@ class MetadataWrapper:
         visit: RelatedVisitProtocol,
         metadata_obj: CrfMetadata | RequisitionMetadata,
     ) -> None:
-        self._model_obj = None
+        self._source_model_obj = None
         self.metadata_obj = metadata_obj
         self.visit = visit
 
@@ -49,27 +49,27 @@ class MetadataWrapper:
         return f"{self.__class__.__name__}({self.visit}, {self.metadata_obj})"
 
     @property
-    def options(self) -> dict:
+    def options(self) -> dict[str, Any]:
         """Returns a dictionary of query options."""
-        return {f"{self.model_cls.related_visit_model_attr()}": self.visit}
+        return {f"{self.source_model_cls.related_visit_model_attr()}": self.visit}
 
     @property
-    def model_obj(self) -> CrfModelMixin:
-        if not self._model_obj:
+    def source_model_obj(self) -> CrfModelMixin:
+        if not self._source_model_obj:
             try:
-                self._model_obj = self.model_cls.objects.get(**self.options)
+                self._source_model_obj = self.source_model_cls.objects.get(**self.options)
             except AttributeError as e:
                 if "related_visit_model_attr" not in str(e):
-                    raise ImproperlyConfigured(f"{e} See {repr(self.model_cls)}")
+                    raise ImproperlyConfigured(f"{e} See {repr(self.source_model_cls)}")
             except ObjectDoesNotExist:
-                self._model_obj = None
-        return self._model_obj
+                self._source_model_obj = None
+        return self._source_model_obj
 
-    @model_obj.setter
-    def model_obj(self, value=None) -> None:
-        self._model_obj = value
+    @source_model_obj.setter
+    def source_model_obj(self, value=None) -> None:
+        self._source_model_obj = value
 
     @property
-    def model_cls(self) -> CrfModelMixin:
+    def source_model_cls(self) -> Type[CrfModelMixin]:
         """Returns a CRF model class"""
         return django_apps.get_model(self.metadata_obj.model)

@@ -64,8 +64,8 @@ class TestMetadataWrapperObjects(TestCase):
         crf_metadata_wrapper = CrfMetadataWrapper(
             visit=self.subject_visit, metadata_obj=metadata_obj
         )
-        self.assertEqual(crf_metadata_wrapper.model_cls, CrfOne)
-        self.assertEqual(crf_metadata_wrapper.model_obj, None)
+        self.assertEqual(crf_metadata_wrapper.source_model_cls, CrfOne)
+        self.assertEqual(crf_metadata_wrapper.source_model_obj, None)
         self.assertEqual(crf_metadata_wrapper.metadata_obj, metadata_obj)
         self.assertEqual(crf_metadata_wrapper.visit, self.subject_visit)
 
@@ -77,8 +77,8 @@ class TestMetadataWrapperObjects(TestCase):
         crf_metadata_wrapper = CrfMetadataWrapper(
             visit=self.subject_visit, metadata_obj=metadata_obj
         )
-        self.assertEqual(crf_metadata_wrapper.model_cls, CrfOne)
-        self.assertEqual(crf_metadata_wrapper.model_obj, model_obj)
+        self.assertEqual(crf_metadata_wrapper.source_model_cls, CrfOne)
+        self.assertEqual(crf_metadata_wrapper.source_model_obj, model_obj)
         self.assertEqual(crf_metadata_wrapper.metadata_obj, metadata_obj)
         self.assertEqual(crf_metadata_wrapper.visit, self.subject_visit)
 
@@ -91,8 +91,8 @@ class TestMetadataWrapperObjects(TestCase):
         requisition_metadata_wrapper = RequisitionMetadataWrapper(
             visit=self.subject_visit, metadata_obj=metadata_obj
         )
-        self.assertEqual(requisition_metadata_wrapper.model_cls, SubjectRequisition)
-        self.assertEqual(requisition_metadata_wrapper.model_obj, None)
+        self.assertEqual(requisition_metadata_wrapper.source_model_cls, SubjectRequisition)
+        self.assertEqual(requisition_metadata_wrapper.source_model_obj, None)
         self.assertEqual(requisition_metadata_wrapper.metadata_obj, metadata_obj)
         self.assertEqual(requisition_metadata_wrapper.visit, self.subject_visit)
 
@@ -108,8 +108,8 @@ class TestMetadataWrapperObjects(TestCase):
         requisition_metadata_wrapper = RequisitionMetadataWrapper(
             visit=self.subject_visit, metadata_obj=metadata_obj
         )
-        self.assertEqual(requisition_metadata_wrapper.model_cls, SubjectRequisition)
-        self.assertEqual(requisition_metadata_wrapper.model_obj, model_obj)
+        self.assertEqual(requisition_metadata_wrapper.source_model_cls, SubjectRequisition)
+        self.assertEqual(requisition_metadata_wrapper.source_model_obj, model_obj)
         self.assertEqual(requisition_metadata_wrapper.metadata_obj, metadata_obj)
         self.assertEqual(requisition_metadata_wrapper.visit, self.subject_visit)
 

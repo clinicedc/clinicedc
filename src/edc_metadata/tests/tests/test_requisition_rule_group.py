@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_appointment.models import Appointment
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
@@ -298,6 +298,7 @@ class TestRequisitionRuleGroup(TestCase):
                 )
                 self.assertEqual(obj.entry_status, NOT_REQUIRED)
 
+    @tag("1")
     def test_metadata_for_rule_female_with_source_model_as_requisition1(self):
         subject_visit = self.enroll(gender=FEMALE)
         site_metadata_rules.registry = {}

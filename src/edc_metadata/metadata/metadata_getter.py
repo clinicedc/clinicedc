@@ -5,11 +5,7 @@ from warnings import warn
 
 from django.apps import apps as django_apps
 from django.contrib.admin.sites import all_sites
-from django.core.exceptions import (
-    ImproperlyConfigured,
-    MultipleObjectsReturned,
-    ObjectDoesNotExist,
-)
+from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import QuerySet
 
 from .metadata import model_cls_registered_with_admin_site
@@ -43,34 +39,38 @@ class MetadataValidator:
         if self.metadata_obj:
             # confirm model class exists
             try:
-                model_cls = django_apps.get_model(self.metadata_obj.model)
+                source_model_cls = django_apps.get_model(self.metadata_obj.model)
             except LookupError:
                 self.metadata_obj.delete()
                 self.metadata_obj = None
             else:
-                if not model_cls_registered_with_admin_site(model_cls):
+                if not model_cls_registered_with_admin_site(source_model_cls):
                     warn(
                         "Model class not registered with Admin. "
-                        f"Deleting related metadata. Got {model_cls}."
+                        f"Deleting related metadata. Got {source_model_cls}."
                     )
                     self.metadata_obj.delete()
                     self.metadata_obj = None
                 else:
                     # confirm metadata.entry_status is correct
                     query_attrs = {
-                        f"{model_cls.related_visit_model_attr()}": self.related_visit
+                        f"{source_model_cls.related_visit_model_attr()}": self.related_visit
                     }
                     query_attrs.update(**self.extra_query_attrs)
-                    try:
-                        model_cls.objects.get(**query_attrs)
-                    except AttributeError as e:
-                        if "related_visit_model_attr" not in str(e):
-                            raise ImproperlyConfigured(f"{e} See {repr(model_cls)}")
-                        raise
-                    except ObjectDoesNotExist:
-                        pass
-                    except MultipleObjectsReturned:
-                        raise
+                    if source_model_cls.objects.filter(**query_attrs).values("id").count() > 1:
+                        raise MultipleObjectsReturned(
+                            f"{source_model_cls._meta.label_lower} {self.related_visit}"
+                        )
+                    # try:
+                    #     model_cls.objects.get(**query_attrs)
+                    # except AttributeError as e:
+                    #     if "related_visit_model_attr" not in str(e):
+                    #         raise ImproperlyConfigured(f"{e} See {repr(model_cls)}")
+                    #     raise
+                    # except ObjectDoesNotExist:
+                    #     pass
+                    # except MultipleObjectsReturned:
+                    #     raise
 
     @staticmethod
     def model_cls_registered_with_admin_site(model_cls: Any) -> bool:
