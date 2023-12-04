@@ -122,6 +122,16 @@ class ActionNoManagersModelMixin(models.Model):
 
     class Meta:
         abstract = True
+        indexes = [
+            models.Index(
+                fields=[
+                    "action_identifier",
+                    "action_item",
+                    "related_action_item",
+                    "parent_action_item",
+                ]
+            )
+        ]
 
 
 class ActionModelMixin(ActionNoManagersModelMixin):
@@ -129,5 +139,5 @@ class ActionModelMixin(ActionNoManagersModelMixin):
 
     history = HistoricalRecords(inherit=True)
 
-    class Meta:
+    class Meta(ActionNoManagersModelMixin.Meta):
         abstract = True

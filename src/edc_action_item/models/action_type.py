@@ -84,6 +84,7 @@ class ActionType(BaseUuidModel):
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):
-        ordering = ["name"]
-        indexes = [models.Index(fields=["id", "name"])]
+        indexes = BaseUuidModel.Meta.indexes + [
+            models.Index(fields=["id", "name"]),
+        ]
         default_permissions = ("add", "change", "delete", "view", "export", "import")

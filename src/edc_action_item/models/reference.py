@@ -35,5 +35,7 @@ class Reference(NonUniqueSubjectIdentifierFieldMixin, ActionModelMixin, BaseUuid
     def natural_key(self):
         return (self.action_identifier,)  # noqa
 
-    class Meta(BaseUuidModel.Meta):
-        pass
+    class Meta(BaseUuidModel.Meta, NonUniqueSubjectIdentifierFieldMixin.Meta):
+        indexes = (
+            BaseUuidModel.Meta.indexes + NonUniqueSubjectIdentifierFieldMixin.Meta.indexes
+        )
