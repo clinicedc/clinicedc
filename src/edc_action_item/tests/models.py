@@ -25,6 +25,9 @@ class SubjectIdentifierModel(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel
     def natural_key(self):
         return (self.subject_identifier,)  # noqa
 
+    class Meta(BaseUuidModel.Meta, NonUniqueSubjectIdentifierFieldMixin.Meta):
+        pass
+
 
 class TestModelWithoutMixin(BaseUuidModel):
     subject_identifier = models.CharField(max_length=25)

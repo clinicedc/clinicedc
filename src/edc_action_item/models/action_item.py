@@ -222,17 +222,25 @@ class ActionItem(
         """Returns a shortened action identifier."""
         return self.action_identifier[-9:]
 
-    class Meta(BaseUuidModel.Meta):
+    class Meta(
+        BaseUuidModel.Meta,
+        NonUniqueSubjectIdentifierFieldMixin.Meta,
+    ):
         verbose_name = "Action Item"
         verbose_name_plural = "Action Items"
-        indexes = [
-            models.Index(
-                fields=[
-                    "id",
-                    "action_identifier",
-                    "action_type",
-                    "status",
-                    "report_datetime",
-                ]
-            )
-        ]
+        indexes = (
+            BaseUuidModel.Meta.indexes
+            + NonUniqueSubjectIdentifierFieldMixin.Meta.indexes
+            + [
+                models.Index(
+                    fields=[
+                        "subject_identifier",
+                        "action_identifier",
+                        "action_type",
+                        "site_id",
+                        "status",
+                        "report_datetime",
+                    ],
+                ),
+            ]
+        )
