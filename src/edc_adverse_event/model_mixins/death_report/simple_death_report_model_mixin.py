@@ -52,10 +52,10 @@ class SimpleDeathReportModelMixin(
     def natural_key(self):
         return (self.action_identifier,)
 
-    class Meta:
+    class Meta(ActionModelMixin.Meta):
         abstract = True
         verbose_name = "Death Report"
         verbose_name_plural = "Death Reports"
-        indexes = [
+        indexes = ActionModelMixin.Meta.indexes + [
             models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])
         ]

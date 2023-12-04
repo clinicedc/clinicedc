@@ -10,7 +10,7 @@ from edc_list_data.site_list_data import site_list_data
 from edc_ltfu.constants import LOST_TO_FOLLOWUP
 from edc_registration.models import RegisteredSubject
 from edc_reportable import GRADE5
-from edc_sites import InvalidSiteForSubjectError
+from edc_sites.valid_site_for_subject_or_raise import InvalidSubjectError
 from edc_utils import get_utcnow
 from edc_visit_schedule.utils import OnScheduleError
 from model_bakery import baker
@@ -53,7 +53,7 @@ class TestAeAndActions(TestCase):
         )
 
         self.assertRaises(
-            InvalidSiteForSubjectError,
+            InvalidSubjectError,
             baker.make_recipe,
             "adverse_event_app.aeinitial",
             subject_identifier="blahblah",

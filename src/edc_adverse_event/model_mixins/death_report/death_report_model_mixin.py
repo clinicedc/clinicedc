@@ -11,7 +11,10 @@ from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_model.models import HistoricalRecords
 from edc_model.validators import date_not_future, datetime_not_future
 from edc_model_fields.fields.other_charfield import OtherCharField
-from edc_protocol.validators import datetime_not_before_study_start
+from edc_protocol.validators import (
+    date_not_before_study_start,
+    datetime_not_before_study_start,
+)
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
 
@@ -39,14 +42,14 @@ class DeathReportModelMixin(
     )
 
     death_datetime = models.DateTimeField(
-        validators=[datetime_not_future],
+        validators=[datetime_not_before_study_start, datetime_not_future],
         verbose_name="Date and Time of Death",
         null=True,
         blank=False,
     )
 
     death_date = models.DateField(
-        validators=[date_not_future],
+        validators=[date_not_before_study_start, date_not_future],
         verbose_name="Date of Death",
         null=True,
         blank=False,
@@ -93,9 +96,14 @@ class DeathReportModelMixin(
 
     natural_key.dependencies = ["edc_adverse_event.causeofdeath"]
 
-    class Meta:
+    class Meta(
+        SiteModelMixin.Meta,
+        UniqueSubjectIdentifierFieldMixin.Meta,
+        ActionNoManagersModelMixin.Meta,
+    ):
         abstract = True
         verbose_name = "Death Report"
-        indexes = [
+        verbose_name_plural = "Death Reports"
+        indexes = ActionNoManagersModelMixin.Meta.indexes + [
             models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])
         ]

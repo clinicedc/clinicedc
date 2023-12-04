@@ -1,4 +1,6 @@
-from typing import Any, Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Optional
 from zoneinfo import ZoneInfo
 
 from django import forms
@@ -7,6 +9,9 @@ from django.conf import settings
 from edc_constants.constants import CLOSED, OTHER
 from edc_form_validators.base_form_validator import INVALID_ERROR
 from edc_utils import convert_php_dateformat
+
+if TYPE_CHECKING:
+    from datetime import date
 
 
 class DeathReportFormValidatorMixin:
@@ -23,6 +28,13 @@ class DeathReportFormValidatorMixin:
     def clean(self: Any) -> None:
         self.validate_study_day_with_death_report_date()
 
+        self.date_is_after_or_raise(
+            field="report_datetime",
+            reference_value=self.death_report_date,
+            inclusive=True,
+            extra_msg="(on or after date of death)",
+        )
+
         cause_of_death = self.cause_of_death_model_cls.objects.get(name=OTHER)
 
         self.validate_other_specify(
@@ -36,7 +48,7 @@ class DeathReportFormValidatorMixin:
         )
 
     @property
-    def death_report_date(self: Any) -> None:
+    def death_report_date(self: Any) -> date:
         try:
             return self.cleaned_data.get(self.death_report_date_field).date()
         except AttributeError:
