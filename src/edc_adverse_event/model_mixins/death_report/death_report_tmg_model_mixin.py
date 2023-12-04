@@ -116,13 +116,19 @@ class DeathReportTmgModelMixin(
 
     on_site = DeathReportTmgSiteManager()
 
-    class Meta:
+    class Meta(
+        SiteModelMixin.Meta,
+        NonUniqueSubjectIdentifierFieldMixin.Meta,
+        ActionModelMixin.Meta,
+    ):
         abstract = True
         verbose_name = "Death Report TMG (1st)"
         verbose_name_plural = "Death Report TMG (1st)"
-        indexes = [
-            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])
-        ]
+        indexes = (
+            NonUniqueSubjectIdentifierFieldMixin.Meta.indexes
+            + ActionModelMixin.Meta.indexes
+            + [models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])]
+        )
 
 
 class DeathReportTmgSecondModelMixin(DeathReportTmgModelMixin):

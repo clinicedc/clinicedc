@@ -29,9 +29,12 @@ class AeSusarModelMixin(
 
     on_site = ActionIdentifierSiteManager()
 
-    class Meta:
+    class Meta(NonUniqueSubjectIdentifierFieldMixin.Meta, ActionModelMixin.Meta):
         abstract = True
         verbose_name = "AE SUSAR Report"
-        indexes = [
-            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])
-        ]
+        verbose_name_plural = "AE SUSAR Reports"
+        indexes = (
+            NonUniqueSubjectIdentifierFieldMixin.Meta.indexes
+            + ActionModelMixin.Meta.indexes
+            + [models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])]
+        )

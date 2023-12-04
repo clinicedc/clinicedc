@@ -58,7 +58,8 @@ class HospitalizationModelMixin(NonUniqueSubjectIdentifierFieldMixin, models.Mod
         blank=True,
     )
 
-    class Meta:
+    class Meta(NonUniqueSubjectIdentifierFieldMixin.Meta):
         abstract = True
         verbose_name = "Hospitalization"
         verbose_name_plural = "Hospitalization"
+        indexes = NonUniqueSubjectIdentifierFieldMixin.Meta.indexes

@@ -29,9 +29,11 @@ class AesiModelMixin(
 
     on_site = ActionIdentifierSiteManager()
 
-    class Meta:
+    class Meta(NonUniqueSubjectIdentifierFieldMixin.Meta):
         abstract = True
         verbose_name = "AE of Special Interest Report"
-        indexes = [
-            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])
-        ]
+        indexes = (
+            NonUniqueSubjectIdentifierFieldMixin.Meta.indexes
+            + ActionModelMixin.Meta.indexes
+            + [models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])]
+        )

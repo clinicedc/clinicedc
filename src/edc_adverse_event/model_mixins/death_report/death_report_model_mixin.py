@@ -96,9 +96,14 @@ class DeathReportModelMixin(
 
     natural_key.dependencies = ["edc_adverse_event.causeofdeath"]
 
-    class Meta:
+    class Meta(
+        SiteModelMixin.Meta,
+        UniqueSubjectIdentifierFieldMixin.Meta,
+        ActionNoManagersModelMixin.Meta,
+    ):
         abstract = True
         verbose_name = "Death Report"
-        indexes = [
+        verbose_name_plural = "Death Reports"
+        indexes = ActionNoManagersModelMixin.Meta.indexes + [
             models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])
         ]
