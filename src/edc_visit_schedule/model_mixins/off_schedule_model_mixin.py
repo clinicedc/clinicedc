@@ -88,6 +88,4 @@ class OffScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
 
     class Meta:
         abstract = True
-        indexes = [
-            models.Index(fields=["id", "subject_identifier", "offschedule_datetime", "site"])
-        ]
+        indexes = [models.Index(fields=["subject_identifier", "offschedule_datetime", "site"])]
