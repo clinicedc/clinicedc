@@ -2,6 +2,7 @@ import sys
 from copy import deepcopy
 
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.core.management.color import color_style
 from django.utils.module_loading import import_module, module_has_submodule
 

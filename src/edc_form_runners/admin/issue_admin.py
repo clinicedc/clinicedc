@@ -68,6 +68,11 @@ class IssueAdmin(
         "field_name",
         "response",
         "visit",
+        "src_report_datetime",
+        "src_user_created",
+        "src_user_modified",
+        "src_created_datetime",
+        "src_modified_datetime",
     )
 
     list_filter = (
@@ -80,6 +85,11 @@ class IssueAdmin(
         "session_id",
         "session_datetime",
         "site",
+        "src_user_created",
+        "src_user_modified",
+        "src_report_datetime",
+        "src_created_datetime",
+        "src_modified_datetime",
     )
 
     readonly_fields = (
@@ -92,10 +102,13 @@ class IssueAdmin(
         "session_datetime",
         "session_id",
         "site",
+        "src_created_datetime",
         "src_id",
         "src_modified_datetime",
         "src_report_datetime",
         "src_revision",
+        "src_user_created",
+        "src_user_modified",
         "src_user_modified",
         "subject_identifier",
         "verbose_name",
@@ -131,10 +144,10 @@ class IssueAdmin(
         try:
             appointment = appointment_model_cls.objects.get(
                 subject_identifier=obj.subject_identifier,
-                visit_code=obj.visit_code,
-                visit_code_sequence=obj.visit_code_sequence,
                 visit_schedule_name=obj.visit_schedule_name,
                 schedule_name=obj.schedule_name,
+                visit_code=obj.visit_code,
+                visit_code_sequence=obj.visit_code_sequence,
             )
         except ObjectDoesNotExist:
             opts = dict(subject_identifier=obj.subject_identifier)
