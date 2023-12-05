@@ -123,5 +123,6 @@ class CrfMetadataModelMixin(
         """
         return self.site
 
-    class Meta(NonUniqueSubjectIdentifierFieldMixin.Meta):
+    class Meta(SiteModelMixin.Meta, NonUniqueSubjectIdentifierFieldMixin.Meta):
         abstract = True
+        indexes = NonUniqueSubjectIdentifierFieldMixin.Meta.indexes

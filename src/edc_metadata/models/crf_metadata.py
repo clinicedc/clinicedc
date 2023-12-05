@@ -55,32 +55,34 @@ class CrfMetadata(CrfMetadataModelMixin, BaseUuidModel):
                 name="%(app_label)s_%(class)s_subject_iden_visit_uniq",
             )
         ]
-        indexes = [
-            models.Index(
-                fields=[
-                    "site",
-                    "entry_status",
-                    "visit_code",
-                    "visit_code_sequence",
-                    "model",
-                    "subject_identifier",
-                    "schedule_name",
-                    "visit_schedule_name",
-                ],
-                name="%(app_label)s_crfm_site_ent_idx",
-            ),
-            models.Index(
-                fields=[
-                    "subject_identifier",
-                    "visit_schedule_name",
-                    "schedule_name",
-                    "visit_code",
-                    "visit_code_sequence",
-                    "model",
-                    "entry_status",
-                    "timepoint",
-                    "show_order",
-                ],
-                name="%(app_label)s_crfm_subjid_v_idx",
-            ),
-        ]
+        indexes = (
+            CrfMetadataModelMixin.Meta.indexes
+            + BaseUuidModel.Meta.indexes
+            + [
+                models.Index(
+                    fields=[
+                        "site",
+                        "entry_status",
+                        "visit_code",
+                        "visit_code_sequence",
+                        "model",
+                        "subject_identifier",
+                        "schedule_name",
+                        "visit_schedule_name",
+                    ],
+                ),
+                models.Index(
+                    fields=[
+                        "subject_identifier",
+                        "visit_schedule_name",
+                        "schedule_name",
+                        "visit_code",
+                        "visit_code_sequence",
+                        "model",
+                        "entry_status",
+                        "timepoint",
+                        "show_order",
+                    ],
+                ),
+            ]
+        )

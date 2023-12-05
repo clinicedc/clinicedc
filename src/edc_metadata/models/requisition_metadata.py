@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import UniqueConstraint
 from edc_model.models import BaseUuidModel
 from edc_sites.models import CurrentSiteManager
 
@@ -69,32 +70,8 @@ class RequisitionMetadata(CrfMetadataModelMixin, BaseUuidModel):
         app_label = "edc_metadata"
         verbose_name = "Requisition collection status"
         verbose_name_plural = "Requisition collection status"
-        unique_together = (
-            (
-                "subject_identifier",
-                "visit_schedule_name",
-                "schedule_name",
-                "visit_code",
-                "visit_code_sequence",
-                "model",
-                "panel_name",
-            ),
-        )
-        indexes = [
-            models.Index(
-                fields=[
-                    "site",
-                    "entry_status",
-                    "visit_code",
-                    "visit_code_sequence",
-                    "model",
-                    "panel_name",
-                    "subject_identifier",
-                    "schedule_name",
-                    "visit_schedule_name",
-                ]
-            ),
-            models.Index(
+        constraints = [
+            UniqueConstraint(
                 fields=[
                     "subject_identifier",
                     "visit_schedule_name",
@@ -103,20 +80,40 @@ class RequisitionMetadata(CrfMetadataModelMixin, BaseUuidModel):
                     "visit_code_sequence",
                     "model",
                     "panel_name",
-                    "entry_status",
-                    "show_order",
-                ]
-            ),
-            models.Index(
-                fields=[
-                    "entry_status",
-                    "model",
-                    "panel_name",
-                    "schedule_name",
-                    "subject_identifier",
-                    "visit_code",
-                    "visit_code_sequence",
-                    "visit_schedule_name",
-                ]
-            ),
+                ],
+                name="%(app_label)s_%(class)s_subject_iden_visit_uniq",
+            )
         ]
+        indexes = (
+            CrfMetadataModelMixin.Meta.indexes
+            + BaseUuidModel.Meta.indexes
+            + [
+                models.Index(
+                    fields=[
+                        "site",
+                        "entry_status",
+                        "visit_code",
+                        "visit_code_sequence",
+                        "model",
+                        "panel_name",
+                        "subject_identifier",
+                        "schedule_name",
+                        "visit_schedule_name",
+                    ],
+                ),
+                models.Index(
+                    fields=[
+                        "subject_identifier",
+                        "visit_schedule_name",
+                        "schedule_name",
+                        "visit_code",
+                        "visit_code_sequence",
+                        "model",
+                        "panel_name",
+                        "entry_status",
+                        "timepoint",
+                        "show_order",
+                    ],
+                ),
+            ]
+        )
