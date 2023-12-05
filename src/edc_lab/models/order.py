@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_model import models as edc_models
+from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_model.validators import datetime_not_future
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 from edc_utils import get_utcnow
@@ -18,7 +18,7 @@ class OrderManager(models.Manager):
         )
 
 
-class Order(SiteModelMixin, edc_models.BaseUuidModel):
+class Order(SiteModelMixin, BaseUuidModel):
     aliquot = models.ForeignKey(Aliquot, on_delete=PROTECT)
 
     order_identifier = models.CharField(max_length=25, editable=False, unique=True)
@@ -31,12 +31,12 @@ class Order(SiteModelMixin, edc_models.BaseUuidModel):
 
     on_site = CurrentSiteManager()
 
-    history = edc_models.HistoricalRecords()
+    history = HistoricalRecords()
 
     def natural_key(self):
         return (self.report_datetime,) + self.aliquot.natural_key()
 
     natural_key.dependencies = ["edc_lab.aliquot", "sites.Site"]
 
-    class Meta(edc_models.BaseUuidModel.Meta):
+    class Meta(BaseUuidModel.Meta):
         verbose_name = "Order"

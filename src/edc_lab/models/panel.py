@@ -1,5 +1,6 @@
 from django.db import models
-from edc_model import models as edc_models
+from django.db.models import Index, UniqueConstraint
+from edc_model.models import BaseUuidModel
 
 
 class PanelManager(models.Manager):
@@ -9,7 +10,7 @@ class PanelManager(models.Manager):
         return self.get(name=name, lab_profile_name=lab_profile_name)
 
 
-class Panel(edc_models.BaseUuidModel):
+class Panel(BaseUuidModel):
     name = models.CharField(max_length=50)
 
     display_name = models.CharField(max_length=50)
@@ -24,7 +25,12 @@ class Panel(edc_models.BaseUuidModel):
     def natural_key(self):
         return (self.name, self.lab_profile_name)
 
-    class Meta(edc_models.BaseUuidModel.Meta):
+    class Meta(BaseUuidModel.Meta):
         verbose_name = "Panel"
-        unique_together = ("name", "lab_profile_name")
-        ordering = ("lab_profile_name", "name")
+        verbose_name_plural = "Panels"
+        constraints = [
+            UniqueConstraint(
+                fields=["name", "lab_profile_name"], name="%(app_label)s_%(class)s_name_uniq"
+            )
+        ]
+        indexes = [Index(fields=["lab_profile_name", "name"])]

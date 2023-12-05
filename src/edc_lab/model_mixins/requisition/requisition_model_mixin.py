@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.db.models import UniqueConstraint
 from django.utils import timezone
 from edc_consent.model_mixins import RequiresConsentFieldsModelMixin
 from edc_constants.choices import YES_NO
@@ -144,10 +145,16 @@ class RequisitionModelMixin(
         )
         return fields
 
-    class Meta:
+    class Meta(NonUniqueSubjectIdentifierFieldMixin.Meta):
         abstract = True
-        unique_together = ("panel", "subject_visit")
-        indexes = [
-            models.Index(fields=["subject_visit", "site", "panel", "id"]),
+        constraints = [
+            UniqueConstraint(
+                fields=["panel", "subject_visit"], name="%(app_label)s_%(class)s_panel_uniq"
+            )
+        ]
+
+        indexes = NonUniqueSubjectIdentifierFieldMixin.Meta.indexes + [
+            models.Index(fields=["subject_visit", "site", "panel"]),
+            models.Index(fields=["subject_visit", "panel"]),
             models.Index(fields=["subject_visit", "report_datetime"]),
         ]

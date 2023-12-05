@@ -1,6 +1,7 @@
 from django.db import models
+from django.db.models import UniqueConstraint
 from django.db.models.deletion import PROTECT
-from edc_model import models as edc_models
+from edc_model.models import BaseUuidModel
 from edc_search.model_mixins import SearchSlugManager, SearchSlugModelMixin
 from edc_sites.models import SiteModelMixin
 
@@ -13,9 +14,7 @@ class ManifestItemManager(SearchSlugManager, models.Manager):
         return self.get(identifier=identifier, manifest_identifier=manifest_identifier)
 
 
-class ManifestItem(
-    SiteModelMixin, SearchSlugModelMixin, VerifyModelMixin, edc_models.BaseUuidModel
-):
+class ManifestItem(SiteModelMixin, SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
     def get_search_slug_fields(self):
         return ["identifier", "human_readable_identifier"]
 
@@ -37,7 +36,10 @@ class ManifestItem(
         x = self.identifier
         return "{}-{}-{}".format(x[0:4], x[4:8], x[8:12])
 
-    class Meta(edc_models.BaseUuidModel.Meta):
+    class Meta(BaseUuidModel.Meta):
         verbose_name = "Manifest Item"
-        ordering = ("created",)
-        unique_together = ("manifest", "identifier")
+        constraints = [
+            UniqueConstraint(
+                fields=["manifest", "identifier"], name="%(app_label)s_%(class)s_manifest_uniq"
+            )
+        ]

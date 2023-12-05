@@ -1,4 +1,4 @@
-from edc_model import models as edc_models
+from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_search.model_mixins import SearchSlugManager, SearchSlugModelMixin
 from edc_sites.models import CurrentSiteManager
 
@@ -21,7 +21,7 @@ class Aliquot(
     AliquotTypeModelMixin,
     AliquotShippingMixin,
     SearchSlugModelMixin,
-    edc_models.BaseUuidModel,
+    BaseUuidModel,
 ):
     def get_search_slug_fields(self):
         return [
@@ -36,7 +36,7 @@ class Aliquot(
 
     on_site = CurrentSiteManager()
 
-    history = edc_models.HistoricalRecords()
+    history = HistoricalRecords()
 
     @property
     def human_readable_identifier(self):
@@ -44,5 +44,5 @@ class Aliquot(
         x = self.aliquot_identifier
         return "{}-{}-{}-{}-{}".format(x[0:3], x[3:6], x[6:10], x[10:14], x[14:18])
 
-    class Meta(edc_models.BaseUuidModel.Meta):
+    class Meta(BaseUuidModel.Meta):
         verbose_name = "Aliquot"

@@ -1,5 +1,6 @@
 from django.db import models
-from edc_model import models as edc_models
+from django.db.models import Index
+from edc_model.models import AddressMixin, BaseUuidModel, HistoricalRecords
 
 
 class ConsigneeManager(models.Manager):
@@ -7,12 +8,12 @@ class ConsigneeManager(models.Manager):
         return self.get(name=name)
 
 
-class Consignee(edc_models.AddressMixin, edc_models.BaseUuidModel):
+class Consignee(AddressMixin, BaseUuidModel):
     name = models.CharField(unique=True, max_length=50, help_text="Company name")
 
     objects = ConsigneeManager()
 
-    history = edc_models.HistoricalRecords()
+    history = HistoricalRecords()
 
     def natural_key(self):
         return (self.name,)
@@ -20,6 +21,7 @@ class Consignee(edc_models.AddressMixin, edc_models.BaseUuidModel):
     def __str__(self):
         return self.name
 
-    class Meta(edc_models.BaseUuidModel.Meta):
+    class Meta(BaseUuidModel.Meta):
         verbose_name = "Consignee"
         ordering = ("name",)
+        indexes = [Index(fields=["name"])]
