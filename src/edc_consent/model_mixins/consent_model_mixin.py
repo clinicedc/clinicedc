@@ -1,7 +1,7 @@
 from uuid import uuid4
 
 from django.db import models
-from django.db.models import options
+from django.db.models import UniqueConstraint, options
 from django_crypto_fields.fields import EncryptedTextField
 from edc_constants.constants import OPEN
 from edc_data_manager.get_data_queries import get_data_queries
@@ -148,21 +148,26 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
         verbose_name = "Subject Consent"
         verbose_name_plural = "Subject Consents"
         consent_group = DEFAULT_CONSENT_GROUP
-        get_latest_by = "consent_datetime"
-        unique_together = (
-            ("first_name", "dob", "initials", "version"),
-            ("subject_identifier", "version"),
-        )
-        ordering = ("created",)
-
-        indexes = [
-            models.Index(
+        constraints = [
+            UniqueConstraint(
+                fields=["first_name", "dob", "initials", "version"],
+                name="%(app_label)s_%(class)s_first_uniq",
+            ),
+            UniqueConstraint(
                 fields=[
                     "subject_identifier",
                     "first_name",
                     "dob",
                     "initials",
                     "version",
-                ]
-            )
+                ],
+                name="%(app_label)s_%(class)s_subject_uniq",
+            ),
+            UniqueConstraint(
+                fields=[
+                    "version",
+                    "subject_identifier",
+                ],
+                name="%(app_label)s_%(class)s_version_uniq",
+            ),
         ]
