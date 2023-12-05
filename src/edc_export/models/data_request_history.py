@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Index
 from django.db.models.deletion import PROTECT
 from edc_model.models import BaseUuidModel
 from edc_sites.model_mixins import SiteModelMixin
@@ -21,6 +22,6 @@ class DataRequestHistory(SiteModelMixin, BaseUuidModel):
     exported_datetime = models.DateTimeField(default=get_utcnow)
 
     class Meta:
-        ordering = ("-exported_datetime",)
         verbose_name = "Data Request History"
         verbose_name_plural = "Data Request History"
+        indexes = [Index(fields=["-exported_datetime"])]

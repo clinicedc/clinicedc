@@ -1,5 +1,6 @@
 from django.apps import apps as django_apps
 from django.db import models
+from django.db.models import Index
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.model_mixins import SiteModelMixin
 
@@ -39,4 +40,4 @@ class DataRequest(SiteModelMixin, BaseUuidModel):
         return [ModelOptions(x) for x in models_as_list]
 
     class Meta:
-        ordering = ("name",)
+        indexes = [Index(fields=["name"])]

@@ -59,14 +59,18 @@ class Helper:
         return creator.appointment
 
     def create_crfs(self, i):
-        for appointment in Appointment.objects.all().order_by("visit_code"):
+        for appointment in Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        ):
             SubjectVisit.objects.create(
                 appointment=appointment,
                 subject_identifier=appointment.subject_identifier,
                 report_datetime=get_utcnow(),
             )
         for j in range(0, i - 1):
-            appointment = Appointment.objects.all().order_by("visit_code")[j]
+            appointment = Appointment.objects.all().order_by(
+                "timepoint", "visit_code_sequence"
+            )[j]
             self.subject_visit = SubjectVisit.objects.get(appointment=appointment)
             self.thing_one = ListModel.objects.create(
                 display_name=f"thing_one_{appointment.visit_code}",
@@ -87,7 +91,9 @@ class Helper:
             CrfTwo.objects.create(subject_visit=self.subject_visit, dte=get_utcnow())
             CrfThree.objects.create(subject_visit=self.subject_visit, UPPERCASE=get_utcnow())
 
-        for i, appointment in enumerate(Appointment.objects.all().order_by("visit_code")):
+        for i, appointment in enumerate(
+            Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        ):
             if appointment != self.subject_visit.appointment:
                 self.create_crf_with_inlines(appointment)
 

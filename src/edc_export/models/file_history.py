@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 from django.db import models
+from django.db.models import Index
 from django.utils import timezone
 from edc_model.models import BaseUuidModel, HistoricalRecords
 
@@ -75,5 +76,5 @@ class FileHistory(BaseUuidModel):
     def natural_key(self):
         return (self.history_uuid,)
 
-    class Meta:
-        ordering = ("-sent_datetime",)
+    class Meta(BaseUuidModel.Meta):
+        indexes = [Index(fields=["-sent_datetime"])]

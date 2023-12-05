@@ -72,5 +72,6 @@ class ObjectHistory(ExportTrackingFieldsModelMixin, BaseUuidModel):
 
     render.allow_tags = True
 
-    class Meta:
-        ordering = ("-timestamp",)
+    class Meta(BaseUuidModel.Meta):
+        verbose_name = "Object History"
+        verbose_name_plural = "Object Histories"

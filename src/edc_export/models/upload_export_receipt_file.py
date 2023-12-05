@@ -4,6 +4,7 @@ import re
 from datetime import datetime
 
 from django.db import models
+from django.db.models import Index
 from edc_constants.constants import UUID_PATTERN
 from edc_model.models import BaseUuidModel
 
@@ -71,5 +72,5 @@ class UploadExportReceiptFile(BaseUuidModel):
                         self.accepted += 1
         self.errors = "; ".join(error_list)
 
-    class Meta:
-        ordering = ("-created",)
+    class Meta(BaseUuidModel.Meta):
+        indexes = [Index(fields=["-created"])]
