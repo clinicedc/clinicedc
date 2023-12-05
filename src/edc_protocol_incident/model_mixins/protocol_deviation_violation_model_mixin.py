@@ -134,6 +134,4 @@ class ProtocolDeviationViolationModelMixin(models.Model):
         abstract = True
         verbose_name = "Protocol Deviation/Violation"
         verbose_name_plural = "Protocol Deviations/Violations"
-        indexes = [
-            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])
-        ]
+        indexes = [models.Index(fields=["subject_identifier", "action_identifier", "site"])]
