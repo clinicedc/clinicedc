@@ -38,5 +38,6 @@ class ScreeningModelMixin(
 
     history = HistoricalRecords(inherit=True)
 
-    class Meta:
+    class Meta(ScreeningIdentifierModelMixin.Meta):
         abstract = True
+        indexes = ScreeningIdentifierModelMixin.Meta.indexes

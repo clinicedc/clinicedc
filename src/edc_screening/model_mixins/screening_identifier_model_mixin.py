@@ -43,5 +43,6 @@ class ScreeningIdentifierModelMixin(
     def make_new_identifier(self) -> str:
         return self.subject_identifier_as_pk.hex
 
-    class Meta:
+    class Meta(NonUniqueSubjectIdentifierModelMixin.Meta):
         abstract = True
+        indexes = NonUniqueSubjectIdentifierModelMixin.Meta.indexes
