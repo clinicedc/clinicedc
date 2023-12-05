@@ -48,7 +48,7 @@ class EdcCrfTestCase(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule)
         self.helper.consent_and_put_on_schedule()
-        appointment = Appointment.objects.all()[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         self.subject_visit = SubjectVisit.objects.create(
             appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
         )

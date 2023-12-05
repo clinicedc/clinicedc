@@ -31,7 +31,7 @@ class CrfNoManagerModelMixin(
     class Meta:
         abstract = True
         indexes = [
-            models.Index(fields=["subject_visit", "site", "id"]),
+            models.Index(fields=["subject_visit", "site"]),
             models.Index(fields=["subject_visit", "report_datetime"]),
         ]
         default_permissions = ("add", "change", "delete", "view", "export", "import")
