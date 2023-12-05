@@ -3,6 +3,7 @@ import re
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator
 from django.db import models, transaction
+from django.db.models import UniqueConstraint
 from django.utils.translation import gettext as _
 from django_crypto_fields.fields import (
     EncryptedCharField,
@@ -13,7 +14,7 @@ from django_crypto_fields.fields import (
 from edc_constants.choices import GENDER
 from edc_constants.constants import UUID_PATTERN
 from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
-from edc_model import models as edc_models
+from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_model_fields.fields import IdentityTypeField, IsDateEstimatedField
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 
@@ -24,9 +25,7 @@ class RegisteredSubjectError(Exception):
     pass
 
 
-class RegisteredSubject(
-    UniqueSubjectIdentifierModelMixin, SiteModelMixin, edc_models.BaseUuidModel
-):
+class RegisteredSubject(UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseUuidModel):
     """A model mixin for the RegisteredSubject model (only)."""
 
     # may not be available when instance created (e.g. infants prior to birth
@@ -142,7 +141,7 @@ class RegisteredSubject(
 
     objects = RegisteredSubjectManager()
 
-    history = edc_models.HistoricalRecords()
+    history = HistoricalRecords()
 
     on_site = CurrentSiteManager()
 
@@ -248,14 +247,18 @@ class RegisteredSubject(
         if not self.subject_identifier:
             self.subject_identifier = self.subject_identifier_as_pk.hex
 
-    class Meta(edc_models.BaseUuidModel.Meta):
+    class Meta(UniqueSubjectIdentifierModelMixin.Meta, BaseUuidModel.Meta):
         verbose_name = "Registered Subject"
         verbose_name_plural = "Registered Subjects"
-        ordering = ["subject_identifier"]
-        unique_together = ("first_name", "dob", "initials", "additional_key")
-        indexes = [
+        constraints = [
+            UniqueConstraint(
+                fields=["first_name", "dob", "initials", "additional_key"],
+                name="%(app_label)s_%(class)s_first_name_uniq",
+            )
+        ]
+        indexes = BaseUuidModel.Meta.indexes + [
             models.Index(fields=["first_name", "dob", "initials", "additional_key"]),
-            models.Index(fields=["identity", "subject_identifier", "screening_identifier"]),
+            models.Index(fields=["subject_identifier", "identity", "screening_identifier"]),
         ]
         permissions = (
             ("display_firstname", "Can display first name"),
