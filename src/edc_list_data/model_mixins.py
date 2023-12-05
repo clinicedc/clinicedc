@@ -14,7 +14,6 @@ class BaseListModelMixin(models.Model):
         verbose_name="Stored value",
         max_length=250,
         unique=True,
-        db_index=True,
         help_text="This is the stored value, required",
     )
 
@@ -24,14 +23,12 @@ class BaseListModelMixin(models.Model):
         verbose_name="Name",
         max_length=250,
         unique=True,
-        db_index=True,
         help_text="(suggest 40 characters max.)",
     )
 
     display_index = models.IntegerField(
         verbose_name="display index",
         default=0,
-        db_index=True,
         help_text="Index to control display order if not alphabetical, not required",
     )
 
@@ -60,8 +57,9 @@ class BaseListModelMixin(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ["display_index", "display_name"]
-        indexes = [models.Index(fields=["id", "display_name", "display_index"])]
+        indexes = [
+            models.Index(fields=["display_index", "display_name"]),
+        ]
         default_permissions = ("add", "change", "delete", "view", "export", "import")
 
 
@@ -75,6 +73,7 @@ class ListModelMixin(BaseListModelMixin):
 
     class Meta(BaseListModelMixin.Meta):
         abstract = True
+        indexes = BaseListModelMixin.Meta.indexes
 
 
 class ListUuidModelMixin(BaseListModelMixin, BaseUuidModel):
@@ -85,3 +84,4 @@ class ListUuidModelMixin(BaseListModelMixin, BaseUuidModel):
 
     class Meta(BaseListModelMixin.Meta, BaseUuidModel.Meta):
         abstract = True
+        indexes = BaseListModelMixin.Meta.indexes + BaseUuidModel.Meta.indexes
