@@ -66,4 +66,3 @@ class ManifestModelMixin(SiteModelMixin, models.Model):
 
     class Meta:
         abstract = True
-        ordering = ("-manifest_identifier",)

@@ -1,5 +1,5 @@
 from django.db import models
-from edc_model import models as edc_models
+from edc_model.models import BaseUuidModel
 
 from ..choices import FILL_ORDER
 from ..constants import FILL_ACROSS
@@ -12,7 +12,7 @@ class BoxTypeManager(models.Manager):
         return self.get(name=name)
 
 
-class BoxType(edc_models.BaseUuidModel):
+class BoxType(BaseUuidModel):
     name = models.CharField(
         max_length=25, unique=True, help_text="a unique name to describe this box type"
     )
@@ -37,6 +37,5 @@ class BoxType(edc_models.BaseUuidModel):
     def natural_key(self):
         return (self.name,)  # noqa
 
-    class Meta(edc_models.BaseUuidModel.Meta):
+    class Meta(BaseUuidModel.Meta):
         verbose_name = "Box Type"
-        ordering = ("name",)

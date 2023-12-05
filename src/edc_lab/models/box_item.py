@@ -1,8 +1,9 @@
 import re
 
 from django.db import models
+from django.db.models import UniqueConstraint
 from django.db.models.deletion import PROTECT
-from edc_model import models as edc_models
+from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_search.model_mixins import SearchSlugManager, SearchSlugModelMixin
 
 from ..model_mixins import VerifyModelMixin
@@ -19,7 +20,7 @@ class BoxItemManager(SearchSlugManager, models.Manager):
         )
 
 
-class BoxItem(SearchSlugModelMixin, VerifyModelMixin, edc_models.BaseUuidModel):
+class BoxItem(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
     box = models.ForeignKey(Box, on_delete=PROTECT)
 
     position = models.IntegerField()
@@ -30,7 +31,7 @@ class BoxItem(SearchSlugModelMixin, VerifyModelMixin, edc_models.BaseUuidModel):
 
     objects = BoxItemManager()
 
-    history = edc_models.HistoricalRecords()
+    history = HistoricalRecords()
 
     def natural_key(self):
         return (self.position, self.identifier) + self.box.natural_key()
@@ -50,7 +51,13 @@ class BoxItem(SearchSlugModelMixin, VerifyModelMixin, edc_models.BaseUuidModel):
         slugs = [self.identifier, self.human_readable_identifier]
         return slugs
 
-    class Meta(edc_models.BaseUuidModel.Meta):
+    class Meta(BaseUuidModel.Meta):
         verbose_name = "Box Item"
-        ordering = ("position",)
-        unique_together = (("box", "position"), ("box", "identifier"))
+        constraints = [
+            UniqueConstraint(
+                fields=["box", "position"], name="%(app_label)s_%(class)s_box_pos_uniq"
+            ),
+            UniqueConstraint(
+                fields=["box", "identifier"], name="%(app_label)s_%(class)s_box_ide_uniq"
+            ),
+        ]

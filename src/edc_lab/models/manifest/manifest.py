@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_model import models as edc_models
+from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_search.model_mixins import SearchSlugManager, SearchSlugModelMixin
 from edc_sites.models import CurrentSiteManager
 
@@ -14,7 +14,7 @@ class Manager(ManifestManager, SearchSlugManager):
     pass
 
 
-class Manifest(ManifestModelMixin, SearchSlugModelMixin, edc_models.BaseUuidModel):
+class Manifest(ManifestModelMixin, SearchSlugModelMixin, BaseUuidModel):
     def get_search_slug_fields(self):
         return [
             "manifest_identifier",
@@ -31,7 +31,7 @@ class Manifest(ManifestModelMixin, SearchSlugModelMixin, edc_models.BaseUuidMode
 
     on_site = CurrentSiteManager()
 
-    history = edc_models.HistoricalRecords()
+    history = HistoricalRecords()
 
     def natural_key(self):
         return (self.manifest_identifier,)
@@ -49,5 +49,5 @@ class Manifest(ManifestModelMixin, SearchSlugModelMixin, edc_models.BaseUuidMode
     def count(self):
         return self.manifestitem_set.all().count()
 
-    class Meta(ManifestModelMixin.Meta, edc_models.BaseUuidModel.Meta):
+    class Meta(ManifestModelMixin.Meta, BaseUuidModel.Meta):
         verbose_name = "Manifest"
