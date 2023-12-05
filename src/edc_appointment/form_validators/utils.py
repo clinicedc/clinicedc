@@ -33,9 +33,9 @@ def validate_appt_datetime_unique(
         appt_datetime_utc = appt_datetime.astimezone(ZoneInfo("UTC"))
         opts = {
             "subject_identifier": appointment.subject_identifier,
-            "appt_datetime__date": appt_datetime_utc.date(),
             "visit_schedule_name": appointment.visit_schedule_name,
             "schedule_name": appointment.schedule_name,
+            "appt_datetime__date": appt_datetime_utc.date(),
         }
         other_appts = appointment.__class__.objects.filter(**opts).exclude(id=appointment.id)
         if other_appts.count() > 1:

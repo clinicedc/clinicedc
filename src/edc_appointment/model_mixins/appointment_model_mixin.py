@@ -10,6 +10,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db.models import UniqueConstraint
 from edc_document_status.model_mixins import DocumentStatusModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_metadata.model_mixins import MetadataHelperModelMixin
@@ -32,40 +33,6 @@ from .window_period_model_mixin import WindowPeriodModelMixin
 
 if TYPE_CHECKING:
     from ..models import Appointment
-
-# if django.VERSION[0] < 4:
-constraints = []
-unique_together = (
-    (
-        "subject_identifier",
-        "visit_schedule_name",
-        "schedule_name",
-        "visit_code",
-        "timepoint",
-        "visit_code_sequence",
-    ),
-    ("subject_identifier", "visit_schedule_name", "schedule_name", "appt_datetime"),
-)
-# else:
-#     constraints = [
-#         UniqueConstraint(
-#             "subject_identifier",
-#             Lower("visit_schedule_name"),
-#             Lower("schedule_name"),
-#             Lower("visit_code"),
-#             "timepoint",
-#             "visit_code_sequence",
-#             name="subject_id_visit_timepoint_seq_d98fxg_unique",
-#         ),
-#         UniqueConstraint(
-#             "subject_identifier",
-#             Lower("visit_schedule_name"),
-#             Lower("schedule_name"),
-#             "appt_datetime",
-#             name="subject_id_visit_appt_datetime_9u3drr_unique",
-#         ),
-#     ]
-#     unique_together = ()
 
 
 class AppointmentModelMixin(
@@ -181,13 +148,10 @@ class AppointmentModelMixin(
     def report_datetime(self: Appointment) -> datetime:
         return self.appt_datetime
 
-    class Meta:
+    class Meta(NonUniqueSubjectIdentifierFieldMixin.Meta):
         abstract = True
-        constraints = constraints
-        unique_together = unique_together
-        ordering = ("timepoint", "visit_code_sequence")
-        indexes = [
-            models.Index(
+        constraints = [
+            UniqueConstraint(
                 fields=[
                     "subject_identifier",
                     "visit_schedule_name",
@@ -195,6 +159,36 @@ class AppointmentModelMixin(
                     "visit_code",
                     "timepoint",
                     "visit_code_sequence",
+                ],
+                name="unique_%(app_label)s_%(class)s_100",
+            ),
+            UniqueConstraint(
+                fields=[
+                    "subject_identifier",
+                    "visit_schedule_name",
+                    "schedule_name",
+                    "appt_datetime",
+                ],
+                name="unique_%(app_label)s_%(class)s_200",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["appt_datetime"]),
+            models.Index(fields=["appt_status"]),
+            models.Index(fields=["timepoint", "visit_code_sequence"]),
+            models.Index(fields=["subject_identifier", "appt_reason"]),
+            models.Index(
+                fields=["site", "subject_identifier", "timepoint", "visit_code_sequence"]
+            ),
+            models.Index(
+                fields=[
+                    "subject_identifier",
+                    "visit_schedule_name",
+                    "schedule_name",
+                    "visit_code",
+                    "appt_reason",
+                    "timepoint",
+                    "visit_code_sequence",
                 ]
-            )
+            ),
         ]

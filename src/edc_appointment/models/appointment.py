@@ -24,5 +24,5 @@ class Appointment(AppointmentModelMixin, SiteModelMixin, BaseUuidModel):
     # noinspection PyTypeHints
     natural_key.dependencies = ["sites.Site"]  # type: ignore
 
-    class Meta(AppointmentModelMixin.Meta, BaseUuidModel.Meta):
-        pass
+    class Meta(AppointmentModelMixin.Meta, SiteModelMixin.Meta, BaseUuidModel.Meta):
+        indexes = AppointmentModelMixin.Meta.indexes + BaseUuidModel.Meta.indexes

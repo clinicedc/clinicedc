@@ -241,8 +241,8 @@ def update_unscheduled_appointment_sequence(subject_identifier: str) -> None:
                 subject_identifier=subject_identifier,
                 visit_schedule_name=visit_schedule_name,
                 schedule_name=schedule_name,
-                appt_reason=UNSCHEDULED_APPT,
                 visit_code=visit_code,
+                appt_reason=UNSCHEDULED_APPT,
             )
             .order_by("appt_datetime")
         ):
@@ -314,15 +314,15 @@ def get_previous_appointment(
     if include_interim:
         if appointment.visit_code_sequence != 0:
             opts.update(
-                timepoint__lte=appointment.timepoint,
                 visit_code_sequence__lt=appointment.visit_code_sequence,
+                timepoint__lte=appointment.timepoint,
             )
         else:
             opts.update(timepoint__lt=appointment.timepoint)
     elif not include_interim:
         opts.update(
-            timepoint__lt=appointment.timepoint,
             visit_code_sequence=0,
+            timepoint__lt=appointment.timepoint,
         )
 
     appointments = (

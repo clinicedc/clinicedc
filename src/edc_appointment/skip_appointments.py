@@ -243,10 +243,10 @@ class SkipAppointments:
         """
         if not self._scheduled_appointments:
             self._scheduled_appointments = Appointment.objects.filter(
+                subject_identifier=self.subject_identifier,
                 visit_schedule_name=self.visit_schedule_name,
                 schedule_name=self.schedule_name,
                 visit_code_sequence=0,
-                subject_identifier=self.subject_identifier,
             ).order_by("timepoint_datetime")
         return self._scheduled_appointments
 

@@ -157,9 +157,14 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
             timepoint_datetime=appt_datetime,
         )
         appointment = creator.appointment
-        self.assertEqual(Appointment.objects.all()[0], appointment)
         self.assertEqual(
-            Appointment.objects.all()[0].appt_datetime,
+            Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0],
+            appointment,
+        )
+        self.assertEqual(
+            Appointment.objects.all()
+            .order_by("timepoint", "visit_code_sequence")[0]
+            .appt_datetime,
             datetime(2017, 1, 3, tzinfo=ZoneInfo("UTC")),
         )
 
@@ -175,9 +180,14 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
             timepoint_datetime=appt_datetime,
         )
         appointment = creator.appointment
-        self.assertEqual(Appointment.objects.all()[0], appointment)
         self.assertEqual(
-            Appointment.objects.all()[0].appt_datetime,
+            Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0],
+            appointment,
+        )
+        self.assertEqual(
+            Appointment.objects.all()
+            .order_by("timepoint", "visit_code_sequence")[0]
+            .appt_datetime,
             datetime(2017, 1, 3, tzinfo=ZoneInfo("UTC")),
         )
 
@@ -274,8 +284,16 @@ class TestAppointmentCreator2(AppointmentCreatorTestCase):
             visit=self.visit1000,
             timepoint_datetime=appt_datetime,
         )
-        self.assertEqual(Appointment.objects.all()[0], creator.appointment)
-        self.assertEqual(Appointment.objects.all()[0].appt_datetime, expected_appt_datetime)
+        self.assertEqual(
+            Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0],
+            creator.appointment,
+        )
+        self.assertEqual(
+            Appointment.objects.all()
+            .order_by("timepoint", "visit_code_sequence")[0]
+            .appt_datetime,
+            expected_appt_datetime,
+        )
 
         appt_datetime = datetime(1900, 1, 3, tzinfo=ZoneInfo("UTC"))
         creator = AppointmentCreator(
@@ -285,5 +303,13 @@ class TestAppointmentCreator2(AppointmentCreatorTestCase):
             visit=self.visit1000,
             timepoint_datetime=appt_datetime,
         )
-        self.assertEqual(Appointment.objects.all()[0], creator.appointment)
-        self.assertEqual(Appointment.objects.all()[0].appt_datetime, appt_datetime)
+        self.assertEqual(
+            Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0],
+            creator.appointment,
+        )
+        self.assertEqual(
+            Appointment.objects.all()
+            .order_by("timepoint", "visit_code_sequence")[0]
+            .appt_datetime,
+            appt_datetime,
+        )
