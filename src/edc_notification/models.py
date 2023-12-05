@@ -1,9 +1,9 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from edc_model import models as edc_models
+from edc_model.models import BaseUuidModel
 
 
-class Notification(edc_models.BaseUuidModel):
+class Notification(BaseUuidModel):
 
     """A model that stores the notification types.
 
@@ -27,5 +27,6 @@ class Notification(edc_models.BaseUuidModel):
     def __str__(self):
         return f"{self.display_name}"
 
-    class Meta(edc_models.BaseUuidModel.Meta):
-        ordering = ("display_name",)
+    class Meta(BaseUuidModel.Meta):
+        verbose_name = "Notification"
+        verbose_name_plural = "Notifications"
