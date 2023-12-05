@@ -1,6 +1,7 @@
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db.models import UniqueConstraint
 from django_crypto_fields.fields import EncryptedCharField
 from edc_model.models import HistoricalRecords
 from edc_sites.models import CurrentSiteManager
@@ -107,6 +108,9 @@ class RandomizationListModelMixin(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ("site_name", "sid")
-        unique_together = ("site_name", "sid")
+        constraints = [
+            UniqueConstraint(
+                fields=["site_name", "sid"], name="%(app_label)s_%(class)s_site_sid_uniq"
+            )
+        ]
         permissions = (("display_assignment", "Can display assignment"),)
