@@ -1,5 +1,6 @@
 from django.apps import apps as django_apps
 from django.db import models
+from django.db.models import Index
 from edc_model.models import BaseUuidModel, HistoricalRecords
 
 
@@ -15,7 +16,7 @@ class DataDictionary(BaseUuidModel):
 
     number = models.IntegerField()
 
-    prompt = models.TextField()
+    prompt = models.CharField(max_length=500)
 
     field_name = models.CharField(max_length=250)
 
@@ -64,8 +65,8 @@ class DataDictionary(BaseUuidModel):
         return django_apps.get_model(self.model)
 
     class Meta:
-        default_permissions = ("view", "export")
-        ordering = ("model", "number", "prompt")
-        unique_together = (("model", "field_name"),)
         verbose_name = "Data Dictionary Item"
         verbose_name_plural = "Data Dictionary Items"
+        default_permissions = ("view", "export")
+        unique_together = (("model", "field_name"),)
+        indexes = [Index(fields=["model", "number", "prompt"])]
