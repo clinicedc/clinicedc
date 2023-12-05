@@ -70,7 +70,17 @@ class SubjectTransferModelMixin(
     def natural_key(self):
         return (self.subject_identifier,)  # noqa
 
-    class Meta:
+    class Meta(SiteModelMixin.Meta, ActionModelMixin.Meta):
         abstract = True
         verbose_name = "Subject Transfer"
         verbose_name_plural = "Subject Transfers"
+        indexes = ActionModelMixin.Meta.indexes + [
+            models.Index(
+                fields=[
+                    "subject_identifier",
+                    "action_identifier",
+                    "report_datetime",
+                    "site",
+                ]
+            ),
+        ]
