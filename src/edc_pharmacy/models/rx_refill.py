@@ -5,7 +5,7 @@ from uuid import uuid4
 from django.conf import settings
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_model import models as edc_models
+from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 from edc_utils import convert_php_dateformat
 from edc_utils.round_up import round_half_away_from_zero
@@ -28,7 +28,7 @@ class RxRefill(
     PreviousNextModelMixin,
     MedicationOrderModelMixin,
     SiteModelMixin,
-    edc_models.BaseUuidModel,
+    BaseUuidModel,
 ):
     rx = models.ForeignKey(Rx, on_delete=PROTECT)
 
@@ -114,7 +114,7 @@ class RxRefill(
 
     on_site = CurrentSiteManager()
 
-    history = edc_models.HistoricalRecords()
+    history = HistoricalRecords()
 
     def __str__(self):
         convert_php_dateformat(settings.SHORT_DATE_FORMAT)
@@ -190,7 +190,6 @@ class RxRefill(
     def subject_identifier(self):
         return self.rx.subject_identifier
 
-    class Meta(edc_models.BaseUuidModel.Meta):
+    class Meta(BaseUuidModel.Meta):
         verbose_name = "RX refill"
         verbose_name_plural = "RX refills"
-        # unique_together = (("rx", "refill_start_datetime"),)

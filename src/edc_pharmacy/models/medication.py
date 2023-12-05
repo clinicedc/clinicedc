@@ -1,5 +1,6 @@
 from django.db import models
-from edc_model import models as edc_models
+from django.db.models import UniqueConstraint
+from edc_model.models import BaseUuidModel, HistoricalRecords
 
 
 class Manager(models.Manager):
@@ -9,7 +10,7 @@ class Manager(models.Manager):
         return self.get(name)
 
 
-class Medication(edc_models.BaseUuidModel):
+class Medication(BaseUuidModel):
     name = models.CharField(max_length=35, unique=True)
 
     display_name = models.CharField(max_length=50, unique=True)
@@ -18,7 +19,7 @@ class Medication(edc_models.BaseUuidModel):
 
     objects = Manager()
 
-    history = edc_models.HistoricalRecords()
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.name
@@ -30,7 +31,12 @@ class Medication(edc_models.BaseUuidModel):
     def natural_key(self):
         return self.name
 
-    class Meta(edc_models.BaseUuidModel.Meta):
+    class Meta(BaseUuidModel.Meta):
         verbose_name = "Medication"
         verbose_name_plural = "Medications"
-        unique_together = ["name", "display_name"]
+        constraints = [
+            UniqueConstraint(
+                fields=["name", "display_name"],
+                name="%(app_label)s_%(class)s_name_uniq",
+            )
+        ]

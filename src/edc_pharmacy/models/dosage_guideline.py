@@ -1,7 +1,7 @@
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models import PROTECT
-from edc_model import models as edc_models
+from django.db.models import PROTECT, UniqueConstraint
+from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_utils.round_up import round_half_away_from_zero
 
 from .list_models import FrequencyUnits, Units
@@ -15,7 +15,7 @@ class Manager(models.Manager):
         return self.get(medication_name, dose, dose_units, dose_per_kg)
 
 
-class DosageGuideline(edc_models.BaseUuidModel):
+class DosageGuideline(BaseUuidModel):
 
     """Dosage guidelines."""
 
@@ -56,7 +56,7 @@ class DosageGuideline(edc_models.BaseUuidModel):
 
     objects = Manager()
 
-    history = edc_models.HistoricalRecords()
+    history = HistoricalRecords()
 
     def __str__(self):
         return (
@@ -79,9 +79,12 @@ class DosageGuideline(edc_models.BaseUuidModel):
     def get_frequency_units_display(self):
         return self.frequency_units.display_name
 
-    class Meta(edc_models.BaseUuidModel.Meta):
+    class Meta(BaseUuidModel.Meta):
         verbose_name = "Dosage Guideline"
         verbose_name_plural = "Dosage Guidelines"
-        unique_together = [
-            ["medication", "dose", "dose_units", "dose_per_kg"],
+        constraints = [
+            UniqueConstraint(
+                fields=["medication", "dose", "dose_units", "dose_per_kg"],
+                name="%(app_label)s_%(class)s_med_dose_uniq",
+            )
         ]

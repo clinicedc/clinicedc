@@ -6,7 +6,7 @@ from django.db.models import PROTECT
 from edc_action_item.models import ActionModelMixin
 from edc_constants.constants import NEW
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
-from edc_model import models as edc_models
+from edc_model.models import BaseUuidModel
 from edc_randomization.site_randomizers import site_randomizers
 from edc_registration.models import RegisteredSubject
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
@@ -20,12 +20,19 @@ from .search_slug_model_mixin import SearchSlugModelMixin
 from .subject import Subject
 
 
+class Manager(models.Manager):
+    use_in_migrations = True
+
+    def get_by_natural_key(self, rx_identifier):
+        return self.get(rx_identifier)
+
+
 class Rx(
     NonUniqueSubjectIdentifierFieldMixin,
     SiteModelMixin,
     ActionModelMixin,
     SearchSlugModelMixin,
-    edc_models.BaseUuidModel,
+    BaseUuidModel,
 ):
 
     """A model for the prescription.
@@ -37,7 +44,7 @@ class Rx(
 
     action_name = PRESCRIPTION_ACTION
 
-    rx_identifier = models.CharField(max_length=36, default=uuid4)
+    rx_identifier = models.CharField(max_length=36, default=uuid4, unique=True)
 
     rx_name = models.CharField(max_length=36, default="study prescription")
 
@@ -85,6 +92,8 @@ class Rx(
         help_text="Private notes for pharmacist only",
     )
 
+    objects = Manager()
+
     on_site = CurrentSiteManager()
 
     def __str__(self):
@@ -121,6 +130,6 @@ class Rx(
             f"Written: {self.rx_date}"
         )
 
-    class Meta(edc_models.BaseUuidModel.Meta):
+    class Meta(BaseUuidModel.Meta):
         verbose_name = "Prescription"
         verbose_name_plural = "Prescriptions"
