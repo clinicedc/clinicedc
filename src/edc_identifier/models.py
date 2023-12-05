@@ -1,5 +1,6 @@
 from django.db import models
-from edc_model import models as edc_models
+from django.db.models import UniqueConstraint
+from edc_model.models import BaseUuidModel
 from edc_sites.models import SiteModelMixin
 
 
@@ -18,14 +19,14 @@ class IdentifierModelManager(models.Manager):
         abstract = True
 
 
-class IdentifierModel(SiteModelMixin, edc_models.BaseUuidModel):
+class IdentifierModel(SiteModelMixin, BaseUuidModel):
+    identifier = models.CharField(max_length=50, unique=True)
+
     name = models.CharField(max_length=100)
 
     subject_identifier = models.CharField(max_length=50, null=True)
 
     sequence_number = models.IntegerField(default=1)
-
-    identifier = models.CharField(max_length=50, unique=True)
 
     linked_identifier = models.CharField(max_length=50, null=True)
 
@@ -47,7 +48,11 @@ class IdentifierModel(SiteModelMixin, edc_models.BaseUuidModel):
     def natural_key(self):
         return (self.identifier,)
 
-    class Meta(edc_models.BaseUuidModel.Meta):
+    class Meta(BaseUuidModel.Meta):
         app_label = "edc_identifier"
-        ordering = ["sequence_number"]
-        unique_together = ("name", "identifier")
+        constraints = [
+            UniqueConstraint(
+                fields=["name", "identifier"], name="%(app_label)s_%(class)s_name_uniq"
+            )
+        ]
+        indexes = BaseUuidModel.Meta.indexes
