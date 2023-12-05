@@ -109,3 +109,7 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
                 )
             for name in remove_group_names:
                 self.user.groups.remove(Group.objects.get(name=name))
+
+    class Meta(NotificationUserProfileModelMixin.Meta):
+        verbose_name = _("User profile")
+        verbose_name_plural = _("User profiles")
