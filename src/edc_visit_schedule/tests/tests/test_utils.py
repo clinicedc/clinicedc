@@ -94,7 +94,9 @@ class TestVisitSchedule4(SiteTestCaseMixin, TestCase):
             subject_identifier=self.subject_identifier,
             onschedule_datetime=onschedule_datetime,
         )
-        self.appointments = Appointment.objects.all()
+        self.appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
 
     def test_is_baseline_with_instance(self):
         subject_visit_0 = SubjectVisit.objects.create(

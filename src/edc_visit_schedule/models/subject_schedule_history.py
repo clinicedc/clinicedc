@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, UniqueConstraint
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel
 from edc_model.validators import datetime_not_future
@@ -78,5 +78,13 @@ class SubjectScheduleHistory(
             self.schedule_name,
         )
 
-    class Meta(BaseUuidModel.Meta):
-        unique_together = ("subject_identifier", "visit_schedule_name", "schedule_name")
+    class Meta(BaseUuidModel.Meta, NonUniqueSubjectIdentifierFieldMixin.Meta):
+        constraints = [
+            UniqueConstraint(
+                fields=["subject_identifier", "visit_schedule_name", "schedule_name"],
+                name="%(app_label)s_%(class)s_subject_uniq",
+            )
+        ]
+        indexes = (
+            BaseUuidModel.Meta.indexes + NonUniqueSubjectIdentifierFieldMixin.Meta.indexes
+        )

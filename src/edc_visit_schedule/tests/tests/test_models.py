@@ -254,7 +254,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
             subject_identifier=self.subject_identifier,
             onschedule_datetime=get_utcnow() - relativedelta(years=3),
         )
-        appointments = Appointment.objects.all()
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         self.assertEqual(appointments.count(), 4)
         appointment = Appointment.objects.all().order_by("appt_datetime").first()
         subject_visit = SubjectVisit.objects.create(
