@@ -59,18 +59,16 @@ def add_prn_crf_popover(appointment, subject_dashboard_url):
 def add_prn_requisition_popover(appointment: Appointment, subject_dashboard_url):
     prn_forms = []
     for requisition in appointment.visits.get(appointment.visit_code).requisitions_prn:
-        try:
-            RequisitionMetadata.objects.get(
-                subject_identifier=appointment.subject_identifier,
-                visit_schedule_name=appointment.visit_schedule_name,
-                schedule_name=appointment.schedule_name,
-                visit_code=appointment.visit_code,
-                visit_code_sequence=appointment.visit_code_sequence,
-                model=requisition.model,
-                panel_name=requisition.panel.name,
-                entry_status__in=[REQUIRED, KEYED],
-            )
-        except ObjectDoesNotExist:
+        if not RequisitionMetadata.objects.filter(
+            subject_identifier=appointment.subject_identifier,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            visit_code=appointment.visit_code,
+            visit_code_sequence=appointment.visit_code_sequence,
+            model=requisition.model,
+            panel_name=requisition.panel.name,
+            entry_status__in=[REQUIRED, KEYED],
+        ).exists():
             requisition.add_url = requisition.model_cls().get_absolute_url()
             requisition.related_visit_model_attr = (
                 requisition.model_cls.related_visit_model_attr()
