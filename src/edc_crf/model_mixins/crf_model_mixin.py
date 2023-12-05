@@ -19,3 +19,4 @@ class CrfModelMixin(SiteModelMixin, CrfNoManagerModelMixin):
 
     class Meta(CrfNoManagerModelMixin.Meta):
         abstract = True
+        indexes = CrfNoManagerModelMixin.Meta.indexes
