@@ -3,7 +3,9 @@ from typing import List
 from django.conf import settings
 from django.core.checks import Warning
 from django.db import models
+from django.db.models import Index, UniqueConstraint
 from django.db.utils import OperationalError, ProgrammingError
+from django.utils.translation import gettext as _
 from edc_sites import get_current_country
 from edc_utils import convert_php_dateformat
 
@@ -59,5 +61,11 @@ class Holiday(models.Model):
         return errors
 
     class Meta:
-        ordering = ["country", "local_date"]
-        unique_together = ("country", "local_date")
+        verbose_name = _("Holiday")
+        verbose_name_plural = _("Holidays")
+        constraints = [
+            UniqueConstraint(
+                fields=["country", "local_date"], name="%(app_label)s_%(class)s_country_uniq"
+            )
+        ]
+        indexes = [Index(fields=["name", "country", "local_date"])]
