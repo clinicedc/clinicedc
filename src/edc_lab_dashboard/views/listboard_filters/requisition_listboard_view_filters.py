@@ -3,7 +3,7 @@ from edc_listboard.filters import ListboardFilter, ListboardViewFilters
 
 
 def get_box_items():
-    return BoxItem.objects.all().values("identifier")
+    return BoxItem.objects.all().order_by("position").values("identifier")
 
 
 class RequisitionListboardViewFilters(ListboardViewFilters):
