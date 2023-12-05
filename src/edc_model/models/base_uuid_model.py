@@ -15,3 +15,4 @@ class BaseUuidModel(UrlModelMixin, AuditUuidModelMixin, models.Model):
         abstract = True
         default_permissions = ("add", "change", "delete", "view", "export", "import")
         default_manager_name = "objects"
+        indexes = AuditUuidModelMixin.Meta.indexes
