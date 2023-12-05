@@ -239,7 +239,6 @@ class QueryRule(BaseUuidModel):
         return django_apps.get_model(dct_models[0])
 
     class Meta(BaseUuidModel.Meta):
-        ordering = ("title",)
         verbose_name = "Query Rule"
         verbose_name_plural = "Query Rules"
         indexes = [models.Index(fields=["title", "active"])]
