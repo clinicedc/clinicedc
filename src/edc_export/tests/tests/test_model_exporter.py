@@ -44,7 +44,7 @@ class TestExport(TestCase):
     def test_columns(self):
         model = "edc_export.crf"
         m = ModelToDataframe(model=model, drop_sys_columns=False)
-        self.assertEqual(len(list(m.dataframe.columns)), 26)
+        self.assertEqual(len(list(m.dataframe.columns)), 28)
 
     def test_values(self):
         model = "edc_export.crf"
@@ -52,7 +52,9 @@ class TestExport(TestCase):
         df = m.dataframe
         df.sort_values(by=["subject_identifier", "visit_code"], inplace=True)
         for i, appointment in enumerate(
-            Appointment.objects.all().order_by("subject_identifier", "visit_code")
+            Appointment.objects.all().order_by(
+                "subject_identifier", "timepoint", "visit_code_sequence"
+            )
         ):
             self.assertEqual(df.subject_identifier.iloc[i], appointment.subject_identifier)
             self.assertEqual(df.visit_code.iloc[i], appointment.visit_code)
@@ -107,7 +109,9 @@ class TestExport(TestCase):
             rows = [row for row in enumerate(csv_reader)]
         self.assertEqual(len(rows), 4)
         for i, appointment in enumerate(
-            Appointment.objects.all().order_by("subject_identifier", "visit_code")
+            Appointment.objects.all().order_by(
+                "subject_identifier", "timepoint", "visit_code_sequence"
+            )
         ):
             self.assertEqual(
                 rows[i][1].get("subject_identifier"), appointment.subject_identifier

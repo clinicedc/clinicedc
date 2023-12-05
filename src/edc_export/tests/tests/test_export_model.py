@@ -23,7 +23,9 @@ from ..models import Crf, CrfEncrypted, ListModel, SubjectVisit
 class TestExportModel(TestCase):
     def setUp(self):
         self.helper = Helper()
-        for appointment in Appointment.objects.all().order_by("visit_code"):
+        for appointment in Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        ):
             SubjectVisit.objects.create(
                 appointment=appointment,
                 subject_identifier=appointment.subject_identifier,
@@ -167,7 +169,7 @@ class TestExportModel(TestCase):
             csv_reader = csv.reader(f)
             rows = [row for row in enumerate(csv_reader)]
         values_row = rows[1][1][0]
-        self.assertEqual(len(values_row.split("|")), 28)
+        self.assertEqual(len(values_row.split("|")), 30)
 
     def test_lookup(self):
         queryset = Crf.objects.all()

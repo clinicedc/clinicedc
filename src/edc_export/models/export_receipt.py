@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Index
 from edc_model.models import BaseUuidModel, HistoricalRecords
 
 
@@ -30,5 +31,5 @@ class ExportReceipt(BaseUuidModel):
     def natural_key(self):
         return (self.export_uuid,)
 
-    class Meta:
-        ordering = ("-timestamp",)
+    class Meta(BaseUuidModel.Meta):
+        indexes = [Index(fields=["-timestamp"])]

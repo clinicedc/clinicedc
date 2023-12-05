@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Index
 
 
 class NotificationMixin(models.Model):
@@ -26,4 +27,4 @@ class NotificationMixin(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ("notification_datetime",)
+        indexes = [Index(fields=["notification_datetime"])]

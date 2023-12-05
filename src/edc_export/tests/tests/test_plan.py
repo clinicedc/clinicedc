@@ -16,7 +16,9 @@ from ..models import Crf, ListModel, SubjectVisit
 class TestPlan(TestCase):
     def setUp(self):
         self.helper = Helper()
-        for appointment in Appointment.objects.all().order_by("visit_code"):
+        for appointment in Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        ):
             SubjectVisit.objects.create(
                 appointment=appointment,
                 subject_identifier=appointment.subject_identifier,
