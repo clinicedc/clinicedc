@@ -37,7 +37,7 @@ class TestSubjectVisitFormValidator(TestCase):
 
     def test_form_validator_ok(self):
         self.helper.consent_and_put_on_schedule()
-        appointment = Appointment.objects.all()[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
         cleaned_data = dict(
             appointment=appointment,

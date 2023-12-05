@@ -72,7 +72,7 @@ class TestForm(TestCase):
             consent_datetime=datetime(2019, 6, 12, 8, 00, tzinfo=utc_tz)
         )
 
-        appointment = Appointment.objects.all()[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
 
         data = dict(
             appointment=appointment,
@@ -92,9 +92,9 @@ class TestForm(TestCase):
 
     def test_visit_tracking_form__appt_not_missed_but_visit_missed(self):
         self.helper.consent_and_put_on_schedule()
-        appointment = Appointment.objects.all()[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
-        appointment = Appointment.objects.all()[1]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[1]
 
         data = dict(
             appointment=appointment,
@@ -116,9 +116,9 @@ class TestForm(TestCase):
         self.helper.consent_and_put_on_schedule(
             consent_datetime=datetime(2019, 5, 11, 00, tzinfo=utc_tz)
         )
-        appointment = Appointment.objects.all()[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
-        appointment = Appointment.objects.all()[1]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[1]
 
         appointment.appt_timing = MISSED_APPT
         appointment.save()
@@ -149,7 +149,7 @@ class TestForm(TestCase):
         self.helper.consent_and_put_on_schedule(
             consent_datetime=datetime(2019, 6, 12, 8, 00, tzinfo=utc_tz)
         )
-        appointment = Appointment.objects.all()[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
 
         SubjectVisit.objects.create(
             appointment=appointment,
@@ -157,11 +157,11 @@ class TestForm(TestCase):
             reason=SCHEDULED,
         )
 
-        appointment = Appointment.objects.all()[1]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[1]
 
         appointment.appt_timing = MISSED_APPT
         appointment.save()
-        appointment = Appointment.objects.all()[1]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[1]
 
         # note if appt_timing = MISSED_APPT, will auto create subject visit
         # see VisitModelManager
@@ -194,9 +194,9 @@ class TestForm(TestCase):
         self.helper.consent_and_put_on_schedule(
             consent_datetime=datetime(2019, 6, 12, 00, tzinfo=utc_tz)
         )
-        appointment = Appointment.objects.all()[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
-        appointment = Appointment.objects.all()[1]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[1]
 
         appointment.appt_timing = MISSED_APPT
         appointment.save()

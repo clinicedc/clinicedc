@@ -69,7 +69,7 @@ class TestVisit(TestCase):
     def test_crf_inline_model_parent_model(self):
         """Assert inline model cannot find parent, raises exception."""
         self.helper.consent_and_put_on_schedule()
-        appointment = Appointment.objects.all()[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
         other_model = OtherModel.objects.create()
@@ -83,7 +83,7 @@ class TestVisit(TestCase):
     def test_crf_inline_model_attrs2(self):
         """Assert inline model can find visit instance from parent."""
         self.helper.consent_and_put_on_schedule()
-        appointment = Appointment.objects.all()[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
         other_model = OtherModel.objects.create()

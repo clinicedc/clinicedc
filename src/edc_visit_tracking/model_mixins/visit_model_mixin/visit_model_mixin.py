@@ -97,7 +97,7 @@ class VisitModelMixin(
     def check_appointment_in_progress(self) -> None:
         AppointmentStatusUpdater(self.appointment)
 
-    class Meta:
+    class Meta(NonUniqueSubjectIdentifierFieldMixin.Meta):
         abstract = True
         unique_together = (
             (
@@ -114,15 +114,6 @@ class VisitModelMixin(
                 "report_datetime",  # implies one visit per day!
             ),
         )
-        ordering = (
-            "subject_identifier",
-            "visit_schedule_name",
-            "schedule_name",
-            "visit_code",
-            "visit_code_sequence",
-            "report_datetime",
-        )
-
         indexes = [
             models.Index(
                 fields=[
