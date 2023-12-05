@@ -20,6 +20,7 @@ class NonUniqueSubjectIdentifierFieldMixin(models.Model):
 
     class Meta:
         abstract = True
+        indexes = [models.Index(fields=["subject_identifier"])]
 
 
 class UniqueSubjectIdentifierFieldMixin(models.Model):
@@ -145,5 +146,5 @@ class NonUniqueSubjectIdentifierModelMixin(
     subject identifier field and corresponding field and methods.
     """
 
-    class Meta:
+    class Meta(NonUniqueSubjectIdentifierFieldMixin.Meta):
         abstract = True

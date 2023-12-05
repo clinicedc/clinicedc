@@ -97,9 +97,11 @@ class Identifier:
     def last_identifier(self):
         """Returns the last identifier in the identifier model."""
         try:
-            instance = self.identifier_model_cls.objects.filter(
-                identifier_type=self.name
-            ).last()
+            instance = (
+                self.identifier_model_cls.objects.filter(identifier_type=self.name)
+                .order_by("-sequence_number")
+                .first()
+            )
             return instance.identifier
         except AttributeError:
             return None
