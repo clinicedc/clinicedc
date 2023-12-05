@@ -43,7 +43,7 @@ class UnblindingReview(
     def natural_key(self):
         return (self.action_identifier,)
 
-    class Meta:
+    class Meta(BaseUuidModel.Meta, NonUniqueSubjectIdentifierFieldMixin.Meta):
         verbose_name = "Unblinding Review"
         verbose_name_plural = "Unblinding Reviews"
         indexes = [
