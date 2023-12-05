@@ -26,5 +26,9 @@ class ProtocolDeviationViolation(
         return (self.action_identifier,)  # noqa
 
     class Meta(ProtocolDeviationViolationModelMixin.Meta, BaseUuidModel.Meta):
-        pass
-        # db_table = "edc_protocol_incident_protocoldeviationviolation"
+        indexes = (
+            ProtocolDeviationViolationModelMixin.Meta.indexes
+            + NonUniqueSubjectIdentifierFieldMixin.Meta.indexes
+            + ActionModelMixin.Meta.indexes
+            + BaseUuidModel.Meta.indexes
+        )
