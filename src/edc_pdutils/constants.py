@@ -17,5 +17,7 @@ SYSTEM_COLUMNS = [
     "hostname_modified",
     "device_created",
     "device_modified",
+    "locale_created",
+    "locale_modified",
     "revision",
 ]
