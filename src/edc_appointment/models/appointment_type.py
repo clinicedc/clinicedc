@@ -2,6 +2,6 @@ from edc_list_data.model_mixins import ListModelMixin
 
 
 class AppointmentType(ListModelMixin):
-    class Meta:
+    class Meta(ListModelMixin.Meta):
         verbose_name = "Appointment Type"
         verbose_name_plural = "Appointment Types"

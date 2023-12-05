@@ -78,7 +78,11 @@ class TestAdmin(WebTest):
     )
     def test_admin_ok(self, mock_get_subject_dashboard_url_name):
         subject_consent = self.helper.consent_and_put_on_schedule()
-        appointments = get_appointment_model_cls().objects.all()
+        appointments = (
+            get_appointment_model_cls()
+            .objects.all()
+            .order_by("timepoint", "visit_code_sequence")
+        )
         # there are 4 appts
         self.assertEqual(appointments.count(), 4)
         # all appts are new

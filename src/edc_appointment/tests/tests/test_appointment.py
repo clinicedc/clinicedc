@@ -499,7 +499,11 @@ class TestAppointment(TestCase):
         )
 
         # add unscheduled
-        for appointment in get_appointment_model_cls().objects.all():
+        for appointment in (
+            get_appointment_model_cls()
+            .objects.all()
+            .order_by("timepoint", "visit_code_sequence")
+        ):
             appointment.appt_status = IN_PROGRESS_APPT
             appointment.save()
             get_related_visit_model_cls().objects.create(

@@ -58,9 +58,9 @@ class AppointmentMethodsModelMixin(models.Model):
         """
         return (
             self.__class__.objects.filter(
-                subject_identifier=self.subject_identifier,
                 timepoint__gt=self.timepoint,
                 visit_code_sequence=0,
+                subject_identifier=self.subject_identifier,
             )
             .order_by("timepoint")
             .first()
@@ -106,9 +106,9 @@ class AppointmentMethodsModelMixin(models.Model):
         """
         return (
             self.__class__.objects.filter(
-                subject_identifier=self.subject_identifier,
                 timepoint__lt=self.timepoint,
                 visit_code_sequence=0,
+                subject_identifier=self.subject_identifier,
             )
             .order_by("timepoint")
             .last()

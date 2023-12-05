@@ -6,7 +6,7 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms import ValidationError
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from edc_consent import site_consents
 from edc_constants.constants import NOT_APPLICABLE
 from edc_facility.import_holidays import import_holidays
@@ -73,18 +73,19 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
             now=datetime(2017, 1, 7, tzinfo=ZoneInfo("UTC")),
         )
 
+    @tag("1")
     def test_get_previous(self):
         self.helper.consent_and_put_on_schedule()
-        appointments = Appointment.objects.all()
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         for i in [0, 1]:
             Appointment.objects.create(
-                subject_identifier=appointments[i].subject_identifier,
-                appt_datetime=appointments[i].appt_datetime + relativedelta(hours=i + 1),
-                timepoint=appointments[i].timepoint,
-                visit_code=appointments[i].visit_code,
+                subject_identifier=appointments[0].subject_identifier,
+                appt_datetime=appointments[0].appt_datetime + relativedelta(hours=i + 1),
+                timepoint=appointments[0].timepoint,
+                visit_code=appointments[0].visit_code,
                 visit_code_sequence=i + 1,
-                visit_schedule_name=appointments[i].visit_schedule_name,
-                schedule_name=appointments[i].schedule_name,
+                visit_schedule_name=appointments[0].visit_schedule_name,
+                schedule_name=appointments[0].schedule_name,
             )
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         self.assertEqual(
@@ -120,7 +121,7 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
         is still NEW_APPT.
         """
         self.helper.consent_and_put_on_schedule()
-        appointments = Appointment.objects.all()
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         form_validator = AppointmentFormValidator(
             cleaned_data=dict(appt_status=IN_PROGRESS_APPT), instance=appointments[1]
         )
@@ -142,7 +143,7 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
         not complete for an in progress appointment.
         """
         self.helper.consent_and_put_on_schedule()
-        appointments = Appointment.objects.all()
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
 
         # try to add second appt before the first
         # should fail
