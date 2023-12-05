@@ -20,3 +20,4 @@ class BaseModel(UrlModelMixin, AuditModelMixin, models.Model):
         abstract = True
         default_permissions = ("add", "change", "delete", "view", "export", "import")
         default_manager_name = "objects"
+        indexes = AuditModelMixin.Meta.indexes
