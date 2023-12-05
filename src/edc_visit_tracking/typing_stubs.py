@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any, Generic, Protocol, Tuple, Type, TypeVar
 from uuid import UUID
 
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.sites.models import Site
 from django.db.models import ForeignObjectRel, Model
 from django.db.models.manager import BaseManager
 from django.forms import Field
@@ -47,11 +49,8 @@ class Options(Generic[_M]):
 
 
 class SiteFieldsProtocol(Protocol):
-    def id(self) -> int:
-        ...
-
-    def name(self) -> str | None:
-        ...
+    id: int
+    name: str | None
 
 
 class RelatedVisitProtocol(VisitScheduleFieldsProtocol, Protocol):
@@ -64,38 +63,18 @@ class RelatedVisitProtocol(VisitScheduleFieldsProtocol, Protocol):
 
     _meta: Options[Any]
 
-    def id(self) -> UUID:
-        ...
-
-    def appointment(self) -> Appointment:
-        ...
-
-    def subject_identifier(self) -> str | None:
-        ...
-
-    def reason(self) -> str | None:
-        ...
-
-    def consent_version(self) -> str | None:
-        ...
-
-    def site(self) -> SiteFieldsProtocol:
-        ...
-
-    @property
-    def metadata_query_options(self) -> dict:
-        ...
-
-    @property
-    def visit_schedule(self) -> VisitSchedule:
-        ...
-
-    @property
-    def schedule(self) -> Schedule:
-        ...
-
-    def visits(self) -> VisitCollection:
-        ...
-
-    def visit(self) -> Visit:
-        ...
+    appointment: Appointment
+    consent_version: str | None
+    created: datetime | None
+    id: UUID
+    modified: datetime | None
+    reason: str | None
+    report_datetime: datetime | None
+    schedule: Schedule
+    site: Site
+    subject_identifier: str | None
+    user_created: str | None
+    user_modified: str | None
+    visit: Visit
+    visit_schedule: VisitSchedule
+    visits: VisitCollection
