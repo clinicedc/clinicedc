@@ -26,3 +26,6 @@ class Order(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Medication order"
         verbose_name_plural = "Medication orders"
+        indexes = (
+            NonUniqueSubjectIdentifierFieldMixin.Meta.indexes + BaseUuidModel.Meta.indexes
+        )

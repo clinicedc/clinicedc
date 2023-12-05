@@ -1,6 +1,6 @@
 from django.db import models
-from django.db.models import PROTECT
-from edc_model import models as edc_models
+from django.db.models import PROTECT, UniqueConstraint
+from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_utils.round_up import round_half_away_from_zero
 
 from .list_models import FormulationType, Route, Units
@@ -14,7 +14,7 @@ class Manager(models.Manager):
         return self.get(name, strength, units, formulation_type)
 
 
-class Formulation(edc_models.BaseUuidModel):
+class Formulation(BaseUuidModel):
     medication = models.ForeignKey(Medication, on_delete=PROTECT, null=True, blank=False)
 
     strength = models.DecimalField(max_digits=6, decimal_places=1)
@@ -29,7 +29,7 @@ class Formulation(edc_models.BaseUuidModel):
 
     objects = Manager()
 
-    history = edc_models.HistoricalRecords()
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.description.title()
@@ -60,7 +60,12 @@ class Formulation(edc_models.BaseUuidModel):
     def get_route_display(self):
         return self.route.display_name
 
-    class Meta(edc_models.BaseUuidModel.Meta):
+    class Meta(BaseUuidModel.Meta):
         verbose_name = "Formulation"
         verbose_name_plural = "Formulations"
-        unique_together = ["medication", "strength", "units", "formulation_type"]
+        constraints = [
+            UniqueConstraint(
+                fields=["medication", "strength", "units", "formulation_type"],
+                name="%(app_label)s_%(class)s_med_stren_uniq",
+            )
+        ]

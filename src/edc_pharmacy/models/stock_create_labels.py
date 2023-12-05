@@ -2,7 +2,7 @@ from uuid import uuid4
 
 from django.db import models
 from django.db.models import PROTECT
-from edc_model import models as edc_models
+from edc_model.models import BaseUuidModel, HistoricalRecords
 
 from .product import Product
 
@@ -11,7 +11,7 @@ class Manager(models.Manager):
     use_in_migrations = True
 
 
-class StockCreateLabels(edc_models.BaseUuidModel):
+class StockCreateLabels(BaseUuidModel):
     product = models.ForeignKey(Product, on_delete=PROTECT)
 
     qty = models.IntegerField(verbose_name="Number of labels to print")
@@ -22,17 +22,17 @@ class StockCreateLabels(edc_models.BaseUuidModel):
 
     objects = Manager()
 
-    history = edc_models.HistoricalRecords()
+    history = HistoricalRecords()
 
     def __str__(self):
         return f"{self.product}: {self.qty} "
 
-    class Meta(edc_models.BaseUuidModel.Meta):
+    class Meta(BaseUuidModel.Meta):
         verbose_name = "Medication stock: Create labels"
         verbose_name_plural = "Medication stock: Create labels"
 
 
-class Labels(edc_models.BaseUuidModel):
+class Labels(BaseUuidModel):
     stock_create_labels = models.ForeignKey(StockCreateLabels, on_delete=PROTECT)
 
     stock_identifier = models.CharField(max_length=36, default=uuid4, unique=True)
@@ -47,11 +47,11 @@ class Labels(edc_models.BaseUuidModel):
 
     objects = Manager()
 
-    history = edc_models.HistoricalRecords()
+    history = HistoricalRecords()
 
     def __str__(self):
         return f"{self.stock_labels}: {self.stock_identifier} "
 
-    class Meta(edc_models.BaseUuidModel.Meta):
+    class Meta(BaseUuidModel.Meta):
         verbose_name = "Label"
         verbose_name_plural = "Labels"

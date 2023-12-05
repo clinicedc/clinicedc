@@ -108,7 +108,7 @@ class TestMedicationCrf(TestCase):
         self.rx.medications.add(self.medication)
 
     def test_ok(self):
-        appointment = Appointment.objects.all().order_by("timepoint")[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             report_datetime=appointment.appt_datetime,
@@ -140,7 +140,7 @@ class TestMedicationCrf(TestCase):
         self.assertGreater(obj.number_of_days, 0)
 
     def test_refill_before_rx(self):
-        appointment = Appointment.objects.all().order_by("timepoint")[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             report_datetime=appointment.appt_datetime,
@@ -164,7 +164,7 @@ class TestMedicationCrf(TestCase):
             obj.save()
 
     def test_refill_for_expired_rx(self):
-        appointment = Appointment.objects.all().order_by("timepoint")[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             report_datetime=appointment.appt_datetime,
@@ -193,7 +193,9 @@ class TestMedicationCrf(TestCase):
 
         Last appt does not get a refill
         """
-        for appointment in Appointment.objects.all().order_by("timepoint"):
+        for appointment in Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        ):
             subject_visit = SubjectVisit.objects.create(
                 appointment=appointment,
                 report_datetime=appointment.appt_datetime,
@@ -216,7 +218,9 @@ class TestMedicationCrf(TestCase):
         self.assertEqual(RxRefill.objects.all().count(), Appointment.objects.all().count() - 1)
 
     def test_rx_refill_start_datetimes_are_greater(self):
-        for appointment in Appointment.objects.all().order_by("timepoint"):
+        for appointment in Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        ):
             subject_visit = SubjectVisit.objects.create(
                 appointment=appointment,
                 report_datetime=appointment.appt_datetime,
@@ -251,7 +255,9 @@ class TestMedicationCrf(TestCase):
             last_dt = dt
 
     def test_next_previous_refill(self):
-        for appointment in Appointment.objects.all().order_by("timepoint"):
+        for appointment in Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        ):
             subject_visit = SubjectVisit.objects.create(
                 appointment=appointment,
                 report_datetime=appointment.appt_datetime,
@@ -275,7 +281,9 @@ class TestMedicationCrf(TestCase):
         self.assertEqual(obj0.id, obj1.previous.id)
 
     def test_insert_unscheduled_appt_refill(self):
-        for appointment in Appointment.objects.all().order_by("timepoint"):
+        for appointment in Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        ):
             subject_visit = SubjectVisit.objects.create(
                 appointment=appointment,
                 report_datetime=appointment.appt_datetime,
@@ -294,7 +302,9 @@ class TestMedicationCrf(TestCase):
                     formulation=self.formulation,
                 )
 
-        for appointment in Appointment.objects.all():
+        for appointment in Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        ):
             appointment.appt_status = INCOMPLETE_APPT
             appointment.save_base(update_fields=["appt_status"])
 
@@ -303,8 +313,12 @@ class TestMedicationCrf(TestCase):
             if not prev_obj:
                 prev_obj = obj
                 continue
-        appointment_before = Appointment.objects.all().order_by("timepoint")[1]
-        appointment_after = Appointment.objects.all().order_by("timepoint")[2]
+        appointment_before = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )[1]
+        appointment_after = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )[2]
         creator = UnscheduledAppointmentCreator(
             subject_identifier=appointment_before.subject_identifier,
             visit_schedule_name=appointment_before.visit_schedule_name,
@@ -356,7 +370,9 @@ class TestMedicationCrf(TestCase):
 
         Captures exception at last appointment where "next" is none
         """
-        for appointment in Appointment.objects.all().order_by("timepoint"):
+        for appointment in Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        ):
             subject_visit = SubjectVisit.objects.create(
                 appointment=appointment,
                 report_datetime=appointment.appt_datetime,
@@ -394,7 +410,7 @@ class TestMedicationCrf(TestCase):
             end=self.study_close_datetime,
         )
 
-        appointment = Appointment.objects.all().order_by("timepoint")[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         next_appointment = get_next_appointment(appointment, include_interim=True)
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
@@ -419,7 +435,7 @@ class TestMedicationCrf(TestCase):
 
     def test_inserts_refill(self):
         # 1000
-        appointment = Appointment.objects.all().order_by("timepoint")[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             report_datetime=appointment.appt_datetime,
@@ -444,7 +460,7 @@ class TestMedicationCrf(TestCase):
         appointment.save()
 
         # 2000
-        appointment = Appointment.objects.all().order_by("timepoint")[1]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[1]
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             report_datetime=appointment.appt_datetime,
@@ -471,7 +487,7 @@ class TestMedicationCrf(TestCase):
         appointment.save()
 
         # 3000
-        appointment = Appointment.objects.all().order_by("timepoint")[2]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[2]
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             report_datetime=appointment.appt_datetime,
@@ -497,7 +513,7 @@ class TestMedicationCrf(TestCase):
 
         # insert unscheduled appt between 2000 and 3000
 
-        appointment = Appointment.objects.all().order_by("timepoint")[1]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[1]
         creator = UnscheduledAppointmentCreator(
             subject_identifier=appointment.subject_identifier,
             visit_schedule_name=appointment.visit_schedule_name,

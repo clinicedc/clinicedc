@@ -1,6 +1,7 @@
 from django.db import models
+from django.db.models import UniqueConstraint
 from django.db.models.deletion import PROTECT
-from edc_model import models as edc_models
+from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_utils import get_utcnow
 
 from ..choices import DISPENSE_STATUS
@@ -16,7 +17,7 @@ class Manager(models.Manager):
         return self.get(rx_refill, dispensed_datetime)
 
 
-class DispensingHistory(edc_models.BaseUuidModel):
+class DispensingHistory(BaseUuidModel):
     """A model to capture an amount dispensed against a refill"""
 
     rx_refill = models.ForeignKey(RxRefill, on_delete=PROTECT)
@@ -31,7 +32,7 @@ class DispensingHistory(edc_models.BaseUuidModel):
 
     objects = Manager()
 
-    history = edc_models.HistoricalRecords()
+    history = HistoricalRecords()
 
     def __str__(self):
         return f"{str(self.rx_refill)}"
@@ -51,7 +52,12 @@ class DispensingHistory(edc_models.BaseUuidModel):
     def dispensed_date(self):
         return self.dispensed_datetime.date()
 
-    class Meta(edc_models.BaseUuidModel.Meta):
+    class Meta(BaseUuidModel.Meta):
         verbose_name = "Dispensing history"
         verbose_name_plural = "Dispensing history"
-        unique_together = ["rx_refill", "dispensed_datetime"]
+        constraints = [
+            UniqueConstraint(
+                fields=["rx_refill", "dispensed_datetime"],
+                name="%(app_label)s_%(class)s_rx_uniq",
+            )
+        ]
