@@ -1,8 +1,8 @@
-from edc_model import models as edc_models
+from edc_model.models import BaseUuidModel
 
 from ..model_mixins import RandomizationListModelMixin
 
 
-class RandomizationList(RandomizationListModelMixin, edc_models.BaseUuidModel):
-    class Meta(RandomizationListModelMixin.Meta, edc_models.BaseUuidModel.Meta):
+class RandomizationList(RandomizationListModelMixin, BaseUuidModel):
+    class Meta(RandomizationListModelMixin.Meta, BaseUuidModel.Meta):
         pass
