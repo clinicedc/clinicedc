@@ -13,6 +13,10 @@ class ActionItemError(Exception):
     pass
 
 
+class ActionItemStatusError(Exception):
+    pass
+
+
 class ActionTypeError(Exception):
     pass
 

@@ -1,11 +1,11 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
 from django.test import TestCase
-from edc_constants.constants import CLOSED, NEW, OPEN
+from edc_constants.constants import CANCELLED, CLOSED, NEW, OPEN
 
 from edc_action_item.action import Action
 from edc_action_item.create_or_update_action_type import create_or_update_action_type
-from edc_action_item.exceptions import SubjectDoesNotExist
+from edc_action_item.exceptions import ActionItemStatusError, SubjectDoesNotExist
 from edc_action_item.forms import ActionItemForm
 from edc_action_item.get_action_type import get_action_type
 from edc_action_item.models import ActionItem, ActionType
@@ -318,3 +318,22 @@ class TestActionItem(TestCaseMixin, TestCase):
         self.assertEqual(form_two.action_item.status, OPEN)
         self.assertEqual(form_three.action_item.status, OPEN)
         self.assertEqual(form_one.action_item.status, CLOSED)
+
+    def test_cannot_cancel_if_reference_obj_exists(self):
+        site_action_items.register(FormOneAction)
+        site_action_items.register(FormTwoAction)
+        site_action_items.register(FormThreeAction)
+
+        form_one_action = FormOneAction(subject_identifier=self.subject_identifier)
+        form_one = FormOne.objects.create(
+            subject_identifier=self.subject_identifier,
+            action_identifier=form_one_action.action_identifier,
+        )
+        form_one.f1 = "blah"
+        form_one.save()
+
+        form_one.refresh_from_db()
+        self.assertEqual(form_one.action_item.status, CLOSED)
+
+        form_one.action_item.status = CANCELLED
+        self.assertRaises(ActionItemStatusError, form_one.action_item.save)

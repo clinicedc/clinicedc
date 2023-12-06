@@ -144,7 +144,7 @@ class TestHelpers(TestCaseMixin, TestCase):
 
     def test_reference_as_crf(self):
         self.enroll()
-        appointment = Appointment.objects.all().order_by("timepoint")[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         subject_visit = django_apps.get_model(
             "edc_visit_tracking.subjectvisit"
         ).objects.create(appointment=appointment, reason=SCHEDULED)
@@ -162,7 +162,7 @@ class TestHelpers(TestCaseMixin, TestCase):
 
     def test_reference_as_crf_create_next_model_instance(self):
         subject_identifier = self.enroll()
-        appointment = Appointment.objects.all().order_by("timepoint")[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         subject_visit = django_apps.get_model(
             "edc_visit_tracking.subjectvisit"
         ).objects.create(appointment=appointment, reason=SCHEDULED)
