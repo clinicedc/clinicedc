@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Index, UniqueConstraint
+from django.db.models import UniqueConstraint
 from edc_model.models import BaseUuidModel
 
 
@@ -33,4 +33,3 @@ class Panel(BaseUuidModel):
                 fields=["name", "lab_profile_name"], name="%(app_label)s_%(class)s_name_uniq"
             )
         ]
-        indexes = [Index(fields=["lab_profile_name", "name"])]

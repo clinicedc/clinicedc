@@ -1,5 +1,4 @@
 from django.db import models
-from django.db.models import Index
 from edc_model.models import AddressMixin, BaseUuidModel, HistoricalRecords
 
 
@@ -23,5 +22,3 @@ class Consignee(AddressMixin, BaseUuidModel):
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Consignee"
-        ordering = ("name",)
-        indexes = [Index(fields=["name"])]
