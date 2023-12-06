@@ -40,6 +40,7 @@ class SiteModelAdminMixin:
         """Add current_site attr to form instance"""
         form = super().get_form(request, obj=obj, change=change, **kwargs)
         form.current_site = getattr(request, "site", None)
+        form.current_locale = getattr(request, "LANGUAGE_CODE", None)
         return form
 
     def formfield_for_choice_field(self, db_field, request, **kwargs):
