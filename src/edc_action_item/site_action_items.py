@@ -13,7 +13,7 @@ from edc_notification import site_notifications
 from edc_prn.prn import Prn
 from edc_prn.site_prn_forms import AlreadyRegistered as PrnAlreadyRegistered
 from edc_prn.site_prn_forms import site_prn_forms
-from edc_sites import InvalidSiteError
+from edc_sites import InvalidSiteForSubjectError
 from edc_sites.valid_site_for_subject_or_raise import valid_site_for_subject_or_raise
 
 from .create_or_update_action_type import create_or_update_action_type
@@ -120,7 +120,7 @@ class SiteActionItemCollection:
     def get_show_link_to_add_actions(self, subject_identifier: str = None) -> list[Wrapper]:
         try:
             valid_site_for_subject_or_raise(subject_identifier)
-        except InvalidSiteError:
+        except InvalidSiteForSubjectError:
             wrappers = []
         else:
             names = [v.name for v in self.registry.values() if v.show_link_to_add]

@@ -7,7 +7,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_constants.constants import NEW
+from edc_constants.constants import CANCELLED, NEW
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_notification.model_mixins import NotificationModelMixin
@@ -17,7 +17,7 @@ from edc_utils import get_utcnow
 
 from .. import Action
 from ..choices import ACTION_STATUS, PRIORITY
-from ..exceptions import SubjectDoesNotExist
+from ..exceptions import ActionItemStatusError, SubjectDoesNotExist
 from ..identifiers import ActionIdentifier
 from ..site_action_items import site_action_items
 from .action_type import ActionType
@@ -166,6 +166,17 @@ class ActionItem(
             self.reference_model = self.action_type.reference_model
             self.related_reference_model = self.action_type.related_reference_model
             self.instructions = self.action_type.instructions
+        else:
+            if (
+                self.status in [NEW, CANCELLED]
+                and django_apps.get_model(self.reference_model)
+                .objects.filter(action_identifier=self.action_identifier)
+                .exists()
+            ):
+                raise ActionItemStatusError(
+                    "Invalid action item status. Reference model exists. "
+                    f"Got `{self.get_status_display()}`. Perhaps catch this in the form"
+                )
         super().save(*args, **kwargs)
 
     def natural_key(self) -> tuple[str]:
