@@ -36,15 +36,6 @@ class CleanFieldsModelformMixin:
                 "Unable to determine the screening identifier. "
                 f"This should be part of the initial form data. Got {self.cleaned_data}"
             )
-        # try:
-        #     subject_screening = self.subject_screening_model_cls.objects.get(
-        #         screening_identifier=screening_identifier
-        #     )
-        # except ObjectDoesNotExist:
-        #     raise forms.ValidationError(
-        #         "Unable to find screening form. Invalid screening identifier. "
-        #         f"Got `{screening_identifier}`"
-        #     )
         return get_subject_screening_or_raise(screening_identifier, is_modelform=True)
 
     def clean_consent_reviewed(self) -> str:
