@@ -3,7 +3,11 @@ from .blood_result_model_mixin import (
     BloodResultsMethodsModelMixin,
     BloodResultsModelMixin,
 )
-from .electrolytes_model_mixins import MagnesiumModelMixin, PotassiumModelMixin
+from .electrolytes_model_mixins import (
+    MagnesiumModelMixin,
+    PotassiumModelMixin,
+    SodiumModelMixin,
+)
 from .fbc_model_mixins import (
     HaemoglobinModelMixin,
     HctModelMixin,

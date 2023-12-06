@@ -31,3 +31,16 @@ class PotassiumModelMixin(
 ):
     class Meta:
         abstract = True
+
+
+class SodiumModelMixin(
+    reportable_result_model_mixin_factory(
+        utest_id="sodium",
+        verbose_name="Sodium (Na)",
+        units_choices=((MILLIMOLES_PER_LITER, MILLIMOLES_PER_LITER_DISPLAY),),
+        decimal_places=0,
+    ),
+    models.Model,
+):
+    class Meta:
+        abstract = True
