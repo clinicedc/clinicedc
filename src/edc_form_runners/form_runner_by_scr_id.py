@@ -19,6 +19,9 @@ class BaseFormRunnerBySrcId:
             verbose=verbose,
         )
 
+    def run_all(self):
+        raise NotImplementedError
+
     def run_one(self) -> None:
         src_obj = self.src_model_cls.objects.get(id=self.src_id)
         super().run_one(src_obj)

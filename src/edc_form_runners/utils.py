@@ -4,6 +4,7 @@ from functools import cache
 from typing import TYPE_CHECKING, Type
 
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.contrib import admin
 
 if TYPE_CHECKING:
@@ -12,6 +13,10 @@ if TYPE_CHECKING:
     from django.forms import ModelForm
 
     from .models import Issue
+
+
+def get_edc_form_runners_enabled() -> bool:
+    return getattr(settings, "EDC_FORM_RUNNERS_ENABLED", False)
 
 
 def get_issue_model_cls() -> Issue:

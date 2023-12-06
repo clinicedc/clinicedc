@@ -1,7 +1,6 @@
 from django.contrib.sites.models import Site
 from django.db import models
 from django.db.models import PROTECT, Index, UniqueConstraint
-from edc_constants.constants import DONE, IN_PROGRESS, NEW
 from edc_model.models import BaseUuidModel
 
 
@@ -23,7 +22,9 @@ class Issue(BaseUuidModel):
     src_id = models.UUIDField(null=True)
     src_revision = models.CharField(max_length=150, null=True)
     src_report_datetime = models.DateTimeField(null=True)
+    src_created_datetime = models.DateTimeField(null=True)
     src_modified_datetime = models.DateTimeField(null=True)
+    src_user_created = models.CharField(max_length=150, null=True)
     src_user_modified = models.CharField(max_length=150, null=True)
     site = models.ForeignKey(Site, on_delete=PROTECT)
     panel_name = models.CharField(max_length=50, null=True)
@@ -45,23 +46,24 @@ class Issue(BaseUuidModel):
                 fields=[
                     "subject_identifier",
                     "label_lower",
-                    "field_name",
                     "panel_name",
                     "visit_code",
                     "visit_code_sequence",
                     "visit_schedule_name",
                     "schedule_name",
+                    "field_name",
                 ],
                 name="unique_label_lower_subject_identifier_etc",
             )
         ]
-        indexes = [
+        indexes = BaseUuidModel.Meta.indexes + [
             Index(fields=["label_lower", "field_name", "panel_name", "short_message"]),
             Index(
                 fields=[
                     "subject_identifier",
                     "visit_code",
                     "visit_code_sequence",
+                    "label_lower",
                     "panel_name",
                     "short_message",
                 ],

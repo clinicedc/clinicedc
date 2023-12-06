@@ -69,7 +69,8 @@ class FormRunner:
         if errors:
             for fldname, errmsg in errors.items():
                 issue_obj = self.write_to_db(fldname, errmsg, src_obj)
-                self.print(str(issue_obj))
+                if self.verbose:
+                    self.print(str(issue_obj))
 
     @property
     def issue_model_cls(self) -> Issue:
@@ -92,7 +93,9 @@ class FormRunner:
             src_id=src_obj.id,
             src_revision=src_obj.revision,
             src_report_datetime=getattr(src_obj, "report_datetime", None),
+            src_created_datetime=src_obj.created,
             src_modified_datetime=src_obj.modified,
+            src_user_created=src_obj.user_created,
             src_user_modified=src_obj.user_modified,
             field_name=fldname,
             site=src_obj.site,
@@ -101,8 +104,11 @@ class FormRunner:
             **self.unique_opts(src_obj),
         )
 
-    def unique_opts(self, src_obj) -> dict[str, Any]:
-        model_obj_or_related_visit = getattr(src_obj, "subject_visit", src_obj)
+    def unique_opts(self, src_obj: Model) -> dict[str, Any]:
+        """Note: unique constraint includes `field_name`"""
+        model_obj_or_related_visit = getattr(
+            src_obj, src_obj.related_visit_model_attr(), src_obj
+        )
         subject_identifier = model_obj_or_related_visit.subject_identifier
         visit_code = model_obj_or_related_visit.visit_code
         visit_code_sequence = model_obj_or_related_visit.visit_code_sequence
