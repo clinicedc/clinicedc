@@ -1,7 +1,9 @@
+from functools import cache
 from pprint import pprint
 from typing import Any
 
 from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
 
 
 def compare_codenames_for_group(group_name=None, expected=None):
@@ -53,3 +55,22 @@ def make_view_only_group_permissions(prefix: str = None, group=None, model=None)
         codename__startswith=f"view_{prefix}"
     ):
         group.permissions.remove(permission)
+
+
+@cache
+def get_codenames_for_role(role_name: str):
+    codenames = []
+    role_cls = django_apps.get_model("edc_auth.role")
+    try:
+        roles = role_cls.objects.get(name=role_name).groups.all()
+    except ObjectDoesNotExist:
+        pass
+    else:
+        for group in roles:
+            codenames.extend(
+                [
+                    f"{permission.content_type.app_label}.{permission.codename}"
+                    for permission in group.permissions.all()
+                ]
+            )
+    return codenames
