@@ -27,6 +27,8 @@ class FormValidatorMixin:
                 instance=self.instance,
                 data=self.data,
                 model=self._meta.model,
+                current_site=getattr(self, "current_site", None),
+                locale=getattr(self, "current_locale", None),
             )
         except TypeError as e:
             if str(e) != "'NoneType' object is not callable":
