@@ -3,10 +3,14 @@ from __future__ import annotations
 import collections
 
 from django.contrib import admin
-from django.core.exceptions import FieldError
+from django.core.exceptions import FieldError, ObjectDoesNotExist
+from django.db.models import QuerySet
 
 from ..get_country import get_current_country
 from ..get_language_choices_for_site import get_language_choices_for_site
+from ..models import SiteProfile
+from ..permissions import has_permissions_for_extra_sites, site_ids_with_permissions
+from .list_filters import SiteListFilter
 
 
 class SiteModeAdminMixinError(Exception):
@@ -23,12 +27,39 @@ class SiteModelAdminMixin:
     def site_code(self, obj=None):
         return obj.site.id
 
-    def get_queryset(self, request):
+    @admin.display(description="Site", ordering="site__id")
+    def site_name(self, obj=None):
+        try:
+            site_profile = SiteProfile.objects.get(site__id=obj.site.id)
+        except ObjectDoesNotExist:
+            return obj.site.name
+        return f"{site_profile.site.id} {site_profile.description}"
+
+    def get_list_filter(self, request):
+        list_filter = super().get_list_filter(request)
+        if has_permissions_for_extra_sites(request) and "site" not in list_filter:
+            list_filter = list_filter + (SiteListFilter,)
+        elif "site" in list_filter:
+            list_filter = tuple([x for x in list_filter if x != "site"]) + (SiteListFilter,)
+        return list_filter
+
+    def get_list_display(self, request):
+        list_display = super().get_list_display(request)
+        if has_permissions_for_extra_sites(request) and "site" not in list_display:
+            list_display = (list_display[0],) + (self.site_code,) + list_display[1:]
+        elif "site" in list_display:
+            list_display = tuple(
+                [x for x in list_display if x not in ["site", self.site_code]]
+            )
+            list_display = (list_display[0],) + (self.site_code,) + list_display[1:]
+        return list_display
+
+    def get_queryset(self, request) -> QuerySet:
         """Limit modeladmin queryset for the current site only"""
         qs = super().get_queryset(request)
         if getattr(request, "site", None):
             try:
-                qs = qs.filter(site_id=request.site.id)
+                qs = qs.filter(site_id__in=site_ids_with_permissions(request))
             except FieldError:
                 raise SiteModeAdminMixinError(
                     f"Model missing field `site`. Model `{self.model}`. Did you mean to use "

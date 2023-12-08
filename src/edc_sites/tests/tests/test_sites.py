@@ -1,9 +1,13 @@
+from dateutil.relativedelta import relativedelta
 from django import forms
 from django.conf import settings
+from django.contrib.auth.models import Permission, User
+from django.contrib.messages import get_messages
 from django.contrib.sites.models import Site
-from django.test import TestCase
+from django.test import Client, RequestFactory, TestCase
 from django.test.utils import override_settings
 from edc_constants.constants import OTHER
+from edc_utils import get_utcnow
 from multisite import SiteID
 from multisite.models import Alias
 
@@ -15,15 +19,22 @@ from edc_sites import (
     get_site_id,
     get_sites_by_country,
 )
+from edc_sites.add_or_update_django_sites import add_or_update_django_sites
+from edc_sites.forms import SiteModelFormMixin
 from edc_sites.models import SiteProfile
+from edc_sites.single_site import SingleSite, SiteLanguagesError
 from edc_sites.sites import all_sites
 
-from ..add_or_update_django_sites import add_or_update_django_sites
-from ..forms import SiteModelFormMixin
-from ..single_site import SingleSite, SiteLanguagesError
-from .models import TestModelWithSite
-from .site_test_case_mixin import SiteTestCaseMixin
-from .sites import all_test_sites
+from ...auths import codename
+from ...permissions import has_permissions_for_extra_sites, site_ids_with_permissions
+from ...permissions.site_ids_with_permissions import (
+    InvalidSiteForUser,
+    successmsg,
+    warnmsg,
+)
+from ..models import TestModelWithSite
+from ..site_test_case_mixin import SiteTestCaseMixin
+from ..sites import all_test_sites
 
 
 class TestForm(SiteModelFormMixin, forms.ModelForm):
@@ -32,7 +43,21 @@ class TestForm(SiteModelFormMixin, forms.ModelForm):
         fields = "__all__"
 
 
+@override_settings(
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
+    EDC_AUTH_SKIP_SITE_AUTHS=True,
+    EDC_AUTH_SKIP_AUTH_UPDATER=True,
+)
 class TestSites(SiteTestCaseMixin, TestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
+        self.user.is_active = True
+        self.user.is_staff = True
+        self.user.save()
+        self.user.refresh_from_db()
+
     @override_settings(SITE_ID=SiteID(default=20))
     def test_20(self):
         add_or_update_django_sites(sites=self.default_sites, verbose=False)
@@ -259,3 +284,98 @@ class TestSites(SiteTestCaseMixin, TestCase):
         except SiteLanguagesError:
             self.fail("SiteLanguagesError unexpectedly raised")
         self.assertDictEqual(obj.languages, {})
+
+    @override_settings(SITE_ID=SiteID(default=30))
+    def test_permissions_no_sites(self):
+        rf = RequestFactory()
+        request = rf.get("/")
+        request.site = Site.objects.get(id=30)
+        request.user = User.objects.get(username="user_login")
+        self.assertRaises(InvalidSiteForUser, has_permissions_for_extra_sites, request)
+
+    @override_settings(SITE_ID=SiteID(default=30))
+    def test_permissions_sites(self):
+        rf = RequestFactory()
+        request = rf.get("/")
+        request.site = Site.objects.get(id=30)
+        request.user = User.objects.get(username="user_login")
+        request.user.userprofile.sites.add(request.site)
+
+        request.user.user_permissions.clear()
+
+        self.assertFalse(has_permissions_for_extra_sites(request))
+
+        rf = RequestFactory()
+        request = rf.get("/")
+        request.site = Site.objects.get(id=30)
+        request.user = User.objects.get(username="user_login")
+        permission = Permission.objects.get(codename=codename)
+
+        request.user.user_permissions.add(permission)
+
+        self.assertFalse(has_permissions_for_extra_sites(request))
+
+        rf = RequestFactory()
+        request = rf.get("/")
+        request.site = Site.objects.get(id=30)
+        request.user = User.objects.get(username="user_login")
+        request.user.userprofile.sites.add(Site.objects.get(id=40))
+        self.assertTrue(has_permissions_for_extra_sites(request))
+        self.assertEqual(site_ids_with_permissions(request), [30, 40])
+
+        rf = RequestFactory()
+        request = rf.get("/")
+        request.site = Site.objects.get(id=30)
+        request.user = User.objects.get(username="user_login")
+        request.user.user_permissions.clear()
+        self.assertFalse(has_permissions_for_extra_sites(request))
+
+    @override_settings(SITE_ID=SiteID(default=30))
+    def test_permissions_sites_not_in_userprofile(self):
+        rf = RequestFactory()
+        request = rf.get("/admin")
+        request.site = Site.objects.get(id=30)
+        request.user = User.objects.get(username="user_login")
+
+        # only add 40 to user profile
+        request.user.userprofile.sites.add(Site.objects.get(id=40))
+        request.user.user_permissions.clear()
+        permission = Permission.objects.get(codename=codename)
+        request.user.user_permissions.add(permission)
+
+        self.assertRaises(InvalidSiteForUser, has_permissions_for_extra_sites, request)
+
+    @override_settings(SITE_ID=SiteID(default=30))
+    def test_permissions_messages(self):
+        c = Client()
+        c.login(username="user_login", password="pass")  # nosec B106
+        response = c.get("/admin/")
+
+        # only add 40 to user profile
+        response.wsgi_request.user.userprofile.sites.add(Site.objects.get(id=40))
+        response.wsgi_request.user.user_permissions.clear()
+        permission = Permission.objects.get(codename=codename)
+        response.wsgi_request.user.user_permissions.add(permission)
+        self.assertRaises(
+            InvalidSiteForUser, has_permissions_for_extra_sites, response.wsgi_request
+        )
+
+        # user profile has 30 and 40
+        response.wsgi_request.user.userprofile.sites.add(Site.objects.get(id=30))
+        response.wsgi_request.user.userprofile.sites.add(Site.objects.get(id=40))
+        response.wsgi_request.user.user_permissions.clear()
+        permission = Permission.objects.get(codename=codename)
+        response.wsgi_request.user.user_permissions.add(permission)
+        has_permissions_for_extra_sites(response.wsgi_request)
+        self.assertIn(
+            successmsg, [msg_obj.message for msg_obj in get_messages(response.wsgi_request)]
+        )
+
+        # add a permission with add_, expect a warning
+        permission = Permission.objects.get(codename="add_site")
+        response = c.get("/admin/")
+        response.wsgi_request.user.user_permissions.add(permission)
+        has_permissions_for_extra_sites(response.wsgi_request)
+        self.assertIn(
+            warnmsg, [msg_obj.message for msg_obj in get_messages(response.wsgi_request)]
+        )
