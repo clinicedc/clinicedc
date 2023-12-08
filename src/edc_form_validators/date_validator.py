@@ -189,6 +189,7 @@ class DateValidator(BaseFormValidator):
         self,
         field=None,
         report_datetime_field=None,
+        inclusive: bool = None,
     ):
         """Convenience method if comparing with report_datetime."""
         msg = None
@@ -197,10 +198,12 @@ class DateValidator(BaseFormValidator):
             dte = self.cleaned_data.get(report_datetime_field).strftime(
                 convert_php_dateformat(settings.DATETIME_FORMAT)
             )
-            msg = f"Invalid. Must be before report date/time. Got {dte}"
+            phrase = "Must be on or" if inclusive else "Must be"
+            msg = f"Invalid. {phrase} before report date/time. Got {dte}"
         return self.date_is_before_or_raise(
             field=field,
             reference_field=report_datetime_field,
+            inclusive=inclusive,
             msg=msg,
         )
 
@@ -208,16 +211,20 @@ class DateValidator(BaseFormValidator):
         self,
         field=None,
         report_datetime_field=None,
+        inclusive: bool = None,
     ):
         """Convenience method if comparing with report_datetime."""
         msg = None
+        report_datetime_field = report_datetime_field or "report_datetime"
         if self.cleaned_data.get(field) and self.cleaned_data.get(report_datetime_field):
             dte = self.cleaned_data.get(report_datetime_field).strftime(
                 convert_php_dateformat(settings.DATETIME_FORMAT)
             )
-            msg = f"Invalid. Must be after report date/time. Got {dte}"
+            phrase = "Must be on or" if inclusive else "Must be"
+            msg = f"Invalid. {phrase} after report date/time. Got {dte}"
         return self.date_is_after_or_raise(
             field=field,
             reference_field=report_datetime_field,
+            inclusive=inclusive,
             msg=msg,
         )
