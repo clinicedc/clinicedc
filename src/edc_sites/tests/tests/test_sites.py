@@ -11,19 +11,18 @@ from edc_utils import get_utcnow
 from multisite import SiteID
 from multisite.models import Alias
 
-from edc_sites import (
-    InvalidSiteError,
-    get_all_sites,
-    get_current_country,
-    get_language_choices_for_site,
-    get_site_id,
-    get_sites_by_country,
-)
-from edc_sites.add_or_update_django_sites import add_or_update_django_sites
 from edc_sites.forms import SiteModelFormMixin
 from edc_sites.models import SiteProfile
-from edc_sites.single_site import SingleSite, SiteLanguagesError
-from edc_sites.sites import all_sites
+from edc_sites.single_site import SingleSite
+from edc_sites.single_site.get_languages import SiteLanguagesError
+from edc_sites.site import (
+    AlreadyRegistered,
+    AlreadyRegisteredDomain,
+    AlreadyRegisteredName,
+    SiteDoesNotExist,
+    sites,
+)
+from edc_sites.utils import add_or_update_django_sites
 
 from ...auths import codename
 from ...permissions import has_permissions_for_extra_sites, site_ids_with_permissions
@@ -34,13 +33,16 @@ from ...permissions.site_ids_with_permissions import (
 )
 from ..models import TestModelWithSite
 from ..site_test_case_mixin import SiteTestCaseMixin
-from ..sites import all_test_sites
 
 
 class TestForm(SiteModelFormMixin, forms.ModelForm):
     class Meta:
         model = TestModelWithSite
         fields = "__all__"
+
+
+def sites_factory():
+    pass
 
 
 @override_settings(
@@ -60,21 +62,21 @@ class TestSites(SiteTestCaseMixin, TestCase):
 
     @override_settings(SITE_ID=SiteID(default=20))
     def test_20(self):
-        add_or_update_django_sites(sites=self.default_sites, verbose=False)
+        add_or_update_django_sites(single_sites=self.default_sites, verbose=False)
         obj = TestModelWithSite.objects.create()
         self.assertEqual(obj.site.pk, 20)
         self.assertEqual(obj.site.pk, Site.objects.get_current().pk)
 
     @override_settings(SITE_ID=SiteID(default=30))
     def test_30(self):
-        add_or_update_django_sites(sites=self.default_sites, verbose=False)
+        add_or_update_django_sites(single_sites=self.default_sites, verbose=False)
         obj = TestModelWithSite.objects.create()
         self.assertEqual(obj.site.pk, 30)
         self.assertEqual(obj.site.pk, Site.objects.get_current().pk)
 
     @override_settings(SITE_ID=SiteID(default=30))
     def test_override_current(self):
-        add_or_update_django_sites(sites=self.default_sites, verbose=False)
+        add_or_update_django_sites(single_sites=self.default_sites, verbose=False)
         site = Site.objects.get(pk=40)
         obj = TestModelWithSite.objects.create(site=site)
         self.assertEqual(obj.site.pk, 40)
@@ -82,119 +84,175 @@ class TestSites(SiteTestCaseMixin, TestCase):
 
     @override_settings(LANGUAGES=[("en", "English"), ("sw", "Swahili"), ("tn", "Setswana")])
     def test_get_language_choices_for_site(self):
-        add_or_update_django_sites(
-            sites=[
-                SingleSite(
-                    99,
-                    "amana",
-                    title="Amana",
-                    country="tanzania",
-                    country_code="tz",
-                    language_codes=["en", "sw"],
-                    fqdn="clinicedc.org",
-                )
-            ],
-            verbose=False,
+        sites.register(
+            SingleSite(
+                99,
+                "amana",
+                title="Amana",
+                country="tanzania",
+                country_code="tz",
+                language_codes=["en", "sw"],
+                domain="amana.clinicedc.org",
+            )
         )
+        add_or_update_django_sites(verbose=False)
         site = Site.objects.get(pk=99)
         obj = TestModelWithSite.objects.create(site=site)
         self.assertEqual(obj.site.pk, 99)
 
-        language_choices = get_language_choices_for_site(site)
+        language_choices = sites.get_language_choices_tuple(site)
         self.assertTupleEqual(language_choices, (("en", "English"), ("sw", "Swahili")))
 
-        language_choices = get_language_choices_for_site(site, other=True)
+        language_choices = sites.get_language_choices_tuple(site, other=True)
         self.assertTupleEqual(
             language_choices,
             (("en", "English"), ("sw", "Swahili"), (OTHER, "Other")),
         )
 
     def test_get_site_id_by_name(self):
-        add_or_update_django_sites(sites=self.default_sites)
-        self.assertEqual(get_site_id("mochudi"), 10)
+        sites.initialize()
+        sites.register(*self.default_sites)
+        add_or_update_django_sites()
+        self.assertEqual(sites.get_by_attr("name", "mochudi").site_id, 10)
 
-    def test_get_site_id_by_title(self):
-        add_or_update_django_sites(sites=self.default_sites)
-        self.assertEqual(get_site_id("Mochudi"), 10)
+    def test_get_site_id_by_description(self):
+        sites.initialize()
+        sites.register(*self.default_sites)
+        add_or_update_django_sites()
+        self.assertEqual(sites.get_by_attr("description", "Mochudi").site_id, 10)
 
     def test_get_site_id_invalid(self):
-        add_or_update_django_sites(sites=self.default_sites)
-        self.assertRaises(InvalidSiteError, get_site_id, "blahblah")
+        sites.initialize()
+        sites.register(*self.default_sites)
+        add_or_update_django_sites()
+        self.assertRaises(SiteDoesNotExist, sites.get_by_attr, "name", "blahblah")
 
     def test_get_site_id_without_sites(self):
-        add_or_update_django_sites(sites=self.default_sites)
-        self.assertEqual(get_site_id("mochudi"), 10)
+        sites.initialize()
+        sites.register(*self.default_sites)
+        add_or_update_django_sites()
+        self.assertEqual(sites.get_by_attr("name", "mochudi").site_id, 10)
 
     @override_settings(SITE_ID=SiteID(default=30))
     def test_site_profile(self):
-        add_or_update_django_sites(sites=self.default_sites, verbose=False)
+        sites.initialize()
+        sites.register(*self.default_sites)
+        add_or_update_django_sites()
         obj = TestModelWithSite.objects.create()
         site_profile = SiteProfile.objects.get(site=obj.site)
         self.assertEqual(obj.site.siteprofile, site_profile)
 
     def test_updates_sites(self):
-        add_or_update_django_sites(sites=self.default_sites)
-        for site in self.default_sites:
-            self.assertIn(site.site_id, [obj.id for obj in Site.objects.all()])
+        sites.initialize()
+        sites.register(*self.default_sites)
+        add_or_update_django_sites()
+        for single_site in self.default_sites:
+            self.assertIn(single_site.site_id, [obj.id for obj in Site.objects.all()])
         self.assertNotIn("example.com", str([str(obj) for obj in Site.objects.all()]))
         self.assertEqual(len(self.default_sites), Site.objects.all().count())
 
     def test_domain(self):
-        add_or_update_django_sites(sites=self.default_sites)
+        sites.initialize()
+        sites.register(*self.default_sites)
+        add_or_update_django_sites()
         obj = Site.objects.get(name="molepolole")
-        self.assertEqual("molepolole.clinicedc.org", obj.domain)
+        self.assertEqual("molepolole.bw.clinicedc.org", obj.domain)
         obj = Site.objects.get(name="mochudi")
         self.assertEqual("mochudi.bw.clinicedc.org", obj.domain)
 
     @override_settings(EDC_SITES_UAT_DOMAIN=True)
     def test_uat_domain(self):
         self.assertTrue(settings.EDC_SITES_UAT_DOMAIN)
-        add_or_update_django_sites(sites=self.default_sites)
+        sites.initialize()
+        sites.register(*self.default_sites)
+        add_or_update_django_sites()
+        self.assertEqual(sites.get(10).domain, "mochudi.uat.bw.clinicedc.org")
+        add_or_update_django_sites()
         obj = Site.objects.get(name="molepolole")
-        self.assertEqual("molepolole.uat.clinicedc.org", obj.domain)
+        self.assertEqual("molepolole.uat.bw.clinicedc.org", obj.domain)
         obj = Site.objects.get(name="mochudi")
         self.assertEqual("mochudi.uat.bw.clinicedc.org", obj.domain)
 
     @override_settings(SITE_ID=SiteID(default=10))
     def test_country(self):
-        for sites in self.default_all_sites.values():
-            add_or_update_django_sites(sites=sites)
+        sites.initialize()
+        sites.register(*self.default_sites)
+        add_or_update_django_sites()
         self.assertEqual("mochudi", Site.objects.get_current().name)
         self.assertEqual("botswana", Site.objects.get_current().siteprofile.country)
-        self.assertEqual("botswana", get_current_country())
+        self.assertEqual("botswana", sites.get_current_country())
         self.assertEqual(
-            self.default_all_sites.get("botswana"), get_sites_by_country("botswana")
-        )
-        self.assertEqual(self.default_all_sites.get("botswana"), get_sites_by_country())
-        self.assertEqual(
-            self.default_all_sites.get("botswana"),
-            get_sites_by_country(all_sites=self.default_all_sites),
+            [s for s in self.default_sites if s.country == "botswana"],
+            sites.get_by_country("botswana", aslist=True),
         )
 
-        self.assertEqual(
-            self.default_all_sites.get("botswana"),
-            get_sites_by_country(country="botswana", all_sites=self.default_all_sites),
-        )
+    @override_settings(EDC_SITES_UAT_DOMAIN=False)
+    def test_register_sites(self):
+        sites.initialize()
+        site1 = SingleSite(site_id=1, name="site1", domain="site1.clinicedc.org")
+        site2 = SingleSite(site_id=2, name="site2", domain="site2.clinicedc.org")
+        site_bad1 = SingleSite(site_id=1, name="site3", domain="site3.clinicedc.org")
+        site_bad2 = SingleSite(site_id=3, name="site1", domain="site3.clinicedc.org")
+        site_bad3 = SingleSite(site_id=3, name="site3", domain="site1.clinicedc.org")
 
-    @override_settings(EDC_SITES_MODULE_NAME=None)
-    def test_default_sites_module_domain(self):
-        self.assertEqual(get_all_sites(), all_sites)
-        for sites in get_all_sites().values():
-            add_or_update_django_sites(sites=sites, verbose=False)
+        sites.register(site1, site2)
+
+        self.assertEqual(site1.domain, "site1.clinicedc.org")
+        self.assertEqual(site2.domain, "site2.clinicedc.org")
+
+        self.assertRaises(AlreadyRegistered, sites.register, site1)
+        self.assertRaises(AlreadyRegistered, sites.register, site_bad1)
+        self.assertRaises(AlreadyRegisteredName, sites.register, site_bad2)
+        self.assertRaises(AlreadyRegisteredDomain, sites.register, site_bad3)
+
+        sites._registry = {}
+
+        site1 = SingleSite(
+            site_id=1, name="site1", domain="site1.clinicedc.org", country="tanzania"
+        )
+        site2 = SingleSite(
+            site_id=2, name="site2", domain="site2.clinicedc.org", country="uganda"
+        )
+        sites.register(site1, site2)
+
+        self.assertEqual(sites.get_by_country("tanzania"), {1: site1})
+        self.assertEqual(sites.get_by_country("uganda"), {2: site2})
+
+    @override_settings(EDC_SITES_UAT_DOMAIN=True)
+    def test_register_inserts_uat_in_site_domains(self):
+        sites.initialize()
+        site1 = SingleSite(site_id=1, name="site1", domain="site1.clinicedc.org")
+        site2 = SingleSite(site_id=2, name="site2", domain="site2.clinicedc.org")
+
+        sites.register(site1, site2)
+        self.assertEqual(site1.domain, "site1.uat.clinicedc.org")
+        self.assertEqual(site2.domain, "site2.uat.clinicedc.org")
+
+    @override_settings(EDC_SITES_REGISTER_DEFAULT=True)
+    def test_registere_default_site_domain(self):
+        sites.initialize()
+        for single_site in sites.all().values():
+            sites.register(single_site)
+        add_or_update_django_sites()
         site = Site.objects.get(id=1)
         self.assertEqual(Alias.objects.get(site=site).domain, "localhost")
 
-    @override_settings(
-        EDC_SITES_MODULE_NAME="edc_sites.tests.sites", EDC_SITES_UAT_DOMAIN=False
-    )
-    def test_custom_sites_module_domain(self):
-        self.assertEqual(get_all_sites(), all_test_sites)
+    def test_alias_model(self):
+        sites.initialize()
+        sites.register(*self.default_sites)
+        add_or_update_django_sites()
         self.assertEqual(settings.SITE_ID, 10)
-        for sites in get_all_sites().values():
-            add_or_update_django_sites(sites=sites, verbose=False)
         site = Site.objects.get(id=10)
-        self.assertEqual(get_current_country(), "botswana")
         self.assertEqual(Alias.objects.get(site=site).domain, "mochudi.bw.clinicedc.org")
+
+    @override_settings(EDC_SITES_UAT_DOMAIN=True)
+    def test_alias_model_for_uat(self):
+        sites.initialize()
+        sites.register(*self.default_sites)
+        add_or_update_django_sites()
+        self.assertEqual(settings.SITE_ID, 10)
+        site = Site.objects.get(id=10)
+        self.assertEqual(Alias.objects.get(site=site).domain, "mochudi.uat.bw.clinicedc.org")
 
     @override_settings(LANGUAGES={"xx": "XXX"})
     def test_site_language_code_not_found_raises(self):
@@ -287,6 +345,9 @@ class TestSites(SiteTestCaseMixin, TestCase):
 
     @override_settings(SITE_ID=SiteID(default=30))
     def test_permissions_no_sites(self):
+        sites.initialize()
+        sites.register(*self.default_sites)
+        add_or_update_django_sites()
         rf = RequestFactory()
         request = rf.get("/")
         request.site = Site.objects.get(id=30)
@@ -295,6 +356,9 @@ class TestSites(SiteTestCaseMixin, TestCase):
 
     @override_settings(SITE_ID=SiteID(default=30))
     def test_permissions_sites(self):
+        sites.initialize()
+        sites.register(*self.default_sites)
+        add_or_update_django_sites()
         rf = RequestFactory()
         request = rf.get("/")
         request.site = Site.objects.get(id=30)
@@ -332,6 +396,9 @@ class TestSites(SiteTestCaseMixin, TestCase):
 
     @override_settings(SITE_ID=SiteID(default=30))
     def test_permissions_sites_not_in_userprofile(self):
+        sites.initialize()
+        sites.register(*self.default_sites)
+        add_or_update_django_sites()
         rf = RequestFactory()
         request = rf.get("/admin")
         request.site = Site.objects.get(id=30)
@@ -347,6 +414,9 @@ class TestSites(SiteTestCaseMixin, TestCase):
 
     @override_settings(SITE_ID=SiteID(default=30))
     def test_permissions_messages(self):
+        sites.initialize()
+        sites.register(*self.default_sites)
+        add_or_update_django_sites()
         c = Client()
         c.login(username="user_login", password="pass")  # nosec B106
         response = c.get("/admin/")

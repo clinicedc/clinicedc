@@ -6,10 +6,9 @@ from django.contrib import admin
 from django.core.exceptions import FieldError, ObjectDoesNotExist
 from django.db.models import QuerySet
 
-from ..get_country import get_current_country
-from ..get_language_choices_for_site import get_language_choices_for_site
 from ..models import SiteProfile
 from ..permissions import has_permissions_for_extra_sites, site_ids_with_permissions
+from ..site import sites
 from .list_filters import SiteListFilter
 
 
@@ -78,7 +77,7 @@ class SiteModelAdminMixin:
         """Use site id to select languages to show in choices."""
         if db_field.name == self.language_db_field_name:
             try:
-                language_choices = get_language_choices_for_site(request.site, other=True)
+                language_choices = sites.get_language_choices_tuple(request.site, other=True)
             except AttributeError as e:
                 if "WSGIRequest" not in str(e):
                     raise
@@ -100,7 +99,7 @@ class SiteModelAdminMixin:
         )
         if db_field.name in (self.limit_related_to_current_country or []):
             self.raise_on_queryset_exists(db_field, kwargs)
-            country = get_current_country(request=request)
+            country = sites.get_current_country(request)
             model_cls = getattr(self.model, db_field.name).field.related_model
             kwargs["queryset"] = model_cls.objects.filter(siteprofile__country=country)
         elif db_field.name in (self.limit_related_to_current_site or []) and getattr(
@@ -130,7 +129,7 @@ class SiteModelAdminMixin:
             model_cls = getattr(self.model, db_field.name).remote_field.model
             kwargs["queryset"] = model_cls.on_site.all()
         elif db_field.name in (self.limit_related_to_current_country or []):
-            country = get_current_country(request=request)
+            country = sites.get_current_country(request)
             model_cls = getattr(self.model, db_field.name).remote_field.model
             kwargs["queryset"] = model_cls.objects.filter(siteprofile__country=country)
         return super().formfield_for_manytomany(db_field, request, **kwargs)

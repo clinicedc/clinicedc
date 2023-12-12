@@ -19,7 +19,7 @@ sites: list[SingleSite] = [
         country="botswana",
         country_code="bw",
         language_codes=language_codes,
-        fqdn=fqdn,
+        domain=f"molepolole.bw.{fqdn}",
     ),
     SingleSite(
         30,
@@ -28,7 +28,7 @@ sites: list[SingleSite] = [
         country="botswana",
         country_code="bw",
         language_codes=language_codes,
-        fqdn=fqdn,
+        domain=f"lobatse.bw.{fqdn}",
     ),
     SingleSite(
         40,
@@ -37,7 +37,7 @@ sites: list[SingleSite] = [
         country="botswana",
         country_code="bw",
         language_codes=language_codes,
-        fqdn=fqdn,
+        domain=f"gaborone.bw.{fqdn}",
     ),
     SingleSite(
         50,
@@ -46,7 +46,7 @@ sites: list[SingleSite] = [
         country="botswana",
         country_code="bw",
         language_codes=language_codes,
-        fqdn=fqdn,
+        domain=f"karakobis.bw.{fqdn}",
     ),
     SingleSite(
         60,
@@ -55,22 +55,6 @@ sites: list[SingleSite] = [
         country="namibia",
         country_code="na",
         language_codes=language_codes,
-        fqdn=fqdn,
+        domain=f"windhoek.bw.{fqdn}",
     ),
 ]
-
-
-more_sites = [
-    SingleSite(
-        60,
-        "windhoek",
-        title="Windhoek",
-        country="namibia",
-        country_code="na",
-        language_codes=language_codes,
-        fqdn=fqdn,
-    ),
-]
-
-all_sites = {"botswana": sites, "namibia": more_sites}
-all_test_sites = {"botswana": sites, "namibia": more_sites}
