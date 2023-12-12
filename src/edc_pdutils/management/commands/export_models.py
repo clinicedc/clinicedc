@@ -9,8 +9,7 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import CommandError, color_style
 from django.core.management.base import BaseCommand
-from edc_sites.get_countries import get_countries
-from edc_sites.get_sites_by_country import get_sites_by_country
+from edc_sites.site import sites
 
 from edc_pdutils.df_exporters import Exporter
 from edc_pdutils.model_to_dataframe import ModelToDataframe
@@ -24,7 +23,7 @@ style = color_style()
 class Command(BaseCommand):
     def __init__(self, **kwargs):
         self.decrypt: bool | None = None
-        self.sites: list[int] = []
+        self.site_ids: list[int] = []
         self.exclude_historical: bool | None = None
         super().__init__(**kwargs)
 
@@ -97,9 +96,9 @@ class Command(BaseCommand):
 
         parser.add_argument(
             "--site",
-            dest="sites",
+            dest="site_ids",
             default="",
-            help="only export data for site, if more than one separate by comma",
+            help="only export data for site id, if more than one separate by comma",
         )
 
     def handle(self, *args, **options):
@@ -116,24 +115,23 @@ class Command(BaseCommand):
         self.decrypt = options["decrypt"]
 
         # TODO: inspect username that you are preparing data for
-        sites = options["sites"] or []
-        if sites:
-            sites = options["sites"].split(",")
+        site_ids = options["site_ids"] or []
+        if site_ids:
+            site_ids = options["site_ids"].split(",")
 
         countries = options["countries"] or []
         if not countries:
             raise CommandError("Expected country.")
         else:
-            all_countries = get_countries()
             if countries == ALL_COUNTRIES:
-                countries = all_countries
+                countries = sites.countries
             else:
                 countries = options["countries"].lower().split(",")
                 for country in countries:
-                    if country not in all_countries:
+                    if country not in sites.countries:
                         raise CommandError(f"Invalid country. Got {country}.")
 
-        self.sites = self.get_sites(sites=sites, countries=countries)
+        self.site_ids = self.get_site_ids(site_ids=site_ids, countries=countries)
 
         app_labels = options["app_labels"] or []
         if app_labels:
@@ -157,7 +155,7 @@ class Command(BaseCommand):
                         model=model_name,
                         drop_sys_columns=False,
                         decrypt=self.decrypt,
-                        sites=sites,
+                        sites=self.site_ids,
                     )
                 except LookupError as e:
                     sys.stdout.write(style.ERROR(f"     LookupError: {e}\n"))
@@ -215,20 +213,19 @@ class Command(BaseCommand):
         return models
 
     @staticmethod
-    def get_sites(
-        sites: list[int] | list[str] | None,
+    def get_site_ids(
+        site_ids: list[int] | list[str] | None,
         countries: list[str] | None,
     ) -> list[int]:
-        if countries and sites:
-            raise CommandError("Invalid. Specify `sites` or `countries`, not both.")
-        for site in sites or []:
+        if countries and site_ids:
+            raise CommandError("Invalid. Specify `site_ids` or `countries`, not both.")
+        for site_id in site_ids or []:
             try:
-                obj = Site.objects.get(id=int(site))
+                obj = Site.objects.get(id=int(site_id))
             except ObjectDoesNotExist:
-                raise CommandError(f"Invalid site. Got `{site}`.")
+                raise CommandError(f"Invalid site_id. Got `{site_id}`.")
             else:
-                sites.append(obj.id)
+                site_ids.append(obj.id)
         for country in countries or []:
-            for single_site in get_sites_by_country(country):
-                sites.append(single_site.site_id)
-        return sites
+            site_ids.extend(list(sites.get_by_country(country)))
+        return site_ids
