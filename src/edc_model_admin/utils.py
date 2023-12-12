@@ -1,5 +1,8 @@
 from warnings import warn
 
+from django.contrib import messages
+from django.contrib.messages import get_messages
+from django.core.handlers.wsgi import WSGIRequest
 from django.db.models.constants import LOOKUP_SEP
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
@@ -46,3 +49,10 @@ def get_value_from_lookup_string(search_field_name: str = None, obj=None, reques
             if value is None:
                 break
     return value
+
+
+def add_to_messages_once(message: str, request: WSGIRequest, level: int | None = None) -> None:
+    if not [msg_obj for msg_obj in get_messages(request) if msg_obj.message == message]:
+        messages.add_message(
+            request=request, message=message, level=level or messages.INFO, fail_silently=True
+        )
