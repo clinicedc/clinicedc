@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django_audit_fields.admin import audit_fieldset_tuple
-from edc_data_manager.modeladmin_mixins import DataManagerSiteModelAdminMixin
 from edc_model_admin.history import SimpleHistoryAdmin
+from edc_sites.admin import SiteModelAdminMixin
 
 from .admin_site import edc_registration_admin
 from .modeladmin_mixins import RegisteredSubjectModelAdminMixin
@@ -10,7 +10,7 @@ from .utils import get_registered_subject_model_cls
 
 @admin.register(get_registered_subject_model_cls(), site=edc_registration_admin)
 class RegisteredSubjectAdmin(
-    DataManagerSiteModelAdminMixin, RegisteredSubjectModelAdminMixin, SimpleHistoryAdmin
+    SiteModelAdminMixin, RegisteredSubjectModelAdminMixin, SimpleHistoryAdmin
 ):
     ordering = ("subject_identifier",)
 
