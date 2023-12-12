@@ -1,4 +1,4 @@
-from django.core.checks import Warning, register
+from django.core.checks import Error, register
 
 from edc_sites.site import SitesCheckError, sites
 
@@ -10,9 +10,9 @@ def sites_check(app_configs, **kwargs):  # noqa
         sites.check()
     except SitesCheckError as e:
         errors.append(
-            Warning(
+            Error(
                 e,
-                hint="History manager is need to detect changes.",
+                hint="Sites model is out-of-sync with registry.",
                 obj=sites,
                 id="edc_sites.E001",
             )

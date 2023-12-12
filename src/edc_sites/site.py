@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any
 
 from django.apps import apps as django_apps
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.handlers.wsgi import WSGIRequest
 from django.core.management.color import color_style
 from django.utils.module_loading import import_module, module_has_submodule
@@ -51,7 +52,7 @@ class SitesError(Exception):
 app_name: str = getattr(settings, "APP_NAME", "edc")
 
 
-def get_register_default() -> bool:
+def get_register_default_site() -> bool:
     return getattr(settings, "EDC_SITES_REGISTER_DEFAULT", False)
 
 
@@ -71,13 +72,17 @@ def get_insert_uat_subdomain() -> str | None:
     return getattr(settings, "EDC_SITES_UAT_DOMAIN", None)
 
 
+def get_autodiscover_sites():
+    return getattr(settings, "EDC_SITES_AUTODISCOVER_SITES", True)
+
+
 class Sites:
     uat_subdomain = "uat"
 
     def __init__(self):
         self.loaded = False
         self._registry = {}
-        if get_register_default():
+        if get_register_default_site():
             self._registry: dict[int, SingleSite] = {
                 1: SingleSite(
                     1,
@@ -88,7 +93,20 @@ class Sites:
                 )
             }
 
-    def initialize(self):
+    def initialize(self, initialize_site_model=False):
+        """Initialize the registry.
+
+        This is for tests where you are manipulating the ``sites``
+        registry. If you do this after the  ``post-migrate`` signal
+        is called you will also have to initialize the Site model.
+        """
+        if initialize_site_model:
+            for obj in get_site_model_cls().objects.all():
+                try:
+                    obj.siteprofile.delete()
+                except ObjectDoesNotExist:
+                    break
+            get_site_model_cls().objects.all().delete()
         self.__init__()
 
     def register(self, *single_sites: SingleSite):
@@ -131,7 +149,9 @@ class Sites:
                 return single_site
         raise SiteDoesNotExist(f"No site exists with `{attrname}`=={value}.")
 
-    def all(self) -> dict[int, SingleSite]:
+    def all(self, aslist: bool | None = None) -> dict[int, SingleSite] | list[SingleSite]:
+        if aslist:
+            return list(self._registry.values())
         return self._registry
 
     @property
@@ -196,9 +216,14 @@ class Sites:
         if not get_site_model_cls().objects.all().exists():
             raise SitesCheckError("No sites have been imported. You need to run migrate")
         ids1 = sorted(list(self.all()))
-        ids2 = get_site_model_cls().objects.values_list("id").all().order_by("id")
-        if ids1 != [x[0] for x in ids2]:
-            raise SitesCheckError("Site table is out of sync. Try running migrate.")
+        ids2 = [
+            x[0] for x in get_site_model_cls().objects.values_list("id").all().order_by("id")
+        ]
+        if ids1 != ids2:
+            raise SitesCheckError(
+                f"Site table is out of sync. Got registered sites = {ids1}. "
+                f"Sites in Sites model = {ids2}. Try running migrate."
+            )
         for site_id, single_site in self._registry.items():
             site_obj = get_site_model_cls().objects.get(id=site_id)
             for attr in ["name", "domain"]:
