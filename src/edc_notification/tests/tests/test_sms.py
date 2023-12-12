@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test.testcases import TestCase
-from django.test.utils import override_settings
+from django.test.utils import override_settings, tag
 
 from ...decorators import register
 from ...models import Notification as NotificationModel
@@ -27,6 +27,7 @@ class TwillioTestClientMessages:
 
 
 class TestTwilio(TestCase):
+    @tag("1")
     @override_settings(
         TWILIO_ENABLED=True,
         TWILIO_SENDER="5555555555",
@@ -62,7 +63,7 @@ class TestTwilio(TestCase):
             (
                 "TEST MESSAGE. NO ACTION REQUIRED - My Project: "
                 "Report 'Test Grade3 Event' "
-                "for patient 1 at site Edc Notification may require your attention. "
+                "for patient 1 at site 'What A Site' may require your attention. "
                 "Login to review. (See your user profile to unsubscribe.)"
             ),
         )
