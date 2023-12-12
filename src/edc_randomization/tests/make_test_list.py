@@ -1,6 +1,6 @@
 import csv
-import os
 import random
+from pathlib import Path
 from tempfile import mkdtemp
 
 from ..constants import ACTIVE, PLACEBO
@@ -9,13 +9,13 @@ default_assignments = [ACTIVE, PLACEBO]
 
 
 def make_test_list(
-    full_path=None,
+    full_path: Path | str = None,
     assignments=None,
     site_names=None,
     count=None,
     first_sid=None,
     per_site=None,
-):
+) -> Path:
     first_sid = first_sid or 0
     if per_site:
         site_names = site_names * per_site
@@ -26,9 +26,11 @@ def make_test_list(
         gen_site_name = (random.choice(site_names) for i in range(0, 50))  # nosec B311
 
     if not full_path:
-        full_path = os.path.join(mkdtemp(), "randomizationlist.csv")
+        full_path = Path(mkdtemp()) / "randomizationlist.csv"
+    else:
+        full_path = Path(full_path).expanduser()
     assignments = assignments or default_assignments
-    with open(full_path, "w") as f:
+    with full_path.open(mode="w") as f:
         writer = csv.DictWriter(f, fieldnames=["sid", "assignment", "site_name"])
         writer.writeheader()
         n = 0

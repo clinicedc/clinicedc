@@ -2,9 +2,13 @@ from __future__ import annotations
 
 import copy
 import sys
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.utils.module_loading import import_module, module_has_submodule
+
+if TYPE_CHECKING:
+    from edc_randomization.randomizer import Randomizer
 
 
 class RegistryNotLoaded(Exception):
@@ -31,7 +35,7 @@ class SiteRandomizers:
         self.loaded = False
 
     @property
-    def registry(self):
+    def registry(self) -> dict[str, Randomizer]:
         if not self.loaded:
             raise RegistryNotLoaded(
                 "Registry not loaded. Is AppConfig for 'edc_randomization' "

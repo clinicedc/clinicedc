@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from edc_pdutils.model_to_dataframe import ModelToDataframe
-from edc_sites import get_site_id
+from edc_sites.site import sites
 from edc_utils import get_utcnow
 
 from .site_randomizers import site_randomizers
@@ -111,7 +111,7 @@ def generate_fake_randomization_list(
         raise ValueError(f"Invalid assignment. Got {assignment}")
 
     # get site ID and write the file
-    site_id = get_site_id(site_name, sites=all_sites[country])
+    site_id = sites.get_by_attr("name", site_name)
     with open(filename, "a+", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=["sid", "assignment", "site_name", "country"])
         if write_header:

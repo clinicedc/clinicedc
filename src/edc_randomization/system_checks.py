@@ -1,6 +1,7 @@
 import os
 import sys
-from collections import namedtuple
+from dataclasses import dataclass
+from typing import Type
 
 from django.conf import settings
 from django.core.checks import Error, Warning
@@ -10,11 +11,16 @@ from django.core.management import color_style
 from .blinding import get_unblinded_users, trial_is_blinded
 from .site_randomizers import site_randomizers
 
-err = namedtuple("Err", "id cls")
+
+@dataclass(frozen=True)
+class Err:
+    id: str
+    cls: Type[Warning | Error]
+
 
 error_configs = dict(
-    randomization_list_check=err("edc_randomization.W001", Warning),
-    blinded_trial_settings_check=err("edc_randomization.E002", Error),
+    randomization_list_check=Err("edc_randomization.W001", Warning),
+    blinded_trial_settings_check=Err("edc_randomization.E002", Error),
 )
 
 style = color_style()
@@ -54,21 +60,21 @@ def randomizationlist_check(app_configs, **kwargs) -> list:
             for error_msg in error_msgs:
                 errors.append(error.cls(error_msg, hint=None, obj=None, id=error.id))
         if not settings.DEBUG:
-            if settings.ETC_DIR not in randomizer.randomizationlist_path():
+            if not randomizer.get_randomizationlist_path().is_relative_to(settings.ETC_DIR):
                 errors.append(
                     Warning(
                         "Insecure configuration. Randomization list file must be "
                         "stored in the etc folder. Got "
-                        f"{randomizer.randomizationlist_path()}",
+                        f"{randomizer.get_randomizationlist_path()}",
                         hint="randomizationlist_path",
                         id="1000",
                     )
                 )
-            if os.access(randomizer.randomizationlist_path(), os.W_OK):
+            if os.access(str(randomizer.get_randomizationlist_path()), os.W_OK):
                 errors.append(
                     Warning(
                         "Insecure configuration. File is writeable by this user. "
-                        f"Got {randomizer.randomizationlist_path()}",
+                        f"Got {randomizer.get_randomizationlist_path()}",
                         hint="randomizationlist_path",
                         id="1001",
                     )

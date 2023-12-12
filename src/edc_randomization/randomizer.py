@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import os
 import warnings
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from pathlib import Path
+from typing import Any
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -68,7 +68,7 @@ class Randomizer:
             **kwargs,
         ).randomize()
 
-    Its better to access this class via the site_randomizer through a signal
+    It is better to access this class via the site_randomizer through a signal
     on something like the subject_consent:
 
         site_randomizers.randomize(
@@ -77,27 +77,27 @@ class Randomizer:
             report_datetime=instance.consent_datetime,
             site=instance.site,
             user=instance.user_created,
-            gender=instance.gender,
-        )
+            gender=instance.gender)
+
 
 
     """
 
     name: str = "default"
     model: str = "edc_randomization.randomizationlist"
-    assignment_map: Dict[str, int] = getattr(
+    assignment_map: dict[str, int] = getattr(
         settings, "EDC_RANDOMIZATION_ASSIGNMENT_MAP", DEFAULT_ASSIGNMENT_MAP
     )
-    assignment_description_map: Dict[str, str] = getattr(
+    assignment_description_map: dict[str, str] = getattr(
         settings,
         "EDC_RANDOMIZATION_ASSIGNMENT_DESCRIPTION_MAP",
         DEFAULT_ASSIGNMENT_DESCRIPTION_MAP,
     )
     filename: str = "randomization_list.csv"
-    randomizationlist_folder: str = getattr(
-        settings, "EDC_RANDOMIZATION_LIST_PATH", os.path.join(settings.BASE_DIR, ".etc")
+    randomizationlist_folder: Path | str = getattr(
+        settings, "EDC_RANDOMIZATION_LIST_PATH", Path(settings.BASE_DIR).expanduser() / ".etc"
     )
-    extra_csv_fieldnames: Optional[List[str]] = None
+    extra_csv_fieldnames: list[str] | None = None
     trial_is_blinded: bool = True
     importer_cls: Any = RandomizationListImporter
     apps = None  # if not using django_apps
@@ -311,31 +311,31 @@ class Randomizer:
         return self.registration_obj
 
     @classmethod
-    def get_extra_list_display(cls) -> Tuple[Tuple[int, str], ...]:
+    def get_extra_list_display(cls) -> tuple[tuple[int, str], ...]:
         """Returns a list of tuples of (pos, field name) for ModelAdmin."""
         return ()
 
     @classmethod
-    def get_extra_list_filter(cls) -> Tuple[Tuple[int, str], ...]:
+    def get_extra_list_filter(cls) -> tuple[tuple[int, str], ...]:
         """Returns a list of tuples of (pos, field name) for ModelAdmin."""
         return cls.get_extra_list_display()
 
     @classmethod
-    def randomizationlist_path(cls) -> str:
-        return os.path.expanduser(os.path.join(cls.randomizationlist_folder, cls.filename))
+    def get_randomizationlist_path(cls) -> Path:
+        return Path(cls.randomizationlist_folder) / cls.filename
 
     @classmethod
-    def import_list(cls, **kwargs) -> Tuple[int, str]:
+    def import_list(cls, **kwargs) -> tuple[int, str]:
         result = (0, "")
-        if not os.path.exists(cls.randomizationlist_path()):
+        if not cls.get_randomizationlist_path().exists():
             raise RandomizationListFileNotFound(
                 "Randomization list file not found. "
-                f"Got `{cls.randomizationlist_path()}`. See Randomizer {cls.name}."
+                f"Got `{cls.get_randomizationlist_path()}`. See Randomizer {cls.name}."
             )
         try:
             result = cls.importer_cls(
                 assignment_map=cls.assignment_map,
-                randomizationlist_path=cls.randomizationlist_path(),
+                randomizationlist_path=cls.get_randomizationlist_path(),
                 randomizer_model_cls=cls.model_cls(),
                 randomizer_name=cls.name,
                 extra_csv_fieldnames=cls.extra_csv_fieldnames,
@@ -346,10 +346,10 @@ class Randomizer:
         return result
 
     @classmethod
-    def verify_list(cls, **kwargs) -> List[str]:
+    def verify_list(cls, **kwargs) -> list[str]:
         return cls.importer_cls.verifier_cls(
             assignment_map=cls.assignment_map,
-            randomizationlist_path=cls.randomizationlist_path(),
+            randomizationlist_path=cls.get_randomizationlist_path(),
             randomizer_model_cls=cls.model_cls(),
             randomizer_name=cls.name,
             **kwargs,
