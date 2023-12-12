@@ -3,6 +3,7 @@ import re
 from django.core.exceptions import ObjectDoesNotExist
 from edc_protocol import Protocol
 from edc_registration.models import RegisteredSubject, RegisteredSubjectError
+from edc_sites.permissions import has_permissions_for_extra_sites
 
 
 class RegisteredSubjectViewMixin:
@@ -27,8 +28,12 @@ class RegisteredSubjectViewMixin:
                     f"See `edc_protocol.Protocol().subject_identifier_pattern`. "
                     f"Got `{self.subject_identifier}`."
                 )
+            if has_permissions_for_extra_sites(self.request):
+                objects = RegisteredSubject.objects
+            else:
+                objects = RegisteredSubject.on_site
             try:
-                obj = RegisteredSubject.on_site.get(subject_identifier=self.subject_identifier)
+                obj = objects.get(subject_identifier=self.subject_identifier)
             except ObjectDoesNotExist:
                 try:
                     RegisteredSubject.objects.get(subject_identifier=self.subject_identifier)
