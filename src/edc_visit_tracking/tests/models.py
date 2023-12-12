@@ -43,12 +43,12 @@ class SubjectConsent(
         pass
 
 
-class OnScheduleOne(OnScheduleModelMixin, BaseUuidModel):
+class OnScheduleOne(SiteModelMixin, OnScheduleModelMixin, BaseUuidModel):
     class Meta(BaseUuidModel.Meta):
         pass
 
 
-class OnScheduleTwo(OnScheduleModelMixin, BaseUuidModel):
+class OnScheduleTwo(SiteModelMixin, OnScheduleModelMixin, BaseUuidModel):
     class Meta(BaseUuidModel.Meta):
         pass
 
@@ -58,12 +58,12 @@ class OffSchedule(SiteModelMixin, OffScheduleModelMixin, BaseUuidModel):
         pass
 
 
-class OffScheduleOne(OffScheduleModelMixin, BaseUuidModel):
+class OffScheduleOne(SiteModelMixin, OffScheduleModelMixin, BaseUuidModel):
     class Meta(BaseUuidModel.Meta):
         pass
 
 
-class SubjectOffstudy(OffstudyModelMixin, BaseUuidModel):
+class SubjectOffstudy(SiteModelMixin, OffstudyModelMixin, BaseUuidModel):
     class Meta(OffstudyModelMixin.Meta):
         pass
 
@@ -76,7 +76,7 @@ class SubjectRequisition(RequisitionModelMixin, BaseUuidModel):
         pass
 
 
-class CrfOne(VisitTrackingCrfModelMixin, BaseUuidModel):
+class CrfOne(SiteModelMixin, VisitTrackingCrfModelMixin, BaseUuidModel):
     f1 = models.CharField(max_length=50, null=True)
 
     f2 = models.CharField(max_length=50, null=True)
@@ -87,7 +87,7 @@ class CrfOne(VisitTrackingCrfModelMixin, BaseUuidModel):
         pass
 
 
-class CrfTwo(VisitTrackingCrfModelMixin, BaseUuidModel):
+class CrfTwo(SiteModelMixin, VisitTrackingCrfModelMixin, BaseUuidModel):
     f1 = models.CharField(max_length=50, null=True)
 
     f2 = models.CharField(max_length=50, null=True)
@@ -98,7 +98,7 @@ class CrfTwo(VisitTrackingCrfModelMixin, BaseUuidModel):
         pass
 
 
-class CrfThree(VisitTrackingCrfModelMixin, BaseUuidModel):
+class CrfThree(SiteModelMixin, VisitTrackingCrfModelMixin, BaseUuidModel):
     f1 = models.CharField(max_length=50, null=True)
 
     f2 = models.CharField(max_length=50, null=True)
@@ -109,7 +109,7 @@ class CrfThree(VisitTrackingCrfModelMixin, BaseUuidModel):
         pass
 
 
-class CrfFour(VisitTrackingCrfModelMixin, BaseUuidModel):
+class CrfFour(SiteModelMixin, VisitTrackingCrfModelMixin, BaseUuidModel):
     f1 = models.CharField(max_length=50, null=True)
 
     f2 = models.CharField(max_length=50, null=True)
@@ -120,7 +120,7 @@ class CrfFour(VisitTrackingCrfModelMixin, BaseUuidModel):
         pass
 
 
-class CrfFive(VisitTrackingCrfModelMixin, BaseUuidModel):
+class CrfFive(SiteModelMixin, VisitTrackingCrfModelMixin, BaseUuidModel):
     f1 = models.CharField(max_length=50, null=True)
 
     f2 = models.CharField(max_length=50, null=True)
@@ -131,7 +131,7 @@ class CrfFive(VisitTrackingCrfModelMixin, BaseUuidModel):
         pass
 
 
-class BadCrfNoRelatedVisit(VisitTrackingCrfModelMixin, BaseUuidModel):
+class BadCrfNoRelatedVisit(SiteModelMixin, VisitTrackingCrfModelMixin, BaseUuidModel):
     subject_visit = None
 
     f1 = models.CharField(max_length=50, null=True)
@@ -144,7 +144,7 @@ class BadCrfNoRelatedVisit(VisitTrackingCrfModelMixin, BaseUuidModel):
         pass
 
 
-class OtherModel(BaseUuidModel):
+class OtherModel(SiteModelMixin, BaseUuidModel):
     f1 = models.CharField(max_length=10, default="erik")
 
     class Meta(BaseUuidModel.Meta):
