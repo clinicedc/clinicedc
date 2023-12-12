@@ -9,8 +9,8 @@ from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
 from edc_registration.models import RegisteredSubject
+from edc_registration.utils import RegisteredSubjectDoesNotExist
 from edc_sites.tests import SiteTestCaseMixin
-from edc_sites.valid_site_for_subject_or_raise import InvalidSubjectError
 from edc_utils import get_utcnow
 from edc_visit_tracking.constants import SCHEDULED
 
@@ -372,7 +372,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         )
         RegisteredSubject.objects.all().delete()
         self.assertRaises(
-            InvalidSubjectError,
+            RegisteredSubjectDoesNotExist,
             schedule.put_on_schedule,
             subject_identifier=self.subject_identifier,
             onschedule_datetime=onschedule_datetime,

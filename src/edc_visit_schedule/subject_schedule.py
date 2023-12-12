@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -9,7 +9,7 @@ from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from edc_appointment.constants import COMPLETE_APPT, IN_PROGRESS_APPT
 from edc_appointment.creators import AppointmentsCreator
 from edc_consent import NotConsentedError
-from edc_sites import valid_site_for_subject_or_raise
+from edc_sites.utils import valid_site_for_subject_or_raise
 from edc_utils import convert_php_dateformat, formatted_datetime, get_utcnow
 
 from .constants import OFF_SCHEDULE, ON_SCHEDULE
@@ -73,10 +73,10 @@ class SubjectSchedule:
 
     def put_on_schedule(
         self,
-        subject_identifier: Optional[str] = None,
-        onschedule_datetime: Optional[datetime] = None,
-        first_appt_datetime: Optional[datetime] = None,
-        skip_baseline: Optional[bool] = None,
+        subject_identifier: str | None = None,
+        onschedule_datetime: datetime | None = None,
+        first_appt_datetime: datetime | None = None,
+        skip_baseline: bool | None = None,
         skip_get_current_site: bool | None = None,
     ):
         """Puts a subject on-schedule.
@@ -96,7 +96,7 @@ class SubjectSchedule:
             self.onschedule_model_cls.objects.create(
                 subject_identifier=subject_identifier,
                 onschedule_datetime=onschedule_datetime,
-                site_id=site.id,
+                site=site,
             )
         try:
             history_obj = self.history_model_cls.objects.get(
@@ -113,7 +113,7 @@ class SubjectSchedule:
                 visit_schedule_name=self.visit_schedule_name,
                 onschedule_datetime=onschedule_datetime,
                 schedule_status=ON_SCHEDULE,
-                site_id=site.id,
+                site=site,
             )
         if history_obj.schedule_status == ON_SCHEDULE:
             # create appointments per schedule
