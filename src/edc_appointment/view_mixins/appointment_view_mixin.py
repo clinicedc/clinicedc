@@ -1,5 +1,6 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
+from edc_sites.permissions import has_permissions_for_extra_sites
 
 from ..constants import (
     CANCELLED_APPT,
@@ -9,7 +10,6 @@ from ..constants import (
     NEW_APPT,
     SKIPPED_APPT,
 )
-from ..models import Appointment
 from ..utils import update_unscheduled_appointment_sequence
 
 
@@ -76,7 +76,9 @@ class AppointmentViewMixin:
         if not self._appointment:
             if self.appointment_id:
                 try:
-                    self._appointment = Appointment.on_site.get(id=self.appointment_id)
+                    self._appointment = self.appointment_model_cls.on_site.get(
+                        id=self.appointment_id
+                    )
                 except ObjectDoesNotExist:
                     opts = self.appointment_options
                     if opts:
@@ -96,7 +98,11 @@ class AppointmentViewMixin:
     def appointments(self):
         """Returns a Queryset of all appointments for this subject."""
         if not self._appointments:
-            self._appointments = self.appointment_model_cls.on_site.filter(
+            if has_permissions_for_extra_sites(self.request):
+                objects = self.appointment_model_cls.objects
+            else:
+                objects = self.appointment_model_cls.on_site
+            self._appointments = objects.filter(
                 subject_identifier=self.subject_identifier
             ).order_by("timepoint", "visit_code_sequence")
         return self._appointments

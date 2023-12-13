@@ -2,7 +2,7 @@ import datetime as dt
 from zoneinfo import ZoneInfo
 
 import time_machine
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_metadata.utils import get_crf_metadata_model_cls
@@ -22,14 +22,14 @@ from ..helper import Helper
 utc_tz = ZoneInfo("UTC")
 
 
+@override_settings(SITE_ID=10)
 @time_machine.travel(dt.datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestAppointmentStatus(TestCase):
     helper_cls = Helper
 
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         import_holidays()
-        return super().setUpClass()
 
     def setUp(self):
         self.subject_identifier = "12345"

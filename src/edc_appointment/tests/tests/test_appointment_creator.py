@@ -26,6 +26,7 @@ from edc_appointment_app.consents import v1_consent
 utc_tz = ZoneInfo("UTC")
 
 
+@override_settings(SITE_ID=10)
 @time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
 class AppointmentCreatorTestCase(TestCase):
     helper_cls = Helper

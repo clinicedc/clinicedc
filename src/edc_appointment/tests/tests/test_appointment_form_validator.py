@@ -6,7 +6,7 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms import ValidationError
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_consent import site_consents
 from edc_constants.constants import NOT_APPLICABLE
 from edc_facility.import_holidays import import_holidays
@@ -52,14 +52,14 @@ from ..test_case_mixins import AppointmentTestCaseMixin
 utc_tz = ZoneInfo("UTC")
 
 
+@override_settings(SITE_ID=10)
 @time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
     helper_cls = Helper
 
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         import_holidays()
-        return super().setUpClass()
 
     def setUp(self):
         self.subject_identifier = "12345"
@@ -73,7 +73,6 @@ class TestAppointmentFormValidator(AppointmentTestCaseMixin, TestCase):
             now=datetime(2017, 1, 7, tzinfo=ZoneInfo("UTC")),
         )
 
-    @tag("1")
     def test_get_previous(self):
         self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")

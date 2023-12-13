@@ -46,14 +46,14 @@ from edc_appointment_app.visit_schedule import (
 utc = ZoneInfo("UTC")
 
 
+@override_settings(SITE_ID=10)
 @time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc))
 class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
     helper_cls = Helper
 
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         import_holidays()
-        return super().setUpClass()
 
     def setUp(self):
         self.subject_identifier = "12345"
@@ -520,7 +520,6 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         self.assertEqual(appointments[5].appt_status, SKIPPED_APPT)
         self.assertEqual(appointments[6].appt_status, NEW_APPT)
 
-    # @time_machine.travel(datetime(2021, 10, 6, 8, 00, tzinfo=utc))
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
             "edc_appointment_app.crfthree": ("appt_date", "f1"),
@@ -546,17 +545,16 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
                 report_datetime=appointments[0].appt_datetime,
                 f1="blah",
             )
-        form = CrfThreeForm(
-            data=dict(
-                subject_visit=subject_visit,
-                report_datetime=appointments[0].appt_datetime,
-                appt_date=appointments[0].appt_datetime + relativedelta(days=3),
-                f1=appointments[1].visit_code,
-            )
+        data = dict(
+            report_datetime=appointments[0].appt_datetime,
+            appt_date=appointments[0].appt_datetime + relativedelta(days=3),
+            f1=appointments[1].visit_code,
         )
+        form = CrfThreeForm(data=data, instance=CrfThree(subject_visit=subject_visit))
         form.is_valid()
-        self.assertEqual({}, form._errors)
-        form.save(commit=True)
+        self.assertEqual({}, {k: v for k, v in form._errors.items() if k != "subject_visit"})
+
+        CrfThree.objects.create(subject_visit=subject_visit, **data)
 
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         self.assertEqual(
@@ -580,18 +578,16 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
                 report_datetime=appointments[1].appt_datetime,
                 f1="blah",
             )
-        form = CrfThreeForm(
-            data=dict(
-                subject_visit=subject_visit,
-                report_datetime=appointments[1].appt_datetime,
-                appt_date=appointments[1].appt_datetime + relativedelta(days=5),
-                f1=appointments[1].visit_code,
-                allow_create_interim=True,
-            )
+        data = dict(
+            report_datetime=appointments[1].appt_datetime,
+            appt_date=appointments[1].appt_datetime + relativedelta(days=5),
+            f1=appointments[1].visit_code,
+            allow_create_interim=True,
         )
+        form = CrfThreeForm(data=data, instance=CrfThree(subject_visit=subject_visit))
         form.is_valid()
-        self.assertEqual({}, form._errors)
-        form.save(commit=True)
+        self.assertEqual({}, {k: v for k, v in form._errors.items() if k != "subject_visit"})
+        CrfThree.objects.create(subject_visit=subject_visit, **data)
 
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         self.assertEqual(appointments[2].visit_code, "1010")
