@@ -3,6 +3,10 @@ from .sites import sites
 
 
 class SiteTestCaseMixin:
+    @classmethod
+    def get_default_sites(cls) -> list[SingleSite]:
+        return sites
+
     @property
     def default_sites(self) -> list[SingleSite]:
         return sites

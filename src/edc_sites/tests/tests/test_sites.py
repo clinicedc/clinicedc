@@ -151,8 +151,9 @@ class TestSites(SiteTestCaseMixin, TestCase):
         self.assertNotIn("example.com", str([str(obj) for obj in Site.objects.all()]))
         self.assertEqual(len(self.default_sites), Site.objects.all().count())
 
+    @override_settings(EDC_SITES_UAT_DOMAIN=False)
     def test_domain(self):
-        sites.initialize()
+        sites.initialize(initialize_site_model=True)
         sites.register(*self.default_sites)
         add_or_update_django_sites()
         obj = Site.objects.get(name="molepolole")
@@ -225,11 +226,11 @@ class TestSites(SiteTestCaseMixin, TestCase):
         site2 = SingleSite(site_id=2, name="site2", domain="site2.clinicedc.org")
 
         sites.register(site1, site2)
-        self.assertEqual(site1.domain, "site1.uat.clinicedc.org")
-        self.assertEqual(site2.domain, "site2.uat.clinicedc.org")
+        self.assertEqual(sites.get(site1.site_id).domain, "site1.uat.clinicedc.org")
+        self.assertEqual(sites.get(site2.site_id).domain, "site2.uat.clinicedc.org")
 
     @override_settings(EDC_SITES_REGISTER_DEFAULT=True)
-    def test_registere_default_site_domain(self):
+    def test_register_default_site_domain(self):
         sites.initialize()
         for single_site in sites.all().values():
             sites.register(single_site)

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import dataclasses
 import json
 import sys
 from copy import deepcopy
@@ -14,7 +15,7 @@ from django.utils.module_loading import import_module, module_has_submodule
 from edc_constants.constants import OTHER
 
 from .single_site import SingleSite
-from .utils import get_site_model_cls
+from .utils import get_site_model_cls, insert_into_domain
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
@@ -90,6 +91,7 @@ class Sites:
                     country=get_default_country(),
                     country_code=get_default_country_code(),
                     domain=get_default_domain(),
+                    title="what a site",
                 )
             }
 
@@ -117,26 +119,18 @@ class Sites:
             for single_site in single_sites:
                 if single_site.site_id in self._registry:
                     raise AlreadyRegistered(f"Site already registered. Got {single_site}.")
-                if get_insert_uat_subdomain():
-                    single_site.domain = self.update_domain_for_uat(
-                        single_site, self.uat_subdomain
-                    )
                 if single_site.name in [s.name for s in self._registry.values()]:
                     raise AlreadyRegisteredName(
                         f"Site with this name is already registered. Got {single_site}."
                     )
+                if get_insert_uat_subdomain():
+                    domain = insert_into_domain(single_site.domain, self.uat_subdomain)
+                    single_site = dataclasses.replace(single_site, domain=domain)
                 if single_site.domain in [s.domain for s in self._registry.values()]:
                     raise AlreadyRegisteredDomain(
                         f"Site with this domain is already registered. Got {single_site}."
                     )
                 self._registry.update({single_site.site_id: single_site})
-
-    @staticmethod
-    def update_domain_for_uat(site: SingleSite, subdomain: str):
-        as_list = site.domain.split(".")
-        if subdomain not in as_list:
-            as_list.insert(1, subdomain)  # after the site name
-        return ".".join(as_list)
 
     def get(self, site_id: int) -> SingleSite:
         if site_id not in self._registry:
@@ -156,7 +150,7 @@ class Sites:
 
     @property
     def countries(self) -> list[str]:
-        return sorted([single_site.country for single_site in self._registry.values()])
+        return list(set([single_site.country for single_site in self._registry.values()]))
 
     def get_by_country(self, country: str, aslist: bool | None = None):
         if aslist:
