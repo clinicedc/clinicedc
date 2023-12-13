@@ -22,14 +22,14 @@ from ..visit_schedule import visit_schedule
 @override_settings(
     SUBJECT_CONSENT_MODEL="visit_schedule_app.subjectconsent",
     SUBJECT_SCREENING_MODEL="visit_schedule_app.subjectscreening",
+    SITE_ID=10,
 )
-class EdcCrfTestCase(TestCase):
+class CrfTestCase(TestCase):
     helper_cls = Helper
 
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         import_holidays()
-        return super().setUpClass()
 
     def setUp(self):
         SubjectScreening.objects.create(
