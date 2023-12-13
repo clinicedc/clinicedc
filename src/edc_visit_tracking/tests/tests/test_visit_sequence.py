@@ -18,7 +18,7 @@ from ..visit_schedule import visit_schedule1, visit_schedule2
 
 
 class DisabledVisitSequence(VisitSequence):
-    def enforce_sequence(self):
+    def enforce_sequence(self, **kwargs) -> None:
         return None
 
 
@@ -26,9 +26,8 @@ class TestPreviousVisit(TestCase):
     helper_cls = Helper
 
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         import_holidays()
-        return super().setUpClass()
 
     def setUp(self):
         SubjectVisit.visit_sequence_cls = VisitSequence
@@ -38,9 +37,6 @@ class TestPreviousVisit(TestCase):
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
         self.helper.consent_and_put_on_schedule()
-
-    def tearDown(self):
-        SubjectVisit.visit_sequence_cls = VisitSequence
 
     def test_visit_sequence_enforcer_on_first_visit_in_sequence(self):
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")

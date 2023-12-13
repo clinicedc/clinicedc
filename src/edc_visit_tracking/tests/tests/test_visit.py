@@ -20,9 +20,8 @@ class TestVisit(TestCase):
     helper_cls = Helper
 
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         import_holidays()
-        return super().setUpClass()
 
     def setUp(self):
         self.subject_identifier = "12345"
