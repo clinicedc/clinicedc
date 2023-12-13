@@ -124,6 +124,9 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
         except (ValueError, AttributeError):
             return self.listboard_model
 
+    def get_listboard_model_manager_name(self) -> str:
+        return self.listboard_model_manager_name
+
     def get_queryset_exclude_options(self, request, *args, **kwargs):
         """Returns exclude options applied to every
         queryset.
@@ -142,7 +145,7 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
         This can be overridden but be sure to use the default_manager.
         """
         return (
-            getattr(self.listboard_model_cls, self.listboard_model_manager_name)
+            getattr(self.listboard_model_cls, self.get_listboard_model_manager_name())
             .filter(**filter_options)
             .exclude(**exclude_options)
         )
@@ -169,7 +172,9 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
         Note: The returned queryset is set to self.object_list in
         `get()` just before rendering to response.
         """
-        queryset = getattr(self.listboard_model_cls, self.listboard_model_manager_name).none()
+        queryset = getattr(
+            self.listboard_model_cls, self.get_listboard_model_manager_name()
+        ).none()
         if self.has_view_listboard_perms:
             filter_options = self.get_queryset_filter_options(
                 self.request, *self.args, **self.kwargs
