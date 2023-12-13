@@ -36,7 +36,7 @@ from ..models import StudyMedication, SubjectVisit
 from ..visit_schedule import visit_schedule
 
 
-@override_settings(SUBJECT_CONSENT_MODEL="edc_pharmacy.subjectconsent")
+@override_settings(SUBJECT_CONSENT_MODEL="edc_pharmacy.subjectconsent", SITE_ID=1)
 class TestMedicationCrf(TestCase):
     helper_cls = Helper
 
