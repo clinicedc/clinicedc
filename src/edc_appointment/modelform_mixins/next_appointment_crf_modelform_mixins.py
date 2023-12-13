@@ -93,13 +93,12 @@ class NextAppointmentCrfModelFormMixin:
 
     def validate_suggested_visit_code(self):
         if suggested_date := self.suggested_date:
-            subject_visit = self.cleaned_data.get("subject_visit")
             try:
                 appointment = get_appointment_by_datetime(
                     self.as_datetime(suggested_date),
-                    subject_identifier=subject_visit.subject_identifier,
-                    visit_schedule_name=subject_visit.visit_schedule.name,
-                    schedule_name=subject_visit.schedule.name,
+                    subject_identifier=self.related_visit.subject_identifier,
+                    visit_schedule_name=self.related_visit.visit_schedule.name,
+                    schedule_name=self.related_visit.schedule.name,
                     raise_if_in_gap=False,
                 )
             except ScheduledVisitWindowError as e:
@@ -125,7 +124,7 @@ class NextAppointmentCrfModelFormMixin:
                         }
                     }
                 )
-            if appointment == subject_visit.appointment:
+            if appointment == self.related_visit.appointment:
                 if self.allow_create_interim:
                     pass
                 else:
