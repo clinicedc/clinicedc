@@ -2,8 +2,8 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from django.test.utils import override_settings
-from edc_sites import add_or_update_django_sites
 from edc_sites.tests import SiteTestCaseMixin
+from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
 from multisite import SiteID
 
@@ -112,7 +112,7 @@ class TestRegistration(SiteTestCaseMixin, TestCase):
 
     @override_settings(SITE_ID=SiteID(10))
     def test_site1(self):
-        add_or_update_django_sites(sites=self.default_sites, verbose=False)
+        add_or_update_django_sites(single_sites=self.default_sites, verbose=False)
         obj = SubjectModelOne.objects.create(screening_identifier="12345")
         rs = RegisteredSubject.objects.get(
             registration_identifier=obj.to_string(obj.registration_identifier)
@@ -121,7 +121,7 @@ class TestRegistration(SiteTestCaseMixin, TestCase):
 
     @override_settings(SITE_ID=SiteID(20))
     def test_site2(self):
-        add_or_update_django_sites(sites=self.default_sites, verbose=False)
+        add_or_update_django_sites(single_sites=self.default_sites, verbose=False)
         obj = SubjectModelOne.objects.create(screening_identifier="12345")
         rs = RegisteredSubject.objects.get(
             registration_identifier=obj.to_string(obj.registration_identifier)

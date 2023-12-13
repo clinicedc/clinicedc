@@ -10,6 +10,10 @@ if TYPE_CHECKING:
     from edc_registration.models import RegisteredSubject
 
 
+class RegisteredSubjectDoesNotExist(Exception):
+    pass
+
+
 def get_registered_subject_model_name() -> str:
     return getattr(
         settings,
@@ -22,11 +26,18 @@ def get_registered_subject_model_cls() -> RegisteredSubject:
     return django_apps.get_model(get_registered_subject_model_name())
 
 
-def get_registered_subject(subject_identifier) -> RegisteredSubject:
+def get_registered_subject(
+    subject_identifier, raise_exception: bool | None = None, **kwargs
+) -> RegisteredSubject | None:
+    opts = dict(subject_identifier=subject_identifier, **kwargs)
     try:
-        registered_subject = get_registered_subject_model_cls().objects.get(
-            subject_identifier=subject_identifier
-        )
+        registered_subject = get_registered_subject_model_cls().objects.get(**opts)
     except ObjectDoesNotExist:
         registered_subject = None
+    if raise_exception and not registered_subject:
+        raise RegisteredSubjectDoesNotExist(
+            "Unknown subject. "
+            f"Searched `{get_registered_subject_model_cls()._meta.label_lower}`. "
+            f"Got {opts}."
+        )
     return registered_subject

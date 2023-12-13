@@ -1,8 +1,10 @@
+from django.apps import apps as django_apps
 from edc_auth.auth_objects import PII, PII_VIEW
 from edc_auth.site_auths import site_auths
 from edc_export.auth_objects import EXPORT
 
-site_auths.update_group("edc_registration.export_registeredsubject", name=EXPORT)
+if django_apps.is_installed("edc_export"):
+    site_auths.update_group("edc_registration.export_registeredsubject", name=EXPORT)
 site_auths.update_group(
     "edc_registration.display_dob",
     "edc_registration.display_firstname",
