@@ -4,7 +4,7 @@ from tempfile import mkdtemp
 from typing import TYPE_CHECKING, Type
 
 from edc_pdutils import CsvModelExporter
-from edc_sites.get_sites_from_user import get_sites_from_user
+from edc_sites.site import sites
 from edc_utils import get_utcnow
 
 from .files_archiver import FilesArchiver
@@ -58,7 +58,7 @@ class ArchiveExporter:
                 model=model,
                 export_folder=tmp_folder,
                 decrypt=decrypt,
-                sites=get_sites_from_user(user),
+                site_ids=sites.get_site_ids_for_user(user),
                 **kwargs,
             )
             self.exported.append(csv_exporter.to_csv())
