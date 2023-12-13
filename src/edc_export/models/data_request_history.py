@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models import Index
 from django.db.models.deletion import PROTECT
 from edc_model.models import BaseUuidModel
-from edc_sites.model_mixins import SiteModelMixin
+from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
 
 from .data_request import DataRequest
