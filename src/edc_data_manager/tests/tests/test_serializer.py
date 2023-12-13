@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core import serializers
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from edc_lab.site_labs import site_labs
 from edc_visit_schedule.apps import populate_visit_schedule
 from edc_visit_schedule.constants import HOURS
@@ -13,6 +13,7 @@ from edc_data_manager.models.requisition_panel import RequisitionPanel
 from edc_data_manager.models.user import DataManagerUser, QueryUser
 
 
+@override_settings(SITE_ID=20)
 class TestSerializer(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_superuser(
