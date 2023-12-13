@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from edc_sites import get_current_country
+from edc_sites.site import sites
 from edc_utils import get_utcnow
 from tqdm import tqdm
 
@@ -85,7 +85,7 @@ def import_file(path: str, recs: list, model_cls: Holiday):
 
 def import_for_tests(model_cls):
     year = get_utcnow().year
-    country = get_current_country()
+    country = sites.get_current_country()
     if not country:
         raise HolidayImportError(
             "Cannot determine default country when importing "

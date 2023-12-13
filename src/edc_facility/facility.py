@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from operator import methodcaller
-from typing import Any, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, List, Tuple, Union
 from zoneinfo import ZoneInfo
 
 import arrow
@@ -14,6 +14,9 @@ from edc_utils import convert_php_dateformat, get_utcnow, to_utc
 
 from .exceptions import FacilityError
 from .holidays import Holidays
+
+if TYPE_CHECKING:
+    from django.contrib.sites.models import Site
 
 
 class Facility:
@@ -132,6 +135,7 @@ class Facility:
         reverse_delta=None,
         taken_datetimes=None,
         schedule_on_holidays=None,
+        site: Site = None,
     ):
         """Returns an arrow object for a datetime equal to or
         close to the suggested datetime.

@@ -1,11 +1,11 @@
 import csv
-import os
 import sys
+from pathlib import Path
 
 from django.conf import settings
-from django.core.checks import Warning
+from django.core.checks import Error, Warning
 from django.core.management import color_style
-from edc_sites import get_current_country
+from edc_sites.site import sites
 
 style = color_style()
 
@@ -13,32 +13,22 @@ style = color_style()
 def holiday_path_check(app_configs, **kwargs):
     sys.stdout.write(style.SQL_KEYWORD("holiday_path_check ... \r"))
     errors = []
-    holiday_path = None
-
-    try:
-        holiday_path = settings.HOLIDAY_FILE
-    except AttributeError:
-        path_exists = False
-    else:
-        try:
-            path_exists = os.path.exists(holiday_path)
-        except TypeError:
-            path_exists = False
-
-    if not holiday_path:
+    if not getattr(settings, "HOLIDAY_FILE", None):
         errors.append(
-            Warning(
-                "Holiday file not found! settings.HOLIDAY_FILE not defined. \n",
+            Error(
+                "Holiday file path not set! See settings.HOLIDAY_FILE.\n",
                 id="edc_facility.001",
             )
         )
-    elif not path_exists:
-        errors.append(
-            Warning(
-                f"Holiday file not found! settings.HOLIDAY_FILE={holiday_path}. \n",
-                id="edc_facility.002",
+    else:
+        holiday_path = Path(settings.HOLIDAY_FILE).expanduser()
+        if not holiday_path.exists():
+            errors.append(
+                Warning(
+                    f"Holiday file not found! settings.HOLIDAY_FILE={holiday_path}. \n",
+                    id="edc_facility.002",
+                )
             )
-        )
     sys.stdout.write(style.SQL_KEYWORD("holiday_path_check ... done.\n"))
     return errors
 
@@ -46,18 +36,23 @@ def holiday_path_check(app_configs, **kwargs):
 def holiday_country_check(app_configs, **kwargs):
     sys.stdout.write(style.SQL_KEYWORD("holiday_country_check ... \r"))
     errors = []
-    holiday_path = settings.HOLIDAY_FILE
-    country = get_current_country()
-    if country:
-        with open(holiday_path, "r") as f:
+    holiday_path = Path(settings.HOLIDAY_FILE).expanduser()
+    if not sites.all():
+        errors.append(Error("No sites have been registered", id="edc_facility.005"))
+    else:
+        with holiday_path.open(mode="r") as f:
             reader = csv.DictReader(f, fieldnames=["local_date", "label", "country"])
-            if not [row["country"] for row in reader if row["country"] == country]:
-                errors.append(
-                    Warning(
-                        f"Holiday file has no records for current country! "
-                        f"See country in EdcSites definitions. Got {country}\n",
-                        id="edc_facility.004",
+            next(reader, None)
+            for row in reader:
+                if row["country"] not in sites.countries:
+                    errors.append(
+                        Warning(
+                            "Holiday file has no records for country! Sites are registered "
+                            f"for these countries: `{'`, `'.join(sites.countries)}`. Got "
+                            f"`{row['country']}`\n",
+                            id="edc_facility.004",
+                        )
                     )
-                )
+                    break
     sys.stdout.write(style.SQL_KEYWORD("holiday_country_check ... done.\n"))
     return errors

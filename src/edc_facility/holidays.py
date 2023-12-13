@@ -1,13 +1,21 @@
+from __future__ import annotations
+
 from datetime import date
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import QuerySet
+from edc_sites.site import sites
+from edc_sites.utils import get_site_model_cls
 from edc_utils.date import to_local
 
-from .exceptions import HolidayError
+from .exceptions import FacilityCountryError, FacilitySiteError, HolidayError
 from .holidays_disabled import holidays_disabled
+
+if TYPE_CHECKING:
+    from django.contrib.sites.models import Site
 
 
 class Holidays:
@@ -18,18 +26,10 @@ class Holidays:
 
     model = "edc_facility.holiday"
 
-    def __init__(self) -> None:
-        if getattr(settings, "COUNTRY", None):
-            raise HolidayError(
-                "COUNTRY is no longer a valid settings attribute. "
-                "Country is determined from the site definition "
-                "in your project`s sites app. See SingleSite and "
-                "SiteProfile in edc-sites."
-            )
-        self._country = None
+    def __init__(self, site: Site = None) -> None:
         self._holidays = None
         self.model_cls = django_apps.get_model(self.model)
-        self.site_model_cls = django_apps.get_model("sites.site")
+        self._site: Site | None = site
 
     def __repr__(self):
         return (
@@ -41,19 +41,35 @@ class Holidays:
         return self.holidays.count()
 
     @property
-    def country(self) -> str:
-        if not self._country:
-            self._country = self.site_model_cls.objects.get_current().siteprofile.country
-            if not self._country:
-                raise HolidayError(
-                    f"Country not defined for site. Got site="
-                    f"`{self.site_model_cls.objects.get_current()}`"
-                )
-        return self._country
-
-    @property
     def local_dates(self) -> list[date]:
         return [obj.local_date for obj in self.holidays]
+
+    @property
+    def site(self) -> Site | None:
+        """Returns the Site model instance."""
+        if not self._site:
+            extramsg = ""
+            if not sites.all():
+                extramsg = " No sites have been registered. See edc_sites.site.Sites."
+            try:
+                self._site = get_site_model_cls().objects.get_current()
+            except ObjectDoesNotExist as e:
+                raise FacilitySiteError(
+                    f"Unable to determine site.{extramsg} "
+                    f"settings.SITE_ID={settings.SITE_ID}. Got {e}"
+                )
+        return self._site
+
+    @property
+    def country(self) -> str:
+        """Returns country string.
+
+        Requires SiteProfile from edc_sites to be updated.
+        """
+        country = sites.get(self.site.id).country
+        if not country:
+            raise FacilityCountryError("Unable to determine country.")
+        return country
 
     @property
     def holidays(self) -> QuerySet:
@@ -62,11 +78,11 @@ class Holidays:
             if holidays_disabled():
                 self._holidays = self.model_cls.objects.none()
             else:
-                self._holidays = self.model_cls.objects.filter(country=self.country)
-                if not self._holidays:
+                if not self.model_cls.objects.filter(country=self.country).exists():
                     raise HolidayError(
                         f"No holidays found for '{self.country}. See {self.model}."
                     )
+            self._holidays = self.model_cls.objects.filter(country=self.country)
         return self._holidays
 
     def is_holiday(self, utc_datetime=None) -> bool:

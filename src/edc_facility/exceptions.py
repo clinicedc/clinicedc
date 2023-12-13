@@ -12,3 +12,11 @@ class HolidayFileNotFoundError(Exception):
 
 class FacilityError(Exception):
     pass
+
+
+class FacilitySiteError(Exception):
+    pass
+
+
+class FacilityCountryError(Exception):
+    pass
