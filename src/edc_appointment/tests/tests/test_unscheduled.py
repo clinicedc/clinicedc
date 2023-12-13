@@ -3,9 +3,10 @@ from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
+from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
 from edc_visit_schedule.exceptions import ScheduleError
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -31,13 +32,13 @@ from edc_appointment_app.visit_schedule import visit_schedule1, visit_schedule2
 from ..helper import Helper
 
 
-class TestUnscheduledAppointmentCreator(TestCase):
+@override_settings(SITE_ID=10)
+class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
     helper_cls = Helper
 
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         import_holidays()
-        return super().setUpClass()
 
     def setUp(self):
         self.subject_identifier = "12345"

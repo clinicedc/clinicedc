@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
@@ -25,14 +25,14 @@ from ..helper import Helper
 utc_tz = ZoneInfo("UTC")
 
 
+@override_settings(SITE_ID=10)
 @time_machine.travel(dt.datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestMoveAppointment(TestCase):
     helper_cls = Helper
 
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         import_holidays()
-        return super().setUpClass()
 
     def setUp(self):
         self.subject_identifier = "12345"

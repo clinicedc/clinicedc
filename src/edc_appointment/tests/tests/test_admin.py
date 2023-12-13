@@ -4,6 +4,7 @@ from unittest.mock import patch
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
+from django.test import override_settings
 from django.urls import reverse
 from django_webtest import WebTest
 from edc_auth.auth_updater.group_updater import GroupUpdater, PermissionsCodenameError
@@ -28,14 +29,14 @@ def get_url_name():
     return "subject_dashboard_url"
 
 
+@override_settings(SITE_ID=10)
 class TestAdmin(WebTest):
     helper_cls = Helper
     extra_environ = {"HTTP_ACCEPT_LANGUAGE": "en"}
 
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         import_holidays()
-        return super().setUpClass()
 
     def setUp(self) -> None:
         super().setUp()
