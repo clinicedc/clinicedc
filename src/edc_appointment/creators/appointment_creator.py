@@ -10,7 +10,7 @@ from django.db import transaction
 from django.db.utils import IntegrityError
 from django.utils.timezone import is_naive
 from edc_facility.facility import Facility, FacilityError
-from edc_sites.valid_site_for_subject_or_raise import valid_site_for_subject_or_raise
+from edc_sites.utils import valid_site_for_subject_or_raise
 from edc_visit_schedule.utils import is_baseline
 
 from ..constants import SCHEDULED_APPT
@@ -201,6 +201,7 @@ class AppointmentCreator:
                     forward_delta=self.visit.rupper,
                     reverse_delta=self.visit.rlower,
                     taken_datetimes=self.taken_datetimes,
+                    site=self.site,
                 )
             except FacilityError as e:
                 raise CreateAppointmentDateError(
