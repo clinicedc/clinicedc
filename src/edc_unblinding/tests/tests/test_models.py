@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
 from edc_action_item import site_action_items
+from edc_action_item.site_action_items import AlreadyRegistered
 from edc_auth.site_auths import site_auths
 from edc_consent import site_consents
 from edc_facility import import_holidays
@@ -21,15 +22,10 @@ from edc_unblinding.models import UnblindingRequest, UnblindingRequestorUser
 @override_settings(
     SUBJECT_CONSENT_MODEL="visit_schedule_app.subjectconsent",
     SUBJECT_SCREENING_MODEL="visit_schedule_app.subjectscreening",
+    SITE_ID=10,
 )
-class EdcunblindingTestCase(TestCase):
+class UnblindingTestCase(TestCase):
     helper_cls = Helper
-
-    @classmethod
-    def setUpClass(cls):
-        site_action_items.register(action_cls=UnblindingRequestAction)
-        site_action_items.register(action_cls=UnblindingReviewAction)
-        return super().setUpClass()
 
     @classmethod
     def setUpTestData(cls):
@@ -37,6 +33,14 @@ class EdcunblindingTestCase(TestCase):
         get_user_model().objects.create(username="frazey", is_staff=True, is_active=True)
 
     def setUp(self):
+        try:
+            site_action_items.register(action_cls=UnblindingRequestAction)
+        except AlreadyRegistered:
+            pass
+        try:
+            site_action_items.register(action_cls=UnblindingReviewAction)
+        except AlreadyRegistered:
+            pass
         self.user = get_user_model().objects.get(username="frazey")
         self.subject_identifier = "12345"
         site_consents.registry = {}
@@ -55,8 +59,8 @@ class EdcunblindingTestCase(TestCase):
             subject_identifier=self.subject_consent.subject_identifier,
             requestor=UnblindingRequestorUser.objects.all()[0],
         )
-        model = UnblindingRequest(**opts)
-        model.save()
+        obj = UnblindingRequest(**opts)
+        obj.save()
 
     def test_auth(self):
         self.assertIn(UNBLINDING_REQUESTORS_ROLE, site_auths.roles)
