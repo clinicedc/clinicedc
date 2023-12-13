@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
     from edc_crf.model_mixins import CrfModelMixin
     from edc_model.models import BaseUuidModel
-    from edc_sites.model_mixins import SiteModelMixin
+    from edc_sites.models import SiteModelMixin
     from edc_visit_tracking.model_mixins import VisitModelMixin as Base
 
     from ..model_mixins.creates import CreatesMetadataModelMixin
