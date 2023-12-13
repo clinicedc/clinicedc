@@ -4,8 +4,9 @@ from zoneinfo import ZoneInfo
 from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
 from django.test import TestCase
 from django.test.utils import override_settings
-from edc_sites import add_or_update_django_sites
+from edc_sites.site import sites
 from edc_sites.tests import SiteTestCaseMixin
+from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
 
 from edc_facility.facility import Facility
@@ -14,13 +15,17 @@ from edc_facility.models import Holiday
 
 
 class TestFacility(SiteTestCaseMixin, TestCase):
-    def setUp(self):
-        add_or_update_django_sites(sites=self.default_sites)
+    @classmethod
+    def setUpTestData(cls):
+        sites.initialize()
+        sites.register(*cls.get_default_sites())
+        add_or_update_django_sites()
+        import_holidays()
 
+    def setUp(self):
         self.facility = Facility(
             name="clinic", days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100]
         )
-        import_holidays()
 
     def test_allowed_weekday(self):
         facility = Facility(
@@ -73,6 +78,7 @@ class TestFacility(SiteTestCaseMixin, TestCase):
                 facility.available_arr(dt, schedule_on_holidays=True).datetime.weekday(),
             )
 
+    @override_settings(SITE_ID=20)
     def test_available_arr(self):
         """Asserts finds available_arr on first clinic day after holiday."""
         facility = Facility(name="clinic", days=[WE], slots=[100])
@@ -80,6 +86,7 @@ class TestFacility(SiteTestCaseMixin, TestCase):
         available_arr = facility.available_arr(suggested_date)
         self.assertEqual(available_arr.datetime.weekday(), WE.weekday)  # noqa
 
+    @override_settings(SITE_ID=20)
     def test_available_arr_with_holiday(self):
         """Asserts finds available_arr on first clinic day after holiday."""
         suggested_date = datetime(2017, 1, 1, tzinfo=ZoneInfo("UTC"))
@@ -88,7 +95,7 @@ class TestFacility(SiteTestCaseMixin, TestCase):
         available_arr = facility.available_arr(suggested_date)
         self.assertEqual(expected_date, available_arr.datetime)
 
-    @override_settings(HOLIDAY_FILE=None)
+    @override_settings(SITE_ID=20, HOLIDAY_FILE=None)
     def test_read_holidays_from_db(self):
         """Asserts finds available_arr on first clinic day after holiday."""
         suggested_date = datetime(2017, 1, 1, tzinfo=ZoneInfo("UTC"))

@@ -6,7 +6,7 @@ from django.db import models
 from django.db.models import Index, UniqueConstraint
 from django.db.utils import OperationalError, ProgrammingError
 from django.utils.translation import gettext as _
-from edc_sites import get_current_country
+from edc_sites.site import sites
 from edc_utils import convert_php_dateformat
 
 from ..holidays_disabled import holidays_disabled
@@ -45,14 +45,14 @@ class Holiday(models.Model):
                             id="edc_facility.003",
                         )
                     )
-                elif cls.objects.filter(country=get_current_country()).count() == 0:
+                elif cls.objects.filter(country=sites.get_current_country()).count() == 0:
                     countries = [obj.country for obj in cls.objects.all()]
                     countries = list(set(countries))
                     errors.append(
                         Warning(
                             f"No Holidays have been defined for this country. "
                             f"See edc_facility.Holidays. Expected one of {countries}. "
-                            f"Got country='{get_current_country()}'",
+                            f"Got country='{sites.get_current_country()}'",
                             id="edc_facility.004",
                         )
                     )
