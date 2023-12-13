@@ -42,12 +42,12 @@ from visit_schedule_app.visit_schedule import (
 @override_settings(
     EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
+    SITE_ID=30,
 )
 class TestModels(SiteTestCaseMixin, TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         import_holidays()
-        super().setUpClass()
 
     def setUp(self):
         site_visit_schedules.loaded = False
