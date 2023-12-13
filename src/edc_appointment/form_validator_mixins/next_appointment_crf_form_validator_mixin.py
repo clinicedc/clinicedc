@@ -53,22 +53,21 @@ class NextAppointmentCrfFormValidatorMixin:
                     },
                     INVALID_ERROR,
                 )
-            elif self.cleaned_data.get("subject_visit").site:
-                if self.clinic_days and appt_date.weekday() not in self.clinic_days:
-                    raise self.raise_validation_error(
-                        {
-                            "appt_date": _(
-                                "Invalid clinic day. Expected %(expected)s. Got %(day_abbr)s"
-                            )
-                            % {
-                                "expected": ", ".join(
-                                    dict(zip(self.clinic_days, self.day_abbr)).values()
-                                ),
-                                "day_abbr": appt_date.strftime("%A"),
-                            }
-                        },
-                        INVALID_ERROR,
-                    )
+            if self.clinic_days and appt_date.weekday() not in self.clinic_days:
+                raise self.raise_validation_error(
+                    {
+                        "appt_date": _(
+                            "Invalid clinic day. Expected %(expected)s. Got %(day_abbr)s"
+                        )
+                        % {
+                            "expected": ", ".join(
+                                dict(zip(self.clinic_days, self.day_abbr)).values()
+                            ),
+                            "day_abbr": appt_date.strftime("%A"),
+                        }
+                    },
+                    INVALID_ERROR,
+                )
 
     @property
     def health_facility(self) -> HealthFacility | None:
