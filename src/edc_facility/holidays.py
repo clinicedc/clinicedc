@@ -66,10 +66,9 @@ class Holidays:
 
         Requires SiteProfile from edc_sites to be updated.
         """
-        try:
-            country = self.site.siteprofile.country
-        except ObjectDoesNotExist as e:
-            raise FacilityCountryError(f"Unable to determine country. Got {e}")
+        country = sites.get(self.site.id).country
+        if not country:
+            raise FacilityCountryError("Unable to determine country.")
         return country
 
     @property
