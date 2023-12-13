@@ -30,6 +30,7 @@ class MyViewCurrent(VisitScheduleViewMixin, ContextMixin):
 @override_settings(
     EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
+    SITE_ID=30,
 )
 class TestViewMixin(SiteTestCaseMixin, TestCase):
     def setUp(self):

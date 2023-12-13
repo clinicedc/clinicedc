@@ -24,8 +24,13 @@ from visit_schedule_app.models import SubjectConsent, SubjectVisit
 @override_settings(
     EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
+    SITE_ID=30,
 )
 class TestVisitSchedule4(SiteTestCaseMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        import_holidays()
+
     def setUp(self):
         v1_consent = Consent(
             "visit_schedule_app.subjectconsent",
@@ -38,7 +43,6 @@ class TestVisitSchedule4(SiteTestCaseMixin, TestCase):
             gender=[MALE, FEMALE],
         )
 
-        import_holidays()
         site_consents.registry = {}
         site_consents.register(v1_consent)
         self.visit_schedule = VisitSchedule(

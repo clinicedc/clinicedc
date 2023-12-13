@@ -44,8 +44,13 @@ from visit_schedule_app.models import (
 @override_settings(
     EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
+    SITE_ID=30,
 )
 class TestVisitSchedule(SiteTestCaseMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        import_holidays()
+
     def setUp(self):
         super().setUp()
         v1_consent = Consent(
@@ -58,7 +63,6 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
             age_max=64,
             gender=[MALE, FEMALE],
         )
-        import_holidays()
         site_consents.registry = {}
         site_consents.register(v1_consent)
 
@@ -101,10 +105,14 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
 @override_settings(
     EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
+    SITE_ID=30,
 )
 class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         import_holidays()
+
+    def setUp(self):
         v1_consent = Consent(
             "visit_schedule_app.subjectconsent",
             version="1",
@@ -197,8 +205,13 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
 @override_settings(
     EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
+    SITE_ID=30,
 )
 class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        import_holidays()
+
     def setUp(self):
         v1_consent = Consent(
             "visit_schedule_app.subjectconsent",
@@ -211,7 +224,6 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
             gender=[MALE, FEMALE],
         )
 
-        import_holidays()
         site_consents.registry = {}
         site_consents.register(v1_consent)
 
