@@ -1,11 +1,10 @@
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from edc_facility import import_holidays
 from edc_list_data import site_list_data
 from edc_randomization.constants import ACTIVE, PLACEBO
 from edc_randomization.site_randomizers import site_randomizers
 from edc_randomization.tests.testcase_mixin import TestCaseMixin, all_sites
-from edc_sites import add_or_update_django_sites
 from edc_utils import get_utcnow
 
 from edc_pharmacy.exceptions import InsufficientQuantityError
@@ -28,6 +27,7 @@ from edc_pharmacy.models import (
 )
 
 
+@override_settings(SITE_ID=1)
 class TestPackaging(TestCaseMixin, TestCase):
     import_randomization_list = True
     site_names = [x.name for x in all_sites]
@@ -36,7 +36,6 @@ class TestPackaging(TestCaseMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays(test=True)
-        add_or_update_django_sites(sites=all_sites)
         if cls.import_randomization_list:
             randomizer_cls = site_randomizers.get("default")
             randomizer_cls.import_list(
