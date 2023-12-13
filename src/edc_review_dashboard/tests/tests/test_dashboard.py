@@ -108,14 +108,6 @@ class TestDashboard(WebTest):
         self.assertIn("2000.0", response.html.get_text())
         self.assertIn("3000.0", response.html.get_text())
 
-        # response = response.click(
-        #     linkid=f"id-reported-visits-{self.subject_identifiers[1]}-1000-0"
-        # )
-
-        # print(response.html.get_text())
-        # follow to dashoard for this visit
-        # response = response.click(linkid="id-reported-visit-list")
-
     def test_url_response_for_subject_identifier(self):
         self.login()
 
