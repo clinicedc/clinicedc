@@ -2,7 +2,7 @@ from copy import copy
 from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
 from edc_appointment.tests.helper import Helper
 from edc_constants.constants import YES
@@ -17,13 +17,13 @@ from edc_lab.tests.site_labs_test_helper import SiteLabsTestHelper
 from lab_app.models import SubjectRequisition, SubjectVisit
 
 
+@override_settings(SITE_ID=10)
 class TestLabels(TestCase):
     lab_helper = SiteLabsTestHelper()
 
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         import_holidays()
-        return super().setUpClass()
 
     def setUp(self):
         self.lab_helper.setup_site_labs()
