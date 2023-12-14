@@ -2,9 +2,9 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import arrow
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import Group, Permission, User
 from django.contrib.sites.models import Site
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
 from edc_auth.auth_objects import CLINIC
@@ -33,12 +33,13 @@ class TestViewMixins(TestCase):
             codename_tuples=(("edc_dashboard.view_my_listboard", "View my listboard"),),
         )
         AuthUpdater(verbose=False, warn_only=True)
-        return super().setUpTestData()
 
     def setUp(self):
         self.user = User.objects.create(username="erik")
+        self.user.userprofile.sites.add(Site.objects.get_current())
         group = Group.objects.get(name=CLINIC)
         self.user.groups.add(group)
+        self.user.user_permissions.add(Permission.objects.get(codename="view_appointment"))
         self.request = RequestFactory().get("/")
         self.request.user = self.user
 
@@ -57,6 +58,7 @@ class TestViewMixins(TestCase):
             with self.subTest(attr=attr):
                 self.assertEqual(attr, view.get_context_data().get(attr), attr)
 
+    @tag("1")
     def test_listboard_filter_view(self):
         class SubjectVisitModelWrapper(ModelWrapper):
             model = "edc_dashboard.subjectvisit"
