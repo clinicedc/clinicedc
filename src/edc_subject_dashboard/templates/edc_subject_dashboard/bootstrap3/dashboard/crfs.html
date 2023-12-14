@@ -43,7 +43,7 @@
                                         {% elif not crf.object.id and crf.object.has_add_permission %}
                                             {%  if request.site.id == crf.site.id %}href="{{ crf.object.href }}"{% else %} disabled {% endif %}><span class="fas fa-plus"></span> Add
                                         {% elif crf.object.id and crf.object.has_view_permission %}
-                                            {%  if request.site.id == crf.site.id %}href="{{ crf.object.href }}"{% else %} disabled {% endif %}><span class="fas fa-eye"></span> View
+                                            href="{{ crf.object.href }}"><span class="fas fa-eye"></span> View
                                         {% else %}
                                             disabled >{% if crf.object.id %}<span class="fas fa-pen"></span> Change{% else %}<span class="fas fa-plus"></span> Add{% endif %}
                                         {% endif %}
