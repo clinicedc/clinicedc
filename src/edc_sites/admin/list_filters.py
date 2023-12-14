@@ -1,7 +1,7 @@
 from django.contrib.admin import SimpleListFilter
 from django.contrib.sites.models import Site
 
-from ..permissions import site_ids_with_permissions
+from ..permissions import get_view_only_sites_for_user
 from ..site import sites
 
 
@@ -11,7 +11,9 @@ class SiteListFilter(SimpleListFilter):
 
     def lookups(self, request, model_admin):
         names = []
-        site_ids = site_ids_with_permissions(request)
+        site_ids = [request.site.id] + get_view_only_sites_for_user(
+            request.user, request.site.id, request=request
+        )
         for site in Site.objects.filter(id__in=site_ids).order_by("id"):
             names.append((site.id, f"{site.id} {sites.get(site.id).description}"))
         return tuple(names)

@@ -6,14 +6,11 @@ from warnings import warn
 from edc_registration import get_registered_subject
 from edc_registration.utils import RegisteredSubjectDoesNotExist
 
+from ..exceptions import InvalidSiteForSubjectError
 from .get_site_model_cls import get_site_model_cls
 
 if TYPE_CHECKING:
     from django.contrib.sites.models import Site
-
-
-class InvalidSiteForSubjectError(Exception):
-    pass
 
 
 def valid_site_for_subject_or_raise(

@@ -7,7 +7,7 @@ from django.core.exceptions import FieldError, ObjectDoesNotExist
 from django.db.models import QuerySet
 
 from ..models import SiteProfile
-from ..permissions import has_permissions_for_extra_sites, site_ids_with_permissions
+from ..permissions import get_view_only_sites_for_user, may_view_other_sites
 from ..site import sites
 from .list_filters import SiteListFilter
 
@@ -36,7 +36,7 @@ class SiteModelAdminMixin:
 
     def get_list_filter(self, request):
         list_filter = super().get_list_filter(request)
-        if has_permissions_for_extra_sites(request) and "site" not in list_filter:
+        if may_view_other_sites(request) and "site" not in list_filter:
             list_filter = list_filter + (SiteListFilter,)
         elif "site" in list_filter:
             list_filter = tuple([x for x in list_filter if x != "site"]) + (SiteListFilter,)
@@ -44,7 +44,7 @@ class SiteModelAdminMixin:
 
     def get_list_display(self, request):
         list_display = super().get_list_display(request)
-        if has_permissions_for_extra_sites(request) and "site" not in list_display:
+        if may_view_other_sites(request) and "site" not in list_display:
             list_display = (list_display[0],) + (self.site_code,) + list_display[1:]
         elif "site" in list_display:
             list_display = tuple(
@@ -57,8 +57,11 @@ class SiteModelAdminMixin:
         """Limit modeladmin queryset for the current site only"""
         qs = super().get_queryset(request)
         if getattr(request, "site", None):
+            site_ids = [request.site.id] + get_view_only_sites_for_user(
+                request.user, request.site.id, request=request
+            )
             try:
-                qs = qs.filter(site_id__in=site_ids_with_permissions(request))
+                qs = qs.filter(site_id__in=site_ids)
             except FieldError:
                 raise SiteModeAdminMixinError(
                     f"Model missing field `site`. Model `{self.model}`. Did you mean to use "
