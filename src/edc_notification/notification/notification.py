@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
 from edc_protocol import Protocol
+from edc_sites.site import SiteNotRegistered, sites
 from edc_utils import get_utcnow
 from twilio.base.exceptions import TwilioException, TwilioRestException
 from twilio.rest import Client
@@ -39,7 +40,7 @@ class Notification:
         "{test_body_line}"
         "A report has been submitted for patient "
         "{subject_identifier} "
-        "at site {site_name} which may require "
+        "at site '{site_name}' which may require "
         "your attention.\n\n"
         "Title: {display_name}\n\n"
         "You received this message because you are subscribed to receive these "
@@ -62,9 +63,9 @@ class Notification:
     email_test_subject_line: str = "TEST/UAT -- "
 
     sms_template: str = (
-        '{test_line}{protocol_name}: Report "{display_name}" for '
+        "{test_line}{protocol_name}: Report '{display_name}' for "
         "patient {subject_identifier} "
-        "at site {site_name} may require "
+        "at site '{site_name}' may require "
         "your attention. Login to review."
     )
     sms_test_line: str = "TEST MESSAGE. NO ACTION REQUIRED - "
@@ -204,9 +205,13 @@ class Notification:
                 pass
         if "site_name" not in template_options:
             try:
-                template_options.update(site_name=instance.site.name.replace("_", " ").title())
+                site_name = sites.get(instance.site.id).description
             except AttributeError:
                 pass
+            except SiteNotRegistered as e:
+                raise NotificationError(e)
+            else:
+                template_options.update(site_name=site_name.replace("_", " ").title())
         return template_options
 
     def send_email(

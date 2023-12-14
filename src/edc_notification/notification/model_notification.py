@@ -44,7 +44,7 @@ class ModelNotification(Notification):
     sms_template: str = (
         "{test_line}{protocol_name}: {model_operation}Report '{display_name}' for "
         "patient {subject_identifier} "
-        "at site {site_name} may require "
+        "at site '{site_name}' may require "
         "your attention. Login to review. (See your user profile to unsubscribe.)"
     )
 
