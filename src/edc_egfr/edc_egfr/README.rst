@@ -141,8 +141,8 @@ For example, from the BloodResultRft model in `meta-edc`_
 .. |pypi| image:: https://img.shields.io/pypi/v/edc-egfr.svg
     :target: https://pypi.python.org/pypi/edc-egfr
 
-.. |actions| image:: https://github.com/clinicedc/edc-egfr/workflows/build/badge.svg?branch=develop
-  :target: https://github.com/clinicedc/edc-egfr/actions?query=workflow:build
+.. |actions| image:: https://github.com/clinicedc/edc-egfr/actions/workflows/build.yml/badge.svg
+  :target: https://github.com/clinicedc/edc-egfr/actions/workflows/build.yml
 
 .. |codecov| image:: https://codecov.io/gh/clinicedc/edc-egfr/branch/develop/graph/badge.svg
   :target: https://codecov.io/gh/clinicedc/edc-egfr
