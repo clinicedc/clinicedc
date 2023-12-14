@@ -1,7 +1,4 @@
-from django.conf import settings
-from django.test import TestCase
-from edc_sites import add_or_update_django_sites
-from edc_sites.single_site import SingleSite
+from django.test import TestCase, override_settings
 
 from edc_lab.identifiers import AliquotIdentifier
 from edc_lab.lab import AliquotCreator, AliquotType, PrimaryAliquot
@@ -15,22 +12,8 @@ class MyAliquotCreator(AliquotCreator):
     aliquot_identifier_cls = MyAliquotIdentifier
 
 
+@override_settings(SITE_ID=10)
 class TestPrimaryAliquot(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        add_or_update_django_sites(
-            sites=[
-                SingleSite(
-                    settings.SITE_ID,
-                    "test_site",
-                    country_code="ug",
-                    country="uganda",
-                    domain="bugamba.ug.clinicedc.org",
-                )
-            ]
-        )
-        return super().setUpClass()
-
     def test_create_new_primary_aliquot(self):
         aliquot_type = AliquotType(name="aliquot_a", numeric_code="22", alpha_code="WW")
         p = PrimaryAliquot(

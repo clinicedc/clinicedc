@@ -1,28 +1,11 @@
-from django.conf import settings
-from django.test import TestCase
-from edc_sites import add_or_update_django_sites
-from edc_sites.single_site import SingleSite
+from django.test import TestCase, override_settings
 from edc_sites.tests import SiteTestCaseMixin
 from edc_test_utils.natural_key_test_helper import NaturalKeyTestHelper
 
 
+@override_settings(SITE_ID=10)
 class TestNaturalKey(SiteTestCaseMixin, TestCase):
     nk_test_helper = NaturalKeyTestHelper()
-
-    @classmethod
-    def setUpClass(cls):
-        add_or_update_django_sites(
-            sites=[
-                SingleSite(
-                    settings.SITE_ID,
-                    "test_site",
-                    country_code="ug",
-                    country="uganda",
-                    domain="bugamba.ug.clinicedc.org",
-                )
-            ]
-        )
-        return super().setUpClass()
 
     def test_natural_key_attrs(self):
         self.nk_test_helper.nk_test_natural_key_attr("edc_lab")

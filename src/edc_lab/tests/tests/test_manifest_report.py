@@ -1,10 +1,8 @@
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
-from edc_sites import add_or_update_django_sites
-from edc_sites.single_site import SingleSite
 from edc_sites.tests import SiteTestCaseMixin
+from edc_sites.utils import add_or_update_django_sites
 from multisite import SiteID
 
 from edc_lab.models import (
@@ -20,22 +18,8 @@ from edc_lab.models import (
 from edc_lab.reports import ManifestReport, ManifestReportError
 
 
+@override_settings(SITE_ID=10)
 class TestManifest(SiteTestCaseMixin, TestCase):
-    @classmethod
-    def setUpClass(cls):
-        add_or_update_django_sites(
-            sites=[
-                SingleSite(
-                    settings.SITE_ID,
-                    "test_site",
-                    country_code="ug",
-                    country="uganda",
-                    domain="bugamba.ug.clinicedc.org",
-                )
-            ]
-        )
-        return super().setUpClass()
-
     def test_manifest(self):
         consignee = Consignee.objects.create(name="consignee")
         shipper = Shipper.objects.create(name="shipper")
@@ -58,9 +42,10 @@ class TestManifest(SiteTestCaseMixin, TestCase):
         self.assertIn(manifest_item.human_readable_identifier, manifest_item.slug)
 
 
+@override_settings(SITE_ID=10)
 class TestManifestReport(SiteTestCaseMixin, TestCase):
     def setUp(self):
-        add_or_update_django_sites(sites=self.default_sites, verbose=False)
+        add_or_update_django_sites(single_sites=self.default_sites, verbose=False)
         self.user = User.objects.create(first_name="Noam", last_name="Chomsky")
         consignee = Consignee.objects.create(name="consignee")
         shipper = Shipper.objects.create(name="shipper")
@@ -68,7 +53,7 @@ class TestManifestReport(SiteTestCaseMixin, TestCase):
 
     @override_settings(SITE_ID=SiteID(default=20))
     def test_report(self):
-        self.assertEqual(self.manifest.site.name, "test_site")
+        self.assertEqual(self.manifest.site.name, "mochudi")
         report = ManifestReport(manifest=self.manifest, user=self.user)
         report.render_to_response()
 
@@ -76,7 +61,7 @@ class TestManifestReport(SiteTestCaseMixin, TestCase):
     def test_report_shipped(self):
         self.manifest.shipped = True
         self.manifest.save()
-        self.assertEqual(self.manifest.site.name, "test_site")
+        self.assertEqual(self.manifest.site.name, "mochudi")
         report = ManifestReport(manifest=self.manifest, user=self.user)
         report.render_to_response()
 
@@ -89,7 +74,7 @@ class TestManifestReport(SiteTestCaseMixin, TestCase):
                 manifest=self.manifest,
                 identifier=f"{self.manifest.manifest_identifier}{i}",
             )
-        self.assertEqual(self.manifest.site.name, "test_site")
+        self.assertEqual(self.manifest.site.name, "mochudi")
         report = ManifestReport(manifest=self.manifest, user=self.user)
         self.assertRaises(ManifestReportError, report.render_to_response)
         try:
@@ -119,7 +104,7 @@ class TestManifestReport(SiteTestCaseMixin, TestCase):
         for i in range(0, 3):
             BoxItem.objects.create(box=box, identifier=f"{i}", position=i)
         ManifestItem.objects.create(manifest=self.manifest, identifier=box.box_identifier)
-        self.assertEqual(self.manifest.site.name, "test_site")
+        self.assertEqual(self.manifest.site.name, "mochudi")
         report = ManifestReport(manifest=self.manifest, user=self.user)
         self.assertRaises(ManifestReportError, report.render_to_response)
         try:
@@ -142,7 +127,7 @@ class TestManifestReport(SiteTestCaseMixin, TestCase):
                 box=box, identifier=aliquot.aliquot_identifier, position=index
             )
         ManifestItem.objects.create(manifest=self.manifest, identifier=box.box_identifier)
-        self.assertEqual(self.manifest.site.name, "test_site")
+        self.assertEqual(self.manifest.site.name, "mochudi")
         report = ManifestReport(manifest=self.manifest, user=self.user)
         self.assertRaises(ManifestReportError, report.render_to_response)
         try:

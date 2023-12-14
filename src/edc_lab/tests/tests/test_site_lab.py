@@ -1,13 +1,13 @@
 import re
 
 from django.conf import settings
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
 from edc_appointment.tests.helper import Helper
 from edc_constants.constants import NO, NOT_APPLICABLE, YES
 from edc_facility import import_holidays
-from edc_sites import add_or_update_django_sites
 from edc_sites.single_site import SingleSite
+from edc_sites.utils import add_or_update_django_sites
 from edc_utils.date import get_utcnow
 from edc_visit_tracking.constants import SCHEDULED
 
@@ -24,22 +24,8 @@ from lab_app.models import SubjectRequisition, SubjectVisit
 from ..site_labs_test_helper import SiteLabsTestHelper
 
 
+@override_settings(SITE_ID=10)
 class TestSiteLab(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        add_or_update_django_sites(
-            sites=[
-                SingleSite(
-                    settings.SITE_ID,
-                    "test_site",
-                    country_code="ug",
-                    country="uganda",
-                    domain="bugamba.ug.clinicedc.org",
-                )
-            ]
-        )
-        return super().setUpClass()
-
     def test_site_labs(self):
         site_lab = SiteLabs()
         self.assertFalse(site_lab.loaded)
@@ -58,13 +44,14 @@ class TestSiteLab(TestCase):
         self.assertFalse(site_lab.loaded)
 
 
+@override_settings(SITE_ID=10)
 class TestSiteLab2(TestCase):
     lab_helper = SiteLabsTestHelper()
 
     @classmethod
     def setUpClass(cls):
         add_or_update_django_sites(
-            sites=[
+            single_sites=[
                 SingleSite(
                     settings.SITE_ID,
                     "test_site",

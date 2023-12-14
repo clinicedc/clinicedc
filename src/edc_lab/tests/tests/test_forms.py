@@ -1,17 +1,14 @@
 from datetime import timedelta
 
 from django import forms
-from django.conf import settings
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
 from edc_appointment.tests.helper import Helper
 from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
 from edc_crf.modelform_mixins import RequisitionModelFormMixin
 from edc_facility.import_holidays import import_holidays
 from edc_form_validators import FormValidator
-from edc_sites import add_or_update_django_sites
-from edc_sites.single_site import SingleSite
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -30,22 +27,8 @@ from ..site_labs_test_helper import SiteLabsTestHelper
 from ..visit_schedules import visit_schedule
 
 
+@override_settings(SITE_ID=10)
 class TestForms(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        add_or_update_django_sites(
-            sites=[
-                SingleSite(
-                    settings.SITE_ID,
-                    "test_site",
-                    country_code="ug",
-                    country="uganda",
-                    domain="bugamba.ug.clinicedc.org",
-                )
-            ]
-        )
-        return super().setUpClass()
-
     def setUp(self):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
@@ -176,24 +159,13 @@ class TestForms(TestCase):
             self.fail("ValidationError unexpectedly raised")
 
 
+@override_settings(SITE_ID=10)
 class TestForms2(TestCase):
     lab_helper = SiteLabsTestHelper()
 
     @classmethod
-    def setUpClass(cls):
-        add_or_update_django_sites(
-            sites=[
-                SingleSite(
-                    settings.SITE_ID,
-                    "test_site",
-                    country_code="ug",
-                    country="uganda",
-                    domain="bugamba.ug.clinicedc.org",
-                )
-            ]
-        )
+    def setUpTestData(cls):
         import_holidays()
-        return super().setUpClass()
 
     def setUp(self):
         site_visit_schedules._registry = {}
