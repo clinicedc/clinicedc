@@ -172,6 +172,7 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
         Note: The returned queryset is set to self.object_list in
         `get()` just before rendering to response.
         """
+
         queryset = getattr(
             self.listboard_model_cls, self.get_listboard_model_manager_name()
         ).none()

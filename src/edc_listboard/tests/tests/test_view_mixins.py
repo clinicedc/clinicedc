@@ -2,7 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import arrow
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import Group, Permission, User
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
@@ -21,7 +21,7 @@ from edc_listboard.views import ListboardView
 from ..models import SubjectVisit
 
 
-@override_settings(EDC_AUTH_SKIP_SITE_AUTHS=True, EDC_AUTH_SKIP_AUTH_UPDATER=False)
+@override_settings(EDC_AUTH_SKIP_SITE_AUTHS=True, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=1)
 class TestViewMixins(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -33,12 +33,13 @@ class TestViewMixins(TestCase):
             codename_tuples=(("edc_listboard.view_my_listboard", "View my listboard"),),
         )
         AuthUpdater(verbose=False, warn_only=True)
-        return super().setUpTestData()
 
     def setUp(self):
         self.user = User.objects.create(username="erik")
+        self.user.userprofile.sites.add(Site.objects.get_current())
         group = Group.objects.get(name=CLINIC)
         self.user.groups.add(group)
+        self.user.user_permissions.add(Permission.objects.get(codename="view_appointment"))
         self.request = RequestFactory().get("/")
         self.request.user = self.user
 
