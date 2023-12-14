@@ -1,9 +1,12 @@
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group, Permission
+from django.contrib.sites.models import Site
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.models import Appointment
+from edc_auth.auth_objects import CLINIC
 from edc_facility.import_holidays import import_holidays
 from edc_lab.site_labs import site_labs
 from edc_utils.date import get_utcnow
@@ -30,6 +33,10 @@ class TestDashboard(WebTest):
         self.user.is_active = True
         self.user.is_staff = True
         self.user.save()
+        self.user.userprofile.sites.add(Site.objects.get_current())
+        group = Group.objects.get(name=CLINIC)
+        self.user.groups.add(group)
+        self.user.user_permissions.add(Permission.objects.get(codename="view_appointment"))
         self.user.refresh_from_db()
         site_labs._registry = {}
         site_labs.loaded = False
@@ -107,14 +114,6 @@ class TestDashboard(WebTest):
         self.assertIn("1000.0", response.html.get_text())
         self.assertIn("2000.0", response.html.get_text())
         self.assertIn("3000.0", response.html.get_text())
-
-        # response = response.click(
-        #     linkid=f"id-reported-visits-{self.subject_identifiers[1]}-1000-0"
-        # )
-
-        # print(response.html.get_text())
-        # follow to dashoard for this visit
-        # response = response.click(linkid="id-reported-visit-list")
 
     def test_url_response_for_subject_identifier(self):
         self.login()
