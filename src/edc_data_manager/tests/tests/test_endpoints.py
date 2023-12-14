@@ -1,7 +1,7 @@
 from importlib import import_module
 
 from django.contrib.auth import get_user_model
-from django.test import override_settings, tag
+from django.test import override_settings
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_action_item.models.action_item import ActionItem
@@ -138,7 +138,6 @@ class AdminSiteTest(WebTest):
         response = form.submit().follow()
         self.assertIn("was changed successfully", str(response.content))
 
-    @tag("1")
     def test_data_query_add_and_permissions(self):
         login(self, superuser=False, redirect_url="admin:index")
 
