@@ -2,7 +2,7 @@ import re
 from unittest.mock import patch
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Permission, User
 from django.contrib.sites.models import Site
 from django.test import override_settings
 from django.urls import reverse
@@ -46,6 +46,12 @@ class TestAdmin(WebTest):
         self.user.save()
         self.user.refresh_from_db()
         self.user.userprofile.sites.add(Site.objects.get(id=settings.SITE_ID))
+        self.user.user_permissions.add(
+            Permission.objects.get(
+                codename="view_appointment", content_type__app_label="edc_appointment"
+            )
+        )
+
         self.subject_identifier = "12345"
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
