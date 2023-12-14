@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from edc_sites.permissions import has_permissions_for_extra_sites
+from edc_sites.permissions import may_view_other_sites
 
 from ..constants import (
     CANCELLED_APPT,
@@ -98,7 +98,7 @@ class AppointmentViewMixin:
     def appointments(self):
         """Returns a Queryset of all appointments for this subject."""
         if not self._appointments:
-            if has_permissions_for_extra_sites(self.request):
+            if may_view_other_sites(self.request):
                 objects = self.appointment_model_cls.objects
             else:
                 objects = self.appointment_model_cls.on_site
