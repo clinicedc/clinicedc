@@ -66,13 +66,13 @@ class SearchListboardMixin:
         # get queryset
         if q_objects:
             queryset = (
-                getattr(self.listboard_model_cls, self.listboard_model_manager_name)
+                getattr(self.listboard_model_cls, self.get_listboard_model_manager_name())
                 .filter(q_objects, **filter_options)
                 .exclude(**exclude_options)
             )
         else:
             queryset = (
-                getattr(self.listboard_model_cls, self.listboard_model_manager_name)
+                getattr(self.listboard_model_cls, self.get_listboard_model_manager_name())
                 .filter(**filter_options)
                 .exclude(**exclude_options)
             )
