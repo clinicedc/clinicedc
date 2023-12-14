@@ -18,7 +18,7 @@ from .value_getter import ValueGetter, ValueGetterInvalidLookup
 if TYPE_CHECKING:
     from django.db.models import QuerySet
     from edc_model.models import BaseUuidModel
-    from edc_sites.model_mixins import SiteModelMixin
+    from edc_sites.models import SiteModelMixin
 
     class MyModel(SiteModelMixin, BaseUuidModel):
         class Meta(BaseUuidModel.Meta):
@@ -346,8 +346,8 @@ class ModelToDataframe:
     @property
     def other_columns(self) -> list[str]:
         """Return other column names with fk to a common models."""
+        from django.contrib.sites.models import Site
         from edc_lab.models import Panel
-        from edc_sites.models import Site
 
         related_model = [Site, Panel]
         if not self._list_columns:

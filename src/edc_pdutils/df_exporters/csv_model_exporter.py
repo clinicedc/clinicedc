@@ -24,12 +24,12 @@ class CsvModelExporter:
         decrypt: bool | None = None,
         sort_by: list | tuple | str | None = None,
         export_folder: str | None = None,
-        sites: list[int] | None = None,
+        site_ids: list[int] | None = None,
         **kwargs,
     ):
         self.model = model or queryset.model._meta.label_lower
         self.df_maker = self.df_maker_cls(
-            model=model, queryset=queryset, decrypt=decrypt, sites=sites or [], **kwargs
+            model=model, queryset=queryset, decrypt=decrypt, sites=site_ids or [], **kwargs
         )
         self.csv_exporter = self.csv_exporter_cls(
             model_name=self.model, sort_by=sort_by, export_folder=export_folder, **kwargs
