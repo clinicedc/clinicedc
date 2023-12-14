@@ -9,7 +9,7 @@ from edc_listboard.views import ListboardView
 from edc_metadata.constants import KEYED, REQUIRED
 from edc_metadata.view_mixins import MetadataViewMixin
 from edc_navbar.view_mixin import NavbarViewMixin
-from edc_sites.permissions import has_permissions_for_extra_sites
+from edc_sites.permissions import may_view_other_sites
 from edc_subject_dashboard.view_mixins import (
     RegisteredSubjectViewMixin,
     SubjectVisitViewMixin,
@@ -79,7 +79,7 @@ class SubjectReviewListboardView(
         return None
 
     def get_listboard_model_manager_name(self) -> str:
-        if has_permissions_for_extra_sites(self.request):
+        if may_view_other_sites(self.request):
             return "objects"
         return self.listboard_model_manager_name
 
