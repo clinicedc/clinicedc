@@ -3,6 +3,7 @@ from django.db.models.deletion import PROTECT
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
+from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
 from edc_visit_tracking.model_mixins import VisitTrackingCrfModelMixin
@@ -16,6 +17,7 @@ from ..model_mixins import (
 
 
 class SubjectConsent(
+    SiteModelMixin,
     NonUniqueSubjectIdentifierFieldMixin,
     UpdatesOrCreatesRegistrationModelMixin,
     BaseUuidModel,
@@ -32,17 +34,17 @@ class SubjectConsent(
         pass
 
 
-class OnScheduleOne(OnScheduleModelMixin, BaseUuidModel):
+class OnScheduleOne(SiteModelMixin, OnScheduleModelMixin, BaseUuidModel):
     class Meta(BaseUuidModel.Meta):
         pass
 
 
-class OffScheduleOne(OffScheduleModelMixin, BaseUuidModel):
+class OffScheduleOne(SiteModelMixin, OffScheduleModelMixin, BaseUuidModel):
     class Meta(BaseUuidModel.Meta):
         pass
 
 
-class CrfOne(OffstudyCrfModelMixin, VisitTrackingCrfModelMixin, BaseUuidModel):
+class CrfOne(SiteModelMixin, OffstudyCrfModelMixin, VisitTrackingCrfModelMixin, BaseUuidModel):
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     report_datetime = models.DateTimeField(default=get_utcnow)
@@ -54,12 +56,17 @@ class CrfOne(OffstudyCrfModelMixin, VisitTrackingCrfModelMixin, BaseUuidModel):
     f3 = models.CharField(max_length=50, null=True, blank=True)
 
 
-class NonCrfOne(NonUniqueSubjectIdentifierFieldMixin, OffstudyNonCrfModelMixin, BaseUuidModel):
+class NonCrfOne(
+    SiteModelMixin,
+    NonUniqueSubjectIdentifierFieldMixin,
+    OffstudyNonCrfModelMixin,
+    BaseUuidModel,
+):
     report_datetime = models.DateTimeField(default=get_utcnow)
 
     class Meta(OffstudyNonCrfModelMixin.Meta):
         pass
 
 
-class SubjectOffstudy2(OffstudyModelMixin, BaseUuidModel):
+class SubjectOffstudy2(SiteModelMixin, OffstudyModelMixin, BaseUuidModel):
     pass

@@ -24,17 +24,16 @@ from ..visit_schedule import visit_schedule1
 
 class TestOffstudy(TestCase):
     @classmethod
+    def setUpTestData(cls):
+        import_holidays()
+
+    @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule1)
         site_consents.register(v1_consent)
-        import_holidays()
         site_action_items.register(EndOfStudyAction)
-        return super().setUpClass()
-
-    @classmethod
-    def tearDownClass(cls):
-        super().tearDownClass()
 
     def setUp(self):
         self.visit_schedule_name = "visit_schedule1"
