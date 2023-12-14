@@ -1,12 +1,14 @@
+from __future__ import annotations
+
 import csv
-import os
 import sys
+from pathlib import Path
 from pprint import pprint
-from typing import Dict, List, Optional, Tuple
 from uuid import uuid4
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
+from edc_sites.site import SitesCheckError, sites
 from tqdm import tqdm
 
 from .randomization_list_verifier import RandomizationListVerifier
@@ -65,8 +67,8 @@ class RandomizationListImporter:
         self,
         randomizer_model_cls=None,
         randomizer_name: str = None,
-        randomizationlist_path: str = None,
-        assignment_map: Dict[str, int] = None,
+        randomizationlist_path: Path | str = None,
+        assignment_map: dict[str, int] = None,
         verbose: bool = None,
         overwrite: bool = None,
         add: bool = None,
@@ -74,10 +76,10 @@ class RandomizationListImporter:
         username: str = None,
         revision: str = None,
         sid_count_for_tests: int = None,
-        extra_csv_fieldnames: Optional[List[str]] = None,
+        extra_csv_fieldnames: list[str] | None = None,
         **kwargs,
     ):
-        self.verify_messages: Optional[str] = None
+        self.verify_messages: str | None = None
         self.add = add
         self.overwrite = overwrite
         self.verbose = True if verbose is None else verbose
@@ -88,18 +90,17 @@ class RandomizationListImporter:
         self.randomizer_model_cls = randomizer_model_cls
         self.randomizer_name = randomizer_name
         self.assignment_map = assignment_map
-        self.randomizationlist_path = randomizationlist_path
+        self.randomizationlist_path: Path = Path(randomizationlist_path).expanduser()
         self.required_csv_fieldnames.extend(extra_csv_fieldnames or [])
 
         if self.dryrun:
             sys.stdout.write(
                 style.MIGRATE_HEADING("\n ->> Dry run. No changes will be made.\n")
             )
-        if not self.get_site_names():
-            raise RandomizationListImportError(
-                "No sites have been imported. See sites module and ."
-                'method "add_or_update_django_sites".'
-            )
+        try:
+            sites.check()
+        except SitesCheckError as e:
+            raise RandomizationListImportError(e)
         if self.verbose and add:
             count = self.randomizer_model_cls.objects.all().count()
             sys.stdout.write(
@@ -108,7 +109,7 @@ class RandomizationListImporter:
                 )
             )
 
-    def import_list(self, **kwargs) -> Tuple[int, str]:
+    def import_list(self, **kwargs) -> tuple[int, Path]:
         """Imports CSV and verifies."""
         self._raise_on_empty_file()
         self._raise_on_invalid_header()
@@ -137,12 +138,11 @@ class RandomizationListImporter:
     def _summarize_results(self):
         if self.verbose:
             count = self.randomizer_model_cls.objects.all().count()
-            path = self.randomizationlist_path
             msg = (
                 f"\n    - Imported {count} SIDs for randomizer "
                 f"`{self.randomizer_name}` into model "
                 f"`{self.randomizer_model_cls._meta.label_lower}` \n"
-                f"      from {path}.\n"
+                f"      from {self.randomizationlist_path}.\n"
             )
             sys.stdout.write(style.SUCCESS(msg))
             if self.verify_messages:
@@ -151,14 +151,14 @@ class RandomizationListImporter:
                 sys.stdout.write(style.SUCCESS("    - Verified OK. \n"))
 
     def _raise_on_empty_file(self):
-        if int(os.path.getsize(self.randomizationlist_path)) < 1:
+        if self.randomizationlist_path.stat().st_size < 1:
             raise RandomizationListImportError(
                 f"File is empty. See {self.randomizer_name}. "
                 f"Got {self.randomizationlist_path} (1)."
             )
         else:
             index = 0
-            with open(self.randomizationlist_path, "r") as csvfile:
+            with self.randomizationlist_path.open(mode="r") as csvfile:
                 reader = csv.DictReader(csvfile)
                 for index, row in enumerate(reader):
                     if index == 0:
@@ -170,7 +170,7 @@ class RandomizationListImporter:
                 )
 
     def _raise_on_invalid_header(self):
-        with open(self.randomizationlist_path, "r") as csvfile:
+        with self.randomizationlist_path.open(mode="r") as csvfile:
             reader = csv.DictReader(csvfile)
             for index, row in enumerate(reader):
                 if index == 0:
@@ -201,15 +201,15 @@ class RandomizationListImporter:
                     "model is not empty!"
                 )
 
-    def get_sid_list(self) -> List[int]:
-        with open(self.randomizationlist_path, "r") as csvfile:
+    def get_sid_list(self) -> list[int]:
+        with self.randomizationlist_path.open(mode="r") as csvfile:
             reader = csv.DictReader(csvfile)
-            sids = [row["sid"] for row in reader]
+            sids = [int(row["sid"]) for row in reader]
         if len(sids) != len(list(set(sids))):
             raise RandomizationListImportError("Invalid file. Detected duplicate SIDs")
         return sids
 
-    def _raise_on_duplicates(self):
+    def _raise_on_duplicates(self) -> None:
         self.get_sid_list()
 
     def _import_csv_to_model(self) -> int:
@@ -227,7 +227,7 @@ class RandomizationListImporter:
             sid_count = self.sid_count_for_tests
         else:
             sid_count = len(self.get_sid_list())
-        with open(self.randomizationlist_path, "r") as csvfile:
+        with self.randomizationlist_path.open(mode="r") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in tqdm(reader, total=sid_count):
                 if self.sid_count_for_tests and len(objs) == self.sid_count_for_tests:
@@ -260,7 +260,7 @@ class RandomizationListImporter:
                 )
         return rec_count
 
-    def _verify_data(self, **kwargs) -> List[str]:
+    def _verify_data(self, **kwargs) -> list[str]:
         verifier = self.verifier_cls(
             assignment_map=self.assignment_map,
             randomizationlist_path=self.randomizationlist_path,
@@ -271,11 +271,11 @@ class RandomizationListImporter:
         )
         return verifier.messages
 
-    def get_assignment(self, row: dict, assignment_map: Dict[str, int]) -> str:
+    def get_assignment(self, row: dict, assignment_map: dict[str, int]) -> str:
         """Returns assignment (text) after checking validity."""
         return self.valid_assignment_or_raise(row["assignment"], assignment_map)
 
-    def get_allocation(self, row: dict, assignment_map: Dict[str, int]) -> int:
+    def get_allocation(self, row: dict, assignment_map: dict[str, int]) -> int:
         """Returns an integer allocation for the given
         assignment or raises.
         """
@@ -283,7 +283,7 @@ class RandomizationListImporter:
         return assignment_map.get(assignment)
 
     def valid_assignment_or_raise(
-        self, assignment: str, assignment_map: Dict[str, int]
+        self, assignment: str, assignment_map: dict[str, int]
     ) -> str:
         if assignment not in assignment_map:
             raise InvalidAssignment(
@@ -308,19 +308,9 @@ class RandomizationListImporter:
         return {}
 
     @staticmethod
-    def get_site_names() -> Dict[str, str]:
-        """A dict of site names for the target randomizer.
-
-        Default: All sites"""
-        from django.contrib.sites.models import Site
-
-        sites = {obj.name: obj.name for obj in Site.objects.all()}
-        if not sites:
-            raise RandomizationListImportError(
-                "No sites have been imported. See sites module and ."
-                'method "add_or_update_django_sites".'
-            )
-        return sites
+    def get_site_names() -> dict[str, str]:
+        """A dict of site names for the target randomizer."""
+        return {single_site.name: single_site.name for single_site in sites.all().values()}
 
     def validate_site_name(self, row) -> str:
         """Returns the site name or raises"""

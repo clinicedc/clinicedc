@@ -1,7 +1,6 @@
 import csv
-import os
 import sys
-from typing import List, Optional
+from pathlib import Path
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
@@ -27,21 +26,21 @@ class RandomizationListVerifier:
     def __init__(
         self,
         randomizer_name=None,
-        randomizationlist_path=None,
+        randomizationlist_path: Path | str = None,
         randomizer_model_cls=None,
         assignment_map=None,
         fieldnames=None,
         sid_count_for_tests=None,
-        required_csv_fieldnames: Optional[List[str]] = None,
+        required_csv_fieldnames: list[str] | None = None,
         **kwargs,
     ):
         self.count: int = 0
-        self.messages: List[str] = []
+        self.messages: list[str] = []
         self.randomizer_name: str = randomizer_name
         self.randomizer_model_cls = randomizer_model_cls
-        self.randomizationlist_path: str = randomizationlist_path
+        self.randomizationlist_path: Path = Path(randomizationlist_path)
         self.assignment_map: dict = assignment_map
-        self.sid_count_for_tests: Optional[int] = sid_count_for_tests
+        self.sid_count_for_tests: int | None = sid_count_for_tests
         self.required_csv_fieldnames = required_csv_fieldnames
 
         randomizer_cls = site_randomizers.get(randomizer_name)
@@ -62,9 +61,7 @@ class RandomizationListVerifier:
                 )
 
             else:
-                if not self.randomizationlist_path or not os.path.exists(
-                    self.randomizationlist_path
-                ):
+                if not self.randomizationlist_path or not self.randomizationlist_path.exists():
                     self.messages.append(
                         f"Randomization list file does not exist but SIDs "
                         f"have been loaded. Expected file "
@@ -82,9 +79,9 @@ class RandomizationListVerifier:
             ):
                 raise RandomizationListError(", ".join(self.messages))
 
-    def verify(self) -> Optional[str]:
+    def verify(self) -> str | None:
         message = None
-        with open(self.randomizationlist_path, "r") as f:
+        with self.randomizationlist_path.open(mode="r") as f:
             reader = csv.DictReader(f)
             for index, row in enumerate(reader, start=1):
                 row = {k: v.strip() for k, v in row.items() if k}
@@ -103,7 +100,7 @@ class RandomizationListVerifier:
                 )
         return message
 
-    def inspect_row(self, index: int, row) -> Optional[str]:
+    def inspect_row(self, index: int, row) -> str | None:
         """Checks SIDS, site_name, assignment, ...
 
         Note:Index is zero-based
