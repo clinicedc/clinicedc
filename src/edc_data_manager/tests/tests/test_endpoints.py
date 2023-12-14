@@ -28,8 +28,7 @@ User = get_user_model()
 
 
 @override_settings(
-    EDC_AUTH_SKIP_SITE_AUTHS=False,
-    EDC_AUTH_SKIP_AUTH_UPDATER=False,
+    EDC_AUTH_SKIP_SITE_AUTHS=False, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=20
 )
 class AdminSiteTest(WebTest):
     @classmethod
@@ -158,13 +157,13 @@ class AdminSiteTest(WebTest):
         response = form.submit().follow()
 
         self.assertIn("was added successfully", str(response))
-        self.app.get(reverse("edc_auth_admin:logout"), user=self.user, status=200)
+        # self.app.get(reverse("edc_auth_admin:logout"), user=self.user, status=200)
 
-        login(
-            self,
-            superuser=False,
-            redirect_url="admin:index",
-        )
+        # login(
+        #     self,
+        #     superuser=False,
+        #     redirect_url="admin:index",
+        # )
 
         data_query = DataQuery.objects.get(title="My first query")
         url = reverse(

@@ -6,8 +6,7 @@ from edc_auth.site_auths import site_auths
 
 
 @override_settings(
-    EDC_AUTH_SKIP_SITE_AUTHS=False,
-    EDC_AUTH_SKIP_AUTH_UPDATER=False,
+    EDC_AUTH_SKIP_SITE_AUTHS=False, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=20
 )
 class TestAuths(TestCase):
     def test_load(self):

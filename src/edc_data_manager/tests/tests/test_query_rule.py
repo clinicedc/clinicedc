@@ -7,7 +7,7 @@ from unittest import skip
 
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
 from edc_constants.constants import NO, OPEN, YES
 from edc_facility.import_holidays import import_holidays
@@ -41,9 +41,13 @@ from edc_data_manager.rule import RuleRunner
 User = get_user_model()
 
 
+@override_settings(SITE_ID=20)
 class TestQueryRules(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         import_holidays()
+
+    def setUp(self):
         self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
 
         site_labs._registry = {}
