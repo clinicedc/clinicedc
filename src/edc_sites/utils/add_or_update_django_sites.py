@@ -9,10 +9,6 @@ from .get_or_create_site_obj import get_or_create_site_obj
 from .get_or_create_site_profile_obj import get_or_create_site_profile_obj
 
 
-class InvalidSiteError(Exception):
-    pass
-
-
 class UpdateDjangoSitesError(Exception):
     pass
 

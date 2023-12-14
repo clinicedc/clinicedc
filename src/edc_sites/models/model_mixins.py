@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+from django.conf import settings
 from django.contrib.sites.managers import CurrentSiteManager as BaseCurrentSiteManager
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models, transaction
+
+from edc_sites.site import sites
 
 
 class SiteModelMixinError(Exception):
@@ -44,7 +47,12 @@ class SiteModelMixin(models.Model):
                 with transaction.atomic():
                     site = Site.objects.get_current()
             except ObjectDoesNotExist as e:
-                raise SiteModelMixinError(e)
+                site_ids = [str(s) for s in sites.all()]
+                raise SiteModelMixinError(
+                    "Exception raised when trying manager method `get_current()`. "
+                    f"Sites registered with `sites` global are {site_ids}. "
+                    f"settings.SITE_ID={settings.SITE_ID}. Got {e}."
+                )
         return site or self.site
 
     def validate_site_against_current(self) -> None:

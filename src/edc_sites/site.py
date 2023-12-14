@@ -14,6 +14,7 @@ from django.core.management.color import color_style
 from django.utils.module_loading import import_module, module_has_submodule
 from edc_constants.constants import OTHER
 
+from .exceptions import InvalidSiteForUser
 from .single_site import SingleSite
 from .utils import get_site_model_cls, insert_into_domain
 
@@ -84,6 +85,7 @@ class Sites:
         self.loaded = False
         self._registry = {}
         if get_register_default_site():
+            self.loaded = True
             self._registry: dict[int, SingleSite] = {
                 1: SingleSite(
                     1,
@@ -94,6 +96,12 @@ class Sites:
                     title="what a site",
                 )
             }
+
+    def __repr__(self):
+        return f"{self.__class__}(loaded={self.loaded})"
+
+    def __str__(self):
+        return f"loaded={self.loaded}, registry={self._registry}"
 
     def initialize(self, initialize_site_model=False):
         """Initialize the registry.
@@ -118,30 +126,46 @@ class Sites:
         if "makemigrations" not in sys.argv:
             for single_site in single_sites:
                 if single_site.site_id in self._registry:
-                    raise AlreadyRegistered(f"Site already registered. Got {single_site}.")
+                    raise AlreadyRegistered(f"Site already registered. Got `{single_site}`.")
                 if single_site.name in [s.name for s in self._registry.values()]:
                     raise AlreadyRegisteredName(
-                        f"Site with this name is already registered. Got {single_site}."
+                        f"Site with this name is already registered. Got `{single_site}`."
                     )
                 if get_insert_uat_subdomain():
                     domain = insert_into_domain(single_site.domain, self.uat_subdomain)
                     single_site = dataclasses.replace(single_site, domain=domain)
                 if single_site.domain in [s.domain for s in self._registry.values()]:
                     raise AlreadyRegisteredDomain(
-                        f"Site with this domain is already registered. Got {single_site}."
+                        f"Site with this domain is already registered. Got `{single_site}`."
                     )
                 self._registry.update({single_site.site_id: single_site})
 
     def get(self, site_id: int) -> SingleSite:
+        """Returns a SingleSite instance for this site_id or
+        raises.
+
+        If the reqistry is empty, check you have created a `sites.py`
+        and called `register`.
+
+        If you are just running tests, you may only need to set
+        ``settings.EDC_SITES_REGISTER_DEFAULT=True``.
+        """
         if site_id not in self._registry:
-            raise SiteNotRegistered(f"Site not registered. Got `{site_id}`.")
+            site_ids = [s.site_id for s in self.all(aslist=True)]
+            if not site_ids:
+                msg = "In fact, no sites have been registered!"
+            else:
+                msg = f"Expected one of {[s.site_id for s in self.all(aslist=True)]}."
+            raise SiteNotRegistered(
+                f"Site not registered. {msg} See {repr(self)}. Got `{site_id}`."
+            )
         return self._registry.get(site_id)
 
     def get_by_attr(self, attrname: str, value: Any) -> SingleSite:
         for single_site in self._registry.values():
             if getattr(single_site, attrname) == value:
                 return single_site
-        raise SiteDoesNotExist(f"No site exists with `{attrname}`=={value}.")
+        raise SiteDoesNotExist(f"No site exists with `{attrname}`==`{value}`.")
 
     def all(self, aslist: bool | None = None) -> dict[int, SingleSite] | list[SingleSite]:
         if aslist:
@@ -156,7 +180,7 @@ class Sites:
         if aslist:
             return [
                 single_site
-                for single_site in self._registry.values()
+                for single_site in self.all(aslist=True)
                 if single_site.country == country
             ]
 
@@ -174,6 +198,18 @@ class Sites:
     def get_site_ids_for_user(user: User) -> list[int]:
         """Returns a list of site ids for this user."""
         return [site.id for site in user.userprofile.sites.all()]
+
+    @staticmethod
+    def site_in_profile_or_raise(user: User, site_id: int) -> None:
+        """Raises if user does not have site in their UserProfile."""
+        try:
+            user.userprofile.sites.get(id=site_id).id
+        except ObjectDoesNotExist:
+            site_ids = [str(obj.id) for obj in user.userprofile.sites.all()] or ["None"]
+            raise InvalidSiteForUser(
+                "User is not configured to access this site. See also UserProfile. "
+                f"Expected one of [{','.join(site_ids)}]. Got {site_id}."
+            )
 
     def get_language_choices_tuple(
         self, site: Site | None = None, site_id: int | None = None, other=None
