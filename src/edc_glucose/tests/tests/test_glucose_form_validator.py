@@ -1,6 +1,6 @@
 from _decimal import Decimal
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from edc_appointment.constants import SCHEDULED_APPT
 from edc_appointment.models import Appointment
 from edc_constants.constants import NOT_APPLICABLE, YES
@@ -15,6 +15,7 @@ from edc_glucose.form_validators import GlucoseFormValidator
 from edc_glucose.tests.visit_schedules import visit_schedule
 
 
+@override_settings(SITE_ID=10)
 class TestGlucose(TestCase):
     def setUp(self):
         site_visit_schedules._registry = {}
