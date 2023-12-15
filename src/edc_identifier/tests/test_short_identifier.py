@@ -136,7 +136,7 @@ class TestShortIdentifier(TestCase):
     def test_short_identifier_catches_duplicate_limit2(self):
         """Asserts raises if a duplicate identifier is generated."""
         options = dict(random_string_pattern=r"[AB]+", random_string_length=5)
-        n = 1
+        n = 0
         tries = 100
         while n < tries:
             n += 1
@@ -144,5 +144,5 @@ class TestShortIdentifier(TestCase):
                 ShortIdentifier(prefix="22", **options)
             except DuplicateIdentifierError:
                 break
-        self.assertGreater(n, 32)
-        self.assertLess(n, 35)
+        self.assertGreater(n, 31)
+        self.assertLess(n, 34)
