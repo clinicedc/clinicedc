@@ -1,3 +1,4 @@
+from django.test import override_settings
 from django.test.testcases import TestCase
 from django.urls.base import reverse
 
@@ -8,6 +9,7 @@ from edc_prn.site_prn_forms import AlreadyRegistered, site_prn_forms
 from ..models import TestModel  # noqa
 
 
+@override_settings(SITE_ID=10)
 class TestPrn(TestCase):
     def test_init(self):
         Prn(model="edc_prn.testmodel")
