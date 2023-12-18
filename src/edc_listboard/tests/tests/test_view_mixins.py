@@ -12,6 +12,7 @@ from edc_auth.auth_updater import AuthUpdater
 from edc_auth.site_auths import site_auths
 from edc_dashboard.url_names import url_names
 from edc_model_wrapper import ModelWrapper
+from edc_sites.view_mixins import SiteViewMixin
 from edc_utils import get_utcnow
 
 from edc_listboard.filters import ListboardFilter, ListboardViewFilters
@@ -74,7 +75,7 @@ class TestViewMixins(TestCase):
                 lookup={"reason": "scheduled"},
             )
 
-        class MyView(ListboardFilterViewMixin, ListboardView):
+        class MyView(SiteViewMixin, ListboardFilterViewMixin, ListboardView):
             listboard_model = "edc_listboard.subjectvisit"
             listboard_url = "listboard_url"
             listboard_template = "listboard_template"
