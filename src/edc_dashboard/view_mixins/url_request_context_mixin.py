@@ -38,16 +38,16 @@ class UrlRequestContextMixin:
         return getattr(urlconfig, cls.urlconfig_getattr)
 
     @staticmethod
-    def add_url_to_context(new_key=None, existing_key=None, context=None):
+    def add_url_to_context(new_key=None, existing_key=None) -> dict[str, str]:
         """Add url as new_key to the context using the value
         of the existing_key from request.context_data.
         """
         try:
-            context.update({new_key: url_names.get(existing_key)})
+            url_data = {new_key: url_names.get(existing_key)}
         except InvalidUrlName as e:
             raise UrlRequestContextError(
                 f"Url name not defined in url_names. "
                 f"Expected one of {url_names.registry}. Got {e}. "
                 f"Hint: check if dashboard middleware is loaded."
             )
-        return context
+        return url_data

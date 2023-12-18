@@ -23,14 +23,13 @@ class EdcViewMixin(
     edc_device_app = "edc_device"
 
     def get_context_data(self, **kwargs) -> dict:
-        context = super().get_context_data(**kwargs)
         try:
             edc_device_app_config = django_apps.get_app_config(self.edc_device_app)
         except LookupError as e:
             edc_device_app_config = None
             warnings.warn(str(e))
         live_system = getattr(settings, "LIVE_SYSTEM", "TEST")
-        context.update(
+        kwargs.update(
             {
                 "device_id": getattr(edc_device_app_config, "device_id", "device_id?"),
                 "device_role": getattr(edc_device_app_config, "device_role", "device_role?"),
@@ -38,7 +37,7 @@ class EdcViewMixin(
             }
         )
         self.check_for_warning_messages(live_system=live_system)
-        return context
+        return super().get_context_data(**kwargs)
 
     def check_for_warning_messages(self, live_system=None) -> None:
         if settings.DEBUG:
