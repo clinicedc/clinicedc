@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import sys
 from copy import deepcopy
 from typing import Callable, Tuple
@@ -280,7 +282,7 @@ class SiteAuths:
     def custom_permissions_tuples(self):
         return self.registry["custom_permissions_tuples"]
 
-    def verify_and_populate(self):
+    def verify_and_populate(self, app_name: str | None = None) -> None:
         """Verifies that updates refer to existing group
         or roles names.
 
@@ -290,12 +292,16 @@ class SiteAuths:
         for name, codenames in self.registry["update_groups"].items():
             if name not in self.registry["groups"]:
                 raise InvalidGroup(
-                    f"Cannot update group. Group name does not exist. Got {name}."
+                    f"Cannot update group. Group name does not exist. See app={app_name}"
+                    f"update_groups['groups']={codenames}. Got {name}"
                 )
             self.update_group(*codenames, name=name, key="groups")
         for name, group_names in self.registry["update_roles"].items():
             if name not in self.registry["roles"]:
-                raise InvalidRole(f"Cannot update role. Role name does not exist. Got {name}.")
+                raise InvalidRole(
+                    f"Cannot update role. Role name does not exist. See app={app_name}. "
+                    f"update_roles['groups']={group_names}. Got {name}"
+                )
             self.update_role(*group_names, name=name, key="roles")
 
     def autodiscover(self, module_name=None, verbose=True):
@@ -305,21 +311,21 @@ class SiteAuths:
             module_name = module_name or "auths"
             writer = sys.stdout.write if verbose else lambda x: x
             writer(f" * checking for site {module_name} ...\n")
-            for app in django_apps.app_configs:
-                writer(f" * searching {app}           \r")
+            for app_name in django_apps.app_configs:
+                writer(f" * searching {app_name}           \r")
                 try:
-                    mod = import_module(app)
+                    mod = import_module(app_name)
                     try:
                         before_import_registry = deepcopy(site_auths.registry)
-                        import_module(f"{app}.{module_name}")
-                        writer(f" * registered '{module_name}' from '{app}'\n")
+                        import_module(f"{app_name}.{module_name}")
+                        writer(f" * registered '{module_name}' from '{app_name}'\n")
                     except ImportError as e:
                         site_auths.registry = before_import_registry
                         if module_has_submodule(mod, module_name):
                             raise SiteAuthError(str(e))
                 except ImportError:
                     pass
-            self.verify_and_populate()
+            self.verify_and_populate(app_name=app_name)
 
 
 site_auths = SiteAuths()
