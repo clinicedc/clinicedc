@@ -14,6 +14,7 @@ from edc_listboard.filters import ListboardFilter, ListboardViewFilters
 from edc_listboard.view_mixins import ListboardFilterViewMixin, QueryStringViewMixin
 from edc_listboard.views import ListboardView
 from edc_model_wrapper import ModelWrapper
+from edc_sites.view_mixins import SiteViewMixin
 from edc_utils import get_utcnow
 
 from edc_dashboard.url_names import url_names
@@ -75,7 +76,7 @@ class TestViewMixins(TestCase):
                 lookup={"reason": "scheduled"},
             )
 
-        class MyView(ListboardFilterViewMixin, ListboardView):
+        class MyView(SiteViewMixin, ListboardFilterViewMixin, ListboardView):
             listboard_model = "edc_dashboard.subjectvisit"
             listboard_url = "listboard_url"
             listboard_template = "listboard_template"

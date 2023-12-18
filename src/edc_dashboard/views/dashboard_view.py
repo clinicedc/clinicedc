@@ -34,10 +34,10 @@ class DashboardView(UrlRequestContextMixin, TemplateRequestContextMixin, Templat
         return [self.get_template_from_context(self.dashboard_template)]
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context = self.add_url_to_context(
-            new_key="dashboard_url_name",
-            existing_key=self.dashboard_url_name,
-            context=context,
+        kwargs.update(
+            **self.add_url_to_context(
+                new_key="dashboard_url_name",
+                existing_key=self.dashboard_url_name,
+            )
         )
-        return context
+        return super().get_context_data(**kwargs)
