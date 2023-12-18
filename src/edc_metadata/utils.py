@@ -4,12 +4,32 @@ from typing import TYPE_CHECKING, Any, Type
 
 from django.apps import apps as django_apps
 from django.conf import settings
+from django.db import models
 from django.db.models import QuerySet
 
 from .constants import CRF, KEYED, REQUISITION
 
 if TYPE_CHECKING:
+    from edc_appointment.models import Appointment
+    from edc_crf.model_mixins import CrfModelMixin as Base
+
+    from .model_mixins.creates import CreatesMetadataModelMixin
+
+    class RelatedVisitModel(CreatesMetadataModelMixin, Base):
+        pass
+
     from edc_metadata.models import CrfMetadata, RequisitionMetadata
+
+    from .model_mixins.updates import (
+        UpdatesCrfMetadataModelMixin,
+        UpdatesRequisitionMetadataModelMixin,
+    )
+
+    class CrfModel(UpdatesCrfMetadataModelMixin, Base):
+        related_visit = models.ForeignKey(RelatedVisitModel, on_delete=models.PROTECT)
+
+    class RequisitionModel(UpdatesRequisitionMetadataModelMixin, Base):
+        related_visit = models.ForeignKey(RelatedVisitModel, on_delete=models.PROTECT)
 
 
 class HasKeyedMetadata(Exception):
@@ -40,19 +60,21 @@ def verify_model_cls_registered_with_admin():
     return getattr(settings, "EDC_METADATA_VERIFY_MODELS_REGISTERED_WITH_ADMIN", False)
 
 
-def refresh_metadata_for_timepoint(appointment_or_related_visit):
-    """Refresh metadata for the given timepoint.
+def refresh_metadata_for_timepoint(
+    instance: CrfModel | RequisitionModel | Appointment | RelatedVisitModel,
+    allow_create: bool | None = None,
+):
+    """Refresh (or creates) metadata for the given timepoint.
 
     See also `metadata_create_on_post_save` and `CreatesMetadataModelMixin`.
     """
-    if appointment_or_related_visit:
+    if instance:
         try:
-            related_visit = appointment_or_related_visit.related_visit
+            related_visit = instance.related_visit
         except AttributeError:
-            related_visit = appointment_or_related_visit
-        related_visit.metadata_create()
+            related_visit = instance
         if django_apps.get_app_config("edc_metadata").metadata_rules_enabled:
-            related_visit.run_metadata_rules()
+            related_visit.run_metadata_rules(allow_create=allow_create)
 
 
 def get_crf_metadata(instance: Any) -> QuerySet[CrfMetadata]:

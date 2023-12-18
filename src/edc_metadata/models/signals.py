@@ -1,4 +1,3 @@
-from django.apps import apps as django_apps
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from edc_crf.model_mixins import SingletonCrfModelMixin
@@ -34,8 +33,7 @@ def metadata_create_on_post_save(
             if "metadata_create" not in str(e):
                 raise
         else:
-            if django_apps.get_app_config("edc_metadata").metadata_rules_enabled:
-                instance.run_metadata_rules()
+            refresh_metadata_for_timepoint(instance, allow_create=True)
 
 
 @receiver(post_save, weak=False, dispatch_uid="metadata_update_on_post_save")
@@ -65,8 +63,7 @@ def metadata_update_on_post_save(
             if "metadata_update" not in str(e):
                 raise
         else:
-            if django_apps.get_app_config("edc_metadata").metadata_rules_enabled:
-                instance.run_metadata_rules_for_related_visit(allow_create=True)
+            refresh_metadata_for_timepoint(instance, allow_create=True)
 
 
 @receiver(post_delete, weak=False, dispatch_uid="metadata_reset_on_post_delete")
@@ -81,8 +78,7 @@ def metadata_reset_on_post_delete(sender, instance, using, **kwargs) -> None:
         if "metadata_reset_on_delete" not in str(e):
             raise
     else:
-        if django_apps.get_app_config("edc_metadata").metadata_rules_enabled:
-            instance.run_metadata_rules_for_related_visit()
+        refresh_metadata_for_timepoint(instance, allow_create=True)
 
     # deletes all for a visit used by CreatesMetadataMixin
     try:
