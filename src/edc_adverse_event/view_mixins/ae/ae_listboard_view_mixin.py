@@ -114,13 +114,14 @@ class AeListboardViewMixin(
         return None
 
     def get_context_data(self, **kwargs) -> dict:
-        context = super().get_context_data(**kwargs)
-        context = self.add_url_to_context(
-            new_key="ae_home_url", existing_key=self.home_url, context=context
+        kwargs.update(
+            {
+                "AE_INITIAL_ACTION": AE_INITIAL_ACTION,
+                "utc_date": get_utcnow().date(),
+                **self.add_url_to_context(new_key="ae_home_url", existing_key=self.home_url),
+            }
         )
-        context["AE_INITIAL_ACTION"] = AE_INITIAL_ACTION
-        context["utc_date"] = get_utcnow().date()
-        return context
+        return super().get_context_data(**kwargs)
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
         options = super().get_queryset_filter_options(request, *args, **kwargs)
