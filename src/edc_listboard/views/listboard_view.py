@@ -56,45 +56,36 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        queryset = context.get(self.context_object_name)
-        context_object_name = self.get_context_object_name(queryset)
-        wrapped_queryset = self.get_wrapped_queryset(queryset)
         if self.listboard_fa_icon and self.listboard_fa_icon.startswith("fa-"):
             self.listboard_fa_icon = f"fas {self.listboard_fa_icon}"
-        context.update(
+        kwargs.update(
             empty_queryset_message=self.get_empty_queryset_message(),
             listboard_fa_icon=self.listboard_fa_icon,
             listboard_panel_style=self.listboard_panel_style,
             listboard_panel_title=self.listboard_panel_title,
             listboard_instructions=self.listboard_instructions,
-            object_list=wrapped_queryset,
-        )
-        if context_object_name is not None:
-            context[context_object_name] = wrapped_queryset
-        context = self.add_url_to_context(
-            new_key="listboard_url", existing_key=self.listboard_url, context=context
+            object_list=self.get_wrapped_queryset(self.object_list),
+            **self.add_url_to_context(
+                new_key="listboard_url", existing_key=self.listboard_url
+            ),
         )
         if self.listboard_back_url:
-            context = self.add_url_to_context(
-                new_key="listboard_back_url",
-                existing_key=self.listboard_back_url,
-                context=context,
+            kwargs.update(
+                **self.add_url_to_context(
+                    new_key="listboard_back_url",
+                    existing_key=self.listboard_back_url,
+                )
             )
-        context = self.add_url_to_context(
-            new_key="paginator_url",
-            existing_key=self.paginator_url or self.listboard_url,
-            context=context,
-        )
-
-        context.update(
+        kwargs.update(
             has_listboard_model_perms=self.has_listboard_model_perms,
             has_view_listboard_perms=self.has_view_listboard_perms,
             listboard_view_permission_codename=self.listboard_view_permission_codename,
             permissions_warning_message=self.permissions_warning_message,
+            **self.add_url_to_context(
+                new_key="paginator_url", existing_key=self.paginator_url or self.listboard_url
+            ),
         )
-
-        return context
+        return super().get_context_data(**kwargs)
 
     def get_template_names(self):
         return [self.get_template_from_context(self.listboard_template)]
