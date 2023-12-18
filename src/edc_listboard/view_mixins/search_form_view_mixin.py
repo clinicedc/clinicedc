@@ -11,9 +11,8 @@ class SearchFormViewMixin:
     search_form_url = None
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(search_form_url_reversed=self.search_form_url_reversed)
-        return context
+        kwargs.update(search_form_url_reversed=self.search_form_url_reversed)
+        return super().get_context_data(**kwargs)
 
     @property
     def search_form_url_reversed(self):

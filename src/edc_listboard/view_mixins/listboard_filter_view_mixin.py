@@ -8,21 +8,17 @@ class ListboardFilterViewMixin:
     listboard_filter_url = None
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
         self.listboard_view_exclude_filter_applied = False
         self.listboard_view_include_filter_applied = False
+        super().__init__(**kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        try:
-            listboard_url = self.listboard_url
-        except AttributeError:
-            listboard_url = None
-        context.update(
+        listboard_url = getattr(self, "listboard_url", None)
+        kwargs.update(
             listboard_view_filters=self.listboard_view_filters.filters,
             listboard_filter_url=url_names.get(self.listboard_filter_url or listboard_url),
         )
-        return context
+        return super().get_context_data(**kwargs)
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
         options = super().get_queryset_filter_options(request, *args, **kwargs)

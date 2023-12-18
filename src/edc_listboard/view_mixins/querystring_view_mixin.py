@@ -22,12 +22,11 @@ class QueryStringViewMixin:
         return ""
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(
+        kwargs.update(
             f=self.request.GET.get("f"),
             e=self.request.GET.get("e"),
             o=self.request.GET.get("o"),
             q=self.request.GET.get("q"),
             querystring=self.querystring,
         )
-        return context
+        return super().get_context_data(**kwargs)
