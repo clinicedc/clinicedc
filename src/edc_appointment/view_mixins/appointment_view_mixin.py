@@ -1,6 +1,10 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from edc_sites.permissions import may_view_other_sites
+from edc_subject_model_wrappers import AppointmentModelWrapper
 
 from ..constants import (
     CANCELLED_APPT,
@@ -12,32 +16,36 @@ from ..constants import (
 )
 from ..utils import update_unscheduled_appointment_sequence
 
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
+
+    from ..models import Appointment
+
 
 class AppointmentViewMixin:
 
     """A view mixin to handle appointments on the dashboard."""
 
-    appointment_model_wrapper_cls = None
+    appointment_model_wrapper_cls = AppointmentModelWrapper
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
         self._appointment = None
         self._appointments = None
         self._wrapped_appointments = None
-        self.appointment_model = "edc_appointment.appointment"
-        self.appointment_id = None
+        self.appointment_model: str = "edc_appointment.appointment"
+        self.appointment_id: str | None = None
+        super().__init__(**kwargs)
 
     def get(self, request, *args, **kwargs):
         self.appointment_id = kwargs.get("appointment")
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
         update_unscheduled_appointment_sequence(
-            subject_identifier=self.kwargs.get("subject_identifier"),
+            subject_identifier=self.subject_identifier,
         )
         has_call_manager = True if django_apps.app_configs.get("edc_call_manager") else False
-        context.update(
+        kwargs.update(
             appointment=self.appointment_wrapped,
             appointments=self.appointments_wrapped,
             CANCELLED_APPT=CANCELLED_APPT,
@@ -48,10 +56,10 @@ class AppointmentViewMixin:
             SKIPPED_APPT=SKIPPED_APPT,
             has_call_manager=has_call_manager,
         )
-        return context
+        return super().get_context_data(**kwargs)
 
     @property
-    def appointment_options(self):
+    def appointment_options(self) -> dict[str, Any]:
         opts = {}
         if self.kwargs.get("appointment"):
             opts = dict(id=self.kwargs.get("appointment"))
@@ -68,47 +76,45 @@ class AppointmentViewMixin:
                 schedule_name=self.kwargs.get("schedule_name"),
                 visit_code=self.kwargs.get("visit_code"),
                 visit_code_sequence=visit_code_sequence,
+                site_id__in=self.get_sites_for_user(),
             )
         return opts
 
     @property
-    def appointment(self):
+    def appointment(self) -> Appointment:
         if not self._appointment:
             if self.appointment_id:
                 try:
-                    self._appointment = self.appointment_model_cls.on_site.get(
+                    self._appointment = self.appointment_model_cls.objects.get(
                         id=self.appointment_id
                     )
                 except ObjectDoesNotExist:
-                    opts = self.appointment_options
-                    if opts:
+                    if opts := self.appointment_options:
                         try:
-                            self._appointment = self.appointment_model_cls.on_site.get(**opts)
+                            self._appointment = self.appointment_model_cls.objects.get(**opts)
                         except ObjectDoesNotExist:
                             pass
         return self._appointment
 
     @property
-    def appointment_wrapped(self):
+    def appointment_wrapped(self) -> AppointmentModelWrapper | None:
         if self.appointment:
             return self.appointment_model_wrapper_cls(model_obj=self.appointment)
         return None
 
     @property
-    def appointments(self):
+    def appointments(self) -> QuerySet[Appointment]:
         """Returns a Queryset of all appointments for this subject."""
         if not self._appointments:
-            if may_view_other_sites(self.request):
-                objects = self.appointment_model_cls.objects
-            else:
-                objects = self.appointment_model_cls.on_site
-            self._appointments = objects.filter(
-                subject_identifier=self.subject_identifier
+            self._appointments = self.appointment_model_cls.objects.filter(
+                subject_identifier=self.subject_identifier,
+                site_id__in=self.get_sites_for_user(),
             ).order_by("timepoint", "visit_code_sequence")
+
         return self._appointments
 
     @property
-    def appointments_wrapped(self):
+    def appointments_wrapped(self) -> list[AppointmentModelWrapper]:
         """Returns a list of wrapped appointments."""
         if not self._wrapped_appointments:
             if self.appointments:
@@ -126,8 +132,8 @@ class AppointmentViewMixin:
         return self._wrapped_appointments or []
 
     @property
-    def appointment_model_cls(self):
+    def appointment_model_cls(self) -> Appointment:
         return django_apps.get_model(self.appointment_model)
 
-    def empty_appointment(self, **kwargs):
+    def empty_appointment(self, **kwargs) -> Appointment:
         return self.appointment_model_cls()
