@@ -3,7 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from django.apps import apps as django_apps
+from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.translation import gettext as _
 from edc_subject_model_wrappers import AppointmentModelWrapper
 
 from ..constants import (
@@ -41,6 +43,17 @@ class AppointmentViewMixin:
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
+        if self.appointment:
+            if self.appointment.appt_status != IN_PROGRESS_APPT:
+                message = _(
+                    'You have selected an appointment that is no longer "in progress". '
+                    "Refer to the schedule for the appointment that is "
+                    'currently "in progress".'
+                )
+                self.message_user(message, level=messages.WARNING)
+            report_datetime = self.appointment.related_visit.report_datetime
+            kwargs.update(report_datetime=report_datetime)
+
         update_unscheduled_appointment_sequence(
             subject_identifier=self.subject_identifier,
         )
