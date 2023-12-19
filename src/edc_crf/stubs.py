@@ -2,7 +2,7 @@ from typing import Iterator, List, Type, TypeVar, Union
 
 from django.db import models
 from edc_protocol import Protocol
-from edc_visit_tracking.stubs import SubjectVisitModelStub
+from edc_visit_tracking.stubs import RelatedVisitModelStub
 
 
 class MetaModelStub(Protocol):
@@ -12,7 +12,7 @@ class MetaModelStub(Protocol):
 
 
 class CrfModelStub(Protocol):
-    subject_visit: SubjectVisitModelStub
+    subject_visit: RelatedVisitModelStub
 
     @classmethod
     def related_visit_model_attr(cls) -> str:
