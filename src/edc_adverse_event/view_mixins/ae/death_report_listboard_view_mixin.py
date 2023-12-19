@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.html import format_html
 from edc_action_item.model_wrappers import (
@@ -15,6 +19,9 @@ from ...model_wrappers import DeathReportModelWrapper as BaseDeathReportModelWra
 from ...pdf_reports import DeathPdfReport
 from ...utils import get_adverse_event_app_label, get_ae_model
 
+if TYPE_CHECKING:
+    from django.db.models import Q
+
 
 class DeathReportModelWrapper(BaseDeathReportModelWrapper):
     next_url_name = "death_report_listboard_url"
@@ -29,7 +36,7 @@ class ActionItemModelWrapper(BaseActionItemModelWrapper):
         super().__init__(model_obj=model_obj, **kwargs)
 
     @property
-    def death_report(self):
+    def death_report(self) -> DeathReportModelWrapper:
         return DeathReportModelWrapper(model_obj=self.object.reference_obj)
 
 
@@ -82,6 +89,33 @@ class DeathReportListboardViewMixin(
             return response
         return super().get(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs) -> dict:
+        kwargs.update(
+            {
+                "DEATH_REPORT_ACTION": DEATH_REPORT_ACTION,
+                "utc_date": get_utcnow().date(),
+                **self.add_url_to_context(
+                    new_key="ae_home_url",
+                    existing_key=self.home_url,
+                ),
+            },
+        )
+        return kwargs
+
+    def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
+        q_object, options = super().get_queryset_filter_options(request, *args, **kwargs)
+        options.update(
+            action_type__name__in=self.action_type_names,
+            status__in=[NEW, OPEN, CLOSED],
+        )
+        if kwargs.get("subject_identifier"):
+            options.update({"subject_identifier": kwargs.get("subject_identifier")})
+        return q_object, options
+
+    @property
+    def death_report_model_cls(self):
+        return get_ae_model("deathreport")
+
     def print_pdf_report(self, action_identifier=None, request=None):
         try:
             death_report_obj = self.death_report_model_cls.objects.get(
@@ -98,32 +132,6 @@ class DeathReportListboardViewMixin(
             )
             return pdf_report.render_to_response()
         return None
-
-    def get_context_data(self, **kwargs) -> dict:
-        kwargs.update(
-            {
-                "DEATH_REPORT_ACTION": DEATH_REPORT_ACTION,
-                "utc_date": get_utcnow().date(),
-                **self.add_url_to_context(
-                    new_key="ae_home_url",
-                    existing_key=self.home_url,
-                ),
-            },
-        )
-        return kwargs
-
-    def get_queryset_filter_options(self, request, *args, **kwargs):
-        options = super().get_queryset_filter_options(request, *args, **kwargs)
-        options.update(
-            action_type__name__in=self.action_type_names, status__in=[NEW, OPEN, CLOSED]
-        )
-        if kwargs.get("subject_identifier"):
-            options.update({"subject_identifier": kwargs.get("subject_identifier")})
-        return options
-
-    @property
-    def death_report_model_cls(self):
-        return get_ae_model("deathreport")
 
     def get_pdf_report(self, **kwargs) -> DeathPdfReport:
         pdf_report_cls = getattr(self.death_report_model_cls, "pdf_report_cls", None)
