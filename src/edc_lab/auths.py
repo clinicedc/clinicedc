@@ -1,3 +1,4 @@
+from django.apps import apps as django_apps
 from edc_auth.auth_objects import (
     ADMINISTRATION,
     AUDITOR_ROLE,
@@ -7,7 +8,6 @@ from edc_auth.auth_objects import (
     PII_VIEW,
 )
 from edc_auth.site_auths import site_auths
-from edc_export.auth_objects import EXPORT
 
 from .auth_objects import (
     LAB,
@@ -19,17 +19,21 @@ from .auth_objects import (
 
 site_auths.add_group(*lab_codenames, name=LAB)
 site_auths.add_group(*lab_view_codenames, name=LAB_VIEW)
-site_auths.update_group(
-    "edc_lab.export_aliquot",
-    "edc_lab.export_box",
-    "edc_lab.export_boxitem",
-    "edc_lab.export_boxtype",
-    "edc_lab.export_order",
-    "edc_lab.export_panel",
-    "edc_lab.export_result",
-    "edc_lab.export_resultitem",
-    name=EXPORT,
-)
+
+if django_apps.is_installed("edc_export"):
+    from edc_export.auth_objects import EXPORT
+
+    site_auths.update_group(
+        "edc_lab.export_aliquot",
+        "edc_lab.export_box",
+        "edc_lab.export_boxitem",
+        "edc_lab.export_boxtype",
+        "edc_lab.export_order",
+        "edc_lab.export_panel",
+        "edc_lab.export_result",
+        "edc_lab.export_resultitem",
+        name=EXPORT,
+    )
 
 
 site_auths.add_role(ADMINISTRATION, EVERYONE, LAB, PII_VIEW, name=LAB_TECHNICIAN_ROLE)
