@@ -14,7 +14,7 @@
 
 {% if search_term or subject_identifier %}
     <a href="{% url subject_review_listboard_url %}" role="button" class="btn btn-primary btn-sm"><i class="fas fa-reply"></i></a>&nbsp;
-    {{ listboard_panel_title }}: Reported visits for <b>{% if search_term %}{{ search_term }}{% else %}{{ subject_identifier }}{% endif %}</b> {% copy_string_to_clipboard_button search_term %}
+    {{ listboard_panel_title }}{% if subject_identifier %}: Reported visits for <b>{{ subject_identifier }}</b> {% copy_string_to_clipboard_button subject_identifier %}{% endif %}
 {% else%}
     <a href="{% url 'home_url' %}" role="button" class="btn btn-primary btn-sm"><i class="fas fa-reply"></i></a>&nbsp;
     {{ listboard_panel_title }}: Subjects
@@ -30,10 +30,8 @@
 <div class="list-group">
 
     {% for result in results %}
-
-        <a id="{{ result.object.appointment.subject_identifier }}-{{ result.object.visit_code }}-{{ result.object.visit_code_sequence }}"></a>
-
-        {% if search_term %}
+        {% if result.object %}
+            <a id="{{ result.object.appointment.subject_identifier }}-{{ result.object.visit_code }}-{{ result.object.visit_code_sequence }}"></a>
 
             <a id="id-reported-visits-{{ result.object.appointment.subject_identifier }}-{{ result.object.visit_code }}-{{ result.object.visit_code_sequence }}" href="{{ result.subject_dashboard_href }}" class="list-group-item list-group-item-info" title={%  trans "click to go to subject dashboard for visit" %}>{% appointment_status_icon appt_status=result.object.appointment.appt_status %} {{ forloop.counter|add:page_obj.start_index|add:-1 }}. <b>{{ result.object.visit_code }}.{{ result.object.visit_code_sequence }}</b> on {{ result.object.report_datetime|date:"SHORT_DATE_FORMAT" }} {{ result.metadata_summary }}</a>
 
@@ -45,7 +43,8 @@
             {% endfor %}
 
         {% else %}
-            <a id="id-reported-visit-list-{{ result.subject_identifier }}" href="{% url paginator_url|default:'paginator_url_cannot_be_none' %}?q={{ result.subject_identifier}}" class="list-group-item" title={%  trans "click to list reported visits for this subject" %}>{{ forloop.counter|add:page_obj.start_index|add:-1 }}. <b>{{ result.subject_identifier }}</b> <span class="text text-muted">{{ result.visit_count }} visits</span></a>
+            <a id="{{ result.subject_identifier }}-{{ forloop.counter }}"></a>
+            <a id="id-reported-visit-list-{{ result.subject_identifier }}" href="{% url paginator_url|default:'paginator_url_cannot_be_none'  result.subject_identifier %}?q={{ result.subject_identifier}}" class="list-group-item" title={%  trans "click to list reported visits for this subject" %}>{{ forloop.counter|add:page_obj.start_index|add:-1 }}. <b>{{ result.subject_identifier }}</b> <span class="text text-muted">{{ result.visit_count }} visits</span></a>
 
         {% endif %}
     {% endfor %}
