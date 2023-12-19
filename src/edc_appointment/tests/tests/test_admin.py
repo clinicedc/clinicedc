@@ -1,9 +1,6 @@
 import re
 from unittest.mock import patch
 
-from django.conf import settings
-from django.contrib.auth.models import Permission, User
-from django.contrib.sites.models import Site
 from django.test import override_settings
 from django.urls import reverse
 from django_webtest import WebTest
@@ -11,6 +8,7 @@ from edc_auth.auth_updater.group_updater import GroupUpdater, PermissionsCodenam
 from edc_consent import site_consents
 from edc_facility import import_holidays
 from edc_protocol import Protocol
+from edc_test_utils.get_user_for_tests import get_user_for_tests
 from edc_test_utils.webtest import login
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -40,17 +38,7 @@ class TestAdmin(WebTest):
 
     def setUp(self) -> None:
         super().setUp()
-        self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
-        self.user.is_active = True
-        self.user.is_staff = True
-        self.user.save()
-        self.user.refresh_from_db()
-        self.user.userprofile.sites.add(Site.objects.get(id=settings.SITE_ID))
-        self.user.user_permissions.add(
-            Permission.objects.get(
-                codename="view_appointment", content_type__app_label="edc_appointment"
-            )
-        )
+        self.user = get_user_for_tests(view_only=True)
 
         self.subject_identifier = "12345"
         site_visit_schedules._registry = {}
