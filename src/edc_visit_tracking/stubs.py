@@ -5,7 +5,7 @@ from django.db import models
 from edc_model.stubs import ModelMetaStub
 
 
-class SubjectVisitModelStub(Protocol):
+class RelatedVisitModelStub(Protocol):
     report_datetime: Union[datetime, models.DateTimeField]
     subject_identifier: Union[str, models.CharField]
     reason: str
@@ -46,4 +46,4 @@ class SubjectVisitModelStub(Protocol):
         ...
 
 
-TSubjectVisitModelStub = TypeVar("TSubjectVisitModelStub", bound="SubjectVisitModelStub")
+TRelatedVisitModelStub = TypeVar("TRelatedVisitModelStub", bound="RelatedVisitModelStub")
