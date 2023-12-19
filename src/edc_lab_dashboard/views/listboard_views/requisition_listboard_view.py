@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.conf import settings
 from django.contrib import messages
 from django.utils.html import format_html
@@ -6,6 +10,9 @@ from edc_constants.constants import YES
 from ...model_wrappers import RequisitionModelWrapper
 from ..listboard_filters import RequisitionListboardViewFilters
 from .base_listboard_view import BaseListboardView
+
+if TYPE_CHECKING:
+    from django.db.models import Q
 
 
 class RequisitionListboardView(BaseListboardView):
@@ -23,15 +30,14 @@ class RequisitionListboardView(BaseListboardView):
     show_all = True
     ordering = ["-modified", "-created"]
 
-    def __init__(self, **kwargs):
-        self.unverified_requisition_count = 0
-        super().__init__(**kwargs)
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.unverified_requisition_count:
-            verb = "is" if self.unverified_requisition_count == 1 else "are"
-            plural = "" if self.unverified_requisition_count == 1 else "s"
+        unverified_requisition_count = (
+            self.get_queryset().filter(clinic_verified__isnull=True).count()
+        )
+        if unverified_requisition_count:
+            verb = "is" if unverified_requisition_count == 1 else "are"
+            plural = "" if unverified_requisition_count == 1 else "s"
             messages.warning(
                 self.request,
                 format_html(
@@ -39,21 +45,14 @@ class RequisitionListboardView(BaseListboardView):
                     "where the specimen is <b>drawn but not verified</b> by the clinic. "
                     "Please follow up.",
                     verb,
-                    str(self.unverified_requisition_count),
+                    str(unverified_requisition_count),
                     plural,
                 ),
             )
-            context.update(unverified_requisition_count=self.unverified_requisition_count)
+            context.update(unverified_requisition_count=unverified_requisition_count)
         return context
 
-    def get_filtered_queryset(self, filter_options=None, exclude_options=None):
-        queryset = super().get_filtered_queryset(filter_options, exclude_options)
-        self.unverified_requisition_count = queryset.filter(
-            clinic_verified__isnull=True
-        ).count()
-        return queryset
-
-    def get_queryset_filter_options(self, request, *args, **kwargs):
-        options = super().get_queryset_filter_options(request, *args, **kwargs)
+    def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
+        q_objects, options = super().get_queryset_filter_options(request, *args, **kwargs)
         options.update(is_drawn=YES)
-        return options
+        return Q(), options
