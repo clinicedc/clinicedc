@@ -1,5 +1,4 @@
 import re
-from typing import List
 
 from django.db.models import Q
 from edc_constants.constants import ABNORMAL
@@ -46,22 +45,17 @@ class ScreeningListboardView(
     def get_subject_screening_add_url(self) -> str:
         return self.listboard_model_cls().get_absolute_url()
 
-    def get_queryset_filter_options(self, request, *args, **kwargs) -> dict:
-        options = super().get_queryset_filter_options(request, *args, **kwargs)
+    def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
+        q_object, options = super().get_queryset_filter_options(request, *args, **kwargs)
         if kwargs.get("screening_identifier"):
             options.update({"screening_identifier": kwargs.get("screening_identifier")})
-        return options
-
-    def extra_search_options(self, search_term) -> List[Q]:
-        q_objects = [
-            Q(user_created__iexact=search_term),
-            Q(user_modified__iexact=search_term),
-        ]
-        if re.match(r"^[A-Z\-]+$", search_term):
-            q_objects.append(Q(initials__exact=search_term.upper()))
-            q_objects.append(
-                Q(screening_identifier__icontains=search_term.replace("-", "").upper())
+        q_object |= Q(user_created__iexact=self.search_term)
+        q_object |= Q(user_modified__iexact=self.search_term)
+        if self.search_term and re.match(r"^[A-Z\-]+$", self.search_term):
+            q_object |= Q(initials__exact=self.search_term.upper())
+            q_object |= Q(
+                screening_identifier__icontains=self.search_term.replace("-", "").upper()
             )
-        if re.match(r"^[0-9\-]+$", search_term):
-            q_objects.append(Q(subject_identifier__icontains=search_term))
-        return q_objects
+            if re.match(r"^[0-9\-]+$", self.search_term):
+                q_object |= Q(subject_identifier__icontains=self.search_term)
+        return q_object, options

@@ -2,18 +2,16 @@ from __future__ import annotations
 
 from django.apps import apps as django_apps
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 from django.utils.translation import gettext as _
 from django.views.generic.list import ListView
 from edc_dashboard.view_mixins import (
     TemplateRequestContextMixin,
     UrlRequestContextMixin,
 )
+from edc_sites.site import sites
 
-from ..view_mixins import (
-    QueryStringViewMixin,
-    SearchListboardMixin,
-    SiteQuerysetViewMixin,
-)
+from ..view_mixins import QueryStringViewMixin, SearchListboardMixin
 
 
 class ListboardViewError(Exception):
@@ -90,9 +88,6 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
     def get_template_names(self):
         return [self.get_template_from_context(self.listboard_template)]
 
-    def get_empty_queryset_message(self) -> str:
-        return self.empty_queryset_message
-
     @property
     def url_kwargs(self):
         """Returns a dictionary of URL options for either the
@@ -118,29 +113,6 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
     def get_listboard_model_manager_name(self) -> str:
         return self.listboard_model_manager_name
 
-    def get_queryset_exclude_options(self, request, *args, **kwargs):
-        """Returns exclude options applied to every
-        queryset.
-        """
-        return {}
-
-    def get_queryset_filter_options(self, request, *args, **kwargs):
-        """Returns filter options applied to every
-        queryset.
-        """
-        return {}
-
-    def get_filtered_queryset(self, filter_options=None, exclude_options=None):
-        """Returns a queryset, called by `get_queryset`.
-
-        This can be overridden but be sure to use the default_manager.
-        """
-        return (
-            getattr(self.listboard_model_cls, self.get_listboard_model_manager_name())
-            .filter(**filter_options)
-            .exclude(**exclude_options)
-        )
-
     def get_queryset(self):
         """Return the queryset for this view.
 
@@ -158,34 +130,46 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
             `has_view_only_my_listboard_perms` return True.
             See `has_view_only_my_listboard_perms`.
 
-        Passes filter/exclude criteria to `get_filtered_queryset`.
+        Applies additional filter/exclude criteria.
 
         Note: The returned queryset is set to self.object_list in
         `get()` just before rendering to response.
         """
-
-        queryset = getattr(
-            self.listboard_model_cls, self.get_listboard_model_manager_name()
-        ).none()
+        queryset = self.listboard_model_cls.objects.none()
         if self.has_view_listboard_perms:
-            filter_options = self.get_queryset_filter_options(
+            q_exclude, opts_exclude = self.get_queryset_exclude_options(
                 self.request, *self.args, **self.kwargs
             )
-            if self.has_view_only_my_listboard_perms:
-                filter_options.update(user_created=self.request.user.username)
-            exclude_options = self.get_queryset_exclude_options(
+            q_filter, opts_filter = self.get_queryset_filter_options(
                 self.request, *self.args, **self.kwargs
             )
-            queryset = self.get_filtered_queryset(
-                filter_options=filter_options, exclude_options=exclude_options
-            )
+
+            queryset = self.listboard_model_cls.objects.filter(
+                q_filter, **opts_filter
+            ).exclude(q_exclude, **opts_exclude)
+
             queryset = self.get_updated_queryset(queryset)
+
             ordering = self.get_ordering()
             if ordering:
                 if isinstance(ordering, (str,)):
                     ordering = (ordering,)
                 queryset = queryset.order_by(*ordering)
         return queryset
+
+    def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
+        """Returns filtering applied to every queryset"""
+        options = dict(site_id__in=sites.get_site_ids_for_user(self.request.user))
+        if self.has_view_only_my_listboard_perms:
+            options.update(user_created=self.request.user.username)
+        return Q(), options
+
+    def get_queryset_exclude_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
+        """Returns exclude options applied to every queryset"""
+        return Q(), {}
+
+    def get_empty_queryset_message(self) -> str:
+        return self.empty_queryset_message
 
     def get_updated_queryset(self, queryset):
         """Return the queryset for this view.
@@ -251,7 +235,6 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
 
 
 class ListboardView(
-    SiteQuerysetViewMixin,
     QueryStringViewMixin,
     UrlRequestContextMixin,
     SearchListboardMixin,
