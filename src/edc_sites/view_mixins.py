@@ -3,16 +3,27 @@ from __future__ import annotations
 from django.core.exceptions import ObjectDoesNotExist
 
 from .models import SiteProfile
+from .site import SiteNotRegistered, sites
 
 
 class SiteViewMixin:
     def get_context_data(self, **kwargs) -> dict:
-        context = super().get_context_data(**kwargs)
         try:
             site_profile = SiteProfile.objects.get(site__id=self.request.site.id)
         except ObjectDoesNotExist:
-            context.update(site_profile=None)
-        else:
-            context.update(site_title=site_profile.title)
-            context.update(site_profile=site_profile)
-        return context
+            site_profile = None
+        kwargs.update(site_profile=site_profile)
+        try:
+            kwargs.update(site_title=site_profile.title)
+        except AttributeError:
+            if not sites.all():
+                raise SiteNotRegistered(
+                    "Unable to determine site profile 'title'. No sites have been registered! "
+                )
+            raise
+        return super().get_context_data(**kwargs)
+
+    def get_sites_for_user(self) -> list[int]:
+        return [self.request.site.id] + sites.get_view_only_sites_for_user(
+            request=self.request
+        )

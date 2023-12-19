@@ -7,7 +7,6 @@ from django.core.exceptions import FieldError, ObjectDoesNotExist
 from django.db.models import QuerySet
 
 from ..models import SiteProfile
-from ..permissions import get_view_only_sites_for_user, may_view_other_sites
 from ..site import sites
 from .list_filters import SiteListFilter
 
@@ -36,7 +35,7 @@ class SiteModelAdminMixin:
 
     def get_list_filter(self, request):
         list_filter = super().get_list_filter(request)
-        if may_view_other_sites(request) and "site" not in list_filter:
+        if sites.user_may_view_other_sites(request) and "site" not in list_filter:
             list_filter = list_filter + (SiteListFilter,)
         elif "site" in list_filter:
             list_filter = tuple([x for x in list_filter if x != "site"]) + (SiteListFilter,)
@@ -44,7 +43,7 @@ class SiteModelAdminMixin:
 
     def get_list_display(self, request):
         list_display = super().get_list_display(request)
-        if may_view_other_sites(request) and "site" not in list_display:
+        if sites.user_may_view_other_sites(request) and "site" not in list_display:
             list_display = (list_display[0],) + (self.site_code,) + list_display[1:]
         elif "site" in list_display:
             list_display = tuple(
@@ -56,17 +55,14 @@ class SiteModelAdminMixin:
     def get_queryset(self, request) -> QuerySet:
         """Limit modeladmin queryset for the current site only"""
         qs = super().get_queryset(request)
-        if getattr(request, "site", None):
-            site_ids = [request.site.id] + get_view_only_sites_for_user(
-                request.user, request.site.id, request=request
+        site_ids = [request.site.id] + sites.get_view_only_sites_for_user(request=request)
+        try:
+            qs = qs.select_related("site").filter(site_id__in=site_ids)
+        except FieldError:
+            raise SiteModeAdminMixinError(
+                f"Model missing field `site`. Model `{self.model}`. Did you mean to use "
+                f"the SiteModelAdminMixin? See `{self}`."
             )
-            try:
-                qs = qs.filter(site_id__in=site_ids)
-            except FieldError:
-                raise SiteModeAdminMixinError(
-                    f"Model missing field `site`. Model `{self.model}`. Did you mean to use "
-                    f"the SiteModelAdminMixin? See `{self}`."
-                )
         return qs
 
     def get_form(self, request, obj=None, change=False, **kwargs):

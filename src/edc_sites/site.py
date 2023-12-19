@@ -8,19 +8,32 @@ from typing import TYPE_CHECKING, Any
 
 from django.apps import apps as django_apps
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.handlers.wsgi import WSGIRequest
+from django.core.handlers.wsgi import WSGIRequest as BaseWSGIRequest
 from django.core.management.color import color_style
 from django.utils.module_loading import import_module, module_has_submodule
 from edc_constants.constants import OTHER
+from edc_model_admin.utils import add_to_messages_once
 
-from .exceptions import InvalidSiteForUser
+from .auths import codename
+from .exceptions import InvalidSiteError, InvalidSiteForUser
 from .single_site import SingleSite
-from .utils import get_site_model_cls, insert_into_domain
+from .utils import (
+    get_change_codenames,
+    get_message_text,
+    get_site_model_cls,
+    has_profile_or_raise,
+    insert_into_domain,
+)
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
     from django.contrib.sites.models import Site
+
+    class WSGIRequest(BaseWSGIRequest):
+        site: Site
 
 
 class SiteDoesNotExist(Exception):
@@ -80,6 +93,7 @@ def get_autodiscover_sites():
 
 class Sites:
     uat_subdomain = "uat"
+    view_auditallsites_codename = codename
 
     def __init__(self):
         self.loaded = False
@@ -176,7 +190,9 @@ class Sites:
     def countries(self) -> list[str]:
         return list(set([single_site.country for single_site in self._registry.values()]))
 
-    def get_by_country(self, country: str, aslist: bool | None = None):
+    def get_by_country(
+        self, country: str, aslist: bool | None = None
+    ) -> dict[int, SingleSite] | list[SingleSite]:
         if aslist:
             return [
                 single_site
@@ -199,13 +215,58 @@ class Sites:
         """Returns a list of site ids for this user."""
         return [site.id for site in user.userprofile.sites.all()]
 
-    @staticmethod
-    def site_in_profile_or_raise(user: User, site_id: int) -> None:
+    def get_view_only_sites_for_user(
+        self,
+        request: WSGIRequest | None = None,
+        user: User | None = None,
+        site_id: int | None = None,
+    ) -> list[int]:
+        """Returns a list of any sites the user may have view
+        access to, not including the current.
+
+        Checks for codename `edc_sites.view_auditorallsites` perms and
+        confirms user does not have add/change/delete perms to any
+        resources.
+        """
+        if request:
+            user = request.user
+            site_id = request.site.id
+
+        if site_id != get_current_site(request).id:
+            raise InvalidSiteError(
+                f"Expected the current site. Current site is {get_current_site(request).id}. "
+                f"Got {site_id}."
+            )
+        site_id = sites.get(site_id).site_id
+        has_profile_or_raise(user)
+        sites.site_in_profile_or_raise(user, site_id)
+        # now check for special view codename from user account
+        site_ids = []
+        if user.has_perm(f"edc_sites.{self.view_auditallsites_codename}"):
+            if get_change_codenames(user):
+                if request:
+                    add_to_messages_once(
+                        get_message_text(messages.WARNING), request, messages.WARNING
+                    )
+            else:
+                site_ids = [s for s in sites.get_site_ids_for_user(user) if s != site_id]
+                if request:
+                    add_to_messages_once(
+                        get_message_text(messages.INFO), request, messages.INFO
+                    )
+        return site_ids
+
+    def user_may_view_other_sites(self, request: WSGIRequest) -> bool:
+        return True if self.get_view_only_sites_for_user(request=request) else False
+
+    def site_in_profile_or_raise(self, user: User, site_id: int) -> None:
         """Raises if user does not have site in their UserProfile."""
         try:
             user.userprofile.sites.get(id=site_id).id
         except ObjectDoesNotExist:
-            site_ids = [str(obj.id) for obj in user.userprofile.sites.all()] or ["None"]
+            site_ids = [str(site_id) for site_id in self.get_site_ids_for_user(user)] or [
+                "None"
+            ]
             raise InvalidSiteForUser(
                 "User is not configured to access this site. See also UserProfile. "
                 f"Expected one of [{','.join(site_ids)}]. Got {site_id}."
