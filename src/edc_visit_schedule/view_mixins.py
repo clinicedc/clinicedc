@@ -1,20 +1,31 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
 from django.core.exceptions import ObjectDoesNotExist
 from edc_utils import get_utcnow
 
 from .site_visit_schedules import site_visit_schedules
 
+if TYPE_CHECKING:
+    from .model_mixins import OnScheduleModelMixin
+    from .schedule import Schedule
+    from .visit_schedule import VisitSchedule
+
+    class OnScheduleLikeModel(OnScheduleModelMixin):
+        ...
+
 
 class VisitScheduleViewMixin:
     def __init__(self, **kwargs):
+        self.onschedule_models: list[OnScheduleLikeModel] = []
+        self.current_schedule: Schedule | None = None
+        self.current_visit_schedule: VisitSchedule | None = None
+        self.current_onschedule_model: str | None = None
+        self.visit_schedules: dict[str, VisitSchedule] = {}
         super().__init__(**kwargs)
-        self.onschedule_models = []
-        self.current_schedule = None
-        self.current_visit_schedule = None
-        self.current_onschedule_model = None
-        self.visit_schedules = {}
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         for visit_schedule in site_visit_schedules.visit_schedules.values():
             if self.subject_identifier:
                 for schedule in visit_schedule.schedules.values():
@@ -26,7 +37,7 @@ class VisitScheduleViewMixin:
                         pass
                     else:
                         if schedule.is_onschedule(
-                            subject_identifier=self.kwargs.get("subject_identifier"),
+                            subject_identifier=self.subject_identifier,
                             report_datetime=get_utcnow(),
                         ):
                             self.current_schedule = schedule
@@ -34,11 +45,11 @@ class VisitScheduleViewMixin:
                             self.current_onschedule_model = onschedule_model_obj
                         self.onschedule_models.append(onschedule_model_obj)
                         self.visit_schedules.update({visit_schedule.name: visit_schedule})
-        context.update(
+        kwargs.update(
             visit_schedules=self.visit_schedules,
             current_onschedule_model=self.current_onschedule_model,
             onschedule_models=self.onschedule_models,
             current_schedule=self.current_schedule,
             current_visit_schedule=self.current_visit_schedule,
         )
-        return context
+        return super().get_context_data(**kwargs)
