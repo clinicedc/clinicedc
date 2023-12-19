@@ -14,14 +14,16 @@ class DataManagerViewMixin:
         return context
 
     @property
-    def open_data_queries(self):
+    def open_data_queries(self) -> list[ActionItemModelWrapper]:
         """Returns a list of wrapped ActionItem instances
         where status is NEW or OPEN.
         """
         data_queries = DataQuery.objects.filter(
             subject_identifier=self.kwargs.get("subject_identifier"),
         ).exclude(site_response_status=RESOLVED)
-        qs = ActionItem.on_site.filter(
-            pk__in=[obj.action_item.id for obj in data_queries], status__in=[NEW, OPEN]
+        qs = ActionItem.objects.filter(
+            pk__in=[obj.action_item.id for obj in data_queries],
+            status__in=[NEW, OPEN],
+            site_id__in=self.get_sites_for_user(),
         )
         return [self.action_item_model_wrapper_cls(model_obj=obj) for obj in qs]
