@@ -14,13 +14,13 @@ class NavbarViewMixin:
 
         Also adds the "default" navbar.
         """
-        context = super().get_context_data(**kwargs)
-        return self.get_navbar_context_data(context)
+        kwargs = self.get_navbar_context_data(kwargs)
+        return super().get_context_data(**kwargs)
 
     def get_navbar_name(self):
         return self.navbar_name
 
-    def get_navbar_context_data(self, context):
+    def get_navbar_context_data(self, context) -> dict:
         navbar = site_navbars.get_navbar(name=self.get_navbar_name())
         navbar.render(selected_item=self.navbar_selected_item, request=self.request)
         app_config = django_apps.get_app_config("edc_navbar")
