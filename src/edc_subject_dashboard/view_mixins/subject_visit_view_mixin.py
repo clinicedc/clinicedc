@@ -27,12 +27,11 @@ class SubjectVisitViewMixin:
         super().__init__(**kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(
+        kwargs.update(
             related_visit=self.related_visit,
             visit_schedule_pk=self.get_visit_schedule_pk(),
         )
-        return context
+        return super().get_context_data(**kwargs)
 
     @property
     def related_visit(self) -> VisitModelMixin | None:

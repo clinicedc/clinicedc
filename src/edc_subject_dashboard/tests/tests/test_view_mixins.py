@@ -7,6 +7,9 @@ from edc_locator.view_mixins import (
     SubjectLocatorViewMixinError,
 )
 from edc_registration.models import RegisteredSubject
+from edc_sites.view_mixins import SiteViewMixin
+from edc_test_utils.get_httprequest_for_tests import get_request_object_for_tests
+from edc_test_utils.get_user_for_tests import get_user_for_tests
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -28,6 +31,7 @@ class DummyModelWrapper:
 
 class TestViewMixins(TestCase):
     def setUp(self):
+        self.user = get_user_for_tests()
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
 
@@ -86,14 +90,18 @@ class TestViewMixins(TestCase):
             visit_attr = "badsubjectvisit"
 
         mixin = MySubjectVisitViewMixin()
+        mixin.kwargs = {"subject_identifier": self.subject_identifier}
+        mixin.request = get_request_object_for_tests(self.user)
         self.assertRaises(SubjectVisitViewMixinError, mixin.get_context_data)
 
     def test_subject_locator_raises_on_bad_model(self):
-        class MySubjectLocatorViewMixin(SubjectLocatorViewMixin, ContextMixin):
+        class MySubjectLocatorViewMixin(SiteViewMixin, SubjectLocatorViewMixin, ContextMixin):
             subject_locator_model_wrapper_cls = DummyModelWrapper
             subject_locator_model = "blah.blahblah"
 
         mixin = MySubjectLocatorViewMixin()
+        mixin.kwargs = {"subject_identifier": self.subject_identifier}
+        mixin.request = get_request_object_for_tests(self.user)
         self.assertRaises(SubjectLocatorViewMixinError, mixin.get_context_data)
 
     def test_subject_locator_raisesmissing_wrapper_cls(self):
@@ -109,6 +117,7 @@ class TestViewMixins(TestCase):
 
         mixin = MySubjectLocatorViewMixin()
         mixin.kwargs = {"subject_identifier": self.subject_identifier}
+        mixin.request = get_request_object_for_tests(self.user)
         try:
             mixin.get_context_data()
         except SubjectLocatorViewMixinError as e:
