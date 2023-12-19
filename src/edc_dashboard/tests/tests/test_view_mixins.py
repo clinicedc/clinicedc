@@ -2,7 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import arrow
-from django.contrib.auth.models import Group, Permission, User
+from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings, tag
 from django.test.client import RequestFactory
@@ -15,6 +15,7 @@ from edc_listboard.view_mixins import ListboardFilterViewMixin, QueryStringViewM
 from edc_listboard.views import ListboardView
 from edc_model_wrapper import ModelWrapper
 from edc_sites.view_mixins import SiteViewMixin
+from edc_test_utils.get_user_for_tests import get_user_for_tests
 from edc_utils import get_utcnow
 
 from edc_dashboard.url_names import url_names
@@ -36,11 +37,9 @@ class TestViewMixins(TestCase):
         AuthUpdater(verbose=False, warn_only=True)
 
     def setUp(self):
-        self.user = User.objects.create(username="erik")
-        self.user.userprofile.sites.add(Site.objects.get_current())
+        self.user = get_user_for_tests(username="erik", view_only=True)
         group = Group.objects.get(name=CLINIC)
         self.user.groups.add(group)
-        self.user.user_permissions.add(Permission.objects.get(codename="view_appointment"))
         self.request = RequestFactory().get("/")
         self.request.user = self.user
 
@@ -61,7 +60,7 @@ class TestViewMixins(TestCase):
 
     @tag("1")
     def test_listboard_filter_view(self):
-        class SubjectVisitModelWrapper(ModelWrapper):
+        class RelatedVisitModelWrapper(ModelWrapper):
             model = "edc_dashboard.subjectvisit"
             next_url_name = "dashboard_url"
 
@@ -82,7 +81,7 @@ class TestViewMixins(TestCase):
             listboard_template = "listboard_template"
             listboard_filter_url = "listboard_url"
             listboard_view_permission_codename = "edc_dashboard.view_my_listboard"
-            model_wrapper_cls = SubjectVisitModelWrapper
+            model_wrapper_cls = RelatedVisitModelWrapper
             listboard_view_filters = MyListboardViewFilters()
 
         start = datetime(2013, 5, 1, 12, 30, tzinfo=ZoneInfo("UTC"))
