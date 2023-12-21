@@ -8,6 +8,7 @@ from io import BytesIO
 from uuid import uuid4
 
 from django.contrib import messages
+from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse
 from django.utils import timezone
 from django_revision.revision import Revision
@@ -43,7 +44,14 @@ class Report(ABC):
         pagesize=A4,
     )
 
-    def __init__(self, page=None, header_line=None, filename=None, request=None, **kwargs):
+    def __init__(
+        self,
+        page: dict | None = None,
+        header_line: str | None = None,
+        filename: str | None = None,
+        request: WSGIRequest | None = None,
+        **kwargs,
+    ):
         self._styles = None
         self.request = request
         self.page = page or self.default_page
@@ -55,16 +63,22 @@ class Report(ABC):
         self.header_line = header_line
 
     def get_report_story(self, **kwargs):
-        return []
+        """Entry point, returns a list of flowables to be passed to build.
 
-    def draw_footer(self, canvas, doc):
-        styles = getSampleStyleSheet()
-        styles.add(ParagraphStyle(name="header", fontSize=6, alignment=TA_CENTER))
-        width, _ = A4
-        canvas.setFontSize(6)
-        timestamp = timezone.now().strftime("%Y-%m-%d %H:%M")
-        canvas.drawRightString(width - len(timestamp) - 20, 25, f"printed on {timestamp}")
-        canvas.drawString(35, 25, f"clinicedc {Revision().tag}")
+        For example, where ``pdf_report`` is an instance of this class:
+
+            buffer = BytesIO()
+            doctemplate = pdf_report.document_template(buffer, **pdf_report.page)
+            story = pdf_report.get_report_story()
+            doctemplate.build(
+                story,
+                onFirstPage=pdf_report.on_first_page,
+                onLaterPages=pdf_report.on_later_pages,
+                canvasmaker=NumberedCanvas)
+            buffer.seek(0)
+
+        """
+        return []
 
     def on_first_page(self, canvas, doc):
         """Callback for `onFirstPage`"""
@@ -74,72 +88,14 @@ class Report(ABC):
         """Callback for onLaterPages"""
         self.draw_footer(canvas, doc)
 
-    def render_to_buffer(self, **kwargs):
-        buffer = BytesIO()
-        document_template = self.document_template(buffer, **self.page)
-        story = self.get_report_story(**kwargs)
-        document_template.build(
-            story,
-            onFirstPage=self.on_first_page,
-            onLaterPages=self.on_later_pages,
-            canvasmaker=NumberedCanvas,
-        )
-        buffer_value = buffer.getvalue()
-        buffer.close()
-        return buffer_value
-
-    def render(self, message_user: bool | None = None, **kwargs):
-        """Deprecated wrapper for render_to_response"""
-        warnings.warn(
-            "Method `render` has been deprecated. Use `render_to_response` instead.",
-            DeprecationWarning,
-        )
-        return self.render_to_response(message_user=message_user, **kwargs)
-
-    def render_to_response(self, message_user: bool | None = None, **kwargs):
-        """Render buffer to HTTP response"""
-        message_user = True if message_user is None else message_user
-        response = HttpResponse(content_type="application/pdf")
-        response["Content-Disposition"] = f'attachment; filename="{self.report_filename}"'
-        buffer_value = self.render_to_buffer()
-        response.write(buffer_value)
-        if message_user and self.request:
-            self.message_user(**kwargs)
-        return response
-
-    def render_to_file(self, path: str, verbose: bool | None = None):
-        """Render buffer to file"""
-        buffer_value = self.render_to_buffer()
-        if not os.path.exists(path):
-            raise ReportError(f"Path does not exist. Got {path}")
-        else:
-            filename = os.path.join(path, self.report_filename)
-            with open(filename, "wb") as f:
-                f.write(buffer_value)
-                if verbose:
-                    sys.stdout.write(f"Created file {filename}\n")
-        return None
-
-    def message_user(self, **kwargs):
-        messages.success(
-            self.request,
-            f"The report has been exported as a PDF. See downloads in your browser. "
-            f"The filename is '{self.report_filename}'.",
-            fail_silently=True,
-        )
-
-    def header_footer(self, canvas, doc):
-        canvas.saveState()
-        _, height = A4
-
-        header_para = Paragraph(self.header_line, self.styles["header"])
-        header_para.drawOn(canvas, doc.leftMargin, height - 15)
-
-        dte = timezone.now().strftime("%Y-%m-%d %H:%M")
-        footer_para = Paragraph(f"printed on {dte}", self.styles["footer"])
-        _, h = footer_para.wrap(doc.width, doc.bottomMargin)
-        footer_para.drawOn(canvas, doc.leftMargin, h)
-        canvas.restoreState()
+    def draw_footer(self, canvas, doc):
+        styles = getSampleStyleSheet()
+        styles.add(ParagraphStyle(name="header", fontSize=6, alignment=TA_CENTER))
+        width, _ = A4
+        canvas.setFontSize(6)
+        timestamp = timezone.now().strftime("%Y-%m-%d %H:%M")
+        canvas.drawRightString(width - len(timestamp) - 20, 25, f"printed on {timestamp}")
+        canvas.drawString(35, 25, f"clinicedc {Revision().tag}")
 
     @property
     def styles(self):
@@ -208,3 +164,70 @@ class Report(ABC):
 
     def add_to_styles(self, styles: StyleSheet1) -> StyleSheet1:
         return styles
+
+    # def render_to_buffer(self, **kwargs):
+    #     buffer = BytesIO()
+    #     document_template = self.document_template(buffer, **self.page)
+    #     story = self.get_report_story(**kwargs)
+    #     document_template.build(
+    #         story,
+    #         onFirstPage=self.on_first_page,
+    #         onLaterPages=self.on_later_pages,
+    #         canvasmaker=NumberedCanvas,
+    #     )
+    #     buffer_value = buffer.getvalue()
+    #     buffer.close()
+    #     return buffer_value
+
+    # def render(self, message_user: bool | None = None, **kwargs):
+    #     """Deprecated wrapper for render_to_response"""
+    #     warnings.warn(
+    #         "Method `render` has been deprecated. Use `render_to_response` instead.",
+    #         DeprecationWarning,
+    #     )
+    #     return self.render_to_response(message_user=message_user, **kwargs)
+
+    # def render_to_response(self, message_user: bool | None = None, **kwargs):
+    #     """Render buffer to HTTP response"""
+    #     message_user = True if message_user is None else message_user
+    #     response = HttpResponse(content_type="application/pdf")
+    #     response["Content-Disposition"] = f'attachment; filename="{self.report_filename}"'
+    #     buffer_value = self.render_to_buffer()
+    #     response.write(buffer_value)
+    #     if message_user and self.request:
+    #         self.message_user(**kwargs)
+    #     return response
+
+    # def render_to_file(self, path: str, verbose: bool | None = None):
+    #     """Render buffer to file"""
+    #     buffer_value = self.render_to_buffer()
+    #     if not os.path.exists(path):
+    #         raise ReportError(f"Path does not exist. Got {path}")
+    #     else:
+    #         filename = os.path.join(path, self.report_filename)
+    #         with open(filename, "wb") as f:
+    #             f.write(buffer_value)
+    #             if verbose:
+    #                 sys.stdout.write(f"Created file {filename}\n")
+    #     return None
+
+    # def message_user(self, **kwargs):
+    #     messages.success(
+    #         self.request,
+    #         f"The report has been exported as a PDF. See downloads in your browser. "
+    #         f"The filename is '{self.report_filename}'.",
+    #         fail_silently=True,
+    #     )
+
+    # def header_footer(self, canvas, doc, header_line=None):
+    #     canvas.saveState()
+    #     _, height = A4
+    #
+    #     header_para = Paragraph(self.header_line, self.styles["header"])
+    #     header_para.drawOn(canvas, doc.leftMargin, height - 15)
+    #
+    #     dte = timezone.now().strftime("%Y-%m-%d %H:%M")
+    #     footer_para = Paragraph(f"printed on {dte}", self.styles["footer"])
+    #     _, h = footer_para.wrap(doc.width, doc.bottomMargin)
+    #     footer_para.drawOn(canvas, doc.leftMargin, h)
+    #     canvas.restoreState()

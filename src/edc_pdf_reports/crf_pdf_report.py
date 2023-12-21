@@ -67,20 +67,37 @@ class CrfPdfReport(Report):
         self.bg_cmd = ("BACKGROUND", (0, 0), (0, -1), colors.lightgrey)
         self.subject_identifier = subject_identifier
 
-    @property
-    def weight_at_timepoint(self):
-        """Returns weight in Kgs"""
-        try:
-            return get_longitudinal_value(
-                subject_identifier=self.subject_identifier,
-                reference_dt=self.model_obj.report_datetime,
-                **self.get_weight_model_and_field(),
+    def on_first_page(self, canvas, doc):
+        super().on_first_page(canvas, doc)
+        width, height = A4
+        if self.draw_logo and self.logo:
+            canvas.drawImage(
+                self.logo, 35, height - 50, *self.logo_data["first_page"], mask="auto"
             )
-        except DataDictionaryError:
-            return ""
+        else:
+            canvas.setFontSize(10)
+            canvas.drawString(48, height - 40, Protocol().protocol_name)
+        if self.confidential:
+            canvas.setFontSize(10)
+            canvas.drawString(48, height - 50, "CONFIDENTIAL")
+            canvas.drawRightString(width - 35, height - 50, "CONFIDENTIAL")
 
-    def get_weight_model_and_field(self):
-        return {"model": self.weight_model, "field": self.weight_field}
+        canvas.setFontSize(10)
+        canvas.drawRightString(width - 35, height - 40, self.title)
+
+    def on_later_pages(self, canvas, doc):
+        super().on_later_pages(canvas, doc)
+        width, height = A4
+        if self.draw_logo and self.logo:
+            canvas.drawImage(
+                self.logo, 35, height - 40, *self.logo_data["later_pages"], mask="auto"
+            )
+        if self.confidential:
+            canvas.setFontSize(10)
+            canvas.drawRightString(width - 35, height - 45, "CONFIDENTIAL")
+        if self.title:
+            canvas.setFontSize(8)
+            canvas.drawRightString(width - 35, height - 35, self.title)
 
     @property
     def model_obj(self):
@@ -91,42 +108,6 @@ class CrfPdfReport(Report):
         return django_apps.get_model("edc_registration.RegisteredSubject").objects.get(
             subject_identifier=self.subject_identifier
         )
-
-    @property
-    def age(self):
-        model_obj = getattr(self, self.model_attr)
-        return formatted_age(
-            self.registered_subject.dob, reference_dt=model_obj.report_datetime
-        )
-
-    @property
-    def unblinded(self):
-        """Override to determine if assignment can be shown
-        for this subject_identifier.
-
-        Default: True
-        """
-        return True
-
-    @property
-    def assignment(self):
-        """Returns the assignment from the Randomization List"""
-        if not self._assignment:
-            if (
-                not self.unblinded
-                or not self.request.user.groups.filter(name=RANDO_UNBLINDED).exists()
-            ):
-                raise NotAllowed(
-                    "User does not have permissions to access randomization list. "
-                    f"Got {self.request.user}"
-                )
-            randomization_list_model_cls = django_apps.get_model(
-                self.registered_subject.randomization_list_model
-            )
-            self._assignment = randomization_list_model_cls.objects.get(
-                subject_identifier=self.subject_identifier
-            ).assignment_description
-        return self._assignment
 
     @property
     def logo(self):
@@ -171,6 +152,57 @@ class CrfPdfReport(Report):
         t.hAlign = "LEFT"
         story.append(t)
 
+    @property
+    def weight_at_timepoint(self):
+        """Returns weight in Kgs"""
+        try:
+            return get_longitudinal_value(
+                subject_identifier=self.subject_identifier,
+                reference_dt=self.model_obj.report_datetime,
+                **self.get_weight_model_and_field(),
+            )
+        except DataDictionaryError:
+            return ""
+
+    def get_weight_model_and_field(self):
+        return {"model": self.weight_model, "field": self.weight_field}
+
+    @property
+    def age(self):
+        model_obj = getattr(self, self.model_attr)
+        return formatted_age(
+            self.registered_subject.dob, reference_dt=model_obj.report_datetime
+        )
+
+    @property
+    def unblinded(self):
+        """Override to determine if assignment can be shown
+        for this subject_identifier.
+
+        Default: True
+        """
+        return True
+
+    @property
+    def assignment(self):
+        """Returns the assignment from the Randomization List"""
+        if not self._assignment:
+            if (
+                not self.unblinded
+                or not self.request.user.groups.filter(name=RANDO_UNBLINDED).exists()
+            ):
+                raise NotAllowed(
+                    "User does not have permissions to access randomization list. "
+                    f"Got {self.request.user}"
+                )
+            randomization_list_model_cls = django_apps.get_model(
+                self.registered_subject.randomization_list_model
+            )
+            self._assignment = randomization_list_model_cls.objects.get(
+                subject_identifier=self.subject_identifier
+            ).assignment_description
+        return self._assignment
+
     def draw_end_of_report(self, story):
         story.append(Paragraph("- End of report -", self.styles["line_label_center"]))
 
@@ -183,38 +215,6 @@ class CrfPdfReport(Report):
         else:
             user_created = f"{user.first_name} {user.last_name}"
         return user_created
-
-    def on_first_page(self, canvas, doc):
-        super().on_first_page(canvas, doc)
-        width, height = A4
-        if self.draw_logo and self.logo:
-            canvas.drawImage(
-                self.logo, 35, height - 50, *self.logo_data["first_page"], mask="auto"
-            )
-        else:
-            canvas.setFontSize(10)
-            canvas.drawString(48, height - 40, Protocol().protocol_name)
-        if self.confidential:
-            canvas.setFontSize(10)
-            canvas.drawString(48, height - 50, "CONFIDENTIAL")
-            canvas.drawRightString(width - 35, height - 50, "CONFIDENTIAL")
-
-        canvas.setFontSize(10)
-        canvas.drawRightString(width - 35, height - 40, self.title)
-
-    def on_later_pages(self, canvas, doc):
-        super().on_later_pages(canvas, doc)
-        width, height = A4
-        if self.draw_logo and self.logo:
-            canvas.drawImage(
-                self.logo, 35, height - 40, *self.logo_data["later_pages"], mask="auto"
-            )
-        if self.confidential:
-            canvas.setFontSize(10)
-            canvas.drawRightString(width - 35, height - 45, "CONFIDENTIAL")
-        if self.title:
-            canvas.setFontSize(8)
-            canvas.drawRightString(width - 35, height - 35, self.title)
 
     @staticmethod
     def set_table_style(t, bg_cmd=None):
