@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.html import format_html
@@ -89,18 +89,16 @@ class DeathReportListboardViewMixin(
             return response
         return super().get(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs) -> dict:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(
-            {
-                "DEATH_REPORT_ACTION": DEATH_REPORT_ACTION,
-                "utc_date": get_utcnow().date(),
-                **self.add_url_to_context(
-                    new_key="ae_home_url",
-                    existing_key=self.home_url,
-                ),
-            },
+            DEATH_REPORT_ACTION=DEATH_REPORT_ACTION,
+            utc_date=get_utcnow().date(),
+            **self.add_url_to_context(
+                new_key="ae_home_url",
+                existing_key=self.home_url,
+            ),
         )
-        return kwargs
+        return super().get_context_data(**kwargs)
 
     def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
         q_object, options = super().get_queryset_filter_options(request, *args, **kwargs)
@@ -125,8 +123,7 @@ class DeathReportListboardViewMixin(
             pass
         else:
             pdf_report = self.get_pdf_report(
-                death_report=death_report_obj,
-                subject_identifier=death_report_obj.subject_identifier,
+                pk=death_report_obj.id,
                 user=self.request.user,
                 request=request,
             )

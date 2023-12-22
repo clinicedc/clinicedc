@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.contrib.sites.shortcuts import get_current_site
 from django.db.models.aggregates import Count
 from django.views.generic import TemplateView
@@ -14,9 +16,7 @@ class TmgHomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
     template_name = f"edc_adverse_event/bootstrap{get_bootstrap_version()}/tmg/tmg_home.html"
     navbar_selected_item = "tmg_home"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         # summarize closed reports by site
         summary = (
             ActionItem.objects.filter(action_type__name=AE_TMG_ACTION, status=CLOSED)
@@ -24,7 +24,6 @@ class TmgHomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
             .annotate(count=Count("status"))
             .order_by("site__name")
         )
-
         # summarize new and open for notice
         qs = (
             ActionItem.objects.filter(action_type__name=AE_TMG_ACTION, status__in=[NEW, OPEN])
@@ -35,7 +34,6 @@ class TmgHomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
         notices = []
         for item in qs.order_by("status", "site__name"):
             notices.append([item.get("site__name"), item.get("status"), item.get("items")])
-
         new_count = ActionItem.objects.filter(
             action_type__name=AE_TMG_ACTION,
             site__name=get_current_site(request=self.request).name,
@@ -56,7 +54,7 @@ class TmgHomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
             site__name=get_current_site(request=self.request).name,
             status__in=[NEW, OPEN, CLOSED],
         ).count()
-        context.update(
+        kwargs.update(
             {
                 "new_count": new_count,
                 "open_count": open_count,
@@ -66,4 +64,4 @@ class TmgHomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
                 "notices": notices,
             }
         )
-        return context
+        return super().get_context_data(**kwargs)

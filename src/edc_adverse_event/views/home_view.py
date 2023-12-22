@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.conf import settings
 from django.views.generic import TemplateView
 from edc_dashboard.url_names import url_names
@@ -14,7 +16,7 @@ class AeHomeView(UrlRequestContextMixin, EdcViewMixin, NavbarViewMixin, Template
     template_name = f"edc_adverse_event/bootstrap{settings.EDC_BOOTSTRAP}/ae/ae_home.html"
     url_name = "ae_home_url"
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         app_list_url = f"{ADVERSE_EVENT_ADMIN_SITE}:app_list"
         ae_listboard_url = url_names.get(self.ae_listboard_url)
         death_report_listboard_url = url_names.get(self.death_report_listboard_url)

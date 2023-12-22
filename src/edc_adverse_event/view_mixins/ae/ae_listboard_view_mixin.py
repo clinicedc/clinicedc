@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -108,11 +108,14 @@ class AeListboardViewMixin(
             )
         return response or super().get(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs) -> dict:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(
             AE_INITIAL_ACTION=AE_INITIAL_ACTION,
             utc_date=get_utcnow().date(),
-            **self.add_url_to_context(new_key="ae_home_url", existing_key=self.home_url),
+            **self.add_url_to_context(
+                new_key="ae_home_url",
+                existing_key=self.home_url,
+            ),
         )
         return super().get_context_data(**kwargs)
 

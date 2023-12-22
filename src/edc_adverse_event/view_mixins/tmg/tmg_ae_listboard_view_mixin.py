@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from django.core.exceptions import ObjectDoesNotExist
 from edc_constants.constants import CLOSED, NEW, OPEN
@@ -54,11 +54,9 @@ class TmgAeListboardViewMixin(
         "user_modified",
     ]
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["AE_TMG_ACTION"] = AE_TMG_ACTION
-        context["utc_date"] = get_utcnow().date()
-        return context
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        kwargs.update(AE_TMG_ACTION=AE_TMG_ACTION, utc_date=get_utcnow().date())
+        return super().get_context_data(**kwargs)
 
     def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
         q_object, options = super().get_queryset_filter_options(request, *args, **kwargs)
@@ -108,10 +106,9 @@ class TmgAeListboardViewMixin(
 class StatusTmgAeListboardView(TmgAeListboardViewMixin):
     status = None
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["status"] = self.status
-        return context
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        kwargs.update(status=self.status)
+        return super().get_context_data(**kwargs)
 
     def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
         q_object, options = super().get_queryset_filter_options(request, *args, **kwargs)
