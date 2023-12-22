@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from django.apps import apps as django_apps
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.text import slugify
 from edc_data_manager.get_longitudinal_value import (
     DataDictionaryError,
     get_longitudinal_value,
@@ -12,6 +13,7 @@ from edc_data_manager.get_longitudinal_value import (
 from edc_protocol import Protocol
 from edc_randomization.auth_objects import RANDO_UNBLINDED
 from edc_utils import formatted_age, get_static_file
+from edc_utils.date import to_local
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
@@ -55,17 +57,36 @@ class CrfPdfReport(Report):
         "later_pages": (0.625 * cm, 0.625 * cm),
     }
 
-    model_attr = "object"
-
     rando_user_group = None
 
-    def __init__(self, subject_identifier=None, **kwargs):
+    def __init__(self, subject_identifier=None, model_obj=None, **kwargs):
         super().__init__(**kwargs)
         self._assignment = None
         self._logo = None
         self.user_model_cls = get_user_model()
+        self.model_obj = model_obj
+        self.verbose_name = self.model_obj._meta.verbose_name
+        self.subject_identifier = self.get_subject_identifier()
+        timestamp = to_local(self.model_obj.report_datetime).strftime("%Y%m%d")
+        self.report_filename = (
+            f"{slugify(self.model_obj._meta.verbose_name.lower())}-{subject_identifier}-"
+            f"{timestamp}.pdf"
+        )
+        self.multi_report_filename = (
+            f"{slugify(self.model_obj._meta.verbose_name.lower())}s.pdf"
+        )
         self.bg_cmd = ("BACKGROUND", (0, 0), (0, -1), colors.lightgrey)
-        self.subject_identifier = subject_identifier
+
+    def get_subject_identifier(self):
+        try:
+            subject_identifier = self.model_obj.related_visit.subject_identifier
+        except AttributeError:
+            subject_identifier = self.model_obj.subject_identifier
+        return subject_identifier
+
+    def get_report_story(self, **kwargs):
+        story = []
+        return story
 
     def on_first_page(self, canvas, doc):
         super().on_first_page(canvas, doc)
@@ -99,30 +120,6 @@ class CrfPdfReport(Report):
             canvas.setFontSize(8)
             canvas.drawRightString(width - 35, height - 35, self.title)
 
-    @property
-    def model_obj(self):
-        return getattr(self, self.model_attr)
-
-    @property
-    def registered_subject(self):
-        return django_apps.get_model("edc_registration.RegisteredSubject").objects.get(
-            subject_identifier=self.subject_identifier
-        )
-
-    @property
-    def logo(self):
-        if not self._logo:
-            path = get_static_file(self.logo_data["app_label"], self.logo_data["filename"])
-            if os.path.isfile(path):
-                self._logo = ImageReader(path)
-        return self._logo
-
-    @property
-    def title(self):
-        verbose_name = getattr(self, self.model_attr).verbose_name.upper()
-        subject_identifier = getattr(self, self.model_attr).subject_identifier
-        return f"{verbose_name} FOR {subject_identifier}"
-
     def draw_demographics(self, story, **kwargs):
         try:
             assignment = fill(self.assignment, width=80)
@@ -151,70 +148,6 @@ class CrfPdfReport(Report):
         self.set_table_style(t, bg_cmd=self.bg_cmd)
         t.hAlign = "LEFT"
         story.append(t)
-
-    @property
-    def weight_at_timepoint(self):
-        """Returns weight in Kgs"""
-        try:
-            return get_longitudinal_value(
-                subject_identifier=self.subject_identifier,
-                reference_dt=self.model_obj.report_datetime,
-                **self.get_weight_model_and_field(),
-            )
-        except DataDictionaryError:
-            return ""
-
-    def get_weight_model_and_field(self):
-        return {"model": self.weight_model, "field": self.weight_field}
-
-    @property
-    def age(self):
-        model_obj = getattr(self, self.model_attr)
-        return formatted_age(
-            self.registered_subject.dob, reference_dt=model_obj.report_datetime
-        )
-
-    @property
-    def unblinded(self):
-        """Override to determine if assignment can be shown
-        for this subject_identifier.
-
-        Default: True
-        """
-        return True
-
-    @property
-    def assignment(self):
-        """Returns the assignment from the Randomization List"""
-        if not self._assignment:
-            if (
-                not self.unblinded
-                or not self.request.user.groups.filter(name=RANDO_UNBLINDED).exists()
-            ):
-                raise NotAllowed(
-                    "User does not have permissions to access randomization list. "
-                    f"Got {self.request.user}"
-                )
-            randomization_list_model_cls = django_apps.get_model(
-                self.registered_subject.randomization_list_model
-            )
-            self._assignment = randomization_list_model_cls.objects.get(
-                subject_identifier=self.subject_identifier
-            ).assignment_description
-        return self._assignment
-
-    def draw_end_of_report(self, story):
-        story.append(Paragraph("- End of report -", self.styles["line_label_center"]))
-
-    def get_user(self, obj, field=None):
-        field = field or "user_created"
-        try:
-            user = self.user_model_cls.objects.get(username=getattr(obj, field))
-        except ObjectDoesNotExist:
-            user_created = getattr(obj, field)
-        else:
-            user_created = f"{user.first_name} {user.last_name}"
-        return user_created
 
     @staticmethod
     def set_table_style(t, bg_cmd=None):
@@ -248,3 +181,87 @@ class CrfPdfReport(Report):
         p = Paragraph(text, self.styles["line_data_large"])
         p.hAlign = "LEFT"
         story.append(KeepTogether([t, Spacer(0.1 * cm, 0.5 * cm), p]))
+
+    def draw_end_of_report(self, story):
+        story.append(Paragraph("- End of report -", self.styles["line_label_center"]))
+
+    @property
+    def registered_subject(self):
+        return django_apps.get_model("edc_registration.RegisteredSubject").objects.get(
+            subject_identifier=self.subject_identifier
+        )
+
+    @property
+    def logo(self):
+        if not self._logo:
+            path = get_static_file(self.logo_data["app_label"], self.logo_data["filename"])
+            if os.path.isfile(path):
+                self._logo = ImageReader(path)
+        return self._logo
+
+    @property
+    def title(self):
+        verbose_name = self.model_obj.verbose_name.upper()
+        subject_identifier = self.model_obj.subject_identifier
+        return f"{verbose_name} FOR {subject_identifier}"
+
+    @property
+    def weight_at_timepoint(self):
+        """Returns weight in Kgs"""
+        try:
+            return get_longitudinal_value(
+                subject_identifier=self.subject_identifier,
+                reference_dt=self.model_obj.report_datetime,
+                **self.get_weight_model_and_field(),
+            )
+        except DataDictionaryError:
+            return ""
+
+    def get_weight_model_and_field(self):
+        return {"model": self.weight_model, "field": self.weight_field}
+
+    @property
+    def age(self):
+        model_obj = self.model_obj
+        return formatted_age(
+            self.registered_subject.dob, reference_dt=model_obj.report_datetime
+        )
+
+    @property
+    def unblinded(self):
+        """Override to determine if assignment can be shown
+        for this subject_identifier.
+
+        Default: True
+        """
+        return True
+
+    @property
+    def assignment(self):
+        """Returns the assignment from the Randomization List"""
+        if not self._assignment:
+            if (
+                not self.unblinded
+                or not self.request.user.groups.filter(name=RANDO_UNBLINDED).exists()
+            ):
+                raise NotAllowed(
+                    "User does not have permissions to access randomization list. "
+                    f"Got {self.request.user}"
+                )
+            randomization_list_model_cls = django_apps.get_model(
+                self.registered_subject.randomization_list_model
+            )
+            self._assignment = randomization_list_model_cls.objects.get(
+                subject_identifier=self.subject_identifier
+            ).assignment_description
+        return self._assignment
+
+    def get_user(self, obj, field=None):
+        field = field or "user_created"
+        try:
+            user = self.user_model_cls.objects.get(username=getattr(obj, field))
+        except ObjectDoesNotExist:
+            user_created = getattr(obj, field)
+        else:
+            user_created = f"{user.first_name} {user.last_name}"
+        return user_created
