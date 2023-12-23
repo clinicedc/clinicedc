@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import os
 from textwrap import fill
+from typing import TYPE_CHECKING, Type
 
 from bs4 import BeautifulSoup
 from django.apps import apps as django_apps
@@ -24,6 +27,10 @@ from reportlab.platypus.tables import Table
 
 from .report import Report
 
+if TYPE_CHECKING:
+    from edc_crf.model_mixins import CrfModelMixin
+    from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
+
 
 class NotAllowed(Exception):
     pass
@@ -34,6 +41,10 @@ class CrfPdfReportError(Exception):
 
 
 class CrfPdfReport(Report):
+    model: str = None  # label_lower
+    report_url: str = None
+    changelist_url: str = None
+
     default_page = dict(
         rightMargin=1.5 * cm,
         leftMargin=1.5 * cm,
@@ -59,30 +70,60 @@ class CrfPdfReport(Report):
 
     rando_user_group = None
 
-    def __init__(self, subject_identifier=None, model_obj=None, **kwargs):
+    def __init__(
+        self,
+        model_obj: CrfModelMixin | UniqueSubjectIdentifierModelMixin = None,
+        **kwargs,
+    ):
         super().__init__(**kwargs)
         self._assignment = None
         self._logo = None
-        self.user_model_cls = get_user_model()
         self.model_obj = model_obj
-        self.verbose_name = self.model_obj._meta.verbose_name
-        self.subject_identifier = self.get_subject_identifier()
-        timestamp = to_local(self.model_obj.report_datetime).strftime("%Y%m%d")
-        self.report_filename = (
-            f"{slugify(self.model_obj._meta.verbose_name.lower())}-{subject_identifier}-"
-            f"{timestamp}.pdf"
-        )
-        self.multi_report_filename = (
-            f"{slugify(self.model_obj._meta.verbose_name.lower())}s.pdf"
-        )
+        if not isinstance(self.model_obj, (self.get_model_cls(),)):
+            raise CrfPdfReportError(
+                f"Invalid model instance. Expected an instance of {self.get_model_cls()}. "
+                f"Got {self.model_obj}."
+            )
+        if not self.changelist_url:
+            raise CrfPdfReportError(f"Invalid changelist url. Got {self.changelist_url}.")
+
+        self.user_model_cls = get_user_model()
+        self.subject_identifier = self.get_subject_identifier(**kwargs)
         self.bg_cmd = ("BACKGROUND", (0, 0), (0, -1), colors.lightgrey)
 
-    def get_subject_identifier(self):
+    def __repr__(self):
+        return f"{self.__class__.__name__}(model_obj={self.model_obj})"
+
+    def __str__(self):
+        return self.model_obj
+
+    def get_subject_identifier(self, **kwargs) -> str:
         try:
             subject_identifier = self.model_obj.related_visit.subject_identifier
         except AttributeError:
             subject_identifier = self.model_obj.subject_identifier
         return subject_identifier
+
+    @property
+    def report_filename(self) -> str:
+        timestamp = to_local(self.model_obj.report_datetime).strftime("%Y%m%d")
+        report_filename = (
+            f"{slugify(self.model_obj._meta.verbose_name.lower())}-{self.subject_identifier}-"
+            f"{timestamp}.pdf"
+        )
+        return report_filename
+
+    @classmethod
+    def get_generic_report_filename(cls) -> str:
+        return f"{slugify(cls.get_verbose_name().lower())}s.pdf"
+
+    @classmethod
+    def get_model_cls(cls) -> Type[CrfModelMixin | UniqueSubjectIdentifierModelMixin]:
+        return django_apps.get_model(cls.model)
+
+    @classmethod
+    def get_verbose_name(cls) -> str:
+        return cls.get_model_cls()._meta.verbose_name
 
     def get_report_story(self, **kwargs):
         story = []

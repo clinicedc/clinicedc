@@ -48,11 +48,15 @@ class Report(ABC):
         self.request = request
         self.page = page or self.default_page
 
-        self.report_filename = filename or f"{uuid4()}.pdf"
+        self.filename = filename or f"{uuid4()}.pdf"
 
         if not header_line:
             header_line = Protocol().institution
         self.header_line = header_line
+
+    @property
+    def report_filename(self) -> str:
+        return self.filename
 
     def get_report_story(self, **kwargs):
         """Entry point, returns a list of flowables to be passed to build.
