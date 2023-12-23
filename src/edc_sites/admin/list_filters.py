@@ -10,7 +10,7 @@ class SiteListFilter(SimpleListFilter):
 
     def lookups(self, request, model_admin):
         names = []
-        site_ids = [request.site.id] + sites.get_view_only_sites_for_user(request=request)
+        site_ids = sites.get_site_ids_for_user(request=request)
         for site in Site.objects.filter(id__in=site_ids).order_by("id"):
             names.append((site.id, f"{site.id} {sites.get(site.id).description}"))
         return tuple(names)

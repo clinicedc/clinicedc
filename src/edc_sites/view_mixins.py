@@ -22,8 +22,3 @@ class SiteViewMixin:
                 )
             raise
         return super().get_context_data(**kwargs)
-
-    def get_sites_for_user(self) -> list[int]:
-        return [self.request.site.id] + sites.get_view_only_sites_for_user(
-            request=self.request
-        )

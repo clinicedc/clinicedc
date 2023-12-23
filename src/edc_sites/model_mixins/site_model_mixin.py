@@ -1,28 +1,30 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from django.conf import settings
-from django.contrib.sites.managers import CurrentSiteManager as BaseCurrentSiteManager
-from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models, transaction
 
-from edc_sites.site import sites
+from ..managers import CurrentSiteManager
+from ..site import sites
+from ..utils import get_site_model_cls
+
+if TYPE_CHECKING:
+    from django.contrib.sites.models import Site
 
 
 class SiteModelMixinError(Exception):
     pass
 
 
-class CurrentSiteManager(BaseCurrentSiteManager):
-    use_in_migrations = True
-
-    def get_by_natural_key(self, subject_identifier):
-        return self.get(subject_identifier=subject_identifier)
-
-
 class SiteModelMixin(models.Model):
     site = models.ForeignKey(
-        Site, on_delete=models.PROTECT, null=True, editable=False, related_name="+"
+        "sites.site",
+        on_delete=models.PROTECT,
+        null=True,
+        editable=False,
+        related_name="+",
     )
 
     on_site = CurrentSiteManager()
@@ -45,7 +47,7 @@ class SiteModelMixin(models.Model):
         if not self.site:
             try:
                 with transaction.atomic():
-                    site = Site.objects.get_current()
+                    site = get_site_model_cls().objects.get_current()
             except ObjectDoesNotExist as e:
                 site_ids = [str(s) for s in sites.all()]
                 raise SiteModelMixinError(

@@ -394,7 +394,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
         request.user.userprofile.sites.add(Site.objects.get(id=40))
         self.assertTrue(sites.user_may_view_other_sites(request))
         self.assertEqual(
-            [request.site.id] + sites.get_view_only_sites_for_user(request=request),
+            [request.site.id] + sites.get_view_only_site_ids_for_user(request=request),
             [30, 40],
         )
 

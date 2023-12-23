@@ -206,16 +206,23 @@ class Sites:
             if single_site.country == country
         }
 
-    def get_sites_for_user(self, user: User) -> list[SingleSite]:
-        """Returns a list of SingleSites for this user."""
-        return [self.get(site.id) for site in user.userprofile.sites.all()]
+    def get_site_ids_for_user(
+        self,
+        request: WSGIRequest | None = None,
+        user: User | None = None,
+        site_id: int | None = None,
+    ) -> list[int]:
+        """Returns a list of site ids for this user, including the
+        current site.
+        """
+        if request:
+            user = request.user
+            site_id = request.site.id
+        return [site_id] + self.get_view_only_site_ids_for_user(
+            request=request, user=user, site_id=site_id
+        )
 
-    @staticmethod
-    def get_site_ids_for_user(user: User) -> list[int]:
-        """Returns a list of site ids for this user."""
-        return [site.id for site in user.userprofile.sites.all()]
-
-    def get_view_only_sites_for_user(
+    def get_view_only_site_ids_for_user(
         self,
         request: WSGIRequest | None = None,
         user: User | None = None,
@@ -246,25 +253,25 @@ class Sites:
             if get_change_codenames(user):
                 if request:
                     add_to_messages_once(
-                        get_message_text(messages.WARNING), request, messages.WARNING
+                        get_message_text(messages.ERROR), request, messages.ERROR
                     )
             else:
-                site_ids = [s for s in sites.get_site_ids_for_user(user) if s != site_id]
+                site_ids = [s.id for s in user.userprofile.sites.all() if s.id != site_id]
                 if request:
                     add_to_messages_once(
-                        get_message_text(messages.INFO), request, messages.INFO
+                        get_message_text(messages.WARNING), request, messages.WARNING
                     )
         return site_ids
 
     def user_may_view_other_sites(self, request: WSGIRequest) -> bool:
-        return True if self.get_view_only_sites_for_user(request=request) else False
+        return True if self.get_view_only_site_ids_for_user(request=request) else False
 
     def site_in_profile_or_raise(self, user: User, site_id: int) -> None:
         """Raises if user does not have site in their UserProfile."""
         try:
             user.userprofile.sites.get(id=site_id).id
         except ObjectDoesNotExist:
-            site_ids = [str(site_id) for site_id in self.get_site_ids_for_user(user)] or [
+            site_ids = [str(site_id) for site_id in self.get_site_ids_for_user(user=user)] or [
                 "None"
             ]
             raise InvalidSiteForUser(
