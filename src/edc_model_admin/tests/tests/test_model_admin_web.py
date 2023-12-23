@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
+from django.test import tag
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_appointment.models import Appointment
@@ -290,15 +291,10 @@ class ModelAdminSiteTest(WebTest):
         form = get_webtest_form(response)
         response = form.submit(name="_savenext").follow()
 
-        # self.assertIn("Change requisition", response)
-        # self.assertIn("ABCDE0002", response)
-        # self.assertIn(f'{str(panel_two.id)}" selected>Two</option>', response)
-        # self.assertIn(str(panel_two.id), response)
-        # response = response.form.submit(name="_savenext").follow()
-
         self.assertIn("You are at the subject dashboard", response)
         self.assertIn(self.subject_identifier, response)
 
+    @tag("1")
     def test_redirect_on_delete_with_url_name_from_settings(self):
         self.login()
 

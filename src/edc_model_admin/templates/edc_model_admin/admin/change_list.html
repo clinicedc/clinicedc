@@ -32,7 +32,7 @@
 {% block breadcrumbs %}{% endblock %}
 
 {% block branding %}
-  {% show_navbar_for_admin_templates_b3 %}{{ opts.app_config.verbose_name }}
+  {% show_navbar_for_admin_templates_b3 %}&nbsp;<a href="{% url "edc_adverse_event:home_url" %}">{{ opts.app_config.verbose_name|capfirst }}</A>&nbsp;&rsaquo;&nbsp;{{ opts.verbose_name|capfirst }}
 {% endblock %}
 
 {% block welcome-msg %}{% endblock %}
