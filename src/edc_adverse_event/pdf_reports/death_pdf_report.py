@@ -17,28 +17,13 @@ p = inflect.engine()
 
 
 class DeathPdfReport(CrfPdfReport):
-    not_reported_text = "not reported"
-    ae_model_name = "deathreport"
-    name = "death_report"
+    model = f"{get_adverse_event_app_label()}.deathreport"
     changelist_url = (
         f"{get_adverse_event_app_label()}_admin:{get_adverse_event_app_label()}_"
         "deathreport_changelist"
     )
 
-    def __init__(self, pk=None, request=None, **kwargs):
-        self.pk = pk
-        model_obj = get_ae_model(self.ae_model_name).objects.get(id=self.pk)
-        super().__init__(request=request, model_obj=model_obj, **kwargs)
-
-    def __repr__(self):
-        return f"{self.__class__.__name__}(pk={self.pk})"
-
-    def __str__(self):
-        return self.name
-
-    @classmethod
-    def get_verbose_name(cls):
-        return get_ae_model(cls.ae_model_name)._meta.verbose_name
+    not_reported_text = "not reported"
 
     def get_report_story(self, **kwargs):
         story = []

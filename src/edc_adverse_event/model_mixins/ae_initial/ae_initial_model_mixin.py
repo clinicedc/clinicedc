@@ -5,7 +5,8 @@ from edc_action_item.managers import (
 )
 from edc_action_item.models import ActionModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
-from edc_sites.models import SiteModelMixin
+from edc_pdf_reports.model_mixins import PdfReportModelMixin
+from edc_sites.model_mixins import SiteModelMixin
 
 from ...constants import AE_INITIAL_ACTION
 from ...pdf_reports import AePdfReport
@@ -27,6 +28,7 @@ class AeInitialModelMixin(
     AeInitialSaeModelMixin,
     AeInitialSusarModelMixin,
     AeInitialTmgModelMixin,
+    PdfReportModelMixin,
     models.Model,
 ):
     action_name = AE_INITIAL_ACTION

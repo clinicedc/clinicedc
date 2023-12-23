@@ -8,21 +8,17 @@ from reportlab.lib.units import cm
 from reportlab.platypus import Paragraph, Table
 from reportlab.platypus.flowables import KeepTogether, Spacer
 
-from ..utils import get_ae_model
+from ..utils import get_adverse_event_app_label, get_ae_model
 
 p = inflect.engine()
 
 
 class AePdfReport(CrfPdfReport):
-    model_attr = "ae_initial"
-
-    def __init__(self, ae_initial=None, **kwargs):
-        super().__init__(**kwargs)
-        self.ae_initial = ae_initial
-
-    @property
-    def title(self):
-        return f"ADVERSE EVENT REPORT FOR {self.ae_initial.subject_identifier}"
+    model = f"{get_adverse_event_app_label()}.aeinitial"
+    changelist_url = (
+        f"{get_adverse_event_app_label()}_admin:{get_adverse_event_app_label()}_"
+        "aeinitial_changelist"
+    )
 
     def get_report_story(self, **kwargs):
         story = []
@@ -69,43 +65,43 @@ class AePdfReport(CrfPdfReport):
         t = Table([["Section 1: Initial AE Report"]], (18 * cm))
         self.set_table_style(t, bg_cmd=self.bg_cmd)
         story.append(t)
-        t = Table([[f"Prepared by {self.get_user(self.ae_initial)}."]], (18 * cm))
+        t = Table([[f"Prepared by {self.get_user(self.model_obj)}."]], (18 * cm))
         self.set_table_style(t)
         story.append(t)
 
     def _draw_ae_overview(self, story):
         # basics
-        classification_text = fill(self.ae_initial.ae_classification.name, width=80)
-        if self.ae_initial.ae_classification.name == OTHER:
+        classification_text = fill(self.model_obj.ae_classification.name, width=80)
+        if self.model_obj.ae_classification.name == OTHER:
             classification_text = fill(
-                f"{classification_text}: {self.ae_initial.ae_classification_other}",
+                f"{classification_text}: {self.model_obj.ae_classification_other}",
                 width=80,
             )
 
         sae_reason = (
-            fill(f": {self.ae_initial.sae_reason.name}", width=80)
-            if self.ae_initial.sae == YES
+            fill(f": {self.model_obj.sae_reason.name}", width=80)
+            if self.model_obj.sae == YES
             else ""
         )
-        sae_text = f"{self.ae_initial.get_sae_display()}{sae_reason}"
+        sae_text = f"{self.model_obj.get_sae_display()}{sae_reason}"
 
         susar_reported = ""
-        if self.ae_initial.susar == YES:
+        if self.model_obj.susar == YES:
             susar_reported = (
-                ": reported" if self.ae_initial.susar_reported == YES else ": not reported"
+                ": reported" if self.model_obj.susar_reported == YES else ": not reported"
             )
-        susar_text = f"{self.ae_initial.get_susar_display()}{susar_reported}"
+        susar_text = f"{self.model_obj.get_susar_display()}{susar_reported}"
 
         rows = [
-            ["Reference:", self.ae_initial.identifier],
+            ["Reference:", self.model_obj.identifier],
             [
                 "Report date:",
-                self.ae_initial.report_datetime.strftime("%Y-%m-%d %H:%M"),
+                self.model_obj.report_datetime.strftime("%Y-%m-%d %H:%M"),
             ],
-            ["Awareness date:", self.ae_initial.ae_awareness_date.strftime("%Y-%m-%d")],
-            ["Actual start date:", self.ae_initial.ae_start_date.strftime("%Y-%m-%d")],
+            ["Awareness date:", self.model_obj.ae_awareness_date.strftime("%Y-%m-%d")],
+            ["Actual start date:", self.model_obj.ae_start_date.strftime("%Y-%m-%d")],
             ["Classification:", classification_text],
-            ["Severity:", self.ae_initial.get_ae_grade_display()],
+            ["Severity:", self.model_obj.get_ae_grade_display()],
             ["SAE:", sae_text],
             ["SUSAR:", susar_text],
         ]
@@ -117,7 +113,7 @@ class AePdfReport(CrfPdfReport):
 
     def _draw_ae_descripion(self, story):
         self.draw_narrative(
-            story, title="Description of AE:", text=self.ae_initial.ae_description
+            story, title="Description of AE:", text=self.model_obj.ae_description
         )
 
     def _draw_ae_drug_relationship(self, story):
@@ -125,11 +121,11 @@ class AePdfReport(CrfPdfReport):
         rows = [
             [
                 "Is the incident related to the patient involvement in the study?",
-                self.ae_initial.get_ae_study_relation_possibility_display(),
+                self.model_obj.get_ae_study_relation_possibility_display(),
             ],
             [
                 "Relationship to study drug:",
-                self.ae_initial.get_study_drug_relation_display(),
+                self.model_obj.get_study_drug_relation_display(),
             ],
         ]
         t = Table(rows, (14 * cm, 4 * cm))
@@ -138,7 +134,7 @@ class AePdfReport(CrfPdfReport):
 
     def _draw_ae_cause(self, story):
         # cause (Part3)
-        left_width = 40 if self.ae_initial.ae_cause == YES else 80
+        left_width = 40 if self.model_obj.ae_cause == YES else 80
         rows = [
             fill(
                 "Has a reason other than the specified study drug been "
@@ -146,17 +142,17 @@ class AePdfReport(CrfPdfReport):
                 width=left_width,
             )
         ]
-        if self.ae_initial.ae_cause == YES:
+        if self.model_obj.ae_cause == YES:
             rows.append(
                 fill(
-                    f"{self.ae_initial.get_ae_cause_display()}: "
-                    f"{self.ae_initial.ae_cause_other}",
+                    f"{self.model_obj.get_ae_cause_display()}: "
+                    f"{self.model_obj.ae_cause_other}",
                     width=65,
                 )
             )
             table_dimensions = (7 * cm, 11 * cm)
         else:
-            rows.append(self.ae_initial.get_ae_cause_display())
+            rows.append(self.model_obj.get_ae_cause_display())
             table_dimensions = (14 * cm, 4 * cm)
         t = Table([rows], table_dimensions)
         self.set_table_style(t, bg_cmd=self.bg_cmd)
@@ -168,7 +164,7 @@ class AePdfReport(CrfPdfReport):
         self.draw_narrative(
             story,
             title="Action taken for treatment of AE:",
-            text=self.ae_initial.ae_treatment,
+            text=self.model_obj.ae_treatment,
         )
 
         story.append(Spacer(0.1 * cm, 0.5 * cm))
@@ -176,7 +172,7 @@ class AePdfReport(CrfPdfReport):
     def _draw_section_two(self, story):
         t1 = Table([["Section 2: Follow-up Reports"]], (18 * cm))
         self.set_table_style(t1, bg_cmd=self.bg_cmd)
-        total = self.ae_initial.ae_follow_ups.count()
+        total = self.model_obj.ae_follow_ups.count()
         row_text = f"There {p.plural_verb('is', total)} {p.no('follow-up report', total)}."
         t2 = Table([[row_text]], (18 * cm))
         self.set_table_style(t2)
@@ -184,7 +180,7 @@ class AePdfReport(CrfPdfReport):
 
         story.append(Spacer(0.1 * cm, 0.5 * cm))
 
-        for index, obj in enumerate(self.ae_initial.ae_follow_ups):
+        for index, obj in enumerate(self.model_obj.ae_follow_ups):
             self._draw_followup_story(story, obj, index + 1, total)
             story.append(Spacer(0.1 * cm, 0.5 * cm))
             story.append(Spacer(0.1 * cm, 0.5 * cm))
@@ -205,7 +201,7 @@ class AePdfReport(CrfPdfReport):
         self.set_table_style(t, bg_cmd=("BACKGROUND", (0, 0), (3, -1), colors.lightgrey))
         story.append(t)
 
-        followups = self.ae_initial.ae_follow_ups.order_by("-created")
+        followups = self.model_obj.ae_follow_ups.order_by("-created")
         index = followups.count()
         for followup in followups:
             qs = followup.history.filter(id=followup.id).order_by("-history_date")
@@ -230,7 +226,7 @@ class AePdfReport(CrfPdfReport):
             index -= 1
         qs = (
             get_ae_model("aeinitial")
-            .history.filter(id=self.ae_initial.id)
+            .history.filter(id=self.model_obj.id)
             .order_by("-history_date")
         )
         for obj in qs:
@@ -274,3 +270,7 @@ class AePdfReport(CrfPdfReport):
             title="Description of follow-up AE outcome:",
             text=obj.relevant_history,
         )
+
+    @property
+    def title(self):
+        return f"ADVERSE EVENT REPORT FOR {self.model_obj.subject_identifier}"

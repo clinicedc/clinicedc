@@ -10,7 +10,7 @@ from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import ReportStatusModelMixin
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
-from edc_sites.models import SiteModelMixin
+from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
 
 from ...constants import DEATH_REPORT_TMG_ACTION, DEATH_REPORT_TMG_SECOND_ACTION

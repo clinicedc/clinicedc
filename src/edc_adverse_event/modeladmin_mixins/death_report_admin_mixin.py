@@ -9,22 +9,17 @@ from edc_action_item import action_fieldset_tuple
 from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
 from edc_constants.constants import CANCELLED, OTHER
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
-from edc_pdf_reports.modeladmin_mixins import PdfButtonModelAdminMixin
-from edc_pdf_reports.views import PdfIntermediateView
+from edc_model_admin.list_filters import ReportDateListFilter
+from edc_pdf_reports.admin import PdfButtonModelAdminMixin, print_selected_to_pdf_action
 from edc_utils import get_utcnow
 
 from ..utils import get_adverse_event_app_label
-from .list_filters import CauseOfDeathListFilter
+from .list_filters import CauseOfDeathListFilter, DeathDateListFilter
 
 
 @admin.action(permissions=["view"], description="Print Death Reports as PDF")
-def print_death_reports_as_pdf(modeladmin, request, queryset):
-    pks = []
-    for obj in queryset:
-        pks.append(obj.id)
-    return PdfIntermediateView(
-        request=request, pdf_report_cls=modeladmin.pdf_report_cls, pks=pks
-    ).get(request)
+def print_to_pdf_action(modeladmin, request, queryset):
+    return print_selected_to_pdf_action(modeladmin, request, queryset)
 
 
 class DeathReportModelAdminMixin(
@@ -32,10 +27,8 @@ class DeathReportModelAdminMixin(
 ):
     form = None
     ordering = ("-report_datetime",)
-    pdf_button_url_name: str = "pdf_death_report_intermediate_url"
-    pdf_report_cls = None
 
-    actions = [print_death_reports_as_pdf]
+    actions = [print_to_pdf_action]
 
     fieldsets = (
         (
@@ -74,6 +67,7 @@ class DeathReportModelAdminMixin(
             "subject_identifier",
             "dashboard",
             "pdf_button",
+            "ae_button",
             "report_datetime_with_ago",
             "death_datetime_with_ago",
             "cause_of_death_column",
@@ -87,7 +81,7 @@ class DeathReportModelAdminMixin(
 
     def get_list_filter(self, request) -> tuple[str, ...]:
         list_filter = super().get_list_filter(request)
-        custom_fields = ("report_datetime", "death_datetime", CauseOfDeathListFilter)
+        custom_fields = (ReportDateListFilter, DeathDateListFilter, CauseOfDeathListFilter)
         return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
 
     @display(
@@ -152,3 +146,15 @@ class DeathReportModelAdminMixin(
                 ),
             )
         return None
+
+    @display(description="AE")
+    def ae_button(self, obj):
+        context = dict(
+            subject_identifier=obj.subject_identifier,
+            changelist_url=reverse(
+                f"{self.admin_site.name}:{obj._meta.app_label}_aeinitial_changelist"
+            ),
+        )
+        return render_to_string(
+            template_name="edc_adverse_event/ae_button.html", context=context
+        )
