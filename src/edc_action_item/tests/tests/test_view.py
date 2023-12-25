@@ -1,7 +1,9 @@
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from django.urls.base import reverse
-from django.views.generic.base import ContextMixin
+from django.views.generic.base import ContextMixin, View
 from edc_model_wrapper import ModelWrapper
+from edc_sites.utils import get_site_model_cls
+from edc_test_utils.get_user_for_tests import get_user_for_tests
 
 from edc_action_item.models import ActionItem, ActionType
 from edc_action_item.templatetags.action_item_extras import add_action_item_popover
@@ -14,16 +16,22 @@ class MyModelWrapper(ModelWrapper):
     next_url_name = "subject_dashboard_url"
 
 
-class MyActionItemViewMixin(ActionItemViewMixin, ContextMixin):
+class MyActionItemViewMixin(ActionItemViewMixin, ContextMixin, View):
     action_item_model_wrapper_cls = MyModelWrapper
 
 
 class TestAction(TestCaseMixin, TestCase):
     def setUp(self):
         self.subject_identifier = self.fake_enroll()
+        self.user = get_user_for_tests()
+        self.site = get_site_model_cls().objects.get_current()
 
     def test_view_context(self):
+        req = RequestFactory().get("/")
+        req.user = self.user
+        req.site = self.site
         view = MyActionItemViewMixin()
+        view.request = req
         view.kwargs = dict(subject_identifier=self.subject_identifier)
         context = view.get_context_data()
         self.assertEqual(context.get("open_action_items"), [])
@@ -34,6 +42,7 @@ class TestAction(TestCaseMixin, TestCase):
             )
 
         view = MyActionItemViewMixin()
+        view.request = req
         view.kwargs = dict(subject_identifier=self.subject_identifier)
         context = view.get_context_data()
         self.assertEqual(

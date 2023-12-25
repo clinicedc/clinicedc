@@ -11,8 +11,8 @@ from edc_constants.constants import CANCELLED, NEW
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_notification.model_mixins import NotificationModelMixin
-from edc_sites.models import CurrentSiteManager as BaseCurrentSiteManager
-from edc_sites.models import SiteModelMixin
+from edc_sites.managers import CurrentSiteManager as BaseCurrentSiteManager
+from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
 
 from .. import Action

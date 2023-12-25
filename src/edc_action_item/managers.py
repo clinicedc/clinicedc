@@ -1,5 +1,5 @@
 from django.db import models
-from edc_sites.models import CurrentSiteManager as BaseCurrentSiteManager
+from edc_sites.managers import CurrentSiteManager as BaseCurrentSiteManager
 
 
 class ActionIdentifierSiteManager(BaseCurrentSiteManager):
