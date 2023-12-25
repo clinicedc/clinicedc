@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.views import LoginView as BaseLoginView
@@ -8,15 +10,14 @@ from edc_dashboard.utils import get_bootstrap_version, get_template_path_with_bo
 class LoginView(BaseLoginView):
     template_name = f"edc_auth/bootstrap{get_bootstrap_version()}/login.html"
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Tests cookies."""
-        context = super().get_context_data(**kwargs)
-        context.update(**self.extra_context)
+        kwargs.update(**self.extra_context)
         self.request.session.set_test_cookie()
         if not self.request.session.test_cookie_worked():
             messages.add_message(self.request, messages.ERROR, "Please enable cookies.")
         self.request.session.delete_test_cookie()
-        return context
+        return super().get_context_data(**kwargs)
 
     @property
     def extra_context(self):
