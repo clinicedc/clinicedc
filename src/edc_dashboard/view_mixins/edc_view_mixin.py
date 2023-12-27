@@ -1,9 +1,11 @@
 import warnings
+from typing import Any
 
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.translation import gettext as _
 from django_revision.views import RevisionMixin
 from edc_sites.view_mixins import SiteViewMixin
 
@@ -22,7 +24,7 @@ class EdcViewMixin(
 
     edc_device_app = "edc_device"
 
-    def get_context_data(self, **kwargs) -> dict:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         try:
             edc_device_app_config = django_apps.get_app_config(self.edc_device_app)
         except LookupError as e:
@@ -40,41 +42,37 @@ class EdcViewMixin(
         return super().get_context_data(**kwargs)
 
     def check_for_warning_messages(self, live_system=None) -> None:
-        if settings.DEBUG:
-            messages.add_message(
-                self.request,
-                messages.ERROR,
-                (
-                    "This EDC is running in DEBUG-mode. Use for testing only. "
-                    "Do not use this system for production data collection!"
-                ),
+        is_debug = getattr(settings, "DEBUG", False)
+        has_warning_message = getattr(settings, "WARNING_MESSAGE", False)
+
+        if is_debug:
+            msg = _(
+                "This EDC is running in DEBUG-mode. Use for testing only. "
+                "Do not use this system for production data collection!"
             )
-        elif not settings.DEBUG and not live_system:
+            if msg not in [str(m) for m in messages.get_messages(self.request)]:
+                messages.add_message(self.request, messages.ERROR, msg)
+        elif not live_system:
+            msg = _(
+                "This EDC is for testing only. "
+                "Do not use this system for production data collection!"
+            )
+            if msg not in [str(m) for m in messages.get_messages(self.request)]:
+                messages.add_message(self.request, messages.WARNING, msg)
+
+        if has_warning_message not in [str(m) for m in messages.get_messages(self.request)]:
             messages.add_message(
                 self.request,
                 messages.WARNING,
-                (
-                    "This EDC is for testing only. "
-                    "Do not use this system for production data collection!"
-                ),
+                settings.WARNING_MESSAGE,
+                extra_tags="warning",
             )
-        try:
-            if settings.WARNING_MESSAGE:
-                messages.add_message(
-                    self.request,
-                    messages.WARNING,
-                    settings.WARNING_MESSAGE,
-                    extra_tags="warning",
-                )
-        except AttributeError:
-            pass
+
         if self.request.user.is_superuser:
-            messages.add_message(
-                self.request,
-                messages.ERROR,
-                (
-                    "You are using a `superuser` account. The EDC does not operate correctly "
-                    "with user acounts that have the `superuser` status. "
-                    "Update your user account before continuing."
-                ),
+            msg = _(
+                "You are using a `superuser` account. The EDC does not operate correctly "
+                "with user acounts that have the `superuser` status. "
+                "Update your user account before continuing."
             )
+            if msg not in [str(m) for m in messages.get_messages(self.request)]:
+                messages.add_message(self.request, messages.ERROR, msg)
