@@ -43,36 +43,39 @@ class EdcViewMixin(
 
     def check_for_warning_messages(self, live_system=None) -> None:
         is_debug = getattr(settings, "DEBUG", False)
-        has_warning_message = getattr(settings, "WARNING_MESSAGE", False)
 
+        msgs = []
         if is_debug:
-            msg = _(
-                "This EDC is running in DEBUG-mode. Use for testing only. "
-                "Do not use this system for production data collection!"
+            msgs.append(
+                _(
+                    "This EDC is running in DEBUG-mode. Use for testing only. "
+                    "Do not use this system for production data collection!"
+                )
             )
-            if msg not in [str(m) for m in messages.get_messages(self.request)]:
-                messages.add_message(self.request, messages.ERROR, msg)
         elif not live_system:
-            msg = _(
-                "This EDC is for testing only. "
-                "Do not use this system for production data collection!"
-            )
-            if msg not in [str(m) for m in messages.get_messages(self.request)]:
-                messages.add_message(self.request, messages.WARNING, msg)
-
-        if has_warning_message not in [str(m) for m in messages.get_messages(self.request)]:
-            messages.add_message(
-                self.request,
-                messages.WARNING,
-                settings.WARNING_MESSAGE,
-                extra_tags="warning",
+            msgs.append(
+                _(
+                    "This EDC is for testing only. "
+                    "Do not use this system for production data collection!"
+                )
             )
 
         if self.request.user.is_superuser:
-            msg = _(
-                "You are using a `superuser` account. The EDC does not operate correctly "
-                "with user acounts that have the `superuser` status. "
-                "Update your user account before continuing."
+            msgs.append(
+                _(
+                    "You are using a `superuser` account. The EDC does not operate correctly "
+                    "with user acounts that have the `superuser` status. "
+                    "Update your user account before continuing."
+                )
             )
+        for msg in msgs:
             if msg not in [str(m) for m in messages.get_messages(self.request)]:
                 messages.add_message(self.request, messages.ERROR, msg)
+
+        warning_message = getattr(settings, "WARNING_MESSAGE", False)
+        if warning_message and warning_message not in [
+            str(m) for m in messages.get_messages(self.request)
+        ]:
+            messages.add_message(
+                self.request, messages.WARNING, warning_message, extra_tags="warning"
+            )
