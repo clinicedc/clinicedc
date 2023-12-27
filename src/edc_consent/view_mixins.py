@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
+from edc_sites.site import sites
 from edc_utils import get_uuid
 
 from .exceptions import ConsentObjectDoesNotExist
@@ -26,7 +27,7 @@ class ConsentViewMixin:
         self._consent = None
         self._consents = None
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(
             consent=self.consent_wrapped,
             consents=self.consents_wrapped,
@@ -39,7 +40,7 @@ class ConsentViewMixin:
         """Returns a Queryset of consents for this subject."""
         return self.consent_object.model_cls.objects.filter(
             subject_identifier=self.subject_identifier,
-            site_id__in=self.get_sites_for_user(),
+            site_id__in=sites.get_site_ids_for_user(request=self.request),
         ).order_by("version")
 
     @property

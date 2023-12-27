@@ -7,7 +7,7 @@ from edc_constants.constants import OPEN
 from edc_data_manager.get_data_queries import get_data_queries
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
-from edc_sites.models import CurrentSiteManager
+from edc_sites.managers import CurrentSiteManager
 from edc_utils import age, formatted_age
 
 from ..consent_helper import ConsentHelper
