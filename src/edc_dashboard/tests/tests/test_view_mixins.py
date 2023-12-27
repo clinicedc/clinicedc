@@ -14,17 +14,29 @@ from edc_listboard.filters import ListboardFilter, ListboardViewFilters
 from edc_listboard.view_mixins import ListboardFilterViewMixin, QueryStringViewMixin
 from edc_listboard.views import ListboardView
 from edc_model_wrapper import ModelWrapper
+from edc_registration.models import RegisteredSubject
+from edc_sites.single_site import SingleSite
+from edc_sites.site import sites
+from edc_sites.tests import SiteTestCaseMixin
+from edc_sites.utils import add_or_update_django_sites
 from edc_sites.view_mixins import SiteViewMixin
+from edc_subject_dashboard.view_mixins import RegisteredSubjectViewMixin
 from edc_test_utils.get_user_for_tests import get_user_for_tests
 from edc_utils import get_utcnow
+from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 
 from edc_dashboard.url_names import url_names
 
 from ..models import SubjectVisit
 
 
-@override_settings(EDC_AUTH_SKIP_SITE_AUTHS=True, EDC_AUTH_SKIP_AUTH_UPDATER=False)
-class TestViewMixins(TestCase):
+@override_settings(
+    EDC_AUTH_SKIP_SITE_AUTHS=True,
+    EDC_AUTH_SKIP_AUTH_UPDATER=False,
+    SITE_ID=101,
+    EDC_SITES_REGISTER_DEFAULT=False,
+)
+class TestViewMixins(SiteTestCaseMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         url_names.register("dashboard_url", "dashboard_url", "edc_dashboard")
@@ -35,6 +47,22 @@ class TestViewMixins(TestCase):
             codename_tuples=(("edc_dashboard.view_my_listboard", "View my listboard"),),
         )
         AuthUpdater(verbose=False, warn_only=True)
+        sites.initialize(initialize_site_model=True)
+        single_site = SingleSite(
+            101,
+            "mochudi",
+            title="Mochudi",
+            country="botswana",
+            country_code="bw",
+            language_codes=["en"],
+            domain="mochudi.bw.clinicedc.org",
+        )
+        sites.register(single_site)
+        add_or_update_django_sites()
+        rs = RegisteredSubject.objects.create(
+            subject_identifier=f"{Site.objects.get_current().id}-123456-1"
+        )
+        cls.subject_identifier = rs.subject_identifier
 
     def setUp(self):
         self.user = get_user_for_tests(username="erik", view_only=True)
@@ -75,7 +103,9 @@ class TestViewMixins(TestCase):
                 lookup={"reason": "scheduled"},
             )
 
-        class MyView(SiteViewMixin, ListboardFilterViewMixin, ListboardView):
+        class MyView(
+            SiteViewMixin, RegisteredSubjectViewMixin, ListboardFilterViewMixin, ListboardView
+        ):
             listboard_model = "edc_dashboard.subjectvisit"
             listboard_url = "listboard_url"
             listboard_template = "listboard_template"
@@ -88,16 +118,24 @@ class TestViewMixins(TestCase):
         end = datetime(2013, 5, 10, 17, 15, tzinfo=ZoneInfo("UTC"))
         for arr in arrow.Arrow.range("day", start, end):
             SubjectVisit.objects.create(
-                subject_identifier="1234", report_datetime=arr.datetime, reason="missed"
+                subject_identifier=self.subject_identifier,
+                report_datetime=arr.datetime,
+                reason=MISSED_VISIT,
+                user_created=self.user.username,
             )
         subject_visit = SubjectVisit.objects.create(
-            subject_identifier="1234", report_datetime=get_utcnow(), reason="scheduled"
+            subject_identifier=self.subject_identifier,
+            report_datetime=get_utcnow(),
+            reason=SCHEDULED,
+            user_created=self.user.username,
         )
         request = RequestFactory().get("/?scheduled=scheduled")
         request.user = self.user
         request.site = Site.objects.get_current()
         request.template_data = {"listboard_template": "listboard.html"}
-        template_response = MyView.as_view()(request=request)
+        template_response = MyView.as_view()(
+            request=request, subject_identifier=self.subject_identifier
+        )
         object_list = template_response.__dict__.get("context_data").get("object_list")
         self.assertEqual(
             [
