@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models import ForeignKey, OneToOneField, options
-from edc_sites.models import SiteModelMixin
+from edc_sites.model_mixins import SiteModelMixin
 from edc_visit_tracking.model_mixins.crfs import InlineVisitMethodsModelMixin
 
 if TYPE_CHECKING:
