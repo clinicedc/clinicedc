@@ -28,6 +28,8 @@ from reportlab.platypus.tables import Table
 from .report import Report
 
 if TYPE_CHECKING:
+    from django.contrib.auth.models import User
+    from django.core.handlers.wsgi import WSGIRequest
     from edc_crf.model_mixins import CrfModelMixin
     from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
 
@@ -73,9 +75,17 @@ class CrfPdfReport(Report):
     def __init__(
         self,
         model_obj: CrfModelMixin | UniqueSubjectIdentifierModelMixin = None,
-        **kwargs,
+        request: WSGIRequest | None = None,
+        user: User | None = None,
+        **extra_context,
     ):
-        super().__init__(**kwargs)
+        page: dict | None = extra_context.get("page")
+        header_line: str | None = extra_context.get("header_line")
+        filename: str | None = extra_context.get("filename")
+
+        super().__init__(
+            page=page, header_line=header_line, filename=filename, request=request
+        )
         self._assignment = None
         self._logo = None
         self.model_obj = model_obj
@@ -88,7 +98,8 @@ class CrfPdfReport(Report):
             raise CrfPdfReportError(f"Invalid changelist url. Got {self.changelist_url}.")
 
         self.user_model_cls = get_user_model()
-        self.subject_identifier = self.get_subject_identifier(**kwargs)
+        self.user = self.request.user if self.request else user
+        self.subject_identifier = self.get_subject_identifier(**extra_context)
         self.bg_cmd = ("BACKGROUND", (0, 0), (0, -1), colors.lightgrey)
 
     def __repr__(self):
@@ -283,11 +294,11 @@ class CrfPdfReport(Report):
         if not self._assignment:
             if (
                 not self.unblinded
-                or not self.request.user.groups.filter(name=RANDO_UNBLINDED).exists()
+                or not self.user.groups.filter(name=RANDO_UNBLINDED).exists()
             ):
                 raise NotAllowed(
                     "User does not have permissions to access randomization list. "
-                    f"Got {self.request.user}"
+                    f"Got {self.user}"
                 )
             randomization_list_model_cls = django_apps.get_model(
                 self.registered_subject.randomization_list_model

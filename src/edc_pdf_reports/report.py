@@ -42,7 +42,6 @@ class Report(ABC):
         header_line: str | None = None,
         filename: str | None = None,
         request: WSGIRequest | None = None,
-        **kwargs,
     ):
         self._styles = None
         self.request = request

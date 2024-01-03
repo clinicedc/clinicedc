@@ -1,5 +1,5 @@
 import json
-from io import BytesIO
+from tempfile import mktemp
 
 import mempass
 from django.apps import apps as django_apps
@@ -11,9 +11,10 @@ from django.utils.html import format_html
 from django.utils.text import slugify
 from django.utils.translation import gettext as _
 from django.views.generic.base import ContextMixin, View
-from pypdf import PdfWriter
 
-from ..numbered_canvas import NumberedCanvas
+from ..utils import write_queryset_to_secure_pdf
+
+mktemp()
 
 
 @method_decorator(login_required, name="dispatch")
@@ -35,49 +36,32 @@ class PrintPdfReportView(ContextMixin, View):
         return self.get(request, *args, **kwargs)
 
     def render_to_response(self, **kwargs) -> FileResponse | HttpResponseRedirect:
-        """Render buffer to HTTP response"""
-        merger = PdfWriter()
+        """Render PDF buffer to FileResponse."""
         try:
             model_pks = json.loads(self.request.session.pop(self.session_key))
-        except KeyError:
-            pass
+        except KeyError as e:
+            # TODO: is this needed?
+            messages.error(
+                self.request,
+                format_html(
+                    _(
+                        f"PDF report was not created because of an error. Got {e}. "
+                        "Please try again."
+                    ),
+                    fail_silently=True,
+                ),
+            )
         else:
-            app_label, model_name = kwargs.get("app_label"), kwargs.get("model_name")
-            for pk in model_pks:
-                buffer = self.render_to_pdf(pk, app_label, model_name)
-                merger.append(fileobj=buffer)
-                buffer.close()
-            new_buffer = BytesIO()
             password = kwargs.get("phrase") or slugify(mempass.mkpassword(2))
-            merger.encrypt(password, algorithm="AES-256")
-            merger.write(new_buffer)
-            new_buffer.seek(0)
+            app_label, model_name = kwargs.get("app_label"), kwargs.get("model_name")
+            qs = django_apps.get_model(app_label, model_name).objects.filter(pk__in=model_pks)
+            buffer = write_queryset_to_secure_pdf(
+                queryset=qs, password=password, request=self.request
+            )
             report_filename = self.get_report_filename(model_pks, app_label, model_name)
             self.message_user(report_filename=report_filename, password=password)
-            return FileResponse(new_buffer, as_attachment=True, filename=report_filename)
-        messages.error(
-            self.request,
-            format_html(
-                _("PDF report was not created because of an error. Please try again."),
-                fail_silently=True,
-            ),
-        )
+            return FileResponse(buffer, as_attachment=True, filename=report_filename)
         return HttpResponseRedirect("/")
-
-    def render_to_pdf(self, pk: str, app_label: str, model_name: str) -> BytesIO:
-        model_obj = django_apps.get_model(app_label, model_name).objects.get(pk=pk)
-        pdf_report = model_obj.pdf_report_cls(model_obj=model_obj, request=self.request)
-        buffer = BytesIO()
-        doctemplate = pdf_report.document_template(buffer, **pdf_report.page)
-        story = pdf_report.get_report_story()
-        doctemplate.build(
-            story,
-            onFirstPage=pdf_report.on_first_page,
-            onLaterPages=pdf_report.on_later_pages,
-            canvasmaker=NumberedCanvas,
-        )
-        buffer.seek(0)
-        return buffer
 
     def get_report_filename(
         self, model_pks: list[str], app_label: str, model_name: str
