@@ -169,7 +169,7 @@ class TestExportModel(TestCase):
             csv_reader = csv.reader(f)
             rows = [row for row in enumerate(csv_reader)]
         values_row = rows[1][1][0]
-        self.assertEqual(len(values_row.split("|")), 30)
+        self.assertEqual(len(values_row.split("|")), 31)
 
     def test_lookup(self):
         queryset = Crf.objects.all()

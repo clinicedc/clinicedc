@@ -11,7 +11,7 @@ from edc_lab.model_mixins import RequisitionModelMixin
 from edc_list_data.model_mixins import BaseListModelMixin, ListModelMixin
 from edc_model.models import BaseUuidModel
 from edc_offstudy.model_mixins import OffstudyModelMixin
-from edc_sites.models import SiteModelMixin
+from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins.off_schedule_model_mixin import (
     OffScheduleModelMixin,
@@ -26,7 +26,7 @@ from ..managers import ExportHistoryManager
 from ..model_mixins import ExportTrackingFieldsModelMixin
 
 
-class SubjectVisit(VisitModelMixin, BaseUuidModel):
+class SubjectVisit(SiteModelMixin, VisitModelMixin, BaseUuidModel):
     survival_status = models.CharField(max_length=25, null=True)
 
     last_alive_date = models.DateTimeField(null=True)
@@ -76,7 +76,7 @@ class SubjectLocator(BaseUuidModel):
     subject_identifier = models.CharField(max_length=36)
 
 
-class CrfModelMixin(models.Model):
+class CrfModelMixin(SiteModelMixin, models.Model):
     subject_visit = models.OneToOneField(SubjectVisit, on_delete=PROTECT)
 
     report_datetime = models.DateTimeField(null=True)

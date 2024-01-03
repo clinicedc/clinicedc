@@ -44,7 +44,7 @@ class TestExport(TestCase):
     def test_columns(self):
         model = "edc_export.crf"
         m = ModelToDataframe(model=model, drop_sys_columns=False)
-        self.assertEqual(len(list(m.dataframe.columns)), 28)
+        self.assertEqual(len(list(m.dataframe.columns)), 30)
 
     def test_values(self):
         model = "edc_export.crf"

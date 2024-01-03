@@ -42,14 +42,13 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
     template_name = f"edc_export/bootstrap{get_bootstrap_version()}/export_models.html"
 
     def get_context_data(self, **kwargs) -> dict:
-        context = super().get_context_data(**kwargs)
         if self.request.session.get("selected_models"):
-            context.update(
+            kwargs.update(
                 selected_models=[
                     ModelOptions(**dct) for dct in self.request.session["selected_models"]
                 ]
             )
-        return context
+        return super().get_context_data(**kwargs)
 
     def post(self, request: WSGIRequest, *args, **kwargs) -> HttpResponseRedirect:
         if not self.check_user(request):
