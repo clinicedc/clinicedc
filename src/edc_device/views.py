@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.apps import apps as django_apps
 from django.views.generic.base import TemplateView
 from edc_dashboard.utils import get_bootstrap_version
@@ -12,9 +14,13 @@ class HomeView(EdcViewMixin, NavbarViewMixin, EdcDeviceViewMixin, TemplateView):
     navbar_name = "edc_device"
     navbar_selected_item = "device"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        app_config = django_apps.get_app_config("edc_device")
-        project_name = context.get("project_name")
-        context.update({"project_name": f"{project_name}: {app_config.verbose_name}"})
-        return context
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        kwargs.update(
+            {
+                "project_name": (
+                    f"{kwargs.get('project_name')}: "
+                    f"{django_apps.get_app_config('edc_device').verbose_name}"
+                )
+            }
+        )
+        return super().get_context_data(**kwargs)
