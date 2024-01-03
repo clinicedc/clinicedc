@@ -7,7 +7,7 @@ from edc_lab_results.model_mixins import BloodResultsMethodsModelMixin
 from edc_model.models import BaseUuidModel
 from edc_reportable import MICROMOLES_PER_LITER
 from edc_screening.model_mixins import ScreeningIdentifierModelMixin
-from edc_sites.models import SiteModelMixin
+from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
 from edc_visit_tracking.models import SubjectVisit
 
