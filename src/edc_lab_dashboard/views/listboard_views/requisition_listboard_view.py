@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from django.conf import settings
 from django.contrib import messages
@@ -30,8 +30,7 @@ class RequisitionListboardView(BaseListboardView):
     show_all = True
     ordering = ["-modified", "-created"]
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         unverified_requisition_count = (
             self.get_queryset().filter(clinic_verified__isnull=True).count()
         )
@@ -49,8 +48,8 @@ class RequisitionListboardView(BaseListboardView):
                     plural,
                 ),
             )
-            context.update(unverified_requisition_count=unverified_requisition_count)
-        return context
+            kwargs.update(unverified_requisition_count=unverified_requisition_count)
+        return super().get_context_data(**kwargs)
 
     def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
         q_objects, options = super().get_queryset_filter_options(request, *args, **kwargs)

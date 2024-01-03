@@ -1,3 +1,5 @@
+from typing import Any
+
 from edc_lab.constants import SHIPPED
 from edc_lab.models import ManifestItem
 
@@ -18,10 +20,9 @@ class ManageManifestListboardView(ManifestViewMixin, BaseListboardView):
     listboard_model = ManifestItem
     model_wrapper_cls = ManifestItemModelWrapper
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(SHIPPED=SHIPPED, paginator_url_kwargs=self.url_kwargs)
-        return context
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        kwargs.update(SHIPPED=SHIPPED, paginator_url_kwargs=self.url_kwargs)
+        return super().get_context_data(**kwargs)
 
     @property
     def url_kwargs(self):
