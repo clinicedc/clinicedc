@@ -11,6 +11,10 @@ from .utils import ColumnItem
 
 
 class NonAeInitialModelAdminMixin:
+    add_form_template: str = "edc_adverse_event/admin/change_form.html"
+    change_list_template = "edc_adverse_event/admin/change_list.html"
+    change_form_template = "edc_adverse_event/admin/change_form.html"
+
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "ae_initial":
             if request.GET.get("ae_initial"):
@@ -43,6 +47,10 @@ class NonAeInitialModelAdminMixin:
 
 
 class AdverseEventModelAdminMixin:
+    add_form_template: str = "edc_adverse_event/admin/change_form.html"
+    change_list_template = "edc_adverse_event/admin/change_list.html"
+    change_form_template = "edc_adverse_event/admin/change_form.html"
+
     @display(description="subject identifier", ordering="subject_identifier")
     def subject_identifier_column(self, obj=None):
         return format_html(f"{obj.subject_identifier}<BR>{obj.action_identifier.upper()[-9:]}")
