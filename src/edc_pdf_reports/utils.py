@@ -4,7 +4,6 @@ from io import BytesIO
 from tempfile import mkdtemp
 from typing import TYPE_CHECKING
 
-from django.apps import apps as django_apps
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import models
 from django.db.models import QuerySet

@@ -1,5 +1,4 @@
 import json
-from tempfile import mktemp
 
 import mempass
 from django.apps import apps as django_apps
@@ -13,8 +12,6 @@ from django.utils.translation import gettext as _
 from django.views.generic.base import ContextMixin, View
 
 from ..utils import write_queryset_to_secure_pdf
-
-mktemp()
 
 
 @method_decorator(login_required, name="dispatch")
