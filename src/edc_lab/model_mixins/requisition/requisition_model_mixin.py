@@ -12,7 +12,7 @@ from edc_model.validators import datetime_not_future
 from edc_protocol import Protocol
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_search.model_mixins import SearchSlugModelMixin
-from edc_sites.models import SiteModelMixin
+from edc_sites.model_mixins import SiteModelMixin
 from edc_visit_tracking.managers import CrfCurrentSiteManager
 from edc_visit_tracking.model_mixins import (
     PreviousVisitModelMixin,

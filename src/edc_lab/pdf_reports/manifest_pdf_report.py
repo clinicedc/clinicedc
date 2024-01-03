@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from tempfile import mkdtemp
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -11,26 +14,36 @@ from reportlab.platypus import Paragraph, Spacer, Table, TableStyle
 from ..models import Aliquot, Box, BoxItem
 from ..site_labs import site_labs
 
+if TYPE_CHECKING:
+    from django.contrib.auth.models import User
+    from edc_model.models import BaseUuidModel
+    from edc_pdf_reports.model_mixins import PdfReportModelMixin
 
-class ManifestReportError(Exception):
+    from ..model_mixins import ManifestModelMixin
+
+    class Model(PdfReportModelMixin, ManifestModelMixin, BaseUuidModel):
+        ...
+
+
+class ManifestPdfReportError(Exception):
     def __init__(self, message, code=None):
         super().__init__(message)
         self.code = code
 
 
-class ManifestReport(Report):
-    def __init__(self, manifest=None, user=None, **kwargs):
+class ManifestPdfReport(Report):
+    def __init__(self, model_obj: Model = None, user: User = None, **kwargs):
         super().__init__(**kwargs)
-        self.manifest = manifest  # a Manifest model instance
-        self.user = user  # a User model instance
+        self.manifest = model_obj
+        self.user = user
         self.box_model = Box
         self.box_item_model = BoxItem
         self.aliquot_model = Aliquot
         self.image_folder = mkdtemp()
         if self.manifest.shipped:
-            self.report_filename = f"{self.manifest.manifest_identifier}.pdf"
+            self.filename = f"{self.manifest.manifest_identifier}.pdf"
         else:
-            self.report_filename = "manifest_preview.pdf"
+            self.filename = "manifest_preview.pdf"
 
     def get_report_story(self, **kwargs):
         story = []
@@ -371,7 +384,7 @@ class ManifestReport(Report):
             try:
                 box = self.box_model.objects.get(box_identifier=manifest_item.identifier)
             except ObjectDoesNotExist as e:
-                raise ManifestReportError(
+                raise ManifestPdfReportError(
                     f"{e} Got Manifest item '{manifest_item.identifier}'.",
                     code="unboxed_item",
                 ) from e
@@ -463,7 +476,7 @@ class ManifestReport(Report):
         try:
             aliquot = self.aliquot_model.objects.get(aliquot_identifier=box_item_identifier)
         except ObjectDoesNotExist as e:
-            raise ManifestReportError(
+            raise ManifestPdfReportError(
                 f"{e} Got Box item '{box_item_identifier}'",
                 code="invalid_aliquot_identifier",
             )
@@ -483,7 +496,7 @@ class ManifestReport(Report):
             except ObjectDoesNotExist:
                 pass
         if not requisition:
-            raise ManifestReportError(
+            raise ManifestPdfReportError(
                 f"Invalid requisition identifier. Got {aliquot.requisition_identifier}",
                 code="invalid_requisition_identifier",
             )
