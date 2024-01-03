@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.apps import apps as django_apps
 from django.views.generic.base import TemplateView
 from edc_dashboard.utils import get_bootstrap_version
@@ -13,9 +15,8 @@ class PrinterSetupView(EdcViewMixin, NavbarViewMixin, EdcLabelViewMixin, Templat
     navbar_name = "edc_label"
     navbar_selected_item = "label"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        kwargs.update(
             CLINIC_LABEL_PRINTER=CLINIC_LABEL_PRINTER,
             LAB_LABEL_PRINTER=LAB_LABEL_PRINTER,
             PRINT_SERVER_NAME=PRINT_SERVER_NAME,
@@ -23,4 +24,4 @@ class PrinterSetupView(EdcViewMixin, NavbarViewMixin, EdcLabelViewMixin, Templat
                 django_apps.get_app_config("edc_label").label_templates.keys()
             ),
         )
-        return context
+        return super().get_context_data(**kwargs)

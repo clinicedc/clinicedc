@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.urls import reverse
 from django.views.generic.base import TemplateView
 from edc_dashboard.utils import get_bootstrap_version
@@ -12,10 +14,9 @@ class HomeView(EdcViewMixin, NavbarViewMixin, EdcLabelViewMixin, TemplateView):
     navbar_name = "edc_label"
     navbar_selected_item = "label"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         printer_setup_url = reverse("edc_label:printer_setup_url")
-        context.update(
+        kwargs.update(
             printer_setup_url=printer_setup_url,
         )
-        return context
+        return super().get_context_data(**kwargs)
