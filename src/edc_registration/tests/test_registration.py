@@ -7,7 +7,9 @@ from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
 from multisite import SiteID
 
-from ..models import RegisteredSubject, RegisteredSubjectError
+from edc_registration.exceptions import RegisteredSubjectError
+from edc_registration.models import RegisteredSubject
+
 from .models import SubjectModelOne, SubjectModelThree, SubjectModelTwo
 
 

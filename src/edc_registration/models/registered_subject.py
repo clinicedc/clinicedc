@@ -16,13 +16,11 @@ from edc_constants.constants import UUID_PATTERN
 from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_model_fields.fields import IdentityTypeField, IsDateEstimatedField
-from edc_sites.models import CurrentSiteManager, SiteModelMixin
+from edc_sites.managers import CurrentSiteManager
+from edc_sites.model_mixins import SiteModelMixin
 
+from ..exceptions import RegisteredSubjectError
 from .managers import RegisteredSubjectManager
-
-
-class RegisteredSubjectError(Exception):
-    pass
 
 
 class RegisteredSubject(UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseUuidModel):
