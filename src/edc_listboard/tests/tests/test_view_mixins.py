@@ -2,9 +2,9 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import arrow
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
 from edc_auth.auth_objects import CLINIC
@@ -26,9 +26,14 @@ from ..models import SubjectVisit
 
 @override_settings(EDC_AUTH_SKIP_SITE_AUTHS=True, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=1)
 class TestViewMixins(TestCase):
+    user: User = None
+
     @classmethod
     def setUpTestData(cls):
         url_names.register("dashboard_url", "dashboard_url", "edc_listboard")
+        cls.user = get_user_for_tests(view_only=True)
+        group = Group.objects.get(name=CLINIC)
+        cls.user.groups.add(group)
         site_auths.clear()
         site_auths.add_group("edc_listboard.view_my_listboard", name=CLINIC)
         site_auths.add_custom_permissions_tuples(
@@ -38,9 +43,6 @@ class TestViewMixins(TestCase):
         AuthUpdater(verbose=False, warn_only=True)
 
     def setUp(self):
-        self.user = get_user_for_tests(view_only=True)
-        group = Group.objects.get(name=CLINIC)
-        self.user.groups.add(group)
         self.request = RequestFactory().get("/")
         self.request.user = self.user
 
@@ -59,7 +61,6 @@ class TestViewMixins(TestCase):
             with self.subTest(attr=attr):
                 self.assertEqual(attr, view.get_context_data().get(attr), attr)
 
-    @tag("1")
     def test_listboard_filter_view(self):
         class RelatedVisitModelWrapper(ModelWrapper):
             model = "edc_listboard.subjectvisit"
@@ -89,10 +90,16 @@ class TestViewMixins(TestCase):
         end = datetime(2013, 5, 10, 17, 15, tzinfo=ZoneInfo("UTC"))
         for arr in arrow.Arrow.range("day", start, end):
             SubjectVisit.objects.create(
-                subject_identifier="1234", report_datetime=arr.datetime, reason=MISSED_VISIT
+                subject_identifier="1234",
+                report_datetime=arr.datetime,
+                reason=MISSED_VISIT,
+                user_created=self.user,
             )
         subject_visit = SubjectVisit.objects.create(
-            subject_identifier="1234", report_datetime=get_utcnow(), reason=SCHEDULED
+            subject_identifier="1234",
+            report_datetime=get_utcnow(),
+            reason=SCHEDULED,
+            user_created=self.user,
         )
         request = RequestFactory().get("/?scheduled=scheduled")
         request.user = self.user

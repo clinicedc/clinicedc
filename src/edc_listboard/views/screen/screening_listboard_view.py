@@ -35,12 +35,11 @@ class ScreeningListboardView(
     search_form_url = "screening_listboard_url"
 
     def get_context_data(self, **kwargs) -> dict:
-        context = super().get_context_data(**kwargs)
-        context.update(
+        kwargs.update(
             subject_screening_add_url=self.get_subject_screening_add_url(),
             ABNORMAL=ABNORMAL,
         )
-        return context
+        return super().get_context_data(**kwargs)
 
     def get_subject_screening_add_url(self) -> str:
         return self.listboard_model_cls().get_absolute_url()

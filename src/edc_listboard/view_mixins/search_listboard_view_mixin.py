@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.db.models import Q
 from django.utils.html import escape
 from django.utils.text import slugify
@@ -13,7 +15,7 @@ class SearchListboardMixin:
         self._search_term = None
         super().__init__(**kwargs)
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(search_term=self.search_term)
         return super().get_context_data(**kwargs)
 

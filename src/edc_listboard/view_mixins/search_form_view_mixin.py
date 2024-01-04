@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
 from edc_dashboard.url_names import url_names
@@ -10,7 +12,7 @@ class SearchFormViewError(Exception):
 class SearchFormViewMixin:
     search_form_url = None
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(search_form_url_reversed=self.search_form_url_reversed)
         return super().get_context_data(**kwargs)
 

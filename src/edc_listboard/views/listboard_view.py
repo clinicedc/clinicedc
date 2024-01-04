@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from django.apps import apps as django_apps
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
@@ -53,7 +55,7 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
             raise PermissionDenied
         return super().get(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         if self.listboard_fa_icon and self.listboard_fa_icon.startswith("fa-"):
             self.listboard_fa_icon = f"fas {self.listboard_fa_icon}"
         kwargs.update(
@@ -118,6 +120,9 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
 
         Completely overrides ListView.get_queryset.
 
+        The returned queryset is set to self.object_list in the
+        parent call to `get()` just before rendering to response.
+
         Note:
             the resulting queryset filtering takes allocated
             permissions into account using Django's permissions
@@ -131,9 +136,6 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
             See `has_view_only_my_listboard_perms`.
 
         Applies additional filter/exclude criteria.
-
-        Note: The returned queryset is set to self.object_list in
-        `get()` just before rendering to response.
         """
         queryset = self.listboard_model_cls.objects.none()
         if self.has_view_listboard_perms:
@@ -159,7 +161,7 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
 
     def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
         """Returns filtering applied to every queryset"""
-        options = dict(site_id__in=sites.get_site_ids_for_user(self.request.user))
+        options = dict(site_id__in=sites.get_site_ids_for_user(request=self.request))
         if self.has_view_only_my_listboard_perms:
             options.update(user_created=self.request.user.username)
         return Q(), options

@@ -1,4 +1,5 @@
 import urllib
+from typing import Any
 
 
 class QueryStringViewMixin:
@@ -21,7 +22,7 @@ class QueryStringViewMixin:
             return "?" + urllib.parse.urlencode(querystring)
         return ""
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(
             f=self.request.GET.get("f"),
             e=self.request.GET.get("e"),
