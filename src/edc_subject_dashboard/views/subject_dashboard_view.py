@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
 from edc_action_item.view_mixins import ActionItemViewMixin
@@ -25,11 +27,10 @@ from ..view_mixins import RegisteredSubjectViewMixin, SubjectVisitViewMixin
 
 
 class VerifyRequisitionMixin:
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         scanning = self.kwargs.get("scanning")
-        context.update(scanning=scanning)
-        return context
+        kwargs.update(scanning=scanning)
+        return super().get_context_data(**kwargs)
 
 
 class SubjectDashboardView(
@@ -84,7 +85,7 @@ class SubjectDashboardView(
             self.consent_model = self.consent_model_wrapper_cls.model
         super().__init__(**kwargs)
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(history_button_label=self.history_button_label)
         return super().get_context_data(**kwargs)
 
