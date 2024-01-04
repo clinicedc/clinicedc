@@ -1,7 +1,7 @@
 from django.db import models
 from edc_model.models import HistoricalRecords
 from edc_search.model_mixins import SearchSlugManager
-from edc_sites.models import CurrentSiteManager
+from edc_sites.managers import CurrentSiteManager
 
 from ..screening_identifier import ScreeningIdentifier
 from .screening_fields_model_mixin import ScreeningFieldsModeMixin
