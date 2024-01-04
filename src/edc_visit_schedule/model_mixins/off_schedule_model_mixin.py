@@ -10,7 +10,7 @@ from edc_identifier.managers import SubjectIdentifierManager
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
-from edc_sites.models import CurrentSiteManager as BaseCurrentSiteManager
+from edc_sites.managers import CurrentSiteManager as BaseCurrentSiteManager
 from edc_utils import convert_php_dateformat, get_utcnow
 
 from ..site_visit_schedules import site_visit_schedules
