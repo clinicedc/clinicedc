@@ -3,7 +3,7 @@ from edc_crf.model_mixins import CrfModelMixin
 from edc_identifier.managers import SubjectIdentifierManager
 from edc_model.models import BaseUuidModel
 from edc_screening.model_mixins import ScreeningModelMixin
-from edc_sites.models import SiteModelMixin
+from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
 from edc_visit_tracking.model_mixins import VisitModelMixin
@@ -27,6 +27,9 @@ class SubjectConsent(SiteModelMixin, BaseUuidModel):
 
 
 class SubjectVisit(SiteModelMixin, VisitModelMixin, BaseUuidModel):
+    def run_metadata_rules(self, **kwargs):
+        pass
+
     class Meta(VisitModelMixin.Meta, BaseUuidModel.Meta):
         app_label = "edc_pharmacy"
 
