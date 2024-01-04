@@ -1,14 +1,13 @@
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group, Permission
-from django.contrib.sites.models import Site
+from django.contrib.auth.models import Permission
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.models import Appointment
-from edc_auth.auth_objects import CLINIC
 from edc_facility.import_holidays import import_holidays
 from edc_lab.site_labs import site_labs
+from edc_test_utils.get_user_for_tests import get_user_for_tests
 from edc_utils.date import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -22,22 +21,17 @@ User = get_user_model()
 
 
 class TestDashboard(WebTest):
+    user: User = None
+
     @classmethod
-    def setUpClass(cls):
-        ret = super().setUpClass()
+    def setUpTestData(cls):
         import_holidays()
-        return ret
+        cls.user = get_user_for_tests()
+        cls.user.user_permissions.clear()
+        cls.user.user_permissions.add(Permission.objects.get(codename="view_appointment"))
+        cls.user.refresh_from_db()
 
     def setUp(self):
-        self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
-        self.user.is_active = True
-        self.user.is_staff = True
-        self.user.save()
-        self.user.userprofile.sites.add(Site.objects.get_current())
-        group = Group.objects.get(name=CLINIC)
-        self.user.groups.add(group)
-        self.user.user_permissions.add(Permission.objects.get(codename="view_appointment"))
-        self.user.refresh_from_db()
         site_labs._registry = {}
         site_labs.loaded = False
         site_labs.register(lab_profile=lab_profile)
@@ -138,5 +132,5 @@ class TestDashboard(WebTest):
             user=self.user,
         )
         # response = response.click(linkid="id-reported-visit-list")
-        self.assertIn(f"1. {self.subject_identifiers[1]}", response.html.get_text())
-        self.assertIn(f"2. {self.subject_identifiers[0]}", response.html.get_text())
+        self.assertIn(f"1. {self.subject_identifiers[0]}", response.html.get_text())
+        self.assertIn(f"2. {self.subject_identifiers[1]}", response.html.get_text())
