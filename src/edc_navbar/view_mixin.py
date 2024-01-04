@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.apps import apps as django_apps
 
 from .get_default_navbar import get_default_navbar
@@ -8,7 +10,7 @@ class NavbarViewMixin:
     navbar_selected_item = None
     navbar_name = get_default_navbar()
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add rendered navbar <navbar_name> to the context for
         this view.
 
