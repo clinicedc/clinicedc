@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models import UniqueConstraint
 from django_crypto_fields.fields import EncryptedCharField
 from edc_model.models import HistoricalRecords
-from edc_sites.models import CurrentSiteManager
+from edc_sites.managers import CurrentSiteManager
 
 from .randomizer import RandomizationError
 from .site_randomizers import site_randomizers
