@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models import UniqueConstraint
 from edc_model.models import BaseUuidModel
-from edc_sites.models import CurrentSiteManager
+from edc_sites.managers import CurrentSiteManager
 
 from .. import KEYED, NOT_REQUIRED, REQUIRED
 from ..managers import RequisitionMetadataManager
