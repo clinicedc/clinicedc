@@ -100,9 +100,10 @@ class Sites:
         self._registry = {}
         if get_register_default_site():
             self.loaded = True
+            site_id = int(settings.SITE_ID)
             self._registry: dict[int, SingleSite] = {
-                1: SingleSite(
-                    1,
+                site_id: SingleSite(
+                    site_id,
                     settings.APP_NAME,
                     country=get_default_country(),
                     country_code=get_default_country_code(),
@@ -241,8 +242,9 @@ class Sites:
 
         if site_id != get_current_site(request).id:
             raise InvalidSiteError(
-                f"Expected the current site. Current site is {get_current_site(request).id}. "
-                f"Got {site_id}."
+                f"Expected the current site. Current site is "
+                f"`{get_current_site(request).id}`. "
+                f"See user `{user}`. Got {site_id}."
             )
         site_id = sites.get(site_id).site_id
         has_profile_or_raise(user)
