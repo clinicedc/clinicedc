@@ -1,6 +1,6 @@
 from edc_list_data.model_mixins import ListModelMixin
 from edc_model import models as edc_models
-from edc_sites.models import CurrentSiteManager
+from edc_sites.managers import CurrentSiteManager
 
 from edc_transfer.model_mixins import SubjectTransferModelMixin
 
