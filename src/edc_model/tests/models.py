@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.db import models
-from edc_sites.models import SiteModelMixin
+from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
 
 from edc_model.models import (
