@@ -2,7 +2,8 @@ from edc_action_item.models import ActionNoManagersModelMixin
 from edc_consent.model_mixins import RequiresConsentFieldsModelMixin
 from edc_identifier.managers import SubjectIdentifierManager
 from edc_model.models import BaseUuidModel, HistoricalRecords
-from edc_sites.models import CurrentSiteManager, SiteModelMixin
+from edc_sites.managers import CurrentSiteManager
+from edc_sites.model_mixins import SiteModelMixin
 
 from .constants import END_OF_STUDY_ACTION
 from .model_mixins import OffstudyModelMixin
