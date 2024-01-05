@@ -14,7 +14,7 @@ from edc_utils import age, get_utcnow
 from faker import Faker
 from model_bakery import baker
 
-from edc_consent.consent import Consent
+from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.modelform_mixins import ConsentModelFormMixin
 from edc_consent.site_consents import site_consents
 
@@ -69,7 +69,7 @@ class TestConsentForm(TestCase):
             start=self.study_open_datetime + timedelta(days=101),
             end=self.study_open_datetime + timedelta(days=150),
             version="3.0",
-            updates_versions="1.0, 2.0",
+            updates_versions=["1.0", "2.0"],
         )
         self.dob = self.study_open_datetime - relativedelta(years=25)
 
@@ -86,9 +86,9 @@ class TestConsentForm(TestCase):
             age_is_adult=kwargs.get("age_is_adult", 18),
         )
         model = kwargs.get("model", "edc_consent.subjectconsent")
-        consent = Consent(model, **options)
-        site_consents.register(consent)
-        return consent
+        consent_definition = ConsentDefinition(model, **options)
+        site_consents.register(consent_definition)
+        return consent_definition
 
     def cleaned_data(self, **kwargs):
         cleaned_data = dict(

@@ -8,16 +8,16 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from model_bakery import baker
 
-from edc_consent.consent import NaiveDatetimeError
-from edc_consent.consent_object_validator import (
+from edc_consent.consent_definition import NaiveDatetimeError
+from edc_consent.consent_definition_validator import (
     ConsentPeriodError,
     ConsentPeriodOverlapError,
     ConsentVersionSequenceError,
 )
-from edc_consent.exceptions import NotConsentedError
+from edc_consent.exceptions import ConsentDefinitionDoesNotExist, NotConsentedError
 from edc_consent.site_consents import SiteConsentError, site_consents
 
-from ..consent_test_utils import consent_object_factory
+from ..consent_test_utils import consent_definition_factory
 from ..models import CrfOne, SubjectVisit
 from ..visit_schedules import visit_schedule
 
@@ -57,7 +57,9 @@ class TestConsent(TestCase):
         """Asserts a model using the RequiresConsentMixin cannot create
         a new instance if subject not consented.
         """
-        consent_object_factory(start=self.study_open_datetime, end=self.study_close_datetime)
+        consent_definition_factory(
+            start=self.study_open_datetime, end=self.study_close_datetime
+        )
         RegisteredSubject.objects.create(subject_identifier=self.subject_identifier)
         subject_visit = SubjectVisit.objects.create(subject_identifier=self.subject_identifier)
         self.assertRaises(
@@ -72,7 +74,9 @@ class TestConsent(TestCase):
         """Asserts can create a consent model instance if a valid
         consent.
         """
-        consent_object_factory(start=self.study_open_datetime, end=self.study_close_datetime)
+        consent_definition_factory(
+            start=self.study_open_datetime, end=self.study_close_datetime
+        )
         baker.make_recipe(
             "edc_consent.subjectconsent",
             subject_identifier=self.subject_identifier,
@@ -90,13 +94,13 @@ class TestConsent(TestCase):
             self.fail("NotConsentedError unexpectedly raised")
 
     def test_cannot_create_consent_without_consent_by_datetime(self):
-        consent_object_factory(
+        consent_definition_factory(
             start=self.study_open_datetime + relativedelta(days=5),
             end=self.study_close_datetime,
             version="1",
         )
         self.assertRaises(
-            SiteConsentError,
+            ConsentDefinitionDoesNotExist,
             baker.make_recipe,
             "edc_consent.subjectconsent",
             dob=self.study_open_datetime - relativedelta(years=25),
@@ -104,7 +108,7 @@ class TestConsent(TestCase):
         )
 
     def test_consent_gets_version(self):
-        consent_object_factory(
+        consent_definition_factory(
             start=self.study_open_datetime, end=self.study_close_datetime, version="1.0"
         )
         consent = baker.make_recipe(
@@ -115,7 +119,7 @@ class TestConsent(TestCase):
         self.assertEqual(consent.version, "1.0")
 
     def test_model_gets_version(self):
-        consent_object_factory(
+        consent_definition_factory(
             start=self.study_open_datetime, end=self.study_close_datetime, version="1.0"
         )
         baker.make_recipe(
@@ -133,7 +137,7 @@ class TestConsent(TestCase):
         self.assertEqual(crf_one.consent_version, "1.0")
 
     def test_model_consent_version_no_change(self):
-        consent_object_factory(
+        consent_definition_factory(
             start=self.study_open_datetime, end=self.study_close_datetime, version="1.2"
         )
         baker.make_recipe(
@@ -153,12 +157,12 @@ class TestConsent(TestCase):
         self.assertEqual(crf_one.consent_version, "1.2")
 
     def test_model_consent_version_changes_with_report_datetime(self):
-        consent_object_factory(
+        consent_definition_factory(
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
         )
-        consent_object_factory(
+        consent_definition_factory(
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
             version="1.1",
@@ -193,7 +197,7 @@ class TestConsent(TestCase):
 
     def test_consent_update_needs_previous_version(self):
         """Asserts that a consent type updates a previous consent."""
-        consent_object_factory(
+        consent_definition_factory(
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
@@ -201,14 +205,14 @@ class TestConsent(TestCase):
         # specify updates version that does not exist, raises
         self.assertRaises(
             ConsentVersionSequenceError,
-            consent_object_factory,
+            consent_definition_factory,
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
             version="1.1",
-            updates_versions="1.2",
+            updates_versions=["1.2"],
         )
         # specify updates version that exists, ok
-        consent_object_factory(
+        consent_definition_factory(
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
             version="1.1",
@@ -219,12 +223,12 @@ class TestConsent(TestCase):
         """Asserts that a consent updates a previous consent but cannot
         be entered without an existing instance for the previous
         version."""
-        consent_object_factory(
+        consent_definition_factory(
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
         )
-        consent_object_factory(
+        consent_definition_factory(
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
             version="1.1",
@@ -240,12 +244,12 @@ class TestConsent(TestCase):
 
     def test_consent_needs_previous_version2(self):
         """Asserts that a consent model updates its previous consent."""
-        consent_object_factory(
+        consent_definition_factory(
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
         )
-        consent_object_factory(
+        consent_definition_factory(
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
             version="1.1",
@@ -274,18 +278,18 @@ class TestConsent(TestCase):
         """Asserts that a consent updates a previous consent raises
         if a version is skipped.
         """
-        consent_object_factory(
+        consent_definition_factory(
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
         )
-        consent_object_factory(
+        consent_definition_factory(
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
             version="1.1",
             updates_versions=["1.0"],
         )
-        consent_object_factory(
+        consent_definition_factory(
             start=self.study_open_datetime + timedelta(days=101),
             end=self.study_open_datetime + timedelta(days=150),
             version="1.2",
@@ -313,22 +317,22 @@ class TestConsent(TestCase):
         )
 
     def test_consent_periods_cannot_overlap(self):
-        consent_object_factory(
+        consent_definition_factory(
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
         )
         self.assertRaises(
             ConsentPeriodOverlapError,
-            consent_object_factory,
+            consent_definition_factory,
             start=self.study_open_datetime + timedelta(days=25),
             end=self.study_open_datetime + timedelta(days=100),
             version="1.1",
-            updates_versions="1.0",
+            updates_versions=["1.0"],
         )
 
     def test_consent_periods_cannot_overlap2(self):
-        consent_object_factory(
+        consent_definition_factory(
             model="edc_consent.subjectconsent",
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
@@ -336,7 +340,7 @@ class TestConsent(TestCase):
         )
         self.assertRaises(
             ConsentPeriodOverlapError,
-            consent_object_factory,
+            consent_definition_factory,
             model="edc_consent.subjectconsent",
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
@@ -344,14 +348,14 @@ class TestConsent(TestCase):
         )
 
     def test_consent_periods_can_overlap_if_different_model(self):
-        consent_object_factory(
+        consent_definition_factory(
             model="edc_consent.subjectconsent",
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
         )
         try:
-            consent_object_factory(
+            consent_definition_factory(
                 model="edc_consent.subjectconsent2",
                 start=self.study_open_datetime,
                 end=self.study_open_datetime + timedelta(days=50),
@@ -366,24 +370,24 @@ class TestConsent(TestCase):
         """
         self.assertRaises(
             ConsentPeriodError,
-            consent_object_factory,
+            consent_definition_factory,
             start=self.study_open_datetime - relativedelta(days=1),
             end=self.study_close_datetime + relativedelta(days=1),
             version="1.0",
         )
 
     def test_consent_may_update_more_than_one_version(self):
-        consent_object_factory(
+        consent_definition_factory(
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
         )
-        consent_object_factory(
+        consent_definition_factory(
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
             version="2.0",
         )
-        consent_object_factory(
+        consent_definition_factory(
             start=self.study_open_datetime + timedelta(days=101),
             end=self.study_open_datetime + timedelta(days=150),
             version="3.0",
@@ -398,7 +402,7 @@ class TestConsent(TestCase):
         dte = datetime(d.year, d.month, d.day, 0, 0, 0, 0)
         self.assertRaises(
             NaiveDatetimeError,
-            consent_object_factory,
+            consent_definition_factory,
             start=dte,
             end=self.study_close_datetime + relativedelta(days=1),
             version="1.0",
@@ -412,7 +416,7 @@ class TestConsent(TestCase):
         dte = datetime(d.year, d.month, d.day, 0, 0, 0, 0)
         self.assertRaises(
             NaiveDatetimeError,
-            consent_object_factory,
+            consent_definition_factory,
             start=self.study_open_datetime,
             end=dte,
             version="1.0",

@@ -5,7 +5,8 @@ from typing import TYPE_CHECKING
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
-from .site_consents import SiteConsentError, site_consents
+from .exceptions import ConsentDefinitionDoesNotExist
+from .site_consents import site_consents
 
 if TYPE_CHECKING:
     from .stubs import ConsentLikeModel
@@ -31,18 +32,17 @@ class ConsentManager(models.Manager):
         """Returns a consent model instance or None."""
         model_obj = None
         try:
-            consent_object = site_consents.get_consent_for_period(
+            consent_definition = site_consents.get_consent_definition_for_period(
                 model=self.model._meta.label_lower,
-                consent_group=self.model._meta.consent_group,
                 report_datetime=report_datetime,
             )
-        except SiteConsentError:
+        except ConsentDefinitionDoesNotExist:
             pass
         else:
             try:
                 model_obj = self.get(
                     subject_identifier=subject_identifier,
-                    version=consent_object.version,
+                    version=consent_definition.version,
                 )
             except ObjectDoesNotExist:
                 pass

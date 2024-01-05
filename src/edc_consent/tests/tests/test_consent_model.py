@@ -39,7 +39,7 @@ class TestConsentModel(TestCase):
             start=self.study_open_datetime + timedelta(days=101),
             end=self.study_open_datetime + timedelta(days=150),
             version="3.0",
-            updates_versions="1.0, 2.0",
+            updates_versions=["1.0", "2.0"],
         )
         self.dob = self.study_open_datetime - relativedelta(years=25)
 

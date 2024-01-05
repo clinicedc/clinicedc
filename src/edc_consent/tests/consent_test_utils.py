@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from edc_consent.consent import Consent
+from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
 
 
-def consent_object_factory(
+def consent_definition_factory(
     model: str | None = None,
     start: datetime = None,
     end: datetime = None,
@@ -28,9 +28,9 @@ def consent_object_factory(
         age_is_adult=age_is_adult or 18,
     )
     model = model or "edc_consent.subjectconsent"
-    consent = Consent(model, **options)
-    site_consents.register(consent)
-    return consent
+    consent_definition = ConsentDefinition(model, **options)
+    site_consents.register(consent_definition)
+    return consent_definition
 
 
 def consent_factory(model=None, **kwargs):
@@ -45,6 +45,6 @@ def consent_factory(model=None, **kwargs):
         age_is_adult=kwargs.get("age_is_adult", 18),
     )
     model = kwargs.get("model", model or "edc_consent.subjectconsent")
-    consent = Consent(model, **options)
-    site_consents.register(consent)
-    return consent
+    consent_definition = ConsentDefinition(model, **options)
+    site_consents.register(consent_definition)
+    return consent_definition

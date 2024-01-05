@@ -13,7 +13,7 @@ from model_bakery import baker
 from edc_consent.actions import unverify_consent, verify_consent
 from edc_consent.site_consents import site_consents
 
-from ..consent_test_utils import consent_object_factory
+from ..consent_test_utils import consent_definition_factory
 from ..models import SubjectConsent
 
 fake = Faker()
@@ -31,7 +31,9 @@ class TestActions(TestCase):
         site_consents.registry = {}
         self.study_open_datetime = Protocol().study_open_datetime
         self.study_close_datetime = Protocol().study_close_datetime
-        consent_object_factory(start=self.study_open_datetime, end=self.study_close_datetime)
+        consent_definition_factory(
+            start=self.study_open_datetime, end=self.study_close_datetime
+        )
         self.request = HttpRequest()
         user = User.objects.create(username="erikvw")
         self.request.user = user
