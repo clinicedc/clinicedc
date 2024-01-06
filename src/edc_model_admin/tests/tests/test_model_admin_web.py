@@ -1,5 +1,7 @@
+from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
+from django.test import tag
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_appointment.models import Appointment
@@ -30,19 +32,20 @@ class ModelAdminSiteTest(WebTest):
     lab_helper = SiteLabsTestHelper()
 
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         import_holidays()
-        return super(ModelAdminSiteTest, cls).setUpClass()
 
     def setUp(self):
         self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
 
         self.subject_identifier = "101-12345"
+
         self.helper = Helper(subject_identifier=self.subject_identifier)
-        self.helper.consent_and_put_on_schedule(
+        self.subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
             age_in_years=25,
+            report_datetime=get_utcnow() - relativedelta(days=1),
         )
         appointment = Appointment.objects.get(visit_code="1000")
         self.subject_visit = SubjectVisit.objects.create(
@@ -290,15 +293,10 @@ class ModelAdminSiteTest(WebTest):
         form = get_webtest_form(response)
         response = form.submit(name="_savenext").follow()
 
-        # self.assertIn("Change requisition", response)
-        # self.assertIn("ABCDE0002", response)
-        # self.assertIn(f'{str(panel_two.id)}" selected>Two</option>', response)
-        # self.assertIn(str(panel_two.id), response)
-        # response = response.form.submit(name="_savenext").follow()
-
         self.assertIn("You are at the subject dashboard", response)
         self.assertIn(self.subject_identifier, response)
 
+    @tag("1")
     def test_redirect_on_delete_with_url_name_from_settings(self):
         self.login()
 

@@ -32,7 +32,7 @@
 {% block breadcrumbs %}{% endblock %}
 
 {% block branding %}
-  {% show_navbar_for_admin_templates_b3 %}{{ opts.app_config.verbose_name }}
+  {% show_navbar_for_admin_templates_b3 %}&nbsp;<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.app_config.verbose_name_plural|capfirst }}</A>&nbsp;&rsaquo;&nbsp;{{ opts.verbose_name|capfirst }}
 {% endblock %}
 
 {% block welcome-msg %}{% endblock %}
