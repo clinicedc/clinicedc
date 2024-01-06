@@ -8,6 +8,8 @@ from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings
 from edc_appointment.constants import MISSED_APPT
 from edc_appointment.models import Appointment
+from edc_consent.site_consents import AlreadyRegistered
+from edc_consent.tests.consent_test_utils import consent_definition_factory
 from edc_constants.constants import (
     ALIVE,
     COMPLETE,
@@ -60,6 +62,12 @@ class TestForm(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
+        for visit_schedule in site_visit_schedules.get_visit_schedules().values():
+            for schedule in visit_schedule.schedules.values():
+                try:
+                    consent_definition_factory(model=schedule.consent_model)
+                except AlreadyRegistered:
+                    pass
 
     @override_settings(
         EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz),
