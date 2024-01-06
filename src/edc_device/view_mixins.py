@@ -1,4 +1,5 @@
 import socket
+from typing import Any
 
 from django.apps import apps as django_apps
 
@@ -18,17 +19,16 @@ def get_client_ip(request):
 
 
 class EdcDeviceViewMixin:
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         app_config = django_apps.get_app_config("edc_device")
-        context.update(
+        kwargs.update(
             {
                 "device_id": app_config.device_id,
                 "device_role": app_config.device_role,
                 "ip_address": self.ip_address,
             }
         )
-        return context
+        return super().get_context_data(**kwargs)
 
     @property
     def ip_address(self):
