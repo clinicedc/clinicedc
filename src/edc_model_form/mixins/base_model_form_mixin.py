@@ -31,8 +31,19 @@ class BaseModelFormMixin(ReportDatetimeModelFormMixin):
         self.validate_subject_identifier()
         return cleaned_data
 
-    @property
-    def subject_identifier(self) -> str:
+    # @property
+    # def subject_identifier(self) -> str:
+    #     """Careful, will be overwritten by a custom defined form
+    #     class.
+    #
+    #     Use get_subject_identifier() instead
+    #
+    #     For example:
+    #         subject_identifier = forms.CharField()
+    #     """
+    #     return self.get_subject_identifier()
+
+    def get_subject_identifier(self):
         """Returns subject identifier.
 
         Assumes a non-CRF with model field subject_identifier.
@@ -50,13 +61,14 @@ class BaseModelFormMixin(ReportDatetimeModelFormMixin):
         """Validates subject_identifier exists in RegisteredSubject"""
         try:
             get_registered_subject_model_cls().objects.get(
-                subject_identifier=self.subject_identifier
+                subject_identifier=self.get_subject_identifier()
             )
         except ObjectDoesNotExist:
             raise ValidationError(
                 {
                     "subject_identifier": (
-                        f"Invalid. Subject is not registered. Got {self.subject_identifier}."
+                        "Invalid. Subject is not registered. "
+                        f"Got {self.get_subject_identifier()}."
                     )
                 }
             )
