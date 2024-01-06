@@ -26,7 +26,9 @@ class CrfSingletonModelFormMixin:
         """
         if not self.instance.id:
             opts = {
-                f"{self.related_visit_model_attr}__subject_identifier": self.subject_identifier
+                f"{self.related_visit_model_attr}__subject_identifier": (
+                    self.get_subject_identifier()
+                )
             }
             try:
                 obj = self._meta.model.objects.get(**opts)
