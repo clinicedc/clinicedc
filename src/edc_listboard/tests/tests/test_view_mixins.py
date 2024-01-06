@@ -31,9 +31,6 @@ class TestViewMixins(TestCase):
     @classmethod
     def setUpTestData(cls):
         url_names.register("dashboard_url", "dashboard_url", "edc_listboard")
-        cls.user = get_user_for_tests(view_only=True)
-        group = Group.objects.get(name=CLINIC)
-        cls.user.groups.add(group)
         site_auths.clear()
         site_auths.add_group("edc_listboard.view_my_listboard", name=CLINIC)
         site_auths.add_custom_permissions_tuples(
@@ -41,6 +38,9 @@ class TestViewMixins(TestCase):
             codename_tuples=(("edc_listboard.view_my_listboard", "View my listboard"),),
         )
         AuthUpdater(verbose=False, warn_only=True)
+        cls.user = get_user_for_tests(view_only=True)
+        group = Group.objects.get(name=CLINIC)
+        cls.user.groups.add(group)
 
     def setUp(self):
         self.request = RequestFactory().get("/")
