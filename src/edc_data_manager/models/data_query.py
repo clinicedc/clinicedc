@@ -11,7 +11,8 @@ from edc_constants.constants import CLOSED, RESOLVED
 from edc_dashboard.url_names import InvalidUrlName, url_names
 from edc_dashboard.utils import get_bootstrap_version
 from edc_model.models import BaseUuidModel
-from edc_sites.models import CurrentSiteManager, SiteModelMixin
+from edc_sites.managers import CurrentSiteManager
+from edc_sites.model_mixins import SiteModelMixin
 from edc_utils.date import get_utcnow
 from edc_visit_tracking.utils import get_related_visit_model_cls
 

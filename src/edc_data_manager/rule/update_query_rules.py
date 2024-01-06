@@ -23,7 +23,7 @@ def update_query_rules(pks=None, verbose=None):
             opts.update(id__in=pks)
         query_rules = QueryRule.objects.filter(**opts)
         sys.stdout.write(
-            f"  Found {query_rules.count()} rule{'s'[:query_rules.count()^1]} to run.\n"
+            f"  Found {query_rules.count()} rule{'s'[:query_rules.count() ^ 1]} to run.\n"
         )
         for index, query_rule_obj in enumerate(query_rules.all()):
             if verbose:
