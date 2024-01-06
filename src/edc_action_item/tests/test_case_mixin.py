@@ -1,6 +1,7 @@
+from dateutil.relativedelta import relativedelta
 from django.test import TestCase
+from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
-from edc_metadata.tests.models import SubjectConsent
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -21,9 +22,14 @@ class TestCaseMixin(TestCase):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
 
-        subject_consent = SubjectConsent.objects.create(
-            subject_identifier=subject_identifier, consent_datetime=get_utcnow()
+        consent_datetime = get_utcnow()
+        cdef = site_consents.get_consent_definition(report_datetime=consent_datetime)
+        subject_consent = cdef.model_cls.objects.create(
+            subject_identifier=subject_identifier,
+            consent_datetime=consent_datetime,
+            dob=get_utcnow() - relativedelta(years=25),
         )
+        RegisteredSubject.objects.create(subject_identifier=subject_identifier)
         _, schedule = site_visit_schedules.get_by_onschedule_model("edc_metadata.onschedule")
         schedule.put_on_schedule(
             subject_identifier=subject_consent.subject_identifier,
