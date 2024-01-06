@@ -21,7 +21,7 @@ class OffstudyModelFormMixin:
         but subject is still on one or more schedules.
         """
         try:
-            off_all_schedules_or_raise(subject_identifier=self.subject_identifier)
+            off_all_schedules_or_raise(subject_identifier=self.get_subject_identifier())
         except OffScheduleError as e:
             raise forms.ValidationError(e)
 
@@ -30,7 +30,7 @@ class OffstudyModelFormMixin:
         this offstudy_datetime.
         """
         offstudy_datetime_after_all_offschedule_datetimes(
-            subject_identifier=self.subject_identifier,
+            subject_identifier=self.get_subject_identifier(),
             offstudy_datetime=self.cleaned_data.get("offstudy_datetime"),
             exception_cls=forms.ValidationError,
         )
