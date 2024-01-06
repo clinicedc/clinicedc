@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.views.generic.base import TemplateView
 from edc_dashboard.utils import get_bootstrap_version
 from edc_dashboard.view_mixins import EdcViewMixin
@@ -11,10 +13,9 @@ class HomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
     navbar_name = "edc_protocol"
     navbar_selected_item = "protocol"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         protocol = Protocol()
-        context.update(
+        kwargs.update(
             {
                 "protocol": protocol.protocol,
                 "protocol_number": protocol.protocol_number,
@@ -24,4 +25,4 @@ class HomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
                 "study_close_datetime": protocol.study_close_datetime,
             }
         )
-        return context
+        return super().get_context_data(**kwargs)

@@ -1,13 +1,14 @@
+from typing import Any
+
 from django.views.generic.base import ContextMixin
 
 from edc_protocol import Protocol
 
 
 class EdcProtocolViewMixin(ContextMixin):
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         protocol = Protocol()
-        context.update(
+        kwargs.update(
             {
                 "protocol": protocol.protocol,
                 "protocol_number": protocol.protocol_number,
@@ -15,4 +16,4 @@ class EdcProtocolViewMixin(ContextMixin):
                 "protocol_title": protocol.protocol_title,
             }
         )
-        return context
+        return super().get_context_data(**kwargs)
