@@ -2,14 +2,35 @@ from typing import Any
 
 from django.db import models
 from django.db.models.deletion import CASCADE, PROTECT
+from edc_consent.field_mixins import PersonalFieldsMixin
+from edc_consent.model_mixins import ConsentModelMixin
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES
 from edc_crf.model_mixins import CrfWithActionModelMixin
-from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
+from edc_identifier.model_mixins import (
+    NonUniqueSubjectIdentifierFieldMixin,
+    NonUniqueSubjectIdentifierModelMixin,
+)
 from edc_model.models import BaseUuidModel, HistoricalRecords
-from edc_sites.models import SiteModelMixin
+from edc_sites.model_mixins import SiteModelMixin
 
 from ..models import ActionModelMixin
+
+
+class SubjectConsent(
+    ConsentModelMixin,
+    SiteModelMixin,
+    NonUniqueSubjectIdentifierModelMixin,
+    PersonalFieldsMixin,
+    BaseUuidModel,
+):
+    screening_identifier = models.CharField(
+        verbose_name="Screening identifier", max_length=50, unique=True
+    )
+    history = HistoricalRecords()
+
+    class Meta(ConsentModelMixin.Meta):
+        pass
 
 
 class SubjectIdentifierModelManager(models.Manager):

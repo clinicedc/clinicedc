@@ -1,7 +1,10 @@
+from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
-from django.test import TestCase
+from django.test import TestCase, tag
+from edc_consent.tests.consent_test_utils import consent_definition_factory
 from edc_constants.constants import CANCELLED, CLOSED, NEW, OPEN
+from edc_utils import get_utcnow
 
 from edc_action_item.action import Action
 from edc_action_item.create_or_update_action_type import create_or_update_action_type
@@ -17,8 +20,16 @@ from ..test_case_mixin import TestCaseMixin
 
 
 class TestActionItem(TestCaseMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        consent_definition_factory(
+            model="edc_action_item.subjectconsent",
+            start=get_utcnow() - relativedelta(years=1),
+            end=get_utcnow() + relativedelta(years=1),
+        )
+
     def setUp(self):
-        self.subject_identifier = self.fake_enroll()
+        self.subject_identifier = self.enroll()
         site_action_items.registry = {}
         site_action_items.register(FormZeroAction)
         get_action_type(FormZeroAction)
@@ -74,6 +85,7 @@ class TestActionItem(TestCaseMixin, TestCase):
         except ObjectDoesNotExist:
             self.fail("ActionItem unexpectedly does not exist")
 
+    @tag("1")
     def test_changes_action_item_status_from_new_to_open_on_edit(self):
         action_type = ActionType.objects.get(name=FormZeroAction.name)
 
