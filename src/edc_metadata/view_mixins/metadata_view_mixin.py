@@ -3,10 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Type
 
 from django.apps import apps as django_apps
-from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils.translation import gettext as _
-from edc_appointment.constants import IN_PROGRESS_APPT
 from edc_subject_model_wrappers import CrfModelWrapper, RequisitionModelWrapper
 
 from ..constants import CRF, KEYED, NOT_REQUIRED, REQUIRED, REQUISITION
@@ -22,62 +19,29 @@ class MetadataViewError(Exception):
 
 
 class MetadataViewMixin:
-    crf_model_wrapper_cls: CrfModelWrapper = CrfModelWrapper
-    requisition_model_wrapper_cls: RequisitionModelWrapper = RequisitionModelWrapper
-    crf_metadata_wrappers_cls: CrfMetadataWrappers = CrfMetadataWrappers
-    requisition_metadata_wrappers_cls: RequisitionMetadataWrappers = (
-        RequisitionMetadataWrappers
-    )
+    crf_model_wrapper_cls = CrfModelWrapper
+    requisition_model_wrapper_cls = RequisitionModelWrapper
+    crf_metadata_wrappers_cls = CrfMetadataWrappers
+    requisition_metadata_wrappers_cls = RequisitionMetadataWrappers
     panel_model: str = "edc_lab.panel"
 
     metadata_show_status: list[str] = [REQUIRED, KEYED]
 
-    def get(self, request, *args, **kwargs):
-        try:
-            referrer = request.headers.get("Referer")
-        except TypeError:
-            pass
-        else:
-            if (
-                referrer
-                and kwargs.get("appointment")
-                and "subject_review_listboard" in referrer
-            ):
-                self.appointment_id = kwargs.get("appointment")
-                self.refresh_metadata_for_timepoint()
-        return super().get(request, *args, **kwargs)
-
     def get_context_data(self, **kwargs) -> dict:
-        context = super().get_context_data(**kwargs)
-        context.update(metadata_show_status=self.metadata_show_status)
+        kwargs.update(metadata_show_status=self.metadata_show_status)
         if self.appointment:
-            if self.appointment.appt_status != IN_PROGRESS_APPT:
-                message = _(
-                    'You have selected an appointment that is no longer "in progress". '
-                    "Refer to the schedule for the appointment that is "
-                    'currently "in progress".'
-                )
-                self.message_user(message, level=messages.WARNING)
-
+            referer = self.request.headers.get("Referer")
+            if referer and "subject_review_listboard" in referer:
+                refresh_metadata_for_timepoint(self.appointment)
             crf_model_wrappers = self.get_crf_model_wrappers()
-            try:
-                report_datetime = self.appointment.related_visit.report_datetime
-            except AttributeError:
-                pass
-            else:
-                context.update(
-                    report_datetime=report_datetime,
-                    crfs=crf_model_wrappers,
-                    requisitions=self.get_requisition_model_wrapper(),
-                    NOT_REQUIRED=NOT_REQUIRED,
-                    REQUIRED=REQUIRED,
-                    KEYED=KEYED,
-                )
-        return context
-
-    def refresh_metadata_for_timepoint(self) -> None:
-        """Save related visit model instance to run metadata update."""
-        refresh_metadata_for_timepoint(self.appointment)
+            kwargs.update(
+                crfs=crf_model_wrappers,
+                requisitions=self.get_requisition_model_wrapper(),
+                NOT_REQUIRED=NOT_REQUIRED,
+                REQUIRED=REQUIRED,
+                KEYED=KEYED,
+            )
+        return super().get_context_data(**kwargs)
 
     def get_crf_model_wrappers(self) -> list[CrfModelWrapper]:
         """Returns a list of model wrappers.

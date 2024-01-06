@@ -16,7 +16,7 @@ from edc_list_data.model_mixins import ListModelMixin
 from edc_model.models import BaseUuidModel
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_screening.model_mixins import ScreeningModelMixin
-from edc_sites.models import SiteModelMixin
+from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
 from edc_visit_tracking.model_mixins import (

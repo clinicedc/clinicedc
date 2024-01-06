@@ -1,10 +1,10 @@
-from typing import Any, Optional, Protocol, Type
+from typing import Any, Protocol, Type
 
 from django.db.models import Manager, Model, QuerySet
 from edc_model.stubs import ModelMetaStub
 from edc_visit_schedule.visit import Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
-from edc_visit_tracking.stubs import SubjectVisitModelStub
+from edc_visit_tracking.stubs import RelatedVisitModelStub
 
 
 class SubjectVisitLikeModelObject(Protocol):
@@ -92,7 +92,7 @@ class RequisitionMetadataModelStub(Protocol):
 
 class MetadataGetterStub(Protocol):
     metadata_objects: QuerySet
-    visit: Optional[SubjectVisitModelStub]
+    visit: RelatedVisitModelStub | None
 
 
 class CrfMetadataUpdaterStub(Protocol):
