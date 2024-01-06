@@ -1,22 +1,18 @@
 from uuid import uuid4
 
 from django.db import models
-from django.db.models import UniqueConstraint, options
+from django.db.models import UniqueConstraint
 from django_crypto_fields.fields import EncryptedTextField
 from edc_constants.constants import OPEN
 from edc_data_manager.get_data_queries import get_data_queries
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
-from edc_sites.models import CurrentSiteManager
+from edc_sites.managers import CurrentSiteManager
 from edc_utils import age, formatted_age
 
 from ..consent_helper import ConsentHelper
-from ..constants import DEFAULT_CONSENT_GROUP
 from ..field_mixins import VerificationFieldsMixin
 from ..managers import ConsentManager, ObjectConsentManager
-
-if "consent_group" not in options.DEFAULT_NAMES:
-    options.DEFAULT_NAMES = options.DEFAULT_NAMES + ("consent_group",)
 
 
 class ConsentModelMixin(VerificationFieldsMixin, models.Model):
@@ -147,7 +143,6 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
         abstract = True
         verbose_name = "Subject Consent"
         verbose_name_plural = "Subject Consents"
-        consent_group = DEFAULT_CONSENT_GROUP
         constraints = [
             UniqueConstraint(
                 fields=["first_name", "dob", "initials", "version"],

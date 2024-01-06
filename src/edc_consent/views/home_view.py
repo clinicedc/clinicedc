@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.views.generic.base import TemplateView
 from edc_dashboard.utils import get_bootstrap_version
 from edc_dashboard.view_mixins import EdcViewMixin
@@ -15,7 +17,8 @@ class HomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
     def __init__(self, *args, **kwargs):
         super(HomeView, self).__init__(*args, **kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(edc_consent_admin=edc_consent_admin, consents=site_consents.consents)
-        return context
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        kwargs.update(
+            edc_consent_admin=edc_consent_admin, consents=site_consents.consent_definitions
+        )
+        return super().get_context_data(**kwargs)

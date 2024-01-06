@@ -1,37 +1,33 @@
 from datetime import datetime
-from typing import Optional
 
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from edc_utils import convert_php_dateformat
+from edc_utils import formatted_datetime, to_utc
+from edc_utils.date import to_local
 
-from .exceptions import NotConsentedError
-from .site_consents import SiteConsentError, site_consents
+from .exceptions import ConsentError, NotConsentedError
+from .site_consents import site_consents
 
 
 class RequiresConsent:
     def __init__(
         self,
-        model: Optional[str] = None,
-        subject_identifier: Optional[str] = None,
-        report_datetime: Optional[datetime] = None,
-        consent_model: Optional[str] = None,
-        consent_group: Optional[str] = None,
+        model: str = None,
+        subject_identifier: str = None,
+        report_datetime: datetime = None,
+        consent_model: str = None,
     ):
-        self.version = None
         self.model = model
         self.subject_identifier = subject_identifier
         self.consent_model = consent_model
-        self.report_datetime = report_datetime
-        self.consent_object = site_consents.get_consent_for_period(
+        self.report_datetime = to_utc(report_datetime)
+        self.consent_definition = site_consents.get_consent_definition(
             model=consent_model,
-            consent_group=consent_group,
             report_datetime=report_datetime,
         )
-        self.consent_model_cls = self.consent_object.model_cls
-        self.version = self.consent_object.version
+        self.consent_model_cls = self.consent_definition.model_cls
+        self.version = self.consent_definition.version
         if not self.subject_identifier:
-            raise SiteConsentError(
+            raise ConsentError(
                 f"Cannot lookup {self.consent_model} instance for subject. "
                 f"Got 'subject_identifier' is None."
             )
@@ -40,16 +36,15 @@ class RequiresConsent:
     def consented_or_raise(self):
         try:
             self.consent_model_cls.objects.get(
-                subject_identifier=self.subject_identifier, version=self.version
+                subject_identifier=self.subject_identifier,
+                version=self.version,
+                consent_datetime__lte=self.report_datetime,
             )
         except ObjectDoesNotExist:
-            formatted_report_datetime = self.report_datetime.strftime(
-                convert_php_dateformat(settings.SHORT_DATE_FORMAT)
-            )
+            date_string = formatted_datetime(to_local(self.report_datetime))
             raise NotConsentedError(
-                f"Consent is required. Cannot find '{self.consent_model} "
-                f"version {self.version}' when saving model '{self.model}' for "
-                f"subject '{self.subject_identifier}' with date "
-                f"'{formatted_report_datetime}'. "
-                f"See also `all_post_consent_models` in the visit schedule."
+                f"Consent is required. Could not find a valid consent when saving model "
+                f"'{self.model}' for subject '{self.subject_identifier}' using "
+                f"date '{date_string}'. On which date was the subject consented? "
+                f"See consent definition `{self.consent_definition.display_name}`."
             )

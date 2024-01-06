@@ -9,32 +9,35 @@ from edc_constants.constants import NO, YES
 from edc_model_form.utils import get_field_or_raise
 from edc_utils import AgeValueError, age, formatted_age
 
-from ...site_consents import ConsentObjectDoesNotExist, SiteConsentError, site_consents
+from ...site_consents import (
+    ConsentDefinitionDoesNotExist,
+    SiteConsentError,
+    site_consents,
+)
 from ...utils import InvalidInitials, verify_initials_against_full_name
 
 if TYPE_CHECKING:
-    from ...consent import Consent
+    from ...consent_definition import ConsentDefinition
 
 
 class CustomValidationMixin:
     """Form for models that are a subclass of BaseConsent."""
 
     @property
-    def consent_config(self) -> Consent:
-        """Returns a consent_config instance or raises on
+    def consent_definition(self) -> ConsentDefinition:
+        """Returns a ConsentDefinition instance or raises on
         missing data.
         """
         try:
-            consent_config = site_consents.get_consent(
+            consent_definition = site_consents.get_consent_definition(
+                model=self._meta.model._meta.label_lower,
                 report_datetime=self.consent_datetime,
-                consent_model=self._meta.model._meta.label_lower,
-                consent_group=self._meta.model._meta.consent_group,
             )
-        except (ConsentObjectDoesNotExist, SiteConsentError) as e:
+        except (ConsentDefinitionDoesNotExist, SiteConsentError) as e:
             raise forms.ValidationError(e)
-        if not consent_config.version:
+        if not consent_definition.version:
             raise forms.ValidationError("Unable to determine consent version")
-        return consent_config
+        return consent_definition
 
     def get_field_or_raise(self, name: str, msg: str) -> Any:
         return get_field_or_raise(
@@ -66,13 +69,13 @@ class CustomValidationMixin:
     def validate_min_age(self) -> None:
         """Raises if age is below the age of consent"""
         if self.age_delta:
-            if self.age_delta.years < self.consent_config.age_min:
+            if self.age_delta.years < self.consent_definition.age_min:
                 raise forms.ValidationError(
                     {
                         "dob": (
                             f"Subject's age is {self.age_delta.years}. "
                             "Subject is not eligible for consent. Minimum age of consent is "
-                            f"{self.consent_config.age_min}."
+                            f"{self.consent_definition.age_min}."
                         )
                     }
                 )
@@ -80,13 +83,13 @@ class CustomValidationMixin:
     def validate_max_age(self) -> None:
         """Raises if age is above the age of consent"""
         if self.age_delta:
-            if self.age_delta.years > self.consent_config.age_max:
+            if self.age_delta.years > self.consent_definition.age_max:
                 raise forms.ValidationError(
                     {
                         "dob": (
                             f"Subject's age is {self.age_delta.years}. "
                             "Subject is not eligible for consent. Maximum age of consent is "
-                            f"{self.consent_config.age_max}."
+                            f"{self.consent_definition.age_max}."
                         )
                     }
                 )
@@ -114,14 +117,14 @@ class CustomValidationMixin:
         exclude_opts = dict(id=self.instance.id) if self.instance.id else {}
         if (
             subject_consent := self._meta.model.objects.filter(
-                identity=self.identity, version=self.consent_config.version
+                identity=self.identity, version=self.consent_definition.version
             )
             .exclude(**exclude_opts)
             .last()
         ):
             msg = (
                 "Identity number already submitted for consent "
-                f"{self.consent_config.version}. "
+                f"{self.consent_definition.version}. "
                 f"See `{subject_consent.subject_identifier}`."
             )
             if "identity" in self.cleaned_data:
@@ -139,7 +142,7 @@ class CustomValidationMixin:
         opts = dict(
             initials=initials,
             dob=dob,
-            version=self.consent_config.version,
+            version=self.consent_definition.version,
         )
         if familiar_name:
             opts.update(familiar_name=familiar_name)
@@ -167,11 +170,11 @@ class CustomValidationMixin:
     def validate_gender_of_consent(self: Any) -> str:
         """Validates gender is a gender of consent."""
         gender = self.cleaned_data.get("gender")
-        if gender not in self.consent_config.gender:
+        if gender not in self.consent_definition.gender:
             raise forms.ValidationError(
                 "Gender of consent can only be '%(gender_of_consent)s'. Got '%(gender)s'.",
                 params={
-                    "gender_of_consent": "' or '".join(self.consent_config.gender),
+                    "gender_of_consent": "' or '".join(self.consent_definition.gender),
                     "gender": gender,
                 },
                 code="invalid",
@@ -186,7 +189,7 @@ class CustomValidationMixin:
         guardian = cleaned_data.get("guardian_name")
         dob = cleaned_data.get("dob")
         rdelta = relativedelta(self.consent_datetime.date(), dob)
-        if rdelta.years < self.consent_config.age_is_adult:
+        if rdelta.years < self.consent_definition.age_is_adult:
             if not guardian:
                 raise forms.ValidationError(
                     {
@@ -198,7 +201,7 @@ class CustomValidationMixin:
                         )
                     }
                 )
-        if rdelta.years >= self.consent_config.age_is_adult and guardian:
+        if rdelta.years >= self.consent_definition.age_is_adult and guardian:
             if guardian:
                 raise forms.ValidationError(
                     {
