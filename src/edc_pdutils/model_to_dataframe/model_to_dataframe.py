@@ -18,7 +18,7 @@ from .value_getter import ValueGetter, ValueGetterInvalidLookup
 if TYPE_CHECKING:
     from django.db.models import QuerySet
     from edc_model.models import BaseUuidModel
-    from edc_sites.models import SiteModelMixin
+    from edc_sites.model_mixins import SiteModelMixin
 
     class MyModel(SiteModelMixin, BaseUuidModel):
         class Meta(BaseUuidModel.Meta):
