@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING, Any, Type
 
 from django.apps import apps as django_apps
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
@@ -40,7 +40,7 @@ class SubjectLocatorViewMixin:
                 "subject_locator_model must be a model (label_lower). Got None"
             )
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         self.create_subject_locator_action_if_required()
         wrapper = self.subject_locator_model_wrapper_cls(model_obj=self.subject_locator)
         kwargs.update(subject_locator=wrapper)
