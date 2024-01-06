@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from django.core.exceptions import ObjectDoesNotExist
 from edc_utils import get_utcnow
@@ -26,13 +26,12 @@ class SubjectVisitViewMixin:
         self._report_datetime = None
         super().__init__(**kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        kwargs.update(
             related_visit=self.related_visit,
             visit_schedule_pk=self.get_visit_schedule_pk(),
         )
-        return context
+        return super().get_context_data(**kwargs)
 
     @property
     def related_visit(self) -> VisitModelMixin | None:

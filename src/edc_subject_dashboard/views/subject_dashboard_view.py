@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any
+
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
 from edc_action_item.view_mixins import ActionItemViewMixin
@@ -10,11 +14,12 @@ from edc_locator.utils import get_locator_model
 from edc_locator.view_mixins import SubjectLocatorViewMixin
 from edc_metadata.view_mixins import MetadataViewMixin
 from edc_navbar.view_mixin import NavbarViewMixin
+from edc_sites.site import sites
 from edc_subject_model_wrappers import (
     AppointmentModelWrapper,
+    RelatedVisitModelWrapper,
     SubjectConsentModelWrapper,
     SubjectLocatorModelWrapper,
-    SubjectVisitModelWrapper,
 )
 from edc_visit_schedule.view_mixins import VisitScheduleViewMixin
 
@@ -22,11 +27,10 @@ from ..view_mixins import RegisteredSubjectViewMixin, SubjectVisitViewMixin
 
 
 class VerifyRequisitionMixin:
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         scanning = self.kwargs.get("scanning")
-        context.update(scanning=scanning)
-        return context
+        kwargs.update(scanning=scanning)
+        return super().get_context_data(**kwargs)
 
 
 class SubjectDashboardView(
@@ -59,9 +63,11 @@ class SubjectDashboardView(
     subject_locator_model_wrapper_cls = SubjectLocatorModelWrapper
 
     visit_model = None
-    visit_model_wrapper_cls = SubjectVisitModelWrapper
+    visit_model_wrapper_cls = RelatedVisitModelWrapper
 
     history_button_label = _("Audit")
+
+    default_manager = "on_site"
 
     def __init__(self, **kwargs):
         if not self.navbar_name:
@@ -79,7 +85,13 @@ class SubjectDashboardView(
             self.consent_model = self.consent_model_wrapper_cls.model
         super().__init__(**kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(history_button_label=self.history_button_label)
-        return context
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        kwargs.update(history_button_label=self.history_button_label)
+        return super().get_context_data(**kwargs)
+
+    @property
+    def manager(self) -> str:
+        """Returns the name of the model manager"""
+        if sites.user_may_view_other_sites(self.request):
+            return "objects"
+        return self.default_manager

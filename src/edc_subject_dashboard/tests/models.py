@@ -5,7 +5,7 @@ from edc_crf.model_mixins import CrfModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_lab.models import Panel
 from edc_model.models import BaseUuidModel
-from edc_sites.models import SiteModelMixin
+from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins import (
     OffScheduleModelMixin,

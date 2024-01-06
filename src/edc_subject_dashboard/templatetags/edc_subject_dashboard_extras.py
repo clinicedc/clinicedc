@@ -241,8 +241,8 @@ def show_dashboard_appointment_button(
     wrapped_appointment=None, view_appointment=None, request=None
 ):
     anchor_id = (
-        f"appointment_btn_{wrapped_appointment.visit_code }_"
-        f"{ wrapped_appointment.visit_code_sequence }"
+        f"appointment_btn_{wrapped_appointment.visit_code}_"
+        f"{wrapped_appointment.visit_code_sequence}"
     )
     if (
         view_appointment
@@ -292,8 +292,8 @@ def show_dashboard_unscheduled_appointment_button(
     ):
         show_button = True
     anchor_id = (
-        f"unscheduled_appt_btn_{wrapped_appointment.visit_code }_"
-        f"{ wrapped_appointment.visit_code_sequence }"
+        f"unscheduled_appt_btn_{wrapped_appointment.visit_code}_"
+        f"{wrapped_appointment.visit_code_sequence}"
     )
 
     if view_appointment and wrapped_appointment.object.site.id == request.site.id:
