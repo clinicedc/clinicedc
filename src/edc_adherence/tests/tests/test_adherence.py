@@ -1,6 +1,8 @@
 from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_appointment.tests.helper import Helper
+from edc_consent.site_consents import AlreadyRegistered
+from edc_consent.tests.consent_test_utils import consent_definition_factory
 from edc_constants.constants import NEVER, NO, OTHER, YES
 from edc_facility import import_holidays
 from edc_list_data import site_list_data
@@ -27,6 +29,11 @@ class TestAdherence(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
         self.subject_identifier = "1234"
+        for schedule in visit_schedule.schedules.values():
+            try:
+                consent_definition_factory(model=schedule.consent_model)
+            except AlreadyRegistered:
+                pass
         self.helper = Helper(subject_identifier=self.subject_identifier)
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule",
