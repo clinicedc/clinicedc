@@ -2,14 +2,17 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Type
 
-from django import forms
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from edc_consent.utils import get_consent_for_period_or_raise
+from edc_consent import ConsentDefinitionDoesNotExist, site_consents
+from edc_consent.utils import get_consent_model_name
+from edc_form_validators import INVALID_ERROR
 
 from .utils import get_subject_screening_model
 
 if TYPE_CHECKING:
+    from edc_consent.consent_definition import ConsentDefinition
+
     from .model_mixins import ScreeningModelMixin
 
 
@@ -42,11 +45,21 @@ class SubjectScreeningFormValidatorMixin:
                     screening_identifier=self.screening_identifier
                 )
             except ObjectDoesNotExist:
-                raise forms.ValidationError(
+                self.raise_validation_error(
                     'Complete the "Subject Screening" form before proceeding.',
                     code="missing_subject_screening",
                 )
         return self._subject_screening
 
-    def get_consent_for_period_or_raise(self):
-        return get_consent_for_period_or_raise(self.report_datetime)
+    def get_consent_model(self):
+        return get_consent_model_name()
+
+    def get_consent_for_period_or_raise(self) -> ConsentDefinition:
+        try:
+            consent_definition = site_consents.get_consent_definition(
+                model=self.get_consent_model(),
+                report_datetime=self.report_datetime,
+            )
+        except ConsentDefinitionDoesNotExist as e:
+            self.raise_validation_error(str(e), INVALID_ERROR)
+        return consent_definition
