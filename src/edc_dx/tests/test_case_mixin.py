@@ -2,6 +2,8 @@ from django.apps import apps as django_apps
 from django.test import TestCase
 from edc_action_item import site_action_items
 from edc_appointment.models import Appointment
+from edc_consent.site_consents import AlreadyRegistered
+from edc_consent.tests.consent_test_utils import consent_definition_factory
 from edc_facility.import_holidays import import_holidays
 from edc_metadata.tests.models import SubjectConsent
 from edc_registration.models import RegisteredSubject
@@ -31,6 +33,11 @@ class TestCaseMixin(TestCase):
             name="my_reportables", normal_data=normal_data, grading_data=grading_data
         )
         site_visit_schedules.register(visit_schedule)
+        for schedule in visit_schedule.schedules.values():
+            try:
+                consent_definition_factory(model=schedule.consent_model)
+            except AlreadyRegistered:
+                pass
 
     @staticmethod
     def enroll(subject_identifier=None):
