@@ -1,5 +1,7 @@
 from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
+from edc_consent.site_consents import AlreadyRegistered
+from edc_consent.tests.consent_test_utils import consent_definition_factory
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_registration.models import RegisteredSubject
@@ -122,6 +124,11 @@ class TestMetadataRulesWithGender(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
+        for schedule in visit_schedule.schedules.values():
+            try:
+                consent_definition_factory(model=schedule.consent_model)
+            except AlreadyRegistered:
+                pass
 
         # note crfs in visit schedule are all set to REQUIRED by default.
         _, self.schedule = site_visit_schedules.get_by_onschedule_model(

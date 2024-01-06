@@ -50,9 +50,8 @@ class RuleGroupWithRules2(CrfRuleGroup):
 
 class TestSiteMetadataRules(TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         import_holidays()
-        return super().setUpClass()
 
     def setUp(self):
         site_metadata_rules.registry = {}
