@@ -15,14 +15,14 @@ class OffScheduleModelFormMixin(VisitScheduleNonCrfModelFormMixin):
     def clean(self):
         cleaned_data = super().clean()
         history_obj = self.schedule.history_model_cls.objects.get(
-            subject_identifier=self.subject_identifier,
+            subject_identifier=self.get_subject_identifier(),
             schedule_name=self.schedule_name,
             visit_schedule_name=self.visit_schedule_name,
         )
         try:
             self.schedule.subject.update_history_or_raise(
                 history_obj=history_obj,
-                subject_identifier=self.subject_identifier,
+                subject_identifier=self.get_subject_identifier(),
                 offschedule_datetime=self.offschedule_datetime,
                 update=False,
             )
