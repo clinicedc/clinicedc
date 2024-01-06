@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.conf import settings
+from edc_consent import ConsentDefinitionDoesNotExist, site_consents
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
@@ -38,9 +40,12 @@ class Helper:
         Defaults to edc_appointment.subjectconsent
         """
         try:
-            return django_apps.get_model(settings.SUBJECT_CONSENT_MODEL)
-        except LookupError:
-            return django_apps.get_model("edc_appointment_app.subjectconsent")
+            cdef = site_consents.get_consent_definition(model=settings.SUBJECT_CONSENT_MODEL)
+        except ConsentDefinitionDoesNotExist:
+            cdef = site_consents.get_consent_definition(
+                model="edc_appointment_app.subjectconsent"
+            )
+        return cdef.model_cls
 
     def consent_and_put_on_schedule(
         self,
@@ -48,17 +53,18 @@ class Helper:
         visit_schedule_name=None,
         schedule_name=None,
         age_in_years=None,
+        report_datetime: datetime | None = None,
     ):
         subject_identifier = subject_identifier or self.subject_identifier
         self.screening_model_cls.objects.create(
             subject_identifier=subject_identifier,
-            report_datetime=self.now,
+            report_datetime=report_datetime or self.now,
             screening_identifier=uuid4(),
             age_in_years=age_in_years or 25,
         )
         subject_consent = self.consent_model_cls.objects.create(
             subject_identifier=subject_identifier,
-            consent_datetime=self.now,
+            consent_datetime=report_datetime or self.now,
             dob=self.now - relativedelta(years=age_in_years or 25),
         )
         visit_schedule = site_visit_schedules.get_visit_schedule(

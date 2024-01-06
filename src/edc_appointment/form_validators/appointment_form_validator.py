@@ -9,14 +9,11 @@ from django.conf import settings
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
-from edc_consent import NotConsentedError
-from edc_consent.requires_consent import RequiresConsent
-from edc_consent.site_consents import SiteConsentError, site_consents
+from edc_consent.utils import consent_datetime_or_raise
 from edc_facility.utils import get_facilities
 from edc_form_validators import INVALID_ERROR
 from edc_form_validators.form_validator import FormValidator
 from edc_metadata.metadata_helper import MetadataHelperMixin
-from edc_registration import get_registered_subject_model_cls
 from edc_utils import formatted_datetime, get_utcnow, to_utc
 from edc_utils.date import to_local
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -29,6 +26,16 @@ from ..constants import (
     COMPLETE_APPT,
     IN_PROGRESS_APPT,
     INCOMPLETE_APPT,
+    INVALID_APPT_DATE,
+    INVALID_APPT_REASON,
+    INVALID_APPT_STATUS,
+    INVALID_APPT_STATUS_AT_BASELINE,
+    INVALID_APPT_TIMING,
+    INVALID_APPT_TIMING_CRFS_EXIST,
+    INVALID_APPT_TIMING_REQUISITIONS_EXIST,
+    INVALID_MISSED_APPT_NOT_ALLOWED,
+    INVALID_PREVIOUS_APPOINTMENT_NOT_UPDATED,
+    INVALID_PREVIOUS_VISIT_MISSING,
     MISSED_APPT,
     NEW_APPT,
     SKIPPED_APPT,
@@ -51,18 +58,6 @@ from .utils import validate_appt_datetime_unique
 
 if TYPE_CHECKING:
     from ..models import Appointment
-
-INVALID_APPT_DATE = "invalid_appt_datetime"
-INVALID_APPT_STATUS = "invalid_appt_status"
-INVALID_APPT_REASON = "invalid_appt_reason"
-INVALID_PREVIOUS_APPOINTMENT_NOT_UPDATED = "previous_appointment_not_updated"
-INVALID_PREVIOUS_VISIT_MISSING = "previous_visit_missing"
-INVALID_MISSED_APPT_NOT_ALLOWED = "invalid_missed_appt_not_allowed"
-INVALID_APPT_STATUS_AT_BASELINE = "invalid_appt_status_at_baseline"
-INVALID_SKIPPED_APPT_NOT_ALLOWED_AT_BASELINE = "invalid_skipped_appt_not_allowed_at_baseline"
-INVALID_APPT_TIMING = "invalid_appt_timing"
-INVALID_APPT_TIMING_CRFS_EXIST = "invalid_appt_timing_crfs_exist"
-INVALID_APPT_TIMING_REQUISITIONS_EXIST = "invalid_appt_timing_requisitions_exist"
 
 
 class AppointmentFormValidator(
@@ -216,7 +211,7 @@ class AppointmentFormValidator(
             appt_datetime = self.cleaned_data.get("appt_datetime")
             appt_status = self.cleaned_data.get("appt_status")
             if appt_datetime and appt_status != NEW_APPT:
-                consent_datetime = self.consent_datetime_or_raise(to_utc(appt_datetime))
+                consent_datetime = self.get_consent_datetime_or_raise(to_utc(appt_datetime))
                 if to_utc(appt_datetime).date() < consent_datetime.date():
                     formatted_date = formatted_datetime(
                         to_local(consent_datetime), format_as_date=True
@@ -547,38 +542,12 @@ class AppointmentFormValidator(
         )
         return url
 
-    def consent_datetime_or_raise(self: Any, appt_datetime: datetime) -> datetime:
-        consent_model = site_visit_schedules.get_consent_model(
-            visit_schedule_name=self.instance.visit_schedule_name,
-            schedule_name=self.instance.schedule_name,
+    def get_consent_datetime_or_raise(self: Any, appt_datetime: datetime) -> datetime:
+        return consent_datetime_or_raise(
+            report_datetime=appt_datetime,
+            model_obj=self.instance,
+            raise_validation_error=self.raise_validation_error,
         )
-        try:
-            RequiresConsent(
-                model=self.instance._meta.label_lower,
-                subject_identifier=self.instance.subject_identifier,
-                report_datetime=appt_datetime,
-                consent_model=consent_model,
-            )
-        except SiteConsentError:
-            self.raise_validation_error(
-                {
-                    "appt_datetime": (
-                        "Date does not fall within any configured consent period."
-                        f"Expected one of {site_consents.consents}. "
-                        "See the EDC configuration."
-                    )
-                },
-                INVALID_APPT_DATE,
-            )
-        except NotConsentedError as e:
-            self.raise_validation_error(
-                {"appt_datetime": str(e)},
-                INVALID_APPT_DATE,
-            )
-        registered_subject = get_registered_subject_model_cls().objects.get(
-            subject_identifier=self.instance.subject_identifier
-        )
-        return registered_subject.consent_datetime
 
     def validate_subject_on_schedule(self: Any) -> None:
         if self.cleaned_data.get("appt_datetime"):
