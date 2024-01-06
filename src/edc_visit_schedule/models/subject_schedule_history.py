@@ -5,7 +5,8 @@ from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
-from edc_sites.models import CurrentSiteManager, SiteModelMixin
+from edc_sites.managers import CurrentSiteManager
+from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
 
 from ..choices import SCHEDULE_STATUS

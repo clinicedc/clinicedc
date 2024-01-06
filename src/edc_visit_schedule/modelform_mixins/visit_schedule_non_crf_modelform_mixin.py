@@ -68,7 +68,7 @@ class VisitScheduleNonCrfModelFormMixin:
         subject_schedule = SubjectSchedule(self.visit_schedule, self.schedule)
         try:
             subject_schedule.onschedule_or_raise(
-                subject_identifier=self.subject_identifier,
+                subject_identifier=self.get_subject_identifier(),
                 report_datetime=self.report_datetime,
                 compare_as_datetimes=self.offschedule_compare_dates_as_datetimes,
             )
@@ -77,7 +77,7 @@ class VisitScheduleNonCrfModelFormMixin:
 
     def report_datetime_within_schedule_datetimes(self) -> None:
         report_datetime_within_onschedule_offschedule_datetimes(
-            subject_identifier=self.subject_identifier,
+            subject_identifier=self.get_subject_identifier(),
             report_datetime=self.report_datetime,
             visit_schedule_name=self.visit_schedule_name,
             schedule_name=self.schedule_name,

@@ -6,7 +6,7 @@ from django.test.client import RequestFactory
 from django.test.utils import override_settings
 from django.views.generic.base import ContextMixin
 from edc_consent import site_consents
-from edc_consent.consent import Consent
+from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, MALE
 from edc_protocol import Protocol
 from edc_sites.tests import SiteTestCaseMixin
@@ -34,7 +34,7 @@ class MyViewCurrent(VisitScheduleViewMixin, ContextMixin):
 )
 class TestViewMixin(SiteTestCaseMixin, TestCase):
     def setUp(self):
-        v1_consent = Consent(
+        v1_consent = ConsentDefinition(
             "visit_schedule_app.subjectconsent",
             version="1",
             start=Protocol().study_open_datetime,

@@ -1,7 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
 from edc_consent import site_consents
-from edc_consent.consent import Consent
+from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, MALE
 from edc_protocol import Protocol
 from edc_sites.tests import SiteTestCaseMixin
@@ -18,7 +18,7 @@ from visit_schedule_app.models import OffSchedule, OnSchedule, SubjectConsent
 @override_settings(SITE_ID=30)
 class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
     def setUp(self):
-        v1_consent = Consent(
+        v1_consent = ConsentDefinition(
             "visit_schedule_app.subjectconsent",
             version="1",
             start=Protocol().study_open_datetime,

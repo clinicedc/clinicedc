@@ -1,7 +1,7 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
 from edc_consent import site_consents
-from edc_consent.consent import Consent
+from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
@@ -28,7 +28,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
         site_visit_schedules.loaded = False
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
-        v1_consent = Consent(
+        v1_consent = ConsentDefinition(
             "visit_schedule_app.subjectconsent",
             version="1",
             start=Protocol().study_open_datetime,

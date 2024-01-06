@@ -8,7 +8,7 @@ from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from edc_appointment.constants import COMPLETE_APPT, IN_PROGRESS_APPT
 from edc_appointment.creators import AppointmentsCreator
-from edc_consent import NotConsentedError
+from edc_consent import NotConsentedError, site_consents
 from edc_sites.utils import valid_site_for_subject_or_raise
 from edc_utils import convert_php_dateformat, formatted_datetime, get_utcnow
 
@@ -69,7 +69,8 @@ class SubjectSchedule:
 
     @property
     def consent_model_cls(self):
-        return django_apps.get_model(self.consent_model)
+        cdef = site_consents.get_consent_definition(model=self.consent_model)
+        return cdef.model_cls
 
     def put_on_schedule(
         self,
