@@ -17,7 +17,7 @@ def edc_middleware_check(
         errors.append(
             Error(
                 "Missing MIDDLEWARE. " f"Expected `{middleware_name}`.",
-                id=f"{app_label}.{error_code or'001'}",
+                id=f"{app_label}.{error_code or '001'}",
             )
         )
     sys.stdout.write(style.SQL_KEYWORD(f"{msg} ... done.\n"))
