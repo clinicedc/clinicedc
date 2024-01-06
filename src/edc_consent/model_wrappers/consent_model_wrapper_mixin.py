@@ -15,7 +15,7 @@ class ConsentModelWrapperMixin(ModelWrapper):
         """Returns a consent definition object from site_consents
         relative to the wrapper's "object" report_datetime.
         """
-        consent_definition = site_consents.get_consent_definition_for_period(
+        consent_definition = site_consents.get_consent_definition(
             model=self.consent_model_wrapper_cls.model,
             report_datetime=self.object.report_datetime,
         )

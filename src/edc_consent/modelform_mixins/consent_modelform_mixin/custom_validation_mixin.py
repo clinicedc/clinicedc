@@ -30,8 +30,8 @@ class CustomValidationMixin:
         """
         try:
             consent_definition = site_consents.get_consent_definition(
+                model=self._meta.model._meta.label_lower,
                 report_datetime=self.consent_datetime,
-                consent_model=self._meta.model._meta.label_lower,
             )
         except (ConsentDefinitionDoesNotExist, SiteConsentError) as e:
             raise forms.ValidationError(e)

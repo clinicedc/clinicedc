@@ -56,18 +56,18 @@ class RequiresConsentModelFormMixin:
 
     def get_consent_or_raise(self) -> ConsentModelMixin:
         """Return an instance of the consent model"""
-        consent_definition = site_consents.get_consent_definition(
+        cdef = site_consents.get_consent_definition(
+            model=self.consent_model,
             report_datetime=self.report_datetime,
-            consent_model=self.consent_model,
         )
         try:
-            obj = consent_definition.model_cls.consent.consent_for_period(
-                subject_identifier=self.subject_identifier,
+            obj = cdef.get_consent_for(
+                subject_identifier=self.get_subject_identifier(),
                 report_datetime=self.report_datetime,
             )
         except ObjectDoesNotExist:
             raise forms.ValidationError(
-                f"`{consent_definition.model_cls._meta.verbose_name}` does not exist "
+                f"`{cdef.model_cls._meta.verbose_name}` does not exist "
                 f"to cover this subject on {formatted_datetime(self.report_datetime)}"
             )
         return obj

@@ -1,7 +1,3 @@
-class ConsentDefinitionDoesNotExist(Exception):
-    pass
-
-
 class NotConsentedError(Exception):
     pass
 
@@ -11,4 +7,12 @@ class ConsentVersionSequenceError(Exception):
 
 
 class ConsentError(Exception):
+    pass
+
+
+class ConsentDefinitionError(Exception):
+    pass
+
+
+class ConsentDefinitionDoesNotExist(Exception):
     pass

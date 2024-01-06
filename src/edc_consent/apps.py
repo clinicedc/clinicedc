@@ -13,8 +13,8 @@ class AppConfig(DjangoAppConfig):
 
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
         site_consents.autodiscover()
-        for consent_definition in site_consents.consent_definitions:
-            start = consent_definition.start.strftime("%Y-%m-%d %Z")
-            end = consent_definition.end.strftime("%Y-%m-%d %Z")
-            sys.stdout.write(f" * {consent_definition} covering {start} to {end}\n")
+        for cdef in site_consents.registry.values():
+            start = cdef.start.strftime("%Y-%m-%d %Z")
+            end = cdef.end.strftime("%Y-%m-%d %Z")
+            sys.stdout.write(f" * {cdef.name} valid {start} to {end}\n")
         sys.stdout.write(f" Done loading {self.verbose_name}.\n")

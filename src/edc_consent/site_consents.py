@@ -8,11 +8,9 @@ from typing import TYPE_CHECKING
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.utils.module_loading import import_module, module_has_submodule
-from django.utils.translation import gettext as _
 from edc_utils import floor_secs, formatted_date
 
-from .consent_definition_validator import ConsentDefinitionValidator
-from .exceptions import ConsentDefinitionDoesNotExist
+from .exceptions import ConsentDefinitionDoesNotExist, ConsentDefinitionError
 
 if TYPE_CHECKING:
     from .consent_definition import ConsentDefinition
@@ -27,133 +25,110 @@ class SiteConsentError(Exception):
 
 
 class SiteConsents:
-    validate_consent_definition = ConsentDefinitionValidator
-
     def __init__(self):
         self.registry = {}
         self.loaded = False
 
-    def register(self, consent_definition: ConsentDefinition) -> None:
-        if consent_definition.name in self.registry:
-            raise AlreadyRegistered(
-                f"Consent object already registered. Got {consent_definition}."
-            )
-        self.validate_consent_definition(
-            consent_definition=consent_definition,
-            consent_definitions=self.consent_definitions,
-        )
-        self.registry.update({consent_definition.name: consent_definition})
+    def register(self, cdef: ConsentDefinition) -> None:
+        if cdef.name in self.registry:
+            raise AlreadyRegistered(f"Consent definition already registered. Got {cdef}.")
+
+        for version in cdef.updates_versions:
+            if not self.get_consent_definition(model=cdef.model, version=version):
+                raise ConsentDefinitionError(
+                    f"Consent definition is configured to update a version that has "
+                    f"not been registered. See {cdef}. Got {version}."
+                )
+        for registered_cdef in self.registry.values():
+            if registered_cdef.model == cdef.model:
+                if (
+                    registered_cdef.start <= cdef.start <= registered_cdef.end
+                    or registered_cdef.start <= cdef.end <= registered_cdef.end
+                ):
+                    raise ConsentDefinitionError(
+                        f"Consent period overlaps with an already registered consent "
+                        f"definition. See already registered consent {registered_cdef}. "
+                        f"Got {cdef}."
+                    )
+        self.registry.update({cdef.name: cdef})
         self.loaded = True
 
-    @property
-    def consent_definitions(self) -> list[ConsentDefinition]:
-        """Returns an ordered list of ConsentDefinitions"""
-        return sorted(list(self.registry.values()))
-
-    def get_consent_definitions_by_model(
-        self, model: str = None
-    ) -> list[ConsentDefinition] | list[str]:
-        """Returns a list of consents for the given consent model
-        label_lower.
-        """
-        consents = []
-        for consent in self.consent_definitions:
-            if model in ([consent.model] + consent.proxy_models):
-                consents.append(consent)
-        return consents
-
-    def get_consent_definition_for_period(
-        self,
-        model: str = None,
-        report_datetime: datetime = None,
-    ) -> ConsentDefinition:
-        """Returns a ConsentDefinition with a date range that the
-        given report_datetime falls within.
-        """
-        if not self.consent_definitions or not self.loaded:
-            raise SiteConsentError(
-                f"No consent objects have been registered with `site_consents`. "
-                f"Got {self.consent_definitions}, loaded={self.loaded}."
-            )
-        consent_definitions: list[ConsentDefinition] = []
-        for consent_definition in self.consent_definitions_for_model_or_raise(model=model):
-            if consent_definition.start <= report_datetime <= consent_definition.end:
-                consent_definitions.append(consent_definition)
-        if not consent_definitions:
-            date_string = formatted_date(report_datetime)
-            possible = "', '".join([c.display_name for c in self.consent_definitions])
-            raise ConsentDefinitionDoesNotExist(
-                "Consent definition not found. Date does not fall within the validity "
-                f"period of any consent definition. Got {date_string}. "
-                f"Possible definitions are: '{possible}'."
-            )
-        return consent_definitions[0]
+    def get_registry_display(self):
+        return "', '".join(
+            [cdef.display_name for cdef in sorted(list(self.registry.values()))]
+        )
 
     def get_consent_definition(
         self,
-        consent_model: str = None,
-        report_datetime: datetime = None,
-        version=None,
+        model: str = None,
+        report_datetime: datetime | None = None,
+        version: str | None = None,
     ) -> ConsentDefinition:
-        """Return consent object, not model, valid for the datetime."""
-        definitions: list[ConsentDefinition] = list(self.registry.values())
-        if version:
-            definitions = [cdef for cdef in definitions if cdef.version == version]
-            if not definitions:
-                raise ConsentDefinitionDoesNotExist(
-                    f"Version does not match any consent definitions. Got version={version}."
-                )
-        definitions = [
-            cdef for cdef in definitions if consent_model in ([cdef.model] + cdef.proxy_models)
-        ]
-        if not definitions:
-            raise ConsentDefinitionDoesNotExist(
-                f"No consent definitions using this model. Got model={consent_model}."
-            )
-        definitions = [
-            cdef
-            for cdef in definitions
-            if floor_secs(cdef.start) <= floor_secs(report_datetime) <= floor_secs(cdef.end)
-        ]
-        if not definitions:
-            date_string = formatted_date(report_datetime)
-            possible = "', '".join([cdef.display_name for cdef in self.consent_definitions])
+        """Returns a single consent definition valid for the given criteria.
 
-            raise ConsentDefinitionDoesNotExist(
-                "Date does not fall within the validity period of any consent definition. "
-                f"Got {date_string}. Consent definitions are: {possible}."
-            )
-        elif len(definitions) > 1:
-            as_string = ", ".join(list(set([cdef.name for cdef in definitions])))
-            raise SiteConsentError(f"Multiple consent definitions returned. Got {as_string}.")
-        return definitions[0]
+        Filters the registry by each param given.
+        """
+        cdefs = self.get_consent_definitions(
+            model=model, report_datetime=report_datetime, version=version
+        )
+        if len(cdefs) > 1:
+            as_string = ", ".join(list(set([cdef.name for cdef in cdefs])))
+            raise SiteConsentError(f"Multiple consent definitions returned. Got {as_string}. ")
+        return cdefs[0]
 
-    def consent_definitions_for_model_or_raise(
-        self, model: str = None
+    def get_consent_definitions(
+        self,
+        model: str = None,
+        report_datetime: datetime | None = None,
+        version: str | None = None,
     ) -> list[ConsentDefinition]:
-        """Returns a list of consent definitions"""
-        consent_definitions = []
-        for cdef in self.registry.values():
-            if model in ([cdef.model] + cdef.proxy_models):
-                consent_definitions.append(cdef)
-        if not consent_definitions:
-            possible_consents = "', '".join(
-                [cdef.display_name for cdef in self.consent_definitions]
+        """Return a list of consent definitions valid for the given
+        criteria.
+
+        Filters the registry by each param given.
+        """
+        # confirm loaded
+        if not self.registry.values() or not self.loaded:
+            raise SiteConsentError(
+                "No consent definitions have been registered with `site_consents`. "
             )
-            raise ConsentDefinitionDoesNotExist(
-                _(
-                    (
-                        "Consent definition not found using this model. "
-                        "Got consent_model=%(model)s, "
-                        "Possible consents are: %(possible_consents)s."
-                    )
-                    % dict(
-                        model=model,
-                        possible_consents=possible_consents,
-                    )
+
+        # copy registry
+        cdefs: list[ConsentDefinition] = [cdef for cdef in self.registry.values()]
+
+        # model
+        if model:
+            cdefs = [cdef for cdef in cdefs if model in ([cdef.model] + cdef.proxy_models)]
+            if not cdefs:
+                raise ConsentDefinitionDoesNotExist(
+                    f"There are no consent definitions using this model. Got {model}."
                 )
-            )
-        return consent_definitions
+        # report_datetime
+        if report_datetime:
+            cdefs = [
+                cdef
+                for cdef in cdefs
+                if floor_secs(cdef.start)
+                <= floor_secs(report_datetime)
+                <= floor_secs(cdef.end)
+            ]
+            if not cdefs:
+                date_string = formatted_date(report_datetime)
+                raise ConsentDefinitionDoesNotExist(
+                    "Date does not fall within the validity period of any consent definition. "
+                    f"Got {date_string}. Consent definitions are: "
+                    f"{self.get_registry_display()}."
+                )
+
+        # version
+        if version:
+            cdefs = [cdef for cdef in cdefs if cdef.version == version]
+            if not cdefs:
+                raise ConsentDefinitionDoesNotExist(
+                    f"There are no consent definitions for this version. Got {version}. "
+                    f"Consent definitions are: {self.get_registry_display()}."
+                )
+        return cdefs
 
     @staticmethod
     def autodiscover(module_name=None, verbose=True):

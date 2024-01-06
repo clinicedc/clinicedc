@@ -15,10 +15,10 @@ from faker import Faker
 from model_bakery import baker
 
 from edc_consent.consent_definition import ConsentDefinition
+from edc_consent.form_validators import SubjectConsentFormValidatorMixin
 from edc_consent.modelform_mixins import ConsentModelFormMixin
 from edc_consent.site_consents import site_consents
 
-from ...form_validators import SubjectConsentFormValidatorMixin
 from ..models import SubjectConsent, SubjectScreening
 
 fake = Faker()

@@ -1,7 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 
 from .exceptions import ConsentVersionSequenceError
 from .site_consents import site_consents
+
+if TYPE_CHECKING:
+    from .model_mixins import ConsentModelMixin
 
 
 class ConsentHelper:
@@ -34,7 +41,7 @@ class ConsentHelper:
         self.subject_identifier = subject_identifier
         self.update_previous = True if update_previous is None else update_previous
 
-        self.consent_definition = site_consents.get_consent_definition_for_period(
+        self.consent_definition = site_consents.get_consent_definition(
             model=self.model_cls._meta.label_lower,
             report_datetime=consent_datetime,
         )
@@ -53,8 +60,8 @@ class ConsentHelper:
             )
 
     @property
-    def previous_consent(self):
-        """Returns the previous consent or raises if does
+    def previous_consent(self) -> ConsentModelMixin:
+        """Returns the previous consent or raises if it does
         not exist or is out of sequence with the current.
         """
         if not self._previous_consent:
@@ -72,7 +79,8 @@ class ConsentHelper:
                     f"Failed to update previous version. A previous consent "
                     f"with version in {updates_versions} for {self.subject_identifier} "
                     f"was not found. Consent version '{self.version}' is "
-                    "configured to update a previous version."
+                    f"configured to update a previous version. "
+                    f"See consent definition `{self.consent_definition.name}`."
                 )
             except MultipleObjectsReturned:
                 previous_consents = self.model_cls.objects.filter(**opts).order_by("-version")

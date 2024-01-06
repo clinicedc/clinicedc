@@ -1,5 +1,5 @@
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_action_item.models.action_item import ActionItem
 from edc_locator.models import SubjectLocator
 from edc_protocol import Protocol
@@ -7,11 +7,10 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from model_bakery import baker
 
-from edc_consent.exceptions import NotConsentedError
+from edc_consent.exceptions import ConsentDefinitionDoesNotExist, NotConsentedError
 from edc_consent.requires_consent import RequiresConsent
-from edc_consent.site_consents import SiteConsentError, site_consents
+from edc_consent.site_consents import site_consents
 
-from ... import ConsentDefinitionDoesNotExist
 from ..consent_test_utils import consent_definition_factory
 from ..models import CrfOne, SubjectVisit
 from ..visit_schedules import visit_schedule
@@ -30,9 +29,6 @@ class TestRequiresConsent(TestCase):
         self.subject_identifier = "12345"
         self.study_open_datetime = Protocol().study_open_datetime
         self.study_close_datetime = Protocol().study_close_datetime
-
-    def test_(self):
-        self.assertRaises(SiteConsentError, RequiresConsent)
 
     def test_consent_out_of_period(self):
         consent_definition_factory(
@@ -59,7 +55,6 @@ class TestRequiresConsent(TestCase):
             report_datetime=self.study_open_datetime,
         )
 
-    @tag("1")
     def test_consented(self):
         consent_definition_factory(
             start=self.study_open_datetime, end=self.study_close_datetime

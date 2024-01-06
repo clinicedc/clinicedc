@@ -80,8 +80,12 @@ class TestConsentModel(TestCase):
             consent_datetime=self.study_open_datetime + timedelta(days=1),
             dob=get_utcnow() + relativedelta(years=25),
         )
-        subject_consent = SubjectConsent.consent.consent_for_period(
-            "123456789", self.study_open_datetime + timedelta(days=1)
+        cdef = site_consents.get_consent_definition(
+            model="edc_consent.subjectconsent", version="1.0"
+        )
+        subject_consent = cdef.get_consent_for(
+            subject_identifier="123456789",
+            report_datetime=self.study_open_datetime + timedelta(days=1),
         )
         self.assertEqual(subject_consent.version, "1.0")
         baker.make_recipe(
@@ -92,8 +96,12 @@ class TestConsentModel(TestCase):
             consent_datetime=self.study_open_datetime + timedelta(days=60),
             dob=get_utcnow() + relativedelta(years=25),
         )
-        subject_consent = SubjectConsent.consent.consent_for_period(
-            "123456789", self.study_open_datetime + timedelta(days=60)
+        cdef = site_consents.get_consent_definition(
+            model="edc_consent.subjectconsent", version="2.0"
+        )
+        subject_consent = cdef.get_consent_for(
+            subject_identifier="123456789",
+            report_datetime=self.study_open_datetime + timedelta(days=60),
         )
         self.assertEqual(subject_consent.version, "2.0")
 
@@ -160,26 +168,6 @@ class TestConsentModel(TestCase):
 
         first = SubjectConsent.objects.get(subject_identifier="1")
         self.assertEqual(first, SubjectConsent.consent.first_consent(subject_identifier="1"))
-
-        SubjectConsent.consent.consent_for_period(
-            subject_identifier="1",
-            report_datetime=self.study_open_datetime + relativedelta(days=1),
-        )
-        self.assertEqual(first, SubjectConsent.consent.first_consent(subject_identifier="1"))
-
-        self.assertIsNone(
-            SubjectConsent.consent.consent_for_period(
-                subject_identifier="A",
-                report_datetime=self.study_open_datetime - relativedelta(days=1),
-            )
-        )
-
-        self.assertIsNone(
-            SubjectConsent.consent.consent_for_period(
-                subject_identifier="A",
-                report_datetime=self.study_open_datetime + relativedelta(days=1),
-            )
-        )
 
     def test_model_str_repr_etc(self):
         obj = baker.make_recipe(

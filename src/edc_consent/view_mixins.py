@@ -38,7 +38,7 @@ class ConsentViewMixin:
             kwargs.update(
                 consent=self.consent_wrapped,
                 consents=self.consents_wrapped,
-                consent_object=self.consent_definition,
+                consent_definition=self.consent_definition,
             )
         return super().get_context_data(**kwargs)
 
@@ -57,7 +57,7 @@ class ConsentViewMixin:
         """Returns a consent model instance or None for the current period."""
         if not self._consent:
             if self.consent_definition:
-                self._consent = self.consent_definition.model_cls.consent.consent_for_period(
+                self._consent = self.consent_definition.get_consent_for(
                     subject_identifier=self.subject_identifier,
                     report_datetime=self.report_datetime,
                 )
@@ -80,12 +80,12 @@ class ConsentViewMixin:
 
     @property
     def consent_definition(self) -> ConsentDefinition | None:
-        """Returns a ConsentDefinition object or None
+        """Returns a ConsentDefinition or None
         from site_consents for the current reporting period.
         """
         if not self._consent_definition:
             try:
-                self._consent_definition = site_consents.get_consent_definition_for_period(
+                self._consent_definition = site_consents.get_consent_definition(
                     model=self.consent_model_wrapper_cls.model,
                     report_datetime=self.report_datetime,
                 )

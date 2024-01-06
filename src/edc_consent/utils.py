@@ -12,6 +12,7 @@ from edc_appointment.constants import INVALID_APPT_DATE
 from edc_registration import get_registered_subject_model_cls
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
+from . import ConsentDefinitionDoesNotExist
 from .exceptions import NotConsentedError
 from .requires_consent import RequiresConsent
 from .site_consents import SiteConsentError, site_consents
@@ -38,13 +39,13 @@ def get_consent_model_cls() -> Any:
 
 def get_consent_for_period_or_raise(report_datetime) -> ConsentDefinition:
     try:
-        consent_object = site_consents.get_consent_definition_for_period(
+        consent_definition = site_consents.get_consent_definition(
             model=get_consent_model_name(),
             report_datetime=report_datetime,
         )
-    except SiteConsentError as e:
+    except ConsentDefinitionDoesNotExist as e:
         raise forms.ValidationError(e)
-    return consent_object
+    return consent_definition
 
 
 def get_reconsent_model_name() -> str:

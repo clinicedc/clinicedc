@@ -16,11 +16,10 @@ class ConsentModelFormMixin(CleanFieldsModelformMixin, CustomValidationMixin):
         self.validate_dob_relative_to_consent_datetime()
         self.validate_guardian_and_dob()
 
-        options = dict(
-            consent_model=self._meta.model._meta.label_lower,
+        consent_definition = site_consents.get_consent_definition(
+            model=self._meta.model._meta.label_lower,
             report_datetime=self.consent_datetime,
         )
-        consent_definition = site_consents.get_consent_definition(**options)
         if consent_definition.updates_versions:
             ConsentHelper(
                 model_cls=consent_definition.model_cls,
