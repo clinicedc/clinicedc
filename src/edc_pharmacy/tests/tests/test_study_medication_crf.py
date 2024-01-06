@@ -9,7 +9,10 @@ from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
 from edc_appointment.tests.helper import Helper
 from edc_appointment.utils import get_next_appointment
-from edc_consent.tests.consent_test_utils import consent_object_factory
+from edc_consent.site_consents import (
+    AlreadyRegistered as ConsentDefinitionAlreadyRegistered,
+)
+from edc_consent.tests.consent_test_utils import consent_definition_factory
 from edc_constants.constants import YES
 from edc_facility import import_holidays
 from edc_protocol import Protocol
@@ -50,6 +53,12 @@ class TestMedicationCrf(TestCase):
         site_visit_schedules.loaded = False
 
         site_visit_schedules.register(visit_schedule)
+        for schedule in visit_schedule.schedules.values():
+            try:
+                consent_definition_factory(model=schedule.consent_model)
+            except ConsentDefinitionAlreadyRegistered:
+                pass
+
         self.subject_identifier = "12345"
         self.registration_datetime = get_utcnow() - relativedelta(years=5)
         RegisteredSubject.objects.create(
@@ -404,12 +413,6 @@ class TestMedicationCrf(TestCase):
     def test_study_medication_form_baseline(self):
         self.study_open_datetime = Protocol().study_open_datetime
         self.study_close_datetime = Protocol().study_close_datetime
-        consent_object_factory(
-            model="edc_pharmacy.subjectconsent",
-            start=self.study_open_datetime,
-            end=self.study_close_datetime,
-        )
-
         appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         next_appointment = get_next_appointment(appointment, include_interim=True)
         subject_visit = SubjectVisit.objects.create(
