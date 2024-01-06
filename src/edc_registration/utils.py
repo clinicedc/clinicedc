@@ -8,8 +8,10 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from edc_protocol import Protocol
 
+from .exceptions import RegisteredSubjectError
+
 if TYPE_CHECKING:
-    from edc_registration.models import RegisteredSubject, RegisteredSubjectError
+    from edc_registration.models import RegisteredSubject
 
 
 class RegisteredSubjectDoesNotExist(Exception):
