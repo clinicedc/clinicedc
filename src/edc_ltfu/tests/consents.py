@@ -1,8 +1,8 @@
-from edc_consent.consent import Consent
+from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, MALE
 from edc_protocol import Protocol
 
-v1_consent = Consent(
+v1_consent = ConsentDefinition(
     "edc_metadata.subjectconsent",
     version="1",
     start=Protocol().study_open_datetime,
