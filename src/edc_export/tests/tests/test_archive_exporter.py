@@ -2,12 +2,11 @@ import os
 import shutil
 from tempfile import mkdtemp
 
-from django.conf import settings
-from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.test import TestCase
-from django.test.utils import override_settings
+from django.test.utils import override_settings, tag
 from edc_registration.models import RegisteredSubject
+from edc_test_utils.get_user_for_tests import get_user_for_tests
 
 from edc_export.archive_exporter import ArchiveExporter, ArchiveExporterNothingExported
 
@@ -15,8 +14,9 @@ from edc_export.archive_exporter import ArchiveExporter, ArchiveExporterNothingE
 @override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp())
 class TestArchiveExporter(TestCase):
     def setUp(self):
-        self.user = User.objects.create(username="erikvw")
-        self.user.userprofile.sites.add(Site.objects.get(id=settings.SITE_ID))
+        # self.user = User.objects.create(username="erikvw")
+        # self.user.userprofile.sites.add(Site.objects.get(id=settings.SITE_ID))
+        self.user = get_user_for_tests(username="erikvw")
         Site.objects.get_current()
         RegisteredSubject.objects.create(subject_identifier="12345")
         self.models = ["auth.user", "edc_registration.registeredsubject"]
@@ -34,6 +34,7 @@ class TestArchiveExporter(TestCase):
         self.assertIsNotNone(filename)
         self.assertTrue(os.path.exists(filename), msg=f"file '{filename}' does not exist")
 
+    @tag("1")
     def test_requested_with_invalid_table(self):
         models = ["auth.blah", "edc_registration.registeredsubject"]
         self.assertRaises(

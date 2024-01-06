@@ -2,7 +2,7 @@ from django.apps import apps as django_apps
 from django.db import models
 from django.db.models import Index
 from edc_model.models import BaseUuidModel, HistoricalRecords
-from edc_sites.models import SiteModelMixin
+from edc_sites.model_mixins import SiteModelMixin
 
 from ..choices import EXPORT_FORMATS
 from ..constants import CSV

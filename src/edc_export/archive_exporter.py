@@ -58,7 +58,9 @@ class ArchiveExporter:
                 model=model,
                 export_folder=tmp_folder,
                 decrypt=decrypt,
-                site_ids=sites.get_site_ids_for_user(user),
+                site_ids=sites.get_site_ids_for_user(
+                    user=user, site_id=sites.get_current_site().site_id
+                ),
                 **kwargs,
             )
             self.exported.append(csv_exporter.to_csv())

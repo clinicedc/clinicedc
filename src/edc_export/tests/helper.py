@@ -2,6 +2,8 @@ import uuid
 
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
+from edc_consent.site_consents import AlreadyRegistered
+from edc_consent.tests.consent_test_utils import consent_definition_factory
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -25,6 +27,12 @@ class Helper:
     def __init__(self, now=None, subject_identifier=None):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule1)
+        for schedule in visit_schedule1.schedules.values():
+            try:
+                consent_definition_factory(model=schedule.consent_model)
+            except AlreadyRegistered:
+                pass
+
         self.now = now or get_utcnow()
         self.subject_identifier = subject_identifier or uuid.uuid4().hex
         self.consent_and_put_on_schedule()
