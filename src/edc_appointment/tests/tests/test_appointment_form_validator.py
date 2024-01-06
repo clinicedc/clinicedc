@@ -22,18 +22,16 @@ from edc_visit_tracking.utils import get_subject_visit_missed_model_cls
 from edc_appointment.constants import (
     IN_PROGRESS_APPT,
     INCOMPLETE_APPT,
+    INVALID_APPT_TIMING_CRFS_EXIST,
+    INVALID_APPT_TIMING_REQUISITIONS_EXIST,
+    INVALID_PREVIOUS_VISIT_MISSING,
     MISSED_APPT,
     ONTIME_APPT,
     SCHEDULED_APPT,
     SKIPPED_APPT,
     UNSCHEDULED_APPT,
 )
-from edc_appointment.form_validators import (
-    INVALID_APPT_TIMING_CRFS_EXIST,
-    INVALID_APPT_TIMING_REQUISITIONS_EXIST,
-    INVALID_PREVIOUS_VISIT_MISSING,
-    AppointmentFormValidator,
-)
+from edc_appointment.form_validators import AppointmentFormValidator
 from edc_appointment.form_validators.appointment_form_validator import (
     INVALID_APPT_STATUS,
     INVALID_APPT_STATUS_AT_BASELINE,

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from django import forms
+from edc_consent.modelform_mixins import RequiresConsentModelFormMixin
 from edc_form_validators import FormValidatorMixin
 from edc_model_form.mixins import BaseModelFormMixin
 from edc_offstudy.modelform_mixins import OffstudyNonCrfModelFormMixin
@@ -16,6 +17,7 @@ appt_type_fld = Appointment._meta.get_field("appt_type")
 
 
 class AppointmentForm(
+    RequiresConsentModelFormMixin,
     SiteModelFormMixin,
     VisitScheduleNonCrfModelFormMixin,
     OffstudyNonCrfModelFormMixin,

@@ -3,7 +3,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from django.apps import apps as django_apps
+from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.translation import gettext as _
+from edc_sites.site import sites
 from edc_subject_model_wrappers import AppointmentModelWrapper
 
 from ..constants import (
@@ -40,7 +43,18 @@ class AppointmentViewMixin:
         self.appointment_id = kwargs.get("appointment")
         return super().get(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        if self.appointment:
+            if self.appointment.appt_status != IN_PROGRESS_APPT:
+                message = _(
+                    'You have selected an appointment that is no longer "in progress". '
+                    "Refer to the schedule for the appointment that is "
+                    'currently "in progress".'
+                )
+                self.message_user(message, level=messages.WARNING)
+            report_datetime = self.appointment.related_visit.report_datetime
+            kwargs.update(report_datetime=report_datetime)
+
         update_unscheduled_appointment_sequence(
             subject_identifier=self.subject_identifier,
         )
@@ -76,7 +90,7 @@ class AppointmentViewMixin:
                 schedule_name=self.kwargs.get("schedule_name"),
                 visit_code=self.kwargs.get("visit_code"),
                 visit_code_sequence=visit_code_sequence,
-                site_id__in=self.get_sites_for_user(),
+                site_id__in=sites.get_site_ids_for_user(request=self.request),
             )
         return opts
 
@@ -108,7 +122,7 @@ class AppointmentViewMixin:
         if not self._appointments:
             self._appointments = self.appointment_model_cls.objects.filter(
                 subject_identifier=self.subject_identifier,
-                site_id__in=self.get_sites_for_user(),
+                site_id__in=sites.get_site_ids_for_user(request=self.request),
             ).order_by("timepoint", "visit_code_sequence")
 
         return self._appointments

@@ -9,7 +9,7 @@ from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 from edc_consent import site_consents
-from edc_consent.consent import Consent
+from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_facility.utils import get_facility
@@ -264,7 +264,7 @@ class TestAppointmentCreator2(AppointmentCreatorTestCase):
         import_holidays()
         appt_datetime = datetime(1900, 1, 1, tzinfo=ZoneInfo("UTC"))
         site_consents.registry = {}
-        consent = Consent(
+        consent_definition = ConsentDefinition(
             "edc_appointment_app.subjectconsent",
             version="1",
             start=datetime(1900, 1, 1, 0, 0, 0, tzinfo=utc_tz),
@@ -274,7 +274,7 @@ class TestAppointmentCreator2(AppointmentCreatorTestCase):
             age_max=64,
             gender=[MALE, FEMALE],
         )
-        site_consents.register(consent)
+        site_consents.register(consent_definition)
         self.put_on_schedule(appt_datetime)
 
         expected_appt_datetime = datetime(1900, 1, 2, tzinfo=ZoneInfo("UTC"))
