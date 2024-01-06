@@ -3,7 +3,7 @@ from uuid import uuid4
 from django.db import models
 from django.db.models import PROTECT
 from edc_model.models import BaseUuidModel, HistoricalRecords
-from edc_sites.models import SiteModelMixin
+from edc_sites.model_mixins import SiteModelMixin
 
 from .product import Product
 

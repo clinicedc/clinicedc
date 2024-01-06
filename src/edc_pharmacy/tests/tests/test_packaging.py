@@ -103,12 +103,12 @@ class TestPackaging(TestCaseMixin, TestCase):
             source_container=source_pill_bottle,
         )
 
-        self.assertEquals(
+        self.assertEqual(
             source_pill_bottle.unit_qty - source_pill_bottle.unit_qty_out, 500 - (128 * 3)
         )
 
         for obj in PillBottle.objects.filter(source_container=source_pill_bottle):
-            self.assertEquals(obj.unit_qty, 128)
+            self.assertEqual(obj.unit_qty, 128)
 
     def test_repack_for_subject(self):
         container_type = ContainerType.objects.create(name="bottle")

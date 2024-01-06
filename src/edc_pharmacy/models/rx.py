@@ -9,7 +9,8 @@ from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel
 from edc_randomization.site_randomizers import site_randomizers
 from edc_registration.models import RegisteredSubject
-from edc_sites.models import CurrentSiteManager, SiteModelMixin
+from edc_sites.managers import CurrentSiteManager
+from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import formatted_age, get_utcnow
 
 from ..choices import PRESCRIPTION_STATUS
