@@ -10,7 +10,8 @@ from edc_constants.constants import TBD
 from edc_identifier.managers import SubjectIdentifierManager
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models.base_uuid_model import BaseUuidModel
-from edc_sites.models import CurrentSiteManager, SiteModelMixin
+from edc_sites.managers import CurrentSiteManager
+from edc_sites.model_mixins import SiteModelMixin
 from edc_utils.date import get_utcnow
 
 from ..constants import UNBLINDING_REQUEST_ACTION
