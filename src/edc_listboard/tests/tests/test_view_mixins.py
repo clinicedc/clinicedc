@@ -2,7 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import arrow
-from django.contrib.auth.models import Group, Permission, User
+from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
@@ -13,7 +13,9 @@ from edc_auth.site_auths import site_auths
 from edc_dashboard.url_names import url_names
 from edc_model_wrapper import ModelWrapper
 from edc_sites.view_mixins import SiteViewMixin
+from edc_test_utils.get_user_for_tests import get_user_for_tests
 from edc_utils import get_utcnow
+from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 
 from edc_listboard.filters import ListboardFilter, ListboardViewFilters
 from edc_listboard.view_mixins import ListboardFilterViewMixin, QueryStringViewMixin
@@ -24,6 +26,8 @@ from ..models import SubjectVisit
 
 @override_settings(EDC_AUTH_SKIP_SITE_AUTHS=True, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=1)
 class TestViewMixins(TestCase):
+    user: User = None
+
     @classmethod
     def setUpTestData(cls):
         url_names.register("dashboard_url", "dashboard_url", "edc_listboard")
@@ -34,13 +38,11 @@ class TestViewMixins(TestCase):
             codename_tuples=(("edc_listboard.view_my_listboard", "View my listboard"),),
         )
         AuthUpdater(verbose=False, warn_only=True)
+        cls.user = get_user_for_tests(view_only=True)
+        group = Group.objects.get(name=CLINIC)
+        cls.user.groups.add(group)
 
     def setUp(self):
-        self.user = User.objects.create(username="erik")
-        self.user.userprofile.sites.add(Site.objects.get_current())
-        group = Group.objects.get(name=CLINIC)
-        self.user.groups.add(group)
-        self.user.user_permissions.add(Permission.objects.get(codename="view_appointment"))
         self.request = RequestFactory().get("/")
         self.request.user = self.user
 
@@ -60,7 +62,7 @@ class TestViewMixins(TestCase):
                 self.assertEqual(attr, view.get_context_data().get(attr), attr)
 
     def test_listboard_filter_view(self):
-        class SubjectVisitModelWrapper(ModelWrapper):
+        class RelatedVisitModelWrapper(ModelWrapper):
             model = "edc_listboard.subjectvisit"
             next_url_name = "dashboard_url"
 
@@ -81,17 +83,23 @@ class TestViewMixins(TestCase):
             listboard_template = "listboard_template"
             listboard_filter_url = "listboard_url"
             listboard_view_permission_codename = "edc_listboard.view_my_listboard"
-            model_wrapper_cls = SubjectVisitModelWrapper
+            model_wrapper_cls = RelatedVisitModelWrapper
             listboard_view_filters = MyListboardViewFilters()
 
         start = datetime(2013, 5, 1, 12, 30, tzinfo=ZoneInfo("UTC"))
         end = datetime(2013, 5, 10, 17, 15, tzinfo=ZoneInfo("UTC"))
         for arr in arrow.Arrow.range("day", start, end):
             SubjectVisit.objects.create(
-                subject_identifier="1234", report_datetime=arr.datetime, reason="missed"
+                subject_identifier="1234",
+                report_datetime=arr.datetime,
+                reason=MISSED_VISIT,
+                user_created=self.user,
             )
         subject_visit = SubjectVisit.objects.create(
-            subject_identifier="1234", report_datetime=get_utcnow(), reason="scheduled"
+            subject_identifier="1234",
+            report_datetime=get_utcnow(),
+            reason=SCHEDULED,
+            user_created=self.user,
         )
         request = RequestFactory().get("/?scheduled=scheduled")
         request.user = self.user
