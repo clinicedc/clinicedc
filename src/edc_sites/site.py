@@ -17,7 +17,7 @@ from django.utils.module_loading import import_module, module_has_submodule
 from edc_constants.constants import OTHER
 from edc_model_admin.utils import add_to_messages_once
 
-from .auths import codename
+from .auths import view_auditallsites_codename
 from .exceptions import InvalidSiteError, InvalidSiteForUser
 from .single_site import SingleSite
 from .utils import (
@@ -93,7 +93,7 @@ def get_autodiscover_sites():
 
 class Sites:
     uat_subdomain = "uat"
-    view_auditallsites_codename = codename
+    view_auditallsites_codename = view_auditallsites_codename
 
     def __init__(self):
         self.loaded = False
@@ -248,7 +248,7 @@ class Sites:
             )
         site_id = sites.get(site_id).site_id
         has_profile_or_raise(user)
-        sites.site_in_profile_or_raise(user, site_id)
+        sites.site_in_profile_or_raise(user=user, site_id=site_id)
         # now check for special view codename from user account
         site_ids = []
         if user.has_perm(f"edc_sites.{self.view_auditallsites_codename}"):
@@ -268,17 +268,15 @@ class Sites:
     def user_may_view_other_sites(self, request: WSGIRequest) -> bool:
         return True if self.get_view_only_site_ids_for_user(request=request) else False
 
-    def site_in_profile_or_raise(self, user: User, site_id: int) -> None:
+    @staticmethod
+    def site_in_profile_or_raise(user: User, site_id: int) -> None:
         """Raises if user does not have site in their UserProfile."""
         try:
             user.userprofile.sites.get(id=site_id).id
         except ObjectDoesNotExist:
-            site_ids = [str(site_id) for site_id in self.get_site_ids_for_user(user=user)] or [
-                "None"
-            ]
             raise InvalidSiteForUser(
                 "User is not configured to access this site. See also UserProfile. "
-                f"Expected one of [{','.join(site_ids)}]. Got {site_id}."
+                f"Got {site_id}."
             )
 
     def get_language_choices_tuple(

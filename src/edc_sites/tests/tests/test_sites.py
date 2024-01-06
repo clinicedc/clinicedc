@@ -12,7 +12,7 @@ from edc_utils import get_utcnow
 from multisite import SiteID
 from multisite.models import Alias
 
-from edc_sites.auths import codename
+from edc_sites.auths import view_auditallsites_codename
 from edc_sites.forms import SiteModelFormMixin
 from edc_sites.models import SiteProfile
 from edc_sites.single_site import SingleSite
@@ -225,14 +225,14 @@ class TestSites(SiteTestCaseMixin, TestCase):
         self.assertEqual(sites.get(site1.site_id).domain, "site1.uat.clinicedc.org")
         self.assertEqual(sites.get(site2.site_id).domain, "site2.uat.clinicedc.org")
 
-    @override_settings(EDC_SITES_REGISTER_DEFAULT=True)
+    @override_settings(EDC_SITES_REGISTER_DEFAULT=True, SITE_ID=1)
     def test_register_default_site_domain(self):
         sites.initialize()
         add_or_update_django_sites()
         site = Site.objects.get(id=1)
         self.assertEqual(Alias.objects.get(site=site).domain, "localhost")
 
-    @override_settings(EDC_SITES_REGISTER_DEFAULT=True)
+    @override_settings(EDC_SITES_REGISTER_DEFAULT=True, SITE_ID=1)
     def test_register_default_site_domain2(self):
         sites.initialize()
         self.assertEqual([s.site_id for s in sites.all(aslist=True)], [1])
@@ -242,6 +242,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
         site = Site.objects.get(id=1)
         self.assertEqual(Alias.objects.get(site=site).domain, "localhost")
 
+    @override_settings(SITE_ID=10)
     def test_alias_model(self):
         sites.initialize()
         sites.register(*self.default_sites)
@@ -251,7 +252,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
         site = Site.objects.get(id=10)
         self.assertEqual(Alias.objects.get(site=site).domain, "mochudi.bw.clinicedc.org")
 
-    @override_settings(EDC_SITES_UAT_DOMAIN=True)
+    @override_settings(EDC_SITES_UAT_DOMAIN=True, SITE_ID=10)
     def test_alias_model_for_uat(self):
         sites.initialize()
         sites.register(*self.default_sites)
@@ -381,7 +382,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
         request = rf.get("/")
         request.site = Site.objects.get(id=30)
         request.user = User.objects.get(username="user_login")
-        permission = Permission.objects.get(codename=codename)
+        permission = Permission.objects.get(codename=view_auditallsites_codename)
 
         request.user.user_permissions.add(permission)
 
@@ -418,7 +419,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
         # only add 40 to user profile
         request.user.userprofile.sites.add(Site.objects.get(id=40))
         request.user.user_permissions.clear()
-        permission = Permission.objects.get(codename=codename)
+        permission = Permission.objects.get(codename=view_auditallsites_codename)
         request.user.user_permissions.add(permission)
 
         self.assertRaises(InvalidSiteForUser, sites.user_may_view_other_sites, request)
@@ -432,24 +433,26 @@ class TestSites(SiteTestCaseMixin, TestCase):
         c.login(username="user_login", password="pass")  # nosec B106
         response = c.get("/admin/")
 
-        # only add 40 to user profile
+        # the default site id is 30
+        # 1. only add 40 to user profile
         response.wsgi_request.user.userprofile.sites.add(Site.objects.get(id=40))
         response.wsgi_request.user.user_permissions.clear()
-        permission = Permission.objects.get(codename=codename)
+        permission = Permission.objects.get(codename=view_auditallsites_codename)
         response.wsgi_request.user.user_permissions.add(permission)
+        # ... site not in user profile
         self.assertRaises(
             InvalidSiteForUser, sites.user_may_view_other_sites, response.wsgi_request
         )
 
-        # user profile has 30 and 40
+        # 2. Add 30 and 40 to user profile
         response.wsgi_request.user.userprofile.sites.add(Site.objects.get(id=30))
         response.wsgi_request.user.userprofile.sites.add(Site.objects.get(id=40))
         response.wsgi_request.user.user_permissions.clear()
-        permission = Permission.objects.get(codename=codename)
+        permission = Permission.objects.get(codename=view_auditallsites_codename)
         response.wsgi_request.user.user_permissions.add(permission)
         sites.user_may_view_other_sites(response.wsgi_request)
         self.assertIn(
-            get_message_text(messages.INFO),
+            get_message_text(messages.WARNING),
             [msg_obj.message for msg_obj in get_messages(response.wsgi_request)],
         )
 
@@ -459,6 +462,6 @@ class TestSites(SiteTestCaseMixin, TestCase):
         response.wsgi_request.user.user_permissions.add(permission)
         sites.user_may_view_other_sites(response.wsgi_request)
         self.assertIn(
-            get_message_text(messages.WARNING),
+            get_message_text(messages.ERROR),
             [msg_obj.message for msg_obj in get_messages(response.wsgi_request)],
         )
