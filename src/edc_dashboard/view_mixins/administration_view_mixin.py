@@ -1,4 +1,5 @@
 from math import floor
+from typing import Any
 
 from django.apps import apps as django_apps
 from django.urls.base import reverse
@@ -17,11 +18,9 @@ class AdministrationViewMixin(ContextMixin):
 
     edc_module_prefix = "Edc"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         sections = self.sections
-        context.update(sections=sections)
+        kwargs.update(sections=sections)
         index = 0
         col_one = {}
         col_two = {}
@@ -35,8 +34,8 @@ class AdministrationViewMixin(ContextMixin):
                 col_two.update({k: v})
             else:
                 col_three.update({k: v})
-        context.update(col_one=col_one, col_two=col_two, col_three=col_three)
-        return context
+        kwargs.update(col_one=col_one, col_two=col_two, col_three=col_three)
+        return super().get_context_data(**kwargs)
 
     def get_section(self, app_config=None):
         """Returns a dictionary for a single section.
