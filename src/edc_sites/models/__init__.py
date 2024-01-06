@@ -1,3 +1,3 @@
-from .edc_permissions import EdcPermissionsModelMixin
-from .model_mixins import CurrentSiteManager, SiteModelMixin, SiteModelMixinError
+from ..managers import CurrentSiteManager  # noqa (leave for old migrations)
+from .edc_permissions import EdcPermissions
 from .site_profile import SiteProfile

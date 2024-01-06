@@ -1,16 +1,18 @@
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.models import Permission, User
 from django.contrib.messages import get_messages
 from django.contrib.sites.models import Site
 from django.test import Client, RequestFactory, TestCase
-from django.test.utils import override_settings, tag
+from django.test.utils import override_settings
 from edc_constants.constants import OTHER
 from edc_utils import get_utcnow
 from multisite import SiteID
 from multisite.models import Alias
 
+from edc_sites.auths import view_auditallsites_codename
 from edc_sites.forms import SiteModelFormMixin
 from edc_sites.models import SiteProfile
 from edc_sites.single_site import SingleSite
@@ -23,15 +25,8 @@ from edc_sites.site import (
     SiteDoesNotExist,
     sites,
 )
-from edc_sites.utils import add_or_update_django_sites
+from edc_sites.utils import add_or_update_django_sites, get_message_text
 
-from ...auths import codename
-from ...permissions import (
-    get_view_only_sites_for_user,
-    may_view_other_sites,
-    successmsg,
-    warnmsg,
-)
 from ..models import TestModelWithSite
 from ..site_test_case_mixin import SiteTestCaseMixin
 
@@ -230,14 +225,14 @@ class TestSites(SiteTestCaseMixin, TestCase):
         self.assertEqual(sites.get(site1.site_id).domain, "site1.uat.clinicedc.org")
         self.assertEqual(sites.get(site2.site_id).domain, "site2.uat.clinicedc.org")
 
-    @override_settings(EDC_SITES_REGISTER_DEFAULT=True)
+    @override_settings(EDC_SITES_REGISTER_DEFAULT=True, SITE_ID=1)
     def test_register_default_site_domain(self):
         sites.initialize()
         add_or_update_django_sites()
         site = Site.objects.get(id=1)
         self.assertEqual(Alias.objects.get(site=site).domain, "localhost")
 
-    @override_settings(EDC_SITES_REGISTER_DEFAULT=True)
+    @override_settings(EDC_SITES_REGISTER_DEFAULT=True, SITE_ID=1)
     def test_register_default_site_domain2(self):
         sites.initialize()
         self.assertEqual([s.site_id for s in sites.all(aslist=True)], [1])
@@ -247,6 +242,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
         site = Site.objects.get(id=1)
         self.assertEqual(Alias.objects.get(site=site).domain, "localhost")
 
+    @override_settings(SITE_ID=10)
     def test_alias_model(self):
         sites.initialize()
         sites.register(*self.default_sites)
@@ -256,7 +252,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
         site = Site.objects.get(id=10)
         self.assertEqual(Alias.objects.get(site=site).domain, "mochudi.bw.clinicedc.org")
 
-    @override_settings(EDC_SITES_UAT_DOMAIN=True)
+    @override_settings(EDC_SITES_UAT_DOMAIN=True, SITE_ID=10)
     def test_alias_model_for_uat(self):
         sites.initialize()
         sites.register(*self.default_sites)
@@ -363,9 +359,8 @@ class TestSites(SiteTestCaseMixin, TestCase):
         request = rf.get("/")
         request.site = Site.objects.get(id=30)
         request.user = User.objects.get(username="user_login")
-        self.assertRaises(InvalidSiteForUser, may_view_other_sites, request)
+        self.assertRaises(InvalidSiteForUser, sites.user_may_view_other_sites, request)
 
-    @tag("1")
     @override_settings(SITE_ID=SiteID(default=30))
     def test_permissions_sites(self):
         sites.initialize()
@@ -379,7 +374,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
 
         request.user.user_permissions.clear()
 
-        self.assertRaises(PermissionError, may_view_other_sites, request)
+        self.assertRaises(PermissionError, sites.user_may_view_other_sites, request)
 
         request.user.user_permissions.add(Permission.objects.get(codename="view_site"))
 
@@ -387,23 +382,20 @@ class TestSites(SiteTestCaseMixin, TestCase):
         request = rf.get("/")
         request.site = Site.objects.get(id=30)
         request.user = User.objects.get(username="user_login")
-        permission = Permission.objects.get(codename=codename)
+        permission = Permission.objects.get(codename=view_auditallsites_codename)
 
         request.user.user_permissions.add(permission)
 
-        self.assertFalse(may_view_other_sites(request))
+        self.assertFalse(sites.user_may_view_other_sites(request))
 
         rf = RequestFactory()
         request = rf.get("/")
         request.site = Site.objects.get(id=30)
         request.user = User.objects.get(username="user_login")
         request.user.userprofile.sites.add(Site.objects.get(id=40))
-        self.assertTrue(may_view_other_sites(request))
+        self.assertTrue(sites.user_may_view_other_sites(request))
         self.assertEqual(
-            [request.site.id]
-            + get_view_only_sites_for_user(
-                user=request.user, site_id=request.site.id, request=request
-            ),
+            [request.site.id] + sites.get_view_only_site_ids_for_user(request=request),
             [30, 40],
         )
 
@@ -412,7 +404,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
         request.site = Site.objects.get(id=30)
         request.user = User.objects.get(username="user_login")
         request.user.user_permissions.add(Permission.objects.get(codename="add_site"))
-        self.assertFalse(may_view_other_sites(request))
+        self.assertFalse(sites.user_may_view_other_sites(request))
 
     @override_settings(SITE_ID=SiteID(default=30))
     def test_permissions_sites_not_in_userprofile(self):
@@ -427,10 +419,10 @@ class TestSites(SiteTestCaseMixin, TestCase):
         # only add 40 to user profile
         request.user.userprofile.sites.add(Site.objects.get(id=40))
         request.user.user_permissions.clear()
-        permission = Permission.objects.get(codename=codename)
+        permission = Permission.objects.get(codename=view_auditallsites_codename)
         request.user.user_permissions.add(permission)
 
-        self.assertRaises(InvalidSiteForUser, may_view_other_sites, request)
+        self.assertRaises(InvalidSiteForUser, sites.user_may_view_other_sites, request)
 
     @override_settings(SITE_ID=SiteID(default=30))
     def test_permissions_messages(self):
@@ -441,29 +433,35 @@ class TestSites(SiteTestCaseMixin, TestCase):
         c.login(username="user_login", password="pass")  # nosec B106
         response = c.get("/admin/")
 
-        # only add 40 to user profile
+        # the default site id is 30
+        # 1. only add 40 to user profile
         response.wsgi_request.user.userprofile.sites.add(Site.objects.get(id=40))
         response.wsgi_request.user.user_permissions.clear()
-        permission = Permission.objects.get(codename=codename)
+        permission = Permission.objects.get(codename=view_auditallsites_codename)
         response.wsgi_request.user.user_permissions.add(permission)
-        self.assertRaises(InvalidSiteForUser, may_view_other_sites, response.wsgi_request)
+        # ... site not in user profile
+        self.assertRaises(
+            InvalidSiteForUser, sites.user_may_view_other_sites, response.wsgi_request
+        )
 
-        # user profile has 30 and 40
+        # 2. Add 30 and 40 to user profile
         response.wsgi_request.user.userprofile.sites.add(Site.objects.get(id=30))
         response.wsgi_request.user.userprofile.sites.add(Site.objects.get(id=40))
         response.wsgi_request.user.user_permissions.clear()
-        permission = Permission.objects.get(codename=codename)
+        permission = Permission.objects.get(codename=view_auditallsites_codename)
         response.wsgi_request.user.user_permissions.add(permission)
-        may_view_other_sites(response.wsgi_request)
+        sites.user_may_view_other_sites(response.wsgi_request)
         self.assertIn(
-            successmsg, [msg_obj.message for msg_obj in get_messages(response.wsgi_request)]
+            get_message_text(messages.WARNING),
+            [msg_obj.message for msg_obj in get_messages(response.wsgi_request)],
         )
 
         # add a permission with add_, expect a warning
         permission = Permission.objects.get(codename="add_site")
         response = c.get("/admin/")
         response.wsgi_request.user.user_permissions.add(permission)
-        may_view_other_sites(response.wsgi_request)
+        sites.user_may_view_other_sites(response.wsgi_request)
         self.assertIn(
-            warnmsg, [msg_obj.message for msg_obj in get_messages(response.wsgi_request)]
+            get_message_text(messages.ERROR),
+            [msg_obj.message for msg_obj in get_messages(response.wsgi_request)],
         )
