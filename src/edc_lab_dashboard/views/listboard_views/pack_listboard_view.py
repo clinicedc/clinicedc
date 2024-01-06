@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.apps import apps as django_apps
 from edc_constants.constants import OPEN
 from edc_lab.constants import SHIPPED
@@ -27,11 +29,10 @@ class PackListboardView(BaseListboardView):
     def open_manifests(self):
         return Manifest.objects.filter(status=OPEN).order_by("-manifest_datetime")
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        kwargs.update(
             new_box=BoxModelWrapper(Box()),
             open_manifests=self.open_manifests,
             SHIPPED=SHIPPED,
         )
-        return context
+        return super().get_context_data(**kwargs)

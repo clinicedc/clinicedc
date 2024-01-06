@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.html import escape
@@ -22,9 +24,8 @@ class BoxViewMixin(ContextMixin):
         self.original_box_item_identifier = None
         self.original_box_identifier = None
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        kwargs.update(
             {
                 "box_identifier": self.original_box_identifier,
                 "box_item_identifier": self.original_box_item_identifier,
@@ -32,7 +33,7 @@ class BoxViewMixin(ContextMixin):
                 "paginator_url_kwargs": self.url_kwargs,
             }
         )
-        return context
+        return super().get_context_data(**kwargs)
 
     @property
     def box_identifier(self):

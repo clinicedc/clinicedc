@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.urls.base import reverse
 from django.views.generic.base import ContextMixin
 from edc_dashboard.url_names import url_names
@@ -13,15 +15,14 @@ class FormActionViewMixin(ContextMixin):
     form_action_selected_items_name = "selected_items"
     form_action_url = None
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        kwargs.update(
             action_name=self.action_name,
             form_action_name=self.form_action_name,
             form_action_selected_items_name=self.form_action_selected_items_name,
             form_action_url_reversed=self.form_action_url_reversed,
         )
-        return context
+        return super().get_context_data(**kwargs)
 
     @property
     def form_action_url_kwargs(self):

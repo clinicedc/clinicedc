@@ -1,7 +1,9 @@
+from typing import Any
+
 from edc_dashboard.url_names import url_names
 from edc_lab.constants import SHIPPED
 from edc_lab.models import Manifest
-from edc_lab.reports import ManifestReport
+from edc_lab.pdf_reports import ManifestPdfReport
 
 from ...model_wrappers import ManifestModelWrapper
 from ..listboard_filters import ManifestListboardViewFilters
@@ -22,14 +24,13 @@ class ManifestListboardView(BaseListboardView):
     search_form_url = "manifest_listboard_url"
     print_manifest_url = "print_manifest_url"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        kwargs.update(
             new_manifest=ManifestModelWrapper(Manifest()),
             print_manifest_url_name=url_names.get(self.print_manifest_url),
             SHIPPED=SHIPPED,
         )
-        return context
+        return super().get_context_data(**kwargs)
 
     def get(self, request, *args, **kwargs):
         if request.GET.get("pdf"):
@@ -42,5 +43,5 @@ class ManifestListboardView(BaseListboardView):
         return Manifest.objects.get(manifest_identifier=self.request.GET.get("pdf"))
 
     def print_manifest(self):
-        manifest_report = ManifestReport(manifest=self.manifest, user=self.request.user)
+        manifest_report = ManifestPdfReport(manifest=self.manifest, user=self.request.user)
         return manifest_report.render_to_response()

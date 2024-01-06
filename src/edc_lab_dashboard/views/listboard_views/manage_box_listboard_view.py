@@ -1,4 +1,5 @@
 from copy import copy
+from typing import Any
 
 from django.urls.base import reverse
 from edc_dashboard.url_names import url_names
@@ -23,14 +24,13 @@ class ManageBoxListboardView(BaseBoxItemListboardView):
     def url_kwargs(self):
         return {"action_name": self.action_name, "box_identifier": self.box_identifier}
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         url_kwargs = copy(self.url_kwargs)
         url_kwargs["position"] = 1
         url_kwargs["action_name"] = "verify"
-        context.update(
+        kwargs.update(
             verify_box_listboard_url_reversed=reverse(
                 url_names.get(self.verify_box_listboard_url), kwargs=url_kwargs
             )
         )
-        return context
+        return super().get_context_data(**kwargs)
