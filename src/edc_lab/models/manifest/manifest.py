@@ -1,11 +1,13 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_model.models import BaseUuidModel, HistoricalRecords
+from edc_pdf_reports.model_mixins import PdfReportModelMixin
 from edc_search.model_mixins import SearchSlugManager, SearchSlugModelMixin
-from edc_sites.models import CurrentSiteManager
+from edc_sites.managers import CurrentSiteManager
 
 from ...managers import ManifestManager
 from ...model_mixins import ManifestModelMixin
+from ...pdf_reports import ManifestPdfReport
 from .consignee import Consignee
 from .shipper import Shipper
 
@@ -14,7 +16,9 @@ class Manager(ManifestManager, SearchSlugManager):
     pass
 
 
-class Manifest(ManifestModelMixin, SearchSlugModelMixin, BaseUuidModel):
+class Manifest(ManifestModelMixin, PdfReportModelMixin, SearchSlugModelMixin, BaseUuidModel):
+    pdf_report_cls = ManifestPdfReport
+
     def get_search_slug_fields(self):
         return [
             "manifest_identifier",

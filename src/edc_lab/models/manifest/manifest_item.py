@@ -3,7 +3,7 @@ from django.db.models import UniqueConstraint
 from django.db.models.deletion import PROTECT
 from edc_model.models import BaseUuidModel
 from edc_search.model_mixins import SearchSlugManager, SearchSlugModelMixin
-from edc_sites.models import SiteModelMixin
+from edc_sites.model_mixins import SiteModelMixin
 
 from ...model_mixins import VerifyModelMixin
 from .manifest import Manifest

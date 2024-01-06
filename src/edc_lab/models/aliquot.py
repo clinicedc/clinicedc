@@ -1,6 +1,6 @@
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_search.model_mixins import SearchSlugManager, SearchSlugModelMixin
-from edc_sites.models import CurrentSiteManager
+from edc_sites.managers import CurrentSiteManager
 
 from ..managers import AliquotManager
 from ..model_mixins import (

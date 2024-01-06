@@ -1,9 +1,14 @@
-from django.contrib.auth.models import User
+import tempfile
+from pathlib import Path
+
 from django.test import TestCase
 from django.test.utils import override_settings
+from edc_pdf_reports.utils import write_model_to_insecure_pdf
 from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
+from edc_test_utils.get_user_for_tests import get_user_for_tests
 from multisite import SiteID
+from pypdf import PdfReader
 
 from edc_lab.models import (
     Aliquot,
@@ -15,7 +20,7 @@ from edc_lab.models import (
     ManifestItem,
     Shipper,
 )
-from edc_lab.reports import ManifestReport, ManifestReportError
+from edc_lab.pdf_reports import ManifestPdfReportError
 
 
 @override_settings(SITE_ID=10)
@@ -46,7 +51,7 @@ class TestManifest(SiteTestCaseMixin, TestCase):
 class TestManifestReport(SiteTestCaseMixin, TestCase):
     def setUp(self):
         add_or_update_django_sites(single_sites=self.default_sites, verbose=False)
-        self.user = User.objects.create(first_name="Noam", last_name="Chomsky")
+        self.user = get_user_for_tests(username="nchomsky")
         consignee = Consignee.objects.create(name="consignee")
         shipper = Shipper.objects.create(name="shipper")
         self.manifest = Manifest.objects.create(consignee=consignee, shipper=shipper)
@@ -54,16 +59,28 @@ class TestManifestReport(SiteTestCaseMixin, TestCase):
     @override_settings(SITE_ID=SiteID(default=20))
     def test_report(self):
         self.assertEqual(self.manifest.site.name, "mochudi")
-        report = ManifestReport(manifest=self.manifest, user=self.user)
-        report.render_to_response()
+        buffer = write_model_to_insecure_pdf(self.manifest, user=self.user)
+        p = Path(tempfile.mkdtemp())
+        q = p / "death_reports_insecure.pdf"
+        q.write_bytes(buffer.getbuffer())
+        reader = PdfReader(q.absolute())
+        text = [page.extract_text() for page in reader.pages]
+        text = " ".join(text)
+        self.assertIn("mochudi", text.lower())
 
     @override_settings(SITE_ID=SiteID(default=20))
     def test_report_shipped(self):
         self.manifest.shipped = True
         self.manifest.save()
         self.assertEqual(self.manifest.site.name, "mochudi")
-        report = ManifestReport(manifest=self.manifest, user=self.user)
-        report.render_to_response()
+        buffer = write_model_to_insecure_pdf(self.manifest, user=self.user)
+        p = Path(tempfile.mkdtemp())
+        q = p / "death_reports_insecure.pdf"
+        q.write_bytes(buffer.getbuffer())
+        reader = PdfReader(q.absolute())
+        text = [page.extract_text() for page in reader.pages]
+        text = " ".join(text)
+        self.assertIn("mochudi", text.lower())
 
     @override_settings(SITE_ID=SiteID(default=20))
     def test_report_items_not_in_box(self):
@@ -75,11 +92,13 @@ class TestManifestReport(SiteTestCaseMixin, TestCase):
                 identifier=f"{self.manifest.manifest_identifier}{i}",
             )
         self.assertEqual(self.manifest.site.name, "mochudi")
-        report = ManifestReport(manifest=self.manifest, user=self.user)
-        self.assertRaises(ManifestReportError, report.render_to_response)
+        self.assertRaises(
+            ManifestPdfReportError, write_model_to_insecure_pdf, self.manifest, user=self.user
+        )
+
         try:
-            report.render_to_response()
-        except ManifestReportError as e:
+            write_model_to_insecure_pdf(self.manifest, user=self.user)
+        except ManifestPdfReportError as e:
             self.assertEqual(e.code, "unboxed_item")
 
     def test_box_type(self):
@@ -105,11 +124,12 @@ class TestManifestReport(SiteTestCaseMixin, TestCase):
             BoxItem.objects.create(box=box, identifier=f"{i}", position=i)
         ManifestItem.objects.create(manifest=self.manifest, identifier=box.box_identifier)
         self.assertEqual(self.manifest.site.name, "mochudi")
-        report = ManifestReport(manifest=self.manifest, user=self.user)
-        self.assertRaises(ManifestReportError, report.render_to_response)
+        self.assertRaises(
+            ManifestPdfReportError, write_model_to_insecure_pdf, self.manifest, user=self.user
+        )
         try:
-            report.render_to_response()
-        except ManifestReportError as e:
+            write_model_to_insecure_pdf(self.manifest, user=self.user)
+        except ManifestPdfReportError as e:
             self.assertEqual(e.code, "invalid_aliquot_identifier")
 
     @override_settings(SITE_ID=SiteID(default=20))
@@ -128,9 +148,10 @@ class TestManifestReport(SiteTestCaseMixin, TestCase):
             )
         ManifestItem.objects.create(manifest=self.manifest, identifier=box.box_identifier)
         self.assertEqual(self.manifest.site.name, "mochudi")
-        report = ManifestReport(manifest=self.manifest, user=self.user)
-        self.assertRaises(ManifestReportError, report.render_to_response)
+        self.assertRaises(
+            ManifestPdfReportError, write_model_to_insecure_pdf, self.manifest, user=self.user
+        )
         try:
-            report.render_to_response()
-        except ManifestReportError as e:
+            write_model_to_insecure_pdf(self.manifest, user=self.user)
+        except ManifestPdfReportError as e:
             self.assertEqual(e.code, "invalid_requisition_identifier")
