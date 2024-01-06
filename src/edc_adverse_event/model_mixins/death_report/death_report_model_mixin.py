@@ -11,11 +11,12 @@ from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_model.models import HistoricalRecords
 from edc_model.validators import date_not_future, datetime_not_future
 from edc_model_fields.fields.other_charfield import OtherCharField
+from edc_pdf_reports.model_mixins import PdfReportModelMixin
 from edc_protocol.validators import (
     date_not_before_study_start,
     datetime_not_before_study_start,
 )
-from edc_sites.models import SiteModelMixin
+from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
 
 from ...constants import DEATH_REPORT_ACTION
@@ -27,6 +28,7 @@ class DeathReportModelMixin(
     SiteModelMixin,
     UniqueSubjectIdentifierFieldMixin,
     ActionNoManagersModelMixin,
+    PdfReportModelMixin,
     models.Model,
 ):
     action_name = DEATH_REPORT_ACTION

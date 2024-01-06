@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
 from django.core.exceptions import ObjectDoesNotExist
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_dashboard.view_mixins import EdcViewMixin
@@ -11,6 +15,9 @@ from ...auth_objects import TMG
 from ...constants import AE_TMG_ACTION
 from ...model_wrappers import TmgActionItemModelWrapper
 from ...utils import get_adverse_event_app_label
+
+if TYPE_CHECKING:
+    from django.db.models import Q
 
 
 class TmgAeListboardViewMixin(
@@ -47,20 +54,19 @@ class TmgAeListboardViewMixin(
         "user_modified",
     ]
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["AE_TMG_ACTION"] = AE_TMG_ACTION
-        context["utc_date"] = get_utcnow().date()
-        return context
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        kwargs.update(AE_TMG_ACTION=AE_TMG_ACTION, utc_date=get_utcnow().date())
+        return super().get_context_data(**kwargs)
 
-    def get_queryset_filter_options(self, request, *args, **kwargs):
-        options = super().get_queryset_filter_options(request, *args, **kwargs)
+    def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
+        q_object, options = super().get_queryset_filter_options(request, *args, **kwargs)
         options.update(
-            action_type__name__in=self.action_type_names, status__in=[NEW, OPEN, CLOSED]
+            action_type__name__in=self.action_type_names,
+            status__in=[NEW, OPEN, CLOSED],
         )
         if kwargs.get("subject_identifier"):
             options.update({"subject_identifier": kwargs.get("subject_identifier")})
-        return options
+        return q_object, options
 
     def update_wrapped_instance(self, model_wrapper):
         model_wrapper.has_reference_obj_permissions = True
@@ -100,12 +106,11 @@ class TmgAeListboardViewMixin(
 class StatusTmgAeListboardView(TmgAeListboardViewMixin):
     status = None
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["status"] = self.status
-        return context
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        kwargs.update(status=self.status)
+        return super().get_context_data(**kwargs)
 
-    def get_queryset_filter_options(self, request, *args, **kwargs):
-        options = super().get_queryset_filter_options(request, *args, **kwargs)
+    def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
+        q_object, options = super().get_queryset_filter_options(request, *args, **kwargs)
         options.update({"status": self.status})
-        return options
+        return q_object, options

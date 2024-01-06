@@ -30,6 +30,12 @@ def validate_ae_initial_outcome_date(form_obj):
             )
 
 
+def get_adverse_event_admin_site() -> str:
+    return getattr(
+        settings, "ADVERSE_EVENT_ADMIN_SITE", f"{get_adverse_event_app_label()}_admin"
+    )
+
+
 def get_adverse_event_app_label() -> str:
     app_label = getattr(settings, "ADVERSE_EVENT_APP_LABEL", None)
     if not app_label:
@@ -54,5 +60,5 @@ def get_ae_model(
     return django_apps.get_model(f"{get_adverse_event_app_label()}.{model_name}")
 
 
-def get_ae_model_name(model_name) -> str:
+def get_ae_model_name(model_name: str) -> str:
     return f"{get_adverse_event_app_label()}.{model_name}"

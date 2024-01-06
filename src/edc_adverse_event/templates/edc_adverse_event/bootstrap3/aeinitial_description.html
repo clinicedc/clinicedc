@@ -4,6 +4,10 @@
 {% load static %}
 {% load l10n %}
 
+<style>
+div.ae_description {min-width: 400px;}
+</style>
+
 <B>{{ ae_initial.subject_identifier }}</B>
 <BR><b>Reported:</b> {{ ae_initial.report_datetime|date:SHORT_DATE_FORMAT}} ({{ utc_date|timeuntil:ae_initial.report_datetime.date }} ago)
 <BR><b>Site aware:</b> {{ ae_initial.ae_awareness_date|date:SHORT_DATE_FORMAT }}
@@ -25,4 +29,4 @@
 	{{ ae_initial.get_susar_display }}
 {% endif %}
 <BR><b>Description:</b>
-<BR>{{ ae_description|default:ae_initial.ae_description }}
+<BR><div class="ae_description">{{ ae_description|default:ae_initial.ae_description }}</div>

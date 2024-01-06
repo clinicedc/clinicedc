@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
 from django.core.exceptions import ObjectDoesNotExist
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
@@ -14,6 +18,9 @@ from ...constants import (
 )
 from ...model_wrappers import TmgActionItemModelWrapper as BaseTmgActionItemModelWrapper
 from ...utils import get_adverse_event_app_label
+
+if TYPE_CHECKING:
+    from django.db.models import Q
 
 
 class TmgActionItemModelWrapper(BaseTmgActionItemModelWrapper):
@@ -57,18 +64,16 @@ class SummaryListboardView(
         "user_modified",
     ]
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["AE_TMG_ACTION"] = AE_TMG_ACTION
-        context["utc_date"] = get_utcnow().date()
-        return context
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        kwargs.update(AE_TMG_ACTION=AE_TMG_ACTION, utc_date=get_utcnow().date())
+        return super().get_context_data(**kwargs)
 
-    def get_queryset_filter_options(self, request, *args, **kwargs):
-        options = super().get_queryset_filter_options(request, *args, **kwargs)
+    def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
+        q_object, options = super().get_queryset_filter_options(request, *args, **kwargs)
         options.update({"action_type__name__in": self.action_type_names})
-        return options
+        return q_object, options
 
-    def update_wrapped_instance(self, model_wrapper):
+    def update_wrapped_instance(self, model_wrapper) -> TmgActionItemModelWrapper:
         model_wrapper.has_reference_obj_permissions = True
         model_wrapper.has_parent_reference_obj_permissions = True
         model_wrapper.has_related_reference_obj_permissions = True

@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import re
+from typing import Any
 
 from django.db.models import Q
 from edc_dashboard.url_names import url_names
@@ -45,21 +48,16 @@ class DeathListboardView(
         "user_modified",
     ]
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({"subject_dashboard_url": url_names.get("subject_dashboard_url")})
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        kwargs.update({"subject_dashboard_url": url_names.get("subject_dashboard_url")})
         if self.kwargs.get("subject_identifier"):
-            context.update({"q": self.kwargs.get("subject_identifier")})
-        return context
+            kwargs.update({"q": self.kwargs.get("subject_identifier")})
+        return super().get_context_data(**kwargs)
 
-    def get_queryset_filter_options(self, request, *args, **kwargs):
-        options = super().get_queryset_filter_options(request, *args, **kwargs)
+    def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
+        q_object, options = super().get_queryset_filter_options(request, *args, **kwargs)
+        if self.search_term and re.match("^[A-Z]+$", self.search_term):
+            q_object |= Q(first_name__exact=self.search_term)
         if kwargs.get("subject_identifier"):
             options.update({"subject_identifier": kwargs.get("subject_identifier")})
-        return options
-
-    def extra_search_options(self, search_term):
-        q = Q()
-        if re.match("^[A-Z]+$", search_term):
-            q = Q(first_name__exact=search_term)
-        return [q]
+        return q_object, options
