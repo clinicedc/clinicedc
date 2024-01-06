@@ -1,5 +1,3 @@
-from typing import List
-
 from django.db import models
 
 from .updater import SearchSlugUpdater
@@ -22,7 +20,7 @@ class SearchSlugModelMixin(models.Model):
     search_slug_warning = None
     search_slug_updater_cls = SearchSlugUpdater
 
-    def get_search_slug_fields(self) -> List[str]:
+    def get_search_slug_fields(self) -> list[str]:
         return []
 
     slug = models.CharField(
@@ -44,3 +42,4 @@ class SearchSlugModelMixin(models.Model):
 
     class Meta:
         abstract = True
+        indexes = [models.Index(fields=["slug"])]

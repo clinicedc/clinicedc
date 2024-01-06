@@ -1,10 +1,12 @@
+from django.db import models
 from django.test import TestCase
 from django.utils.text import slugify
 from edc_utils import get_utcnow
 
+from edc_search.model_mixins import SearchSlugModelMixin
+from edc_search.search_slug import SearchSlug
 from edc_search.updater import SearchSlugDuplicateFields
 
-from ...search_slug import SearchSlug
 from ..models import TestModel, TestModelDuplicate, TestModelExtra
 
 
@@ -14,11 +16,11 @@ class TestSearchSlug(TestCase):
         self.assertEqual(search_slug.slug, "")
 
     def test_search_slug_with_fields(self):
-        class Obj:
-            f1 = 1
-            f2 = 2
+        class MyModel(SearchSlugModelMixin, models.Model):
+            f1 = models.IntegerField(default=1)
+            f2 = models.IntegerField(default=2)
 
-        search_slug = SearchSlug(obj=Obj(), fields=["f1", "f2"])
+        search_slug = SearchSlug(obj=MyModel(), fields=["f1", "f2"])
         self.assertEqual(search_slug.slug, "1|2")
 
     def test_gets_slug(self):

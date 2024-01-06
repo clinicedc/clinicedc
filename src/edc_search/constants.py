@@ -1,0 +1,1 @@
+SEARCH_SLUG_SEP = "|"
