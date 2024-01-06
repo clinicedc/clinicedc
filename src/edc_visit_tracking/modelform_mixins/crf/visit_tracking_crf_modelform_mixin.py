@@ -49,8 +49,7 @@ class VisitTrackingCrfModelFormMixin:
         self.validate_visit_tracking()
         return cleaned_data
 
-    @property
-    def subject_identifier(self):
+    def get_subject_identifier(self):
         """Overridden"""
         return self.related_visit.subject_identifier
 
