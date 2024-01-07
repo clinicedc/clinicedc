@@ -39,8 +39,8 @@ visit1 = Visit(
 
 schedule = Schedule(
     name="schedule",
-    onschedule_model="edc_metadata.onschedule",
-    offschedule_model="edc_metadata.offschedule",
+    onschedule_model="edc_visit_schedule.onschedule",
+    offschedule_model="edc_visit_schedule.offschedule",
     consent_model="edc_action_item.subjectconsent",
     appointment_model="edc_appointment.appointment",
 )
