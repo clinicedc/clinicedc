@@ -217,7 +217,7 @@ class Visit:
         crfs = crfs + [
             crf for crf in self.crfs_prn if crf.model not in [crf.model for crf in crfs]
         ]
-        return CrfCollection(*crfs, name="all_crfs")
+        return CrfCollection(*crfs, name="all_crfs", check_sequence=False)
 
     @property
     def all_requisitions(self) -> RequisitionCollection:
@@ -227,7 +227,9 @@ class Visit:
         ]
         names = list(set([r.name for r in requisitions]))
         requisitions = requisitions + [r for r in self.requisitions_prn if r.name not in names]
-        return RequisitionCollection(*requisitions, name="all_requisitions")
+        return RequisitionCollection(
+            *requisitions, name="all_requisitions", check_sequence=False
+        )
 
     # def next_form(
     #     self, model: str = None, panel: str | None = None
