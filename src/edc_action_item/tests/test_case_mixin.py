@@ -30,7 +30,9 @@ class TestCaseMixin(TestCase):
             dob=get_utcnow() - relativedelta(years=25),
         )
         RegisteredSubject.objects.create(subject_identifier=subject_identifier)
-        _, schedule = site_visit_schedules.get_by_onschedule_model("edc_metadata.onschedule")
+        _, schedule = site_visit_schedules.get_by_onschedule_model(
+            "edc_visit_schedule.onschedule"
+        )
         schedule.put_on_schedule(
             subject_identifier=subject_consent.subject_identifier,
             onschedule_datetime=subject_consent.consent_datetime,
