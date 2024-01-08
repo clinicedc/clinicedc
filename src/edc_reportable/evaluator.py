@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import re
-from typing import Optional, Union
 
 from .constants import HIGH_VALUE
 
@@ -36,11 +37,11 @@ class Evaluator:
     def __init__(
         self,
         name: str = None,
-        lower: Optional[Union[int, float]] = None,
-        upper: Optional[Union[int, float]] = None,
-        units: Optional[str] = None,
-        lower_inclusive: Optional[bool] = None,
-        upper_inclusive: Optional[bool] = None,
+        lower: int | float = None,
+        upper: int | float = None,
+        units: str = None,
+        lower_inclusive: bool | None = None,
+        upper_inclusive: bool | None = None,
         **kwargs,
     ) -> None:
         self.name = name
@@ -48,8 +49,8 @@ class Evaluator:
             raise InvalidLowerBound(f"Got {lower}.")
         if upper is not None and not re.match(r"\d+", str(upper)):
             raise InvalidUpperBound(f"Got {upper}.")
-        self.lower: Optional[float] = None if lower is None else float(lower)
-        self.upper: Optional[float] = None if upper is None else float(upper)
+        self.lower: float | None = None if lower is None else float(lower)
+        self.upper: float | None = None if upper is None else float(upper)
 
         if self.lower is not None and self.upper is not None:
             if self.lower == self.upper:
@@ -65,10 +66,10 @@ class Evaluator:
         self.units = units
         self.lower_inclusive = lower_inclusive
         self.upper_inclusive = upper_inclusive
-        self.lower_operator: Optional[str] = (
+        self.lower_operator: str | None = (
             None if self.lower is None else "<=" if self.lower_inclusive is True else "<"
         )
-        self.upper_operator: Optional[str] = (
+        self.upper_operator: str | None = (
             None if self.upper is None else "<=" if self.upper_inclusive is True else "<"
         )
 
@@ -80,9 +81,9 @@ class Evaluator:
 
     def description(
         self,
-        value: Union[int, float] = None,
+        value: int | float = None,
         show_as_int: bool = None,
-        placeholder: Optional[str] = None,
+        placeholder: str | None = None,
     ) -> str:
         placeholder = placeholder or "x"
         if show_as_int:
@@ -100,9 +101,7 @@ class Evaluator:
             f'{self.upper_operator or ""}{upper} {self.units}'
         )
 
-    def in_bounds_or_raise(
-        self, value: Union[int, float], units: str = None, **kwargs
-    ) -> bool:
+    def in_bounds_or_raise(self, value: int | float, units: str = None, **kwargs) -> bool:
         """Raises a ValueBoundryError exception if condition
         not met.
 

@@ -4,7 +4,6 @@ from zoneinfo import ZoneInfo
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase
 from edc_constants.constants import FEMALE, MALE
-from edc_utils import get_utcnow
 
 from edc_reportable import (
     BoundariesOverlap,
@@ -21,8 +20,8 @@ from edc_reportable.units import IU_LITER, MILLIMOLES_PER_LITER
 
 class TestValueReference(TestCase):
     def test_value_reference_group(self):
-        dob = get_utcnow() - relativedelta(years=25)
         report_datetime = datetime(2017, 12, 7).astimezone(ZoneInfo("UTC"))
+        dob = report_datetime - relativedelta(years=25)
         grp = ValueReferenceGroup(name="labtest")
         self.assertTrue(repr(grp))
 

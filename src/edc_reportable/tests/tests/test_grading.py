@@ -22,8 +22,8 @@ from edc_reportable.constants import HIGH_VALUE
 
 class TestGrading(TestCase):
     def test_grading(self):
-        dob = get_utcnow() - relativedelta(years=25)
         report_datetime = datetime(2017, 12, 7).astimezone(ZoneInfo("UTC"))
+        dob = report_datetime - relativedelta(years=25)
         grp = ValueReferenceGroup(name="labtest")
 
         opts = dict(

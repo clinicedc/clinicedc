@@ -91,6 +91,7 @@ dummies = {
             **adult_age_options,
         )
     ],
+    # TODO fix for effect MILLIGRAMS_PER_DECILITER (0-1) / Kyla
     "crp": [
         p(
             "x<0",

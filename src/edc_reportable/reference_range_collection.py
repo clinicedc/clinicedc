@@ -1,6 +1,11 @@
-from typing import Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from .constants import GRADE3, GRADE4
+
+if TYPE_CHECKING:
+    from .value_reference_group import ValueReferenceGroup
 
 
 class AlreadyRegistered(Exception):
@@ -21,11 +26,11 @@ class ReferenceRangeCollection:
 
     def __init__(
         self,
-        name=None,
-        reportable_grades: Optional[list] = None,
-        reportable_grades_exceptions: Optional[dict] = None,
+        name: str = None,
+        reportable_grades: list[str] = None,
+        reportable_grades_exceptions: dict = None,
     ):
-        self.registry = {}
+        self.registry: dict[str, ValueReferenceGroup] = {}
         self.name = name
         self.reportable_grades = reportable_grades or [GRADE3, GRADE4]
         self.reportable_grades_exceptions = reportable_grades_exceptions or {}
@@ -39,7 +44,7 @@ class ReferenceRangeCollection:
     def __repr__(self):
         return f"{self.__class__.__name__}('{self.name}')"
 
-    def register(self, grp=None):
+    def register(self, grp: ValueReferenceGroup = None):
         if grp.name in self.registry:
             raise AlreadyRegistered(f"Got {repr(grp)}")
         else:

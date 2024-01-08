@@ -1,15 +1,24 @@
+from __future__ import annotations
+
+from datetime import date, datetime
+from typing import TYPE_CHECKING
+
 from edc_utils import get_utcnow
+
+if TYPE_CHECKING:
+    from .grade_reference import GradeReference
+    from .normal_reference import NormalReference
 
 GRADING = "grading"
 NORMAL = "normal"
 
 
 def get_references(
-    value_references=None,
-    gender=None,
-    dob=None,
-    report_datetime=None,
-    units=None,
+    value_references: dict[str, list[NormalReference | GradeReference]] = None,
+    gender: str = None,
+    dob: date = None,
+    report_datetime: datetime = None,
+    units: str = None,
     **extra_options,
 ):
     """Returns a list of references for this
@@ -72,21 +81,21 @@ class Grade(Result):
 
 
 class ValueReferenceGroup:
-    def __init__(self, name=None):
+    def __init__(self, name: str = None):
         self.name = name
-        self.normal = {}
-        self.grading = {}
+        self.normal: dict[str, list] = {}
+        self.grading: dict[str, list] = {}
 
     def __repr__(self):
         return f"{self.__class__.__name__}(name={self.name})"
 
-    def add_normal(self, normal_reference):
+    def add_normal(self, normal_reference: NormalReference):
         """Adds a ValueReference to the dictionary of
         normal references.
         """
         self._add(normal_reference, self.normal)
 
-    def add_grading(self, grade_reference):
+    def add_grading(self, grade_reference: GradeReference):
         """Adds a GradeReference to the dictionary of
         grading references.
         """
@@ -101,7 +110,7 @@ class ValueReferenceGroup:
             descriptions.append(value_ref.description())
         return descriptions
 
-    def get_normal(self, value=None, **kwargs):
+    def get_normal(self, value: int | float = None, **kwargs):
         """Returns a Normal instance or None."""
         normal = None
         for value_ref in self._get_normal_references(**kwargs):
@@ -152,7 +161,11 @@ class ValueReferenceGroup:
         references.sort(key=lambda x: x.grade, reverse=True)
         return references
 
-    def _add(self, value_reference, value_references):
+    def _add(
+        self,
+        value_reference: GradeReference | NormalReference,
+        value_references: dict[str, list[NormalReference | GradeReference]],
+    ):
         if value_reference.name != self.name:
             raise InvalidValueReference(
                 "Cannot add to group; name does not match. "

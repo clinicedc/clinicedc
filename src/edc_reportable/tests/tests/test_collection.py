@@ -2,9 +2,8 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_constants.constants import FEMALE, MALE
-from edc_utils import get_utcnow
 
 from edc_reportable import (
     AlreadyRegistered,
@@ -16,9 +15,10 @@ from edc_reportable import (
 
 
 class TestCollection(TestCase):
+    @tag("1")
     def test_collection(self):
-        dob = get_utcnow() - relativedelta(years=25)
         report_datetime = datetime(2017, 12, 7).astimezone(ZoneInfo("UTC"))
+        dob = report_datetime - relativedelta(years=25)
         reference = ReferenceRangeCollection()
 
         self.assertTrue(repr(reference))

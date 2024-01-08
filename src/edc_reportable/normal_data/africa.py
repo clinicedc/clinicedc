@@ -81,6 +81,7 @@ normal_data = {
             **adult_age_options,
         ),
     ],
+    # TODO fix for effect MILLIGRAMS_PER_DECILITER (0-1) / Kyla
     "crp": [
         p("0.0<=x<1.0", units=PLUS, gender=[MALE, FEMALE], **adult_age_options),
     ],
