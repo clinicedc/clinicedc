@@ -1,8 +1,14 @@
-from typing import Optional, Union
+from __future__ import annotations
+
+from datetime import date, datetime
+from typing import TYPE_CHECKING
 
 from .age_evaluator import AgeEvaluator
 from .evaluator import Evaluator, ValueBoundryError
 from .parsers import parse_boundary
+
+if TYPE_CHECKING:
+    from .normal_reference import NormalReference
 
 
 class ValueReferenceError(Exception):
@@ -15,10 +21,10 @@ class ValueReference:
 
     def __init__(
         self,
-        name: Optional[str] = None,
-        gender: Optional[str] = None,
-        units: Optional[str] = None,
-        normal_references=None,
+        name: str = None,
+        gender: str | list[str] | tuple[str] = None,
+        units: str = None,
+        normal_references: NormalReference = None,
         **kwargs,
     ):
         self._normal_reference = None
@@ -26,9 +32,9 @@ class ValueReference:
         self.name = name
         self.units = units
         if isinstance(gender, (list, tuple)):
-            self.gender = "".join(gender)
+            self.gender: str = "".join(gender)
         else:
-            self.gender = gender
+            self.gender: str = gender
         kwargs["lower"] = self.get_boundary_value(kwargs["lower"])
         kwargs["upper"] = self.get_boundary_value(kwargs["upper"])
         self.evaluator = self.evaluator_cls(name=self.name, units=units, **kwargs)
@@ -52,7 +58,9 @@ class ValueReference:
             in_bounds = False
         return in_bounds
 
-    def age_match(self, dob=None, report_datetime=None, age_units=None):
+    def age_match(
+        self, dob: date = None, report_datetime: datetime = None, age_units: str | None = None
+    ):
         try:
             age_match = self.age_evaluator.in_bounds_or_raise(
                 dob=dob, report_datetime=report_datetime, age_units=age_units
@@ -80,7 +88,7 @@ class ValueReference:
                 )
         return self._normal_reference[0]
 
-    def get_boundary_value(self, value: str) -> Union[int, float]:
+    def get_boundary_value(self, value: str) -> int | float:
         """Return value as a literal value or as a value relative
         to the normal lower or upper normal.
         """
