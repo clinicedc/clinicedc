@@ -143,7 +143,12 @@ class CsvExporter:
         """
         return self.to_format("csv", dataframe=dataframe, export_folder=export_folder)
 
-    def to_stata(self, dataframe: pd.DataFrame = None, export_folder: str = None) -> Exported:
+    def to_stata(
+        self,
+        dataframe: pd.DataFrame = None,
+        export_folder: str = None,
+        version: int | None = None,
+    ) -> Exported:
         """Returns the full path of the written STATA file if the
         dataframe is exported otherwise None.
         """
@@ -151,6 +156,7 @@ class CsvExporter:
             dataframe=dataframe,
             export_folder=export_folder,
             variable_labels=self.stata_variable_labels(dataframe),
+            version=version or 118,
         )
         return self.to_format("stata", **opts)
 
