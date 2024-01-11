@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from collections import Counter
 from uuid import uuid4
 
 from django.conf import settings
 
+from ..utils import get_duplicates
 from .crf import Crf
 from .requisition import Requisition
 
@@ -31,11 +31,10 @@ class FormsCollection:
 
         # check sequence
         seq = [item.show_order for item in forms or []]
-        if len(list(set(seq))) != len(seq):
-            dups = [k for k, v in Counter(seq).items() if v > 1]
+        if duplicates := get_duplicates(list_items=seq):
             raise FormsCollectionError(
                 f'{self.__class__.__name__} "show order" must be a '
-                f"unique sequence. Got {seq}.  Duplicates {dups}."
+                f"unique sequence. Got {sorted(seq)}.  Duplicates {sorted(duplicates)}."
             )
 
         # convert to tuple

@@ -15,7 +15,7 @@ from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_schedule.baseline import VisitScheduleBaselineError
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_schedule.utils import is_baseline
+from edc_visit_schedule.utils import get_duplicates, is_baseline
 from edc_visit_schedule.visit import Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
 from visit_schedule_app.models import SubjectConsent, SubjectVisit
@@ -172,3 +172,33 @@ class TestVisitSchedule4(SiteTestCaseMixin, TestCase):
                 visit_code_sequence=0,
             )
         self.assertIn("Unknown timepoint", str(cm.exception))
+
+    def test_get_duplicates_returns_duplicates(self):
+        self.assertListEqual(get_duplicates(["one", "one"]), ["one"])
+        self.assertListEqual(get_duplicates(["one", "one", "two"]), ["one"])
+        self.assertListEqual(get_duplicates(["one", "two", "two"]), ["two"])
+        self.assertListEqual(get_duplicates(["one", "two", "two", "one"]), ["one", "two"])
+        self.assertListEqual(
+            get_duplicates(["one", "two", "three", "three", "two", "one"]),
+            ["one", "two", "three"],
+        )
+        self.assertListEqual(
+            get_duplicates(["three", "two", "one", "one", "two", "three"]),
+            ["three", "two", "one"],
+        )
+        self.assertListEqual(get_duplicates([1, 1]), [1])
+        self.assertListEqual(get_duplicates([1, 1, 2]), [1])
+        self.assertListEqual(get_duplicates([1, 2, 2]), [2])
+        self.assertListEqual(get_duplicates([1, 2, 2, 1]), [1, 2])
+        self.assertListEqual(get_duplicates([1, 2, 2, 3, 1]), [1, 2])
+        self.assertListEqual(get_duplicates([1, 2, 3, 3, 2, 1]), [1, 2, 3])
+        self.assertListEqual(get_duplicates([3, 2, 1, 1, 2, 3]), [3, 2, 1])
+
+    def test_get_duplicates_with_no_duplicates_returns_empty_list(self):
+        self.assertListEqual(get_duplicates([]), [])
+
+        self.assertListEqual(get_duplicates(["one"]), [])
+        self.assertListEqual(get_duplicates(["one", "two", "three"]), [])
+
+        self.assertListEqual(get_duplicates([1]), [])
+        self.assertListEqual(get_duplicates([1, 2, 3]), [])
