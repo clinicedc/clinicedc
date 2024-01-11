@@ -889,7 +889,7 @@ class TestSystemChecks(TestCase):
             fc_errors[0].msg,
         )
 
-    def test_two_duplicate_pairs_raises_two_errors(self):
+    def test_two_duplicate_proxy_pairs_raises_two_separate_errors(self):
         site_visit_schedules._registry = {}
         visit_schedule = self.visit_schedule
         schedule = self.schedule
@@ -922,6 +922,7 @@ class TestSystemChecks(TestCase):
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(fc_errors), 2)
         self.assertEqual("edc_visit_schedule.002", fc_errors[0].id)
+        self.assertEqual("edc_visit_schedule.004", fc_errors[1].id)
 
     def test_two_proxy_root_with_child_pairs_raises(self):
         site_visit_schedules._registry = {}
