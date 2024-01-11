@@ -61,6 +61,13 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
+            "--stata-version",
+            dest="stata_dta_version",
+            default=118,
+            help="STATA DTA file format version",
+        )
+
+        parser.add_argument(
             "--include-historical",
             action="store_true",
             dest="include_historical",
@@ -108,6 +115,7 @@ class Command(BaseCommand):
         sep = "|"
         export_format = options["format"]
         export_path = options["path"]
+        stata_dta_version = options["stata_dta_version"]
         if not export_path or not os.path.exists(export_path):
             raise CommandError(f"Path does not exist. Got `{export_path}`")
         use_simple_filename = options["use_simple_filename"]
@@ -171,7 +179,7 @@ class Command(BaseCommand):
                     if not export_format or export_format == "csv":
                         exporter.to_csv(dataframe=m.dataframe)
                     elif export_format == "stata":
-                        exporter.to_stata(dataframe=m.dataframe)
+                        exporter.to_stata(dataframe=m.dataframe, version=stata_dta_version)
                     print(f" * {model_name}")
 
     def validate_user_perms_or_raise(self) -> None:
