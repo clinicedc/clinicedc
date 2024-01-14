@@ -105,7 +105,7 @@ class TestSystemChecks(TestCase):
         self.assertEqual(len(errors), 3)
         self.assertEqual("edc_visit_schedule.visits", errors[0].id)
 
-    def test_visit_with_crfs_and_prns_and_unscheduled_crfs_ok(self):
+    def test_visit_with_crfs_and_prns_and_unscheduled_and_missed_crfs_ok(self):
         site_visit_schedules._registry = {}
         visit_schedule = self.visit_schedule
         schedule = self.schedule
@@ -123,6 +123,7 @@ class TestSystemChecks(TestCase):
             Crf(show_order=20, model="visit_schedule_app.CrfTwo"),
             Crf(show_order=30, model="visit_schedule_app.CrfThree"),
         )
+        missed_crfs = CrfCollection(Crf(show_order=30, model="visit_schedule_app.CrfThree"))
 
         visit = Visit(
             code="1000",
@@ -133,6 +134,7 @@ class TestSystemChecks(TestCase):
             crfs=crfs,
             crfs_prn=prns,
             crfs_unscheduled=unscheduled_crfs,
+            crfs_missed=missed_crfs,
             timepoint=1,
         )
         schedule.add_visit(visit)
@@ -177,7 +179,7 @@ class TestSystemChecks(TestCase):
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertListEqual(fc_errors, [])
 
-    def test_proxy_crf_not_required_without_shared_proxy_root_and_matching_proxy_prn_raises(
+    def test_proxy_crf_not_required_with_matching_proxy_prn_ok(
         self,
     ):
         site_visit_schedules._registry = {}
@@ -207,22 +209,85 @@ class TestSystemChecks(TestCase):
         self.assertListEqual(vs_errors, [])
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
-        self.assertEqual(len(fc_errors), 1)
+        self.assertListEqual(fc_errors, [])
+
+    def test_proxy_crf_not_required_without_shared_proxy_root_and_differing_proxy_prn_raises(
+        self,
+    ):
+        site_visit_schedules._registry = {}
+        visit_schedule = self.visit_schedule
+        schedule = self.schedule
+        crfs = CrfCollection(
+            Crf(show_order=20, model="visit_schedule_app.CrfTwoProxyOne", required=False),
+        )
+        prns = CrfCollection(
+            Crf(show_order=25, model="visit_schedule_app.CrfTwoProxyOne"),
+            Crf(show_order=15, model="visit_schedule_app.CrfTwoProxyTwo"),
+        )
+        visit = Visit(
+            code="1000",
+            rbase=relativedelta(days=0),
+            rlower=relativedelta(days=0),
+            rupper=relativedelta(days=6),
+            facility_name="default",
+            crfs=crfs,
+            crfs_prn=prns,
+            timepoint=1,
+        )
+        schedule.add_visit(visit)
+        visit_schedule.add_schedule(schedule)
+        site_visit_schedules.register(visit_schedule)
+
+        vs_errors = visit_schedule_check(app_configs=django_apps.get_app_configs())
+        self.assertListEqual(vs_errors, [])
+
+        fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
+        self.assertEqual(len(fc_errors), 3)
         self.assertEqual("edc_visit_schedule.004", fc_errors[0].id)
         self.assertIn(
             "Multiple proxies with same proxy root model appear for a visit. ",
             fc_errors[0].msg,
         )
+        self.assertIn("Scheduled", fc_errors[0].msg)
         self.assertIn(
             str(
                 {
                     "visit_schedule_app.crftwo": [
                         "visit_schedule_app.crftwoproxyone",
                         "visit_schedule_app.crftwoproxyone",
+                        "visit_schedule_app.crftwoproxytwo",
                     ]
                 }
             ),
             fc_errors[0].msg,
+        )
+        # Expect only the PRN fields to be flagged for the (undefined)
+        # unscheduled and unscheduled visits
+        self.assertEqual("edc_visit_schedule.004", fc_errors[1].id)
+        self.assertIn("Unscheduled", fc_errors[1].msg)
+        self.assertIn(
+            str(
+                {
+                    "visit_schedule_app.crftwo": [
+                        "visit_schedule_app.crftwoproxyone",
+                        "visit_schedule_app.crftwoproxytwo",
+                    ]
+                }
+            ),
+            fc_errors[1].msg,
+        )
+        self.assertIn("Missed", fc_errors[2].msg)
+        self.assertEqual("edc_visit_schedule.004", fc_errors[2].id)
+        self.assertIn(
+            str(
+                {
+                    "visit_schedule_app.crftwo": [
+                        "visit_schedule_app.crftwoproxyone",
+                        "visit_schedule_app.crftwoproxytwo",
+                    ]
+                }
+            ),
+            fc_errors[2].msg,
         )
 
     def test_proxy_crf_not_required_with_shared_proxy_root_and_matching_proxy_prn_ok(self):
@@ -314,8 +379,7 @@ class TestSystemChecks(TestCase):
             str(cm.exception),
         )
 
-    def test_required_crf_in_prns_raises(self):
-        """CRF required + same CRF in PRNs = BAD."""
+    def test_required_crf_in_prns_ok(self):
         site_visit_schedules._registry = {}
         visit_schedule = self.visit_schedule
         schedule = self.schedule
@@ -348,15 +412,9 @@ class TestSystemChecks(TestCase):
         self.assertListEqual(vs_errors, [])
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
-        self.assertEqual(len(fc_errors), 1)
-        self.assertEqual("edc_visit_schedule.002", fc_errors[0].id)
-        self.assertIn(
-            "Required model class appears more than once for a visit.", fc_errors[0].msg
-        )
-        self.assertIn("visit_schedule_app.crfone", fc_errors[0].msg)
+        self.assertListEqual(fc_errors, [])
 
-    def test_required_proxy_crf_in_prns_raises(self):
-        """Proxy CRF required + same proxy in PRNs = BAD."""
+    def test_required_proxy_crf_in_prns_ok(self):
         site_visit_schedules._registry = {}
         visit_schedule = self.visit_schedule
         schedule = self.schedule
@@ -395,13 +453,11 @@ class TestSystemChecks(TestCase):
         vs_errors = visit_schedule_check(app_configs=django_apps.get_app_configs())
         self.assertListEqual(vs_errors, [])
 
+        vs_errors = visit_schedule_check(app_configs=django_apps.get_app_configs())
+        self.assertListEqual(vs_errors, [])
+
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
-        self.assertEqual(len(fc_errors), 1)
-        self.assertEqual("edc_visit_schedule.002", fc_errors[0].id)
-        self.assertIn(
-            "Required model class appears more than once for a visit.", fc_errors[0].msg
-        )
-        self.assertIn("visit_schedule_app.crfoneproxyone", fc_errors[0].msg)
+        self.assertListEqual(fc_errors, [])
 
     def test_required_proxy_root_crf_with_required_child_proxy_crf_raises(self):
         site_visit_schedules._registry = {}
@@ -683,20 +739,18 @@ class TestSystemChecks(TestCase):
         visit_schedule = self.visit_schedule
         schedule = self.schedule
         crfs = CrfCollection(
-            crfs=CrfCollection(
-                Crf(
-                    show_order=10,
-                    model="visit_schedule_app.CrfOneProxyOne",
-                    required=False,
-                    shares_proxy_root=True,
-                ),
-                Crf(
-                    show_order=20,
-                    model="visit_schedule_app.CrfOneProxyTwo",
-                    required=False,
-                    shares_proxy_root=True,
-                ),
-            )
+            Crf(
+                show_order=10,
+                model="visit_schedule_app.CrfOneProxyOne",
+                required=False,
+                shares_proxy_root=True,
+            ),
+            Crf(
+                show_order=20,
+                model="visit_schedule_app.CrfOneProxyTwo",
+                required=False,
+                shares_proxy_root=True,
+            ),
         )
         prns = CrfCollection(
             Crf(
@@ -736,9 +790,11 @@ class TestSystemChecks(TestCase):
                 show_order=10,
                 model="visit_schedule_app.CrfOneProxyOne",
                 shares_proxy_root=True,
-            )
+            ),
         )
-        prns = CrfCollection(Crf(show_order=35, model="visit_schedule_app.CrfOneProxyThree"))
+        prns = CrfCollection(
+            Crf(show_order=35, model="visit_schedule_app.CrfOneProxyThree"),
+        )
 
         visit = Visit(
             code="1000",
@@ -889,12 +945,64 @@ class TestSystemChecks(TestCase):
             fc_errors[0].msg,
         )
 
-    def test_two_duplicate_proxy_pairs_raises_two_separate_errors(self):
+    def test_two_proxy_roots_shared_but_not_defined_raises(self):
         site_visit_schedules._registry = {}
         visit_schedule = self.visit_schedule
         schedule = self.schedule
         crfs = CrfCollection(
             Crf(show_order=10, model="visit_schedule_app.CrfOneProxyOne"),
+            Crf(show_order=12, model="visit_schedule_app.CrfOneProxyTwo"),
+            Crf(show_order=20, model="visit_schedule_app.CrfTwoProxyOne"),
+        )
+        prns = CrfCollection(
+            Crf(show_order=15, model="visit_schedule_app.CrfOneProxyOne"),
+            Crf(show_order=25, model="visit_schedule_app.CrfTwoProxyTwo"),
+        )
+
+        visit = Visit(
+            code="1000",
+            rbase=relativedelta(days=0),
+            rlower=relativedelta(days=0),
+            rupper=relativedelta(days=6),
+            facility_name="default",
+            crfs=crfs,
+            crfs_prn=prns,
+            timepoint=1,
+        )
+        schedule.add_visit(visit)
+        visit_schedule.add_schedule(schedule)
+        site_visit_schedules.register(visit_schedule)
+
+        vs_errors = visit_schedule_check(app_configs=django_apps.get_app_configs())
+        self.assertListEqual(vs_errors, [])
+
+        fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
+        self.assertEqual(len(fc_errors), 1)
+        self.assertEqual("edc_visit_schedule.004", fc_errors[0].id)
+        self.assertIn(
+            str(
+                {
+                    "visit_schedule_app.crfone": [
+                        "visit_schedule_app.crfoneproxyone",
+                        "visit_schedule_app.crfoneproxyone",
+                        "visit_schedule_app.crfoneproxytwo",
+                    ],
+                    "visit_schedule_app.crftwo": [
+                        "visit_schedule_app.crftwoproxyone",
+                        "visit_schedule_app.crftwoproxytwo",
+                    ],
+                }
+            ),
+            fc_errors[0].msg,
+        )
+
+    def test_two_proxy_roots_shared_but_not_defined_case2(self):
+        site_visit_schedules._registry = {}
+        visit_schedule = self.visit_schedule
+        schedule = self.schedule
+        crfs = CrfCollection(
+            Crf(show_order=10, model="visit_schedule_app.CrfOneProxyOne"),
+            Crf(show_order=12, model="visit_schedule_app.CrfOneProxyTwo"),
             Crf(show_order=20, model="visit_schedule_app.CrfTwoProxyOne"),
         )
         prns = CrfCollection(
@@ -920,9 +1028,65 @@ class TestSystemChecks(TestCase):
         self.assertListEqual(vs_errors, [])
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
-        self.assertEqual(len(fc_errors), 2)
-        self.assertEqual("edc_visit_schedule.002", fc_errors[0].id)
-        self.assertEqual("edc_visit_schedule.004", fc_errors[1].id)
+        self.assertEqual(len(fc_errors), 1)
+        self.assertEqual("edc_visit_schedule.004", fc_errors[0].id)
+        self.assertIn(
+            str(
+                {
+                    "visit_schedule_app.crfone": [
+                        "visit_schedule_app.crfoneproxyone",
+                        "visit_schedule_app.crfoneproxyone",
+                        "visit_schedule_app.crfoneproxytwo",
+                    ],
+                }
+            ),
+            fc_errors[0].msg,
+        )
+
+    def test_proxy_pair_plus_another_proxy_with_same_parent_raises(self):
+        site_visit_schedules._registry = {}
+        visit_schedule = self.visit_schedule
+        schedule = self.schedule
+        crfs = CrfCollection(
+            Crf(show_order=10, model="visit_schedule_app.CrfOneProxyOne"),
+            Crf(show_order=25, model="visit_schedule_app.CrfOneProxyTwo"),
+        )
+        prns = CrfCollection(
+            Crf(show_order=15, model="visit_schedule_app.CrfOneProxyOne"),
+        )
+
+        visit = Visit(
+            code="1000",
+            rbase=relativedelta(days=0),
+            rlower=relativedelta(days=0),
+            rupper=relativedelta(days=6),
+            facility_name="default",
+            crfs=crfs,
+            crfs_prn=prns,
+            timepoint=1,
+        )
+        schedule.add_visit(visit)
+        visit_schedule.add_schedule(schedule)
+        site_visit_schedules.register(visit_schedule)
+
+        vs_errors = visit_schedule_check(app_configs=django_apps.get_app_configs())
+        self.assertListEqual(vs_errors, [])
+
+        fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
+        self.assertEqual(len(fc_errors), 1)
+        self.assertEqual("edc_visit_schedule.004", fc_errors[0].id)
+        self.assertIn(
+            str(
+                {
+                    "visit_schedule_app.crfone": [
+                        "visit_schedule_app.crfoneproxyone",
+                        "visit_schedule_app.crfoneproxyone",
+                        "visit_schedule_app.crfoneproxytwo",
+                    ]
+                }
+            ),
+            fc_errors[0].msg,
+        )
 
     def test_two_proxy_root_with_child_pairs_raises(self):
         site_visit_schedules._registry = {}
@@ -1011,8 +1175,7 @@ class TestSystemChecks(TestCase):
             fc_errors[0].msg,
         )
 
-    def test_unscheduled_visit_required_crf_in_prns_raises(self):
-        """Unscheduled visit CRF required + same CRF in PRNs = BAD."""
+    def test_unscheduled_visit_required_crf_in_prns_ok(self):
         site_visit_schedules._registry = {}
         visit_schedule = self.visit_schedule
         schedule = self.schedule
@@ -1045,9 +1208,7 @@ class TestSystemChecks(TestCase):
         self.assertListEqual(vs_errors, [])
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
-        self.assertEqual(len(fc_errors), 1)
-        self.assertEqual("edc_visit_schedule.002", fc_errors[0].id)
-        self.assertIn("visit_schedule_app.crfone", fc_errors[0].msg)
+        self.assertListEqual(fc_errors, [])
 
     def test_unscheduled_visit_required_proxy_root_crf_with_child_proxy_prn_raises(self):
         site_visit_schedules._registry = {}
@@ -1100,9 +1261,11 @@ class TestSystemChecks(TestCase):
                 show_order=10,
                 model="visit_schedule_app.CrfOneProxyOne",
                 shares_proxy_root=True,
-            )
+            ),
         )
-        prns = CrfCollection(Crf(show_order=35, model="visit_schedule_app.CrfOneProxyThree"))
+        prns = CrfCollection(
+            Crf(show_order=35, model="visit_schedule_app.CrfOneProxyThree"),
+        )
 
         visit = Visit(
             code="1000",
@@ -1136,8 +1299,7 @@ class TestSystemChecks(TestCase):
             fc_errors[0].msg,
         )
 
-    def test_missed_visit_required_crf_in_prns_raises(self):
-        """Unscheduled visit CRF required + same CRF in PRNs = BAD."""
+    def test_missed_visit_required_crf_in_prns_ok(self):
         site_visit_schedules._registry = {}
         visit_schedule = self.visit_schedule
         schedule = self.schedule
@@ -1170,9 +1332,7 @@ class TestSystemChecks(TestCase):
         self.assertListEqual(vs_errors, [])
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
-        self.assertEqual(len(fc_errors), 1)
-        self.assertEqual("edc_visit_schedule.002", fc_errors[0].id)
-        self.assertIn("visit_schedule_app.crfone", fc_errors[0].msg)
+        self.assertListEqual(fc_errors, [])
 
     def test_missed_visit_required_proxy_root_crf_with_required_child_proxy_crf_raises(
         self,
@@ -1255,3 +1415,33 @@ class TestSystemChecks(TestCase):
             ),
             fc_errors[0].msg,
         )
+
+    def test_shared_parent_ok_if_all_proxy_models_same(self):
+        site_visit_schedules._registry = {}
+        visit_schedule = self.visit_schedule
+        schedule = self.schedule
+        crfs = CrfCollection(
+            Crf(show_order=10, model="visit_schedule_app.CrfOneProxyOne", required=True),
+        )
+        prns = CrfCollection(
+            Crf(show_order=15, model="visit_schedule_app.CrfOneProxyOne"),
+        )
+        visit = Visit(
+            code="1000",
+            rbase=relativedelta(days=0),
+            rlower=relativedelta(days=0),
+            rupper=relativedelta(days=6),
+            facility_name="default",
+            crfs=crfs,
+            crfs_prn=prns,
+            timepoint=1,
+        )
+        schedule.add_visit(visit)
+        visit_schedule.add_schedule(schedule)
+        site_visit_schedules.register(visit_schedule)
+
+        vs_errors = visit_schedule_check(app_configs=django_apps.get_app_configs())
+        self.assertListEqual(vs_errors, [])
+
+        fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
+        self.assertListEqual(fc_errors, [])

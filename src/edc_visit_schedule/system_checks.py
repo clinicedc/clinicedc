@@ -38,13 +38,6 @@ def check_form_collections(app_configs, **kwargs):
                     (visit.crfs_unscheduled, "Unscheduled"),
                     (visit.crfs_missed, "Missed"),
                 ]:
-                    if duplicate_required_models_err := check_duplicate_required_models(
-                        visit=visit,
-                        visit_crf_collection=visit_crf_collection,
-                        visit_type=visit_type,
-                    ):
-                        errors.append(duplicate_required_models_err)
-
                     if proxy_root_alongside_child_err := check_proxy_root_alongside_child(
                         visit=visit,
                         visit_crf_collection=visit_crf_collection,
@@ -60,25 +53,6 @@ def check_form_collections(app_configs, **kwargs):
                         errors.append(same_proxy_root_err)
 
     return errors
-
-
-def check_duplicate_required_models(
-    visit: Visit,
-    visit_crf_collection: CrfCollection,
-    visit_type: str,
-) -> Error | None:
-    if duplicates := get_duplicates(
-        list_items=[
-            *get_required_models(collection=visit_crf_collection),
-            *get_models(collection=visit.crfs_prn),
-        ]
-    ):
-        return Error(
-            "Required model class appears more than once for a visit. "
-            f"Got '{visit}' '{visit_type}' visit Crf collection. "
-            f"Duplicates {[d._meta.label_lower for d in duplicates]}",
-            id="edc_visit_schedule.002",
-        )
 
 
 def check_proxy_root_alongside_child(
@@ -107,7 +81,7 @@ def check_proxy_root_alongside_child(
             "Proxy root model class appears alongside associated child "
             "proxy for a visit. "
             f"Got '{visit}' '{visit_type}' visit Crf collection. "
-            f"Proxy root/child models: {proxy_root_child_pairs=}",
+            f"Proxy root:child models: {proxy_root_child_pairs=}",
             id="edc_visit_schedule.003",
         )
 
@@ -152,26 +126,30 @@ def check_multiple_proxies_same_proxy_root(
             for pm in shared_proxy_root_models:
                 proxy_root_model = get_proxy_root_model(pm)
                 if proxy_root_model in duplicate_proxy_roots:
-                    clash_desc = proxy_root_clashes[proxy_root_model._meta.label_lower]
-                    clash_desc.append(pm._meta.label_lower)
-                    clash_desc.sort()
+                    proxy_root_clashes[proxy_root_model._meta.label_lower].append(
+                        pm._meta.label_lower
+                    )
+            for prm in list(proxy_root_clashes):
+                # exclude if all clashed are same proxy model
+                if len(set(proxy_root_clashes[prm])) == 1:
+                    del proxy_root_clashes[prm]
+                else:
+                    proxy_root_clashes[prm].sort()
+            # proxy_root_clashes[prm].sort()
 
-            return Error(
-                "Multiple proxies with same proxy root model appear for "
-                "a visit. If this is intentional, consider using "
-                "`shares_proxy_root` argument when defining Crf. "
-                f"Got '{visit}' '{visit_type}' visit Crf collection. "
-                f"Proxy root/child models: {proxy_root_clashes=}",
-                id="edc_visit_schedule.004",
-            )
+            if proxy_root_clashes:
+                return Error(
+                    "Multiple proxies with same proxy root model appear for "
+                    "a visit. If this is intentional, consider using "
+                    "`shares_proxy_root` argument when defining Crf. "
+                    f"Got '{visit}' '{visit_type}' visit Crf collection. "
+                    f"Proxy root/child models: {dict(proxy_root_clashes)}",
+                    id="edc_visit_schedule.004",
+                )
 
 
 def get_models(collection: CrfCollection) -> list[models.Model]:
     return [f.model_cls for f in collection]
-
-
-def get_required_models(collection: CrfCollection) -> list[models.Model]:
-    return [f.model_cls for f in collection if f.required]
 
 
 def get_proxy_models(collection: CrfCollection) -> list[models.Model]:
