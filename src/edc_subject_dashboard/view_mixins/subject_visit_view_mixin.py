@@ -27,9 +27,13 @@ class SubjectVisitViewMixin:
         super().__init__(**kwargs)
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
+        visit_schedule_pk = (
+            "" if not self.get_visit_schedule() else str(self.get_visit_schedule().id)
+        )
         kwargs.update(
             related_visit=self.related_visit,
-            visit_schedule_pk=self.get_visit_schedule_pk(),
+            visit_schedule_model_obj=self.get_visit_schedule(),
+            visit_schedule_pk=visit_schedule_pk,
         )
         return super().get_context_data(**kwargs)
 
@@ -53,9 +57,9 @@ class SubjectVisitViewMixin:
                         )
         return self._related_visit
 
-    def get_visit_schedule_pk(self) -> str | None:
+    def get_visit_schedule(self) -> VisitSchedule | None:
         """Returns a str(pk) from the VisitSchedule model."""
-        visit_schedule_pk = None
+        visit_schedule = None
         if self.appointment:
             opts = dict(
                 visit_schedule_name=self.appointment.visit_schedule_name,
@@ -63,12 +67,10 @@ class SubjectVisitViewMixin:
                 visit_code=self.appointment.visit_code,
             )
             try:
-                obj = VisitSchedule.objects.get(**opts)
+                visit_schedule = VisitSchedule.objects.get(**opts)
             except ObjectDoesNotExist:
                 pass
-            else:
-                visit_schedule_pk = str(obj.pk)
-        return visit_schedule_pk
+        return visit_schedule
 
     @property
     def report_datetime(self):

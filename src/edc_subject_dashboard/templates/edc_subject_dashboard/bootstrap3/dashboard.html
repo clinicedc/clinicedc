@@ -40,7 +40,7 @@
                                             <i class="fa-solid fa-reply fa-1x fa-fw" aria-hidden="true"></i>
                                               Schedule
                                             </a>
-                                            <a href="{% url subject_review_listboard_url|default:'subject_review_listboard_url_cannot_be_none' subject_identifier=subject_identifier appointment=appointment.object.id|stringformat:"s" %}#{{ subject_identifier }}-{{ appointment.visit_code }}-{{ appointment.visit_code_sequence }}"
+                                            <a href="{% url subject_review_listboard_url|default:'subject_review_listboard_url_cannot_be_none' subject_identifier=subject_identifier appointment=appointment.id|stringformat:"s" %}#{{ subject_identifier }}-{{ appointment.visit_code }}-{{ appointment.visit_code_sequence }}"
                                                role="button" class="btn btn-sm btn-primary" data-toggle="tooltip" title="Go to subject review">
                                             <i class="fa-solid fa-reply fa-1x fa-fw" aria-hidden="true"></i>
                                                 Review

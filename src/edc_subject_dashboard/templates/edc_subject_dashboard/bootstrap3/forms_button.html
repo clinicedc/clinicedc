@@ -1,7 +1,7 @@
  <!-- begin forms_button -->
-{% if document_status == COMPLETE %}
-<a id="{{ btn_id }}" role="button" class="btn btn-sm {{ btn_color }}" href="{{ href }}">
-	<i class="{{ fa_icon }} fa-sm" aria-hidden="true"></i> {{ label }}{% if label_fa_icon %} <i class="{{ label_fa_icon }}"></i>{% endif %}
+ {#  {% if document_status == COMPLETE %} #}
+<a id="{{ btn.btn_id }}" role="button" class="btn btn-sm {{ btn.btn_color }}" {%  if not btn.disabled %}href="{{ btn.url }}" data-toggle="tooltip" title="{{ btn.title }}"{% endif %}aria-hidden="true" {{ btn.disabled }}>
+	<i class="{{ btn.fa_icon }} fa-sm" ></i> {{ btn.label }}{% if btn.label_fa_icon %} <i class="{{ btn.label_fa_icon }}"></i>{% endif %}
 </a>
-{% endif %}
+{# {% endif %} #}
 <!-- end forms_button -->
