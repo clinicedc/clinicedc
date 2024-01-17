@@ -110,19 +110,6 @@ class VisitSchedule:
         self._all_post_consent_models = None
         return schedule
 
-    def check(self):
-        warnings = []
-        for model in [
-            "death_report",
-            "locator",
-            "offstudy",
-        ]:
-            try:
-                getattr(self, f"{model}_model_cls")
-            except LookupError as e:
-                warnings.append(f"{e} See visit schedule '{self.name}'.")
-        return warnings
-
     @property
     def all_post_consent_models(self):
         """Returns a dictionary of models and the needed consent

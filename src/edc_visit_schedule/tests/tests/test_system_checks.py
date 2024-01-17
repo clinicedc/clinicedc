@@ -8,6 +8,7 @@ from edc_visit_schedule.system_checks import visit_schedule_check
 from edc_visit_schedule.visit import CrfCollection, Visit
 from edc_visit_schedule.visit.crf import Crf
 from edc_visit_schedule.visit_schedule import VisitSchedule
+from visit_schedule_app.consents import v1_consent
 
 
 class TestSystemChecks(TestCase):
@@ -31,7 +32,7 @@ class TestSystemChecks(TestCase):
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[v1_consent],
             base_timepoint=1,
         )
         visit_schedule.add_schedule(schedule)
@@ -53,7 +54,7 @@ class TestSystemChecks(TestCase):
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[v1_consent],
             base_timepoint=1,
         )
         visit_schedule.add_schedule(schedule)
@@ -76,7 +77,7 @@ class TestSystemChecks(TestCase):
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
             appointment_model="blah.appointment",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[v1_consent],
             base_timepoint=1,
         )
         visit_schedule.add_schedule(schedule)
@@ -99,7 +100,7 @@ class TestSystemChecks(TestCase):
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[v1_consent],
             base_timepoint=1,
         )
         crfs = CrfCollection(

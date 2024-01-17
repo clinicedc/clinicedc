@@ -14,8 +14,7 @@ def offschedule_model_on_post_save(sender, instance, raw, update_fields, **kwarg
                 instance._meta.label_lower
             )
             schedule.take_off_schedule(
-                subject_identifier=instance.subject_identifier,
-                offschedule_datetime=instance.offschedule_datetime,
+                instance.subject_identifier, instance.offschedule_datetime
             )
 
 

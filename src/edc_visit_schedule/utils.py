@@ -119,9 +119,7 @@ def off_schedule_or_raise(
         visit_schedule_name=visit_schedule_name
     )
     schedule = visit_schedule.schedules.get(schedule_name)
-    if schedule.is_onschedule(
-        subject_identifier=subject_identifier, report_datetime=report_datetime
-    ):
+    if schedule.is_onschedule(subject_identifier, report_datetime):
         raise OnScheduleError(
             f"Not allowed. Subject {subject_identifier} is on schedule "
             f"{visit_schedule.verbose_name}.{schedule_name} on "

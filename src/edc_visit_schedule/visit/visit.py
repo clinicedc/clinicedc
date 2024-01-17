@@ -295,22 +295,6 @@ class Visit:
     def timepoint_datetime(self, dt=None):
         self.dates.base = to_utc(dt)
 
-    def check(self):
-        warnings = []
-        models = list(set([f.model for f in self.all_crfs]))
-        for model in models:
-            try:
-                django_apps.get_model(model)
-            except LookupError as e:
-                warnings.append(f"{e} Got Visit {self.code} crf.model={model}.")
-        models = list(set([f.model for f in self.all_requisitions]))
-        for model in models:
-            try:
-                django_apps.get_model(model)
-            except LookupError as e:
-                warnings.append(f"{e} Got Visit {self.code} requisition.model={model}.")
-        return warnings
-
     def to_dict(self):
         return dict(
             crfs=[(crf.model, crf.required) for crf in self.crfs],
