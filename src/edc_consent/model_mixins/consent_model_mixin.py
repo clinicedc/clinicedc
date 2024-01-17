@@ -1,6 +1,6 @@
 from uuid import uuid4
 
-from django.db import models
+from django.db import models, transaction
 from django.db.models import UniqueConstraint
 from django_crypto_fields.fields import EncryptedTextField
 from edc_constants.constants import OPEN
@@ -8,9 +8,11 @@ from edc_data_manager.get_data_queries import get_data_queries
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.managers import CurrentSiteManager
+from edc_sites.site import sites as site_sites
 from edc_utils import age, formatted_age
 
-from ..consent_helper import ConsentHelper
+from .. import site_consents
+from ..exceptions import SiteConsentError
 from ..field_mixins import VerificationFieldsMixin
 from ..managers import ConsentManager, ObjectConsentManager
 
@@ -21,7 +23,16 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
     Declare with edc_identifier's NonUniqueSubjectIdentifierModelMixin
     """
 
-    consent_helper_cls = ConsentHelper
+    model_name = models.CharField(
+        verbose_name="model",
+        max_length=50,
+        help_text=(
+            "label_lower of this model class. Will be different if "
+            "instance has been added/edited via a proxy model"
+        ),
+        null=True,
+        editable=False,
+    )
 
     consent_datetime = models.DateTimeField(
         verbose_name="Consent date and time",
@@ -77,17 +88,37 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
         return (self.get_subject_identifier_as_pk(),)  # noqa
 
     def save(self, *args, **kwargs):
+        if not self.id:
+            self.model_name = self._meta.label_lower
         self.report_datetime = self.consent_datetime
-        helper = self.get_consent_helper()
-        self.version = helper.version
-        self.updates_versions = True if helper.updates_versions else False
+        consent_definition = self.get_consent_definition()
+        self.version = consent_definition.version
+        self.updates_versions = True if consent_definition.updates_versions else False
+        if self.updates_versions:
+            with transaction.atomic():
+                consent_definition.get_previous_consent(
+                    subject_identifier=self.subject_identifier,
+                    version=self.version,
+                )
         super().save(*args, **kwargs)
 
-    def get_consent_helper(self):
-        """Returns a consent helper instance"""
-        return self.consent_helper_cls(
-            model_cls=self.__class__, update_previous=True, **self.__dict__
+    def get_consent_definition(self):
+        """Allow the consent to save as long as there is a
+        consent definition for this report_date and site.
+        """
+        site = self.site
+        if not self.id and not site:
+            site = site_sites.get_current_site_obj()
+        consent_definition = site_consents.get_consent_definition(
+            model=self._meta.label_lower,
+            report_datetime=self.consent_datetime,
+            site=site_sites.get(site.id),
         )
+        if consent_definition.model != self._meta.label_lower:
+            raise SiteConsentError(
+                f"No consent definitions exist for this consent model. Got {self}."
+            )
+        return consent_definition
 
     def get_subject_identifier(self):
         """Returns the subject_identifier"""

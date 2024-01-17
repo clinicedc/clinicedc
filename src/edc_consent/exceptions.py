@@ -16,3 +16,15 @@ class ConsentDefinitionError(Exception):
 
 class ConsentDefinitionDoesNotExist(Exception):
     pass
+
+
+class ConsentDefinitionValidityPeriodError(Exception):
+    pass
+
+
+class AlreadyRegistered(Exception):
+    pass
+
+
+class SiteConsentError(Exception):
+    pass

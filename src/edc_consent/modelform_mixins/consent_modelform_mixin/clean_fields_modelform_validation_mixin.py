@@ -17,9 +17,13 @@ class ConsentModelFormMixinError(Exception):
     pass
 
 
-class CleanFieldsModelformMixin:
+class CleanFieldsModelFormValidationMixin:
     """A model form mixin calling the default `clean_xxxxx` django
     methods.
+
+    Used by ConsentModelFormMixin.
+
+    See also: ConsentModelFormValidationMixin
     """
 
     @property

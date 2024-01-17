@@ -1,12 +1,12 @@
 from edc_screening.utils import is_eligible_or_raise
 
-from ...consent_helper import ConsentHelper
-from ...site_consents import site_consents
-from .clean_fields_modelform_mixin import CleanFieldsModelformMixin
-from .custom_validation_mixin import CustomValidationMixin
+from .clean_fields_modelform_validation_mixin import CleanFieldsModelFormValidationMixin
+from .consent_modelform_validation_mixin import ConsentModelFormValidationMixin
 
 
-class ConsentModelFormMixin(CleanFieldsModelformMixin, CustomValidationMixin):
+class ConsentModelFormMixin(
+    CleanFieldsModelFormValidationMixin, ConsentModelFormValidationMixin
+):
     def clean(self) -> dict:
         cleaned_data = super().clean()
         self.validate_is_eligible_or_raise()
@@ -15,17 +15,6 @@ class ConsentModelFormMixin(CleanFieldsModelformMixin, CustomValidationMixin):
         self.validate_is_literate_and_witness()
         self.validate_dob_relative_to_consent_datetime()
         self.validate_guardian_and_dob()
-
-        consent_definition = site_consents.get_consent_definition(
-            model=self._meta.model._meta.label_lower,
-            report_datetime=self.consent_datetime,
-        )
-        if consent_definition.updates_versions:
-            ConsentHelper(
-                model_cls=consent_definition.model_cls,
-                update_previous=False,
-                **cleaned_data,
-            )
         self.validate_identity_and_confirm_identity()
         self.validate_identity_with_unique_fields()
         self.validate_identity_plus_version_is_unique()

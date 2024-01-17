@@ -13,12 +13,13 @@ from edc_consent.exceptions import (
     ConsentDefinitionError,
     ConsentVersionSequenceError,
     NotConsentedError,
+    SiteConsentError,
 )
-from edc_consent.site_consents import SiteConsentError, site_consents
+from edc_consent.site_consents import site_consents
 
 from ..consent_test_utils import consent_definition_factory
 from ..models import CrfOne, SubjectVisit
-from ..visit_schedules import visit_schedule
+from ..visit_schedules import get_visit_schedule
 
 
 @override_settings(
@@ -32,8 +33,6 @@ class TestConsent(TestCase):
         site_consents.registry = {}
         self.study_open_datetime = Protocol().study_open_datetime
         self.study_close_datetime = Protocol().study_close_datetime
-        site_visit_schedules._registry = {}
-        site_visit_schedules.register(visit_schedule)
         self.subject_identifier = "12345"
         super().setUp()
 
@@ -56,33 +55,48 @@ class TestConsent(TestCase):
         """Asserts a model using the RequiresConsentMixin cannot create
         a new instance if subject not consented.
         """
-        consent_definition_factory(
-            start=self.study_open_datetime, end=self.study_close_datetime
+        consent_definition = consent_definition_factory(
+            start=self.study_open_datetime,
+            end=self.study_close_datetime,
         )
+        visit_schedule = get_visit_schedule(consent_definition)
+        schedule = visit_schedule.schedules.get("schedule1")
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(get_visit_schedule(consent_definition))
         RegisteredSubject.objects.create(subject_identifier=self.subject_identifier)
-        subject_visit = SubjectVisit.objects.create(subject_identifier=self.subject_identifier)
         self.assertRaises(
             NotConsentedError,
-            CrfOne.objects.create,
-            subject_visit=subject_visit,
-            subject_identifier=self.subject_identifier,
+            SubjectVisit.objects.create,
             report_datetime=self.study_open_datetime,
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=visit_schedule.name,
+            schedule_name=schedule.name,
         )
 
     def test_allows_create_if_consent(self):
         """Asserts can create a consent model instance if a valid
         consent.
         """
-        consent_definition_factory(
-            start=self.study_open_datetime, end=self.study_close_datetime
+        consent_definition = consent_definition_factory(
+            start=self.study_open_datetime,
+            end=self.study_close_datetime,
         )
-        baker.make_recipe(
+        visit_schedule = get_visit_schedule(consent_definition)
+        schedule = visit_schedule.schedules.get("schedule1")
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(get_visit_schedule(consent_definition))
+        subject_consent = baker.make_recipe(
             "edc_consent.subjectconsent",
             subject_identifier=self.subject_identifier,
             consent_datetime=self.study_open_datetime,
             dob=self.study_open_datetime - relativedelta(years=25),
         )
-        subject_visit = SubjectVisit.objects.create(subject_identifier=self.subject_identifier)
+        subject_visit = SubjectVisit.objects.create(
+            report_datetime=subject_consent.consent_datetime,
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=visit_schedule.name,
+            schedule_name=schedule.name,
+        )
         try:
             CrfOne.objects.create(
                 subject_visit=subject_visit,
@@ -108,7 +122,9 @@ class TestConsent(TestCase):
 
     def test_consent_gets_version(self):
         consent_definition_factory(
-            start=self.study_open_datetime, end=self.study_close_datetime, version="1.0"
+            start=self.study_open_datetime,
+            end=self.study_close_datetime,
+            version="1.0",
         )
         consent = baker.make_recipe(
             "edc_consent.subjectconsent",
@@ -118,26 +134,42 @@ class TestConsent(TestCase):
         self.assertEqual(consent.version, "1.0")
 
     def test_model_gets_version(self):
-        consent_definition_factory(
-            start=self.study_open_datetime, end=self.study_close_datetime, version="1.0"
+        consent_definition = consent_definition_factory(
+            start=self.study_open_datetime,
+            end=self.study_close_datetime,
+            version="1.0",
         )
-        baker.make_recipe(
+        subject_consent = baker.make_recipe(
             "edc_consent.subjectconsent",
             subject_identifier=self.subject_identifier,
             consent_datetime=self.study_open_datetime,
             dob=self.study_open_datetime - relativedelta(years=25),
         )
-        subject_visit = SubjectVisit.objects.create(subject_identifier=self.subject_identifier)
+
+        visit_schedule = get_visit_schedule(consent_definition)
+        schedule = visit_schedule.schedules.get("schedule1")
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(get_visit_schedule(consent_definition))
+
+        subject_visit = SubjectVisit.objects.create(
+            report_datetime=subject_consent.consent_datetime,
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=visit_schedule.name,
+            schedule_name=schedule.name,
+        )
+
         crf_one = CrfOne.objects.create(
             subject_visit=subject_visit,
             subject_identifier=self.subject_identifier,
-            report_datetime=self.study_open_datetime,
+            report_datetime=subject_consent.consent_datetime,
         )
         self.assertEqual(crf_one.consent_version, "1.0")
 
     def test_model_consent_version_no_change(self):
-        consent_definition_factory(
-            start=self.study_open_datetime, end=self.study_close_datetime, version="1.2"
+        consent_definition = consent_definition_factory(
+            start=self.study_open_datetime,
+            end=self.study_close_datetime,
+            version="1.2",
         )
         baker.make_recipe(
             "edc_consent.subjectconsent",
@@ -145,7 +177,18 @@ class TestConsent(TestCase):
             consent_datetime=self.study_open_datetime,
             dob=self.study_open_datetime - relativedelta(years=25),
         )
-        subject_visit = SubjectVisit.objects.create(subject_identifier=self.subject_identifier)
+
+        visit_schedule = get_visit_schedule(consent_definition)
+        schedule = visit_schedule.schedules.get("schedule1")
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(get_visit_schedule(consent_definition))
+
+        subject_visit = SubjectVisit.objects.create(
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=visit_schedule.name,
+            schedule_name=schedule.name,
+        )
+
         crf_one = CrfOne.objects.create(
             subject_visit=subject_visit,
             subject_identifier=self.subject_identifier,
@@ -156,27 +199,41 @@ class TestConsent(TestCase):
         self.assertEqual(crf_one.consent_version, "1.2")
 
     def test_model_consent_version_changes_with_report_datetime(self):
-        consent_definition_factory(
+        consent_definition10 = consent_definition_factory(
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
         )
-        consent_definition_factory(
+        consent_definition11 = consent_definition_factory(
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
             version="1.1",
         )
         consent_datetime = self.study_open_datetime + timedelta(days=10)
+
         subject_consent = baker.make_recipe(
             "edc_consent.subjectconsent",
             subject_identifier=self.subject_identifier,
             consent_datetime=consent_datetime,
             dob=self.study_open_datetime - relativedelta(years=25),
         )
+
         self.assertEqual(subject_consent.version, "1.0")
         self.assertEqual(subject_consent.subject_identifier, self.subject_identifier)
         self.assertEqual(subject_consent.consent_datetime, consent_datetime)
-        subject_visit = SubjectVisit.objects.create(subject_identifier=self.subject_identifier)
+
+        visit_schedule = get_visit_schedule([consent_definition10, consent_definition11])
+        schedule = visit_schedule.schedules.get("schedule1")
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule)
+
+        subject_visit = SubjectVisit.objects.create(
+            report_datetime=consent_datetime,
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=visit_schedule.name,
+            schedule_name=schedule.name,
+        )
+
         crf_one = CrfOne.objects.create(
             subject_visit=subject_visit,
             subject_identifier=self.subject_identifier,
@@ -190,8 +247,15 @@ class TestConsent(TestCase):
             consent_datetime=consent_datetime,
             dob=self.study_open_datetime - relativedelta(years=25),
         )
+        crf_one.delete()
         crf_one.report_datetime = consent_datetime
-        crf_one.save()
+        crf_one = CrfOne.objects.create(
+            subject_visit=subject_visit,
+            subject_identifier=self.subject_identifier,
+            report_datetime=consent_datetime,
+        )
+
+        # Mcrf_one.save()
         self.assertEqual(crf_one.consent_version, "1.1")
 
     def test_consent_update_needs_previous_version(self):
@@ -203,7 +267,7 @@ class TestConsent(TestCase):
         )
         # specify updates version that does not exist, raises
         self.assertRaises(
-            ConsentDefinitionDoesNotExist,
+            ConsentDefinitionError,
             consent_definition_factory,
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),

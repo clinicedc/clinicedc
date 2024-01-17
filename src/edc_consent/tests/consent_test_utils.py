@@ -13,12 +13,12 @@ def consent_definition_factory(
     start: datetime = None,
     end: datetime = None,
     gender: list[str] | None = None,
-    updates_versions: list[str] | tuple[str] = None,
+    updates_versions: list[str] = None,
     version: str | None = None,
     age_min: int | None = None,
     age_max: int | None = None,
     age_is_adult: int | None = None,
-):
+) -> ConsentDefinition:
     options = dict(
         start=start or Protocol().study_open_datetime,
         end=end or Protocol().study_close_datetime,

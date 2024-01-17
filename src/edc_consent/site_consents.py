@@ -9,19 +9,22 @@ from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.utils.module_loading import import_module, module_has_submodule
 from edc_utils import floor_secs, formatted_date
+from edc_utils.date import floor_datetime
 
-from .exceptions import ConsentDefinitionDoesNotExist, ConsentDefinitionError
+from .exceptions import (
+    AlreadyRegistered,
+    ConsentDefinitionDoesNotExist,
+    ConsentDefinitionError,
+    SiteConsentError,
+)
 
 if TYPE_CHECKING:
+    from edc_sites.single_site import SingleSite
+
     from .consent_definition import ConsentDefinition
 
 
-class AlreadyRegistered(Exception):
-    pass
-
-
-class SiteConsentError(Exception):
-    pass
+__all__ = ["site_consents"]
 
 
 class SiteConsents:
@@ -34,10 +37,12 @@ class SiteConsents:
             raise AlreadyRegistered(f"Consent definition already registered. Got {cdef}.")
 
         for version in cdef.updates_versions:
-            if not self.get_consent_definition(model=cdef.model, version=version):
+            try:
+                self.get_consent_definition(model=cdef.model, version=version)
+            except ConsentDefinitionDoesNotExist:
                 raise ConsentDefinitionError(
                     f"Consent definition is configured to update a version that has "
-                    f"not been registered. See {cdef}. Got {version}."
+                    f"not been registered. See {cdef.display_name}. Got {version}."
                 )
         for registered_cdef in self.registry.values():
             if registered_cdef.model == cdef.model:
@@ -63,13 +68,19 @@ class SiteConsents:
         model: str = None,
         report_datetime: datetime | None = None,
         version: str | None = None,
+        site: SingleSite | None = None,
+        **kwargs,
     ) -> ConsentDefinition:
         """Returns a single consent definition valid for the given criteria.
 
         Filters the registry by each param given.
         """
         cdefs = self.get_consent_definitions(
-            model=model, report_datetime=report_datetime, version=version
+            model=model,
+            report_datetime=report_datetime,
+            version=version,
+            site=site,
+            **kwargs,
         )
         if len(cdefs) > 1:
             as_string = ", ".join(list(set([cdef.name for cdef in cdefs])))
@@ -81,51 +92,116 @@ class SiteConsents:
         model: str = None,
         report_datetime: datetime | None = None,
         version: str | None = None,
+        site: SingleSite | None = None,
+        **kwargs,
     ) -> list[ConsentDefinition]:
         """Return a list of consent definitions valid for the given
         criteria.
 
         Filters the registry by each param given.
         """
+        error_messages: list[str] = []
         # confirm loaded
         if not self.registry.values() or not self.loaded:
             raise SiteConsentError(
                 "No consent definitions have been registered with `site_consents`. "
             )
-
         # copy registry
         cdefs: list[ConsentDefinition] = [cdef for cdef in self.registry.values()]
+        # filter cdefs to try to get just one.
+        # by model, report_datetime, version, site
+        cdefs, error_msg = self._filter_cdefs_by_model_or_raise(model, cdefs, error_messages)
+        cdefs, error_msg = self._filter_cdefs_by_report_datetime_or_raise(
+            report_datetime, cdefs, error_messages
+        )
+        cdefs, error_msg = self._filter_cdefs_by_version_or_raise(
+            version, cdefs, error_messages
+        )
+        cdefs = self._filter_cdefs_by_site_or_raise(site, cdefs, error_messages)
+        # apply additional criteria
+        for k, v in kwargs.items():
+            if v is not None:
+                cdefs = [cdef for cdef in cdefs if getattr(cdef, k) == v]
+        return cdefs
 
-        # model
+    @staticmethod
+    def _filter_cdefs_by_model_or_raise(
+        model: str | None,
+        cdefs: list[ConsentDefinition],
+        errror_messages: list[str] = None,
+    ) -> tuple[list[ConsentDefinition], list[str]]:
         if model:
-            cdefs = [cdef for cdef in cdefs if model in ([cdef.model] + cdef.proxy_models)]
+            cdefs = [cdef for cdef in cdefs if model == cdef.model]
             if not cdefs:
                 raise ConsentDefinitionDoesNotExist(
                     f"There are no consent definitions using this model. Got {model}."
                 )
-        # report_datetime
+            else:
+                errror_messages.append(f"model={model}")
+        return cdefs, errror_messages
+
+    def _filter_cdefs_by_report_datetime_or_raise(
+        self,
+        report_datetime: datetime | None,
+        cdefs: list[ConsentDefinition],
+        errror_messages: list[str] = None,
+    ) -> tuple[list[ConsentDefinition], list[str]]:
         if report_datetime:
             cdefs = [
                 cdef
                 for cdef in cdefs
-                if floor_secs(cdef.start)
-                <= floor_secs(report_datetime)
-                <= floor_secs(cdef.end)
+                if floor_secs(floor_datetime(cdef.start))
+                <= floor_secs(floor_datetime(report_datetime))
+                <= floor_secs(floor_datetime(cdef.end))
             ]
             if not cdefs:
                 date_string = formatted_date(report_datetime)
+                using_msg = "Using " + " and ".join(errror_messages)
                 raise ConsentDefinitionDoesNotExist(
                     "Date does not fall within the validity period of any consent definition. "
-                    f"Got {date_string}. Consent definitions are: "
+                    f"Got {date_string}. {using_msg}. Consent definitions are: "
                     f"{self.get_registry_display()}."
                 )
+            else:
+                date_string = formatted_date(report_datetime)
+                errror_messages.append(f"report_datetime={date_string}")
+        return cdefs, errror_messages
 
-        # version
+    def _filter_cdefs_by_version_or_raise(
+        self,
+        version: str | None,
+        cdefs: list[ConsentDefinition],
+        errror_messages: list[str] = None,
+    ) -> tuple[list[ConsentDefinition], list[str]]:
         if version:
             cdefs = [cdef for cdef in cdefs if cdef.version == version]
             if not cdefs:
+                using_msg = "Using " + " and ".join(errror_messages)
+                errror_messages.append(f"version={version}")
                 raise ConsentDefinitionDoesNotExist(
-                    f"There are no consent definitions for this version. Got {version}. "
+                    f"There are no consent definitions for this version. "
+                    f"Got {version}. {using_msg}. "
+                    f"Consent definitions are: {self.get_registry_display()}."
+                )
+        return cdefs, errror_messages
+
+    def _filter_cdefs_by_site_or_raise(
+        self,
+        site: SingleSite | None,
+        cdefs: list[ConsentDefinition],
+        errror_messages: list[str] = None,
+    ) -> list[ConsentDefinition]:
+        if site:
+            cdefs_copy = [cdef for cdef in cdefs]
+            cdefs = []
+            for cdef in cdefs_copy:
+                if site.site_id in [s.site_id for s in cdef.sites]:
+                    cdefs.append(cdef)
+            if not cdefs:
+                using_msg = "Using " + " and ".join(errror_messages)
+                raise ConsentDefinitionDoesNotExist(
+                    f"There are no consent definitions for this site. "
+                    f"Got {site}. {using_msg}."
                     f"Consent definitions are: {self.get_registry_display()}."
                 )
         return cdefs

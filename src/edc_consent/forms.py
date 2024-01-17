@@ -25,7 +25,10 @@ class SubjectReconsentForm(
     class Meta:
         model = get_reconsent_model_cls()
         fields = "__all__"
-        help_text = {"action_identifier": "(read-only)", "subject_identifier": "(read-only)"}
+        help_text = {
+            "action_identifier": "(read-only)",
+            "subject_identifier": "(read-only)",
+        }
         widgets = {
             "action_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
             "subject_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
