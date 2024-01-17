@@ -27,4 +27,4 @@ class ActionItemViewMixin:
             status__in=[NEW, OPEN],
             site_id__in=sites.get_site_ids_for_user(request=self.request),
         ).order_by("-report_datetime")
-        return [self.action_item_model_wrapper_cls(model_obj=obj) for obj in qs]
+        return [self.action_item_model_wrapper_cls(model_obj=model_obj) for model_obj in qs]

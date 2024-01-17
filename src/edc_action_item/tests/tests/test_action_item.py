@@ -1,7 +1,7 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_consent.tests.consent_test_utils import consent_definition_factory
 from edc_constants.constants import CANCELLED, CLOSED, NEW, OPEN
 from edc_utils import get_utcnow
@@ -85,7 +85,6 @@ class TestActionItem(TestCaseMixin, TestCase):
         except ObjectDoesNotExist:
             self.fail("ActionItem unexpectedly does not exist")
 
-    @tag("1")
     def test_changes_action_item_status_from_new_to_open_on_edit(self):
         action_type = ActionType.objects.get(name=FormZeroAction.name)
 

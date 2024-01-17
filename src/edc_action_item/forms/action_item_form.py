@@ -1,13 +1,12 @@
 from django import forms
 from django.apps import apps as django_apps
-from edc_consent.modelform_mixins import RequiresConsentModelFormMixin
 from edc_constants.constants import CANCELLED, NEW, OPEN
 from edc_model_form.mixins import BaseModelFormMixin
 
 from ..models import ActionItem
 
 
-class ActionItemForm(RequiresConsentModelFormMixin, BaseModelFormMixin, forms.ModelForm):
+class ActionItemForm(BaseModelFormMixin, forms.ModelForm):
     subject_identifier = forms.CharField(
         label="Subject Identifier",
         required=False,
