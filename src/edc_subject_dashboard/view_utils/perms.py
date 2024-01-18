@@ -59,3 +59,7 @@ class Perms:
             self.change = False
         if self.view and not has_site_view_access:
             self.view = False
+
+    @property
+    def view_only(self):
+        return not self.add and not self.change and self.view

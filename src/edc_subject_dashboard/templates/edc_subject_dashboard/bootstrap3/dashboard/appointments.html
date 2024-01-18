@@ -10,25 +10,21 @@
             {% if appointment.visit_schedule_name == schedule_obj.visit_schedule.name and appointment.schedule_name == schedule_obj.schedule.name %}
                 <tr>
                     <td>
-                      {% appointment_status_icon appt_status=appointment.appt_status %} {{ appointment.visit_code }}
+                      {% render_appointment_status_icon appt_status=appointment.appt_status %} {{ appointment.visit_code }}
                       {% if appointment.visit_code_sequence %}.{{ appointment.visit_code_sequence }}{% endif %}
                     </td>
                     <td>
-                        <!--begin appointment button -->
                         {%  render_appointment_button appointment %}
-                        <!--end appointment button -->
                         {% if appointment.appt_status == IN_PROGRESS_APPT%}
                             {% render_related_visit_button appointment %}
-                            {% render_forms_button appointment %}
-                        {% elif appointment.appt_status == COMPLETE_APPT %}
-                            {% render_related_visit_button appointment %}
-                            {% show_dashboard_visit_button appointment %}
+                            {% if appointment.related_visit.document_status == COMPLETE %}
+                              {% render_forms_button appointment %}
+                            {% endif %}
                         {% else %}
-                            {% render_related_visit_button appointment %}
-                          {% show_dashboard_visit_button appointment %}
+                            {% render_timepoint_status_button appointment %}
                         {% endif %}
                     </td>
-                    <td>{% show_crf_totals appointment %}</td>
+                    <td>{% render_crf_totals appointment %}</td>
                     <td>
                         <!--begin show missed label or nothing -->
                         {{ appointment.title }}{% block show_missed_label %}&nbsp{% if appointment.related_visit.reason == MISSED_VISIT %}<span class="label label-default">MISSED</span>{% endif %}{% endblock show_missed_label %}

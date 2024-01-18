@@ -4,7 +4,7 @@ from uuid import uuid4
 from django.contrib.auth import get_permission_codename
 from django.contrib.auth.models import Permission, User
 from django.shortcuts import get_object_or_404
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_consent.site_consents import AlreadyRegistered
 from edc_consent.tests.consent_test_utils import consent_definition_factory
@@ -173,7 +173,6 @@ class TestDataclasses(TestCase):
         for v in parse_qs(qs, keep_blank_values=True).values():
             self.assertTrue(v[0])
 
-    @tag("1")
     def test_next_querystring(self):
         example_log_id = uuid4()
         dashboard_url = NextDashboardUrl(

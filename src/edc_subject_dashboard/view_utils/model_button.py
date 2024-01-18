@@ -33,9 +33,13 @@ class ModelButton:
         default=("btn-warning", "btn-success", "btn-default")
     )
     titles: tuple[str, str, str] = field(default=("Add", "Change", "View only"))
-    model_cls: Type[Model] = field(default=None, init=False)
+    model_cls: Type[Model] = field(default=None)
     _action: int = field(default=None, init=False)
-    _perms: Perms = None
+    _perms: Perms = field(default=None, init=False)
+
+    def __post_init__(self):
+        if self.model_obj:
+            self.model_cls = self.model_obj._meta.model
 
     @property
     def site(self) -> Site | None:

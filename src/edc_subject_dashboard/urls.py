@@ -25,12 +25,14 @@ urlpatterns = [
         name="requisition_verify_actions_url",
     ),
     path(
-        "refresh_subject_dashboard/<str:subject_visit_id>",
+        "refresh_subject_dashboard/<str:visit_schedule_name>/<str:schedule_name>"
+        "/<str:related_visit_id>/",
         RefreshMetadataActionsView.as_view(),
         name="refresh_metadata_actions_url",
     ),
     path(
-        "refresh_appointments/<str:visit_schedule>/<str:schedule>/<str:subject_identifier>/",
+        "refresh_appointments/<str:visit_schedule_name>/<str:schedule_name>/"
+        "<str:subject_identifier>/",
         RefreshAppointmentsView.as_view(),
         name="refresh_appointments_url",
     ),

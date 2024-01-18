@@ -7,8 +7,6 @@ from dateutil.relativedelta import relativedelta
 from django import template
 from django.apps import apps as django_apps
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.utils.html import format_html
-from django.utils.translation import gettext as _
 from edc_appointment.constants import (
     CANCELLED_APPT,
     COMPLETE_APPT,
@@ -30,10 +28,13 @@ from ..view_utils import (
     FormsButton,
     RelatedVisitButton,
     RequisitionButton,
+    SubjectConsentButton,
+    TimepointStatusButton,
     render_history_and_query_buttons,
 )
 
 if TYPE_CHECKING:
+    from edc_consent.model_mixins import ConsentModelMixin
     from edc_metadata.models import CrfMetadata
     from edc_registration.models import RegisteredSubject
     from edc_visit_schedule.models import VisitSchedule as VisitScheduleModel
@@ -42,18 +43,19 @@ if TYPE_CHECKING:
     from edc_visit_tracking.model_mixins import VisitModelMixin
 
     VisitModel = TypeVar("VisitModel", bound=VisitModelMixin)
+    ConsentModel = TypeVar("ConsentModel", bound=ConsentModelMixin)
 
 __all__ = [
     "appointment_in_progress",
-    "appointment_status_icon",
+    "render_appointment_status_icon",
     "print_requisition_popover",
     "render_appointment_button",
     "render_crf_button_group",
     "render_forms_button",
     "requisition_panel_actions",
-    "show_crf_totals",
+    "render_crf_totals",
+    "render_subject_consent_button",
     "show_dashboard_unscheduled_appointment_button",
-    "show_dashboard_visit_button",
 ]
 
 register = template.Library()
@@ -138,7 +140,7 @@ def print_requisition_popover(context):
 @register.inclusion_tag(
     f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/appointment_status.html"
 )
-def appointment_status_icon(appt_status: str = None) -> dict[str, str]:
+def render_appointment_status_icon(appt_status: str = None) -> dict[str, str]:
     return dict(
         appt_status=appt_status,
         NEW_APPT=NEW_APPT,
@@ -153,124 +155,37 @@ def appointment_status_icon(appt_status: str = None) -> dict[str, str]:
 @register.inclusion_tag(
     f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/dashboard/crf_totals.html",
 )
-def show_crf_totals(appointment: Appointment = None) -> dict[str, bool | int]:
+def render_crf_totals(appointment: Appointment = None) -> dict[str, bool | int]:
     helper = MetadataHelper(appointment)
     skipped: bool = False
     show_totals: bool = False
-    crf_keyed: int = helper.get_crf_metadata_by(entry_status=KEYED).count()
-    requisition_keyed: int = helper.get_requisition_metadata_by(entry_status=KEYED).count()
-    crf_total: int = helper.get_crf_metadata_by(entry_status=[REQUIRED, KEYED]).count()
-    requisition_total: int = helper.get_requisition_metadata_by(
-        entry_status=[REQUIRED, KEYED]
-    ).count()
-    keyed: int = crf_keyed + requisition_keyed
-    total: int = crf_total + requisition_total
-    if appointment.related_visit:
-        show_totals = False if keyed != 0 and keyed == total else True
-    complete = keyed != 0 and keyed == total
+    late: bool = False
+    complete: bool = False
+    num_keyed: int = 0
+    num_total: int = 0
     if appointment.appt_status == SKIPPED_APPT:
         skipped = True
+    elif appointment.appt_status == NEW_APPT and appointment.appt_datetime <= get_utcnow():
+        late = True
+    else:
+        crf_keyed = helper.get_crf_metadata_by(entry_status=KEYED).count()
+        requisition_keyed = helper.get_requisition_metadata_by(entry_status=KEYED).count()
+        crf_total = helper.get_crf_metadata_by(entry_status=[REQUIRED, KEYED]).count()
+        requisition_total = helper.get_requisition_metadata_by(
+            entry_status=[REQUIRED, KEYED]
+        ).count()
+        num_keyed = crf_keyed + requisition_keyed
+        num_total = crf_total + requisition_total
+        if appointment.related_visit:
+            show_totals = False if num_keyed != 0 and num_keyed == num_total else True
+        complete = num_keyed != 0 and num_keyed == num_total
     return dict(
         show_totals=show_totals,
         skipped=skipped,
         complete=complete,
-        keyed=keyed,
-        total=total,
-    )
-
-
-@register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/dashboard/visit_button.html",
-)
-def show_dashboard_visit_button(appointment: Appointment = None):
-    title = None
-    label = None
-    btn_color = None
-    if appointment.appt_status == NEW_APPT:
-        label = _("Start")
-        title = _("Start data collection for this timepoint.")
-        if appointment.appt_datetime <= get_utcnow():
-            btn_color = "warning"
-    elif appointment.appt_status == INCOMPLETE_APPT:
-        incomplete = _("Incomplete")
-        label = format_html(
-            '<i class="fas fa-pencil-alt fa-sm" aria-hidden="true"></i> {}', incomplete
-        )
-        title = _("Continue data collection for this timepoint.")
-    elif appointment.appt_status == CANCELLED_APPT:
-        label = _("Cancelled")
-        title = _("Cancelled")
-    elif appointment.appt_status == SKIPPED_APPT:
-        label = _("Skipped")
-        title = _("Skipped")
-        btn_color = "success"
-    elif appointment.appt_status == COMPLETE_APPT:
-        # this appt_status is handled by the subject visit button
-        label = _("Done")
-        label = format_html(
-            '<i class="fas fa-pencil-alt fa-sm" aria-hidden="true"></i> {}', label
-        )
-        title = _("Done. Timepoint is complete")
-        btn_color = "success"
-
-    elif appointment.appt_status == IN_PROGRESS_APPT:
-        # this appt_status is handled by the subject visit button
-        pass
-    else:
-        raise SubjectDashboardExtrasError(
-            f"Unhandled appt_status. Got {appointment.appt_status}"
-        )
-    return dict(
-        appointment=appointment,
-        title=title,
-        label=label,
-        btn_color=btn_color,
-        url="",
-    )
-
-
-@register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
-    "dashboard/unscheduled_appointment_button.html",
-    takes_context=True,
-)
-def show_dashboard_unscheduled_appointment_button(
-    context, appointment=None, view_appointment=None
-):
-    show_button = False
-    if (
-        appointment
-        and appointment.relative_next
-        and appointment.appt_status in [INCOMPLETE_APPT, COMPLETE_APPT]
-        and (
-            appointment.appt_datetime + relativedelta(days=1)
-            != appointment.relative_next.appt_datetime
-        )
-    ):
-        show_button = True
-    anchor_id = (
-        f"unscheduled_appt_btn_{appointment.visit_code}_" f"{appointment.visit_code_sequence}"
-    )
-
-    if view_appointment and appointment.site.id == context["request"].site.id:
-        url = "edc_appointment:unscheduled_appointment_url"
-    else:
-        url = "#"
-    disabled = "disabled" if url == "#" else ""
-    if view_appointment and appointment.site.id == context["request"].site.id:
-        title = "" if disabled else "Edit appointment"
-    else:
-        title = "No permission to edit"
-    return dict(
-        show_button=show_button,
-        anchor_id=anchor_id,
-        appointment=appointment,
-        view_appointment=view_appointment,
-        url=url,
-        disabled=disabled,
-        title=title,
-        INCOMPLETE_APPT=INCOMPLETE_APPT,
-        COMPLETE_APPT=COMPLETE_APPT,
+        late=late,
+        keyed=num_keyed,
+        total=num_total,
     )
 
 
@@ -394,3 +309,84 @@ def render_forms_button(context, appointment: Appointment = None):
         current_site=context["request"].site,
     )
     return {"btn": btn}
+
+
+@register.inclusion_tag(
+    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
+    "dashboard/appointment_button.html",
+    takes_context=True,
+)
+def render_timepoint_status_button(context, appointment: Appointment = None):
+    # if still using deprecated ModelWrapper, get model instance
+    # from model_wrapper
+    appointment = getattr(appointment, "object", appointment)
+    btn = TimepointStatusButton(
+        model_obj=appointment,
+        user=context["user"],
+        current_site=context["request"].site,
+    )
+    return {"btn": btn}
+
+
+@register.inclusion_tag(
+    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
+    "dashboard/appointment_button.html",
+    takes_context=True,
+)
+def render_subject_consent_button(
+    context, consent: ConsentModel = None, appointment: Appointment = None
+):
+    # if still using deprecated ModelWrapper, get model instance
+    # from model_wrapper
+    btn = SubjectConsentButton(
+        model_obj=consent,
+        user=context["user"],
+        current_site=context["request"].site,
+        appointment=appointment,
+    )
+    return {"btn": btn}
+
+
+@register.inclusion_tag(
+    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
+    "dashboard/unscheduled_appointment_button.html",
+    takes_context=True,
+)
+def show_dashboard_unscheduled_appointment_button(
+    context, appointment=None, view_appointment=None
+):
+    show_button = False
+    if (
+        appointment
+        and appointment.relative_next
+        and appointment.appt_status in [INCOMPLETE_APPT, COMPLETE_APPT]
+        and (
+            appointment.appt_datetime + relativedelta(days=1)
+            != appointment.relative_next.appt_datetime
+        )
+    ):
+        show_button = True
+    anchor_id = (
+        f"unscheduled_appt_btn_{appointment.visit_code}_" f"{appointment.visit_code_sequence}"
+    )
+
+    if view_appointment and appointment.site.id == context["request"].site.id:
+        url = "edc_appointment:unscheduled_appointment_url"
+    else:
+        url = "#"
+    disabled = "disabled" if url == "#" else ""
+    if view_appointment and appointment.site.id == context["request"].site.id:
+        title = "" if disabled else "Edit appointment"
+    else:
+        title = "No permission to edit"
+    return dict(
+        show_button=show_button,
+        anchor_id=anchor_id,
+        appointment=appointment,
+        view_appointment=view_appointment,
+        url=url,
+        disabled=disabled,
+        title=title,
+        INCOMPLETE_APPT=INCOMPLETE_APPT,
+        COMPLETE_APPT=COMPLETE_APPT,
+    )

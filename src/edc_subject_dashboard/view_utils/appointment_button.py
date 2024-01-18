@@ -17,11 +17,10 @@ __all__ = ["AppointmentButton"]
 @dataclass
 class AppointmentButton(DashboardModelButton):
     model_obj: Appointment = None
-    labels: tuple[str, str, str] = field(default=("Appt", "Appt", "Appt"))
-    btn_colors: tuple[str, str, str] = field(
-        default=("btn-warning", "btn-default", "btn-default")
-    )
+    labels: tuple[str, str, str] = field(default=(3 * ("Appt",)))
+    btn_colors: tuple[str, str, str] = field(default=(3 * ("btn-default",)))
     model_cls: Type[Appointment] = field(default=Appointment, init=False)
+    appointment: Appointment = field(default=None, init=False)
 
     @property
     def disabled(self) -> str:

@@ -16,7 +16,7 @@ class RequisitionButton(CrfButton):
     def btn_id(self) -> str:
         btn_id = super().btn_id
         if self.model_obj:
-            btn_id = f"{self.btn_id}-{self.panel.name}"
+            btn_id = f"{btn_id}-{self.panel.name}"
         return btn_id
 
     @property

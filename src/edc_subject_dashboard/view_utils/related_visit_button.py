@@ -16,6 +16,7 @@ from .dashboard_model_button import DashboardModelButton
 from .model_button import ADD, CHANGE, VIEW
 
 if TYPE_CHECKING:
+    from django.contrib.sites.models import Site
     from edc_appointment.models import Appointment
     from edc_visit_tracking.model_mixins import VisitModelMixin
 
@@ -30,6 +31,13 @@ class RelatedVisitButton(DashboardModelButton):
     model_obj: RelatedVisitModel = None
     labels: tuple[str, str, str] = field(default=("Start", "Visit Report", "Visit Report"))
     model_cls: Type[RelatedVisitModel] = field(default=None)
+
+    @property
+    def site(self) -> Site | None:
+        """If model_obj is None, then Site should come from the
+        CRFMetadata or RequisitionMetadata models.
+        """
+        return getattr(self.model_obj, "site", self.appointment.site)
 
     def btn_color(self) -> str:
         """Shows as orange to direct user to edit the related visit
@@ -76,4 +84,13 @@ class RelatedVisitButton(DashboardModelButton):
             label = "Done"
         elif self.appointment.appt_status == INCOMPLETE_APPT:
             label = "Incomplete"
+        elif self.appointment.appt_status == IN_PROGRESS_APPT:
+            label = "Visit Report"
         return label
+
+    @property
+    def title(self):
+        title = super().title
+        if self.model_obj and self.model_obj.document_status == INCOMPLETE:
+            title = "Click to review before continuing to forms."
+        return title

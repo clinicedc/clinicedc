@@ -43,9 +43,11 @@ class SubjectVisitViewMixin:
             try:
                 appointment = self.appointment
             except AttributeError as e:
-                raise SubjectVisitViewMixinError(
-                    f"Mixin must be declared together with AppointmentViewMixin. Got {e}"
-                )
+                if "appointment" in str(e):
+                    raise SubjectVisitViewMixinError(
+                        f"Mixin must be declared together with AppointmentViewMixin. Got {e}"
+                    )
+                raise
             else:
                 if appointment:
                     try:
