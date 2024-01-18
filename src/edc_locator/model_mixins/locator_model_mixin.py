@@ -1,5 +1,6 @@
 from django.db import models
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
+from edc_model_wrapper.model_mixins import ModelWrapperMethodsModelMixin
 from edc_utils import get_utcnow
 
 from .locator_methods_model_mixin import LocatorMethodsModelMixin
@@ -21,11 +22,14 @@ class LocatorModelMixin(
     SubjectIndirectContactFieldsMixin,
     SubjectWorkFieldsMixin,
     LocatorMethodsModelMixin,
+    ModelWrapperMethodsModelMixin,
     models.Model,
 ):
 
     """A model completed by the user to that captures participant
     locator information and permission to contact.
+
+    This model is used in ListboardViews.
     """
 
     report_datetime = models.DateTimeField(default=get_utcnow)

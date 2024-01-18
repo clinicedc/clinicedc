@@ -1,9 +1,10 @@
 from django.contrib import admin
 from django.template.loader import render_to_string
 from django_audit_fields.admin import audit_fieldset_tuple
-from edc_consent.utils import get_consent_model_cls
+from edc_consent import site_consents
 from edc_constants.constants import NO, YES
 from edc_model_admin.mixins import ModelAdminProtectPiiMixin
+from edc_sites import site_sites
 from edc_utils import age, get_utcnow
 
 from .fieldsets import (
@@ -65,9 +66,10 @@ class SubjectLocatorModelAdminMixin(ModelAdminProtectPiiMixin):
 
     @admin.display(description="Subject", ordering="subject_identifier")
     def subject(self, obj):
-        consent = get_consent_model_cls().objects.get(
-            subject_identifier=obj.subject_identifier
+        cdef = site_consents.get_consent_definition(
+            report_datetime=obj.report_datetime, site=site_sites.get(obj.site.id)
         )
+        consent = cdef.model_cls.objects.get(subject_identifier=obj.subject_identifier)
         context = dict(
             subject_identifier=obj.subject_identifier,
             gender=consent.gender.upper(),

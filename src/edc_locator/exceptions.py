@@ -1,0 +1,2 @@
+class SubjectLocatorViewMixinError(Exception):
+    pass
