@@ -13,6 +13,9 @@ class BaseModelFormMixinError(Exception):
     pass
 
 
+__all__ = ["BaseModelFormMixinError", "BaseModelFormMixin"]
+
+
 class BaseModelFormMixin(ReportDatetimeModelFormMixin):
 
     """Base modelform mixin for edc forms.
@@ -30,18 +33,6 @@ class BaseModelFormMixin(ReportDatetimeModelFormMixin):
             )
         self.validate_subject_identifier()
         return cleaned_data
-
-    # @property
-    # def subject_identifier(self) -> str:
-    #     """Careful, will be overwritten by a custom defined form
-    #     class.
-    #
-    #     Use get_subject_identifier() instead
-    #
-    #     For example:
-    #         subject_identifier = forms.CharField()
-    #     """
-    #     return self.get_subject_identifier()
 
     def get_subject_identifier(self):
         """Returns subject identifier.
