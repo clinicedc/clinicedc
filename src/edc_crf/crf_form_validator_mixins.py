@@ -4,8 +4,10 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from django.core.exceptions import ObjectDoesNotExist
-from edc_consent.utils import get_consent_model_cls
-from edc_form_validators import ReportDatetimeFormValidatorMixin
+from edc_consent import ConsentDefinitionDoesNotExist, site_consents
+from edc_consent.consent_definition import ConsentDefinition
+from edc_form_validators import INVALID_ERROR, ReportDatetimeFormValidatorMixin
+from edc_sites import site_sites
 from edc_utils import age, to_utc
 from edc_visit_tracking.modelform_mixins import get_related_visit
 
@@ -28,7 +30,23 @@ class BaseFormValidatorMixin(ReportDatetimeFormValidatorMixin):
 
     @property
     def subject_consent(self):
-        return get_consent_model_cls().objects.get(subject_identifier=self.subject_identifier)
+        cdef = self.get_consent_definition_or_raise()
+        return cdef.model_cls.objects.get(subject_identifier=self.subject_identifier)
+
+    def get_consent_definition_or_raise(self) -> ConsentDefinition:
+        """Assert falls within a valid consent period
+
+        See also: modelform (self.get_consent_definition_or_raise())
+        """
+        consent_definition = None
+        try:
+            consent_definition = site_consents.get_consent_definition(
+                report_datetime=self.report_datetime,
+                site=site_sites.get(self.related_visit.site.id),
+            )
+        except ConsentDefinitionDoesNotExist as e:
+            self.raise_validation_error(str(e), INVALID_ERROR)
+        return consent_definition
 
     @property
     def age_in_years(self) -> int | None:
