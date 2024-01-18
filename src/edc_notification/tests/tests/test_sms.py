@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test.testcases import TestCase
-from django.test.utils import override_settings, tag
+from django.test.utils import override_settings
 
 from ...decorators import register
 from ...models import Notification as NotificationModel
@@ -27,7 +27,6 @@ class TwillioTestClientMessages:
 
 
 class TestTwilio(TestCase):
-    @tag("1")
     @override_settings(
         TWILIO_ENABLED=True,
         TWILIO_SENDER="5555555555",
