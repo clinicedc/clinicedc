@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import Counter
 from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any
@@ -267,3 +268,7 @@ def get_onschedule_model_instance(
             f"`{subject_identifier}` and appt_datetime=`{dte_as_str}`. Got {e}"
         )
     return onschedule_obj
+
+
+def get_duplicates(list_items: list[Any]) -> list:
+    return [n for n, count in Counter(list_items).items() if count > 1]
