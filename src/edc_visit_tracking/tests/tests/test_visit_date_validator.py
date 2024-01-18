@@ -1,3 +1,7 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+import time_machine
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase
 from edc_utils import get_utcnow
@@ -8,7 +12,10 @@ from edc_visit_tracking.crf_date_validator import (
     CrfReportDateIsFuture,
 )
 
+utc_tz = ZoneInfo("UTC")
 
+
+@time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestVisitDateValidator(TestCase):
     def test_cls_ok(self):
         dt = get_utcnow()

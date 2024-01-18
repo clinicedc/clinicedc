@@ -1,13 +1,17 @@
+from datetime import date
+
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_constants.constants import HOSPITALIZED, OTHER
 from edc_crf.model_mixins import CrfInlineModelMixin
+from edc_identifier.managers import SubjectIdentifierManager
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_lab.model_mixins import RequisitionModelMixin
 from edc_list_data.model_mixins import ListModelMixin
 from edc_model.models import BaseUuidModel
 from edc_offstudy.model_mixins import OffstudyModelMixin
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
+from edc_screening.model_mixins import ScreeningModelMixin
 from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
@@ -30,17 +34,27 @@ list_data = {
 }
 
 
+class SubjectScreening(ScreeningModelMixin, BaseUuidModel):
+    objects = SubjectIdentifierManager()
+
+
 class SubjectConsent(
+    SiteModelMixin,
     NonUniqueSubjectIdentifierFieldMixin,
     UpdatesOrCreatesRegistrationModelMixin,
     BaseUuidModel,
 ):
-    consent_datetime = models.DateTimeField(default=get_utcnow)
-
     report_datetime = models.DateTimeField(default=get_utcnow)
 
-    class Meta(BaseUuidModel.Meta):
-        pass
+    consent_datetime = models.DateTimeField(default=get_utcnow)
+
+    version = models.CharField(max_length=25, default="1")
+
+    identity = models.CharField(max_length=25)
+
+    confirm_identity = models.CharField(max_length=25)
+
+    dob = models.DateField(default=date(1995, 1, 1))
 
 
 class OnScheduleOne(SiteModelMixin, OnScheduleModelMixin, BaseUuidModel):

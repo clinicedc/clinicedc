@@ -1,5 +1,8 @@
+from datetime import datetime
 from unittest.mock import patch
+from zoneinfo import ZoneInfo
 
+import time_machine
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.test import TestCase
@@ -17,7 +20,10 @@ from edc_visit_tracking.models import SubjectVisit
 from ..helper import Helper
 from ..visit_schedule import visit_schedule1, visit_schedule2
 
+utc_tz = ZoneInfo("UTC")
 
+
+@time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestSubjectVisitFormValidator(TestCase):
     helper_cls = Helper
 
@@ -31,11 +37,13 @@ class TestSubjectVisitFormValidator(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule1",
+            schedule_name="schedule1",
+        )
         self.appointment = Appointment.objects.all().order_by("timepoint_datetime")[0]
 
     def test_form_validator_ok(self):
-        self.helper.consent_and_put_on_schedule()
         appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
         cleaned_data = dict(
