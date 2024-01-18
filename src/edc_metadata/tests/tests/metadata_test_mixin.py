@@ -1,7 +1,5 @@
 from django.test import TestCase
 from edc_appointment.models import Appointment
-from edc_consent.site_consents import AlreadyRegistered
-from edc_consent.tests.consent_test_utils import consent_definition_factory
 from edc_facility import import_holidays
 from edc_lab.models import Panel
 from edc_utils import get_utcnow
@@ -27,12 +25,6 @@ class TestMetadataMixin(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
-        for schedule in visit_schedule.schedules.values():
-            try:
-                consent_definition_factory(model=schedule.consent_model)
-            except AlreadyRegistered:
-                pass
-
         self.subject_identifier = "1111111"
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
         self.assertEqual(RequisitionMetadata.objects.all().count(), 0)

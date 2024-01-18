@@ -11,6 +11,7 @@ from edc_metadata.constants import KEYED, REQUIRED
 from edc_metadata.metadata_refresher import MetadataRefresher
 from edc_metadata.models import CrfMetadata
 
+from ..consents import consent_v1
 from ..models import CrfFive, CrfOne, SubjectVisit
 from .metadata_test_mixin import TestMetadataMixin
 
@@ -122,7 +123,7 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
             name="schedule",
             onschedule_model="edc_metadata.onschedule",
             offschedule_model="edc_metadata.offschedule",
-            consent_model="edc_metadata.subjectconsent",
+            consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
         schedule.add_visit(visit)

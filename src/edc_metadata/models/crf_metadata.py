@@ -2,12 +2,13 @@ from django.apps import apps as django_apps
 from django.db import models
 from django.db.models import UniqueConstraint
 from edc_model.models import BaseUuidModel
+from edc_model_wrapper.model_mixins import ModelWrapperMethodsModelMixin
 
 from ..managers import CrfMetadataManager
 from .crf_metadata_model_mixin import CrfMetadataModelMixin
 
 
-class CrfMetadata(CrfMetadataModelMixin, BaseUuidModel):
+class CrfMetadata(CrfMetadataModelMixin, ModelWrapperMethodsModelMixin, BaseUuidModel):
     objects = CrfMetadataManager()
 
     def __str__(self) -> str:

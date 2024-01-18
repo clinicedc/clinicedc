@@ -10,6 +10,8 @@ from edc_visit_schedule.visit import (
 )
 from edc_visit_schedule.visit_schedule import VisitSchedule
 
+from edc_metadata.tests.consents import consent_v1
+
 app_label = "edc_metadata"
 
 
@@ -123,7 +125,7 @@ schedule = Schedule(
     name="schedule",
     onschedule_model="edc_metadata.onschedule",
     offschedule_model="edc_metadata.offschedule",
-    consent_model="edc_metadata.subjectconsent",
+    consent_definitions=[consent_v1],
     appointment_model="edc_appointment.appointment",
 )
 
