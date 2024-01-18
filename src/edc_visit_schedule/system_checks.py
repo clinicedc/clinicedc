@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from collections import defaultdict
+from collections import Counter, defaultdict
 from typing import TYPE_CHECKING
 
 from django.core.checks import Error, Warning
 from django.db import models
 
 from .site_visit_schedules import site_visit_schedules
-from .utils import get_duplicates
 from .visit import CrfCollection
 
 if TYPE_CHECKING:
@@ -91,61 +90,47 @@ def check_multiple_proxies_same_proxy_root(
     visit_crf_collection: CrfCollection,
     visit_type: str,
 ) -> Error | None:
+    # Find all proxy models, and map from their 'proxy root' models
     all_proxy_models = get_proxy_models(collection=visit_crf_collection) + get_proxy_models(
         collection=visit.crfs_prn
     )
-    proxy_roots = [get_proxy_root_model(m) for m in all_proxy_models]
+    proxy_root_to_child_proxies: defaultdict[str, list[str]] = defaultdict(list)
+    for proxy_model in all_proxy_models:
+        child_proxy_model_str = proxy_model._meta.label.lower()
+        proxy_root_model_str = get_proxy_root_model(proxy_model)._meta.label.lower()
+        proxy_root_to_child_proxies[proxy_root_model_str].append(child_proxy_model_str)
 
-    if duplicate_proxy_roots := get_duplicates(proxy_roots):
-        # Determine if there is a clash with multiple proxies with the same proxy root model
-        non_shared_proxy_root_models = get_proxy_models(
-            collection=CrfCollection(
-                *[f for f in visit_crf_collection if not f.shares_proxy_root]
-            )
-        ) + get_proxy_models(
-            collection=CrfCollection(*[f for f in visit.crfs_prn if not f.shares_proxy_root])
+    # Find proxy models declared as sharing a proxy root
+    proxies_sharing_roots = get_proxy_models(
+        collection=CrfCollection(*[f for f in visit_crf_collection if f.shares_proxy_root])
+    ) + get_proxy_models(
+        collection=CrfCollection(*[f for f in visit.crfs_prn if f.shares_proxy_root])
+    )
+    proxies_sharing_roots_counter = Counter(
+        [m._meta.label.lower() for m in proxies_sharing_roots]
+    )
+
+    # Filter out valid models/prepare error list
+    for proxy_root in list(proxy_root_to_child_proxies):
+        proxies_counter = Counter(proxy_root_to_child_proxies[proxy_root])
+        if proxies_counter & proxies_sharing_roots_counter == proxies_counter:
+            # OK if proxies counter reflects ALL defined proxy shared roots
+            del proxy_root_to_child_proxies[proxy_root]
+        elif len(proxies_counter) == 1 and next(iter(proxies_counter.values())) <= 2:
+            # OK for a single proxy to be defined in two places (CRFs collection + PRNs)
+            del proxy_root_to_child_proxies[proxy_root]
+        else:
+            proxy_root_to_child_proxies[proxy_root].sort()
+
+    if proxy_root_to_child_proxies:
+        return Error(
+            "Multiple proxies with same proxy root model appear for "
+            "a visit. If this is intentional, consider using "
+            "`shares_proxy_root` argument when defining Crf. "
+            f"Got '{visit}' '{visit_type}' visit Crf collection. "
+            f"Proxy root/child models: {dict(proxy_root_to_child_proxies)}",
+            id="edc_visit_schedule.004",
         )
-
-        proxy_root_clashes = defaultdict(list)
-        for pm in non_shared_proxy_root_models:
-            proxy_root_model = get_proxy_root_model(pm)
-            if proxy_root_model in duplicate_proxy_roots:
-                proxy_root_clashes[proxy_root_model._meta.label_lower].append(
-                    pm._meta.label_lower
-                )
-
-        # Prepare error message and add
-        if proxy_root_clashes:
-            shared_proxy_root_models = get_proxy_models(
-                collection=CrfCollection(
-                    *[f for f in visit_crf_collection if f.shares_proxy_root]
-                )
-            ) + get_proxy_models(
-                collection=CrfCollection(*[f for f in visit.crfs_prn if f.shares_proxy_root])
-            )
-            for pm in shared_proxy_root_models:
-                proxy_root_model = get_proxy_root_model(pm)
-                if proxy_root_model in duplicate_proxy_roots:
-                    proxy_root_clashes[proxy_root_model._meta.label_lower].append(
-                        pm._meta.label_lower
-                    )
-            for prm in list(proxy_root_clashes):
-                # exclude if all clashed are same proxy model
-                if len(set(proxy_root_clashes[prm])) == 1:
-                    del proxy_root_clashes[prm]
-                else:
-                    proxy_root_clashes[prm].sort()
-            # proxy_root_clashes[prm].sort()
-
-            if proxy_root_clashes:
-                return Error(
-                    "Multiple proxies with same proxy root model appear for "
-                    "a visit. If this is intentional, consider using "
-                    "`shares_proxy_root` argument when defining Crf. "
-                    f"Got '{visit}' '{visit_type}' visit Crf collection. "
-                    f"Proxy root/child models: {dict(proxy_root_clashes)}",
-                    id="edc_visit_schedule.004",
-                )
 
 
 def get_models(collection: CrfCollection) -> list[models.Model]:

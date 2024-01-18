@@ -945,7 +945,7 @@ class TestSystemChecks(TestCase):
             fc_errors[0].msg,
         )
 
-    def test_two_proxy_roots_shared_but_not_defined_raises(self):
+    def test_proxy_roots_shared_but_not_defined_raises(self):
         site_visit_schedules._registry = {}
         visit_schedule = self.visit_schedule
         schedule = self.schedule
@@ -996,7 +996,7 @@ class TestSystemChecks(TestCase):
             fc_errors[0].msg,
         )
 
-    def test_two_proxy_roots_shared_but_not_defined_case2(self):
+    def test_proxy_roots_shared_but_not_defined_case2(self):
         site_visit_schedules._registry = {}
         visit_schedule = self.visit_schedule
         schedule = self.schedule
@@ -1037,7 +1037,7 @@ class TestSystemChecks(TestCase):
                         "visit_schedule_app.crfoneproxyone",
                         "visit_schedule_app.crfoneproxyone",
                         "visit_schedule_app.crfoneproxytwo",
-                    ],
+                    ]
                 }
             ),
             fc_errors[0].msg,
@@ -1051,9 +1051,7 @@ class TestSystemChecks(TestCase):
             Crf(show_order=10, model="visit_schedule_app.CrfOneProxyOne"),
             Crf(show_order=25, model="visit_schedule_app.CrfOneProxyTwo"),
         )
-        prns = CrfCollection(
-            Crf(show_order=15, model="visit_schedule_app.CrfOneProxyOne"),
-        )
+        prns = CrfCollection(Crf(show_order=15, model="visit_schedule_app.CrfOneProxyOne"))
 
         visit = Visit(
             code="1000",
@@ -1416,16 +1414,13 @@ class TestSystemChecks(TestCase):
             fc_errors[0].msg,
         )
 
-    def test_shared_parent_ok_if_all_proxy_models_same(self):
+    def test_proxy_model_crf_with_identical_proxy_model_in_prns_ok(self):
         site_visit_schedules._registry = {}
         visit_schedule = self.visit_schedule
         schedule = self.schedule
-        crfs = CrfCollection(
-            Crf(show_order=10, model="visit_schedule_app.CrfOneProxyOne", required=True),
-        )
-        prns = CrfCollection(
-            Crf(show_order=15, model="visit_schedule_app.CrfOneProxyOne"),
-        )
+        crfs = CrfCollection(Crf(show_order=10, model="visit_schedule_app.CrfOneProxyOne"))
+        prns = CrfCollection(Crf(show_order=15, model="visit_schedule_app.CrfOneProxyOne"))
+
         visit = Visit(
             code="1000",
             rbase=relativedelta(days=0),
@@ -1445,3 +1440,320 @@ class TestSystemChecks(TestCase):
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertListEqual(fc_errors, [])
+
+    def test_proxy_shares_root_true_crf_with_identical_proxy_not_sharing_root_in_prns_ok(
+        self,
+    ):
+        site_visit_schedules._registry = {}
+        visit_schedule = self.visit_schedule
+        schedule = self.schedule
+        crfs = CrfCollection(
+            Crf(
+                show_order=10,
+                model="visit_schedule_app.CrfOneProxyOne",
+                shares_proxy_root=True,
+            )
+        )
+        prns = CrfCollection(Crf(show_order=15, model="visit_schedule_app.CrfOneProxyOne"))
+
+        visit = Visit(
+            code="1000",
+            rbase=relativedelta(days=0),
+            rlower=relativedelta(days=0),
+            rupper=relativedelta(days=6),
+            facility_name="default",
+            crfs=crfs,
+            crfs_prn=prns,
+            timepoint=1,
+        )
+        schedule.add_visit(visit)
+        visit_schedule.add_schedule(schedule)
+        site_visit_schedules.register(visit_schedule)
+
+        vs_errors = visit_schedule_check(app_configs=django_apps.get_app_configs())
+        self.assertListEqual(vs_errors, [])
+
+        fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
+        self.assertListEqual(fc_errors, [])
+
+    def test_proxy_crf_not_sharing_root_with_identical_proxy_shares_root_true_in_prns_ok(
+        self,
+    ):
+        site_visit_schedules._registry = {}
+        visit_schedule = self.visit_schedule
+        schedule = self.schedule
+        crfs = CrfCollection(Crf(show_order=10, model="visit_schedule_app.CrfOneProxyOne"))
+        prns = CrfCollection(
+            Crf(
+                show_order=15,
+                model="visit_schedule_app.CrfOneProxyOne",
+                shares_proxy_root=True,
+            )
+        )
+
+        visit = Visit(
+            code="1000",
+            rbase=relativedelta(days=0),
+            rlower=relativedelta(days=0),
+            rupper=relativedelta(days=6),
+            facility_name="default",
+            crfs=crfs,
+            crfs_prn=prns,
+            timepoint=1,
+        )
+        schedule.add_visit(visit)
+        visit_schedule.add_schedule(schedule)
+        site_visit_schedules.register(visit_schedule)
+
+        vs_errors = visit_schedule_check(app_configs=django_apps.get_app_configs())
+        self.assertListEqual(vs_errors, [])
+
+        fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
+        self.assertListEqual(fc_errors, [])
+
+    def test_one_crf_proxy_shares_root_true_with_another_proxy_prn_not_defined_raises(
+        self,
+    ):
+        site_visit_schedules._registry = {}
+        visit_schedule = self.visit_schedule
+        schedule = self.schedule
+        crfs = CrfCollection(
+            Crf(
+                show_order=10,
+                model="visit_schedule_app.CrfOneProxyOne",
+                shares_proxy_root=True,
+            )
+        )
+        prns = CrfCollection(
+            Crf(
+                show_order=10,
+                model="visit_schedule_app.CrfOneProxyOne",
+                shares_proxy_root=True,
+            ),
+            Crf(show_order=35, model="visit_schedule_app.CrfOneProxyThree"),
+        )
+
+        visit = Visit(
+            code="1000",
+            rbase=relativedelta(days=0),
+            rlower=relativedelta(days=0),
+            rupper=relativedelta(days=6),
+            facility_name="default",
+            crfs=crfs,
+            crfs_prn=prns,
+            timepoint=1,
+        )
+        schedule.add_visit(visit)
+        visit_schedule.add_schedule(schedule)
+        site_visit_schedules.register(visit_schedule)
+
+        vs_errors = visit_schedule_check(app_configs=django_apps.get_app_configs())
+        self.assertListEqual(vs_errors, [])
+
+        fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
+        self.assertEqual(len(fc_errors), 3)
+        self.assertEqual("edc_visit_schedule.004", fc_errors[0].id)
+        self.assertIn(
+            str(
+                {
+                    "visit_schedule_app.crfone": [
+                        "visit_schedule_app.crfoneproxyone",
+                        "visit_schedule_app.crfoneproxyone",
+                        "visit_schedule_app.crfoneproxythree",
+                    ]
+                }
+            ),
+            fc_errors[0].msg,
+        )
+        self.assertIn(
+            str(
+                {
+                    "visit_schedule_app.crfone": [
+                        "visit_schedule_app.crfoneproxyone",
+                        "visit_schedule_app.crfoneproxythree",
+                    ]
+                }
+            ),
+            fc_errors[1].msg,
+        )
+        self.assertIn(
+            str(
+                {
+                    "visit_schedule_app.crfone": [
+                        "visit_schedule_app.crfoneproxyone",
+                        "visit_schedule_app.crfoneproxythree",
+                    ]
+                }
+            ),
+            fc_errors[2].msg,
+        )
+
+    def test_multiple_proxy_crfs_prns_some_shared_some_not_raises(
+        self,
+    ):
+        site_visit_schedules._registry = {}
+        visit_schedule = self.visit_schedule
+        schedule = self.schedule
+        crfs = CrfCollection(
+            Crf(
+                show_order=10,
+                model="visit_schedule_app.CrfOneProxyOne",
+                shares_proxy_root=True,
+            ),
+            Crf(
+                show_order=35,
+                model="visit_schedule_app.CrfOneProxyThree",
+            ),
+        )
+        prns = CrfCollection(
+            Crf(
+                show_order=10,
+                model="visit_schedule_app.CrfOneProxyOne",
+            ),
+            Crf(
+                show_order=35,
+                model="visit_schedule_app.CrfOneProxyThree",
+                shares_proxy_root=True,
+            ),
+        )
+
+        visit = Visit(
+            code="1000",
+            rbase=relativedelta(days=0),
+            rlower=relativedelta(days=0),
+            rupper=relativedelta(days=6),
+            facility_name="default",
+            crfs=crfs,
+            crfs_prn=prns,
+            timepoint=1,
+        )
+        schedule.add_visit(visit)
+        visit_schedule.add_schedule(schedule)
+        site_visit_schedules.register(visit_schedule)
+
+        vs_errors = visit_schedule_check(app_configs=django_apps.get_app_configs())
+        self.assertListEqual(vs_errors, [])
+
+        fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
+        # self.assertEqual(len(fc_errors), 3)
+        self.assertEqual("edc_visit_schedule.004", fc_errors[0].id)
+        self.assertIn(
+            str(
+                {
+                    "visit_schedule_app.crfone": [
+                        "visit_schedule_app.crfoneproxyone",
+                        "visit_schedule_app.crfoneproxyone",
+                        "visit_schedule_app.crfoneproxythree",
+                        "visit_schedule_app.crfoneproxythree",
+                    ]
+                }
+            ),
+            fc_errors[0].msg,
+        )
+        self.assertIn(
+            str(
+                {
+                    "visit_schedule_app.crfone": [
+                        "visit_schedule_app.crfoneproxyone",
+                        "visit_schedule_app.crfoneproxythree",
+                    ]
+                }
+            ),
+            fc_errors[1].msg,
+        )
+        self.assertIn(
+            str(
+                {
+                    "visit_schedule_app.crfone": [
+                        "visit_schedule_app.crfoneproxyone",
+                        "visit_schedule_app.crfoneproxythree",
+                    ]
+                }
+            ),
+            fc_errors[2].msg,
+        )
+
+    def test_multiple_proxy_crfs_shares_proxy_true_with_proxy_prns_not_defined_raises(
+        self,
+    ):
+        site_visit_schedules._registry = {}
+        visit_schedule = self.visit_schedule
+        schedule = self.schedule
+        crfs = CrfCollection(
+            Crf(
+                show_order=10,
+                model="visit_schedule_app.CrfOneProxyOne",
+                shares_proxy_root=True,
+            ),
+            Crf(
+                show_order=35,
+                model="visit_schedule_app.CrfOneProxyThree",
+                shares_proxy_root=True,
+            ),
+        )
+        prns = CrfCollection(
+            Crf(
+                show_order=10,
+                model="visit_schedule_app.CrfOneProxyOne",
+            ),
+            Crf(
+                show_order=35,
+                model="visit_schedule_app.CrfOneProxyThree",
+            ),
+        )
+
+        visit = Visit(
+            code="1000",
+            rbase=relativedelta(days=0),
+            rlower=relativedelta(days=0),
+            rupper=relativedelta(days=6),
+            facility_name="default",
+            crfs=crfs,
+            crfs_prn=prns,
+            timepoint=1,
+        )
+        schedule.add_visit(visit)
+        visit_schedule.add_schedule(schedule)
+        site_visit_schedules.register(visit_schedule)
+
+        vs_errors = visit_schedule_check(app_configs=django_apps.get_app_configs())
+        self.assertListEqual(vs_errors, [])
+
+        fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
+        self.assertEqual(len(fc_errors), 3)
+        self.assertEqual("edc_visit_schedule.004", fc_errors[0].id)
+        self.assertIn(
+            str(
+                {
+                    "visit_schedule_app.crfone": [
+                        "visit_schedule_app.crfoneproxyone",
+                        "visit_schedule_app.crfoneproxyone",
+                        "visit_schedule_app.crfoneproxythree",
+                        "visit_schedule_app.crfoneproxythree",
+                    ]
+                }
+            ),
+            fc_errors[0].msg,
+        )
+        self.assertIn(
+            str(
+                {
+                    "visit_schedule_app.crfone": [
+                        "visit_schedule_app.crfoneproxyone",
+                        "visit_schedule_app.crfoneproxythree",
+                    ]
+                }
+            ),
+            fc_errors[1].msg,
+        )
+        self.assertIn(
+            str(
+                {
+                    "visit_schedule_app.crfone": [
+                        "visit_schedule_app.crfoneproxyone",
+                        "visit_schedule_app.crfoneproxythree",
+                    ]
+                }
+            ),
+            fc_errors[2].msg,
+        )
