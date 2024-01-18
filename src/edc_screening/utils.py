@@ -12,7 +12,7 @@ from django.urls import NoReverseMatch, reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from edc_dashboard import url_names
-from edc_dashboard.url_names import InvalidUrlName
+from edc_dashboard.url_names import InvalidDashboardUrlName
 
 from .constants import ELIGIBLE, NOT_ELIGIBLE
 from .exceptions import InvalidScreeningIdentifierFormat
@@ -102,7 +102,7 @@ def is_eligible_or_raise(
     url_name = url_name or "screening_listboard_url"
     try:
         url_name = url_names.get(url_name)
-    except InvalidUrlName:
+    except InvalidDashboardUrlName:
         pass
 
     if not subject_screening.eligible:
