@@ -13,7 +13,6 @@ from edc_auth.site_auths import site_auths
 from edc_listboard.filters import ListboardFilter, ListboardViewFilters
 from edc_listboard.view_mixins import ListboardFilterViewMixin, QueryStringViewMixin
 from edc_listboard.views import ListboardView
-from edc_model_wrapper import ModelWrapper
 from edc_registration.models import RegisteredSubject
 from edc_sites.single_site import SingleSite
 from edc_sites.site import sites
@@ -87,10 +86,6 @@ class TestViewMixins(SiteTestCaseMixin, TestCase):
                 self.assertEqual(attr, view.get_context_data().get(attr), attr)
 
     def test_listboard_filter_view(self):
-        class RelatedVisitModelWrapper(ModelWrapper):
-            model = "edc_dashboard.subjectvisit"
-            next_url_name = "dashboard_url"
-
         class MyListboardViewFilters(ListboardViewFilters):
             all = ListboardFilter(name="all", label="All", lookup={})
 
@@ -110,7 +105,6 @@ class TestViewMixins(SiteTestCaseMixin, TestCase):
             listboard_template = "listboard_template"
             listboard_filter_url = "listboard_url"
             listboard_view_permission_codename = "edc_dashboard.view_my_listboard"
-            model_wrapper_cls = RelatedVisitModelWrapper
             listboard_view_filters = MyListboardViewFilters()
 
         start = datetime(2013, 5, 1, 12, 30, tzinfo=ZoneInfo("UTC"))
@@ -137,10 +131,6 @@ class TestViewMixins(SiteTestCaseMixin, TestCase):
         )
         object_list = template_response.__dict__.get("context_data").get("object_list")
         self.assertEqual(
-            [
-                wrapper.object.reason
-                for wrapper in object_list
-                if wrapper.object.pk == subject_visit.pk
-            ],
+            [obj.reason for obj in object_list if obj.pk == subject_visit.pk],
             [subject_visit.reason],
         )

@@ -2,7 +2,7 @@ from edc_protocol import Protocol
 from edc_utils.text import convert_from_camel
 
 from ..url_config import UrlConfig
-from ..url_names import InvalidUrlName, url_names
+from ..url_names import InvalidDashboardUrlName, url_names
 
 
 class UrlRequestContextError(Exception):
@@ -44,7 +44,7 @@ class UrlRequestContextMixin:
         """
         try:
             url_data = {new_key: url_names.get(existing_key)}
-        except InvalidUrlName as e:
+        except InvalidDashboardUrlName as e:
             raise UrlRequestContextError(
                 f"Url name not defined in url_names. "
                 f"Expected one of {url_names.registry}. Got {e}. "
