@@ -6,10 +6,11 @@ from edc_consent.site_consents import site_consents
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
 
+from edc_visit_schedule.exceptions import SubjectScheduleError
 from edc_visit_schedule.models import SubjectScheduleHistory
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_schedule.subject_schedule import SubjectSchedule, SubjectScheduleError
+from edc_visit_schedule.subject_schedule import SubjectSchedule
 from edc_visit_schedule.visit_schedule import VisitSchedule
 from visit_schedule_app.consents import v1_consent
 from visit_schedule_app.models import OffSchedule, OnSchedule, SubjectConsent
