@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Any
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.handlers.wsgi import WSGIRequest as BaseWSGIRequest
 from django.core.management.color import color_style
@@ -18,7 +17,7 @@ from edc_constants.constants import OTHER
 from edc_model_admin.utils import add_to_messages_once
 
 from .auths import view_auditallsites_codename
-from .exceptions import InvalidSiteError, InvalidSiteForUser
+from .exceptions import InvalidSiteForUser
 from .single_site import SingleSite
 from .utils import (
     get_change_codenames,
@@ -239,13 +238,6 @@ class Sites:
         if request:
             user = request.user
             site_id = request.site.id
-
-        if site_id != get_current_site(request).id:
-            raise InvalidSiteError(
-                f"Expected the current site. Current site is "
-                f"`{get_current_site(request).id}`. "
-                f"See user `{user}`. Got {site_id}."
-            )
         site_id = sites.get(site_id).site_id
         has_profile_or_raise(user)
         sites.site_in_profile_or_raise(user=user, site_id=site_id)
@@ -265,8 +257,20 @@ class Sites:
                     )
         return site_ids
 
-    def user_may_view_other_sites(self, request: WSGIRequest) -> bool:
-        return True if self.get_view_only_site_ids_for_user(request=request) else False
+    def user_may_view_other_sites(
+        self,
+        request: WSGIRequest = None,
+        user: User = None,
+        site_id: int = None,
+        current_site_id: int = None,
+    ) -> bool:
+        if self.get_view_only_site_ids_for_user(
+            request=request,
+            user=user,
+            site_id=site_id,
+        ):
+            return True
+        return False
 
     @staticmethod
     def site_in_profile_or_raise(user: User, site_id: int) -> None:
@@ -295,7 +299,7 @@ class Sites:
         return tuple((k, v) for k, v in languages.items())
 
     @staticmethod
-    def get_current_site_obj(request: WSGIRequest | None) -> Site:
+    def get_current_site_obj(request: WSGIRequest | None = None) -> Site:
         if request:
             return request.site
         return get_site_model_cls().objects.get_current()
@@ -371,6 +375,7 @@ class Sites:
                         raise SitesError(str(e))
             except ImportError:
                 pass
+        writer(f" Done loading {module_name}.\n")
 
 
 sites = Sites()

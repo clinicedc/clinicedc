@@ -13,9 +13,9 @@ class SiteCountryRequiredError(Exception):
     pass
 
 
-@dataclass(init=True)
+@dataclass(order=True)
 class SingleSite:
-    site_id: int
+    site_id: int = field(compare=True)
     name: str
     domain: str
     _: KW_ONLY
