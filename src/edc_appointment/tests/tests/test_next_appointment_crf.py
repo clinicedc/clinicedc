@@ -5,7 +5,7 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
-from edc_consent import site_consents
+from edc_consent.site_consents import site_consents
 from edc_constants.constants import NOT_APPLICABLE, PATIENT
 from edc_facility import import_holidays
 from edc_facility.models import HealthFacility, HealthFacilityTypes
@@ -21,7 +21,7 @@ from edc_appointment.models import Appointment, InfoSources
 from edc_appointment_app.consents import v1_consent
 from edc_appointment_app.forms import NextAppointmentCrfForm
 from edc_appointment_app.models import NextAppointmentCrf, SubjectConsent
-from edc_appointment_app.visit_schedule import visit_schedule6
+from edc_appointment_app.visit_schedule import get_visit_schedule6
 
 utc = ZoneInfo("UTC")
 tz = ZoneInfo("Africa/Dar_es_Salaam")
@@ -38,7 +38,7 @@ class TestNextAppointmentCrf(TestCase):
         self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
-        site_visit_schedules.register(visit_schedule6)
+        site_visit_schedules.register(get_visit_schedule6())
         site_consents.registry = {}
         site_consents.register(v1_consent)
         populate_visit_schedule()

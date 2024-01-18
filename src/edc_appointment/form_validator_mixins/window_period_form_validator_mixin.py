@@ -65,9 +65,9 @@ class WindowPeriodFormValidatorMixin:
                     lower = floor_secs(get_lower_datetime(appointment)).strftime(
                         datetimestring
                     )
-                    upper = floor_secs(get_lower_datetime(appointment.next)).strftime(
-                        datetimestring
-                    )
+                    upper = floor_secs(
+                        get_lower_datetime(get_upper_datetime(appointment.next))
+                    ).strftime(datetimestring)
                     self.raise_validation_error(
                         {
                             form_field: (

@@ -18,7 +18,16 @@ from ..constants import (
     NEW_APPT,
     UNSCHEDULED_APPT,
 )
-from ..exceptions import AppointmentPermissionsRequired, AppointmentWindowError
+from ..exceptions import (
+    AppointmentInProgressError,
+    AppointmentPermissionsRequired,
+    AppointmentWindowError,
+    InvalidParentAppointmentMissingVisitError,
+    InvalidParentAppointmentStatusError,
+    InvalidVisitCodeSequencesError,
+    UnscheduledAppointmentError,
+    UnscheduledAppointmentNotAllowed,
+)
 from .appointment_creator import AppointmentCreator, CreateAppointmentError
 
 if TYPE_CHECKING:
@@ -26,33 +35,7 @@ if TYPE_CHECKING:
 
     from ..models import Appointment
 
-
-class UnscheduledAppointmentError(Exception):
-    pass
-
-
-class UnscheduledAppointmentNotAllowed(Exception):
-    pass
-
-
-class InvalidVisitCodeSequencesError(Exception):
-    pass
-
-
-class InvalidTimepointError(Exception):
-    pass
-
-
-class InvalidParentAppointmentStatusError(Exception):
-    pass
-
-
-class InvalidParentAppointmentMissingVisitError(Exception):
-    pass
-
-
-class AppointmentInProgressError(Exception):
-    pass
+__all__ = ["UnscheduledAppointmentCreator"]
 
 
 class UnscheduledAppointmentCreator:

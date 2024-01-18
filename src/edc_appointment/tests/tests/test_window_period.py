@@ -18,15 +18,15 @@ from edc_appointment.constants import (
     MISSED_APPT,
     ONTIME_APPT,
 )
-from edc_appointment.creators import (
-    UnscheduledAppointmentCreator,
+from edc_appointment.creators import UnscheduledAppointmentCreator
+from edc_appointment.exceptions import (
+    AppointmentWindowError,
     UnscheduledAppointmentError,
 )
-from edc_appointment.exceptions import AppointmentWindowError
 from edc_appointment.forms import AppointmentForm
 from edc_appointment.models import Appointment
 from edc_appointment_app.models import SubjectVisit
-from edc_appointment_app.visit_schedule import visit_schedule3
+from edc_appointment_app.visit_schedule import get_visit_schedule3
 
 from ...utils import AppointmentDateWindowPeriodGapError, get_appointment_by_datetime
 from ..helper import Helper
@@ -46,7 +46,7 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
     def setUp(self):
         self.subject_identifier = "12345"
         site_visit_schedules._registry = {}
-        site_visit_schedules.register(visit_schedule=visit_schedule3)
+        site_visit_schedules.register(get_visit_schedule3())
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=get_utcnow() - relativedelta(years=2),  # Protocol().study_open_datetime,

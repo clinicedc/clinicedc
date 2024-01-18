@@ -5,7 +5,7 @@ import time_machine
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
 from django.test import TestCase, override_settings
-from edc_consent import site_consents
+from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -18,7 +18,7 @@ from edc_appointment.models import Appointment, appointments_on_post_delete
 from edc_appointment.utils import delete_appointment_in_sequence
 from edc_appointment_app.consents import v1_consent
 from edc_appointment_app.models import SubjectVisit
-from edc_appointment_app.visit_schedule import visit_schedule1, visit_schedule2
+from edc_appointment_app.visit_schedule import get_visit_schedule1, get_visit_schedule2
 
 from ..helper import Helper
 
@@ -44,15 +44,19 @@ class TestDeleteAppointment(TestCase):
         post_save.disconnect(dispatch_uid="appointments_on_post_delete")
         self.subject_identifier = "12345"
         site_visit_schedules._registry = {}
-        site_visit_schedules.register(visit_schedule=visit_schedule1)
-        site_visit_schedules.register(visit_schedule=visit_schedule2)
+        self.visit_schedule1 = get_visit_schedule1()
+        self.visit_schedule2 = get_visit_schedule2()
+        site_visit_schedules.register(self.visit_schedule1)
+        site_visit_schedules.register(self.visit_schedule2)
         site_consents.registry = {}
         site_consents.register(v1_consent)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=Protocol().study_open_datetime,
         )
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name=self.visit_schedule1.name, schedule_name="schedule1"
+        )
         appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
         self.assertEqual(appointments.count(), 4)
 
@@ -61,7 +65,7 @@ class TestDeleteAppointment(TestCase):
             appointment=appointment,
             subject_identifier=appointment.subject_identifier,
             report_datetime=appointment.appt_datetime,
-            visit_schedule_name=visit_schedule1.name,
+            visit_schedule_name=self.visit_schedule1.name,
             schedule_name="schedule1",
             visit_code="1000",
             reason=SCHEDULED,
@@ -73,7 +77,7 @@ class TestDeleteAppointment(TestCase):
         for i in range(1, 4):
             creator = UnscheduledAppointmentCreator(
                 subject_identifier=self.subject_identifier,
-                visit_schedule_name=visit_schedule1.name,
+                visit_schedule_name=self.visit_schedule1.name,
                 schedule_name="schedule1",
                 visit_code="1000",
                 suggested_visit_code_sequence=appointment.visit_code_sequence + 1,

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 from datetime import datetime
 from unittest import skip
@@ -8,8 +10,8 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
-from edc_consent import site_consents
 from edc_consent.consent_definition import ConsentDefinition
+from edc_consent.site_consents import site_consents
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_facility.utils import get_facility
@@ -46,7 +48,7 @@ class AppointmentCreatorTestCase(TestCase):
             onschedule_model="edc_appointment_app.onschedule",
             offschedule_model="edc_appointment_app.offschedule",
             appointment_model="edc_appointment.appointment",
-            consent_model="edc_appointment_app.subjectconsent",
+            consent_definitions=[v1_consent],
         )
 
         self.visit1000 = Visit(
@@ -80,7 +82,7 @@ class AppointmentCreatorTestCase(TestCase):
         self.schedule.add_visit(self.visit1010)
         self.visit_schedule.add_schedule(self.schedule)
 
-        site_visit_schedules.register(visit_schedule=self.visit_schedule)
+        site_visit_schedules.register(self.visit_schedule)
         site_consents.registry = {}
         site_consents.register(v1_consent)
 
@@ -96,10 +98,13 @@ class AppointmentCreatorTestCase(TestCase):
 
         self.model_obj = DummyAppointmentObj()
 
-    def put_on_schedule(self, dt):
+    def put_on_schedule(self, dt, consent_definition: ConsentDefinition | None = None):
         self.helper = self.helper_cls(subject_identifier=self.subject_identifier, now=dt)
         self.helper.consent_and_put_on_schedule(
-            visit_schedule_name="visit_schedule", schedule_name="schedule"
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name=self.schedule.name,
+            report_datetime=dt,
+            consent_definition=consent_definition,
         )
 
 
@@ -275,7 +280,7 @@ class TestAppointmentCreator2(AppointmentCreatorTestCase):
             gender=[MALE, FEMALE],
         )
         site_consents.register(consent_definition)
-        self.put_on_schedule(appt_datetime)
+        self.put_on_schedule(appt_datetime, consent_definition)
 
         expected_appt_datetime = datetime(1900, 1, 2, tzinfo=ZoneInfo("UTC"))
         creator = AppointmentCreator(

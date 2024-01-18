@@ -32,6 +32,8 @@ from .missed_appointment_model_mixin import MissedAppointmentModelMixin
 from .window_period_model_mixin import WindowPeriodModelMixin
 
 if TYPE_CHECKING:
+    from edc_visit_schedule.schedule import Schedule
+
     from ..models import Appointment
 
 
@@ -70,7 +72,7 @@ class AppointmentModelMixin(
                 visit_schedule = site_visit_schedules.get_visit_schedule(
                     self.visit_schedule_name
                 )
-                schedule = visit_schedule.schedules.get(self.schedule_name)
+                schedule: Schedule = visit_schedule.schedules.get(self.schedule_name)
                 try:
                     onschedule_obj = django_apps.get_model(
                         schedule.onschedule_model

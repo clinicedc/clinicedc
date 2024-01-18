@@ -60,6 +60,7 @@ class AppointmentAdmin(
         AppointmentListFilter,
         "appt_status",
         "visit_code",
+        "visit_code_sequence",
         "appt_type",
         "appt_timing",
     )
