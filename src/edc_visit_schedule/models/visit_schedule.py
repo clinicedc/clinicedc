@@ -43,7 +43,7 @@ class VisitSchedule(VisitScheduleMethodsModelMixin, edc_models.BaseUuidModel):
         )
 
     class Meta(edc_models.BaseUuidModel.Meta):
-        ordering = ("visit_schedule_name", "schedule_name", "visit_code")
+        # ordering = ("visit_schedule_name", "schedule_name", "visit_code")
         unique_together = (
             ("visit_schedule_name", "schedule_name", "visit_code"),
             ("visit_schedule_name", "schedule_name", "timepoint"),

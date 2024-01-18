@@ -3,11 +3,8 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
-from edc_consent import site_consents
-from edc_consent.consent import Consent
-from edc_constants.constants import FEMALE, MALE
+from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
-from edc_protocol import Protocol
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
 from edc_visit_tracking.constants import SCHEDULED
@@ -18,29 +15,21 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.utils import get_duplicates, is_baseline
 from edc_visit_schedule.visit import Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
-from visit_schedule_app.models import SubjectConsent, SubjectVisit
+from visit_schedule_app.consents import v1_consent
+from visit_schedule_app.models import SubjectVisit
 
 
 @override_settings(
     EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
+    SITE_ID=30,
 )
 class TestVisitSchedule4(SiteTestCaseMixin, TestCase):
-    def setUp(self):
-        v1_consent = Consent(
-            "visit_schedule_app.subjectconsent",
-            version="1",
-            start=Protocol().study_open_datetime,
-            end=Protocol().study_close_datetime,
-            age_min=18,
-            age_is_adult=18,
-            age_max=64,
-            gender=[MALE, FEMALE],
-        )
-
+    @classmethod
+    def setUpTestData(cls):
         import_holidays()
-        site_consents.registry = {}
-        site_consents.register(v1_consent)
+
+    def setUp(self):
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
@@ -53,7 +42,7 @@ class TestVisitSchedule4(SiteTestCaseMixin, TestCase):
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[v1_consent],
             base_timepoint=1,
         )
 
@@ -78,23 +67,32 @@ class TestVisitSchedule4(SiteTestCaseMixin, TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(self.visit_schedule)
 
-        self.subject_consent = SubjectConsent.objects.create(
+        site_consents.registry = {}
+        for schedule in self.visit_schedule.schedules.values():
+            for cdef in schedule.consent_definitions:
+                site_consents.register(cdef)
+
+        _, schedule = site_visit_schedules.get_by_onschedule_model(
+            "visit_schedule_app.onschedule"
+        )
+        cdef = schedule.consent_definitions[0]
+        self.subject_consent = cdef.model_cls.objects.create(
             subject_identifier="12345",
             consent_datetime=get_utcnow() - relativedelta(seconds=1),
             dob=date(1995, 1, 1),
             identity="11111",
             confirm_identity="11111",
+            version=cdef.version,
         )
         self.subject_identifier = self.subject_consent.subject_identifier
-        onschedule_datetime = get_utcnow() - relativedelta(years=4)
-        _, schedule = site_visit_schedules.get_by_onschedule_model(
-            "visit_schedule_app.onschedule"
-        )
+        onschedule_datetime = self.subject_consent.consent_datetime + relativedelta(days=1)
         schedule.put_on_schedule(
             subject_identifier=self.subject_identifier,
             onschedule_datetime=onschedule_datetime,
         )
-        self.appointments = Appointment.objects.all()
+        self.appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
 
     def test_is_baseline_with_instance(self):
         subject_visit_0 = SubjectVisit.objects.create(
@@ -166,7 +164,7 @@ class TestVisitSchedule4(SiteTestCaseMixin, TestCase):
 
         with self.assertRaises(VisitScheduleBaselineError) as cm:
             is_baseline(
-                timepoint=100,
+                timepoint=100.0,
                 visit_schedule_name=subject_visit_0.visit_schedule_name,
                 schedule_name=subject_visit_0.schedule_name,
                 visit_code_sequence=0,

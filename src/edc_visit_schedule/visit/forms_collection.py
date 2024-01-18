@@ -14,7 +14,14 @@ class FormsCollectionError(Exception):
 
 
 class FormsCollection:
-    def __init__(self, *forms: Crf | Requisition, name: str | None = None, **kwargs):
+    def __init__(
+        self,
+        *forms: Crf | Requisition,
+        name: str | None = None,
+        check_sequence: bool | None = None,
+        **kwargs,
+    ):
+        check_sequence = True if check_sequence is None else check_sequence
         self.collection_is_unique_or_raise(forms)
         self._forms: tuple[Crf | Requisition] | None = None
         self.name = name or uuid4().hex
@@ -30,12 +37,14 @@ class FormsCollection:
             raise FormsCollectionError(e) from e
 
         # check sequence
-        seq = [item.show_order for item in forms or []]
-        if duplicates := get_duplicates(list_items=seq):
-            raise FormsCollectionError(
-                f'{self.__class__.__name__} "show order" must be a '
-                f"unique sequence. Got {sorted(seq)}.  Duplicates {sorted(duplicates)}."
-            )
+        if check_sequence:
+            seq = [item.show_order for item in forms or []]
+            if duplicates := get_duplicates(list_items=seq):
+                raise FormsCollectionError(
+                    f'{self.__class__.__name__} "show order" must be a '
+                    f"unique sequence. Got {sorted(seq)}.  Duplicates {sorted(duplicates)}. "
+                    f"See {self}."
+                )
 
         # convert to tuple
         self._forms = tuple(forms)

@@ -110,19 +110,6 @@ class VisitSchedule:
         self._all_post_consent_models = None
         return schedule
 
-    def check(self):
-        warnings = []
-        for model in [
-            "death_report",
-            "locator",
-            "offstudy",
-        ]:
-            try:
-                getattr(self, f"{model}_model_cls")
-            except LookupError as e:
-                warnings.append(f"{e} See visit schedule '{self.name}'.")
-        return warnings
-
     @property
     def all_post_consent_models(self):
         """Returns a dictionary of models and the needed consent
@@ -140,18 +127,14 @@ class VisitSchedule:
             models.update({self.death_report_model: None})
             models.update({self.locator_model: None})
             for schedule in self.schedules.values():
-                models.update({schedule.onschedule_model: schedule.consent_model})
-                models.update({schedule.offschedule_model: schedule.consent_model})
-                for visit in schedule.visits.values():
-                    for crf in visit.all_crfs:
-                        models.update({crf.model: schedule.consent_model})
-                    for crf in visit.all_requisitions:
-                        models.update({crf.model: schedule.consent_model})
-                    # for crf in visit.scheduled_forms:
-                    #     models.update({crf.model: schedule.consent_model})
-                    # for crf in visit.unscheduled_forms:
-                    #     models.update({crf.model: schedule.consent_model})
-                    # what about prn forms?
+                for consent_definition in schedule.consent_definitions:
+                    models.update({schedule.onschedule_model: consent_definition.model})
+                    models.update({schedule.offschedule_model: consent_definition.model})
+                    for visit in schedule.visits.values():
+                        for crf in visit.all_crfs:
+                            models.update({crf.model: consent_definition.model})
+                        for crf in visit.all_requisitions:
+                            models.update({crf.model: consent_definition.model})
             if None in (list(models.keys())):
                 raise VisitScheduleError(
                     "One or more required models has not been defined. "

@@ -11,6 +11,7 @@ from edc_visit_schedule.system_checks import (
 from edc_visit_schedule.visit import CrfCollection, FormsCollectionError, Visit
 from edc_visit_schedule.visit.crf import Crf
 from edc_visit_schedule.visit_schedule import VisitSchedule
+from visit_schedule_app.consents import v1_consent
 
 
 class TestSystemChecks(TestCase):
@@ -28,7 +29,7 @@ class TestSystemChecks(TestCase):
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[v1_consent],
             base_timepoint=1,
         )
 
@@ -56,7 +57,14 @@ class TestSystemChecks(TestCase):
             death_report_model="visit_schedule_app.deathreport",
             locator_model="edc_locator.subjectlocator",
         )
-        schedule = self.schedule
+        schedule = Schedule(
+            name="schedule",
+            onschedule_model="visit_schedule_app.onschedule",
+            offschedule_model="visit_schedule_app.offschedule",
+            appointment_model="edc_appointment.appointment",
+            consent_definitions=[v1_consent],
+            base_timepoint=1,
+        )
         visit_schedule.add_schedule(schedule)
         site_visit_schedules.register(visit_schedule)
         errors = visit_schedule_check(app_configs=django_apps.get_app_configs())
@@ -65,13 +73,19 @@ class TestSystemChecks(TestCase):
 
     def test_schedule_bad_model(self):
         site_visit_schedules._registry = {}
-        visit_schedule = self.visit_schedule
+        visit_schedule = VisitSchedule(
+            name="visit_schedule",
+            verbose_name="Visit Schedule",
+            offstudy_model="visit_schedule_app.subjectoffstudy",
+            death_report_model="visit_schedule_app.deathreport",
+            locator_model="edc_locator.subjectlocator",
+        )
         schedule = Schedule(
             name="schedule",
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
             appointment_model="blah.appointment",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[v1_consent],
             base_timepoint=1,
         )
         visit_schedule.add_schedule(schedule)
@@ -82,8 +96,21 @@ class TestSystemChecks(TestCase):
 
     def test_schedule_bad_crf_model(self):
         site_visit_schedules._registry = {}
-        visit_schedule = self.visit_schedule
-        schedule = self.schedule
+        visit_schedule = VisitSchedule(
+            name="visit_schedule",
+            verbose_name="Visit Schedule",
+            offstudy_model="visit_schedule_app.subjectoffstudy",
+            death_report_model="visit_schedule_app.deathreport",
+            locator_model="edc_locator.subjectlocator",
+        )
+        schedule = Schedule(
+            name="schedule",
+            onschedule_model="visit_schedule_app.onschedule",
+            offschedule_model="visit_schedule_app.offschedule",
+            appointment_model="edc_appointment.appointment",
+            consent_definitions=[v1_consent],
+            base_timepoint=1,
+        )
         crfs = CrfCollection(
             Crf(show_order=10, model="blah.CrfOne"),
             Crf(show_order=20, model="blah.CrfTwo"),

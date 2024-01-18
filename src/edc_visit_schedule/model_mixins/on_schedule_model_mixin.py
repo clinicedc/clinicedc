@@ -46,12 +46,9 @@ class OnScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
         self.report_datetime = self.onschedule_datetime
         super().save(*args, **kwargs)
 
-    def put_on_schedule(self):
+    def put_on_schedule(self) -> None:
         _, schedule = site_visit_schedules.get_by_onschedule_model(self._meta.label_lower)
-        schedule.put_on_schedule(
-            subject_identifier=self.subject_identifier,
-            onschedule_datetime=self.onschedule_datetime,
-        )
+        schedule.put_on_schedule(self.subject_identifier, self.onschedule_datetime)
 
     @property
     def visit_schedule(self) -> VisitSchedule:
@@ -69,6 +66,4 @@ class OnScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
 
     class Meta:
         abstract = True
-        indexes = [
-            models.Index(fields=["id", "subject_identifier", "onschedule_datetime", "site"])
-        ]
+        indexes = [models.Index(fields=["subject_identifier", "onschedule_datetime", "site"])]

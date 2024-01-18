@@ -5,10 +5,7 @@ from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
 from django.views.generic.base import ContextMixin
-from edc_consent import site_consents
-from edc_consent.consent import Consent
-from edc_constants.constants import FEMALE, MALE
-from edc_protocol import Protocol
+from edc_consent.site_consents import site_consents
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
 
@@ -16,6 +13,7 @@ from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.view_mixins import VisitScheduleViewMixin
 from edc_visit_schedule.visit_schedule import VisitSchedule
+from visit_schedule_app.consents import v1_consent
 from visit_schedule_app.models import OnSchedule, SubjectConsent
 
 
@@ -30,19 +28,10 @@ class MyViewCurrent(VisitScheduleViewMixin, ContextMixin):
 @override_settings(
     EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
+    SITE_ID=30,
 )
 class TestViewMixin(SiteTestCaseMixin, TestCase):
     def setUp(self):
-        v1_consent = Consent(
-            "visit_schedule_app.subjectconsent",
-            version="1",
-            start=Protocol().study_open_datetime,
-            end=Protocol().study_close_datetime,
-            age_min=18,
-            age_is_adult=18,
-            age_max=64,
-            gender=[MALE, FEMALE],
-        )
         site_consents.registry = {}
         site_consents.register(v1_consent)
         self.visit_schedule = VisitSchedule(
@@ -56,14 +45,14 @@ class TestViewMixin(SiteTestCaseMixin, TestCase):
             name="schedule",
             onschedule_model="visit_schedule_app.OnSchedule",
             offschedule_model="visit_schedule_app.OffSchedule",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[v1_consent],
             appointment_model="edc_appointment.appointment",
         )
         self.schedule3 = Schedule(
             name="schedule_three",
             onschedule_model="visit_schedule_app.OnScheduleThree",
             offschedule_model="visit_schedule_app.OffScheduleThree",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[v1_consent],
             appointment_model="edc_appointment.appointment",
         )
 

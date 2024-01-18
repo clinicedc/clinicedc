@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.views.generic.base import TemplateView
 from edc_dashboard.utils import get_bootstrap_version
 from edc_dashboard.view_mixins import EdcViewMixin
@@ -13,18 +15,17 @@ class VisitScheduleView(EdcViewMixin, NavbarViewMixin, TemplateView):
     navbar_name = "edc_visit_schedule"
     navbar_selected_item = "visit_schedule"
 
-    def get_context_data(self, **kwargs):
-        context_data = super().get_context_data(**kwargs)
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         try:
             selected_visit_schedule = site_visit_schedules.get_visit_schedule(
                 visit_schedule_name=self.kwargs.get("visit_schedule")
             )
         except SiteVisitScheduleError:
             selected_visit_schedule = None
-        context_data.update(
+        kwargs.update(
             {
                 "visit_schedules": site_visit_schedules.registry,
                 "selected_visit_schedule": selected_visit_schedule,
             }
         )
-        return context_data
+        return super().get_context_data(**kwargs)

@@ -217,7 +217,7 @@ class Visit:
         crfs = crfs + [
             crf for crf in self.crfs_prn if crf.model not in [crf.model for crf in crfs]
         ]
-        return CrfCollection(*crfs, name="all_crfs")
+        return CrfCollection(*crfs, name="all_crfs", check_sequence=False)
 
     @property
     def all_requisitions(self) -> RequisitionCollection:
@@ -227,7 +227,9 @@ class Visit:
         ]
         names = list(set([r.name for r in requisitions]))
         requisitions = requisitions + [r for r in self.requisitions_prn if r.name not in names]
-        return RequisitionCollection(*requisitions, name="all_requisitions")
+        return RequisitionCollection(
+            *requisitions, name="all_requisitions", check_sequence=False
+        )
 
     # def next_form(
     #     self, model: str = None, panel: str | None = None
@@ -292,22 +294,6 @@ class Visit:
     @timepoint_datetime.setter
     def timepoint_datetime(self, dt=None):
         self.dates.base = to_utc(dt)
-
-    def check(self):
-        warnings = []
-        models = list(set([f.model for f in self.all_crfs]))
-        for model in models:
-            try:
-                django_apps.get_model(model)
-            except LookupError as e:
-                warnings.append(f"{e} Got Visit {self.code} crf.model={model}.")
-        models = list(set([f.model for f in self.all_requisitions]))
-        for model in models:
-            try:
-                django_apps.get_model(model)
-            except LookupError as e:
-                warnings.append(f"{e} Got Visit {self.code} requisition.model={model}.")
-        return warnings
 
     def to_dict(self):
         return dict(

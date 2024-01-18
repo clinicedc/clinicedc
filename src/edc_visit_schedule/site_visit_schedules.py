@@ -8,22 +8,21 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.module_loading import import_module, module_has_submodule
 
+from .exceptions import (
+    AlreadyRegisteredVisitSchedule,
+    RegistryNotLoaded,
+    SiteVisitScheduleError,
+)
+
 if TYPE_CHECKING:
+    from edc_sites.single_site import SingleSite
+
     from .models import VisitSchedule as VisitScheduleModel
     from .schedule import Schedule
     from .visit_schedule import VisitSchedule
 
 
-class RegistryNotLoaded(Exception):
-    pass
-
-
-class AlreadyRegisteredVisitSchedule(Exception):
-    pass
-
-
-class SiteVisitScheduleError(Exception):
-    pass
+__all__ = ["site_visit_schedules"]
 
 
 class SiteVisitSchedules:
@@ -95,7 +94,9 @@ class SiteVisitSchedules:
             visit_schedules[visit_schedule_name] = self.get_visit_schedule(visit_schedule_name)
         return visit_schedules or self.registry
 
-    def get_by_onschedule_model(self, onschedule_model=None) -> Tuple[VisitSchedule, Schedule]:
+    def get_by_onschedule_model(
+        self, onschedule_model: str = None
+    ) -> Tuple[VisitSchedule, Schedule]:
         """Returns a tuple of (visit_schedule, schedule)
         for the given onschedule model.
 
@@ -104,7 +105,7 @@ class SiteVisitSchedules:
         return self.get_by_model(attr="onschedule_model", model=onschedule_model)
 
     def get_by_offschedule_model(
-        self, offschedule_model=None
+        self, offschedule_model: str = None
     ) -> Tuple[VisitSchedule, Schedule]:
         """Returns a tuple of visit_schedule, schedule
         for the given offschedule model.
@@ -114,7 +115,7 @@ class SiteVisitSchedules:
         return self.get_by_model(attr="offschedule_model", model=offschedule_model)
 
     def get_by_loss_to_followup_model(
-        self, loss_to_followup_model=None
+        self, loss_to_followup_model: str = None
     ) -> Tuple[VisitSchedule, Schedule]:
         """Returns a tuple of visit_schedule, schedule
         for the given loss_to_followup model.
@@ -149,7 +150,7 @@ class SiteVisitSchedules:
         visit_schedule, schedule = ret[0]
         return visit_schedule, schedule
 
-    def get_by_offstudy_model(self, offstudy_model=None) -> list[VisitSchedule]:
+    def get_by_offstudy_model(self, offstudy_model: str = None) -> list[VisitSchedule]:
         """Returns a list of visit_schedules for the given
         offstudy model.
         """
@@ -164,10 +165,24 @@ class SiteVisitSchedules:
             )
         return visit_schedules
 
-    def get_consent_model(self, visit_schedule_name: str, schedule_name: str) -> str:
-        """Returns the consent model name"""
+    def get_consent_model(
+        self,
+        visit_schedule_name: str,
+        schedule_name: str,
+        site: SingleSite | None = None,
+    ) -> str:
+        """Returns the consent model name specified on the schedule"""
         schedule = self.get_visit_schedule(visit_schedule_name).schedules.get(schedule_name)
-        return schedule.consent_model
+        if isinstance(schedule.consent_model, (dict,)):
+            # schedule returns a dict, get model name for this
+            # site_id or country
+            consent_model = schedule.consent_model.get(
+                site.site_id
+            ) or schedule.consent_model.get(site.country)
+        else:
+            # schedule returns a string
+            consent_model = schedule.consent_model
+        return consent_model
 
     def get_onschedule_model(self, visit_schedule_name: str, schedule_name: str) -> str:
         """Returns the onschedule model name"""
@@ -208,18 +223,6 @@ class SiteVisitSchedules:
                 models.update(**visit_schedule.all_post_consent_models)
             self._all_post_consent_models = models
         return self._all_post_consent_models
-
-    def check(self) -> dict[str, list]:
-        if not self.loaded:
-            raise SiteVisitScheduleError("Registry is not loaded.")
-        errors = {"visit_schedules": [], "schedules": [], "visits": []}
-        for visit_schedule in site_visit_schedules.visit_schedules.values():
-            errors["visit_schedules"].extend(visit_schedule.check())
-            for schedule in visit_schedule.schedules.values():
-                errors["schedules"].extend(schedule.check())
-                for visit in schedule.visits.values():
-                    errors["visits"].extend(visit.check())
-        return errors
 
     @staticmethod
     def to_model(model_cls: VisitScheduleModel) -> None:
