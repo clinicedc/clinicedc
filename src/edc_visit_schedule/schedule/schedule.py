@@ -15,13 +15,9 @@ from edc_consent.exceptions import (
 from edc_sites.single_site import SingleSite
 from edc_utils import formatted_date
 
-from ..site_visit_schedules import SiteVisitScheduleError, site_visit_schedules
-from ..subject_schedule import (
-    NotOnScheduleError,
-    NotOnScheduleForDateError,
-    SubjectSchedule,
-    SubjectScheduleError,
-)
+from ..exceptions import NotOnScheduleError, NotOnScheduleForDateError
+from ..site_visit_schedules import site_visit_schedules
+from ..subject_schedule import SubjectSchedule
 from ..visit import Visit
 from .visit_collection import VisitCollection
 from .window import Window
@@ -81,7 +77,6 @@ class Schedule:
         sequence: str | None = None,
         base_timepoint: float | Decimal | None = None,
     ):
-        self._subject = None
         if not name or not re.match(r"[a-z0-9_\-]+$", name):
             raise ScheduleNameError(
                 f"Invalid name. Got '{name}'. May only contains numbers, "
@@ -111,14 +106,6 @@ class Schedule:
             None if offstudymedication_model is None else offstudymedication_model.lower()
         )
         self.history_model = history_model or "edc_visit_schedule.subjectschedulehistory"
-
-    def check(self):
-        warnings = []
-        try:
-            self.subject.check()
-        except (SiteVisitScheduleError, SubjectScheduleError) as e:
-            warnings.append(f"{e} See schedule '{self.name}'.")
-        return warnings
 
     def __repr__(self):
         return f"Schedule({self.name})"
@@ -181,37 +168,48 @@ class Schedule:
         return visit_codes
 
     def subject(self, subject_identifier: str) -> SubjectSchedule:
-        """Returns a SubjectSchedule instance.
+        """Returns a SubjectSchedule instance for this subject.
 
-        Note: SubjectSchedule puts a subject on to a schedule or takes a subject
-        off of a schedule.
+        Note: SubjectSchedule puts a subject on/off schedule by
+        updating the on/offschedule models
         """
-        if not self._subject:
-            visit_schedule, schedule = site_visit_schedules.get_by_onschedule_model(
-                self.onschedule_model
+        visit_schedule, schedule = site_visit_schedules.get_by_onschedule_model(
+            self.onschedule_model
+        )
+        if schedule.name != self.name:
+            raise ValueError(
+                f"Site visit schedules return the wrong schedule object. "
+                f"Expected {repr(self)} for onschedule_model={self.onschedule_model}. "
+                f"Got {repr(schedule)}."
             )
-            if schedule.name != self.name:
-                raise ValueError(
-                    f"Site visit schedules return the wrong schedule object. "
-                    f"Expected {repr(self)} for onschedule_model={self.onschedule_model}. "
-                    f"Got {repr(schedule)}."
-                )
-            self._subject = SubjectSchedule(
-                subject_identifier, visit_schedule=visit_schedule, schedule=self
-            )
-        return self._subject
+        return SubjectSchedule(
+            subject_identifier, visit_schedule=visit_schedule, schedule=self
+        )
 
-    def put_on_schedule(self, subject_identifier: str, onschedule_datetime: datetime | None):
-        """Wrapper method to puts a subject onto this schedule."""
-        self.subject(subject_identifier).put_on_schedule(onschedule_datetime)
+    def put_on_schedule(
+        self,
+        subject_identifier: str,
+        onschedule_datetime: datetime | None,
+        skip_baseline: bool | None = None,
+    ):
+        """Puts a subject onto this schedule.
+
+        Wrapper of method SubjectSchedule.put_on_schedule.
+        """
+        self.subject(subject_identifier).put_on_schedule(
+            onschedule_datetime, skip_baseline=skip_baseline
+        )
 
     def refresh_schedule(self, subject_identifier: str):
         """Resaves the onschedule model to, for example, refresh
         appointments.
+
+        Wrapper of method SubjectSchedule.resave.
         """
         self.subject(subject_identifier).resave()
 
     def take_off_schedule(self, subject_identifier: str, offschedule_datetime: datetime):
+        """Wrapper of method SubjectSchedule.take_off_schedule."""
         self.subject(subject_identifier).take_off_schedule(offschedule_datetime)
 
     def is_onschedule(self, subject_identifier: str, report_datetime: datetime):

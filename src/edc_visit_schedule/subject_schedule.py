@@ -17,7 +17,6 @@ from .exceptions import (
     NotOnScheduleError,
     NotOnScheduleForDateError,
     OnScheduleFirstAppointmentDateError,
-    SubjectScheduleError,
     UnknownSubjectError,
 )
 
@@ -61,6 +60,15 @@ class SubjectSchedule:
         self.onschedule_model: str = schedule.onschedule_model
         self.offschedule_model: str = schedule.offschedule_model
         self.appointment_model: str = schedule.appointment_model
+
+    def __repr__(self):
+        return (
+            f"{self.__class__.__name__}(subject_identifier={self.subject_identifier},"
+            f"visit_schedule={self.visit_schedule},schedule={self.schedule})"
+        )
+
+    def __str__(self):
+        return f"{self.subject_identifier} {self.visit_schedule_name}.{self.schedule_name}"
 
     @property
     def onschedule_model_cls(self) -> Type[OnSchedule]:
@@ -337,11 +345,3 @@ class SubjectSchedule:
                 f"off this schedule on '{formatted_offschedule_datetime}'."
             )
         return None
-
-    def check(self):
-        try:
-            self.onschedule_model_cls
-            self.offschedule_model_cls
-            self.appointment_model_cls
-        except LookupError as e:
-            raise SubjectScheduleError(e)

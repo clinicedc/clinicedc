@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_consent.site_consents import site_consents
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
@@ -119,7 +119,6 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         except SubjectScheduleError:
             self.fail("SubjectScheduleError unexpectedly raised.")
 
-    @tag("1")
     def test_resave(self):
         """Asserts returns the correct instances for the schedule."""
         visit_schedule, schedule = site_visit_schedules.get_by_onschedule_model(
