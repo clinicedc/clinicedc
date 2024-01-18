@@ -3,7 +3,6 @@ from django.test import TestCase, override_settings
 from edc_action_item import site_action_items
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.models import Appointment
-from edc_consent import site_consents
 from edc_constants.constants import DEAD
 from edc_facility.import_holidays import import_holidays
 from edc_utils import get_dob, get_utcnow
@@ -16,7 +15,6 @@ from edc_offstudy.models import SubjectOffstudy
 from edc_offstudy.utils import OffstudyError
 
 from ...action_items import EndOfStudyAction
-from ..consents import v1_consent
 from ..forms import CrfOneForm, NonCrfOneForm, SubjectOffstudyForm
 from ..models import CrfOne, NonCrfOne, OffScheduleOne, SubjectConsent
 from ..visit_schedule import visit_schedule1
@@ -32,7 +30,6 @@ class TestOffstudy(TestCase):
         super().setUpClass()
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule1)
-        site_consents.register(v1_consent)
         site_action_items.register(EndOfStudyAction)
 
     def setUp(self):
