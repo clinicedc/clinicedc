@@ -57,13 +57,15 @@ class Command(BaseCommand):
             "--format",
             dest="format",
             default="csv",
+            choices=["csv", "stata"],
             help="export format (csv, stata)",
         )
 
         parser.add_argument(
-            "--stata-version",
+            "--stata-dta-version",
             dest="stata_dta_version",
             default=118,
+            choices=[114, 117, 118],
             help="STATA DTA file format version",
         )
 
