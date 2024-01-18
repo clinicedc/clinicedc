@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 register = template.Library()
 
 
-@register.inclusion_tag(f"edc_form_runners/form_runner_issues.html")
+@register.inclusion_tag("edc_form_runners/form_runner_issues.html")
 def show_form_runner_issues(model_obj: Model | None):
     messages = []
     if model_obj:
