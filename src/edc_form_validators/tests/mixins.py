@@ -7,7 +7,7 @@ class FormValidatorTestMixin:
     def validate_demographics(self) -> None:
         pass
 
-    def get_consent_for_period_or_raise(self, *args) -> Any:
+    def get_consent_definition_or_raise(self, *args) -> Any:
         pass
 
     def validate_crf_report_datetime(self):
