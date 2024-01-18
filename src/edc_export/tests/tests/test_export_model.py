@@ -8,21 +8,35 @@ from unittest.case import skip
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
+from edc_facility import import_holidays
 from edc_pdutils.model_to_dataframe import ValueGetterInvalidLookup
 from edc_utils import get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from edc_export.constants import EXPORTED, INSERT, UPDATE
 from edc_export.model_exporter import ModelExporter
 from edc_export.models import FileHistory, ObjectHistory
+from export_app.models import Crf, CrfEncrypted, ListModel, SubjectVisit
+from export_app.visit_schedule import visit_schedule1
 
 from ..helper import Helper
-from ..models import Crf, CrfEncrypted, ListModel, SubjectVisit
 
 
 @override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp())
 class TestExportModel(TestCase):
+    helper_cls = Helper
+
     def setUp(self):
-        self.helper = Helper()
+        import_holidays()
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule1)
+        for i in range(0, 7):
+            helper = self.helper_cls(subject_identifier=f"subject-{i}")
+            helper.consent_and_put_on_schedule(
+                visit_schedule_name=visit_schedule1.name,
+                schedule_name="schedule1",
+                report_datetime=get_utcnow(),
+            )
         for appointment in Appointment.objects.all().order_by(
             "timepoint", "visit_code_sequence"
         ):
@@ -44,7 +58,7 @@ class TestExportModel(TestCase):
 
     def test_model(self):
         ModelExporter(
-            model="edc_export.crf",
+            model="export_app.crf",
             lookups={"subject_identifier": "subject_visit__subject_identifier"},
         )
 
@@ -65,7 +79,7 @@ class TestExportModel(TestCase):
         )
         path = model_exporter.export()
         self.assertTrue(os.path.exists(path))
-        self.assertIn("edc_export_crf_", path)
+        self.assertIn("export_app_crf_", path)
 
     def test_field_names(self):
         Crf.objects.all().delete()
