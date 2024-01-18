@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from urllib.parse import urlencode
 from warnings import warn
 
@@ -14,6 +15,14 @@ from edc_constants.constants import NO, YES
 from edc_protocol import Protocol
 
 from edc_model_admin.utils import get_next_url
+
+if TYPE_CHECKING:
+    from django.contrib.sites.models import Site
+    from django.core.handlers.wsgi import WSGIRequest as Base
+
+    class WSGIRequest(Base):
+        site: Site
+
 
 register = template.Library()
 
@@ -93,14 +102,16 @@ def edc_submit_row(
 
     See also ModelAdminRedirectAllToChangelistMixin
     """
-    request = get_request_object(context)
-    if request:
-        if int(request.site.id) == int(context.get("reviewer_site_id", 0)):
-            context.update({"save_next": None})
-            context.update({"show_delete": None})
-    show_save = context.get("show_save")
-    if "save_next" in context:
-        context["save_next"] = show_save
+    request: WSGIRequest = get_request_object(context)
+    model_site_id: int | None = getattr(getattr(context["original"], "site", None), "id", None)
+    if model_site_id and request.site.id != model_site_id:
+        context["has_add_permission"] = False
+        context["has_change_permission"] = False
+        context["has_delete_permission"] = False
+    else:
+        show_save = context.get("show_save")
+        if "save_next" in context:
+            context["save_next"] = show_save
     if "show_cancel" in context:
         if cancel_url:
             cancel_url = reverse(cancel_url, kwargs=(cancel_url_kwargs or {}))

@@ -13,7 +13,7 @@
 			<a href="{{ cancel_url }}" class="closelink" title="{% translate 'Leave form without saving' %}">{% translate 'Cancel' %}</a>
 		{% else %}
 		    {% url opts|admin_urlname:'changelist' as changelist_url %}
-			<a href="{{ changelist_url }}" class="closelink" title="{% translate 'Leave form without saving' %}">{% translate 'Cancel' %}</a>
+			  <a href="{{ changelist_url }}" class="closelink" title="{% translate 'Leave form without saving' %}">{% translate 'Cancel' %}</a>
 		{% endif %}
 	{% endif %}
 {% endif %}

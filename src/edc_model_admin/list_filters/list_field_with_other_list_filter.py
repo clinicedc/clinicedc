@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from django.contrib.admin import SimpleListFilter
+from django.core.exceptions import FieldError
 from django.db.models import Count, Q
 from edc_constants.constants import OTHER
 from edc_sites.site import sites
@@ -24,7 +25,7 @@ class ListFieldWithOtherListFilter(SimpleListFilter):
                 )
                 .annotate(count=Count(f"{self.parameter_name}__name"))
             )
-        except AttributeError:
+        except (AttributeError, FieldError):
             values_list = (
                 model_admin.model.objects.filter(
                     site_id__in=sites.get_site_ids_for_user(request=request)
@@ -36,7 +37,7 @@ class ListFieldWithOtherListFilter(SimpleListFilter):
         finally:
             try:
                 names = [(value[0], value[1]) for value in values_list if value[2] > 0]
-            except KeyError:
+            except IndexError:
                 names = [(value[0], value[0]) for value in values_list if value[1] > 0]
         if [n[0] for n in names if n[0] == OTHER]:
             values_list = (

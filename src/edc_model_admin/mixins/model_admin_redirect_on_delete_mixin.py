@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.http.response import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.encoding import force_str
-from edc_dashboard.url_names import InvalidUrlName, url_names
+from edc_dashboard.url_names import InvalidDashboardUrlName, url_names
 
 
 class ModelAdminRedirectOnDeleteMixin:
@@ -39,7 +39,7 @@ class ModelAdminRedirectOnDeleteMixin:
         else:
             try:
                 url_name = self.get_post_url_on_delete_name(request)
-            except InvalidUrlName:
+            except InvalidDashboardUrlName:
                 if self.post_url_on_delete_name:
                     raise
                 url_name = None
