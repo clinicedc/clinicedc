@@ -8,7 +8,7 @@ from django.template.loader import render_to_string
 from django.urls.base import reverse
 from edc_action_item.models.action_model_mixin import ActionModelMixin
 from edc_constants.constants import CLOSED, RESOLVED
-from edc_dashboard.url_names import InvalidUrlName, url_names
+from edc_dashboard.url_names import InvalidDashboardUrlName, url_names
 from edc_dashboard.utils import get_bootstrap_version
 from edc_model.models import BaseUuidModel
 from edc_sites.managers import CurrentSiteManager
@@ -133,7 +133,7 @@ class DataQuery(DataQueryModelMixin, ActionModelMixin, SiteModelMixin, BaseUuidM
     def get_action_item_reason(self):
         try:
             url = url_names.get("subject_dashboard_url")
-        except InvalidUrlName:
+        except InvalidDashboardUrlName:
             visit_href = "#"
         else:
             try:
