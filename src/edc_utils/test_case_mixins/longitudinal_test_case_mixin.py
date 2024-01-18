@@ -2,7 +2,7 @@ from django.apps import apps as django_apps
 from django.test import TestCase
 from edc_action_item import site_action_items
 from edc_appointment.models import Appointment
-from edc_consent import site_consents
+from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_registration.models import RegisteredSubject
 from edc_reportable import site_reportables
