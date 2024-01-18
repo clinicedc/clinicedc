@@ -15,8 +15,8 @@ class ListboardFilterViewMixin:
     listboard_filter_url = None
 
     def __init__(self, **kwargs):
-        self.listboard_view_exclude_filter_applied = False
-        self.listboard_view_include_filter_applied = False
+        self.listboard_view_exclude_filter_applied = False  # TODO: ??
+        self.listboard_view_include_filter_applied = False  # TODO: ??
         super().__init__(**kwargs)
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:

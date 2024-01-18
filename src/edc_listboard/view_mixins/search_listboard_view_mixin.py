@@ -17,6 +17,22 @@ class SearchListboardMixin:
     default_querystring_attrs: str = "q"
     alternate_search_attr: str = "subject_identifier"
     default_lookup = "icontains"
+    operators: list[str] = [
+        "exact",
+        "iexact",
+        "contains",
+        "icontains",
+        "regex",
+        "iregex",
+        "gt",
+        "gte",
+        "lt",
+        "lte",
+        "startswith",
+        "endswith",
+        "istartswith",
+        "iendswith",
+    ]
 
     def __init__(self, **kwargs):
         self._search_term = None
@@ -36,7 +52,7 @@ class SearchListboardMixin:
                 level=WARNING,
             )
         elif self.search_term:
-            for field, lookup in self.get_search_fields():
+            for field, lookup in self.get_field_lookups():
                 q_object |= Q(**{f"{field}__{lookup}": self.search_term})
         return q_object, options
 
@@ -54,12 +70,19 @@ class SearchListboardMixin:
                 self._search_term = escape(search_term).strip()
         return self._search_term
 
-    def get_search_fields(self) -> list[tuple[str, str]]:
+    def get_search_fields(self) -> list[str]:
+        """Override to add additional search fields"""
+        return self.search_fields
+
+    def get_field_lookups(self) -> list[tuple[str, str]]:
         fields = []
-        for field in self.search_fields:
-            try:
-                fld, lookup = field.split(LOOKUP_SEP)
-            except ValueError:
-                fld, lookup = field, self.default_lookup
+
+        for field in self.get_search_fields():
+            nlookups = field.split(LOOKUP_SEP)
+            if nlookups[-1:][0] in self.operators:
+                fld = LOOKUP_SEP.join(nlookups[:-1])
+                lookup = nlookups[-1:][0]
+            else:
+                fld, lookup = LOOKUP_SEP.join(nlookups), self.default_lookup
             fields.append((fld, lookup))
         return fields

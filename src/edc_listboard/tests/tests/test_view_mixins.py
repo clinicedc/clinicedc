@@ -108,10 +108,6 @@ class TestViewMixins(TestCase):
         template_response = MyView.as_view()(request=request)
         object_list = template_response.__dict__.get("context_data").get("object_list")
         self.assertEqual(
-            [
-                wrapper.object.reason
-                for wrapper in object_list
-                if wrapper.object.pk == subject_visit.pk
-            ],
+            [obj.reason for obj in object_list if obj.pk == subject_visit.pk],
             [subject_visit.reason],
         )

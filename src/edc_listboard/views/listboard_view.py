@@ -21,29 +21,32 @@ class ListboardViewError(Exception):
 
 
 class BaseListboardView(TemplateRequestContextMixin, ListView):
-    cleaned_search_term: str | None = None
+    listboard_model: str | None = None  # label_lower model name
     context_object_name: str = "results"
+
     empty_queryset_message: str = _("Nothing to display.")
+
     listboard_template: str | None = None  # an existing key in request.context_data
+
     # if self.listboard_url declared through another mixin.
     listboard_url: str | None = None  # an existing key in request.context_data
     listboard_back_url: str | None = None
 
+    # styling
     # default, info, success, danger, warning, etc. See Bootstrap.
     listboard_panel_style: str = "default"
     listboard_fa_icon: str | None = None
-    listboard_model: str | None = None  # label_lower model name or model class
-    listboard_model_manager_name: str = "on_site"
     listboard_panel_title: str | None = None
     listboard_instructions: str | None = None
+    show_change_form_button: bool = True
 
+    # permissions
     permissions_warning_message: str = _("You do not have permission to view these data.")
     # e.g. "edc_subject_dashboard.view_subject_listboard"
     listboard_view_permission_codename: str | None = None
     # e.g. "edc_subject_dashboard.view_subject_listboard"
     listboard_view_only_my_permission_codename: str | None = None
 
-    model_wrapper_cls = None
     ordering: str = "-created"
 
     orphans: int = 3
@@ -64,7 +67,8 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
             listboard_panel_style=self.listboard_panel_style,
             listboard_panel_title=self.listboard_panel_title,
             listboard_instructions=self.listboard_instructions,
-            object_list=self.get_wrapped_queryset(self.object_list),
+            show_change_form_button=self.show_change_form_button,
+            # object_list=self.object_list,
             **self.add_url_to_context(
                 new_key="listboard_url", existing_key=self.listboard_url
             ),
@@ -97,23 +101,23 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
         """
         return {}
 
+    def get_listboard_model(self) -> str:
+        return self.listboard_model
+
     @property
     def listboard_model_cls(self):
         """Returns the listboard's model class.
 
         Accepts `listboard_model` as a model class or label_lower.
         """
-        if not self.listboard_model:
+        if not self.get_listboard_model():
             raise ListboardViewError(
                 f"Listboard model not declared. Got None. See {repr(self)}"
             )
         try:
-            return django_apps.get_model(self.listboard_model)
+            return django_apps.get_model(self.get_listboard_model())
         except (ValueError, AttributeError):
-            return self.listboard_model
-
-    def get_listboard_model_manager_name(self) -> str:
-        return self.listboard_model_manager_name
+            return self.get_listboard_model()
 
     def get_queryset(self):
         """Return the queryset for this view.
@@ -137,6 +141,7 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
 
         Applies additional filter/exclude criteria.
         """
+
         queryset = self.listboard_model_cls.objects.none()
         if self.has_view_listboard_perms:
             q_exclude, opts_exclude = self.get_queryset_exclude_options(
@@ -180,29 +185,6 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
         before ordering.
         """
         return queryset
-
-    def get_wrapped_queryset(self, queryset):
-        """Returns a list of wrapped model instances.
-
-        Usually is passed the queryset `object_list` and wraps each
-        instance just before passing to the template.
-        """
-        wrapped_objs = []
-        for obj in queryset:
-            model_wrapper = self.get_model_wrapper_cls()(model_obj=obj)
-            model_wrapper = self.update_wrapped_instance(model_wrapper)
-            wrapped_objs.append(model_wrapper)
-        return wrapped_objs
-
-    def get_model_wrapper_cls(self):
-        return self.model_wrapper_cls
-
-    def update_wrapped_instance(self, model_wrapper):
-        """Returns a model_wrapper.
-
-        Hook to add attrs to wrapped model instance.
-        """
-        return model_wrapper
 
     @property
     def has_view_listboard_perms(self):
