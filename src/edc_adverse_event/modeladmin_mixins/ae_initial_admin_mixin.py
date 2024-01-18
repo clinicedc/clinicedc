@@ -81,9 +81,6 @@ class AeInitialModelAdminMixin(
 ):
     form = AeInitialForm
 
-    change_list_template = "edc_adverse_event/admin/change_list.html"
-    change_form_template = "edc_adverse_event/admin/change_form.html"
-
     ordering = ("-ae_awareness_date",)
 
     actions = [print_to_pdf_action]

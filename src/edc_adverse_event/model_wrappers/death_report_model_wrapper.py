@@ -120,15 +120,15 @@ class DeathReportModelWrapper(ModelWrapper):
 
     def get_death_report_tmg_model_wrapper(self, action_item):
         if not self.death_report_tmg:
-            model_wrapper = self.death_report_tmg_model_wrapper_cls(
-                model_obj=self.death_report_tmg_model_cls(
-                    death_report=self.object,
-                    subject_identifier=self.object.subject_identifier,
-                    action_identifier=action_item.action_identifier,
-                    parent_action_item=action_item.parent_action_item,
-                    related_action_item=action_item.related_action_item,
-                )
+            # unpersisted model_obj
+            model_obj = self.death_report_tmg_model_cls(
+                death_report=self.object,
+                subject_identifier=self.object.subject_identifier,
+                action_identifier=action_item.action_identifier,
+                parent_action_item=action_item.parent_action_item,
+                related_action_item=action_item.related_action_item,
             )
+            model_wrapper = self.death_report_tmg_model_wrapper_cls(model_obj=model_obj)
         else:
             model_wrapper = self.death_report_tmg_model_wrapper_cls(
                 model_obj=self.death_report_tmg
@@ -137,15 +137,15 @@ class DeathReportModelWrapper(ModelWrapper):
 
     def get_death_report_tmg_second_model_wrapper(self, action_item):
         if not self.death_report_tmg_second:
-            model_wrapper = self.death_report_tmg_second_model_wrapper_cls(
-                model_obj=self.death_report_tmg_model_cls(
-                    death_report=self.object,
-                    subject_identifier=self.object.subject_identifier,
-                    action_identifier=action_item.action_identifier,
-                    parent_action_item=action_item.parent_action_item,
-                    related_action_item=action_item.related_action_item,
-                )
+            # unpersisted model_obj
+            model_obj = self.death_report_tmg_model_cls(
+                death_report=self.object,
+                subject_identifier=self.object.subject_identifier,
+                action_identifier=action_item.action_identifier,
+                parent_action_item=action_item.parent_action_item,
+                related_action_item=action_item.related_action_item,
             )
+            model_wrapper = self.death_report_tmg_second_model_wrapper_cls(model_obj=model_obj)
         else:
             model_wrapper = self.death_report_tmg_second_model_wrapper_cls(
                 model_obj=self.death_report_tmg_second
