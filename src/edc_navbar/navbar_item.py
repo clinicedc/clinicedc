@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
 from edc_constants.constants import IGNORE, WARN
-from edc_dashboard.url_names import InvalidUrlName, url_names
+from edc_dashboard.url_names import InvalidDashboardUrlName, url_names
 from edc_dashboard.utils import get_bootstrap_version
 
 from .exceptions import NavbarItemError, PermissionsCodenameError
@@ -124,7 +124,7 @@ class NavbarItem:
     def url_name(self, value):
         try:
             self._url_name = url_names.get(value)
-        except InvalidUrlName:
+        except InvalidDashboardUrlName:
             self._url_name = value.split(":")[1] if self.no_url_namespace else value
         if not self._url_name:
             raise NavbarItemError(f"'url_name' not specified. See {repr(self)}")
