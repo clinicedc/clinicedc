@@ -1,7 +1,6 @@
 from typing import Any
 
 from edc_lab.constants import SHIPPED
-from edc_lab.models import ManifestItem
 
 from ...model_wrappers import ManifestItemModelWrapper
 from ...view_mixins import ManifestViewMixin
@@ -17,7 +16,7 @@ class ManageManifestListboardView(ManifestViewMixin, BaseListboardView):
     listboard_view_permission_codename = "edc_lab_dashboard.view_lab_manifest_listboard"
     search_form_url = "manage_manifest_listboard_url"
 
-    listboard_model = ManifestItem
+    listboard_model = "edc_lab.manifestitem"
     model_wrapper_cls = ManifestItemModelWrapper
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:

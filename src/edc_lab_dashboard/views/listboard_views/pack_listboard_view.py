@@ -3,7 +3,7 @@ from typing import Any
 from django.apps import apps as django_apps
 from edc_constants.constants import OPEN
 from edc_lab.constants import SHIPPED
-from edc_lab.models import Box, Manifest
+from edc_lab.models import Manifest
 
 from ...model_wrappers import BoxModelWrapper
 from ..listboard_filters import PackListboardViewFilters
@@ -17,7 +17,7 @@ class PackListboardView(BaseListboardView):
     form_action_url = "pack_form_action_url"
     listboard_url = "pack_listboard_url"
     listboard_template = "pack_listboard_template"
-    listboard_model = Box
+    listboard_model = "edc_lab.box"
     listboard_view_permission_codename = "edc_lab_dashboard.view_lab_pack_listboard"
     listboard_view_only_my_permission_codename = None
     model_wrapper_cls = BoxModelWrapper
@@ -31,7 +31,7 @@ class PackListboardView(BaseListboardView):
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(
-            new_box=BoxModelWrapper(Box()),
+            new_box=BoxModelWrapper(self.listboard_model_cls()),
             open_manifests=self.open_manifests,
             SHIPPED=SHIPPED,
         )
