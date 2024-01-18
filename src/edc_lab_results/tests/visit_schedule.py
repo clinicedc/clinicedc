@@ -8,14 +8,22 @@ from edc_lab_panel.panels import (
     rft_panel,
 )
 from edc_visit_schedule.schedule import Schedule
-from edc_visit_schedule.visit import Crf, FormsCollection, Requisition, Visit
+from edc_visit_schedule.visit import (
+    Crf,
+    CrfCollection,
+    Requisition,
+    RequisitionCollection,
+    Visit,
+)
 from edc_visit_schedule.visit_schedule import VisitSchedule
 
-crfs = FormsCollection(
+from edc_lab_results.tests.consents import consent_v1
+
+crfs = CrfCollection(
     Crf(show_order=1, model="edc_lab_results.BloodResultsFbc", required=True),
 )
 
-requisitions = FormsCollection(
+requisitions = RequisitionCollection(
     Requisition(show_order=10, panel=fbc_panel, required=True, additional=False),
     Requisition(show_order=20, panel=lft_panel, required=True, additional=False),
     Requisition(show_order=30, panel=rft_panel, required=False, additional=False),
@@ -58,7 +66,7 @@ schedule = Schedule(
     name="schedule",
     onschedule_model="edc_metadata.onschedule",
     offschedule_model="edc_metadata.offschedule",
-    consent_model="edc_metadata.subjectconsent",
+    consent_definitions=[consent_v1],
     appointment_model="edc_appointment.appointment",
 )
 
