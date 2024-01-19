@@ -1,5 +1,9 @@
+from __future__ import annotations
+
 from .form_runner import FormRunner
 from .site import site_form_runners
+
+__all__ = ["get_form_runner"]
 
 
 def get_form_runner(model_name: str | None = None, verbose: bool | None = None) -> FormRunner:

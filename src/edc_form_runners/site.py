@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import sys
 from copy import deepcopy
 
@@ -12,6 +14,9 @@ class AlreadyRegistered(Exception):
 
 class SiteFormRunnerError(Exception):
     pass
+
+
+__all__ = ["site_form_runners"]
 
 
 class SiteFormRunners:

@@ -22,20 +22,22 @@ if TYPE_CHECKING:
         pass
 
 
+__all__ = [
+    "get_form_runner_issues",
+    "get_edc_form_runners_enabled",
+    "get_issue_model_cls",
+    # "get_modelforms_from_admin_sites",
+    "get_modeladmins_from_admin_sites",
+    "get_modeladmin_cls",
+]
+
+
 def get_edc_form_runners_enabled() -> bool:
     return getattr(settings, "EDC_FORM_RUNNERS_ENABLED", False)
 
 
 def get_issue_model_cls() -> Issue:
     return django_apps.get_model("edc_form_runners.issue")
-
-
-@cache
-def get_modelforms_from_admin_sites() -> dict[str, Type[ModelForm]]:
-    registry = {}
-    for admin_site in admin.sites.all_sites:
-        registry.update(**get_modelforms_from_admin_site(admin_site))
-    return registry
 
 
 @cache
@@ -66,10 +68,6 @@ def get_modeladmin_cls(model_name: str) -> Type[ModelAdmin]:
     return get_modeladmins_from_admin_sites().get(model_name)
 
 
-def get_modelform_cls(model_name: str) -> Type[ModelForm]:
-    return get_modelforms_from_admin_sites().get(model_name)
-
-
 def get_form_runner_issues(
     model_name: str, related_visit: RelatedVisitModel, panel_name: str | None = None
 ) -> QuerySet[Issue] | None:
@@ -82,3 +80,14 @@ def get_form_runner_issues(
         schedule_name=related_visit.schedule_name,
         panel_name=panel_name,
     )
+
+
+# @cache
+# def get_modelforms_from_admin_sites() -> dict[str, Type[ModelForm]]:
+#     registry = {}
+#     for admin_site in admin.sites.all_sites:
+#         registry.update(**get_modelforms_from_admin_site(admin_site))
+#     return registry
+
+# def get_modelform_cls(model_name: str) -> Type[ModelForm]:
+#     return get_modelforms_from_admin_sites().get(model_name)

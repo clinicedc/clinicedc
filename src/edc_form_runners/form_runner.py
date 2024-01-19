@@ -16,6 +16,8 @@ from .utils import get_modeladmin_cls
 if TYPE_CHECKING:
     from .models import Issue
 
+__all__ = ["FormRunner"]
+
 
 class FormRunner:
     """Rerun modelform validation on all instances of a model"""

@@ -3,13 +3,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django import template
-from django.db import models
-from edc_crf.model_mixins import CrfModelMixin
-from edc_metadata.models import CrfMetadata, RequisitionMetadata
 
 from edc_form_runners.utils import get_form_runner_issues
 
 if TYPE_CHECKING:
+    from django.db import models
+    from edc_crf.model_mixins import CrfModelMixin
+    from edc_metadata.models import CrfMetadata, RequisitionMetadata
 
     class Model(CrfModelMixin, models.Model):
         ...
