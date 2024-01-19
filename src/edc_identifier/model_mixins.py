@@ -132,6 +132,14 @@ class UniqueSubjectIdentifierModelMixin(
     identifier field and corresponding fields and methods.
     """
 
+    def get_subject_identifier(self):
+        """Returns the subject_identifier"""
+        return self.subject_identifier
+
+    def get_subject_identifier_as_pk(self):
+        """Returns the subject_identifier_as_pk"""
+        return self.subject_identifier_as_pk  # noqa
+
     class Meta:
         abstract = True
 
@@ -145,6 +153,14 @@ class NonUniqueSubjectIdentifierModelMixin(
     """A model mixin for concrete models requiring a non-unique
     subject identifier field and corresponding field and methods.
     """
+
+    def get_subject_identifier(self):
+        """Returns the subject_identifier"""
+        return self.subject_identifier
+
+    def get_subject_identifier_as_pk(self):
+        """Returns the subject_identifier_as_pk"""
+        return self.subject_identifier_as_pk
 
     class Meta(NonUniqueSubjectIdentifierFieldMixin.Meta):
         abstract = True
