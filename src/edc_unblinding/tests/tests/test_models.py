@@ -3,7 +3,7 @@ from django.test import TestCase, override_settings
 from edc_action_item import site_action_items
 from edc_action_item.site_action_items import AlreadyRegistered
 from edc_auth.site_auths import site_auths
-from edc_consent import site_consents
+from edc_consent.site_consents import site_consents
 from edc_facility import import_holidays
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.tests.helper import Helper
