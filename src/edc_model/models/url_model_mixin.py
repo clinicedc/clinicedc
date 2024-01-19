@@ -21,9 +21,8 @@ class UrlModelMixin(models.Model):
         except NoReverseMatch as e:
             raise UrlModelMixinNoReverseMatch(
                 f"Tried {self.admin_url_name}. Got {e}. "
-                "Confirm app is in INSTALLED_APPS. If running tests, you may need to set "
-                "`use_test_urls=True`. Otherwise, define AppConfig.admin_site_name or directly"
-                "on model.ADMIN_SITE_NAME that refers to your app specific admin site. "
+                "Check urls and confirm app is in INSTALLED_APPS. If running tests, "
+                "you may need to set `use_test_urls=True`."
             )
         return absolute_url
 
