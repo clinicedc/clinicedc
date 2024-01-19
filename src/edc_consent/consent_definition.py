@@ -21,8 +21,6 @@ from .exceptions import (
 )
 
 if TYPE_CHECKING:
-    from edc_sites.single_site import SingleSite
-
     from .model_mixins import ConsentModelMixin
 
     class ConsentLikeModel(NonUniqueSubjectIdentifierModelMixin, ConsentModelMixin):
@@ -46,7 +44,7 @@ class ConsentDefinition:
     gender: list[str] | None = field(default_factory=list, compare=False)
     updates_versions: list[str] | None = field(default_factory=list, compare=False)
     subject_type: str = field(default="subject", compare=False)
-    sites: list[SingleSite] = field(default_factory=list, compare=False)
+    site_ids: list[int] = field(default_factory=list, compare=False)
     country: str | None = field(default=None, compare=False)
     name: str = field(init=False, compare=True)
     sort_index: str = field(init=False)
@@ -55,7 +53,6 @@ class ConsentDefinition:
         self.name = f"{self.model}-{self.version}"
         self.sort_index = self.name
         self.gender = [MALE, FEMALE] if not self.gender else self.gender
-        self._init_sites()
         if MALE not in self.gender and FEMALE not in self.gender:
             raise ConsentDefinitionError(f"Invalid gender. Got {self.gender}.")
         if not self.start.tzinfo:
@@ -64,26 +61,21 @@ class ConsentDefinition:
             raise ConsentDefinitionError(f"Naive datetime not allowed Got {self.end}.")
         self.check_date_within_study_period()
 
-    def _init_sites(self) -> None:
-        """Updates and/or validates sites.
-
-         In order for this to work, edc_sites should be done
-        registering sites.
-        """
-        if not self.sites:
-            if not site_sites.loaded:
-                raise ConsentDefinitionError(
-                    "No registered sites found or edc_sites.sites not loaded yet. "
-                    "Perhaps place `edc_sites` before `edc_consent` "
-                    "in INSTALLED_APPS."
-                )
-            if self.country:
-                self.sites = site_sites.get_by_country(self.country, aslist=True)
-            else:
-                self.sites = [s for s in site_sites.all(aslist=True)]
+    @property
+    def sites(self):
+        if not site_sites.loaded:
+            raise ConsentDefinitionError(
+                "No registered sites found or edc_sites.sites not loaded yet. "
+                "Perhaps place `edc_sites` before `edc_consent` "
+                "in INSTALLED_APPS."
+            )
+        if self.country:
+            sites = site_sites.get_by_country(self.country, aslist=True)
+        elif self.site_ids:
+            sites = [s for s in site_sites.all(aslist=True) if s.site_id in self.site_ids]
         else:
-            for site in self.sites:
-                site_sites.get(site.site_id)
+            sites = [s for s in site_sites.all(aslist=True)]
+        return sites
 
     def get_consent_for(
         self, subject_identifier: str = None, report_datetime: datetime | None = None
