@@ -16,9 +16,8 @@ from edc_protocol_incident.models import (
     ProtocolDeviationViolation,
     ProtocolViolations,
 )
-
-from ..action_items import ProtocolDeviationViolationAction
-from ..visit_schedule import visit_schedule
+from protocol_app.action_items import ProtocolDeviationViolationAction
+from protocol_app.visit_schedule import visit_schedule
 
 
 class TestProtocolViolation(TestCase):
