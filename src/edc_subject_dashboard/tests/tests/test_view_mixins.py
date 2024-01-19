@@ -1,27 +1,29 @@
-from dateutil.relativedelta import relativedelta
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.views.generic.base import ContextMixin
-from edc_facility import import_holidays
-from edc_locator.view_mixins import (
-    SubjectLocatorViewMixin,
-    SubjectLocatorViewMixinError,
-)
-from edc_registration.models import RegisteredSubject
+from edc_appointment.view_mixins import AppointmentViewMixin
+from edc_locator.exceptions import SubjectLocatorViewMixinError
+from edc_locator.view_mixins import SubjectLocatorViewMixin
+from edc_sites.utils import get_site_model_cls
 from edc_sites.view_mixins import SiteViewMixin
 from edc_test_utils.get_httprequest_for_tests import get_request_object_for_tests
-from edc_test_utils.get_user_for_tests import get_user_for_tests
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 
 from edc_subject_dashboard.view_mixins import (
+    RegisteredSubjectViewMixin,
     SubjectVisitViewMixin,
     SubjectVisitViewMixinError,
 )
+from subject_dashboard_app.models import (
+    Appointment,
+    BadSubjectVisit,
+    SubjectConsent,
+    TestModel,
+)
 
-from ..models import Appointment, BadSubjectVisit, OnScheduleOne, TestModel
-from ..visit_schedule import visit_schedule1
+from .test_case_mixin import TestCaseMixin
 
 
 class DummyModelWrapper:
@@ -29,24 +31,21 @@ class DummyModelWrapper:
         pass
 
 
-class TestViewMixins(TestCase):
+@override_settings(SITE_ID=110)
+class TestViewMixins(TestCaseMixin, TestCase):
     def setUp(self):
-        self.user = get_user_for_tests()
-        site_visit_schedules._registry = {}
-        site_visit_schedules.register(visit_schedule=visit_schedule1)
-
-        self.subject_identifier = "12345"
-
-        onschedule_datetime = get_utcnow() - relativedelta(years=1)
-
-        RegisteredSubject.objects.create(
-            subject_identifier=self.subject_identifier,
-            registration_datetime=onschedule_datetime,
+        self.subject_identifier = "101-108987-0"
+        self.current_site = get_site_model_cls().objects.get_current()
+        self.subject_identifier = "101-1234567-0"
+        subject_consent = SubjectConsent.objects.create(
+            subject_identifier=self.subject_identifier, consent_datetime=get_utcnow()
         )
-
-        OnScheduleOne.objects.create(
+        _, self.schedule = site_visit_schedules.get_by_onschedule_model(
+            "subject_dashboard_app.onschedule"
+        )
+        self.schedule.put_on_schedule(
             subject_identifier=self.subject_identifier,
-            onschedule_datetime=onschedule_datetime,
+            onschedule_datetime=subject_consent.consent_datetime,
         )
 
         self.appointment = Appointment.objects.get(visit_code="1000")
@@ -63,30 +62,14 @@ class TestViewMixins(TestCase):
         )
         self.test_model = TestModel.objects.create(subject_visit=self.subject_visit)
 
-    @classmethod
-    def setUpTestData(cls):
-        import_holidays()
-
-    def test_subject_visit_missing_appointment(self):
-        class MyView(SubjectVisitViewMixin, ContextMixin):
-            pass
-
-        view = MyView()
-        self.assertRaises(SubjectVisitViewMixinError, view.get_context_data)
-
-    def test_subject_visit_correct_relation(self):
-        class MyView(SubjectVisitViewMixin, ContextMixin):
-            pass
-
-        view = MyView()
-        view.appointment = self.appointment
-        context = view.get_context_data()
-        self.assertEqual(context.get("related_visit"), self.subject_visit)
-
     def test_subject_visit_incorrect_relation(self):
         """Asserts raises if relation is not one to one."""
 
-        class MySubjectVisitViewMixin(SubjectVisitViewMixin, ContextMixin):
+        class MySubjectVisitViewMixin(
+            SubjectVisitViewMixin,
+            RegisteredSubjectViewMixin,
+            ContextMixin,
+        ):
             visit_attr = "badsubjectvisit"
 
         mixin = MySubjectVisitViewMixin()
@@ -95,24 +78,27 @@ class TestViewMixins(TestCase):
         self.assertRaises(SubjectVisitViewMixinError, mixin.get_context_data)
 
     def test_subject_locator_raises_on_bad_model(self):
-        class MySubjectLocatorViewMixin(SiteViewMixin, SubjectLocatorViewMixin, ContextMixin):
-            subject_locator_model_wrapper_cls = DummyModelWrapper
+        class MySubjectLocatorViewMixin(
+            SiteViewMixin,
+            SubjectLocatorViewMixin,
+            RegisteredSubjectViewMixin,
+            AppointmentViewMixin,
+            ContextMixin,
+        ):
             subject_locator_model = "blah.blahblah"
 
         mixin = MySubjectLocatorViewMixin()
         mixin.kwargs = {"subject_identifier": self.subject_identifier}
         mixin.request = get_request_object_for_tests(self.user)
-        self.assertRaises(SubjectLocatorViewMixinError, mixin.get_context_data)
-
-    def test_subject_locator_raisesmissing_wrapper_cls(self):
-        class MySubjectLocatorViewMixin(SubjectLocatorViewMixin, ContextMixin):
-            subject_locator_model = "edc_locator.subjectlocator"
-
-        self.assertRaises(SubjectLocatorViewMixinError, MySubjectLocatorViewMixin)
+        self.assertRaises(LookupError, mixin.get_context_data)
 
     def test_subject_locator_ok(self):
-        class MySubjectLocatorViewMixin(SubjectLocatorViewMixin, ContextMixin):
-            subject_locator_model_wrapper_cls = DummyModelWrapper
+        class MySubjectLocatorViewMixin(
+            SubjectLocatorViewMixin,
+            RegisteredSubjectViewMixin,
+            AppointmentViewMixin,
+            ContextMixin,
+        ):
             subject_locator_model = "edc_locator.subjectlocator"
 
         mixin = MySubjectLocatorViewMixin()

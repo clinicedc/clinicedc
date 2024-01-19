@@ -40,6 +40,10 @@ class DashboardModelButton(ModelButton):
     dashboard_url_name: str = field(default="subject_dashboard_url")
     model_cls: Type[CrfModel | RequisitionModel] = field(default=None, init=False)
 
+    def __post_init__(self):
+        self.model_cls = self.metadata_model_obj.model_cls
+        self.model_obj = self.metadata_model_obj.model_instance
+
     @property
     def site(self) -> Site | None:
         """If model_obj is None, then Site should come from the

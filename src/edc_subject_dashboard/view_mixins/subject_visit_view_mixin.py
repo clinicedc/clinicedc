@@ -40,27 +40,19 @@ class SubjectVisitViewMixin:
     @property
     def related_visit(self) -> VisitModelMixin | None:
         if not self._related_visit:
-            try:
-                appointment = self.appointment
-            except AttributeError as e:
-                if "appointment" in str(e):
+            self.has_appointment_attr_or_raise()
+            if self.appointment:
+                try:
+                    self._related_visit = self.appointment.related_visit
+                except AttributeError as e:
                     raise SubjectVisitViewMixinError(
-                        f"Mixin must be declared together with AppointmentViewMixin. Got {e}"
+                        "Visit model must have a OneToOne relation to appointment. " f"Got {e}"
                     )
-                raise
-            else:
-                if appointment:
-                    try:
-                        self._related_visit = appointment.related_visit
-                    except AttributeError as e:
-                        raise SubjectVisitViewMixinError(
-                            "Visit model must have a OneToOne relation to appointment. "
-                            f"Got {e}"
-                        )
         return self._related_visit
 
     def get_visit_schedule(self) -> VisitSchedule | None:
-        """Returns a str(pk) from the VisitSchedule model."""
+        """Returns the VisitSchedule model instance."""
+        self.has_appointment_attr_or_raise()
         visit_schedule = None
         if self.appointment:
             opts = dict(
@@ -86,3 +78,16 @@ class SubjectVisitViewMixin:
                 except AttributeError:
                     self._report_datetime = get_utcnow()
         return self._report_datetime
+
+    def has_appointment_attr_or_raise(self) -> None:
+        """Checks for 'appointment' attribute. If missing, assume you
+        did not declare this view with AppointmentViewMixin.
+        """
+        try:
+            self.appointment
+        except AttributeError as e:
+            if "appointment" in str(e):
+                raise SubjectVisitViewMixinError(
+                    f"Mixin must be declared together with AppointmentViewMixin. Got {e}"
+                )
+            raise
