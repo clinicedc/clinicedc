@@ -9,11 +9,13 @@ from edc_consent.consent_definition import ConsentDefinition
 from edc_form_validators import INVALID_ERROR, ReportDatetimeFormValidatorMixin
 from edc_sites import site_sites
 from edc_utils import age, to_utc
-from edc_visit_tracking.exceptions import RelatedVisitFieldError
 from edc_visit_tracking.modelform_mixins import get_related_visit
 
 if TYPE_CHECKING:
     from edc_visit_tracking.model_mixins import VisitModelMixin
+
+
+__all__ = ["BaseFormValidatorMixin", "CrfFormValidatorMixin"]
 
 
 class BaseFormValidatorMixin(ReportDatetimeFormValidatorMixin):
@@ -40,10 +42,10 @@ class BaseFormValidatorMixin(ReportDatetimeFormValidatorMixin):
         See also: modelform (self.get_consent_definition_or_raise())
         """
         consent_definition = None
-        try:
-            site_id = self.related_visit.site.id
-        except (AttributeError, RelatedVisitFieldError):
-            site_id = self.instance.site.id
+        site_id = self.cleaned_data.get("site") or getattr(
+            self.instance.site, "id", self.current_site
+        )
+
         try:
             consent_definition = site_consents.get_consent_definition(
                 report_datetime=self.report_datetime,
@@ -81,10 +83,26 @@ class CrfFormValidatorMixin(BaseFormValidatorMixin):
         """
         report_datetime = None
         if self.report_datetime_field_attr in self.cleaned_data:
-            report_datetime = self.cleaned_data.get("report_datetime")
+            report_datetime = self.cleaned_data.get(self.report_datetime_field_attr)
         elif self.instance:
             report_datetime = self.instance.report_datetime
         return report_datetime
+
+    def get_consent_definition_or_raise(self) -> ConsentDefinition:
+        """Assert falls within a valid consent period
+
+        See also: modelform (self.get_consent_definition_or_raise())
+        """
+        consent_definition = None
+        site_id = self.related_visit.site.id
+        try:
+            consent_definition = site_consents.get_consent_definition(
+                report_datetime=self.report_datetime,
+                site=site_sites.get(site_id),
+            )
+        except ConsentDefinitionDoesNotExist as e:
+            self.raise_validation_error(str(e), INVALID_ERROR)
+        return consent_definition
 
     @property
     def related_visit_model_attr(self):
