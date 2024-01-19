@@ -1,7 +1,11 @@
+from typing import Type
+
 from django.apps import apps as django_apps
 from django.test import TestCase
 from edc_action_item import site_action_items
 from edc_appointment.models import Appointment
+from edc_appointment.tests.helper import Helper
+from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_registration.models import RegisteredSubject
@@ -9,16 +13,16 @@ from edc_reportable import site_reportables
 from edc_reportable.grading_data.daids_july_2017 import grading_data
 from edc_reportable.normal_data.africa import normal_data
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_schedule.visit_schedule import VisitSchedule
 from edc_visit_tracking.constants import SCHEDULED
-from visit_schedule_app.consents import v1_consent
-from visit_schedule_app.models import SubjectConsent
-from visit_schedule_app.visit_schedule import visit_schedule
 
 from edc_utils import get_utcnow
 
 
 class LongitudinalTestCaseMixin(TestCase):
-    visit_schedule = visit_schedule
+    consent_definition: ConsentDefinition = None
+    visit_schedule: VisitSchedule = None
+    helper_cls: Type[Helper] = Helper
 
     @classmethod
     def setUpClass(cls):
@@ -33,22 +37,20 @@ class LongitudinalTestCaseMixin(TestCase):
         site_reportables.register(
             name="my_reportables", normal_data=normal_data, grading_data=grading_data
         )
-        site_visit_schedules.register(cls.visit_schedule)
-        site_consents.register(v1_consent)
+        site_consents.registry = {}
+        site_consents.register(cls.consent_definition)
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule=cls.visit_schedule)
         import_holidays()
 
-    @staticmethod
-    def enroll(subject_identifier=None):
+    def enroll(self, subject_identifier=None):
         subject_identifier = subject_identifier or "1111111"
-        subject_consent = SubjectConsent.objects.create(
-            subject_identifier=subject_identifier, consent_datetime=get_utcnow()
+        self.helper = self.helper_cls(
+            subject_identifier=subject_identifier,
         )
-        _, schedule = site_visit_schedules.get_by_onschedule_model(
-            "visit_schedule_app.onschedule"
-        )
-        schedule.put_on_schedule(
-            subject_identifier=subject_consent.subject_identifier,
-            onschedule_datetime=subject_consent.consent_datetime,
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
         )
         return subject_identifier
 
