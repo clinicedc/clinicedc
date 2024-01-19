@@ -27,7 +27,7 @@ def prn_list_items(subject_identifier, **kwargs):
 
 
 @register.inclusion_tag("edc_prn/add_prn_popover.html")
-def add_prn_crf_popover(appointment, subject_dashboard_url):
+def add_prn_crf_popover(appointment: Appointment, subject_dashboard_url: str):
     prn_forms = []
     for crf in appointment.visits.get(appointment.visit_code).crfs_prn:
         if not CrfMetadata.objects.filter(
