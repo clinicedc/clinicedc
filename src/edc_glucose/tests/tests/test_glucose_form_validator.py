@@ -1,8 +1,8 @@
-from _decimal import Decimal
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
-from edc_appointment.constants import SCHEDULED_APPT
 from edc_appointment.models import Appointment
+from edc_appointment.tests.helper import Helper as BaseHelper
+from edc_consent import site_consents
 from edc_constants.constants import NOT_APPLICABLE, YES
 from edc_lab.constants import EQ
 from edc_reportable import MILLIMOLES_PER_LITER
@@ -12,27 +12,47 @@ from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 
 from edc_glucose.form_validators import GlucoseFormValidator
-from edc_glucose.tests.visit_schedules import visit_schedule
+
+from ..consents import consent_v1
+from ..models import SubjectScreening
+from ..visit_schedules import visit_schedule
+
+
+class Helper(BaseHelper):
+    @property
+    def screening_model_cls(self):
+        return SubjectScreening
 
 
 @override_settings(SITE_ID=10)
 class TestGlucose(TestCase):
+    helper_cls = Helper
+
     def setUp(self):
+        SubjectScreening.objects.create(
+            screening_identifier="ABCD",
+            screening_datetime=get_utcnow(),
+            subject_identifier="12345",
+        )
+        self.subject_identifier = "12345"
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
         site_visit_schedules._registry = {}
-        site_visit_schedules.register(visit_schedule)
-        self.subject_identifier = "1234"
-        appointment = Appointment.objects.create(
+        site_visit_schedules.register(visit_schedule=visit_schedule)
+        self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
-            visit_code="1000",
-            visit_code_sequence=0,
+        )
+        self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
-            timepoint=Decimal("0.0"),
-            appt_datetime=get_utcnow(),
-            appt_reason=SCHEDULED_APPT,
         )
+
+        appointment_baseline = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )[0]
+
         self.subject_visit_baseline = SubjectVisit.objects.create(
-            appointment=appointment,
+            appointment=appointment_baseline,
             subject_identifier=self.subject_identifier,
             visit_code=1000,
             visit_code_sequence=0,
@@ -40,18 +60,11 @@ class TestGlucose(TestCase):
             schedule_name="schedule",
             reason=SCHEDULED,
         )
-        appointment = Appointment.objects.create(
-            subject_identifier=self.subject_identifier,
-            visit_code="2000",
-            visit_code_sequence=0,
-            visit_schedule_name="visit_schedule",
-            schedule_name="schedule",
-            timepoint=Decimal("1.0"),
-            appt_datetime=get_utcnow(),
-            appt_reason=SCHEDULED_APPT,
-        )
+        appointment_followup = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )[1]
         self.subject_visit_followup = SubjectVisit.objects.create(
-            appointment=appointment,
+            appointment=appointment_followup,
             subject_identifier=self.subject_identifier,
             visit_code="2000",
             visit_code_sequence=0,
