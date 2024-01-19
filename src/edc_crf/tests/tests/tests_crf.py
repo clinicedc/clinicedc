@@ -54,6 +54,7 @@ class CrfTestCase(TestCase):
             appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
         )
 
+    @tag("1")
     def test_form_validator_with_crf(self):
         class MyFormValidator(CrfFormValidatorMixin, FormValidator):
             def clean(self) -> None:

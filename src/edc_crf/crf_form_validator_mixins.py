@@ -9,6 +9,7 @@ from edc_consent.consent_definition import ConsentDefinition
 from edc_form_validators import INVALID_ERROR, ReportDatetimeFormValidatorMixin
 from edc_sites import site_sites
 from edc_utils import age, to_utc
+from edc_visit_tracking.exceptions import RelatedVisitFieldError
 from edc_visit_tracking.modelform_mixins import get_related_visit
 
 if TYPE_CHECKING:
@@ -40,9 +41,13 @@ class BaseFormValidatorMixin(ReportDatetimeFormValidatorMixin):
         """
         consent_definition = None
         try:
+            site_id = self.related_visit.site.id
+        except (AttributeError, RelatedVisitFieldError):
+            site_id = self.instance.site.id
+        try:
             consent_definition = site_consents.get_consent_definition(
                 report_datetime=self.report_datetime,
-                site=site_sites.get(self.related_visit.site.id),
+                site=site_sites.get(site_id),
             )
         except ConsentDefinitionDoesNotExist as e:
             self.raise_validation_error(str(e), INVALID_ERROR)
