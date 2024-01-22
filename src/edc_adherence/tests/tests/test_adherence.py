@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
 from edc_appointment.tests.helper import Helper
@@ -77,6 +79,7 @@ class TestAdherence(TestCase):
             other_missed_pill_reason=None,
             subject_visit=self.subject_visit,
             report_datetime=self.subject_visit.report_datetime,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = MedicationAdherenceForm(data=data)
         form.is_valid()
@@ -118,6 +121,7 @@ class TestAdherence(TestCase):
             other_missed_pill_reason=None,
             subject_visit=self.subject_visit,
             report_datetime=self.subject_visit.report_datetime,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         data.update(
             pill_count_performed=YES,
