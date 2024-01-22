@@ -64,3 +64,7 @@ class AlreadyRegisteredVisitSchedule(Exception):
 
 class VisitScheduleBaselineError(Exception):
     pass
+
+
+class VisitScheduleNonCrfModelFormMixinError(Exception):
+    pass
