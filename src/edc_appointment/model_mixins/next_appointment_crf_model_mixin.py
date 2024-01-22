@@ -4,7 +4,6 @@ from django.db import models
 from django.db.models import PROTECT
 from django.utils.translation import gettext_lazy as _
 from edc_facility.utils import get_health_facility_model
-from edc_visit_schedule.models import VisitSchedule
 
 
 class NextAppointmentCrfModelMixin(models.Model):
@@ -34,7 +33,7 @@ class NextAppointmentCrfModelMixin(models.Model):
     # named this way to not conflict with property `visit_schedule`
     # see also edc-crf
     visitschedule = models.ForeignKey(
-        VisitSchedule,
+        "edc_visit_schedule.VisitSchedule",
         on_delete=PROTECT,
         verbose_name=_("Which study visit code is closest to this appointment date"),
         max_length=15,
