@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 from uuid import UUID
 
-from edc_lab.models import Panel
+from django.apps import apps as django_apps
 
 from .crf_button import CrfButton
+
+if TYPE_CHECKING:
+    from edc_lab.models import Panel
 
 __all__ = ["RequisitionButton"]
 
@@ -30,5 +34,6 @@ class RequisitionButton(CrfButton):
         if self.model_obj:
             panel = self.model_obj.panel
         else:
-            panel = Panel.objects.get(name=self.metadata_model_obj.panel_name)
+            panel_model_cls = django_apps.get_model("edc_lab.panel")
+            panel = panel_model_cls.objects.get(name=self.metadata_model_obj.panel_name)
         return panel
