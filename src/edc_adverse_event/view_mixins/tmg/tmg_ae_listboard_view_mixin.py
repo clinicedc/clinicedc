@@ -13,7 +13,8 @@ from edc_utils import get_utcnow
 
 from ...auth_objects import TMG
 from ...constants import AE_TMG_ACTION
-from ...model_wrappers import TmgActionItemModelWrapper
+
+# from ...model_wrappers import TmgActionItemModelWrapper
 from ...utils import get_adverse_event_app_label
 
 if TYPE_CHECKING:
@@ -37,7 +38,7 @@ class TmgAeListboardViewMixin(
     listboard_panel_title = "TMG: AE Reports"
     listboard_view_permission_codename = "edc_adverse_event.view_tmg_listboard"
 
-    model_wrapper_cls = TmgActionItemModelWrapper
+    # model_wrapper_cls = TmgActionItemModelWrapper
     navbar_name = get_default_navbar()
     navbar_selected_item = "tmg_home"
     ordering = "-report_datetime"

@@ -4,9 +4,6 @@ from typing import TYPE_CHECKING, Any
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.html import format_html
-from edc_action_item.model_wrappers import (
-    ActionItemModelWrapper as BaseActionItemModelWrapper,
-)
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
@@ -15,29 +12,11 @@ from edc_navbar import NavbarViewMixin
 from edc_utils import get_utcnow
 
 from ...constants import DEATH_REPORT_ACTION
-from ...model_wrappers import DeathReportModelWrapper as BaseDeathReportModelWrapper
 from ...pdf_reports import DeathPdfReport
-from ...utils import get_adverse_event_app_label, get_ae_model
+from ...utils import get_ae_model
 
 if TYPE_CHECKING:
     from django.db.models import Q
-
-
-class DeathReportModelWrapper(BaseDeathReportModelWrapper):
-    next_url_name = "death_report_listboard_url"
-
-
-class ActionItemModelWrapper(BaseActionItemModelWrapper):
-    next_url_name = "death_report_listboard_url"
-    death_report_model = f"{get_adverse_event_app_label()}.deathreport"
-
-    def __init__(self, model_obj=None, **kwargs):
-        self._death_report = None
-        super().__init__(model_obj=model_obj, **kwargs)
-
-    @property
-    def death_report(self) -> DeathReportModelWrapper:
-        return DeathReportModelWrapper(model_obj=self.object.reference_obj)
 
 
 class DeathReportListboardViewMixin(
@@ -65,7 +44,7 @@ class DeathReportListboardViewMixin(
         "left of the subject's identifier."
     )
 
-    model_wrapper_cls = ActionItemModelWrapper
+    # model_wrapper_cls = ActionItemModelWrapper
     navbar_selected_item = "ae_home"
     ordering = "-report_datetime"
     paginate_by = 25

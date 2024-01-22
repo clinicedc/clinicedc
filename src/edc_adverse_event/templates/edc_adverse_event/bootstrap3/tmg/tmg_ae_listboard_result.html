@@ -14,7 +14,7 @@
 
 {% for result in results %}
         <div class="panel panel-default">
-        <div class="panel-heading"><h5><span class="badge">{{ forloop.counter }}</span> <span class="text text-uppercase">{{ result.subject_identifier }}</span> {% copy_string_to_clipboard_button result.subject_identifier %} <span class="text text-muted small">{{ utc_date|timeuntil:result.report_date }} ago</span></h5></div>
+        <div class="panel-heading"><h5><span class="badge">{{ forloop.counter }}</span> <span class="text text-uppercase">{{ result.subject_identifier }}</span> {% copy_string_to_clipboard_button result.subject_identifier %} <span class="text text-muted small">{{ utc_date|timeuntil:result.report_datetime }} ago</span></h5></div>
         <div class="panel-body">
         <div class="row">
             <div class="col-md-4">
