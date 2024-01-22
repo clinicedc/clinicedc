@@ -1,15 +1,19 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Type
+from typing import TYPE_CHECKING, Type
 from uuid import UUID
 
+from django.apps import apps as django_apps
 from edc_appointment.constants import IN_PROGRESS_APPT, NEW_APPT
-from edc_appointment.models import Appointment
 from edc_utils import get_utcnow
 
 from .dashboard_model_button import DashboardModelButton
 from .model_button import ADD
+
+if TYPE_CHECKING:
+    from edc_appointment.models import Appointment
+
 
 __all__ = ["AppointmentButton"]
 
@@ -19,11 +23,11 @@ class AppointmentButton(DashboardModelButton):
     model_obj: Appointment = None
     labels: tuple[str, str, str] = field(default=(3 * ("Appt",)))
     colors: tuple[str, str, str] = field(default=(3 * ("default",)))
-    model_cls: Type[Appointment] = field(default=Appointment, init=False)
+    model_cls: Type[Appointment] = field(default=None, init=False)
     appointment: Appointment = field(default=None, init=False)
 
     def __post_init__(self):
-        pass
+        self.model_cls = django_apps.get_model("edc_appointment.appointment")
 
     @property
     def disabled(self) -> str:
