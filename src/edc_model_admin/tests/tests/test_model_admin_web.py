@@ -1,5 +1,7 @@
 from dateutil.relativedelta import relativedelta
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls.base import reverse
 from django_webtest import WebTest
@@ -130,6 +132,7 @@ class ModelAdminSiteTest(WebTest):
             "subject_visit": str(self.subject_visit.id),
             "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
             "report_datetime_1": "00:00:00",
+            "site": Site.objects.get(id=settings.SITE_ID).id,
         }
         form = get_webtest_form(response)
         for key, value in form_data.items():
@@ -142,6 +145,7 @@ class ModelAdminSiteTest(WebTest):
             "subject_visit": str(self.subject_visit.id),
             "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
             "report_datetime_1": "00:00:00",
+            "site": Site.objects.get(id=settings.SITE_ID).id,
         }
         form = get_webtest_form(response)
         for key, value in form_data.items():
@@ -167,6 +171,7 @@ class ModelAdminSiteTest(WebTest):
             "subject_visit": str(self.subject_visit.id),
             "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
             "report_datetime_1": "00:00:00",
+            "site": Site.objects.get(id=settings.SITE_ID).id,
         }
         form = get_webtest_form(response)
         for key, value in form_data.items():
@@ -190,6 +195,7 @@ class ModelAdminSiteTest(WebTest):
             "subject_visit": str(self.subject_visit.id),
             "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
             "report_datetime_1": "00:00:00",
+            "site": Site.objects.get(id=settings.SITE_ID).id,
         }
         form = get_webtest_form(response)
         for key, value in form_data.items():
@@ -239,6 +245,7 @@ class ModelAdminSiteTest(WebTest):
             "clinic_verified": YES,
             "clinic_verified_datetime_0": dte.strftime("%Y-%m-%d"),
             "clinic_verified_datetime_1": "00:00:00",
+            "site": Site.objects.get(id=settings.SITE_ID).id,
         }
 
         # add and save
@@ -317,6 +324,7 @@ class ModelAdminSiteTest(WebTest):
             "subject_visit": str(self.subject_visit.id),
             "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
             "report_datetime_1": "00:00:00",
+            "site": Site.objects.get(id=settings.SITE_ID).id,
         }
         response = self.app.get(url, user=self.user)
         form = get_webtest_form(response)
@@ -404,6 +412,7 @@ class ModelAdminSiteTest(WebTest):
         form_data = {
             "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
             "report_datetime_1": "00:00:00",
+            "site": Site.objects.get(id=settings.SITE_ID).id,
         }
         response = self.app.get(add_url, user=self.user)
         form = get_webtest_form(response)
