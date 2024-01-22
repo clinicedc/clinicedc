@@ -1,4 +1,6 @@
 from dateutil.relativedelta import relativedelta
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
 from edc_action_item import site_action_items
 from edc_appointment.constants import INCOMPLETE_APPT
@@ -258,6 +260,7 @@ class TestOffstudy(TestCase):
             subject_identifier=self.subject_identifier,
             offstudy_datetime=get_utcnow(),
             offstudy_reason=DEAD,
+            site=Site.objects.get(id=settings.SITE_ID).id,
         )
         # take off schedule1
         OffScheduleOne.objects.create(
@@ -274,6 +277,7 @@ class TestOffstudy(TestCase):
             subject_identifier=self.subject_identifier,
             offstudy_datetime=get_utcnow(),
             offstudy_reason=DEAD,
+            site=Site.objects.get(id=settings.SITE_ID).id,
         )
         form = SubjectOffstudyForm(data=data)
         self.assertFalse(form.is_valid())
@@ -307,6 +311,7 @@ class TestOffstudy(TestCase):
             report_datetime=appointments[0].appt_datetime,
             visit_schedule_name=appointments[0].visit_schedule_name,
             schedule_name=appointments[0].schedule_name,
+            site=Site.objects.get(id=settings.SITE_ID).id,
         )
         form = CrfOneForm(data=data)
         form.is_valid()
@@ -332,6 +337,7 @@ class TestOffstudy(TestCase):
             report_datetime=appointments[0].appt_datetime + relativedelta(days=2),
             visit_schedule_name="visit_schedule1",
             schedule_name="schedule1",
+            site=Site.objects.get(id=settings.SITE_ID).id,
         )
         form = CrfOneForm(data=data)
         self.assertFalse(form.is_valid())
@@ -342,6 +348,7 @@ class TestOffstudy(TestCase):
         data = dict(
             subject_identifier=self.subject_identifier,
             report_datetime=self.consent_datetime,
+            site=Site.objects.get(id=settings.SITE_ID).id,
         )
         form = NonCrfOneForm(data=data)
         form.is_valid()
@@ -352,6 +359,7 @@ class TestOffstudy(TestCase):
         data = dict(
             subject_identifier=self.subject_identifier,
             report_datetime=self.consent_datetime,
+            site=Site.objects.get(id=settings.SITE_ID).id,
         )
 
         # take off schedule1 and hour after trying to submit CRF
