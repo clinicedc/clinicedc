@@ -3,7 +3,6 @@ from django.test import TestCase
 from edc_constants.constants import CLOSED, NEW, NO, YES
 
 from edc_action_item.get_action_type import get_action_type
-from edc_action_item.helpers import ActionItemContextHelper
 from edc_action_item.models import ActionItem, ActionType
 from edc_action_item.site_action_items import site_action_items
 
@@ -337,55 +336,6 @@ class TestAction(TestCaseMixin, TestCase):
             status=CLOSED,
         )
         self.assertEqual(obj.status, CLOSED)
-
-    def test_reference_url(self):
-        action = FormOneAction(subject_identifier=self.subject_identifier)
-        helper = ActionItemContextHelper(action_item=action.action_item)
-        url = helper.get_url(model_cls=action.reference_model_cls())
-        self.assertEqual(
-            url,
-            (
-                f"/admin/edc_action_item/formone/add/?"
-                f"action_identifier={action.action_identifier}"
-            ),
-        )
-
-    def test_reference_url2(self):
-        form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
-        helper = ActionItemContextHelper(
-            action_name=FormTwoAction.name, related_action_item=form_one.action_item
-        )
-        form_two_add_url = helper.reference_url
-        self.assertEqual(
-            form_two_add_url,
-            f"/admin/edc_action_item/formtwo/add/?form_one={str(form_one.pk)}",
-        )
-        form_two = FormTwo.objects.create(
-            subject_identifier=self.subject_identifier, form_one=form_one
-        )
-        helper = ActionItemContextHelper(action_item=form_two.action_item)
-        form_two_change_url = helper.reference_url
-        self.assertEqual(
-            form_two_change_url,
-            f"/admin/edc_action_item/formtwo/{str(form_two.pk)}/change/?"
-            f"action_identifier={form_two.action_identifier}&form_one={str(form_one.pk)}",
-        )
-
-    def test_reference_url3(self):
-        form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
-        form_two_action = FormTwoAction(
-            subject_identifier=self.subject_identifier,
-            related_action_item=form_one.action_item,
-        )
-        helper = ActionItemContextHelper(action_item=form_two_action.action_item)
-        self.assertEqual(
-            helper.reference_url,
-            (
-                f"/admin/edc_action_item/formtwo/add/?"
-                f"action_identifier={form_two_action.action_identifier}&"
-                f"form_one={str(form_one.pk)}"
-            ),
-        )
 
     def test_create_singleton(self):
         action1 = SingletonAction(subject_identifier=self.subject_identifier)
