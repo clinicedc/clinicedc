@@ -1,4 +1,6 @@
 from dateutil.relativedelta import relativedelta
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
 from edc_utils.date import get_utcnow
 
@@ -19,6 +21,7 @@ class TestForms(TestCase):
             "reason": refusal_reason,
             "other_reason": None,
             "comment": None,
+            "site": Site.objects.get(id=settings.SITE_ID),
         }
 
     @override_settings(SUBJECT_REFUSAL_MODEL="edc_refusal.subjectrefusal")
