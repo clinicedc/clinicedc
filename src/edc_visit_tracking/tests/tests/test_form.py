@@ -4,6 +4,8 @@ from zoneinfo import ZoneInfo
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django import forms
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings
 from edc_appointment.constants import MISSED_APPT
@@ -86,6 +88,7 @@ class TestForm(TestCase):
             reason_unscheduled=NOT_APPLICABLE,
             document_status=COMPLETE,
             require_crfs=YES,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = SubjectVisitForm(data=data)
         form.is_valid()
@@ -111,6 +114,7 @@ class TestForm(TestCase):
             reason_unscheduled=NOT_APPLICABLE,
             document_status=COMPLETE,
             require_crfs=YES,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = SubjectVisitForm(data=data)
         form.is_valid()
@@ -141,6 +145,7 @@ class TestForm(TestCase):
             reason_unscheduled=NOT_APPLICABLE,
             document_status=COMPLETE,
             require_crfs=YES,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = SubjectVisitForm(data=data)
         form.is_valid()
@@ -186,6 +191,7 @@ class TestForm(TestCase):
             reason_unscheduled=NOT_APPLICABLE,
             document_status=COMPLETE,
             require_crfs=YES,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = SubjectVisitForm(data=data, instance=subject_visit)
         form.is_valid()
@@ -246,6 +252,7 @@ class TestForm(TestCase):
                 "f3": "3",
                 "report_datetime": get_utcnow(),
                 "subject_visit": subject_visit.pk,
+                "site": Site.objects.get(id=settings.SITE_ID).id,
             }
         )
 
@@ -266,7 +273,15 @@ class TestForm(TestCase):
         )
         appointment = Appointment.objects.all()[0]
         SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
-        form = CrfForm({"f1": "1", "f2": "2", "f3": "3", "report_datetime": get_utcnow()})
+        form = CrfForm(
+            {
+                "f1": "1",
+                "f2": "2",
+                "f3": "3",
+                "report_datetime": get_utcnow(),
+                "site": Site.objects.get(id=settings.SITE_ID).id,
+            }
+        )
         form.is_valid()
         self.assertIn("subject_visit", form._errors)
 
@@ -283,7 +298,13 @@ class TestForm(TestCase):
             schedule_name="schedule1",
         )
         form = BadCrfNoRelatedVisitorm(
-            {"f1": "1", "f2": "2", "f3": "3", "report_datetime": get_utcnow()}
+            {
+                "f1": "1",
+                "f2": "2",
+                "f3": "3",
+                "report_datetime": get_utcnow(),
+                "site": Site.objects.get(id=settings.SITE_ID).id,
+            }
         )
         self.assertRaises(ImproperlyConfigured, form.is_valid)
 
@@ -301,7 +322,15 @@ class TestForm(TestCase):
         )
         appointment = Appointment.objects.all()[0]
         subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
-        form = CrfForm({"f1": "1", "f2": "2", "f3": "3", "subject_visit": subject_visit.pk})
+        form = CrfForm(
+            {
+                "f1": "1",
+                "f2": "2",
+                "f3": "3",
+                "subject_visit": subject_visit.pk,
+                "site": Site.objects.get(id=settings.SITE_ID).id,
+            }
+        )
         self.assertFalse(form.is_valid())
         self.assertIn("report_datetime", form._errors)
 
@@ -332,6 +361,7 @@ class TestForm(TestCase):
                     "f3": "3",
                     "report_datetime": report_datetime,
                     "subject_visit": subject_visit.pk,
+                    "site": Site.objects.get(id=settings.SITE_ID).id,
                 }
             )
             self.assertFalse(form.is_valid())
@@ -368,6 +398,7 @@ class TestForm(TestCase):
                     "f3": "3",
                     "report_datetime": report_datetime,
                     "subject_visit": subject_visit.pk,
+                    "site": Site.objects.get(id=settings.SITE_ID).id,
                 }
             )
             self.assertFalse(form.is_valid())
@@ -401,6 +432,7 @@ class TestForm(TestCase):
                 "f3": "3",
                 "report_datetime": subject_visit.report_datetime,
                 "subject_visit": subject_visit.pk,
+                "site": Site.objects.get(id=settings.SITE_ID).id,
             }
         )
         form.is_valid()
@@ -414,6 +446,7 @@ class TestForm(TestCase):
                 "f3": "3",
                 "report_datetime": subject_visit.report_datetime,
                 "subject_visit": subject_visit.pk,
+                "site": Site.objects.get(id=settings.SITE_ID).id,
             }
         )
         form.is_valid()

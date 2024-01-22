@@ -3,6 +3,8 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
 from edc_appointment.constants import MISSED_APPT, ONTIME_APPT, SCHEDULED_APPT
@@ -246,6 +248,7 @@ class TestVisit(TestCase):
             contact_attempts_count=3,
             missed_reasons=[SubjectVisitMissedReasons.objects.get(name=HOSPITALIZED)],
             ltfu=NO,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = SubjectVisitMissedForm(data=data)
         form.is_valid()
@@ -270,6 +273,7 @@ class TestVisit(TestCase):
             missed_reasons=[SubjectVisitMissedReasons.objects.get(name=HOSPITALIZED)],
             contact_made=YES,
             ltfu=YES,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = SubjectVisitMissedForm(data=data)
         form.is_valid()
@@ -301,6 +305,7 @@ class TestVisit(TestCase):
             missed_reasons=[SubjectVisitMissedReasons.objects.get(name=HOSPITALIZED)],
             contact_made=YES,
             ltfu=NO,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = SubjectVisitMissedForm(data=data)
         form.is_valid()
@@ -325,6 +330,7 @@ class TestVisit(TestCase):
             contact_attempts_count=None,
             missed_reasons=[SubjectVisitMissedReasons.objects.get(name=HOSPITALIZED)],
             ltfu=YES,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = SubjectVisitMissedForm(data=data)
         form.is_valid()
@@ -382,6 +388,7 @@ class TestVisit(TestCase):
             contact_attempts_count=None,
             missed_reasons=[SubjectVisitMissedReasons.objects.get(name=HOSPITALIZED)],
             ltfu=YES,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = SubjectVisitMissedForm(data=data)
         form.is_valid()
