@@ -1,6 +1,8 @@
 from copy import deepcopy
 
 from dateutil.relativedelta import relativedelta
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.test.testcases import TestCase
 from edc_action_item import site_action_items
 from edc_constants.constants import CLOSED, NO, NOT_APPLICABLE, OPEN, OTHER
@@ -36,7 +38,10 @@ class TestProtocolIncident(TestCase):
         RegisteredSubject.objects.create(subject_identifier=self.subject_identifier)
 
         action = ProtocolIncidentAction(subject_identifier=self.subject_identifier)
-        self.data = dict(action_identifier=action.action_item.action_identifier)
+        self.data = dict(
+            action_identifier=action.action_item.action_identifier,
+            site=Site.objects.get(id=settings.SITE_ID),
+        )
 
     def test_incident_open_ok(self):
         data = deepcopy(self.data)
