@@ -10,6 +10,8 @@ from ..models import SiteProfile
 from ..site import sites
 from .list_filters import SiteListFilter
 
+__all__ = ["SiteModelAdminMixin"]
+
 
 class SiteModeAdminMixinError(Exception):
     pass
@@ -60,6 +62,13 @@ class SiteModelAdminMixin:
             )
             list_display = (list_display[0],) + (self.site_code,) + list_display[1:]
         return list_display
+
+    def get_readonly_fields(self, request, obj=None) -> tuple[str, ...]:
+        """Add site to readonly_fields."""
+        readonly_fields = super().get_readonly_fields(request, obj=obj)
+        if "site" not in readonly_fields:
+            return readonly_fields + ("site",)
+        return readonly_fields
 
     def get_queryset(self, request) -> QuerySet:
         """Limit modeladmin queryset for the current site only"""

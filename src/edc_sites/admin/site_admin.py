@@ -4,6 +4,8 @@ from edc_model_admin.mixins import TemplatesModelAdminMixin
 
 from ..admin_site import edc_sites_admin
 
+__all__ = ["SiteAdmin"]
+
 admin.site.unregister(Site)
 
 
