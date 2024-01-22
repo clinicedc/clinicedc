@@ -8,7 +8,6 @@ from edc_facility import import_holidays
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.tests.helper import Helper
 from visit_schedule_app.consents import v1_consent
-from visit_schedule_app.models import SubjectConsent
 from visit_schedule_app.visit_schedule import visit_schedule
 
 from edc_unblinding.action_items import UnblindingRequestAction, UnblindingReviewAction
@@ -45,14 +44,14 @@ class UnblindingTestCase(TestCase):
         self.subject_identifier = "12345"
         site_consents.registry = {}
         site_consents.register(v1_consent)
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
-            subject_consent_model_cls=SubjectConsent,
-            onschedule_model_name="visit_schedule_app.onschedule",
         )
-        site_visit_schedules._registry = {}
-        site_visit_schedules.register(visit_schedule=visit_schedule)
-        self.subject_consent = self.helper.consent_and_put_on_schedule()
+        self.subject_consent = self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule", schedule_name="schedule"
+        )
 
     def test_ok(self):
         opts = dict(
