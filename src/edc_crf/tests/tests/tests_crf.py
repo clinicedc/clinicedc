@@ -1,5 +1,7 @@
 from django import forms
-from django.test import TestCase, override_settings, tag
+from django.conf import settings
+from django.contrib.sites.models import Site
+from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
 from edc_consent.site_consents import site_consents
 from edc_constants.constants import INCOMPLETE
@@ -54,7 +56,6 @@ class CrfTestCase(TestCase):
             appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
         )
 
-    @tag("1")
     def test_form_validator_with_crf(self):
         class MyFormValidator(CrfFormValidatorMixin, FormValidator):
             def clean(self) -> None:
@@ -80,6 +81,7 @@ class CrfTestCase(TestCase):
             report_datetime=self.subject_visit.report_datetime,
             subject_visit=self.subject_visit,
             crf_status=INCOMPLETE,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = MyForm(data=data)
         form.is_valid()
@@ -90,6 +92,7 @@ class CrfTestCase(TestCase):
             report_datetime=None,
             subject_visit=self.subject_visit,
             crf_status=INCOMPLETE,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = MyForm(data=data)
         form.is_valid()
@@ -99,6 +102,7 @@ class CrfTestCase(TestCase):
         data = dict(
             subject_visit=self.subject_visit,
             crf_status=INCOMPLETE,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = MyForm(data=data)
         form.is_valid()
@@ -114,12 +118,12 @@ class CrfTestCase(TestCase):
             report_datetime=self.subject_visit.report_datetime,
             subject_visit=self.subject_visit,
             crf_status=INCOMPLETE,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = MyForm(data=data)
         form.is_valid()
         self.assertEqual({}, form._errors)
 
-    @tag("1")
     def test_form_validator_with_prn(self):
         class MyFormValidator(CrfFormValidatorMixin, FormValidator):
             def clean(self) -> None:
@@ -142,6 +146,7 @@ class CrfTestCase(TestCase):
             report_datetime=self.subject_visit.report_datetime,
             subject_visit=self.subject_visit,
             crf_status=INCOMPLETE,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = MyForm(data=data)
         form.is_valid()
