@@ -61,7 +61,7 @@ class TestDataclasses(TestCaseMixin, TestCase):
             metadata_model_obj=model_obj, user=self.user, appointment=self.appointment
         )
         self.assertEqual(btn.label, "Add")
-        self.assertEqual(btn.btn_color, "btn-warning")
+        self.assertEqual(btn.color, "warning")
         self.assertEqual(btn.fa_icon, "fas fa-plus")
         self.assertEqual(btn.disabled, "disabled")
 
@@ -69,7 +69,7 @@ class TestDataclasses(TestCaseMixin, TestCase):
             metadata_model_obj=model_obj, user=self.user, appointment=self.appointment
         )
         self.assertEqual(btn.label, "Add")
-        self.assertEqual(btn.btn_color, "btn-warning")
+        self.assertEqual(btn.color, "warning")
         self.assertEqual(btn.fa_icon, "fas fa-plus")
         self.assertEqual(btn.disabled, "disabled")
 
@@ -80,7 +80,7 @@ class TestDataclasses(TestCaseMixin, TestCase):
             metadata_model_obj=model_obj, user=self.user, appointment=self.appointment
         )
         self.assertEqual(btn.label, "View")
-        self.assertEqual(btn.btn_color, "btn-default")
+        self.assertEqual(btn.color, "default")
         self.assertEqual(btn.fa_icon, "fas fa-eye")
         self.assertEqual(btn.disabled, "disabled")
 
@@ -88,7 +88,7 @@ class TestDataclasses(TestCaseMixin, TestCase):
             metadata_model_obj=model_obj, user=self.user, appointment=self.appointment
         )
         self.assertEqual(btn.label, "View")
-        self.assertEqual(btn.btn_color, "btn-default")
+        self.assertEqual(btn.color, "success")
         self.assertEqual(btn.fa_icon, "fas fa-eye")
         self.assertEqual(btn.disabled, "disabled")
 
@@ -108,7 +108,7 @@ class TestDataclasses(TestCaseMixin, TestCase):
             current_site=self.current_site,
         )
         self.assertEqual(btn.label, "View")
-        self.assertEqual(btn.btn_color, "btn-default")
+        self.assertEqual(btn.color, "default")
         self.assertEqual(btn.fa_icon, "fas fa-eye")
         self.assertEqual(btn.disabled, "")
 
@@ -119,7 +119,7 @@ class TestDataclasses(TestCaseMixin, TestCase):
             current_site=self.current_site,
         )
         self.assertEqual(btn.label, "View")
-        self.assertEqual(btn.btn_color, "btn-default")
+        self.assertEqual(btn.color, "success")
         self.assertEqual(btn.fa_icon, "fas fa-eye")
         self.assertEqual(btn.disabled, "")
 
@@ -140,7 +140,7 @@ class TestDataclasses(TestCaseMixin, TestCase):
             current_site=self.current_site,
         )
         self.assertEqual(btn.label, "Change")
-        self.assertEqual(btn.btn_color, "btn-success")
+        self.assertEqual(btn.color, "success")
         self.assertEqual(btn.fa_icon, "fas fa-pen")
         self.assertEqual(btn.disabled, "")
 
@@ -151,7 +151,7 @@ class TestDataclasses(TestCaseMixin, TestCase):
             current_site=self.current_site,
         )
         self.assertEqual(btn.label, "Change")
-        self.assertEqual(btn.btn_color, "btn-success")
+        self.assertEqual(btn.color, "success")
         self.assertEqual(btn.fa_icon, "fas fa-pen")
         self.assertEqual(btn.disabled, "")
 
@@ -163,7 +163,7 @@ class TestDataclasses(TestCaseMixin, TestCase):
             current_site=self.current_site,
         )
         self.assertEqual(btn.label, "Add")
-        self.assertEqual(btn.btn_color, "btn-warning")
+        self.assertEqual(btn.color, "warning")
         self.assertEqual(btn.fa_icon, "fas fa-plus")
         self.assertEqual(btn.disabled, "")
 
@@ -174,7 +174,7 @@ class TestDataclasses(TestCaseMixin, TestCase):
             current_site=self.current_site,
         )
         self.assertEqual(btn.label, "Add")
-        self.assertEqual(btn.btn_color, "btn-warning")
+        self.assertEqual(btn.color, "warning")
         self.assertEqual(btn.fa_icon, "fas fa-plus")
         self.assertEqual(btn.disabled, "")
 

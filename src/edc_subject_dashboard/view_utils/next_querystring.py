@@ -7,11 +7,11 @@ from uuid import UUID
 from django.urls import reverse
 from edc_dashboard.url_names import url_names
 
-__all__ = ["NextDashboardUrl"]
+__all__ = ["NextQuerystring"]
 
 
 @dataclass
-class NextDashboardUrl:
+class NextQuerystring:
     """Make a querystring that complies with the next_url concept
     used by edc_submit_line and modeladminmixin on save/cancel to
     redirect to the dashboard.
@@ -24,18 +24,21 @@ class NextDashboardUrl:
     See DashboardModelButton for example usage.
     """
 
-    dashboard_url_name: str = field(default="subject_dashboard_url")
+    next_url_name: str = field(default="subject_dashboard_url")
     reverse_kwargs: dict[str, str | int | float | UUID] = field(default_factory=dict)
     extra_kwargs: dict[str, str | int | float | UUID] = field(default_factory=dict)
     label: str = field(default="next")
-    url: str = field(default=None, init=False)
+    next_url: str = field(default=None, init=False)
     querystring: str = field(default=None, init=False)
 
     def __post_init__(self):
-        url_name = url_names.get_or_raise(self.dashboard_url_name)
+        # check valid "next" url name
+        next_url_name = url_names.get_or_raise(self.next_url_name)
+        # check "next" url reverses
+        self.next_url = reverse(next_url_name, kwargs=self.reverse_kwargs)
+        # build querystring
         keys = ",".join(list(self.reverse_kwargs.keys()))
-        qs_part1 = f"{self.label}={url_name}" + "," + keys
-        self.url = reverse(url_name, kwargs=self.reverse_kwargs)
+        qs_part1 = f"{self.label}={next_url_name}" + "," + keys
         self.reverse_kwargs.update(self.extra_kwargs)
         qs_part2 = urlencode(self.reverse_kwargs)
         self.querystring = qs_part1 + "&" + qs_part2

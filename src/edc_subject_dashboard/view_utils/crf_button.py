@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from uuid import UUID
 
 from .dashboard_model_button import DashboardModelButton
@@ -10,6 +10,8 @@ __all__ = ["CrfButton"]
 
 @dataclass
 class CrfButton(DashboardModelButton):
+    colors: tuple[str, str, str] = field(default=("warning", "success", "success"))
+
     @property
     def extra_kwargs(self) -> dict[str, str | int | UUID]:
         return {self.model_cls().related_visit_model_attr(): self.appointment.related_visit.id}

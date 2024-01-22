@@ -25,7 +25,8 @@ from edc_utils import get_utcnow
 from ..view_utils import (
     AppointmentButton,
     CrfButton,
-    FormsButton,
+    GotToFormsButton,
+    PrnButton,
     RelatedVisitButton,
     RequisitionButton,
     SubjectConsentButton,
@@ -49,9 +50,10 @@ __all__ = [
     "appointment_in_progress",
     "render_appointment_status_icon",
     "print_requisition_popover",
+    "render_prn_button",
     "render_appointment_button",
     "render_crf_button_group",
-    "render_forms_button",
+    "render_gotoforms_button",
     "requisition_panel_actions",
     "render_crf_totals",
     "render_subject_consent_button",
@@ -191,7 +193,7 @@ def render_crf_totals(appointment: Appointment = None) -> dict[str, bool | int]:
 
 @register.inclusion_tag(
     f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
-    "dashboard/crf_button_group.html",
+    "buttons/crf_button_group.html",
     takes_context=True,
 )
 def render_crf_button_group(
@@ -228,7 +230,7 @@ def render_crf_button_group(
 
 @register.inclusion_tag(
     f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
-    "dashboard/crf_button_group.html",
+    "buttons/crf_button_group.html",
     takes_context=True,
 )
 def render_requisition_button_group(
@@ -254,8 +256,27 @@ def render_requisition_button_group(
 
 
 @register.inclusion_tag(
+    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/buttons/prn_button.html",
+    takes_context=True,
+)
+def render_prn_button(context, model_obj, model_name: str) -> dict:
+    # TODO: is this used?
+    model_cls = django_apps.get_model(model_name)
+    btn = PrnButton(
+        model_obj=model_obj,
+        model_cls=model_cls,
+        subject_identifier=context.get("subject_identifier"),
+        next_url_name=context.get("next_url_name"),
+        user=context["request"].user,
+        current_site=context["request"].site,
+        request=context["request"],
+    )
+    return dict(btn=btn)
+
+
+@register.inclusion_tag(
     f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
-    "dashboard/appointment_button.html",
+    "buttons/appointment_button.html",
     takes_context=True,
 )
 def render_appointment_button(context, appointment: Appointment = None):
@@ -272,7 +293,7 @@ def render_appointment_button(context, appointment: Appointment = None):
 
 @register.inclusion_tag(
     f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
-    "dashboard/appointment_button.html",
+    "buttons/appointment_button.html",
     takes_context=True,
 )
 def render_related_visit_button(context, appointment: Appointment = None):
@@ -292,16 +313,16 @@ def render_related_visit_button(context, appointment: Appointment = None):
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/forms_button.html",
+    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/buttons/forms_button.html",
     takes_context=True,
 )
-def render_forms_button(context, appointment: Appointment = None):
+def render_gotoforms_button(context, appointment: Appointment = None):
     # if still using deprecated ModelWrapper, get model instance
     # from model_wrapper
     appointment: Appointment = getattr(appointment, "object", appointment)
     related_visit: VisitModel = appointment.related_visit
     related_visit_model_cls: Type[VisitModel] = appointment.related_visit_model_cls()
-    btn = FormsButton(
+    btn = GotToFormsButton(
         model_obj=related_visit,
         model_cls=related_visit_model_cls,
         appointment=appointment,
@@ -313,7 +334,7 @@ def render_forms_button(context, appointment: Appointment = None):
 
 @register.inclusion_tag(
     f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
-    "dashboard/appointment_button.html",
+    "buttons/appointment_button.html",
     takes_context=True,
 )
 def render_timepoint_status_button(context, appointment: Appointment = None):
@@ -330,14 +351,12 @@ def render_timepoint_status_button(context, appointment: Appointment = None):
 
 @register.inclusion_tag(
     f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
-    "dashboard/appointment_button.html",
+    "buttons/appointment_button.html",
     takes_context=True,
 )
 def render_subject_consent_button(
     context, consent: ConsentModel = None, appointment: Appointment = None
 ):
-    # if still using deprecated ModelWrapper, get model instance
-    # from model_wrapper
     btn = SubjectConsentButton(
         model_obj=consent,
         user=context["user"],
@@ -349,7 +368,7 @@ def render_subject_consent_button(
 
 @register.inclusion_tag(
     f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
-    "dashboard/unscheduled_appointment_button.html",
+    "buttons/unscheduled_appointment_button.html",
     takes_context=True,
 )
 def show_dashboard_unscheduled_appointment_button(

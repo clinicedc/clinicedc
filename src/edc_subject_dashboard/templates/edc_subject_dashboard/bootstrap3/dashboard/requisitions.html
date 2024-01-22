@@ -27,7 +27,7 @@
                 <span class="text text-default">{{requisition.verbose_name}}</span>
                 {% if requisition.model_instance.user_created and requisition.model_instance.is_drawn%}
                   <p class="text text-default small">
-                    {% show_form_runner_issues requisition.model_instance %}
+                    {% show_form_runner_issues requisition %}
                     {{ requisition.model_instance.user_created }} on {{ requisition.model_instance.created|date:"SHORT_DATETIME_FORMAT" }}
                     {% if requisition.model_instance.user_modified %} | {{ requisition.model_instance.user_modified }} on {{ requisition.model_instance.modified|date:"SHORT_DATETIME_FORMAT" }}{% endif %}
                   </p>

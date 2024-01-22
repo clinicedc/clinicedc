@@ -6,8 +6,7 @@ from uuid import UUID
 
 from django.contrib.sites.models import Site
 
-from .model_button import ADD, ModelButton
-from .next_dashboard_url import NextDashboardUrl
+from .model_button import ModelButton
 
 if TYPE_CHECKING:
     from edc_appointment.models import Appointment
@@ -21,6 +20,9 @@ if TYPE_CHECKING:
 
     class RequisitionModel(RequisitionModelMixin, BaseUuidModel):
         ...
+
+
+__all__ = ["DashboardModelButton"]
 
 
 @dataclass
@@ -37,7 +39,7 @@ class DashboardModelButton(ModelButton):
     model_obj: CrfModel | RequisitionModel = field(init=False)
     metadata_model_obj: CrfMetadata | RequisitionMetadata = None
     appointment: Appointment = None
-    dashboard_url_name: str = field(default="subject_dashboard_url")
+    next_url_name: str = field(default="subject_dashboard_url")
     model_cls: Type[CrfModel | RequisitionModel] = field(default=None, init=False)
 
     def __post_init__(self):
@@ -54,29 +56,8 @@ class DashboardModelButton(ModelButton):
         )
 
     @property
-    def url(self) -> str:
-        if self.action == ADD:
-            url = "?".join([f"{self.model_cls().get_absolute_url()}", self.querystring])
-        else:
-            url = "?".join([f"{self.model_obj.get_absolute_url()}", self.querystring])
-        return url
-
-    @property
-    def querystring(self) -> str:
-        url = NextDashboardUrl(
-            dashboard_url_name=self.dashboard_url_name,
-            reverse_kwargs=self.reverse_kwargs,
-            extra_kwargs=self.extra_kwargs,
-        )
-        return url.querystring
-
-    @property
     def reverse_kwargs(self) -> dict[str, str | UUID]:
         return dict(
             subject_identifier=self.appointment.subject_identifier,
             appointment=self.appointment.id,
         )
-
-    @property
-    def extra_kwargs(self) -> dict[str, str | int | UUID]:
-        return {}

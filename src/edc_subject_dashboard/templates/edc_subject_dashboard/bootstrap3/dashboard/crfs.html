@@ -20,7 +20,7 @@
               {{ crf.verbose_name }}
               {% if crf.model_instance.user_created %}
                 <p class="text small text-default">
-                  {% show_form_runner_issues crf.model_instance %}
+                  {% show_form_runner_issues crf %}
                   {% if crf.model_instance.crf_status == INCOMPLETE %}<span class="label label-danger" data-toggle="tooltip" title={% translate "CRF is flagged as incomplete" %}><span class="fas fa-tag"></span></span>{% endif %}
                   {{ crf.model_instance.user_created }} on {{ crf.model_instance.created|date:"SHORT_DATETIME_FORMAT" }}
                   {% if crf.model_instance.user_modified %} | {{ crf.model_instance.user_modified }} on {{ crf.model_instance.modified|date:"SHORT_DATETIME_FORMAT" }}{% endif %}

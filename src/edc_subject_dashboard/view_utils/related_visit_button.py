@@ -39,7 +39,7 @@ class RelatedVisitButton(DashboardModelButton):
         """
         return getattr(self.model_obj, "site", self.appointment.site)
 
-    def btn_color(self) -> str:
+    def color(self) -> str:
         """Shows as orange to direct user to edit the related visit
         following setting the appointment to in IN_PROGRESS_APPT.
 
@@ -49,17 +49,17 @@ class RelatedVisitButton(DashboardModelButton):
             document_status to INCOMPLETE. See also
             DocumentStatusModelMixin and AppointmentReasonUpdater.
         """
-        btn_color = self.btn_colors[VIEW]
+        color = self.colors[VIEW]
         if self.appointment.appt_status == IN_PROGRESS_APPT:
             if self.model_obj and self.model_obj.document_status == INCOMPLETE:
-                btn_color = self.btn_colors[ADD]
+                color = self.colors[ADD]
             elif not self.model_obj:
-                btn_color = self.btn_colors[ADD]
+                color = self.colors[ADD]
             else:
-                btn_color = self.btn_colors[VIEW]  # default / grey
+                color = self.colors[VIEW]  # default / grey
         elif self.appointment.appt_status in [COMPLETE_APPT, SKIPPED_APPT]:
-            btn_color = self.btn_colors[CHANGE]
-        return btn_color
+            color = self.colors[CHANGE]
+        return color
 
     @property
     def disabled(self) -> str:

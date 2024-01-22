@@ -18,7 +18,7 @@
                         {% if appointment.appt_status == IN_PROGRESS_APPT%}
                             {% render_related_visit_button appointment %}
                             {% if appointment.related_visit.document_status == COMPLETE %}
-                              {% render_forms_button appointment %}
+                              {% render_gotoforms_button appointment %}
                             {% endif %}
                         {% else %}
                             {% render_timepoint_status_button appointment %}

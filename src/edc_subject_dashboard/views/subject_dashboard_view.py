@@ -13,7 +13,6 @@ from edc_locator.view_mixins import SubjectLocatorViewMixin
 from edc_metadata.view_mixins import MetadataViewMixin
 from edc_navbar.view_mixin import NavbarViewMixin
 from edc_sites.site import sites
-from edc_subject_model_wrappers import SubjectLocatorModelWrapper
 from edc_visit_schedule.view_mixins import VisitScheduleViewMixin
 
 from ..view_mixins import RegisteredSubjectViewMixin, SubjectVisitViewMixin
@@ -46,25 +45,12 @@ class SubjectDashboardView(
     dashboard_url_name = "subject_dashboard_url"
     dashboard_template = "subject_dashboard_template"
 
-    # appointment_model_wrapper_cls = AppointmentModelWrapper
-    # consent_model_wrapper_cls = SubjectConsentModelWrapper
-    subject_locator_model_wrapper_cls = SubjectLocatorModelWrapper
-    # visit_model_wrapper_cls = RelatedVisitModelWrapper
-
     default_manager = "on_site"
 
     def __init__(self, **kwargs):
         if not self.navbar_name:
             raise ImproperlyConfigured(f"'navbar_name' cannot be None. See {repr(self)}.")
-        # self.appointment_model_wrapper_cls.visit_model_wrapper_cls = (
-        #     self.visit_model_wrapper_cls
-        # )
         super().__init__(**kwargs)
-
-    # def get_consent_model_wrapper_cls(
-    #     self,
-    # ) -> Type[SubjectConsentModelWrapper]:
-    #     return self.consent_model_wrapper_cls
 
     @property
     def manager(self) -> str:

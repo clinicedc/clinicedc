@@ -16,6 +16,7 @@ __all__ = ["HistoryButton"]
 class HistoryButton:
     model_obj: InitVar[CrfMetadata] = None
     label: str = field(default="Audit")
+    color: str = field(default="default")
     url: str = field(default=None, init=False)
     disabled: str = field(default="disabled", init=False)
     btn_id: str = field(init=False)

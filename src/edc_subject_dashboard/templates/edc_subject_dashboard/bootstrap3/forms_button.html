@@ -1,7 +1,0 @@
- <!-- begin forms_button -->
- {#  {% if document_status == COMPLETE %} #}
-<a id="{{ btn.btn_id }}" role="button" class="btn btn-sm {{ btn.btn_color }}" {%  if not btn.disabled %}href="{{ btn.url }}" data-toggle="tooltip" title="{{ btn.title }}"{% endif %}aria-hidden="true" {{ btn.disabled }}>
-	<i class="{{ btn.fa_icon }} fa-sm" ></i> {{ btn.label }}{% if btn.label_fa_icon %} <i class="{{ btn.label_fa_icon }}"></i>{% endif %}
-</a>
-{# {% endif %} #}
-<!-- end forms_button -->

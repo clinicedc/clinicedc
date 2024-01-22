@@ -36,7 +36,7 @@ class QueryButton(DashboardModelButton):
     visit_schedule: VisitSchedule = None
     labels: str = field(default=3 * ("Query",))
     fa_icons: tuple[str, str, str] = field(default=(3 * ("",)))
-    btn_colors: tuple[str, str, str] = field(default=(3 * ("btn-default",)))
+    colors: tuple[str, str, str] = field(default=(3 * ("default",)))
     verbose_name: str = field(default=None, init=False)
 
     def __post_init__(self):

@@ -4,6 +4,9 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Type
 from uuid import uuid4
 
+from django.core.handlers.wsgi import WSGIRequest
+
+from .next_querystring import NextQuerystring
 from .perms import Perms
 
 if TYPE_CHECKING:
@@ -12,6 +15,7 @@ if TYPE_CHECKING:
     from edc_model.models import BaseUuidModel
 
     class Model(BaseUuidModel):
+        subject_identifier: str
         ...
 
 
@@ -22,29 +26,33 @@ VIEW = 2
 __all__ = ["ModelButton", "ADD", "CHANGE", "VIEW"]
 
 
+class ModelButtonError(Exception):
+    pass
+
+
 @dataclass
 class ModelButton:
     user: User = None
     model_obj: Model = None
+    model_cls: Type[Model] = field(default=None)
     current_site: Site = None
+    subject_identifier: str | None = None
+    request: WSGIRequest | None = None
+    fixed_label: str | None = None
     labels: tuple[str, str, str] = field(default=("Add", "Change", "View"))
     fa_icons: tuple[str, str, str] = field(default=("fas fa-plus", "fas fa-pen", "fas fa-eye"))
-    btn_colors: tuple[str, str, str] = field(
-        default=("btn-warning", "btn-success", "btn-default")
-    )
+    fixed_color: str | None = None
+    colors: tuple[str, str, str] = field(default=("warning", "success", "default"))
     titles: tuple[str, str, str] = field(default=("Add", "Change", "View only"))
-    model_cls: Type[Model] = field(default=None)
+    next_url_name: str = field(default=None)
     _action: int = field(default=None, init=False)
     _perms: Perms = field(default=None, init=False)
 
     def __post_init__(self):
         if self.model_obj:
             self.model_cls = self.model_obj._meta.model
-
-    @property
-    def site(self) -> Site | None:
-        """Returns the site for the model being changed."""
-        return getattr(self.model_obj, "site", None)
+        if not self.model_cls:
+            raise ModelButtonError(f"Model class is required if instance=None. See {self}.")
 
     @property
     def fa_icon(self) -> str:
@@ -52,11 +60,15 @@ class ModelButton:
 
     @property
     def label(self) -> str:
+        if self.fixed_label:
+            return self.fixed_label
         return self.labels[self.action]
 
     @property
-    def btn_color(self) -> str:
-        return self.btn_colors[self.action]
+    def color(self) -> str:
+        if self.fixed_color:
+            return self.fixed_color
+        return self.colors[self.action]
 
     @property
     def title(self) -> str:
@@ -85,14 +97,6 @@ class ModelButton:
         return self._perms
 
     @property
-    def url(self) -> str:
-        if self.action == ADD:
-            url = self.model_cls().get_absolute_url()
-        else:
-            url = self.model_obj.get_absolute_url()
-        return url
-
-    @property
     def disabled(self) -> str:
         disabled = "disabled"
         if not self.model_obj and self.perms.add:
@@ -110,3 +114,37 @@ class ModelButton:
                 f"{self.model_cls._meta.label_lower.split('.')[1]}-" f"{self.model_obj.id.hex}"
             )
         return btn_id
+
+    @property
+    def site(self) -> Site | None:
+        """If model_obj is None, then Site should come from the
+        request object (if add).
+        """
+        return getattr(self.model_obj, "site", None) or getattr(self.request, "site", None)
+
+    @property
+    def url(self) -> str:
+        if self.action == ADD:
+            url = "?".join([f"{self.model_cls().get_absolute_url()}", self.querystring])
+        else:
+            url = "?".join([f"{self.model_obj.get_absolute_url()}", self.querystring])
+        return url
+
+    @property
+    def querystring(self) -> str:
+        nq = NextQuerystring(
+            next_url_name=self.next_url_name,
+            reverse_kwargs=self.reverse_kwargs,
+            extra_kwargs=self.extra_kwargs,
+        )
+        return nq.querystring
+
+    @property
+    def reverse_kwargs(self) -> dict[str, str]:
+        return dict(
+            subject_identifier=self.subject_identifier or self.model_obj.subject_identifier,
+        )
+
+    @property
+    def extra_kwargs(self) -> dict[str, str | int]:
+        return {}

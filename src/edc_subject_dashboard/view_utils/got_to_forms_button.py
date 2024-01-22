@@ -7,7 +7,7 @@ from edc_appointment.constants import IN_PROGRESS_APPT
 from edc_constants.constants import COMPLETE
 
 from .model_button import CHANGE, VIEW
-from .next_dashboard_url import NextDashboardUrl
+from .next_querystring import NextQuerystring
 from .related_visit_button import RelatedVisitButton
 
 if TYPE_CHECKING:
@@ -16,23 +16,21 @@ if TYPE_CHECKING:
     VisitModel = TypeVar("VisitModel", bound=VisitModelMixin)
 
 
-__all__ = ["FormsButton"]
+__all__ = ["GotToFormsButton"]
 
 
 @dataclass
-class FormsButton(RelatedVisitButton):
+class GotToFormsButton(RelatedVisitButton):
     """A button displayed on the subject dashboard of appointments
     that takes the user to the subject dashboard of CRFs and
     requisitions for the selected timepoint.
     """
 
     labels: tuple[str, str, str] = field(default=3 * ("Forms",))
-    btn_colors: tuple[str, str, str] = field(
-        default=("btn-primary", "btn-primary", "btn-default")
-    )
+    colors: tuple[str, str, str] = field(default=("primary", "primary", "default"))
     titles: tuple[str, str, str] = field(default=3 * ("Go to CRFs and Requisitions",))
 
-    def btn_color(self) -> str:
+    def color(self) -> str:
         """Shows as blue to direct user to go to the subject
         dashboard for this timepoint to edit CRFs and
         requisitions.
@@ -43,23 +41,23 @@ class FormsButton(RelatedVisitButton):
             COMPLETE when the related_visit is saved or re-saved.
             See also note on RelatedVisitButton.
         """
-        btn_color = self.btn_colors[VIEW]
+        color = self.colors[VIEW]
         if self.model_obj and self.appointment.appt_status == IN_PROGRESS_APPT:
             if self.model_obj.document_status == COMPLETE:
-                btn_color = self.btn_colors[CHANGE]  # primary / blue
+                color = self.colors[CHANGE]  # primary / blue
             else:
-                btn_color = self.btn_colors[VIEW]  # default / grey
-        return btn_color
+                color = self.colors[VIEW]  # default / grey
+        return color
 
     @property
     def url(self) -> str:
-        dashboard_url = NextDashboardUrl(
-            dashboard_url_name=self.dashboard_url_name,
+        nq = NextQuerystring(
+            next_url_name=self.next_url_name,
             reverse_kwargs=self.reverse_kwargs,
             extra_kwargs=self.extra_kwargs,
         )
 
-        url = "?".join([f"{dashboard_url.url}", dashboard_url.querystring])
+        url = "?".join([f"{nq.next_url}", nq.querystring])
         return url
 
     @property

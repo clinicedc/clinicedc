@@ -32,8 +32,8 @@ SKIPPED = 2
 @dataclass
 class TimepointStatusButton(AppointmentButton):
     labels: tuple[str, str, str] = field(default=("Start", "Visit Report", "Visit Report"))
-    btn_colors: tuple[str, str, str, str] = field(
-        default=("btn-warning", "btn-success", "btn-default", "btn-danger")
+    colors: tuple[str, str, str, str] = field(
+        default=("warning", "success", "default", "danger")
     )
 
     @property
@@ -69,20 +69,20 @@ class TimepointStatusButton(AppointmentButton):
         return label
 
     @property
-    def btn_color(self) -> str:
-        btn_color = super().btn_color
+    def color(self) -> str:
+        color = super().color
         if self.model_obj.appt_status in [COMPLETE_APPT, SKIPPED_APPT]:
-            btn_color = self.btn_colors[COMPLETE]  # success / gree
+            color = self.colors[COMPLETE]  # success / gree
         elif self.model_obj.appt_status == CANCELLED_APPT:
-            btn_color = self.btn_colors[CANCELLED]  # default / grey
+            color = self.colors[CANCELLED]  # default / grey
         elif self.model_obj.appt_status == INCOMPLETE_APPT:
-            btn_color = self.btn_colors[INCOMPLETE]  # default / grey
+            color = self.colors[INCOMPLETE]  # default / grey
         elif self.model_obj.appt_status == NEW_APPT:
             if self.model_obj.appt_datetime <= get_utcnow():
-                btn_color = self.btn_colors[NEW_LATE]  # warning / orange
+                color = self.colors[NEW_LATE]  # warning / orange
             else:
-                btn_color = self.btn_colors[NEW]
-        return btn_color
+                color = self.colors[NEW]
+        return color
 
     @property
     def disabled(self) -> str:

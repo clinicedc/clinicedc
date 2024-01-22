@@ -25,6 +25,9 @@ class SubjectConsentButton(DashboardModelButton):
     metadata_model_obj: models.Model = field(init=False)
     labels: tuple[str, str, str] = field(default=("", "", ""))
 
+    def __post_init__(self):
+        self.model_cls = self.model_obj.__class__
+
     @property
     def site(self) -> Site | None:
         return self.model_obj.site

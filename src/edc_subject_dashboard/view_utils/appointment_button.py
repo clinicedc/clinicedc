@@ -18,9 +18,12 @@ __all__ = ["AppointmentButton"]
 class AppointmentButton(DashboardModelButton):
     model_obj: Appointment = None
     labels: tuple[str, str, str] = field(default=(3 * ("Appt",)))
-    btn_colors: tuple[str, str, str] = field(default=(3 * ("btn-default",)))
+    colors: tuple[str, str, str] = field(default=(3 * ("default",)))
     model_cls: Type[Appointment] = field(default=Appointment, init=False)
     appointment: Appointment = field(default=None, init=False)
+
+    def __post_init__(self):
+        pass
 
     @property
     def disabled(self) -> str:
@@ -37,15 +40,15 @@ class AppointmentButton(DashboardModelButton):
         return disabled
 
     @property
-    def btn_color(self) -> str:
-        btn_color = super().btn_color
+    def color(self) -> str:
+        color = super().color
         if (
             self.model_obj
             and self.model_obj.appt_datetime <= get_utcnow()
             and not self.model_obj.related_visit
         ):
-            btn_color = self.btn_colors[ADD]
-        return btn_color
+            color = self.colors[ADD]
+        return color
 
     @property
     def fa_icon(self) -> str:
