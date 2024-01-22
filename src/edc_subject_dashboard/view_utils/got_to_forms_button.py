@@ -30,6 +30,10 @@ class GotToFormsButton(RelatedVisitButton):
     colors: tuple[str, str, str] = field(default=("primary", "primary", "default"))
     titles: tuple[str, str, str] = field(default=3 * ("Go to CRFs and Requisitions",))
 
+    @property
+    def label(self) -> str:
+        return "Forms"
+
     def color(self) -> str:
         """Shows as blue to direct user to go to the subject
         dashboard for this timepoint to edit CRFs and

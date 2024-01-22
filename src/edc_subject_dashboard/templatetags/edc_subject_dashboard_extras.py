@@ -338,9 +338,6 @@ def render_gotoforms_button(context, appointment: Appointment = None):
     takes_context=True,
 )
 def render_timepoint_status_button(context, appointment: Appointment = None):
-    # if still using deprecated ModelWrapper, get model instance
-    # from model_wrapper
-    appointment = getattr(appointment, "object", appointment)
     btn = TimepointStatusButton(
         model_obj=appointment,
         user=context["user"],

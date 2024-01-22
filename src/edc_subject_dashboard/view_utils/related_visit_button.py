@@ -32,6 +32,9 @@ class RelatedVisitButton(DashboardModelButton):
     labels: tuple[str, str, str] = field(default=("Start", "Visit Report", "Visit Report"))
     model_cls: Type[RelatedVisitModel] = field(default=None)
 
+    def __post_init__(self):
+        pass
+
     @property
     def site(self) -> Site | None:
         """If model_obj is None, then Site should come from the
