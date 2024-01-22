@@ -4,6 +4,8 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
 from edc_facility.import_holidays import import_holidays
 from edc_sites.tests import SiteTestCaseMixin
@@ -79,6 +81,7 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
                 "appt_status": appointment.appt_status,
                 "appt_reason": appointment.appt_reason,
                 "document_status": appointment.document_status,
+                "site": Site.objects.get(id=settings.SITE_ID),
             },
             instance=appointment,
         )

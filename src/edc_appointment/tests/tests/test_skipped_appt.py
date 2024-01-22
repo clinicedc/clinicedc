@@ -3,6 +3,8 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings
 from edc_consent.site_consents import site_consents
@@ -567,6 +569,7 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
             report_datetime=appointments[0].appt_datetime,
             appt_date=appointments[0].appt_datetime + relativedelta(days=3),
             f1=appointments[1].visit_code,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = CrfThreeForm(data=data, instance=CrfThree(subject_visit=subject_visit))
         form.is_valid()
@@ -601,6 +604,7 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
             appt_date=appointments[1].appt_datetime + relativedelta(days=5),
             f1=appointments[1].visit_code,
             allow_create_interim=True,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = CrfThreeForm(data=data, instance=CrfThree(subject_visit=subject_visit))
         form.is_valid()
