@@ -2,6 +2,8 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.db.models.signals import pre_save
 from django.test import TestCase, override_settings
 from edc_appointment.constants import INCOMPLETE_APPT
@@ -418,6 +420,7 @@ class TestMedicationCrf(TestCase):
             formulation=self.formulation,
             refill_to_next_visit=YES,
             roundup_divisible_by=32,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
 
         form = StudyMedicationForm(data=data)
@@ -492,6 +495,7 @@ class TestMedicationCrf(TestCase):
             refill_end_datetime=None,
             dosage_guideline=self.dosage_guideline_200,
             formulation=self.formulation,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         self.assertRaises(NextStudyMedicationError, StudyMedication.objects.create, **opts)
         appointment.appt_status = INCOMPLETE_APPT
