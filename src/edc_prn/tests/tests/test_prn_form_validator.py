@@ -7,6 +7,7 @@ from edc_consent.site_consents import site_consents
 from edc_facility import import_holidays
 from edc_form_validators import FormValidator, FormValidatorMixin
 from edc_sites.modelform_mixins import SiteModelFormMixin
+from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -25,9 +26,9 @@ class TestPrn(TestCase):
     helper_cls = Helper
 
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         import_holidays()
-        return super().setUpClass()
+        add_or_update_django_sites()
 
     def setUp(self):
         self.subject_identifier = "12345"

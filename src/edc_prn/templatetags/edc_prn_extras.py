@@ -23,6 +23,8 @@ def prn_list_items(subject_identifier, **kwargs):
     for prn in site_prn_forms:
         if prn.get_show_on_dashboard(subject_identifier=subject_identifier):
             prn_forms.append(prn)
+    if prn_forms:
+        prn_forms = sorted(prn_forms, key=lambda x: x.verbose_name)
     return dict(prn_forms=prn_forms, subject_identifier=subject_identifier)
 
 
@@ -44,6 +46,8 @@ def add_prn_crf_popover(appointment: Appointment, subject_dashboard_url: str):
             crf.related_visit_model_attr = crf.model_cls.related_visit_model_attr()
             crf.related_visit = str(subject_visit_id) if subject_visit_id else None
             prn_forms.append(crf)
+    if prn_forms:
+        prn_forms = sorted(prn_forms, key=lambda x: x.verbose_name)
     return dict(
         label=CRF,
         CRF=CRF,
@@ -85,6 +89,8 @@ def add_prn_requisition_popover(appointment: Appointment, subject_dashboard_url)
                 requisition.panel.id = panel_id
                 requisition.panel.pk = panel_id
             prn_forms.append(requisition)
+    if prn_forms:
+        prn_forms = sorted(prn_forms, key=lambda x: x.verbose_name)
     return dict(
         label=REQUISITION,
         CRF=CRF,
