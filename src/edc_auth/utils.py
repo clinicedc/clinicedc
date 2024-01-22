@@ -1,12 +1,26 @@
+from __future__ import annotations
+
 from functools import cache
 from pprint import pprint
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from django.apps import apps as django_apps
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 
+if TYPE_CHECKING:
+    from django.contrib.auth.models import Group, User
 
-def compare_codenames_for_group(group_name=None, expected=None):
+
+def get_user(username: str) -> User | None:
+    try:
+        user = get_user_model().objects.get(username=username)
+    except ObjectDoesNotExist:
+        user = None
+    return user
+
+
+def compare_codenames_for_group(group_name: str = None, expected: list[str] = None) -> None:
     group = django_apps.get_model("auth.group").objects.get(name=group_name)
     codenames = [p.codename for p in group.permissions.all()]
     new_expected = []
@@ -40,7 +54,9 @@ def remove_default_model_permissions_from_edc_permissions(auth_updater: Any, app
         )
 
 
-def make_view_only_group_permissions(prefix: str = None, group=None, model=None):
+def make_view_only_group_permissions(
+    prefix: str = None, group: Group = None, model: str = None
+):
     """Remove all but view permissions for model.
 
     Accepts a prefix as well, e.g. `historical'.
