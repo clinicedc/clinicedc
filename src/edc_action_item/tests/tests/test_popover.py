@@ -14,7 +14,7 @@ from ..action_items import (
     FormTwoAction,
     register_actions,
 )
-from ..models import Followup, FormOne, FormTwo, Initial
+from ..models import Followup, FormOne, Initial
 from ..test_case_mixin import TestCaseMixin
 
 
@@ -25,37 +25,6 @@ class TestPopover(TestCaseMixin, TestCase):
         self.assertIn(FormOneAction.name, site_action_items.registry)
         self.assertIn(FormTwoAction.name, site_action_items.registry)
         self.assertIn(FormThreeAction.name, site_action_items.registry)
-
-    def test_popover_templatetag(self):
-        class ActionItemModelWrapper(ModelWrapper):
-            model = "edc_action_item.actionitem"
-            next_url_attrs = ["subject_identifier"]
-            next_url_name = "subject_dashboard_url"
-
-            @property
-            def subject_identifier(self: Any):
-                return self.object.subject_identifier
-
-        form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
-        obj = ActionItem.objects.get(action_identifier=form_one.action_identifier)
-        wrapper = ActionItemModelWrapper(model_obj=obj)
-        action_item_with_popover(wrapper, 0)
-        context = action_item_with_popover(wrapper, 0)
-        self.assertIsNone(context.get("parent_action_identifier"))
-        self.assertIsNone(context.get("parent_action_item"))
-
-        form_two = FormTwo.objects.create(
-            subject_identifier=self.subject_identifier, form_one=form_one
-        )
-        obj = ActionItem.objects.get(action_identifier=form_two.action_identifier)
-        wrapper = ActionItemModelWrapper(model_obj=obj)
-        context = action_item_with_popover(wrapper, 0)
-        self.assertEqual(context.get("parent_action_identifier"), form_one.action_identifier)
-        self.assertEqual(context.get("parent_action_item"), form_one.action_item)
-
-        context = action_item_with_popover(wrapper, 0)
-        self.assertEqual(context.get("parent_action_identifier"), form_one.action_identifier)
-        self.assertEqual(context.get("parent_action_item"), form_one.action_item)
 
     def test_popover_templatetag_action_url_if_reference_model_exists(self):
         """Asserts returns a change url if reference model

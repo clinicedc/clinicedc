@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Type
+from typing import TYPE_CHECKING, Type
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -15,12 +15,23 @@ from edc_sites.managers import CurrentSiteManager as BaseCurrentSiteManager
 from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
 
-from .. import Action
 from ..choices import ACTION_STATUS, PRIORITY
 from ..exceptions import ActionItemStatusError, SubjectDoesNotExist
 from ..identifiers import ActionIdentifier
 from ..site_action_items import site_action_items
 from .action_type import ActionType
+
+if TYPE_CHECKING:
+    from edc_crf.model_mixins import CrfModelMixin
+
+    from ..action import Action
+
+    class PrnModel(BaseUuidModel):
+        subject_identifier: str
+        ...
+
+    class CrfModel(CrfModelMixin):
+        ...
 
 
 class CurrentSiteManager(BaseCurrentSiteManager):
@@ -205,15 +216,15 @@ class ActionItem(
         )
 
     @property
-    def reference_model_cls(self) -> Type[BaseUuidModel]:
+    def reference_model_cls(self) -> Type[PrnModel | CrfModel]:
         return django_apps.get_model(self.reference_model)
 
     @property
-    def reference_obj(self) -> Any:
+    def reference_obj(self) -> PrnModel | CrfModel:
         return self.reference_model_cls.objects.get(action_identifier=self.action_identifier)
 
     @property
-    def parent_reference_obj(self) -> Any:
+    def parent_reference_obj(self) -> PrnModel | CrfModel:
         if not self.parent_action_item:
             raise ObjectDoesNotExist(
                 f"Parent ActionItem does not exist for {self.action_identifier}."
@@ -221,7 +232,7 @@ class ActionItem(
         return self.parent_action_item.reference_obj
 
     @property
-    def related_reference_obj(self) -> Any:
+    def related_reference_obj(self) -> PrnModel | CrfModel:
         if not self.related_action_item:
             raise ObjectDoesNotExist(
                 f"Related ActionItem does not exist for {self.action_identifier}."
@@ -232,6 +243,16 @@ class ActionItem(
     def identifier(self) -> str:
         """Returns a shortened action identifier."""
         return self.action_identifier[-9:]
+
+    @property
+    def display_name(self) -> str:
+        """Returns a shortened action identifier."""
+        return self.action_type.display_name
+
+    @property
+    def label_color(self) -> str:
+        """Returns a shortened action identifier."""
+        return self.action.get_color_style()
 
     class Meta(
         BaseUuidModel.Meta,
