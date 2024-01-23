@@ -43,6 +43,7 @@
             </div>
 
             <div class="col-md-4">
+
               {% ae_followup_queryset ae_initial=result.parent_action_item.reference_obj as qs %}
               {% if qs.count == 0 %}<div class="list-group-item">There are no follow-ups to this AE</div>{% endif  %}
               {% for ae_followup in qs %}
@@ -55,11 +56,13 @@
               {% endfor %}
 
               <div class="list-group-item">
-              <a class="btn btn-sm btn-primary" role="button" title="go to list of reported visits for this subject" href="{% url subject_review_listboard_url|default:"subject_review_listboard_url_cannot_be_none" %}?q={{ result.subject_identifier }}">Subject Review  <i class="fas fa-share"></i></a>
+                <a class="btn btn-sm btn-primary" role="button" title="go to list of reported visits for this subject" href="{% url subject_review_listboard_url|default:"subject_review_listboard_url_cannot_be_none" %}?q={{ result.subject_identifier }}">Subject Review  <i class="fas fa-share"></i></a>
               </div>
+
               <div class="list-group-item">
-              <a class="btn btn-sm btn-default" role="button" title="Go to action item" href="{{ result.get_absolute_url }}?next=edc_adverse_event:open_tmg_ae_listboard_url">{{ result.identifier }}</a> {{ result.display_name }}
+                <a class="btn btn-sm btn-default" role="button" title="Go to action item" href="{{ result.get_absolute_url }}?next=edc_adverse_event:open_tmg_ae_listboard_url">{{ result.identifier }}</a> {{ result.display_name }}
               </div>
+
             </div>
           </div>
           </div>
