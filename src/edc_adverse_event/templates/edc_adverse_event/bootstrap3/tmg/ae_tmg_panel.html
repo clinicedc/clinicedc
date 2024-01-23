@@ -1,8 +1,8 @@
 {% load i18n %}
 
 <div class="list-group-item list-group-item-{{ panel_color }}">
-  <a class="btn btn-sm btn-{% if reference_obj %}success{% else%}warning{% endif %}" title="{% if reference_obj %}{% if may_access_tmg_obj %}Edit{% else %}May only be edited by {{ reference_obj.user_created }}{% endif %}{% else %}Add{% endif %}" data-toggle="tooltip" role="button" id="reference_obj-{{ counter }}"
-     href="{{ action_item.reference_url }}" {{ disabled }}>
+  <a class="btn btn-sm btn-{% if reference_obj %}success{% else%}warning{% endif %}" title="{% if reference_obj %}{% if view_only %}View{% elif may_access_tmg_obj %}Edit{% else %}May only be edited by {{ reference_obj.user_created }}{% endif %}{% else %}Add{% endif %}" data-toggle="tooltip" role="button" id="reference_obj-{{ counter }}"
+     href="{{ reference_obj.get_absolute_url }}?next=edc_adverse_event:open_tmg_ae_listboard_url" {{ disabled }}>
     {% if view_only %}<i class="fas fa-eye fa-fw"></i> View {% else %}<i class="fas fa-pencil-alt fa-fw"></i> Edit {% endif %}
   </a>
   &nbsp;{{ action_item.display_name|cut:"Submit"|cut:"pending" }} {{ action_item.identifier|default:"New" }}
