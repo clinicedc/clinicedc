@@ -199,6 +199,17 @@ def render_tmg_panel(
         by_user_created_only=by_user_created_only,
     )
     disabled = "disabled" if not may_access_tmg_obj else ""
+
+    if view_only:
+        label = "View"
+        fa_icon = "fa-eye"
+    elif not reference_obj:
+        label = "Add"
+        fa_icon = "fa-plus"
+    else:
+        label = "Edit" if reference_obj else "view"
+        fa_icon = "fa-pencil" if reference_obj else "fa-plus"
+
     if view_only:
         panel_color = "info"
     else:
@@ -210,6 +221,8 @@ def render_tmg_panel(
         counter=counter,
         panel_color=panel_color,
         disabled=disabled,
+        label=label,
+        fa_icon=fa_icon,
         view_only=view_only,
         report_status=report_status,
         OPEN=OPEN,
@@ -250,6 +263,7 @@ def has_perms_for_obj(
     has_perms = False
 
     reference_obj = reference_obj or get_reference_obj(action_item)
+
     if reference_obj:
         app_label = reference_obj._meta.app_label
         add_codename = get_permission_codename("add", reference_obj._meta)
