@@ -1,0 +1,13 @@
+{% load i18n %}
+
+<div class="list-group-item list-group-item-{% if action_item.reference_obj %}success{% else%}warning{% endif %}">
+  <a class="btn btn-sm btn-{% if action_item.reference_obj %}success{% else%}warning{% endif %}" title="{% if action_item.reference_obj %}{% if may_access_tmg_obj %}Edit{% else %}May only be edited by {{ action_item.reference_obj.user_created }}{% endif %}{% else %}Add{% endif %}" data-toggle="tooltip" role="button" id="reference_obj-{{ counter }}"
+     href="{{ action_item.reference_url }}" {% if not may_access_tmg_obj %}disabled{% endif %}>
+    {% if action_item.reference_obj %}<i class="fas fa-pencil-alt fa-fw"></i> Edit {% else %}<i class="fas fa-plus fa-fw"></i> View {% endif %}
+  </a>
+  &nbsp;{{ action_item.display_name|cut:"Submit" }} {{ action_item.identifier|default:"New" }}
+</div>
+{% if action_item.reference_obj %}
+  <div class="list-group-item"><b>{% trans "Created" %}:</b> {{ action_item.reference_obj.user_created|default:"---" }}&nbsp;{{ action_item.reference_obj.created|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
+  <div class="list-group-item"><b>{% trans "Last modified" %}:</b> {{ action_item.reference_obj.user_modified|default:"---" }}&nbsp;{{ action_item.reference_obj.modified|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
+{% endif %}

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from django.core.exceptions import ObjectDoesNotExist
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
@@ -11,10 +10,7 @@ from edc_navbar import NavbarViewMixin
 from edc_navbar.get_default_navbar import get_default_navbar
 from edc_utils import get_utcnow
 
-from ...auth_objects import TMG
 from ...constants import AE_TMG_ACTION
-
-# from ...model_wrappers import TmgActionItemModelWrapper
 from ...utils import get_adverse_event_app_label
 
 if TYPE_CHECKING:
@@ -56,7 +52,10 @@ class TmgAeListboardViewMixin(
     ]
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
-        kwargs.update(AE_TMG_ACTION=AE_TMG_ACTION, utc_date=get_utcnow().date())
+        kwargs.update(
+            AE_TMG_ACTION=AE_TMG_ACTION,
+            utc_date=get_utcnow().date(),
+        )
         return super().get_context_data(**kwargs)
 
     def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
@@ -68,40 +67,6 @@ class TmgAeListboardViewMixin(
         if kwargs.get("subject_identifier"):
             options.update({"subject_identifier": kwargs.get("subject_identifier")})
         return q_object, options
-
-    def update_wrapped_instance(self, model_wrapper):
-        model_wrapper.has_reference_obj_permissions = True
-        model_wrapper.has_parent_reference_obj_permissions = True
-        model_wrapper.has_related_reference_obj_permissions = True
-        try:
-            self.request.user.groups.get(name=TMG)
-        except ObjectDoesNotExist:
-            pass
-        else:
-            if (
-                model_wrapper.reference_obj
-                and model_wrapper.reference_obj._meta.label_lower == self.ae_tmg_model
-            ):
-                model_wrapper.has_reference_obj_permissions = (
-                    model_wrapper.reference_obj.user_created == self.request.user.username
-                )
-            if (
-                model_wrapper.parent_reference_obj
-                and model_wrapper.parent_reference_obj._meta.label_lower == self.ae_tmg_model
-            ):  # noqa
-                model_wrapper.has_parent_reference_obj_permissions = (
-                    model_wrapper.parent_reference_obj.user_created
-                    == self.request.user.username
-                )  # noqa
-            if (
-                model_wrapper.related_reference_obj
-                and model_wrapper.related_reference_obj._meta.label_lower == self.ae_tmg_model
-            ):  # noqa
-                model_wrapper.has_related_reference_obj_permissions = (
-                    model_wrapper.related_reference_obj.user_created
-                    == self.request.user.username
-                )  # noqa
-        return model_wrapper
 
 
 class StatusTmgAeListboardView(TmgAeListboardViewMixin):
