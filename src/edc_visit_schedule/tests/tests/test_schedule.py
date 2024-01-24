@@ -7,7 +7,9 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.schedule import AlreadyRegisteredVisit, Schedule
 from edc_visit_schedule.schedule.schedule import ScheduleNameError, VisitTimepointError
 from edc_visit_schedule.schedule.visit_collection import VisitCollectionError
+from edc_visit_schedule.system_checks import check_schedule_models
 from edc_visit_schedule.visit import Visit
+from visit_schedule_app.consents import consent_v1
 from visit_schedule_app.models import OffSchedule, OnSchedule
 
 
@@ -21,7 +23,7 @@ class TestSchedule(TestCase):
             name="schedule",
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
         self.assertTrue(schedule.__repr__())
@@ -31,26 +33,20 @@ class TestSchedule(TestCase):
             name="schedule",
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
         self.assertEqual(schedule.field_value, "schedule")
-
-    def test_schedule_onschedule_model_is_none(self):
-        self.assertRaises(AttributeError, Schedule, name="schedule", onschedule_model=None)
-
-    def test_schedule_offschedule_model_is_none(self):
-        self.assertRaises(AttributeError, Schedule, name="schedule", offschedule_model=None)
 
     def test_schedule_bad_label_lower(self):
         schedule = Schedule(
             name="schedule",
             onschedule_model="x.x",
             offschedule_model="visit_schedule_app.offschedule",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
-        errors = schedule.check()
+        errors = check_schedule_models(schedule)
         self.assertIsNotNone(errors)
 
     def test_schedule_bad_label_lower2(self):
@@ -58,10 +54,10 @@ class TestSchedule(TestCase):
             name="schedule",
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="x.x",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
-        errors = schedule.check()
+        errors = check_schedule_models(schedule)
         self.assertIsNotNone(errors)
 
     def test_schedule_onschedule_model_cls(self):
@@ -69,7 +65,7 @@ class TestSchedule(TestCase):
             name="schedule",
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
         self.assertEqual(schedule.onschedule_model_cls, OnSchedule)
@@ -79,7 +75,7 @@ class TestSchedule(TestCase):
             name="schedule",
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
-            consent_model="edc_visit_schedule.subjectconsent",
+            consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
         self.assertEqual(schedule.offschedule_model_cls, OffSchedule)
@@ -89,7 +85,7 @@ class TestSchedule(TestCase):
             name="schedule",
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
 
@@ -98,7 +94,7 @@ class TestSchedule(TestCase):
             name="schedule",
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
         for i in range(0, 5):
@@ -119,7 +115,7 @@ class TestSchedule(TestCase):
             name="schedule",
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
         visit = Visit(
@@ -146,7 +142,7 @@ class TestSchedule(TestCase):
             name="schedule",
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
         visit = Visit(
@@ -173,7 +169,7 @@ class TestSchedule(TestCase):
             name="schedule",
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
             base_timepoint=1,
         )
@@ -195,7 +191,7 @@ class TestSchedule(TestCase):
             name="schedule",
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
             base_timepoint=1,
         )
@@ -214,7 +210,7 @@ class TestSchedule(TestCase):
             name="schedule",
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
         visit = Visit(
@@ -239,7 +235,7 @@ class TestSchedule(TestCase):
             name="schedule",
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
         visit = Visit(
@@ -266,7 +262,7 @@ class TestScheduleWithVisits(TestCase):
             name="schedule",
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
 
@@ -275,7 +271,7 @@ class TestScheduleWithVisits(TestCase):
             name="schedule",
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
             base_timepoint=1,
         )

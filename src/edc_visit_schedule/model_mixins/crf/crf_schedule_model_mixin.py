@@ -46,10 +46,11 @@ class CrfScheduleModelMixin(models.Model):
 
     def is_onschedule_or_raise(self) -> None:
         subject_schedule = SubjectSchedule(
-            visit_schedule=self.visit_schedule, schedule=self.schedule
+            self.subject_identifier,
+            visit_schedule=self.visit_schedule,
+            schedule=self.schedule,
         )
         subject_schedule.onschedule_or_raise(
-            subject_identifier=self.subject_identifier,
             report_datetime=self.report_datetime,
             compare_as_datetimes=self.offschedule_compare_dates_as_datetimes,
         )

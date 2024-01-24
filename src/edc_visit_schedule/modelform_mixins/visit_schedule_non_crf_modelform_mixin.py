@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from django import forms
 
+from ..exceptions import VisitScheduleNonCrfModelFormMixinError
 from ..schedule import Schedule
 from ..site_visit_schedules import SiteVisitScheduleError, site_visit_schedules
 from ..subject_schedule import (
@@ -12,9 +13,7 @@ from ..subject_schedule import (
 from ..utils import report_datetime_within_onschedule_offschedule_datetimes
 from ..visit_schedule import VisitSchedule
 
-
-class VisitScheduleNonCrfModelFormMixinError(Exception):
-    pass
+__all__ = ["VisitScheduleNonCrfModelFormMixin"]
 
 
 class VisitScheduleNonCrfModelFormMixin:
@@ -24,6 +23,7 @@ class VisitScheduleNonCrfModelFormMixin:
 
     # loss_to_followup_model, offschedule_model, onschedule_model
     get_by_model_attr: str | None = None
+    offschedule_compare_dates_as_datetimes = True
 
     def clean(self):
         cleaned_data = super().clean()
@@ -65,10 +65,11 @@ class VisitScheduleNonCrfModelFormMixin:
         return schedule
 
     def is_onschedule_or_raise(self) -> None:
-        subject_schedule = SubjectSchedule(self.visit_schedule, self.schedule)
+        subject_schedule = SubjectSchedule(
+            self.get_subject_identifier(), self.visit_schedule, self.schedule
+        )
         try:
             subject_schedule.onschedule_or_raise(
-                subject_identifier=self.get_subject_identifier(),
                 report_datetime=self.report_datetime,
                 compare_as_datetimes=self.offschedule_compare_dates_as_datetimes,
             )
@@ -84,6 +85,6 @@ class VisitScheduleNonCrfModelFormMixin:
             exception_cls=forms.ValidationError,
         )
 
-    @property
-    def offschedule_compare_dates_as_datetimes(self):
-        return self._meta.model.offschedule_compare_dates_as_datetimes
+    # @property
+    # def offschedule_compare_dates_as_datetimes(self):
+    #     return self._meta.model.offschedule_compare_dates_as_datetimes

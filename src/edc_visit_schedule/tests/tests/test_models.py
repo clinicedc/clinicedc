@@ -2,11 +2,8 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
-from edc_consent import site_consents
-from edc_consent.consent_definition import ConsentDefinition
-from edc_constants.constants import FEMALE, MALE
+from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
-from edc_protocol import Protocol
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
 from edc_visit_tracking.constants import SCHEDULED
@@ -17,6 +14,7 @@ from edc_visit_schedule.site_visit_schedules import (
     RegistryNotLoaded,
     site_visit_schedules,
 )
+from visit_schedule_app.consents import consent_v1
 from visit_schedule_app.models import (
     BadOffSchedule1,
     CrfOne,
@@ -53,19 +51,9 @@ class TestModels(SiteTestCaseMixin, TestCase):
         site_visit_schedules.loaded = False
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
-        v1_consent = ConsentDefinition(
-            "visit_schedule_app.subjectconsent",
-            version="1",
-            start=Protocol().study_open_datetime,
-            end=Protocol().study_close_datetime,
-            age_min=18,
-            age_is_adult=18,
-            age_max=64,
-            gender=[MALE, FEMALE],
-        )
         self.subject_identifier = "1234"
         site_consents.registry = {}
-        site_consents.register(v1_consent)
+        site_consents.register(consent_v1)
 
     def test_str(self):
         SubjectConsent.objects.create(subject_identifier=self.subject_identifier)
@@ -248,11 +236,11 @@ class TestModels(SiteTestCaseMixin, TestCase):
         """Assert can enter a CRF."""
         SubjectConsent.objects.create(
             subject_identifier=self.subject_identifier,
-            consent_datetime=get_utcnow() - relativedelta(years=3),
+            consent_datetime=get_utcnow() - relativedelta(months=6),
         )
         OnSchedule.objects.create(
             subject_identifier=self.subject_identifier,
-            onschedule_datetime=get_utcnow() - relativedelta(years=3),
+            onschedule_datetime=get_utcnow() - relativedelta(months=6),
         )
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         self.assertEqual(appointments.count(), 4)

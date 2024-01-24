@@ -26,6 +26,7 @@ class VisitScheduleViewMixin:
         super().__init__(**kwargs)
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
+        # TODO: What if active on more than one schedule??
         for visit_schedule in site_visit_schedules.visit_schedules.values():
             if self.subject_identifier:
                 for schedule in visit_schedule.schedules.values():
@@ -36,15 +37,12 @@ class VisitScheduleViewMixin:
                     except ObjectDoesNotExist:
                         pass
                     else:
-                        if schedule.is_onschedule(
-                            subject_identifier=self.subject_identifier,
-                            report_datetime=get_utcnow(),
-                        ):
+                        self.onschedule_models.append(onschedule_model_obj)
+                        self.visit_schedules.update({visit_schedule.name: visit_schedule})
+                        if schedule.is_onschedule(self.subject_identifier, get_utcnow()):
                             self.current_schedule = schedule
                             self.current_visit_schedule = visit_schedule
                             self.current_onschedule_model = onschedule_model_obj
-                        self.onschedule_models.append(onschedule_model_obj)
-                        self.visit_schedules.update({visit_schedule.name: visit_schedule})
         kwargs.update(
             visit_schedules=self.visit_schedules,
             current_onschedule_model=self.current_onschedule_model,

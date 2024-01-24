@@ -3,10 +3,9 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
-from edc_consent import site_consents
+from edc_consent import NotConsentedError
 from edc_consent.consent_definition import ConsentDefinition
-from edc_consent.site_consents import AlreadyRegistered
-from edc_consent.tests.consent_test_utils import consent_definition_factory
+from edc_consent.site_consents import site_consents
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_protocol import Protocol
@@ -25,15 +24,16 @@ from edc_visit_schedule.site_visit_schedules import (
 )
 from edc_visit_schedule.subject_schedule import (
     InvalidOffscheduleDate,
-    NotConsentedError,
     NotOnScheduleError,
 )
+from edc_visit_schedule.system_checks import check_visit_schedule_models
 from edc_visit_schedule.visit import Crf, FormsCollection, FormsCollectionError, Visit
 from edc_visit_schedule.visit_schedule import (
     AlreadyRegisteredSchedule,
     VisitSchedule,
     VisitScheduleNameError,
 )
+from visit_schedule_app.consents import consent_v1
 from visit_schedule_app.models import (
     OffSchedule,
     OnSchedule,
@@ -55,7 +55,7 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
 
     def setUp(self):
         super().setUp()
-        v1_consent = ConsentDefinition(
+        consent_v1 = ConsentDefinition(
             "visit_schedule_app.subjectconsent",
             version="1",
             start=Protocol().study_open_datetime,
@@ -66,7 +66,7 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
             gender=[MALE, FEMALE],
         )
         site_consents.registry = {}
-        site_consents.register(v1_consent)
+        site_consents.register(consent_v1)
 
     def test_visit_schedule_name(self):
         """Asserts raises on invalid name."""
@@ -99,7 +99,7 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
             death_report_model="visit_schedule_app.deathreport",
             locator_model="edc_locator.subjectlocator",
         )
-        errors = visit_schedule.check()
+        errors = check_visit_schedule_models(visit_schedule)
         if errors:
             self.fail("visit_schedule.check() unexpectedly failed")
 
@@ -115,18 +115,8 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
         import_holidays()
 
     def setUp(self):
-        v1_consent = ConsentDefinition(
-            "visit_schedule_app.subjectconsent",
-            version="1",
-            start=Protocol().study_open_datetime,
-            end=Protocol().study_close_datetime,
-            age_min=18,
-            age_is_adult=18,
-            age_max=64,
-            gender=[MALE, FEMALE],
-        )
         site_consents.registry = {}
-        site_consents.register(v1_consent)
+        site_consents.register(consent_v1)
 
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
@@ -141,7 +131,7 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=consent_v1,
         )
 
         self.schedule2 = Schedule(
@@ -149,7 +139,7 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
             onschedule_model="visit_schedule_app.onscheduletwo",
             offschedule_model="visit_schedule_app.offscheduletwo",
             appointment_model="edc_appointment.appointment",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=consent_v1,
         )
 
         self.schedule3 = Schedule(
@@ -157,7 +147,7 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
             onschedule_model="visit_schedule_app.onschedulethree",
             offschedule_model="visit_schedule_app.offschedulethree",
             appointment_model="edc_appointment.appointment",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=consent_v1,
         )
 
     def test_visit_schedule_add_schedule(self):
@@ -165,17 +155,6 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
             self.visit_schedule.add_schedule(self.schedule)
         except AlreadyRegisteredSchedule:
             self.fail("AlreadyRegisteredSchedule unexpectedly raised.")
-
-    def test_visit_schedule_add_schedule_invalid_appointment_model(self):
-        self.assertRaises(
-            AttributeError,
-            Schedule,
-            name="schedule_bad",
-            onschedule_model="visit_schedule_app.onschedule",
-            offschedule_model="visit_schedule_app.offschedule",
-            appointment_model=None,
-            consent_model="visit_schedule_app.subjectconsent",
-        )
 
     def test_visit_schedule_add_schedule_with_appointment_model(self):
         self.visit_schedule.add_schedule(self.schedule3)
@@ -227,7 +206,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
-            consent_model="visit_schedule_app.subjectconsent",
+            consent_definitions=consent_v1,
             base_timepoint=1,
         )
 
@@ -244,12 +223,9 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         site_visit_schedules.register(self.visit_schedule)
 
         site_consents.registry = {}
-        try:
-            consent_definition_factory(model=self.schedule.consent_model)
-        except AlreadyRegistered:
-            pass
-
-        cdef = site_consents.get_consent_definition(model=self.schedule.consent_model)
+        for cdef in self.schedule.consent_definitions:
+            site_consents.register(cdef)
+        cdef = self.schedule.consent_definitions[0]
         self.subject_consent = cdef.model_cls.objects.create(
             subject_identifier="12345",
             consent_datetime=get_utcnow() - relativedelta(years=1),

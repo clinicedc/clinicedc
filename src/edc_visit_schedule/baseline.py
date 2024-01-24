@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from .site_visit_schedules import SiteVisitScheduleError, site_visit_schedules
+from .exceptions import SiteVisitScheduleError, VisitScheduleBaselineError
+from .site_visit_schedules import site_visit_schedules
 
 if TYPE_CHECKING:
     from decimal import Decimal
@@ -11,8 +12,7 @@ if TYPE_CHECKING:
     from .visit_schedule import VisitSchedule
 
 
-class VisitScheduleBaselineError(Exception):
-    pass
+__all__ = ["Baseline"]
 
 
 class Baseline:

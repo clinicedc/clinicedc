@@ -10,6 +10,10 @@ class CrfLookupError(Exception):
     pass
 
 
+class CrfModelNotProxyModelError(Exception):
+    pass
+
+
 class Crf:
     def __init__(
         self,
@@ -18,12 +22,20 @@ class Crf:
         required: bool = None,
         additional: bool = None,
         site_ids: list[int] = None,
+        shares_proxy_root: bool = None,
     ) -> None:
         self.additional = additional
         self.model = model.lower()
         self.required = True if required is None else required
         self.show_order = show_order
         self.site_ids = site_ids or []
+        self.shares_proxy_root = shares_proxy_root or False
+
+        if self.shares_proxy_root and not self.model_cls._meta.proxy:
+            raise CrfModelNotProxyModelError(
+                "Invalid use of `shares_proxy_root=True`. "
+                f"CRF model is not a proxy model. Got {self.full_name}."
+            )
 
     def __repr__(self) -> str:
         return (

@@ -20,9 +20,8 @@ class OffScheduleModelFormMixin(VisitScheduleNonCrfModelFormMixin):
             visit_schedule_name=self.visit_schedule_name,
         )
         try:
-            self.schedule.subject.update_history_or_raise(
+            self.schedule.subject(self.get_subject_identifier()).update_history_or_raise(
                 history_obj=history_obj,
-                subject_identifier=self.get_subject_identifier(),
                 offschedule_datetime=self.offschedule_datetime,
                 update=False,
             )

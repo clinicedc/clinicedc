@@ -48,3 +48,23 @@ class ScheduledVisitWindowError(Exception):
 
 class UnScheduledVisitWindowError(Exception):
     pass
+
+
+class SiteVisitScheduleError(Exception):
+    pass
+
+
+class RegistryNotLoaded(Exception):
+    pass
+
+
+class AlreadyRegisteredVisitSchedule(Exception):
+    pass
+
+
+class VisitScheduleBaselineError(Exception):
+    pass
+
+
+class VisitScheduleNonCrfModelFormMixinError(Exception):
+    pass
