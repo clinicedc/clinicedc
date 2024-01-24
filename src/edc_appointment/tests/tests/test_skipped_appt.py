@@ -29,7 +29,7 @@ from edc_appointment.skip_appointments import (
 from edc_appointment.tests.helper import Helper
 from edc_appointment.tests.test_case_mixins import AppointmentTestCaseMixin
 from edc_appointment.utils import get_allow_skipped_appt_using
-from edc_appointment_app.consents import v1_consent
+from edc_appointment_app.consents import consent_v1
 from edc_appointment_app.forms import CrfThreeForm
 from edc_appointment_app.models import (
     CrfFive,
@@ -64,7 +64,7 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         site_visit_schedules.register(get_visit_schedule2())
         site_visit_schedules.register(get_visit_schedule5())
         site_consents.registry = {}
-        site_consents.register(v1_consent)
+        site_consents.register(consent_v1)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=datetime(2017, 6, 5, 8, 0, 0, tzinfo=utc),

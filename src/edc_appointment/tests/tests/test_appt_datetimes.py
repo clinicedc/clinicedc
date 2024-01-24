@@ -11,7 +11,7 @@ from edc_visit_schedule.schedule.visit_collection import VisitCollection
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from edc_appointment.models import Appointment
-from edc_appointment_app.consents import v1_consent
+from edc_appointment_app.consents import consent_v1
 from edc_appointment_app.visit_schedule import get_visit_schedule1
 
 from ..helper import Helper
@@ -32,7 +32,7 @@ class TestApptDatetimes(TestCase):
     def setUpTestData(cls):
         import_holidays()
         site_consents.registry = {}
-        site_consents.register(v1_consent)
+        site_consents.register(consent_v1)
 
     def register_visit_schedule(self, facility_name=None):
         """Overwrite facility name on each visit and register

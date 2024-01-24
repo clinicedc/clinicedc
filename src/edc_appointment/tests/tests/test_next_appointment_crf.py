@@ -18,7 +18,7 @@ from edc_visit_tracking.utils import get_related_visit_model_cls
 
 from edc_appointment.constants import SKIPPED_APPT
 from edc_appointment.models import Appointment, InfoSources
-from edc_appointment_app.consents import v1_consent
+from edc_appointment_app.consents import consent_v1
 from edc_appointment_app.forms import NextAppointmentCrfForm
 from edc_appointment_app.models import NextAppointmentCrf, SubjectConsent
 from edc_appointment_app.visit_schedule import get_visit_schedule6
@@ -40,7 +40,7 @@ class TestNextAppointmentCrf(TestCase):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(get_visit_schedule6())
         site_consents.registry = {}
-        site_consents.register(v1_consent)
+        site_consents.register(consent_v1)
         populate_visit_schedule()
 
         self.subject_identifier = "101-40990029-4"

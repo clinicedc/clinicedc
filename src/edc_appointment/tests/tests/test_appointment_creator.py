@@ -23,7 +23,7 @@ from edc_visit_schedule.visit_schedule import VisitSchedule
 from edc_appointment.creators import AppointmentCreator
 from edc_appointment.models import Appointment
 from edc_appointment.tests.helper import Helper
-from edc_appointment_app.consents import v1_consent
+from edc_appointment_app.consents import consent_v1
 
 utc_tz = ZoneInfo("UTC")
 
@@ -48,7 +48,7 @@ class AppointmentCreatorTestCase(TestCase):
             onschedule_model="edc_appointment_app.onschedule",
             offschedule_model="edc_appointment_app.offschedule",
             appointment_model="edc_appointment.appointment",
-            consent_definitions=[v1_consent],
+            consent_definitions=[consent_v1],
         )
 
         self.visit1000 = Visit(
@@ -84,7 +84,7 @@ class AppointmentCreatorTestCase(TestCase):
 
         site_visit_schedules.register(self.visit_schedule)
         site_consents.registry = {}
-        site_consents.register(v1_consent)
+        site_consents.register(consent_v1)
 
         class Meta:
             label_lower = ""

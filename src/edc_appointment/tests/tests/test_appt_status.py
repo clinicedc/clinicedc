@@ -13,7 +13,7 @@ from edc_visit_tracking.constants import SCHEDULED
 from edc_appointment.appointment_status_updater import AppointmentStatusUpdater
 from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT, NEW_APPT
 from edc_appointment.models import Appointment
-from edc_appointment_app.consents import v1_consent
+from edc_appointment_app.consents import consent_v1
 from edc_appointment_app.models import SubjectVisit
 from edc_appointment_app.visit_schedule import get_visit_schedule1, get_visit_schedule2
 
@@ -39,7 +39,7 @@ class TestAppointmentStatus(TestCase):
         site_visit_schedules.register(self.visit_schedule1)
         site_visit_schedules.register(self.visit_schedule2)
         site_consents.registry = {}
-        site_consents.register(v1_consent)
+        site_consents.register(consent_v1)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=Protocol().study_open_datetime,
