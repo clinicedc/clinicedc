@@ -13,7 +13,7 @@ from edc_visit_tracking.constants import SCHEDULED
 from ...constants import CLOSED_TIMEPOINT, OPEN_TIMEPOINT
 from ...model_mixins import UnableToCloseTimepoint
 from ...timepoint import TimepointClosed
-from ..consents import v1
+from ..consents import consent_v1
 from ..models import CrfOne, CrfTwo, SubjectConsent, SubjectVisit
 from ..visit_schedule import visit_schedule1
 
@@ -58,7 +58,7 @@ class TimepointTests(TestCase):
     @classmethod
     def setUpClass(cls):
         import_holidays()
-        site_consents.register(v1)
+        site_consents.register(consent_v1)
 
         return super().setUpClass()
 
