@@ -4,7 +4,7 @@ from django import forms
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
-from edc_appointment.tests.helper import Helper
+from edc_consent import site_consents
 from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
 from edc_crf.modelform_mixins import RequisitionModelFormMixin
 from edc_facility.import_holidays import import_holidays
@@ -21,17 +21,34 @@ from edc_lab.form_validators.requisition_form_validator import (
 )
 from edc_lab.forms import BoxForm, BoxTypeForm, ManifestForm
 from edc_lab.models import Aliquot
+from lab_app.consents import consent_v1
 from lab_app.models import SubjectRequisition, SubjectVisit
+from lab_app.visit_schedules import visit_schedule
 
+from ..helper import Helper
 from ..site_labs_test_helper import SiteLabsTestHelper
-from ..visit_schedules import visit_schedule
 
 
 @override_settings(SITE_ID=10)
 class TestForms(TestCase):
-    def setUp(self):
+    helper_cls = Helper
+
+    @classmethod
+    def setUpTestData(cls):
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
         site_visit_schedules._registry = {}
-        site_visit_schedules.register(visit_schedule)
+        site_visit_schedules.register(visit_schedule=visit_schedule)
+
+    def setUp(self):
+        self.subject_identifier = "12345"
+        self.helper = self.helper_cls(
+            subject_identifier=self.subject_identifier,
+        )
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
+        )
 
     def test_box_form_specimen_types1(self):
         data = {"specimen_types": "12, 13"}
