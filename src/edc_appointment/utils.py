@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import warnings
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, Tuple, Type
+from typing import TYPE_CHECKING, Any, Type
 
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
@@ -11,7 +11,9 @@ from django.contrib.admin.utils import NotRelationField, get_model_from_relation
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import ProtectedError
+from django.urls import reverse
 from edc_constants.constants import CLINIC, NOT_APPLICABLE
+from edc_dashboard import url_names
 from edc_metadata.utils import has_keyed_metadata
 from edc_utils import convert_php_dateformat
 from edc_visit_schedule.exceptions import (
@@ -40,6 +42,10 @@ from .exceptions import (
 )
 
 if TYPE_CHECKING:
+    from decimal import Decimal
+
+    from django.db.models import QuerySet
+
     from .models import Appointment, AppointmentType
 
 
@@ -130,7 +136,7 @@ def get_appointment_form_meta_options() -> dict:
     return options
 
 
-def get_appt_reason_choices() -> Tuple[str, ...]:
+def get_appt_reason_choices() -> tuple[str, ...]:
     """Returns a customized tuple of choices otherwise the default.
 
     Note: You can only change the right side of any tuple.
@@ -306,7 +312,7 @@ def get_previous_appointment(
     See also: `AppointmentMethodsModelMixin`
     """
     check_appointment_required_values_or_raise(appointment)
-    opts: Dict[Any] = dict(
+    opts: dict[str, str | int | Decimal] = dict(
         subject_identifier=appointment.subject_identifier,
         visit_schedule_name=appointment.visit_schedule_name,
         schedule_name=appointment.schedule_name,
@@ -325,7 +331,7 @@ def get_previous_appointment(
             timepoint__lt=appointment.timepoint,
         )
 
-    appointments = (
+    appointments: QuerySet[Appointment] = (
         appointment.__class__.objects.filter(**opts)
         .exclude(id=appointment.id)
         .order_by("timepoint", "visit_code_sequence")
@@ -350,7 +356,7 @@ def get_next_appointment(appointment: Appointment, include_interim=None) -> Appo
     """
     next_appt: Appointment | None = None
     check_appointment_required_values_or_raise(appointment)
-    opts: Dict[Any] = dict(
+    opts: dict[str, str | int | Decimal] = dict(
         subject_identifier=appointment.subject_identifier,
         visit_schedule_name=appointment.visit_schedule_name,
         schedule_name=appointment.schedule_name,
@@ -610,3 +616,26 @@ def skip_appointment(appointment: Appointment, comment: str | None = None):
             appt_type=NOT_APPLICABLE,
             comment=comment,
         )
+
+
+def get_unscheduled_appointment_url(appointment: Appointment = None) -> str:
+    """Returns a url for the unscheduled appointment."""
+    dashboard_url_name = "subject_dashboard_url"
+    dashboard_url = url_names.get(dashboard_url_name)
+    unscheduled_appointment_url_name = "edc_appointment:unscheduled_appointment_url"
+    kwargs = dict(
+        subject_identifier=appointment.subject_identifier,
+        visit_schedule_name=appointment.visit_schedule_name,
+        schedule_name=appointment.schedule_name,
+        visit_code=appointment.visit_code,
+        visit_code_sequence=appointment.visit_code_sequence + 1,
+        timepoint=appointment.timepoint,
+    )
+    if appointment := (
+        appointment.__class__.objects.filter(visit_code_sequence__gt=0, **kwargs)
+        .order_by("visit_code_sequence")
+        .last()
+    ):
+        kwargs.update(visit_code_sequence=str(appointment.visit_code_sequence + 1))
+    kwargs.update(redirect_url=dashboard_url)
+    return reverse(unscheduled_appointment_url_name, kwargs=kwargs)
