@@ -116,7 +116,11 @@ class CsvExporter:
                 dataframe.to_csv(path_or_buf=path, **self.csv_options)
             elif export_format == "stata":
                 path = ".".join([path, "dta"])
-                dataframe.to_stata(path=path, **self.stata_options, **kwargs)
+                dta_version: str | None = kwargs.pop("dta_version", None)
+                dta_version = int(dta_version) if dta_version else None
+                dataframe.to_stata(
+                    path=path, **self.stata_options, version=dta_version, **kwargs
+                )
             else:
                 raise ExporterInvalidExportFormat(
                     f"Invalid export format. Got {export_format}"
@@ -147,16 +151,21 @@ class CsvExporter:
         self,
         dataframe: pd.DataFrame = None,
         export_folder: str = None,
-        version: int | None = None,
+        dta_version: str = None,
     ) -> Exported:
         """Returns the full path of the written STATA file if the
         dataframe is exported otherwise None.
         """
+        # TODO: if exporting to stata and version is <117, truncate str columns to 244
+        # if dta_version and int(dta_version) < 117:
+        #     dataframe = dataframe.apply(
+        #         lambda x: x.apply(lambda y: y[:244] if isinstance(y, str) else y)
+        #     )
         opts = dict(
             dataframe=dataframe,
             export_folder=export_folder,
             variable_labels=self.stata_variable_labels(dataframe),
-            version=version or 118,
+            dta_version=dta_version,
         )
         return self.to_format("stata", **opts)
 
@@ -173,10 +182,7 @@ class CsvExporter:
     @property
     def stata_options(self) -> dict:
         """Returns default options for dataframe.to_stata()."""
-        return dict(
-            data_label=f"{self.data_label}.dta",
-            version=118,
-        )
+        return dict(data_label=f"{self.data_label}.dta")
 
     def get_path(self) -> str:
         """Returns a full path with filename."""
