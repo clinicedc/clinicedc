@@ -21,6 +21,7 @@ from edc_visit_tracking.model_mixins import (
 )
 
 from edc_adherence.model_mixins import MedicationAdherenceModelMixin
+from edc_adherence.tests.consents import consent_v1
 
 
 class DeathReport(BaseUuidModel):
@@ -34,6 +35,7 @@ class OffStudy(BaseUuidModel):
 
 
 class SubjectScreening(ScreeningModelMixin, BaseUuidModel):
+    consent_definition = consent_v1
     objects = SubjectIdentifierManager()
 
 
