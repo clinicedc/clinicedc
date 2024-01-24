@@ -12,6 +12,7 @@ from edc_dashboard.view_mixins import (
     UrlRequestContextMixin,
 )
 from edc_sites.site import sites
+from edc_sites.view_mixins import SiteViewMixin
 
 from ..view_mixins import QueryStringViewMixin, SearchListboardMixin
 
@@ -20,7 +21,7 @@ class ListboardViewError(Exception):
     pass
 
 
-class BaseListboardView(TemplateRequestContextMixin, ListView):
+class BaseListboardView(SiteViewMixin, TemplateRequestContextMixin, ListView):
     listboard_model: str | None = None  # label_lower model name
     context_object_name: str = "results"
 
