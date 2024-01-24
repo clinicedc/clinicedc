@@ -1,9 +1,11 @@
 from dateutil.relativedelta import relativedelta
 from edc_visit_schedule.schedule import Schedule
-from edc_visit_schedule.visit import Crf, FormsCollection, Visit
+from edc_visit_schedule.visit import Crf, CrfCollection, Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
 
-crfs = FormsCollection(
+from edc_fieldsets.tests.consents import consent_v1
+
+crfs = CrfCollection(
     Crf(show_order=1, model="edc_fieldsets.mymodel", required=True),
     Crf(show_order=2, model="edc_fieldsets.mymodel2", required=True),
     Crf(show_order=3, model="edc_fieldsets.mymodel3", required=True),
@@ -37,7 +39,7 @@ schedule = Schedule(
     onschedule_model="edc_visit_schedule.onschedule",
     offschedule_model="edc_visit_schedule.offschedule",
     appointment_model="edc_appointment.appointment",
-    consent_model="edc_consent.subjectconsent",
+    consent_definitions=[consent_v1],
 )
 
 schedule.add_visit(visit0)
