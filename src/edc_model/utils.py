@@ -9,6 +9,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import CharField, DateField, DateTimeField, Model
+from django.urls import reverse
 
 from .constants import REPORT_DATETIME_FIELD_NAME
 
@@ -206,3 +207,9 @@ def duration_dh_to_timedelta(duration_text: str | CharField) -> timedelta:
         hours_str = duration_text.split("h")[0]
         hours = int(hours_str)
     return timedelta(days=days, hours=hours)
+
+
+def get_history_url(obj, admin_site: str = None) -> str:
+    admin_site = admin_site or obj.admin_url_name.split(":")[0]
+    app, model = obj._meta.app_label, obj._meta.model_name
+    return reverse(f"{admin_site}:{app}_{model}_history", args=[str(obj.pk)])
