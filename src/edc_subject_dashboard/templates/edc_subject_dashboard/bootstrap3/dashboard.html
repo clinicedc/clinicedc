@@ -1,5 +1,5 @@
 {% extends dashboard_base_template %}
-{% load static %}
+{% load static i18n %}
 {% load edc_visit_schedule_extras %}
 {% load edc_subject_dashboard_extras %}
 {% load edc_dashboard_extras %}
@@ -16,18 +16,10 @@
                         {% else %}
                             <i class="{% if gender == MALE %}fas fa-male{% else %}fas fa-female{% endif %} fa-lg fa-fw"></i>
                             <a id="demographics-panel-title">{{ subject_identifier }} </a> {% copy_string_to_clipboard_button subject_identifier %} {% block extra_demographic_title %}{% endblock extra_demographic_title %}
+                          {% if related_visit and related_visit.site.id != request.site.id %}<span class="bg-warning text small text-default">{% translate "You are viewing a subject who is not from site" %} {{ request.site.id }}</span>{% endif %}
                         {% endif %}
                               <span class="pull-right">
                               <div class="btn-group">
-                                {% if related_visit %}
-                                  <a href="{% url 'edc_subject_dashboard:refresh_metadata_actions_url' related_visit.id %}" data-toggle="tooltip" title="Refresh data collection schedule" role="button" class="btn btn-sm btn-default">
-                                    <i class="fas fa-arrows-rotate fa-1x fa-fw" aria-hidden="true"></i>
-                                  </a>
-                                {% else %}
-                                  <a href="{% url 'edc_subject_dashboard:refresh_appointments_url' current_visit_schedule current_schedule subject_identifier %}" data-toggle="tooltip" title="Refresh appointments" role="button" class="btn btn-sm btn-default">
-                                    <i class="fas fa-arrows-rotate fa-1x fa-fw" aria-hidden="true"></i>
-                                  </a>
-                                {% endif %}
                                 {% if perms.edc_data_manager.add_dataquery %}
                                   <a href="{% url 'edc_data_manager_admin:edc_data_manager_dataquery_add' %}?registered_subject={{ registered_subject_pk }}&sender={{ request.user.id }}&visit_schedule={{visit_schedule_pk|default:''}}&visit_code_sequence={{ appointment.visit_code_sequence }}"
                                     role="button" class="btn btn-sm btn-default" data-toggle="tooltip" title="Add new data query">Query</a>
@@ -40,7 +32,7 @@
                                             <i class="fa-solid fa-reply fa-1x fa-fw" aria-hidden="true"></i>
                                               Schedule
                                             </a>
-                                            <a href="{% url subject_review_listboard_url|default:'subject_review_listboard_url_cannot_be_none' subject_identifier=subject_identifier appointment=appointment.object.id|stringformat:"s" %}#{{ subject_identifier }}-{{ appointment.visit_code }}-{{ appointment.visit_code_sequence }}"
+                                            <a href="{% url subject_review_listboard_url|default:'subject_review_listboard_url_cannot_be_none' subject_identifier=subject_identifier appointment=appointment.id|stringformat:"s" %}#{{ subject_identifier }}-{{ appointment.visit_code }}-{{ appointment.visit_code_sequence }}"
                                                role="button" class="btn btn-sm btn-primary" data-toggle="tooltip" title="Go to subject review">
                                             <i class="fa-solid fa-reply fa-1x fa-fw" aria-hidden="true"></i>
                                                 Review
@@ -86,6 +78,10 @@
                         </div>
                     {% endif %}
 
+
+
+
+
                     {% if appointment %}
                         <div id="subject_dashboard_for_{{ appointment.visit_schedule.name|slugify }}-{{ appointment.schedule.name|slugify }}"
                              class="panel panel-{% if anonymous %}danger{% else %}info{% endif %}">
@@ -100,6 +96,9 @@
                                         class="fas fa-caret-right"></i> {{ appointment.visit_code }}.{{ appointment.visit_code_sequence }} {{ appointment.title|lower|title }} {{ appointment.wrapped_visit.object.get_reason_display }}<span
                                         class="caret"></span>
                                 </a>
+                              <span class="pull-right">
+                                <a href="{% url 'edc_subject_dashboard:refresh_metadata_actions_url' related_visit_id=related_visit.id  visit_schedule_name=appointment.visit_schedule_name schedule_name=appointment.schedule_name %}" data-toggle="tooltip" title="Refresh data collection schedule" role="button" class="btn btn-sm btn-default"><i class="fas fa-arrows-rotate fa-1x fa-fw" aria-hidden="true"></i></a>
+                              </span>
                             </div>
                             <div id="subject_dashboard_forms_for_{{ appointment.visit_schedule.name|slugify }}-{{ appointment.schedule.name|slugify }}"
                                  class="panel-collapse collapse in">
@@ -137,7 +136,8 @@
                                         <span class="caret"></span>
                                     </a>
                                     <span class="pull-right">
-            					  	    {% appointment_in_progress subject_identifier schedule_obj.visit_schedule schedule_obj.schedule %}
+                                      <a href="{% url 'edc_subject_dashboard:refresh_appointments_url' schedule_obj.visit_schedule.name schedule_obj.schedule.name subject_identifier %}" data-toggle="tooltip" title="Refresh appointments" role="button" class="btn btn-sm btn-default"><i class="fas fa-arrows-rotate fa-1x fa-fw" aria-hidden="true"></i></a>
+            					  	            {% appointment_in_progress subject_identifier schedule_obj.visit_schedule schedule_obj.schedule %}
 			            		  	</span>
                                 </div>
 

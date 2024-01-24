@@ -1,0 +1,7 @@
+{% if title and label %}
+  <a id="start_btn_{{ appointment.visit_code }}_{{ appointment.visit_code_sequence }}"
+     role="button" data-toggle="tooltip"
+     title="{{ title }}" {% if appointment.object.site.id != request.site.id %} disabled {% endif %}
+     class="btn btn-sm btn-{{ btn_color|default:'default' }}" href="{% if appointment.site.id != request.site.id %}#{% else %}{{ url }}{% endif %}"> {{ label }}
+  </a>
+{% endif %}

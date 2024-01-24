@@ -1,0 +1,10 @@
+{% if show_button %}
+    {% if appointment.appt_status == INCOMPLETE_APPT or appointment.appt_status == COMPLETE_APPT %}
+        <a id="{{ anchor_id }}" role="button" class="btn btn-sm btn-{{ btn.color|default:"default" }}"
+           {% if appointment.site.id != request.site.id %} disabled {% endif %}
+           href="{{ url }}">
+            <i class="fas fa-calendar-plus fa-lg" data-toggle="tooltip" title="Add continuation / unscheduled appointment" aria-hidden="true"></i>
+        </a>
+    {% endif %}
+{% endif %}
+
