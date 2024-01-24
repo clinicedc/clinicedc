@@ -27,7 +27,6 @@ class NavbarViewMixin:
         navbar.render(selected_item=self.navbar_selected_item, request=self.request)
         app_config = django_apps.get_app_config("edc_navbar")
         default_navbar_name = app_config.default_navbar_name
-
         if default_navbar_name and self.get_navbar_name() != default_navbar_name:
             default_navbar = site_navbars.get_navbar(name=default_navbar_name)
             default_navbar.render(
