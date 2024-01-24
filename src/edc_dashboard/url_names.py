@@ -2,7 +2,7 @@ class AlreadyRegistered(Exception):
     pass
 
 
-class InvalidUrlName(Exception):
+class InvalidDashboardUrlName(Exception):
     pass
 
 
@@ -31,12 +31,16 @@ class UrlNames:
                 namespace, url = complete_url, None
             self.register(name=name, url=url, namespace=namespace)
 
-    def get(self, name):
+    def get(self, name: str):
         if name not in self.registry:
-            raise InvalidUrlName(
-                f"Invalid url name. Expected one of {self.registry.keys()}. Got '{name}'."
+            raise InvalidDashboardUrlName(
+                f"Invalid dashboard url name. Expected one of {self.registry.keys()}. "
+                f"Got '{name}'."
             )
         return self.registry.get(name)
+
+    def get_or_raise(self, name: str):
+        return self.get(name)
 
 
 url_names = UrlNames()

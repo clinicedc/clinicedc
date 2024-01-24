@@ -1,8 +1,15 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from edc_protocol import Protocol
 from edc_utils.text import convert_from_camel
 
 from ..url_config import UrlConfig
-from ..url_names import InvalidUrlName, url_names
+from ..url_names import InvalidDashboardUrlName, url_names
+
+if TYPE_CHECKING:
+    from django.urls import URLPattern
 
 
 class UrlRequestContextError(Exception):
@@ -21,7 +28,13 @@ class UrlRequestContextMixin:
         return cls.url_name
 
     @classmethod
-    def urls(cls, namespace=None, label=None, identifier_label=None, identifier_pattern=None):
+    def urls(
+        cls,
+        namespace: str = None,
+        label: str = None,
+        identifier_label: str = None,
+        identifier_pattern: str = None,
+    ) -> list[URLPattern]:
         label = (
             label
             or cls.urlconfig_label
@@ -44,7 +57,7 @@ class UrlRequestContextMixin:
         """
         try:
             url_data = {new_key: url_names.get(existing_key)}
-        except InvalidUrlName as e:
+        except InvalidDashboardUrlName as e:
             raise UrlRequestContextError(
                 f"Url name not defined in url_names. "
                 f"Expected one of {url_names.registry}. Got {e}. "

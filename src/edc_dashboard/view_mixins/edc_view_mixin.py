@@ -22,7 +22,7 @@ class EdcViewMixin(
 ):
     """Adds common template variables and warning messages."""
 
-    edc_device_app = "edc_device"
+    edc_device_app: str = "edc_device"
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         try:

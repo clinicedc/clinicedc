@@ -30,14 +30,15 @@ class AdministrationViewMixin(ContextMixin):
             index += 1
             if index <= per_col:
                 col_one.update({k: v})
-            elif index > per_col and index < (per_col * 2) + 1:
+            elif per_col < index < (per_col * 2) + 1:
                 col_two.update({k: v})
             else:
                 col_three.update({k: v})
         kwargs.update(col_one=col_one, col_two=col_two, col_three=col_three)
         return super().get_context_data(**kwargs)
 
-    def get_section(self, app_config=None):
+    @staticmethod
+    def get_section(app_config=None):
         """Returns a dictionary for a single section.
 
         Format is {verbose_name: url_name}

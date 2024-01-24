@@ -1,18 +1,31 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Type
+
 from django.urls.conf import re_path
 from edc_constants.constants import UUID_PATTERN
 
 from .url_names import url_names
 
+if TYPE_CHECKING:
+    from django.urls import URLPattern
+    from django.views import View as BaseView
+
+    from .view_mixins import UrlRequestContextMixin
+
+    class View(UrlRequestContextMixin, BaseView):
+        ...
+
 
 class UrlConfig:
     def __init__(
         self,
-        url_name=None,
-        namespace=None,
-        view_class=None,
-        label=None,
-        identifier_label=None,
-        identifier_pattern=None,
+        url_name: str = None,
+        namespace: str = None,
+        view_class: Type[View | UrlRequestContextMixin] = None,
+        label: str = None,
+        identifier_label: str = None,
+        identifier_pattern: str = None,
     ):
         self.identifier_label = identifier_label
         self.identifier_pattern = identifier_pattern
@@ -24,61 +37,99 @@ class UrlConfig:
         url_names.register(url=self.url_name, namespace=namespace)
 
     @property
-    def dashboard_urls(self):
+    def dashboard_urls(self) -> list[URLPattern]:
         """Returns url patterns."""
         urlpatterns = [
             re_path(
-                f"{self.label}/"
-                f"(?P<{self.identifier_label}>{self.identifier_pattern})/"
+                "%(label)s/"
+                "(?P<%(identifier_label)s>%(identifier_pattern)s)/"
                 r"(?P<visit_schedule_name>\w+)/"
                 r"(?P<schedule_name>\w+)/"
                 r"(?P<visit_code>\w+)/"
-                r"(?P<unscheduled>\w+)/",
+                r"(?P<unscheduled>\w+)/"
+                % {
+                    "label": self.label,
+                    "identifier_label": self.identifier_label,
+                    "identifier_pattern": self.identifier_pattern,
+                },
                 self.view_class.as_view(),
                 name=self.url_name,
             ),
             re_path(
-                f"{self.label}/"
-                f"(?P<{self.identifier_label}>{self.identifier_pattern})/"
+                "%(label)s/"
+                "(?P<%(identifier_label)s>%(identifier_pattern)s)/"
                 r"(?P<visit_schedule_name>\w+)/"
                 r"(?P<schedule_name>\w+)/"
-                r"(?P<visit_code>\w+)/",
+                r"(?P<visit_code>\w+)/"
+                % dict(
+                    label=self.label,
+                    identifier_label=self.identifier_label,
+                    identifier_pattern=self.identifier_pattern,
+                ),
                 self.view_class.as_view(),
                 name=self.url_name,
             ),
             re_path(
-                f"{self.label}/"
-                f"(?P<{self.identifier_label}>{self.identifier_pattern})/"
-                f"(?P<appointment>{UUID_PATTERN.pattern})/"
+                "%(label)s/"
+                "(?P<%(identifier_label)s>%(identifier_pattern)s)/"
+                "(?P<appointment>%(uuid_pattern)s)/"
                 r"(?P<scanning>\d)/"
-                r"(?P<error>\d)/",
+                r"(?P<error>\d)/"
+                % dict(
+                    label=self.label,
+                    identifier_label=self.identifier_label,
+                    identifier_pattern=self.identifier_pattern,
+                    uuid_pattern=UUID_PATTERN.pattern,
+                ),
                 self.view_class.as_view(),
                 name=self.url_name,
             ),
             re_path(
-                f"{self.label}/"
-                f"(?P<{self.identifier_label}>{self.identifier_pattern})/"
-                f"(?P<appointment>{UUID_PATTERN.pattern})/"
-                r"(?P<reason>\w+)/",
+                "%(label)s/"
+                "(?P<%(identifier_label)s>%(identifier_pattern)s)/"
+                "(?P<appointment>%(uuid_pattern)s)/"
+                r"(?P<reason>\w+)/"
+                % dict(
+                    label=self.label,
+                    identifier_label=self.identifier_label,
+                    identifier_pattern=self.identifier_pattern,
+                    uuid_pattern=UUID_PATTERN.pattern,
+                ),
                 self.view_class.as_view(),
                 name=self.url_name,
             ),
             re_path(
-                f"{self.label}/"
-                f"(?P<{self.identifier_label}>{self.identifier_pattern})/"
-                f"(?P<appointment>{UUID_PATTERN.pattern})/",
+                "%(label)s/"
+                "(?P<%(identifier_label)s>%(identifier_pattern)s)/"
+                "(?P<appointment>%(uuid_pattern)s)/"
+                % dict(
+                    label=self.label,
+                    identifier_label=self.identifier_label,
+                    identifier_pattern=self.identifier_pattern,
+                    uuid_pattern=UUID_PATTERN.pattern,
+                ),
                 self.view_class.as_view(),
                 name=self.url_name,
             ),
             re_path(
-                f"{self.label}/"
-                f"(?P<{self.identifier_label}>{self.identifier_pattern})/"
-                r"(?P<schedule_name>\w+)/",
+                "%(label)s/"
+                "(?P<%(identifier_label)s>%(identifier_pattern)s)/"
+                r"(?P<schedule_name>\w+)/"
+                % dict(
+                    label=self.label,
+                    identifier_label=self.identifier_label,
+                    identifier_pattern=self.identifier_pattern,
+                ),
                 self.view_class.as_view(),
                 name=self.url_name,
             ),
             re_path(
-                f"{self.label}/" f"(?P<{self.identifier_label}>{self.identifier_pattern})/",
+                "%(label)s/(?P<%(identifier_label)s>%(identifier_pattern)s)/"
+                % dict(
+                    label=self.label,
+                    identifier_label=self.identifier_label,
+                    identifier_pattern=self.identifier_pattern,
+                ),
                 self.view_class.as_view(),
                 name=self.url_name,
             ),
@@ -86,40 +137,58 @@ class UrlConfig:
         return urlpatterns
 
     @property
-    def listboard_urls(self):
+    def listboard_urls(self) -> list[URLPattern]:
         """Returns url patterns.
 
         configs = [(listboard_url, listboard_view_class, label), (), ...]
         """
         urlpatterns = [
             re_path(
-                f"{self.label}/"
-                f"(?P<{self.identifier_label}>{self.identifier_pattern})/"
-                r"(?P<page>\d+)/",
+                "%(label)s/(?P<%(identifier_label)s>%(identifier_pattern)s)/"
+                r"(?P<page>\d+)/"
+                % dict(
+                    label=self.label,
+                    identifier_label=self.identifier_label,
+                    identifier_pattern=self.identifier_pattern,
+                ),
                 self.view_class.as_view(),
                 name=self.url_name,
             ),
             re_path(
-                f"{self.label}/" f"(?P<{self.identifier_label}>{self.identifier_pattern})/",
+                "%(label)s/(?P<%(identifier_label)s>%(identifier_pattern)s)/"
+                % dict(
+                    label=self.label,
+                    identifier_label=self.identifier_label,
+                    identifier_pattern=self.identifier_pattern,
+                ),
                 self.view_class.as_view(),
                 name=self.url_name,
             ),
             re_path(
-                f"{self.label}" + r"/(?P<page>\d+)/",
+                r"%(label)s/(?P<page>\d+)/" % dict(label=self.label),
                 self.view_class.as_view(),
                 name=self.url_name,
             ),
-            re_path(f"{self.label}/", self.view_class.as_view(), name=self.url_name),
+            re_path(
+                r"%(label)s/" % dict(label=self.label),
+                self.view_class.as_view(),
+                name=self.url_name,
+            ),
         ]
         return urlpatterns
 
     @property
-    def review_listboard_urls(self):
+    def review_listboard_urls(self) -> list[URLPattern]:
         url_patterns = [
             re_path(
-                f"{self.label}/"
-                f"(?P<{self.identifier_label}>{self.identifier_pattern})/"
-                f"(?P<appointment>{UUID_PATTERN.pattern})/",
+                "%(label)s/(?P<%(identifier_label)s>%(identifier_pattern)s)/"
+                "(?P<appointment>%(uuid_pattern)s)/"
+                % dict(
+                    label=self.label,
+                    identifier_label=self.identifier_label,
+                    identifier_pattern=self.identifier_pattern,
+                    uuid_pattern=UUID_PATTERN.pattern,
+                ),
                 self.view_class.as_view(),
                 name=self.url_name,
             )
