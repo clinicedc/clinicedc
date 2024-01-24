@@ -1,5 +1,7 @@
 from copy import deepcopy
 
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.test.testcases import TestCase
 from edc_action_item import site_action_items
 from edc_constants.constants import CLOSED, NOT_APPLICABLE, OPEN, OTHER, YES
@@ -16,9 +18,8 @@ from edc_protocol_incident.models import (
     ProtocolDeviationViolation,
     ProtocolViolations,
 )
-
-from ..action_items import ProtocolDeviationViolationAction
-from ..visit_schedule import visit_schedule
+from protocol_app.action_items import ProtocolDeviationViolationAction
+from protocol_app.visit_schedule import visit_schedule
 
 
 class TestProtocolViolation(TestCase):
@@ -38,6 +39,7 @@ class TestProtocolViolation(TestCase):
         action = ProtocolDeviationViolationAction(subject_identifier=self.subject_identifier)
         self.data = dict(
             action_identifier=action.action_item.action_identifier,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
 
     def test_deviation_open_ok(self):
