@@ -6,7 +6,6 @@ from django.contrib.sites.models import Site
 from django.db import models
 from django.db.models.deletion import PROTECT
 from django.template.loader import render_to_string
-from django.utils.functional import lazy
 from edc_constants.constants import NORMAL
 from edc_dashboard.utils import get_bootstrap_version
 from edc_model.models import BaseUuidModel, HistoricalRecords
@@ -190,7 +189,7 @@ class QueryRule(BaseUuidModel):
     rule_handler_name = models.CharField(
         max_length=150,
         default=DEFAULT_RULE_HANDLER,
-        choices=lazy(get_rule_handler_choices, tuple)(),
+        choices=(("do_nothing", "Do Nothing"), ("default", "Default")),
     )
 
     reference = models.CharField(max_length=36, default=uuid4, unique=True)
