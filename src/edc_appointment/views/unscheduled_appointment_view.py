@@ -7,6 +7,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic.base import View
 
 from ..creators import UnscheduledAppointmentCreator
+from ..creators.appointment_creator import CreateAppointmentError
 from ..exceptions import (
     AppointmentInProgressError,
     AppointmentPermissionsRequired,
@@ -46,6 +47,7 @@ class UnscheduledAppointmentView(View):
         try:
             creator = self.unscheduled_appointment_cls(**kw)
         except (
+            CreateAppointmentError,
             ObjectDoesNotExist,
             UnscheduledAppointmentError,
             InvalidParentAppointmentMissingVisitError,
@@ -67,7 +69,7 @@ class UnscheduledAppointmentView(View):
             messages.warning(
                 self.request,
                 format_html(
-                    "Remember to adjust the appointment date and time on " "appointment {}.",
+                    "Remember to adjust the appointment date and time on appointment {}.",
                     mark_safe(creator.appointment),  # nosec B308, B703
                 ),
             )
