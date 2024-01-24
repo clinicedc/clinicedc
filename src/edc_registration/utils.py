@@ -39,6 +39,9 @@ def get_registered_subject(
     except ObjectDoesNotExist:
         registered_subject = None
     if raise_exception and not registered_subject:
+        # the subject consent usually creates the registered subject
+        # instance. Check the model is declared with
+        # UpdatesOrCreatesRegistrationModelMixin
         raise RegisteredSubjectDoesNotExist(
             "Unknown subject. "
             f"Searched `{get_registered_subject_model_cls()._meta.label_lower}`. "
