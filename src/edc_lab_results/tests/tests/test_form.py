@@ -1,6 +1,8 @@
 from copy import deepcopy
 
 from django.apps import apps as django_apps
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.test import TestCase
 from edc_action_item import site_action_items
 from edc_appointment.models import Appointment
@@ -46,6 +48,7 @@ class TestBloodResultForm(TestCaseMixin, TestCase):
             action_identifier="-",
             results_reportable=NOT_APPLICABLE,
             results_abnormal=NO,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
 
     def test_fbc_ok(self):
@@ -143,6 +146,7 @@ class TestBloodResultFormForPoc(TestCaseMixin, TestCase):
             assay_datetime=self.subject_visit.report_datetime,
             results_reportable=NOT_APPLICABLE,
             results_abnormal=NO,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
 
     def test_is_poc_does_not_require_requisition(self):
