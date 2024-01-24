@@ -169,8 +169,10 @@ def death_report_queryset(
 
 
 @register.simple_tag
-def ae_followup_queryset(ae_initial: AeInitial = None) -> QuerySet[AeFollowup]:
-    return get_ae_model("aefollowup").objects.filter(ae_initial=ae_initial)
+def ae_followup_queryset(ae_initial: AeInitial = None) -> QuerySet[AeFollowup] | None:
+    if ae_initial:
+        return get_ae_model("aefollowup").objects.filter(ae_initial_id=ae_initial.id)
+    return None
 
 
 @register.inclusion_tag(
