@@ -1,8 +1,17 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 
+if TYPE_CHECKING:
+    from .models import ActionType
 
-def create_or_update_action_type(name=None, using=None, apps=None, **options):
+
+def create_or_update_action_type(
+    name: str = None, using: str = None, apps: django_apps = None, **options
+) -> ActionType:
     """Returns a model instance of ActionType.
 
     Gets or creates the ActionType on first pass.

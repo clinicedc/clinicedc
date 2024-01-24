@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
 from edc_constants.constants import CLOSED, NEW
 from tqdm import tqdm
 
@@ -68,3 +71,32 @@ def register_actions(*action_cls):
             site_action_items.register(cls)
         except AlreadyRegistered:
             pass
+
+
+def get_reference_obj(action_item: ActionItem | None):
+    """Returns the reference model instance or None."""
+    try:
+        reference_obj = action_item.reference_obj
+    except (AttributeError, ObjectDoesNotExist):
+        reference_obj = None
+    return reference_obj
+
+
+def get_parent_reference_obj(action_item: ActionItem | None):
+    """Returns the parent reference model instance or None."""
+    try:
+        reference_obj = action_item.parent_action_item.reference_obj
+    except (AttributeError, ObjectDoesNotExist):
+        reference_obj = None
+    return reference_obj
+
+
+def get_related_reference_obj(action_item: ActionItem | None):
+    """Returns the change url for the related reference
+    model instance or None.
+    """
+    try:
+        reference_obj = action_item.related_action_item.reference_obj
+    except (AttributeError, ObjectDoesNotExist):
+        reference_obj = None
+    return reference_obj

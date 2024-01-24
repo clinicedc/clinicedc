@@ -10,7 +10,7 @@ class ActionItemModelFormMixin:
         if self.action_cls:
             try:
                 action_cls(
-                    subject_identifier=self.subject_identifier,
+                    subject_identifier=self.get_subject_identifier(),
                     action_identifier=self.action_identifier,
                     related_action_item=self.related_action_item,
                     readonly=True,

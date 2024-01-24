@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase
-from edc_consent import site_consents
+from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
@@ -34,8 +34,7 @@ class TestCaseMixin(TestCase):
             "edc_visit_schedule.onschedule"
         )
         schedule.put_on_schedule(
-            subject_identifier=subject_consent.subject_identifier,
-            onschedule_datetime=subject_consent.consent_datetime,
+            subject_consent.subject_identifier, subject_consent.consent_datetime
         )
         return subject_identifier
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import sys
+from dataclasses import InitVar, dataclass, field
 from importlib import import_module
 from typing import TYPE_CHECKING, Type
 
@@ -13,7 +14,6 @@ from edc_notification import site_notifications
 from edc_prn.prn import Prn
 from edc_prn.site_prn_forms import AlreadyRegistered as PrnAlreadyRegistered
 from edc_prn.site_prn_forms import site_prn_forms
-from edc_sites.utils import InvalidSiteForSubjectError, valid_site_for_subject_or_raise
 
 from .create_or_update_action_type import create_or_update_action_type
 from .get_action_type import get_action_type
@@ -31,8 +31,14 @@ class SiteActionError(Exception):
     pass
 
 
-class Wrapper:
-    def __init__(self, action_cls: Type[Action] | Type[ActionWithNotification] = None):
+@dataclass
+class ActionButton:
+    action_cls: InitVar[Type[Action] | Type[ActionWithNotification]] = None
+    name: str = field(init=False)
+    display_name: str = field(init=False)
+    action_type_id: str = field(init=False)
+
+    def __post_init__(self, action_cls: Type[Action] | Type[ActionWithNotification]):
         self.name = action_cls.name
         self.display_name = action_cls.display_name
         self.action_type_id = str(get_action_type(action_cls).pk)
@@ -100,6 +106,10 @@ class SiteActionItemCollection:
             except NotificationAlreadyRegistered:
                 pass
 
+    @property
+    def all(self) -> dict[str, Type[Action] | Type[ActionWithNotification]]:
+        return self.registry
+
     def get(self, name) -> Type[Action] | Type[ActionWithNotification]:
         """Returns an action class."""
         if name not in self.registry:
@@ -116,15 +126,13 @@ class SiteActionItemCollection:
                 return self.get(action_cls.name)
         return None
 
-    def get_show_link_to_add_actions(self, subject_identifier: str = None) -> list[Wrapper]:
-        try:
-            valid_site_for_subject_or_raise(subject_identifier)
-        except InvalidSiteForSubjectError:
-            wrappers = []
-        else:
-            names = [v.name for v in self.registry.values() if v.show_link_to_add]
-            wrappers = [Wrapper(action_cls=self.get(name)) for name in names]
-        return wrappers
+    def get_add_actions_to_show(self) -> dict[str, Type[Action]]:
+        actions = {
+            action_cls.name: action_cls
+            for action_cls in self.registry.values()
+            if action_cls.show_link_to_add
+        }
+        return actions
 
     def create_or_update_action_types(self) -> None:
         """Populates the ActionType model."""

@@ -1,4 +1,5 @@
-{% load l10n %}
+{% load l10n i18n %}
+{% load action_item_extras %}
 {% comment %}
 
  	Renders a single list-item for a listgroup of action items.
@@ -12,51 +13,39 @@
 
 <a id="actionitem-{{action_identifier}}"
 tabindex="{{ tabindex }}"
-class="list-group-item list-group-item-{{ action_item_color }}"
+class="list-group-item list-group-item-{{ action_item.label_color }}"
 href="javascript://" data-toggle="popover" data-placement="auto" data-html="true" title="{{ popover_title|default:'Action Item'}}" role="button"
 data-content="
 <div class='list-group'>
-<div class='list-group-item list-group-item-default'><p><small>{{ action_identifier }}</small></p>
-<span class='label label-{% if status == OPEN %}info{% else %}default{% endif %}'>{{ status }}</span>
-<span class='label label-{% if priority == HIGH_PRIORITY %}danger{% else %}warning{% endif %}'>{{ priority|title }}</span>
-<h6>{{ display_name|default:'alert' }}</h6>
-<p class='text text-muted'>{{ action_item_reason|default:'---' }}</p>
-{% if action_instructions %}<p class='text text-muted'><small>{{ action_instructions|truncatechars:250 }}</small></p>{% endif %}
+<div class='list-group-item list-group-item-default'><p><small>{{ action_item.action_identifier }}</small></p>
+<span class='label label-{% if action_item.status == OPEN %}info{% elif action_item.status == NEW %}warning{% else %}default{% endif %}'>{{ action_item.get_status_display }}</span>
+<span class='label label-{% if action_item.priority == HIGH_PRIORITY %}danger{% else %}warning{% endif %}'>{{ action_item.get_priority_display|title }}</span>
+<h6>{{ action_item.display_name|default:'alert' }}</h6>
+<p class='text text-muted'>{% render_action_item_reason action_item %}</p>
+{% if action_item.instructions %}<p class='text text-muted'><small>{{ action_item.instructions|truncatechars:250 }}</small></p>{% endif %}
 <p class='text text-muted'>
-	<small>Opened on {{ report_datetime }}. {{ last_updated_text }}</small>
+	<small>{%  trans "Opened on" %} {{ report_datetime }}. {% if date_last_updated %}{% trans "Last updated on" %} {{date_last_updated}} {% if user_last_updated %}{% trans "by" %} {{user_last_updated}}{% endif %}{% else %}{% trans "This action item has not been updated." %}{% endif %}</small>
 </p>
 </div>
-{% if reference_url %}
-<a id='referencemodel-change-{{ action_identifier }}' class='list-group-item list-group-item-{{ action_item_color }}'
-	title='click to {% if reference_obj %}edit{% else %}add{% endif %}'
-	href='{{ reference_url }}'>
-	<span class='text text-default text-nowrap small'>{% if reference_obj %}<i class='fas fa-pencil-alt fa-fw' aria-hidden='true'></i>{% else %}<i class='fas fa-plus fa-fw' aria-hidden='true'></i>{% endif %} {{ reference_model_name }}</span>
-</a>
+
+{% render_popover_list_item  action_item=action_item action_item_type="reference" appointment=appointment %}
+
+{% if action_item.parent_reference_obj and action_item.related_reference_obj and action_item.parent_reference_obj.action_identifier == action_item.related_reference_obj.action_identifier  %}
+  {% render_popover_list_item  action_item=action_item action_item_type="parent" appointment=appointment %}
+{% else %}
+  {% if action_item.parent_reference_obj %}
+    {% render_popover_list_item  action_item=action_item action_item_type="parent" appointment=appointment %}
+  {% endif %}
+  {% if action_item.related_reference_obj %}
+    {% render_popover_list_item  action_item=action_item action_item_type="related" appointment=appointment %}
+  {% endif %}
 {% endif %}
 
-{% if parent_reference_url and parent_reference_model_name %}
-	<a 'parent-reference-change-{{ parent_action_item.action_identifier }}'
-		class='list-group-item list-group-item-default' href='{{ parent_reference_url }}' title='click to edit'>
-		<span class='text text-default small'><i class='fas fa-pencil-alt fa-fw' aria-hidden='true'></i> Previous {{ parent_reference_model_name }}</span>
-	</a>
-{% endif %}
-
-{% if related_reference_url and related_reference_model_name %}
-	<a 'related-reference-change-{{ related_action_item.action_identifier }}'
-		class='list-group-item list-group-item-default' href='{{ related_reference_url }}' title='click to edit'>
-		<span class='text text-default small'><i class='fas fa-pencil-alt fa-fw' aria-hidden='true'></i> Related {{ related_reference_model_name }}</span>
-	</a>
-{% endif %}
-
-<a 'actionitem-change-{{ action_identifier }}' class='list-group-item list-group-item-default' href='{{ href }}' title='click to edit'>
-	<span class='text text-default text-nowrap small'><i class='fas fa-pencil-alt fa-fw' aria-hidden='true'></i> Action item</span>
-</a>
-</div>
-<p><a title='close' class='btn btn-sm btn-primary pull-right'><i class='fas fa-times fa-fw' aria-hidden='true'></i></a><br></p>
+{% render_action_item_button  action_item=action_item label="Action item" color="default" appointment=appointment %}
 
 ">
 <i class="fas fa-caret-left" aria-hidden="true"></i>
-<span class="text text-{{ action_item_color }}" title="Click to see more ...">
-<small>{{ display_name }} {{ action_age }}</small>
+<span class="text text-{{ action_item_color }}" title="{% trans "Click to see more" %} ...">
+<small>{{ action_item.display_name }} {{ action_age }}</small>
 </span>
 </a>

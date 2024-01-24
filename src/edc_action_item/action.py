@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional, Type
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -19,6 +19,9 @@ from .create_action_item import SingletonActionItemError, create_action_item
 from .exceptions import ActionError
 from .get_action_type import get_action_type
 from .site_action_items import site_action_items
+
+if TYPE_CHECKING:
+    from .models import ActionItem, ActionType
 
 logger = logging.getLogger(__name__)
 style = color_style()
@@ -239,12 +242,12 @@ class Action:
             )
 
     @classmethod
-    def action_item_model_cls(cls):
+    def action_item_model_cls(cls) -> Type[ActionItem]:
         """Returns the ActionItem model class."""
         return django_apps.get_model(cls.action_item_model)
 
     @classmethod
-    def action_type_model_cls(cls):
+    def action_type_model_cls(cls) -> Type[ActionType]:
         """Returns the ActionType model class."""
         return django_apps.get_model(cls.action_type_model)
 

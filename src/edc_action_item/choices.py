@@ -15,4 +15,8 @@ ACTION_STATUS = (
     (CANCELLED, "Cancelled"),
 )
 
-PRIORITY = ((HIGH_PRIORITY, "High"), (MEDIUM_PRIORITY, "Medium"), (LOW_PRIORITY, "Low"))
+PRIORITY = (
+    (HIGH_PRIORITY, "High Priority"),
+    (MEDIUM_PRIORITY, "Medium Priority"),
+    (LOW_PRIORITY, "Low Priority"),
+)
