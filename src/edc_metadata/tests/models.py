@@ -29,6 +29,7 @@ from ..model_mixins.updates import (
     UpdatesCrfMetadataModelMixin,
     UpdatesRequisitionMetadataModelMixin,
 )
+from .consents import consent_v1
 
 
 class CrfModelMixin(VisitTrackingCrfModelMixin, SiteModelMixin, models.Model):
@@ -52,6 +53,7 @@ class DeathReport(UniqueSubjectIdentifierFieldMixin, BaseUuidModel):
 
 
 class SubjectScreening(ScreeningModelMixin, BaseUuidModel):
+    consent_definition = consent_v1
     objects = SubjectIdentifierManager()
 
 
