@@ -1,6 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django import forms
 
 from ..exceptions import ActionError
+
+if TYPE_CHECKING:
+    from ..action import Action
+    from ..models import ActionItem
 
 
 class ActionItemModelFormMixin:
@@ -22,29 +30,17 @@ class ActionItemModelFormMixin:
         return cleaned_data
 
     @property
-    def action_cls(self):
-        try:
-            action_cls = self._meta.model.get_action_cls()
-        except AttributeError:
-            action_cls = None
-        return action_cls
+    def action_cls(self) -> Action:
+        return self._meta.model.get_action_cls()
 
     @property
-    def action_identifier(self):
-        action_identifier = self.cleaned_data.get("action_identifier")
-        if not action_identifier:
-            try:
-                action_identifier = self.instance.action_identifier
-            except AttributeError:
-                action_identifier = None
-        return action_identifier
+    def action_identifier(self) -> str:
+        return self.cleaned_data.get("action_identifier") or getattr(
+            self.instance, "action_identifier", None
+        )
 
     @property
-    def related_action_item(self):
-        related_action_item = self.cleaned_data.get("related_action_item")
-        if not related_action_item:
-            try:
-                related_action_item = self.instance.related_action_item
-            except AttributeError:
-                related_action_item = None
-        return related_action_item
+    def related_action_item(self) -> ActionItem:
+        return self.cleaned_data.get("related_action_item") or getattr(
+            self.instance, "related_action_item", None
+        )
