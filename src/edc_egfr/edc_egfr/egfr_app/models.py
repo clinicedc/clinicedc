@@ -1,10 +1,15 @@
+from datetime import date
+
 from django.db import models
 from django.db.models import PROTECT
+from edc_consent.model_mixins import ConsentVersionModelMixin
 from edc_constants.choices import GENDER
+from edc_identifier.model_mixins import NonUniqueSubjectIdentifierModelMixin
 from edc_lab.model_mixins import PanelModelMixin
 from edc_lab_panel.panels import rft_panel
 from edc_lab_results.model_mixins import BloodResultsMethodsModelMixin
 from edc_model.models import BaseUuidModel
+from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_reportable import MICROMOLES_PER_LITER
 from edc_screening.model_mixins import ScreeningIdentifierModelMixin
 from edc_sites.model_mixins import SiteModelMixin
@@ -32,6 +37,22 @@ class SubjectScreening(ScreeningIdentifierModelMixin, BaseUuidModel):
         default=get_utcnow,
         help_text="Date and time of report.",
     )
+
+
+class SubjectConsent(
+    SiteModelMixin,
+    ConsentVersionModelMixin,
+    NonUniqueSubjectIdentifierModelMixin,
+    UpdatesOrCreatesRegistrationModelMixin,
+    BaseUuidModel,
+):
+    consent_datetime = models.DateTimeField(default=get_utcnow)
+
+    identity = models.CharField(max_length=25)
+
+    confirm_identity = models.CharField(max_length=25)
+
+    dob = models.DateField(default=date(1995, 1, 1))
 
 
 class SubjectRequisition(PanelModelMixin, BaseUuidModel):
