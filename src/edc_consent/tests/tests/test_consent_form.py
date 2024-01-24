@@ -187,7 +187,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(),
+            instance=SubjectConsent(site=subject_consent.site),
         )
         self.assertTrue(form.is_valid())
 
@@ -206,7 +206,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(),
+            instance=SubjectConsent(site=subject_consent.site),
         )
         form.is_valid()
         self.assertEqual(form._errors, {})
@@ -220,7 +220,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(),
+            instance=SubjectConsent(site=subject_consent.site),
         )
         form.is_valid()
         self.assertIn("consent_datetime", form._errors)
@@ -242,7 +242,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(),
+            instance=SubjectConsent(site=subject_consent.site),
         )
         form.is_valid()
         self.assertIn("identity", form._errors)
@@ -277,7 +277,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(),
+            instance=SubjectConsent(site=subject_consent.site),
         )
         form.is_valid()
         self.assertIn("identity", form._errors)
@@ -301,7 +301,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(),
+            instance=SubjectConsent(site=subject_consent.site),
         )
         form.is_valid()
         self.assertIn("guardian_name", form._errors)
@@ -325,7 +325,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(),
+            instance=SubjectConsent(site=subject_consent.site),
         )
         form.is_valid()
         self.assertEqual({}, form._errors)
@@ -351,7 +351,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(),
+            instance=SubjectConsent(site=subject_consent.site),
         )
         form.is_valid()
         self.assertIn("guardian_name", form._errors)
@@ -373,7 +373,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(),
+            instance=SubjectConsent(site=subject_consent.site),
         )
         form.is_valid()
         self.assertIn("dob", form._errors)
@@ -395,7 +395,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(),
+            instance=SubjectConsent(site=subject_consent.site),
         )
         form.is_valid()
         self.assertIn("dob", form._errors)
@@ -416,7 +416,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(),
+            instance=SubjectConsent(site=subject_consent.site),
         )
         form.is_valid()
         self.assertEqual({}, form._errors)
@@ -429,7 +429,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(),
+            instance=SubjectConsent(site=subject_consent.site),
         )
         form.is_valid()
         self.assertIn("gender", form._errors)
@@ -444,7 +444,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(),
+            instance=SubjectConsent(site=subject_consent.site),
         )
         form.is_valid()
         self.assertIn("witness_name", form._errors)
@@ -459,7 +459,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(),
+            instance=SubjectConsent(site=subject_consent.site),
         )
         form.is_valid()
         self.assertEqual({}, form._errors)
@@ -473,7 +473,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(),
+            instance=SubjectConsent(site=subject_consent.site),
         )
         form.is_valid()
         self.assertEqual({}, form._errors)
@@ -491,3 +491,18 @@ class TestConsentForm(TestCase):
         )
         form.is_valid()
         self.assertIn("identity", form._errors)
+
+    def test_current_site(self):
+        subject_consent = self.prepare_subject_consent(
+            identity="1", confirm_identity="1", screening_identifier="LOPIKKKK"
+        )
+        opts = SubjectConsentForm._meta
+        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
+        form = SubjectConsentForm(
+            data=data,
+            initial=dict(screening_identifier=data.get("screening_identifier")),
+            instance=SubjectConsent(),
+        )
+        form.is_valid()
+        self.assertEqual({}, form._errors)
+        form.save(commit=True)

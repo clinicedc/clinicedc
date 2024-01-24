@@ -6,6 +6,7 @@ from typing import Any
 from django.conf import settings
 from edc_form_validators import INVALID_ERROR
 from edc_screening.form_validator_mixins import SubjectScreeningFormValidatorMixin
+from edc_sites.site import sites
 from edc_utils import AgeValueError, age
 from edc_utils.date import to_local, to_utc
 from edc_utils.text import convert_php_dateformat
@@ -43,7 +44,9 @@ class SubjectConsentFormValidatorMixin(SubjectScreeningFormValidatorMixin):
 
     @property
     def consent_model_cls(self):
-        cdef = site_consents.get_consent_definition(model=self.consent_model)
+        cdef = site_consents.get_consent_definition(
+            model=self.consent_model, site=sites.get(self.instance.site.id)
+        )
         return cdef.model_cls
 
     def validate_demographics(self) -> None:

@@ -5,8 +5,10 @@ from edc_constants.constants import FEMALE
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierModelMixin
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
+from edc_sites.managers import CurrentSiteManager
 from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
+from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 
 from edc_consent.field_mixins import (
     CitizenFieldsMixin,
@@ -18,7 +20,7 @@ from edc_consent.field_mixins import (
 from edc_consent.model_mixins import ConsentModelMixin, RequiresConsentFieldsModelMixin
 
 
-class SubjectScreening(models.Model):
+class SubjectScreening(SiteModelMixin, BaseUuidModel):
     screening_identifier = models.CharField(max_length=25, unique=True)
 
     initials = models.CharField(max_length=5, default="TO")
@@ -36,6 +38,10 @@ class SubjectScreening(models.Model):
     eligible = models.BooleanField(default=False)
 
     eligibility_datetime = models.DateTimeField()
+
+    objects = models.Manager()
+    on_site = CurrentSiteManager()
+    history = HistoricalRecords()
 
     class Meta:
         pass
@@ -105,8 +111,11 @@ class SubjectConsent2(
         pass
 
 
-class SubjectVisit(SiteModelMixin, BaseUuidModel):
+class SubjectVisit(
+    SiteModelMixin, RequiresConsentFieldsModelMixin, VisitScheduleModelMixin, BaseUuidModel
+):
     subject_identifier = models.CharField(max_length=25)
+    report_datetime = models.DateTimeField(default=get_utcnow)
 
     # appointment = models.OneToOneField(Appointment, on_delete=CASCADE)
     # history = HistoricalRecords()
@@ -114,12 +123,24 @@ class SubjectVisit(SiteModelMixin, BaseUuidModel):
 
 
 class TestModel(
-    NonUniqueSubjectIdentifierModelMixin, RequiresConsentFieldsModelMixin, BaseUuidModel
+    NonUniqueSubjectIdentifierModelMixin,
+    RequiresConsentFieldsModelMixin,
+    SiteModelMixin,
+    BaseUuidModel,
 ):
     report_datetime = models.DateTimeField(default=get_utcnow)
 
 
-class CrfOne(NonUniqueSubjectIdentifierModelMixin, BaseUuidModel):
+class CrfOne(
+    RequiresConsentFieldsModelMixin,
+    NonUniqueSubjectIdentifierModelMixin,
+    SiteModelMixin,
+    BaseUuidModel,
+):
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     report_datetime = models.DateTimeField(default=get_utcnow)
+
+    @property
+    def related_visit(self):
+        return self.subject_visit

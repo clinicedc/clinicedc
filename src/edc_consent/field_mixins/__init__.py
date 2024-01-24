@@ -7,3 +7,17 @@ from .scored_review_fields_mixin import ScoredReviewFieldsMixin
 from .site_fields_mixin import SiteFieldsMixin
 from .verification_fields_mixin import VerificationFieldsMixin
 from .vulnerability_fields_mixin import VulnerabilityFieldsMixin
+
+__all__ = [
+    "CitizenFieldsMixin",
+    "FullNamePersonalFieldsMixin",
+    "IdentityFieldsMixin",
+    "IdentityFieldsMixinError",
+    "PersonalFieldsMixin",
+    "ReviewFieldsMixin",
+    "SampleCollectionFieldsMixin",
+    "ScoredReviewFieldsMixin",
+    "SiteFieldsMixin",
+    "VerificationFieldsMixin",
+    "VulnerabilityFieldsMixin",
+]

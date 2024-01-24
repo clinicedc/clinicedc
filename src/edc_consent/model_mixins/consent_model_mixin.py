@@ -10,18 +10,27 @@ from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.managers import CurrentSiteManager
 from edc_utils import age, formatted_age
 
-from ..consent_helper import ConsentHelper
 from ..field_mixins import VerificationFieldsMixin
 from ..managers import ConsentManager, ObjectConsentManager
+from .consent_version_model_mixin import ConsentVersionModelMixin
 
 
-class ConsentModelMixin(VerificationFieldsMixin, models.Model):
+class ConsentModelMixin(ConsentVersionModelMixin, VerificationFieldsMixin, models.Model):
     """Mixin for a Consent model class such as SubjectConsent.
 
     Declare with edc_identifier's NonUniqueSubjectIdentifierModelMixin
     """
 
-    consent_helper_cls = ConsentHelper
+    model_name = models.CharField(
+        verbose_name="model",
+        max_length=50,
+        help_text=(
+            "label_lower of this model class. Will be different if "
+            "instance has been added/edited via a proxy model"
+        ),
+        null=True,
+        editable=False,
+    )
 
     consent_datetime = models.DateTimeField(
         verbose_name="Consent date and time",
@@ -29,15 +38,6 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
     )
 
     report_datetime = models.DateTimeField(null=True, editable=False)
-
-    version = models.CharField(
-        verbose_name="Consent version",
-        max_length=10,
-        help_text="See 'Consent Type' for consent versions by period.",
-        editable=False,
-    )
-
-    updates_versions = models.BooleanField(default=False)
 
     sid = models.CharField(
         verbose_name="SID",
@@ -74,57 +74,22 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
         return f"{self.get_subject_identifier()} v{self.version}"
 
     def natural_key(self):
-        return (self.get_subject_identifier_as_pk(),)  # noqa
+        return (self.get_subject_identifier_as_pk(),)
 
     def save(self, *args, **kwargs):
+        if not self.id:
+            self.model_name = self._meta.label_lower
         self.report_datetime = self.consent_datetime
-        helper = self.get_consent_helper()
-        self.version = helper.version
-        self.updates_versions = True if helper.updates_versions else False
         super().save(*args, **kwargs)
-
-    def get_consent_helper(self):
-        """Returns a consent helper instance"""
-        return self.consent_helper_cls(
-            model_cls=self.__class__, update_previous=True, **self.__dict__
-        )
-
-    def get_subject_identifier(self):
-        """Returns the subject_identifier"""
-        try:
-            return self.subject_identifier  # noqa
-        except AttributeError as e:
-            if "subject_identifier" in str(e):
-                raise NotImplementedError(f"Missing model mixin. Got `{str(e)}`.")
-            raise
-
-    def get_subject_identifier_as_pk(self):
-        """Returns the subject_identifier_as_pk"""
-        try:
-            return self.subject_identifier_as_pk  # noqa
-        except AttributeError as e:
-            if "subject_identifier_as_pk" in str(e):
-                raise NotImplementedError(f"Missing model mixin. Got `{str(e)}`.")
-            raise
 
     def get_dob(self):
         """Returns the date of birth"""
-        try:
-            return self.dob  # noqa
-        except AttributeError as e:
-            if "dob" in str(e):
-                raise NotImplementedError(f"Missing model mixin. Got `{str(e)}`.")
-            raise
+        return self.dob
 
     @property
     def age_at_consent(self):
         """Returns a relativedelta."""
-        try:
-            return age(self.get_dob(), self.consent_datetime)
-        except AttributeError as e:
-            if "dob" in str(e):
-                raise NotImplementedError(f"Missing model mixin. Got `{str(e)}`.")
-            raise
+        return age(self.get_dob(), self.consent_datetime)
 
     @property
     def formatted_age_at_consent(self):

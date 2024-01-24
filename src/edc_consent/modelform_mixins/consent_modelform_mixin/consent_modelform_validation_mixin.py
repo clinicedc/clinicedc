@@ -7,31 +7,39 @@ from dateutil.relativedelta import relativedelta
 from django import forms
 from edc_constants.constants import NO, YES
 from edc_model_form.utils import get_field_or_raise
+from edc_sites.site import sites as site_sites
 from edc_utils import AgeValueError, age, formatted_age
 
-from ...site_consents import (
-    ConsentDefinitionDoesNotExist,
-    SiteConsentError,
-    site_consents,
-)
+from ...exceptions import SiteConsentError
+from ...site_consents import ConsentDefinitionDoesNotExist, site_consents
 from ...utils import InvalidInitials, verify_initials_against_full_name
 
 if TYPE_CHECKING:
     from ...consent_definition import ConsentDefinition
 
 
-class CustomValidationMixin:
-    """Form for models that are a subclass of BaseConsent."""
+class ConsentModelFormValidationMixin:
+    """A mixin for the consent ModelForm consisting of validation
+    methods other than django clean field methods.
+
+    Used by ConsentModelFormMixin.
+
+    See also: CleanFieldsModelFormValidationMixin
+    """
 
     @property
     def consent_definition(self) -> ConsentDefinition:
         """Returns a ConsentDefinition instance or raises on
         missing data.
         """
+        current_site_id = getattr(
+            self.instance.site, "id", site_sites.get_current_site().site_id
+        )
         try:
             consent_definition = site_consents.get_consent_definition(
                 model=self._meta.model._meta.label_lower,
                 report_datetime=self.consent_datetime,
+                site=site_sites.get(current_site_id),
             )
         except (ConsentDefinitionDoesNotExist, SiteConsentError) as e:
             raise forms.ValidationError(e)

@@ -4,15 +4,17 @@ from typing import TYPE_CHECKING
 
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist
+from edc_sites import site_sites
 from edc_utils import floor_secs, formatted_date, formatted_datetime
 from edc_utils.date import to_local, to_utc
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from .. import ConsentDefinitionDoesNotExist
-from ..site_consents import site_consents
-from ..utils import get_consent_model_name
+from ..exceptions import ConsentDefinitionDoesNotExist
 
 if TYPE_CHECKING:
     from ..model_mixins import ConsentModelMixin
+
+__all__ = ["RequiresConsentModelFormMixin"]
 
 
 class RequiresConsentModelFormMixin:
@@ -52,14 +54,24 @@ class RequiresConsentModelFormMixin:
 
     @property
     def consent_model(self) -> str:
-        return get_consent_model_name()
+        return site_visit_schedules.get_consent_model(
+            visit_schedule_name=self.visit_schedule_name,
+            schedule_name=self.schedule_name,
+            site=site_sites.get(self.site.id),
+        )
 
     def get_consent_or_raise(self) -> ConsentModelMixin:
         """Return an instance of the consent model"""
-        cdef = site_consents.get_consent_definition(
-            model=self.consent_model,
-            report_datetime=self.report_datetime,
-        )
+        if getattr(self, "related_visit", None):
+            cdef = self.related_visit.schedule.get_consent_definition(
+                site=site_sites.get(self.site.id),
+                report_datetime=self.report_datetime,
+            )
+        else:
+            cdef = self.schedule.get_consent_definition(
+                site=site_sites.get(self.site.id),
+                report_datetime=self.report_datetime,
+            )
         try:
             obj = cdef.get_consent_for(
                 subject_identifier=self.get_subject_identifier(),
