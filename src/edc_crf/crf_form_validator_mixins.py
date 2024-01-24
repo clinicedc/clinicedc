@@ -42,14 +42,12 @@ class BaseFormValidatorMixin(ReportDatetimeFormValidatorMixin):
         See also: modelform (self.get_consent_definition_or_raise())
         """
         consent_definition = None
-        site_id = self.cleaned_data.get("site") or getattr(
-            self.instance.site, "id", self.current_site
-        )
+        site = self.cleaned_data.get("site") or self.instance.site or self.current_site
 
         try:
             consent_definition = site_consents.get_consent_definition(
                 report_datetime=self.report_datetime,
-                site=site_sites.get(site_id),
+                site=site_sites.get(site.id),
             )
         except ConsentDefinitionDoesNotExist as e:
             self.raise_validation_error(str(e), INVALID_ERROR)
