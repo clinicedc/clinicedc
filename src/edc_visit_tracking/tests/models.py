@@ -19,6 +19,7 @@ from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleMod
 from edc_visit_tracking.models import SubjectVisit
 
 from ..model_mixins import VisitTrackingCrfModelMixin
+from .consents import consent_v1
 
 list_data = {
     "edc_visit_tracking.subjectvisitmissedreasons": [
@@ -35,6 +36,7 @@ list_data = {
 
 
 class SubjectScreening(ScreeningModelMixin, BaseUuidModel):
+    consent_definition = consent_v1
     objects = SubjectIdentifierManager()
 
 
