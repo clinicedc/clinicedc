@@ -26,6 +26,8 @@ class LocatorModelMixin(
 
     """A model completed by the user to that captures participant
     locator information and permission to contact.
+
+    This model is used in ListboardViews.
     """
 
     report_datetime = models.DateTimeField(default=get_utcnow)
