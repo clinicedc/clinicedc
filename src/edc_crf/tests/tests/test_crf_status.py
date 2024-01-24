@@ -1,15 +1,15 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
-from edc_consent import site_consents
+from edc_consent.site_consents import site_consents
 from edc_constants.constants import COMPLETE, INCOMPLETE
 from edc_facility import import_holidays
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.tests.helper import Helper
-from visit_schedule_app.consents import v1_consent
-from visit_schedule_app.models import SubjectConsent, SubjectVisit
+from visit_schedule_app.consents import consent_v1
+from visit_schedule_app.models import SubjectVisit
 
 from edc_crf.models import CrfStatus
 
@@ -32,15 +32,14 @@ class CrfTestCase(TestCase):
     def setUp(self):
         self.subject_identifier = "12345"
         site_consents.registry = {}
-        site_consents.register(v1_consent)
-        self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier,
-            subject_consent_model_cls=SubjectConsent,
-            onschedule_model_name="visit_schedule_app.onschedule",
-        )
+        site_consents.register(consent_v1)
+        self.helper = self.helper_cls(subject_identifier=self.subject_identifier)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule)
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
+        )
         appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         self.subject_visit = SubjectVisit.objects.create(
             appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED

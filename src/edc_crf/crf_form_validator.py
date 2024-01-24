@@ -7,8 +7,10 @@ from typing import TYPE_CHECKING
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from edc_appointment.form_validator_mixins import WindowPeriodFormValidatorMixin
+from edc_consent import ConsentDefinitionDoesNotExist
 from edc_form_validators import INVALID_ERROR, FormValidator
 from edc_registration import get_registered_subject_model_cls
+from edc_sites import site_sites
 from edc_utils import floor_secs, formatted_datetime, to_utc
 from edc_visit_tracking.modelform_mixins import get_related_visit
 
@@ -16,6 +18,7 @@ from .crf_form_validator_mixins import CrfFormValidatorMixin
 
 if TYPE_CHECKING:
     from edc_appointment.models import Appointment
+    from edc_consent.consent_definition import ConsentDefinition
     from edc_visit_tracking.model_mixins import VisitModelMixin
 
 
@@ -37,6 +40,7 @@ class CrfFormValidator(
 
     def _clean(self) -> None:
         self.validate_crf_report_datetime()
+        self.get_consent_definition_or_raise()
         super()._clean()
 
     @property
@@ -57,21 +61,21 @@ class CrfFormValidator(
     def dob(self):
         return self.registered_subject.dob
 
-    def get_consent_for_period_or_raise(self):
-        """Assert falls within a valid consent period
-
-        See also: modelform (self.get_consent_for_period_or_raise())
-        """
-        pass
+    def get_consent_definition_or_raise(self) -> ConsentDefinition:
+        consent_definition = None
+        try:
+            consent_definition = self.related_visit.schedule.get_consent_definition(
+                site=site_sites.get(self.related_visit.site.id),
+                report_datetime=self.report_datetime,
+            )
+        except ConsentDefinitionDoesNotExist as e:
+            self.raise_validation_error(str(e), INVALID_ERROR)
+        return consent_definition
 
     def validate_crf_report_datetime(self) -> None:
         if self.report_datetime:
             # falls within appointment's window period
             self.validate_crf_datetime_in_window_period()
-
-            # falls within a valid consent period
-            self.get_consent_for_period_or_raise()
-
             # not before consent date
             if floor_secs(self.report_datetime) < floor_secs(self.consent_datetime):
                 msg = _("Invalid. Cannot be before date of consent. Participant consent on")

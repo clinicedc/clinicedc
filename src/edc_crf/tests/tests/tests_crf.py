@@ -1,7 +1,9 @@
 from django import forms
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
-from edc_consent import site_consents
+from edc_consent.site_consents import site_consents
 from edc_constants.constants import INCOMPLETE
 from edc_facility import import_holidays
 from edc_form_validators import FormValidator, FormValidatorMixin
@@ -9,12 +11,12 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.tests.helper import Helper
-from visit_schedule_app.consents import v1_consent
-from visit_schedule_app.models import SubjectConsent, SubjectScreening, SubjectVisit
+from visit_schedule_app.models import SubjectScreening, SubjectVisit
 
 from edc_crf.crf_form_validator_mixins import CrfFormValidatorMixin
 from edc_crf.modelform_mixins import CrfModelFormMixin
 
+from ..consents import consent_v1
 from ..models import Crf
 from ..visit_schedule import visit_schedule
 
@@ -39,15 +41,16 @@ class CrfTestCase(TestCase):
         )
         self.subject_identifier = "12345"
         site_consents.registry = {}
-        site_consents.register(v1_consent)
+        site_consents.register(consent_v1)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
-            subject_consent_model_cls=SubjectConsent,
-            onschedule_model_name="visit_schedule_app.onschedule",
         )
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule)
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
+        )
         appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         self.subject_visit = SubjectVisit.objects.create(
             appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
@@ -78,6 +81,7 @@ class CrfTestCase(TestCase):
             report_datetime=self.subject_visit.report_datetime,
             subject_visit=self.subject_visit,
             crf_status=INCOMPLETE,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = MyForm(data=data)
         form.is_valid()
@@ -88,6 +92,7 @@ class CrfTestCase(TestCase):
             report_datetime=None,
             subject_visit=self.subject_visit,
             crf_status=INCOMPLETE,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = MyForm(data=data)
         form.is_valid()
@@ -97,6 +102,7 @@ class CrfTestCase(TestCase):
         data = dict(
             subject_visit=self.subject_visit,
             crf_status=INCOMPLETE,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = MyForm(data=data)
         form.is_valid()
@@ -112,6 +118,7 @@ class CrfTestCase(TestCase):
             report_datetime=self.subject_visit.report_datetime,
             subject_visit=self.subject_visit,
             crf_status=INCOMPLETE,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = MyForm(data=data)
         form.is_valid()
@@ -139,6 +146,7 @@ class CrfTestCase(TestCase):
             report_datetime=self.subject_visit.report_datetime,
             subject_visit=self.subject_visit,
             crf_status=INCOMPLETE,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = MyForm(data=data)
         form.is_valid()
