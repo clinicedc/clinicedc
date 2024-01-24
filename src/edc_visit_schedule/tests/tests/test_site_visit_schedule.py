@@ -7,7 +7,7 @@ from edc_visit_schedule.site_visit_schedules import (
     site_visit_schedules,
 )
 from edc_visit_schedule.visit_schedule import VisitSchedule
-from visit_schedule_app.consents import v1_consent
+from visit_schedule_app.consents import consent_v1
 from visit_schedule_app.models import OffSchedule, OnSchedule
 
 
@@ -33,7 +33,7 @@ class TestSiteVisitSchedule(TestCase):
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
-            consent_definitions=[v1_consent],
+            consent_definitions=[consent_v1],
             base_timepoint=1,
         )
         self.visit_schedule.add_schedule(schedule)
@@ -59,7 +59,7 @@ class TestSiteVisitSchedule1(TestCase):
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
-            consent_definitions=[v1_consent],
+            consent_definitions=[consent_v1],
             base_timepoint=1,
         )
 
@@ -77,7 +77,7 @@ class TestSiteVisitSchedule1(TestCase):
             onschedule_model="visit_schedule_app.onscheduletwo",
             offschedule_model="visit_schedule_app.offscheduletwo",
             appointment_model="edc_appointment.appointment",
-            consent_definitions=[v1_consent],
+            consent_definitions=[consent_v1],
             base_timepoint=1,
         )
 

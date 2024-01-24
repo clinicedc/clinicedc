@@ -14,7 +14,7 @@ from edc_visit_schedule.site_visit_schedules import (
     RegistryNotLoaded,
     site_visit_schedules,
 )
-from visit_schedule_app.consents import v1_consent
+from visit_schedule_app.consents import consent_v1
 from visit_schedule_app.models import (
     BadOffSchedule1,
     CrfOne,
@@ -53,7 +53,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
         site_visit_schedules.register(visit_schedule)
         self.subject_identifier = "1234"
         site_consents.registry = {}
-        site_consents.register(v1_consent)
+        site_consents.register(consent_v1)
 
     def test_str(self):
         SubjectConsent.objects.create(subject_identifier=self.subject_identifier)

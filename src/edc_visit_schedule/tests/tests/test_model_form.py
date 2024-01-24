@@ -6,7 +6,7 @@ from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
 
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from visit_schedule_app.consents import v1_consent
+from visit_schedule_app.consents import consent_v1
 from visit_schedule_app.forms import OffScheduleForm
 from visit_schedule_app.models import OnSchedule, SubjectConsent
 from visit_schedule_app.visit_schedule import visit_schedule
@@ -28,7 +28,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
         site_visit_schedules.register(visit_schedule)
         self.subject_identifier = "1234"
         site_consents.registry = {}
-        site_consents.register(v1_consent)
+        site_consents.register(consent_v1)
 
     @tag("2")
     def test_offschedule_ok(self):

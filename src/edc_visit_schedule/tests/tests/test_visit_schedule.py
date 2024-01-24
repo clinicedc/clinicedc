@@ -33,7 +33,7 @@ from edc_visit_schedule.visit_schedule import (
     VisitSchedule,
     VisitScheduleNameError,
 )
-from visit_schedule_app.consents import v1_consent
+from visit_schedule_app.consents import consent_v1
 from visit_schedule_app.models import (
     OffSchedule,
     OnSchedule,
@@ -55,7 +55,7 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
 
     def setUp(self):
         super().setUp()
-        v1_consent = ConsentDefinition(
+        consent_v1 = ConsentDefinition(
             "visit_schedule_app.subjectconsent",
             version="1",
             start=Protocol().study_open_datetime,
@@ -66,7 +66,7 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
             gender=[MALE, FEMALE],
         )
         site_consents.registry = {}
-        site_consents.register(v1_consent)
+        site_consents.register(consent_v1)
 
     def test_visit_schedule_name(self):
         """Asserts raises on invalid name."""
@@ -116,7 +116,7 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
 
     def setUp(self):
         site_consents.registry = {}
-        site_consents.register(v1_consent)
+        site_consents.register(consent_v1)
 
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
@@ -131,7 +131,7 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
-            consent_definitions=v1_consent,
+            consent_definitions=consent_v1,
         )
 
         self.schedule2 = Schedule(
@@ -139,7 +139,7 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
             onschedule_model="visit_schedule_app.onscheduletwo",
             offschedule_model="visit_schedule_app.offscheduletwo",
             appointment_model="edc_appointment.appointment",
-            consent_definitions=v1_consent,
+            consent_definitions=consent_v1,
         )
 
         self.schedule3 = Schedule(
@@ -147,7 +147,7 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
             onschedule_model="visit_schedule_app.onschedulethree",
             offschedule_model="visit_schedule_app.offschedulethree",
             appointment_model="edc_appointment.appointment",
-            consent_definitions=v1_consent,
+            consent_definitions=consent_v1,
         )
 
     def test_visit_schedule_add_schedule(self):
@@ -206,7 +206,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
-            consent_definitions=v1_consent,
+            consent_definitions=consent_v1,
             base_timepoint=1,
         )
 

@@ -13,7 +13,7 @@ from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.view_mixins import VisitScheduleViewMixin
 from edc_visit_schedule.visit_schedule import VisitSchedule
-from visit_schedule_app.consents import v1_consent
+from visit_schedule_app.consents import consent_v1
 from visit_schedule_app.models import OnSchedule, SubjectConsent
 
 
@@ -33,7 +33,7 @@ class MyViewCurrent(VisitScheduleViewMixin, ContextMixin):
 class TestViewMixin(SiteTestCaseMixin, TestCase):
     def setUp(self):
         site_consents.registry = {}
-        site_consents.register(v1_consent)
+        site_consents.register(consent_v1)
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
@@ -45,14 +45,14 @@ class TestViewMixin(SiteTestCaseMixin, TestCase):
             name="schedule",
             onschedule_model="visit_schedule_app.OnSchedule",
             offschedule_model="visit_schedule_app.OffSchedule",
-            consent_definitions=[v1_consent],
+            consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
         self.schedule3 = Schedule(
             name="schedule_three",
             onschedule_model="visit_schedule_app.OnScheduleThree",
             offschedule_model="visit_schedule_app.OffScheduleThree",
-            consent_definitions=[v1_consent],
+            consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
 
