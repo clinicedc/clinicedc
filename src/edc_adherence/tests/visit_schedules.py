@@ -3,6 +3,8 @@ from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.visit import Crf, CrfCollection, Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
 
+from edc_adherence.tests.consents import consent_v1
+
 crfs = CrfCollection(
     Crf(show_order=1, model="edc_adherence.medicationadherence", required=True)
 )
@@ -27,7 +29,7 @@ schedule = Schedule(
     onschedule_model="edc_adherence.onschedule",
     offschedule_model="edc_adherence.offschedule",
     appointment_model="edc_appointment.appointment",
-    consent_model="edc_adherence.subjectconsent",
+    consent_definitions=[consent_v1],
 )
 
 visit_schedule = VisitSchedule(

@@ -1,11 +1,14 @@
 from django.db import models
 from django.db.models import PROTECT
 from edc_appointment.models import Appointment
+from edc_consent.model_mixins.consent_version_model_mixin import (
+    ConsentVersionModelMixin,
+)
 from edc_crf.model_mixins import CrfModelMixin, CrfWithActionModelMixin
 from edc_identifier.managers import SubjectIdentifierManager
+from edc_identifier.model_mixins import NonUniqueSubjectIdentifierModelMixin
 from edc_list_data.model_mixins import ListModelMixin
 from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
-from edc_model import models as edc_models
 from edc_model.models import BaseUuidModel
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_screening.model_mixins import ScreeningModelMixin
@@ -18,37 +21,47 @@ from edc_visit_tracking.model_mixins import (
 )
 
 from edc_adherence.model_mixins import MedicationAdherenceModelMixin
+from edc_adherence.tests.consents import consent_v1
 
 
-class DeathReport(edc_models.BaseUuidModel):
+class DeathReport(BaseUuidModel):
     subject_identifier = models.CharField(max_length=50)
 
 
-class OffStudy(edc_models.BaseUuidModel):
+class OffStudy(BaseUuidModel):
     subject_identifier = models.CharField(max_length=50)
 
     offstudy_datetime = models.DateTimeField(default=get_utcnow)
 
 
 class SubjectScreening(ScreeningModelMixin, BaseUuidModel):
+    consent_definition = consent_v1
     objects = SubjectIdentifierManager()
 
 
-class SubjectConsent(UpdatesOrCreatesRegistrationModelMixin, edc_models.BaseUuidModel):
+class SubjectConsent(
+    SiteModelMixin,
+    ConsentVersionModelMixin,
+    NonUniqueSubjectIdentifierModelMixin,
+    UpdatesOrCreatesRegistrationModelMixin,
+    BaseUuidModel,
+):
     subject_identifier = models.CharField(max_length=50)
 
     consent_datetime = models.DateTimeField()
 
     dob = models.DateTimeField(null=True)
 
+    version = models.CharField(max_length=10)
 
-class OnSchedule(SiteModelMixin, edc_models.BaseUuidModel):
+
+class OnSchedule(SiteModelMixin, BaseUuidModel):
     subject_identifier = models.CharField(max_length=50)
 
     onschedule_datetime = models.DateTimeField(default=get_utcnow)
 
 
-class OffSchedule(SiteModelMixin, edc_models.BaseUuidModel):
+class OffSchedule(SiteModelMixin, BaseUuidModel):
     subject_identifier = models.CharField(max_length=50)
 
     offschedule_datetime = models.DateTimeField(default=get_utcnow)
@@ -92,9 +105,7 @@ class SubjectVisitMissed(
         verbose_name_plural = "Missed Visit Report"
 
 
-class MedicationAdherence(
-    MedicationAdherenceModelMixin, CrfModelMixin, edc_models.BaseUuidModel
-):
-    class Meta(CrfModelMixin.Meta, edc_models.BaseUuidModel.Meta):
+class MedicationAdherence(MedicationAdherenceModelMixin, CrfModelMixin, BaseUuidModel):
+    class Meta(CrfModelMixin.Meta, BaseUuidModel.Meta):
         verbose_name = "Medication Adherence"
         verbose_name_plural = "Medication Adherence"
