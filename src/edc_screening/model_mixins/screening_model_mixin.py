@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from django.db import models
+from edc_consent.model_mixins import ConsentDefinitionModelMixin
 from edc_model.models import HistoricalRecords
 from edc_search.model_mixins import SearchSlugManager
 from edc_sites.managers import CurrentSiteManager
@@ -20,6 +23,7 @@ class ScreeningModelMixin(
     ScreeningMethodsModeMixin,
     ScreeningIdentifierModelMixin,
     ScreeningFieldsModeMixin,
+    ConsentDefinitionModelMixin,
     models.Model,
 ):
 
