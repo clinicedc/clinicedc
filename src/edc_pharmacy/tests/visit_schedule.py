@@ -1,12 +1,13 @@
 from dateutil.relativedelta import relativedelta
-from edc_consent.utils import get_consent_model_name
 from edc_visit_schedule.schedule import Schedule
-from edc_visit_schedule.visit import Crf, FormsCollection, Visit
+from edc_visit_schedule.visit import Crf, CrfCollection, Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
+
+from edc_pharmacy.tests.consents import consent_v1
 
 app_label = "edc_pharmacy"
 
-crfs = FormsCollection(
+crfs = CrfCollection(
     Crf(show_order=1, model=f"{app_label}.studymedication", required=True),
 )
 
@@ -49,7 +50,7 @@ schedule = Schedule(
     name="schedule",
     onschedule_model="edc_pharmacy.onschedule",
     offschedule_model="edc_pharmacy.offschedule",
-    consent_model=get_consent_model_name(),
+    consent_definitions=[consent_v1],
     appointment_model="edc_appointment.appointment",
 )
 

@@ -1,7 +1,11 @@
+from datetime import date
+
 from django.db import models
 from edc_crf.model_mixins import CrfModelMixin
 from edc_identifier.managers import SubjectIdentifierManager
+from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel
+from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_screening.model_mixins import ScreeningModelMixin
 from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
@@ -10,20 +14,31 @@ from edc_visit_tracking.model_mixins import VisitModelMixin
 
 from edc_pharmacy.model_mixins import StudyMedicationCrfModelMixin
 
+from .consents import consent_v1
+
+
+class SubjectConsent(
+    SiteModelMixin,
+    NonUniqueSubjectIdentifierFieldMixin,
+    UpdatesOrCreatesRegistrationModelMixin,
+    BaseUuidModel,
+):
+    report_datetime = models.DateTimeField(default=get_utcnow)
+
+    consent_datetime = models.DateTimeField(default=get_utcnow)
+
+    version = models.CharField(max_length=25, default="1")
+
+    identity = models.CharField(max_length=25)
+
+    confirm_identity = models.CharField(max_length=25)
+
+    dob = models.DateField(default=date(1995, 1, 1))
+
 
 class SubjectScreening(ScreeningModelMixin, BaseUuidModel):
+    consent_definition = consent_v1
     objects = SubjectIdentifierManager()
-
-
-class SubjectConsent(SiteModelMixin, BaseUuidModel):
-    subject_identifier = models.CharField(max_length=25)
-
-    consent_datetime = models.DateTimeField()
-
-    dob = models.DateTimeField(null=True)
-
-    class Meta:
-        pass
 
 
 class SubjectVisit(SiteModelMixin, VisitModelMixin, BaseUuidModel):
