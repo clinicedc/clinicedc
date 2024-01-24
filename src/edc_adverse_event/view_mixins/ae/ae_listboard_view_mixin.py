@@ -2,12 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.html import format_html
-from edc_action_item.model_wrappers import (
-    ActionItemModelWrapper as BaseActionItemModelWrapper,
-)
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
@@ -16,38 +12,11 @@ from edc_navbar import NavbarViewMixin
 from edc_utils import get_utcnow
 
 from ...constants import AE_INITIAL_ACTION
-from ...model_wrappers import AeInitialModelWrapper, DeathReportModelWrapper
 from ...pdf_reports import AePdfReport
 from ...utils import get_ae_model
 
 if TYPE_CHECKING:
     from django.db.models import Q, QuerySet
-
-
-class ActionItemModelWrapper(BaseActionItemModelWrapper):
-    ae_initial_model_wrapper = AeInitialModelWrapper
-    death_report_model_wrapper = DeathReportModelWrapper
-    next_url_name = "ae_listboard_url"
-
-    def __init__(self, model_obj=None, **kwargs):
-        self._death_report = None
-        super().__init__(model_obj=model_obj, **kwargs)
-
-    @property
-    def death_report(self):
-        if not self._death_report:
-            model_cls = django_apps.get_model(self.death_report_model_wrapper.model)
-            try:
-                self._death_report = self.death_report_model_wrapper(
-                    model_obj=model_cls.objects.get(subject_identifier=self.subject_identifier)
-                )
-            except ObjectDoesNotExist:
-                self._death_report = None
-        return self._death_report
-
-    @property
-    def ae_initial(self):
-        return self.ae_initial_model_wrapper(model_obj=self.object.reference_obj)
 
 
 class AeListboardViewMixin(
@@ -62,7 +31,7 @@ class AeListboardViewMixin(
     listboard_back_url = "ae_home_url"
     home_url = "ae_home_url"
     listboard_panel_title = "Adverse Events: AE Initial and Follow-up Reports"
-    model_wrapper_cls = ActionItemModelWrapper
+    # model_wrapper_cls = ActionItemModelWrapper
 
     listboard_template = "ae_listboard_template"
     listboard_url = "ae_listboard_url"

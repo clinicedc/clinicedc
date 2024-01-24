@@ -73,6 +73,7 @@ class DeathReportModelAdminMixin(
             "dashboard",
             "pdf_button",
             "ae_button",
+            "tmg_button",
             "report_datetime_with_ago",
             "death_datetime_with_ago",
             "cause_of_death_column",
@@ -162,4 +163,16 @@ class DeathReportModelAdminMixin(
         )
         return render_to_string(
             template_name="edc_adverse_event/ae_button.html", context=context
+        )
+
+    @display(description="TMG")
+    def tmg_button(self, obj):
+        context = dict(
+            subject_identifier=obj.subject_identifier,
+            changelist_url=reverse(
+                f"{self.admin_site.name}:{obj._meta.app_label}_deathreporttmg_changelist"
+            ),
+        )
+        return render_to_string(
+            template_name="edc_adverse_event/tmg_button.html", context=context
         )

@@ -1,0 +1,14 @@
+{% load i18n l10n tz %}
+{% load edc_adverse_event_extras %}
+
+  <div class="list-group">
+    <a class="list-group-item list-group-item-{% if obj %}success{% else%}warning{% endif %}" title="Edit {{ obj.object }}" href="{{ obj.href }}death_report={{obj.death_report}}&action_identifier={{obj.action_identifier}}&">
+      {% if obj %}<i class="fas fa-pencil-alt fa-fw"></i> {% else %}<i class="fas fa-plus fa-fw"></i> {% endif %}
+      Death Report TMG {% if obj %}{{ obj }}{% endif %}{% if obj.report_status == OPEN %}&nbsp;<span class="label label-danger">OPEN</span>{% endif %}
+    </a>
+    {% if obj %}
+      <div class="list-group-item"><b>Agreed:</b> {{ obj.get_cause_of_death_agreed_display}}</div>
+      <div class="list-group-item"><b>Created:</b> {{ obj.user_created|default:"---" }}&nbsp;{{ obj.created|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
+      <div class="list-group-item"><b>Last modified:</b> {{ obj.user_modified|default:"---" }}&nbsp;{{ obj.modified|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
+    {% endif %}
+  </div>

@@ -30,7 +30,7 @@
         <a id="home_list_group_tmg_ae_listboard" href="{% url new_tmg_ae_listboard_url %}" class="list-group-item">AE Reports: <i>New</i> <span class="label label-danger">{{ new_count }}</span></a>
         <a id="home_list_group_tmg_ae_listboard" href="{% url open_tmg_ae_listboard_url %}" class="list-group-item">AE Reports: <i>Open</i> <span class="label label-danger">{{ open_count }}</span></a>
         <a id="home_list_group_tmg_ae_listboard" href="{% url closed_tmg_ae_listboard_url %}" class="list-group-item">AE Reports: <i>Closed</i> <span class="label label-success">{{ closed_count }}</span></a>
-        <a id="home_list_group_tmg_death_listboard" href="{% url tmg_death_listboard_url %}" class="list-group-item">Death Reports</a>
+        <a id="home_list_group_tmg_changelist" href="{{ death_report_changelist_url }}" class="list-group-item">Death Reports</a>
         <a id="home_list_group_tmg_summary_listboard" href="{% url tmg_summary_listboard_url %}" class="list-group-item">Event Summary</a>
       {% endif %}
       </div>

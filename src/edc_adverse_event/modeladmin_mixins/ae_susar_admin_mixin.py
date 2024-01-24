@@ -54,7 +54,6 @@ class AeSusarModelAdminMixin(
             "dashboard",
             "description",
             "initial_ae",
-            "user",
         )
         return custom_fields + tuple(f for f in list_display if f not in custom_fields)
 

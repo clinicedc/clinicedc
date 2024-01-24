@@ -2,29 +2,22 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from django.core.exceptions import ObjectDoesNotExist
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
 from edc_listboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
 from edc_utils import get_utcnow
 
-from ...auth_objects import TMG
 from ...constants import (
     AE_FOLLOWUP_ACTION,
     AE_TMG_ACTION,
     DEATH_REPORT_ACTION,
     DEATH_REPORT_TMG_ACTION,
 )
-from ...model_wrappers import TmgActionItemModelWrapper as BaseTmgActionItemModelWrapper
 from ...utils import get_adverse_event_app_label
 
 if TYPE_CHECKING:
     from django.db.models import Q
-
-
-class TmgActionItemModelWrapper(BaseTmgActionItemModelWrapper):
-    next_url_name = "tmg_summary_listboard_url"
 
 
 class SummaryListboardView(
@@ -44,7 +37,6 @@ class SummaryListboardView(
     listboard_panel_title = "TMG: Events Summary"
     listboard_view_permission_codename = "edc_adverse_event.view_tmg_listboard"
 
-    model_wrapper_cls = TmgActionItemModelWrapper
     navbar_selected_item = "tmg_home"
     ordering = "-report_datetime"
     paginate_by = 25
@@ -72,37 +64,3 @@ class SummaryListboardView(
         q_object, options = super().get_queryset_filter_options(request, *args, **kwargs)
         options.update({"action_type__name__in": self.action_type_names})
         return q_object, options
-
-    def update_wrapped_instance(self, model_wrapper) -> TmgActionItemModelWrapper:
-        model_wrapper.has_reference_obj_permissions = True
-        model_wrapper.has_parent_reference_obj_permissions = True
-        model_wrapper.has_related_reference_obj_permissions = True
-        try:
-            self.request.user.groups.get(name=TMG)
-        except ObjectDoesNotExist:
-            pass
-        else:
-            if (
-                model_wrapper.reference_obj
-                and model_wrapper.reference_obj._meta.label_lower == self.ae_tmg_model
-            ):
-                model_wrapper.has_reference_obj_permissions = (
-                    model_wrapper.reference_obj.user_created == self.request.user.username
-                )
-            if (
-                model_wrapper.parent_reference_obj
-                and model_wrapper.parent_reference_obj._meta.label_lower == self.ae_tmg_model
-            ):  # noqa
-                model_wrapper.has_parent_reference_obj_permissions = (
-                    model_wrapper.parent_reference_obj.user_created
-                    == self.request.user.username
-                )  # noqa
-            if (
-                model_wrapper.related_reference_obj
-                and model_wrapper.related_reference_obj._meta.label_lower == self.ae_tmg_model
-            ):  # noqa
-                model_wrapper.has_related_reference_obj_permissions = (
-                    model_wrapper.related_reference_obj.user_created
-                    == self.request.user.username
-                )  # noqa
-        return model_wrapper

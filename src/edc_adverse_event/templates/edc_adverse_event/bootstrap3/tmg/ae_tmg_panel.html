@@ -1,0 +1,15 @@
+{% load i18n %}
+
+<div class="list-group-item list-group-item-{{ panel_color }}">
+  <a class="btn btn-sm btn-{% if reference_obj %}success{% else%}warning{% endif %}"
+     title="{% if reference_obj %}{% if view_only %}View{% elif may_access_tmg_obj %}Edit{% else %}May only be edited by {{ reference_obj.user_created }}{% endif %}{% else %}Add{% endif %}" data-toggle="tooltip" role="button" id="reference_obj-{{ counter }}"
+     {% if not disabled %} href="{{ reference_obj.get_absolute_url }}?next=edc_adverse_event:open_tmg_ae_listboard_url" {% endif %} {{ disabled }}>
+    <i class="fas {{ fa_icon }} fa-fw"></i> {{ label }}
+  </a>
+  &nbsp;{{ action_item.display_name|cut:"Submit"|cut:"pending" }} {{ action_item.identifier|default:"New" }}
+  &nbsp;{% if report_status == OPEN %}<span class="label label-danger">OPEN</span>{% endif %}
+</div>
+{% if reference_obj %}
+  <div class="list-group-item"><b>{% trans "Created" %}:</b> {{ reference_obj.user_created|default:"---" }}&nbsp;{{ reference_obj.created|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
+  <div class="list-group-item"><b>{% trans "Last modified" %}:</b> {{ reference_obj.user_modified|default:"---" }}&nbsp;{{ reference_obj.modified|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
+{% endif %}

@@ -81,9 +81,6 @@ class AeInitialModelAdminMixin(
 ):
     form = AeInitialForm
 
-    change_list_template = "edc_adverse_event/admin/change_list.html"
-    change_form_template = "edc_adverse_event/admin/change_form.html"
-
     ordering = ("-ae_awareness_date",)
 
     actions = [print_to_pdf_action]
@@ -124,7 +121,6 @@ class AeInitialModelAdminMixin(
             "pdf_button",
             "description_column",
             "documents_column",
-            "user",
         )
         return custom_fields + tuple(f for f in list_display if f not in custom_fields)
 
