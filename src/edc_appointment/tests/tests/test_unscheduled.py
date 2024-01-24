@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
-from edc_consent import site_consents
+from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
@@ -18,16 +18,16 @@ from edc_appointment.constants import (
     INCOMPLETE_APPT,
     NEW_APPT,
 )
-from edc_appointment.creators import (
+from edc_appointment.creators import UnscheduledAppointmentCreator
+from edc_appointment.exceptions import (
     InvalidParentAppointmentMissingVisitError,
     InvalidParentAppointmentStatusError,
-    UnscheduledAppointmentCreator,
     UnscheduledAppointmentNotAllowed,
 )
 from edc_appointment.models import Appointment
-from edc_appointment_app.consents import v1_consent
+from edc_appointment_app.consents import consent_v1
 from edc_appointment_app.models import SubjectVisit
-from edc_appointment_app.visit_schedule import visit_schedule1, visit_schedule2
+from edc_appointment_app.visit_schedule import get_visit_schedule1, get_visit_schedule2
 
 from ..helper import Helper
 
@@ -42,20 +42,25 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
 
     def setUp(self):
         self.subject_identifier = "12345"
+        self.visit_schedule1 = get_visit_schedule1()
+        self.schedule1 = self.visit_schedule1.schedules.get("schedule1")
+        self.visit_schedule2 = get_visit_schedule2()
+        self.schedule2 = self.visit_schedule2.schedules.get("schedule2")
         site_visit_schedules._registry = {}
-        site_visit_schedules.register(visit_schedule=visit_schedule1)
-        site_visit_schedules.register(visit_schedule=visit_schedule2)
+        site_visit_schedules.register(self.visit_schedule1)
+        site_visit_schedules.register(self.visit_schedule2)
         site_consents.registry = {}
-        site_consents.register(v1_consent)
+        site_consents.register(consent_v1)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=datetime(2017, 1, 7, tzinfo=ZoneInfo("UTC")),
         )
 
     def test_unscheduled_allowed_but_raises_on_appt_status(self):
-        self.helper.consent_and_put_on_schedule()
-        schedule_name = "schedule1"
-        visit = visit_schedule1.schedules.get(schedule_name).visits.first
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name=self.visit_schedule1.name, schedule_name=self.schedule1.name
+        )
+        visit = self.visit_schedule1.schedules.get(self.schedule1.name).visits.first
         appointment = Appointment.objects.get(
             subject_identifier=self.subject_identifier,
             visit_code=visit.code,
@@ -72,8 +77,8 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
                     InvalidParentAppointmentMissingVisitError,
                     UnscheduledAppointmentCreator,
                     subject_identifier=self.subject_identifier,
-                    visit_schedule_name=visit_schedule1.name,
-                    schedule_name=schedule_name,
+                    visit_schedule_name=self.visit_schedule1.name,
+                    schedule_name=self.schedule1.name,
                     visit_code=visit.code,
                     suggested_visit_code_sequence=appointment.visit_code_sequence + 1,
                 )
@@ -95,8 +100,8 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
                     InvalidParentAppointmentStatusError,
                     UnscheduledAppointmentCreator,
                     subject_identifier=self.subject_identifier,
-                    visit_schedule_name=visit_schedule1.name,
-                    schedule_name=schedule_name,
+                    visit_schedule_name=self.visit_schedule1.name,
+                    schedule_name=self.schedule1.name,
                     visit_code=visit.code,
                     suggested_visit_code_sequence=appointment.visit_code_sequence + 1,
                 )
@@ -106,16 +111,17 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
             UnscheduledAppointmentNotAllowed,
             UnscheduledAppointmentCreator,
             subject_identifier=self.subject_identifier,
-            visit_schedule_name=visit_schedule2.name,
-            schedule_name="schedule2",
+            visit_schedule_name=self.visit_schedule2.name,
+            schedule_name=self.schedule2.name,
             visit_code="5000",
             suggested_visit_code_sequence=1,
         )
 
     def test_add_subject_visits(self):
-        self.helper.consent_and_put_on_schedule()
-        schedule_name = "schedule1"
-        for visit in visit_schedule1.schedules.get(schedule_name).visits.values():
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name=self.visit_schedule1.name, schedule_name=self.schedule1.name
+        )
+        for visit in self.visit_schedule1.schedules.get(self.schedule1.name).visits.values():
             with self.subTest(visit=visit):
                 # get parent appointment
                 appointment = Appointment.objects.get(
@@ -123,8 +129,8 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
                     visit_code=visit.code,
                     visit_code_sequence=0,
                     timepoint=visit.timepoint,
-                    visit_schedule_name=visit_schedule1.name,
-                    schedule_name=schedule_name,
+                    visit_schedule_name=self.visit_schedule1.name,
+                    schedule_name=self.schedule1.name,
                 )
                 appointment.appt_status = IN_PROGRESS_APPT
                 appointment.save()
@@ -138,8 +144,8 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
                     reason=SCHEDULED,
                     visit_code=visit.code,
                     visit_code_sequence=0,
-                    visit_schedule_name=visit_schedule1.name,
-                    schedule_name=schedule_name,
+                    visit_schedule_name=self.visit_schedule1.name,
+                    schedule_name=self.schedule1.name,
                 )
                 appointment.refresh_from_db()
                 self.assertTrue(appointment.related_visit, subject_visit)
@@ -154,8 +160,8 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
                 # create unscheduled off of this appt
                 creator = UnscheduledAppointmentCreator(
                     subject_identifier=self.subject_identifier,
-                    visit_schedule_name=visit_schedule1.name,
-                    schedule_name=schedule_name,
+                    visit_schedule_name=self.visit_schedule1.name,
+                    schedule_name=self.schedule1.name,
                     visit_code=visit.code,
                     facility=appointment.facility,
                     suggested_visit_code_sequence=1,
@@ -187,9 +193,10 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
                 self.assertEqual(visit.timepoint, int(new_appointment.timepoint))
 
     def test_unscheduled_timepoint_not_incremented(self):
-        self.helper.consent_and_put_on_schedule()
-        schedule_name = "schedule1"
-        visit = visit_schedule1.schedules.get(schedule_name).visits.first
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name=self.visit_schedule1.name, schedule_name=self.schedule1.name
+        )
+        visit = self.visit_schedule1.schedules.get(self.schedule1.name).visits.first
         appointment = Appointment.objects.get(
             subject_identifier=self.subject_identifier, visit_code=visit.code
         )
@@ -228,11 +235,13 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
                 appointment = creator.appointment
 
     def test_appointment_title(self):
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name=self.visit_schedule1.name, schedule_name=self.schedule1.name
+        )
         appointment = Appointment.objects.first_appointment(
             subject_identifier=self.subject_identifier,
-            visit_schedule_name="visit_schedule1",
-            schedule_name="schedule1",
+            visit_schedule_name=self.visit_schedule1.name,
+            schedule_name=self.schedule1.name,
         )
         self.assertEqual(appointment.title, "Day 1")
 
@@ -261,8 +270,8 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
         next_appointment = Appointment.objects.next_appointment(
             visit_code=appointment.visit_code,
             subject_identifier=self.subject_identifier,
-            visit_schedule_name="visit_schedule1",
-            schedule_name="schedule1",
+            visit_schedule_name=self.visit_schedule1.name,
+            schedule_name=self.schedule1.name,
         )
 
         SubjectVisit.objects.create(
@@ -283,11 +292,13 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
         self.assertEqual(creator.appointment.title, "Day 2.1")
 
     def test_appointment_title_if_visit_schedule_changes(self):
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name=self.visit_schedule1.name, schedule_name=self.schedule1.name
+        )
         appointment = Appointment.objects.first_appointment(
             subject_identifier=self.subject_identifier,
-            visit_schedule_name="visit_schedule1",
-            schedule_name="schedule1",
+            visit_schedule_name=self.visit_schedule1.name,
+            schedule_name=self.schedule1.name,
         )
         self.assertEqual(appointment.title, "Day 1")
 
@@ -300,8 +311,8 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
         next_appointment = Appointment.objects.next_appointment(
             visit_code=appointment.visit_code,
             subject_identifier=self.subject_identifier,
-            visit_schedule_name="visit_schedule1",
-            schedule_name="schedule1",
+            visit_schedule_name=self.visit_schedule1.name,
+            schedule_name=self.schedule1.name,
         )
 
         SubjectVisit.objects.create(

@@ -5,7 +5,7 @@ from django.test import override_settings
 from django.urls import reverse
 from django_webtest import WebTest
 from edc_auth.auth_updater.group_updater import GroupUpdater, PermissionsCodenameError
-from edc_consent import site_consents
+from edc_consent.site_consents import site_consents
 from edc_facility import import_holidays
 from edc_protocol import Protocol
 from edc_test_utils.get_user_for_tests import get_user_for_tests
@@ -19,8 +19,8 @@ from edc_appointment.auth_objects import codenames
 from edc_appointment.constants import NEW_APPT
 from edc_appointment.tests.helper import Helper
 from edc_appointment.utils import get_appointment_model_cls
-from edc_appointment_app.consents import v1_consent
-from edc_appointment_app.visit_schedule import visit_schedule1
+from edc_appointment_app.consents import consent_v1
+from edc_appointment_app.visit_schedule import get_visit_schedule1
 
 
 def get_url_name():
@@ -41,10 +41,11 @@ class TestAdmin(WebTest):
         self.user = get_user_for_tests(view_only=True)
 
         self.subject_identifier = "12345"
+        self.visit_schedule1 = get_visit_schedule1()
         site_visit_schedules._registry = {}
-        site_visit_schedules.register(visit_schedule=visit_schedule1)
+        site_visit_schedules.register(self.visit_schedule1)
         site_consents.registry = {}
-        site_consents.register(v1_consent)
+        site_consents.register(consent_v1)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=Protocol().study_open_datetime,
@@ -75,7 +76,10 @@ class TestAdmin(WebTest):
         side_effect=get_url_name,
     )
     def test_admin_ok(self, mock_get_subject_dashboard_url_name):
-        subject_consent = self.helper.consent_and_put_on_schedule()
+        schedule_name = "schedule1"
+        subject_consent = self.helper.consent_and_put_on_schedule(
+            visit_schedule_name=self.visit_schedule1.name, schedule_name=schedule_name
+        )
         appointments = (
             get_appointment_model_cls()
             .objects.all()

@@ -6,15 +6,16 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.views.generic.base import View
 
-from ..creators import (
+from ..creators import UnscheduledAppointmentCreator
+from ..exceptions import (
     AppointmentInProgressError,
+    AppointmentPermissionsRequired,
+    AppointmentWindowError,
     InvalidParentAppointmentMissingVisitError,
     InvalidParentAppointmentStatusError,
-    UnscheduledAppointmentCreator,
     UnscheduledAppointmentError,
     UnscheduledAppointmentNotAllowed,
 )
-from ..exceptions import AppointmentPermissionsRequired, AppointmentWindowError
 
 
 class UnscheduledAppointmentView(View):

@@ -7,7 +7,6 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
 from edc_sites.site import sites
-from edc_subject_model_wrappers import AppointmentModelWrapper
 
 from ..constants import (
     CANCELLED_APPT,
@@ -29,12 +28,9 @@ class AppointmentViewMixin:
 
     """A view mixin to handle appointments on the dashboard."""
 
-    appointment_model_wrapper_cls = AppointmentModelWrapper
-
     def __init__(self, **kwargs):
         self._appointment = None
         self._appointments = None
-        self._wrapped_appointments = None
         self.appointment_model: str = "edc_appointment.appointment"
         self.appointment_id: str | None = None
         super().__init__(**kwargs)
@@ -60,8 +56,8 @@ class AppointmentViewMixin:
         )
         has_call_manager = True if django_apps.app_configs.get("edc_call_manager") else False
         kwargs.update(
-            appointment=self.appointment_wrapped,
-            appointments=self.appointments_wrapped,
+            appointment=self.appointment,
+            appointments=self.appointments,
             CANCELLED_APPT=CANCELLED_APPT,
             COMPLETE_APPT=COMPLETE_APPT,
             INCOMPLETE_APPT=INCOMPLETE_APPT,
@@ -71,6 +67,10 @@ class AppointmentViewMixin:
             has_call_manager=has_call_manager,
         )
         return super().get_context_data(**kwargs)
+
+    @property
+    def appointment_model_cls(self) -> Appointment:
+        return django_apps.get_model(self.appointment_model)
 
     @property
     def appointment_options(self) -> dict[str, Any]:
@@ -111,12 +111,6 @@ class AppointmentViewMixin:
         return self._appointment
 
     @property
-    def appointment_wrapped(self) -> AppointmentModelWrapper | None:
-        if self.appointment:
-            return self.appointment_model_wrapper_cls(model_obj=self.appointment)
-        return None
-
-    @property
     def appointments(self) -> QuerySet[Appointment]:
         """Returns a Queryset of all appointments for this subject."""
         if not self._appointments:
@@ -126,28 +120,3 @@ class AppointmentViewMixin:
             ).order_by("timepoint", "visit_code_sequence")
 
         return self._appointments
-
-    @property
-    def appointments_wrapped(self) -> list[AppointmentModelWrapper]:
-        """Returns a list of wrapped appointments."""
-        if not self._wrapped_appointments:
-            if self.appointments:
-                wrapped = [
-                    self.appointment_model_wrapper_cls(model_obj=obj)
-                    for obj in self.appointments
-                ]
-                for i in range(0, len(wrapped)):
-                    if wrapped[i].appt_status == IN_PROGRESS_APPT:
-                        wrapped[i].disabled = False
-                        for j in range(0, len(wrapped)):
-                            if j != i:
-                                wrapped[j].disabled = True
-                self._wrapped_appointments = wrapped
-        return self._wrapped_appointments or []
-
-    @property
-    def appointment_model_cls(self) -> Appointment:
-        return django_apps.get_model(self.appointment_model)
-
-    def empty_appointment(self, **kwargs) -> Appointment:
-        return self.appointment_model_cls()

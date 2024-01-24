@@ -44,3 +44,31 @@ class AppointmentPermissionsRequired(Exception):
 
 class AppointmentMissingValuesError(Exception):
     pass
+
+
+class UnscheduledAppointmentNotAllowed(Exception):
+    pass
+
+
+class InvalidVisitCodeSequencesError(Exception):
+    pass
+
+
+class InvalidTimepointError(Exception):
+    pass
+
+
+class InvalidParentAppointmentStatusError(Exception):
+    pass
+
+
+class InvalidParentAppointmentMissingVisitError(Exception):
+    pass
+
+
+class AppointmentInProgressError(Exception):
+    pass
+
+
+class AppointmentCreatorError(Exception):
+    pass

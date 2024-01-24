@@ -34,15 +34,15 @@ class AppointmentsCreator:
         visit_schedule: VisitSchedule | None = None,
         schedule: Schedule | None = None,
         report_datetime: datetime | None = None,
-        appointment_model: Appointment = None,
+        appointment_model: str = None,
         skip_baseline: bool | None = None,
     ):
-        self.subject_identifier = subject_identifier
-        self.visit_schedule = visit_schedule
-        self.schedule = schedule
-        self.report_datetime = report_datetime
-        self.appointment_model = appointment_model
-        self.skip_baseline = skip_baseline
+        self.subject_identifier: str = subject_identifier
+        self.visit_schedule: VisitSchedule = visit_schedule
+        self.schedule: Schedule = schedule
+        self.report_datetime: datetime = report_datetime
+        self.appointment_model: str = appointment_model
+        self.skip_baseline: bool | None = skip_baseline
 
     def create_appointments(
         self, base_appt_datetime=None, taken_datetimes=None

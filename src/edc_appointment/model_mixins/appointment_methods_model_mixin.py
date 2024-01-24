@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING, Type, TypeVar
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -48,7 +48,7 @@ class AppointmentMethodsModelMixin(models.Model):
         return get_related_visit_model_attr(cls)
 
     @classmethod
-    def related_visit_model_cls(cls: Appointment) -> VisitModel:
+    def related_visit_model_cls(cls: Appointment) -> Type[VisitModel]:
         return getattr(cls, cls.related_visit_model_attr()).related.related_model
 
     @property

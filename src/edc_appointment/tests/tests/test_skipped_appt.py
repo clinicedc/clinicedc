@@ -3,9 +3,11 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings
-from edc_consent import site_consents
+from edc_consent.site_consents import site_consents
 from edc_facility import import_holidays
 from edc_visit_schedule.apps import populate_visit_schedule
 from edc_visit_schedule.models import VisitSchedule
@@ -27,7 +29,7 @@ from edc_appointment.skip_appointments import (
 from edc_appointment.tests.helper import Helper
 from edc_appointment.tests.test_case_mixins import AppointmentTestCaseMixin
 from edc_appointment.utils import get_allow_skipped_appt_using
-from edc_appointment_app.consents import v1_consent
+from edc_appointment_app.consents import consent_v1
 from edc_appointment_app.forms import CrfThreeForm
 from edc_appointment_app.models import (
     CrfFive,
@@ -38,9 +40,9 @@ from edc_appointment_app.models import (
     SubjectVisit,
 )
 from edc_appointment_app.visit_schedule import (
-    visit_schedule1,
-    visit_schedule2,
-    visit_schedule5,
+    get_visit_schedule1,
+    get_visit_schedule2,
+    get_visit_schedule5,
 )
 
 utc = ZoneInfo("UTC")
@@ -58,11 +60,11 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
     def setUp(self):
         self.subject_identifier = "12345"
         site_visit_schedules._registry = {}
-        site_visit_schedules.register(visit_schedule=visit_schedule1)
-        site_visit_schedules.register(visit_schedule=visit_schedule2)
-        site_visit_schedules.register(visit_schedule=visit_schedule5)
+        site_visit_schedules.register(get_visit_schedule1())
+        site_visit_schedules.register(get_visit_schedule2())
+        site_visit_schedules.register(get_visit_schedule5())
         site_consents.registry = {}
-        site_consents.register(v1_consent)
+        site_consents.register(consent_v1)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=datetime(2017, 6, 5, 8, 0, 0, tzinfo=utc),
@@ -75,7 +77,9 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         }
     )
     def test_skip_appointments_using_crf_date(self):
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule1", schedule_name="schedule1"
+        )
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         appointments[0].appt_status = IN_PROGRESS_APPT
         appointments[0].save()
@@ -123,7 +127,9 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         }
     )
     def test_skip_appointments_using_bad_settings_for_crf(self):
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule1", schedule_name="schedule1"
+        )
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         appointments[0].appt_status = IN_PROGRESS_APPT
         appointments[0].save()
@@ -149,7 +155,9 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         }
     )
     def test_skip_appointments_using_bad_settings_for_crf2(self):
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule1", schedule_name="schedule1"
+        )
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         appointments[0].appt_status = IN_PROGRESS_APPT
         appointments[0].save()
@@ -176,7 +184,9 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         }
     )
     def test_skip_appointments_using_crf_ok(self):
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule1", schedule_name="schedule1"
+        )
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         appointments[0].appt_status = IN_PROGRESS_APPT
         appointments[0].save()
@@ -204,7 +214,9 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         }
     )
     def test_skip_multiple_appointments_using_good_crf(self):
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule1", schedule_name="schedule1"
+        )
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         appointments[0].appt_status = IN_PROGRESS_APPT
         appointments[0].save()
@@ -231,7 +243,9 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         }
     )
     def test_skip_multiple_appointments_using_last_crf(self):
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule1", schedule_name="schedule1"
+        )
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         appointments[0].appt_status = IN_PROGRESS_APPT
         appointments[0].save()
@@ -277,7 +291,9 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         }
     )
     def test_visit_code_as_visit_schedule_fk_ok(self):
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule1", schedule_name="schedule1"
+        )
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         appointments[0].appt_status = IN_PROGRESS_APPT
         appointments[0].save()
@@ -308,7 +324,9 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         }
     )
     def test_last_crf_with_absurd_date_relative_to_visit_code(self):
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule1", schedule_name="schedule1"
+        )
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         appointments[0].appt_status = IN_PROGRESS_APPT
         appointments[0].save()
@@ -331,7 +349,9 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         }
     )
     def test_delete(self):
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule1", schedule_name="schedule1"
+        )
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         appointments[0].appt_status = IN_PROGRESS_APPT
         appointments[0].save()
@@ -549,6 +569,7 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
             report_datetime=appointments[0].appt_datetime,
             appt_date=appointments[0].appt_datetime + relativedelta(days=3),
             f1=appointments[1].visit_code,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = CrfThreeForm(data=data, instance=CrfThree(subject_visit=subject_visit))
         form.is_valid()
@@ -583,6 +604,7 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
             appt_date=appointments[1].appt_datetime + relativedelta(days=5),
             f1=appointments[1].visit_code,
             allow_create_interim=True,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = CrfThreeForm(data=data, instance=CrfThree(subject_visit=subject_visit))
         form.is_valid()

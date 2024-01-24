@@ -7,8 +7,11 @@ from uuid import uuid4
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.conf import settings
-from edc_consent import ConsentDefinitionDoesNotExist, site_consents
+from edc_consent.consent_definition import ConsentDefinition
+from edc_registration.models import RegisteredSubject
+from edc_sites import site_sites
 from edc_utils import get_utcnow
+from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from edc_appointment.creators import UnscheduledAppointmentCreator
@@ -33,47 +36,39 @@ class Helper:
         except LookupError:
             return django_apps.get_model("edc_appointment_app.subjectscreening")
 
-    @property
-    def consent_model_cls(self):
-        """Returns a consent model class.
-
-        Defaults to edc_appointment.subjectconsent
-        """
-        try:
-            cdef = site_consents.get_consent_definition(model=settings.SUBJECT_CONSENT_MODEL)
-        except ConsentDefinitionDoesNotExist:
-            cdef = site_consents.get_consent_definition(
-                model="edc_appointment_app.subjectconsent"
-            )
-        return cdef.model_cls
-
     def consent_and_put_on_schedule(
         self,
-        subject_identifier=None,
-        visit_schedule_name=None,
-        schedule_name=None,
-        age_in_years=None,
+        visit_schedule_name: str = None,
+        schedule_name: str = None,
+        age_in_years: int | None = None,
         report_datetime: datetime | None = None,
+        onschedule_datetime: datetime | None = None,
+        consent_definition: ConsentDefinition | None = None,
     ):
-        subject_identifier = subject_identifier or self.subject_identifier
-        self.screening_model_cls.objects.create(
-            subject_identifier=subject_identifier,
+        report_datetime = report_datetime or self.now
+        RegisteredSubject.objects.filter(subject_identifier=self.subject_identifier).delete()
+        subject_screening = self.screening_model_cls.objects.create(
+            subject_identifier=self.subject_identifier,
             report_datetime=report_datetime or self.now,
             screening_identifier=uuid4(),
             age_in_years=age_in_years or 25,
         )
-        subject_consent = self.consent_model_cls.objects.create(
-            subject_identifier=subject_identifier,
+        schedule: Schedule = site_visit_schedules.get_visit_schedule(
+            visit_schedule_name
+        ).schedules.get(schedule_name)
+
+        cdef = consent_definition or schedule.get_consent_definition(
+            report_datetime=report_datetime, site=site_sites.get(subject_screening.site.id)
+        )
+        subject_consent = cdef.model_cls.objects.create(
+            subject_identifier=self.subject_identifier,
             consent_datetime=report_datetime or self.now,
             dob=self.now - relativedelta(years=age_in_years or 25),
         )
-        visit_schedule = site_visit_schedules.get_visit_schedule(
-            visit_schedule_name or "visit_schedule1"
-        )
-        schedule = visit_schedule.schedules.get(schedule_name or "schedule1")
+        visit_schedule = site_visit_schedules.get_visit_schedule(visit_schedule_name)
+        schedule = visit_schedule.schedules.get(schedule_name)
         schedule.put_on_schedule(
-            subject_identifier=subject_consent.subject_identifier,
-            onschedule_datetime=subject_consent.consent_datetime,
+            self.subject_identifier, onschedule_datetime or subject_consent.consent_datetime
         )
         return subject_consent
 

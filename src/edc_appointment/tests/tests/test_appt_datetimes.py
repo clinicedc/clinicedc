@@ -1,4 +1,3 @@
-from copy import deepcopy
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -6,14 +5,14 @@ import time_machine
 from dateutil._common import weekday
 from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
 from django.test import TestCase, override_settings
-from edc_consent import site_consents
+from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_visit_schedule.schedule.visit_collection import VisitCollection
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from edc_appointment.models import Appointment
-from edc_appointment_app.consents import v1_consent
-from edc_appointment_app.visit_schedule import visit_schedule1
+from edc_appointment_app.consents import consent_v1
+from edc_appointment_app.visit_schedule import get_visit_schedule1
 
 from ..helper import Helper
 
@@ -32,17 +31,14 @@ class TestApptDatetimes(TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
-
-    def setUp(self):
-        site_visit_schedules._registry = {}
         site_consents.registry = {}
-        site_consents.register(v1_consent)
+        site_consents.register(consent_v1)
 
     def register_visit_schedule(self, facility_name=None):
         """Overwrite facility name on each visit and register
         the modified visit_schedule.
         """
-        visit_schedule = deepcopy(visit_schedule1)
+        visit_schedule = get_visit_schedule1()
         for schedule_name, schedule in visit_schedule.schedules.items():
             visit_collection = VisitCollection()
             for k, v in schedule.visits.items():
@@ -61,7 +57,9 @@ class TestApptDatetimes(TestCase):
         self.assertIsNotNone(base_appt_datetime)
         now = base_appt_datetime.astimezone(ZoneInfo("UTC"))
         self.helper = self.helper_cls(subject_identifier=subject_identifier, now=now)
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule1", schedule_name="schedule1"
+        )
         appointments = Appointment.objects.filter(subject_identifier=subject_identifier)
         return [obj.appt_datetime for obj in appointments]
 
@@ -69,7 +67,8 @@ class TestApptDatetimes(TestCase):
         """Assert does not skip any days regardless of
         base appointment day.
 
-        default facility (in tests) accepts appointments any day of the week.
+        default facility (in tests) accepts appointments any day
+        of the week.
         """
         self.register_visit_schedule(facility_name="7-day-clinic")
         for i in range(0, 7, 7):
@@ -77,7 +76,9 @@ class TestApptDatetimes(TestCase):
             dte = datetime(2017, 1, 7) + relativedelta(days=i)
             now = dte.astimezone(ZoneInfo("UTC"))
             self.helper = self.helper_cls(subject_identifier=subject_identifier, now=now)
-            self.helper.consent_and_put_on_schedule()
+            self.helper.consent_and_put_on_schedule(
+                visit_schedule_name="visit_schedule1", schedule_name="schedule1"
+            )
             appointments = Appointment.objects.filter(subject_identifier=subject_identifier)
             appt_datetimes = [obj.appt_datetime for obj in appointments]
             base_appt_datetime = appt_datetimes[0]
@@ -99,6 +100,9 @@ class TestApptDatetimes(TestCase):
         self.assertTrue(weekday(appt_datetimes[2].weekday()), WE)
         self.assertTrue(weekday(appt_datetimes[3].weekday()), TH)
 
+    def test_appointments_creation_dates3(self):
+        """Assert skips SA, SU."""
+        self.register_visit_schedule(facility_name="5-day-clinic")
         base_appt_datetime = datetime(2017, 1, 8)
         self.assertTrue(weekday(base_appt_datetime.weekday()), SU)
         appt_datetimes = self.get_appt_datetimes(
@@ -109,6 +113,9 @@ class TestApptDatetimes(TestCase):
         self.assertTrue(weekday(appt_datetimes[2].weekday()), WE)
         self.assertTrue(weekday(appt_datetimes[3].weekday()), TH)
 
+    def test_appointments_creation_dates4(self):
+        """Assert skips SA, SU."""
+        self.register_visit_schedule(facility_name="5-day-clinic")
         base_appt_datetime = datetime(2017, 1, 9)
         self.assertTrue(weekday(base_appt_datetime.weekday()), MO)
         appt_datetimes = self.get_appt_datetimes(
@@ -119,6 +126,9 @@ class TestApptDatetimes(TestCase):
         self.assertTrue(weekday(appt_datetimes[2].weekday()), WE)
         self.assertTrue(weekday(appt_datetimes[3].weekday()), TH)
 
+    def test_appointments_creation_dates5(self):
+        """Assert skips SA, SU."""
+        self.register_visit_schedule(facility_name="5-day-clinic")
         base_appt_datetime = datetime(2017, 1, 10)
         self.assertTrue(weekday(base_appt_datetime.weekday()), TU)
         appt_datetimes = self.get_appt_datetimes(
@@ -129,6 +139,9 @@ class TestApptDatetimes(TestCase):
         self.assertTrue(weekday(appt_datetimes[2].weekday()), TH)
         self.assertTrue(weekday(appt_datetimes[3].weekday()), FR)
 
+    def test_appointments_creation_dates6(self):
+        """Assert skips SA, SU."""
+        self.register_visit_schedule(facility_name="5-day-clinic")
         base_appt_datetime = datetime(2017, 1, 11)
         self.assertTrue(weekday(base_appt_datetime.weekday()), WE)
         appt_datetimes = self.get_appt_datetimes(
@@ -139,8 +152,8 @@ class TestApptDatetimes(TestCase):
         self.assertTrue(weekday(appt_datetimes[2].weekday()), FR)
         self.assertTrue(weekday(appt_datetimes[3].weekday()), MO)
 
-    def test_appointments_creation_dates3(self):
-        """Assert skips FR, SA, SU, MO."""
+    def test_appointments_creation_dates7(self):
+        """Assert 3-day-clinic skips FR, SA, SU, MO."""
         self.register_visit_schedule(facility_name="3-day-clinic")
         base_appt_datetime = datetime(2017, 1, 7)  # noqa
         self.assertTrue(weekday(base_appt_datetime.weekday()), SA)
@@ -152,6 +165,9 @@ class TestApptDatetimes(TestCase):
         self.assertTrue(weekday(appt_datetimes[2].weekday()), TH)
         self.assertTrue(weekday(appt_datetimes[3].weekday()), TU)
 
+    def test_appointments_creation_dates8(self):
+        """Assert 3-day-clinic skips FR, SA, SU, MO."""
+        self.register_visit_schedule(facility_name="3-day-clinic")
         base_appt_datetime = datetime(2017, 1, 8)
         self.assertTrue(weekday(base_appt_datetime.weekday()), SU)
         appt_datetimes = self.get_appt_datetimes(
@@ -162,6 +178,9 @@ class TestApptDatetimes(TestCase):
         self.assertTrue(weekday(appt_datetimes[2].weekday()), TH)
         self.assertTrue(weekday(appt_datetimes[3].weekday()), TU)
 
+    def test_appointments_creation_dates9(self):
+        """Assert 3-day-clinic skips FR, SA, SU, MO."""
+        self.register_visit_schedule(facility_name="3-day-clinic")
         base_appt_datetime = datetime(2017, 1, 9)
         self.assertTrue(weekday(base_appt_datetime.weekday()), MO)
         appt_datetimes = self.get_appt_datetimes(
@@ -172,6 +191,9 @@ class TestApptDatetimes(TestCase):
         self.assertTrue(weekday(appt_datetimes[2].weekday()), TH)
         self.assertTrue(weekday(appt_datetimes[3].weekday()), TU)
 
+    def test_appointments_creation_dates10(self):
+        """Assert 3-day-clinic skips FR, SA, SU, MO."""
+        self.register_visit_schedule(facility_name="3-day-clinic")
         base_appt_datetime = datetime(2017, 1, 10)
         self.assertTrue(weekday(base_appt_datetime.weekday()), TU)
         appt_datetimes = self.get_appt_datetimes(
@@ -182,6 +204,9 @@ class TestApptDatetimes(TestCase):
         self.assertTrue(weekday(appt_datetimes[2].weekday()), TH)
         self.assertTrue(weekday(appt_datetimes[3].weekday()), TU)
 
+    def test_appointments_creation_dates11(self):
+        """Assert 3-day-clinic skips FR, SA, SU, MO."""
+        self.register_visit_schedule(facility_name="3-day-clinic")
         base_appt_datetime = datetime(2017, 1, 11)
         self.assertTrue(weekday(base_appt_datetime.weekday()), WE)
         appt_datetimes = self.get_appt_datetimes(

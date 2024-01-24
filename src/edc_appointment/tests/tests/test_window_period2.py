@@ -16,7 +16,7 @@ from edc_appointment.utils import (
     get_appointment_by_datetime,
     get_window_gap_days,
 )
-from edc_appointment_app.visit_schedule.visit_schedule4 import visit_schedule4
+from edc_appointment_app.visit_schedule import get_visit_schedule4
 
 utc = ZoneInfo("UTC")
 
@@ -32,8 +32,10 @@ class TestAppointmentWindowPeriod2(SiteTestCaseMixin, TestCase):
 
     def setUp(self):
         self.subject_identifier = "12345"
+        self.visit_schedule4 = get_visit_schedule4()
+        self.schedule4 = self.visit_schedule4.schedules.get("three_monthly_schedule")
         site_visit_schedules._registry = {}
-        site_visit_schedules.register(visit_schedule=visit_schedule4)
+        site_visit_schedules.register(self.visit_schedule4)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=get_utcnow() - relativedelta(years=2),
@@ -42,8 +44,8 @@ class TestAppointmentWindowPeriod2(SiteTestCaseMixin, TestCase):
     @override_settings(EDC_VISIT_SCHEDULE_DEFAULT_MAX_VISIT_GAP_ALLOWED=0)
     def test_suggested_date_in_window_period_gap_raises(self):
         self.helper.consent_and_put_on_schedule(
-            visit_schedule_name="visit_schedule4",
-            schedule_name="three_monthly_schedule",
+            visit_schedule_name=self.visit_schedule4.name,
+            schedule_name=self.schedule4.name,
         )
         appointments = Appointment.objects.filter(
             subject_identifier=self.subject_identifier
@@ -76,8 +78,8 @@ class TestAppointmentWindowPeriod2(SiteTestCaseMixin, TestCase):
     @override_settings(EDC_VISIT_SCHEDULE_DEFAULT_MAX_VISIT_GAP_ALLOWED=7)
     def test_match_window_period_gap_adjusted(self):
         self.helper.consent_and_put_on_schedule(
-            visit_schedule_name="visit_schedule4",
-            schedule_name="three_monthly_schedule",
+            visit_schedule_name=self.visit_schedule4.name,
+            schedule_name=self.schedule4.name,
         )
         appointments = Appointment.objects.filter(
             subject_identifier=self.subject_identifier
@@ -121,8 +123,8 @@ class TestAppointmentWindowPeriod2(SiteTestCaseMixin, TestCase):
 
     def test_past_last_visit(self):
         self.helper.consent_and_put_on_schedule(
-            visit_schedule_name="visit_schedule4",
-            schedule_name="three_monthly_schedule",
+            visit_schedule_name=self.visit_schedule4.name,
+            schedule_name=self.schedule4.name,
         )
         appointments = Appointment.objects.filter(
             subject_identifier=self.subject_identifier
@@ -154,8 +156,8 @@ class TestAppointmentWindowPeriod2(SiteTestCaseMixin, TestCase):
 
     def test_window_gap_days(self):
         self.helper.consent_and_put_on_schedule(
-            visit_schedule_name="visit_schedule4",
-            schedule_name="three_monthly_schedule",
+            visit_schedule_name=self.visit_schedule4.name,
+            schedule_name=self.schedule4.name,
         )
         appointments = Appointment.objects.filter(
             subject_identifier=self.subject_identifier

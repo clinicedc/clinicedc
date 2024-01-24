@@ -14,6 +14,7 @@ from edc_sites.utils import valid_site_for_subject_or_raise
 from edc_visit_schedule.utils import is_baseline
 
 from ..constants import SCHEDULED_APPT
+from ..exceptions import AppointmentCreatorError
 from ..utils import (
     get_appointment_type_model_cls,
     get_appt_reason_default,
@@ -29,10 +30,6 @@ class CreateAppointmentError(Exception):
 
 
 class CreateAppointmentDateError(Exception):
-    pass
-
-
-class AppointmentCreatorError(Exception):
     pass
 
 
@@ -66,13 +63,13 @@ class AppointmentCreator:
         self._appointment_model_cls = None
         self._default_appt_type = default_appt_type
         self._default_appt_reason = default_appt_reason
-        self.skip_baseline = skip_baseline
-        self.subject_identifier = subject_identifier
+        self.skip_baseline: bool | None = skip_baseline
+        self.subject_identifier: str = subject_identifier
         self.visit_schedule_name = visit_schedule_name
         self.schedule_name: str = schedule_name
-        self.appt_status = appt_status
-        self.appt_reason = appt_reason
-        self.appointment_model = appointment_model
+        self.appt_status: str = appt_status
+        self.appt_reason: str = appt_reason
+        self.appointment_model: str = appointment_model or "edc_appointment.appointment"
         # already taken appt_datetimes for this subject
         self.taken_datetimes = taken_datetimes or []
         self.visit = visit
@@ -215,7 +212,7 @@ class AppointmentCreator:
     @property
     def appointment_model_cls(self) -> Appointment:
         """Returns the appointment model class."""
-        return django_apps.get_model("edc_appointment.appointment")
+        return django_apps.get_model(self.appointment_model)
 
     @property
     def default_appt_type(self) -> AppointmentType | None:
