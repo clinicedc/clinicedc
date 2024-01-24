@@ -11,6 +11,9 @@ from .eligibility import MyScreeningEligibility
 class SubjectScreening(ScreeningModelMixin, BaseUuidModel):
     thing = models.CharField(max_length=10, null=True)
 
+    def get_consent_definition(self):
+        pass
+
 
 class SubjectScreeningWithEligibility(
     ScreeningModelMixin, EligibilityModelMixin, BaseUuidModel
@@ -19,8 +22,12 @@ class SubjectScreeningWithEligibility(
 
     alive = models.CharField(max_length=10, default=YES)
 
+    def get_consent_definition(self):
+        pass
+
 
 class SubjectScreeningWithEligibilitySimple(
     ScreeningModelMixin, EligibilityModelMixin, BaseUuidModel
 ):
-    pass
+    def get_consent_definition(self):
+        pass
