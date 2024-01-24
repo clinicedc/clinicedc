@@ -156,6 +156,11 @@ class CsvExporter:
         """Returns the full path of the written STATA file if the
         dataframe is exported otherwise None.
         """
+        # TODO: if exporting to stata and version is <117, truncate str columns to 244
+        # if dta_version and int(dta_version) < 117:
+        #     dataframe = dataframe.apply(
+        #         lambda x: x.apply(lambda y: y[:244] if isinstance(y, str) else y)
+        #     )
         opts = dict(
             dataframe=dataframe,
             export_folder=export_folder,
