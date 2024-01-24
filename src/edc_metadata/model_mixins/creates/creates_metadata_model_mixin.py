@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Type
 
 from django.db import models, transaction
 
-from ...constants import CRF, KEYED, REQUISITION
+from ...constants import CRF, KEYED, REQUIRED, REQUISITION
 from ...metadata import (
     CrfMetadataGetter,
     DeleteMetadataError,
@@ -63,6 +63,18 @@ class CreatesMetadataModelMixin(RelatedVisitProtocol, models.Model):
             timepoint=self.appointment.timepoint,
         )
         return options
+
+    @property
+    def crf_metadata(self):
+        return self.metadata[CRF]
+
+    @property
+    def requisition_metadata(self):
+        return self.metadata[REQUISITION].filter(entry_status__in=[KEYED, REQUIRED])
+
+    @property
+    def crf_metadata_required(self):
+        return self.metadata[CRF].filter(entry_status__in=[KEYED, REQUIRED])
 
     @property
     def metadata(self) -> dict:

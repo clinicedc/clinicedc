@@ -8,8 +8,6 @@ from django.views.generic.base import ContextMixin, View
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
-from edc_consent.site_consents import AlreadyRegistered
-from edc_consent.tests.consent_test_utils import consent_definition_factory
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
 from edc_utils import get_utcnow
@@ -63,12 +61,6 @@ class TestViewMixin(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
-        for schedule in visit_schedule.schedules.values():
-            try:
-                consent_definition_factory(model=schedule.consent_model)
-            except AlreadyRegistered:
-                pass
-
         self.subject_identifier = "1111111"
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
         self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
@@ -126,9 +118,9 @@ class TestViewMixin(TestCase):
         context_data = view.get_context_data()
         for metadata in context_data.get("crfs"):
             if metadata.model in ["edc_metadata.crfone", "edc_metadata.crfthree"]:
-                self.assertIsNotNone(metadata.object.model_obj.id)
+                self.assertIsNotNone(metadata.model_instance)
             else:
-                self.assertIsNone(metadata.object.model_obj.id)
+                self.assertIsNone(metadata.model_instance)
 
     def test_view_mixin_context_data_requisitions(self):
         request = RequestFactory().get("/?f=f&e=e&o=o&q=q")

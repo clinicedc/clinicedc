@@ -153,6 +153,7 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
             f1="blah",
             f2="blah",
             f3="blah",
+            site=Site.objects.get(id=settings.SITE_ID),
         )
 
     @property

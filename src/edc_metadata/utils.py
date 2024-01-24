@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Type
+from typing import TYPE_CHECKING, Type
 
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.db import models
 from django.db.models import QuerySet
+from edc_appointment.constants import COMPLETE_APPT, INCOMPLETE_APPT
 
-from .constants import CRF, KEYED, REQUISITION
+from .constants import CRF, KEYED, REQUIRED, REQUISITION
 
 if TYPE_CHECKING:
     from edc_appointment.models import Appointment
@@ -16,7 +17,7 @@ if TYPE_CHECKING:
     from .model_mixins.creates import CreatesMetadataModelMixin
 
     class RelatedVisitModel(CreatesMetadataModelMixin, Base):
-        pass
+        appointment: Appointment
 
     from edc_metadata.models import CrfMetadata, RequisitionMetadata
 
@@ -30,6 +31,13 @@ if TYPE_CHECKING:
 
     class RequisitionModel(UpdatesRequisitionMetadataModelMixin, Base):
         related_visit = models.ForeignKey(RelatedVisitModel, on_delete=models.PROTECT)
+
+    class ScheduledLikeModel:
+        subject_identifier: str
+        visit_code: str
+        visit_code_sequence: int
+        visit_schedule_name: str
+        schedule_name: str
 
 
 class HasKeyedMetadata(Exception):
@@ -77,7 +85,25 @@ def refresh_metadata_for_timepoint(
             related_visit.run_metadata_rules(allow_create=allow_create)
 
 
-def get_crf_metadata(instance: Any) -> QuerySet[CrfMetadata]:
+def update_appt_status_for_timepoint(related_visit: RelatedVisitModel) -> None:
+    """Only check COMPLETE_APPT and INCOMPLETE_APPT against metadata."""
+    if related_visit.appointment.appt_status == COMPLETE_APPT:
+        if (
+            related_visit.metadata[CRF].filter(entry_status=REQUIRED).exists()
+            or related_visit.metadata[REQUISITION].filter(entry_status=REQUIRED).exists()
+        ):
+            related_visit.appointment.appt_status = INCOMPLETE_APPT
+            related_visit.appointment.save_base(update_fields=["appt_status"])
+    elif related_visit.appointment.appt_status == INCOMPLETE_APPT:
+        if (
+            not related_visit.metadata[CRF].filter(entry_status=REQUIRED).exists()
+            and not related_visit.metadata[REQUISITION].filter(entry_status=REQUIRED).exists()
+        ):
+            related_visit.appointment.appt_status = COMPLETE_APPT
+            related_visit.appointment.save_base(update_fields=["appt_status"])
+
+
+def get_crf_metadata(instance: ScheduledLikeModel | Appointment) -> QuerySet[CrfMetadata]:
     """Returns a queryset of crf metedata."""
     opts = dict(
         subject_identifier=instance.subject_identifier,
@@ -89,7 +115,9 @@ def get_crf_metadata(instance: Any) -> QuerySet[CrfMetadata]:
     return get_crf_metadata_model_cls().objects.filter(**opts)
 
 
-def get_requisition_metadata(instance: Any) -> QuerySet[RequisitionMetadata]:
+def get_requisition_metadata(
+    instance: ScheduledLikeModel | Appointment,
+) -> QuerySet[RequisitionMetadata]:
     """Returns a queryset of requisition metadata"""
     opts = dict(
         subject_identifier=instance.subject_identifier,
