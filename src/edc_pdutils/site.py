@@ -17,6 +17,9 @@ class SiteDataframeHandlerNotFound(Exception):
     pass
 
 
+__all__ = ["site_dataframe_handlers"]
+
+
 class Site:
     def __init__(self):
         self.registry = {}
