@@ -7,7 +7,7 @@ from edc_consent.site_consents import site_consents
 from edc_facility import import_holidays
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.tests.helper import Helper
-from visit_schedule_app.consents import v1_consent
+from visit_schedule_app.consents import consent_v1
 from visit_schedule_app.visit_schedule import visit_schedule
 
 from edc_unblinding.action_items import UnblindingRequestAction, UnblindingReviewAction
@@ -43,7 +43,7 @@ class UnblindingTestCase(TestCase):
         self.user = get_user_model().objects.get(username="frazey")
         self.subject_identifier = "12345"
         site_consents.registry = {}
-        site_consents.register(v1_consent)
+        site_consents.register(consent_v1)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
         self.helper = self.helper_cls(
