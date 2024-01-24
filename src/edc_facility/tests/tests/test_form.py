@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from edc_utils import get_utcnow
@@ -25,6 +27,7 @@ class TestForm(TestCase):
 
         data = dict(
             report_datetime=get_utcnow(),
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = HealthFacilityForm(data=data, instance=HealthFacility())
         form.is_valid()
@@ -33,6 +36,7 @@ class TestForm(TestCase):
         data = dict(
             report_datetime=get_utcnow(),
             name="My Health Facility",
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = HealthFacilityForm(data=data, instance=HealthFacility())
         form.is_valid()
@@ -42,6 +46,7 @@ class TestForm(TestCase):
             report_datetime=get_utcnow(),
             name="My Health Facility",
             health_facility_type=HealthFacilityTypes.objects.all()[0],
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = HealthFacilityForm(data=data, instance=HealthFacility())
         form.is_valid()
@@ -54,6 +59,7 @@ class TestForm(TestCase):
             health_facility_type=HealthFacilityTypes.objects.all()[0],
             tue=True,
             thu=True,
+            site=Site.objects.get(id=settings.SITE_ID),
         )
         form = HealthFacilityForm(data=data, instance=HealthFacility())
         form.is_valid()
