@@ -5,8 +5,7 @@ from django.utils.translation import gettext as _
 def get_message_text(level: int) -> str:
     if level == messages.WARNING:
         return _(
-            "You have permissions to view data from multiple sites. "
-            "Pages may include data from sites other than the current site."
+            "You have permissions to view forms and data from sites other than the current. "
         )
     elif level == messages.ERROR:
         return _(

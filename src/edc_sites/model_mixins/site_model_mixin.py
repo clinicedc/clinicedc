@@ -23,7 +23,7 @@ class SiteModelMixin(models.Model):
         "sites.site",
         on_delete=models.PROTECT,
         null=True,
-        editable=False,
+        # editable=False,
         related_name="+",
     )
 

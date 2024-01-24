@@ -3,6 +3,8 @@ from django.contrib.sites.models import Site
 
 from ..site import sites
 
+__all__ = ["SiteListFilter"]
+
 
 class SiteListFilter(SimpleListFilter):
     title = "Site"

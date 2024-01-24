@@ -11,6 +11,7 @@ from .get_site_model_cls import get_site_model_cls
 
 if TYPE_CHECKING:
     from django.contrib.sites.models import Site
+    from edc_registration.models import RegisteredSubject
 
 
 def valid_site_for_subject_or_raise(
@@ -22,12 +23,14 @@ def valid_site_for_subject_or_raise(
     * Confirms by querying RegisteredSubject.
     * If subject_identifier is invalid will raise ObjectDoesNotExist
     """
-    registered_subject = get_registered_subject(subject_identifier, raise_exception=True)
+    registered_subject: RegisteredSubject | None = get_registered_subject(
+        subject_identifier, raise_exception=True
+    )
     if skip_get_current_site:
         warn("Skipping validation of current site against registered subject site.")
         current_site = registered_subject.site
     else:
-        current_site = get_site_model_cls().objects.get_current()
+        current_site: Site = get_site_model_cls().objects.get_current()
         try:
             registered_subject = get_registered_subject(
                 subject_identifier,
