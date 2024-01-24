@@ -2,7 +2,6 @@ from typing import Any
 
 from edc_dashboard.url_names import url_names
 from edc_lab.constants import SHIPPED
-from edc_lab.models import Manifest
 from edc_lab.pdf_reports import ManifestPdfReport
 
 from ...model_wrappers import ManifestModelWrapper
@@ -16,7 +15,7 @@ class ManifestListboardView(BaseListboardView):
     form_action_url = "manifest_form_action_url"
     listboard_url = "manifest_listboard_url"
     listboard_template = "manifest_listboard_template"
-    listboard_model = Manifest
+    listboard_model = "edc_lab.manifest"
     listboard_view_permission_codename = "edc_lab_dashboard.view_lab_manifest_listboard"
     listboard_view_only_my_permission_codename = None
     model_wrapper_cls = ManifestModelWrapper
@@ -26,7 +25,7 @@ class ManifestListboardView(BaseListboardView):
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(
-            new_manifest=ManifestModelWrapper(Manifest()),
+            new_manifest=ManifestModelWrapper(self.listboard_model_cls()),
             print_manifest_url_name=url_names.get(self.print_manifest_url),
             SHIPPED=SHIPPED,
         )
@@ -40,7 +39,9 @@ class ManifestListboardView(BaseListboardView):
 
     @property
     def manifest(self):
-        return Manifest.objects.get(manifest_identifier=self.request.GET.get("pdf"))
+        return self.listboard_model_cls.objects.get(
+            manifest_identifier=self.request.GET.get("pdf")
+        )
 
     def print_manifest(self):
         manifest_report = ManifestPdfReport(manifest=self.manifest, user=self.request.user)
