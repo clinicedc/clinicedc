@@ -16,7 +16,10 @@ from edc_appointment.constants import (
     SKIPPED_APPT,
 )
 from edc_appointment.models import Appointment
-from edc_appointment.utils import get_appointment_model_cls
+from edc_appointment.utils import (
+    get_appointment_model_cls,
+    get_unscheduled_appointment_url,
+)
 from edc_dashboard.utils import get_bootstrap_version
 from edc_metadata import KEYED, REQUIRED
 from edc_metadata.metadata_helper import MetadataHelper
@@ -57,7 +60,7 @@ __all__ = [
     "requisition_panel_actions",
     "render_crf_totals",
     "render_subject_consent_button",
-    "show_dashboard_unscheduled_appointment_button",
+    "render_unscheduled_appointment_button",
 ]
 
 register = template.Library()
@@ -368,33 +371,43 @@ def render_subject_consent_button(
     "buttons/unscheduled_appointment_button.html",
     takes_context=True,
 )
-def show_dashboard_unscheduled_appointment_button(
-    context, appointment=None, view_appointment=None
+def render_unscheduled_appointment_button(
+    context, appointment: Appointment = None, view_appointment: bool = None
 ):
     show_button = False
+    anchor_id: str | None = None
+    url: str | None = None
+    disabled = "disabled"
+    title: str | None = None
+    any_in_progress = appointment.__class__.objects.filter(
+        appt_status=IN_PROGRESS_APPT,
+        subject_identifier=appointment.subject_identifier,
+        visit_schedule_name=appointment.visit_schedule_name,
+        schedule_name=appointment.schedule_name,
+    ).exists()
     if (
-        appointment
-        and appointment.relative_next
+        not any_in_progress
         and appointment.appt_status in [INCOMPLETE_APPT, COMPLETE_APPT]
+        and appointment
+        and appointment.site.id == context["request"].site.id
+        and appointment.relative_next
         and (
-            appointment.appt_datetime + relativedelta(days=1)
-            != appointment.relative_next.appt_datetime
+            appointment.appt_datetime.date() + relativedelta(days=1)
+            != appointment.relative_next.appt_datetime.date()
         )
     ):
         show_button = True
-    anchor_id = (
-        f"unscheduled_appt_btn_{appointment.visit_code}_" f"{appointment.visit_code_sequence}"
-    )
-
-    if view_appointment and appointment.site.id == context["request"].site.id:
-        url = "edc_appointment:unscheduled_appointment_url"
-    else:
-        url = "#"
-    disabled = "disabled" if url == "#" else ""
-    if view_appointment and appointment.site.id == context["request"].site.id:
-        title = "" if disabled else "Edit appointment"
-    else:
-        title = "No permission to edit"
+        anchor_id = (
+            f"unscheduled_appt_btn_{appointment.visit_code}_"
+            f"{appointment.visit_code_sequence}"
+        )
+        if view_appointment and appointment.site.id == context["request"].site.id:
+            url = get_unscheduled_appointment_url(appointment)
+        disabled = "disabled" if not url else ""
+        if view_appointment and appointment.site.id == context["request"].site.id:
+            title = "" if disabled else "Edit appointment"
+        else:
+            title = "No permission to edit"
     return dict(
         show_button=show_button,
         anchor_id=anchor_id,
