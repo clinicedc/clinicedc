@@ -1,5 +1,4 @@
 from edc_action_item.models import ActionNoManagersModelMixin
-from edc_consent.model_mixins import RequiresConsentFieldsModelMixin
 from edc_identifier.managers import SubjectIdentifierManager
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.managers import CurrentSiteManager
@@ -10,7 +9,6 @@ from .model_mixins import OffstudyModelMixin
 
 
 class SubjectOffstudy(
-    RequiresConsentFieldsModelMixin,
     OffstudyModelMixin,
     SiteModelMixin,
     ActionNoManagersModelMixin,
