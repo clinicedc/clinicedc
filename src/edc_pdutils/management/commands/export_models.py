@@ -64,8 +64,8 @@ class Command(BaseCommand):
         parser.add_argument(
             "--stata-dta-version",
             dest="stata_dta_version",
-            default=118,
-            choices=[114, 117, 118],
+            default=None,
+            choices=["114", "117", "118"],
             help="STATA DTA file format version",
         )
 
@@ -181,7 +181,7 @@ class Command(BaseCommand):
                     if not export_format or export_format == "csv":
                         exporter.to_csv(dataframe=m.dataframe)
                     elif export_format == "stata":
-                        exporter.to_stata(dataframe=m.dataframe, version=stata_dta_version)
+                        exporter.to_stata(dataframe=m.dataframe, dta_version=stata_dta_version)
                     print(f" * {model_name}")
 
     def validate_user_perms_or_raise(self) -> None:
