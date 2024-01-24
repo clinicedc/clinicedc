@@ -5,6 +5,7 @@ from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
 from edc_protocol import Protocol
 from edc_utils import get_utcnow
+from faker import Faker
 from model_bakery import baker
 
 from edc_consent.field_mixins import IdentityFieldsMixinError
@@ -12,6 +13,8 @@ from edc_consent.site_consents import site_consents
 
 from ..consent_test_utils import consent_factory
 from ..models import SubjectConsent
+
+fake = Faker()
 
 
 @override_settings(
@@ -160,10 +163,16 @@ class TestConsentModel(TestCase):
 
     def test_manager(self):
         for i in range(1, 3):
+            first_name = fake.first_name()
+            last_name = fake.last_name()
+            initials = f"{first_name[0]}{last_name[0]}"
             baker.make_recipe(
                 "edc_consent.subjectconsent",
                 subject_identifier=str(i),
                 consent_datetime=self.study_open_datetime + relativedelta(days=i),
+                initials=initials,
+                first_name=first_name,
+                last_name=last_name,
             )
 
         first = SubjectConsent.objects.get(subject_identifier="1")

@@ -63,6 +63,9 @@ class SiteConsents:
             [cdef.display_name for cdef in sorted(list(self.registry.values()))]
         )
 
+    def get(self, name) -> ConsentDefinition:
+        return self.registry.get(name)
+
     def get_consent_definition(
         self,
         model: str = None,
