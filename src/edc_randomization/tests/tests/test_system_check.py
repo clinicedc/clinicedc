@@ -1,7 +1,7 @@
 from tempfile import mkdtemp
 
 from django.apps import apps as django_apps
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 
 from edc_randomization.randomization_list_verifier import RandomizationListError
 from edc_randomization.system_checks import (
@@ -29,7 +29,6 @@ class TestRandomizer(TestCaseMixin, TestCase):
             force_verify=True,
         )
 
-    @tag("1")
     @override_settings(ETC_DIR=mkdtemp(), DEBUG=False)
     def test_randomization_list_check_verify(self):
         from django.conf import settings
