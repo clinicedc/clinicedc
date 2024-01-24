@@ -1,3 +1,7 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+import time_machine
 from django.contrib import admin
 from django.test import TestCase
 from django.test.client import RequestFactory
@@ -16,6 +20,8 @@ from ..helper import Helper
 from ..models import CrfOne
 from ..visit_schedule import visit_schedule1, visit_schedule2
 
+utc_tz = ZoneInfo("UTC")
+
 
 @admin.register(CrfOne, site=edc_visit_tracking_admin)
 class CrfOneModelAdmin(CrfModelAdminMixin, ModelAdminAuditFieldsMixin, admin.ModelAdmin):
@@ -23,6 +29,7 @@ class CrfOneModelAdmin(CrfModelAdminMixin, ModelAdminAuditFieldsMixin, admin.Mod
         return CrfOne.objects.all()
 
 
+@time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestModelAdmin(TestCase):
     helper_cls = Helper
 
@@ -97,7 +104,10 @@ class TestModelAdmin(TestCase):
         self.assertEqual(kwargs["queryset"].count(), 0)
 
     def test_extends_fk_not_none(self):
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule1",
+            schedule_name="schedule1",
+        )
         appointment = Appointment.objects.all().order_by("timepoint_datetime")[0]
         subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
 
@@ -121,7 +131,10 @@ class TestModelAdmin(TestCase):
         self.assertGreater(kwargs["queryset"].count(), 0)
 
     def test_visit_extends_fk_not_none(self):
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule1",
+            schedule_name="schedule1",
+        )
         appointment = Appointment.objects.all().order_by("timepoint_datetime")[0]
         SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
 
@@ -145,7 +158,10 @@ class TestModelAdmin(TestCase):
         self.assertGreater(kwargs["queryset"].count(), 0)
 
     def test_crf_readonly(self):
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule1",
+            schedule_name="schedule1",
+        )
         appointment = Appointment.objects.all().order_by("timepoint_datetime")[0]
         subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
 
@@ -161,7 +177,10 @@ class TestModelAdmin(TestCase):
             self.assertIn(field, modeladmin.get_readonly_fields(request, obj=crf_one))
 
     def test_visit_readonly(self):
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule1",
+            schedule_name="schedule1",
+        )
         appointment = Appointment.objects.all().order_by("timepoint_datetime")[0]
         subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
 

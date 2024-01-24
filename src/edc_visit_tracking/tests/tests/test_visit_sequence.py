@@ -1,5 +1,9 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.managers import AppointmentDeleteError
 from edc_appointment.models import Appointment
@@ -16,12 +20,16 @@ from edc_visit_tracking.visit_sequence import VisitSequence, VisitSequenceError
 from ..helper import Helper
 from ..visit_schedule import visit_schedule1, visit_schedule2
 
+utc_tz = ZoneInfo("UTC")
+
 
 class DisabledVisitSequence(VisitSequence):
     def enforce_sequence(self, **kwargs) -> None:
         return None
 
 
+@time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
+@override_settings(SUBJECT_SCREENING_MODEL="edc_visit_tracking.subjectscreening")
 class TestPreviousVisit(TestCase):
     helper_cls = Helper
 
@@ -36,7 +44,9 @@ class TestPreviousVisit(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name=visit_schedule1.name, schedule_name="schedule1"
+        )
 
     def test_visit_sequence_enforcer_on_first_visit_in_sequence(self):
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")

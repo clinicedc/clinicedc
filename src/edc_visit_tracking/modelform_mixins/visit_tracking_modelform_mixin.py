@@ -42,6 +42,9 @@ class VisitTrackingModelFormMixin:
 
     @property
     def subject_identifier(self) -> str:
+        return self.get_subject_identifier()
+
+    def get_subject_identifier(self) -> str:
         return self.cleaned_data.get("subject_identifier") or self.instance.subject_identifier
 
     @property

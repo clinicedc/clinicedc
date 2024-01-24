@@ -1,8 +1,16 @@
 from dateutil.relativedelta import relativedelta
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.tests.dummy_panel import DummyPanel
-from edc_visit_schedule.visit import Crf, FormsCollection, Requisition, Visit
+from edc_visit_schedule.visit import (
+    Crf,
+    CrfCollection,
+    Requisition,
+    RequisitionCollection,
+    Visit,
+)
 from edc_visit_schedule.visit_schedule import VisitSchedule
+
+from .consents import consent_v1
 
 
 class Panel(DummyPanel):
@@ -14,7 +22,7 @@ class Panel(DummyPanel):
         super().__init__(requisition_model="edc_visit_tracking.subjectrequisition", name=name)
 
 
-crfs = FormsCollection(
+crfs = CrfCollection(
     Crf(show_order=1, model="edc_visit_tracking.crfone", required=True),
     Crf(show_order=2, model="edc_visit_tracking.crftwo", required=True),
     Crf(show_order=3, model="edc_visit_tracking.crfthree", required=True),
@@ -22,7 +30,7 @@ crfs = FormsCollection(
     Crf(show_order=5, model="edc_visit_tracking.crffive", required=True),
 )
 
-requisitions = FormsCollection(
+requisitions = RequisitionCollection(
     Requisition(show_order=10, panel=Panel("one"), required=True, additional=False),
     Requisition(show_order=20, panel=Panel("two"), required=True, additional=False),
     Requisition(show_order=30, panel=Panel("three"), required=True, additional=False),
@@ -49,16 +57,14 @@ schedule1 = Schedule(
     name="schedule1",
     onschedule_model="edc_visit_tracking.onscheduleone",
     offschedule_model="edc_visit_tracking.offscheduleone",
-    consent_model="edc_visit_tracking.subjectconsent",
-    appointment_model="edc_appointment.appointment",
+    consent_definitions=[consent_v1],
 )
 
 schedule2 = Schedule(
     name="schedule2",
     onschedule_model="edc_visit_tracking.onscheduletwo",
     offschedule_model="edc_visit_tracking.offscheduletwo",
-    consent_model="edc_visit_tracking.subjectconsent",
-    appointment_model="edc_appointment.appointment",
+    consent_definitions=[consent_v1],
     base_timepoint=4,
 )
 

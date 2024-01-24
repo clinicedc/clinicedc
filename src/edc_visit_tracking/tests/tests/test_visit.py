@@ -1,3 +1,7 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+import time_machine
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
@@ -15,7 +19,10 @@ from ..helper import Helper
 from ..models import BadCrfOneInline, CrfOne, CrfOneInline, OtherModel
 from ..visit_schedule import visit_schedule1, visit_schedule2
 
+utc_tz = ZoneInfo("UTC")
 
+
+@time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestVisit(TestCase):
     helper_cls = Helper
 
@@ -31,7 +38,9 @@ class TestVisit(TestCase):
         site_visit_schedules.register(visit_schedule=visit_schedule2)
 
     def test_methods(self):
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name=visit_schedule1.name, schedule_name="schedule1"
+        )
         appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
         instance = CrfOne(subject_visit=subject_visit)
@@ -57,7 +66,9 @@ class TestVisit(TestCase):
 
     def test_crf_inline_model_attrs(self):
         """Assert inline model can find visit instance from parent."""
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name=visit_schedule1.name, schedule_name="schedule1"
+        )
         appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
@@ -67,7 +78,9 @@ class TestVisit(TestCase):
 
     def test_crf_inline_model_parent_model(self):
         """Assert inline model cannot find parent, raises exception."""
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name=visit_schedule1.name, schedule_name="schedule1"
+        )
         appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
@@ -81,7 +94,9 @@ class TestVisit(TestCase):
 
     def test_crf_inline_model_attrs2(self):
         """Assert inline model can find visit instance from parent."""
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name=visit_schedule1.name, schedule_name="schedule1"
+        )
         appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
@@ -91,7 +106,9 @@ class TestVisit(TestCase):
 
     def test_get_previous_model_instance(self):
         """Assert model can determine the previous."""
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name=visit_schedule1.name, schedule_name="schedule1"
+        )
         for index, appointment in enumerate(
             Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         ):
@@ -117,7 +134,9 @@ class TestVisit(TestCase):
         """Assert model can determine the previous even when unscheduled
         appointment are inserted.
         """
-        self.helper.consent_and_put_on_schedule()
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name=visit_schedule1.name, schedule_name="schedule1"
+        )
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
 
         for index, appointment in enumerate(appointments):
