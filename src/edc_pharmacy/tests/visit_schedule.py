@@ -3,7 +3,7 @@ from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.visit import Crf, CrfCollection, Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
 
-from edc_pharmacy.tests.consents import v1_consent
+from edc_pharmacy.tests.consents import consent_v1
 
 app_label = "edc_pharmacy"
 
@@ -50,7 +50,7 @@ schedule = Schedule(
     name="schedule",
     onschedule_model="edc_pharmacy.onschedule",
     offschedule_model="edc_pharmacy.offschedule",
-    consent_definitions=[v1_consent],
+    consent_definitions=[consent_v1],
     appointment_model="edc_appointment.appointment",
 )
 

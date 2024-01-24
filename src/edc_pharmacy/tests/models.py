@@ -14,6 +14,8 @@ from edc_visit_tracking.model_mixins import VisitModelMixin
 
 from edc_pharmacy.model_mixins import StudyMedicationCrfModelMixin
 
+from .consents import consent_v1
+
 
 class SubjectConsent(
     SiteModelMixin,
@@ -35,6 +37,7 @@ class SubjectConsent(
 
 
 class SubjectScreening(ScreeningModelMixin, BaseUuidModel):
+    consent_definition = consent_v1
     objects = SubjectIdentifierManager()
 
 
