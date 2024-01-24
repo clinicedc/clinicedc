@@ -4,10 +4,6 @@ from typing import TYPE_CHECKING, Type
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from edc_consent.exceptions import ConsentDefinitionDoesNotExist
-from edc_consent.site_consents import site_consents
-from edc_form_validators import INVALID_ERROR
-from edc_sites.site import sites
 
 from .utils import get_subject_screening_model
 
@@ -53,11 +49,4 @@ class SubjectScreeningFormValidatorMixin:
         return self._subject_screening
 
     def get_consent_definition_or_raise(self) -> ConsentDefinition:
-        try:
-            consent_definition = site_consents.get_consent_definition(
-                report_datetime=self.report_datetime,
-                site=sites.get(self.instance.site.id),
-            )
-        except ConsentDefinitionDoesNotExist as e:
-            self.raise_validation_error(str(e), INVALID_ERROR)
-        return consent_definition
+        return self.instance.consent_definition
