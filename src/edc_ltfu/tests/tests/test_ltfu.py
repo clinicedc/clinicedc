@@ -5,10 +5,11 @@ from edc_action_item import site_action_items
 from edc_action_item.models import ActionItem
 from edc_adverse_event.constants import DEATH_REPORT_ACTION
 from edc_appointment.tests.test_case_mixins import AppointmentTestCaseMixin
-from edc_consent import site_consents
+from edc_consent.site_consents import site_consents
 from edc_constants.constants import CLOSED, HOSPITALIZED, OTHER, YES
 from edc_facility.import_holidays import import_holidays
 from edc_list_data import load_list_data
+from edc_metadata.tests.consents import consent_v1
 from edc_metadata.tests.models import SubjectConsent
 from edc_metadata.tests.visit_schedule import visit_schedule
 from edc_offstudy.action_items import EndOfStudyAction as BaseEndOfStudyAction
@@ -21,7 +22,6 @@ from edc_ltfu.constants import LTFU_ACTION
 from edc_ltfu.models import Ltfu
 
 from ...utils import get_ltfu_model_cls, get_ltfu_model_name
-from ..consents import v1_consent
 
 list_data = {
     "edc_metadata.subjectvisitmissedreasons": [
@@ -40,7 +40,7 @@ list_data = {
 class TestLtfu(AppointmentTestCaseMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
-        site_consents.register(v1_consent)
+        site_consents.register(consent_v1)
         import_holidays()
 
     def setUp(self):
