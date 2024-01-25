@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Type
 from uuid import uuid4
 
 from django.core.handlers.wsgi import WSGIRequest
+from django.utils.translation import gettext as _
 
 from .next_querystring import NextQuerystring
 from .perms import Perms
@@ -17,6 +18,9 @@ if TYPE_CHECKING:
     class Model(BaseUuidModel):
         subject_identifier: str
         ...
+
+    class WSGIRequestObject(WSGIRequest):
+        site: Site
 
 
 ADD: int = 0
@@ -37,7 +41,7 @@ class ModelButton:
     model_cls: Type[Model] = field(default=None)
     current_site: Site = None
     subject_identifier: str | None = None
-    request: WSGIRequest | None = None
+    request: WSGIRequestObject | None = None
     fixed_label: str | None = None
     labels: tuple[str, str, str] = field(default=("Add", "Change", "View"))
     fa_icons: tuple[str, str, str] = field(default=("fas fa-plus", "fas fa-pen", "fas fa-eye"))
@@ -61,8 +65,8 @@ class ModelButton:
     @property
     def label(self) -> str:
         if self.fixed_label:
-            return self.fixed_label
-        return self.labels[self.action]
+            return _(self.fixed_label)
+        return _(self.labels[self.action])
 
     @property
     def color(self) -> str:
