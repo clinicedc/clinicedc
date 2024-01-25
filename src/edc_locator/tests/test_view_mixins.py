@@ -15,11 +15,6 @@ from edc_locator.exceptions import SubjectLocatorViewMixinError
 from edc_locator.view_mixins import SubjectLocatorViewMixin
 
 
-class DummyModelWrapper:
-    def __init__(self, **kwargs):
-        pass
-
-
 class TestViewMixins(TestCase):
     def setUp(self):
         self.user = get_user_for_tests()
@@ -30,7 +25,6 @@ class TestViewMixins(TestCase):
         class MySubjectLocatorViewMixin(
             SiteViewMixin, SubjectLocatorViewMixin, RegisteredSubjectViewMixin, ContextMixin
         ):
-            subject_locator_model_wrapper_cls = DummyModelWrapper
             subject_locator_model = "blah.blahblah"
 
         mixin = MySubjectLocatorViewMixin()
@@ -43,7 +37,6 @@ class TestViewMixins(TestCase):
         class MySubjectLocatorViewMixin(
             SiteViewMixin, SubjectLocatorViewMixin, RegisteredSubjectViewMixin, ContextMixin
         ):
-            subject_locator_model_wrapper_cls = DummyModelWrapper
             subject_locator_model = "edc_locator.subjectlocator"
 
         mixin = MySubjectLocatorViewMixin()
@@ -70,7 +63,6 @@ class TestViewMixins(TestCase):
         class MySubjectLocatorViewMixin(
             SiteViewMixin, SubjectLocatorViewMixin, RegisteredSubjectViewMixin, ContextMixin
         ):
-            subject_locator_model_wrapper_cls = DummyModelWrapper
             subject_locator_model = "edc_locator.subjectlocator"
 
         mixin = MySubjectLocatorViewMixin()
