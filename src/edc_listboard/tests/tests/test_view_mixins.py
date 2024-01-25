@@ -12,7 +12,6 @@ from edc_auth.auth_updater import AuthUpdater
 from edc_auth.site_auths import site_auths
 from edc_dashboard.url_names import url_names
 from edc_model_wrapper import ModelWrapper
-from edc_sites.view_mixins import SiteViewMixin
 from edc_test_utils.get_user_for_tests import get_user_for_tests
 from edc_utils import get_utcnow
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
@@ -77,7 +76,7 @@ class TestViewMixins(TestCase):
                 lookup={"reason": "scheduled"},
             )
 
-        class MyView(SiteViewMixin, ListboardFilterViewMixin, ListboardView):
+        class MyView(ListboardFilterViewMixin, ListboardView):
             listboard_model = "edc_listboard.subjectvisit"
             listboard_url = "listboard_url"
             listboard_template = "listboard_template"
