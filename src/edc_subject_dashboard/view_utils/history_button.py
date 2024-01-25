@@ -4,6 +4,7 @@ from dataclasses import InitVar, dataclass, field
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
+from django.utils.translation import gettext as _
 from edc_model.utils import get_history_url
 
 if TYPE_CHECKING:
@@ -15,7 +16,6 @@ __all__ = ["HistoryButton"]
 @dataclass
 class HistoryButton:
     model_obj: InitVar[CrfMetadata] = None
-    label: str = field(default="Audit")
     color: str = field(default="default")
     url: str = field(default=None, init=False)
     disabled: str = field(default="disabled", init=False)
@@ -35,3 +35,7 @@ class HistoryButton:
                 f"{model_obj.model_cls._meta.label_lower.split('.')[1]}-history-"
                 f"{uuid4().hex}"
             )
+
+    @property
+    def label(self) -> str:
+        return _("Audit")

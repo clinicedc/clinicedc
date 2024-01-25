@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from uuid import UUID
 
 from django.apps import apps as django_apps
+from django.utils.translation import gettext as _
 from edc_registration import get_registered_subject_model_cls
 
 from .dashboard_model_button import DashboardModelButton
@@ -34,7 +35,6 @@ class QueryButton(DashboardModelButton):
 
     registered_subject: RegisteredSubject = None
     visit_schedule: VisitSchedule = None
-    labels: str = field(default=3 * ("Query",))
     fa_icons: tuple[str, str, str] = field(default=(3 * ("",)))
     colors: tuple[str, str, str] = field(default=(3 * ("default",)))
     verbose_name: str = field(default=None, init=False)
@@ -44,6 +44,9 @@ class QueryButton(DashboardModelButton):
             raise ValueError(f"Invalid. Expected none for 'model_obj'. Got {self.model_obj}.")
         self.model_cls = django_apps.get_model("edc_data_manager.dataquery")
         self.verbose_name = self.metadata_model_obj.verbose_name
+
+    def label(self) -> str:
+        return _("Query")
 
     @property
     def url(self) -> str:

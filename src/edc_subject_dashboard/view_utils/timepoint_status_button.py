@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, TypeVar
 
+from django.utils.translation import gettext as _
 from edc_appointment.constants import (
     CANCELLED_APPT,
     COMPLETE_APPT,
@@ -38,34 +39,34 @@ class TimepointStatusButton(AppointmentButton):
 
     @property
     def title(self) -> str:
-        title = super().title
+        title = _(super().title)
         if self.model_obj.appt_status == SKIPPED_APPT:
-            title = "Skipped as per protocol"
+            title = _("Skipped as per protocol")
         elif self.model_obj.appt_status == CANCELLED_APPT:
-            title = "Cancelled"
+            title = _("Cancelled")
         elif self.model_obj.appt_status == COMPLETE_APPT:
-            title = "Done. All required forms submitted. Click to re-open"
+            title = _("Done. All required forms submitted. Click to re-open")
         elif self.model_obj.appt_status == INCOMPLETE_APPT:
-            title = "Incomplete. Some forms not submitted. Click to re-open"
+            title = _("Incomplete. Some forms not submitted. Click to re-open")
         elif self.model_obj.appt_status == NEW_APPT:
-            title = "Start appointment"
+            title = _("Start appointment")
         if self.perms.view_only:
-            title = f"{title} (view only)"
+            title = _("%(title)s (view only)") % {"title": title}
         return title
 
     @property
     def label(self) -> str:
         label = None
         if self.model_obj.appt_status == SKIPPED_APPT:
-            label = "Skipped"
+            label = _("Skipped")
         elif self.model_obj.appt_status == CANCELLED_APPT:
-            label = "Cancelled"
+            label = _("Cancelled")
         elif self.model_obj.appt_status == COMPLETE_APPT:
-            label = "Done"
+            label = _("Done")
         elif self.model_obj.appt_status == INCOMPLETE_APPT:
-            label = "Incomplete"
+            label = _("Incomplete")
         elif self.model_obj.appt_status == NEW_APPT:
-            label = "Start"
+            label = _("Start")
         return label
 
     @property

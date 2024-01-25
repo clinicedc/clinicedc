@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, TypeVar
 
+from django.utils.translation import gettext as _
 from edc_appointment.constants import IN_PROGRESS_APPT
 from edc_constants.constants import COMPLETE
 
@@ -26,13 +27,15 @@ class GotToFormsButton(RelatedVisitButton):
     requisitions for the selected timepoint.
     """
 
-    labels: tuple[str, str, str] = field(default=3 * ("Forms",))
     colors: tuple[str, str, str] = field(default=("primary", "primary", "default"))
-    titles: tuple[str, str, str] = field(default=3 * ("Go to CRFs and Requisitions",))
 
     @property
     def label(self) -> str:
-        return "Forms"
+        return _("Forms")
+
+    @property
+    def title(self) -> str:
+        return _("Go to CRFs and Requisitions")
 
     def color(self) -> str:
         """Shows as blue to direct user to go to the subject

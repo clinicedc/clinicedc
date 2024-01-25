@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Type
 from uuid import UUID
 
 from django.apps import apps as django_apps
+from django.utils.translation import gettext as _
 from edc_appointment.constants import IN_PROGRESS_APPT, NEW_APPT
 from edc_utils import get_utcnow
 
@@ -21,7 +22,6 @@ __all__ = ["AppointmentButton"]
 @dataclass
 class AppointmentButton(DashboardModelButton):
     model_obj: Appointment = None
-    labels: tuple[str, str, str] = field(default=(3 * ("Appt",)))
     colors: tuple[str, str, str] = field(default=(3 * ("default",)))
     model_cls: Type[Appointment] = field(default=None, init=False)
     appointment: Appointment = field(default=None, init=False)
@@ -42,6 +42,10 @@ class AppointmentButton(DashboardModelButton):
         ):
             disabled = ""
         return disabled
+
+    @property
+    def label(self) -> str:
+        return _("Appt")
 
     @property
     def color(self) -> str:

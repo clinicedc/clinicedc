@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Type, TypeVar
 
+from django.utils.translation import gettext as _
 from edc_appointment.constants import (
     CANCELLED_APPT,
     COMPLETE_APPT,
@@ -78,22 +79,22 @@ class RelatedVisitButton(DashboardModelButton):
 
     @property
     def label(self) -> str:
-        label = super().label
+        label = _(super().label)
         if self.appointment.appt_status == SKIPPED_APPT:
-            label = "Skipped"
+            label = _("Skipped")
         elif self.appointment.appt_status == CANCELLED_APPT:
-            label = "Cancelled"
+            label = _("Cancelled")
         elif self.appointment.appt_status == COMPLETE_APPT:
-            label = "Done"
+            label = _("Done")
         elif self.appointment.appt_status == INCOMPLETE_APPT:
-            label = "Incomplete"
+            label = _("Incomplete")
         elif self.appointment.appt_status == IN_PROGRESS_APPT:
-            label = "Visit Report"
+            label = _("Visit Report")
         return label
 
     @property
     def title(self):
         title = super().title
         if self.model_obj and self.model_obj.document_status == INCOMPLETE:
-            title = "Click to review before continuing to forms."
+            title = _("Click to review before continuing to forms.")
         return title
