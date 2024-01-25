@@ -47,9 +47,9 @@ class SearchListboardMixin:
         q_object, options = super().get_queryset_filter_options(request, *args, **kwargs)
         if self.search_term and not re.match(r"^[A-Za-z0-9\-]+?$", self.search_term):
             add_to_messages_once(
-                message=_("Invalid search term. May only include letters, numbers and '-'."),
                 request=request,
                 level=WARNING,
+                message=_("Invalid search term. May only include letters, numbers and '-'."),
             )
         elif self.search_term:
             for field, lookup in self.get_field_lookups():
