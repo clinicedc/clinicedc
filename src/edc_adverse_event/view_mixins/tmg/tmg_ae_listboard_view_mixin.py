@@ -34,7 +34,6 @@ class TmgAeListboardViewMixin(
     listboard_panel_title = "TMG: AE Reports"
     listboard_view_permission_codename = "edc_adverse_event.view_tmg_listboard"
 
-    # model_wrapper_cls = TmgActionItemModelWrapper
     navbar_name = get_default_navbar()
     navbar_selected_item = "tmg_home"
     ordering = "-report_datetime"

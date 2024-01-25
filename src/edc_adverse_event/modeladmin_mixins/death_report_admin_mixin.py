@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.contrib import admin
 from django.contrib.admin import display
 from django.template.loader import render_to_string
-from django.urls import reverse
+from django.urls import NoReverseMatch, reverse
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_action_item import action_fieldset_tuple
 from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
@@ -167,11 +167,15 @@ class DeathReportModelAdminMixin(
 
     @display(description="TMG")
     def tmg_button(self, obj):
+        try:
+            changelist_url = reverse(
+                f"{self.admin_site.name}:{obj._meta.app_label}_deathreporttmg_changelist"
+            )
+        except NoReverseMatch:
+            changelist_url = None
         context = dict(
             subject_identifier=obj.subject_identifier,
-            changelist_url=reverse(
-                f"{self.admin_site.name}:{obj._meta.app_label}_deathreporttmg_changelist"
-            ),
+            changelist_url=changelist_url,
         )
         return render_to_string(
             template_name="edc_adverse_event/tmg_button.html", context=context

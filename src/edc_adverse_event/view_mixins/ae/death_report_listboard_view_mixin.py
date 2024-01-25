@@ -44,7 +44,6 @@ class DeathReportListboardViewMixin(
         "left of the subject's identifier."
     )
 
-    # model_wrapper_cls = ActionItemModelWrapper
     navbar_selected_item = "ae_home"
     ordering = "-report_datetime"
     paginate_by = 25
