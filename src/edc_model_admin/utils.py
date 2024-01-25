@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from warnings import warn
 
 from django.contrib import messages
@@ -51,7 +53,9 @@ def get_value_from_lookup_string(search_field_name: str = None, obj=None, reques
     return value
 
 
-def add_to_messages_once(message: str, request: WSGIRequest, level: int | None = None) -> None:
+def add_to_messages_once(
+    request: WSGIRequest = None, level: int = None, message: str = None
+) -> None:
     if not [msg_obj for msg_obj in get_messages(request) if msg_obj.message == message]:
         messages.add_message(
             request=request, message=message, level=level or messages.INFO, fail_silently=True
