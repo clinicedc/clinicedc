@@ -1,9 +1,10 @@
 from django import forms
 
 from ..form_validators import AeTmgFormValidator
+from . import AeModelFormMixin
 
 
-class AeTmgModelFormMixin:
+class AeTmgModelFormMixin(AeModelFormMixin):
     form_validator_cls = AeTmgFormValidator
 
     class Meta:

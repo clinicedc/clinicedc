@@ -6,19 +6,20 @@ from typing import TYPE_CHECKING
 
 from django import template
 from django.conf import settings
-from django.contrib.auth import get_permission_codename
+from django.contrib.messages import ERROR
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import select_template
 from django.utils.html import format_html
+from django.utils.translation import gettext as _
 from edc_action_item.utils import get_reference_obj
-from edc_constants.constants import OPEN, OTHER, YES
+from edc_constants.constants import CLOSED, OPEN, OTHER, YES
 from edc_dashboard.utils import get_bootstrap_version
+from edc_model_admin.utils import add_to_messages_once
 from edc_utils import get_utcnow
 
-from .. import get_ae_model
-from ..auth_objects import TMG_ROLE
-from ..constants import AE_WITHDRAWN
-from ..utils import get_adverse_event_app_label
+from ..constants import AE_WITHDRAWN, TMG_ROLE
+from ..utils import get_adverse_event_app_label, get_ae_model, has_valid_tmg_perms
+from ..view_utils import TmgButton
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -28,19 +29,23 @@ if TYPE_CHECKING:
     from ..model_mixins import (
         AeFollowupModelMixin,
         AeInitialModelMixin,
+        DeathReportModelMixin,
         DeathReportTmgModelMixin,
     )
 
-    class DeathReportTmg(DeathReportTmgModelMixin, BaseUuidModel):
+    class DeathReportTmgModel(DeathReportTmgModelMixin, BaseUuidModel):
         ...
 
-    class DeathReportTmgSecond(DeathReportTmgModelMixin, BaseUuidModel):
+    class DeathReportTmgSecondModel(DeathReportTmgModelMixin, BaseUuidModel):
         ...
 
-    class AeInitial(AeInitialModelMixin, BaseUuidModel):
+    class AeInitialModel(AeInitialModelMixin, BaseUuidModel):
         ...
 
-    class AeFollowup(AeFollowupModelMixin, BaseUuidModel):
+    class AeFollowupModel(AeFollowupModelMixin, BaseUuidModel):
+        ...
+
+    class DeathReportModel(DeathReportModelMixin, BaseUuidModel):
         ...
 
 
@@ -68,19 +73,6 @@ def select_ae_template(relative_path):
 def select_description_template(model):
     """Returns a template name."""
     return select_ae_template(f"{model}_description.html").template.name
-
-
-@register.inclusion_tag(
-    f"edc_adverse_event/bootstrap{get_bootstrap_version()}/"
-    f"tmg/tmg_ae_listboard_result.html",
-    takes_context=True,
-)
-def tmg_listboard_results(
-    context, results: [ActionItem], empty_message: str | None = None
-) -> dict:
-    context["results"] = results
-    context["empty_message"] = empty_message
-    return context
 
 
 @register.inclusion_tag(select_description_template("aeinitial"), takes_context=True)
@@ -138,6 +130,19 @@ def format_ae_susar_description(context, ae_susar, wrap_length):
 
 
 @register.inclusion_tag(
+    f"edc_adverse_event/bootstrap{get_bootstrap_version()}/"
+    f"tmg/tmg_ae_listboard_result.html",
+    takes_context=True,
+)
+def tmg_listboard_results(
+    context, results: [ActionItem], empty_qs_message: str | None = None
+) -> dict:
+    context["results"] = results
+    context["empty_message"] = empty_qs_message
+    return context
+
+
+@register.inclusion_tag(
     f"edc_adverse_event/bootstrap{get_bootstrap_version()}/tmg/death_report_tmg_panel.html",
     takes_context=True,
 )
@@ -146,7 +151,7 @@ def render_death_report_tmg_panel(context, action_item: ActionItem = None):
 
 
 @register.simple_tag
-def death_report_tmg_queryset(action_item: ActionItem = None) -> QuerySet[DeathReportTmg]:
+def death_report_tmg_queryset(action_item: ActionItem = None) -> QuerySet[DeathReportTmgModel]:
     return get_ae_model("deathreporttmg").objects.filter(
         subject_identifier=action_item.subject_identifier
     )
@@ -155,7 +160,7 @@ def death_report_tmg_queryset(action_item: ActionItem = None) -> QuerySet[DeathR
 @register.simple_tag
 def death_report_tmg2_queryset(
     action_item: ActionItem = None,
-) -> QuerySet[DeathReportTmgSecond]:
+) -> QuerySet[DeathReportTmgSecondModel]:
     return get_ae_model("deathreporttmgsecond").objects.filter(
         subject_identifier=action_item.subject_identifier
     )
@@ -164,12 +169,14 @@ def death_report_tmg2_queryset(
 @register.simple_tag
 def death_report_queryset(
     subject_identifier: str = None,
-) -> QuerySet[DeathReportTmgSecond]:
+) -> QuerySet[DeathReportTmgSecondModel]:
     return get_ae_model("deathreport").objects.filter(subject_identifier=subject_identifier)
 
 
 @register.simple_tag
-def ae_followup_queryset(ae_initial: AeInitial = None) -> QuerySet[AeFollowup] | None:
+def ae_followup_queryset(
+    ae_initial: AeInitialModel = None,
+) -> QuerySet[AeFollowupModel] | None:
     if ae_initial:
         return get_ae_model("aefollowup").objects.filter(ae_initial_id=ae_initial.id)
     return None
@@ -182,108 +189,48 @@ def ae_followup_queryset(ae_initial: AeInitial = None) -> QuerySet[AeFollowup] |
 def render_tmg_panel(
     context,
     action_item: ActionItem = None,
-    reference_obj: DeathReportTmg = None,
-    change: bool | None = None,
+    reference_obj: DeathReportTmgModel = None,
     view_only: bool | None = None,
     by_user_created_only: bool | None = None,
     counter: int = None,
     report_status: str | None = None,
 ) -> dict:
-    # must have either action item or reference_obj
     reference_obj = reference_obj or get_reference_obj(action_item)
     if not action_item and reference_obj:
         action_item = reference_obj.action_item
-    may_access_tmg_obj = has_perms_for_obj(
-        context,
-        reference_obj=reference_obj,
-        change=change,
-        view_only=view_only,
-        by_user_created_only=by_user_created_only,
+    disable_all = True if not has_valid_tmg_perms(request=context["request"]) else False
+    btn = TmgButton(
+        user=context["request"].user,
+        model_obj=reference_obj,
+        model_cls=action_item.action_cls.reference_model_cls(),
+        request=context["request"],
+        only_user_created_may_access=by_user_created_only,
+        forloop_counter=counter,
+        current_site=context["request"].site,
+        disable_all=disable_all,
     )
-    disabled = "disabled" if not may_access_tmg_obj else ""
-
-    if view_only:
-        label = "View"
-        fa_icon = "fa-eye"
-    elif not reference_obj:
-        label = "Add"
-        fa_icon = "fa-plus"
-    else:
-        label = "Edit" if reference_obj else "view"
-        fa_icon = "fa-pencil" if reference_obj else "fa-plus"
-
     if view_only:
         panel_color = "info"
+    elif not reference_obj:
+        panel_color = "warning"
     else:
-        panel_color = "success" if reference_obj else "warning"
+        panel_color = "success"
+
+    # panel_label
+    display_name = action_item.display_name.replace("Submit", "").replace("pending", "")
+    identifier = action_item.identifier or "New"
+    panel_label = _(f"{display_name} {identifier}")
+
     return dict(
+        btn=btn,
+        panel_color=panel_color,
         reference_obj=reference_obj,
         action_item=action_item,
-        may_access_tmg_obj=may_access_tmg_obj,
-        counter=counter,
-        panel_color=panel_color,
-        disabled=disabled,
-        label=label,
-        fa_icon=fa_icon,
-        view_only=view_only,
-        report_status=report_status,
         OPEN=OPEN,
+        CLOSED=CLOSED,
+        report_status=report_status,
+        panel_label=panel_label,
     )
-
-
-@register.inclusion_tag(
-    f"edc_adverse_event/bootstrap{get_bootstrap_version()}/tmg/ae_tmg_panel.html",
-    takes_context=True,
-)
-def render_ae_initial_panel(
-    context,
-    action_item: ActionItem = None,
-    counter: int = None,
-) -> dict:
-    may_access_tmg_obj = has_perms_for_obj(
-        context,
-        action_item=action_item,
-        view_only=True,
-    )
-    return dict(
-        action_item=action_item,
-        may_access_tmg_obj=may_access_tmg_obj,
-        counter=counter,
-        panel_color="info",
-    )
-
-
-@register.simple_tag(takes_context=True)
-def has_perms_for_obj(
-    context,
-    action_item: ActionItem | None = None,
-    reference_obj: DeathReportTmg = None,
-    change: bool | None = None,
-    view_only: bool | None = None,
-    by_user_created_only: bool | None = None,
-) -> bool:
-    has_perms = False
-
-    reference_obj = reference_obj or get_reference_obj(action_item)
-
-    if reference_obj:
-        app_label = reference_obj._meta.app_label
-        add_codename = get_permission_codename("add", reference_obj._meta)
-        change_codename = get_permission_codename("change", reference_obj._meta)
-        view_codename = get_permission_codename("view", reference_obj._meta)
-        has_change_perms = context["request"].user.has_perms(
-            [f"{app_label}.{add_codename}", f"{app_label}.{change_codename}"]
-        )
-        has_view_perms = context["request"].user.has_perm(f"{app_label}.{view_codename}")
-        if change:
-            has_perms = has_change_perms
-        elif view_only:
-            has_perms = not has_change_perms and has_view_perms
-        if by_user_created_only:
-            has_perms = (
-                has_perms and reference_obj.user_created == context["request"].user.username
-            )
-    return has_perms
 
 
 @register.simple_tag(takes_context=True)
@@ -292,5 +239,21 @@ def has_perms_for_tmg_role(context):
     try:
         has_perms = context["request"].user.userprofile.roles.get(name=TMG_ROLE)
     except ObjectDoesNotExist:
-        pass
+        add_to_messages_once(
+            context["request"],
+            ERROR,
+            _(
+                "Access disabled. User has not been granted a TMG role. "
+                "Contact your administrator."
+            ),
+        )
+
     return has_perms
+
+
+@register.simple_tag()
+def get_empty_qs_message(status: str, search_term: str):
+    msg = f"There are no {status} reports."
+    if search_term:
+        msg = f"{msg[:-1]} for your search criteria"
+    return _(msg)

@@ -1,14 +1,5 @@
 from .utils import get_adverse_event_app_label, get_hospitalization_model_app_label
 
-AE = "AE"
-AE_REVIEW = "AE_REVIEW"
-AE_ROLE = "ae_role"
-AE_SUPER = "AE_SUPER"
-
-TMG = "TMG"
-TMG_REVIEW = "TMG_REVIEW"
-TMG_ROLE = "tmg"
-
 ae_codenames = [
     "edc_adverse_event.nav_ae_section",
     "edc_adverse_event.view_ae_listboard",

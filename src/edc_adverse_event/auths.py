@@ -8,13 +8,6 @@ from edc_auth.site_auths import site_auths
 from edc_auth.utils import remove_default_model_permissions_from_edc_permissions
 
 from .auth_objects import (
-    AE,
-    AE_REVIEW,
-    AE_ROLE,
-    AE_SUPER,
-    TMG,
-    TMG_REVIEW,
-    TMG_ROLE,
     ae_codenames,
     ae_dashboard_tuples,
     ae_navbar_tuples,
@@ -22,6 +15,7 @@ from .auth_objects import (
     tmg_dashboard_tuples,
     tmg_navbar_tuples,
 )
+from .constants import AE, AE_REVIEW, AE_ROLE, AE_SUPER, TMG, TMG_REVIEW, TMG_ROLE
 
 site_auths.add_post_update_func(
     "edc_adverse_event", remove_default_model_permissions_from_edc_permissions
