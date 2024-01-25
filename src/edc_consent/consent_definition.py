@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Type
 from django.apps import apps as django_apps
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from edc_constants.constants import FEMALE, MALE
-from edc_identifier.model_mixins import NonUniqueSubjectIdentifierModelMixin
 from edc_protocol import Protocol
 from edc_sites import site_sites
 from edc_utils import floor_secs, formatted_date, formatted_datetime
@@ -21,6 +20,8 @@ from .exceptions import (
 )
 
 if TYPE_CHECKING:
+    from edc_identifier.model_mixins import NonUniqueSubjectIdentifierModelMixin
+
     from .model_mixins import ConsentModelMixin
 
     class ConsentLikeModel(NonUniqueSubjectIdentifierModelMixin, ConsentModelMixin):
