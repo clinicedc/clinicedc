@@ -23,15 +23,19 @@
 </div> <!--end panel heading -->
 </div>
 
-
+x
 <!-- begin new tab -->
   {# results in qs of ActionItem #}
+
 {% if status == NEW %}
-    {% tmg_listboard_results results "There are no new reports to submit for this site." %}
+  {% get_empty_qs_message "new" search_term as msg %}
+  {% tmg_listboard_results results msg %}
 {% elif status == OPEN %}
-    {% tmg_listboard_results results "There are no open reports to submit for this site." %}
+  {% get_empty_qs_message "open" search_term as msg %}
+  {% tmg_listboard_results results msg %}
 {% elif status == CLOSED %}
-    {% tmg_listboard_results results "There are no closed reports for this site." %}
+  {% get_empty_qs_message "closed" search_term as msg %}
+  {% tmg_listboard_results results msg %}
 {% endif %}
 <!-- end new tab -->
 

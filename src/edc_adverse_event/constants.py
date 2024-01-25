@@ -28,3 +28,12 @@ RECOVERED_WITH_SEQUELAE = "recovered_with_sequelae"
 RECOVERING = "recovering"
 STUDY_TERMINATION_CONCLUSION_ACTION = "submit-study-termination-conclusion"
 UNLIKELY_RELATED = "unlikely_related"
+
+# roles
+AE = "AE"
+AE_REVIEW = "AE_REVIEW"
+AE_ROLE = "ae_role"
+AE_SUPER = "AE_SUPER"
+TMG = "TMG"
+TMG_REVIEW = "TMG_REVIEW"
+TMG_ROLE = "tmg"

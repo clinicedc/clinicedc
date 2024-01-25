@@ -11,7 +11,7 @@ from edc_navbar.get_default_navbar import get_default_navbar
 from edc_utils import get_utcnow
 
 from ...constants import AE_TMG_ACTION
-from ...utils import get_adverse_event_app_label
+from ...utils import get_adverse_event_app_label, has_valid_tmg_perms
 
 if TYPE_CHECKING:
     from django.db.models import Q
@@ -73,6 +73,7 @@ class StatusTmgAeListboardView(TmgAeListboardViewMixin):
     status = None
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
+        has_valid_tmg_perms(self.request, add_message=True)
         kwargs.update(status=self.status)
         return super().get_context_data(**kwargs)
 

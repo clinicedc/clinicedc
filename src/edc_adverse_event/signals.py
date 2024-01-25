@@ -6,8 +6,7 @@ from edc_constants.constants import NO, YES
 from edc_notification.models import Notification
 from edc_utils import get_utcnow
 
-from .auth_objects import TMG
-from .constants import AE_TMG_ACTION, DEATH_REPORT_TMG_ACTION
+from .constants import AE_TMG_ACTION, DEATH_REPORT_TMG_ACTION, TMG
 from .utils import get_ae_model
 
 AeInitial = get_ae_model("AeInitial")

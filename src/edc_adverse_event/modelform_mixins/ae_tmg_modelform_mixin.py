@@ -1,7 +1,7 @@
 from django import forms
 
 from ..form_validators import AeTmgFormValidator
-from .ae_modelform_mixin import AeModelFormMixin
+from . import AeModelFormMixin
 
 
 class AeTmgModelFormMixin(AeModelFormMixin):
