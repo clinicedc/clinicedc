@@ -31,7 +31,6 @@ class AeListboardViewMixin(
     listboard_back_url = "ae_home_url"
     home_url = "ae_home_url"
     listboard_panel_title = "Adverse Events: AE Initial and Follow-up Reports"
-    # model_wrapper_cls = ActionItemModelWrapper
 
     listboard_template = "ae_listboard_template"
     listboard_url = "ae_listboard_url"
