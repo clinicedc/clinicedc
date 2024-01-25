@@ -247,13 +247,15 @@ class Sites:
             if get_change_codenames(user):
                 if request:
                     add_to_messages_once(
-                        get_message_text(messages.ERROR), request, messages.ERROR
+                        request,
+                        messages.ERROR,
+                        get_message_text(messages.ERROR),
                     )
             else:
                 site_ids = [s.id for s in user.userprofile.sites.all() if s.id != site_id]
                 if request:
                     add_to_messages_once(
-                        get_message_text(messages.WARNING), request, messages.WARNING
+                        request, messages.WARNING, get_message_text(messages.WARNING)
                     )
         return site_ids
 
