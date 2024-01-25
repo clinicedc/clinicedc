@@ -1,16 +1,8 @@
 import sys
 
 from django.apps import AppConfig as DjangoAppConfig
-from django.core.checks.registry import register
 from django.core.management.color import color_style
 from django.db.models.signals import post_migrate
-from edc_action_item import site_action_items
-from edc_action_item.apps import update_action_types
-from edc_auth.post_migrate_signals import post_migrate_user_groups_and_roles
-from edc_data_manager.populate_data_dictionary import populate_data_dictionary
-from edc_data_manager.post_migrate_signals import update_query_rule_handlers
-
-from .system_checks import edc_check
 
 style = color_style()
 
@@ -37,18 +29,39 @@ class AppConfig(DjangoAppConfig):
     include_in_administration_section = False
 
     def ready(self):
-        sys.stdout.write(style.MIGRATE_HEADING("Loading edc_appconfig:\n"))
-        register(edc_check)
+        from edc_action_item.post_migrate_signals import update_action_types
+        from edc_auth.post_migrate_signals import post_migrate_user_groups_and_roles
+        from edc_data_manager.post_migrate_signals import (
+            populate_data_dictionary,
+            update_query_rule_handlers,
+        )
+        from edc_lab.post_migrate_signals import update_panels_on_post_migrate
+        from edc_list_data.post_migrate_signals import post_migrate_list_data
+        from edc_notification.post_migrate_signals import (
+            post_migrate_update_notifications,
+        )
+        from edc_sites.post_migrate_signals import post_migrate_update_sites
+        from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 
+        sys.stdout.write("Loading edc_appconfig ...\n")
+
+        sys.stdout.write("  * post_migrate.populate_visit_schedule\n")
+        post_migrate.connect(populate_visit_schedule, sender=self)
+        sys.stdout.write("  * post_migrate.post_migrate_update_sites\n")
+        post_migrate.connect(post_migrate_update_sites, sender=self)
+        sys.stdout.write("  * post_migrate.update_panels_on_post_migrate\n")
+        post_migrate.connect(update_panels_on_post_migrate, sender=self)
+        sys.stdout.write("  * post_migrate.post_migrate_list_data\n")
+        post_migrate.connect(post_migrate_list_data, sender=self)
+        sys.stdout.write("  * post_migrate.update_action_types\n")
         post_migrate.connect(update_action_types, sender=self)
-        site_action_items.create_or_update_action_types()
-
-        post_migrate.connect(update_query_rule_handlers, sender=self)
-
+        sys.stdout.write("  * post_migrate.post_migrate_user_groups_and_roles\n")
         post_migrate.connect(post_migrate_user_groups_and_roles, sender=self)
-
+        sys.stdout.write("  * post_migrate.update_query_rule_handlers\n")
+        post_migrate.connect(update_query_rule_handlers, sender=self)
+        sys.stdout.write("  * post_migrate.populate_data_dictionary\n")
         post_migrate.connect(populate_data_dictionary, sender=self)
+        sys.stdout.write("  * post_migrate.post_migrate_update_notifications\n")
+        post_migrate.connect(post_migrate_update_notifications, sender=self)
 
-    def get_edc_app_name(self):
-        """Called in  system checks to confirm this class is used."""
-        return self.edc_app_name
+        sys.stdout.write("  Done\n")
