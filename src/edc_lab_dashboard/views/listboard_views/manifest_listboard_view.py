@@ -4,7 +4,6 @@ from edc_dashboard.url_names import url_names
 from edc_lab.constants import SHIPPED
 from edc_lab.pdf_reports import ManifestPdfReport
 
-from ...model_wrappers import ManifestModelWrapper
 from ..listboard_filters import ManifestListboardViewFilters
 from .base_listboard_view import BaseListboardView
 
@@ -18,14 +17,13 @@ class ManifestListboardView(BaseListboardView):
     listboard_model = "edc_lab.manifest"
     listboard_view_permission_codename = "edc_lab_dashboard.view_lab_manifest_listboard"
     listboard_view_only_my_permission_codename = None
-    model_wrapper_cls = ManifestModelWrapper
     listboard_view_filters = ManifestListboardViewFilters()
     search_form_url = "manifest_listboard_url"
     print_manifest_url = "print_manifest_url"
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(
-            new_manifest=ManifestModelWrapper(self.listboard_model_cls()),
+            new_manifest=self.listboard_model_cls(),
             print_manifest_url_name=url_names.get(self.print_manifest_url),
             SHIPPED=SHIPPED,
         )

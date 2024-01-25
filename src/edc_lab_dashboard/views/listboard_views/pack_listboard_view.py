@@ -5,7 +5,6 @@ from edc_constants.constants import OPEN
 from edc_lab.constants import SHIPPED
 from edc_lab.models import Manifest
 
-from ...model_wrappers import BoxModelWrapper
 from ..listboard_filters import PackListboardViewFilters
 from .base_listboard_view import BaseListboardView
 
@@ -20,7 +19,6 @@ class PackListboardView(BaseListboardView):
     listboard_model = "edc_lab.box"
     listboard_view_permission_codename = "edc_lab_dashboard.view_lab_pack_listboard"
     listboard_view_only_my_permission_codename = None
-    model_wrapper_cls = BoxModelWrapper
     navbar_selected_item = "pack"
     listboard_view_filters = PackListboardViewFilters()
     search_form_url = "pack_listboard_url"
@@ -31,7 +29,7 @@ class PackListboardView(BaseListboardView):
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(
-            new_box=BoxModelWrapper(self.listboard_model_cls()),
+            new_box=self.listboard_model_cls(),
             open_manifests=self.open_manifests,
             SHIPPED=SHIPPED,
         )

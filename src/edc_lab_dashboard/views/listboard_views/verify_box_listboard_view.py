@@ -5,7 +5,6 @@ from django.urls import reverse
 from edc_dashboard.url_names import url_names
 from edc_lab.constants import SHIPPED
 
-from ...model_wrappers import VerifyBoxItemModelWrapper
 from .base_box_item_listboard_view import BaseBoxItemListboardView
 
 
@@ -14,7 +13,6 @@ class VerifyBoxListboardView(BaseBoxItemListboardView):
     form_action_url = "verify_box_item_form_action_url"
     listboard_template = "verify_box_listboard_template"
     listboard_url = "verify_box_listboard_url"
-    model_wrapper_cls = VerifyBoxItemModelWrapper
     navbar_selected_item = "pack"
     search_form_url = "verify_box_listboard_url"
     manage_box_listboard_url = "manage_box_listboard_url"

@@ -8,7 +8,6 @@ from django.db.models import Q
 from django.utils.html import format_html
 from edc_constants.constants import YES
 
-from ...model_wrappers import RequisitionModelWrapper
 from ..listboard_filters import RequisitionListboardViewFilters
 from .base_listboard_view import BaseListboardView
 
@@ -22,7 +21,6 @@ class RequisitionListboardView(BaseListboardView):
     listboard_view_filters = RequisitionListboardViewFilters()
     listboard_view_permission_codename = "edc_lab_dashboard.view_lab_requisition_listboard"
     listboard_view_only_my_permission_codename = None
-    model_wrapper_cls = RequisitionModelWrapper
     navbar_selected_item = "requisition"
     search_form_url = "requisition_listboard_url"
     show_all = True
