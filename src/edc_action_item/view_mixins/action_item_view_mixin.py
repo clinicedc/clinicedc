@@ -6,13 +6,10 @@ from django.db.models import QuerySet
 from edc_constants.constants import NEW, OPEN
 from edc_sites.site import sites
 
-# from ..model_wrappers import ActionItemModelWrapper
 from ..models import ActionItem
 
 
 class ActionItemViewMixin:
-    # action_item_model_wrapper_cls = ActionItemModelWrapper
-
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(open_action_items=self.open_action_items)
         return super().get_context_data(**kwargs)
