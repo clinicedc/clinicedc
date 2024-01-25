@@ -1,13 +1,18 @@
+from __future__ import annotations
+
 from string import Formatter
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from django.apps import apps as django_apps
-from django.contrib.sites.models import Site
 from edc_protocol import Protocol
 
 from .checkdigit_mixins import LuhnMixin
 from .exceptions import IdentifierError
-from .models import IdentifierModel
+
+if TYPE_CHECKING:
+    from django.contrib.sites.models import Site
+
+    from .models import IdentifierModel
 
 
 class IdentifierMissingTemplateValue(Exception):
@@ -22,7 +27,6 @@ class ResearchIdentifier:
     template: Optional[str] = None
     padding: int = 5
     checkdigit = LuhnMixin()
-    identifier_model_cls = IdentifierModel
 
     def __init__(
         self,
@@ -45,7 +49,7 @@ class ResearchIdentifier:
         app_config = django_apps.get_app_config("edc_device")
         self.device_id = device_id or app_config.device_id
         self.protocol_number = protocol_number or Protocol().protocol_number
-        self.site = site or Site.objects.get_current()
+        self.site = site or django_apps.get_model("sites.site").objects.get_current()
         if identifier:
             # load an existing identifier
             self.identifier_model = self.identifier_model_cls.objects.get(
@@ -61,6 +65,10 @@ class ResearchIdentifier:
 
     def __str__(self) -> str:
         return self.identifier
+
+    @property
+    def identifier_model_cls(self) -> IdentifierModel:
+        return django_apps.get_model("edc_identifier.identifiermodel")
 
     @property
     def identifier(self) -> str:
@@ -136,7 +144,7 @@ class ResearchIdentifier:
         """Returns the next sequence number to use."""
         try:
             identifier_model = (
-                IdentifierModel.objects.filter(
+                self.identifier_model_cls.objects.filter(
                     name=self.label, device_id=self.device_id, site=self.site
                 )
                 .order_by("-sequence_number")
