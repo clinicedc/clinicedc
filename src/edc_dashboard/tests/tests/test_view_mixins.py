@@ -18,7 +18,6 @@ from edc_sites.single_site import SingleSite
 from edc_sites.site import sites
 from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
-from edc_sites.view_mixins import SiteViewMixin
 from edc_subject_dashboard.view_mixins import RegisteredSubjectViewMixin
 from edc_test_utils.get_user_for_tests import get_user_for_tests
 from edc_utils import get_utcnow
@@ -97,9 +96,7 @@ class TestViewMixins(SiteTestCaseMixin, TestCase):
                 lookup={"reason": "scheduled"},
             )
 
-        class MyView(
-            SiteViewMixin, RegisteredSubjectViewMixin, ListboardFilterViewMixin, ListboardView
-        ):
+        class MyView(RegisteredSubjectViewMixin, ListboardFilterViewMixin, ListboardView):
             listboard_model = "edc_dashboard.subjectvisit"
             listboard_url = "listboard_url"
             listboard_template = "listboard_template"
