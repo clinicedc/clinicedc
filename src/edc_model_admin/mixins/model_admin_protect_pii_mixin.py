@@ -4,7 +4,7 @@ from copy import copy
 
 from django.db.models.constants import LOOKUP_SEP
 from django_crypto_fields.utils import get_encrypted_fields
-from edc_auth.auth_objects import PII, PII_VIEW
+from edc_auth.constants import PII, PII_VIEW
 
 
 class ModelAdminProtectPiiMixin:
