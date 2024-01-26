@@ -5,7 +5,9 @@ from django.test.utils import override_settings
 from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from multisite import SiteID
+from visit_schedule_app.visit_schedule import visit_schedule
 
 from edc_registration.exceptions import RegisteredSubjectError
 from edc_registration.models import RegisteredSubject
@@ -14,6 +16,10 @@ from .models import SubjectModelOne, SubjectModelThree, SubjectModelTwo
 
 
 class TestRegistration(SiteTestCaseMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        site_visit_schedules.register(visit_schedule=visit_schedule)
+
     def test_creates_registered_subject(self):
         obj = SubjectModelOne.objects.create(screening_identifier="12345")
         try:
