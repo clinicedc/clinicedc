@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import copy
 import sys
 from importlib import import_module
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -9,6 +12,9 @@ from django.urls import NoReverseMatch
 from django.utils.module_loading import module_has_submodule
 
 from .exceptions import AlreadyRegistered, NavbarError
+
+if TYPE_CHECKING:
+    from .navbar import Navbar
 
 
 class NavbarCollection:
@@ -23,7 +29,7 @@ class NavbarCollection:
     def __repr__(self):
         return f"{self.__class__.__name__}()"
 
-    def register(self, navbar=None):
+    def register(self, navbar: Navbar = None):
         if navbar.name not in self.registry:
             self.registry.update({navbar.name: navbar})
             self.codenames.update(**navbar.codenames)
@@ -85,18 +91,17 @@ class NavbarCollection:
             style = color_style()
             writer(f" * checking for site {module_name} ...\n")
             for app in django_apps.app_configs:
-                writer(f" * searching {app}           \r")
                 try:
                     mod = import_module(app)
                     try:
                         before_import_registry = copy.copy(site_navbars.registry)
                         import_module(f"{app}.{module_name}")
-                        writer(f" * registered navbars '{module_name}' from '{app}'\n")
+                        writer(f"   - registered navbars '{module_name}' from '{app}'\n")
                     except NavbarError as e:
-                        writer(f" * loading {app}.navbars ... \n")
+                        writer(f"   * loading {app}.navbars ... \n")
                         writer(style.ERROR(f"ERROR! {e}\n"))
                     except NoReverseMatch as e:
-                        writer(f" * loading {app}.navbars ... \n")
+                        writer(f"   * loading {app}.navbars ... \n")
                         writer(style.ERROR(f"ERROR! {e}\n"))
                         raise
                     except ImportError as e:

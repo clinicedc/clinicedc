@@ -1,16 +1,15 @@
+from __future__ import annotations
+
 import copy
 
-from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.template.loader import render_to_string
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
-from edc_constants.constants import IGNORE, WARN
 from edc_dashboard.url_names import InvalidDashboardUrlName, url_names
 from edc_dashboard.utils import get_bootstrap_version
 
-from .exceptions import NavbarItemError, PermissionsCodenameError
-from .utils import get_verify_on_load
+from .exceptions import NavbarItemError
 
 style = color_style()
 
@@ -23,20 +22,20 @@ class NavbarItem:
 
     def __init__(
         self,
-        name=None,
-        title=None,
-        label=None,
-        alt=None,
-        url_name=None,
+        name: str = None,
+        title: str = None,
+        label: str | None = None,
+        alt: str | None = None,
+        url_name: str = None,
         html_id=None,
-        glyphicon=None,
-        fa_icon=None,
-        icon=None,
+        glyphicon: str = None,
+        fa_icon: str | None = None,
+        icon: str = None,
         icon_width=None,
         icon_height=None,
         no_url_namespace=None,
         active=None,
-        codename=None,
+        codename: str = None,
     ):
         self._reversed_url = None
         self._url_name = None
@@ -54,16 +53,11 @@ class NavbarItem:
         self.icon_height = icon_height
         self.icon_width = icon_width
         self.label = label
-        self.name = name
+        self.name: str = name
         self.no_url_namespace = no_url_namespace
         self.title = title or self.label or name.title()  # the anchor title
-
         self.url_name = url_name
-
-        self.check()
-
-        app_label, _codename = self.verify_codename(codename)
-        self.codename = f"{app_label}.{_codename}"
+        self.codename: str = codename
 
     def __repr__(self):
         return (
@@ -97,25 +91,6 @@ class NavbarItem:
             context.update(has_navbar_item_permission=request.user.has_perm(self.codename))
         return render_to_string(template_name=self.template_name, context=context)
 
-    def verify_codename(self, dotted_codename=None):
-        if not dotted_codename:
-            raise PermissionsCodenameError(
-                f"Invalid codename. May not be None. See {repr(self)}"
-            )
-        try:
-            app_label, codename = dotted_codename.split(".")
-        except ValueError:
-            raise PermissionsCodenameError(
-                f"Invalid codename. Got '{dotted_codename}'. See {repr(self)}."
-            )
-        if app_label not in [a.name for a in django_apps.get_app_configs()]:
-            raise PermissionsCodenameError(
-                f"Invalid app_label in codename. Expected format "
-                f"'<app_label>.<some_codename>'. Got {dotted_codename}. "
-                f"See {repr(self)}"
-            )
-        return app_label, codename
-
     @property
     def url_name(self):
         return self._url_name
@@ -135,15 +110,7 @@ class NavbarItem:
         if self.url_name != "#":
             try:
                 reversed_url = reverse(self.url_name)
-            except NoReverseMatch as e:
-                msg = f"{e}. See {repr(self)}."
-                if get_verify_on_load() == IGNORE:
-                    pass
-                elif get_verify_on_load() == WARN:
-                    print(style.ERROR(msg))
-                else:
-                    raise NoReverseMatch(f"{e}. See {repr(self)}.")
+            except NoReverseMatch:
+                # broadcast as Error in system_checks
+                pass
         return reversed_url
-
-    def check(self):
-        self.reversed_url
