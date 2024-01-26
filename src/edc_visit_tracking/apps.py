@@ -1,5 +1,3 @@
-import sys
-
 from django.apps import AppConfig as DjangoAppConfig
 from django.core.checks.registry import register
 from django.core.management.color import color_style
@@ -17,6 +15,4 @@ class AppConfig(DjangoAppConfig):
     reason_field: dict = {}
 
     def ready(self):
-        sys.stdout.write(f"Loading {self.verbose_name} ...\n")
         register(context_processors_check)
-        sys.stdout.write(f" Done loading {self.verbose_name}.\n")
