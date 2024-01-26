@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
@@ -20,8 +20,8 @@ def consent_definition_factory(
     age_is_adult: int | None = None,
 ) -> ConsentDefinition:
     options = dict(
-        start=start or Protocol().study_open_datetime,
-        end=end or Protocol().study_close_datetime,
+        start=start or ResearchProtocolConfig().study_open_datetime,
+        end=end or ResearchProtocolConfig().study_close_datetime,
         gender=gender or ["M", "F"],
         updates_versions=updates_versions or [],
         version=version or "1",

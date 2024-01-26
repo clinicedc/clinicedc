@@ -9,7 +9,7 @@ from django.test import TestCase, override_settings
 from edc_constants.constants import FEMALE, MALE, NO, NOT_APPLICABLE, YES
 from edc_crf.crf_form_validator_mixins import BaseFormValidatorMixin
 from edc_form_validators import FormValidator, FormValidatorMixin
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_utils import age, get_utcnow
 from faker import Faker
 from model_bakery import baker
@@ -52,8 +52,8 @@ class SubjectConsentForm(ConsentModelFormMixin, FormValidatorMixin, forms.ModelF
 class TestConsentForm(TestCase):
     def setUp(self):
         site_consents.registry = {}
-        self.study_open_datetime = Protocol().study_open_datetime
-        self.study_close_datetime = Protocol().study_close_datetime
+        self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
+        self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
 
         self.consent_factory(
             start=self.study_open_datetime,

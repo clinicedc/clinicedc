@@ -3,7 +3,7 @@ from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_utils import get_utcnow
 from faker import Faker
 from model_bakery import baker
@@ -25,8 +25,8 @@ fake = Faker()
 )
 class TestConsentModel(TestCase):
     def setUp(self):
-        self.study_open_datetime = Protocol().study_open_datetime
-        self.study_close_datetime = Protocol().study_close_datetime
+        self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
+        self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
         site_consents.registry = {}
         consent_factory(
             start=self.study_open_datetime,
