@@ -1,5 +1,5 @@
 from django.conf import settings
-from edc_auth.auth_objects import PII, PII_VIEW
+from edc_auth.constants import PII, PII_VIEW
 from edc_auth.site_auths import site_auths
 from edc_auth.utils import remove_default_model_permissions_from_edc_permissions
 

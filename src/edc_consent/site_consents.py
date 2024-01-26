@@ -209,8 +209,7 @@ class SiteConsents:
                 )
         return cdefs
 
-    @staticmethod
-    def autodiscover(module_name=None, verbose=True):
+    def autodiscover(self, module_name=None, verbose=True):
         """Autodiscovers consent classes in the consents.py file of
         any INSTALLED_APP.
         """
@@ -236,6 +235,10 @@ class SiteConsents:
                         raise SiteConsentError(str(e))
             except ImportError:
                 pass
+        for cdef in self.registry.values():
+            start = cdef.start.strftime("%Y-%m-%d %Z")
+            end = cdef.end.strftime("%Y-%m-%d %Z")
+            sys.stdout.write(f"   - {cdef.name} valid {start} to {end}\n")
 
 
 site_consents = SiteConsents()
