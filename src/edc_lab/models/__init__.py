@@ -7,3 +7,4 @@ from .order import Order
 from .panel import Panel
 from .result import Result
 from .result_item import ResultItem
+from .signals import box_item_on_post_delete, manifest_item_on_post_delete
