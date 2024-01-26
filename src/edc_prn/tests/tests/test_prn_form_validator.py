@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.sites.models import Site
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_consent.modelform_mixins import RequiresConsentModelFormMixin
 from edc_consent.site_consents import site_consents
@@ -21,7 +21,6 @@ from prn_app.visit_schedule import visit_schedule
 from ..helper import Helper
 
 
-@override_settings(SITE_ID=10)
 class TestPrn(TestCase):
     helper_cls = Helper
 
@@ -47,8 +46,6 @@ class TestPrn(TestCase):
         )
         self.report_datetime = self.subject_visit.report_datetime
 
-    @tag("1")
-    @override_settings(SITE_ID=10)
     def test_form_validator_with_prn(self):
         class MyFormValidator(PrnFormValidatorMixin, FormValidator):
             report_datetime_field_attr = "report_datetime"
