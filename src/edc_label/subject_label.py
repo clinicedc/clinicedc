@@ -1,7 +1,7 @@
 from typing import Optional
 
 from django.apps import apps as django_apps
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 from .label import Label
 
@@ -35,7 +35,7 @@ class SubjectLabel(Label):
     @property
     def label_context(self) -> dict:
         context = {
-            "protocol": Protocol().protocol,
+            "protocol": ResearchProtocolConfig().protocol,
             "subject_identifier": self.registered_subject.subject_identifier,
             "gender": self.registered_subject.gender,
             "dob": self.registered_subject.dob,
