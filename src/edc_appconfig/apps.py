@@ -98,7 +98,7 @@ class AppConfig(DjangoAppConfig):
         register(check_site_consents)
 
         # register post-migrate signals
-        sys.stdout.write(f" * registering post-migrate signals ...\n")
+        sys.stdout.write(" * registering post-migrate signals ...\n")
         sys.stdout.write("   - post_migrate.populate_visit_schedule\n")
         post_migrate.connect(populate_visit_schedule, sender=self)
         sys.stdout.write("   - post_migrate.post_migrate_update_sites\n")
