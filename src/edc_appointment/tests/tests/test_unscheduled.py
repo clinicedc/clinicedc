@@ -2,6 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from zoneinfo import ZoneInfo
 
+import time_machine
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
 from edc_consent.site_consents import site_consents
@@ -31,7 +32,10 @@ from edc_appointment_app.visit_schedule import get_visit_schedule1, get_visit_sc
 
 from ..helper import Helper
 
+utc_tz = ZoneInfo("UTC")
 
+
+@time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
 @override_settings(SITE_ID=10)
 class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
     helper_cls = Helper
@@ -46,11 +50,11 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
         self.schedule1 = self.visit_schedule1.schedules.get("schedule1")
         self.visit_schedule2 = get_visit_schedule2()
         self.schedule2 = self.visit_schedule2.schedules.get("schedule2")
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(self.visit_schedule1)
         site_visit_schedules.register(self.visit_schedule2)
-        site_consents.registry = {}
-        site_consents.register(consent_v1)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=datetime(2017, 1, 7, tzinfo=ZoneInfo("UTC")),

@@ -9,8 +9,8 @@ from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings
 from edc_consent.site_consents import site_consents
 from edc_facility import import_holidays
-from edc_visit_schedule.apps import populate_visit_schedule
 from edc_visit_schedule.models import VisitSchedule
+from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 

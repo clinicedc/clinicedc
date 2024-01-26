@@ -1,5 +1,3 @@
-import sys
-
 from django.apps import AppConfig as DjangoAppConfig
 from django.core.checks.registry import register
 
@@ -14,6 +12,4 @@ class AppConfig(DjangoAppConfig):
     include_in_administration_section = True
 
     def ready(self):
-        sys.stdout.write(f"Loading {self.verbose_name} ...\n")
         register(context_processors_check)
-        sys.stdout.write(f" Done loading {self.verbose_name}.\n")
