@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models import PROTECT
 from edc_consent.model_mixins import ConsentVersionModelMixin
 from edc_constants.choices import GENDER
+from edc_crf.model_mixins import CrfStatusModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierModelMixin
 from edc_lab.model_mixins import PanelModelMixin
 from edc_lab_panel.panels import rft_panel
@@ -109,7 +110,9 @@ class ResultCrf(BloodResultsMethodsModelMixin, EgfrModelMixin, models.Model):
         return self.subject_visit
 
 
-class EgfrDropNotification(SiteModelMixin, EgfrDropNotificationModelMixin, BaseUuidModel):
+class EgfrDropNotification(
+    SiteModelMixin, CrfStatusModelMixin, EgfrDropNotificationModelMixin, BaseUuidModel
+):
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     report_datetime = models.DateTimeField(
