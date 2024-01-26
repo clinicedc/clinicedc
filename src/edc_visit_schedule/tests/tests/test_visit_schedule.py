@@ -8,7 +8,7 @@ from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_registration.models import RegisteredSubject
 from edc_registration.utils import RegisteredSubjectDoesNotExist
 from edc_sites.tests import SiteTestCaseMixin
@@ -58,8 +58,8 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
         consent_v1 = ConsentDefinition(
             "visit_schedule_app.subjectconsent",
             version="1",
-            start=Protocol().study_open_datetime,
-            end=Protocol().study_close_datetime,
+            start=ResearchProtocolConfig().study_open_datetime,
+            end=ResearchProtocolConfig().study_close_datetime,
             age_min=18,
             age_is_adult=18,
             age_max=64,
