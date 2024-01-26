@@ -13,7 +13,7 @@ from edc_data_manager.get_longitudinal_value import (
     DataDictionaryError,
     get_longitudinal_value,
 )
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_randomization.auth_objects import RANDO_UNBLINDED
 from edc_utils import formatted_age, get_static_file
 from edc_utils.date import to_local
@@ -149,7 +149,7 @@ class CrfPdfReport(Report):
             )
         else:
             canvas.setFontSize(10)
-            canvas.drawString(48, height - 40, Protocol().protocol_name)
+            canvas.drawString(48, height - 40, ResearchProtocolConfig().protocol_name)
         if self.confidential:
             canvas.setFontSize(10)
             canvas.drawString(48, height - 50, "CONFIDENTIAL")
