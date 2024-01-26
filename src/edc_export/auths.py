@@ -1,7 +1,8 @@
 from edc_auth.site_auths import site_auths
 from edc_auth.utils import remove_default_model_permissions_from_edc_permissions
 
-from .auth_objects import DATA_EXPORTER_ROLE, EXPORT, EXPORT_PII, export_codenames
+from .auth_objects import export_codenames
+from .constants import DATA_EXPORTER_ROLE, EXPORT, EXPORT_PII
 
 site_auths.add_post_update_func(
     "edc_export",

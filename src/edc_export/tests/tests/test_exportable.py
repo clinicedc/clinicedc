@@ -8,6 +8,7 @@ from django.test.client import RequestFactory
 from edc_appointment.models import Appointment
 from edc_registration.models import RegisteredSubject
 
+from edc_export.constants import EXPORT
 from edc_export.exportables import Exportables
 from edc_export.model_options import ModelOptions
 
@@ -15,7 +16,7 @@ from edc_export.model_options import ModelOptions
 @override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp())
 class TestExportable(TestCase):
     def setUp(self):
-        group = Group.objects.create(name="EXPORT")
+        group = Group.objects.get(name=EXPORT)
         user = User.objects.create(username="erikvw", is_superuser=True, is_active=True)
         user.groups.add(group)
         self.request = RequestFactory()

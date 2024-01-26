@@ -8,7 +8,7 @@ from django import forms
 from django.utils.html import format_html
 from edc_protocol import Protocol
 
-from .auth_objects import EXPORT_PII
+from .constants import EXPORT_PII
 from .exceptions import ExporterExportFolder
 
 
