@@ -26,6 +26,7 @@ from edc_list_data.post_migrate_signals import post_migrate_list_data
 from edc_metadata.metadata_rules import site_metadata_rules
 from edc_metadata.system_checks import check_for_metadata_rules
 from edc_navbar import site_navbars
+from edc_navbar.system_checks import edc_navbar_checks
 from edc_notification.post_migrate_signals import post_migrate_update_notifications
 from edc_notification.site_notifications import site_notifications
 from edc_pdutils.site_values_mappings import site_values_mappings
@@ -98,6 +99,7 @@ class AppConfig(DjangoAppConfig):
         register(holiday_country_check, deploy=True)
         register(check_for_metadata_rules)
         register(check_site_consents)
+        register(edc_navbar_checks)
 
         # register post-migrate signals
         sys.stdout.write(" * registering post-migrate signals ...\n")
