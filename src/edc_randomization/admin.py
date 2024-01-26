@@ -8,7 +8,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django_audit_fields.admin import audit_fields, audit_fieldset_tuple
 from edc_label import Label
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 from .admin_site import edc_randomization_admin
 from .auth_objects import RANDO_UNBLINDED
@@ -25,8 +25,8 @@ def print_pharmacy_labels(modeladmin, request, queryset):
     )
     for obj in queryset:
         context = dict(
-            protocol=Protocol().protocol,
-            protocol_title=Protocol().protocol_title,
+            protocol=ResearchProtocolConfig().protocol,
+            protocol_title=ResearchProtocolConfig().protocol_title,
             site=obj.site_name.upper(),
             subject_identifier=obj.subject_identifier,
             barcode_value=obj.sid,
