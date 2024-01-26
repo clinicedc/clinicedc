@@ -1,4 +1,5 @@
-from edc_notification import GradedEventNotification, ModelNotification, register
+from edc_notification.decorators import register
+from edc_notification.notification import GradedEventNotification, ModelNotification
 
 from .utils import get_adverse_event_app_label
 
