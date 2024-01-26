@@ -128,13 +128,12 @@ class SiteReportables:
         style = color_style()
         writer(f" * checking for site {module_name} ...\n")
         for app in django_apps.app_configs:
-            writer(f" * searching {app}           \r")
             try:
                 mod = import_module(app)
                 try:
                     before_import_registry = copy.copy(site_reportables._registry)
                     import_module(f"{app}.{module_name}")
-                    writer(f" * registered '{module_name}' from '{app}'\n")
+                    writer(f"   - registered '{module_name}' from '{app}'\n")
                 except SiteReportablesError as e:
                     writer(f"   - loading {app}.{module_name} ... ")
                     writer(style.ERROR(f"ERROR! {e}\n"))
