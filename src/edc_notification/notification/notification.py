@@ -4,7 +4,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import SiteNotRegistered, sites
 from edc_utils import get_utcnow
 from twilio.base.exceptions import TwilioException, TwilioRestException
@@ -187,7 +187,7 @@ class Notification:
         test_message = test_message or self.test_message
         template_options = dict(
             name=self.name,
-            protocol_name=Protocol().protocol_name,
+            protocol_name=ResearchProtocolConfig().protocol_name,
             display_name=self.get_display_name(
                 instance=instance, test_message=test_message, **kwargs
             ),
