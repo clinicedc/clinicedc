@@ -1,6 +1,6 @@
 from unittest.case import skip
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from faker import Faker
 
 from edc_identifier.exceptions import IdentifierError, SubjectIdentifierError
@@ -70,16 +70,15 @@ class TestSubjectIdentifier(TestCase):
         )
         self.assertEqual("000-1990001-8", subject_identifier.identifier)
 
+    @override_settings(SITE_ID=1)
     def test_create2(self):
-        """Asserts exact first identifier required parameters
-        and those fetched from edc-example.AppConfig.
-        """
+        """Asserts exact first identifier required parameters"""
         subject_identifier = SubjectIdentifier(
             identifier_type="subject",
             requesting_model="edc_identifier.enrollment",
             protocol_number="000",
         )
-        self.assertEqual("000-1140001-7", subject_identifier.identifier)
+        self.assertEqual("000-1990001-8", subject_identifier.identifier)
 
     @skip("enrollment cap not implemented")
     def test_create_hits_cap(self):
