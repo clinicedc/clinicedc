@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -26,7 +26,7 @@ def get_registered_subject_model_name() -> str:
     )
 
 
-def get_registered_subject_model_cls() -> RegisteredSubject:
+def get_registered_subject_model_cls() -> Type[RegisteredSubject]:
     return django_apps.get_model(get_registered_subject_model_name())
 
 

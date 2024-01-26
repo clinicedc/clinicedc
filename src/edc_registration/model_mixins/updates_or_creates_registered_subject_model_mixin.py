@@ -1,7 +1,15 @@
-from django.apps import apps as django_apps
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Type
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from edc_model import DEFAULT_BASE_FIELDS
+
+from ..utils import get_registered_subject_model_cls
+
+if TYPE_CHECKING:
+    from edc_registration.models import RegisteredSubject
 
 
 class UpdatesOrCreatesRegistrationModelError(Exception):
@@ -15,11 +23,11 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
     """
 
     @property
-    def registration_model(self):
+    def registration_model(self) -> Type[RegisteredSubject]:
         """Returns the Registration model"""
-        return django_apps.get_app_config("edc_registration").model
+        return get_registered_subject_model_cls()
 
-    def registration_update_or_create(self):
+    def registration_update_or_create(self) -> tuple[RegisteredSubject, bool]:
         """Creates or Updates the registration model with attributes
         from this instance.
 
@@ -50,7 +58,8 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
         )
         return registration_obj, created
 
-    def to_string(self, value):
+    @staticmethod
+    def to_string(value) -> str:
         """Returns a string.
 
         Converts UUID to string using .hex.
@@ -62,7 +71,7 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
         return value
 
     @property
-    def registration_unique_field(self):
+    def registration_unique_field(self) -> str:
         """Returns the field attr on YOUR model that will update
         `registered_model_unique_field`.
 
@@ -71,7 +80,7 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
         return "subject_identifier"
 
     @property
-    def registered_model_unique_field(self):
+    def registered_model_unique_field(self) -> str:
         """Returns the field attr on THIS model to be queried against
         the value of `registration_unique_field`.
         """

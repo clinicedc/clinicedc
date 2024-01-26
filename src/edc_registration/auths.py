@@ -1,5 +1,5 @@
 from django.apps import apps as django_apps
-from edc_auth.auth_objects import PII, PII_VIEW
+from edc_auth.constants import PII, PII_VIEW
 from edc_auth.site_auths import site_auths
 from edc_export.auth_objects import EXPORT
 
