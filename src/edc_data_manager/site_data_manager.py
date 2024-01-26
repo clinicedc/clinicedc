@@ -61,7 +61,7 @@ class SiteDataManager:
                 try:
                     before_import_registry = deepcopy(site_data_manager.registry)
                     import_module(f"{app}.{module_name}")
-                    writer(f" * registered '{module_name}' from '{app}'\n")
+                    writer(f"   - registered '{module_name}' from '{app}'\n")
                 except SiteDataManagerError as e:
                     writer(f"   - loading {app}.{module_name} ... ")
                     writer(style.ERROR(f"ERROR! {e}\n"))
