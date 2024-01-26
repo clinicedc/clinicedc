@@ -3,7 +3,10 @@ import sys
 from typing import Any, Optional
 
 from django.apps import apps as django_apps
+from django.core.management.color import color_style
 from django.utils.module_loading import import_module, module_has_submodule
+
+style = color_style()
 
 
 class SiteMetadataRulesAlreadyRegistered(Exception):
@@ -74,7 +77,7 @@ class SiteMetadataRules:
 
                 else:
                     sys.stdout.write(
-                        f"   - imported metadata rules from '{app}.{module_name}'\n"
+                        f"    - imported metadata rules from '{app}.{module_name}'\n"
                     )
             except ImportError:
                 pass
