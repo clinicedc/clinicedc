@@ -4,7 +4,7 @@ from django.apps import AppConfig as DjangoAppConfig
 from django.core.checks import register
 from django.core.management.color import color_style
 
-from .protocol import Protocol
+from .research_protocol_config import ResearchProtocolConfig
 from .system_checks import middleware_check
 
 style = color_style()
@@ -19,7 +19,7 @@ class AppConfig(DjangoAppConfig):
     def ready(self):
         register(middleware_check)
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
-        protocol = Protocol()
+        protocol = ResearchProtocolConfig()
         sys.stdout.write(f" * {protocol.protocol}: {protocol.protocol_name}.\n")
         open_date = protocol.study_open_datetime.strftime("%Y-%m-%d %Z")
         sys.stdout.write(f" * Study opening date: {open_date}\n")

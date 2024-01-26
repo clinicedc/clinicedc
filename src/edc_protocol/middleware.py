@@ -1,7 +1,7 @@
-from .protocol import Protocol
+from .research_protocol_config import ResearchProtocolConfig
 
 
-class ProtocolMiddleware:
+class ResearchProtocolConfigMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
@@ -14,12 +14,12 @@ class ProtocolMiddleware:
     def process_template_response(self, request, response):
         if not response.context_data:
             response.context_data = {}
-        protocol = Protocol()
+        protocol_config = ResearchProtocolConfig()
         response.context_data.update(
-            copyright=protocol.copyright,
-            disclaimer=protocol.disclaimer,
-            institution=protocol.institution,
-            license=protocol.license,
-            project_name=protocol.project_name,
+            copyright=protocol_config.copyright,
+            disclaimer=protocol_config.disclaimer,
+            institution=protocol_config.institution,
+            license=protocol_config.license,
+            project_name=protocol_config.project_name,
         )
         return response
