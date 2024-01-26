@@ -12,7 +12,7 @@ from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
 from django_revision.revision import site_revision
 from edc_constants.constants import NO, YES
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 from edc_model_admin.utils import get_next_url
 
@@ -135,10 +135,10 @@ def logout_row(context):
 @register.inclusion_tag("edc_revision_line.html", takes_context=True)
 def revision_row(context):
     return dict(
-        copyright=context.get("copyright") or Protocol().copyright,
-        institution=context.get("institution") or Protocol().institution,
+        copyright=context.get("copyright") or ResearchProtocolConfig().copyright,
+        institution=context.get("institution") or ResearchProtocolConfig().institution,
         revision=context.get("revision") or site_revision.tag,
-        disclaimer=context.get("disclaimer") or Protocol().disclaimer,
+        disclaimer=context.get("disclaimer") or ResearchProtocolConfig().disclaimer,
     )
 
 

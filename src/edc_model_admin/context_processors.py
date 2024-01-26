@@ -1,6 +1,6 @@
 from django.conf import settings
 from edc_constants.constants import LIVE, TEST
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 
 def admin_theme(request) -> dict:
@@ -9,7 +9,7 @@ def admin_theme(request) -> dict:
         "DEBUG": getattr(settings, "DEBUG", False),
         "LIVE": LIVE,
         "TEST": TEST,
-        "project_name": Protocol().project_name,
+        "project_name": ResearchProtocolConfig().project_name,
     }
     if theme := getattr(settings, "EDC_MODEL_ADMIN_CSS_THEME", None):
         dct.update(
