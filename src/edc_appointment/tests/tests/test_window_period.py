@@ -51,7 +51,8 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
         site_visit_schedules.register(get_visit_schedule3())
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
-            now=get_utcnow() - relativedelta(years=2),  # Protocol().study_open_datetime,
+            now=get_utcnow()
+            - relativedelta(years=2),  # ResearchProtocolConfig().study_open_datetime,
         )
 
     @staticmethod
