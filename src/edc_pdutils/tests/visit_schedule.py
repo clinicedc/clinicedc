@@ -1,8 +1,16 @@
 from dateutil.relativedelta import relativedelta
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.tests.dummy_panel import DummyPanel
-from edc_visit_schedule.visit import Crf, FormsCollection, Requisition, Visit
+from edc_visit_schedule.visit import (
+    Crf,
+    CrfCollection,
+    Requisition,
+    RequisitionCollection,
+    Visit,
+)
 from edc_visit_schedule.visit_schedule import VisitSchedule
+
+from .consents import consent_v1
 
 
 class Panel(DummyPanel):
@@ -17,7 +25,7 @@ class Panel(DummyPanel):
 def get_visit_schedule(i=None):
     i = i or 4
 
-    crfs = FormsCollection(
+    crfs = CrfCollection(
         Crf(show_order=1, model="edc_metadata.crfone", required=True),
         Crf(show_order=2, model="edc_metadata.crftwo", required=True),
         Crf(show_order=3, model="edc_metadata.crfthree", required=True),
@@ -25,7 +33,7 @@ def get_visit_schedule(i=None):
         Crf(show_order=5, model="edc_metadata.crffive", required=True),
     )
 
-    requisitions = FormsCollection(
+    requisitions = RequisitionCollection(
         Requisition(show_order=10, panel=Panel("one"), required=True, additional=False),
         Requisition(show_order=20, panel=Panel("two"), required=True, additional=False),
         Requisition(show_order=30, panel=Panel("three"), required=True, additional=False),
@@ -45,7 +53,7 @@ def get_visit_schedule(i=None):
         name="schedule",
         onschedule_model="edc_pdutils.onschedule",
         offschedule_model="edc_pdutils.offschedule",
-        consent_model="edc_visit_tracking.subjectconsent",
+        consent_definitions=[consent_v1],
         appointment_model="edc_appointment.appointment",
     )
 

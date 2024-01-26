@@ -75,15 +75,14 @@ class SiteValuesMappings:
         before_import_registry = None
         module_name = module_name or "values_mappings"
         writer = sys.stdout.write if verbose else lambda x: x
-        writer(f" * checking for site {module_name} ...\n")
+        writer(f" * checking for site {module_name} (edc_pdutils) ...\n")
         for app in django_apps.app_configs:
-            writer(f" * searching {app}           \r")
             try:
                 mod = import_module(app)
                 try:
                     before_import_registry = deepcopy(site_values_mappings.registry)
                     import_module(f"{app}.{module_name}")
-                    writer(f" * registered values mapping '{module_name}' from '{app}'\n")
+                    writer(f"   - registered values mapping '{module_name}' from '{app}'\n")
                 except ImportError as e:
                     site_values_mappings.registry = before_import_registry
                     if module_has_submodule(mod, module_name):
