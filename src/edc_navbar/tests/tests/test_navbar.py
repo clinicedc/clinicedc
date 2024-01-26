@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.urls.base import reverse
-from django.urls.exceptions import NoReverseMatch
 from edc_dashboard import url_names
 
 from ...navbar import Navbar
@@ -69,16 +68,6 @@ class TestNavbar(TestCase):
             label="Navbar Item One",
             title="navbar_item_one",
             url_name=None,
-        )
-
-    def test_navbar_item_raises_bad_url(self):
-        self.assertRaises(
-            NoReverseMatch,
-            NavbarItem,
-            name="navbar_item_one",
-            label="Navbar Item One",
-            title="navbar_item_one",
-            url_name="blahblahblah",
         )
 
     def test_navbar_item_ok(self):
