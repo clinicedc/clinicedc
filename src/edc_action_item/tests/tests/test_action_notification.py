@@ -3,7 +3,7 @@ from unittest.case import skip
 from django.core import mail
 from django.test import TestCase
 from edc_constants.constants import NEW
-from edc_notification import NewModelNotification, UpdatedModelNotification
+from edc_notification.notification import NewModelNotification, UpdatedModelNotification
 from edc_notification.site_notifications import site_notifications
 
 from edc_action_item.action_item_notification import (
