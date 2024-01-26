@@ -4,7 +4,7 @@ from typing import List, Optional
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from mempass import PasswordGenerator
 
 
@@ -19,7 +19,7 @@ class PasswordSetter:
         "Your new password is:\n\n$password\n\n"
         "Your password was reset by $administrator.\n\n"
         "Thanks.\n\n"
-        f"{Protocol().project_name}\n\n"
+        f"{ResearchProtocolConfig().project_name}\n\n"
     )
 
     def __init__(
@@ -85,7 +85,8 @@ class PasswordSetter:
             )
             email = EmailMessage(
                 subject=(
-                    f"{Protocol().project_name}: Your clinicedc.org password has been reset."
+                    f"{ResearchProtocolConfig().project_name}: "
+                    "Your clinicedc.org password has been reset."
                 ),
                 body=body,
                 from_email="noreply@clinicedc.org",

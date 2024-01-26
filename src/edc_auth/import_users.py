@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from mempass import PasswordGenerator
 
 from .constants import ACCOUNT_MANAGER_ROLE, STAFF_ROLE
@@ -194,7 +194,7 @@ class UserImporter:
         self.role_names = "\n  - ".join(
             [g.display_name for g in self.user.userprofile.roles.all()]
         )
-        self.project_name = Protocol().protocol_name
+        self.project_name = ResearchProtocolConfig().protocol_name
         if send_email_to_user:
             try:
                 self.email_message.send(fail_silently=False)

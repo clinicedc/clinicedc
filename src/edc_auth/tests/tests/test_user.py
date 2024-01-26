@@ -3,7 +3,7 @@ from string import Template
 from django.contrib.auth.models import User
 from django.core import mail
 from django.test import override_settings
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from faker import Faker
 
 from edc_auth.auth_updater import AuthUpdater
@@ -33,7 +33,8 @@ class TestUser(EdcAuthTestCase):
         self.assertEqual(len(mail.outbox), User.objects.all().count())
         self.assertEqual(
             mail.outbox[0].subject,
-            f"{Protocol().project_name} EDC: Your example.com user account is ready.",
+            f"{ResearchProtocolConfig().project_name} "
+            "EDC: Your example.com user account is ready.",
         )
 
         # update existing users
@@ -42,7 +43,8 @@ class TestUser(EdcAuthTestCase):
         self.assertEqual(len(mail.outbox), user_count * 2)
         self.assertEqual(
             mail.outbox[0].subject,
-            f"{Protocol().project_name} EDC: Your example.com user account is ready.",
+            f"{ResearchProtocolConfig().project_name} "
+            "EDC: Your example.com user account is ready.",
         )
 
     def test_bad_username(self):

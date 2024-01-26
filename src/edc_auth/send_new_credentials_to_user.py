@@ -3,7 +3,7 @@ from urllib.parse import urlparse
 
 from django.core.mail.message import EmailMessage
 from edc_dashboard.utils import get_index_page
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from mempass.password_generator import PasswordGenerator
 
 from .import_users import change_user_template
@@ -23,7 +23,7 @@ def send_new_credentials_to_user(user, nwords: Optional[int] = None) -> EmailMes
     site_names = "\n - ".join([s.name for s in user.userprofile.sites.all()])
     role_names = "\n - ".join([r.display_name for r in user.userprofile.roles.all()])
     resource_name = urlparse(get_index_page()).netloc
-    project_name = Protocol().project_name
+    project_name = ResearchProtocolConfig().project_name
     password = change_password(user, nwords)
     opts = {
         "resource_name": resource_name,
