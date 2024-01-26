@@ -4,7 +4,6 @@ from edc_constants.constants import NO
 from ..custom_label_condition import CustomLabelCondition
 from ..form_label import FormLabel
 from ..form_label_modeladmin_mixin import FormLabelModelAdminMixin
-from .models import MyModel
 
 VISIT_ONE = "1000"
 VISIT_TWO = "2000"
@@ -34,6 +33,3 @@ class MyModelAdmin(FormLabelModelAdminMixin, admin.ModelAdmin):
             condition_cls=MyCustomLabelCondition,
         )
     ]
-
-
-admin.site.register(MyModel, MyModelAdmin)

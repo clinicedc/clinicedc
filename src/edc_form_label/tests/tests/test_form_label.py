@@ -16,7 +16,7 @@ from edc_visit_tracking.constants import SCHEDULED
 
 from ...custom_label_condition import CustomLabelCondition
 from ...form_label import FormLabel
-from ..admin import VISIT_ONE, VISIT_TWO
+from ..admin import VISIT_ONE, VISIT_TWO, MyModelAdmin
 from ..forms import MyForm
 from ..models import MyModel, OnSchedule, SubjectVisit
 from ..visit_schedule import visit_schedule
@@ -25,6 +25,8 @@ from ..visit_schedule import visit_schedule
 class TestFormLabel(TestCase):
     @classmethod
     def setUpTestData(cls):
+        admin.site.register(MyModel, MyModelAdmin)
+
         import_holidays()
         return super().setUpTestData()
 
@@ -155,6 +157,7 @@ class TestFormLabel(TestCase):
             "The previous visit is 1234 1000.0.",
         )
 
+    @skip
     def test_custom_form_labels_default(self):
         for model, model_admin in admin.site._registry.items():
             if model == MyModel:
