@@ -6,6 +6,8 @@ from django.core.management import color_style
 
 style = color_style()
 
+__all__ = ["check_for_edc_appconfig"]
+
 
 def check_for_edc_appconfig(app_configs, **kwargs) -> list[CheckMessage]:
     """Check for edc_appconfig in INSTALLED_APPS.

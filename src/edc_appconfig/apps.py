@@ -44,6 +44,8 @@ from edc_visit_schedule.system_checks import (
 
 style = color_style()
 
+__all__ = ["AppConfig"]
+
 
 class AppConfig(DjangoAppConfig):
     """AppConfig class for main EDC apps.py.
