@@ -2,6 +2,7 @@ from edc_constants.constants import HIGH_PRIORITY, NO
 
 from ..action import Action
 from ..action_with_notification import ActionWithNotification
+from ..models import ActionType
 from ..site_action_items import site_action_items
 
 
@@ -150,6 +151,7 @@ class CrfLongitudinalOneAction(Action):
 
 
 def register_actions():
+    ActionType.objects.all().delete()
     site_action_items.registry = {}
     site_action_items.register(FormZeroAction)
     site_action_items.register(FormOneAction)

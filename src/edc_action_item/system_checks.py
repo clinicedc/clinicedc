@@ -1,16 +1,17 @@
-from django.core.checks import Warning, register
+from django.core.checks import Warning
 
-from edc_action_item.site_action_items import site_action_items
+from .site_action_items import site_action_items
 
 
-@register()
-def edc_notification_check(app_configs, **kwargs):  # noqa
+def edc_action_item_check(app_configs, **kwargs):
     errors = []
 
-    for action_cls in site_action_items.registry.items():
+    for name, action_cls in site_action_items.registry.items():
         try:
             action_cls.reference_model_cls().history
-        except AttributeError:
+        except AttributeError as e:
+            if "history" not in str(e):
+                raise
             errors.append(
                 Warning(
                     (

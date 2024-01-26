@@ -9,8 +9,10 @@ from typing import TYPE_CHECKING, Type
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.utils.module_loading import module_has_submodule
-from edc_notification import AlreadyRegistered as NotificationAlreadyRegistered
-from edc_notification import site_notifications
+from edc_notification.site_notifications import (
+    AlreadyRegistered as NotificationAlreadyRegistered,
+)
+from edc_notification.site_notifications import site_notifications
 from edc_prn.prn import Prn
 from edc_prn.site_prn_forms import AlreadyRegistered as PrnAlreadyRegistered
 from edc_prn.site_prn_forms import site_prn_forms
@@ -154,7 +156,7 @@ class SiteActionItemCollection:
                 try:
                     before_import_registry = copy.copy(site_action_items.registry)
                     import_module(f"{app}.{module_name}")
-                    writer(f" * registered '{module_name}' from '{app}'\n")
+                    writer(f"   - registered '{module_name}' from '{app}'\n")
                 except SiteActionError as e:
                     writer(f"   - loading {app}.{module_name} ... ")
                     writer(style.ERROR(f"ERROR! {e}\n"))
