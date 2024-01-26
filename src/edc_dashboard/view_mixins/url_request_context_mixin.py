@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_utils.text import convert_from_camel
 
 from ..url_config import UrlConfig
@@ -19,7 +19,7 @@ class UrlRequestContextError(Exception):
 class UrlRequestContextMixin:
     urlconfig_getattr = "dashboard_urls"
     urlconfig_identifier_label = "subject_identifier"
-    urlconfig_identifier_pattern = Protocol().subject_identifier_pattern
+    urlconfig_identifier_pattern = ResearchProtocolConfig().subject_identifier_pattern
     urlconfig_label = None
     url_name = None
 
