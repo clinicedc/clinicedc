@@ -1,5 +1,5 @@
 from django.conf import settings
-from edc_auth.auth_objects import AUDITOR_ROLE, CLINICIAN_ROLE, CLINICIAN_SUPER_ROLE
+from edc_auth.constants import AUDITOR_ROLE, CLINICIAN_ROLE, CLINICIAN_SUPER_ROLE
 from edc_auth.site_auths import site_auths
 
 from .auth_objects import (
