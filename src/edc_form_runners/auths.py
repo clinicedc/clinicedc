@@ -1,4 +1,4 @@
-from edc_auth.auth_objects import AUDITOR_ROLE, CLINICIAN_ROLE
+from edc_auth.constants import AUDITOR_ROLE, CLINICIAN_ROLE
 from edc_auth.site_auths import site_auths
 from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
 
