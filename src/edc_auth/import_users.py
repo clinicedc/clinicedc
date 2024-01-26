@@ -12,7 +12,7 @@ from django.core.mail import EmailMessage
 from edc_protocol import Protocol
 from mempass import PasswordGenerator
 
-from .auth_objects import ACCOUNT_MANAGER_ROLE, STAFF_ROLE
+from .constants import ACCOUNT_MANAGER_ROLE, STAFF_ROLE
 from .export_users import export_users
 from .models import Role
 

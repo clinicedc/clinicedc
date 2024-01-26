@@ -6,8 +6,8 @@ from django.test import override_settings
 from edc_protocol import Protocol
 from faker import Faker
 
-from edc_auth.auth_objects import CLINIC, CLINICIAN_ROLE
 from edc_auth.auth_updater import AuthUpdater
+from edc_auth.constants import CLINIC, CLINICIAN_ROLE
 from edc_auth.import_users import UserImporter, UserImporterError, import_users
 from edc_auth.password_setter import PasswordSetter
 

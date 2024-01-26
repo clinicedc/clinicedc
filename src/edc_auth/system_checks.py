@@ -2,23 +2,14 @@ import os
 import sys
 
 from django.conf import settings
-from django.core.checks import Warning
+from django.core.checks import CheckMessage, Warning
 from django.core.management import color_style
 
 style = color_style()
 
 
-def edc_check(app_configs, **kwargs):  # noqa
+def check_etc_dir(app_configs, **kwargs) -> list[CheckMessage]:
     errors = []
-    errors = check_etc_dir(errors)
-    errors = check_key_path(errors)
-    errors = check_static_root(errors)
-    errors = check_site_auths(errors)
-    errors = check_auth_updater(errors)
-    return errors
-
-
-def check_etc_dir(errors):
     sys.stdout.write(style.SQL_KEYWORD("check_etc_dir ... \r"))
     try:
         settings.ETC_DIR
@@ -46,7 +37,8 @@ def check_etc_dir(errors):
     return errors
 
 
-def check_static_root(errors):
+def check_static_root(app_configs, **kwargs) -> list[CheckMessage]:
+    errors = []
     sys.stdout.write(style.SQL_KEYWORD("check_static_root ... \r"))
     try:
         settings.STATIC_ROOT
@@ -64,7 +56,8 @@ def check_static_root(errors):
     return errors
 
 
-def check_key_path(errors):
+def check_key_path(app_configs, **kwargs) -> list[CheckMessage]:
+    errors = []
     sys.stdout.write(style.SQL_KEYWORD("check_key_path ...\r"))
     try:
         settings.KEY_PATH
@@ -83,7 +76,8 @@ def check_key_path(errors):
     return errors
 
 
-def check_auth_updater(errors):
+def check_auth_updater(app_configs, **kwargs) -> list[CheckMessage]:
+    errors = []
     sys.stdout.write(style.SQL_KEYWORD("check_auth_updater ...\r"))
     try:
         settings.EDC_AUTH_SKIP_AUTH_UPDATER
@@ -102,7 +96,8 @@ def check_auth_updater(errors):
     return errors
 
 
-def check_site_auths(errors):
+def check_site_auths(app_configs, **kwargs) -> list[CheckMessage]:
+    errors = []
     sys.stdout.write(style.SQL_KEYWORD("check_site_auths ...\r"))
     try:
         settings.EDC_AUTH_SKIP_AUTH_UPDATER

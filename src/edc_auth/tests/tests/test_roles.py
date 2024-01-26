@@ -3,7 +3,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.test import override_settings
 from faker import Faker
 
-from edc_auth.auth_objects import (
+from edc_auth.auth_updater import AuthUpdater
+from edc_auth.constants import (
     ACCOUNT_MANAGER_ROLE,
     AUDITOR_ROLE,
     CLINICIAN_ROLE,
@@ -11,9 +12,8 @@ from edc_auth.auth_objects import (
     CUSTOM_ROLE,
     NURSE_ROLE,
     STAFF_ROLE,
+    STATISTICIAN,
 )
-from edc_auth.auth_objects.default_role_names import STATISTICIAN
-from edc_auth.auth_updater import AuthUpdater
 from edc_auth.models import Role
 from edc_auth.site_auths import site_auths
 

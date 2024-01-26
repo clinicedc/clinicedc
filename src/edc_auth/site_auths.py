@@ -318,7 +318,7 @@ class SiteAuths:
                     try:
                         before_import_registry = deepcopy(site_auths.registry)
                         import_module(f"{app_name}.{module_name}")
-                        writer(f" * registered '{module_name}' from '{app_name}'\n")
+                        writer(f"   - registered '{module_name}' from '{app_name}'\n")
                     except ImportError as e:
                         site_auths.registry = before_import_registry
                         if module_has_submodule(mod, module_name):

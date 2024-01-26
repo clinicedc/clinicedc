@@ -15,7 +15,7 @@ from edc_sites.models import SiteProfile
 from faker import Faker
 from mempass import mkpassword
 
-from edc_auth.auth_objects import CLINICIAN_ROLE
+from edc_auth.constants import CLINICIAN_ROLE
 from edc_auth.site_auths import site_auths
 from edc_auth.tests.randomizers import CustomRandomizer
 

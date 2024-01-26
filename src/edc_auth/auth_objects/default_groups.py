@@ -1,5 +1,4 @@
-from .codenames import account_manager, administration, celery_manager, everyone
-from .default_group_names import (
+from ..constants import (
     ACCOUNT_MANAGER,
     ADMINISTRATION,
     AUDITOR,
@@ -10,6 +9,7 @@ from .default_group_names import (
     PII,
     PII_VIEW,
 )
+from .codenames import account_manager, administration, celery_manager, everyone
 
 default_groups = {
     ACCOUNT_MANAGER: account_manager,
