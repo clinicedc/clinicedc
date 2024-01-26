@@ -2,6 +2,7 @@ from datetime import date, datetime
 from decimal import Decimal
 from zoneinfo import ZoneInfo
 
+import time_machine
 from django.test import TestCase
 
 from edc_utils import (
@@ -70,11 +71,13 @@ class TestUtils(TestCase):
             datetime(2015, 12, 12).astimezone(ZoneInfo("UTC")),
         )
 
+    @time_machine.travel(datetime(2016, 10, 28, 10, 00, tzinfo=ZoneInfo("UTC")))
     def test_age_in_days(self):
         born = date(2016, 10, 20)
-        reference_date = datetime(2016, 10, 28).astimezone(ZoneInfo("UTC"))
+        reference_date = datetime(2016, 10, 28, 10).astimezone(ZoneInfo("UTC"))
         self.assertEqual(get_age_in_days(reference_date, born), 8)
 
+    @time_machine.travel(datetime(2016, 10, 28, 10, 00, tzinfo=ZoneInfo("UTC")))
     def test_age(self):
         born = date(1990, 5, 1)
         reference_dt = datetime(2000, 5, 1).astimezone(ZoneInfo("UTC"))
