@@ -194,7 +194,7 @@ class SiteNotifications:
                     import_module(f"{app}.{module_name}")
                     if verbose:
                         sys.stdout.write(
-                            f" * registered notifications from application '{app}'\n"
+                            f"   - registered notifications from application '{app}'\n"
                         )
                 except Exception as e:
                     if f"No module named '{app}.{module_name}'" not in str(e):

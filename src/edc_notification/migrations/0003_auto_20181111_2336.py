@@ -2,8 +2,6 @@
 
 from django.db import migrations
 
-# from edc_notification import site_notifications
-
 
 class Migration(migrations.Migration):
     dependencies = [("edc_notification", "0002_update_notifications")]

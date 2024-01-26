@@ -2,8 +2,8 @@ from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
 from simple_history.signals import post_create_historical_record
 
-from .site_notifications import site_notifications
-from .update_mailing_lists_in_m2m import update_mailing_lists_in_m2m
+from ..site_notifications import site_notifications
+from ..update_mailing_lists_in_m2m import update_mailing_lists_in_m2m
 
 
 @receiver(

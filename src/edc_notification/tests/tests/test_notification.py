@@ -11,16 +11,16 @@ from django.test.utils import override_settings
 from edc_utils import get_utcnow
 
 from edc_notification.constants import CREATE, UPDATE
-
-from ...decorators import RegisterNotificationError, register
-from ...models import Notification as NotificationModel
-from ...notification import (
+from edc_notification.decorators import RegisterNotificationError, register
+from edc_notification.models import Notification as NotificationModel
+from edc_notification.notification import (
     GradedEventNotification,
     ModelNotification,
     NewModelNotification,
     Notification,
     UpdatedModelNotification,
 )
+
 from ...site_notifications import (
     AlreadyRegistered,
     NotificationNotRegistered,
