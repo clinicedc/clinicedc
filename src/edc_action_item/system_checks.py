@@ -5,7 +5,6 @@ from .site_action_items import site_action_items
 
 def edc_action_item_check(app_configs, **kwargs):
     errors = []
-
     for name, action_cls in site_action_items.registry.items():
         try:
             action_cls.reference_model_cls().history
