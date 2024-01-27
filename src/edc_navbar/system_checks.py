@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 from django.core.checks import CheckMessage, Error
-from django.urls import NoReverseMatch, reverse
+from django.urls import NoReverseMatch
 
 from edc_navbar import site_navbars
 
@@ -29,12 +29,12 @@ def edc_navbar_checks(app_configs, **kwargs) -> list[CheckMessage]:
                     )
                     errors.append(Error(msg, id="edc_navbar.E002"))
             try:
-                reverse(navbar_item.url_name)
+                navbar_item.get_url()
             except NoReverseMatch:
                 errors.append(
                     Error(
-                        f"Invalid url_name. Got '{navbar_item.url_name}'. "
-                        "See {repr(navbar_item)}.",
+                        f"NoReverseMatch for url. Got '{navbar_item.real_url_name}'. "
+                        f"See {navbar_item.name}.",
                         id="edc_navbar.E003",
                     )
                 )

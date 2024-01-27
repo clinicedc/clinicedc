@@ -5,7 +5,7 @@ from django.urls.base import reverse
 from edc_dashboard import url_names
 
 from ...navbar import Navbar
-from ...navbar_item import NavbarItem, NavbarItemError
+from ...navbar_item import NavbarItem
 from ...site_navbars import AlreadyRegistered, site_navbars
 
 User = get_user_model()
@@ -15,9 +15,6 @@ class TestNavbar(TestCase):
     @classmethod
     def setUpClass(cls):
         url_names.register("dashboard_url", "dashboard_url", "edc_dashboard")
-        # GroupPermissionsUpdater(
-        #     codenames_by_group=get_default_codenames_by_group(), verbose=True
-        # )
         return super().setUpClass()
 
     def setUp(self):
@@ -27,9 +24,9 @@ class TestNavbar(TestCase):
         self.request = rf.request()
         self.request.user = self.user
 
-    def create_navbar(self):
+    def create_navbar(self) -> Navbar:
         testnavbar = Navbar(name="pharmacy_dashboard")
-        testnavbar.append_item(
+        testnavbar.register(
             NavbarItem(
                 name="navbar1",
                 title="Navbar1",
@@ -39,7 +36,7 @@ class TestNavbar(TestCase):
             )
         )
 
-        testnavbar.append_item(
+        testnavbar.register(
             NavbarItem(
                 name="navbar2",
                 title="Navbar2",
@@ -60,16 +57,6 @@ class TestNavbar(TestCase):
         self.assertTrue(navbar.name in site_navbars.registry)
         self.assertRaises(AlreadyRegistered, site_navbars.register, navbar)
 
-    def test_navbar_item_raises_missing_url(self):
-        self.assertRaises(
-            NavbarItemError,
-            NavbarItem,
-            name="navbar_item_one",
-            label="Navbar Item One",
-            title="navbar_item_one",
-            url_name=None,
-        )
-
     def test_navbar_item_ok(self):
         navbar_item = NavbarItem(
             name="navbar_item_one",
@@ -82,53 +69,22 @@ class TestNavbar(TestCase):
         self.assertEqual(navbar_item.title, "navbar_item_one")
         self.assertEqual(navbar_item.label, "Navbar Item One")
 
-    def test_render_navbar_item_to_string(self):
-        navbar_item_selected = "navbar_item_one"
-        navbar_item = NavbarItem(
-            name="navbar_item_one",
-            label="Navbar Item One",
-            title="navbar_item_one",
-            url_name="navbar_one_url",
-            codename="edc_navbar.nav_one",
-        )
-        template_string = navbar_item.render(
-            request=self.request, navbar_item_selected=navbar_item_selected
-        )
-        self.assertIn(navbar_item.name, template_string)
-        self.assertIn(navbar_item.title, template_string)
-        self.assertIn(navbar_item.reversed_url, template_string)
-        self.assertIn(navbar_item.label, template_string)
+    def test_navbar_set_active(self):
+        navbar = self.create_navbar()
+        navbar.set_active("navbar2")
+        self.assertTrue(navbar.get("navbar2").active)
+        self.assertFalse(navbar.get("navbar1").active)
+        navbar.set_active("navbar1")
+        self.assertFalse(navbar.get("navbar2").active)
+        self.assertTrue(navbar.get("navbar1").active)
 
-    def test_navbar_repr(self):
-        navbar = Navbar(name="default")
-        self.assertTrue(repr(navbar))
+    def test_navbar_urls(self):
+        navbar = self.create_navbar()
+        for navbar_item in navbar.navbar_items:
+            self.assertIsNotNone(navbar_item.get_url())
 
-    def test_render_navbar_item_to_string_fa_icon(self):
-        navbar_item_selected = "navbar_item_one"
-        navbar_item = NavbarItem(
-            name="navbar_item_one",
-            label="Navbar Item One",
-            title="navbar_item_one",
-            url_name="navbar_one_url",
-            fa_icon="fa-solid fa-user-circle",
-            codename="edc_navbar.nav_one",
-        )
-        template_string = navbar_item.render(
-            self.request, navbar_item_selected=navbar_item_selected
-        )
-        self.assertIn(navbar_item.fa_icon, template_string)
-
-    def test_render_navbar_item_to_string_icon(self):
-        navbar_item_selected = "navbar_item_one"
-        navbar_item = NavbarItem(
-            name="navbar_item_one",
-            label="Navbar Item One",
-            title="navbar_item_one",
-            url_name="navbar_one_url",
-            icon="medicine.png",
-            codename="edc_navbar.nav_one",
-        )
-        template_string = navbar_item.render(
-            self.request, navbar_item_selected=navbar_item_selected
-        )
-        self.assertIn(navbar_item.icon, template_string)
+    def test_navbar_disabled(self):
+        navbar = self.create_navbar()
+        for navbar_item in navbar.navbar_items:
+            navbar_item.set_disabled(self.user)
+            self.assertEqual(navbar_item.disabled, "")
