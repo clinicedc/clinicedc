@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from django.core.management.color import color_style
+from django.urls import NoReverseMatch
 from django.urls.base import reverse
 from edc_dashboard.url_names import InvalidDashboardUrlName, url_names
 from edc_dashboard.utils import get_bootstrap_version
@@ -43,8 +44,14 @@ class NavbarItem:
         #     f'Can access {" ".join(self.codename.split("_"))}',
         # )
 
-    def get_url(self) -> str:
-        return reverse(self.real_url_name)
+    def get_url(self, raise_exception: bool | None = None) -> str | None:
+        try:
+            url = reverse(self.real_url_name)
+        except NoReverseMatch:
+            url = None
+            if raise_exception:
+                raise
+        return url
 
     @property
     def real_url_name(self) -> str:

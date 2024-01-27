@@ -29,7 +29,7 @@ def edc_navbar_checks(app_configs, **kwargs) -> list[CheckMessage]:
                     )
                     errors.append(Error(msg, id="edc_navbar.E002"))
             try:
-                navbar_item.get_url()
+                navbar_item.get_url(raise_exception=True)
             except NoReverseMatch:
                 errors.append(
                     Error(
