@@ -21,7 +21,7 @@ tmg_navbar_item = NavbarItem(
 )
 
 ae_navbar = Navbar(name="edc_adverse_event")
-ae_navbar.append_item(ae_navbar_item)
-ae_navbar.append_item(tmg_navbar_item)
+ae_navbar.register(ae_navbar_item)
+ae_navbar.register(tmg_navbar_item)
 
 site_navbars.register(ae_navbar)
