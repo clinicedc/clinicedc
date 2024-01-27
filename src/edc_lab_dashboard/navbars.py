@@ -6,7 +6,7 @@ specimens_navbar = NavbarItem(
     name="specimens",
     label="Specimens",
     title="Specimens",
-    fa_icon="fa-solid fa-flask",
+    fa_icon="fa-flask",
     codename="edc_lab_dashboard.nav_lab_section",
     url_name="requisition_listboard_url",
 )
@@ -17,7 +17,7 @@ _specimens_navbar.label = None
 
 navbar = Navbar(name="specimens")
 
-navbar.append_item(
+navbar.register(
     NavbarItem(
         name="requisition",
         label="Requisition",
@@ -26,7 +26,7 @@ navbar.append_item(
     )
 )
 
-navbar.append_item(
+navbar.register(
     NavbarItem(
         name="receive",
         label="Receive",
@@ -35,7 +35,7 @@ navbar.append_item(
     )
 )
 
-navbar.append_item(
+navbar.register(
     NavbarItem(
         name="process",
         label="Process",
@@ -44,7 +44,7 @@ navbar.append_item(
     )
 )
 
-navbar.append_item(
+navbar.register(
     NavbarItem(
         name="pack",
         label="Pack",
@@ -53,7 +53,7 @@ navbar.append_item(
     )
 )
 
-navbar.append_item(
+navbar.register(
     NavbarItem(
         name="manifest",
         label="Manifest",
@@ -62,7 +62,7 @@ navbar.append_item(
     )
 )
 
-navbar.append_item(
+navbar.register(
     NavbarItem(
         name="aliquot",
         label="Aliquot",
@@ -71,7 +71,7 @@ navbar.append_item(
     )
 )
 
-navbar.append_item(
+navbar.register(
     NavbarItem(
         name="result",
         label="Result",
@@ -80,11 +80,11 @@ navbar.append_item(
     )
 )
 
-navbar.append_item(
+navbar.register(
     NavbarItem(
         name="specimens",
         title="Specimens",
-        fa_icon="fa-solid fa-flask",
+        fa_icon="fa-flask",
         codename="edc_lab_dashboard.nav_lab_section",
         url_name="requisition_listboard_url",
         active=True,
