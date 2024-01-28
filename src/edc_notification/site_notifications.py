@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import copy
 import sys
 from json.decoder import JSONDecodeError
+from typing import TYPE_CHECKING, Any, Type
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -11,6 +14,13 @@ from requests.exceptions import ConnectionError
 
 from .mailing_list_manager import MailingListManager
 from .utils import get_email_enabled
+
+if TYPE_CHECKING:
+    from edc_action_item.action_item_notification import ActionItemNotification
+    from edc_action_item.models import ActionItem
+
+    from .notification import Notification
+
 
 style = color_style()
 
@@ -29,7 +39,7 @@ class NotificationNotRegistered(Exception):
 
 class SiteNotifications:
     def __init__(self):
-        self._registry = {}
+        self._registry: dict[str, Type[ActionItemNotification | Notification]] = {}
         self.loaded = False
         self.models = {}
 
@@ -45,7 +55,7 @@ class SiteNotifications:
             )
         return self._registry
 
-    def get(self, name):
+    def get(self, name) -> Type[Notification]:
         """Returns a Notification by name."""
         if not self.loaded:
             raise RegistryNotLoaded(self)
@@ -53,7 +63,7 @@ class SiteNotifications:
             raise NotificationNotRegistered(f"Notification not registered. Got '{name}'.")
         return self._registry.get(name)
 
-    def register(self, notification_cls=None):
+    def register(self, notification_cls: Type[Notification] = None):
         """Registers a Notification class unique by name."""
         self.loaded = True
         display_names = [n.display_name for n in self.registry.values()]
@@ -78,21 +88,23 @@ class SiteNotifications:
                 f"{notification_cls.display_name} is already registered."
             )
 
-    def notify(self, instance=None, **kwargs):
+    def notify(self, instance: ActionItem = None, **kwargs):
         """A wrapper to call notification.notify for each notification
         class associated with the given model instance.
 
         Returns a dictionary of {notification.name: model, ...}
         including only notifications sent.
         """
-        notified = {}
+        notified: dict[str, Any] = {}
         for notification_cls in self.registry.values():
             notification = notification_cls()
             if notification.notify(instance=instance, **kwargs):
                 notified.update({notification_cls.name: instance._meta.label_lower})
         return notified
 
-    def update_notification_list(self, apps=None, schema_editor=None, verbose=False):  # noqa
+    def update_notification_list(
+        self, apps: django_apps = None, schema_editor=None, verbose=False
+    ):  # noqa
         """Updates the notification model to ensure all registered
         notifications classes are listed.
 
@@ -133,7 +145,7 @@ class SiteNotifications:
                     obj.save()
 
     @staticmethod
-    def delete_unregistered_notifications(apps=None):
+    def delete_unregistered_notifications(apps: django_apps = None):
         """Delete orphaned notification model instances."""
         notification_model_cls = (apps or django_apps).get_model(
             "edc_notification.notification"
@@ -178,7 +190,7 @@ class SiteNotifications:
         return responses
 
     @staticmethod
-    def autodiscover(module_name=None, verbose=False):
+    def autodiscover(module_name: str = None, verbose: bool | None = False):
         """Autodiscovers classes in the notifications.py file of any
         INSTALLED_APP.
         """

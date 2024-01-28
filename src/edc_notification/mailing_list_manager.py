@@ -1,10 +1,17 @@
+from __future__ import annotations
+
 import sys
+from typing import TYPE_CHECKING
 
 import requests
 from django.conf import settings
 from django.core.exceptions import ValidationError
 
 from .utils import get_email_enabled
+
+if TYPE_CHECKING:
+    from django.contrib.auth.models import User
+    from requests.models import Response
 
 
 class EmailNotEnabledError(ValidationError):
@@ -28,16 +35,16 @@ class MailingListManager:
     api_url_attr = "MAILGUN_API_URL"
     api_key_attr = "MAILGUN_API_KEY"
 
-    def __init__(self, address=None, name=None, display_name=None):
-        self._api_key = None
-        self._api_url = None
+    def __init__(self, address: str = None, name: str = None, display_name: str = None):
+        self._api_key: str | None = None
+        self._api_url: str | None = None
         self.address = address  # mailing list address
         self.display_name = display_name
-        self.email_enabled = get_email_enabled()
+        self.email_enabled: bool = get_email_enabled()
         self.name = name
 
     @property
-    def api_url(self):
+    def api_url(self) -> str | None:
         """Returns the api_url or None."""
         if not self._api_url:
             error_msg = (
@@ -54,7 +61,7 @@ class MailingListManager:
         return self._api_url
 
     @property
-    def api_key(self):
+    def api_key(self) -> str | None:
         """Returns the api_key or None."""
         if not self._api_key:
             error_msg = (
@@ -70,7 +77,7 @@ class MailingListManager:
                     raise EmailNotEnabledError(error_msg, code="api_key_is_none")
         return self._api_key
 
-    def subscribe(self, user, verbose=None):
+    def subscribe(self, user: User, verbose: bool | None = None) -> Response:
         """Returns a response after attempting to subscribe
         a member to the list.
         """
@@ -88,12 +95,13 @@ class MailingListManager:
                 "description": f'{user.userprofile.job_title or ""}',
                 "upsert": "yes",
             },
+            timeout=10,
         )
         if verbose:
             self._output_response_message("subscribe", response)
         return response
 
-    def unsubscribe(self, user, verbose=None):
+    def unsubscribe(self, user, verbose: bool | None = None) -> Response:
         """Returns a response after attempting to unsubscribe
         a member from the list.
         """
@@ -103,12 +111,13 @@ class MailingListManager:
             f"{self.api_url}/{self.address}/members/{user.email}",
             auth=("api", self.api_key),
             data={"subscribed": False},
+            timeout=10,
         )
         if verbose:
             self._output_response_message("unsubscribe", response)
         return response
 
-    def _output_response_message(self, action, response):
+    def _output_response_message(self, action: str, response: Response) -> None:
         try:
             email = response.json()["member"]["address"]
             message = response.json()["message"]
@@ -125,7 +134,7 @@ class MailingListManager:
                 f"subscribed={subscribed}.\n"
             )
 
-    def create(self, verbose=None):
+    def create(self, verbose: bool | None = None) -> Response:
         """Returns a response after attempting to create the list."""
         if not self.email_enabled:
             raise EmailNotEnabledError("Email is not enabled. See settings.EMAIL_ENABLED")
@@ -137,6 +146,7 @@ class MailingListManager:
                 "name": self.name,
                 "description": self.display_name,
             },
+            timeout=10,
         )
         if verbose:
             sys.stdout.write(
@@ -145,13 +155,15 @@ class MailingListManager:
             )
         return response
 
-    def delete(self):
+    def delete(self) -> Response:
         """Returns a response after attempting to delete the list."""
         if not self.email_enabled:
             raise EmailNotEnabledError("Email is not enabled. See settings.EMAIL_ENABLED")
-        return requests.delete(f"{self.api_url}/{self.address}", auth=("api", self.api_key))
+        return requests.delete(
+            f"{self.api_url}/{self.address}", auth=("api", self.api_key), timeout=10
+        )
 
-    def delete_member(self, user):
+    def delete_member(self, user: User) -> Response:
         """Returns a response after attempting to remove
         a member from the list.
         """
@@ -160,4 +172,5 @@ class MailingListManager:
         return requests.delete(
             f"{self.api_url}/{self.address}/members/{user.email}",
             auth=("api", self.api_key),
+            timeout=10,
         )

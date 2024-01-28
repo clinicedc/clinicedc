@@ -12,7 +12,7 @@ from twilio.rest import Client
 
 from ..site_notifications import site_notifications
 from ..stubs import NotificationModelStub
-from ..utils import get_email_contacts
+from ..utils import get_email_contacts, get_email_enabled
 
 
 class NotificationError(Exception):
@@ -99,7 +99,7 @@ class Notification:
         use_sms=None,
         email_body_template=None,
         **kwargs,
-    ):
+    ) -> bool:
         """Notify / send an email and/or SMS.
 
         Main entry point.
@@ -114,7 +114,7 @@ class Notification:
         """
         email_sent: Optional[int] = None
         sms_sent: Optional[dict] = None
-        use_email = use_email or getattr(settings, "EMAIL_ENABLED", False)
+        use_email = use_email or get_email_enabled()
         use_sms = use_sms or getattr(settings, "TWILIO_ENABLED", False)
         if force_notify or self._notify_on_condition(**kwargs):
             if use_email:
