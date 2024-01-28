@@ -28,27 +28,27 @@
                                     {% block schedule_button %}
                                         {% if related_visit %}
                                             <a href="{% url subject_dashboard_url|default:'subject_dashboard_url_cannot_be_none' subject_identifier=subject_identifier %}"
-                                               role="button" class="btn btn-sm btn-primary" data-toggle="tooltip" title="Go to subject's schedule">
+                                               role="button" class="btn btn-sm btn-primary" data-toggle="tooltip" title="{% trans "Go to subject's schedule" %}">
                                             <i class="fa-solid fa-reply fa-1x fa-fw" aria-hidden="true"></i>
-                                              Schedule
+                                              {% trans "Schedule" %}
                                             </a>
                                             <a href="{% url subject_review_listboard_url|default:'subject_review_listboard_url_cannot_be_none' subject_identifier=subject_identifier appointment=appointment.id|stringformat:"s" %}#{{ subject_identifier }}-{{ appointment.visit_code }}-{{ appointment.visit_code_sequence }}"
-                                               role="button" class="btn btn-sm btn-primary" data-toggle="tooltip" title="Go to subject review">
+                                               role="button" class="btn btn-sm btn-primary" data-toggle="tooltip" title="{% trans "Go to subject review" %}">
                                             <i class="fa-solid fa-reply fa-1x fa-fw" aria-hidden="true"></i>
-                                                Review
+                                                {% trans "Review" %}
                                             </a>
                                           {% else %}
                                         <a href="{% url subject_review_listboard_url|default:'subject_review_listboard_url_cannot_be_none' subject_identifier=subject_identifier %}"
-                                           role="button" class="btn btn-sm btn-primary" data-toggle="tooltip" title="Go to subject review">
+                                           role="button" class="btn btn-sm btn-primary" data-toggle="tooltip" title="{% trans "Go to subject review" %}">
                                         <i class="fa-solid fa-reply fa-1x fa-fw" aria-hidden="true"></i>
-                                          Review
+                                          {% trans "Review" %}
                                         </a>
                                           {% endif %}
                                     {% endblock schedule_button %}
 
-                                <a {% block close_url %}href="{% url subject_listboard_url|default:'subject_listboard_url_cannot_be_none' %}"{% endblock close_url %}
-                                  role="button" class="btn btn-sm btn-primary" data-toggle="tooltip" title="Back to Subjects">
-                                  <i class="fa-solid fa-reply fa-1x fa-fw" aria-hidden="true"></i><i class="fas fa-user-circle fa-1x fa-fw"></i>
+                                <a {% block close_url %}href="{% url subject_listboard_url|default:'subject_listboard_url_cannot_be_none' %}?q={{ subject_identifier }}"{% endblock close_url %}
+                                  role="button" class="btn btn-sm btn-primary" data-toggle="tooltip" title="{% trans "Back to Subjects" %}">
+                                  <i class="fa-solid fa-reply fa-1x fa-fw" aria-hidden="true"></i> {% trans "Subjects" %}
                                 </a>
                               </div>
                               </span>
@@ -67,12 +67,12 @@
 
                     {% if not visit_schedules %}
                         <div class="alert alert-warning">
-                            <i class="far fa-hand-paper fa-lg fa-fw"></i> Subject is not enrolled to any schedules.
+                            <i class="far fa-hand-paper fa-lg fa-fw"></i> {% trans "Subject is not enrolled to any schedules" %}.
                         </div>
                         <div class="panel panel-default">
                             <div class="panel-heading">
                                 <h6 class="panel-title"><i class="far fa-calendar fa-lg fa-fw"></i>
-                                    <a href="#">Schedules</a>
+                                    <a href="#">{% trans "Schedules" %}</a>
                                 </h6>
                             </div>
                         </div>
