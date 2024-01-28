@@ -1,25 +1,22 @@
 from typing import Dict, List
 
-from edc_auth.auth_objects.default_role_names import STATISTICIAN
-
-from .default_group_names import (
+from ..constants import (
     ACCOUNT_MANAGER,
+    ACCOUNT_MANAGER_ROLE,
     ADMINISTRATION,
     AUDITOR,
+    AUDITOR_ROLE,
     CLINIC,
     CLINIC_SUPER,
-    EVERYONE,
-    PII,
-    PII_VIEW,
-)
-from .default_role_names import (
-    ACCOUNT_MANAGER_ROLE,
-    AUDITOR_ROLE,
     CLINICIAN_ROLE,
     CLINICIAN_SUPER_ROLE,
     CUSTOM_ROLE,
+    EVERYONE,
     NURSE_ROLE,
+    PII,
+    PII_VIEW,
     STAFF_ROLE,
+    STATISTICIAN,
 )
 
 # Format {ROLE_NAME: [GROUP_NAME, GROUP_NAME, ...]

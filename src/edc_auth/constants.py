@@ -1,0 +1,21 @@
+# default group names
+
+ACCOUNT_MANAGER = "ACCOUNT_MANAGER"
+ADMINISTRATION = "ADMINISTRATION"
+AUDITOR = "AUDITOR"
+CELERY_MANAGER = "CELERY_MANAGER"
+CLINIC = "CLINIC"
+CLINIC_SUPER = "CLINIC_SUPER"
+EVERYONE = "EVERYONE"
+PII = "PII"
+PII_VIEW = "PII_VIEW"
+
+# default role names
+ACCOUNT_MANAGER_ROLE = "account_manager"
+AUDITOR_ROLE = "auditor"
+CLINICIAN_ROLE = "clinician"
+CLINICIAN_SUPER_ROLE = "clinician_super"
+CUSTOM_ROLE = "custom"
+NURSE_ROLE = "research_nurse"
+STAFF_ROLE = "staff"
+STATISTICIAN = "statistician"

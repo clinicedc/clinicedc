@@ -1,25 +1,14 @@
 import os
-import sys
 
 from django.conf import settings
-from django.core.checks import Warning
+from django.core.checks import CheckMessage, Warning
 from django.core.management import color_style
 
 style = color_style()
 
 
-def edc_check(app_configs, **kwargs):  # noqa
+def check_etc_dir(app_configs, **kwargs) -> list[CheckMessage]:
     errors = []
-    errors = check_etc_dir(errors)
-    errors = check_key_path(errors)
-    errors = check_static_root(errors)
-    errors = check_site_auths(errors)
-    errors = check_auth_updater(errors)
-    return errors
-
-
-def check_etc_dir(errors):
-    sys.stdout.write(style.SQL_KEYWORD("check_etc_dir ... \r"))
     try:
         settings.ETC_DIR
     except AttributeError:
@@ -42,12 +31,11 @@ def check_etc_dir(errors):
                     id="settings.ETC_DIR",
                 )
             )
-    sys.stdout.write(style.SQL_KEYWORD("check_etc_dir ... done.\n"))
     return errors
 
 
-def check_static_root(errors):
-    sys.stdout.write(style.SQL_KEYWORD("check_static_root ... \r"))
+def check_static_root(app_configs, **kwargs) -> list[CheckMessage]:
+    errors = []
     try:
         settings.STATIC_ROOT
     except AttributeError:
@@ -60,12 +48,11 @@ def check_static_root(errors):
                     id="settings.STATIC_ROOT",
                 )
             )
-    sys.stdout.write(style.SQL_KEYWORD("check_static_root ... done.\n"))
     return errors
 
 
-def check_key_path(errors):
-    sys.stdout.write(style.SQL_KEYWORD("check_key_path ...\r"))
+def check_key_path(app_configs, **kwargs) -> list[CheckMessage]:
+    errors = []
     try:
         settings.KEY_PATH
     except AttributeError:
@@ -79,12 +66,11 @@ def check_key_path(errors):
                     id="settings.KEY_PATH",
                 )
             )
-    sys.stdout.write(style.SQL_KEYWORD("check_key_path ... done.\n"))
     return errors
 
 
-def check_auth_updater(errors):
-    sys.stdout.write(style.SQL_KEYWORD("check_auth_updater ...\r"))
+def check_auth_updater(app_configs, **kwargs) -> list[CheckMessage]:
+    errors = []
     try:
         settings.EDC_AUTH_SKIP_AUTH_UPDATER
     except AttributeError:
@@ -98,12 +84,11 @@ def check_auth_updater(errors):
                     id="settings.EDC_AUTH_SKIP_AUTH_UPDATER",
                 )
             )
-    sys.stdout.write(style.SQL_KEYWORD("check_auth_updater ... done.\n"))
     return errors
 
 
-def check_site_auths(errors):
-    sys.stdout.write(style.SQL_KEYWORD("check_site_auths ...\r"))
+def check_site_auths(app_configs, **kwargs) -> list[CheckMessage]:
+    errors = []
     try:
         settings.EDC_AUTH_SKIP_AUTH_UPDATER
     except AttributeError:
@@ -117,5 +102,4 @@ def check_site_auths(errors):
                     id="settings.EDC_AUTH_SKIP_SITE_AUTHS",
                 )
             )
-    sys.stdout.write(style.SQL_KEYWORD("check_site_auths ... done.\n"))
     return errors

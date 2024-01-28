@@ -3,8 +3,8 @@ from django.contrib.sites.models import Site
 from django.test import override_settings
 from django.test.client import RequestFactory
 
-from edc_auth.auth_objects import CLINICIAN_ROLE
 from edc_auth.auth_updater import AuthUpdater
+from edc_auth.constants import CLINICIAN_ROLE
 from edc_auth.tests.utils import EdcAuthTestCase
 
 from ...backends import ModelBackendWithSite
