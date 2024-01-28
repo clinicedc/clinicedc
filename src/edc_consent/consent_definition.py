@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Type
 from django.apps import apps as django_apps
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from edc_constants.constants import FEMALE, MALE
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites import site_sites
 from edc_utils import floor_secs, formatted_date, formatted_datetime
 from edc_utils.date import ceil_datetime, floor_datetime, to_local, to_utc
@@ -36,8 +36,10 @@ class ConsentDefinition:
 
     model: str = field(compare=False)
     _ = KW_ONLY
-    start: datetime = field(default=Protocol().study_open_datetime, compare=False)
-    end: datetime = field(default=Protocol().study_close_datetime, compare=False)
+    start: datetime = field(
+        default=ResearchProtocolConfig().study_open_datetime, compare=False
+    )
+    end: datetime = field(default=ResearchProtocolConfig().study_close_datetime, compare=False)
     age_min: int = field(default=18, compare=False)
     age_max: int = field(default=110, compare=False)
     age_is_adult: int = field(default=18, compare=False)
@@ -126,7 +128,7 @@ class ConsentDefinition:
         """Raises if the date is not within the opening and closing
         dates of the protocol.
         """
-        protocol = Protocol()
+        protocol = ResearchProtocolConfig()
         study_open_datetime = protocol.study_open_datetime
         study_close_datetime = protocol.study_close_datetime
         for index, attr in enumerate(["start", "end"]):

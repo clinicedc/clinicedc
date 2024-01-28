@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -31,8 +31,8 @@ from ..visit_schedules import get_visit_schedule
 class TestConsent(TestCase):
     def setUp(self):
         site_consents.registry = {}
-        self.study_open_datetime = Protocol().study_open_datetime
-        self.study_close_datetime = Protocol().study_close_datetime
+        self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
+        self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
         self.subject_identifier = "12345"
         super().setUp()
 
