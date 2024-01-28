@@ -22,18 +22,22 @@
 {% endif %}
 {% endblock listboard_panel_back %}
 
-{% if listboard_fa_icon %}
-    <i class="{{ listboard_fa_icon }} fa-1x"></i>
-{% endif %}
 
-{% if listboard_panel_title %}
+  {% if listboard_fa_icon %}
+    <i class="{{ listboard_fa_icon }} fa-1x"></i>
+  {% endif %}
+
+
+{% block listboard_panel_title %}
+  {% if listboard_panel_title %}
     <span class="text">&nbsp;&nbsp;{{ listboard_panel_title }}</span>
-{% endif %}
+  {% endif %}
+{% endblock listboard_panel_title %}
 
 <!-- begin search form -->
 <span class="pull-right">
     {% block listboard_search_form %}
-        {% include 'edc_listboard/bootstrap3/search_form.html' %}
+      <div class="btn-group">{% block listboard_search_btn_group %}{% endblock listboard_search_btn_group %}{% include 'edc_listboard/bootstrap3/search_form.html' %}</div>
     {% endblock listboard_search_form %}
 </span>
 <!-- end search form -->
