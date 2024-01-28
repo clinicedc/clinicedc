@@ -44,10 +44,12 @@ from ..testcase_mixin import TestCaseMixin
 )
 class TestRandomizer(TestCaseMixin, TestCase):
     def test_(self):
+        self.populate_list(randomizer_name="default", overwrite_site=True)
         randomizer = site_randomizers.get("default")
         randomizer.import_list()
 
     def test_with_consent_insufficient_data(self):
+        self.populate_list(randomizer_name="default", overwrite_site=True)
         randomizer = site_randomizers.get("default")
         randomizer.import_list()
         subject_consent = SubjectConsent.objects.create(
@@ -64,6 +66,7 @@ class TestRandomizer(TestCaseMixin, TestCase):
         )
 
     def test_with_consent(self):
+        self.populate_list(randomizer_name="default", overwrite_site=True)
         randomizer = site_randomizers.get("default")
         randomizer.import_list()
         site = Site.objects.get_current()
@@ -90,6 +93,7 @@ class TestRandomizer(TestCaseMixin, TestCase):
             def extra_required_attrs(self):
                 return dict(gender=self.gender)
 
+        self.populate_list(randomizer_name="default", overwrite_site=True)
         randomizer = site_randomizers.get("default")
         randomizer.import_list()
         site = Site.objects.get_current()
