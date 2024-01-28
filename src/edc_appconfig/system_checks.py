@@ -1,5 +1,3 @@
-import sys
-
 from django.conf import settings
 from django.core.checks import CheckMessage, Error
 from django.core.management import color_style
@@ -16,7 +14,6 @@ def check_for_edc_appconfig(app_configs, **kwargs) -> list[CheckMessage]:
     """
     errors = []
     if getattr(settings, "EDC_APPCONFIG_SYSTEM_CHECK_ENABLED", True):
-        sys.stdout.write(style.SQL_KEYWORD("check for edc_appconfig ...\r"))
         if "edc_appconfig.apps.AppConfig" not in settings.INSTALLED_APPS:
             errors.append(
                 Error(
@@ -32,6 +29,4 @@ def check_for_edc_appconfig(app_configs, **kwargs) -> list[CheckMessage]:
                     id="edc_appconfig.E002",
                 )
             )
-        sys.stdout.write(style.SQL_KEYWORD("check for edc_appconfig ... done\n"))
-
     return errors

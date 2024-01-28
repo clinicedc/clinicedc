@@ -4,44 +4,33 @@ from django.apps import AppConfig as DjangoAppConfig
 from django.core.checks import register
 from django.core.management.color import color_style
 from django.db.models.signals import post_migrate
-from edc_action_item import site_action_items
 from edc_action_item.post_migrate_signals import update_action_types
-from edc_action_item.system_checks import edc_action_item_check
+from edc_action_item.site_action_items import site_action_items
 from edc_auth.post_migrate_signals import post_migrate_user_groups_and_roles
 from edc_auth.site_auths import site_auths
-from edc_consent import site_consents
-from edc_consent.system_checks import check_site_consents
+from edc_consent.site_consents import site_consents
 from edc_data_manager.post_migrate_signals import (
     populate_data_dictionary,
     update_query_rule_handlers,
 )
 from edc_data_manager.site_data_manager import site_data_manager
-from edc_export.system_checks import export_dir_checks
-from edc_facility.system_checks import holiday_country_check, holiday_path_check
 from edc_form_runners.site import site_form_runners
 from edc_lab import site_labs
 from edc_lab.post_migrate_signals import update_panels_on_post_migrate
 from edc_list_data import site_list_data
 from edc_list_data.post_migrate_signals import post_migrate_list_data
 from edc_metadata.metadata_rules import site_metadata_rules
-from edc_metadata.system_checks import check_for_metadata_rules
-from edc_navbar import site_navbars
-from edc_navbar.system_checks import edc_navbar_checks
+from edc_navbar.site_navbars import site_navbars
 from edc_notification.post_migrate_signals import post_migrate_update_notifications
 from edc_notification.site_notifications import site_notifications
 from edc_pdutils.site_values_mappings import site_values_mappings
-from edc_prn import site_prn_forms
+from edc_prn.site_prn_forms import site_prn_forms
 from edc_randomization.site_randomizers import site_randomizers
-from edc_reportable import site_reportables
+from edc_reportable.site_reportables import site_reportables
 from edc_sites.post_migrate_signals import post_migrate_update_sites
 from edc_sites.site import sites as site_sites
-from edc_sites.system_checks import sites_check
 from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_schedule.system_checks import (
-    check_form_collections,
-    visit_schedule_check,
-)
 
 style = color_style()
 
@@ -67,6 +56,18 @@ class AppConfig(DjangoAppConfig):
     include_in_administration_section = False
 
     def ready(self):
+        from edc_action_item.system_checks import edc_action_item_check
+        from edc_consent.system_checks import check_site_consents
+        from edc_export.system_checks import export_dir_checks
+        from edc_facility.system_checks import holiday_country_check, holiday_path_check
+        from edc_metadata.system_checks import check_for_metadata_rules
+        from edc_navbar.system_checks import edc_navbar_checks
+        from edc_sites.system_checks import sites_check
+        from edc_visit_schedule.system_checks import (
+            check_form_collections,
+            visit_schedule_check,
+        )
+
         sys.stdout.write("Loading edc_appconfig ...\n")
 
         # autodiscover for site globals
@@ -90,15 +91,26 @@ class AppConfig(DjangoAppConfig):
         site_randomizers.autodiscover()
 
         # register system checks that use site globals
+        sys.stdout.write(" * registering system checks\n")
+        sys.stdout.write("   - visit_schedule_check\n")
         register(visit_schedule_check)
+        sys.stdout.write("   - check_form_collections\n")
         register(check_form_collections)
+        sys.stdout.write("   - edc_action_item_check\n")
         register(edc_action_item_check)
+        sys.stdout.write("   - sites_check\n")
         register(sites_check)
+        sys.stdout.write("   - export_dir_checks\n")
         register(export_dir_checks, deploy=True)
+        sys.stdout.write("   - holiday_path_check (deploy only)\n")
         register(holiday_path_check, deploy=True)
+        sys.stdout.write("   - holiday_country_check (deploy only)\n")
         register(holiday_country_check, deploy=True)
+        sys.stdout.write("   - check_for_metadata_rules (deploy only)\n")
         register(check_for_metadata_rules)
+        sys.stdout.write("   - check_site_consents\n")
         register(check_site_consents)
+        sys.stdout.write("   - edc_navbar_checks\n")
         register(edc_navbar_checks)
 
         # register post-migrate signals
@@ -122,4 +134,4 @@ class AppConfig(DjangoAppConfig):
         sys.stdout.write("   - post_migrate.post_migrate_update_notifications\n")
         post_migrate.connect(post_migrate_update_notifications, sender=self)
 
-        sys.stdout.write("  Done\n")
+        sys.stdout.write("Done loading edc_appconfig.\n")
