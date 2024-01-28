@@ -12,7 +12,7 @@ from django.test import TestCase, override_settings
 from edc_consent.site_consents import site_consents
 from edc_constants.constants import INCOMPLETE
 from edc_facility.import_holidays import import_holidays
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
@@ -62,7 +62,7 @@ class TestAppointment(TestCase):
         site_consents.register(consent_v1)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
-            now=Protocol().study_open_datetime,
+            now=ResearchProtocolConfig().study_open_datetime,
         )
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule1.name, schedule_name=self.schedule1.name

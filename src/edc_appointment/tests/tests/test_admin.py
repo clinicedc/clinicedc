@@ -7,7 +7,7 @@ from django_webtest import WebTest
 from edc_auth.auth_updater.group_updater import GroupUpdater, PermissionsCodenameError
 from edc_consent.site_consents import site_consents
 from edc_facility import import_holidays
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_test_utils.get_user_for_tests import get_user_for_tests
 from edc_test_utils.webtest import login
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -48,7 +48,7 @@ class TestAdmin(WebTest):
         site_consents.register(consent_v1)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
-            now=Protocol().study_open_datetime,
+            now=ResearchProtocolConfig().study_open_datetime,
         )
 
     def get_app_form(self, url_name=None, response=None):
