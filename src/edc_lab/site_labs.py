@@ -1,10 +1,16 @@
+from __future__ import annotations
+
 import copy
 import sys
+from typing import TYPE_CHECKING, Type
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.module_loading import import_module, module_has_submodule
 from edc_reportable.site_reportables import site_reportables
+
+if TYPE_CHECKING:
+    from edc_lab.models import Panel
 
 
 class AlreadyRegistered(Exception):
@@ -105,7 +111,7 @@ class SiteLabs:
                     f"before attempting to creating new Panel model instances."
                 )
 
-    def update_panel_model(self, panel_model_cls=None, **kwargs):
+    def update_panel_model(self, panel_model_cls: Type[Panel] = None) -> None:
         """Updates or creates panel mode instances.
 
         Initially called in the post_migrate signal.
@@ -163,16 +169,14 @@ class SiteLabs:
         INSTALLED_APP.
         """
         module_name = module_name or "labs"
-        verbose = True if verbose is None else verbose
-        # sys.stdout.write(f" * checking for {module_name} ...\n")
+        sys.stdout.write(f" * checking for {module_name} ...\n")
         for app in django_apps.app_configs:
             try:
                 mod = import_module(app)
                 try:
                     before_import_registry = copy.copy(site_labs._registry)
                     import_module(f"{app}.{module_name}")
-                    if verbose:
-                        sys.stdout.write(f" * registered labs from application '{app}'\n")
+                    sys.stdout.write(f"   - registered labs from application '{app}'\n")
                 except Exception as e:
                     if f"No module named '{app}.{module_name}'" not in str(e):
                         site_labs._registry = before_import_registry

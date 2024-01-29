@@ -1,7 +1,7 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 from ..identifiers import AliquotIdentifier
 
@@ -39,7 +39,8 @@ class AliquotCreator:
         else:
             self.parent_identifier = parent_identifier
         self.identifier_prefix = (
-            identifier_prefix or f"{Protocol().protocol_number}{self.requisition_identifier}"
+            identifier_prefix
+            or f"{ResearchProtocolConfig().protocol_number}{self.requisition_identifier}"
         )
         if is_primary:
             self.parent_segment = None

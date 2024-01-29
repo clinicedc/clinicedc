@@ -4,7 +4,7 @@ from arrow.arrow import Arrow
 from django.apps import apps as django_apps
 from django.conf import settings
 from edc_label import Label
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 
 class RequisitionLabel(Label):
@@ -50,7 +50,7 @@ class RequisitionLabel(Label):
             "item_count": self.requisition.item_count or 1,
             "primary": "<P>",
             "barcode_value": self.requisition.requisition_identifier,
-            "protocol": Protocol().protocol,
+            "protocol": ResearchProtocolConfig().protocol,
             "site": str(self.requisition.site.id),
             "site_name": str(self.requisition.site.name),
             "site_title": str(self.requisition.site.siteprofile.title),
