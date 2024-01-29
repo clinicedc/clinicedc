@@ -6,7 +6,7 @@ from uuid import uuid4
 from django.core.handlers.wsgi import WSGIRequest
 from django.utils import timezone
 from django_revision.revision import Revision
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import (
@@ -50,7 +50,7 @@ class Report(ABC):
         self.filename = filename or f"{uuid4()}.pdf"
 
         if not header_line:
-            header_line = Protocol().institution
+            header_line = ResearchProtocolConfig().institution
         self.header_line = header_line
 
     @property
