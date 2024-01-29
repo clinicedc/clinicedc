@@ -6,9 +6,9 @@ from typing import Iterable
 
 from django import forms
 from django.utils.html import format_html
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
-from .auth_objects import EXPORT_PII
+from .constants import EXPORT_PII
 from .exceptions import ExporterExportFolder
 
 
@@ -26,7 +26,7 @@ def get_base_dir() -> str:
 
     This is the short protocol name in lower case
     """
-    base_dir: str = Protocol().protocol_lower_name
+    base_dir: str = ResearchProtocolConfig().protocol_lower_name
     if len(base_dir) > 25:
         raise ExporterExportFolder(
             f"Invalid basedir, too long. Using `protocol_lower_name`. Got `{base_dir}`."

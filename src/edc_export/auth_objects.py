@@ -1,6 +1,3 @@
-EXPORT = "EXPORT"
-EXPORT_PII = "EXPORT_PII"
-DATA_EXPORTER_ROLE = "data_exporter"
 export_codenames = [
     "edc_export.display_export_admin_action",
     "edc_export.add_datarequest",

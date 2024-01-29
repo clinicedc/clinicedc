@@ -7,7 +7,7 @@ from django.contrib.admin import sites
 from django.core.exceptions import ObjectDoesNotExist
 from edc_randomization.site_randomizers import site_randomizers
 
-from .auth_objects import EXPORT
+from .constants import EXPORT
 from .model_options import ModelOptions
 
 
