@@ -5,7 +5,7 @@ from django.contrib.admin import AdminSite as DjangoAdminSite
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.response import TemplateResponse
 from edc_dashboard.utils import get_bootstrap_version
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 admin.site.enable_nav_sidebar = False
 
@@ -63,7 +63,7 @@ class EdcAdminSite(DjangoAdminSite):
             site_title=self.get_edc_site_title(request),
             site_header=self.get_edc_site_header(request),
             global_site=get_current_site(request),
-            protocol_name=Protocol().protocol_name,
+            protocol_name=ResearchProtocolConfig().protocol_name,
             live_system=settings.LIVE_SYSTEM,
             DEBUG=settings.DEBUG,
         )
@@ -72,8 +72,9 @@ class EdcAdminSite(DjangoAdminSite):
     def get_edc_site_title(self, request) -> str:
         verbose_name = django_apps.get_app_config(self.app_label).verbose_name
         return verbose_name.replace(
-            Protocol().project_name,
-            f"{Protocol().project_name} @ {get_current_site(request).name.title()} ",
+            ResearchProtocolConfig().project_name,
+            f"{ResearchProtocolConfig().project_name} @ "
+            f"{get_current_site(request).name.title()} ",
         )
 
     def get_edc_site_header(self, request) -> str:
