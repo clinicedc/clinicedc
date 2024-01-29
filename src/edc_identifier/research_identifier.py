@@ -4,7 +4,7 @@ from string import Formatter
 from typing import TYPE_CHECKING, Optional
 
 from django.apps import apps as django_apps
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 from .checkdigit_mixins import LuhnMixin
 from .exceptions import IdentifierError
@@ -48,7 +48,7 @@ class ResearchIdentifier:
         self.template = template or self.template
         app_config = django_apps.get_app_config("edc_device")
         self.device_id = device_id or app_config.device_id
-        self.protocol_number = protocol_number or Protocol().protocol_number
+        self.protocol_number = protocol_number or ResearchProtocolConfig().protocol_number
         self.site = site or django_apps.get_model("sites.site").objects.get_current()
         if identifier:
             # load an existing identifier

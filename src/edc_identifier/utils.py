@@ -1,7 +1,7 @@
 import re
 import secrets
 
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 from .exceptions import SubjectIdentifierError
 
@@ -15,14 +15,16 @@ def is_subject_identifier_or_raise(subject_identifier, reference_obj=None, raise
       `raise_on_none` is `True`.
     """
     if subject_identifier or raise_on_none:
-        if not re.match(Protocol().subject_identifier_pattern, subject_identifier or ""):
+        if not re.match(
+            ResearchProtocolConfig().subject_identifier_pattern, subject_identifier or ""
+        ):
             reference_msg = ""
             if reference_obj:
                 reference_msg = f"See {repr(reference_obj)}. "
             raise SubjectIdentifierError(
                 f"Invalid format for subject identifier. {reference_msg}"
                 f"Got `{subject_identifier or ''}`. "
-                f"Expected pattern `{Protocol().subject_identifier_pattern}`"
+                f"Expected pattern `{ResearchProtocolConfig().subject_identifier_pattern}`"
             )
     return subject_identifier
 

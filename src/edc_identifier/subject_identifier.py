@@ -1,4 +1,4 @@
-from django.apps import apps as django_apps
+from edc_registration import get_registered_subject_model_cls
 from edc_utils import get_utcnow
 
 from .research_identifier import ResearchIdentifier
@@ -20,7 +20,7 @@ class SubjectIdentifier(ResearchIdentifier):
         """Creates a registered subject instance for this
         subject identifier.
         """
-        model = django_apps.get_app_config("edc_registration").model
+        model = get_registered_subject_model_cls()
         model.objects.create(
             subject_identifier=self.identifier,
             site=self.site,
