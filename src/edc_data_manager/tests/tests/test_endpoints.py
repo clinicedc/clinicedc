@@ -5,8 +5,8 @@ from django.test import override_settings
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_action_item.models.action_item import ActionItem
-from edc_auth.auth_objects import STAFF_ROLE
 from edc_auth.auth_updater import AuthUpdater
+from edc_auth.constants import STAFF_ROLE
 from edc_auth.models import Role
 from edc_auth.site_auths import site_auths
 from edc_lab.site_labs import site_labs

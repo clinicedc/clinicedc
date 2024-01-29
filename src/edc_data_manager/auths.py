@@ -1,4 +1,4 @@
-from edc_auth.auth_objects import (
+from edc_auth.constants import (
     CELERY_MANAGER,
     CLINICIAN_ROLE,
     CLINICIAN_SUPER_ROLE,

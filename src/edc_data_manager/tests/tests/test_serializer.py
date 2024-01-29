@@ -2,8 +2,8 @@ from django.contrib.auth import get_user_model
 from django.core import serializers
 from django.test import TestCase, override_settings
 from edc_lab.site_labs import site_labs
-from edc_visit_schedule.apps import populate_visit_schedule
 from edc_visit_schedule.constants import HOURS
+from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from data_manager_app.lab_profiles import lab_profile
