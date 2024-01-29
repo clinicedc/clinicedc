@@ -81,8 +81,15 @@ class ConsentDefinition:
         return sites
 
     def get_consent_for(
-        self, subject_identifier: str = None, report_datetime: datetime | None = None
-    ) -> ConsentLikeModel:
+        self,
+        subject_identifier: str = None,
+        report_datetime: datetime | None = None,
+        raise_if_does_not_exist: bool | None = None,
+    ) -> ConsentLikeModel | None:
+        consent = None
+        raise_if_does_not_exist = (
+            True if raise_if_does_not_exist is None else raise_if_does_not_exist
+        )
         opts: dict[str, str | datetime] = dict(
             subject_identifier=subject_identifier,
             version=self.version,
@@ -92,12 +99,13 @@ class ConsentDefinition:
         try:
             consent = self.model_cls.objects.get(**opts)
         except ObjectDoesNotExist:
-            dte = formatted_date(report_datetime)
-            raise NotConsentedError(
-                f"Consent not found. Has subject '{subject_identifier}' "
-                f"completed version '{self.version}' of consent "
-                f"'{self.model_cls._meta.verbose_name}' on or after '{dte}'?"
-            )
+            if raise_if_does_not_exist:
+                dte = formatted_date(report_datetime)
+                raise NotConsentedError(
+                    f"Consent not found. Has subject '{subject_identifier}' "
+                    f"completed version '{self.version}' of consent "
+                    f"'{self.model_cls._meta.verbose_name}' on or after '{dte}'?"
+                )
         return consent
 
     @property
