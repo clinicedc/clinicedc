@@ -8,6 +8,8 @@ from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from edc_appointment.constants import COMPLETE_APPT, IN_PROGRESS_APPT
 from edc_appointment.creators import AppointmentsCreator
+from edc_consent import NotConsentedError, site_consents
+from edc_sites.site import sites as site_sites
 from edc_sites.utils import valid_site_for_subject_or_raise
 from edc_utils import convert_php_dateformat, formatted_datetime, get_utcnow
 
@@ -112,9 +114,30 @@ class SubjectSchedule:
         ).exists():
             # use the first cdef in list (version 1) to
             # check for a consent
-            self.schedule.consent_definitions[0].get_consent_for(
-                subject_identifier=self.subject_identifier, report_datetime=onschedule_datetime
+
+            single_site = site_sites.get(site.id)
+            consent_definitions = site_consents.filter_cdefs_by_site_or_raise(
+                site=single_site, consent_definitions=self.schedule.consent_definitions
             )
+            # TODO: i think this is still problematic if multiple consent_defs
+            #   exist for a site
+            consent_definitions = sorted(consent_definitions, reverse=True)
+            consent_model_obj = None
+            for cdef in consent_definitions:
+                consent_model_obj = cdef.get_consent_for(
+                    subject_identifier=self.subject_identifier,
+                    report_datetime=onschedule_datetime,
+                    raise_if_does_not_exist=False,
+                )
+                if consent_model_obj:
+                    break
+            if not consent_model_obj:
+                dte = formatted_datetime(onschedule_datetime)
+                raise NotConsentedError(
+                    f"Consent not found. Has subject '{self.subject_identifier}' "
+                    f"completed a consent before {dte}? Possible consent definitions are "
+                    f"{consent_definitions}."
+                )
             # self.consented_or_raise(subject_identifier=subject_identifier)
             self.onschedule_model_cls.objects.create(
                 subject_identifier=self.subject_identifier,

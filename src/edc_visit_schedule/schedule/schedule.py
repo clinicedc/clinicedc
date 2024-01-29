@@ -84,9 +84,10 @@ class Schedule:
             )
         else:
             self.name = name
-        self.consent_definitions = consent_definitions
         if isinstance(consent_definitions, (ConsentDefinition,)):
-            self.consent_definitions = [consent_definitions]
+            self.consent_definitions: list[ConsentDefinition] = [consent_definitions]
+        else:
+            self.consent_definitions: list[ConsentDefinition] = consent_definitions
         self.consent_definitions = sorted(self.consent_definitions)
         if isinstance(base_timepoint, (float,)):
             base_timepoint = Decimal(str(base_timepoint))
@@ -191,13 +192,16 @@ class Schedule:
         subject_identifier: str,
         onschedule_datetime: datetime | None,
         skip_baseline: bool | None = None,
+        skip_get_current_site: bool | None = None,
     ):
         """Puts a subject onto this schedule.
 
         Wrapper of method SubjectSchedule.put_on_schedule.
         """
         self.subject(subject_identifier).put_on_schedule(
-            onschedule_datetime, skip_baseline=skip_baseline
+            onschedule_datetime,
+            skip_baseline=skip_baseline,
+            skip_get_current_site=skip_get_current_site,
         )
 
     def refresh_schedule(self, subject_identifier: str):

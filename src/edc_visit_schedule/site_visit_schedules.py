@@ -282,7 +282,7 @@ class SiteVisitSchedules:
                     before_import_registry = copy.copy(site_visit_schedules._registry)
                     import_module(f"{app}.{module_name}")
                     if verbose:
-                        sys.stdout.write(" * registered visit schedule from " f"'{app}'\n")
+                        sys.stdout.write("   - registered visit schedule from " f"'{app}'\n")
                 except Exception as e:
                     if f"No module named '{app}.{module_name}'" not in str(e):
                         raise
