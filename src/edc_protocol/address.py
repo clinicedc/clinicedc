@@ -1,24 +1,15 @@
+from dataclasses import dataclass, field
+
+
+@dataclass
 class Address:
-    def __init__(
-        self,
-        contact_name=None,
-        company_name=None,
-        address=None,
-        city=None,
-        state=None,
-        postal_code=None,
-        country=None,
-        tel=None,
-        mobile=None,
-        fax=None,
-    ):
-        self.contact_name = contact_name or "CONTACT NAME"
-        self.company_name = company_name or "COMPANY NAME"
-        self.address = address or "ADDRESS"
-        self.city = city or "CITY"
-        self.state = state or ""
-        self.postal_code = postal_code or ""
-        self.country = country or "COUNTRY"
-        self.tel = tel or "TELEPHONE"
-        self.mobile = mobile or "MOBILE"
-        self.fax = fax or "FAX"
+    contact_name: str = field(default="CONTACT NAME")
+    company_name: str = field(default="COMPANY NAME")
+    address: str = field(default="ADDRESS")
+    city: str = field(default="CITY")
+    state: str = field(default="")
+    postal_code: str = field(default="0000")
+    country: str = field(default="COUNTRY")
+    tel: str = field(default="TELEPHONE")
+    mobile: str = field(default="MOBILE")
+    fax: str = field(default="FAX")

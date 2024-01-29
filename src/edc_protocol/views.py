@@ -5,7 +5,7 @@ from edc_dashboard.utils import get_bootstrap_version
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 
-from edc_protocol import Protocol
+from .research_protocol_config import ResearchProtocolConfig
 
 
 class HomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
@@ -14,15 +14,15 @@ class HomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
     navbar_selected_item = "protocol"
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
-        protocol = Protocol()
+        protocol_config = ResearchProtocolConfig()
         kwargs.update(
             {
-                "protocol": protocol.protocol,
-                "protocol_number": protocol.protocol_number,
-                "protocol_name": protocol.protocol_name,
-                "protocol_title": protocol.protocol_title,
-                "study_open_datetime": protocol.study_open_datetime,
-                "study_close_datetime": protocol.study_close_datetime,
+                "protocol": protocol_config.protocol,
+                "protocol_number": protocol_config.protocol_number,
+                "protocol_name": protocol_config.protocol_name,
+                "protocol_title": protocol_config.protocol_title,
+                "study_open_datetime": protocol_config.study_open_datetime,
+                "study_close_datetime": protocol_config.study_close_datetime,
             }
         )
         return super().get_context_data(**kwargs)
