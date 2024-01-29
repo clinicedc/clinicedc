@@ -7,11 +7,10 @@ from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
-from edc_auth.auth_objects import CLINIC
 from edc_auth.auth_updater import AuthUpdater
+from edc_auth.constants import CLINIC
 from edc_auth.site_auths import site_auths
 from edc_dashboard.url_names import url_names
-from edc_model_wrapper import ModelWrapper
 from edc_test_utils.get_user_for_tests import get_user_for_tests
 from edc_utils import get_utcnow
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
@@ -61,10 +60,6 @@ class TestViewMixins(TestCase):
                 self.assertEqual(attr, view.get_context_data().get(attr), attr)
 
     def test_listboard_filter_view(self):
-        class RelatedVisitModelWrapper(ModelWrapper):
-            model = "edc_listboard.subjectvisit"
-            next_url_name = "dashboard_url"
-
         class MyListboardViewFilters(ListboardViewFilters):
             all = ListboardFilter(name="all", label="All", lookup={})
 
@@ -82,7 +77,6 @@ class TestViewMixins(TestCase):
             listboard_template = "listboard_template"
             listboard_filter_url = "listboard_url"
             listboard_view_permission_codename = "edc_listboard.view_my_listboard"
-            model_wrapper_cls = RelatedVisitModelWrapper
             listboard_view_filters = MyListboardViewFilters()
 
         start = datetime(2013, 5, 1, 12, 30, tzinfo=ZoneInfo("UTC"))
