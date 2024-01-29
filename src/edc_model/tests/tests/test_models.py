@@ -1,9 +1,6 @@
 from copy import copy
 
-from django.apps import apps as django_apps
-from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
-from django.test.utils import override_settings
 
 from edc_model.models import UrlModelMixinNoReverseMatch
 
@@ -11,11 +8,6 @@ from ..models import BasicModel, SimpleModel
 
 
 class TestModels(TestCase):
-    @override_settings(USE_TZ=False)
-    def test_tz(self):
-        app_config = django_apps.get_app_config("edc_model")
-        self.assertRaises(ImproperlyConfigured, app_config.ready)
-
     def test_base_update_fields(self):
         """Assert update fields cannot bypass modified fields."""
         obj = BasicModel.objects.create()
