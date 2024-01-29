@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django_audit_fields.admin import audit_fieldset_tuple
-from edc_sites.admin import site_fieldset_tuple
 
 missed_medications_fieldset_tuple = (
     "Missed Medications",
@@ -71,7 +70,6 @@ class MedicationAdherenceAdminMixin:
         get_visual_score_fieldset_tuple(),
         pill_count_fieldset_tuple,
         missed_medications_fieldset_tuple,
-        site_fieldset_tuple,
         audit_fieldset_tuple,
     )
 
