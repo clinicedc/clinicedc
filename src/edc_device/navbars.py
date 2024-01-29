@@ -2,7 +2,7 @@ from edc_navbar import Navbar, NavbarItem, site_navbars
 
 device = Navbar(name="edc_device")
 
-device.append_item(
+device.register(
     NavbarItem(
         name="device",
         label="device",
