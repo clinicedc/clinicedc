@@ -7,8 +7,8 @@ from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
-from edc_auth.auth_objects import CLINIC
 from edc_auth.auth_updater import AuthUpdater
+from edc_auth.constants import CLINIC
 from edc_auth.site_auths import site_auths
 from edc_listboard.filters import ListboardFilter, ListboardViewFilters
 from edc_listboard.view_mixins import ListboardFilterViewMixin, QueryStringViewMixin
