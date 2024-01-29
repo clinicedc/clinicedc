@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Type
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 from .exceptions import RegisteredSubjectError
 
@@ -53,12 +53,12 @@ def get_registered_subject(
 def valid_subject_identifier_or_raise(
     subject_identifier: str, raise_exception: bool | None = None
 ) -> bool:
-    if not re.match(Protocol().subject_identifier_pattern, subject_identifier):
+    if not re.match(ResearchProtocolConfig().subject_identifier_pattern, subject_identifier):
         if raise_exception:
             raise RegisteredSubjectError(
                 f"Invalid subject identifier format. "
-                f"Valid pattern is `{Protocol().subject_identifier_pattern}`. "
-                f"See `edc_protocol.Protocol().subject_identifier_pattern`. "
+                f"Valid pattern is `{ResearchProtocolConfig().subject_identifier_pattern}`. "
+                f"See `edc_protocol.ResearchProtocolConfig().subject_identifier_pattern`. "
                 f"Got `{subject_identifier}`."
             )
         else:
