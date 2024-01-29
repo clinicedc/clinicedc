@@ -11,6 +11,6 @@ navbar_item = NavbarItem(
 )
 
 
-navbar.append_item(navbar_item)
+navbar.register(navbar_item)
 
 site_navbars.register(navbar)
