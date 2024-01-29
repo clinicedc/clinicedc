@@ -1,7 +1,7 @@
 from django.apps import apps as django_apps
-from edc_auth.auth_objects import ACCOUNT_MANAGER_ROLE
+from edc_auth.constants import ACCOUNT_MANAGER_ROLE
 from edc_auth.site_auths import site_auths
-from edc_export.auth_objects import EXPORT
+from edc_export.constants import EXPORT
 
 from .auth_objects import NOTIFICATION, codenames
 

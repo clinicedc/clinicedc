@@ -3,10 +3,11 @@ from django.contrib.auth.models import User
 from django.test.testcases import TestCase
 from django.test.utils import override_settings
 
-from ...decorators import register
-from ...models import Notification as NotificationModel
-from ...notification import GradedEventNotification
-from ...site_notifications import site_notifications
+from edc_notification.decorators import register
+from edc_notification.models import Notification as NotificationModel
+from edc_notification.notification import GradedEventNotification
+from edc_notification.site_notifications import site_notifications
+
 from ..models import AE
 
 

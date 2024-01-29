@@ -1,22 +1,25 @@
 import sys
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.checks import Warning, register
-from django.core.management import color_style
+from django.core.checks import Warning
 from django.db.models import Q
 from django.db.utils import OperationalError, ProgrammingError
 
-style = color_style()
 
-
-@register()
 def edc_notification_check(app_configs, **kwargs):
-    sys.stdout.write(style.SQL_KEYWORD("edc_notification_check ...\r"))
     errors = []
+    if getattr(settings, "EMAIL_ENABLED", False):
+        errors.append(
+            Warning(
+                "Notifications by email are disabled.",
+                hint="To enable set settings.EMAIL_ENABLED = True",
+                id="edc_notification.W002",
+            )
+        )
     try:
         if "migrate" not in sys.argv and "makemigrations" not in sys.argv:
-            User = get_user_model()
-            users = User.objects.filter(
+            users = get_user_model().objects.filter(
                 (
                     Q(first_name__isnull=True)
                     | Q(last_name__isnull=True)
@@ -34,7 +37,7 @@ def edc_notification_check(app_configs, **kwargs):
                                 f"last name and email are complete. See {user}"
                             ),
                             hint="Complete the user's account details.",
-                            obj=User,
+                            obj=get_user_model(),
                             id="edc_notification.W001",
                         )
                     )
@@ -42,5 +45,4 @@ def edc_notification_check(app_configs, **kwargs):
                 pass
     except ProgrammingError:
         pass
-    sys.stdout.write(style.SQL_KEYWORD("edc_notification_check ... done\n"))
     return errors

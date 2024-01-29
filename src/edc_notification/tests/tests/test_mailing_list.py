@@ -5,9 +5,12 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from ...mailing_list_manager import EmailNotEnabledError, MailingListManager
-from ...notification import GradedEventNotification
-from ...site_notifications import site_notifications
+from edc_notification.mailing_list_manager import (
+    EmailNotEnabledError,
+    MailingListManager,
+)
+from edc_notification.notification import GradedEventNotification
+from edc_notification.site_notifications import site_notifications
 
 
 class G3EventNotification(GradedEventNotification):

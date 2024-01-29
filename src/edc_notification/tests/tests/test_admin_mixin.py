@@ -5,10 +5,10 @@ from django.test import TestCase
 from django.test.client import RequestFactory
 from edc_model_admin.mixins import ModelAdminFormInstructionsMixin
 
-from edc_notification import NotificationModelAdminMixin
+from edc_notification.modeladmin_mixins import NotificationModelAdminMixin
+from edc_notification.notification import GradedEventNotification
+from edc_notification.site_notifications import site_notifications
 
-from ...notification import GradedEventNotification
-from ...site_notifications import site_notifications
 from ..models import AE
 
 
