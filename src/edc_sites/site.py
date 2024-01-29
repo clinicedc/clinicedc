@@ -359,15 +359,14 @@ class Sites:
         module_name = module_name or "sites"
         writer = sys.stdout.write if verbose else lambda x: x
         style = color_style()
-        writer(f" * checking for {module_name} ...\n")
+        writer(f" * checking for {module_name} (edc_sites)...\n")
         for app in django_apps.app_configs:
-            writer(f" * searching {app}           \r")
             try:
                 mod = import_module(app)
                 try:
                     before_import_registry = deepcopy(sites._registry)
                     import_module(f"{app}.{module_name}")
-                    writer(f" * registered '{module_name}' from '{app}'\n")
+                    writer(f"   - registered '{module_name}' from '{app}'\n")
                 except SitesError as e:
                     writer(f"   - loading {app}.{module_name} ... ")
                     writer(style.ERROR(f"ERROR! {e}\n"))
@@ -377,7 +376,6 @@ class Sites:
                         raise SitesError(str(e))
             except ImportError:
                 pass
-        writer(f" Done loading {module_name}.\n")
 
 
 sites = Sites()

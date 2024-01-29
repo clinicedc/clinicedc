@@ -1,9 +1,8 @@
-from django.core.checks import Error, register
+from django.core.checks import Error
 
 from edc_sites.site import SitesCheckError, sites
 
 
-@register()
 def sites_check(app_configs, **kwargs):  # noqa
     errors = []
     try:
@@ -17,4 +16,12 @@ def sites_check(app_configs, **kwargs):  # noqa
                 id="edc_sites.E001",
             )
         )
+    if not sites.all():
+        errors.append(
+            Error(
+                "No sites have been registered",
+                id="edc_sites.E002",
+            )
+        )
+
     return errors

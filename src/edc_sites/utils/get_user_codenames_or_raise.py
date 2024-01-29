@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from edc_auth.auth_objects import ACCOUNT_MANAGER_ROLE
+from edc_auth.constants import ACCOUNT_MANAGER_ROLE
 from edc_auth.utils import get_codenames_for_role
 
 if TYPE_CHECKING:
