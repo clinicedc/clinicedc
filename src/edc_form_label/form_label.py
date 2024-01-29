@@ -1,11 +1,16 @@
+from typing import TYPE_CHECKING, Type
+
 from .custom_label_condition import CustomFormLabelError
+
+if TYPE_CHECKING:
+    from .custom_label_condition import CustomLabelCondition
 
 
 class FormLabel:
     def __init__(self, field=None, custom_label=None, condition_cls=None):
         self.field = field
         self.custom_label = custom_label
-        self.condition_cls = condition_cls
+        self.condition_cls: Type[CustomLabelCondition] = condition_cls
 
     def get_form_label(self, request=None, obj=None, model=None, form=None):
         """Returns a customized form label, if condition is met,

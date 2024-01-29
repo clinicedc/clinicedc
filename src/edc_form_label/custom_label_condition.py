@@ -1,5 +1,12 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
+
+if TYPE_CHECKING:
+    from edc_appointment.models import Appointment
 
 
 class CustomFormLabelError(Exception):
@@ -25,14 +32,14 @@ class CustomLabelCondition:
         return {}
 
     @property
-    def appointment(self):
+    def appointment(self) -> Appointment | None:
         """Returns the appointment instance for this request or None."""
         return django_apps.get_model(self.appointment_model).objects.get(
             pk=self.request.GET.get("appointment")
         )
 
     @property
-    def previous_appointment(self):
+    def previous_appointment(self) -> Appointment | None:
         """Returns the previous appointment for this request or None."""
         return self.appointment.previous_by_timepoint
 
