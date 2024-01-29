@@ -53,7 +53,7 @@ class SiteListData:
         else:
             self.app_names.append(app_name)
             opts = copy.deepcopy(self._get_options(module))
-            sys.stdout.write(f"   + registered {self.module_name} from '{module.__name__}'\n")
+            sys.stdout.write(f"   - registered {self.module_name} from '{module.__name__}'\n")
             if opts.get(self.module_name):
                 self._replace_list_data_or_raise_on_duplicate(module, opts)
             self.registry[module.__name__] = opts
@@ -120,8 +120,8 @@ class SiteListData:
     ) -> None:
         self.registry[default_module_name][self.module_name].pop(label_lower)
         sys.stdout.write(
-            f"   - {self.module_name} from `{full_module_name}.{label_lower}`\n"
-            f"       has replaced `{default_module_name}.{label_lower}`.\n"
+            f"     + {self.module_name} from `{full_module_name}.{label_lower}`\n"
+            f"         has replaced `{default_module_name}.{label_lower}`.\n"
         )
 
     @staticmethod
