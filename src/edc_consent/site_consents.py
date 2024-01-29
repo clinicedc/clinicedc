@@ -120,7 +120,7 @@ class SiteConsents:
         cdefs, error_msg = self._filter_cdefs_by_version_or_raise(
             version, cdefs, error_messages
         )
-        cdefs = self._filter_cdefs_by_site_or_raise(site, cdefs, error_messages)
+        cdefs = self.filter_cdefs_by_site_or_raise(site, cdefs, error_messages)
         # apply additional criteria
         for k, v in kwargs.items():
             if v is not None:
@@ -130,9 +130,10 @@ class SiteConsents:
     @staticmethod
     def _filter_cdefs_by_model_or_raise(
         model: str | None,
-        cdefs: list[ConsentDefinition],
+        consent_definitions: list[ConsentDefinition],
         errror_messages: list[str] = None,
     ) -> tuple[list[ConsentDefinition], list[str]]:
+        cdefs = consent_definitions
         if model:
             cdefs = [cdef for cdef in cdefs if model == cdef.model]
             if not cdefs:
@@ -146,9 +147,10 @@ class SiteConsents:
     def _filter_cdefs_by_report_datetime_or_raise(
         self,
         report_datetime: datetime | None,
-        cdefs: list[ConsentDefinition],
+        consent_definitions: list[ConsentDefinition],
         errror_messages: list[str] = None,
     ) -> tuple[list[ConsentDefinition], list[str]]:
+        cdefs = consent_definitions
         if report_datetime:
             cdefs = [
                 cdef
@@ -173,9 +175,10 @@ class SiteConsents:
     def _filter_cdefs_by_version_or_raise(
         self,
         version: str | None,
-        cdefs: list[ConsentDefinition],
+        consent_definitions: list[ConsentDefinition],
         errror_messages: list[str] = None,
     ) -> tuple[list[ConsentDefinition], list[str]]:
+        cdefs = consent_definitions
         if version:
             cdefs = [cdef for cdef in cdefs if cdef.version == version]
             if not cdefs:
@@ -188,14 +191,15 @@ class SiteConsents:
                 )
         return cdefs, errror_messages
 
-    def _filter_cdefs_by_site_or_raise(
+    def filter_cdefs_by_site_or_raise(
         self,
         site: SingleSite | None,
-        cdefs: list[ConsentDefinition],
+        consent_definitions: list[ConsentDefinition],
         errror_messages: list[str] = None,
     ) -> list[ConsentDefinition]:
+        cdefs = consent_definitions
         if site:
-            cdefs_copy = [cdef for cdef in cdefs]
+            cdefs_copy = [cdef for cdef in consent_definitions]
             cdefs = []
             for cdef in cdefs_copy:
                 if site.site_id in [s.site_id for s in cdef.sites]:
