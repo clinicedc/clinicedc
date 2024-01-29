@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Type
 
-from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from edc_registration import get_registered_subject_model_cls
 
 from ..constants import DO_NOTHING
 
@@ -60,9 +60,8 @@ class RuleEvaluator:
                 self.result = self.logic.alternative
 
     @property
-    def registered_subject_model(self) -> Any:
-        app_config = django_apps.get_app_config("edc_registration")
-        return app_config.model
+    def registered_subject_model(self) -> Type[RegisteredSubject]:
+        return get_registered_subject_model_cls()
 
     @property
     def registered_subject(self) -> Any:
