@@ -1,10 +1,10 @@
 from edc_consent.consent_definition import ConsentDefinition
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 consent_v1 = ConsentDefinition(
     model="edc_visit_tracking.subjectconsent",
-    start=Protocol().study_open_datetime,
-    end=Protocol().study_close_datetime,
+    start=ResearchProtocolConfig().study_open_datetime,
+    end=ResearchProtocolConfig().study_close_datetime,
     gender=["M", "F"],
     updates_versions=[],
     version="1",
