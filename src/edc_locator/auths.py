@@ -1,4 +1,4 @@
-from edc_auth.auth_objects import PII, PII_VIEW
+from edc_auth.constants import PII, PII_VIEW
 from edc_auth.site_auths import site_auths
 
 site_auths.update_group(
