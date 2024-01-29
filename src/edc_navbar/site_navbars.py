@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import copy
 import sys
 from importlib import import_module
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -9,6 +12,9 @@ from django.urls import NoReverseMatch
 from django.utils.module_loading import module_has_submodule
 
 from .exceptions import AlreadyRegistered, NavbarError
+
+if TYPE_CHECKING:
+    from .navbar import Navbar
 
 
 class NavbarCollection:
@@ -23,10 +29,10 @@ class NavbarCollection:
     def __repr__(self):
         return f"{self.__class__.__name__}()"
 
-    def register(self, navbar=None):
+    def register(self, navbar: Navbar = None):
         if navbar.name not in self.registry:
             self.registry.update({navbar.name: navbar})
-            self.codenames.update(**navbar.codenames)
+            # self.codenames.update(**navbar.codenames)
         else:
             raise AlreadyRegistered(f"Navbar with name {navbar.name} is already registered.")
 
@@ -38,11 +44,11 @@ class NavbarCollection:
             navbar_name=name,
         )
 
-    def get_navbar(self, name=None, selected_item=None):
+    def get_navbar(self, name: str = None, selected_item: str = None) -> Navbar:
         """Returns a selected navbar in the collection."""
         # does the navbar exist?
         try:
-            navbar = self.registry[name]
+            navbar: Navbar = self.registry[name]
         except KeyError:
             raise NavbarError(
                 f"Navbar '{name}' does not exist. Expected one of "
@@ -50,25 +56,19 @@ class NavbarCollection:
             )
         else:
             # does the navbar have items?
-            if not [item.name for item in navbar]:
+            if not navbar.navbar_items:
                 raise NavbarError(
-                    f"Navbar '{navbar.name}' has no items. Expected "
+                    f"Navbar '{navbar.name}' has no navbar_item. Expected "
                     f"'{selected_item}'. See {repr(self)}"
                 )
             # does the selected item exist?
             if selected_item:
-                if selected_item not in [navbar_item.name for navbar_item in navbar]:
-                    navbar_item_names = [item.name for item in navbar]
-                    raise NavbarError(
-                        f"Navbar item name does not exist. Got '{selected_item}'. "
-                        f"Expected one of {navbar_item_names}. "
-                        f"See navbar '{navbar.name}'."
-                    )
+                navbar.set_active(selected_item)
         return navbar
 
-    def show_user_permissions(self, username=None, navbar_name=None):
+    def show_user_permissions(self, username: str = None, navbar_name: str = None):
         user = django_apps.get_model("auth.user").objects.get(username=username)
-        navbar = self.registry.get(navbar_name)
+        navbar: Navbar = self.registry.get(navbar_name)
         return navbar.show_user_permissions(user=user)
 
     def show_user_codenames(self, username=None, navbar_name=None):
@@ -85,18 +85,17 @@ class NavbarCollection:
             style = color_style()
             writer(f" * checking for site {module_name} ...\n")
             for app in django_apps.app_configs:
-                writer(f" * searching {app}           \r")
                 try:
                     mod = import_module(app)
                     try:
                         before_import_registry = copy.copy(site_navbars.registry)
                         import_module(f"{app}.{module_name}")
-                        writer(f" * registered navbars '{module_name}' from '{app}'\n")
+                        writer(f"   - registered navbars '{module_name}' from '{app}'\n")
                     except NavbarError as e:
-                        writer(f" * loading {app}.navbars ... \n")
+                        writer(f"   * loading {app}.navbars ... \n")
                         writer(style.ERROR(f"ERROR! {e}\n"))
                     except NoReverseMatch as e:
-                        writer(f" * loading {app}.navbars ... \n")
+                        writer(f"   * loading {app}.navbars ... \n")
                         writer(style.ERROR(f"ERROR! {e}\n"))
                         raise
                     except ImportError as e:
