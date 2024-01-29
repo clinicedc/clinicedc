@@ -13,7 +13,7 @@ from edc_appointment.tests.helper import Helper
 from edc_appointment.utils import get_next_appointment
 from edc_constants.constants import YES
 from edc_facility import import_holidays
-from edc_protocol import Protocol
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -401,8 +401,8 @@ class TestMedicationCrf(TestCase):
                 )
 
     def test_study_medication_form_baseline(self):
-        self.study_open_datetime = Protocol().study_open_datetime
-        self.study_close_datetime = Protocol().study_close_datetime
+        self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
+        self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
         appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         next_appointment = get_next_appointment(appointment, include_interim=True)
         subject_visit = SubjectVisit.objects.create(
