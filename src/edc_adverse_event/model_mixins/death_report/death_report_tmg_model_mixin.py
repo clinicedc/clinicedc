@@ -129,19 +129,3 @@ class DeathReportTmgModelMixin(
             + ActionModelMixin.Meta.indexes
             + [models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])]
         )
-
-
-class DeathReportTmgSecondModelMixin(DeathReportTmgModelMixin):
-    action_name = DEATH_REPORT_TMG_SECOND_ACTION
-
-    objects = DeathReportTmgSecondManager()
-
-    on_site = DeathReportTmgSecondSiteManager()
-
-    class Meta:
-        abstract = True
-        verbose_name = "Death Report TMG (2nd)"
-        verbose_name_plural = "Death Report TMG (2nd)"
-        indexes = [
-            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])
-        ]
