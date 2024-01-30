@@ -101,7 +101,7 @@ def user_has_change_perms(**kwargs) -> list[str]:
 
 
 def get_codenames_for_user(
-    user: User, roles: QuerySet[Role] = None, include_groups: bool | None = None
+    user: User = None, roles: QuerySet[Role] = None, include_groups: bool | None = None
 ) -> list[str]:
     codenames: list[str] = []
     groups: list[Group] = []
