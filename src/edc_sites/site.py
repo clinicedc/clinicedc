@@ -13,14 +13,13 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.handlers.wsgi import WSGIRequest as BaseWSGIRequest
 from django.core.management.color import color_style
 from django.utils.module_loading import import_module, module_has_submodule
+from edc_auth.utils import user_has_change_perms
 from edc_constants.constants import OTHER
 from edc_model_admin.utils import add_to_messages_once
 
-from .auths import view_auditallsites_codename
 from .exceptions import InvalidSiteForUser
 from .single_site import SingleSite
 from .utils import (
-    get_change_codenames,
     get_message_text,
     get_site_model_cls,
     has_profile_or_raise,
@@ -92,7 +91,6 @@ def get_autodiscover_sites():
 
 class Sites:
     uat_subdomain = "uat"
-    view_auditallsites_codename = view_auditallsites_codename
 
     def __init__(self):
         self.loaded = False
@@ -243,8 +241,8 @@ class Sites:
         sites.site_in_profile_or_raise(user=user, site_id=site_id)
         # now check for special view codename from user account
         site_ids = []
-        if user.has_perm(f"edc_sites.{self.view_auditallsites_codename}"):
-            if get_change_codenames(user):
+        if user.userprofile.is_multisite_viewer:
+            if user_has_change_perms(user=user):
                 if request:
                     add_to_messages_once(
                         request,
