@@ -1,7 +1,7 @@
 {% if complete %}
   <span style="color:green" data-toggle="tooltip" title="{{ keyed }}/{{total}} submitted" aria-hidden="true"><i class="fas fa-check fa-sm"></i></span>
-{% elif late %}
-  <span style="color:red" data-toggle="tooltip" title="Appoinment is overdue!" aria-hidden="true"><i class="fa-solid fa-tag fa-fw"></i></span>
+{% elif overdue %}
+  <span style="color:red" data-toggle="tooltip" title="Appoinment is overdue!" aria-hidden="true"><i class="fa-solid fa-clock fa-fw"></i></span>
 {% elif skipped %}
   <span data-toggle="tooltip" title="Skipped" aria-hidden="true"><i class="fas fa-minus fa-fw"></i></span>
 {% elif show_totals %}

@@ -164,14 +164,17 @@ def render_crf_totals(appointment: Appointment = None) -> dict[str, bool | int]:
     helper = MetadataHelper(appointment)
     skipped: bool = False
     show_totals: bool = False
-    late: bool = False
+    overdue: bool = False
     complete: bool = False
     num_keyed: int = 0
     num_total: int = 0
     if appointment.appt_status == SKIPPED_APPT:
         skipped = True
-    elif appointment.appt_status == NEW_APPT and appointment.appt_datetime <= get_utcnow():
-        late = True
+    elif (
+        appointment.appt_status == NEW_APPT
+        and appointment.appt_datetime.date() < get_utcnow().date()
+    ):
+        overdue = True
     else:
         crf_keyed = helper.get_crf_metadata_by(entry_status=KEYED).count()
         requisition_keyed = helper.get_requisition_metadata_by(entry_status=KEYED).count()
@@ -188,7 +191,7 @@ def render_crf_totals(appointment: Appointment = None) -> dict[str, bool | int]:
         show_totals=show_totals,
         skipped=skipped,
         complete=complete,
-        late=late,
+        overdue=overdue,
         keyed=num_keyed,
         total=num_total,
     )

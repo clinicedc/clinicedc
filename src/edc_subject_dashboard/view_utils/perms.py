@@ -54,7 +54,7 @@ class Perms:
     for this user.
 
     Here we consider model class, the current site, the sites in
-    user's profile, and the special 'view_auditallsites_codename'.
+    user's profile, and userprofile.is_multisite_viewer.
     """
 
     user: User = None
