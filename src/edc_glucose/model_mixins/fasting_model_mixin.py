@@ -40,7 +40,7 @@ def fasting_model_mixin_factory(
             ),
         ),
         f"{prefix}fasting_duration_minutes": models.IntegerField(
-            null=True, help_text="system calculated value"
+            null=True, blank=True, help_text="system calculated value"
         ),
     }
 
