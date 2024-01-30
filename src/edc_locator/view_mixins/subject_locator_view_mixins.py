@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Any, Type
 from django.apps import apps as django_apps
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from edc_action_item.site_action_items import site_action_items
-from edc_sites.utils import get_user_codenames_or_raise
 
 from ..action_items import SUBJECT_LOCATOR_ACTION
 from ..exceptions import SubjectLocatorViewMixinError
@@ -56,8 +55,8 @@ class SubjectLocatorViewMixin:
             )
         except ObjectDoesNotExist:
             # only create missing action item if user has change perms
-            _, model_name = self.subject_locator_model_cls._meta.label_lower.split(".")
-            if f"change_{model_name}" in get_user_codenames_or_raise(self.request.user):
+            app_label, model_name = self.subject_locator_model_cls._meta.label_lower.split(".")
+            if self.request.user.has_perm(f"{app_label}.change_{model_name}"):
                 action_cls(subject_identifier=subject_identifier)
         except MultipleObjectsReturned:
             # if condition exists, correct here
