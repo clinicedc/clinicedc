@@ -13,10 +13,20 @@ from ..auth_objects import CUSTOM_ROLE, STAFF_ROLE
 from .role import Role
 
 
+class UserProfileError(Exception):
+    pass
+
+
 class UserProfile(NotificationUserProfileModelMixin, models.Model):
     id = models.AutoField(primary_key=True)
 
     user = models.OneToOneField(User, on_delete=CASCADE)
+
+    is_multisite_viewer = models.BooleanField(
+        verbose_name="Multisite viewer",
+        default=False,
+        help_text="Designates if this user may view data from sites other than the current.",
+    )
 
     sites = models.ManyToManyField(Site, blank=True)
 

@@ -42,6 +42,7 @@ class UserAdmin(TemplatesModelAdminMixin, BaseUserAdmin):
         "sites",
         "is_staff",
         "is_active",
+        "multisite_viewer",
         "last_login",
     )
 
@@ -57,6 +58,7 @@ class UserAdmin(TemplatesModelAdminMixin, BaseUserAdmin):
         "is_staff",
         "is_superuser",
         "is_active",
+        "userprofile__is_multisite_viewer",
         CountriesListFilter,
         SitesListFilter,
         "userprofile__roles",
@@ -74,8 +76,8 @@ class UserAdmin(TemplatesModelAdminMixin, BaseUserAdmin):
             return inline_instances
         return super().get_inline_instances(request, obj=obj)
 
-    @staticmethod
-    def role(obj=None) -> str:
+    @admin.display(description="Role")
+    def role(self, obj=None) -> str:
         roles = []
         role_group_names = []
         for role in obj.userprofile.roles.all():
@@ -89,8 +91,8 @@ class UserAdmin(TemplatesModelAdminMixin, BaseUserAdmin):
         template_obj = select_edc_template("user_role_description.html", "edc_auth")
         return render_to_string(template_obj.template.name, context)
 
-    @staticmethod
-    def sites(obj=None) -> str:
+    @admin.display(description="Sites")
+    def sites(self, obj=None) -> str:
         country_sites = {}
         for site in obj.userprofile.sites.all().order_by("siteprofile__country", "name"):
             country_name = site.siteprofile.country.replace("_", " ").title()
@@ -104,17 +106,8 @@ class UserAdmin(TemplatesModelAdminMixin, BaseUserAdmin):
         template_obj = select_edc_template("user_country_sites.html", "edc_auth")
         return render_to_string(template_obj.template.name, context)
 
-    @staticmethod
-    def groups_in_role(obj=None) -> str:
-        roles = []
-        role_group_names = []
-        for role in obj.userprofile.roles.all():
-            roles.append(role)
-            role_group_names.extend([grp.name for grp in role.groups.all().order_by("name")])
-        extra_groups = [obj for obj in obj.groups.all() if obj.name not in role_group_names]
-        context = dict(
-            role_names=[role.display_name for role in roles],
-            extra_group_names=[grp.name.replace("_", " ") for grp in extra_groups],
-        )
-        template_obj = select_edc_template("user_role_description.html", "edc_auth")
-        return render_to_string(template_obj.template.name, context)
+    @admin.display(
+        description="Multisite", boolean=True, ordering="userprofile__is_multisite_viewer"
+    )
+    def multisite_viewer(self, obj=None):
+        return obj.userprofile.is_multisite_viewer

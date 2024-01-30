@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django import forms
 from django.conf import settings
 from django.contrib.auth.forms import UserChangeForm as BaseForm
@@ -11,6 +13,7 @@ from edc_randomization.blinding import (
 )
 
 from .models import UserProfile
+from .utils import get_codenames_for_user
 
 
 class UserChangeForm(BaseForm):
@@ -32,6 +35,20 @@ class UserChangeForm(BaseForm):
 class UserProfileForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
+
+        if self.cleaned_data.get("is_multisite_viewer"):
+            codenames = get_codenames_for_user(
+                user=self.cleaned_data.get("user"), roles=self.cleaned_data.get("roles")
+            )
+            if c := [c for c in codenames if "add_" in c or "change_" in c or "delete_" in c]:
+                raise forms.ValidationError(
+                    {
+                        "is_multisite_viewer": (
+                            "Invalid. User has change permissions to other objects. "
+                            f"Got {c}"
+                        )
+                    }
+                )
 
         qs = self.cleaned_data.get("email_notifications")
         if qs and qs.count() > 0:
