@@ -9,7 +9,7 @@ from django.db.utils import OperationalError, ProgrammingError
 
 def edc_notification_check(app_configs, **kwargs):
     errors = []
-    if getattr(settings, "EMAIL_ENABLED", False):
+    if not getattr(settings, "EMAIL_ENABLED", False):
         errors.append(
             Warning(
                 "Notifications by email are disabled.",
