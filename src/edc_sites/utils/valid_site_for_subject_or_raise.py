@@ -13,6 +13,8 @@ if TYPE_CHECKING:
     from django.contrib.sites.models import Site
     from edc_registration.models import RegisteredSubject
 
+__all__ = ["valid_site_for_subject_or_raise"]
+
 
 def valid_site_for_subject_or_raise(
     subject_identifier: str, skip_get_current_site: bool | None = None

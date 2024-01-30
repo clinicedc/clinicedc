@@ -12,7 +12,6 @@ from edc_utils import get_utcnow
 from multisite import SiteID
 from multisite.models import Alias
 
-from edc_sites.auths import view_auditallsites_codename
 from edc_sites.forms import SiteModelFormMixin
 from edc_sites.models import SiteProfile
 from edc_sites.single_site import SingleSite
@@ -382,9 +381,10 @@ class TestSites(SiteTestCaseMixin, TestCase):
         request = rf.get("/")
         request.site = Site.objects.get(id=30)
         request.user = User.objects.get(username="user_login")
-        permission = Permission.objects.get(codename=view_auditallsites_codename)
 
-        request.user.user_permissions.add(permission)
+        # raises exception?
+        request.user.userprofile.is_multisite_viewer = True
+        request.user.userprofile.save()
 
         self.assertFalse(sites.user_may_view_other_sites(request))
 
@@ -419,8 +419,9 @@ class TestSites(SiteTestCaseMixin, TestCase):
         # only add 40 to user profile
         request.user.userprofile.sites.add(Site.objects.get(id=40))
         request.user.user_permissions.clear()
-        permission = Permission.objects.get(codename=view_auditallsites_codename)
-        request.user.user_permissions.add(permission)
+        # raises exception?
+        request.user.userprofile.is_multisite_viewer = True
+        request.user.userprofile.save()
 
         self.assertRaises(InvalidSiteForUser, sites.user_may_view_other_sites, request)
 
@@ -437,8 +438,11 @@ class TestSites(SiteTestCaseMixin, TestCase):
         # 1. only add 40 to user profile
         response.wsgi_request.user.userprofile.sites.add(Site.objects.get(id=40))
         response.wsgi_request.user.user_permissions.clear()
-        permission = Permission.objects.get(codename=view_auditallsites_codename)
-        response.wsgi_request.user.user_permissions.add(permission)
+
+        # raises exception?
+        response.wsgi_request.user.userprofile.is_multisite_viewer = True
+        response.wsgi_request.user.userprofile.save()
+
         # ... site not in user profile
         self.assertRaises(
             InvalidSiteForUser, sites.user_may_view_other_sites, response.wsgi_request
@@ -448,8 +452,11 @@ class TestSites(SiteTestCaseMixin, TestCase):
         response.wsgi_request.user.userprofile.sites.add(Site.objects.get(id=30))
         response.wsgi_request.user.userprofile.sites.add(Site.objects.get(id=40))
         response.wsgi_request.user.user_permissions.clear()
-        permission = Permission.objects.get(codename=view_auditallsites_codename)
-        response.wsgi_request.user.user_permissions.add(permission)
+
+        # raises exception?
+        response.wsgi_request.user.userprofile.is_multisite_viewer = True
+        response.wsgi_request.user.userprofile.save()
+
         sites.user_may_view_other_sites(response.wsgi_request)
         self.assertIn(
             get_message_text(messages.WARNING),
