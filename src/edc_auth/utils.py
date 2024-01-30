@@ -1,15 +1,19 @@
 from __future__ import annotations
 
-from functools import cache
 from pprint import pprint
 from typing import TYPE_CHECKING, Any
 
 from django.apps import apps as django_apps
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import QuerySet
+
+from .constants import ACCOUNT_MANAGER_ROLE
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import Group, User
+
+    from .models import Role
 
 
 def get_user(username: str) -> User | None:
@@ -59,7 +63,7 @@ def make_view_only_group_permissions(
 ):
     """Remove all but view permissions for model.
 
-    Accepts a prefix as well, e.g. `historical'.
+    Accepts a prefix as well, e.g. `historical`.
 
     Default removes all except `view`.
     """
@@ -73,8 +77,7 @@ def make_view_only_group_permissions(
         group.permissions.remove(permission)
 
 
-@cache
-def get_codenames_for_role(role_name: str):
+def get_codenames_for_role(role_name: str) -> list[str]:
     codenames = []
     role_cls = django_apps.get_model("edc_auth.role")
     try:
@@ -89,4 +92,41 @@ def get_codenames_for_role(role_name: str):
                     for permission in group.permissions.all()
                 ]
             )
+    return codenames
+
+
+def user_has_change_perms(**kwargs) -> list[str]:
+    codenames = get_codenames_for_user(**kwargs)
+    return [c for c in codenames if "add_" in c or "change_" in c or "delete_" in c]
+
+
+def get_codenames_for_user(
+    user: User, roles: QuerySet[Role] = None, include_groups: bool | None = None
+) -> list[str]:
+    codenames: list[str] = []
+    groups: list[Group] = []
+    role: Role = django_apps.get_model("edc_auth.role").objects.get(name=ACCOUNT_MANAGER_ROLE)
+    roles = roles or user.userprofile.roles
+    account_manager_groups: list[Group] = [grp for grp in role.groups.all()]
+
+    for role in roles.all():
+        groups.extend([grp for grp in role.groups.all() if grp not in account_manager_groups])
+    if include_groups:
+        for group in user.groups.all():
+            if group not in account_manager_groups:
+                groups.append(group)
+    groups = list(set(groups))
+    for group in groups:
+        codenames.extend(
+            [
+                f"{permission.content_type.app_label}.{permission.codename}"
+                for permission in group.permissions.all()
+            ]
+        )
+    codenames.extend(
+        [
+            f"{permission.content_type.app_label}.{permission.codename}"
+            for permission in user.user_permissions.all()
+        ]
+    )
     return codenames
