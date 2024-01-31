@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from edc_appointment.utils import update_appt_status_for_timepoint
+
 from ..constants import KEYED, NOT_REQUIRED, REQUIRED
 from ..utils import (
     get_crf_metadata,
     get_requisition_metadata,
     refresh_metadata_for_timepoint,
-    update_appt_status_for_timepoint,
 )
 
 

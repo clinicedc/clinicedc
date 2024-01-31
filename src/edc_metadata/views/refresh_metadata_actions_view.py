@@ -4,15 +4,13 @@ from django.contrib.messages import SUCCESS
 from django.http.response import HttpResponseRedirect
 from django.urls import reverse
 from django.views import View
+from edc_appointment.utils import update_appt_status_for_timepoint
 from edc_dashboard import url_names
 from edc_utils import get_utcnow
 from edc_utils.round_up import round_half_away_from_zero
 from edc_visit_tracking.utils import get_related_visit_model_cls
 
-from edc_metadata.utils import (
-    refresh_metadata_for_timepoint,
-    update_appt_status_for_timepoint,
-)
+from edc_metadata.utils import refresh_metadata_for_timepoint
 
 
 class RefreshMetadataActionsView(LoginRequiredMixin, View):
