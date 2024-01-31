@@ -6,7 +6,7 @@
     {% for consent in consents %}
       <tr>
         <td class="{% if consent %}default{% else %}warning{% endif %}">
-          {% render_subject_consent_button  consent appointment %}
+          {% render_subject_consent_dashboard_button  consent appointment %}
         </td>
         <td class="{% if consent %}default{% else %}warning{% endif %}">
           <span class="h6">{{ consent.verbose_name|title }}&nbsp;v{{ consent.version }}

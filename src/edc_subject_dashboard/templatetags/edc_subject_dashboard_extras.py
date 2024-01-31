@@ -32,7 +32,8 @@ from ..view_utils import (
     PrnButton,
     RelatedVisitButton,
     RequisitionButton,
-    SubjectConsentButton,
+    SubjectConsentDashboardButton,
+    SubjectConsentListboardButton,
     TimepointStatusButton,
     render_history_and_query_buttons,
 )
@@ -60,7 +61,7 @@ __all__ = [
     "render_gotoforms_button",
     "requisition_panel_actions",
     "render_crf_totals",
-    "render_subject_consent_button",
+    "render_subject_consent_dashboard_button",
     "render_unscheduled_appointment_button",
 ]
 
@@ -355,17 +356,49 @@ def render_timepoint_status_button(context, appointment: Appointment = None):
 
 @register.inclusion_tag(
     f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
-    "buttons/appointment_button.html",
+    "buttons/subject_consent_button.html",
     takes_context=True,
 )
-def render_subject_consent_button(
-    context, consent: ConsentModel = None, appointment: Appointment = None
+def render_subject_listboard_consent_button(
+    context,
+    subject_screening=None,
+    next_url_name: str | None = None,
 ):
-    btn = SubjectConsentButton(
+    """A subject consent button to appear on the subject listboard.
+
+    Consent is added from the listboard
+    """
+    btn = SubjectConsentListboardButton(
+        screening_obj=subject_screening,
+        user=context["user"],
+        current_site=context["request"].site,
+        next_url_name=next_url_name,
+    )
+    return {"btn": btn}
+
+
+@register.inclusion_tag(
+    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
+    "buttons/subject_consent_button.html",
+    takes_context=True,
+)
+def render_subject_consent_dashboard_button(
+    context,
+    consent: ConsentModel = None,
+    appointment: Appointment = None,
+    next_url_name: str | None = None,
+):
+    """A subject consent button to appear on the subject dashboard
+    sidebar.
+
+    Assumes the consent model instance exists.
+    """
+    btn = SubjectConsentDashboardButton(
         model_obj=consent,
         user=context["user"],
         current_site=context["request"].site,
         appointment=appointment,
+        next_url_name=next_url_name,
     )
     return {"btn": btn}
 
