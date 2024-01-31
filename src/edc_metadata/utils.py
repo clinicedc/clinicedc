@@ -6,9 +6,8 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.db import models
 from django.db.models import QuerySet
-from edc_appointment.constants import COMPLETE_APPT, INCOMPLETE_APPT
 
-from .constants import CRF, KEYED, REQUIRED, REQUISITION
+from .constants import CRF, KEYED, REQUISITION
 
 if TYPE_CHECKING:
     from edc_appointment.models import Appointment
@@ -83,24 +82,6 @@ def refresh_metadata_for_timepoint(
             related_visit = instance
         if django_apps.get_app_config("edc_metadata").metadata_rules_enabled:
             related_visit.run_metadata_rules(allow_create=allow_create)
-
-
-def update_appt_status_for_timepoint(related_visit: RelatedVisitModel) -> None:
-    """Only check COMPLETE_APPT and INCOMPLETE_APPT against metadata."""
-    if related_visit.appointment.appt_status == COMPLETE_APPT:
-        if (
-            related_visit.metadata[CRF].filter(entry_status=REQUIRED).exists()
-            or related_visit.metadata[REQUISITION].filter(entry_status=REQUIRED).exists()
-        ):
-            related_visit.appointment.appt_status = INCOMPLETE_APPT
-            related_visit.appointment.save_base(update_fields=["appt_status"])
-    elif related_visit.appointment.appt_status == INCOMPLETE_APPT:
-        if (
-            not related_visit.metadata[CRF].filter(entry_status=REQUIRED).exists()
-            and not related_visit.metadata[REQUISITION].filter(entry_status=REQUIRED).exists()
-        ):
-            related_visit.appointment.appt_status = COMPLETE_APPT
-            related_visit.appointment.save_base(update_fields=["appt_status"])
 
 
 def get_crf_metadata(instance: ScheduledLikeModel | Appointment) -> QuerySet[CrfMetadata]:
