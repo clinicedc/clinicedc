@@ -7,19 +7,27 @@ from typing import TYPE_CHECKING, Any, Type
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.admin.utils import NotRelationField, get_model_from_relation
+from django.contrib.messages import ERROR, SUCCESS
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
+from django.core.handlers.wsgi import WSGIRequest
 from django.db import transaction
 from django.db.models import ProtectedError
 from django.urls import reverse
-from edc_constants.constants import CLINIC, NOT_APPLICABLE
+from django.utils.translation import gettext as _
+from edc_constants.constants import CLINIC
+from edc_constants.constants import ERROR as ERROR_CODE
+from edc_constants.constants import NOT_APPLICABLE, OK
 from edc_dashboard import url_names
+from edc_metadata.constants import CRF, REQUIRED, REQUISITION
 from edc_metadata.utils import has_keyed_metadata
 from edc_utils import convert_php_dateformat
 from edc_visit_schedule.exceptions import (
     ScheduledVisitWindowError,
     UnScheduledVisitWindowError,
 )
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.utils import get_default_max_visit_window_gap, is_baseline
 from edc_visit_tracking.utils import get_allow_missed_unscheduled_appts
 
@@ -36,6 +44,7 @@ from .constants import (
 )
 from .exceptions import (
     AppointmentBaselineError,
+    AppointmentDatetimeError,
     AppointmentMissingValuesError,
     AppointmentWindowError,
     UnscheduledAppointmentError,
@@ -45,8 +54,13 @@ if TYPE_CHECKING:
     from decimal import Decimal
 
     from django.db.models import QuerySet
+    from edc_crf.model_mixins import CrfModelMixin as Base
+    from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
 
     from .models import Appointment, AppointmentType
+
+    class RelatedVisitModel(CreatesMetadataModelMixin, Base):
+        appointment: Appointment
 
 
 class AppointmentDateWindowPeriodGapError(Exception):
@@ -639,3 +653,67 @@ def get_unscheduled_appointment_url(appointment: Appointment = None) -> str:
         kwargs.update(visit_code_sequence=str(appointment.visit_code_sequence + 1))
     kwargs.update(redirect_url=dashboard_url)
     return reverse(unscheduled_appointment_url_name, kwargs=kwargs)
+
+
+def update_appt_status_for_timepoint(related_visit: RelatedVisitModel) -> None:
+    """Only check COMPLETE_APPT and INCOMPLETE_APPT against metadata."""
+    if related_visit.appointment.appt_status == COMPLETE_APPT:
+        if (
+            related_visit.metadata[CRF].filter(entry_status=REQUIRED).exists()
+            or related_visit.metadata[REQUISITION].filter(entry_status=REQUIRED).exists()
+        ):
+            related_visit.appointment.appt_status = INCOMPLETE_APPT
+            related_visit.appointment.save_base(update_fields=["appt_status"])
+    elif related_visit.appointment.appt_status == INCOMPLETE_APPT:
+        if (
+            not related_visit.metadata[CRF].filter(entry_status=REQUIRED).exists()
+            and not related_visit.metadata[REQUISITION].filter(entry_status=REQUIRED).exists()
+        ):
+            related_visit.appointment.appt_status = COMPLETE_APPT
+            related_visit.appointment.save_base(update_fields=["appt_status"])
+
+
+def refresh_appointments(
+    subject_identifier: str = None,
+    visit_schedule_name: str = None,
+    schedule_name: str = None,
+    request: WSGIRequest | None = None,
+    warn_only: bool | None = None,
+) -> tuple[str, str]:
+    status = OK
+    visit_schedule = site_visit_schedules.get_visit_schedule(visit_schedule_name)
+    schedule = visit_schedule.schedules.get(schedule_name)
+    try:
+        schedule.refresh_schedule(subject_identifier)
+    except AppointmentDatetimeError as e:
+        if request and not warn_only:
+            status = ERROR_CODE
+            messages.add_message(
+                request=request,
+                level=ERROR,
+                message=_(
+                    "An error was encountered when refreshing appointments. "
+                    "Contact your administrator. Got '%(error_msg)s'."
+                )
+                % dict(error_msg=str(e)),
+            )
+        elif warn_only:
+            warnings.warn(str(e))
+        else:
+            raise
+    else:
+        for appointment in Appointment.objects.filter(
+            subject_identifier=subject_identifier,
+            visit_schedule_name=visit_schedule_name,
+            schedule_name=schedule_name,
+        ):
+            if appointment.related_visit:
+                update_appt_status_for_timepoint(appointment.related_visit)
+    if status == OK:
+        messages.add_message(
+            request,
+            SUCCESS,
+            _("The appointments for %(subject_identifier)s have been refreshed")
+            % dict(subject_identifier=subject_identifier),
+        )
+    return subject_identifier, status
