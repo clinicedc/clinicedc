@@ -36,6 +36,7 @@ from ..view_utils import (
     TimepointStatusButton,
     render_history_and_query_buttons,
 )
+from ..view_utils.subject_screening_button import SubjectScreeningButton
 
 if TYPE_CHECKING:
     from edc_consent.model_mixins import ConsentModelMixin
@@ -422,3 +423,18 @@ def render_unscheduled_appointment_button(
         INCOMPLETE_APPT=INCOMPLETE_APPT,
         COMPLETE_APPT=COMPLETE_APPT,
     )
+
+
+@register.inclusion_tag(
+    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/buttons/forms_button.html",
+    takes_context=True,
+)
+def render_screening_button(context, subject_screening):
+    btn = SubjectScreeningButton(
+        user=context["request"].user,
+        model_obj=subject_screening,
+        next_url_name="screening_listboard_url",
+        current_site=context["request"].site,
+    )
+
+    return dict(btn=btn)
