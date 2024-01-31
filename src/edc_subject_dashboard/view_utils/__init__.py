@@ -10,7 +10,8 @@ from .query_button import QueryButton
 from .related_visit_button import RelatedVisitButton
 from .render_history_and_query_buttons import render_history_and_query_buttons
 from .requisition_button import RequisitionButton
-from .subject_consent_button import SubjectConsentButton
+from .subject_consent_dashboard_button import SubjectConsentDashboardButton
+from .subject_consent_listboard_button import SubjectConsentListboardButton
 from .timepoint_status_button import TimepointStatusButton
 
 __all__ = [
@@ -25,7 +26,8 @@ __all__ = [
     "QueryButton",
     "RequisitionButton",
     "RequisitionButton",
-    "SubjectConsentButton",
+    "SubjectConsentDashboardButton",
+    "SubjectConsentListboardButton",
     "TimepointStatusButton",
     "render_history_and_query_buttons",
     "ADD",
