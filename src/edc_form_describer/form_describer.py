@@ -55,14 +55,14 @@ class FormDescriber:
         add_timestamp=None,
     ):
         self._anchors = []
-        self.markdown = []
+        self.markdown: list[str] = []
         add_timestamp = True if add_timestamp is None else add_timestamp
         self.anchor_prefix = anchor_prefix or self.anchor_prefix
         timestamp = datetime.today().strftime("%Y-%m-%d %H:%M")
         self.level = level or self.level
         self.conditional_fieldset = None
         self.admin_cls = admin_cls
-        self.model_cls = admin_cls.form._meta.model
+        self.model_cls = admin_cls.model
         self.visit_code = visit_code
         self.models_fields = {fld.name: fld for fld in self.model_cls._meta.get_fields()}
 

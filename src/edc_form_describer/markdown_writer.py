@@ -21,7 +21,7 @@ class MarkdownWriter:
         return path
 
     @staticmethod
-    def to_markdown(markdown: str = None) -> str:
+    def to_markdown(markdown: list[str] = None) -> str:
         """Returns the markdown as a text string."""
         return "\n".join(markdown)
 
