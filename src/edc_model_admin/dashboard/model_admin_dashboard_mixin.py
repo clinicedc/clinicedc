@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 class ModelAdminDashboardMixin:
     subject_dashboard_url_name = "subject_dashboard_url"
     subject_listboard_url_name = "subject_listboard_url"
+    screening_listboard_url_name = "screening_listboard_url"
     show_dashboard_in_list_display_pos = None
     view_on_site_label = _("Subject dashboard")
 
@@ -28,6 +29,9 @@ class ModelAdminDashboardMixin:
             )
         context = dict(title=_("Go to subject's dashboard"), url=url, label=label)
         return render_to_string("dashboard_button.html", context=context)
+
+    def get_screening_listboard_url_name(self) -> str:
+        return url_names.get(self.screening_listboard_url_name)
 
     def get_subject_listboard_url_name(self) -> str:
         return url_names.get(self.subject_listboard_url_name)
@@ -67,7 +71,9 @@ class ModelAdminDashboardMixin:
         try:
             self.get_registered_subject(obj)
         except ObjectDoesNotExist:
-            url = reverse(self.get_subject_listboard_url_name())
+            url = reverse(self.get_screening_listboard_url_name())
+            if screening_identifier := getattr(obj, "screening_identifier", None):
+                url = f"{url}?q={screening_identifier}"
         else:
             try:
                 url = reverse(
