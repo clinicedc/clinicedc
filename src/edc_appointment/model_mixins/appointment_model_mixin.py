@@ -128,7 +128,8 @@ class AppointmentModelMixin(
                 raise AppointmentDatetimeError(
                     "Datetime cannot be on or after next appointment datetime. "
                     f"Got {appt_datetime} >= {next_appt_datetime}. "
-                    f"Perhaps catch this in the form. See {self}."
+                    f"See appointment `{self}` and "
+                    f"`{self.relative_next}`."
                 )
 
     @property

@@ -88,6 +88,7 @@ class AppointmentFormValidator(
                 appt_datetime=self.cleaned_data.get("appt_datetime"),
             )
             self.validate_appt_datetime_not_before_consent_datetime()
+            self.validate_appt_datetime_not_before_previous_appt_datetime()
             self.validate_appt_datetime_not_after_next_appt_datetime()
             self.validate_not_future_appt_datetime()
             self.validate_appt_datetime_in_window_period(
@@ -275,7 +276,27 @@ class AppointmentFormValidator(
         except AppointmentReasonUpdaterError as e:
             self.raise_validation_error({"appt_timing": str(e)}, INVALID_APPT_TIMING)
 
-    def validate_appt_datetime_not_after_next_appt_datetime(self: Any) -> None:
+    def validate_appt_datetime_not_before_previous_appt_datetime(self):
+        appt_datetime = self.cleaned_data.get("appt_datetime")
+        appt_status = self.cleaned_data.get("appt_status")
+        if appt_datetime and appt_status and appt_status != NEW_APPT:
+            if self.instance.relative_previous:
+                if to_utc(appt_datetime) < self.instance.relative_previous.appt_datetime:
+                    formatted_date = formatted_datetime(
+                        self.instance.relative_previous.appt_datetime
+                    )
+                    self.raise_validation_error(
+                        {
+                            "appt_datetime": (
+                                "Cannot be before previous appointment. Previous appointment "
+                                f"is {self.instance.relative_previous.visit_label} "
+                                f"on {formatted_date}."
+                            )
+                        },
+                        INVALID_APPT_DATE,
+                    )
+
+    def validate_appt_datetime_not_after_next_appt_datetime(self) -> None:
         appt_datetime = self.cleaned_data.get("appt_datetime")
         appt_status = self.cleaned_data.get("appt_status")
         if appt_datetime and appt_status and appt_status != NEW_APPT:
