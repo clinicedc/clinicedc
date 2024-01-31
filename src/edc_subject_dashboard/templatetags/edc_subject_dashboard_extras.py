@@ -36,6 +36,7 @@ from ..view_utils import (
     TimepointStatusButton,
     render_history_and_query_buttons,
 )
+from ..view_utils.subject_screening_button import SubjectScreeningButton
 
 if TYPE_CHECKING:
     from edc_consent.model_mixins import ConsentModelMixin
@@ -164,14 +165,17 @@ def render_crf_totals(appointment: Appointment = None) -> dict[str, bool | int]:
     helper = MetadataHelper(appointment)
     skipped: bool = False
     show_totals: bool = False
-    late: bool = False
+    overdue: bool = False
     complete: bool = False
     num_keyed: int = 0
     num_total: int = 0
     if appointment.appt_status == SKIPPED_APPT:
         skipped = True
-    elif appointment.appt_status == NEW_APPT and appointment.appt_datetime <= get_utcnow():
-        late = True
+    elif (
+        appointment.appt_status == NEW_APPT
+        and appointment.appt_datetime.date() < get_utcnow().date()
+    ):
+        overdue = True
     else:
         crf_keyed = helper.get_crf_metadata_by(entry_status=KEYED).count()
         requisition_keyed = helper.get_requisition_metadata_by(entry_status=KEYED).count()
@@ -188,7 +192,7 @@ def render_crf_totals(appointment: Appointment = None) -> dict[str, bool | int]:
         show_totals=show_totals,
         skipped=skipped,
         complete=complete,
-        late=late,
+        overdue=overdue,
         keyed=num_keyed,
         total=num_total,
     )
@@ -419,3 +423,18 @@ def render_unscheduled_appointment_button(
         INCOMPLETE_APPT=INCOMPLETE_APPT,
         COMPLETE_APPT=COMPLETE_APPT,
     )
+
+
+@register.inclusion_tag(
+    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/buttons/forms_button.html",
+    takes_context=True,
+)
+def render_screening_button(context, subject_screening):
+    btn = SubjectScreeningButton(
+        user=context["request"].user,
+        model_obj=subject_screening,
+        next_url_name="screening_listboard_url",
+        current_site=context["request"].site,
+    )
+
+    return dict(btn=btn)
