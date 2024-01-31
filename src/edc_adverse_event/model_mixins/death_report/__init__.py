@@ -4,8 +4,8 @@ from .death_report_tmg_model_mixin import (
     DeathReportTmgManager,
     DeathReportTmgModelMixin,
     DeathReportTmgSecondManager,
-    DeathReportTmgSecondModelMixin,
     DeathReportTmgSecondSiteManager,
     DeathReportTmgSiteManager,
 )
+from .death_report_tmg_second_model_mixin import DeathReportTmgSecondModelMixin
 from .simple_death_report_model_mixin import SimpleDeathReportModelMixin
