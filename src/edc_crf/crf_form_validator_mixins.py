@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
 
 from django.core.exceptions import ObjectDoesNotExist
 from edc_consent import ConsentDefinitionDoesNotExist, site_consents
@@ -9,10 +9,18 @@ from edc_consent.consent_definition import ConsentDefinition
 from edc_form_validators import INVALID_ERROR, ReportDatetimeFormValidatorMixin
 from edc_sites import site_sites
 from edc_utils import age, to_utc
+from edc_visit_schedule.schedule import Schedule
+from edc_visit_schedule.visit_schedule import VisitSchedule
 from edc_visit_tracking.modelform_mixins import get_related_visit
 
 if TYPE_CHECKING:
-    from edc_visit_tracking.model_mixins import VisitModelMixin
+    from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
+    from edc_model.models import BaseUuidModel
+    from edc_sites.model_mixins import SiteModelMixin
+    from edc_visit_tracking.model_mixins import VisitModelMixin as Base
+
+    class RelatedVisitModel(SiteModelMixin, CreatesMetadataModelMixin, Base, BaseUuidModel):
+        pass
 
 
 __all__ = ["BaseFormValidatorMixin", "CrfFormValidatorMixin"]
@@ -103,20 +111,27 @@ class CrfFormValidatorMixin(BaseFormValidatorMixin):
         return consent_definition
 
     @property
-    def related_visit_model_attr(self):
+    def related_visit_model_attr(self) -> str:
         return self.model.related_visit_model_attr()
 
     @property
-    def related_visit(self) -> VisitModelMixin:
+    def related_visit(self) -> RelatedVisitModel:
         """Returns a subject visit model instance or None"""
         return get_related_visit(self, related_visit_model_attr=self.related_visit_model_attr)
 
     @property
-    def visit_schedule(self):
+    def related_visit_model_cls(self) -> Type[RelatedVisitModel]:
+        """Returns a subject visit model instance or None"""
+        return get_related_visit(
+            self, related_visit_model_attr=self.related_visit_model_attr
+        ).__class__
+
+    @property
+    def visit_schedule(self) -> VisitSchedule:
         return self.related_visit.visit_schedule
 
     @property
-    def schedule(self):
+    def schedule(self) -> Schedule:
         return self.related_visit.schedule
 
     @property
