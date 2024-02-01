@@ -4,7 +4,11 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from django import forms
+from django.contrib.sites.models import Site
 from edc_appointment.constants import MISSED_APPT
+from edc_sites.modelform_mixins import SiteModelFormMixin
+from edc_visit_schedule.schedule import Schedule
+from edc_visit_schedule.visit_schedule import VisitSchedule
 
 from ..constants import MISSED_VISIT
 
@@ -12,7 +16,7 @@ if TYPE_CHECKING:
     from edc_appointment.models import Appointment
 
 
-class VisitTrackingModelFormMixin:
+class VisitTrackingModelFormMixin(SiteModelFormMixin):
     report_datetime_field_attr = "report_datetime"
 
     def clean(self):
@@ -45,7 +49,7 @@ class VisitTrackingModelFormMixin:
         return self.get_subject_identifier()
 
     def get_subject_identifier(self) -> str:
-        return self.cleaned_data.get("subject_identifier") or self.instance.subject_identifier
+        return self.appointment.subject_identifier
 
     @property
     def report_datetime(self) -> datetime:
@@ -56,3 +60,23 @@ class VisitTrackingModelFormMixin:
     @property
     def appointment(self) -> Appointment:
         return self.cleaned_data.get("appointment") or self.instance.appointment
+
+    @property
+    def visit_schedule_name(self) -> str:
+        return self.visit_schedule.name
+
+    @property
+    def schedule_name(self) -> str:
+        return self.schedule.name
+
+    @property
+    def visit_schedule(self) -> VisitSchedule:
+        return self.appointment.visit_schedule
+
+    @property
+    def schedule(self) -> Schedule:
+        return self.appointment.schedule
+
+    @property
+    def site(self) -> Site:
+        return self.cleaned_data.get("site") or self.appointment.site
