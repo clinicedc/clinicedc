@@ -4,7 +4,6 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from django import forms
-from django.contrib.sites.models import Site
 from edc_appointment.constants import MISSED_APPT
 from edc_sites.modelform_mixins import SiteModelFormMixin
 from edc_visit_schedule.schedule import Schedule
@@ -13,6 +12,7 @@ from edc_visit_schedule.visit_schedule import VisitSchedule
 from ..constants import MISSED_VISIT
 
 if TYPE_CHECKING:
+    from django.contrib.sites.models import Site
     from edc_appointment.models import Appointment
 
 
