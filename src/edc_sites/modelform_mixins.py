@@ -28,20 +28,16 @@ class SiteModelFormMixin:
 
     def clean(self) -> dict:
         cleaned_data = super().clean()
-        self.validate_with_current_site(cleaned_data)
+        self.validate_with_current_site()
         return cleaned_data
 
     @property
     def site(self) -> Site:
         return self.cleaned_data.get("site") or self.instance.site or self.related_visit.site
 
-    def validate_with_current_site(self, cleaned_data: dict) -> None:
+    def validate_with_current_site(self) -> None:
         current_site = getattr(self, "current_site", None)
-        if (
-            current_site
-            and cleaned_data.get("site")
-            and current_site.id != cleaned_data.get("site").id
-        ):
+        if current_site and self.site and current_site.id != self.site.id:
             raise forms.ValidationError(
                 {
                     "site": (
