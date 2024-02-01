@@ -19,6 +19,8 @@ from .exceptions import OffScheduleError, OnScheduleError
 from .site_visit_schedules import site_visit_schedules
 
 if TYPE_CHECKING:
+    from edc_appointment.models import Appointment
+
     from .model_mixins import OnScheduleModelMixin
 
 
@@ -26,10 +28,14 @@ def get_default_max_visit_window_gap():
     return getattr(settings, "EDC_VISIT_SCHEDULE_DEFAULT_MAX_VISIT_GAP_ALLOWED", 7)
 
 
-def get_lower_datetime(instance) -> datetime:
+def get_lower_datetime(instance: Appointment) -> datetime:
     """Returns the datetime of the lower window"""
-    instance.visit.dates.base = to_utc(instance.first.timepoint_datetime)
-    return instance.visit.dates.lower
+    if instance.related_visit:
+        dte = instance.appt_datetime
+    else:
+        instance.visit.dates.base = to_utc(instance.first.timepoint_datetime)
+        dte = instance.visit.dates.lower
+    return dte
 
 
 def get_upper_datetime(instance) -> datetime:

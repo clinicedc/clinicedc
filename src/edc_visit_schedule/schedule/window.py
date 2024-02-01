@@ -1,6 +1,7 @@
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
-from edc_utils import convert_php_dateformat, floor_secs, to_utc
+from django.utils.translation import gettext as _
+from edc_utils import convert_php_dateformat, floor_secs, formatted_date, to_utc
 
 from ..exceptions import (
     ScheduledVisitWindowError,
@@ -112,11 +113,21 @@ class Window:
             floor_secs(to_utc(self.dt))
             < floor_secs(to_utc(next_timepoint_datetime - next_visit.rlower))
         ):
+            dt_lower = formatted_date(next_timepoint_datetime - next_visit.rlower)
+            dt = formatted_date(self.dt)
             raise UnScheduledVisitWindowError(
-                "Invalid datetime. Falls outside of the "
-                f"window period for this `unscheduled` visit. "
-                f"Expected a datetime before the next visit. "
-                f"Next visit is `{next_visit.code}` expected any time "
-                f"from `{next_timepoint_datetime - next_visit.rlower}`."
-                f"Got `{self.visit_code}`@`{self.dt}`. "
+                _(
+                    "Invalid datetime. Falls outside of the "
+                    "window period for this `unscheduled` visit. "
+                    "Expected a datetime before the next visit. "
+                    "Next visit is `%(next_visit_code)s` expected any time "
+                    "from `%(dt_lower)s`."
+                    "Got `%(visit_code)s`@`%(dt)s`. "
+                )
+                % dict(
+                    next_visit_code=next_visit.code,
+                    dt_lower=dt_lower,
+                    visit_code=self.visit_code,
+                    dt=dt,
+                )
             )
