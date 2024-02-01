@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.contrib.admin import register
 from django_audit_fields import audit_fieldset_tuple
 from edc_model_admin.mixins import ModelAdminFormInstructionsMixin
 
@@ -7,7 +6,7 @@ from .forms import MyForm
 from .models import MyModel
 
 
-@register(MyModel)
+@admin.register(MyModel)
 class MyModelAdmin(ModelAdminFormInstructionsMixin, admin.ModelAdmin):
     form = MyForm
 

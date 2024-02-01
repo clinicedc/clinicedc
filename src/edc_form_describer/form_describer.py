@@ -62,7 +62,7 @@ class FormDescriber:
         self.level = level or self.level
         self.conditional_fieldset = None
         self.admin_cls = admin_cls
-        self.model_cls = admin_cls.model
+        self.model_cls = getattr(admin_cls, "model", admin_cls.form._meta.model)
         self.visit_code = visit_code
         self.models_fields = {fld.name: fld for fld in self.model_cls._meta.get_fields()}
 
