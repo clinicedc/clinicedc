@@ -105,9 +105,16 @@ def get_codenames_for_user(
 ) -> list[str]:
     codenames: list[str] = []
     groups: list[Group] = []
-    role: Role = django_apps.get_model("edc_auth.role").objects.get(name=ACCOUNT_MANAGER_ROLE)
+    account_manager_groups: list[Group] = []
+    try:
+        role: Role = django_apps.get_model("edc_auth.role").objects.get(
+            name=ACCOUNT_MANAGER_ROLE
+        )
+    except ObjectDoesNotExist:
+        pass
+    else:
+        account_manager_groups: list[Group] = [grp for grp in role.groups.all()]
     roles = roles or user.userprofile.roles
-    account_manager_groups: list[Group] = [grp for grp in role.groups.all()]
 
     for role in roles.all():
         groups.extend([grp for grp in role.groups.all() if grp not in account_manager_groups])
