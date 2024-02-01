@@ -13,7 +13,7 @@ from django.contrib.messages import ERROR, SUCCESS
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import transaction
-from django.db.models import ProtectedError
+from django.db.models import Max, ProtectedError
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from edc_constants.constants import CLINIC
@@ -21,7 +21,11 @@ from edc_constants.constants import ERROR as ERROR_CODE
 from edc_constants.constants import NOT_APPLICABLE, OK
 from edc_dashboard import url_names
 from edc_metadata.constants import CRF, REQUIRED, REQUISITION
-from edc_metadata.utils import has_keyed_metadata
+from edc_metadata.utils import (
+    get_crf_metadata_model_cls,
+    get_requisition_metadata_model_cls,
+    has_keyed_metadata,
+)
 from edc_utils import convert_php_dateformat
 from edc_visit_schedule.exceptions import (
     ScheduledVisitWindowError,
@@ -255,29 +259,53 @@ def update_unscheduled_appointment_sequence(subject_identifier: str) -> None:
     ]
     visit_codes = list(set(visit_codes))
     for visit_schedule_name, schedule_name, visit_code in visit_codes:
-        for index, appointment in enumerate(
-            get_appointment_model_cls()
-            .objects.filter(
-                subject_identifier=subject_identifier,
-                visit_schedule_name=visit_schedule_name,
-                schedule_name=schedule_name,
-                visit_code=visit_code,
-                appt_reason=UNSCHEDULED_APPT,
-            )
-            .order_by("appt_datetime")
-        ):
-            appointment.visit_code_sequence = index + 1
-            appointment.save_base(update_fields=["visit_code_sequence"])
-            related_visit = appointment.related_visit
-            if related_visit:
-                related_visit.visit_code_sequence = index + 1
-                related_visit.save_base(update_fields=["visit_code_sequence"])
-                for crf in related_visit.get_crf_metadata():
-                    crf.visit_code_sequence = index + 1
-                    crf.save_base(update_fields=["visit_code_sequence"])
-                for requisition in related_visit.get_requisition_metadata():
-                    requisition.visit_code_sequence = index + 1
-                    requisition.save_base(update_fields=["visit_code_sequence"])
+        appointments = get_appointment_model_cls().objects.filter(
+            subject_identifier=subject_identifier,
+            visit_schedule_name=visit_schedule_name,
+            schedule_name=schedule_name,
+            visit_code=visit_code,
+            appt_reason=UNSCHEDULED_APPT,
+        )
+        if appointments:
+            values = appointments.aggregate(Max("visit_code_sequence", default=0))
+            max_sequence = values.get("visit_code_sequence__max")
+            if max_sequence > 1:
+                for appt in appointments.filter(visit_code_sequence__gt=0):
+                    move_to_new_visit_code_sequence(
+                        appt, appt.visit_code_sequence + max_sequence
+                    )
+        for index, appointment in enumerate(appointments.order_by("appt_datetime")):
+            move_to_new_visit_code_sequence(appointment, index + 1)
+
+
+def move_to_new_visit_code_sequence(
+    appointment: Appointment, new_sequence: int
+) -> Appointment:
+    if appointment.visit_code_sequence != new_sequence:
+        old_sequence = appointment.visit_code_sequence
+        appointment.visit_code_sequence = new_sequence
+        update_fields = ["visit_code_sequence"]
+        appointment.save_base(update_fields=update_fields)
+        appointment.refresh_from_db()
+        opts = dict(
+            subject_identifier=appointment.subject_identifier,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            visit_code=appointment.visit_code,
+            visit_code_sequence=old_sequence,
+        )
+        for crf in get_crf_metadata_model_cls().objects.filter(**opts):
+            crf.visit_code_sequence = appointment.visit_code_sequence
+            crf.save_base(update_fields=["visit_code_sequence"])
+        for requisition in get_requisition_metadata_model_cls().objects.filter(**opts):
+            requisition.visit_code_sequence = appointment.visit_code_sequence
+            requisition.save_base(update_fields=["visit_code_sequence"])
+        if appointment.related_visit:
+            appointment.related_visit.visit_code_sequence = appointment.visit_code_sequence
+            appointment.related_visit.save_base(update_fields=["visit_code_sequence"])
+            appointment.related_visit.refresh_from_db()
+        # recalc appt_status
+    return appointment
 
 
 def delete_appointment_in_sequence(appointment: Any, from_post_delete=None) -> None:
@@ -645,12 +673,12 @@ def get_unscheduled_appointment_url(appointment: Appointment = None) -> str:
         visit_code_sequence=appointment.visit_code_sequence + 1,
         timepoint=appointment.timepoint,
     )
-    if appointment := (
-        appointment.__class__.objects.filter(visit_code_sequence__gt=0, **kwargs)
-        .order_by("visit_code_sequence")
-        .last()
-    ):
-        kwargs.update(visit_code_sequence=str(appointment.visit_code_sequence + 1))
+    # if appointment := (
+    #     appointment.__class__.objects.filter(visit_code_sequence__gt=0, **kwargs)
+    #     .order_by("visit_code_sequence")
+    #     .last()
+    # ):
+    kwargs.update(visit_code_sequence=str(appointment.visit_code_sequence + 1))
     kwargs.update(redirect_url=dashboard_url)
     return reverse(unscheduled_appointment_url_name, kwargs=kwargs)
 
@@ -702,7 +730,7 @@ def refresh_appointments(
         else:
             raise
     else:
-        for appointment in Appointment.objects.filter(
+        for appointment in get_appointment_model_cls().objects.filter(
             subject_identifier=subject_identifier,
             visit_schedule_name=visit_schedule_name,
             schedule_name=schedule_name,
