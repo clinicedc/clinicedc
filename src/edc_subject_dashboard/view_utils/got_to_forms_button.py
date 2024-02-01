@@ -90,7 +90,4 @@ class GotToFormsButton(RelatedVisitButton):
 
     @property
     def fa_icon(self) -> str:
-        fa_icon = super().fa_icons
-        if self.disabled:
-            fa_icon = ""
-        return fa_icon
+        return ""

@@ -7,6 +7,7 @@ from dateutil.relativedelta import relativedelta
 from django import template
 from django.apps import apps as django_apps
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.urls import reverse
 from edc_appointment.constants import (
     CANCELLED_APPT,
     COMPLETE_APPT,
@@ -43,13 +44,15 @@ if TYPE_CHECKING:
     from edc_consent.model_mixins import ConsentModelMixin
     from edc_metadata.models import CrfMetadata
     from edc_registration.models import RegisteredSubject
+    from edc_screening.model_mixins import ScreeningModelMixin
     from edc_visit_schedule.models import VisitSchedule as VisitScheduleModel
     from edc_visit_schedule.schedule import Schedule
     from edc_visit_schedule.visit_schedule import VisitSchedule
     from edc_visit_tracking.model_mixins import VisitModelMixin
 
-    VisitModel = TypeVar("VisitModel", bound=VisitModelMixin)
     ConsentModel = TypeVar("ConsentModel", bound=ConsentModelMixin)
+    ScreeningModel = TypeVar("ScreeningModel", bound=ScreeningModelMixin)
+    VisitModel = TypeVar("VisitModel", bound=VisitModelMixin)
 
 __all__ = [
     "appointment_in_progress",
@@ -361,7 +364,7 @@ def render_timepoint_status_button(context, appointment: Appointment = None):
 )
 def render_subject_listboard_consent_button(
     context,
-    subject_screening=None,
+    subject_screening: ScreeningModel = None,
     next_url_name: str | None = None,
 ):
     """A subject consent button to appear on the subject listboard.
@@ -462,7 +465,7 @@ def render_unscheduled_appointment_button(
     f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/buttons/forms_button.html",
     takes_context=True,
 )
-def render_screening_button(context, subject_screening):
+def render_screening_button(context, subject_screening) -> dict:
     btn = SubjectScreeningButton(
         user=context["request"].user,
         model_obj=subject_screening,
@@ -471,3 +474,14 @@ def render_screening_button(context, subject_screening):
     )
 
     return dict(btn=btn)
+
+
+@register.inclusion_tag(
+    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
+    "buttons/subject_schedule_button.html",
+)
+def render_subject_schedule_button(
+    subject_dashboard_url: str, subject_identifier: str
+) -> dict:
+    url = reverse(subject_dashboard_url, kwargs=dict(subject_identifier=subject_identifier))
+    return dict(url=url, subject_identifier=subject_identifier)
