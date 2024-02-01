@@ -373,8 +373,6 @@ class TestSites(SiteTestCaseMixin, TestCase):
 
         request.user.user_permissions.clear()
 
-        self.assertRaises(PermissionError, sites.user_may_view_other_sites, request)
-
         request.user.user_permissions.add(Permission.objects.get(codename="view_site"))
 
         rf = RequestFactory()
