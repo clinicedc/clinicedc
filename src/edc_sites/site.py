@@ -229,7 +229,7 @@ class Sites:
         """Returns a list of any sites the user may have view
         access to, not including the current.
 
-        Checks for codename `edc_sites.view_auditorallsites` perms and
+        Checks for userprofile.is_multisite_viewer and
         confirms user does not have add/change/delete perms to any
         resources.
         """
