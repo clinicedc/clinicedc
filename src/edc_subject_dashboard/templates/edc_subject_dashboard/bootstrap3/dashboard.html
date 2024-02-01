@@ -27,11 +27,7 @@
                                 {% block top_bar_buttons_extra %}{% endblock top_bar_buttons_extra %}
                                     {% block schedule_button %}
                                         {% if related_visit %}
-                                            <a href="{% url subject_dashboard_url|default:'subject_dashboard_url_cannot_be_none' subject_identifier=subject_identifier %}"
-                                               role="button" class="btn btn-sm btn-primary" data-toggle="tooltip" title="{% trans "Go to subject's schedule" %}">
-                                            <i class="fa-solid fa-reply fa-1x fa-fw" aria-hidden="true"></i>
-                                              {% trans "Schedule" %}
-                                            </a>
+                                            {% render_subject_schedule_button subject_dashboard_url subject_identifier %}
                                             <a href="{% url subject_review_listboard_url|default:'subject_review_listboard_url_cannot_be_none' subject_identifier=subject_identifier appointment=appointment.id|stringformat:"s" %}#{{ subject_identifier }}-{{ appointment.visit_code }}-{{ appointment.visit_code_sequence }}"
                                                role="button" class="btn btn-sm btn-primary" data-toggle="tooltip" title="{% trans "Go to subject review" %}">
                                             <i class="fa-solid fa-reply fa-1x fa-fw" aria-hidden="true"></i>

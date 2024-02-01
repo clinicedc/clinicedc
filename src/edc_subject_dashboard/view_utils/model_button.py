@@ -106,7 +106,7 @@ class ModelButton:
         if not self.model_obj and self.perms.add:
             disabled = ""
         else:
-            if self.perms.change or self.perms.view:
+            if self.model_obj and (self.perms.change or self.perms.view):
                 disabled = ""
         return disabled
 
