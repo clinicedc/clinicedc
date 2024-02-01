@@ -132,7 +132,7 @@
                                         <span class="caret"></span>
                                     </a>
                                     <span class="pull-right">
-                                      <a href="{% url 'edc_subject_dashboard:refresh_appointments_url' schedule_obj.visit_schedule.name schedule_obj.schedule.name subject_identifier %}" data-toggle="tooltip" title="Refresh appointments" role="button" class="btn btn-sm btn-default"><i class="fas fa-arrows-rotate fa-1x fa-fw" aria-hidden="true"></i></a>
+                                      {% render_refresh_appointments_button  visit_schedule_name=schedule_obj.visit_schedule.name schedule_name=schedule_obj.schedule.name subject_identifier=subject_identifier %}
             					  	            {% appointment_in_progress subject_identifier schedule_obj.visit_schedule schedule_obj.schedule %}
 			            		  	</span>
                                 </div>

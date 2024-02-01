@@ -21,6 +21,7 @@ from edc_appointment.utils import (
     get_appointment_model_cls,
     get_unscheduled_appointment_url,
 )
+from edc_auth.constants import AUDITOR_ROLE
 from edc_dashboard.utils import get_bootstrap_version
 from edc_metadata import KEYED, REQUIRED
 from edc_metadata.metadata_helper import MetadataHelper
@@ -485,3 +486,30 @@ def render_subject_schedule_button(
 ) -> dict:
     url = reverse(subject_dashboard_url, kwargs=dict(subject_identifier=subject_identifier))
     return dict(url=url, subject_identifier=subject_identifier)
+
+
+@register.inclusion_tag(
+    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
+    "buttons/refresh_appointments_button.html",
+    takes_context=True,
+)
+def render_refresh_appointments_button(
+    context,
+    subject_identifier: str = None,
+    visit_schedule_name: str = None,
+    schedule_name: str = None,
+) -> dict:
+    if context["request"].user.userprofile.is_multisite_viewer:
+        url = None
+    elif context["request"].user.userprofile.roles.filter(name=AUDITOR_ROLE):
+        url = None
+    else:
+        url = reverse(
+            "edc_subject_dashboard:refresh_appointments_url",
+            kwargs=dict(
+                subject_identifier=subject_identifier,
+                visit_schedule_name=visit_schedule_name,
+                schedule_name=schedule_name,
+            ),
+        )
+    return dict(url=url)
