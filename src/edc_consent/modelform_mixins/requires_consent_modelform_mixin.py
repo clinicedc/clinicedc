@@ -9,6 +9,7 @@ from edc_utils import floor_secs, formatted_date, formatted_datetime
 from edc_utils.date import to_local, to_utc
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
+from .. import NotConsentedError
 from ..exceptions import ConsentDefinitionDoesNotExist
 
 if TYPE_CHECKING:
@@ -37,6 +38,8 @@ class RequiresConsentModelFormMixin:
             try:
                 model_obj = self.get_consent_or_raise()
             except ConsentDefinitionDoesNotExist as e:
+                raise forms.ValidationError(e)
+            except NotConsentedError as e:
                 raise forms.ValidationError(e)
             else:
                 if floor_secs(to_utc(self.report_datetime)) < floor_secs(
