@@ -513,3 +513,30 @@ def render_refresh_appointments_button(
             ),
         )
     return dict(url=url)
+
+
+@register.inclusion_tag(
+    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
+    "buttons/refresh_data_collection_schedule_button.html",
+    takes_context=True,
+)
+def render_refresh_data_collection_schedule_button(
+    context,
+    related_visit_id: str = None,
+    visit_schedule_name: str = None,
+    schedule_name: str = None,
+) -> dict:
+    if context["request"].user.userprofile.is_multisite_viewer:
+        url = None
+    elif context["request"].user.userprofile.roles.filter(name=AUDITOR_ROLE):
+        url = None
+    else:
+        url = reverse(
+            "edc_subject_dashboard:refresh_metadata_actions_url",
+            kwargs=dict(
+                related_visit_id=related_visit_id,
+                visit_schedule_name=visit_schedule_name,
+                schedule_name=schedule_name,
+            ),
+        )
+    return dict(url=url)

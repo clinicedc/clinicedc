@@ -93,7 +93,7 @@
                                         class="caret"></span>
                                 </a>
                               <span class="pull-right">
-                                <a href="{% url 'edc_subject_dashboard:refresh_metadata_actions_url' related_visit_id=related_visit.id  visit_schedule_name=appointment.visit_schedule_name schedule_name=appointment.schedule_name %}" data-toggle="tooltip" title="Refresh data collection schedule" role="button" class="btn btn-sm btn-default"><i class="fas fa-arrows-rotate fa-1x fa-fw" aria-hidden="true"></i></a>
+                                {% render_refresh_data_collection_schedule_button related_visit_id=related_visit.id  visit_schedule_name=appointment.visit_schedule_name schedule_name=appointment.schedule_name %}
                               </span>
                             </div>
                             <div id="subject_dashboard_forms_for_{{ appointment.visit_schedule.name|slugify }}-{{ appointment.schedule.name|slugify }}"
