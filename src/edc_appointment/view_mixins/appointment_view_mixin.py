@@ -50,10 +50,10 @@ class AppointmentViewMixin:
                 self.message_user(message, level=messages.WARNING)
             report_datetime = self.appointment.related_visit.report_datetime
             kwargs.update(report_datetime=report_datetime)
-
-        update_unscheduled_appointment_sequence(
-            subject_identifier=self.subject_identifier,
-        )
+        else:
+            update_unscheduled_appointment_sequence(
+                subject_identifier=self.subject_identifier,
+            )
         has_call_manager = True if django_apps.app_configs.get("edc_call_manager") else False
         kwargs.update(
             appointment=self.appointment,
