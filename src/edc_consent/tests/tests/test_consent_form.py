@@ -55,17 +55,19 @@ class TestConsentForm(TestCase):
         self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
         self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
 
-        self.consent_factory(
+        self.convent_v1 = self.consent_factory(
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
         )
-        self.consent_factory(
+        SubjectScreening.consent_definition = self.convent_v1
+
+        self.convent_v2 = self.consent_factory(
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
             version="2.0",
         )
-        self.consent_factory(
+        self.convent_v3 = self.consent_factory(
             start=self.study_open_datetime + timedelta(days=101),
             end=self.study_open_datetime + timedelta(days=150),
             version="3.0",

@@ -17,10 +17,16 @@ from edc_consent.field_mixins import (
     ReviewFieldsMixin,
     VulnerabilityFieldsMixin,
 )
-from edc_consent.model_mixins import ConsentModelMixin, RequiresConsentFieldsModelMixin
+from edc_consent.model_mixins import (
+    ConsentDefinitionModelMixin,
+    ConsentModelMixin,
+    RequiresConsentFieldsModelMixin,
+)
 
 
-class SubjectScreening(SiteModelMixin, BaseUuidModel):
+class SubjectScreening(SiteModelMixin, ConsentDefinitionModelMixin, BaseUuidModel):
+    consent_definition = None
+
     screening_identifier = models.CharField(max_length=25, unique=True)
 
     initials = models.CharField(max_length=5, default="TO")
