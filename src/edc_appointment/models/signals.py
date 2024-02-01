@@ -36,12 +36,13 @@ def appointment_post_save(sender, instance, raw, update_fields, **kwargs):
                 raise
         except AppointmentStatusUpdaterError:
             pass
-        # try to create_missed_visit_from_appointment
-        #  if appt_status == missed
-        missed_appointment(instance)
-        # try to delete subject visit
-        # if appt status = CANCELLED_APPT
-        cancelled_appointment(instance)
+    # don't indent!
+    # try to create_missed_visit_from_appointment
+    #  if appt_status == missed
+    missed_appointment(instance)
+    # try to delete subject visit
+    # if appt status = CANCELLED_APPT
+    cancelled_appointment(instance)
 
 
 @receiver(post_save, weak=False, dispatch_uid="create_appointments_on_post_save")
