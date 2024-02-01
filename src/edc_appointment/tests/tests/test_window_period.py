@@ -364,9 +364,7 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
         form.is_valid()
         # form.save(commit=True)
         self.assertIn("appt_datetime", form._errors)
-        self.assertIn(
-            "Falls outside of the window period", form._errors.get("appt_datetime")[0]
-        )
+        self.assertIn("Invalid. Expected a date between", form._errors.get("appt_datetime")[0])
 
     def test_match_appt_date_to_visit_code(self):
         self.helper.consent_and_put_on_schedule(
