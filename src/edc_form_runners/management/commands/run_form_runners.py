@@ -30,7 +30,7 @@ class Command(BaseCommand):
             "--skip_model",
             dest="skip_model_names",
             default="",
-            help="model name to skip in label_lower format, if more than one separate by comma",
+            help="model to skip in label_lower format, if more than one separate by comma",
         )
 
         parser.add_argument(
@@ -43,6 +43,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         debug = options["debug"]
+
         app_labels = options["app_labels"] or []
         if app_labels:
             app_labels = options["app_labels"].split(",")
