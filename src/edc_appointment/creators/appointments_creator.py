@@ -18,7 +18,6 @@ if TYPE_CHECKING:
 
 
 class AppointmentsCreator:
-
     """Note: Appointments are created using this class by
     the visit schedule.
 

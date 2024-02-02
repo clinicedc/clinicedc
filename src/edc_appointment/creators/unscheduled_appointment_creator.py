@@ -39,7 +39,6 @@ __all__ = ["UnscheduledAppointmentCreator"]
 
 
 class UnscheduledAppointmentCreator:
-
     """Attempts to create a new unscheduled appointment where the
     visit code sequence == the given `visit_code_sequence` or raises.
     """

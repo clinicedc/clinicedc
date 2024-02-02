@@ -25,7 +25,6 @@ if TYPE_CHECKING:
 
 
 class AppointmentViewMixin:
-
     """A view mixin to handle appointments on the dashboard."""
 
     def __init__(self, **kwargs):
