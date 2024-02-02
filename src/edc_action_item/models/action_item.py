@@ -176,7 +176,6 @@ class ActionItem(
             self.priority = self.priority or self.action_type.priority
             self.reference_model = self.action_type.reference_model
             self.related_reference_model = self.action_type.related_reference_model
-            self.instructions = self.action_type.instructions
         else:
             if (
                 self.status in [NEW, CANCELLED]
