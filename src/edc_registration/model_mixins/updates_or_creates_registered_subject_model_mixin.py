@@ -17,7 +17,6 @@ class UpdatesOrCreatesRegistrationModelError(Exception):
 
 
 class UpdatesOrCreatesRegistrationModelMixin(models.Model):
-
     """A model mixin that creates or updates Registration model
     (e.g. RegisteredSubject) on post_save signal.
     """

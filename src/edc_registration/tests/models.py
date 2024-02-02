@@ -19,7 +19,6 @@ class SubjectModelOne(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
 
 
 class SubjectModelTwo(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
-
     """Note: registration_unique_field is overridden."""
 
     subject_identifier = models.CharField(max_length=25, null=True)
@@ -32,7 +31,6 @@ class SubjectModelTwo(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
 
 
 class SubjectModelThree(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
-
     """Note: registration_unique_field is overridden."""
 
     subject_identifier = models.CharField(max_length=25, null=True)
