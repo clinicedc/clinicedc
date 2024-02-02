@@ -11,7 +11,6 @@ class CsvNonCrfTablesExporterError(Exception):
 
 
 class CsvNonCrfTablesExporter(TablesExporter):
-
     """A class to export non-CRF tables for this app_label."""
 
     # a list of columns to NOT appear in any table, used to select the tables

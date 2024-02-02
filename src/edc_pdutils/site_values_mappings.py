@@ -17,7 +17,6 @@ class SiteValuesMappingError(Exception):
 
 
 class SiteValuesMappings:
-
     """
     # values_mappings.py
     import string
