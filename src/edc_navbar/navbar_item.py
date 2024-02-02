@@ -17,7 +17,6 @@ style = color_style()
 
 @dataclass
 class NavbarItem:
-
     """A class that represents a single item on a navbar."""
 
     name: str = field(default=None, compare=True)
