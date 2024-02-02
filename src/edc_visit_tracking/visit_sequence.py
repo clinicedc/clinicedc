@@ -17,7 +17,6 @@ if TYPE_CHECKING:
 
 
 class VisitSequence:
-
     """A class that calculates the previous_visit and can enforce
     that visits are filled in sequence.
     """

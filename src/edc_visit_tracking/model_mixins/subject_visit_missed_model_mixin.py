@@ -11,7 +11,6 @@ from ..constants import VISIT_MISSED_ACTION
 
 
 class SubjectVisitMissedModelMixin(models.Model):
-
     """Declare with:
 
         missed_reasons = models.ManyToManyField(SubjectVisitMissedReasons, blank=True)

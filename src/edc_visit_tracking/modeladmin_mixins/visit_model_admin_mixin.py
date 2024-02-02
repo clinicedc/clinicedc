@@ -21,7 +21,6 @@ if TYPE_CHECKING:
 
 
 class VisitModelAdminMixin(DocumentStatusModelAdminMixin):
-
     """ModelAdmin subclass for models with a ForeignKey to
     'appointment', such as your visit model(s).
 

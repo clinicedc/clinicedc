@@ -30,7 +30,6 @@ class VisitModelMixin(
     RequiresConsentFieldsModelMixin,
     models.Model,
 ):
-
     """
     For example:
 

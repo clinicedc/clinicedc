@@ -13,7 +13,6 @@ if TYPE_CHECKING:
 
 
 class CrfModelAdminMixin:
-
     """ModelAdmin subclass for models with a ForeignKey to your
     visit model(s).
     """
