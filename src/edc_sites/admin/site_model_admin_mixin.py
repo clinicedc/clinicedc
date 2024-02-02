@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import collections
+from typing import TYPE_CHECKING, Type
 
 from django.contrib import admin
 from django.core.exceptions import FieldError, ObjectDoesNotExist
@@ -9,6 +10,10 @@ from django.db.models import QuerySet
 from ..models import SiteProfile
 from ..site import sites
 from .list_filters import SiteListFilter
+
+if TYPE_CHECKING:
+    from django.contrib.admin import SimpleListFilter
+
 
 __all__ = ["SiteModelAdminMixin"]
 
@@ -35,7 +40,7 @@ class SiteModelAdminMixin:
             return obj.site.name
         return f"{site_profile.site.id} {site_profile.description}"
 
-    def get_list_filter(self, request):
+    def get_list_filter(self, request) -> tuple[str | Type[SimpleListFilter], ...]:
         """Insert `SiteListFilter` before field name `created`.
 
         Remove site from the list if user does not have access
