@@ -21,7 +21,6 @@ class FormDescriberError(Exception):
 
 
 class FormDescriber:
-
     """A class that prepares form reference information in
     markdown text.
 
