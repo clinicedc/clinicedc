@@ -21,9 +21,9 @@ class IdentifierMissingTemplateValue(Exception):
 
 class ResearchIdentifier:
     label: str = None  # e.g. subject_identifier, plot_identifier, etc
-    identifier_type: Optional[
-        str
-    ] = None  # e.g. 'subject', 'infant', 'plot', a.k.a subject_type
+    identifier_type: Optional[str] = (
+        None  # e.g. 'subject', 'infant', 'plot', a.k.a subject_type
+    )
     template: Optional[str] = None
     padding: int = 5
     checkdigit = LuhnMixin()
