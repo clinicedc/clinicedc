@@ -18,7 +18,6 @@ if TYPE_CHECKING:
 
 
 class StudyMedicationCrfModelMixin(PreviousNextModelMixin, StudyMedicationRefillModelMixin):
-
     """Declare with field subject_visit using a CRF model mixin"""
 
     def save(self, *args, **kwargs):
