@@ -6,7 +6,6 @@ from .timepoint import TimepointClosed
 
 
 class TimepointLookup:
-
     """A class to be set as an attribute of a model
     controlled by a timepoint model.
 
