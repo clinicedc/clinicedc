@@ -74,9 +74,11 @@ class TestHospitalizationFormValidation(FormValidatorTestCaseMixin, TestCase):
                     death_datetime = report_datetime - relativedelta(days=days_before)
                     cleaned_data = {
                         "report_datetime": report_datetime,
-                        death_report_date_field: death_datetime
-                        if death_report_date_field == "death_datetime"
-                        else death_datetime.date(),
+                        death_report_date_field: (
+                            death_datetime
+                            if death_report_date_field == "death_datetime"
+                            else death_datetime.date()
+                        ),
                     }
                     form_validator = DeathReportFormValidator(cleaned_data=cleaned_data)
                     form_validator.death_report_date_field = death_report_date_field

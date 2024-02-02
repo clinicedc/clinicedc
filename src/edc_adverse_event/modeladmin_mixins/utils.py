@@ -14,8 +14,7 @@ if TYPE_CHECKING:
 
     from .modeladmin_mixins import AdverseEventModelAdminMixin
 
-    class ModelAdmin(AdverseEventModelAdminMixin, admin.ModelAdmin):
-        ...
+    class ModelAdmin(AdverseEventModelAdminMixin, admin.ModelAdmin): ...
 
     class Model(BaseUuidModel):
         report_datetime: datetime
