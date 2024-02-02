@@ -7,7 +7,6 @@ class FieldsetError(Exception):
 
 
 class Fieldsets:
-
     """A class to use with model admin fieldsets."""
 
     def __init__(self, fieldsets=None, **kwargs):
