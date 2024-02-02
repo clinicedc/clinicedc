@@ -15,5 +15,4 @@ class ConsentModelStub(Protocol):
 
 class ConsentLikeModel(
     SiteModelMixin, ConsentModelMixin, NonUniqueSubjectIdentifierModelMixin
-):
-    ...
+): ...

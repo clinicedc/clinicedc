@@ -2,7 +2,6 @@ from django.db import models
 
 
 class VerificationFieldsMixin(models.Model):
-
     """A fields mixin for models that are verified against a
     paper document, such as an ICF.
 
