@@ -2,7 +2,6 @@ from django.db import models
 
 
 class SubjectOnScheduleModelMixin(models.Model):
-
     """A model mixin for a consent or other model
     that when saved updates a subject to be `on schedule`.
 
