@@ -11,7 +11,6 @@ if TYPE_CHECKING:
 
 
 class MetadataRuleEvaluator:
-
     """Main class to evaluate rules.
 
     Used by model mixin.

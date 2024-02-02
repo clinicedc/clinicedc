@@ -31,7 +31,6 @@ show_edc_metadata_warnings = getattr(settings, "EDC_METADATA_SHOW_NOVALUEERROR_W
 
 
 class RuleEvaluator:
-
     """A class to evaluate a rule.
 
     Sets `self.result` to REQUIRED, NOT_REQUIRED or None.

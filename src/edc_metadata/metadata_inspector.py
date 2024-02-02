@@ -3,7 +3,6 @@ from .models import CrfMetadata
 
 
 class MetaDataInspector:
-
     """Inspects for the given timepoint and form."""
 
     metadata_model_cls = CrfMetadata

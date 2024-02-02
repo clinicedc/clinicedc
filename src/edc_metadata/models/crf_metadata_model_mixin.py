@@ -27,7 +27,6 @@ class CrfMetadataModelMixin(
     VisitScheduleFieldsModelMixin,
     models.Model,
 ):
-
     """Mixin for CrfMetadata and RequisitionMetadata models."""
 
     visit_code = models.CharField(max_length=25)
