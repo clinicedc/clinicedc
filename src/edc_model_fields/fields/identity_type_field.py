@@ -4,7 +4,6 @@ from edc_constants.choices import IDENTITY_TYPE
 
 
 class IdentityTypeField(CharField):
-
     """Identity type field class.
 
     Pair with the `Identity` field.

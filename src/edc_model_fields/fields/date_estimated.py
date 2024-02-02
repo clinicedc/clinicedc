@@ -5,7 +5,6 @@ from edc_constants.constants import NOT_APPLICABLE
 
 
 class IsDateEstimatedField(CharField):
-
     """field to question if date is estimated"""
 
     description = _("Custom field to question if date is estimated")
@@ -28,7 +27,6 @@ class IsDateEstimatedField(CharField):
 
 
 class IsDateEstimatedFieldNa(CharField):
-
     """Field to question if date is estimated."""
 
     description = _("Custom field to question if date is estimated")
