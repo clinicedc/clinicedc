@@ -28,7 +28,6 @@ def get_autodiscover_enabled():
 
 
 class SiteListData:
-
     """Load list data from any module named "list_data".
 
     Called in AppConfig or by management command.

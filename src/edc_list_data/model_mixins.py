@@ -64,7 +64,6 @@ class BaseListModelMixin(models.Model):
 
 
 class ListModelMixin(BaseListModelMixin):
-
     """Mixin for list data used in dropdown and radio widgets having
     display value and store value pairs.
     """
@@ -77,7 +76,6 @@ class ListModelMixin(BaseListModelMixin):
 
 
 class ListUuidModelMixin(BaseListModelMixin, BaseUuidModel):
-
     """Mixin with UUID pk for list data used in dropdown
     and radio widgets having display value and store value pairs.
     """
