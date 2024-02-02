@@ -15,8 +15,7 @@ class ActionStub(Protocol):
         related_action_item: Optional["ActionItemStub"] = None,
         using: Optional[str] = None,
         readonly: Optional[bool] = None,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     name: str
     action_item: "ActionItemStub"
@@ -52,11 +51,9 @@ class ActionItemStub(Protocol):
 
     action_cls: ActionStub
 
-    def get_status_display(self) -> str:
-        ...
+    def get_status_display(self) -> str: ...
 
-    def get_action_cls(self) -> Type[ActionStub]:
-        ...
+    def get_action_cls(self) -> Type[ActionStub]: ...
 
 
 class ActionItemWithNotificationStub(ActionItemStub, Protocol):

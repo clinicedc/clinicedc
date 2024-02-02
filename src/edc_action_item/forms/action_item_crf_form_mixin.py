@@ -2,7 +2,6 @@ from django import forms
 
 
 class ActionItemCrfFormMixin:
-
     """Declare with forms.ModelForm."""
 
     class Meta:

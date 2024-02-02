@@ -30,8 +30,7 @@ if TYPE_CHECKING:
         subject_identifier: str
         ...
 
-    class CrfModel(CrfModelMixin):
-        ...
+    class CrfModel(CrfModelMixin): ...
 
 
 class CurrentSiteManager(BaseCurrentSiteManager):
