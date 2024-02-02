@@ -1,5 +1,6 @@
-from django.core.checks import Warning
+from django.core.checks import Error, Warning
 
+from .models import ActionItem
 from .site_action_items import site_action_items
 
 
@@ -19,7 +20,37 @@ def edc_action_item_check(app_configs, **kwargs):
                     ),
                     hint="History manager is need to detect changes.",
                     obj=action_cls,
+                    id="edc_action_item.W001",
+                )
+            )
+    for action_item in ActionItem.objects.all():
+        if action_item.reference_model != action_item.action_type.reference_model:
+            errors.append(
+                Error(
+                    (
+                        "Action item reference model value does not match "
+                        "action_type.reference_model. "
+                        f"Got {action_item.reference_model} != "
+                        f"{action_item.action_type.reference_model}"
+                    ),
+                    obj=action_item,
                     id="edc_action_item.E001",
+                )
+            )
+        if (
+            action_item.related_reference_model
+            != action_item.action_type.related_reference_model
+        ):
+            errors.append(
+                Error(
+                    (
+                        "Action item related_reference_modell value does not match "
+                        "action_type.related_reference_model. "
+                        f"Got {action_item.related_reference_model} != "
+                        f"{action_item.action_type.related_reference_model}"
+                    ),
+                    obj=action_item,
+                    id="edc_action_item.E002",
                 )
             )
     return errors
