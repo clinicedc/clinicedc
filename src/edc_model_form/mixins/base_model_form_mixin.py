@@ -17,7 +17,6 @@ __all__ = ["BaseModelFormMixinError", "BaseModelFormMixin"]
 
 
 class BaseModelFormMixin(ReportDatetimeModelFormMixin):
-
     """Base modelform mixin for edc forms.
 
     If this is a CRF, use together with the modelform mixin
