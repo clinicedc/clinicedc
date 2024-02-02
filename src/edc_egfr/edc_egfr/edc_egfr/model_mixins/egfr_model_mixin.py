@@ -32,7 +32,6 @@ class EgfrModelMixin(
     ),
     models.Model,
 ):
-
     """Declared with a bloodresult RFT CRF model.
 
     As a lab result CRF, expects subject_visit, requisition

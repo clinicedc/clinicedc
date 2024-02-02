@@ -9,7 +9,6 @@ from .base_egrfr import BaseEgfr, EgfrCalculatorError
 
 
 class EgfrCockcroftGault(BaseEgfr):
-
     """Reference https://www.mdcalc.com/creatinine-clearance-cockcroft-gault-equation
 
     Cockcroft-Gault
