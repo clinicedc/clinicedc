@@ -12,7 +12,6 @@ class OffstudyNonCrfModelError(Exception):
 
 
 class OffstudyNonCrfModelMixin(models.Model):
-
     """Model mixin for non-CRF, PRN, visit, appt models.
 
     A mixin for non-CRF models to add the ability to determine
