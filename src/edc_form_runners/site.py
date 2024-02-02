@@ -2,10 +2,14 @@ from __future__ import annotations
 
 import sys
 from copy import deepcopy
+from typing import TYPE_CHECKING, Type
 
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.utils.module_loading import import_module, module_has_submodule
+
+if TYPE_CHECKING:
+    from edc_form_runners.form_runner import FormRunner
 
 
 class AlreadyRegistered(Exception):
@@ -21,7 +25,7 @@ __all__ = ["site_form_runners"]
 
 class SiteFormRunners:
     def __init__(self):
-        self.registry = {}
+        self.registry: dict[str, Type[FormRunner]] = {}
         self.loaded = False
 
     def register(self, runner=None):

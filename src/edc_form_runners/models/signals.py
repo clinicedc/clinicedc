@@ -4,7 +4,7 @@ from edc_crf.model_mixins import CrfModelMixin, CrfNoManagerModelMixin
 from edc_lab.model_mixins import RequisitionModelMixin
 from edc_model.models import BaseUuidModel
 
-from ..exceptions import FormRunnerModelAdminNotFound
+from ..exceptions import FormRunnerModelAdminNotFound, FormRunnerModelFormNotFound
 from ..get_form_runner_by_src_id import get_form_runner_by_src_id
 from ..utils import get_edc_form_runners_enabled
 
@@ -26,7 +26,7 @@ def update_issue_on_post_save(sender, instance, raw, created, update_fields, **k
                         src_id=instance.id,
                         model_name=sender._meta.label_lower,
                     )
-                except FormRunnerModelAdminNotFound:
+                except (FormRunnerModelAdminNotFound, FormRunnerModelFormNotFound):
                     pass
                 else:
                     runner.run_one()

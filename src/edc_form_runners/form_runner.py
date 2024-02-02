@@ -7,10 +7,11 @@ from typing import TYPE_CHECKING, Any
 from bs4 import BeautifulSoup
 from django.apps import apps as django_apps
 from django.db.models import ForeignKey, ManyToManyField, Model, OneToOneField, QuerySet
+from django.forms import ModelForm
 from edc_utils import get_utcnow
 from tqdm import tqdm
 
-from .exceptions import FormRunnerModelAdminNotFound
+from .exceptions import FormRunnerModelAdminNotFound, FormRunnerModelFormNotFound
 from .utils import get_modeladmin_cls
 
 if TYPE_CHECKING:
@@ -40,11 +41,19 @@ class FormRunner:
         self.modeladmin_cls = get_modeladmin_cls(self.model_name)
         if not self.modeladmin_cls:
             raise FormRunnerModelAdminNotFound(
-                "No modeladmin or modelform class found. Is this model registered with Admin? "
+                "No modeladmin class found. Is this model registered with Admin? "
+                f"Got `{model_name}`."
+            )
+        if self.modeladmin_cls.form == ModelForm:
+            raise FormRunnerModelFormNotFound(
+                "ModelAdmin does not have a custom form. Nothing to do. "
                 f"Got `{model_name}`."
             )
         self.src_model_cls = self.modeladmin_cls.model
+
+        # note: modeladmin_cls must declare a custom ModelForm
         self.modelform_cls = self.modeladmin_cls.form
+
         self.src_filter_options = src_filter_options
 
     def __repr__(self):
