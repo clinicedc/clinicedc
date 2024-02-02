@@ -12,7 +12,6 @@ class BoxViewError(Exception):
 
 
 class BoxViewMixin(ContextMixin):
-
     """Declare with the ModelsViewMixin."""
 
     def __init__(self, **kwargs):

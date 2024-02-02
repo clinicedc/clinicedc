@@ -1,6 +1,7 @@
 """To customize any of the values below,
 use settings.LAB_DASHBOARD_URL_NAMES.
 """
+
 from django.conf import settings
 
 dashboard_urls = dict(

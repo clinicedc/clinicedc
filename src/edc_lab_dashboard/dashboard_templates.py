@@ -1,6 +1,7 @@
 """To customize any of the values below,
 use settings.LAB_DASHBOARD_BASE_TEMPLATES.
 """
+
 from django.conf import settings
 from edc_dashboard.utils import insert_bootstrap_version
 
