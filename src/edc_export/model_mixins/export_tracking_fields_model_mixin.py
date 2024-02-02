@@ -7,7 +7,6 @@ from ..constants import DELETE, INSERT, UPDATE
 
 
 class ExportTrackingFieldsModelMixin(models.Model):
-
     """Adds these fields to the Concrete model."""
 
     exported = models.BooleanField(

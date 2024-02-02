@@ -25,7 +25,6 @@ class ArchiveExporterEmailError(Exception):
 
 
 class ArchiveExporter:
-
     """Exports a list of models to individual CSV files and
     adds each to a single zip archive OR emails each.
 
