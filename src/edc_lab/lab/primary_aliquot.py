@@ -7,7 +7,6 @@ class PrimaryAliquotPrefixError(Exception):
 
 
 class PrimaryAliquot:
-
     """A class that gets or creates the primary aliquot."""
 
     def __init__(

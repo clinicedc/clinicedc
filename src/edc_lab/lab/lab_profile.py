@@ -11,7 +11,6 @@ class LabProfileRequisitionModelError(Exception):
 
 
 class LabProfile:
-
     """A container class for aliquot types, panels and processing."""
 
     site_model = "sites.site"

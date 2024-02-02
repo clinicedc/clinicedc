@@ -10,7 +10,6 @@ class AliquotTypeNumericCodeError(Exception):
 
 
 class AliquotType:
-
     """A class to represent an aliquot type by an alpha and
     numeric code.
 

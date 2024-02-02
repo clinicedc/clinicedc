@@ -10,7 +10,6 @@ if TYPE_CHECKING:
 
 
 class CrfRequisitionFormValidatorMixin:
-
     """An FormValidator mixin for CRFs (not requisitions).
 
     Used with a CRF that refers to a requisition or requisitions.

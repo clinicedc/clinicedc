@@ -7,5 +7,4 @@ class AliquotTypeStub(Protocol):
     alpha_code: str
     numeric_code: str
 
-    def add_derivatives(self: "AliquotTypeStub") -> None:
-        ...
+    def add_derivatives(self: "AliquotTypeStub") -> None: ...
