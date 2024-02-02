@@ -2,7 +2,6 @@ from django.forms.widgets import Input
 
 
 class SliderWidget(Input):
-
     """
     class HtnMedicationAdherenceForm(CrfModelFormMixin, forms.ModelForm):
         form_validator_cls = HtnMedicationAdherenceFormValidator

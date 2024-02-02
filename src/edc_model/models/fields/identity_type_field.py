@@ -4,7 +4,6 @@ from edc_constants.choices import IDENTITY_TYPE
 
 
 class IdentityTypeField(CharField):
-
     """
     have IdentityTypeField immediately follow an identity field:
 
