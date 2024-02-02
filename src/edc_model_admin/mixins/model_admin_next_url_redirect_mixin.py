@@ -24,7 +24,6 @@ class ModelAdminNextUrlError(Exception):
 
 
 class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
-
     """Redirect on add, change, delete by reversing url_name
     in the querystring OR clicking Save Next.
 

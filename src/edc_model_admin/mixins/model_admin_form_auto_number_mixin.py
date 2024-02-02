@@ -6,7 +6,6 @@ from django.utils.safestring import mark_safe
 
 
 class ModelAdminFormAutoNumberMixin:
-
     """Overrides get_form to insert question numbers and the DB
     field names.
 

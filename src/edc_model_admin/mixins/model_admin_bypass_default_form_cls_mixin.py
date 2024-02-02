@@ -13,7 +13,6 @@ from edc_sites.modelform_mixins import SiteModelFormMixin
 
 
 class ModelAdminBypassDefaultFormClsMixin:
-
     """A modeladmin mixin to set the admin class's modelform conditionally
     based on a special data manager permission codename.
 
