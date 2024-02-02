@@ -6,6 +6,7 @@ from .exceptions import (
     FormRunnerError,
     FormRunnerImproperlyConfigured,
     FormRunnerModelAdminNotFound,
+    FormRunnerModelFormNotFound,
 )
 from .get_form_runner import get_form_runner
 
@@ -28,7 +29,11 @@ def run_form_runners(
         print(model_name)
         try:
             get_form_runner(model_name, verbose=True).run_all()
-        except (FormRunnerImproperlyConfigured, FormRunnerModelAdminNotFound) as e:
+        except (
+            FormRunnerImproperlyConfigured,
+            FormRunnerModelAdminNotFound,
+            FormRunnerModelFormNotFound,
+        ) as e:
             print(f"{e} See {model_name}.")
         except AttributeError as e:
             print(f"{e} See {model_name}.")

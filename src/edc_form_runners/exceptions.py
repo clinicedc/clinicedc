@@ -14,6 +14,10 @@ class FormRunnerModelAdminNotFound(Exception):
     pass
 
 
+class FormRunnerModelFormNotFound(Exception):
+    pass
+
+
 class FormRunnerImproperlyConfigured(Exception):
     pass
 
