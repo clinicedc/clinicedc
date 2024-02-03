@@ -301,9 +301,11 @@ class RequisitionReport(Report):
                 data.get("contact_name"),
                 data.get("name"),
                 data.get("address"),
-                data.get("city")
-                if not data.get("state")
-                else "{} {}".format(data.get("city"), data.get("state")),
+                (
+                    data.get("city")
+                    if not data.get("state")
+                    else "{} {}".format(data.get("city"), data.get("state"))
+                ),
                 data.get("postal_code"),
                 data.get("country"),
             ]

@@ -7,7 +7,6 @@ from edc_registration.utils import valid_subject_identifier_or_raise
 
 
 class RegisteredSubjectViewMixin:
-
     """Adds the subject_identifier to the context."""
 
     def __init__(self, **kwargs):
