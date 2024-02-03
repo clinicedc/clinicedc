@@ -17,8 +17,7 @@ class BaseNotificationStub(Protocol):
     sms_test_line: str
 
     @property
-    def default_email_to(self) -> List[str]:
-        ...
+    def default_email_to(self) -> List[str]: ...
 
     def notify(
         self,
@@ -27,12 +26,10 @@ class BaseNotificationStub(Protocol):
         use_sms: bool = None,
         email_body_template: str = None,
         **kwargs,
-    ) -> bool:
-        ...
+    ) -> bool: ...
 
 
-class NotificationStub(BaseNotificationStub, Protocol):
-    ...
+class NotificationStub(BaseNotificationStub, Protocol): ...
 
 
 class NotificationModelStub(BaseNotificationStub, Protocol):
