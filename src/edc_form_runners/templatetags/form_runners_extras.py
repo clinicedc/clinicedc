@@ -11,8 +11,7 @@ if TYPE_CHECKING:
     from edc_crf.model_mixins import CrfModelMixin
     from edc_metadata.models import CrfMetadata, RequisitionMetadata
 
-    class Model(CrfModelMixin, models.Model):
-        ...
+    class Model(CrfModelMixin, models.Model): ...
 
 
 register = template.Library()
