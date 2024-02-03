@@ -4,8 +4,7 @@ from uuid import UUID
 
 
 class ModelStub(Protocol):
-    def save(self, *args, **kwargs):
-        ...
+    def save(self, *args, **kwargs): ...
 
 
 class SubjectScreeningModelStub(ModelStub, Protocol):
@@ -24,5 +23,4 @@ class SubjectScreeningModelStub(ModelStub, Protocol):
     reasons_ineligible: str
     ...
 
-    def get_report_datetime_for_eligibility_datetime(self) -> datetime:
-        ...
+    def get_report_datetime_for_eligibility_datetime(self) -> datetime: ...

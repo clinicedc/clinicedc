@@ -7,7 +7,6 @@ class EligibilityError(Exception):
 
 
 class Eligibility:
-
     """Eligible if all criteria evaluate True.
 
     Any key in `additional_criteria` has value True if eligible.
