@@ -12,6 +12,8 @@ from .get_form_runner import get_form_runner
 
 __all__ = ["run_form_runners"]
 
+from .models import Issue
+
 
 def run_form_runners(
     app_labels: list[str] | None = None, model_names: list[str] | None = None
@@ -27,6 +29,7 @@ def run_form_runners(
         raise FormRunnerError("Nothing to do.")
     for model_name in model_names:
         print(model_name)
+        Issue.objects.filter(label_lower=model_name).delete()
         try:
             get_form_runner(model_name, verbose=True).run_all()
         except (
