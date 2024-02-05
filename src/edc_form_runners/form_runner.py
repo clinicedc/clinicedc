@@ -34,6 +34,7 @@ class FormRunner:
         src_filter_options: dict[str, Any] | None = None,
         verbose: bool | None = None,
     ) -> None:
+        self.messages = {}
         self.session_id = uuid.uuid4()
         self.session_datetime = get_utcnow()
         self.verbose = verbose
@@ -67,6 +68,8 @@ class FormRunner:
         for src_obj in tqdm(self.src_qs, total=total):
             self.issue_model_cls.objects.filter(**self.unique_opts(src_obj)).delete()
             self.run_one(src_obj=src_obj, skip_delete=True)
+        for model_name, message in self.messages.values():
+            print(f"{model_name}: {message}")
 
     def run_one(self, src_obj: Model, skip_delete: bool | None = None) -> None:
         if not skip_delete:
@@ -79,13 +82,29 @@ class FormRunner:
         }
         if errors:
             for fldname, errmsg in errors.items():
-                issue_obj = self.write_to_db(fldname, errmsg, src_obj)
-                if self.verbose:
-                    self.print(str(issue_obj))
+                if fldname in self.fieldset_fields:
+                    issue_obj = self.write_to_db(fldname, errmsg, src_obj)
+                    if self.verbose:
+                        self.print(str(issue_obj))
 
     @property
     def issue_model_cls(self) -> Issue:
         return django_apps.get_model(self.issue_model)
+
+    @property
+    def fieldset_fields(self) -> list[str]:
+        fields = []
+        if self.modeladmin_cls.form != ModelForm:
+            if getattr(self.modeladmin_cls, "fieldsets", None):
+                for fieldset in self.modeladmin_cls.fieldsets:
+                    _, data = fieldset
+                    fields.extend(data.get("fields"))
+            else:
+                self.messages.update({self.model_name: "Fieldsets not defined. Using fields."})
+
+                fields = getattr(self.modeladmin_cls, "fields", [])
+        fields = list(set(fields))
+        return fields
 
     def write_to_db(self, fldname: str, errmsg: Any, src_obj: Any) -> Issue:
         raw_message = html.unescape(errmsg.as_text())
@@ -117,24 +136,26 @@ class FormRunner:
 
     def unique_opts(self, src_obj: Model) -> dict[str, Any]:
         """Note: unique constraint includes `field_name`"""
-        model_obj_or_related_visit = getattr(
-            src_obj, src_obj.related_visit_model_attr(), src_obj
-        )
+        model_obj_or_related_visit = src_obj
+        get_related_visit_model_attr = getattr(src_obj, "related_visit_model_attr", None)
+        if get_related_visit_model_attr() and src_obj.related_visit:
+            model_obj_or_related_visit = src_obj.related_visit
         subject_identifier = model_obj_or_related_visit.subject_identifier
-        visit_code = model_obj_or_related_visit.visit_code
-        visit_code_sequence = model_obj_or_related_visit.visit_code_sequence
-        visit_schedule_name = model_obj_or_related_visit.visit_schedule_name
-        schedule_name = model_obj_or_related_visit.schedule_name
-        return dict(
+        opts = dict(
             label_lower=src_obj._meta.label_lower,
             panel_name=self.get_panel_name(src_obj),
             verbose_name=src_obj._meta.verbose_name,
             subject_identifier=subject_identifier,
-            visit_code=visit_code,
-            visit_code_sequence=visit_code_sequence,
-            visit_schedule_name=visit_schedule_name,
-            schedule_name=schedule_name,
         )
+        for fldname in [
+            "visit_code",
+            "visit_code_sequence",
+            "visit_schedule_name",
+            "schedule_name",
+        ]:
+            if value := getattr(model_obj_or_related_visit, fldname, None) is not None:
+                opts.update({fldname: value})
+        return opts
 
     @staticmethod
     def get_panel_name(src_obj) -> str | None:
