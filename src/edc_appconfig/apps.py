@@ -31,6 +31,10 @@ from edc_sites.post_migrate_signals import post_migrate_update_sites
 from edc_sites.site import sites as site_sites
 from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_schedule.system_checks import (
+    check_onschedule_exists_in_subject_schedule_history,
+    check_subject_schedule_history,
+)
 
 style = color_style()
 
@@ -96,6 +100,10 @@ class AppConfig(DjangoAppConfig):
         register(visit_schedule_check)
         sys.stdout.write("   - check_form_collections\n")
         register(check_form_collections)
+        sys.stdout.write("   - check subject schedule history\n")
+        register(check_subject_schedule_history)
+        sys.stdout.write("   - check onschedule with subject schedule history\n")
+        register(check_onschedule_exists_in_subject_schedule_history)
         sys.stdout.write("   - edc_action_item_check\n")
         register(edc_action_item_check)
         sys.stdout.write("   - sites_check\n")
