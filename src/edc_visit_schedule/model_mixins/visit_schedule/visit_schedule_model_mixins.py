@@ -11,7 +11,6 @@ class VisitScheduleModelMixin(
     VisitScheduleMethodsModelMixin,
     models.Model,
 ):
-
     """A model mixin for Appointment and related (subject) visit models.
 
     A model mixin that adds field attributes and methods that

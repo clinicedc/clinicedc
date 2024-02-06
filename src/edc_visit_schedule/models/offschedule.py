@@ -5,7 +5,6 @@ from ..model_mixins import OffScheduleModelMixin
 
 
 class OffSchedule(SiteModelMixin, OffScheduleModelMixin, BaseUuidModel):
-
     """A model used by the system. Records a subject as no longer on
     a schedule.
     """
