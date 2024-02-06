@@ -13,8 +13,7 @@ if TYPE_CHECKING:
 
     from .view_mixins import UrlRequestContextMixin
 
-    class View(UrlRequestContextMixin, BaseView):
-        ...
+    class View(UrlRequestContextMixin, BaseView): ...
 
 
 class UrlConfig:
