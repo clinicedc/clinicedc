@@ -7,10 +7,8 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <!-- to suppress browserconfig.xml NOT FOUND -->
     <meta name="msapplication-config" content="none"/>
-
     <title>{% block title %}{% endblock %}</title>
       {% block jquery %}{% endblock %}
       {% block extrastyle %}{% endblock %}
@@ -20,28 +18,28 @@
   {% block document_ready %}
   {% endblock document_ready %}
 </head>
-
+<!-- begin base_dj4 body-->
 <body class="edc-body" id="edc-body" data-admin-utc-offset="{% now "Z" %}">
-    {% block topbar %}{% endblock topbar %}
-
-<!-- Container -->
+<!-- begin base_dj4 block topbar -->
+{% block topbar %}{% endblock topbar %}
+<!-- end base_dj4 block topbar -->
+<!-- begin base_dj4 container -->
 <div class="container">
-    <div class="row">
-        {% block alert %}{% endblock alert %}
-    </div>
-    <div class="row">
-        {% block main %}{% endblock main %}
-    </div>
+  <div class="row">
+    <!-- begin base_dj4 block alert -->{% block alert %}{% endblock alert %}
+    <!-- end base_dj4 block alert -->
+  </div>
+  <div class="row">
+    <!-- begin base_dj4 block main -->{% block main %}{% endblock main %}
+    <!-- begin base_dj4 block main -->
+  </div>
 </div>
-<!-- END Container -->
-
+<!-- end base_dj4 container -->
 {% block modals %}{% endblock modals %}
 {% block bottombar %}{% endblock bottombar %}
 {% block footer %}{% endblock footer %}
-
 </body>
-
+<!-- end base-dj4 body-->
 {% block extra-scripts-bottom %}{% endblock %}
-
 </html>
-<!-- end edc base-dj4 -->
+<!-- end base-dj4 -->

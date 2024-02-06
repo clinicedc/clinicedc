@@ -6,7 +6,6 @@ class TemplateRequestContextError(Exception):
 
 
 class TemplateRequestContextMixin:
-
     """Adds a method to get a specified template from the request.context_data.
 
     For example:
