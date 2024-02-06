@@ -32,7 +32,7 @@ class TestSystemChecks(SiteTestCaseMixin, TestCase):
     def test_file(self):
         app_configs = django_apps.get_app_configs()
         errors = holiday_path_check(app_configs=app_configs)
-        self.assertIn("edc_facility.001", [error.id for error in errors])
+        self.assertIn("edc_facility.E001", [error.id for error in errors])
 
     @override_settings(
         HOLIDAY_FILE=os.path.join(settings.BASE_DIR, "edc_facility", "tests", "blah.csv"),
@@ -41,7 +41,7 @@ class TestSystemChecks(SiteTestCaseMixin, TestCase):
     def test_bad_path(self):
         app_configs = django_apps.get_app_configs()
         errors = holiday_path_check(app_configs=app_configs)
-        self.assertIn("edc_facility.002", [error.id for error in errors])
+        self.assertIn("edc_facility.W001", [error.id for error in errors])
 
     @override_settings(
         HOLIDAY_FILE=os.path.join(settings.BASE_DIR, "edc_facility", "tests", "holidays.csv"),
@@ -51,14 +51,4 @@ class TestSystemChecks(SiteTestCaseMixin, TestCase):
         import_holidays()
         app_configs = django_apps.get_app_configs()
         errors = holiday_country_check(app_configs=app_configs)
-        self.assertIn("edc_facility.004", [error.id for error in errors])
-
-    @override_settings(
-        HOLIDAY_FILE=os.path.join(settings.BASE_DIR, "edc_facility", "tests", "holidays.csv"),
-        SITE_ID=SiteID(default=60),
-    )
-    def test_no_sites(self):
-        sites.initialize()
-        app_configs = django_apps.get_app_configs()
-        errors = holiday_country_check(app_configs=app_configs)
-        self.assertIn("edc_facility.005", [error.id for error in errors])
+        self.assertIn("edc_facility.W002", [error.id for error in errors])

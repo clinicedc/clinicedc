@@ -19,7 +19,6 @@ if TYPE_CHECKING:
 
 
 class Holidays:
-
     """A class used by Facility to get holidays for the
     country of facility.
     """

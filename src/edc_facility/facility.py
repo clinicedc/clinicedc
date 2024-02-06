@@ -20,7 +20,6 @@ if TYPE_CHECKING:
 
 
 class Facility:
-
     """
     Note: `best_effort_available_datetime` (Default: False) if True
         will set available_rdata to the suggested_datetime if no
