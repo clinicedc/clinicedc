@@ -7,7 +7,6 @@ from edc_utils import get_utcnow
 
 
 class RequisitionVerifier:
-
     """Update a requisition's "verify" fields.
 
     Also sets defaults for any other fields that are required

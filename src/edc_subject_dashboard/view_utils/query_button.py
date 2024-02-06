@@ -24,7 +24,6 @@ class QueryButtonError(Exception):
 
 @dataclass
 class QueryButton(DashboardModelButton):
-
     """Dashboard button for access to the DataQuery model
     from edc_data_manager.
 
