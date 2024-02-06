@@ -13,7 +13,6 @@ if TYPE_CHECKING:
 
 @dataclass
 class Navbar:
-
     """A class to contain a list of navbar items. See NavbarItem."""
 
     name: str = None
