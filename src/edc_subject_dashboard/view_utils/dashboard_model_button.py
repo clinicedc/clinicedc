@@ -15,11 +15,9 @@ if TYPE_CHECKING:
     from edc_metadata.models import CrfMetadata, RequisitionMetadata
     from edc_model.models import BaseUuidModel
 
-    class CrfModel(CrfModelMixin, BaseUuidModel):
-        ...
+    class CrfModel(CrfModelMixin, BaseUuidModel): ...
 
-    class RequisitionModel(RequisitionModelMixin, BaseUuidModel):
-        ...
+    class RequisitionModel(RequisitionModelMixin, BaseUuidModel): ...
 
 
 __all__ = ["DashboardModelButton"]

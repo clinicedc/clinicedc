@@ -15,7 +15,6 @@ class SubjectVisitViewMixinError(Exception):
 
 
 class SubjectVisitViewMixin:
-
     """Mixin to add the subject visit instance to the view.
 
     Declare together with the edc_appointment.AppointmentViewMixin.
