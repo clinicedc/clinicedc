@@ -79,6 +79,26 @@ class SubjectScheduleHistory(
             self.schedule_name,
         )
 
+    @property
+    def onschedule_obj(self):
+        return self.onschedule_model_cls.objects.get(
+            subject_identifier=self.subject_identifier
+        )
+
+    @property
+    def offschedule_obj(self):
+        return self.offschedule_model_cls.objects.get(
+            subject_identifier=self.subject_identifier
+        )
+
+    @property
+    def onschedule_model_cls(self):
+        return django_apps.get_model(self.onschedule_model)
+
+    @property
+    def offschedule_model_cls(self):
+        return django_apps.get_model(self.offschedule_model)
+
     class Meta(BaseUuidModel.Meta, NonUniqueSubjectIdentifierFieldMixin.Meta):
         constraints = [
             UniqueConstraint(

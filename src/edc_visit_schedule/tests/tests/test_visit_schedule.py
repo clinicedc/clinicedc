@@ -26,7 +26,7 @@ from edc_visit_schedule.subject_schedule import (
     InvalidOffscheduleDate,
     NotOnScheduleError,
 )
-from edc_visit_schedule.system_checks import check_visit_schedule_models
+from edc_visit_schedule.utils import check_visit_schedule_models
 from edc_visit_schedule.visit import Crf, FormsCollection, FormsCollectionError, Visit
 from edc_visit_schedule.visit_schedule import (
     AlreadyRegisteredSchedule,
