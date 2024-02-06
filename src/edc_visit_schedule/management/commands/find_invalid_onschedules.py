@@ -40,7 +40,7 @@ class Command(BaseCommand):
                         except ObjectDoesNotExist:
                             msg = (
                                 f"{onschedule_model_cls._meta.label_lower} for "
-                                f"{onschedule_model_cls.subject_identifier} is invalid."
+                                f"{onschedule_obj.subject_identifier} is invalid."
                             )
                             if allow_delete:
                                 msg = f"{msg} deleted."

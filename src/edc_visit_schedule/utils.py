@@ -15,13 +15,17 @@ from edc_utils import floor_secs, formatted_datetime, to_utc
 from edc_utils.date import to_local
 
 from .baseline import Baseline
-from .exceptions import OffScheduleError, OnScheduleError
+from .exceptions import OffScheduleError, OnScheduleError, SiteVisitScheduleError
 from .site_visit_schedules import site_visit_schedules
 
 if TYPE_CHECKING:
+    from django.db import models
     from edc_appointment.models import Appointment
 
     from .model_mixins import OnScheduleModelMixin
+    from .schedule import Schedule
+    from .visit import CrfCollection, Visit
+    from .visit_schedule import VisitSchedule
 
 
 def get_default_max_visit_window_gap():
@@ -278,3 +282,89 @@ def get_onschedule_model_instance(
 
 def get_duplicates(list_items: list[Any]) -> list:
     return [n for n, count in Counter(list_items).items() if count > 1]
+
+
+def get_models_from_collection(collection: CrfCollection) -> list[models.Model]:
+    return [f.model_cls for f in collection]
+
+
+def get_proxy_models_from_collection(collection: CrfCollection) -> list[models.Model]:
+    return [f.model_cls for f in collection if f.model_cls._meta.proxy]
+
+
+def get_proxy_root_model(proxy_model: models.Model) -> models.Model | None:
+    """Returns proxy's root (concrete) model if `proxy_model` is a
+    proxy model, else returns None.
+    """
+    if proxy_model._meta.proxy:
+        return proxy_model._meta.concrete_model
+
+
+def check_models_in_visit_schedule() -> dict[str, list]:
+    """Try to look up all models IN visit schedule collections
+    or add to the errors list.
+
+    used by system_checks.
+    """
+    if not site_visit_schedules.loaded:
+        raise SiteVisitScheduleError("Registry is not loaded.")
+    errors = {"visit_schedules": [], "schedules": [], "visits": []}
+    for visit_schedule in site_visit_schedules.visit_schedules.values():
+        errors["visit_schedules"].extend(check_visit_schedule_models(visit_schedule))
+        for schedule in visit_schedule.schedules.values():
+            errors["schedules"].extend(check_schedule_models(schedule))
+            for visit in schedule.visits.values():
+                errors["visits"].extend(check_visit_models(visit))
+    return errors
+
+
+def check_visit_schedule_models(visit_schedule: VisitSchedule) -> list[str]:
+    """Try to look up the models declared ON the VisitSchedule
+    or add to the errors list.
+
+    Used by system_checks.
+    """
+    errors = []
+    for model in ["death_report", "locator", "offstudy"]:
+        try:
+            getattr(visit_schedule, f"{model}_model_cls")
+        except LookupError as e:
+            errors.append(f"{e} See visit schedule '{visit_schedule.name}'.")
+    return errors
+
+
+def check_schedule_models(schedule: Schedule) -> list[str]:
+    """Try to look up the models declared ON the Schedule
+    or add to errors list.
+
+    Used by system_checks.
+    """
+    errors = []
+    for model in ["onschedule", "offschedule", "appointment"]:
+        try:
+            getattr(schedule, f"{model}_model_cls")
+        except LookupError as e:
+            errors.append(f"{e} See visit schedule '{schedule.name}'.")
+    return errors
+
+
+def check_visit_models(visit: Visit):
+    """Try to look up all models declared in the Visit
+    collections or add to errors list.
+
+    Used by system_checks.
+    """
+    errors = []
+    visit_models = list(set([f.model for f in visit.all_crfs]))
+    for model in visit_models:
+        try:
+            django_apps.get_model(model)
+        except LookupError as e:
+            errors.append(f"{e} Got Visit {visit.code} crf.model={model}.")
+    visit_models = list(set([f.model for f in visit.all_requisitions]))
+    for model in visit_models:
+        try:
+            django_apps.get_model(model)
+        except LookupError as e:
+            errors.append(f"{e} Got Visit {visit.code} requisition.model={model}.")
+    return errors

@@ -7,7 +7,7 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.schedule import AlreadyRegisteredVisit, Schedule
 from edc_visit_schedule.schedule.schedule import ScheduleNameError, VisitTimepointError
 from edc_visit_schedule.schedule.visit_collection import VisitCollectionError
-from edc_visit_schedule.system_checks import check_schedule_models
+from edc_visit_schedule.utils import check_schedule_models
 from edc_visit_schedule.visit import Visit
 from visit_schedule_app.consents import consent_v1
 from visit_schedule_app.models import OffSchedule, OnSchedule

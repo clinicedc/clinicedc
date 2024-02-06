@@ -5,80 +5,95 @@ from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.core.checks import Error, Warning
-from django.db import models
+from django.core.exceptions import ObjectDoesNotExist
 
-from .exceptions import SiteVisitScheduleError
 from .site_visit_schedules import site_visit_schedules
+from .utils import (
+    check_models_in_visit_schedule,
+    get_models_from_collection,
+    get_proxy_models_from_collection,
+    get_proxy_root_model,
+)
 from .visit import CrfCollection
 
 if TYPE_CHECKING:
-    from .schedule import Schedule
     from .visit import Visit
-    from .visit_schedule import VisitSchedule
 
 
 def visit_schedule_check(app_configs, **kwargs):
     errors = []
-
     if not site_visit_schedules.visit_schedules:
         errors.append(
-            Warning("No visit schedules have been registered!", id="edc_visit_schedule.001")
+            Warning("No visit schedules have been registered!", id="edc_visit_schedule.W001")
         )
-    site_results = check_models()
-    for key, results in site_results.items():
+    site_results = check_models_in_visit_schedule()
+    for category, results in site_results.items():
         for result in results:
-            errors.append(Warning(result, id=f"edc_visit_schedule.{key}"))
+            if category == "visit_schedules":
+                error_code = "E002"
+            elif category == "schedules":
+                error_code = "E003"
+            elif category == "visits":
+                error_code = "E004"
+            else:
+                raise KeyError(f"Unexpected key. Got {category}.")
+
+            errors.append(Warning(result, id=f"edc_visit_schedule.{error_code}"))
     return errors
 
 
-def check_models() -> dict[str, list]:
-    if not site_visit_schedules.loaded:
-        raise SiteVisitScheduleError("Registry is not loaded.")
-    errors = {"visit_schedules": [], "schedules": [], "visits": []}
+def check_subject_schedule_history(app_configs, **kwargs) -> list:
+    errors = []
+    subject_schedule_history_cls = django_apps.get_model(
+        "edc_visit_schedule.subjectschedulehistory"
+    )
+    for obj in subject_schedule_history_cls.objects.all():
+        try:
+            obj.onschedule_obj
+        except LookupError as e:
+            errors.append(
+                Error(
+                    "Invalid onschedule model referenced in SubjectScheduleHistory. "
+                    f"See {obj.onschedule_model} for {obj.subject_identifier} "
+                    f"Got {e}",
+                    id="edc_visit_schedule.E005",
+                )
+            )
+        except ObjectDoesNotExist:
+            errors.append(
+                "Invalid onschedule model referenced in SubjectScheduleHistory. "
+                f"Got {obj.onschedule_model} for {obj.subject_identifier}"
+            )
+    return errors
+
+
+def check_onschedule_exists_in_subject_schedule_history(app_configs, **kwargs) -> list:
+    errors = []
+    subject_schedule_history_cls = django_apps.get_model(
+        "edc_visit_schedule.subjectschedulehistory"
+    )
     for visit_schedule in site_visit_schedules.visit_schedules.values():
-        errors["visit_schedules"].extend(check_visit_schedule_models(visit_schedule))
         for schedule in visit_schedule.schedules.values():
-            errors["schedules"].extend(check_schedule_models(schedule))
-            for visit in schedule.visits.values():
-                errors["visits"].extend(check_visit_models(visit))
+            try:
+                onschedule_model_cls = getattr(schedule, "onschedule_model_cls")
+            except LookupError:
+                pass
+            else:
+                for obj in onschedule_model_cls.objects.all():
+                    try:
+                        subject_schedule_history_cls.objects.get(
+                            subject_identifier=obj.subject_identifier,
+                            onschedule_model=onschedule_model_cls._meta.label_lower,
+                        )
+                    except ObjectDoesNotExist:
+                        errors.append(
+                            Error(
+                                f"Onschedule instance not found in SubjectScheduleHistory. "
+                                f"See {obj.subject_identifier} "
+                                f"model {onschedule_model_cls._meta.label_lower}."
+                            )
+                        )
     return errors
-
-
-def check_visit_schedule_models(visit_schedule: VisitSchedule) -> list[str]:
-    warnings = []
-    for model in ["death_report", "locator", "offstudy"]:
-        try:
-            getattr(visit_schedule, f"{model}_model_cls")
-        except LookupError as e:
-            warnings.append(f"{e} See visit schedule '{visit_schedule.name}'.")
-    return warnings
-
-
-def check_schedule_models(schedule: Schedule) -> list[str]:
-    warnings = []
-    for model in ["onschedule", "offschedule", "appointment"]:
-        try:
-            getattr(schedule, f"{model}_model_cls")
-        except LookupError as e:
-            warnings.append(f"{e} See visit schedule '{schedule.name}'.")
-    return warnings
-
-
-def check_visit_models(visit: Visit):
-    warnings = []
-    models = list(set([f.model for f in visit.all_crfs]))
-    for model in models:
-        try:
-            django_apps.get_model(model)
-        except LookupError as e:
-            warnings.append(f"{e} Got Visit {visit.code} crf.model={model}.")
-    models = list(set([f.model for f in visit.all_requisitions]))
-    for model in models:
-        try:
-            django_apps.get_model(model)
-        except LookupError as e:
-            warnings.append(f"{e} Got Visit {visit.code} requisition.model={model}.")
-    return warnings
 
 
 def check_form_collections(app_configs, **kwargs):
@@ -113,12 +128,12 @@ def check_proxy_root_alongside_child(
     visit_crf_collection: CrfCollection,
     visit_type: str,
 ) -> Error | None:
-    all_models = get_models(collection=visit_crf_collection) + get_models(
-        collection=visit.crfs_prn
-    )
-    all_proxy_models = get_proxy_models(collection=visit_crf_collection) + get_proxy_models(
-        collection=visit.crfs_prn
-    )
+    all_models = get_models_from_collection(
+        collection=visit_crf_collection
+    ) + get_models_from_collection(collection=visit.crfs_prn)
+    all_proxy_models = get_proxy_models_from_collection(
+        collection=visit_crf_collection
+    ) + get_proxy_models_from_collection(collection=visit.crfs_prn)
 
     if child_proxies_alongside_proxy_roots := [
         m for m in all_proxy_models if get_proxy_root_model(m) in all_models
@@ -135,7 +150,7 @@ def check_proxy_root_alongside_child(
             "proxy for a visit. "
             f"Got '{visit}' '{visit_type}' visit Crf collection. "
             f"Proxy root:child models: {proxy_root_child_pairs=}",
-            id="edc_visit_schedule.003",
+            id="edc_visit_schedule.E006",
         )
 
 
@@ -145,9 +160,9 @@ def check_multiple_proxies_same_proxy_root(
     visit_type: str,
 ) -> Error | None:
     # Find all proxy models, and map from their 'proxy root' models
-    all_proxy_models = get_proxy_models(collection=visit_crf_collection) + get_proxy_models(
-        collection=visit.crfs_prn
-    )
+    all_proxy_models = get_proxy_models_from_collection(
+        collection=visit_crf_collection
+    ) + get_proxy_models_from_collection(collection=visit.crfs_prn)
     proxy_root_to_child_proxies: defaultdict[str, list[str]] = defaultdict(list)
     for proxy_model in all_proxy_models:
         child_proxy_model_str = proxy_model._meta.label.lower()
@@ -155,9 +170,9 @@ def check_multiple_proxies_same_proxy_root(
         proxy_root_to_child_proxies[proxy_root_model_str].append(child_proxy_model_str)
 
     # Find proxy models declared as sharing a proxy root
-    proxies_sharing_roots = get_proxy_models(
+    proxies_sharing_roots = get_proxy_models_from_collection(
         collection=CrfCollection(*[f for f in visit_crf_collection if f.shares_proxy_root])
-    ) + get_proxy_models(
+    ) + get_proxy_models_from_collection(
         collection=CrfCollection(*[f for f in visit.crfs_prn if f.shares_proxy_root])
     )
     proxies_sharing_roots_counter = Counter(
@@ -183,21 +198,5 @@ def check_multiple_proxies_same_proxy_root(
             "`shares_proxy_root` argument when defining Crf. "
             f"Got '{visit}' '{visit_type}' visit Crf collection. "
             f"Proxy root/child models: {dict(proxy_root_to_child_proxies)}",
-            id="edc_visit_schedule.004",
+            id="edc_visit_schedule.E007",
         )
-
-
-def get_models(collection: CrfCollection) -> list[models.Model]:
-    return [f.model_cls for f in collection]
-
-
-def get_proxy_models(collection: CrfCollection) -> list[models.Model]:
-    return [f.model_cls for f in collection if f.model_cls._meta.proxy]
-
-
-def get_proxy_root_model(proxy_model: models.Model) -> models.Model | None:
-    """Returns proxy's root (concrete) model if `proxy_model` is a
-    proxy model, else returns None.
-    """
-    if proxy_model._meta.proxy:
-        return proxy_model._meta.concrete_model

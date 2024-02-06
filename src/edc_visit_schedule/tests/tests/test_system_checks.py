@@ -37,7 +37,7 @@ class TestSystemChecks(TestCase):
         site_visit_schedules._registry = {}
         errors = visit_schedule_check(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(errors), 1)
-        self.assertEqual(errors[0].id, "edc_visit_schedule.001")
+        self.assertEqual(errors[0].id, "edc_visit_schedule.W001")
 
     def test_visit_schedule_ok(self):
         site_visit_schedules._registry = {}
@@ -69,7 +69,7 @@ class TestSystemChecks(TestCase):
         site_visit_schedules.register(visit_schedule)
         errors = visit_schedule_check(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(errors), 1)
-        self.assertEqual("edc_visit_schedule.visit_schedules", errors[0].id)
+        self.assertEqual("edc_visit_schedule.E002", errors[0].id)
 
     def test_schedule_bad_model(self):
         site_visit_schedules._registry = {}
@@ -92,7 +92,7 @@ class TestSystemChecks(TestCase):
         site_visit_schedules.register(visit_schedule)
         errors = visit_schedule_check(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(errors), 1)
-        self.assertEqual("edc_visit_schedule.schedules", errors[0].id)
+        self.assertEqual("edc_visit_schedule.E003", errors[0].id)
 
     def test_schedule_bad_crf_model(self):
         site_visit_schedules._registry = {}
@@ -130,7 +130,7 @@ class TestSystemChecks(TestCase):
         site_visit_schedules.register(visit_schedule)
         errors = visit_schedule_check(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(errors), 3)
-        self.assertEqual("edc_visit_schedule.visits", errors[0].id)
+        self.assertEqual("edc_visit_schedule.E004", errors[0].id)
 
     def test_visit_with_crfs_and_prns_and_unscheduled_and_missed_crfs_ok(self):
         site_visit_schedules._registry = {}
@@ -270,7 +270,7 @@ class TestSystemChecks(TestCase):
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(fc_errors), 3)
-        self.assertEqual("edc_visit_schedule.004", fc_errors[0].id)
+        self.assertEqual("edc_visit_schedule.E007", fc_errors[0].id)
         self.assertIn(
             "Multiple proxies with same proxy root model appear for a visit. ",
             fc_errors[0].msg,
@@ -290,7 +290,7 @@ class TestSystemChecks(TestCase):
         )
         # Expect only the PRN fields to be flagged for the (undefined)
         # unscheduled and unscheduled visits
-        self.assertEqual("edc_visit_schedule.004", fc_errors[1].id)
+        self.assertEqual("edc_visit_schedule.E007", fc_errors[1].id)
         self.assertIn("Unscheduled", fc_errors[1].msg)
         self.assertIn(
             str(
@@ -304,7 +304,7 @@ class TestSystemChecks(TestCase):
             fc_errors[1].msg,
         )
         self.assertIn("Missed", fc_errors[2].msg)
-        self.assertEqual("edc_visit_schedule.004", fc_errors[2].id)
+        self.assertEqual("edc_visit_schedule.E007", fc_errors[2].id)
         self.assertIn(
             str(
                 {
@@ -515,7 +515,7 @@ class TestSystemChecks(TestCase):
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(fc_errors), 1)
-        self.assertEqual("edc_visit_schedule.003", fc_errors[0].id)
+        self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
         self.assertIn(
             "Proxy root model class appears alongside associated child proxy for a visit.",
             fc_errors[0].msg,
@@ -552,7 +552,7 @@ class TestSystemChecks(TestCase):
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(fc_errors), 1)
-        self.assertEqual("edc_visit_schedule.003", fc_errors[0].id)
+        self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
         self.assertIn(
             "Proxy root model class appears alongside associated child proxy for a visit.",
             fc_errors[0].msg,
@@ -592,7 +592,7 @@ class TestSystemChecks(TestCase):
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(fc_errors), 1)
-        self.assertEqual("edc_visit_schedule.003", fc_errors[0].id)
+        self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
         self.assertIn(
             "Proxy root model class appears alongside associated child proxy for a visit.",
             fc_errors[0].msg,
@@ -632,7 +632,7 @@ class TestSystemChecks(TestCase):
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(fc_errors), 1)
-        self.assertEqual("edc_visit_schedule.003", fc_errors[0].id)
+        self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
         self.assertIn(
             "Proxy root model class appears alongside associated child proxy for a visit.",
             fc_errors[0].msg,
@@ -842,7 +842,7 @@ class TestSystemChecks(TestCase):
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(fc_errors), 1)
-        self.assertEqual("edc_visit_schedule.004", fc_errors[0].id)
+        self.assertEqual("edc_visit_schedule.E007", fc_errors[0].id)
         self.assertIn(
             "Multiple proxies with same proxy root model appear for a visit.",
             fc_errors[0].msg,
@@ -901,7 +901,7 @@ class TestSystemChecks(TestCase):
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(fc_errors), 1)
-        self.assertEqual("edc_visit_schedule.004", fc_errors[0].id)
+        self.assertEqual("edc_visit_schedule.E007", fc_errors[0].id)
         self.assertIn(
             "Multiple proxies with same proxy root model appear for a visit.",
             fc_errors[0].msg,
@@ -954,7 +954,7 @@ class TestSystemChecks(TestCase):
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(fc_errors), 1)
-        self.assertEqual("edc_visit_schedule.004", fc_errors[0].id)
+        self.assertEqual("edc_visit_schedule.E007", fc_errors[0].id)
         self.assertIn(
             "Multiple proxies with same proxy root model appear for a visit.",
             fc_errors[0].msg,
@@ -1005,7 +1005,7 @@ class TestSystemChecks(TestCase):
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(fc_errors), 1)
-        self.assertEqual("edc_visit_schedule.004", fc_errors[0].id)
+        self.assertEqual("edc_visit_schedule.E007", fc_errors[0].id)
         self.assertIn(
             str(
                 {
@@ -1056,7 +1056,7 @@ class TestSystemChecks(TestCase):
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(fc_errors), 1)
-        self.assertEqual("edc_visit_schedule.004", fc_errors[0].id)
+        self.assertEqual("edc_visit_schedule.E007", fc_errors[0].id)
         self.assertIn(
             str(
                 {
@@ -1099,7 +1099,7 @@ class TestSystemChecks(TestCase):
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(fc_errors), 1)
-        self.assertEqual("edc_visit_schedule.004", fc_errors[0].id)
+        self.assertEqual("edc_visit_schedule.E007", fc_errors[0].id)
         self.assertIn(
             str(
                 {
@@ -1145,7 +1145,7 @@ class TestSystemChecks(TestCase):
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(fc_errors), 1)
-        self.assertEqual("edc_visit_schedule.003", fc_errors[0].id)
+        self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
         self.assertIn("visit_schedule_app.crfone", fc_errors[0].msg)
         self.assertIn("visit_schedule_app.crftwo", fc_errors[0].msg)
         self.assertIn("visit_schedule_app.crfoneproxyone", fc_errors[0].msg)
@@ -1183,7 +1183,7 @@ class TestSystemChecks(TestCase):
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(fc_errors), 1)
-        self.assertEqual("edc_visit_schedule.004", fc_errors[0].id)
+        self.assertEqual("edc_visit_schedule.E007", fc_errors[0].id)
         self.assertIn(
             str(
                 {
@@ -1267,7 +1267,7 @@ class TestSystemChecks(TestCase):
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(fc_errors), 1)
-        self.assertEqual("edc_visit_schedule.003", fc_errors[0].id)
+        self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
         self.assertIn(
             "Proxy root model class appears alongside associated child proxy for a visit.",
             fc_errors[0].msg,
@@ -1311,7 +1311,7 @@ class TestSystemChecks(TestCase):
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(fc_errors), 1)
-        self.assertEqual("edc_visit_schedule.004", fc_errors[0].id)
+        self.assertEqual("edc_visit_schedule.E007", fc_errors[0].id)
         self.assertIn(
             str(
                 {
@@ -1390,7 +1390,7 @@ class TestSystemChecks(TestCase):
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(fc_errors), 1)
-        self.assertEqual("edc_visit_schedule.003", fc_errors[0].id)
+        self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
         self.assertIn("proxy_root_model=visit_schedule_app.crfone", fc_errors[0].msg)
         self.assertIn("proxy_model=visit_schedule_app.crfoneproxyone", fc_errors[0].msg)
 
@@ -1428,7 +1428,7 @@ class TestSystemChecks(TestCase):
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(fc_errors), 1)
-        self.assertEqual("edc_visit_schedule.004", fc_errors[0].id)
+        self.assertEqual("edc_visit_schedule.E007", fc_errors[0].id)
         self.assertIn(
             str(
                 {
@@ -1579,7 +1579,7 @@ class TestSystemChecks(TestCase):
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(fc_errors), 3)
-        self.assertEqual("edc_visit_schedule.004", fc_errors[0].id)
+        self.assertEqual("edc_visit_schedule.E007", fc_errors[0].id)
         self.assertIn(
             str(
                 {
@@ -1663,7 +1663,7 @@ class TestSystemChecks(TestCase):
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         # self.assertEqual(len(fc_errors), 3)
-        self.assertEqual("edc_visit_schedule.004", fc_errors[0].id)
+        self.assertEqual("edc_visit_schedule.E007", fc_errors[0].id)
         self.assertIn(
             str(
                 {
@@ -1748,7 +1748,7 @@ class TestSystemChecks(TestCase):
 
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(fc_errors), 3)
-        self.assertEqual("edc_visit_schedule.004", fc_errors[0].id)
+        self.assertEqual("edc_visit_schedule.E007", fc_errors[0].id)
         self.assertIn(
             str(
                 {
