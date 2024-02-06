@@ -17,7 +17,7 @@ def holiday_path_check(app_configs, **kwargs):
         errors.append(
             Error(
                 "Holiday file path not set! See settings.HOLIDAY_FILE.\n",
-                id="edc_facility.001",
+                id="edc_facility.E001",
             )
         )
     else:
@@ -26,7 +26,7 @@ def holiday_path_check(app_configs, **kwargs):
             errors.append(
                 Warning(
                     f"Holiday file not found! settings.HOLIDAY_FILE={holiday_path}. \n",
-                    id="edc_facility.002",
+                    id="edc_facility.W001",
                 )
             )
     sys.stdout.write(style.SQL_KEYWORD("holiday_path_check ... done.\n"))
@@ -47,7 +47,7 @@ def holiday_country_check(app_configs, **kwargs):
                             "Holiday file has no records for country! Sites are registered "
                             f"for these countries: `{'`, `'.join(sites.countries)}`. Got "
                             f"`{row['country']}`\n",
-                            id="edc_facility.W004",
+                            id="edc_facility.W002",
                         )
                     )
                     break
