@@ -4,7 +4,6 @@ from edc_constants.constants import NOT_APPLICABLE
 
 
 class AeInitialSusarModelMixin(models.Model):
-
     """This model mixin is for the AE Initial."""
 
     susar = models.CharField(

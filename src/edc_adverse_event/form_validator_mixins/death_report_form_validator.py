@@ -15,7 +15,6 @@ if TYPE_CHECKING:
 
 
 class DeathReportFormValidatorMixin:
-
     """A form validator mixin for the Death Report form"""
 
     death_report_date_field = "death_datetime"

@@ -6,7 +6,6 @@ from ...choices import CONTACT, DEATH_LOCATIONS, INFORMANT
 
 
 class DeathReportExtraFieldsModelMixin(models.Model):
-
     """Additional fields for the Death Report model.
 
     Declare with from `DeathReportModelMixin` from `edc_adverse_event`.

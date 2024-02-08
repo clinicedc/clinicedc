@@ -16,17 +16,13 @@ if TYPE_CHECKING:
         DeathReportTmgModelMixin,
     )
 
-    class AeInitialModel(AeInitialModelMixin, BaseUuidModel):
-        ...
+    class AeInitialModel(AeInitialModelMixin, BaseUuidModel): ...
 
-    class AeFollowupModel(AeFollowupModelMixin, BaseUuidModel):
-        ...
+    class AeFollowupModel(AeFollowupModelMixin, BaseUuidModel): ...
 
-    class DeathReportTmgModel(DeathReportTmgModelMixin, BaseUuidModel):
-        ...
+    class DeathReportTmgModel(DeathReportTmgModelMixin, BaseUuidModel): ...
 
-    class DeathReportModel(DeathReportModelMixin, BaseUuidModel):
-        ...
+    class DeathReportModel(DeathReportModelMixin, BaseUuidModel): ...
 
 
 @dataclass
@@ -47,7 +43,8 @@ class TmgButton(ModelButton):
         else:
             disabled = super().disabled
             if (
-                self.only_user_created_may_access
+                self.model_obj
+                and self.only_user_created_may_access
                 and self.model_obj.user_created != self.user.username
             ):
                 disabled = "disabled"
