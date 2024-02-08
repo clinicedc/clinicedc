@@ -22,7 +22,6 @@ from ..constants import ADVERSE_EVENT_ADMIN_SITE, ADVERSE_EVENT_APP_LABEL
 
 
 class AeFollowupAction(ActionWithNotification):
-
     """
     For example:
         from edc_adverse_event.action_items import AeFollowupAction

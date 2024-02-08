@@ -65,7 +65,6 @@ class BaseRequiresDeathReportFormValidatorMixin:
 
 
 class RequiresDeathReportFormValidatorMixin(BaseRequiresDeathReportFormValidatorMixin):
-
     """A form validator mixin used by forms that refer to the
     death report.
 
