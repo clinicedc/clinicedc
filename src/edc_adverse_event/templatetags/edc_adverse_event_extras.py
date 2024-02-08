@@ -201,6 +201,7 @@ def render_tmg_panel(
     disable_all = True if not has_valid_tmg_perms(request=context["request"]) else False
     btn = TmgButton(
         user=context["request"].user,
+        subject_identifier=action_item.subject_identifier,
         model_obj=reference_obj,
         model_cls=action_item.action_cls.reference_model_cls(),
         request=context["request"],

@@ -47,7 +47,8 @@ class TmgButton(ModelButton):
         else:
             disabled = super().disabled
             if (
-                self.only_user_created_may_access
+                self.model_obj
+                and self.only_user_created_may_access
                 and self.model_obj.user_created != self.user.username
             ):
                 disabled = "disabled"
