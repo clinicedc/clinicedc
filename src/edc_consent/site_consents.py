@@ -138,7 +138,8 @@ class SiteConsents:
             cdefs = [cdef for cdef in cdefs if model == cdef.model]
             if not cdefs:
                 raise ConsentDefinitionDoesNotExist(
-                    f"There are no consent definitions using this model. Got {model}."
+                    "There are no consent definitions using this model. "
+                    f"Got {model._meta.verbose_name}."
                 )
             else:
                 errror_messages.append(f"model={model}")
