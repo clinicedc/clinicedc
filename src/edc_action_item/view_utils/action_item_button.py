@@ -26,12 +26,9 @@ class ActionItemButton(ModelButton):
 
     @property
     def label(self) -> str | None:
-        label = (
-            self.fixed_label
-            if self.fixed_label
-            else self.action_cls.reference_model_cls()._meta.verbose_name
-        )
-        return f"Add {label}"
+        if self.fixed_label:
+            return self.fixed_label
+        return self.action_cls.reference_model_cls()._meta.verbose_name
 
     @property
     def site(self) -> Site | None:
