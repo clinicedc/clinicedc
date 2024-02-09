@@ -2,7 +2,6 @@ from django.db import models
 from edc_utils import get_utcnow
 
 from ..screening_eligibility import ScreeningEligibility
-from ..stubs import SubjectScreeningModelStub
 
 
 class EligibilityFieldsModelMixin(models.Model):
@@ -37,7 +36,7 @@ class EligibilityFieldsModelMixin(models.Model):
 class EligibilityModelMixin(EligibilityFieldsModelMixin, models.Model):
     eligibility_cls = ScreeningEligibility
 
-    def save(self: SubjectScreeningModelStub, *args, **kwargs):
+    def save(self, *args, **kwargs):
         """When saved, the eligibility_cls is instantiated and the
         value of `eligible` is evaluated.
 
@@ -56,7 +55,7 @@ class EligibilityModelMixin(EligibilityFieldsModelMixin, models.Model):
         else:
             self.eligibility_datetime = None
             self.real_eligibility_datetime = None
-        super().save(*args, **kwargs)  # type:ignore
+        super().save(*args, **kwargs)
 
     class Meta:
         abstract = True
