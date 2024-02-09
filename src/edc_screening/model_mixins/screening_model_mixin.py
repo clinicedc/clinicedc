@@ -26,7 +26,6 @@ class ScreeningModelMixin(
     ConsentDefinitionModelMixin,
     models.Model,
 ):
-
     """You may wish to also include the `EligibilityModelMixin`
     in your declaration."""
 
