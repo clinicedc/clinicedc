@@ -14,7 +14,6 @@ class ReferenceManager(models.Manager):
 
 
 class Reference(NonUniqueSubjectIdentifierFieldMixin, ActionModelMixin, BaseUuidModel):
-
     """Model used as a default reference model for simple actions
     not created by another model.
 

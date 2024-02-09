@@ -3,7 +3,6 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
 class VisitScheduleActionMixin:
-
     """A mixin for the Action class to add properties and
     methods related to the visit schedule from
     edc_visit_schedule.
