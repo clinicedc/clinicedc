@@ -4,6 +4,7 @@ import calendar
 from typing import TYPE_CHECKING, Any
 
 from django.contrib import admin
+from django.db.models import DurationField, ExpressionWrapper, F
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
@@ -50,7 +51,9 @@ class AppointmentAdmin(
         "appointment_subject",
         "full_visit_code",
         "appt_actions",
+        "timepoint_date",
         "appointment_date",
+        "appt_timepoint_difference_summary",
         "appointment_type",
         "appt_status",
         "timing",
@@ -173,6 +176,20 @@ class AppointmentAdmin(
     def appointment_type(self, obj=None):
         return obj.get_appt_type_display()
 
+    @admin.display(description="Timepoint date", ordering="timepoint_datetime")
+    def timepoint_date(self, obj=None):
+        timepoint_date = obj.timepoint_datetime.date()
+        weekday = calendar.day_abbr[obj.timepoint_datetime.weekday()]
+        return f"{timepoint_date} {weekday}"
+
+    @admin.display(description="Difference", ordering="appt_timepoint_difference")
+    def appt_timepoint_difference_summary(self, obj=None):
+        if obj.appt_datetime.time() >= obj.timepoint_datetime.time():
+            difference_in_days = obj.appt_timepoint_difference.days
+        else:
+            difference_in_days = obj.appt_timepoint_difference.days + 1
+        return f"{'+' if difference_in_days > 0 else ''}{difference_in_days} days"
+
     @admin.display(description="Subject", ordering="subject_identifier")
     def appointment_subject(self, obj=None):
         return obj.subject_identifier
@@ -238,3 +255,15 @@ class AppointmentAdmin(
         Relates to use of `SKIPPED_APPT` feature.
         """
         return True if get_allow_skipped_appt_using() else False
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .annotate(
+                appt_timepoint_difference=ExpressionWrapper(
+                    (F("appt_datetime") - F("timepoint_datetime")),
+                    output_field=DurationField(),
+                )
+            )
+        )
