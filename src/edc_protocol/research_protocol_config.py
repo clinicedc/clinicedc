@@ -17,7 +17,7 @@ class EdcProtocolError(Exception):
 class ResearchProtocolConfig:
     """Encapsulates settings attributes.
 
-    * EDC_PROTOCOL: 6 digit alpha-numeric
+    * EDC_PROTOCOL: 6 digit alphanumeric
     * EDC_PROTOCOL_INSTITUTION_NAME
     * EDC_PROTOCOL_NUMBER: Used for identifiers NNN
     * EDC_PROTOCOL_PROJECT_NAME: Short name
