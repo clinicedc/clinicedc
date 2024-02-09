@@ -8,7 +8,8 @@ from django.utils.translation import gettext as _
 class InitialsField(CharField):
     description = _("Custom field for a person's initials")
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, metadata=None, *args, **kwargs):
+        self.metadata = metadata
         kwargs.setdefault("editable", True)
         kwargs.setdefault("verbose_name", _("Initials"))
         kwargs.setdefault("max_length", 3)
@@ -17,6 +18,12 @@ class InitialsField(CharField):
 
     def get_internal_type(self):
         return "CharField"
+
+    def deconstruct(self):
+        name, path, args, kwargs = super().deconstruct()
+        if self.metadata is not None:
+            kwargs["metadata"] = self.metadata
+        return name, path, args, kwargs
 
     def formfield(self, **kwargs):
         defaults = {

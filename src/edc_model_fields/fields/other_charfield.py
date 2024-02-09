@@ -9,7 +9,8 @@ class OtherCharField(CharField):
 
     DEFAULT_MAX_LENGTH = 35
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, metadata=None, *args, **kwargs):
+        self.metadata = metadata
         kwargs.update(blank=True)
         kwargs.update(null=True)
         kwargs.setdefault("max_length", self.DEFAULT_MAX_LENGTH)
@@ -27,4 +28,6 @@ class OtherCharField(CharField):
         kwargs.update(null=True)
         kwargs.update(max_length=self.max_length)
         kwargs.update(verbose_name=self.verbose_name)
+        if self.metadata is not None:
+            kwargs["metadata"] = self.metadata
         return name, path, args, kwargs
