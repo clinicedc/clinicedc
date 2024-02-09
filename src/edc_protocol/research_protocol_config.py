@@ -33,7 +33,7 @@ class ResearchProtocolConfig:
             "Unable to set `%(attr)s`. "
             "settings.%(settings_attr)s not found. "
             "Expected something like: `%(settings_attr)s = "
-            'datetime(2013, 10, 15, tzinfo=ZoneInfo("Africa/Gaborone)`. '
+            'datetime(2013, 10, 15, tzinfo=ZoneInfo("Africa/Gaborone"))`. '
             "See edc_protocol."
         ),
         init=False,
@@ -44,7 +44,7 @@ class ResearchProtocolConfig:
             "Unable to set `%(attr)s`. "
             "Settings.%(settings_attr)s cannot be None. "
             "Expected something like: `%(settings_attr)s = "
-            'datetime(2013, 10, 15, tzinfo=ZoneInfo("Africa/Gaborone)`. '
+            'datetime(2013, 10, 15, tzinfo=ZoneInfo("Africa/Gaborone"))`. '
             "See edc_protocol."
         ),
         init=False,
