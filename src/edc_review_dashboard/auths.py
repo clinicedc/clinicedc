@@ -1,3 +1,4 @@
+from edc_adverse_event.constants import TMG_ROLE
 from edc_auth.constants import (
     AUDITOR_ROLE,
     CLINICIAN_ROLE,
@@ -25,6 +26,7 @@ site_auths.add_custom_permissions_tuples(
 site_auths.add_group("edc_review_dashboard.view_subject_review_listboard", name=REVIEW)
 
 site_auths.update_role(REVIEW, name=AUDITOR_ROLE)
+site_auths.update_role(REVIEW, name=TMG_ROLE)
 site_auths.update_role(REVIEW, name=CLINICIAN_ROLE)
 site_auths.update_role(REVIEW, name=CLINICIAN_SUPER_ROLE)
 site_auths.update_role(REVIEW, name=NURSE_ROLE)

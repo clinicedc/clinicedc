@@ -1,7 +1,6 @@
 {% extends edc_listboard_template %}
 
-{% load edc_dashboard_extras %}
-{% load edc_subject_dashboard_extras %}
+{% load edc_dashboard_extras edc_subject_dashboard_extras edc_adverse_event_extras %}
 {% load tz static l10n i18n %}
 
 {% block main %}
@@ -22,6 +21,7 @@
 
 <span class="pull-right">
     {% if subject_identifier %}
+      {% render_tmg_button_group subject_identifier=subject_identifier %}
       {% render_subject_schedule_button subject_dashboard_url=subject_dashboard_url subject_identifier=subject_identifier %}
     {% endif %}
     <a id="home_list_group_subject_schedule_history" href="{% url 'edc_visit_schedule_admin:edc_visit_schedule_subjectschedulehistory_changelist' %}?q={% if search_term %}{{ search_term }}{% else %}{{ subject_identifier }}{% endif %}" role="button" class="btn btn-default btn-sm">Subject on/off schedule history</a>
