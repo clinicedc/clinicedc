@@ -110,9 +110,9 @@ class Action:
         if not self.related_action_item and self.related_reference_fk_attr:
             raise ActionError(
                 "Action class expects a related_action_item. "
-                f"related_reference_fk_attr={self.related_reference_fk_attr}. "
-                f"Got None for action based on action_item {self.action_item}. "
-                f"See {repr(self)}"
+                f"related_reference_fk_attr=`{self.related_reference_fk_attr}`. "
+                f"Got None for action based on action_item `{self.action_item}`. "
+                f"See `{repr(self)}`"
             )
 
         if self.reference_obj and not self.readonly:

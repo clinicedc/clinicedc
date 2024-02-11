@@ -7,7 +7,6 @@ from .action_item_notification import ActionItemNotification
 
 
 class ActionWithNotification(Action):
-
     """A class mixin for the Action class that adds
     support for notifications.
     """
