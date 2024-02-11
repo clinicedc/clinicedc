@@ -29,7 +29,6 @@ class MetadataObjectDoesNotExist(Exception):
 
 
 class MetadataHandler:
-
     """A class to get or create a CRF metadata model instance."""
 
     creator_cls = Creator

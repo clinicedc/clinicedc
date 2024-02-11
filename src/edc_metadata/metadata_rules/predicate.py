@@ -52,7 +52,6 @@ class BasePredicate:
 
 
 class P(BasePredicate):
-
     """
     Simple predicate class.
 

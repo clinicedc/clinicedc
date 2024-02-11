@@ -82,7 +82,6 @@ class MetadataValidator:
 
 
 class MetadataGetter:
-
     """A class that gets a filtered queryset of metadata --
     `metadata_objects`.
 

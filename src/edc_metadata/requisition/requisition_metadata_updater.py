@@ -15,7 +15,6 @@ class RequisitionMetadataError(Exception):
 
 
 class RequisitionMetadataUpdater(MetadataUpdater):
-
     """A class to update a subject's requisition metadata given
     the visit, target model name, panel and desired entry status.
     """

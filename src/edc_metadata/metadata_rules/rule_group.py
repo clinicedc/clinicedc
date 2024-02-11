@@ -16,7 +16,6 @@ class TargetModelConflict(Exception):
 
 
 class RuleGroup:
-
     """Base class for CRF and Requisition rule groups."""
 
     @classmethod

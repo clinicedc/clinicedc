@@ -18,7 +18,6 @@ class SiteMetadataNoRulesError(Exception):
 
 
 class SiteMetadataRules:
-
     """Main controller of :class:`MetadataRules` objects."""
 
     def __init__(self) -> None:

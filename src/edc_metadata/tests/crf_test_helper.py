@@ -5,7 +5,6 @@ from ..models import CrfMetadata, RequisitionMetadata
 
 
 class CrfTestHelper:
-
     """A test class to help create CRFs and manipulate
     metadata.
     """
