@@ -17,7 +17,7 @@ class EdcProtocolError(Exception):
 class ResearchProtocolConfig:
     """Encapsulates settings attributes.
 
-    * EDC_PROTOCOL: 6 digit alpha-numeric
+    * EDC_PROTOCOL: 6 digit alphanumeric
     * EDC_PROTOCOL_INSTITUTION_NAME
     * EDC_PROTOCOL_NUMBER: Used for identifiers NNN
     * EDC_PROTOCOL_PROJECT_NAME: Short name
@@ -33,7 +33,7 @@ class ResearchProtocolConfig:
             "Unable to set `%(attr)s`. "
             "settings.%(settings_attr)s not found. "
             "Expected something like: `%(settings_attr)s = "
-            'datetime(2013, 10, 15, tzinfo=ZoneInfo("Africa/Gaborone)`. '
+            'datetime(2013, 10, 15, tzinfo=ZoneInfo("Africa/Gaborone"))`. '
             "See edc_protocol."
         ),
         init=False,
@@ -44,7 +44,7 @@ class ResearchProtocolConfig:
             "Unable to set `%(attr)s`. "
             "Settings.%(settings_attr)s cannot be None. "
             "Expected something like: `%(settings_attr)s = "
-            'datetime(2013, 10, 15, tzinfo=ZoneInfo("Africa/Gaborone)`. '
+            'datetime(2013, 10, 15, tzinfo=ZoneInfo("Africa/Gaborone"))`. '
             "See edc_protocol."
         ),
         init=False,
