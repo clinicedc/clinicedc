@@ -1,0 +1,8 @@
+{% if subject_identifier %}
+  <div class="btn-group">
+  <a class="btn btn-sm btn-default" href="{% url "edc_adverse_event:tmg_home_url" %}">TMG</a>
+    <a class="btn btn-sm btn-primary" href="{% url "edc_adverse_event:new_tmg_ae_listboard_url" subject_identifier=subject_identifier %}">New</a>
+  <a class="btn btn-sm btn-primary" href="{% url "edc_adverse_event:open_tmg_ae_listboard_url" subject_identifier=subject_identifier %}">Open</a>
+  <a class="btn btn-sm btn-primary" href="{% url "edc_adverse_event:closed_tmg_ae_listboard_url" subject_identifier=subject_identifier %}">Closed</a>
+  </div>
+{% endif %}

@@ -37,7 +37,7 @@ class TmgAeListboardViewMixin(
     navbar_name = get_default_navbar()
     navbar_selected_item = "tmg_home"
     ordering = "-report_datetime"
-    paginate_by = 50
+    paginate_by = 10
     search_form_url = "tmg_ae_listboard_url"
     action_type_names = [AE_TMG_ACTION]
 
@@ -54,6 +54,7 @@ class TmgAeListboardViewMixin(
         kwargs.update(
             AE_TMG_ACTION=AE_TMG_ACTION,
             utc_date=get_utcnow().date(),
+            subject_identifier=self.kwargs.get("subject_identifier"),
         )
         return super().get_context_data(**kwargs)
 

@@ -7,6 +7,7 @@ from django.utils.translation import gettext as _
 from edc_subject_dashboard.view_utils import ModelButton
 
 if TYPE_CHECKING:
+    from edc_action_item.models import ActionItem
     from edc_model.models import BaseUuidModel
 
     from edc_adverse_event.model_mixins import (
@@ -28,11 +29,12 @@ if TYPE_CHECKING:
 @dataclass
 class TmgButton(ModelButton):
     model_obj: DeathReportTmgModel | DeathReportModel | AeFollowupModel | AeInitialModel = None
-    next_url_name: str = "open_tmg_ae_listboard_url"
+    next_url_name: str | None = field(default="open_tmg_ae_listboard_url")
     only_user_created_may_access: bool | None = None
     forloop_counter: int | None = None
     colors: tuple[str, str, str] = field(default=("warning", "success", "success"))
     titles: tuple[str, str, str] = field(default=(_("Add"), _("Change"), _("View")))
+    action_item: ActionItem = (None,)
 
     disable_all: bool = False
 
@@ -88,3 +90,24 @@ class TmgButton(ModelButton):
         ):
             return _("View")
         return _(super().label)
+
+    @property
+    def extra_kwargs(self) -> dict[str, str | int]:
+        opts = {}
+        if self.action_item.parent_action_item:
+            parent_action_item = getattr(self.action_item, "parent_action_item", None)
+            if parent_action_item:
+                opts.update(
+                    parent_action_item=str(parent_action_item.id),
+                )
+            related_action_item = getattr(self.action_item, "parent_action_item", None)
+            if related_action_item:
+                opts.update(
+                    related_action_item=str(related_action_item.id),
+                )
+            opts = dict(
+                ae_initial=str(self.action_item.parent_action_item.reference_obj.id),
+                action_identifier=self.action_item.action_identifier,
+                action_item=str(self.action_item.id),
+            )
+        return opts

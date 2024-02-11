@@ -17,7 +17,10 @@
 &nbsp;{{ listboard_panel_title }}&nbsp; {% if results|length > 0 %}&nbsp;<span class="label label-{% if status == CLOSED %}success{% else %}danger{% endif %}">{{ results|length }} of {{ paginator.count }}</span>{% endif %}
 
 <span class="pull-right">
-    {% include 'edc_dashboard/bootstrap3/search_form.html' %}
+  {% if subject_identifier %}
+    <a class="btn btn-sm btn-primary" role="button" title="go to list of reported visits for this subject" href="{% url subject_review_listboard_url|default:"subject_review_listboard_url_cannot_be_none" subject_identifier=subject_identifier %}?q={{ subject_identifier }}">Subject Review  <i class="fas fa-share fa-fw"></i></a>
+  {% endif %}
+  {% include 'edc_dashboard/bootstrap3/search_form.html' %}
 </span></span>
 
 </div> <!--end panel heading -->

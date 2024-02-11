@@ -189,44 +189,49 @@ def render_tmg_panel(
     by_user_created_only: bool | None = None,
     counter: int = None,
     report_status: str | None = None,
+    next_url_name: str | None = None,
 ) -> dict:
     reference_obj = reference_obj or get_reference_obj(action_item)
     if not action_item and reference_obj:
         action_item = reference_obj.action_item
     disable_all = True if not has_valid_tmg_perms(request=context["request"]) else False
-    btn = TmgButton(
-        user=context["request"].user,
-        subject_identifier=action_item.subject_identifier,
-        model_obj=reference_obj,
-        model_cls=action_item.action_cls.reference_model_cls(),
-        request=context["request"],
-        only_user_created_may_access=by_user_created_only,
-        forloop_counter=counter,
-        current_site=context["request"].site,
-        disable_all=disable_all,
-    )
-    if view_only:
-        panel_color = "info"
-    elif not reference_obj:
-        panel_color = "warning"
-    else:
-        panel_color = "success"
-
-    # panel_label
-    display_name = action_item.display_name.replace("Submit", "").replace("pending", "")
-    identifier = action_item.identifier or "New"
-    panel_label = _(f"{display_name} {identifier}")
-
-    return dict(
-        btn=btn,
-        panel_color=panel_color,
-        reference_obj=reference_obj,
-        action_item=action_item,
-        OPEN=OPEN,
-        CLOSED=CLOSED,
-        report_status=report_status,
-        panel_label=panel_label,
-    )
+    if action_item:
+        params = dict(
+            user=context["request"].user,
+            subject_identifier=action_item.subject_identifier,
+            model_obj=reference_obj,
+            model_cls=action_item.action_cls.reference_model_cls(),
+            request=context["request"],
+            only_user_created_may_access=by_user_created_only,
+            forloop_counter=counter,
+            current_site=context["request"].site,
+            disable_all=disable_all,
+            action_item=action_item,
+        )
+        if next_url_name:
+            params.update(next_url_name=next_url_name.split(":")[1])
+        btn = TmgButton(**params)
+        if view_only:
+            panel_color = "info"
+        elif not reference_obj:
+            panel_color = "warning"
+        else:
+            panel_color = "success"
+        # panel_label
+        display_name = action_item.display_name.replace("Submit", "").replace("pending", "")
+        identifier = action_item.identifier or "New"
+        panel_label = _(f"{display_name} {identifier}")
+        return dict(
+            btn=btn,
+            panel_color=panel_color,
+            reference_obj=reference_obj,
+            action_item=action_item,
+            OPEN=OPEN,
+            CLOSED=CLOSED,
+            report_status=report_status,
+            panel_label=panel_label,
+        )
+    return {}
 
 
 @register.simple_tag(takes_context=True)
@@ -253,3 +258,13 @@ def get_empty_qs_message(status: str, search_term: str):
     if search_term:
         msg = f"{msg[:-1]} for your search criteria"
     return _(msg)
+
+
+@register.inclusion_tag(
+    f"edc_adverse_event/bootstrap{get_bootstrap_version()}/tmg/tmg_button_group.html",
+    takes_context=True,
+)
+def render_tmg_button_group(context, subject_identifier: str):
+    if context["request"].user.userprofile.roles.filter(name=TMG_ROLE).exists():
+        return dict(subject_identifier=subject_identifier)
+    return {}
