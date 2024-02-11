@@ -1,8 +1,6 @@
 {% extends dashboard_base_template %}
 {% load static i18n %}
-{% load edc_visit_schedule_extras %}
-{% load edc_subject_dashboard_extras %}
-{% load edc_dashboard_extras %}
+{% load edc_visit_schedule_extras edc_subject_dashboard_extras edc_dashboard_extras edc_adverse_event_extras %}
 
 {% block main %}
   <div id="subject_dashboard" class="container">
@@ -15,6 +13,7 @@
               {% block extra_demographic_title %}{% endblock extra_demographic_title %}
               {% if related_visit and related_visit.site.id != request.site.id %}<span class="bg-warning text small text-default">{% translate "You are viewing a subject who is not from site" %} {{ request.site.id }}</span>{% endif %}
               <span class="pull-right">
+                {% render_tmg_button_group subject_identifier=subject_identifier %}
                 <div class="btn-group">
                   {% if perms.edc_data_manager.add_dataquery %}<a href="{% url 'edc_data_manager_admin:edc_data_manager_dataquery_add' %}?registered_subject={{ registered_subject_pk }}&sender={{ request.user.id }}&visit_schedule={{ visit_schedule_pk|default:'' }}&visit_code_sequence={{ appointment.visit_code_sequence }}" role="button" class="btn btn-sm btn-default" data-toggle="tooltip" title="Add new data query">Query</a>{% endif %}
                   {% block top_bar_buttons_extra %}{% endblock top_bar_buttons_extra %}
