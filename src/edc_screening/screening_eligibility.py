@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING
 
 from django.utils.html import format_html
 from edc_constants.constants import NO, PENDING, TBD, YES
@@ -12,6 +12,15 @@ from .exceptions import (
     ScreeningEligibilityModelAttributeError,
 )
 from .fc import FC
+
+if TYPE_CHECKING:
+    from edc_model.models import BaseUuidModel
+
+    from .model_mixins import EligibilityModelMixin, ScreeningModelMixin
+
+    class SubjectScreeningModel(ScreeningModelMixin, BaseUuidModel):
+        ...
+
 
 __all__ = ["ScreeningEligibility"]
 
@@ -33,7 +42,7 @@ class ScreeningEligibility:
 
     def __init__(
         self,
-        model_obj: Any = None,
+        model_obj: SubjectScreeningModel | EligibilityModelMixin = None,
         cleaned_data: dict = None,
         eligible_value_default: str | None = None,
         eligible_values_list: list | None = None,
