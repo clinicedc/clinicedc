@@ -28,7 +28,7 @@ class RefreshMetadataActionsView(LoginRequiredMixin, View):
     def refresh_metadata_for_timepoint(related_visit_id=None, **kwargs):  # noqa
         """Save related visit model instance to run metadata update."""
         related_visit = get_related_visit_model_cls().objects.get(id=related_visit_id)
-        refresh_metadata_for_timepoint(related_visit)
+        refresh_metadata_for_timepoint(related_visit, allow_create=True)
         update_appt_status_for_timepoint(related_visit)
         return related_visit
 

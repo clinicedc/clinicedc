@@ -12,8 +12,7 @@ if TYPE_CHECKING:
     from ..models import CrfMetadata, RequisitionMetadata
 else:
 
-    class VisitScheduleFieldsProtocol:
-        ...
+    class VisitScheduleFieldsProtocol: ...
 
 
 class MetadataHelperMixin(VisitScheduleFieldsProtocol):

@@ -17,7 +17,6 @@ class MetadataWrapperError(Exception):
 
 
 class MetadataWrapper:
-
     """A class that wraps the corresponding model instance, or not, for the
     given metadata object and sets it to itself along with other
     attributes like the visit, model class, metadata_obj, etc.

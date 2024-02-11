@@ -9,7 +9,6 @@ style = color_style()
 
 
 class MetadataWrappers:
-
     """A class that generates a collection of MetadataWrapper objects, e.g. CRF
     or REQUISITION, from a queryset of metadata objects.
 

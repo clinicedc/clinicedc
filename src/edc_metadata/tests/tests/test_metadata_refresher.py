@@ -69,7 +69,7 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
         }
         metadata_refresher = MetadataRefresher()
         metadata_refresher.run()
-        crf_metadata = CrfMetadata.objects.get(model="edc_metadata.crfone")
+        crf_metadata = CrfMetadata.objects.get(model="edc_metadata.crfone", entry_status=KEYED)
         crf_metadata.entry_status = REQUIRED
         crf_metadata.save()
         metadata_refresher = MetadataRefresher()
@@ -94,8 +94,11 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
             "edc_metadata.crftwo": REQUIRED,
             "edc_metadata.crfthree": REQUIRED,
         }
-        crf_metadata = CrfMetadata.objects.get(model="edc_metadata.crfone")
+        CrfMetadata.objects.get(model="edc_metadata.crfone", entry_status=KEYED)
         crf_one.delete()
+        crf_metadata = CrfMetadata.objects.get(
+            model="edc_metadata.crfone", entry_status=REQUIRED
+        )
         crf_metadata.entry_status = KEYED
         crf_metadata.save()
         metadata_refresher = MetadataRefresher()

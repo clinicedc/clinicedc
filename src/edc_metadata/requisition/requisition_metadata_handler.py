@@ -13,7 +13,6 @@ if TYPE_CHECKING:
 
 
 class RequisitionMetadataHandler(MetadataHandler):
-
     """A class to get or create a requisition metadata
     model instance.
     """

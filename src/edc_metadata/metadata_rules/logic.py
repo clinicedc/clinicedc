@@ -19,7 +19,6 @@ class RuleLogicError(Exception):
 
 
 class Logic:
-
     """A class that serves as a container for the logic attribute
     of a rule, the predicate, and the outcomes (result) of that
     rule; consequence and alternative.

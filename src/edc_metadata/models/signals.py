@@ -43,8 +43,6 @@ def metadata_update_on_post_save(
     """Updates the single metadata record on post save of a
     CRF/Requisition model.
 
-    Does NOT "create" metadata.
-
     A CRF/Requisition model instance will:
       * update it`s own references (`update_reference_on_save`)
       * update it`s own metadata (`metadata_update`)
@@ -103,5 +101,7 @@ def metadata_update_previous_timepoints_for_singleton_on_post_save(
             )
             while appointment:
                 if appointment.related_visit:
-                    refresh_metadata_for_timepoint(appointment.related_visit)
+                    refresh_metadata_for_timepoint(
+                        appointment.related_visit, allow_create=False
+                    )
                 appointment = appointment.relative_previous_with_related_visit
