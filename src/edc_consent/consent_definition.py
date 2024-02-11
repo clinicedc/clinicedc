@@ -24,8 +24,7 @@ if TYPE_CHECKING:
 
     from .model_mixins import ConsentModelMixin
 
-    class ConsentLikeModel(NonUniqueSubjectIdentifierModelMixin, ConsentModelMixin):
-        ...
+    class ConsentLikeModel(NonUniqueSubjectIdentifierModelMixin, ConsentModelMixin): ...
 
 
 @dataclass(order=True)

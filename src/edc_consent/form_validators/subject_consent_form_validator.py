@@ -15,7 +15,6 @@ from ..site_consents import site_consents
 
 
 class SubjectConsentFormValidatorMixin(SubjectScreeningFormValidatorMixin):
-
     """Form Validator mixin for the consent model."""
 
     def __init__(self: Any, **kwargs):

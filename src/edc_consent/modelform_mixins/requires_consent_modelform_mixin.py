@@ -19,7 +19,6 @@ __all__ = ["RequiresConsentModelFormMixin"]
 
 
 class RequiresConsentModelFormMixin:
-
     """Model form mixin for CRF or PRN forms to access the consent.
 
     Use with CrfModelMixin, etc

@@ -10,7 +10,6 @@ class IdentityFieldsMixinError(Exception):
 
 
 class IdentityFieldsMixin(CryptoMixin, models.Model):
-
     """
     Note: specify identifier_type CHOICES on the form.
     For example:
