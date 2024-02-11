@@ -266,7 +266,7 @@ class Destroyer:
     metadata_crf_model = "edc_metadata.crfmetadata"
     metadata_requisition_model = "edc_metadata.requisitionmetadata"
 
-    def __init__(self, related_visit: RelatedVisitModel) -> None:
+    def __init__(self, related_visit: RelatedVisitModel | CreatesMetadataModelMixin) -> None:
         self.related_visit = related_visit
 
     @property
@@ -277,19 +277,21 @@ class Destroyer:
     def metadata_requisition_model_cls(self) -> RequisitionMetadata:
         return django_apps.get_model(self.metadata_requisition_model)
 
-    def delete(self) -> int:
+    def delete(self, entry_status_not_in: list[str] = None) -> int:
         """Deletes all CRF and requisition metadata for the
-        related_visit instance excluding where entry_status = KEYED.
+        related_visit instance excluding where entry_status in
+        [KEYED, NOT_REQUIRED].
         """
+        entry_status = entry_status_not_in or [KEYED, NOT_REQUIRED]
         qs = self.metadata_crf_model_cls.objects.filter(
             subject_identifier=self.related_visit.subject_identifier,
             **self.related_visit.metadata_query_options,
-        ).exclude(entry_status=KEYED)
+        ).exclude(entry_status__in=entry_status)
         deleted = qs.delete()
         qs = self.metadata_requisition_model_cls.objects.filter(
             subject_identifier=self.related_visit.subject_identifier,
             **self.related_visit.metadata_query_options,
-        ).exclude(entry_status=KEYED)
+        ).exclude(entry_status__in=entry_status)
         qs.delete()
         return deleted
 
@@ -300,7 +302,7 @@ class Metadata:
 
     def __init__(
         self,
-        related_visit: RelatedVisitModel,
+        related_visit: RelatedVisitModel | CreatesMetadataModelMixin,
         update_keyed: bool,
     ) -> None:
         self._reason = None
@@ -317,7 +319,10 @@ class Metadata:
         if self.reason in self.related_visit.visit_schedule.delete_metadata_on_reasons:
             self.destroyer.delete()
         elif self.reason in self.related_visit.visit_schedule.create_metadata_on_reasons:
-            self.destroyer.delete()
+            if self.reason == MISSED_VISIT:
+                self.destroyer.delete(entry_status_not_in=[KEYED])
+            else:
+                self.destroyer.delete(entry_status_not_in=[KEYED, NOT_REQUIRED])
             self.creator.create()
             metadata_exists = True
         else:

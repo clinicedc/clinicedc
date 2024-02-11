@@ -101,7 +101,7 @@ class CreatesMetadataModelMixin(RelatedVisitProtocol, models.Model):
                         f"keyed. Got {repr(self)}."
                     )
             destroyer = self.metadata_destroyer_cls(related_visit=self)
-            destroyer.delete()
+            destroyer.delete(entry_status_not_in=[KEYED])
 
     class Meta:
         abstract = True

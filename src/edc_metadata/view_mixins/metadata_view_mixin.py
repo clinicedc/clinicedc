@@ -22,7 +22,8 @@ class MetadataViewMixin:
         if self.appointment:
             referer = self.request.headers.get("Referer")
             if referer and "subject_review_listboard" in referer:
-                refresh_metadata_for_timepoint(self.appointment)
+                # don't allow_create for performance reasons
+                refresh_metadata_for_timepoint(self.appointment, allow_create=False)
                 if self.appointment.related_visit:
                     update_appt_status_for_timepoint(self.appointment.related_visit)
             crf_qs = self.get_crf_metadata()

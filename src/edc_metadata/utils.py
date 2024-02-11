@@ -80,6 +80,8 @@ def refresh_metadata_for_timepoint(
             related_visit = instance.related_visit
         except AttributeError:
             related_visit = instance
+        if allow_create:
+            related_visit.metadata_create()
         if django_apps.get_app_config("edc_metadata").metadata_rules_enabled:
             related_visit.run_metadata_rules(allow_create=allow_create)
 
