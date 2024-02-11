@@ -27,7 +27,6 @@ class AppointmentMethodsModelError(Exception):
 
 
 class AppointmentMethodsModelMixin(models.Model):
-
     """Mixin of methods for the appointment model only"""
 
     def get_appt_type_display(self: Appointment) -> str:

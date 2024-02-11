@@ -20,7 +20,6 @@ from ..exceptions import (
 
 
 class UnscheduledAppointmentView(View):
-
     """A view that creates an unscheduled appointment and redirects to
     the subject dashboard.
 

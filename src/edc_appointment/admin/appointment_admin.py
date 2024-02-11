@@ -167,12 +167,10 @@ class AppointmentAdmin(
 
     @admin.display(description="Appt. Date", ordering="appt_datetime")
     def appointment_date(self, obj=None):
-        """Returns a string of visit_code.visit_code_sequence"""
         return f"{obj.appt_datetime.date()} {calendar.day_abbr[obj.appt_datetime.weekday()]}"
 
     @admin.display(description="Type", ordering="appt_type")
     def appointment_type(self, obj=None):
-        """Returns a string of visit_code.visit_code_sequence"""
         return obj.get_appt_type_display()
 
     @admin.display(description="Subject", ordering="subject_identifier")

@@ -49,7 +49,6 @@ class AppointmentModelMixin(
     MetadataHelperModelMixin,
     OffstudyNonCrfModelMixin,
 ):
-
     """Mixin for the appointment model only.
 
     Only one appointment per subject visit+visit_code_sequence.
