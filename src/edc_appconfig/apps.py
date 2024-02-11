@@ -101,7 +101,7 @@ class AppConfig(DjangoAppConfig):
         sys.stdout.write("   - check_form_collections\n")
         register(check_form_collections)
         sys.stdout.write("   - check subject schedule history\n")
-        register(check_subject_schedule_history)
+        register(check_subject_schedule_history, deploy=True)
         sys.stdout.write("   - check onschedule with subject schedule history\n")
         register(check_onschedule_exists_in_subject_schedule_history)
         sys.stdout.write("   - edc_action_item_check\n")
