@@ -51,9 +51,8 @@ class AppointmentAdmin(
         "appointment_subject",
         "full_visit_code",
         "appt_actions",
-        "timepoint_date",
         "appointment_date",
-        "appt_timepoint_difference_summary",
+        "days_from_timepoint_datetime",
         "appointment_type",
         "appt_status",
         "timing",
@@ -182,13 +181,15 @@ class AppointmentAdmin(
         weekday = calendar.day_abbr[obj.timepoint_datetime.weekday()]
         return f"{timepoint_date} {weekday}"
 
-    @admin.display(description="Difference", ordering="appt_timepoint_difference")
-    def appt_timepoint_difference_summary(self, obj=None):
+    @admin.display(description="Timepoint", ordering="appt_timepoint_delta")
+    def days_from_timepoint_datetime(self, obj=None):
         if obj.appt_datetime.time() >= obj.timepoint_datetime.time():
-            difference_in_days = obj.appt_timepoint_difference.days
+            days = obj.appt_timepoint_delta.days
         else:
-            difference_in_days = obj.appt_timepoint_difference.days + 1
-        return f"{'+' if difference_in_days > 0 else ''}{difference_in_days} days"
+            days = obj.appt_timepoint_delta.days + 1
+        if days == 0:
+            return None
+        return f"{'+' if days > 0 else ''}{days}d"
 
     @admin.display(description="Subject", ordering="subject_identifier")
     def appointment_subject(self, obj=None):
@@ -261,7 +262,7 @@ class AppointmentAdmin(
             super()
             .get_queryset(request)
             .annotate(
-                appt_timepoint_difference=ExpressionWrapper(
+                appt_timepoint_delta=ExpressionWrapper(
                     (F("appt_datetime") - F("timepoint_datetime")),
                     output_field=DurationField(),
                 )
