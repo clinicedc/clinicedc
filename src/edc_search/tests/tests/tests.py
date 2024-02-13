@@ -1,5 +1,5 @@
 from django.db import models
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils.text import slugify
 from edc_utils import get_utcnow
 
@@ -10,6 +10,10 @@ from edc_search.updater import SearchSlugDuplicateFields
 from ..models import TestModel, TestModelDuplicate, TestModelExtra
 
 
+@override_settings(
+    EDC_AUTH_SKIP_SITE_AUTHS=False,
+    EDC_AUTH_SKIP_AUTH_UPDATER=False,
+)
 class TestSearchSlug(TestCase):
     def test_search_slug_no_fields(self):
         search_slug = SearchSlug()
