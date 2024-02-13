@@ -37,7 +37,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             parent_action_item=None,
-            reference_model="adverse_event_app.aeinitial",
+            action_type__reference_model="adverse_event_app.aeinitial",
         )
 
         # confirm death report action item is created
@@ -45,7 +45,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             action_item = ActionItem.objects.get(
                 subject_identifier=self.subject_identifier,
                 parent_action_item=ae_initial.action_item,
-                reference_model="adverse_event_app.deathreport",
+                action_type__reference_model="adverse_event_app.deathreport",
             )
         except ObjectDoesNotExist:
             self.fail("deathreport action unexpectedly does not exist")
@@ -62,7 +62,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         action_item = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             parent_action_item=ae_initial.action_item,
-            reference_model="adverse_event_app.deathreport",
+            action_type__reference_model="adverse_event_app.deathreport",
         )
         self.assertEqual(action_item.status, CLOSED)
 
@@ -75,7 +75,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
                 subject_identifier=self.subject_identifier,
                 related_action_item=death_report.action_item,
                 parent_action_item=death_report.action_item,
-                reference_model="adverse_event_app.deathreporttmg",
+                action_type__reference_model="adverse_event_app.deathreporttmg",
             )
         except ObjectDoesNotExist:
             self.fail("deathreport action unexpectedly does not exist")
@@ -106,7 +106,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
                 subject_identifier=self.subject_identifier,
                 related_action_item=death_report.action_item,
                 parent_action_item=death_report.action_item,
-                reference_model="adverse_event_app.deathreporttmg",
+                action_type__reference_model="adverse_event_app.deathreporttmg",
             )
         except ObjectDoesNotExist:
             self.fail("deathreport action unexpectedly does not exist")
@@ -134,7 +134,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         action_item = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             parent_action_item=death_report.action_item,
-            reference_model="adverse_event_app.deathreporttmg",
+            action_type__reference_model="adverse_event_app.deathreporttmg",
         )
 
         # create death report TMG
@@ -156,7 +156,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         try:
             action_item = ActionItem.objects.get(
                 subject_identifier=self.subject_identifier,
-                reference_model="adverse_event_app.deathreporttmgsecond",
+                action_type__reference_model="adverse_event_app.deathreporttmgsecond",
             )
         except ObjectDoesNotExist:
             self.fail("deathreporttmgsecond action item unexpectedly does not exist")
@@ -170,7 +170,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         action_item = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             parent_action_item=death_report.action_item,
-            reference_model="adverse_event_app.deathreporttmg",
+            action_type__reference_model="adverse_event_app.deathreporttmg",
         )
 
         # create death report TMG
@@ -192,7 +192,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             subject_identifier=self.subject_identifier,
             related_action_item=death_report.action_item,
             parent_action_item=death_report_tmg.action_item,
-            reference_model="adverse_event_app.deathreporttmgsecond",
+            action_type__reference_model="adverse_event_app.deathreporttmgsecond",
             action_type__name=DEATH_REPORT_TMG_SECOND_ACTION,
         )
 
@@ -227,7 +227,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         action_item = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             parent_action_item=death_report.action_item,
-            reference_model="adverse_event_app.deathreporttmg",
+            action_type__reference_model="adverse_event_app.deathreporttmg",
         )
 
         # create death report TMG
@@ -249,7 +249,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             subject_identifier=self.subject_identifier,
             related_action_item=death_report.action_item,
             parent_action_item=death_report_tmg.action_item,
-            reference_model="adverse_event_app.deathreporttmgsecond",
+            action_type__reference_model="adverse_event_app.deathreporttmgsecond",
             action_type__name=DEATH_REPORT_TMG_SECOND_ACTION,
         )
 
@@ -260,7 +260,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             subject_identifier=self.subject_identifier,
             related_action_item=death_report.action_item,
             parent_action_item=death_report_tmg.action_item,
-            reference_model="adverse_event_app.deathreporttmgsecond",
+            action_type__reference_model="adverse_event_app.deathreporttmgsecond",
             action_type__name=DEATH_REPORT_TMG_SECOND_ACTION,
         )
 
@@ -273,7 +273,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             subject_identifier=self.subject_identifier,
             related_action_item=death_report.action_item,
             parent_action_item=death_report_tmg.action_item,
-            reference_model="adverse_event_app.deathreporttmgsecond",
+            action_type__reference_model="adverse_event_app.deathreporttmgsecond",
             action_type__name=DEATH_REPORT_TMG_SECOND_ACTION,
         )
 
@@ -283,7 +283,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         action_item = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             parent_action_item=death_report.action_item,
-            reference_model="adverse_event_app.deathreporttmg",
+            action_type__reference_model="adverse_event_app.deathreporttmg",
         )
 
         causes_qs = CauseOfDeath.objects.exclude(name__in=[OTHER, death_report.cause_of_death])
@@ -313,7 +313,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         action_item = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             parent_action_item=death_report.action_item,
-            reference_model="adverse_event_app.deathreporttmg",
+            action_type__reference_model="adverse_event_app.deathreporttmg",
         )
 
         causes_qs = CauseOfDeath.objects.exclude(name__in=[OTHER, death_report.cause_of_death])
@@ -332,7 +332,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             subject_identifier=self.subject_identifier,
             related_action_item=death_report.action_item,
             parent_action_item=death_report_tmg.action_item,
-            reference_model="adverse_event_app.deathreporttmgsecond",
+            action_type__reference_model="adverse_event_app.deathreporttmgsecond",
             action_type__name=DEATH_REPORT_TMG_SECOND_ACTION,
         )
 
@@ -363,7 +363,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         action_item_one = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             parent_action_item=death_report.action_item,
-            reference_model="adverse_event_app.deathreporttmg",
+            action_type__reference_model="adverse_event_app.deathreporttmg",
         )
 
         causes_qs = CauseOfDeath.objects.exclude(name__in=[OTHER, death_report.cause_of_death])
@@ -382,7 +382,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             subject_identifier=self.subject_identifier,
             related_action_item=death_report.action_item,
             parent_action_item=death_report_tmg.action_item,
-            reference_model="adverse_event_app.deathreporttmgsecond",
+            action_type__reference_model="adverse_event_app.deathreporttmgsecond",
             action_type__name=DEATH_REPORT_TMG_SECOND_ACTION,
         )
 
@@ -421,6 +421,6 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             subject_identifier=self.subject_identifier,
             related_action_item=death_report.action_item,
             parent_action_item=death_report_tmg.action_item,
-            reference_model="adverse_event_app.deathreporttmgsecond",
+            action_type__reference_model="adverse_event_app.deathreporttmgsecond",
             action_type__name=DEATH_REPORT_TMG_SECOND_ACTION,
         )

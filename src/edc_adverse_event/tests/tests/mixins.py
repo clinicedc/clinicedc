@@ -54,7 +54,7 @@ class DeathReportTestMixin:
         action_item = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             parent_action_item=ae_initial.action_item,
-            reference_model="adverse_event_app.deathreport",
+            action_type__reference_model="adverse_event_app.deathreport",
         )
 
         # create death report
