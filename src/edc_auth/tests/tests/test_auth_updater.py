@@ -60,7 +60,7 @@ class TestAuthUpdater2(TestCase):
         codenames_with_callable.append(codenames_callable)
         site_auths.clear()
         site_auths.add_group(*codenames_with_callable, name="GROUP")
-        AuthUpdater()
+        AuthUpdater(verbose=False, warn_only=True)
         group = Group.objects.get(name="GROUP")
 
         codenames.extend(codenames_callable())
@@ -84,7 +84,7 @@ class TestAuthUpdater2(TestCase):
         ]
         site_auths.clear()
         site_auths.add_group(*codenames, name="GROUP_VIEW_ONLY", view_only=True)
-        AuthUpdater()
+        AuthUpdater(verbose=False, warn_only=True)
         group = Group.objects.get(name="GROUP_VIEW_ONLY")
         self.assertEqual(
             [p.codename for p in group.permissions.filter(content_type__app_label="edc_auth")],
@@ -109,7 +109,7 @@ class TestAuthUpdater2(TestCase):
         ]
         site_auths.clear()
         site_auths.add_group(*codenames, name="GROUP_VIEW_ONLY", view_only=True)
-        AuthUpdater()
+        AuthUpdater(verbose=False, warn_only=True)
         group = Group.objects.get(name="GROUP_VIEW_ONLY")
         self.assertEqual(
             [p.codename for p in group.permissions.filter(content_type__app_label="edc_auth")],
@@ -134,7 +134,7 @@ class TestAuthUpdater2(TestCase):
         ]
         site_auths.clear()
         site_auths.add_group(*codenames, name="GROUP_EXPORT", convert_to_export=True)
-        AuthUpdater()
+        AuthUpdater(verbose=False, warn_only=True)
         group = Group.objects.get(name="GROUP_EXPORT")
         self.assertEqual(
             [p.codename for p in group.permissions.filter(content_type__app_label="edc_auth")],
@@ -159,7 +159,7 @@ class TestAuthUpdater2(TestCase):
         ]
         site_auths.clear()
         site_auths.add_group(*codenames, name="GROUP_NO_DELETE", no_delete=True)
-        AuthUpdater()
+        AuthUpdater(verbose=False, warn_only=True)
         group = Group.objects.get(name="GROUP_NO_DELETE")
 
         codenames = [
@@ -199,7 +199,7 @@ class TestAuthUpdater(TestCase):
 
     def test_rando_tuples(self):
         """Given the two registered randomizers, assert view codenames are returned"""
-        AuthUpdater(verbose=False)
+        AuthUpdater(verbose=False, warn_only=True)
         self.assertIn(
             ("edc_randomization.view_randomizationlist", "Can view randomization list"),
             get_rando_permissions_tuples(),
@@ -225,7 +225,7 @@ class TestAuthUpdater(TestCase):
                 ]
             }
         )
-        AuthUpdater(groups=groups)
+        AuthUpdater(groups=groups, warn_only=True)
         groups = Group.objects.get(name="ACTION_GROUP")
         try:
             groups.permissions.get(
@@ -252,7 +252,7 @@ class TestAuthUpdater(TestCase):
             ],
         )
         self.assertEqual(qs.count(), 4)
-        AuthUpdater()
+        AuthUpdater(verbose=False, warn_only=True)
         for group in Group.objects.all():
             qs = group.permissions.all()
             self.assertNotIn("add_dashboard", "|".join([o.codename for o in qs]))
@@ -264,7 +264,7 @@ class TestAuthUpdater(TestCase):
         """Assert group has view perms for each randomizer,
         others perms are removed.
         """
-        AuthUpdater(verbose=False)
+        AuthUpdater(verbose=False, warn_only=True)
         group = Group.objects.get(name=RANDO_BLINDED)
         qs = group.permissions.all()
         self.assertGreater(qs.count(), 0)
@@ -275,7 +275,7 @@ class TestAuthUpdater(TestCase):
         self.assertIn("view_randomizationlist", "|".join([o.codename for o in qs]))
 
     def test_randomization_list_model_add_change_delete_perms_removed_everywhere(self):
-        AuthUpdater(verbose=False)
+        AuthUpdater(verbose=False, warn_only=True)
         for group in Group.objects.all():
             qs = group.permissions.all()
             self.assertNotIn("add_randomizationlist", "|".join([o.codename for o in qs]))
@@ -287,7 +287,7 @@ class TestAuthUpdater(TestCase):
             "view_customrandomizationlist",
             "|".join([o.codename for o in Permission.objects.all()]),
         )
-        AuthUpdater(verbose=True)
+        AuthUpdater(verbose=False, warn_only=True)
         Permission.objects.filter(
             content_type__app_label__in=["edc_randomization", "edc_auth"]
         )
