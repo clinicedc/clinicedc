@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import sys
-from typing import Callable, List, Optional, Tuple
+from typing import Callable
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -20,17 +22,17 @@ class AuthUpdater:
 
     def __init__(
         self,
-        groups: Optional[dict] = None,
-        roles: Optional[dict] = None,
-        pii_models: Optional[list] = None,
-        pre_update_funcs: Optional[list] = None,
-        post_update_funcs: Optional[List[Tuple[str, Callable]]] = None,
-        custom_permissions_tuples: Optional[dict] = None,
-        verbose=None,
+        groups: dict | None = None,
+        roles: dict | None = None,
+        pii_models: dict | None = None,
+        pre_update_funcs: dict | None = None,
+        post_update_funcs: list[tuple[str, Callable]] | None = None,
+        custom_permissions_tuples: dict | None = None,
         apps=None,
-        warn_only=None,
+        verbose: bool | None = None,
+        warn_only: bool | None = None,
     ):
-        site_auths.verify_and_populate()
+        site_auths.verify_and_populate(warn_only=warn_only)
         custom_permissions_tuples = (
             custom_permissions_tuples or site_auths.custom_permissions_tuples
         )
@@ -91,7 +93,7 @@ class AuthUpdater:
         if self.verbose:
             sys.stdout.write("   Done.\n")
 
-    def run_post_updates(self, post_updates: List[Tuple[str, Callable]]):
+    def run_post_updates(self, post_updates: list[tuple[str, Callable]]):
         """Custom funcs that operate after all groups and roles have been created"""
         if self.verbose:
             sys.stdout.write(style.MIGRATE_HEADING(" - Running post updates:\n"))

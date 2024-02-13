@@ -3,6 +3,7 @@ from __future__ import annotations
 import sys
 from copy import deepcopy
 from typing import Callable, Tuple
+from warnings import warn
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -282,7 +283,9 @@ class SiteAuths:
     def custom_permissions_tuples(self):
         return self.registry["custom_permissions_tuples"]
 
-    def verify_and_populate(self, app_name: str | None = None) -> None:
+    def verify_and_populate(
+        self, app_name: str | None = None, warn_only: bool | None = None
+    ) -> None:
         """Verifies that updates refer to existing group
         or roles names.
 
@@ -291,17 +294,25 @@ class SiteAuths:
         """
         for name, codenames in self.registry["update_groups"].items():
             if name not in self.registry["groups"]:
-                raise InvalidGroup(
+                msg = (
                     f"Cannot update group. Group name does not exist. See app={app_name}"
                     f"update_groups['groups']={codenames}. Got {name}"
                 )
+                if warn_only:
+                    warn(msg)
+                else:
+                    raise InvalidGroup(msg)
             self.update_group(*codenames, name=name, key="groups")
         for name, group_names in self.registry["update_roles"].items():
             if name not in self.registry["roles"]:
-                raise InvalidRole(
+                msg = (
                     f"Cannot update role. Role name does not exist. See app={app_name}. "
                     f"update_roles['groups']={group_names}. Got {name}"
                 )
+                if warn_only:
+                    warn(msg)
+                else:
+                    raise InvalidRole(msg)
             self.update_role(*group_names, name=name, key="roles")
 
     def autodiscover(self, module_name=None, verbose=True):
