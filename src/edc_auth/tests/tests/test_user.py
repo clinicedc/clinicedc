@@ -27,7 +27,7 @@ class TestUser(EdcAuthTestCase):
         self.filename = create_user_csv_file(user_count=2, include_passwords=True)
 
     def test_import_users(self):
-        AuthUpdater(verbose=False)
+        AuthUpdater(verbose=False, warn_only=True)
         # import new users
         import_users(self.filename, resource_name=None, send_email_to_user=True)
         self.assertEqual(len(mail.outbox), User.objects.all().count())
@@ -48,7 +48,7 @@ class TestUser(EdcAuthTestCase):
         )
 
     def test_bad_username(self):
-        AuthUpdater(verbose=False)
+        AuthUpdater(verbose=False, warn_only=True)
         self.assertRaises(
             UserImporterError,
             UserImporter,
@@ -74,7 +74,7 @@ class TestUser(EdcAuthTestCase):
         )
 
     def test_unknown_site(self):
-        AuthUpdater(verbose=False)
+        AuthUpdater(verbose=False, warn_only=True)
         self.assertRaises(
             UserImporterError,
             UserImporter,
@@ -88,7 +88,7 @@ class TestUser(EdcAuthTestCase):
         )
 
     def test_unknown_role(self):
-        AuthUpdater(verbose=False)
+        AuthUpdater(verbose=False, warn_only=True)
         self.assertRaises(
             UserImporterError,
             UserImporter,
@@ -102,7 +102,7 @@ class TestUser(EdcAuthTestCase):
         )
 
     def test_with_custom_templates(self):
-        AuthUpdater(verbose=False)
+        AuthUpdater(verbose=False, warn_only=True)
         created_email_template = Template("Hi $first_name, \n\nStay Classy")
         updated_email_template = Template("Hi $first_name, \n\nYou stay classy San Diego")
         first_name = fake.first_name()
@@ -138,7 +138,7 @@ class TestUser(EdcAuthTestCase):
         )
 
     def test_password_setter_all(self):
-        AuthUpdater(verbose=False)
+        AuthUpdater(verbose=False, warn_only=True)
         create_users(5)
         user = User.objects.all()[0]
         pwsetter = PasswordSetter(super_username=user.username)
@@ -146,7 +146,7 @@ class TestUser(EdcAuthTestCase):
         self.assertEqual(len(mail.outbox), User.objects.all().count())
 
     def test_password_setter_groups(self):
-        AuthUpdater(verbose=False)
+        AuthUpdater(verbose=False, warn_only=True)
         count = User.objects.filter(groups__name=CLINIC).count()
         create_users(5, group_name=CLINIC)
         user = User.objects.all()[0]
@@ -155,7 +155,7 @@ class TestUser(EdcAuthTestCase):
         self.assertEqual(len(mail.outbox), User.objects.all().count() + count)
 
     def test_password_setter_sites(self):
-        AuthUpdater(verbose=False)
+        AuthUpdater(verbose=False, warn_only=True)
         count = User.objects.filter(userprofile__sites__name="harare").count()
         create_users(5, site_name="harare")
         user = User.objects.all()[0]
@@ -164,7 +164,7 @@ class TestUser(EdcAuthTestCase):
         self.assertEqual(len(mail.outbox), User.objects.all().count() + count)
 
     def test_password_setter_user(self):
-        AuthUpdater(verbose=False)
+        AuthUpdater(verbose=False, warn_only=True)
         usernames = create_users(5)
         user = User.objects.first()
         pwsetter = PasswordSetter(super_username=user.username)
