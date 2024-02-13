@@ -58,7 +58,7 @@ class Command(BaseCommand):
 
         if app_labels and model_names:
             raise CommandError(
-                "Either provide the `app label` or a `model name` but not both. "
+                "Either provide the `app label` or `model name(s)` but not both. "
                 f"Got {app_labels} and {model_names}."
             )
 
@@ -74,7 +74,7 @@ class Command(BaseCommand):
         model_names = [m for m in model_names if m not in skip_model_names]
 
         try:
-            run_form_runners(app_labels, model_names)
+            run_form_runners(model_names=model_names)
         except FormRunnerError as e:
             if debug:
                 raise
