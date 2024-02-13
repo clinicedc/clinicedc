@@ -46,10 +46,10 @@ class EdcAuthTestCase(TestCase):
 def create_users(count=None, group_name=None, site_name=None):
     usernames = []
     User.objects.all().delete()
-    for _ in range(0, count or 2):
+    for index in range(0, count or 2):
         first_name = fake.first_name()
-        last_name = fake.last_name()
-        username = (first_name[0] + last_name).lower()
+        last_name = fake.last_name() + str(index)
+        username = (first_name[0] + last_name).lower() + str(index)
         user_data = {
             "username": username,
             "first_name": first_name,
