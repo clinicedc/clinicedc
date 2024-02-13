@@ -1,7 +1,7 @@
 from django.contrib import admin
-from django_audit_fields.admin import audit_fieldset_tuple
-from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
+from django_audit_fields.admin import ModelAdminAuditFieldsMixin, audit_fieldset_tuple
 from edc_model_admin.history import SimpleHistoryAdmin
+from edc_model_admin.mixins import TemplatesModelAdminMixin
 
 from ..admin_site import edc_action_item_admin
 from ..forms import ActionTypeForm
@@ -9,7 +9,14 @@ from ..models import ActionType
 
 
 @admin.register(ActionType, site=edc_action_item_admin)
-class ActionTypeAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
+class ActionTypeAdmin(
+    TemplatesModelAdminMixin, ModelAdminAuditFieldsMixin, SimpleHistoryAdmin
+):
+    date_hierarchy = "modified"
+    empty_value_display = "-"
+    list_per_page = 10
+    show_cancel = True
+
     form = ActionTypeForm
 
     fieldsets = (
@@ -19,7 +26,8 @@ class ActionTypeAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
                 "fields": (
                     "name",
                     "display_name",
-                    "model",
+                    "reference_model",
+                    "related_reference_model",
                     "show_on_dashboard",
                     "create_by_action",
                     "create_by_user",
@@ -33,14 +41,27 @@ class ActionTypeAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
     list_display = (
         "name",
         "display_name",
+        "reference_model",
+        "related_reference_model",
         "show_on_dashboard",
         "create_by_action",
         "create_by_user",
     )
 
-    list_filter = ("create_by_action", "create_by_user", "show_on_dashboard")
+    list_filter = (
+        "create_by_action",
+        "create_by_user",
+        "show_on_dashboard",
+        "reference_model",
+        "related_reference_model",
+    )
 
-    search_fields = ("name", "display_name", "model")
+    search_fields = (
+        "name",
+        "display_name",
+        "reference_model",
+        "related_reference_model",
+    )
 
     date_hierarchy = None
 
@@ -49,7 +70,8 @@ class ActionTypeAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         return readonly_fields + (
             "name",
             "display_name",
-            "model",
+            "reference_model",
+            "related_reference_model",
             "show_on_dashboard",
             "create_by_action",
             "create_by_user",
