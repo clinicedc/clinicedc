@@ -220,8 +220,8 @@ class Sites:
             request=request, user=user, site_id=site_id
         )
 
+    @staticmethod
     def get_view_only_site_ids_for_user(
-        self,
         request: WSGIRequest | None = None,
         user: User | None = None,
         site_id: int | None = None,
@@ -230,8 +230,8 @@ class Sites:
         access to, not including the current.
 
         Checks for userprofile.is_multisite_viewer and
-        confirms user does not have add/change/delete perms to any
-        resources.
+        confirms user does not have `add`, `change` or `delete`
+        perms to any resources.
         """
         if request:
             user = request.user
@@ -262,7 +262,6 @@ class Sites:
         request: WSGIRequest = None,
         user: User = None,
         site_id: int = None,
-        current_site_id: int = None,
     ) -> bool:
         if self.get_view_only_site_ids_for_user(
             request=request,
@@ -350,7 +349,8 @@ class Sites:
                     "Try running migrate."
                 )
 
-    def autodiscover(self, module_name=None, verbose=True):
+    @staticmethod
+    def autodiscover(module_name=None, verbose=True):
         """Autodiscovers query rule classes in the sites.py file of
         any INSTALLED_APP.
         """
