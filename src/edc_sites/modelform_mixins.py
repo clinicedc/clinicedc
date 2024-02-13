@@ -7,7 +7,6 @@ __all__ = ["SiteModelFormMixin"]
 
 
 class SiteModelFormMixin:
-
     """Validate the current site against a form question.
 
     This should be used sparingly. A good place is on the screening and/or consent form.
