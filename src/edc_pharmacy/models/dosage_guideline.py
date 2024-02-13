@@ -16,7 +16,6 @@ class Manager(models.Manager):
 
 
 class DosageGuideline(BaseUuidModel):
-
     """Dosage guidelines."""
 
     medication = models.ForeignKey(Medication, on_delete=PROTECT, null=True, blank=False)

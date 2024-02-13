@@ -35,7 +35,6 @@ class Rx(
     SearchSlugModelMixin,
     BaseUuidModel,
 ):
-
     """A model for the prescription.
 
     In this context the `prescription` specifies only the medication.
