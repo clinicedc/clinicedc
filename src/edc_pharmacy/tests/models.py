@@ -45,6 +45,9 @@ class SubjectVisit(SiteModelMixin, VisitModelMixin, BaseUuidModel):
     def run_metadata_rules(self, **kwargs):
         pass
 
+    def metadata_create(self):
+        pass
+
     class Meta(VisitModelMixin.Meta, BaseUuidModel.Meta):
         app_label = "edc_pharmacy"
 
