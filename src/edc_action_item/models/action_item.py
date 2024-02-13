@@ -63,12 +63,6 @@ class ActionItem(
         ActionType, on_delete=PROTECT, related_name="action_type", verbose_name="Action"
     )
 
-    reference_model = models.CharField(
-        max_length=50,
-        null=True,
-        help_text="model name in label_lower format",
-    )
-
     linked_to_reference = models.BooleanField(
         default=False,
         editable=False,
@@ -83,7 +77,7 @@ class ActionItem(
         ),
     )
 
-    related_reference_model = models.CharField(max_length=100, null=True, editable=False)
+    # related_reference_model = models.CharField(max_length=100, null=True, editable=False)
 
     related_action_identifier = models.CharField(
         max_length=50,
@@ -173,8 +167,6 @@ class ActionItem(
                     f"Got '{self.subject_identifier}'."
                 )
             self.priority = self.priority or self.action_type.priority
-            self.reference_model = self.action_type.reference_model
-            self.related_reference_model = self.action_type.related_reference_model
         else:
             if (
                 self.status in [NEW, CANCELLED]
@@ -214,8 +206,12 @@ class ActionItem(
         )
 
     @property
+    def reference_model(self) -> str:
+        return self.action_type.reference_model
+
+    @property
     def reference_model_cls(self) -> Type[PrnModel | CrfModel]:
-        return django_apps.get_model(self.reference_model)
+        return django_apps.get_model(self.action_type.reference_model)
 
     @property
     def reference_obj(self) -> PrnModel | CrfModel:
@@ -228,6 +224,10 @@ class ActionItem(
                 f"Parent ActionItem does not exist for {self.action_identifier}."
             )
         return self.parent_action_item.reference_obj
+
+    @property
+    def related_reference_model(self) -> str:
+        return self.action_type.related_reference_model
 
     @property
     def related_reference_obj(self) -> PrnModel | CrfModel:

@@ -39,11 +39,11 @@ class TestActionItem(TestCaseMixin, TestCase):
         obj = ActionItem.objects.create(
             subject_identifier=self.subject_identifier,
             action_type=self.action_type,
-            reference_model="edc_action_item.testmodel",
         )
         self.assertTrue(obj.action_identifier.startswith("AC"))
         self.assertEqual(obj.status, NEW)
         self.assertIsNotNone(obj.report_datetime)
+        self.assertEqual(obj.action_type.reference_model, "edc_action_item.formzero")
 
     def test_create_requires_existing_subject(self):
         self.assertRaises(SubjectDoesNotExist, ActionItem.objects.create)

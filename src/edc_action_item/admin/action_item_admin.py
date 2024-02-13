@@ -106,7 +106,6 @@ class ActionItemAdmin(
             "instructions",
             "auto_created",
             "auto_created_comment",
-            "reference_model",
             "emailed",
             "emailed_datetime",
             "related_action_item",
