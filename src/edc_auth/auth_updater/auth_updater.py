@@ -66,7 +66,9 @@ class AuthUpdater:
             self.run_post_updates(post_update_funcs)
             self.refresh_groups_in_roles_per_user()
             if verbose:
-                sys.stdout.write(style.MIGRATE_HEADING("Done.\n"))
+                sys.stdout.write(
+                    style.MIGRATE_HEADING("Done updating groups and permissions.\n\n")
+                )
                 sys.stdout.flush()
 
     def __repr__(self):
