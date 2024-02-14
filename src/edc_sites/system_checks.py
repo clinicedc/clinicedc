@@ -1,6 +1,7 @@
 import sys
 
 from django.core.checks import Error
+from django.db import OperationalError
 
 from edc_sites.site import SitesCheckError, sites
 
@@ -10,7 +11,7 @@ def sites_check(app_configs, **kwargs):  # noqa
     if "migrate" not in sys.argv and "makemigrations" not in sys.argv:
         try:
             sites.check()
-        except SitesCheckError as e:
+        except (SitesCheckError, OperationalError) as e:
             errors.append(
                 Error(
                     e,
