@@ -11,7 +11,7 @@ def populate_data_dictionary(sender=None, **kwargs):
 
     sys.stdout.write(style.MIGRATE_HEADING("Populating data dictionary:\n"))
     populate_data_dictionary_from_sites()
-    sys.stdout.write("Done.\n")
+    sys.stdout.write("Done populating data dictionary.\n\n")
     sys.stdout.flush()
 
 
