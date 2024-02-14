@@ -153,7 +153,8 @@ class FormRunner:
             "visit_schedule_name",
             "schedule_name",
         ]:
-            if value := getattr(model_obj_or_related_visit, fldname, None) is not None:
+            value = getattr(model_obj_or_related_visit, fldname, None)
+            if value is not None:
                 opts.update({fldname: value})
         return opts
 
