@@ -43,7 +43,6 @@ class DoNothingHandler:
 
 
 class QueryRuleHandler:
-
     """Called by the RuleRunner.
 
     Handles a single rule instance by either creating a
