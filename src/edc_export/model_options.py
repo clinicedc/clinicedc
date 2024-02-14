@@ -3,7 +3,6 @@ from edc_list_data.model_mixins import ListModelMixin
 
 
 class ModelOptions(dict):
-
     """A serializable object of a selection of model attrs."""
 
     def __init__(self, model: str = None):
