@@ -15,10 +15,10 @@ from edc_data_manager.post_migrate_signals import (
 )
 from edc_data_manager.site_data_manager import site_data_manager
 from edc_form_runners.site import site_form_runners
-from edc_lab import site_labs
 from edc_lab.post_migrate_signals import update_panels_on_post_migrate
-from edc_list_data import site_list_data
+from edc_lab.site_labs import site_labs
 from edc_list_data.post_migrate_signals import post_migrate_list_data
+from edc_list_data.site_list_data import site_list_data
 from edc_metadata.metadata_rules import site_metadata_rules
 from edc_navbar.site_navbars import site_navbars
 from edc_notification.post_migrate_signals import post_migrate_update_notifications
@@ -31,10 +31,6 @@ from edc_sites.post_migrate_signals import post_migrate_update_sites
 from edc_sites.site import sites as site_sites
 from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_schedule.system_checks import (
-    check_onschedule_exists_in_subject_schedule_history,
-    check_subject_schedule_history,
-)
 
 style = color_style()
 
@@ -69,6 +65,8 @@ class AppConfig(DjangoAppConfig):
         from edc_sites.system_checks import sites_check
         from edc_visit_schedule.system_checks import (
             check_form_collections,
+            check_onschedule_exists_in_subject_schedule_history,
+            check_subject_schedule_history,
             visit_schedule_check,
         )
 
