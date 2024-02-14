@@ -56,9 +56,9 @@ class AppConfig(DjangoAppConfig):
     include_in_administration_section = False
 
     def ready(self):
-        from edc_action_item.system_checks import edc_action_item_check
+        from edc_action_item.system_checks import edc_action_item_checks
         from edc_consent.system_checks import check_site_consents
-        from edc_export.system_checks import export_dir_checks
+        from edc_export.system_checks import edc_export_checks
         from edc_facility.system_checks import holiday_country_check, holiday_path_check
         from edc_metadata.system_checks import check_for_metadata_rules
         from edc_navbar.system_checks import edc_navbar_checks
@@ -102,12 +102,12 @@ class AppConfig(DjangoAppConfig):
         register(check_subject_schedule_history, deploy=True)
         sys.stdout.write("   - check onschedule with subject schedule history\n")
         register(check_onschedule_exists_in_subject_schedule_history)
-        sys.stdout.write("   - edc_action_item_check\n")
-        register(edc_action_item_check)
+        sys.stdout.write("   - edc_action_item_checks\n")
+        register(edc_action_item_checks)
         sys.stdout.write("   - sites_check\n")
         register(sites_check)
-        sys.stdout.write("   - export_dir_checks\n")
-        register(export_dir_checks, deploy=True)
+        sys.stdout.write("   - edc_export_checks\n")
+        register(edc_export_checks, deploy=True)
         sys.stdout.write("   - holiday_path_check (deploy only)\n")
         register(holiday_path_check, deploy=True)
         sys.stdout.write("   - holiday_country_check (deploy only)\n")

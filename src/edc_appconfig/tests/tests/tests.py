@@ -1,8 +1,8 @@
 from django.apps import apps as django_apps
 from django.test import TestCase, override_settings
-from edc_action_item.system_checks import edc_action_item_check
+from edc_action_item.system_checks import edc_action_item_checks
 from edc_consent.system_checks import check_site_consents
-from edc_export.system_checks import export_dir_checks
+from edc_export.system_checks import edc_export_checks
 from edc_facility.system_checks import holiday_country_check, holiday_path_check
 from edc_metadata.system_checks import check_for_metadata_rules
 from edc_navbar.system_checks import edc_navbar_checks
@@ -67,8 +67,8 @@ class TestAppConfig(TestCase):
         ids = [error.id for error in errors]
         self.assertEqual(0, len(ids))
 
-    def test_export_dir_checks(self):
-        errors = export_dir_checks(django_apps.get_app_configs())
+    def test_edc_export_checks(self):
+        errors = edc_export_checks(django_apps.get_app_configs())
         ids = [error.id for error in errors]
         self.assertEqual(2, len(ids))
         self.assertIn("edc_export.W001", ids)
@@ -83,7 +83,7 @@ class TestAppConfig(TestCase):
         self.assertEqual(1, len(ids))
         self.assertIn("edc_facility.W001", ids)
 
-    def test_edc_action_item_check(self):
-        warnings = edc_action_item_check(django_apps.get_app_configs())
+    def test_edc_action_item_checks(self):
+        warnings = edc_action_item_checks(django_apps.get_app_configs())
         ids = [warning.id for warning in warnings]
         self.assertEqual(0, len(ids))
