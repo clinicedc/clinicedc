@@ -1,5 +1,4 @@
 import csv
-import sys
 from pathlib import Path
 
 from django.conf import settings
@@ -11,7 +10,6 @@ style = color_style()
 
 
 def holiday_path_check(app_configs, **kwargs):
-    sys.stdout.write(style.SQL_KEYWORD("holiday_path_check ... \r"))
     errors = []
     if not getattr(settings, "HOLIDAY_FILE", None):
         errors.append(
@@ -29,7 +27,6 @@ def holiday_path_check(app_configs, **kwargs):
                     id="edc_facility.W001",
                 )
             )
-    sys.stdout.write(style.SQL_KEYWORD("holiday_path_check ... done.\n"))
     return errors
 
 
