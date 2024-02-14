@@ -10,9 +10,9 @@ def check_for_metadata_rules(app_configs, **kwargs) -> list[CheckMessage]:
         errors.append(
             Warning(
                 "No metadata rules were loaded by site_metadata_rules.autodiscover.",
-                id="edc_metadata.001",
+                id="edc_metadata.W001",
             )
         )
     if not django_apps.get_app_config("edc_metadata").metadata_rules_enabled:
-        errors.append(Warning("Metadata rules disabled!", id="edc_metadata.002"))
+        errors.append(Warning("Metadata rules disabled!", id="edc_metadata.W002"))
     return errors
