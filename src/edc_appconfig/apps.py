@@ -15,10 +15,10 @@ from edc_data_manager.post_migrate_signals import (
 )
 from edc_data_manager.site_data_manager import site_data_manager
 from edc_form_runners.site import site_form_runners
-from edc_lab import site_labs
 from edc_lab.post_migrate_signals import update_panels_on_post_migrate
-from edc_list_data import site_list_data
+from edc_lab.site_labs import site_labs
 from edc_list_data.post_migrate_signals import post_migrate_list_data
+from edc_list_data.site_list_data import site_list_data
 from edc_metadata.metadata_rules import site_metadata_rules
 from edc_navbar.site_navbars import site_navbars
 from edc_notification.post_migrate_signals import post_migrate_update_notifications
@@ -31,10 +31,6 @@ from edc_sites.post_migrate_signals import post_migrate_update_sites
 from edc_sites.site import sites as site_sites
 from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_schedule.system_checks import (
-    check_onschedule_exists_in_subject_schedule_history,
-    check_subject_schedule_history,
-)
 
 style = color_style()
 
@@ -60,15 +56,17 @@ class AppConfig(DjangoAppConfig):
     include_in_administration_section = False
 
     def ready(self):
-        from edc_action_item.system_checks import edc_action_item_check
+        from edc_action_item.system_checks import edc_action_item_checks
         from edc_consent.system_checks import check_site_consents
-        from edc_export.system_checks import export_dir_checks
+        from edc_export.system_checks import edc_export_checks
         from edc_facility.system_checks import holiday_country_check, holiday_path_check
         from edc_metadata.system_checks import check_for_metadata_rules
         from edc_navbar.system_checks import edc_navbar_checks
         from edc_sites.system_checks import sites_check
         from edc_visit_schedule.system_checks import (
             check_form_collections,
+            check_onschedule_exists_in_subject_schedule_history,
+            check_subject_schedule_history,
             visit_schedule_check,
         )
 
@@ -104,12 +102,12 @@ class AppConfig(DjangoAppConfig):
         register(check_subject_schedule_history, deploy=True)
         sys.stdout.write("   - check onschedule with subject schedule history\n")
         register(check_onschedule_exists_in_subject_schedule_history)
-        sys.stdout.write("   - edc_action_item_check\n")
-        register(edc_action_item_check)
+        sys.stdout.write("   - edc_action_item_checks\n")
+        register(edc_action_item_checks)
         sys.stdout.write("   - sites_check\n")
         register(sites_check)
-        sys.stdout.write("   - export_dir_checks\n")
-        register(export_dir_checks, deploy=True)
+        sys.stdout.write("   - edc_export_checks\n")
+        register(edc_export_checks, deploy=True)
         sys.stdout.write("   - holiday_path_check (deploy only)\n")
         register(holiday_path_check, deploy=True)
         sys.stdout.write("   - holiday_country_check (deploy only)\n")
