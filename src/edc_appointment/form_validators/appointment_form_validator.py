@@ -9,7 +9,7 @@ from django.conf import settings
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
-from edc_consent import ConsentDefinitionDoesNotExist
+from edc_consent import ConsentDefinitionDoesNotExist, NotConsentedError
 from edc_consent.utils import consent_datetime_or_raise
 from edc_facility.utils import get_facilities
 from edc_form_validators import INVALID_ERROR
@@ -213,10 +213,11 @@ class AppointmentFormValidator(
             appt_datetime = self.cleaned_data.get("appt_datetime")
             appt_status = self.cleaned_data.get("appt_status")
             if appt_datetime and appt_status != NEW_APPT:
+                appt_datetime_utc = to_utc(appt_datetime)
                 consent_datetime = self.get_consent_datetime_or_raise(
-                    appt_datetime=to_utc(appt_datetime)
+                    appt_datetime=appt_datetime_utc
                 )
-                if to_utc(appt_datetime).date() < consent_datetime.date():
+                if appt_datetime_utc.date() < consent_datetime.date():
                     formatted_date = formatted_datetime(
                         to_local(consent_datetime), format_as_date=True
                     )
@@ -575,6 +576,8 @@ class AppointmentFormValidator(
                 raise_validation_error=self.raise_validation_error,
             )
         except ConsentDefinitionDoesNotExist as e:
+            self.raise_validation_error({"appt_datetime": str(e)}, INVALID_APPT_DATE)
+        except NotConsentedError as e:
             self.raise_validation_error({"appt_datetime": str(e)}, INVALID_APPT_DATE)
         return consent_datetime
 

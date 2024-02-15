@@ -7,7 +7,7 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.utils.translation import gettext as _
 from edc_utils import convert_php_dateformat, formatted_date, to_utc
-from edc_utils.date import ceil_datetime, floor_secs
+from edc_utils.date import ceil_datetime, floor_secs, to_local
 from edc_visit_schedule.exceptions import (
     ScheduledVisitWindowError,
     UnScheduledVisitWindowError,
@@ -89,11 +89,15 @@ class WindowPeriodFormValidatorMixin:
                         UNSCHEDULED_WINDOW_ERROR,
                     )
             except ScheduledVisitWindowError:
-                lower = floor_secs(get_lower_datetime(appointment)).strftime(datetimestring)
-                upper = floor_secs(ceil_datetime(get_upper_datetime(appointment))).strftime(
+                lower = floor_secs(to_local(get_lower_datetime(appointment))).strftime(
                     datetimestring
                 )
-                proposed = floor_secs(proposed_appt_datetime).strftime(datetimestring)
+                upper = floor_secs(
+                    to_local(ceil_datetime(get_upper_datetime(appointment)))
+                ).strftime(datetimestring)
+                proposed = floor_secs(to_local(proposed_appt_datetime)).strftime(
+                    datetimestring
+                )
                 # TODO: check this is correctly limiting (e.g. requistions)
                 self.raise_validation_error(
                     {

@@ -4,6 +4,7 @@ import calendar
 from typing import TYPE_CHECKING, Any
 
 from django.contrib import admin
+from django.db.models import DurationField, ExpressionWrapper, F
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
@@ -51,6 +52,7 @@ class AppointmentAdmin(
         "full_visit_code",
         "appt_actions",
         "appointment_date",
+        "days_from_timepoint_datetime",
         "appointment_type",
         "appt_status",
         "timing",
@@ -173,6 +175,22 @@ class AppointmentAdmin(
     def appointment_type(self, obj=None):
         return obj.get_appt_type_display()
 
+    @admin.display(description="Timepoint date", ordering="timepoint_datetime")
+    def timepoint_date(self, obj=None):
+        timepoint_date = obj.timepoint_datetime.date()
+        weekday = calendar.day_abbr[obj.timepoint_datetime.weekday()]
+        return f"{timepoint_date} {weekday}"
+
+    @admin.display(description="Timepoint", ordering="appt_timepoint_delta")
+    def days_from_timepoint_datetime(self, obj=None):
+        if obj.appt_datetime.time() >= obj.timepoint_datetime.time():
+            days = obj.appt_timepoint_delta.days
+        else:
+            days = obj.appt_timepoint_delta.days + 1
+        if days == 0:
+            return None
+        return f"{'+' if days > 0 else ''}{days}d"
+
     @admin.display(description="Subject", ordering="subject_identifier")
     def appointment_subject(self, obj=None):
         return obj.subject_identifier
@@ -238,3 +256,15 @@ class AppointmentAdmin(
         Relates to use of `SKIPPED_APPT` feature.
         """
         return True if get_allow_skipped_appt_using() else False
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .annotate(
+                appt_timepoint_delta=ExpressionWrapper(
+                    (F("appt_datetime") - F("timepoint_datetime")),
+                    output_field=DurationField(),
+                )
+            )
+        )
