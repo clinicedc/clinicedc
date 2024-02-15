@@ -29,22 +29,20 @@ def to_local(dt: datetime) -> datetime:
 
 
 def floor_secs(dte) -> datetime:
-    return datetime(dte.year, dte.month, dte.day, dte.hour, dte.minute, 0, 0).astimezone(
-        dte.tzinfo
+    return datetime(
+        dte.year, dte.month, dte.day, dte.hour, dte.minute, 0, 0, tzinfo=dte.tzinfo
     )
 
 
 def ceil_secs(dte) -> datetime:
-    return datetime(dte.year, dte.month, dte.day, dte.hour, dte.minute, 59, 999999).astimezone(
-        dte.tzinfo
+    return datetime(
+        dte.year, dte.month, dte.day, dte.hour, dte.minute, 59, 999999, tzinfo=dte.tzinfo
     )
 
 
 def floor_datetime(dt) -> datetime:
-    return dt.replace(hour=0, minute=0, second=0, microsecond=0).astimezone(ZoneInfo("UTC"))
+    return dt.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=dt.tzinfo)
 
 
 def ceil_datetime(dt) -> datetime:
-    return dt.replace(hour=23, minute=59, second=59, microsecond=999999).astimezone(
-        ZoneInfo("UTC")
-    )
+    return dt.replace(hour=23, minute=59, second=59, microsecond=999999, tzinfo=dt.tzinfo)
