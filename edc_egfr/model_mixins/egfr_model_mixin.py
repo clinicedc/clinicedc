@@ -32,7 +32,6 @@ class EgfrModelMixin(
     ),
     models.Model,
 ):
-
     """Declared with a bloodresult RFT CRF model.
 
     As a lab result CRF, expects subject_visit, requisition
@@ -47,7 +46,8 @@ class EgfrModelMixin(
     egfr_cls = Egfr
 
     def save(self, *args, **kwargs):
-        self.set_egfr_value_or_raise()
+        if self.creatinine_value:
+            self.set_egfr_value_or_raise()
         super().save(*args, **kwargs)
 
     def set_egfr_value_or_raise(self) -> None:
