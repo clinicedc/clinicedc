@@ -138,7 +138,11 @@ class FormRunner:
         """Note: unique constraint includes `field_name`"""
         model_obj_or_related_visit = src_obj
         get_related_visit_model_attr = getattr(src_obj, "related_visit_model_attr", None)
-        if get_related_visit_model_attr() and src_obj.related_visit:
+        if (
+            get_related_visit_model_attr
+            and get_related_visit_model_attr()
+            and src_obj.related_visit
+        ):
             model_obj_or_related_visit = src_obj.related_visit
         subject_identifier = model_obj_or_related_visit.subject_identifier
         opts = dict(
