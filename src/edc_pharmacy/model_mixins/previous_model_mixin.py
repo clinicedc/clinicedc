@@ -41,7 +41,6 @@ class PreviousNextModelMixin(models.Model):
 
     @property
     def next(self):
-        # self.update_or_raise_on_null_refill_end_datetimes()
         opts = {"refill_start_datetime__gt": self.refill_start_datetime}
         if getattr(self, "related_visit_model_attr", None):
             opts.update(
