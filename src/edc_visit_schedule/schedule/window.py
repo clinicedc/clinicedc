@@ -2,6 +2,7 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.utils.translation import gettext as _
 from edc_utils import convert_php_dateformat, floor_secs, formatted_date, to_utc
+from edc_utils.date import to_local
 
 from ..exceptions import (
     ScheduledVisitWindowError,
@@ -78,13 +79,15 @@ class Window:
         lower = floor_secs(to_utc(visit.dates.lower) - relativedelta(days=gap_days))
         upper = floor_secs(to_utc(visit.dates.upper))
         if not (lower <= floor_secs(to_utc(self.dt)) <= upper):
-            lower_date = visit.dates.lower.strftime(
+            lower_date = to_local(visit.dates.lower).strftime(
                 convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
             )
-            upper_date = visit.dates.upper.strftime(
+            upper_date = to_local(visit.dates.upper).strftime(
                 convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
             )
-            dt = self.dt.strftime(convert_php_dateformat(settings.SHORT_DATETIME_FORMAT))
+            dt = to_local(self.dt).strftime(
+                convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
+            )
 
             raise ScheduledVisitWindowError(
                 "Invalid datetime. Falls outside of the "
