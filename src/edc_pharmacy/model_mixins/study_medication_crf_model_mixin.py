@@ -7,6 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from edc_appointment.utils import get_next_appointment
 from edc_constants.constants import YES
 from edc_utils import formatted_datetime
+from edc_visit_tracking.utils import get_next_related_visit
 
 from ..exceptions import NextStudyMedicationError, StudyMedicationError
 from ..refill import create_refills_from_crf
@@ -38,15 +39,19 @@ class StudyMedicationCrfModelMixin(PreviousNextModelMixin, StudyMedicationRefill
                 f"Perhaps catch this in the form. See {self.related_visit}."
             )
 
+        if self.refill_to_next_visit == YES:
+            # overwrite the value of refill_end_datetime coming from
+            # the form with the date of next visit or appointment.
+            self.refill_end_datetime = getattr(
+                get_next_related_visit(self.related_visit), "report_datetime", None
+            ) or getattr(
+                get_next_appointment(self.related_visit.appointment, include_interim=True),
+                "appt_datetime",
+                None,
+            )
         if not self.refill_end_datetime:
-            if self.refill_to_next_visit == YES:
-                self.refill_end_datetime = get_next_appointment(
-                    self.related_visit.appointment, include_interim=True
-                ).appt_datetime
-            else:
-                self.refill_end_datetime = self.refill_start_datetime
-
-        self.adjust_end_datetimes()
+            # if None, means there is not a next appointment
+            self.refill_end_datetime = self.refill_start_datetime
 
         self.number_of_days = (self.refill_end_datetime - self.refill_start_datetime).days
 
