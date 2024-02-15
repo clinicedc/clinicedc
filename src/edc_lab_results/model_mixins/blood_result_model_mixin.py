@@ -48,7 +48,6 @@ class BloodResultsFieldsModelMixin(models.Model):
 
 
 class BloodResultsMethodsModelMixin(models.Model):
-
     """Requires additional attrs `subject_visit` and `requisition`"""
 
     def save(self, *args, **kwargs):
