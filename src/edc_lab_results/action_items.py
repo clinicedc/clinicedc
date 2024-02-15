@@ -106,7 +106,7 @@ class BloodResultsInsulinAction(BaseResultsAction):
 
 
 def register_actions():
-    for action_item in [
+    for action_cls in [
         BloodResultsEgfrAction,
         BloodResultsFbcAction,
         BloodResultsGluAction,
@@ -117,11 +117,11 @@ def register_actions():
         BloodResultsRftAction,
     ]:
         try:
-            django_apps.get_model(action_item.reference_model)
+            django_apps.get_model(action_cls.reference_model)
         except LookupError:
             pass
         else:
-            site_action_items.register(action_item)
+            site_action_items.register(action_cls)
 
 
 register_actions()
