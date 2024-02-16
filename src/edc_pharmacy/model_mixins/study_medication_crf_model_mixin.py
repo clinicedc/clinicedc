@@ -43,7 +43,9 @@ class StudyMedicationCrfModelMixin(PreviousNextModelMixin, StudyMedicationRefill
             # overwrite the value of refill_end_datetime coming from
             # the form with the date of next visit or appointment.
             self.refill_end_datetime = getattr(
-                get_next_related_visit(self.related_visit), "report_datetime", None
+                get_next_related_visit(self.related_visit, include_interim=True),
+                "report_datetime",
+                None,
             ) or getattr(
                 get_next_appointment(self.related_visit.appointment, include_interim=True),
                 "appt_datetime",
