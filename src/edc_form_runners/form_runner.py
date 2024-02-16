@@ -68,8 +68,8 @@ class FormRunner:
         for src_obj in tqdm(self.src_qs, total=total):
             self.issue_model_cls.objects.filter(**self.unique_opts(src_obj)).delete()
             self.run_one(src_obj=src_obj, skip_delete=True)
-        for model_name, message in self.messages.values():
-            print(f"{model_name}: {message}")
+        for k, v in self.messages.items():
+            print(f"Warning: {k}: {v}")
 
     def run_one(self, src_obj: Model, skip_delete: bool | None = None) -> None:
         if not skip_delete:
@@ -100,9 +100,17 @@ class FormRunner:
                     _, data = fieldset
                     fields.extend(data.get("fields"))
             else:
-                self.messages.update({self.model_name: "Fieldsets not defined. Using fields."})
+                self.messages.update(
+                    {
+                        self.model_name: (
+                            "ModelAdmin fieldsets not defined. Using ModelForm fields."
+                        )
+                    }
+                )
 
-                fields = getattr(self.modeladmin_cls, "fields", [])
+                fields = [
+                    k for k, v in getattr(self.modeladmin_cls.form(), "fields", {}).items()
+                ]
         fields = list(set(fields))
         return fields
 
@@ -138,7 +146,11 @@ class FormRunner:
         """Note: unique constraint includes `field_name`"""
         model_obj_or_related_visit = src_obj
         get_related_visit_model_attr = getattr(src_obj, "related_visit_model_attr", None)
-        if get_related_visit_model_attr() and src_obj.related_visit:
+        if (
+            get_related_visit_model_attr
+            and get_related_visit_model_attr()
+            and src_obj.related_visit
+        ):
             model_obj_or_related_visit = src_obj.related_visit
         subject_identifier = model_obj_or_related_visit.subject_identifier
         opts = dict(
