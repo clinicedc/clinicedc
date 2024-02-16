@@ -79,15 +79,25 @@ def get_subject_visit_missed_model_cls() -> Type[SubjectVisitMissed]:
     return django_apps.get_model(get_subject_visit_missed_model())
 
 
-def get_previous_related_visit(related_visit: SubjectVisit) -> SubjectVisit | None:
+def get_previous_related_visit(
+    related_visit: SubjectVisit, include_interim=None
+) -> SubjectVisit | None:
     if related_visit:
-        previous_appointment = related_visit.appointment.relative_previous
+        if include_interim:
+            previous_appointment = related_visit.appointment.relative_previous
+        else:
+            previous_appointment = related_visit.appointment.previous
         return getattr(previous_appointment, "related_visit", None)
     return None
 
 
-def get_next_related_visit(related_visit: SubjectVisit) -> SubjectVisit | None:
+def get_next_related_visit(
+    related_visit: SubjectVisit, include_interim=None
+) -> SubjectVisit | None:
     if related_visit:
-        next_appointment = related_visit.appointment.relative_next
+        if include_interim:
+            next_appointment = related_visit.appointment.relative_next
+        else:
+            next_appointment = related_visit.appointment.next
         return getattr(next_appointment, "related_visit", None)
     return None
