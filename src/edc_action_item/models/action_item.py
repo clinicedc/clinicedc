@@ -244,13 +244,11 @@ class ActionItem(
 
     @property
     def display_name(self) -> str:
-        """Returns a shortened action identifier."""
         return self.action_type.display_name
 
     @property
     def label_color(self) -> str:
-        """Returns a shortened action identifier."""
-        return self.action.get_color_style()
+        return self.action_cls.color_style
 
     class Meta(
         BaseUuidModel.Meta,
