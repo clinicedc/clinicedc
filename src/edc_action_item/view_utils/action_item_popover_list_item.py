@@ -91,7 +91,9 @@ class ActionItemPopoverListItem(PrnButton):
 
     @property
     def extra_kwargs(self) -> dict[str, str | int | UUID]:
-        kwargs = {}
+        kwargs = dict(
+            action_identifier=self.action_item.action_identifier,
+        )
         if self.action == ADD:
             # Add field to prefill form
             if obj := self.parent_reference_obj or self.related_reference_obj:
