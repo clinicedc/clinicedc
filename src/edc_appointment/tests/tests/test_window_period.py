@@ -183,7 +183,8 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
         # outside of window period
         self.assertIn("appt_datetime", form._errors)
         self.assertIn(
-            "Invalid. Expected a date/time between", form._errors.get("appt_datetime")[0]
+            "Invalid. Date falls outside of the window period for this `scheduled` visit",
+            form._errors.get("appt_datetime")[0],
         )
 
     def test_appointments_window_period_boundary_before_next_lower(self):
