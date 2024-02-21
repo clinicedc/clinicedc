@@ -90,9 +90,9 @@ class Window:
             )
 
             raise ScheduledVisitWindowError(
-                "Invalid datetime. Falls outside of the "
+                "Invalid. Date falls outside of the "
                 f"window period for this `scheduled` visit. "
-                f"Expected a datetime between {lower_date} "
+                f"Expected a date between {lower_date} "
                 f"and {upper_date} for {self.visit_code}. Got `{dt}`."
             )
 
