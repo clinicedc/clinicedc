@@ -2,6 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from edc_registration.models import RegisteredSubject
+from edc_screening.utils import get_subject_screening_model_cls
 from edc_sites import site_sites
 
 from ..exceptions import NotConsentedError
@@ -18,7 +19,6 @@ def requires_consent_on_pre_save(instance, raw, using, update_fields, **kwargs):
         and not instance._meta.model_name.startswith("historical")
     ):
         subject_identifier = getattr(instance, "related_visit", instance).subject_identifier
-        schedule = getattr(instance, "related_visit", instance).schedule
         site = getattr(instance, "related_visit", instance).site
         # is the subject registered?
         try:
@@ -37,9 +37,21 @@ def requires_consent_on_pre_save(instance, raw, using, update_fields, **kwargs):
         # get the consent definition valid for this report_datetime.
         # Schedule may have more than one consent definition but only one
         # is returned
-        consent_definition = schedule.get_consent_definition(
-            site=site_sites.get(site.id), report_datetime=instance.report_datetime
-        )
+        try:
+            schedule = getattr(instance, "related_visit", instance).schedule
+        except AttributeError:
+            schedule = None
+        if schedule:
+            consent_definition = schedule.get_consent_definition(
+                site=site_sites.get(site.id), report_datetime=instance.report_datetime
+            )
+        else:
+            # this is a model like SubjectLocator which has no visit_schedule
+            # fields. Assume the cdef from SubjectScreening
+            subject_screening = get_subject_screening_model_cls().objects.get(
+                subject_identifier=subject_identifier
+            )
+            consent_definition = subject_screening.consent_definition
         get_consent_or_raise(
             model=instance._meta.label_lower,
             subject_identifier=subject_identifier,
