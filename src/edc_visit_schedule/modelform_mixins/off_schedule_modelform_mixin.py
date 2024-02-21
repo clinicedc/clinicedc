@@ -14,20 +14,21 @@ class OffScheduleModelFormMixin(VisitScheduleNonCrfModelFormMixin):
 
     def clean(self):
         cleaned_data = super().clean()
-        history_obj = self.schedule.history_model_cls.objects.get(
-            subject_identifier=self.get_subject_identifier(),
-            schedule_name=self.schedule_name,
-            visit_schedule_name=self.visit_schedule_name,
-        )
-        try:
-            self.schedule.subject(self.get_subject_identifier()).update_history_or_raise(
-                history_obj=history_obj,
-                offschedule_datetime=self.offschedule_datetime,
-                update=False,
+        if self.offschedule_datetime:
+            history_obj = self.schedule.history_model_cls.objects.get(
+                subject_identifier=self.get_subject_identifier(),
+                schedule_name=self.schedule_name,
+                visit_schedule_name=self.visit_schedule_name,
             )
-        except InvalidOffscheduleDate as e:
-            raise forms.ValidationError(e)
-        self.validate_visit_tracking_reports()
+            try:
+                self.schedule.subject(self.get_subject_identifier()).update_history_or_raise(
+                    history_obj=history_obj,
+                    offschedule_datetime=self.offschedule_datetime,
+                    update=False,
+                )
+            except InvalidOffscheduleDate as e:
+                raise forms.ValidationError(e)
+            self.validate_visit_tracking_reports()
         return cleaned_data
 
     # TODO: validate_visit_tracking_reports before taking off schedule

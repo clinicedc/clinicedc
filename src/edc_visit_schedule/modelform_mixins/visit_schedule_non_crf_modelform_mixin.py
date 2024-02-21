@@ -65,26 +65,24 @@ class VisitScheduleNonCrfModelFormMixin:
         return schedule
 
     def is_onschedule_or_raise(self) -> None:
-        subject_schedule = SubjectSchedule(
-            self.get_subject_identifier(), self.visit_schedule, self.schedule
-        )
-        try:
-            subject_schedule.onschedule_or_raise(
-                report_datetime=self.report_datetime,
-                compare_as_datetimes=self.offschedule_compare_dates_as_datetimes,
+        if self.report_datetime:
+            subject_schedule = SubjectSchedule(
+                self.get_subject_identifier(), self.visit_schedule, self.schedule
             )
-        except (NotOnScheduleError, NotOnScheduleForDateError) as e:
-            raise forms.ValidationError(str(e))
+            try:
+                subject_schedule.onschedule_or_raise(
+                    report_datetime=self.report_datetime,
+                    compare_as_datetimes=self.offschedule_compare_dates_as_datetimes,
+                )
+            except (NotOnScheduleError, NotOnScheduleForDateError) as e:
+                raise forms.ValidationError(str(e))
 
     def report_datetime_within_schedule_datetimes(self) -> None:
-        report_datetime_within_onschedule_offschedule_datetimes(
-            subject_identifier=self.get_subject_identifier(),
-            report_datetime=self.report_datetime,
-            visit_schedule_name=self.visit_schedule_name,
-            schedule_name=self.schedule_name,
-            exception_cls=forms.ValidationError,
-        )
-
-    # @property
-    # def offschedule_compare_dates_as_datetimes(self):
-    #     return self._meta.model.offschedule_compare_dates_as_datetimes
+        if self.report_datetime:
+            report_datetime_within_onschedule_offschedule_datetimes(
+                subject_identifier=self.get_subject_identifier(),
+                report_datetime=self.report_datetime,
+                visit_schedule_name=self.visit_schedule_name,
+                schedule_name=self.schedule_name,
+                exception_cls=forms.ValidationError,
+            )
