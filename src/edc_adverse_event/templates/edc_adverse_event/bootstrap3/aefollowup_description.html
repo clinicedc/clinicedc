@@ -14,7 +14,7 @@ div.ae_description {min-width: 400px;}
     <span style="color:darkorange;">WITHDRAWN</span>
   {% endif %}
 <BR><B>Followup required:</B> <span style="color:{% if ae_followup.followup == YES%}red{%else%}green{%endif%};">{{ ae_followup.get_followup_display }}</span>
-<BR><B>Followup reported:</B> {{ ae_followup.report_datetime|date:SHORT_DATE_FORMAT}} ({{ utc_date|timeuntil:ae_initial.report_datetime.date }} ago)
+<BR><B>Followup reported:</B> {{ ae_followup.report_datetime|date:SHORT_DATE_FORMAT}} ({{ utc_date|timeuntil:ae_followup.report_datetime.date }} ago)
 <BR><B>This followup:</B>
 <BR>{{ relevant_history|default:ae_followup.relevant_history }}
 <BR>
