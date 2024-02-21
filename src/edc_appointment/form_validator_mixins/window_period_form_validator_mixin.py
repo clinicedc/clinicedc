@@ -4,15 +4,14 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from dateutil.relativedelta import relativedelta
-from django.conf import settings
 from django.utils.translation import gettext as _
-from edc_utils import convert_php_dateformat, formatted_date, to_utc
-from edc_utils.date import ceil_datetime, floor_secs, to_local
+from edc_utils import formatted_date, to_utc
+from edc_utils.date import floor_secs
 from edc_visit_schedule.exceptions import (
     ScheduledVisitWindowError,
     UnScheduledVisitWindowError,
 )
-from edc_visit_schedule.utils import get_lower_datetime, get_upper_datetime
+from edc_visit_schedule.utils import get_lower_datetime
 
 from ..constants import COMPLETE_APPT, INCOMPLETE_APPT
 
@@ -50,7 +49,6 @@ class WindowPeriodFormValidatorMixin:
         form_field: str,
     ):
         if proposed_appt_datetime:
-            datetimestring = convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
             try:
                 appointment.schedule.datetime_in_window(
                     timepoint_datetime=appointment.timepoint_datetime,
@@ -88,26 +86,8 @@ class WindowPeriodFormValidatorMixin:
                         },
                         UNSCHEDULED_WINDOW_ERROR,
                     )
-            except ScheduledVisitWindowError:
-                lower = floor_secs(to_local(get_lower_datetime(appointment))).strftime(
-                    datetimestring
-                )
-                upper = floor_secs(
-                    to_local(ceil_datetime(get_upper_datetime(appointment)))
-                ).strftime(datetimestring)
-                proposed = floor_secs(to_local(proposed_appt_datetime)).strftime(
-                    datetimestring
-                )
-                # TODO: check this is correctly limiting (e.g. requistions)
-                self.raise_validation_error(
-                    {
-                        form_field: (
-                            f"Invalid. Expected a date/time between {lower} and {upper} (S). "
-                            f"Got {proposed}."
-                        )
-                    },
-                    SCHEDULED_WINDOW_ERROR,
-                )
+            except ScheduledVisitWindowError as e:
+                self.raise_validation_error({form_field: (str(e))}, SCHEDULED_WINDOW_ERROR)
 
     @staticmethod
     def baseline_timepoint_datetime(appointment: Appointment) -> datetime:
