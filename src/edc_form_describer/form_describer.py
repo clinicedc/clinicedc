@@ -21,22 +21,21 @@ class FormDescriberError(Exception):
 
 
 class FormDescriber:
-
-    """A class that prepares form reference information in
-    markdown text.
+    """A class that prepares form reference information in Markdown
+    text.
 
     Usage:
         describer = FormDescriber(
                 admin_cls=MyModelAdmin,
                 include_hidden_fields=True)
 
-        # get the markdown text as a list of lines
+        # get the Markdown text as a list of lines
         markdown_lines = describer.markdown
 
-        # get the markdown as text
+        # get the Markdown as text
         markdown = describer.to_markdown(title='Forms', add_timestamp=True)
 
-        # or write markdown text directly to file
+        # or write Markdown text directly to file
         describer.to_file(path=path, title='Forms', add_timestamp=True)
 
     """
@@ -62,7 +61,10 @@ class FormDescriber:
         self.level = level or self.level
         self.conditional_fieldset = None
         self.admin_cls = admin_cls
-        self.model_cls = getattr(admin_cls, "model", admin_cls.form._meta.model)
+        try:
+            self.model_cls = admin_cls.model
+        except AttributeError:
+            self.model_cls = admin_cls.form._meta.model
         self.visit_code = visit_code
         self.models_fields = {fld.name: fld for fld in self.model_cls._meta.get_fields()}
 
@@ -170,6 +172,10 @@ class FormDescriber:
             self.markdown.append(f"* custom_prompt: *{self.custom_form_labels.get(fname)}*")
         self.markdown.append(f"- db_table: {self.model_cls._meta.db_table}")
         self.markdown.append(f"- column: {field_cls.name}")
+        try:
+            self.markdown.append(f"- metadata: {field_cls.metadata}")
+        except AttributeError:
+            pass
         self.markdown.append(f"- type: {field_cls.get_internal_type()}")
         if field_cls.max_length:
             self.markdown.append(f"- length: {field_cls.max_length}")
@@ -184,6 +190,7 @@ class FormDescriber:
         if field_cls.get_internal_type() == "CharField":
             if field_cls.choices:
                 self.markdown.append("- responses:")
+                # TODO: expand custom choices
                 for response in [f"`{tpl[0]}`: *{tpl[1]}*" for tpl in field_cls.choices]:
                     self.markdown.append(f"  - {response}")
             else:

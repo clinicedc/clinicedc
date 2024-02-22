@@ -27,7 +27,7 @@ class MarkdownWriter:
 
     def to_file(
         self,
-        markdown: str = None,
+        markdown: list[str] = None,
         pad: int | None = None,
         append: bool | None = None,
         prepend: bool | None = None,
