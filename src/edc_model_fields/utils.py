@@ -41,3 +41,7 @@ class Choices:
 
     def __call__(self, *args, **kwargs) -> tuple[tuple[str, str], ...]:
         return tuple((c[self.STORE], c[self.DISPLAY]) for c in self.choices)
+
+    def __iter__(self) -> tuple[str | int, str, str | int]:
+        for store, display, meta in self.choices:
+            yield store, display, meta
