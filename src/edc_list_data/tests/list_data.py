@@ -1,5 +1,7 @@
 from edc_constants.constants import OTHER
 
+from edc_list_data.row import Row
+
 list_data = {
     "edc_list_data.antibiotic": [
         ("amoxicillin_ampicillin", "Amoxicillin/Ampicillin"),
@@ -33,22 +35,22 @@ list_data = {
         (OTHER, "Other, please specify:"),
     ],
     "edc_list_data.symptom": [
-        ("double_vision", "Double vision"),
-        ("behaviour_change", "Behaviour change"),
-        ("confusion", "Confusion"),
-        ("cough", "Cough"),
-        ("drowsiness", "Drowsiness"),
-        ("fever", "Fever"),
-        ("focal_weakness", "Focal weakness"),
-        ("headache", "Headache"),
-        ("hearing_loss", "Hearing loss"),
-        ("nausea", "Nausea"),
-        ("seizures_gt_72", "Seizures (72 hrs - 1 mo)"),
-        ("seizures_lt_72 hrs", "Seizures (<72 hrs)"),
-        ("shortness_of_breath", "Shortness of breath"),
-        ("skin_lesions", "Skin lesions"),
-        ("visual_loss", "Visual loss"),
-        ("vomiting", "Vomiting"),
-        ("weight_loss", "Weight loss"),
+        Row(("double_vision", "Double vision", "01")),
+        Row(("behaviour_change", "Behaviour change", "02")),
+        Row(("confusion", "Confusion", "03")),
+        Row(("cough", "Cough", "04")),
+        Row(("drowsiness", "Drowsiness", "05")),
+        Row(("fever", "Fever", "06")),
+        Row(("focal_weakness", "Focal weakness", "07")),
+        Row(("headache", "Headache", "08")),
+        Row(("hearing_loss", "Hearing loss", "09")),
+        Row(("nausea", "Nausea", "10")),
+        Row(("seizures_gt_72", "Seizures (72 hrs - 1 mo)", "11")),
+        Row(("seizures_lt_72 hrs", "Seizures (<72 hrs)", "12")),
+        Row(("shortness_of_breath", "Shortness of breath", "13"), extra="Uganda"),
+        Row(("skin_lesions", "Skin lesions", "14"), extra="Uganda"),
+        Row(("visual_loss", "Visual loss", "15"), extra="Uganda"),
+        Row(("vomiting", "Vomiting", "16"), extra="Uganda"),
+        Row(("weight_loss", "Weight loss", "17"), extra="Uganda"),
     ],
 }

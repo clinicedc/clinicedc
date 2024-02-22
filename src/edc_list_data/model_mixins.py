@@ -64,7 +64,6 @@ class BaseListModelMixin(models.Model):
 
 
 class ListModelMixin(BaseListModelMixin):
-
     """Mixin for list data used in dropdown and radio widgets having
     display value and store value pairs.
     """
@@ -76,8 +75,28 @@ class ListModelMixin(BaseListModelMixin):
         indexes = BaseListModelMixin.Meta.indexes
 
 
-class ListUuidModelMixin(BaseListModelMixin, BaseUuidModel):
+class ListModelMixin2(BaseListModelMixin):
+    """Mixin for list data used in dropdown and radio widgets having
+    display value and store value pairs.
 
+    Includes field "custom_name"
+    """
+
+    id = models.AutoField(primary_key=True)
+
+    custom_name = models.CharField(
+        max_length=25,
+        null=True,
+        blank=True,
+        help_text="A custom name/value to use on export instead of or in addition to `name`",
+    )
+
+    class Meta(BaseListModelMixin.Meta):
+        abstract = True
+        indexes = BaseListModelMixin.Meta.indexes
+
+
+class ListUuidModelMixin(BaseListModelMixin, BaseUuidModel):
     """Mixin with UUID pk for list data used in dropdown
     and radio widgets having display value and store value pairs.
     """
