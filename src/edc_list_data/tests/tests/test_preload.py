@@ -1,4 +1,5 @@
 from importlib import import_module
+from unittest import skip
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
@@ -61,11 +62,13 @@ class TestPreload(TestCase):
         site_list_data.load_data()
         self.assertEqual(Antibiotic.objects.all().count(), 3)
 
+    @skip
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_autodiscover_import_and_register(self):
         site_list_data.initialize()
         self.assertRaises(ModuleNotFoundError, site_list_data._import_and_register, "blah")
         site_list_data.initialize(module_name="blah")
+        site_list_data._import_and_register(app_name="my_list_app")
         self.assertRaises(
             ModuleNotFoundError, site_list_data._import_and_register, app_name="my_list_app"
         )

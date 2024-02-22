@@ -31,7 +31,15 @@ def load_list_data(
     n = 0
     for model_name in model_names:
         try:
-            for display_index, row in enumerate(list_data.get(model_name)):
+            data = list_data.get(model_name)()
+        except TypeError:
+            data = list_data.get(model_name)
+        try:
+            for display_index, row in enumerate(data):
+                try:
+                    row = row()
+                except TypeError:
+                    pass
                 maker = ListModelMaker(display_index, row, model_name, apps=apps)
                 maker.create_or_update()
         except ListModelMakerError as e:

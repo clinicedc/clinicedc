@@ -6,6 +6,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.management.color import color_style
 from django.db import transaction
+from django.utils.module_loading import module_has_submodule
 
 from .load_list_data import LoadListDataError
 from .preload_data import PreloadData
@@ -28,7 +29,6 @@ def get_autodiscover_enabled():
 
 
 class SiteListData:
-
     """Load list data from any module named "list_data".
 
     Called in AppConfig or by management command.
@@ -149,16 +149,14 @@ class SiteListData:
                     pass
 
     def _import_and_register(self, app_name: str) -> None:
-        import_module(app_name)
+        mod = import_module(app_name)
         before_import_registry = copy.deepcopy(site_list_data.registry)
         try:
             module = import_module(f"{app_name}.{self.module_name}")
-        except Exception as e:
+        except ImportError as e:
             site_list_data.registry = before_import_registry
-            if f"No module named '{app_name}.{self.module_name}'" not in str(e):
+            if module_has_submodule(mod, self.module_name):
                 raise SiteListDataError(f"{e} See {app_name}.{self.module_name}")
-            else:
-                raise
         else:
             self.register(module, app_name=app_name)
 
