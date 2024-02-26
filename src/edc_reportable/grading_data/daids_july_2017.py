@@ -407,14 +407,14 @@ chemistries = dict(
     ],
     magnesium=[
         p(
-            "0.3<=x<=0.44",
+            "0.30<=x<=0.44",
             grade=GRADE3,
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
         p(
-            "x<0.3",
+            "x<0.30",
             grade=GRADE4,
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
@@ -546,7 +546,7 @@ chemistries = dict(
     ],
     uric_acid=[
         p(
-            "12<=x<15.0",
+            "12.0<=x<15.0",
             grade=GRADE3,
             units=MILLIGRAMS_PER_DECILITER,
             gender=[MALE, FEMALE],
@@ -639,14 +639,14 @@ hematology = {
     ],
     "neutrophil": [
         p(
-            "0.4<=x<=0.59",
+            "0.40<=x<=0.59",
             grade=GRADE3,
             units=TEN_X_9_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
         p(
-            "x<0.4",
+            "x<0.40",
             grade=GRADE4,
             units=TEN_X_9_PER_LITER,
             gender=[MALE, FEMALE],

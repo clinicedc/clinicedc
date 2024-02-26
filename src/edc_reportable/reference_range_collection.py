@@ -17,7 +17,6 @@ class ReferenceRangeCollectionError(Exception):
 
 
 class ReferenceRangeCollection:
-
     """Holds all normal and grading data available by name.
 
     Usually there is just one reference collection per project so
