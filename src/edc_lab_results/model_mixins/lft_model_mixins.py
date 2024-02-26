@@ -33,8 +33,8 @@ class AlpModelMixin(
     reportable_result_model_mixin_factory(
         utest_id="alp",
         units_choices=((IU_LITER, IU_LITER_DISPLAY),),
-        decimal_places=1,
-        validators=[MinValueValidator(1.0), MaxValueValidator(9999.9)],
+        decimal_places=2,
+        validators=[MinValueValidator(1.00), MaxValueValidator(9999.99)],
     ),
     models.Model,
 ):
@@ -46,8 +46,8 @@ class AltModelMixin(
     reportable_result_model_mixin_factory(
         utest_id="alt",
         units_choices=((IU_LITER, IU_LITER_DISPLAY),),
-        decimal_places=1,
-        validators=[MinValueValidator(1.0), MaxValueValidator(9999.9)],
+        decimal_places=2,
+        validators=[MinValueValidator(1.00), MaxValueValidator(9999.99)],
     ),
     models.Model,
 ):

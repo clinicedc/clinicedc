@@ -12,7 +12,7 @@ class MagnesiumModelMixin(
             (MILLIMOLES_PER_LITER, MILLIMOLES_PER_LITER_DISPLAY),
             (MILLIGRAMS_PER_DECILITER, MILLIGRAMS_PER_DECILITER),
         ),
-        decimal_places=1,
+        decimal_places=2,
     ),
     models.Model,
 ):
