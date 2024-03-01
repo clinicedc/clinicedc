@@ -1,17 +1,16 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Type, TypeVar
 from uuid import UUID
 
-__all__ = ["SubjectConsentListboardButton"]
-
-from typing import TYPE_CHECKING, Type, TypeVar
-
+from edc_consent import site_consents
 from edc_pdutils.site import Site
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_utils import get_utcnow
 
-from . import ModelButton
+from .model_button import ModelButton
 
 if TYPE_CHECKING:
     from edc_consent.model_mixins import ConsentModelMixin
@@ -20,17 +19,35 @@ if TYPE_CHECKING:
     ScreeningModel = TypeVar("ScreeningModel", bound=ScreeningModelMixin)
     ConsentModel = TypeVar("ConsentModel", bound=ConsentModelMixin)
 
+__all__ = ["SubjectConsentListboardButton"]
+
 
 @dataclass
 class SubjectConsentListboardButton(ModelButton):
-    """For the consent button on subject screening listboard"""
+    """For the consent button on subject screening listboard.
 
-    screening_obj: ScreeningModel = None
-    model_obj: ConsentModel = None
-    model_cls: Type[ConsentModel] = None
+    Note: model_cls comes from the consent definition. The consent
+    definition is selected by date. If there are multiple consent
+    versions using different consent model classes, the date used to
+    select the consent definition might matter. This may be a problem
+    if data is not collected in realtime. That is, if there is a
+    duration between the screening report_datetime and the date the
+    consent button is rendered and clicked that crosses over from
+    consent version 1 to version 2.
+    """
+
+    screening_obj: ScreeningModel = field(default=None)
+    model_obj: ConsentModel = field(default=None)
+    model_cls: Type[ConsentModel] = field(default=None)
+    consent_version: str = field(default=None, init=False)
 
     def __post_init__(self):
-        self.model_cls = self.screening_obj.consent_definition.model_cls
+        cdef = site_consents.get_consent_definition(
+            report_datetime=get_utcnow(),
+            screening_model=self.screening_obj._meta.label_lower,
+        )
+        self.model_cls = cdef.model_cls
+        self.consent_version = cdef.version
         if self.screening_obj.consented:
             self.model_obj = self.model_cls.objects.get(
                 subject_identifier=self.screening_obj.subject_identifier
@@ -44,7 +61,7 @@ class SubjectConsentListboardButton(ModelButton):
 
     @property
     def label(self) -> str:
-        return "Consent"
+        return f"Consent v{self.consent_version}"
 
     @property
     def reverse_kwargs(self) -> dict[str, str | UUID]:
