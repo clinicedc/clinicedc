@@ -14,12 +14,11 @@ from edc_utils import age, get_utcnow
 from faker import Faker
 from model_bakery import baker
 
+from consent_app.models import SubjectConsent, SubjectScreening
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.form_validators import SubjectConsentFormValidatorMixin
 from edc_consent.modelform_mixins import ConsentModelFormMixin
 from edc_consent.site_consents import site_consents
-
-from ..models import SubjectConsent, SubjectScreening
 
 fake = Faker()
 
@@ -58,20 +57,22 @@ class TestConsentForm(TestCase):
         self.convent_v1 = self.consent_factory(
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
+            model="consent_app.subjectconsent",
             version="1.0",
         )
-        SubjectScreening.consent_definition = self.convent_v1
 
         self.convent_v2 = self.consent_factory(
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
+            model="consent_app.subjectconsentv2",
             version="2.0",
         )
         self.convent_v3 = self.consent_factory(
             start=self.study_open_datetime + timedelta(days=101),
             end=self.study_open_datetime + timedelta(days=150),
             version="3.0",
-            updates_versions=["1.0", "2.0"],
+            model="consent_app.subjectconsentv3",
+            updates=(self.convent_v2, "consent_app.subjectconsentupdatetov3"),
         )
         self.dob = self.study_open_datetime - relativedelta(years=25)
 
@@ -81,13 +82,13 @@ class TestConsentForm(TestCase):
             start=kwargs.get("start"),
             end=kwargs.get("end"),
             gender=kwargs.get("gender", ["M", "F"]),
-            updates_versions=kwargs.get("updates_versions", []),
+            updates=kwargs.get("updates", None),
             version=kwargs.get("version", "1"),
             age_min=kwargs.get("age_min", 16),
             age_max=kwargs.get("age_max", 64),
             age_is_adult=kwargs.get("age_is_adult", 18),
         )
-        model = kwargs.get("model", "edc_consent.subjectconsent")
+        model = kwargs.get("model", "consent_app.subjectconsent")
         consent_definition = ConsentDefinition(model, **options)
         site_consents.register(consent_definition)
         return consent_definition
@@ -158,7 +159,7 @@ class TestConsentForm(TestCase):
                 eligibility_datetime=consent_datetime,
             )
         subject_consent = baker.prepare_recipe(
-            "edc_consent.subjectconsent",
+            "consent_app.subjectconsent",
             dob=dob,
             consent_datetime=consent_datetime,
             first_name=first_name or "XXXXXX",

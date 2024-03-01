@@ -9,6 +9,7 @@ from edc_constants.constants import NO, YES
 from edc_model_form.utils import get_field_or_raise
 from edc_utils import AgeValueError, age, formatted_age
 
+from ... import site_consents
 from ...exceptions import ConsentDefinitionValidityPeriodError
 from ...utils import InvalidInitials, verify_initials_against_full_name
 
@@ -26,18 +27,21 @@ class ConsentModelFormValidationMixin:
     """
 
     @property
-    def consent_definition(self) -> ConsentDefinition:
+    def consent_definition(self) -> ConsentDefinition | None:
         """Returns a ConsentDefinition instance or raises
         if consent date not within consent definition validity
         period.
         """
-        cdef: ConsentDefinition = self.subject_screening.consent_definition
+        consent_definition = None
         if self.consent_datetime:
+            consent_definition = site_consents.get_consent_definition(
+                model=self._meta.model._meta.label_lower, report_datetime=self.consent_datetime
+            )
             try:
-                cdef.valid_for_datetime_or_raise(self.consent_datetime)
+                consent_definition.valid_for_datetime_or_raise(self.consent_datetime)
             except ConsentDefinitionValidityPeriodError as e:
                 raise forms.ValidationError({"consent_datetime": str(e)})
-        return cdef
+        return consent_definition
 
     def get_field_or_raise(self, name: str, msg: str) -> Any:
         return get_field_or_raise(

@@ -13,7 +13,8 @@ def consent_definition_factory(
     start: datetime = None,
     end: datetime = None,
     gender: list[str] | None = None,
-    updates_versions: list[str] = None,
+    updates: tuple[str, str] = None,
+    updated_by: str | None = None,
     version: str | None = None,
     age_min: int | None = None,
     age_max: int | None = None,
@@ -23,13 +24,14 @@ def consent_definition_factory(
         start=start or ResearchProtocolConfig().study_open_datetime,
         end=end or ResearchProtocolConfig().study_close_datetime,
         gender=gender or ["M", "F"],
-        updates_versions=updates_versions or [],
+        updates=updates or None,
+        updated_by=updated_by or None,
         version=version or "1",
         age_min=age_min or 16,
         age_max=age_max or 64,
         age_is_adult=age_is_adult or 18,
     )
-    model = model or "edc_consent.subjectconsent"
+    model = model or "consent_app.subjectconsent"
     consent_definition = ConsentDefinition(model, **options)
     site_consents.register(consent_definition)
     return consent_definition
@@ -40,13 +42,14 @@ def consent_factory(model=None, **kwargs):
         start=kwargs.get("start"),
         end=kwargs.get("end"),
         gender=kwargs.get("gender", ["M", "F"]),
-        updates_versions=kwargs.get("updates_versions", []),
+        updates=kwargs.get("updates", None),
+        updated_by=kwargs.get("updated_by", None),
         version=kwargs.get("version", "1"),
         age_min=kwargs.get("age_min", 16),
         age_max=kwargs.get("age_max", 64),
         age_is_adult=kwargs.get("age_is_adult", 18),
     )
-    model = kwargs.get("model", model or "edc_consent.subjectconsent")
+    model = kwargs.get("model", model or "consent_app.subjectconsent")
     consent_definition = ConsentDefinition(model, **options)
     site_consents.register(consent_definition)
     return consent_definition

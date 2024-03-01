@@ -10,11 +10,11 @@ from edc_utils import get_utcnow
 from faker import Faker
 from model_bakery import baker
 
+from consent_app.models import SubjectConsent
 from edc_consent.actions import unverify_consent, verify_consent
 from edc_consent.site_consents import site_consents
 
 from ..consent_test_utils import consent_definition_factory
-from ..models import SubjectConsent
 
 fake = Faker()
 
@@ -42,7 +42,7 @@ class TestActions(TestCase):
             last_name = fake.last_name()
             initials = first_name[0] + choice(string.ascii_uppercase) + last_name[0]
             baker.make_recipe(
-                "edc_consent.subjectconsent",
+                "consent_app.subjectconsent",
                 consent_datetime=self.study_open_datetime + relativedelta(days=1),
                 initials=initials.upper(),
             )

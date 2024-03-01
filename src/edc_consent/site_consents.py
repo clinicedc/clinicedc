@@ -19,9 +19,13 @@ from .exceptions import (
 )
 
 if TYPE_CHECKING:
+    from edc_model.models import BaseUuidModel
     from edc_sites.single_site import SingleSite
 
     from .consent_definition import ConsentDefinition
+    from .model_mixins import ConsentModelMixin
+
+    class ConsentModel(ConsentModelMixin, BaseUuidModel): ...
 
 
 __all__ = ["site_consents"]
@@ -34,16 +38,7 @@ class SiteConsents:
 
     def register(self, cdef: ConsentDefinition) -> None:
         if cdef.name in self.registry:
-            raise AlreadyRegistered(f"Consent definition already registered. Got {cdef}.")
-
-        for version in cdef.updates_versions:
-            try:
-                self.get_consent_definition(model=cdef.model, version=version)
-            except ConsentDefinitionDoesNotExist:
-                raise ConsentDefinitionError(
-                    f"Consent definition is configured to update a version that has "
-                    f"not been registered. See {cdef.display_name}. Got {version}."
-                )
+            raise AlreadyRegistered(f"Consent definition already registered. Got {cdef.name}.")
         for registered_cdef in self.registry.values():
             if registered_cdef.model == cdef.model:
                 if (
@@ -52,9 +47,23 @@ class SiteConsents:
                 ):
                     raise ConsentDefinitionError(
                         f"Consent period overlaps with an already registered consent "
-                        f"definition. See already registered consent {registered_cdef}. "
-                        f"Got {cdef}."
+                        f"definition. See already registered consent {registered_cdef.name}. "
+                        f"Got {cdef.name}."
                     )
+        if cdef.update_cdef:
+            if cdef.update_cdef not in self.registry.values():
+                raise ConsentDefinitionError(
+                    f"Updates unregistered consent definition. See {cdef.name}. "
+                    f"Got {cdef.update_cdef.name}"
+                )
+            elif cdef.update_cdef.updated_by and cdef.update_cdef.updated_by != cdef.version:
+                raise ConsentDefinitionError(
+                    f"Version mismatch with consent definition configured to update another. "
+                    f"'{cdef.name}' is configured to update "
+                    f"'{cdef.update_cdef.name}' but '{cdef.update_cdef.name}' "
+                    f"updated_by='{cdef.update_cdef.version}' not '{cdef.version}'. "
+                )
+
         self.registry.update({cdef.name: cdef})
         self.loaded = True
 
@@ -66,12 +75,16 @@ class SiteConsents:
     def get(self, name) -> ConsentDefinition:
         return self.registry.get(name)
 
+    def all(self) -> list[ConsentDefinition]:
+        return sorted(list(self.registry.values()))
+
     def get_consent_definition(
         self,
         model: str = None,
         report_datetime: datetime | None = None,
         version: str | None = None,
         site: SingleSite | None = None,
+        screening_model: str | None = None,
         **kwargs,
     ) -> ConsentDefinition:
         """Returns a single consent definition valid for the given criteria.
@@ -83,6 +96,7 @@ class SiteConsents:
             report_datetime=report_datetime,
             version=version,
             site=site,
+            screening_model=screening_model,
             **kwargs,
         )
         if len(cdefs) > 1:
@@ -96,6 +110,7 @@ class SiteConsents:
         report_datetime: datetime | None = None,
         version: str | None = None,
         site: SingleSite | None = None,
+        screening_model: str | None = None,
         **kwargs,
     ) -> list[ConsentDefinition]:
         """Return a list of consent definitions valid for the given
@@ -121,25 +136,31 @@ class SiteConsents:
             version, cdefs, error_messages
         )
         cdefs = self.filter_cdefs_by_site_or_raise(site, cdefs, error_messages)
+
+        cdefs, error_msg = self._filter_cdefs_by_model_or_raise(
+            screening_model, cdefs, error_messages, attrname="screening_model"
+        )
+
         # apply additional criteria
         for k, v in kwargs.items():
             if v is not None:
                 cdefs = [cdef for cdef in cdefs if getattr(cdef, k) == v]
-        return cdefs
+        return sorted(cdefs)
 
     @staticmethod
     def _filter_cdefs_by_model_or_raise(
         model: str | None,
         consent_definitions: list[ConsentDefinition],
         errror_messages: list[str] = None,
+        attrname: str | None = None,
     ) -> tuple[list[ConsentDefinition], list[str]]:
+        attrname = attrname or "model"
         cdefs = consent_definitions
         if model:
-            cdefs = [cdef for cdef in cdefs if model == cdef.model]
+            cdefs = [cdef for cdef in cdefs if model == getattr(cdef, attrname)]
             if not cdefs:
                 raise ConsentDefinitionDoesNotExist(
-                    "There are no consent definitions using this model. "
-                    f"Got {model._meta.verbose_name}."
+                    f"There are no consent definitions using this model. Got {model}."
                 )
             else:
                 errror_messages.append(f"model={model}")
@@ -213,6 +234,9 @@ class SiteConsents:
                     f"Consent definitions are: {self.get_registry_display()}."
                 )
         return cdefs
+
+    def versions(self):
+        return [cdef.version for cdef in self.registry.values()]
 
     def autodiscover(self, module_name=None, verbose=True):
         """Autodiscovers consent classes in the consents.py file of

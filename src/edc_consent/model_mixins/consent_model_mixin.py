@@ -21,6 +21,12 @@ class ConsentModelMixin(ConsentVersionModelMixin, VerificationFieldsMixin, model
     Declare with edc_identifier's NonUniqueSubjectIdentifierModelMixin
     """
 
+    screening_identifier = models.CharField(verbose_name="Screening identifier", max_length=50)
+
+    screening_datetime = models.DateTimeField(
+        verbose_name="Screening datetime", null=True, editable=False
+    )
+
     model_name = models.CharField(
         verbose_name="model",
         max_length=50,
@@ -126,6 +132,7 @@ class ConsentModelMixin(ConsentVersionModelMixin, VerificationFieldsMixin, model
             UniqueConstraint(
                 fields=[
                     "version",
+                    "screening_identifier",
                     "subject_identifier",
                 ],
                 name="%(app_label)s_%(class)s_version_uniq",

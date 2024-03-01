@@ -14,6 +14,10 @@ class ConsentDefinitionError(Exception):
     pass
 
 
+class ConsentDefinitionModelError(Exception):
+    pass
+
+
 class ConsentDefinitionDoesNotExist(Exception):
     pass
 

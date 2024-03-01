@@ -3,10 +3,9 @@ from django.test import TestCase, override_settings
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_utils import get_utcnow
 
+from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.exceptions import SiteConsentError
 from edc_consent.site_consents import site_consents
-
-from ...consent_definition import ConsentDefinition
 
 
 @override_settings(
@@ -26,7 +25,6 @@ class TestConsentModel(TestCase):
             start=self.study_open_datetime,
             end=self.study_close_datetime,
             gender=["M", "F"],
-            updates_versions=[],
             version="1",
             age_min=16,
             age_max=64,
@@ -36,22 +34,22 @@ class TestConsentModel(TestCase):
         return options
 
     def test_ok(self):
-        ConsentDefinition("edc_consent.subjectconsent", **self.default_options())
+        ConsentDefinition("consent_app.subjectconsent", **self.default_options())
 
     def test_cdef_name(self):
-        cdef1 = ConsentDefinition("edc_consent.subjectconsent", **self.default_options())
-        self.assertEqual(cdef1.name, "edc_consent.subjectconsent-1")
+        cdef1 = ConsentDefinition("consent_app.subjectconsent", **self.default_options())
+        self.assertEqual(cdef1.name, "consent_app.subjectconsent-1")
         site_consents.register(cdef1)
-        site_consents.get_consent_definition("edc_consent.subjectconsent")
-        site_consents.get_consent_definition(model="edc_consent.subjectconsent")
+        site_consents.get_consent_definition("consent_app.subjectconsent")
+        site_consents.get_consent_definition(model="consent_app.subjectconsent")
         site_consents.get_consent_definition(version="1")
 
         # add country
         site_consents.registry = {}
         cdef1 = ConsentDefinition(
-            "edc_consent.subjectconsentug", **self.default_options(country="uganda")
+            "consent_app.subjectconsentug", **self.default_options(country="uganda")
         )
-        self.assertEqual(cdef1.name, "edc_consent.subjectconsentug-1")
+        self.assertEqual(cdef1.name, "consent_app.subjectconsentug-1")
         site_consents.register(cdef1)
         cdef2 = site_consents.get_consent_definition(country="uganda")
         self.assertEqual(cdef1, cdef2)
@@ -59,7 +57,7 @@ class TestConsentModel(TestCase):
     def test_with_country(self):
         site_consents.registry = {}
         cdef1 = ConsentDefinition(
-            "edc_consent.subjectconsent", country="uganda", **self.default_options()
+            "consent_app.subjectconsent", country="uganda", **self.default_options()
         )
         site_consents.register(cdef1)
         cdef2 = site_consents.get_consent_definition(country="uganda")
@@ -68,10 +66,24 @@ class TestConsentModel(TestCase):
     def test_with_country_raises_on_potential_duplicate(self):
         site_consents.registry = {}
         cdef1 = ConsentDefinition(
-            "edc_consent.subjectconsent", country="uganda", **self.default_options()
+            "consent_app.subjectconsent", country="uganda", **self.default_options()
         )
         cdef2 = ConsentDefinition(
-            "edc_consent.subjectconsentug", country="uganda", **self.default_options()
+            "consent_app.subjectconsentug", country="uganda", **self.default_options()
+        )
+        site_consents.register(cdef1)
+        site_consents.register(cdef2)
+        self.assertRaises(
+            SiteConsentError, site_consents.get_consent_definition, country="uganda"
+        )
+
+    def test_duplicate_version(self):
+        site_consents.registry = {}
+        cdef1 = ConsentDefinition(
+            "consent_app.subjectconsent", country="uganda", **self.default_options()
+        )
+        cdef2 = ConsentDefinition(
+            "consent_app.subjectconsentug", country="uganda", **self.default_options()
         )
         site_consents.register(cdef1)
         site_consents.register(cdef2)
