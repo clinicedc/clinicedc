@@ -6,7 +6,6 @@ consent_v1 = ConsentDefinition(
     start=ResearchProtocolConfig().study_open_datetime,
     end=ResearchProtocolConfig().study_close_datetime,
     gender=["M", "F"],
-    updates_versions=[],
     version="1",
     age_min=16,
     age_max=64,

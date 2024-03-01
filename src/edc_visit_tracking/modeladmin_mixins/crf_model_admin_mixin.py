@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Type
 from uuid import UUID
 
+from edc_consent.fieldsets import REQUIRES_CONSENT_FIELDS
 from edc_constants.constants import UUID_PATTERN
 
 if TYPE_CHECKING:
@@ -113,6 +114,7 @@ class CrfModelAdminMixin:
         self, request: WSGIRequest, obj: CrfModelMixin | None = None
     ) -> tuple[str]:
         readonly_fields = super().get_readonly_fields(request, obj=obj)
+        readonly_fields += REQUIRES_CONSENT_FIELDS
         if (
             not self.related_visit_id(request)
             and self.related_visit_model_attr not in readonly_fields
