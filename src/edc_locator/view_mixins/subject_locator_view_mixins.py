@@ -15,7 +15,6 @@ if TYPE_CHECKING:
 
 
 class SubjectLocatorViewMixin:
-
     """Adds subject locator to the context.
 
     Declare with RegisteredSubjectViewMixin.

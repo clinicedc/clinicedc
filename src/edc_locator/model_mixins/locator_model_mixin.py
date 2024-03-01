@@ -23,7 +23,6 @@ class LocatorModelMixin(
     LocatorMethodsModelMixin,
     models.Model,
 ):
-
     """A model completed by the user to that captures participant
     locator information and permission to contact.
 
