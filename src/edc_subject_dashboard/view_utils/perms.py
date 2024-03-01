@@ -7,8 +7,7 @@ from django.contrib.auth import get_permission_codename
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.db import models
-from django.shortcuts import get_object_or_404
-from edc_sites import site_sites
+from edc_sites.site import sites as site_sites
 
 __all__ = ["Perms"]
 
@@ -69,7 +68,7 @@ class Perms:
     _site_perms: SitePerms = field(default=None, init=False)
 
     def __post_init__(self, model_cls: Type[models.Model]):
-        self.user = get_object_or_404(User, pk=self.user.id)
+        # self.user = get_object_or_404(User, pk=self.user.id)
         # set add, change, delete, view attrs for this user
         # based on the model class
         app_label = model_cls._meta.app_label
