@@ -17,7 +17,6 @@ requisition_fk_options = dict(
 
 
 class CrfWithRequisitionModelMixin(models.Model):
-
     """You may also wish to override field `requisition`
     to include `limit_choices_to`.
 

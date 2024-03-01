@@ -12,7 +12,6 @@ class SpecimenNotDrawnError(Exception):
 
 
 class Specimen:
-
     """A class that represents a collected specimen and it's aliquots
     given the original requisition.
 

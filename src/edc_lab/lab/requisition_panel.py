@@ -21,7 +21,6 @@ class InvalidProcessingProfile(Exception):
 
 
 class PanelAttrs:
-
     """ "A simple class of panel name attributes."""
 
     def __init__(self, name: str = None, alpha_code: str = None) -> None:
@@ -32,7 +31,6 @@ class PanelAttrs:
 
 
 class RequisitionPanel:
-
     """A panel class that contains processing profile instances."""
 
     panel_attrs_cls = PanelAttrs

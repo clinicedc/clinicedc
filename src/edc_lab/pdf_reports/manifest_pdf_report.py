@@ -21,8 +21,7 @@ if TYPE_CHECKING:
 
     from ..model_mixins import ManifestModelMixin
 
-    class Model(PdfReportModelMixin, ManifestModelMixin, BaseUuidModel):
-        ...
+    class Model(PdfReportModelMixin, ManifestModelMixin, BaseUuidModel): ...
 
 
 class ManifestPdfReportError(Exception):
@@ -252,9 +251,11 @@ class ManifestPdfReport(Report):
                 Paragraph(self.contact_name, self.styles["line_data_large"]),
                 "",
                 Paragraph(
-                    self.manifest.export_datetime.strftime("%Y-%m-%d %H:%M")
-                    if self.manifest.shipped
-                    else "PREVIEW",
+                    (
+                        self.manifest.export_datetime.strftime("%Y-%m-%d %H:%M")
+                        if self.manifest.shipped
+                        else "PREVIEW"
+                    ),
                     self.styles["line_data_large"],
                 ),
             ],
@@ -327,9 +328,11 @@ class ManifestPdfReport(Report):
                 data.get("contact_name"),
                 data.get("name"),
                 data.get("address"),
-                data.get("city")
-                if not data.get("state")
-                else "{} {}".format(data.get("city"), data.get("state")),
+                (
+                    data.get("city")
+                    if not data.get("state")
+                    else "{} {}".format(data.get("city"), data.get("state"))
+                ),
                 data.get("postal_code"),
                 data.get("country"),
             ]

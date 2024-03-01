@@ -10,7 +10,6 @@ class PrefixKeyError(Exception):
 
 
 class Prefix:
-
     """A class to generate an identifier prefix."""
 
     template: str = "{protocol_number}{requisition_identifier}"

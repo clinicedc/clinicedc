@@ -10,7 +10,6 @@ class ProcessingProfileAlreadyAdded(Exception):
 
 
 class Process:
-
     """A class to represent the resulting aliquot type and number of
     aliquots from the processing of a source aliquot.
     """
@@ -28,7 +27,6 @@ class Process:
 
 
 class ProcessingProfile:
-
     """A container of process instances.
 
     Given a source aliquot, all processes in the profile
