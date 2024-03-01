@@ -259,8 +259,8 @@ class Schedule:
     def get_consent_definition(
         self, report_datetime: datetime = None, site: SingleSite = None
     ) -> ConsentDefinition:
-        """Returns the ConsentDefinition valid for the given report
-        date or raises an exception.
+        """Returns the ConsentDefinition from this schedule valid for the
+        given report date or raises an exception.
         """
         consent_definition = None
         cdefs = [cdef for cdef in self.consent_definitions if site in cdef.sites]

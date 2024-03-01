@@ -127,7 +127,7 @@ class SubjectSchedule:
                 consent_model_obj = cdef.get_consent_for(
                     subject_identifier=self.subject_identifier,
                     report_datetime=onschedule_datetime,
-                    raise_if_does_not_exist=False,
+                    raise_if_not_consented=False,
                 )
                 if consent_model_obj:
                     break
