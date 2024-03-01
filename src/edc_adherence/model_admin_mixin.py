@@ -53,7 +53,6 @@ def get_visual_score_fieldset_tuple(description=None):
 
 
 class MedicationAdherenceAdminMixin:
-
     """Declare your admin class using this mixin.
 
     For example:
