@@ -1,7 +1,7 @@
 import csv
 from tempfile import mkdtemp
 
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_facility.import_holidays import import_holidays
 from edc_pdutils import CsvModelExporter, ModelToDataframe
 from edc_utils import get_utcnow
@@ -47,7 +47,6 @@ class TestExport(TestCase):
         m = ModelToDataframe(model=model)
         self.assertEqual(len(m.dataframe.index), 4)
 
-    @tag("1")
     def test_records_as_qs(self):
         m = ModelToDataframe(queryset=Crf.objects.all())
         self.assertEqual(len(m.dataframe.index), 4)
