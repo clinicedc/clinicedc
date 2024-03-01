@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_appointment.tests.helper import Helper
 from edc_consent import site_consents
@@ -112,7 +112,6 @@ class TestAdherence(TestCase):
         my_admin_site.register(MedicationAdherence, MedicationAdherenceAdmin)
         MedicationAdherenceAdmin(MedicationAdherence, my_admin_site)
 
-    @tag("1")
     def test_pill_count(self):
         data = dict(
             visual_score_slider=90,
