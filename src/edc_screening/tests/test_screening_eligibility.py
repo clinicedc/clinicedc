@@ -11,8 +11,7 @@ from edc_screening.fc import FC
 from edc_screening.screening_eligibility import (
     ScreeningEligibility as BaseScreeningEligibility,
 )
-
-from .models import SubjectScreening
+from screening_app.models import SubjectScreening
 
 
 class TestScreening(TestCase):

@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Type
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
+from edc_consent import site_consents
 
 from .utils import get_subject_screening_model
 
@@ -49,4 +50,8 @@ class SubjectScreeningFormValidatorMixin:
         return self._subject_screening
 
     def get_consent_definition_or_raise(self) -> ConsentDefinition:
-        return self.instance.consent_definition
+        """Is there a single consent definition registered"""
+        return site_consents.get_consent_definition(
+            screening_model=self.instance._meta.label_lower,
+            report_datetime=self.report_datetime,
+        )
