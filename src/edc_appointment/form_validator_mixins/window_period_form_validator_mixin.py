@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from dateutil.relativedelta import relativedelta
 from django.utils.translation import gettext as _
 from edc_utils import formatted_date, to_utc
-from edc_utils.date import floor_secs
+from edc_utils.date import floor_secs, to_local
 from edc_visit_schedule.exceptions import (
     ScheduledVisitWindowError,
     UnScheduledVisitWindowError,
@@ -49,6 +49,7 @@ class WindowPeriodFormValidatorMixin:
         form_field: str,
     ):
         if proposed_appt_datetime:
+            proposed_appt_datetime = to_utc(proposed_appt_datetime)
             try:
                 appointment.schedule.datetime_in_window(
                     timepoint_datetime=appointment.timepoint_datetime,
@@ -72,8 +73,8 @@ class WindowPeriodFormValidatorMixin:
                     except AttributeError:
                         # lower bound of next appointment
                         upper = floor_secs(get_lower_datetime(appointment.next))
-                    dt_lower = formatted_date(lower)
-                    dt_upper = formatted_date(upper)
+                    dt_lower = formatted_date(to_local(lower))
+                    dt_upper = formatted_date(to_local(upper))
                     self.raise_validation_error(
                         {
                             form_field: (

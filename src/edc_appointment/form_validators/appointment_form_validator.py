@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime
 from logging import warning
 from typing import TYPE_CHECKING, Any
 
@@ -9,8 +8,7 @@ from django.conf import settings
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
-from edc_consent import ConsentDefinitionDoesNotExist, NotConsentedError
-from edc_consent.utils import consent_datetime_or_raise
+from edc_consent.form_validators import ConsentDefinitionFormValidatorMixin
 from edc_facility.utils import get_facilities
 from edc_form_validators import INVALID_ERROR
 from edc_form_validators.form_validator import FormValidator
@@ -62,7 +60,10 @@ if TYPE_CHECKING:
 
 
 class AppointmentFormValidator(
-    MetadataHelperMixin, WindowPeriodFormValidatorMixin, FormValidator
+    MetadataHelperMixin,
+    ConsentDefinitionFormValidatorMixin,
+    WindowPeriodFormValidatorMixin,
+    FormValidator,
 ):
     """Note, the appointment is only changed, never added,
     through the AppointmentForm.
@@ -113,6 +114,10 @@ class AppointmentFormValidator(
         return django_apps.get_model(self.appointment_model)
 
     @property
+    def subject_identifier(self) -> str:
+        return self.instance.subject_identifier
+
+    @property
     def required_additional_forms_exist(self) -> bool:
         """Returns True if any `additional` required forms are
         yet to be keyed.
@@ -157,7 +162,7 @@ class AppointmentFormValidator(
             if self.instance.previous:
                 if obj := (
                     self.appointment_model_cls.objects.filter(
-                        subject_identifier=self.instance.subject_identifier,
+                        subject_identifier=self.subject_identifier,
                         visit_schedule_name=self.instance.visit_schedule_name,
                         schedule_name=self.instance.schedule_name,
                         appt_status=NEW_APPT,
@@ -215,7 +220,9 @@ class AppointmentFormValidator(
             if appt_datetime and appt_status != NEW_APPT:
                 appt_datetime_utc = to_utc(appt_datetime)
                 consent_datetime = self.get_consent_datetime_or_raise(
-                    appt_datetime=appt_datetime_utc
+                    report_datetime=appt_datetime_utc,
+                    fldname="appt_datetime",
+                    error_code=INVALID_APPT_DATE,
                 )
                 if appt_datetime_utc.date() < consent_datetime.date():
                     formatted_date = formatted_datetime(
@@ -463,7 +470,7 @@ class AppointmentFormValidator(
         """
         return (
             self.appointment_model_cls.objects.filter(
-                subject_identifier=self.instance.subject_identifier,
+                subject_identifier=self.subject_identifier,
                 visit_schedule_name=self.instance.visit_schedule_name,
                 schedule_name=self.instance.schedule_name,
                 appt_status=IN_PROGRESS_APPT,
@@ -561,30 +568,16 @@ class AppointmentFormValidator(
         """Returns the model's changelist url with filter querystring"""
         url = reverse(f"edc_metadata_admin:edc_metadata_{model_name}_changelist")
         url = (
-            f"{url}?q={self.instance.subject_identifier}"
+            f"{url}?q={self.subject_identifier}"
             f"&visit_code={self.instance.visit_code}"
             f"&visit_code_sequence={self.instance.visit_code_sequence}"
         )
         return url
 
-    def get_consent_datetime_or_raise(self: Any, appt_datetime: datetime) -> datetime:
-        consent_datetime = None
-        try:
-            consent_datetime = consent_datetime_or_raise(
-                report_datetime=appt_datetime,
-                appointment=self.instance,
-                raise_validation_error=self.raise_validation_error,
-            )
-        except ConsentDefinitionDoesNotExist as e:
-            self.raise_validation_error({"appt_datetime": str(e)}, INVALID_APPT_DATE)
-        except NotConsentedError as e:
-            self.raise_validation_error({"appt_datetime": str(e)}, INVALID_APPT_DATE)
-        return consent_datetime
-
     def validate_subject_on_schedule(self: Any) -> None:
         if self.cleaned_data.get("appt_datetime"):
             appt_datetime = self.cleaned_data.get("appt_datetime")
-            subject_identifier = self.instance.subject_identifier
+            subject_identifier = self.subject_identifier
             onschedule_model = site_visit_schedules.get_onschedule_model(
                 visit_schedule_name=self.instance.visit_schedule_name,
                 schedule_name=self.instance.schedule_name,
