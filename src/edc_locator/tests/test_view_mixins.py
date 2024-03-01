@@ -1,6 +1,6 @@
 from unittest.case import skip
 
-from django.test import TestCase, tag
+from django.test import TestCase
 from django.views.generic.base import ContextMixin
 from edc_action_item import site_action_items
 from edc_action_item.models import ActionItem
@@ -44,7 +44,6 @@ class TestViewMixins(TestCase):
         mixin.request = get_request_object_for_tests(self.user)
         self.assertGreater(len(mixin.request._messages._queued_messages), 0)
 
-    @tag("1")
     def test_subject_locator_view_ok(self):
         class MySubjectLocatorViewMixin(
             SiteViewMixin, SubjectLocatorViewMixin, RegisteredSubjectViewMixin, ContextMixin
