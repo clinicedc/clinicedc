@@ -18,8 +18,7 @@ if TYPE_CHECKING:
 
     from .model_mixins import EligibilityModelMixin, ScreeningModelMixin
 
-    class SubjectScreeningModel(ScreeningModelMixin, BaseUuidModel):
-        ...
+    class SubjectScreeningModel(ScreeningModelMixin, BaseUuidModel): ...
 
 
 __all__ = ["ScreeningEligibility"]
