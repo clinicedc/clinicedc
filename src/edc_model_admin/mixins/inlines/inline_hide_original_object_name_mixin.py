@@ -2,7 +2,6 @@ inline_hide_object_original_name = True
 
 
 class InlineHideOriginalObjectNameMixin:
-
     """Declare with main ModelAdmin class, not the InlineModelAdmin class.
 
     Only works if declared with the TabularInlineMixin.

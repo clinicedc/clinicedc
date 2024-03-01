@@ -10,7 +10,6 @@ from edc_dashboard.url_names import InvalidDashboardUrlName, url_names
 
 
 class ModelAdminRedirectOnDeleteMixin:
-
     """A mixin to redirect post delete.
 
     If `post_url_on_delete_name` and `post_full_url_on_delete` are

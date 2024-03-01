@@ -11,7 +11,6 @@ admin.site.enable_nav_sidebar = False
 
 
 class EdcAdminSite(DjangoAdminSite):
-
     """
     Add to your project urls.py
         path("edc_action_item/", edc_action_item.urls),

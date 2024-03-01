@@ -5,7 +5,6 @@ from .model_admin_changelist_button_mixin import ModelAdminChangelistButtonMixin
 
 
 class ChangelistButtonModelAdminMixin(ModelAdminChangelistButtonMixin):
-
     """Use a button as a list_display field with a link to add,
     change or changelist.
     """

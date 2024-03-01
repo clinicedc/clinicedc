@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from django.core.exceptions import ObjectDoesNotExist
+from edc_consent.modeladmin_mixins import RequiresConsentModelAdminMixin
 from edc_fieldsets import FieldsetsModelAdminMixin
 from edc_visit_tracking.modeladmin_mixins import CrfModelAdminMixin
 
@@ -9,6 +10,7 @@ from .model_admin_subject_dashboard_mixin import ModelAdminSubjectDashboardMixin
 
 class ModelAdminCrfDashboardMixin(
     FieldsetsModelAdminMixin,
+    RequiresConsentModelAdminMixin,
     ModelAdminSubjectDashboardMixin,
     CrfModelAdminMixin,
 ):
