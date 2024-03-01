@@ -47,11 +47,13 @@ class ConsentViewMixin:
         if not self._consents:
             self._consents = []
             for cdef in site_consents.get_consent_definitions():
-                if obj := cdef.get_consent_for(
-                    subject_identifier=self.subject_identifier,
-                    raise_if_not_consented=False,
-                ):
-                    self._consents.append(obj)
+                try:
+                    obj = cdef.get_consent_for(subject_identifier=self.subject_identifier)
+                except NotConsentedError:
+                    pass
+                else:
+                    if obj not in self._consents:
+                        self._consents.append(obj)
         return self._consents
 
     @property
