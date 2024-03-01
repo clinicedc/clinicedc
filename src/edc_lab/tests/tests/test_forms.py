@@ -328,5 +328,6 @@ class TestForms2(TestCase):
         form.is_valid()
         self.assertIn("requisition_datetime", form._errors)
         self.assertIn(
-            "Invalid. Expected a date/time between", form.errors.get("requisition_datetime")[0]
+            "Invalid. Date falls outside of the window period",
+            form.errors.get("requisition_datetime")[0],
         )
