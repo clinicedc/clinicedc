@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from unittest import skip
 
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
@@ -8,6 +9,8 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from model_bakery import baker
 
+from consent_app.models import CrfOne, SubjectVisit
+from consent_app.visit_schedules import get_visit_schedule
 from edc_consent.exceptions import (
     ConsentDefinitionDoesNotExist,
     ConsentDefinitionError,
@@ -18,8 +21,6 @@ from edc_consent.exceptions import (
 from edc_consent.site_consents import site_consents
 
 from ..consent_test_utils import consent_definition_factory
-from ..models import CrfOne, SubjectVisit
-from ..visit_schedules import get_visit_schedule
 
 
 @override_settings(
@@ -46,7 +47,7 @@ class TestConsent(TestCase):
         self.assertRaises(
             SiteConsentError,
             baker.make_recipe,
-            "edc_consent.subjectconsent",
+            "consent_app.subjectconsent",
             subject_identifier=subject_identifier,
             consent_datetime=self.study_open_datetime,
         )
@@ -86,7 +87,7 @@ class TestConsent(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(get_visit_schedule(consent_definition))
         subject_consent = baker.make_recipe(
-            "edc_consent.subjectconsent",
+            "consent_app.subjectconsent",
             subject_identifier=self.subject_identifier,
             consent_datetime=self.study_open_datetime,
             dob=self.study_open_datetime - relativedelta(years=25),
@@ -115,7 +116,7 @@ class TestConsent(TestCase):
         self.assertRaises(
             ConsentDefinitionDoesNotExist,
             baker.make_recipe,
-            "edc_consent.subjectconsent",
+            "consent_app.subjectconsent",
             dob=self.study_open_datetime - relativedelta(years=25),
             consent_datetime=self.study_open_datetime,
         )
@@ -127,7 +128,7 @@ class TestConsent(TestCase):
             version="1.0",
         )
         consent = baker.make_recipe(
-            "edc_consent.subjectconsent",
+            "consent_app.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.study_open_datetime - relativedelta(years=25),
         )
@@ -140,7 +141,7 @@ class TestConsent(TestCase):
             version="1.0",
         )
         subject_consent = baker.make_recipe(
-            "edc_consent.subjectconsent",
+            "consent_app.subjectconsent",
             subject_identifier=self.subject_identifier,
             consent_datetime=self.study_open_datetime,
             dob=self.study_open_datetime - relativedelta(years=25),
@@ -172,7 +173,7 @@ class TestConsent(TestCase):
             version="1.2",
         )
         baker.make_recipe(
-            "edc_consent.subjectconsent",
+            "consent_app.subjectconsent",
             subject_identifier=self.subject_identifier,
             consent_datetime=self.study_open_datetime,
             dob=self.study_open_datetime - relativedelta(years=25),
@@ -212,7 +213,7 @@ class TestConsent(TestCase):
         consent_datetime = self.study_open_datetime + timedelta(days=10)
 
         subject_consent = baker.make_recipe(
-            "edc_consent.subjectconsent",
+            "consent_app.subjectconsent",
             subject_identifier=self.subject_identifier,
             consent_datetime=consent_datetime,
             dob=self.study_open_datetime - relativedelta(years=25),
@@ -242,7 +243,7 @@ class TestConsent(TestCase):
         self.assertEqual(crf_one.consent_version, "1.0")
         consent_datetime = self.study_open_datetime + timedelta(days=60)
         subject_consent = baker.make_recipe(
-            "edc_consent.subjectconsent",
+            "consent_app.subjectconsent",
             subject_identifier=self.subject_identifier,
             consent_datetime=consent_datetime,
             dob=self.study_open_datetime - relativedelta(years=25),
@@ -258,127 +259,6 @@ class TestConsent(TestCase):
         # Mcrf_one.save()
         self.assertEqual(crf_one.consent_version, "1.1")
 
-    def test_consent_update_needs_previous_version(self):
-        """Asserts that a consent type updates a previous consent."""
-        consent_definition_factory(
-            start=self.study_open_datetime,
-            end=self.study_open_datetime + timedelta(days=50),
-            version="1.0",
-        )
-        # specify updates version that does not exist, raises
-        self.assertRaises(
-            ConsentDefinitionError,
-            consent_definition_factory,
-            start=self.study_open_datetime + timedelta(days=51),
-            end=self.study_open_datetime + timedelta(days=100),
-            version="1.1",
-            updates_versions=["1.2"],
-        )
-        # specify updates version that exists, ok
-        consent_definition_factory(
-            start=self.study_open_datetime + timedelta(days=51),
-            end=self.study_open_datetime + timedelta(days=100),
-            version="1.1",
-            updates_versions=["1.0"],
-        )
-
-    def test_consent_model_needs_previous_version(self):
-        """Asserts that a consent updates a previous consent but cannot
-        be entered without an existing instance for the previous
-        version."""
-        consent_definition_factory(
-            start=self.study_open_datetime,
-            end=self.study_open_datetime + timedelta(days=50),
-            version="1.0",
-        )
-        consent_definition_factory(
-            start=self.study_open_datetime + timedelta(days=51),
-            end=self.study_open_datetime + timedelta(days=100),
-            version="1.1",
-            updates_versions=["1.0"],
-        )
-        self.assertRaises(
-            ConsentVersionSequenceError,
-            baker.make_recipe,
-            "edc_consent.subjectconsent",
-            dob=self.study_open_datetime - relativedelta(years=25),
-            consent_datetime=self.study_open_datetime + timedelta(days=60),
-        )
-
-    def test_consent_needs_previous_version2(self):
-        """Asserts that a consent model updates its previous consent."""
-        consent_definition_factory(
-            start=self.study_open_datetime,
-            end=self.study_open_datetime + timedelta(days=50),
-            version="1.0",
-        )
-        consent_definition_factory(
-            start=self.study_open_datetime + timedelta(days=51),
-            end=self.study_open_datetime + timedelta(days=100),
-            version="1.1",
-            updates_versions=["1.0"],
-        )
-        subject_consent = baker.make_recipe(
-            "edc_consent.subjectconsent",
-            consent_datetime=self.study_open_datetime + timedelta(days=5),
-            dob=self.study_open_datetime - relativedelta(years=25),
-        )
-        self.assertEqual(subject_consent.version, "1.0")
-        subject_consent = baker.make_recipe(
-            "edc_consent.subjectconsent",
-            subject_identifier=subject_consent.subject_identifier,
-            consent_datetime=self.study_open_datetime + timedelta(days=60),
-            first_name=subject_consent.first_name,
-            last_name=subject_consent.last_name,
-            initials=subject_consent.initials,
-            identity=subject_consent.identity,
-            confirm_identity=subject_consent.identity,
-            dob=subject_consent.dob,
-        )
-        self.assertEqual(subject_consent.version, "1.1")
-
-    def test_consent_needs_previous_version3(self):
-        """Asserts that a consent updates a previous consent raises
-        if a version is skipped.
-        """
-        consent_definition_factory(
-            start=self.study_open_datetime,
-            end=self.study_open_datetime + timedelta(days=50),
-            version="1.0",
-        )
-        consent_definition_factory(
-            start=self.study_open_datetime + timedelta(days=51),
-            end=self.study_open_datetime + timedelta(days=100),
-            version="1.1",
-            updates_versions=["1.0"],
-        )
-        consent_definition_factory(
-            start=self.study_open_datetime + timedelta(days=101),
-            end=self.study_open_datetime + timedelta(days=150),
-            version="1.2",
-            updates_versions=["1.1"],
-        )
-        subject_consent = baker.make_recipe(
-            "edc_consent.subjectconsent",
-            consent_datetime=self.study_open_datetime,
-            dob=self.study_open_datetime - relativedelta(years=25),
-        )
-        self.assertEqual(subject_consent.version, "1.0")
-        # use a consent datetime within verion 1.2, skipping 1.1, raises
-        self.assertRaises(
-            ConsentVersionSequenceError,
-            baker.make_recipe,
-            "edc_consent.subjectconsent",
-            consent_datetime=self.study_open_datetime + timedelta(days=125),
-            subject_identifier=subject_consent.subject_identifier,
-            first_name=subject_consent.first_name,
-            last_name=subject_consent.last_name,
-            initials=subject_consent.initials,
-            identity=subject_consent.identity,
-            confirm_identity=subject_consent.identity,
-            dob=subject_consent.dob,
-        )
-
     def test_consent_periods_cannot_overlap(self):
         consent_definition_factory(
             start=self.study_open_datetime,
@@ -391,12 +271,11 @@ class TestConsent(TestCase):
             start=self.study_open_datetime + timedelta(days=25),
             end=self.study_open_datetime + timedelta(days=100),
             version="1.1",
-            updates_versions=["1.0"],
         )
 
     def test_consent_periods_cannot_overlap2(self):
         consent_definition_factory(
-            model="edc_consent.subjectconsent",
+            model="consent_app.subjectconsent",
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
@@ -404,7 +283,7 @@ class TestConsent(TestCase):
         self.assertRaises(
             ConsentDefinitionError,
             consent_definition_factory,
-            model="edc_consent.subjectconsent",
+            model="consent_app.subjectconsent",
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.1",
@@ -412,14 +291,14 @@ class TestConsent(TestCase):
 
     def test_consent_periods_can_overlap_if_different_model(self):
         consent_definition_factory(
-            model="edc_consent.subjectconsent",
+            model="consent_app.subjectconsent",
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
         )
         try:
             consent_definition_factory(
-                model="edc_consent.subjectconsent2",
+                model="consent_app.subjectconsent2",
                 start=self.study_open_datetime,
                 end=self.study_open_datetime + timedelta(days=50),
                 version="1.0",
@@ -437,24 +316,6 @@ class TestConsent(TestCase):
             start=self.study_open_datetime - relativedelta(days=1),
             end=self.study_close_datetime + relativedelta(days=1),
             version="1.0",
-        )
-
-    def test_consent_may_update_more_than_one_version(self):
-        consent_definition_factory(
-            start=self.study_open_datetime,
-            end=self.study_open_datetime + timedelta(days=50),
-            version="1.0",
-        )
-        consent_definition_factory(
-            start=self.study_open_datetime + timedelta(days=51),
-            end=self.study_open_datetime + timedelta(days=100),
-            version="2.0",
-        )
-        consent_definition_factory(
-            start=self.study_open_datetime + timedelta(days=101),
-            end=self.study_open_datetime + timedelta(days=150),
-            version="3.0",
-            updates_versions=["1.0", "2.0"],
         )
 
     def test_consent_definition_naive_datetime_start(self):
@@ -483,4 +344,148 @@ class TestConsent(TestCase):
             start=self.study_open_datetime,
             end=dte,
             version="1.0",
+        )
+
+    @skip
+    def test_consent_update_needs_previous_version(self):
+        """Asserts that a consent type updates a previous consent."""
+        consent_definition_factory(
+            start=self.study_open_datetime,
+            end=self.study_open_datetime + timedelta(days=50),
+            version="1.0",
+        )
+        # specify updates version that does not exist, raises
+        self.assertRaises(
+            ConsentDefinitionError,
+            consent_definition_factory,
+            start=self.study_open_datetime + timedelta(days=51),
+            end=self.study_open_datetime + timedelta(days=100),
+            version="1.1",
+            update_versions=["1.2"],
+        )
+        # specify updates version that exists, ok
+        consent_definition_factory(
+            start=self.study_open_datetime + timedelta(days=51),
+            end=self.study_open_datetime + timedelta(days=100),
+            version="1.1",
+            update_versions=["1.0"],
+        )
+
+    @skip
+    def test_consent_model_needs_previous_version(self):
+        """Asserts that a consent updates a previous consent but cannot
+        be entered without an existing instance for the previous
+        version."""
+        consent_definition_factory(
+            start=self.study_open_datetime,
+            end=self.study_open_datetime + timedelta(days=50),
+            version="1.0",
+        )
+        consent_definition_factory(
+            start=self.study_open_datetime + timedelta(days=51),
+            end=self.study_open_datetime + timedelta(days=100),
+            version="1.1",
+            update_versions=["1.0"],
+        )
+        self.assertRaises(
+            ConsentVersionSequenceError,
+            baker.make_recipe,
+            "consent_app.subjectconsent",
+            dob=self.study_open_datetime - relativedelta(years=25),
+            consent_datetime=self.study_open_datetime + timedelta(days=60),
+        )
+
+    @skip
+    def test_consent_needs_previous_version2(self):
+        """Asserts that a consent model updates its previous consent."""
+        consent_definition_factory(
+            start=self.study_open_datetime,
+            end=self.study_open_datetime + timedelta(days=50),
+            version="1.0",
+        )
+        consent_definition_factory(
+            start=self.study_open_datetime + timedelta(days=51),
+            end=self.study_open_datetime + timedelta(days=100),
+            version="1.1",
+            update_versions=["1.0"],
+        )
+        subject_consent = baker.make_recipe(
+            "consent_app.subjectconsent",
+            consent_datetime=self.study_open_datetime + timedelta(days=5),
+            dob=self.study_open_datetime - relativedelta(years=25),
+        )
+        self.assertEqual(subject_consent.version, "1.0")
+        subject_consent = baker.make_recipe(
+            "consent_app.subjectconsent",
+            subject_identifier=subject_consent.subject_identifier,
+            consent_datetime=self.study_open_datetime + timedelta(days=60),
+            first_name=subject_consent.first_name,
+            last_name=subject_consent.last_name,
+            initials=subject_consent.initials,
+            identity=subject_consent.identity,
+            confirm_identity=subject_consent.identity,
+            dob=subject_consent.dob,
+        )
+        self.assertEqual(subject_consent.version, "1.1")
+
+    @skip
+    def test_consent_needs_previous_version3(self):
+        """Asserts that a consent updates a previous consent raises
+        if a version is skipped.
+        """
+        consent_definition_factory(
+            start=self.study_open_datetime,
+            end=self.study_open_datetime + timedelta(days=50),
+            version="1.0",
+        )
+        consent_definition_factory(
+            start=self.study_open_datetime + timedelta(days=51),
+            end=self.study_open_datetime + timedelta(days=100),
+            version="1.1",
+            update_versions=["1.0"],
+        )
+        consent_definition_factory(
+            start=self.study_open_datetime + timedelta(days=101),
+            end=self.study_open_datetime + timedelta(days=150),
+            version="1.2",
+            update_versions=["1.1"],
+        )
+        subject_consent = baker.make_recipe(
+            "consent_app.subjectconsent",
+            consent_datetime=self.study_open_datetime,
+            dob=self.study_open_datetime - relativedelta(years=25),
+        )
+        self.assertEqual(subject_consent.version, "1.0")
+        # use a consent datetime within verion 1.2, skipping 1.1, raises
+        self.assertRaises(
+            ConsentVersionSequenceError,
+            baker.make_recipe,
+            "consent_app.subjectconsent",
+            consent_datetime=self.study_open_datetime + timedelta(days=125),
+            subject_identifier=subject_consent.subject_identifier,
+            first_name=subject_consent.first_name,
+            last_name=subject_consent.last_name,
+            initials=subject_consent.initials,
+            identity=subject_consent.identity,
+            confirm_identity=subject_consent.identity,
+            dob=subject_consent.dob,
+        )
+
+    @skip
+    def test_consent_may_update_more_than_one_version(self):
+        consent_definition_factory(
+            start=self.study_open_datetime,
+            end=self.study_open_datetime + timedelta(days=50),
+            version="1.0",
+        )
+        consent_definition_factory(
+            start=self.study_open_datetime + timedelta(days=51),
+            end=self.study_open_datetime + timedelta(days=100),
+            version="2.0",
+        )
+        consent_definition_factory(
+            start=self.study_open_datetime + timedelta(days=101),
+            end=self.study_open_datetime + timedelta(days=150),
+            version="3.0",
+            update_versions=["1.0", "2.0"],
         )

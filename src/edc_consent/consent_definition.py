@@ -5,9 +5,10 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Type
 
 from django.apps import apps as django_apps
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist
 from edc_constants.constants import FEMALE, MALE
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_screening.utils import get_subject_screening_model
 from edc_sites import site_sites
 from edc_utils import floor_secs, formatted_date, formatted_datetime
 from edc_utils.date import ceil_datetime, floor_datetime, to_local, to_utc
@@ -15,16 +16,19 @@ from edc_utils.date import ceil_datetime, floor_datetime, to_local, to_utc
 from .exceptions import (
     ConsentDefinitionError,
     ConsentDefinitionValidityPeriodError,
-    ConsentVersionSequenceError,
     NotConsentedError,
 )
 
 if TYPE_CHECKING:
     from edc_identifier.model_mixins import NonUniqueSubjectIdentifierModelMixin
+    from edc_model.models import BaseUuidModel
+    from edc_screening.model_mixins import EligibilityModelMixin, ScreeningModelMixin
 
     from .model_mixins import ConsentModelMixin
 
     class ConsentLikeModel(NonUniqueSubjectIdentifierModelMixin, ConsentModelMixin): ...
+
+    class SubjectScreening(ScreeningModelMixin, EligibilityModelMixin, BaseUuidModel): ...
 
 
 @dataclass(order=True)
@@ -35,26 +39,35 @@ class ConsentDefinition:
 
     model: str = field(compare=False)
     _ = KW_ONLY
-    start: datetime = field(
-        default=ResearchProtocolConfig().study_open_datetime, compare=False
-    )
+    start: datetime = field(default=ResearchProtocolConfig().study_open_datetime, compare=True)
     end: datetime = field(default=ResearchProtocolConfig().study_close_datetime, compare=False)
+    version: str = field(default="1", compare=False)
+    updates: tuple[ConsentDefinition, str] = field(default=tuple, compare=False)
+    updated_by: str = field(default=None, compare=False)
+    screening_model: str = field(default=None, compare=False)
     age_min: int = field(default=18, compare=False)
     age_max: int = field(default=110, compare=False)
     age_is_adult: int = field(default=18, compare=False)
-    version: str = field(default="1", compare=False)
     gender: list[str] | None = field(default_factory=list, compare=False)
-    updates_versions: list[str] | None = field(default_factory=list, compare=False)
-    subject_type: str = field(default="subject", compare=False)
     site_ids: list[int] = field(default_factory=list, compare=False)
     country: str | None = field(default=None, compare=False)
-    name: str = field(init=False, compare=True)
+    subject_type: str = field(default="subject", compare=False)
+    name: str = field(init=False, compare=False)
+    update_cdef: ConsentDefinition = field(default=None, init=False, compare=False)
+    update_model: str = field(default=None, init=False, compare=False)
+    update_version: str = field(default=None, init=False, compare=False)
     sort_index: str = field(init=False)
 
     def __post_init__(self):
         self.name = f"{self.model}-{self.version}"
         self.sort_index = self.name
         self.gender = [MALE, FEMALE] if not self.gender else self.gender
+        try:
+            self.update_cdef, self.update_model = self.updates
+        except (ValueError, TypeError):
+            pass
+        if not self.screening_model:
+            self.screening_model = get_subject_screening_model()
         if MALE not in self.gender and FEMALE not in self.gender:
             raise ConsentDefinitionError(f"Invalid gender. Got {self.gender}.")
         if not self.start.tzinfo:
@@ -83,29 +96,43 @@ class ConsentDefinition:
         self,
         subject_identifier: str = None,
         report_datetime: datetime | None = None,
-        raise_if_does_not_exist: bool | None = None,
+        raise_if_not_consented: bool | None = None,
     ) -> ConsentLikeModel | None:
-        consent = None
-        raise_if_does_not_exist = (
-            True if raise_if_does_not_exist is None else raise_if_does_not_exist
+        """Returns a subject consent using this consent_definition's
+        model_cls and version.
+
+        If it does not exist and this consent_definition updates a
+        previous (update_cdef), will try again with the update_cdef's
+        model_cls and version.
+
+        Finally, if the subject cosent does not exist raises a
+        NotConsentedError.
+        """
+        consent_obj = None
+        raise_if_not_consented = (
+            True if raise_if_not_consented is None else raise_if_not_consented
         )
         opts: dict[str, str | datetime] = dict(
-            subject_identifier=subject_identifier,
-            version=self.version,
+            subject_identifier=subject_identifier, version=self.version
         )
         if report_datetime:
             opts.update(consent_datetime__lte=to_utc(report_datetime))
         try:
-            consent = self.model_cls.objects.get(**opts)
+            consent_obj = self.model_cls.objects.get(**opts)
         except ObjectDoesNotExist:
-            if raise_if_does_not_exist:
-                dte = formatted_date(report_datetime)
-                raise NotConsentedError(
-                    f"Consent not found. Has subject '{subject_identifier}' "
-                    f"completed version '{self.version}' of consent "
-                    f"'{self.model_cls._meta.verbose_name}' on or after '{dte}'?"
-                )
-        return consent
+            if self.update_cdef:
+                opts.update(version=self.update_cdef.version)
+                try:
+                    consent_obj = self.update_cdef.model_cls.objects.get(**opts)
+                except ObjectDoesNotExist:
+                    pass
+        if not consent_obj and raise_if_not_consented:
+            dte = formatted_date(report_datetime)
+            raise NotConsentedError(
+                f"Consent not found. Has subject '{subject_identifier}' "
+                f"completed version '{self.version}' of consent on or after '{dte}'?"
+            )
+        return consent_obj
 
     @property
     def model_cls(self) -> Type[ConsentLikeModel]:
@@ -118,6 +145,10 @@ class ConsentDefinition:
             f"from {formatted_date(to_local(self.start))} to "
             f"{formatted_date(to_local(self.end))}"
         )
+
+    @property
+    def verbose_name(self) -> str:
+        return self.model_cls._meta.verbose_name
 
     def valid_for_datetime_or_raise(self, report_datetime: datetime) -> None:
         if not (
@@ -150,45 +181,15 @@ class ConsentDefinition:
                     f"See {self}. Got {date_string}."
                 )
 
-    def update_previous_consent(self, obj: ConsentLikeModel) -> None:
-        if self.updates_versions:
-            previous_consent = self.get_previous_consent(
-                subject_identifier=obj.subject_identifier,
-            )
-            previous_consent.subject_identifier_as_pk = obj.subject_identifier_as_pk
-            previous_consent.subject_identifier_aka = obj.subject_identifier_aka
-            previous_consent.save(
-                update_fields=["subject_identifier_as_pk", "subject_identifier_aka"]
-            )
-
     def get_previous_consent(
-        self, subject_identifier: str, version: str = None
-    ) -> ConsentLikeModel | None:
-        """Returns the previous consent or raises if it does
-        not exist or is out of sequence with the current.
-        """
-        if version in self.updates_versions:
-            raise ConsentVersionSequenceError(f"Invalid consent version. Got {version}.")
-        opts = dict(
-            subject_identifier=subject_identifier,
-            model_name=self.model,
-            version__in=self.updates_versions,
+        self, subject_identifier: str, exclude_id=None
+    ) -> ConsentLikeModel:
+        previous_consent = (
+            self.model_cls.objects.filter(subject_identifier=subject_identifier)
+            .exclude(id=exclude_id)
+            .order_by("consent_datetime")
         )
-        opts = {k: v for k, v in opts.items() if v is not None}
-        try:
-            previous_consent = self.model_cls.objects.get(**opts)
-        except ObjectDoesNotExist:
-            if not self.updates_versions:
-                previous_consent = None
-            else:
-                updates_versions = ", ".join(self.updates_versions)
-                raise ConsentVersionSequenceError(
-                    f"Failed to update previous version. A previous consent "
-                    f"with version in {updates_versions} for {subject_identifier} "
-                    f"was not found. Consent version '{self.version}' is "
-                    f"configured to update a previous version. "
-                    f"See consent definition `{self.name}`."
-                )
-        except MultipleObjectsReturned:
-            previous_consent = self.model_cls.objects.filter(**opts).order_by("-version")[0]
-        return previous_consent
+        if previous_consent.count() > 0:
+            return previous_consent.last()
+        else:
+            raise ObjectDoesNotExist("Previous consent does not exist")

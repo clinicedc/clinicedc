@@ -41,7 +41,7 @@ class ScoredReviewFieldsMixin(models.Model):
 
     consent_copy = models.CharField(
         verbose_name=(
-            "I have provided the client with a copy of their signed informed" " edc_consent"
+            "I have provided the client with a copy of their signed informed consent"
         ),
         max_length=3,
         choices=YES_NO_DECLINED,
@@ -49,7 +49,7 @@ class ScoredReviewFieldsMixin(models.Model):
         null=True,
         blank=False,
         help_text=(
-            "If no, INELIGIBLE. If declined, return copy to the " "clinic with the edc_consent"
+            "If no, INELIGIBLE. If declined, return copy to the clinic with the consent"
         ),
     )
 

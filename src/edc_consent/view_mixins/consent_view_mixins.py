@@ -6,7 +6,8 @@ from django.contrib import messages
 from django.contrib.messages import ERROR
 from edc_sites import site_sites
 
-from ..exceptions import ConsentDefinitionDoesNotExist
+from .. import site_consents
+from ..exceptions import ConsentDefinitionDoesNotExist, NotConsentedError
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -44,10 +45,13 @@ class ConsentViewMixin:
     def consents(self) -> QuerySet[ConsentLikeModel]:
         """Returns a Queryset of consents for this subject."""
         if not self._consents:
-            self._consents = self.consent_definition.model_cls.objects.filter(
-                subject_identifier=self.subject_identifier,
-                site_id__in=site_sites.get_site_ids_for_user(request=self.request),
-            ).order_by("version")
+            self._consents = []
+            for cdef in site_consents.get_consent_definitions():
+                if obj := cdef.get_consent_for(
+                    subject_identifier=self.subject_identifier,
+                    raise_if_not_consented=False,
+                ):
+                    self._consents.append(obj)
         return self._consents
 
     @property
@@ -56,10 +60,13 @@ class ConsentViewMixin:
         period.
         """
         if not self._consent:
-            self._consent = self.consent_definition.get_consent_for(
-                subject_identifier=self.subject_identifier,
-                report_datetime=self.report_datetime,
-            )
+            try:
+                self._consent = self.consent_definition.get_consent_for(
+                    subject_identifier=self.subject_identifier,
+                    report_datetime=self.report_datetime,
+                )
+            except NotConsentedError as e:
+                messages.add_message(self.request, message=str(e), level=ERROR)
         return self._consent
 
     @property

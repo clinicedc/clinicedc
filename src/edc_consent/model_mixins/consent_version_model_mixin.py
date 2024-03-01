@@ -1,8 +1,9 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models, transaction
 from edc_sites import site_sites
 
 from edc_consent import site_consents
-from edc_consent.exceptions import SiteConsentError
+from edc_consent.exceptions import ConsentDefinitionModelError
 
 
 class ConsentVersionModelMixin(models.Model):
@@ -16,44 +17,58 @@ class ConsentVersionModelMixin(models.Model):
     version = models.CharField(
         verbose_name="Consent version",
         max_length=10,
-        help_text="See 'Consent Type' for consent versions by period.",
+        help_text="See 'consent definition' for consent versions by period.",
         editable=False,
     )
 
-    updates_versions = models.BooleanField(default=False)
+    update_versions = models.BooleanField(default=False)
+
+    consent_definition_name = models.CharField(
+        verbose_name="Consent definition", max_length=50, null=True, editable=False
+    )
 
     def __str__(self):
         return f"{self.get_subject_identifier()} v{self.version}"
 
     def save(self, *args, **kwargs):
-        consent_definition = self.get_consent_definition()
-        self.version = consent_definition.version
-        self.updates_versions = True if consent_definition.updates_versions else False
-        if self.updates_versions:
-            with transaction.atomic():
-                consent_definition.get_previous_consent(
-                    subject_identifier=self.get_subject_identifier(),
-                    version=self.version,
-                )
+        cdef = self.consent_definition
+        self.version = cdef.version
+        self.consent_definition_name = cdef.name
+        if not self.id and self.subject_identifier:
+            try:
+                with transaction.atomic():
+                    previous_consent = cdef.get_previous_consent(
+                        subject_identifier=self.subject_identifier, exclude_id=self.id
+                    )
+            except ObjectDoesNotExist:
+                pass
+            else:
+                self.first_name = previous_consent.first_name
+                self.dob = previous_consent.dob
+                self.initials = previous_consent.initials
+                self.identity = previous_consent.identity
+                self.confirm_identity = previous_consent.confirm_identity
         super().save(*args, **kwargs)
 
-    def get_consent_definition(self):
+    @property
+    def consent_definition(self):
         """Allow the consent to save as long as there is a
         consent definition for this report_date and site.
         """
         site = self.site
         if not self.id and not site:
             site = site_sites.get_current_site_obj()
-        consent_definition = site_consents.get_consent_definition(
-            model=self._meta.label_lower,
+        cdef = site_consents.get_consent_definition(
             report_datetime=self.consent_datetime,
             site=site_sites.get(site.id),
         )
-        if consent_definition.model != self._meta.label_lower:
-            raise SiteConsentError(
-                f"No consent definitions exist for this consent model. Got {self}."
+        if self._meta.label_lower not in [cdef.model, cdef.update_model]:
+            raise ConsentDefinitionModelError(
+                f"Incorrect model for consent_definition. This model cannot be used "
+                f"to create or update consent version '{cdef.version}'. Expected "
+                f"'{cdef.model}' or '{cdef.update_model}'. Got '{self._meta.label_lower}'."
             )
-        return consent_definition
+        return cdef
 
     class Meta:
         abstract = True
