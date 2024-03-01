@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import warnings
-from datetime import datetime
 from typing import TYPE_CHECKING
 
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from edc_appointment.form_validator_mixins import WindowPeriodFormValidatorMixin
 from edc_consent import ConsentDefinitionDoesNotExist
+from edc_consent.form_validators import ConsentDefinitionFormValidatorMixin
 from edc_form_validators import INVALID_ERROR, FormValidator
 from edc_registration import get_registered_subject_model_cls
 from edc_sites import site_sites
@@ -28,6 +28,7 @@ class CrfFormValidatorError(Exception):
 
 class CrfFormValidator(
     WindowPeriodFormValidatorMixin,
+    ConsentDefinitionFormValidatorMixin,
     CrfFormValidatorMixin,
     FormValidator,
 ):
@@ -77,9 +78,13 @@ class CrfFormValidator(
             # falls within appointment's window period
             self.validate_crf_datetime_in_window_period()
             # not before consent date
-            if floor_secs(self.report_datetime) < floor_secs(self.consent_datetime):
-                msg = _("Invalid. Cannot be before date of consent. Participant consent on")
-                formatted_date = formatted_datetime(self.consent_datetime)
+            report_datetime = to_utc(self.report_datetime)
+            consent_datetime = self.get_consent_datetime_or_raise(
+                report_datetime=report_datetime, fldname="report_datetime"
+            )
+            if floor_secs(report_datetime) < floor_secs(consent_datetime):
+                msg = _("Invalid. Cannot be before date of consent. Participant consented on")
+                formatted_date = formatted_datetime(consent_datetime)
                 err_message = format_lazy(
                     "{msg} {formatted_date}", msg=msg, formatted_date=formatted_date
                 )
@@ -134,15 +139,6 @@ class CrfFormValidator(
             )
         except AttributeError as e:
             raise CrfFormValidatorError(f"{e}. See {self.__class__}")
-
-    @property
-    def consent_datetime(self) -> datetime:
-        dt = (
-            get_registered_subject_model_cls()
-            .objects.get(subject_identifier=self.subject_identifier)
-            .consent_datetime
-        )
-        return to_utc(dt)
 
     def validate_datetime_against_report_datetime(self, field: str) -> None:
         """Datetime cannot be after report_datetime"""
