@@ -20,6 +20,6 @@ class HomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(
             edc_consent_admin=edc_consent_admin,
-            consents=site_consents.consent_definitions,
+            consent_definitions=site_consents.get_consent_definitions,
         )
         return super().get_context_data(**kwargs)

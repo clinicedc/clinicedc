@@ -66,6 +66,8 @@ class ConsentDefinition:
             self.update_cdef, self.update_model = self.updates
         except (ValueError, TypeError):
             pass
+        else:
+            self.update_version = self.update_cdef.version
         if not self.screening_model:
             self.screening_model = get_subject_screening_model()
         if MALE not in self.gender and FEMALE not in self.gender:
