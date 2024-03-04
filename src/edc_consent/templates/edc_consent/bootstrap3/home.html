@@ -5,7 +5,7 @@
 {% block main %}
 <div class="container">
 
-    <div id="div-home-right" class="col-md-8">
+    <div id="div-home-right" class="col-md-12">
          <div class="panel panel-default">
     <div class="panel-heading">Consent Versions</div>
     <table class="table table-hover responsive">
@@ -13,38 +13,27 @@
       		<tr>
        			<th>Model</th>
         		<th>Version</th>
-        		<th>Start Date</th>
-        		<th>End Date</th>
+        		<th>Start</th>
+        		<th>End</th>
         		<th>Updates</th>
+        		<th>Updates using model</th>
      	 	</tr>
     	</thead>
     	<tbody>
-      	{% for consent in  consents %}
-     	 <tr>
-        	<td>{{consent.verbose_name|title}}</td>
-        	<td>{{consent.version}}</td>
-          	<td>{{consent.start_datetime|date:"Y-M-d"}}</td>
-        	<td>{{consent.start_datetime|date:"Y-M-d"}}</td>
-        	<td>{{consent.update_model}}</td>
-      	</tr>
+      	{% for cdef in  consent_definitions %}
+         <tr>
+            <td>{{cdef.verbose_name|title}}</td>
+            <td>{{cdef.version}}</td>
+              <td>{{cdef.start|date:"d-m-Y"}}</td>
+            <td>{{cdef.end|date:"d-m-Y"}}</td>
+            <td>{{cdef.update_version|default:"-"}}</td>
+            <td>{{cdef.update_model|default:"-"}}</td>
+          </tr>
       	{% endfor %}
     	</tbody>
  	 </table>
         </div>
-     <div class="panel panel-default">
-        <div class="panel-heading">Consent Verification</div>
     </div>
-    </div>
-    <div id="div-home-right" class="col-md-4">
-        <div class="panel panel-default">
-        <div class="panel-heading">Administration</div>
-        <ul class="nav nav-pills nav-stacked">
-        <li><a href="{% url 'edc_consent:edc_consent_admin:index' %}">Admin Site</a></li>
-        {% for consent in consents %}
-        <li><a href="">{{ consent.name }}</a></li>
-        {% endfor %}
-        </ul>
-        </div>
     </div>
 
 </div>
