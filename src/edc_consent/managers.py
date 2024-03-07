@@ -1,23 +1,38 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from django.db import models
+from edc_search.model_mixins import SearchSlugManager
+from edc_sites.managers import CurrentSiteManager
 
-if TYPE_CHECKING:
-    from .stubs import ConsentLikeModel
+from .site_consents import site_consents
 
 
-class ObjectConsentManager(models.Manager):
+class ConsentObjectsManager(SearchSlugManager, models.Manager):
     def get_by_natural_key(self, subject_identifier_as_pk):
         return self.get(subject_identifier_as_pk=subject_identifier_as_pk)
 
 
-class ConsentManager(models.Manager):
-    def first_consent(self, subject_identifier=None) -> ConsentLikeModel:
-        """Returns the first consent by consent_datetime."""
-        return (
-            self.filter(subject_identifier=subject_identifier)
-            .order_by("consent_datetime")
-            .first()
-        )
+class ConsentObjectsByCdefManager(ConsentObjectsManager):
+    """An objects model manager to use on consent proxy models
+    linked to a ConsentDefinition.
+
+    Filters queryset by the proxy model's label_lower
+    """
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        cdef = site_consents.get_consent_definition(model=qs.model._meta.label_lower)
+        return qs.filter(version=cdef.version)
+
+
+class CurrentSiteByCdefManager(CurrentSiteManager):
+    """A site model manager to use on consent proxy models
+    linked to a ConsentDefinition.
+
+    Filters queryset by the proxy model's label_lower
+    """
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        cdef = site_consents.get_consent_definition(model=qs.model._meta.label_lower)
+        return qs.filter(version=cdef.version)

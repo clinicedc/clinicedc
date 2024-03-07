@@ -48,6 +48,9 @@ def consent_factory(model=None, **kwargs):
         age_min=kwargs.get("age_min", 16),
         age_max=kwargs.get("age_max", 64),
         age_is_adult=kwargs.get("age_is_adult", 18),
+        validate_duration_overlap_by_model=kwargs.get(
+            "validate_duration_overlap_by_model", True
+        ),
     )
     model = kwargs.get("model", model or "consent_app.subjectconsent")
     consent_definition = ConsentDefinition(model, **options)

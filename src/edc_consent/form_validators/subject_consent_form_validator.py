@@ -25,6 +25,12 @@ class SubjectConsentFormValidatorMixin(SubjectScreeningFormValidatorMixin):
         self.validate_demographics()
         super()._clean()
 
+    def validate_demographics(self) -> None:
+        self.validate_consent_datetime()
+        self.validate_age()
+        self.validate_gender()
+        self.validate_identity()
+
     @property
     def gender(self):
         return self.cleaned_data.get("gender")
@@ -47,12 +53,6 @@ class SubjectConsentFormValidatorMixin(SubjectScreeningFormValidatorMixin):
             model=self.consent_model, site=sites.get(self.instance.site.id)
         )
         return cdef.model_cls
-
-    def validate_demographics(self) -> None:
-        self.validate_consent_datetime()
-        self.validate_age()
-        self.validate_gender()
-        self.validate_identity()
 
     @property
     def consent_datetime(self) -> datetime | None:

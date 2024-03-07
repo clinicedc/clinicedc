@@ -13,6 +13,11 @@ from edc_consent.exceptions import NotConsentedError, SiteConsentError
 
 class ConsentDefinitionFormValidatorMixin:
 
+    @property
+    def subject_consent(self):
+        cdef = self.get_consent_definition()
+        return cdef.model_cls.objects.get(subject_identifier=self.subject_identifier)
+
     def get_consent_datetime_or_raise(
         self, report_datetime: datetime = None, fldname: str = None, error_code: str = None
     ) -> datetime:

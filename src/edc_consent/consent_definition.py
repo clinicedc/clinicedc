@@ -51,6 +51,7 @@ class ConsentDefinition:
     gender: list[str] | None = field(default_factory=list, compare=False)
     site_ids: list[int] = field(default_factory=list, compare=False)
     country: str | None = field(default=None, compare=False)
+    validate_duration_overlap_by_model: bool | None = field(default=True, compare=False)
     subject_type: str = field(default="subject", compare=False)
     name: str = field(init=False, compare=False)
     update_cdef: ConsentDefinition = field(default=None, init=False, compare=False)

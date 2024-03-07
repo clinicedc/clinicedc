@@ -40,7 +40,11 @@ class SiteConsents:
         if cdef.name in self.registry:
             raise AlreadyRegistered(f"Consent definition already registered. Got {cdef.name}.")
         for registered_cdef in self.registry.values():
-            if registered_cdef.model == cdef.model:
+            if (
+                cdef
+                and cdef.validate_duration_overlap_by_model
+                and registered_cdef.model == cdef.model
+            ):
                 if (
                     registered_cdef.start <= cdef.start <= registered_cdef.end
                     or registered_cdef.start <= cdef.end <= registered_cdef.end
@@ -68,15 +72,14 @@ class SiteConsents:
         self.loaded = True
 
     def get_registry_display(self):
-        return "', '".join(
-            [cdef.display_name for cdef in sorted(list(self.registry.values()))]
-        )
+        cdefs = sorted(list(self.registry.values()), key=lambda x: x.version)
+        return "', '".join([cdef.display_name for cdef in cdefs])
 
     def get(self, name) -> ConsentDefinition:
         return self.registry.get(name)
 
     def all(self) -> list[ConsentDefinition]:
-        return sorted(list(self.registry.values()))
+        return sorted(list(self.registry.values()), key=lambda x: x.version)
 
     def get_consent_definition(
         self,
@@ -145,7 +148,7 @@ class SiteConsents:
         for k, v in kwargs.items():
             if v is not None:
                 cdefs = [cdef for cdef in cdefs if getattr(cdef, k) == v]
-        return sorted(cdefs)
+        return sorted(cdefs, key=lambda x: x.version)
 
     @staticmethod
     def _filter_cdefs_by_model_or_raise(
