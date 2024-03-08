@@ -88,6 +88,11 @@ class SubjectConsent(
         verbose_name_plural = "Subject Consents"
 
 
+class SubjectConsentV1(SubjectConsent):
+    class Meta:
+        proxy = True
+
+
 class SubjectRequisition(
     CrfModelMixin,
     PanelModelMixin,
