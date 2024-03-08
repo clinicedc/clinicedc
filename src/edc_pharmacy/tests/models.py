@@ -36,6 +36,11 @@ class SubjectConsent(
     dob = models.DateField(default=date(1995, 1, 1))
 
 
+class SubjectConsentV1(SubjectConsent):
+    class Meta:
+        proxy = True
+
+
 class SubjectScreening(ScreeningModelMixin, BaseUuidModel):
     consent_definition = consent_v1
     objects = SubjectIdentifierManager()
