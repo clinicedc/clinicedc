@@ -21,7 +21,7 @@ class TreatmentPayMethodsModelMixin(models.Model):
     )
 
     patient_club = models.CharField(
-        verbose_name="Does the patient belong to a ‘club’ that supports medicines purchase?",
+        verbose_name="Does the patient belong to a 'club' that supports medicines purchase?",
         max_length=15,
         choices=YES_NO,
         default=UNKNOWN,

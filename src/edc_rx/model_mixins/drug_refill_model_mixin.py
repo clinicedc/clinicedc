@@ -14,7 +14,7 @@ class DrugRefillModelMixin(models.Model):
 
     rx_modified = models.CharField(
         verbose_name=(
-            "Was the patient’s prescription changed "
+            "Was the patient's prescription changed "
             "at this visit compared with their prescription "
             "at the previous visit?"
         ),
@@ -37,7 +37,7 @@ class DrugRefillModelMixin(models.Model):
 
     modifications_reason = models.ManyToManyField(
         f"{settings.LIST_MODEL_APP_LABEL}.RxModificationReasons",
-        verbose_name="Why did the patient’s previous prescription change?",
+        verbose_name="Why did the patient's previous prescription change?",
         blank=True,
     )
 
