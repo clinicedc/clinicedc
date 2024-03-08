@@ -27,6 +27,11 @@ class SubjectConsent(
     dob = models.DateField(default=date(1995, 1, 1))
 
 
+class SubjectConsentV1(SubjectConsent):
+    class Meta:
+        proxy = True
+
+
 class Crf(CrfModelMixin, CrfStatusModelMixin, BaseUuidModel):
     f1 = models.CharField(max_length=50, null=True, blank=True)
 
