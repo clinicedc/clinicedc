@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from edc_consent import site_consents
+from edc_consent.consent_definition import ConsentDefinition
 from edc_crf.crf_form_validator_mixins import BaseFormValidatorMixin
 
 
@@ -9,6 +11,17 @@ class PrnFormValidatorMixin(BaseFormValidatorMixin):
     """to be declared with PRN FormValidators."""
 
     report_datetime_field_attr = "report_datetime"
+
+    @property
+    def subject_consent(self):
+        return self.get_consent_definition(
+            report_datetime=self.report_datetime
+        ).model_cls.objects.get(subject_identifier=self.subject_identifier)
+
+    def get_consent_definition(
+        self, report_datetime: datetime = None, fldname: str = None, error_code: str = None
+    ) -> ConsentDefinition:
+        return site_consents.get_consent_definition(report_datetime=self.report_datetime)
 
     @property
     def report_datetime(self) -> datetime:

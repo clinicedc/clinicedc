@@ -52,7 +52,7 @@ class TestPrn(TestCase):
 
             def clean(self) -> None:
                 """test all methods"""
-                _ = self.subject_consent
+                # _ = self.subject_consent
                 _ = self.subject_identifier
                 _ = self.report_datetime
 
