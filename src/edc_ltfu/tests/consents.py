@@ -3,7 +3,7 @@ from edc_constants.constants import FEMALE, MALE
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 consent_v1 = ConsentDefinition(
-    "edc_metadata.subjectconsent",
+    "edc_metadata.subjectconsentv1",
     version="1",
     start=ResearchProtocolConfig().study_open_datetime,
     end=ResearchProtocolConfig().study_close_datetime,
