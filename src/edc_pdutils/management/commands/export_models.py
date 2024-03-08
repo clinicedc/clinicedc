@@ -45,6 +45,13 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
+            "--skip_model",
+            dest="skip_model_names",
+            default="",
+            help="models to skip. in label_lower format, if more than one separate by comma",
+        )
+
+        parser.add_argument(
             "-p",
             "--path",
             dest="path",
@@ -65,7 +72,7 @@ class Command(BaseCommand):
             "--stata-dta-version",
             dest="stata_dta_version",
             default=None,
-            choices=["114", "117", "118"],
+            choices=["118", "119"],
             help="STATA DTA file format version",
         )
 
@@ -128,27 +135,17 @@ class Command(BaseCommand):
         site_ids = options["site_ids"] or []
         if site_ids:
             site_ids = options["site_ids"].split(",")
-
-        countries = options["countries"] or []
-        if not countries:
-            raise CommandError("Expected country.")
-        else:
-            if countries == ALL_COUNTRIES:
-                countries = sites.countries
-            else:
-                countries = options["countries"].lower().split(",")
-                for country in countries:
-                    if country not in sites.countries:
-                        raise CommandError(f"Invalid country. Got {country}.")
-
+        countries = self.get_countries(options)
         self.site_ids = self.get_site_ids(site_ids=site_ids, countries=countries)
-
         app_labels = options["app_labels"] or []
         if app_labels:
             app_labels = options["app_labels"].split(",")
         model_names = options["model_names"] or []
         if model_names:
             model_names = options["model_names"].split(",")
+        skip_model_names = []
+        if options["skip_model_names"]:
+            skip_model_names = options["skip_model_names"].split(",")
         if app_labels and model_names:
             raise CommandError(
                 "Either provide the `app label` or a `model name` but not both. "
@@ -157,9 +154,32 @@ class Command(BaseCommand):
         models = self.get_models(app_labels=app_labels, model_names=model_names)
         if not models:
             raise CommandError("Nothing to do. No models to export.")
+        self.export(
+            models,
+            skip_model_names,
+            date_format,
+            sep,
+            export_path,
+            use_simple_filename,
+            export_format,
+            stata_dta_version,
+        )
 
+    def export(
+        self,
+        models,
+        skip_model_names,
+        date_format,
+        sep,
+        export_path,
+        use_simple_filename,
+        export_format,
+        stata_dta_version,
+    ):
         for app_label, model_names in models.items():
             for model_name in model_names:
+                if model_name in skip_model_names:
+                    continue
                 try:
                     m = ModelToDataframe(
                         model=model_name,
@@ -197,6 +217,20 @@ class Command(BaseCommand):
             raise CommandError("You are not authorized to export data.")
         if self.decrypt and not user.groups.filter(name="EXPORT_PII").exists():
             raise CommandError("You are not authorized to export sensitive data.")
+
+    def get_countries(self, options):
+        countries = options["countries"] or []
+        if not countries:
+            raise CommandError("Expected country.")
+        else:
+            if countries == ALL_COUNTRIES:
+                countries = sites.countries
+            else:
+                countries = options["countries"].lower().split(",")
+                for country in countries:
+                    if country not in sites.countries:
+                        raise CommandError(f"Invalid country. Got {country}.")
+        return countries
 
     def get_models(
         self, app_labels: list[str] | None, model_names: list[str] | None
