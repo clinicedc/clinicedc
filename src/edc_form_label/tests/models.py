@@ -30,6 +30,11 @@ class SubjectConsent(
     dob = models.DateField(default=date(1995, 1, 1))
 
 
+class SubjectConsentV1(SubjectConsent):
+    class Meta:
+        proxy = True
+
+
 class MyModel(CrfModelMixin, BaseUuidModel):
     subject_visit = models.OneToOneField(SubjectVisit, on_delete=PROTECT)
 
