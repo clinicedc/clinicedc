@@ -59,6 +59,11 @@ class SubjectConsent(
     dob = models.DateField(default=date(1995, 1, 1))
 
 
+class SubjectConsentV1(SubjectConsent):
+    class Meta:
+        proxy = True
+
+
 class OnScheduleOne(SiteModelMixin, OnScheduleModelMixin, BaseUuidModel):
     class Meta(BaseUuidModel.Meta):
         pass
