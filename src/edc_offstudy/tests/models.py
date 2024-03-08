@@ -34,6 +34,11 @@ class SubjectConsent(
         pass
 
 
+class SubjectConsentV1(SubjectConsent):
+    class Meta:
+        proxy = True
+
+
 class OnScheduleOne(SiteModelMixin, OnScheduleModelMixin, BaseUuidModel):
     class Meta(BaseUuidModel.Meta):
         pass

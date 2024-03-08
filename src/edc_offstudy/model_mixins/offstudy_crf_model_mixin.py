@@ -4,7 +4,6 @@ from ..utils import raise_if_offstudy
 
 
 class OffstudyCrfModelMixin(models.Model):
-
     """Model mixin for CRF models.
 
     A mixin for CRF models to add the ability to determine
