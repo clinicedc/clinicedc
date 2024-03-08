@@ -6,19 +6,17 @@ from typing import TYPE_CHECKING
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from edc_appointment.form_validator_mixins import WindowPeriodFormValidatorMixin
-from edc_consent import ConsentDefinitionDoesNotExist
 from edc_consent.form_validators import ConsentDefinitionFormValidatorMixin
 from edc_form_validators import INVALID_ERROR, FormValidator
 from edc_registration import get_registered_subject_model_cls
-from edc_sites import site_sites
 from edc_utils import floor_secs, formatted_datetime, to_utc
+from edc_utils.date import to_local
 from edc_visit_tracking.modelform_mixins import get_related_visit
 
 from .crf_form_validator_mixins import CrfFormValidatorMixin
 
 if TYPE_CHECKING:
     from edc_appointment.models import Appointment
-    from edc_consent.consent_definition import ConsentDefinition
     from edc_visit_tracking.model_mixins import VisitModelMixin
 
 
@@ -41,7 +39,6 @@ class CrfFormValidator(
 
     def _clean(self) -> None:
         self.validate_crf_report_datetime()
-        self.get_consent_definition_or_raise()
         super()._clean()
 
     @property
@@ -62,17 +59,6 @@ class CrfFormValidator(
     def dob(self):
         return self.registered_subject.dob
 
-    def get_consent_definition_or_raise(self) -> ConsentDefinition:
-        consent_definition = None
-        try:
-            consent_definition = self.related_visit.schedule.get_consent_definition(
-                site=site_sites.get(self.related_visit.site.id),
-                report_datetime=self.report_datetime,
-            )
-        except ConsentDefinitionDoesNotExist as e:
-            self.raise_validation_error(str(e), INVALID_ERROR)
-        return consent_definition
-
     def validate_crf_report_datetime(self) -> None:
         if self.report_datetime:
             # falls within appointment's window period
@@ -84,7 +70,7 @@ class CrfFormValidator(
             )
             if floor_secs(report_datetime) < floor_secs(consent_datetime):
                 msg = _("Invalid. Cannot be before date of consent. Participant consented on")
-                formatted_date = formatted_datetime(consent_datetime)
+                formatted_date = formatted_datetime(to_local(consent_datetime))
                 err_message = format_lazy(
                     "{msg} {formatted_date}", msg=msg, formatted_date=formatted_date
                 )
