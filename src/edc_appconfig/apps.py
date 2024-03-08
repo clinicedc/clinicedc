@@ -57,7 +57,12 @@ class AppConfig(DjangoAppConfig):
 
     def ready(self):
         from edc_action_item.system_checks import edc_action_item_checks
-        from edc_consent.system_checks import check_site_consents
+        from edc_consent.system_checks import (
+            check_consents_cdef_registered,
+            check_consents_durations,
+            check_consents_proxy_models,
+            check_consents_versions,
+        )
         from edc_export.system_checks import edc_export_checks
         from edc_facility.system_checks import holiday_country_check, holiday_path_check
         from edc_metadata.system_checks import check_for_metadata_rules
@@ -115,7 +120,10 @@ class AppConfig(DjangoAppConfig):
         sys.stdout.write("   - check_for_metadata_rules (deploy only)\n")
         register(check_for_metadata_rules)
         sys.stdout.write("   - check_site_consents\n")
-        register(check_site_consents)
+        register(check_consents_cdef_registered)
+        register(check_consents_durations)
+        register(check_consents_proxy_models)
+        register(check_consents_versions)
         sys.stdout.write("   - edc_navbar_checks\n")
         register(edc_navbar_checks)
 
