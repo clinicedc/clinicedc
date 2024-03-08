@@ -154,7 +154,7 @@ class ConsentDefinition:
         return self.model_cls._meta.verbose_name
 
     def valid_for_datetime_or_raise(self, report_datetime: datetime) -> None:
-        if not (
+        if report_datetime and not (
             floor_secs(floor_datetime(self.start))
             <= floor_secs(floor_datetime(report_datetime))
             <= floor_secs(floor_datetime(self.end))
