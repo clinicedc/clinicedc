@@ -39,6 +39,11 @@ class SubjectConsent(
         pass
 
 
+class SubjectConsentV1(SubjectConsent):
+    class Meta:
+        proxy = True
+
+
 class SubjectVisit(
     SiteModelMixin,
     VisitModelMixin,

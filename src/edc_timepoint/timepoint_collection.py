@@ -12,7 +12,6 @@ class TimepointConfigError(Exception):
 
 
 class TimepointCollection:
-
     """Contains a collection of Timepoint instances."""
 
     def __init__(self, timepoints=None):
