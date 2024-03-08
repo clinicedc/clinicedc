@@ -16,7 +16,7 @@ from edc_visit_tracking.models import SubjectVisit
 
 from review_dashboard_app.consents import consent_v1
 from review_dashboard_app.lab_profiles import lab_profile
-from review_dashboard_app.models import SubjectConsent
+from review_dashboard_app.models import SubjectConsentV1
 from review_dashboard_app.visit_schedule import visit_schedule
 
 User = get_user_model()
@@ -46,7 +46,7 @@ class TestDashboard(WebTest):
         self.subject_identifiers = ["101-40990028-3", "101-40990029-4"]
 
         for subject_identifier in self.subject_identifiers:
-            subject_consent = SubjectConsent.objects.create(
+            subject_consent = SubjectConsentV1.objects.create(
                 subject_identifier=subject_identifier,
                 consent_datetime=get_utcnow() - relativedelta(days=10),
                 identity=subject_identifier,
