@@ -42,6 +42,11 @@ class SubjectConsent(
         pass
 
 
+class SubjectConsentV1(SubjectConsent):
+    class Meta:
+        proxy = True
+
+
 class SubjectIdentifierModelManager(models.Manager):
     def get_by_natural_key(self, subject_identifier):
         return self.get(subject_identifier=subject_identifier)
