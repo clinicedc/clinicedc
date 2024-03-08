@@ -2,7 +2,6 @@ from django.utils.html import format_html
 
 
 class FormLabelModelAdminMixin:
-
     """A class that helps modify fieldsets for subject models
 
     * Model is expected to have a relation `subject_visit__appointment`.
