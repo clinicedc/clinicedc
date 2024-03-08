@@ -80,11 +80,13 @@ def create_or_update_data_dictionary(index, model, fld):
         label = fld.verbose_name
     db_field_data = DbField(model, fld).__dict__
     if db_field_data.get("field_name"):
+        default_value = db_field_data.pop("default")
         options = dict(
             active=True,
             model=model._meta.label_lower,
             number=index + 1,
             prompt=format_html("{}", mark_safe(label or "")),  # nosec B703, B308
+            default_value=default_value,
             **db_field_data,
         )
         try:
