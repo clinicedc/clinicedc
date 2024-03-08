@@ -56,7 +56,7 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
     def setUp(self):
         super().setUp()
         consent_v1 = ConsentDefinition(
-            "visit_schedule_app.subjectconsent",
+            "visit_schedule_app.subjectconsentv1",
             version="1",
             start=ResearchProtocolConfig().study_open_datetime,
             end=ResearchProtocolConfig().study_close_datetime,

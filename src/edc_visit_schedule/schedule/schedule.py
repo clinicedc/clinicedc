@@ -88,7 +88,7 @@ class Schedule:
             self.consent_definitions: list[ConsentDefinition] = [consent_definitions]
         else:
             self.consent_definitions: list[ConsentDefinition] = consent_definitions
-        self.consent_definitions = sorted(self.consent_definitions)
+        self.consent_definitions = sorted(self.consent_definitions, key=lambda x: x.version)
         if isinstance(base_timepoint, (float,)):
             base_timepoint = Decimal(str(base_timepoint))
         elif isinstance(base_timepoint, (int,)):

@@ -121,7 +121,9 @@ class SubjectSchedule:
             )
             # TODO: i think this is still problematic if multiple consent_defs
             #   exist for a site
-            consent_definitions = sorted(consent_definitions, reverse=True)
+            consent_definitions = sorted(
+                consent_definitions, key=lambda x: x.version, reverse=True
+            )
             consent_model_obj = None
             for cdef in consent_definitions:
                 consent_model_obj = cdef.get_consent_for(
