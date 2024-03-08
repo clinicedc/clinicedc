@@ -32,6 +32,11 @@ class SubjectConsent(
     dob = models.DateField(default=date(1995, 1, 1))
 
 
+class SubjectConsentV1(SubjectConsent):
+    class Meta:
+        proxy = True
+
+
 class SubjectVisit(VisitModelMixin, BaseUuidModel):
     subject_identifier = models.CharField(max_length=25)
 
