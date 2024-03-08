@@ -113,10 +113,10 @@ class ModelToDataframe:
                 self._dataframe.rename(columns=self.columns, inplace=True)
                 self.convert_datetimetz_to_datetime()
                 self.convert_bool_types_to_int()
-                self.remove_illegal_characters()
                 self.convert_unknown_types_to_str()
                 self.convert_timedelta_to_secs()
                 self._dataframe.fillna(value=np.nan, axis=0, inplace=True)
+                self.remove_illegal_characters()
         return self._dataframe
 
     def get_dataframe_without_encrypted_fields(self) -> pd.DataFrame:
@@ -149,12 +149,17 @@ class ModelToDataframe:
 
     def remove_illegal_characters(self):
         def clean_chars(s):
-            if s:
-                for k, v in self.illegal_chars.items():
-                    try:
-                        s = s.replace(k, v)
-                    except (AttributeError, TypeError):
-                        break
+            try:
+                s = s if s else s
+            except ValueError:
+                pass
+            else:
+                if s:
+                    for k, v in self.illegal_chars.items():
+                        try:
+                            s = s.replace(k, v)
+                        except (AttributeError, TypeError):
+                            break
             return s
 
         for column in list(self._dataframe.select_dtypes(include=["object"]).columns):
@@ -171,11 +176,13 @@ class ModelToDataframe:
 
     def convert_bool_types_to_int(self) -> None:
         for column in list(self._dataframe.select_dtypes(include=["bool"]).columns):
-            self._dataframe[column] = self._dataframe[column].replace({True: 1, False: 0})
+            self._dataframe[column] = (
+                self._dataframe[column].astype("int64").replace({True: 1, False: 0})
+            )
 
     def convert_unknown_types_to_str(self) -> None:
         for column in list(self._dataframe.select_dtypes(include=["object"]).columns):
-            self._dataframe[column].fillna(value="", inplace=True)
+            self._dataframe[column] = self._dataframe[column].fillna("")
             self._dataframe[column] = self._dataframe[column].astype(str)
 
     def convert_timedelta_to_secs(self) -> None:
