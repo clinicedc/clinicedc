@@ -15,7 +15,6 @@ summary_fieldset = Fieldset("summary_one", "summary_two", section="Summary")
 
 
 class MyModelAdmin(FieldsetsModelAdminMixin, admin.ModelAdmin):
-
     """Demonstrate the use of conditional_fieldsets.
 
     Fieldset "visit_two_fieldset" will only show on the admin

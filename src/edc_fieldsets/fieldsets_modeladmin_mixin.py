@@ -6,7 +6,6 @@ from .fieldsets import Fieldsets
 
 
 class FieldsetsModelAdminMixin:
-
     """A class that helps modify fieldsets for subject models
 
     * Model is expected to have a relation to have subject_visit__appointment.
