@@ -16,7 +16,6 @@ class UnableToCloseTimepoint(Exception):
 
 
 class TimepointLookupModelMixin(models.Model):
-
     """Makes a model lookup the timepoint model instance on `save`
     and check if it is a closed before allowing a create or update.
 
@@ -42,7 +41,6 @@ class TimepointLookupModelMixin(models.Model):
 
 
 class TimepointModelMixin(models.Model):
-
     """Makes a model serve as a marker for a timepoint, e.g. Appointment."""
 
     enabled_as_timepoint = True
