@@ -30,7 +30,7 @@ class DataDictionary(BaseUuidModel):
 
     nullable = models.BooleanField(null=True)
 
-    default = models.CharField(max_length=250, null=True)
+    default_value = models.CharField(max_length=250, null=True)
 
     help_text = models.TextField(null=True)
 
