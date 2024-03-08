@@ -37,3 +37,8 @@ class SubjectConsent(
     confirm_identity = models.CharField(max_length=25)
 
     dob = models.DateField(default=date(1995, 1, 1))
+
+
+class SubjectConsentV1(SubjectConsent):
+    class Meta:
+        proxy = True
