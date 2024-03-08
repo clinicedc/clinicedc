@@ -61,7 +61,6 @@ class CrfTestCase(TestCase):
             def clean(self) -> None:
                 """test all methods"""
                 _ = self.related_visit
-                _ = self.subject_consent
                 _ = self.subject_identifier
                 _ = self.report_datetime
                 _ = self.age_in_years
