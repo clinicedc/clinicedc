@@ -15,7 +15,6 @@ class InvalidTableName(Exception):
 
 
 class TablesExporter:
-
     """Export to file all tables for an app_label.
 
     Does not decrypt values stored in django_crypto_fields

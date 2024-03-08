@@ -6,7 +6,6 @@ from .csv_crf_tables_exporter import CsvCrfTablesExporter
 
 
 class CsvCrfInlineTablesExporter(CsvCrfTablesExporter):
-
     """A class to export non-CRF tables for this app_label."""
 
     visit_column = None

@@ -25,7 +25,6 @@ class ValueGetterInvalidLookup(ValidationError):
 
 
 class ValueGetter:
-
     """A class to retrieve a field value from a django models
     instance.
 

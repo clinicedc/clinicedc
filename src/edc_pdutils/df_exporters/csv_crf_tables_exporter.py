@@ -11,7 +11,6 @@ class CsvCrfTablesExporterError(Exception):
 
 
 class CsvCrfTablesExporter(TablesExporter):
-
     """A class to export CRF tables for this app_label.
 
     CRF tables include a FK to the visit model.
