@@ -17,7 +17,7 @@ class DeathReportTestMixin:
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
         subject_consent = baker.make_recipe(
-            "adverse_event_app.subjectconsent", subject_identifier="1234567"
+            "adverse_event_app.subjectconsentv1", subject_identifier="1234567"
         )
         self.subject_identifier = subject_consent.subject_identifier
 

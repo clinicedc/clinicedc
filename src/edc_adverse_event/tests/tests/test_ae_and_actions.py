@@ -512,7 +512,7 @@ class TestAeAndActions(TestCase):
     def test_ae_followup_outcome_ltfu_creates_action(
         self, mock_onschedule_models, mock_offschedule_models, mock_get_by_model
     ):
-        mock_onschedule_models.return_value = ["adverse_event_app.subjectconsent"]
+        mock_onschedule_models.return_value = ["adverse_event_app.subjectconsentv1"]
         mock_offschedule_models.return_value = ["adverse_event_app.studyterminationconclusion"]
         mock_get_by_model.return_value = StudyTerminationConclusionAction
 
