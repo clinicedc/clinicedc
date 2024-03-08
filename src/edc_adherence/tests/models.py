@@ -55,6 +55,11 @@ class SubjectConsent(
     version = models.CharField(max_length=10)
 
 
+class SubjectConsentV1(SubjectConsent):
+    class Meta:
+        proxy = True
+
+
 class OnSchedule(SiteModelMixin, BaseUuidModel):
     subject_identifier = models.CharField(max_length=50)
 
