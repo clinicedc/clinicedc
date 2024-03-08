@@ -14,7 +14,7 @@ from ...constants import CLOSED_TIMEPOINT, OPEN_TIMEPOINT
 from ...model_mixins import UnableToCloseTimepoint
 from ...timepoint import TimepointClosed
 from ..consents import consent_v1
-from ..models import CrfOne, CrfTwo, SubjectConsent, SubjectVisit
+from ..models import CrfOne, CrfTwo, SubjectConsentV1, SubjectVisit
 from ..visit_schedule import visit_schedule1
 
 
@@ -25,7 +25,7 @@ class Helper:
 
     def consent_and_put_on_schedule(self, subject_identifier=None):
         subject_identifier = subject_identifier or self.subject_identifier
-        subject_consent = SubjectConsent.objects.create(
+        subject_consent = SubjectConsentV1.objects.create(
             subject_identifier=subject_identifier,
             consent_datetime=self.now,
             identity="111111",
