@@ -24,7 +24,7 @@ from edc_visit_tracking.constants import SCHEDULED
 from data_manager_app.lab_profiles import lab_profile
 from data_manager_app.models import (
     CrfOne,
-    SubjectConsent,
+    SubjectConsentV1,
     SubjectRequisition,
     SubjectVisit,
 )
@@ -62,7 +62,7 @@ class TestQueryRules(TestCase):
 
         self.subject_identifier = "101-40990029-4"
         identity = "123456789"
-        subject_consent = SubjectConsent.objects.create(
+        subject_consent = SubjectConsentV1.objects.create(
             subject_identifier=self.subject_identifier,
             consent_datetime=get_utcnow() - relativedelta(days=10),
             identity=identity,
