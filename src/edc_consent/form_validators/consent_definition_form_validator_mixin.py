@@ -58,6 +58,7 @@ class ConsentDefinitionFormValidatorMixin:
     ) -> ConsentDefinition:
         # get the consent definition (must be from this schedule)
         schedule = getattr(self, "related_visit", self.instance).schedule
+
         site = getattr(self, "related_visit", self.instance).site
         try:
             consent_definition = schedule.get_consent_definition(
