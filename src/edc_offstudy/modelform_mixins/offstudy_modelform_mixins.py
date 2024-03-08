@@ -7,7 +7,6 @@ from edc_visit_schedule.utils import (
 
 
 class OffstudyModelFormMixin:
-
     """ModelForm mixin for the Offstudy Model."""
 
     def clean(self):

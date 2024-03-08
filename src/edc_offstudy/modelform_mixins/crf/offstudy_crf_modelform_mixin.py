@@ -7,7 +7,6 @@ from ...utils import OffstudyError, raise_if_offstudy
 
 
 class OffstudyCrfModelFormMixin:
-
     """ModelForm mixin for CRF Models.
 
     Must be declared with at least VisitScheduleCrfModelFormMixin
