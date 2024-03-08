@@ -11,7 +11,7 @@ from edc_sites.managers import CurrentSiteManager
 from edc_utils import age, formatted_age
 
 from ..field_mixins import VerificationFieldsMixin
-from ..managers import ConsentManager, ObjectConsentManager
+from ..managers import ConsentObjectsManager
 from .consent_version_model_mixin import ConsentVersionModelMixin
 
 
@@ -70,9 +70,7 @@ class ConsentModelMixin(ConsentVersionModelMixin, VerificationFieldsMixin, model
         help_text="A unique identifier for this consent instance",
     )
 
-    objects = ObjectConsentManager()
-
-    consent = ConsentManager()
+    objects = ConsentObjectsManager()
 
     on_site = CurrentSiteManager()
 

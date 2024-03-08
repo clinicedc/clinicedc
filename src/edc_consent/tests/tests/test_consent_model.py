@@ -11,7 +11,6 @@ from edc_utils import get_utcnow
 from faker import Faker
 from model_bakery import baker
 
-from consent_app.models import SubjectConsent
 from edc_consent.field_mixins import IdentityFieldsMixinError
 from edc_consent.site_consents import site_consents
 
@@ -363,23 +362,6 @@ class TestConsentModel(TestCase):
             consent_datetime=get_utcnow(),
             dob=get_utcnow() - relativedelta(years=25),
         )
-
-    def test_manager(self):
-        for i in range(1, 3):
-            first_name = fake.first_name()
-            last_name = fake.last_name()
-            initials = f"{first_name[0]}{last_name[0]}"
-            baker.make_recipe(
-                "consent_app.subjectconsent",
-                subject_identifier=str(i),
-                consent_datetime=self.study_open_datetime + relativedelta(days=i),
-                initials=initials,
-                first_name=first_name,
-                last_name=last_name,
-            )
-
-        first = SubjectConsent.objects.get(subject_identifier="1")
-        self.assertEqual(first, SubjectConsent.consent.first_consent(subject_identifier="1"))
 
     def test_model_str_repr_etc(self):
         obj = baker.make_recipe(

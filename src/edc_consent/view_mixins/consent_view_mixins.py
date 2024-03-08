@@ -46,7 +46,8 @@ class ConsentViewMixin:
         """Returns a Queryset of consents for this subject."""
         if not self._consents:
             self._consents = []
-            for cdef in site_consents.get_consent_definitions():
+            site = site_sites.get(self.request.site.id)
+            for cdef in site_consents.get_consent_definitions(site=site):
                 try:
                     obj = cdef.get_consent_for(subject_identifier=self.subject_identifier)
                 except NotConsentedError:
