@@ -25,7 +25,7 @@ from ...utils import get_ltfu_model_cls, get_ltfu_model_name
 
 list_data = {
     "edc_metadata.subjectvisitmissedreasons": [
-        ("forgot", "Forgot / Can’t remember being told about appointment"),
+        ("forgot", "Forgot / Can't remember being told about appointment"),
         ("family_emergency", "Family emergency (e.g. funeral) and was away"),
         ("travelling", "Away travelling/visiting"),
         ("working_schooling", "Away working/schooling"),
