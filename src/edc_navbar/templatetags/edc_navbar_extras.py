@@ -35,7 +35,7 @@ def render_navbar(context) -> dict:
 def render_navbar_item(context, navbar_item: NavbarItem) -> dict:
     data = {}
     url = navbar_item.get_url()
-    navbar_item.set_disabled(user=context["request"].user)
+    navbar_item.set_disabled(user=getattr(context["request"], "user", None))
     if url:
         data.update(url=url)
     data.update(navbar_item=navbar_item)
