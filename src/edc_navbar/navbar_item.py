@@ -60,6 +60,6 @@ class NavbarItem:
             url_name = self.url_name.split(":")[1] if self.no_url_namespace else self.url_name
         return url_name
 
-    def set_disabled(self, user: User = None):
-        if user.has_perm(self.codename):
+    def set_disabled(self, user: User | None = None):
+        if user and user.has_perm(self.codename):
             self.disabled = ""
