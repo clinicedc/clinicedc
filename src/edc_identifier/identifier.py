@@ -12,7 +12,7 @@ from .models import IdentifierModel
 class Identifier:
     name = "identifier"
     identifier_model_cls = IdentifierModel
-    identifier_pattern = "^\d+$"  # noqa
+    identifier_pattern = r"^\d+$"
     prefix_pattern: str | None = None
     prefix: str | None = None
     seed: str = "0"
