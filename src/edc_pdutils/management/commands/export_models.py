@@ -238,7 +238,7 @@ class Command(BaseCommand):
         models = {}
         if model_names:
             for model_name in model_names:
-                app_label, model_name = model_name.split(".")
+                app_label, _ = model_name.split(".")
                 if self.exclude_historical and model_name.startswith("historical"):
                     continue
                 try:
