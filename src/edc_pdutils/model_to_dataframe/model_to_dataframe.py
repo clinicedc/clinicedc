@@ -101,7 +101,16 @@ class ModelToDataframe:
 
     @property
     def dataframe(self) -> pd.DataFrame:
-        """Returns a pandas dataframe."""
+        """Returns a pandas dataframe.
+
+        Warning:
+            If any column names collide, 'rename()' converts column
+            datatype from Series to Dataframe and an error will be
+            raised later on. For example, main model "visit_reason"
+            and "subject_visit.visit_reason" -- in the '_dataframe',
+            column "visit_reason" would become a Dataframe instead
+            of a Series like all other columns.
+        """
         if self._dataframe.empty:
             row_count = self.queryset.count()
             if row_count > 0:
