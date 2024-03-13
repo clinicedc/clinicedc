@@ -93,7 +93,6 @@ class SimpleSequentialIdentifier:
 
 
 class SimpleUniqueIdentifier:
-
     """Usage:
 
     class ManifestIdentifier(Identifier):
