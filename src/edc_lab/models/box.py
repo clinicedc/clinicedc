@@ -23,7 +23,7 @@ STATUS = (
     (SHIPPED, "Shipped"),
 )
 
-human_readable_pattern = "^[A-Z]{3}\-[0-9]{4}\-[0-9]{2}$"
+human_readable_pattern = r"^[A-Z]{3}\-[0-9]{4}\-[0-9]{2}$"
 
 
 class BoxIsFullError(Exception):
