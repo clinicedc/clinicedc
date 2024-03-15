@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 from datetime import datetime
 from unittest import skip
 from zoneinfo import ZoneInfo
@@ -258,9 +257,7 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
 @time_machine.travel(datetime(1900, 1, 11, 0, 00, tzinfo=utc_tz))
 class TestAppointmentCreator2(AppointmentCreatorTestCase):
     @override_settings(
-        HOLIDAY_FILE=os.path.join(
-            settings.BASE_DIR, settings.APP_NAME, "tests", "no_holidays.csv"
-        ),
+        HOLIDAY_FILE=settings.BASE_DIR / "no_holidays.csv",
         EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(1900, 1, 1, 0, 0, 0, tzinfo=utc_tz),
         EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(1901, 10, 2, 0, 0, 0, tzinfo=utc_tz),
     )
