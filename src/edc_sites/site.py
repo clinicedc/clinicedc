@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import dataclasses
-import json
 import sys
 from copy import deepcopy
 from typing import TYPE_CHECKING, Any
@@ -137,16 +136,17 @@ class Sites:
             self.loaded = True
         if "makemigrations" not in sys.argv:
             for single_site in single_sites:
-                if single_site.site_id in self._registry:
-                    raise AlreadyRegistered(f"Site already registered. Got `{single_site}`.")
-                if single_site.name in [s.name for s in self._registry.values()]:
-                    raise AlreadyRegisteredName(
-                        f"Site with this name is already registered. Got `{single_site}`."
-                    )
                 if get_insert_uat_subdomain():
                     domain = insert_into_domain(single_site.domain, self.uat_subdomain)
                     single_site = dataclasses.replace(single_site, domain=domain)
-                if single_site.domain in [s.domain for s in self._registry.values()]:
+
+                if single_site.site_id in self._registry:
+                    raise AlreadyRegistered(f"Site already registered. Got `{single_site}`.")
+                elif single_site.name in [s.name for s in self._registry.values()]:
+                    raise AlreadyRegisteredName(
+                        f"Site with this name is already registered. Got `{single_site}`."
+                    )
+                elif single_site.domain in [s.domain for s in self._registry.values()]:
                     raise AlreadyRegisteredDomain(
                         f"Site with this domain is already registered. Got `{single_site}`."
                     )
@@ -311,43 +311,6 @@ class Sites:
     def get_current_country(self, request: WSGIRequest | None = None) -> str:
         single_site = self.get_current_site(request)
         return single_site.country
-
-    def check(self):
-        """Checks the Site / SiteProfile tables are in sync"""
-        if not get_site_model_cls().objects.all().exists():
-            raise SitesCheckError("No sites have been imported. You need to run migrate")
-        ids1 = sorted(list(self.all()))
-        ids2 = [
-            x[0] for x in get_site_model_cls().objects.values_list("id").all().order_by("id")
-        ]
-        if ids1 != ids2:
-            raise SitesCheckError(
-                f"Site table is out of sync. Got registered sites = {ids1}. "
-                f"Sites in Sites model = {ids2}. Try running migrate."
-            )
-        for site_id, single_site in self._registry.items():
-            site_obj = get_site_model_cls().objects.get(id=site_id)
-            for attr in ["name", "domain"]:
-                try:
-                    self.get_by_attr(attr, getattr(site_obj, attr))
-                except SiteDoesNotExist as e:
-                    raise SitesCheckError(f"{e}. Try running migrate.")
-            for attr in ["country", "country_code"]:
-                try:
-                    self.get_by_attr(attr, getattr(site_obj.siteprofile, attr))
-                except SiteDoesNotExist as e:
-                    raise SitesCheckError(f"{e}. Try running migrate.")
-            try:
-                self.get_by_attr(
-                    "languages", json.loads(getattr(site_obj.siteprofile, "languages"))
-                )
-            except SiteDoesNotExist as e:
-                raise SitesCheckError(f"{e}. Try running migrate.")
-            if site_obj.siteprofile.title != single_site.description:
-                raise SitesCheckError(
-                    f"No site exists with `title`=={site_obj.siteprofile.title}. "
-                    "Try running migrate."
-                )
 
     @staticmethod
     def autodiscover(module_name=None, verbose=True):
