@@ -8,7 +8,7 @@ from uuid import uuid4
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
-from edc_sites.site import SitesCheckError, sites
+from edc_sites.site import sites as site_sites
 from tqdm import tqdm
 
 from .randomization_list_verifier import RandomizationListVerifier
@@ -97,10 +97,6 @@ class RandomizationListImporter:
             sys.stdout.write(
                 style.MIGRATE_HEADING("\n ->> Dry run. No changes will be made.\n")
             )
-        try:
-            sites.check()
-        except SitesCheckError as e:
-            raise RandomizationListImportError(e)
         if self.verbose and add:
             count = self.randomizer_model_cls.objects.all().count()
             sys.stdout.write(
@@ -310,7 +306,9 @@ class RandomizationListImporter:
     @staticmethod
     def get_site_names() -> dict[str, str]:
         """A dict of site names for the target randomizer."""
-        return {single_site.name: single_site.name for single_site in sites.all().values()}
+        return {
+            single_site.name: single_site.name for single_site in site_sites.all().values()
+        }
 
     def validate_site_name(self, row) -> str:
         """Returns the site name or raises"""
