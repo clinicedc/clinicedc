@@ -20,7 +20,6 @@ class InvalidAssignment(Exception):
 
 
 class RandomizationListVerifier:
-
     """Verifies the Randomization List against the CSV file."""
 
     def __init__(
