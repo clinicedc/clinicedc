@@ -52,6 +52,7 @@ class TestConsentModel(TestCase):
         )
         self.dob = self.study_open_datetime - relativedelta(years=25)
 
+    @tag("1")
     def test_encryption(self):
         subject_consent = baker.make_recipe(
             "consent_app.subjectconsent",

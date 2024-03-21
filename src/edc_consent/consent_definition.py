@@ -37,7 +37,7 @@ class ConsentDefinition:
     of a consent.
     """
 
-    model: str = field(compare=False)
+    proxy_model: str = field(compare=False)
     _ = KW_ONLY
     start: datetime = field(default=ResearchProtocolConfig().study_open_datetime, compare=True)
     end: datetime = field(default=ResearchProtocolConfig().study_close_datetime, compare=False)
@@ -57,10 +57,12 @@ class ConsentDefinition:
     update_cdef: ConsentDefinition = field(default=None, init=False, compare=False)
     update_model: str = field(default=None, init=False, compare=False)
     update_version: str = field(default=None, init=False, compare=False)
+    _model: str = field(init=False, compare=False)
     sort_index: str = field(init=False)
 
     def __post_init__(self):
-        self.name = f"{self.model}-{self.version}"
+        self.model = self.proxy_model
+        self.name = f"{self.proxy_model}-{self.version}"
         self.sort_index = self.name
         self.gender = [MALE, FEMALE] if not self.gender else self.gender
         try:
@@ -78,6 +80,17 @@ class ConsentDefinition:
         if not self.end.tzinfo:
             raise ConsentDefinitionError(f"Naive datetime not allowed Got {self.end}.")
         self.check_date_within_study_period()
+
+    @property
+    def model(self):
+        model_cls = django_apps.get_model(self._model)
+        if not model_cls._meta.proxy:
+            raise ConsentDefinitionError(f"Model class must be a proxy. Got {model_cls}")
+        return self._model
+
+    @model.setter
+    def model(self, value):
+        self._model = value
 
     @property
     def sites(self):

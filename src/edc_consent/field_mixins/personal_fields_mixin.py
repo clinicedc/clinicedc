@@ -1,11 +1,7 @@
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.html import format_html
-from django_crypto_fields.fields import (
-    EncryptedCharField,
-    FirstnameField,
-    LastnameField,
-)
+from django_crypto_fields.fields import EncryptedCharField
 from django_crypto_fields.models import CryptoMixin
 from edc_constants.choices import GENDER_UNDETERMINED
 from edc_model.models import NameFieldsModelMixin
@@ -29,7 +25,7 @@ class BaseFieldsMixin(models.Model):
         blank=False,
     )
 
-    guardian_name = LastnameField(
+    guardian_name = EncryptedCharField(
         verbose_name="Guardian's last and first name",
         validators=[FullNameValidator()],
         blank=True,
@@ -55,7 +51,7 @@ class FullNamePersonalFieldsMixin(
 
 
 class PersonalFieldsMixin(CryptoMixin, BaseFieldsMixin, models.Model):
-    first_name = FirstnameField(
+    first_name = EncryptedCharField(
         null=True,
         blank=False,
         validators=[
@@ -67,7 +63,7 @@ class PersonalFieldsMixin(CryptoMixin, BaseFieldsMixin, models.Model):
         help_text="Use UPPERCASE letters only.",
     )
 
-    last_name = LastnameField(
+    last_name = EncryptedCharField(
         verbose_name="Surname",
         null=True,
         blank=False,
