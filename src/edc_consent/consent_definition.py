@@ -18,6 +18,7 @@ from .exceptions import (
     ConsentDefinitionValidityPeriodError,
     NotConsentedError,
 )
+from .managers import ConsentObjectsByCdefManager, CurrentSiteByCdefManager
 
 if TYPE_CHECKING:
     from edc_identifier.model_mixins import NonUniqueSubjectIdentifierModelMixin
@@ -42,8 +43,8 @@ class ConsentDefinition:
     start: datetime = field(default=ResearchProtocolConfig().study_open_datetime, compare=True)
     end: datetime = field(default=ResearchProtocolConfig().study_close_datetime, compare=False)
     version: str = field(default="1", compare=False)
-    updates: tuple[ConsentDefinition, str] = field(default=tuple, compare=False)
-    updated_by: str = field(default=None, compare=False)
+    updates: ConsentDefinition = field(default=None, compare=False)
+    end_extends_on_update: bool = field(default=False, compare=False)
     screening_model: str = field(default=None, compare=False)
     age_min: int = field(default=18, compare=False)
     age_max: int = field(default=110, compare=False)
@@ -53,10 +54,10 @@ class ConsentDefinition:
     country: str | None = field(default=None, compare=False)
     validate_duration_overlap_by_model: bool | None = field(default=True, compare=False)
     subject_type: str = field(default="subject", compare=False)
+
     name: str = field(init=False, compare=False)
-    update_cdef: ConsentDefinition = field(default=None, init=False, compare=False)
-    update_model: str = field(default=None, init=False, compare=False)
-    update_version: str = field(default=None, init=False, compare=False)
+    # set updated_by when the cdef is registered, see site_consents
+    updated_by: ConsentDefinition = field(default=None, compare=False, init=False)
     _model: str = field(init=False, compare=False)
     sort_index: str = field(init=False)
 
@@ -65,12 +66,6 @@ class ConsentDefinition:
         self.name = f"{self.proxy_model}-{self.version}"
         self.sort_index = self.name
         self.gender = [MALE, FEMALE] if not self.gender else self.gender
-        try:
-            self.update_cdef, self.update_model = self.updates
-        except (ValueError, TypeError):
-            pass
-        else:
-            self.update_version = self.update_cdef.version
         if not self.screening_model:
             self.screening_model = get_subject_screening_model()
         if MALE not in self.gender and FEMALE not in self.gender:
@@ -87,6 +82,18 @@ class ConsentDefinition:
         if not model_cls._meta.proxy:
             raise ConsentDefinitionError(
                 f"Model class must be a proxy. See {self.name}. Got {model_cls}"
+            )
+        elif not isinstance(model_cls.objects, (ConsentObjectsByCdefManager,)):
+            raise ConsentDefinitionError(
+                "Incorrect 'objects' model manager for consent model. "
+                f"Expected {ConsentObjectsByCdefManager}. See {self.name}.  "
+                f"Got {model_cls.objects.__class__}"
+            )
+        elif not isinstance(model_cls.on_site, (CurrentSiteByCdefManager,)):
+            raise ConsentDefinitionError(
+                "Incorrect 'on_site' model manager for consent model. "
+                f"Expected {CurrentSiteByCdefManager}. See {self.name}.  "
+                f"Got {model_cls.objects.__class__}"
             )
         return self._model
 
@@ -138,10 +145,10 @@ class ConsentDefinition:
         try:
             consent_obj = self.model_cls.objects.get(**opts)
         except ObjectDoesNotExist:
-            if self.update_cdef:
-                opts.update(version=self.update_cdef.version)
+            if self.updates:
+                opts.update(version=self.updates.version)
                 try:
-                    consent_obj = self.update_cdef.model_cls.objects.get(**opts)
+                    consent_obj = self.updates.model_cls.objects.get(**opts)
                 except ObjectDoesNotExist:
                     pass
         if not consent_obj and raise_if_not_consented:
