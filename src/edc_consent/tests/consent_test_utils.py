@@ -37,7 +37,7 @@ def consent_definition_factory(
     return consent_definition
 
 
-def consent_factory(model=None, **kwargs):
+def consent_factory(proxy_model=None, **kwargs):
     options = dict(
         start=kwargs.get("start"),
         end=kwargs.get("end"),
@@ -52,7 +52,6 @@ def consent_factory(model=None, **kwargs):
             "validate_duration_overlap_by_model", True
         ),
     )
-    model = kwargs.get("model", model or "consent_app.subjectconsent")
-    consent_definition = ConsentDefinition(model, **options)
+    consent_definition = ConsentDefinition(proxy_model, **options)
     site_consents.register(consent_definition)
     return consent_definition
