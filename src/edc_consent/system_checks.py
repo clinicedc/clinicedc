@@ -1,10 +1,21 @@
 from django.core.checks import CheckMessage, Error, Warning
 
+from . import ConsentDefinitionError
 from .consent_definition import ConsentDefinition
 from .site_consents import site_consents
 
 
-def check_consents_cdef_registered(app_configs, **kwargs) -> list[CheckMessage]:
+def check_consents(app_configs, **kwargs) -> list[CheckMessage]:
+    errors = []
+    errors.extend(check_consents_cdef_registered())
+    errors.extend(check_consents_models())
+    if not errors:
+        errors.extend(check_consents_versions())
+        errors.extend(check_consents_durations())
+    return errors
+
+
+def check_consents_cdef_registered() -> list[CheckMessage]:
     errors = []
     if not site_consents.registry:
         errors.append(
@@ -13,31 +24,41 @@ def check_consents_cdef_registered(app_configs, **kwargs) -> list[CheckMessage]:
     return errors
 
 
-def check_consents_proxy_models(app_configs, **kwargs) -> list[CheckMessage]:
-    """Expect proxy models only in ConsentDefinitions"""
+def check_consents_models() -> list[CheckMessage]:
+    """Expect proxy models only in ConsentDefinitions.
+
+    - ConsentDefinition may only be associated with a proxy model.
+    - check proxy models use custom 'objects' and 'on_site' model
+      managers.
+    """
     errors = []
     for cdef in site_consents.registry.values():
-        if not cdef.model_cls._meta.proxy:
-            errors.append(
-                Error(
-                    (
-                        f"Consent definition model is not a proxy model. Got {cdef.model}."
-                        f"See {cdef.name}"
-                    ),
-                    id="edc_consent.E002",
+        try:
+            cdef.model_cls
+        except ConsentDefinitionError as e:
+            errors.append(Error(str(e), id="edc_consent.E002"))
+        else:
+            if not cdef.model_cls._meta.proxy:
+                errors.append(
+                    Error(
+                        (
+                            f"Consent definition model is not a proxy model. Got {cdef.model}."
+                            f"See {cdef.name}"
+                        ),
+                        id="edc_consent.E003",
+                    )
                 )
-            )
     return errors
 
 
-def check_consents_versions(app_configs, **kwargs) -> list[CheckMessage]:
+def check_consents_versions() -> list[CheckMessage]:
     """Expect versions to be unique across `proxy_for` model"""
     errors = []
     used = []
     for cdef in [cdef for cdef in site_consents.registry.values()]:
         if cdef in used:
             continue
-        err, used = inspect_others_using_same_proxy_for_model_with_duplicate_versions(
+        err, used = _inspect_others_using_same_proxy_for_model_with_duplicate_versions(
             cdef, used
         )
         if err:
@@ -45,7 +66,7 @@ def check_consents_versions(app_configs, **kwargs) -> list[CheckMessage]:
     return errors
 
 
-def check_consents_durations(app_configs, **kwargs) -> list[CheckMessage]:
+def check_consents_durations() -> list[CheckMessage]:
     """Durations may not overlap across `proxy_for` model
 
     This check needs models to be ready otherwise we would add it
@@ -58,13 +79,13 @@ def check_consents_durations(app_configs, **kwargs) -> list[CheckMessage]:
         for cdef2 in cdefs:
             if cdef1 == cdef2:
                 continue
-            err, found = inspect_possible_overlap_in_validity_period(cdef1, cdef2, found)
+            err, found = _inspect_possible_overlap_in_validity_period(cdef1, cdef2, found)
             if err:
                 errors.append(err)
     return errors
 
 
-def inspect_possible_overlap_in_validity_period(
+def _inspect_possible_overlap_in_validity_period(
     cdef1, cdef2, found
 ) -> tuple[Warning | None, list]:
     """Durations between cdef1 and cdef2 may not overlap
@@ -92,7 +113,7 @@ def inspect_possible_overlap_in_validity_period(
     return err, found
 
 
-def inspect_others_using_same_proxy_for_model_with_duplicate_versions(
+def _inspect_others_using_same_proxy_for_model_with_duplicate_versions(
     cdef1: ConsentDefinition, used: list[ConsentDefinition]
 ) -> tuple[Warning | None, list[ConsentDefinition]]:
     err = None
