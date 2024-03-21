@@ -85,7 +85,9 @@ class ConsentDefinition:
     def model(self):
         model_cls = django_apps.get_model(self._model)
         if not model_cls._meta.proxy:
-            raise ConsentDefinitionError(f"Model class must be a proxy. Got {model_cls}")
+            raise ConsentDefinitionError(
+                f"Model class must be a proxy. See {self.name}. Got {model_cls}"
+            )
         return self._model
 
     @model.setter
