@@ -6,6 +6,7 @@ from django.core.management.color import color_style
 from django.db.models.signals import post_migrate
 from edc_action_item.post_migrate_signals import update_action_types
 from edc_action_item.site_action_items import site_action_items
+from edc_action_item.system_checks import edc_action_item_checks
 from edc_auth.post_migrate_signals import post_migrate_user_groups_and_roles
 from edc_auth.site_auths import site_auths
 from edc_consent.site_consents import site_consents
@@ -14,13 +15,17 @@ from edc_data_manager.post_migrate_signals import (
     update_query_rule_handlers,
 )
 from edc_data_manager.site_data_manager import site_data_manager
+from edc_export.system_checks import edc_export_checks
+from edc_facility.system_checks import holiday_country_check, holiday_path_check
 from edc_form_runners.site import site_form_runners
 from edc_lab.post_migrate_signals import update_panels_on_post_migrate
 from edc_lab.site_labs import site_labs
 from edc_list_data.post_migrate_signals import post_migrate_list_data
 from edc_list_data.site_list_data import site_list_data
 from edc_metadata.metadata_rules import site_metadata_rules
+from edc_metadata.system_checks import check_for_metadata_rules
 from edc_navbar.site_navbars import site_navbars
+from edc_navbar.system_checks import edc_navbar_checks
 from edc_notification.post_migrate_signals import post_migrate_update_notifications
 from edc_notification.site_notifications import site_notifications
 from edc_pdutils.site_values_mappings import site_values_mappings
@@ -29,8 +34,15 @@ from edc_randomization.site_randomizers import site_randomizers
 from edc_reportable.site_reportables import site_reportables
 from edc_sites.post_migrate_signals import post_migrate_update_sites
 from edc_sites.site import sites as site_sites
+from edc_sites.system_checks import sites_check
 from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_schedule.system_checks import (
+    check_form_collections,
+    check_onschedule_exists_in_subject_schedule_history,
+    check_subject_schedule_history,
+    visit_schedule_check,
+)
 
 style = color_style()
 
@@ -87,19 +99,7 @@ class AppConfig(DjangoAppConfig):
     @staticmethod
     def register_system_checks():
         """Register system checks"""
-        from edc_action_item.system_checks import edc_action_item_checks
-        from edc_consent.system_checks import check_consents
-        from edc_export.system_checks import edc_export_checks
-        from edc_facility.system_checks import holiday_country_check, holiday_path_check
-        from edc_metadata.system_checks import check_for_metadata_rules
-        from edc_navbar.system_checks import edc_navbar_checks
-        from edc_sites.system_checks import sites_check
-        from edc_visit_schedule.system_checks import (
-            check_form_collections,
-            check_onschedule_exists_in_subject_schedule_history,
-            check_subject_schedule_history,
-            visit_schedule_check,
-        )
+        from edc_consent.system_checks import check_consents  # wait, app not ready
 
         sys.stdout.write(" * registering system checks\n")
         sys.stdout.write("   - visit_schedule_check\n")
