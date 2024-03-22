@@ -56,23 +56,15 @@ class AppConfig(DjangoAppConfig):
     include_in_administration_section = False
 
     def ready(self):
-        from edc_action_item.system_checks import edc_action_item_checks
-        from edc_consent.system_checks import check_consents
-        from edc_export.system_checks import edc_export_checks
-        from edc_facility.system_checks import holiday_country_check, holiday_path_check
-        from edc_metadata.system_checks import check_for_metadata_rules
-        from edc_navbar.system_checks import edc_navbar_checks
-        from edc_sites.system_checks import sites_check
-        from edc_visit_schedule.system_checks import (
-            check_form_collections,
-            check_onschedule_exists_in_subject_schedule_history,
-            check_subject_schedule_history,
-            visit_schedule_check,
-        )
-
         sys.stdout.write("Loading edc_appconfig ...\n")
+        self.call_autodiscovers()
+        self.register_system_checks()
+        self.register_post_migrate_signals()
+        sys.stdout.write("Done loading edc_appconfig.\n")
 
-        # autodiscover for site globals
+    @staticmethod
+    def call_autodiscovers():
+        """Call autodiscover on apps to load globals"""
         site_consents.autodiscover()
         site_auths.autodiscover()
         site_sites.autodiscover()
@@ -92,7 +84,23 @@ class AppConfig(DjangoAppConfig):
         site_prn_forms.autodiscover()
         site_randomizers.autodiscover()
 
-        # register system checks that use site globals
+    @staticmethod
+    def register_system_checks():
+        """Register system checks"""
+        from edc_action_item.system_checks import edc_action_item_checks
+        from edc_consent.system_checks import check_consents
+        from edc_export.system_checks import edc_export_checks
+        from edc_facility.system_checks import holiday_country_check, holiday_path_check
+        from edc_metadata.system_checks import check_for_metadata_rules
+        from edc_navbar.system_checks import edc_navbar_checks
+        from edc_sites.system_checks import sites_check
+        from edc_visit_schedule.system_checks import (
+            check_form_collections,
+            check_onschedule_exists_in_subject_schedule_history,
+            check_subject_schedule_history,
+            visit_schedule_check,
+        )
+
         sys.stdout.write(" * registering system checks\n")
         sys.stdout.write("   - visit_schedule_check\n")
         register(visit_schedule_check)
@@ -119,7 +127,8 @@ class AppConfig(DjangoAppConfig):
         sys.stdout.write("   - edc_navbar_checks\n")
         register(edc_navbar_checks)
 
-        # register post-migrate signals
+    def register_post_migrate_signals(self):
+        """Register post-migrate signals."""
         sys.stdout.write(" * registering post-migrate signals ...\n")
         sys.stdout.write("   - post_migrate.populate_visit_schedule\n")
         post_migrate.connect(populate_visit_schedule, sender=self)
@@ -139,5 +148,3 @@ class AppConfig(DjangoAppConfig):
         post_migrate.connect(populate_data_dictionary, sender=self)
         sys.stdout.write("   - post_migrate.post_migrate_update_notifications\n")
         post_migrate.connect(post_migrate_update_notifications, sender=self)
-
-        sys.stdout.write("Done loading edc_appconfig.\n")
