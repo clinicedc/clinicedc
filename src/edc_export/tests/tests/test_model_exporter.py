@@ -3,7 +3,8 @@ from tempfile import mkdtemp
 
 from django.test import TestCase, override_settings
 from edc_facility.import_holidays import import_holidays
-from edc_pdutils import CsvModelExporter, ModelToDataframe
+from edc_pdutils.df_exporters import CsvModelExporter
+from edc_pdutils.model_to_dataframe import ModelToDataframe
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 

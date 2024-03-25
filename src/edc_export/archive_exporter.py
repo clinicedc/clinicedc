@@ -3,7 +3,7 @@ from __future__ import annotations
 from tempfile import mkdtemp
 from typing import TYPE_CHECKING, Type
 
-from edc_pdutils import CsvModelExporter
+from edc_pdutils.df_exporters import CsvModelExporter
 from edc_sites.site import sites
 from edc_utils import get_utcnow
 
