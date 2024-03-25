@@ -1,5 +1,5 @@
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_sites.tests import SiteTestCaseMixin
@@ -30,7 +30,6 @@ class TestModels(SiteTestCaseMixin, TestCase):
         site_consents.registry = {}
         site_consents.register(consent_v1)
 
-    @tag("2")
     def test_offschedule_ok(self):
         SubjectConsent.objects.create(subject_identifier=self.subject_identifier)
         onschedule = OnSchedule.objects.create(
