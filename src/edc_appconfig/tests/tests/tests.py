@@ -1,7 +1,7 @@
 from django.apps import apps as django_apps
 from django.test import TestCase, override_settings
 from edc_action_item.system_checks import edc_action_item_checks
-from edc_consent.system_checks import check_site_consents
+from edc_consent.system_checks import check_consents
 from edc_export.system_checks import edc_export_checks
 from edc_facility.system_checks import holiday_country_check, holiday_path_check
 from edc_metadata.system_checks import check_for_metadata_rules
@@ -29,7 +29,7 @@ class TestAppConfig(TestCase):
         self.assertIn("edc_sites.E002", ids)
 
     def test_check_site_consents(self):
-        errors = check_site_consents(django_apps.get_app_configs())
+        errors = check_consents(django_apps.get_app_configs())
         ids = [error.id for error in errors]
         self.assertEqual(1, len(ids))
         self.assertIn("edc_consent.E001", ids)
