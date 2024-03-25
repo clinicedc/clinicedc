@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from collections import Counter, defaultdict
 from typing import TYPE_CHECKING
 
@@ -22,104 +23,111 @@ if TYPE_CHECKING:
 
 def visit_schedule_check(app_configs, **kwargs):
     errors = []
-    if not site_visit_schedules.visit_schedules:
-        errors.append(
-            Warning("No visit schedules have been registered!", id="edc_visit_schedule.W001")
-        )
-    site_results = check_models_in_visit_schedule()
-    for category, results in site_results.items():
-        for result in results:
-            if category == "visit_schedules":
-                error_code = "E002"
-            elif category == "schedules":
-                error_code = "E003"
-            elif category == "visits":
-                error_code = "E004"
-            else:
-                raise KeyError(f"Unexpected key. Got {category}.")
+    if "migrate" not in sys.argv and "makemigrations" not in sys.argv:
+        if not site_visit_schedules.visit_schedules:
+            errors.append(
+                Warning(
+                    "No visit schedules have been registered!",
+                    id="edc_visit_schedule.W001",
+                )
+            )
+        site_results = check_models_in_visit_schedule()
+        for category, results in site_results.items():
+            for result in results:
+                if category == "visit_schedules":
+                    error_code = "E002"
+                elif category == "schedules":
+                    error_code = "E003"
+                elif category == "visits":
+                    error_code = "E004"
+                else:
+                    raise KeyError(f"Unexpected key. Got {category}.")
 
-            errors.append(Warning(result, id=f"edc_visit_schedule.{error_code}"))
+                errors.append(Warning(result, id=f"edc_visit_schedule.{error_code}"))
     return errors
 
 
 def check_subject_schedule_history(app_configs, **kwargs) -> list:
     errors = []
-    subject_schedule_history_cls = django_apps.get_model(
-        "edc_visit_schedule.subjectschedulehistory"
-    )
-    for obj in subject_schedule_history_cls.objects.all():
-        try:
-            obj.onschedule_obj
-        except LookupError as e:
-            errors.append(
-                Error(
-                    "Invalid onschedule model referenced in SubjectScheduleHistory. "
-                    f"See {obj.onschedule_model} for {obj.subject_identifier} "
-                    f"Got {e}",
-                    id="edc_visit_schedule.E005",
+    if "migrate" not in sys.argv and "makemigrations" not in sys.argv:
+        subject_schedule_history_cls = django_apps.get_model(
+            "edc_visit_schedule.subjectschedulehistory"
+        )
+        for obj in subject_schedule_history_cls.objects.all():
+            try:
+                obj.onschedule_obj
+            except LookupError as e:
+                errors.append(
+                    Error(
+                        "Invalid onschedule model referenced in SubjectScheduleHistory. "
+                        f"See {obj.onschedule_model} for {obj.subject_identifier} "
+                        f"Got {e}",
+                        id="edc_visit_schedule.E005",
+                    )
                 )
-            )
-        except ObjectDoesNotExist:
-            errors.append(
-                "Invalid onschedule model referenced in SubjectScheduleHistory. "
-                f"Got {obj.onschedule_model} for {obj.subject_identifier}"
-            )
+            except ObjectDoesNotExist:
+                errors.append(
+                    "Invalid onschedule model referenced in SubjectScheduleHistory. "
+                    f"Got {obj.onschedule_model} for {obj.subject_identifier}"
+                )
     return errors
 
 
 def check_onschedule_exists_in_subject_schedule_history(app_configs, **kwargs) -> list:
     errors = []
-    subject_schedule_history_cls = django_apps.get_model(
-        "edc_visit_schedule.subjectschedulehistory"
-    )
-    for visit_schedule in site_visit_schedules.visit_schedules.values():
-        for schedule in visit_schedule.schedules.values():
-            try:
-                onschedule_model_cls = getattr(schedule, "onschedule_model_cls")
-            except LookupError:
-                pass
-            else:
-                for obj in onschedule_model_cls.objects.all():
-                    try:
-                        subject_schedule_history_cls.objects.get(
-                            subject_identifier=obj.subject_identifier,
-                            onschedule_model=onschedule_model_cls._meta.label_lower,
-                        )
-                    except ObjectDoesNotExist:
-                        errors.append(
-                            Error(
-                                f"Onschedule instance not found in SubjectScheduleHistory. "
-                                f"See {obj.subject_identifier} "
-                                f"model {onschedule_model_cls._meta.label_lower}."
+    if "migrate" not in sys.argv and "makemigrations" not in sys.argv:
+        subject_schedule_history_cls = django_apps.get_model(
+            "edc_visit_schedule.subjectschedulehistory"
+        )
+        for visit_schedule in site_visit_schedules.visit_schedules.values():
+            for schedule in visit_schedule.schedules.values():
+                try:
+                    onschedule_model_cls = getattr(schedule, "onschedule_model_cls")
+                except LookupError:
+                    pass
+                else:
+                    for obj in onschedule_model_cls.objects.all():
+                        try:
+                            subject_schedule_history_cls.objects.get(
+                                subject_identifier=obj.subject_identifier,
+                                onschedule_model=onschedule_model_cls._meta.label_lower,
                             )
-                        )
+                        except ObjectDoesNotExist:
+                            errors.append(
+                                Error(
+                                    f"Onschedule instance not found in "
+                                    "SubjectScheduleHistory. "
+                                    f"See {obj.subject_identifier} "
+                                    f"model {onschedule_model_cls._meta.label_lower}."
+                                )
+                            )
     return errors
 
 
 def check_form_collections(app_configs, **kwargs):
     errors = []
-    for visit_schedule in site_visit_schedules.visit_schedules.values():
-        for schedule in visit_schedule.schedules.values():
-            for visit in schedule.visits.values():
-                for visit_crf_collection, visit_type in [
-                    (visit.crfs, "Scheduled"),
-                    (visit.crfs_unscheduled, "Unscheduled"),
-                    (visit.crfs_missed, "Missed"),
-                ]:
-                    if proxy_root_alongside_child_err := check_proxy_root_alongside_child(
-                        visit=visit,
-                        visit_crf_collection=visit_crf_collection,
-                        visit_type=visit_type,
-                    ):
-                        errors.append(proxy_root_alongside_child_err)
+    if "migrate" not in sys.argv and "makemigrations" not in sys.argv:
+        for visit_schedule in site_visit_schedules.visit_schedules.values():
+            for schedule in visit_schedule.schedules.values():
+                for visit in schedule.visits.values():
+                    for visit_crf_collection, visit_type in [
+                        (visit.crfs, "Scheduled"),
+                        (visit.crfs_unscheduled, "Unscheduled"),
+                        (visit.crfs_missed, "Missed"),
+                    ]:
+                        if proxy_root_alongside_child_err := check_proxy_root_alongside_child(
+                            visit=visit,
+                            visit_crf_collection=visit_crf_collection,
+                            visit_type=visit_type,
+                        ):
+                            errors.append(proxy_root_alongside_child_err)
 
-                    if same_proxy_root_err := check_multiple_proxies_same_proxy_root(
-                        visit=visit,
-                        visit_crf_collection=visit_crf_collection,
-                        visit_type=visit_type,
-                    ):
-                        errors.append(same_proxy_root_err)
-
+                        if same_proxy_root_err := check_multiple_proxies_same_proxy_root(
+                            visit=visit,
+                            visit_crf_collection=visit_crf_collection,
+                            visit_type=visit_type,
+                        ):
+                            errors.append(same_proxy_root_err)
     return errors
 
 
