@@ -43,6 +43,7 @@ from edc_visit_schedule.system_checks import (
     check_subject_schedule_history,
     visit_schedule_check,
 )
+from multisite.apps import post_migrate_sync_alias
 
 style = color_style()
 
@@ -131,20 +132,62 @@ class AppConfig(DjangoAppConfig):
         """Register post-migrate signals."""
         sys.stdout.write(" * registering post-migrate signals ...\n")
         sys.stdout.write("   - post_migrate.populate_visit_schedule\n")
-        post_migrate.connect(populate_visit_schedule, sender=self)
+        post_migrate.connect(
+            populate_visit_schedule,
+            sender=self,
+            dispatch_uid="edc_visit_schedule.populate_visit_schedule",
+        )
         sys.stdout.write("   - post_migrate.post_migrate_update_sites\n")
-        post_migrate.connect(post_migrate_update_sites, sender=self)
+        post_migrate.connect(
+            post_migrate_update_sites,
+            sender=self,
+            dispatch_uid="edc_sites.post_migrate_update_sites",
+        )
+        sys.stdout.write("   - post_migrate.multisite.post_migrate_sync_alias\n")
+        post_migrate.connect(
+            post_migrate_sync_alias,
+            sender=self,
+            dispatch_uid="multisite.post_migrate_sync_alias",
+        )
         sys.stdout.write("   - post_migrate.update_panels_on_post_migrate\n")
-        post_migrate.connect(update_panels_on_post_migrate, sender=self)
+        post_migrate.connect(
+            update_panels_on_post_migrate,
+            sender=self,
+            dispatch_uid="edc_lab.update_panels_on_post_migrate",
+        )
         sys.stdout.write("   - post_migrate.post_migrate_list_data\n")
-        post_migrate.connect(post_migrate_list_data, sender=self)
+        post_migrate.connect(
+            post_migrate_list_data,
+            sender=self,
+            dispatch_uid="edc_list_data.post_migrate_list_data",
+        )
         sys.stdout.write("   - post_migrate.update_action_types\n")
-        post_migrate.connect(update_action_types, sender=self)
+        post_migrate.connect(
+            update_action_types,
+            sender=self,
+            dispatch_uid="edc_action_item.update_action_types",
+        )
         sys.stdout.write("   - post_migrate.post_migrate_user_groups_and_roles\n")
-        post_migrate.connect(post_migrate_user_groups_and_roles, sender=self)
+        post_migrate.connect(
+            post_migrate_user_groups_and_roles,
+            sender=self,
+            dispatch_uid="edc_auth.post_migrate_user_groups_and_roles",
+        )
         sys.stdout.write("   - post_migrate.update_query_rule_handlers\n")
-        post_migrate.connect(update_query_rule_handlers, sender=self)
+        post_migrate.connect(
+            update_query_rule_handlers,
+            sender=self,
+            dispatch_uid="edc_data_manager.update_query_rule_handlers",
+        )
         sys.stdout.write("   - post_migrate.populate_data_dictionary\n")
-        post_migrate.connect(populate_data_dictionary, sender=self)
+        post_migrate.connect(
+            populate_data_dictionary,
+            sender=self,
+            dispatch_uid="edc_data_manager.populate_data_dictionary",
+        )
         sys.stdout.write("   - post_migrate.post_migrate_update_notifications\n")
-        post_migrate.connect(post_migrate_update_notifications, sender=self)
+        post_migrate.connect(
+            post_migrate_update_notifications,
+            sender=self,
+            dispatch_uid="edc_notification.post_migrate_update_notifications",
+        )
