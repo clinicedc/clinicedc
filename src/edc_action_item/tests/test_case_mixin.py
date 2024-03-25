@@ -6,6 +6,7 @@ from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
+from .consents import consent_v1
 from .visit_schedule import visit_schedule
 
 
@@ -21,6 +22,9 @@ class TestCaseMixin(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
+
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
 
         consent_datetime = get_utcnow()
         cdef = site_consents.get_consent_definition(report_datetime=consent_datetime)

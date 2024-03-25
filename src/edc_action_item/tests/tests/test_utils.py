@@ -1,6 +1,7 @@
 from django.apps import apps as django_apps
 from django.test import TestCase
 from edc_appointment.models import Appointment
+from edc_consent import site_consents
 from edc_visit_tracking.constants import SCHEDULED
 
 from edc_action_item.models import ActionItem
@@ -17,6 +18,7 @@ from ..test_case_mixin import TestCaseMixin
 
 class TestHelpers(TestCaseMixin, TestCase):
     def setUp(self):
+        site_consents.registry = {}
         register_actions()
         self.subject_identifier = self.fake_enroll()
         self.form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)

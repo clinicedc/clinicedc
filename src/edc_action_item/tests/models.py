@@ -3,6 +3,7 @@ from typing import Any
 from django.db import models
 from django.db.models.deletion import CASCADE, PROTECT
 from edc_consent.field_mixins import PersonalFieldsMixin
+from edc_consent.managers import ConsentObjectsByCdefManager, CurrentSiteByCdefManager
 from edc_consent.model_mixins import ConsentModelMixin
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES
@@ -43,6 +44,9 @@ class SubjectConsent(
 
 
 class SubjectConsentV1(SubjectConsent):
+    on_site = CurrentSiteByCdefManager()
+    objects = ConsentObjectsByCdefManager()
+
     class Meta:
         proxy = True
 
