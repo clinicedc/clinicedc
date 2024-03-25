@@ -14,7 +14,7 @@ except SiteConsentError:
     # error will be broadcast in system checks
     pass
 else:
-    models = [cdef.model for cdef in cdefs]
+    models = [cdef.proxy_model for cdef in cdefs]
     models = list(set(models))
     for model in models:
         for action in ["view_", "add_", "change_", "delete_", "view_historical"]:

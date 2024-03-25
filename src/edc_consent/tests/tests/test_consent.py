@@ -20,6 +20,7 @@ from edc_consent.exceptions import (
 )
 from edc_consent.site_consents import site_consents
 
+from ...consent_definition import ConsentDefinition
 from ..consent_test_utils import consent_definition_factory
 
 
@@ -47,7 +48,7 @@ class TestConsent(TestCase):
         self.assertRaises(
             SiteConsentError,
             baker.make_recipe,
-            "consent_app.subjectconsent",
+            "consent_app.subjectconsentv1",
             subject_identifier=subject_identifier,
             consent_datetime=self.study_open_datetime,
         )
@@ -60,6 +61,8 @@ class TestConsent(TestCase):
             start=self.study_open_datetime,
             end=self.study_close_datetime,
         )
+        site_consents.register(consent_definition)
+
         visit_schedule = get_visit_schedule(consent_definition)
         schedule = visit_schedule.schedules.get("schedule1")
         site_visit_schedules._registry = {}
@@ -78,16 +81,18 @@ class TestConsent(TestCase):
         """Asserts can create a consent model instance if a valid
         consent.
         """
-        consent_definition = consent_definition_factory(
+        cdef = consent_definition = consent_definition_factory(
             start=self.study_open_datetime,
             end=self.study_close_datetime,
         )
+        site_consents.register(cdef)
+
         visit_schedule = get_visit_schedule(consent_definition)
         schedule = visit_schedule.schedules.get("schedule1")
         site_visit_schedules._registry = {}
         site_visit_schedules.register(get_visit_schedule(consent_definition))
         subject_consent = baker.make_recipe(
-            "consent_app.subjectconsent",
+            cdef.model,
             subject_identifier=self.subject_identifier,
             consent_datetime=self.study_open_datetime,
             dob=self.study_open_datetime - relativedelta(years=25),
@@ -108,40 +113,46 @@ class TestConsent(TestCase):
             self.fail("NotConsentedError unexpectedly raised")
 
     def test_cannot_create_consent_without_consent_by_datetime(self):
-        consent_definition_factory(
+        cdef = consent_definition_factory(
             start=self.study_open_datetime + relativedelta(days=5),
             end=self.study_close_datetime,
             version="1",
         )
+        site_consents.register(cdef)
+
         self.assertRaises(
             ConsentDefinitionDoesNotExist,
             baker.make_recipe,
-            "consent_app.subjectconsent",
+            cdef.model,
             dob=self.study_open_datetime - relativedelta(years=25),
             consent_datetime=self.study_open_datetime,
         )
 
     def test_consent_gets_version(self):
-        consent_definition_factory(
+        cdef = consent_definition_factory(
             start=self.study_open_datetime,
             end=self.study_close_datetime,
             version="1.0",
         )
+        site_consents.register(cdef)
+
         consent = baker.make_recipe(
-            "consent_app.subjectconsent",
+            cdef.model,
             consent_datetime=self.study_open_datetime,
             dob=self.study_open_datetime - relativedelta(years=25),
         )
         self.assertEqual(consent.version, "1.0")
 
     def test_model_gets_version(self):
-        consent_definition = consent_definition_factory(
+        cdef = consent_definition = consent_definition_factory(
             start=self.study_open_datetime,
             end=self.study_close_datetime,
             version="1.0",
         )
+        site_consents.register(cdef)
+
         subject_consent = baker.make_recipe(
-            "consent_app.subjectconsent",
+            cdef.model,
             subject_identifier=self.subject_identifier,
             consent_datetime=self.study_open_datetime,
             dob=self.study_open_datetime - relativedelta(years=25),
@@ -167,22 +178,24 @@ class TestConsent(TestCase):
         self.assertEqual(crf_one.consent_version, "1.0")
 
     def test_model_consent_version_no_change(self):
-        consent_definition = consent_definition_factory(
+        cdef = consent_definition_factory(
             start=self.study_open_datetime,
             end=self.study_close_datetime,
             version="1.2",
         )
+        site_consents.register(cdef)
+
         baker.make_recipe(
-            "consent_app.subjectconsent",
+            cdef.model,
             subject_identifier=self.subject_identifier,
             consent_datetime=self.study_open_datetime,
             dob=self.study_open_datetime - relativedelta(years=25),
         )
 
-        visit_schedule = get_visit_schedule(consent_definition)
+        visit_schedule = get_visit_schedule(cdef)
         schedule = visit_schedule.schedules.get("schedule1")
         site_visit_schedules._registry = {}
-        site_visit_schedules.register(get_visit_schedule(consent_definition))
+        site_visit_schedules.register(get_visit_schedule(cdef))
 
         subject_visit = SubjectVisit.objects.create(
             subject_identifier=self.subject_identifier,
@@ -199,21 +212,51 @@ class TestConsent(TestCase):
         crf_one.save()
         self.assertEqual(crf_one.consent_version, "1.2")
 
-    def test_model_consent_version_changes_with_report_datetime(self):
-        consent_definition10 = consent_definition_factory(
+    def test_multiple_consents_returned(self):
+        cdef10 = consent_definition_factory(
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
         )
-        consent_definition11 = consent_definition_factory(
+        site_consents.register(cdef10)
+
+        cdef11 = consent_definition_factory(
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
             version="1.1",
         )
+        site_consents.register(cdef11)
+
         consent_datetime = self.study_open_datetime + timedelta(days=10)
 
+        self.assertRaises(
+            SiteConsentError,
+            baker.make_recipe,
+            cdef10.model,
+            subject_identifier=self.subject_identifier,
+            consent_datetime=consent_datetime,
+            dob=self.study_open_datetime - relativedelta(years=25),
+        )
+
+    def test_model_consent_version_changes_with_report_datetime(self):
+        cdef10 = consent_definition_factory(
+            start=self.study_open_datetime,
+            end=self.study_open_datetime + timedelta(days=50),
+            version="1.0",
+        )
+        site_consents.register(cdef10)
+
+        cdef20 = consent_definition_factory(
+            model="consent_app.subjectconsentv2",
+            start=self.study_open_datetime + timedelta(days=51),
+            end=self.study_open_datetime + timedelta(days=100),
+            version="2.0",
+        )
+        site_consents.register(cdef20)
+
+        consent_datetime = self.study_open_datetime + timedelta(days=10)
         subject_consent = baker.make_recipe(
-            "consent_app.subjectconsent",
+            cdef10.model,
             subject_identifier=self.subject_identifier,
             consent_datetime=consent_datetime,
             dob=self.study_open_datetime - relativedelta(years=25),
@@ -223,7 +266,7 @@ class TestConsent(TestCase):
         self.assertEqual(subject_consent.subject_identifier, self.subject_identifier)
         self.assertEqual(subject_consent.consent_datetime, consent_datetime)
 
-        visit_schedule = get_visit_schedule([consent_definition10, consent_definition11])
+        visit_schedule = get_visit_schedule([cdef10, cdef20])
         schedule = visit_schedule.schedules.get("schedule1")
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
@@ -242,8 +285,8 @@ class TestConsent(TestCase):
         )
         self.assertEqual(crf_one.consent_version, "1.0")
         consent_datetime = self.study_open_datetime + timedelta(days=60)
-        subject_consent = baker.make_recipe(
-            "consent_app.subjectconsent",
+        baker.make_recipe(
+            cdef20.model,
             subject_identifier=self.subject_identifier,
             consent_datetime=consent_datetime,
             dob=self.study_open_datetime - relativedelta(years=25),
@@ -256,53 +299,60 @@ class TestConsent(TestCase):
             report_datetime=consent_datetime,
         )
 
-        # Mcrf_one.save()
-        self.assertEqual(crf_one.consent_version, "1.1")
+        self.assertEqual(crf_one.consent_version, "2.0")
 
     def test_consent_periods_cannot_overlap(self):
-        consent_definition_factory(
+        cdef1 = consent_definition_factory(
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
         )
-        self.assertRaises(
-            ConsentDefinitionError,
-            consent_definition_factory,
-            start=self.study_open_datetime + timedelta(days=25),
-            end=self.study_open_datetime + timedelta(days=100),
+        site_consents.register(cdef1)
+        cdef2 = consent_definition_factory(
+            start=self.study_open_datetime,
+            end=self.study_open_datetime + timedelta(days=50),
             version="1.1",
         )
+        self.assertRaises(ConsentDefinitionError, site_consents.register, cdef2)
 
     def test_consent_periods_cannot_overlap2(self):
-        consent_definition_factory(
-            model="consent_app.subjectconsent",
+        cdef1 = consent_definition_factory(
+            model="consent_app.subjectconsentv1",
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
-        )
-        self.assertRaises(
-            ConsentDefinitionError,
-            consent_definition_factory,
-            model="consent_app.subjectconsent",
-            start=self.study_open_datetime,
-            end=self.study_open_datetime + timedelta(days=50),
-            version="1.1",
         )
 
+        cdef2 = consent_definition_factory(
+            model="consent_app.subjectconsentv2",
+            start=self.study_open_datetime,
+            end=self.study_open_datetime + timedelta(days=50),
+            version="2.0",
+            updates=cdef1,
+            validate_duration_overlap_by_model=True,
+        )
+
+        site_consents.register(cdef1, updated_by=cdef2)
+        site_consents.register(cdef2)
+
     def test_consent_periods_can_overlap_if_different_model(self):
-        consent_definition_factory(
-            model="consent_app.subjectconsent",
+        cdef1 = consent_definition_factory(
+            model="consent_app.subjectconsentv1",
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
         )
+
+        cdef2 = consent_definition_factory(
+            model="consent_app.subjectconsentv2",
+            start=self.study_open_datetime,
+            end=self.study_open_datetime + timedelta(days=50),
+            version="1.0",
+        )
+
+        site_consents.register(cdef1)
         try:
-            consent_definition_factory(
-                model="consent_app.subjectconsent2",
-                start=self.study_open_datetime,
-                end=self.study_open_datetime + timedelta(days=50),
-                version="1.0",
-            )
+            site_consents.register(cdef2)
         except ConsentDefinitionError:
             self.fail("ConsentPeriodOverlapError unexpectedly raised")
 
@@ -324,6 +374,7 @@ class TestConsent(TestCase):
         """
         d = self.study_open_datetime
         dte = datetime(d.year, d.month, d.day, 0, 0, 0, 0)
+
         self.assertRaises(
             ConsentDefinitionError,
             consent_definition_factory,
@@ -349,27 +400,40 @@ class TestConsent(TestCase):
     @skip
     def test_consent_update_needs_previous_version(self):
         """Asserts that a consent type updates a previous consent."""
-        consent_definition_factory(
+        cdef1 = consent_definition_factory(
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
         )
-        # specify updates version that does not exist, raises
+
+        # specify updates version that is not registered
         self.assertRaises(
             ConsentDefinitionError,
             consent_definition_factory,
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
             version="1.1",
-            update_versions=["1.2"],
+            updates=cdef1,
         )
-        # specify updates version that exists, ok
-        consent_definition_factory(
+        # specify updates garbage
+        self.assertRaises(
+            ConsentDefinitionError,
+            consent_definition_factory,
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
             version="1.1",
-            update_versions=["1.0"],
+            updates=ConsentDefinition,
         )
+
+        # specify updates version that exists, ok
+        cdef2 = consent_definition_factory(
+            start=self.study_open_datetime + timedelta(days=51),
+            end=self.study_open_datetime + timedelta(days=100),
+            version="1.1",
+            updates=cdef1,
+        )
+        site_consents.register(cdef1, updated_by=cdef2)
+        site_consents.register(cdef2)
 
     @skip
     def test_consent_model_needs_previous_version(self):

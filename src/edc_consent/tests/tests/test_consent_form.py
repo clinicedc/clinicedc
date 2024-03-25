@@ -14,7 +14,7 @@ from edc_utils import age, get_utcnow
 from faker import Faker
 from model_bakery import baker
 
-from consent_app.models import SubjectConsent, SubjectScreening
+from consent_app.models import SubjectConsent, SubjectConsentV1, SubjectScreening
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.form_validators import SubjectConsentFormValidatorMixin
 from edc_consent.modelform_mixins import ConsentModelFormMixin
@@ -38,7 +38,7 @@ class SubjectConsentForm(ConsentModelFormMixin, FormValidatorMixin, forms.ModelF
     )
 
     class Meta:
-        model = SubjectConsent
+        model = SubjectConsentV1
         fields = "__all__"
 
 
@@ -54,26 +54,30 @@ class TestConsentForm(TestCase):
         self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
         self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
 
-        self.convent_v1 = self.consent_factory(
+        self.consent_v1 = self.consent_factory(
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
-            model="consent_app.subjectconsent",
+            model="consent_app.subjectconsentv1",
             version="1.0",
         )
 
-        self.convent_v2 = self.consent_factory(
+        self.consent_v2 = self.consent_factory(
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
             model="consent_app.subjectconsentv2",
             version="2.0",
         )
-        self.convent_v3 = self.consent_factory(
+        self.consent_v3 = self.consent_factory(
             start=self.study_open_datetime + timedelta(days=101),
             end=self.study_open_datetime + timedelta(days=150),
             version="3.0",
             model="consent_app.subjectconsentv3",
-            updates=(self.convent_v2, "consent_app.subjectconsentupdatetov3"),
+            updates=self.consent_v2,
         )
+        site_consents.register(self.consent_v1)
+        site_consents.register(self.consent_v2, updated_by=self.consent_v3)
+        site_consents.register(self.consent_v3)
+
         self.dob = self.study_open_datetime - relativedelta(years=25)
 
     @staticmethod
@@ -88,9 +92,8 @@ class TestConsentForm(TestCase):
             age_max=kwargs.get("age_max", 64),
             age_is_adult=kwargs.get("age_is_adult", 18),
         )
-        model = kwargs.get("model", "consent_app.subjectconsent")
+        model = kwargs.get("model", "consent_app.subjectconsentv1")
         consent_definition = ConsentDefinition(model, **options)
-        site_consents.register(consent_definition)
         return consent_definition
 
     def cleaned_data(self, **kwargs):
@@ -159,7 +162,7 @@ class TestConsentForm(TestCase):
                 eligibility_datetime=consent_datetime,
             )
         subject_consent = baker.prepare_recipe(
-            "consent_app.subjectconsent",
+            "consent_app.subjectconsentv1",
             dob=dob,
             consent_datetime=consent_datetime,
             first_name=first_name or "XXXXXX",
@@ -190,7 +193,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(site=subject_consent.site),
+            instance=opts.model(site=subject_consent.site),
         )
         self.assertTrue(form.is_valid())
 
@@ -209,7 +212,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(site=subject_consent.site),
+            instance=opts.model(site=subject_consent.site),
         )
         form.is_valid()
         self.assertEqual(form._errors, {})
@@ -223,7 +226,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(site=subject_consent.site),
+            instance=opts.model(site=subject_consent.site),
         )
         form.is_valid()
         self.assertIn("consent_datetime", form._errors)
@@ -245,7 +248,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(site=subject_consent.site),
+            instance=opts.model(site=subject_consent.site),
         )
         form.is_valid()
         self.assertIn("identity", form._errors)
@@ -280,7 +283,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(site=subject_consent.site),
+            instance=opts.model(site=subject_consent.site),
         )
         form.is_valid()
         self.assertIn("identity", form._errors)
@@ -304,7 +307,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(site=subject_consent.site),
+            instance=opts.model(site=subject_consent.site),
         )
         form.is_valid()
         self.assertIn("guardian_name", form._errors)
@@ -328,7 +331,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(site=subject_consent.site),
+            instance=opts.model(site=subject_consent.site),
         )
         form.is_valid()
         self.assertEqual({}, form._errors)
@@ -354,7 +357,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(site=subject_consent.site),
+            instance=opts.model(site=subject_consent.site),
         )
         form.is_valid()
         self.assertIn("guardian_name", form._errors)
@@ -376,7 +379,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(site=subject_consent.site),
+            instance=opts.model(site=subject_consent.site),
         )
         form.is_valid()
         self.assertIn("dob", form._errors)
@@ -398,14 +401,14 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(site=subject_consent.site),
+            instance=opts.model(site=subject_consent.site),
         )
         form.is_valid()
         self.assertIn("dob", form._errors)
 
     def test_base_form_catches_gender_of_consent(self):
         site_consents.registry = {}
-        self.consent_factory(
+        cdef = self.consent_factory(
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
@@ -413,13 +416,14 @@ class TestConsentForm(TestCase):
             first_name="ERIK",
             last_name="THEPLEEB",
         )
+        site_consents.register(cdef)
         subject_consent = self.prepare_subject_consent(gender=MALE)
         opts = SubjectConsentForm._meta
         data = model_to_dict(subject_consent, opts.fields, opts.exclude)
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(site=subject_consent.site),
+            instance=opts.model(site=subject_consent.site),
         )
         form.is_valid()
         self.assertEqual({}, form._errors)
@@ -432,7 +436,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(site=subject_consent.site),
+            instance=opts.model(site=subject_consent.site),
         )
         form.is_valid()
         self.assertIn("gender", form._errors)
@@ -462,7 +466,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(site=subject_consent.site),
+            instance=opts.model(site=subject_consent.site),
         )
         form.is_valid()
         self.assertEqual({}, form._errors)
@@ -476,7 +480,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(site=subject_consent.site),
+            instance=opts.model(site=subject_consent.site),
         )
         form.is_valid()
         self.assertEqual({}, form._errors)
@@ -504,7 +508,7 @@ class TestConsentForm(TestCase):
         form = SubjectConsentForm(
             data=data,
             initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(),
+            instance=SubjectConsentV1(),
         )
         form.is_valid()
         self.assertEqual({}, form._errors)

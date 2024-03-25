@@ -62,11 +62,17 @@ class ConsentVersionModelMixin(models.Model):
             report_datetime=self.consent_datetime,
             site=site_sites.get(site.id),
         )
-        if self._meta.label_lower not in [cdef.model, cdef.update_model]:
+        if self._meta.label_lower != cdef.model:
             raise ConsentDefinitionModelError(
                 f"Incorrect model for consent_definition. This model cannot be used "
-                f"to create or update consent version '{cdef.version}'. Expected "
-                f"'{cdef.model}' or '{cdef.update_model}'. Got '{self._meta.label_lower}'."
+                f"to 'create' consent version '{cdef.version}'. Expected "
+                f"'{cdef.model}'. Got '{self._meta.label_lower}'."
+            )
+        elif cdef.updates and self._meta.label_lower != cdef.updates.updated_by.model:
+            raise ConsentDefinitionModelError(
+                f"Incorrect model to update a consent. This model cannot be used "
+                f"to 'update' consent version '{cdef.version}'. Expected "
+                f"'{cdef.updates.updated_by.model}'. Got '{self._meta.label_lower}'."
             )
         return cdef
 

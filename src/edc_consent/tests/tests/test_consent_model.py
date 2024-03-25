@@ -40,28 +40,32 @@ class TestConsentModel(TestCase):
         self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
         site_consents.registry = {}
         self.consent_v1 = consent_factory(
+            proxy_model="consent_app.subjectconsentv1",
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
         )
         self.consent_v2 = consent_factory(
+            proxy_model="consent_app.subjectconsentv2",
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
             version="2.0",
-            updated_by="3.0",
         )
         self.consent_v3 = consent_factory(
-            model="consent_app.subjectconsentv3",
+            proxy_model="consent_app.subjectconsentv3",
             start=self.study_open_datetime + timedelta(days=101),
             end=self.study_open_datetime + timedelta(days=150),
             version="3.0",
-            updates=(self.consent_v2, "consent_app.subjectconsentupdatev3"),
+            updates=self.consent_v2,
         )
+        site_consents.register(self.consent_v1)
+        site_consents.register(self.consent_v2, updated_by=self.consent_v3)
+        site_consents.register(self.consent_v3)
         self.dob = self.study_open_datetime - relativedelta(years=25)
 
     def test_encryption(self):
         subject_consent = baker.make_recipe(
-            "consent_app.subjectconsent",
+            "consent_app.subjectconsentv1",
             first_name="ERIK",
             consent_datetime=self.study_open_datetime,
             dob=get_utcnow() - relativedelta(years=25),
@@ -73,7 +77,7 @@ class TestConsentModel(TestCase):
         subject_identifier_as_pk.
         """
         consent = baker.make_recipe(
-            "consent_app.subjectconsent",
+            "consent_app.subjectconsentv1",
             subject_identifier=None,
             consent_datetime=self.study_open_datetime,
             dob=get_utcnow() - relativedelta(years=25),
@@ -89,7 +93,7 @@ class TestConsentModel(TestCase):
         subject_identifier = "123456789"
         identity = "987654321"
         baker.make_recipe(
-            "consent_app.subjectconsent",
+            "consent_app.subjectconsentv1",
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
@@ -97,7 +101,7 @@ class TestConsentModel(TestCase):
             dob=get_utcnow() - relativedelta(years=25),
         )
         cdef = site_consents.get_consent_definition(
-            model="consent_app.subjectconsent", version="1.0"
+            model="consent_app.subjectconsentv1", version="1.0"
         )
         subject_consent = cdef.get_consent_for(
             subject_identifier="123456789",
@@ -105,7 +109,7 @@ class TestConsentModel(TestCase):
         )
         self.assertEqual(subject_consent.version, "1.0")
         baker.make_recipe(
-            "consent_app.subjectconsent",
+            "consent_app.subjectconsentv2",
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
@@ -113,7 +117,7 @@ class TestConsentModel(TestCase):
             dob=get_utcnow() - relativedelta(years=25),
         )
         cdef = site_consents.get_consent_definition(
-            model="consent_app.subjectconsent", version="2.0"
+            model="consent_app.subjectconsentv2", version="2.0"
         )
         subject_consent = cdef.get_consent_for(
             subject_identifier="123456789",
@@ -125,7 +129,7 @@ class TestConsentModel(TestCase):
         subject_identifier = "123456789"
         identity = "987654321"
         consent = baker.make_recipe(
-            "consent_app.subjectconsent",
+            "consent_app.subjectconsentv1",
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
@@ -134,7 +138,7 @@ class TestConsentModel(TestCase):
         )
         self.assertEqual(consent.version, "1.0")
         consent = baker.make_recipe(
-            "consent_app.subjectconsent",
+            "consent_app.subjectconsentv2",
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
@@ -156,7 +160,7 @@ class TestConsentModel(TestCase):
         subject_identifier = "123456789"
         identity = "987654321"
         consent = baker.make_recipe(
-            "consent_app.subjectconsent",
+            "consent_app.subjectconsentv1",
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
@@ -227,6 +231,8 @@ class TestConsentModel(TestCase):
 
     @tag("1")
     def test_v3_extends_v2_end_date_up_to_v3_consent_datetime(self):
+        # TODO: is this a valid test? How does it fill in data from
+        #  the previous consent?
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
         subject_identifier = "123456789"
@@ -345,8 +351,13 @@ class TestConsentModel(TestCase):
         identity = "987654321"
         self.assertRaises(
             ConsentDefinitionDoesNotExist,
+            site_consents.get_consent_definition,
+            report_datetime=get_utcnow(),
+        )
+        self.assertRaises(
+            ConsentDefinitionDoesNotExist,
             baker.make_recipe,
-            "consent_app.subjectconsent",
+            "consent_app.subjectconsentv1",
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
@@ -641,10 +652,12 @@ class TestConsentModel(TestCase):
         traveller.start()
         subject_identifier = "123456789"
         identity = "987654321"
+        cdef = site_consents.get_consent_definition(report_datetime=get_utcnow())
+        self.assertEqual(cdef.model, "consent_app.subjectconsentv3")
         self.assertRaises(
             ConsentDefinitionModelError,
             baker.make_recipe,
-            "consent_app.subjectconsent",
+            "consent_app.subjectconsentv1",
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
@@ -654,7 +667,7 @@ class TestConsentModel(TestCase):
 
     def test_model_str_repr_etc(self):
         obj = baker.make_recipe(
-            "consent_app.subjectconsent",
+            "consent_app.subjectconsentv1",
             screening_identifier="ABCDEF",
             subject_identifier="12345",
             consent_datetime=self.study_open_datetime + relativedelta(days=1),
@@ -670,7 +683,7 @@ class TestConsentModel(TestCase):
         self.assertRaises(
             IdentityFieldsMixinError,
             baker.make_recipe,
-            "consent_app.subjectconsent",
+            "consent_app.subjectconsentv1",
             subject_identifier="12345",
             consent_datetime=self.study_open_datetime + relativedelta(days=1),
             identity="123456789",

@@ -36,38 +36,14 @@ class SiteConsents:
         self.registry = {}
         self.loaded = False
 
-    def register(self, cdef: ConsentDefinition) -> None:
+    def register(
+        self, cdef: ConsentDefinition, updated_by: ConsentDefinition | None = None
+    ) -> None:
+        cdef.updated_by = updated_by
         if cdef.name in self.registry:
             raise AlreadyRegistered(f"Consent definition already registered. Got {cdef.name}.")
-        for registered_cdef in self.registry.values():
-            if (
-                cdef
-                and cdef.validate_duration_overlap_by_model
-                and registered_cdef.model == cdef.model
-            ):
-                if (
-                    registered_cdef.start <= cdef.start <= registered_cdef.end
-                    or registered_cdef.start <= cdef.end <= registered_cdef.end
-                ):
-                    raise ConsentDefinitionError(
-                        f"Consent period overlaps with an already registered consent "
-                        f"definition. See already registered consent {registered_cdef.name}. "
-                        f"Got {cdef.name}."
-                    )
-        if cdef.update_cdef:
-            if cdef.update_cdef not in self.registry.values():
-                raise ConsentDefinitionError(
-                    f"Updates unregistered consent definition. See {cdef.name}. "
-                    f"Got {cdef.update_cdef.name}"
-                )
-            elif cdef.update_cdef.updated_by and cdef.update_cdef.updated_by != cdef.version:
-                raise ConsentDefinitionError(
-                    f"Version mismatch with consent definition configured to update another. "
-                    f"'{cdef.name}' is configured to update "
-                    f"'{cdef.update_cdef.name}' but '{cdef.update_cdef.name}' "
-                    f"updated_by='{cdef.update_cdef.version}' not '{cdef.version}'. "
-                )
-
+        self.validate_period_overlap_or_raise(cdef)
+        self.validate_updates_or_raise(cdef)
         self.registry.update({cdef.name: cdef})
         self.loaded = True
 
@@ -80,6 +56,45 @@ class SiteConsents:
 
     def all(self) -> list[ConsentDefinition]:
         return sorted(list(self.registry.values()), key=lambda x: x.version)
+
+    def validate_updates_or_raise(self, cdef: ConsentDefinition) -> None:
+        if cdef.updates:
+            if cdef.updates not in self.registry.values():
+                raise ConsentDefinitionError(
+                    f"Updates unregistered consent definition. See {cdef.name}. "
+                    f"Got {cdef.updates.name}"
+                )
+            elif cdef.updates and cdef.updates.updated_by is None:
+                raise ConsentDefinitionError(
+                    f"Cdef mismatch with consent definition configured to update another. "
+                    f"'{cdef.name}' is configured to update "
+                    f"'{cdef.updates.name}' but '{cdef.updates.name}' "
+                    f"updated_by is None. "
+                )
+            elif cdef.updates and cdef.updates.updated_by != cdef:
+                raise ConsentDefinitionError(
+                    f"Cdef mismatch with consent definition configured to update another. "
+                    f"'{cdef.name}' is configured to update "
+                    f"'{cdef.updates.name}' but '{cdef.updates.name}' "
+                    f"updated_by='{cdef.updates.updated_by.name}' not '{cdef.name}'. "
+                )
+
+    def validate_period_overlap_or_raise(self, cdef: ConsentDefinition):
+        for registered_cdef in self.registry.values():
+            if (
+                cdef
+                and cdef.validate_duration_overlap_by_model
+                and registered_cdef.proxy_model == cdef.proxy_model
+            ):
+                if (
+                    registered_cdef.start <= cdef.start <= registered_cdef.end
+                    or registered_cdef.start <= cdef.end <= registered_cdef.end
+                ):
+                    raise ConsentDefinitionError(
+                        f"Consent period overlaps with an already registered consent "
+                        f"definition. See already registered consent {registered_cdef.name}. "
+                        f"Got {cdef.name}."
+                    )
 
     def get_consent_definition(
         self,
