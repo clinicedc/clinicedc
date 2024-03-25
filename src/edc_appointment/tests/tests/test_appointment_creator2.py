@@ -31,7 +31,7 @@ class TestAppointmentCreator2(AppointmentCreatorTestCase):
         appt_datetime = datetime(1900, 1, 1, tzinfo=ZoneInfo("UTC"))
         site_consents.registry = {}
         consent_definition = ConsentDefinition(
-            "edc_appointment_app.subjectconsent",
+            "edc_appointment_app.subjectconsentv1",
             version="1",
             start=datetime(1900, 1, 1, 0, 0, 0, tzinfo=utc_tz),
             end=datetime(1901, 10, 2, 0, 0, 0, tzinfo=utc_tz),
