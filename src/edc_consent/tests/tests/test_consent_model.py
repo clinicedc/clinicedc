@@ -8,13 +8,20 @@ from django.test import TestCase, override_settings, tag
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import sites as site_sites
 from edc_utils import get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from faker import Faker
 from model_bakery import baker
 
+from consent_app.models import CrfOne, SubjectVisit
+from consent_app.visit_schedules import get_visit_schedule
 from edc_consent.field_mixins import IdentityFieldsMixinError
 from edc_consent.site_consents import site_consents
 
-from ...exceptions import ConsentDefinitionDoesNotExist, ConsentDefinitionModelError
+from ...exceptions import (
+    ConsentDefinitionDoesNotExist,
+    ConsentDefinitionModelError,
+    NotConsentedError,
+)
 from ..consent_test_utils import consent_factory
 
 fake = Faker()
@@ -346,6 +353,288 @@ class TestConsentModel(TestCase):
             consent_datetime=get_utcnow(),
             dob=get_utcnow() - relativedelta(years=25),
         )
+
+    def test_saving_with_date_past_any_consent_period_without_consent_raises(self):
+        subject_identifier = "123456789"
+        identity = "987654321"
+
+        datetime_within_consent_v1 = self.study_open_datetime + timedelta(days=10)
+        cdef_v1 = site_consents.get_consent_definition(
+            report_datetime=datetime_within_consent_v1
+        )
+        datetime_within_consent_v2 = self.study_open_datetime + timedelta(days=60)
+        cdef_v2 = site_consents.get_consent_definition(
+            report_datetime=datetime_within_consent_v2
+        )
+        datetime_within_consent_v3 = self.study_open_datetime + timedelta(days=110)
+        cdef_v3 = site_consents.get_consent_definition(
+            report_datetime=datetime_within_consent_v3
+        )
+
+        visit_schedule = get_visit_schedule([cdef_v1, cdef_v2, cdef_v3])
+        schedule = visit_schedule.schedules.get("schedule1")
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule)
+
+        # jump to and test timepoint within consent v1 window
+        traveller = time_machine.travel(datetime_within_consent_v1)
+        traveller.start()
+
+        # try subject visit before consenting
+        self.assertRaises(
+            NotConsentedError,
+            SubjectVisit.objects.create,
+            report_datetime=get_utcnow(),
+            subject_identifier=subject_identifier,
+            visit_schedule_name=visit_schedule.name,
+            schedule_name=schedule.name,
+        )
+
+        # consent and try again
+        subject_consent = baker.make_recipe(
+            cdef_v1.model,
+            subject_identifier=subject_identifier,
+            identity=identity,
+            confirm_identity=identity,
+            consent_datetime=get_utcnow(),
+            dob=get_utcnow() - relativedelta(years=25),
+        )
+        self.assertEqual(subject_consent.consent_definition_name, cdef_v1.name)
+        self.assertEqual(subject_consent.version, "1.0")
+        self.assertEqual(cdef_v1.model, "consent_app.subjectconsent")
+
+        try:
+            subject_visit = SubjectVisit.objects.create(
+                report_datetime=get_utcnow(),
+                subject_identifier=subject_identifier,
+                visit_schedule_name=visit_schedule.name,
+                schedule_name=schedule.name,
+            )
+            subject_visit.save()
+            crf_one = CrfOne.objects.create(
+                subject_visit=subject_visit,
+                subject_identifier=subject_identifier,
+                report_datetime=get_utcnow(),
+            )
+            crf_one.save()
+        except NotConsentedError:
+            self.fail("NotConsentedError unexpectedly raised")
+        traveller.stop()
+
+        # jump to and test timepoint within consent v2 window
+        traveller = time_machine.travel(datetime_within_consent_v2)
+        traveller.start()
+
+        # try subject visit before consenting (v2)
+        self.assertRaises(
+            NotConsentedError,
+            SubjectVisit.objects.create,
+            report_datetime=get_utcnow(),
+            subject_identifier=subject_identifier,
+            visit_schedule_name=visit_schedule.name,
+            schedule_name=schedule.name,
+        )
+
+        # consent (v2) and try again
+        subject_consent = baker.make_recipe(
+            cdef_v2.model,
+            subject_identifier=subject_identifier,
+            identity=identity,
+            confirm_identity=identity,
+            consent_datetime=get_utcnow(),
+            dob=get_utcnow() - relativedelta(years=25),
+        )
+        self.assertEqual(subject_consent.consent_definition_name, cdef_v2.name)
+        self.assertEqual(subject_consent.version, "2.0")
+        # TODO: why is this still subjectconsent and not subjectconsentv2
+        self.assertEqual(cdef_v2.model, "consent_app.subjectconsent")
+
+        try:
+            subject_visit = SubjectVisit.objects.create(
+                report_datetime=get_utcnow(),
+                subject_identifier=subject_identifier,
+                visit_schedule_name=visit_schedule.name,
+                schedule_name=schedule.name,
+            )
+            subject_visit.save()
+            crf_one = CrfOne.objects.create(
+                subject_visit=subject_visit,
+                subject_identifier=subject_identifier,
+                report_datetime=get_utcnow(),
+            )
+            crf_one.save()
+        except NotConsentedError:
+            self.fail("NotConsentedError unexpectedly raised")
+        traveller.stop()
+
+        # jump to and test timepoint within consent v3 window
+        traveller = time_machine.travel(datetime_within_consent_v3)
+        traveller.start()
+
+        # try subject visit before consenting (v3)
+        self.assertRaises(
+            NotConsentedError,
+            SubjectVisit.objects.create,
+            report_datetime=get_utcnow(),
+            subject_identifier=subject_identifier,
+            visit_schedule_name=visit_schedule.name,
+            schedule_name=schedule.name,
+        )
+
+        # consent (v3) and try again
+        subject_consent = baker.make_recipe(
+            cdef_v3.model,
+            subject_identifier=subject_identifier,
+            identity=identity,
+            confirm_identity=identity,
+            consent_datetime=get_utcnow(),
+            dob=get_utcnow() - relativedelta(years=25),
+        )
+        self.assertEqual(subject_consent.consent_definition_name, cdef_v3.name)
+        self.assertEqual(subject_consent.version, "3.0")
+        self.assertEqual(cdef_v3.model, "consent_app.subjectconsentv3")
+
+        try:
+            subject_visit = SubjectVisit.objects.create(
+                report_datetime=get_utcnow(),
+                subject_identifier=subject_identifier,
+                visit_schedule_name=visit_schedule.name,
+                schedule_name=schedule.name,
+            )
+            subject_visit.save()
+            crf_one = CrfOne.objects.create(
+                subject_visit=subject_visit,
+                subject_identifier=subject_identifier,
+                report_datetime=get_utcnow(),
+            )
+            crf_one.save()
+        except NotConsentedError:
+            self.fail("NotConsentedError unexpectedly raised")
+        traveller.stop()
+
+    def test_save_crf_with_consent_end_shortened_to_before_existing_subject_visit_raises(
+        self,
+    ):
+        subject_identifier = "123456789"
+        identity = "987654321"
+
+        cdef_v1 = site_consents.get_consent_definition(
+            report_datetime=self.study_open_datetime + timedelta(days=10)
+        )
+        cdef_v2 = site_consents.get_consent_definition(
+            report_datetime=self.study_open_datetime + timedelta(days=60)
+        )
+        datetime_within_consent_v3 = self.study_open_datetime + timedelta(days=110)
+        cdef_v3 = site_consents.get_consent_definition(
+            report_datetime=datetime_within_consent_v3
+        )
+
+        visit_schedule = get_visit_schedule([cdef_v1, cdef_v2, cdef_v3])
+        schedule = visit_schedule.schedules.get("schedule1")
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule)
+
+        traveller = time_machine.travel(datetime_within_consent_v3)
+        traveller.start()
+
+        # consent v3
+        subject_consent = baker.make_recipe(
+            cdef_v3.model,
+            subject_identifier=subject_identifier,
+            identity=identity,
+            confirm_identity=identity,
+            consent_datetime=get_utcnow(),
+            dob=get_utcnow() - relativedelta(years=25),
+        )
+        self.assertEqual(subject_consent.consent_definition_name, cdef_v3.name)
+        self.assertEqual(subject_consent.version, "3.0")
+        self.assertEqual(cdef_v3.model, "consent_app.subjectconsentv3")
+
+        # create two visits within consent v3 period
+        subject_visit_1 = SubjectVisit.objects.create(
+            report_datetime=get_utcnow(),
+            subject_identifier=subject_identifier,
+            visit_schedule_name=visit_schedule.name,
+            schedule_name=schedule.name,
+        )
+        subject_visit_1.save()
+        subject_visit_2 = SubjectVisit.objects.create(
+            report_datetime=get_utcnow() + relativedelta(days=20),
+            subject_identifier=subject_identifier,
+            visit_schedule_name=visit_schedule.name,
+            schedule_name=schedule.name,
+        )
+        subject_visit_2.save()
+        traveller.stop()
+
+        # cut short v3 validity period, and introduce new v4 consent definition,
+        updated_v3_end_datetime = datetime_within_consent_v3 + relativedelta(days=1)
+        site_consents.registry[cdef_v3.name].end = updated_v3_end_datetime
+        site_consents.registry[cdef_v3.name].updated_by = "4.0"
+        self.assertEqual(site_consents.registry[cdef_v3.name].end, updated_v3_end_datetime)
+        self.assertEqual(site_consents.registry[cdef_v3.name].end, cdef_v3.end)
+        self.assertEqual(site_consents.registry[cdef_v3.name].updated_by, "4.0")
+        self.assertEqual(site_consents.registry[cdef_v3.name].updated_by, cdef_v3.updated_by)
+
+        consent_factory(
+            model="consent_app.subjectconsentv3",
+            start=cdef_v3.end + relativedelta(days=1),
+            end=self.study_open_datetime + timedelta(days=150),
+            version="4.0",
+            updates=(self.consent_v3, "consent_app.subjectconsentupdatev3"),
+        )
+        datetime_within_consent_v4 = cdef_v3.end + relativedelta(days=20)
+        cdef_v4 = site_consents.get_consent_definition(
+            report_datetime=datetime_within_consent_v4
+        )
+        self.assertEqual(cdef_v4.version, "4.0")
+        schedule.consent_definitions = [cdef_v1, cdef_v2, cdef_v3, cdef_v4]
+
+        traveller = time_machine.travel(datetime_within_consent_v4)
+        traveller.start()
+        # try saving CRF within already consented (v3) period
+        try:
+            crf_one = CrfOne.objects.create(
+                subject_visit=subject_visit_1,
+                subject_identifier=subject_identifier,
+                report_datetime=datetime_within_consent_v3,
+            )
+            crf_one.save()
+        except NotConsentedError:
+            self.fail("NotConsentedError unexpectedly raised")
+
+        # now try to save CRF at second visit (was within v3 period, now within v4)
+        self.assertRaises(
+            NotConsentedError,
+            CrfOne.objects.create,
+            subject_visit=subject_visit_2,
+            subject_identifier=subject_identifier,
+            report_datetime=datetime_within_consent_v4,
+        )
+
+        # consent v4 and try again
+        subject_consent = baker.make_recipe(
+            cdef_v4.model,
+            subject_identifier=subject_identifier,
+            identity=identity,
+            confirm_identity=identity,
+            consent_datetime=datetime_within_consent_v4,
+            dob=get_utcnow() - relativedelta(years=25),
+        )
+        self.assertEqual(subject_consent.consent_definition_name, cdef_v4.name)
+        self.assertEqual(subject_consent.version, "4.0")
+        self.assertEqual(cdef_v4.model, "consent_app.subjectconsentv3")
+
+        try:
+            crf_one = CrfOne.objects.create(
+                subject_visit=subject_visit_1,
+                subject_identifier=subject_identifier,
+                report_datetime=get_utcnow(),
+            )
+            crf_one.save()
+        except NotConsentedError:
+            self.fail("NotConsentedError unexpectedly raised")
+        traveller.stop()
 
     def test_raise_with_incorrect_model_for_cdef(self):
         traveller = time_machine.travel(self.study_open_datetime + timedelta(days=120))
