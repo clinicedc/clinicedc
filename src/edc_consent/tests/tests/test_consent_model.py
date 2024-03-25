@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.contrib.sites.models import Site
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import sites as site_sites
 from edc_utils import get_utcnow
@@ -218,18 +218,20 @@ class TestConsentModel(TestCase):
         traveller.start()
 
         cdef = site_consents.get_consent_definition(report_datetime=get_utcnow())
-        subject_consent = baker.make_recipe(
-            cdef.model,
+        subject_consent = cdef.model_cls(
             subject_identifier=subject_identifier,
+            identity=identity,
+            confirm_identity=identity,
             consent_datetime=get_utcnow(),
             dob=get_utcnow() - relativedelta(years=25),
         )
+        subject_consent.save()
+        subject_consent.refresh_from_db()
         self.assertEqual(subject_consent.subject_identifier, subject_identifier)
         self.assertEqual(subject_consent.identity, identity)
         self.assertEqual(subject_consent.confirm_identity, identity)
         self.assertEqual(subject_consent.consent_definition_name, cdef.name)
 
-    @tag("1")
     def test_v3_extends_v2_end_date_up_to_v3_consent_datetime(self):
         # TODO: is this a valid test? How does it fill in data from
         #  the previous consent?
