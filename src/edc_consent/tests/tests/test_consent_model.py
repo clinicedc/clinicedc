@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.contrib.sites.models import Site
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import sites as site_sites
 from edc_utils import get_utcnow
@@ -367,6 +367,7 @@ class TestConsentModel(TestCase):
             dob=get_utcnow() - relativedelta(years=25),
         )
 
+    @tag("1")
     def test_saving_with_date_past_any_consent_period_without_consent_raises(self):
         subject_identifier = "123456789"
         identity = "987654321"
@@ -414,7 +415,7 @@ class TestConsentModel(TestCase):
         )
         self.assertEqual(subject_consent.consent_definition_name, cdef_v1.name)
         self.assertEqual(subject_consent.version, "1.0")
-        self.assertEqual(cdef_v1.model, "consent_app.subjectconsent")
+        self.assertEqual(cdef_v1.model, "consent_app.subjectconsentv1")
 
         try:
             subject_visit = SubjectVisit.objects.create(
@@ -459,8 +460,7 @@ class TestConsentModel(TestCase):
         )
         self.assertEqual(subject_consent.consent_definition_name, cdef_v2.name)
         self.assertEqual(subject_consent.version, "2.0")
-        # TODO: why is this still subjectconsent and not subjectconsentv2
-        self.assertEqual(cdef_v2.model, "consent_app.subjectconsent")
+        self.assertEqual(cdef_v2.model, "consent_app.subjectconsentv2")
 
         try:
             subject_visit = SubjectVisit.objects.create(
@@ -525,9 +525,13 @@ class TestConsentModel(TestCase):
             self.fail("NotConsentedError unexpectedly raised")
         traveller.stop()
 
+    @tag("1")
     def test_save_crf_with_consent_end_shortened_to_before_existing_subject_visit_raises(
         self,
     ):
+
+        traveller = time_machine.travel(self.study_open_datetime)
+        traveller.start()
         subject_identifier = "123456789"
         identity = "987654321"
 
@@ -547,6 +551,7 @@ class TestConsentModel(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
 
+        traveller.stop()
         traveller = time_machine.travel(datetime_within_consent_v3)
         traveller.start()
 
