@@ -1,8 +1,5 @@
 from django.conf import settings
 from django.core.checks import Error
-from django.core.management import color_style
-
-style = color_style()
 
 
 def edc_middleware_check(
