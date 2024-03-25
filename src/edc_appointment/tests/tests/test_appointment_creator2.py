@@ -1,4 +1,3 @@
-import os
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -22,9 +21,7 @@ utc_tz = ZoneInfo("UTC")
 @time_machine.travel(datetime(1900, 1, 11, 0, 00, tzinfo=utc_tz))
 class TestAppointmentCreator2(AppointmentCreatorTestCase):
     @override_settings(
-        HOLIDAY_FILE=os.path.join(
-            settings.BASE_DIR, settings.APP_NAME, "tests", "no_holidays.csv"
-        ),
+        HOLIDAY_FILE=settings.BASE_DIR / "no_holidays.csv",
         EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(1900, 1, 1, 0, 0, 0, tzinfo=utc_tz),
         EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(1901, 10, 2, 0, 0, 0, tzinfo=utc_tz),
     )
@@ -34,7 +31,7 @@ class TestAppointmentCreator2(AppointmentCreatorTestCase):
         appt_datetime = datetime(1900, 1, 1, tzinfo=ZoneInfo("UTC"))
         site_consents.registry = {}
         consent_definition = ConsentDefinition(
-            "edc_appointment_app.subjectconsent",
+            "edc_appointment_app.subjectconsentv1",
             version="1",
             start=datetime(1900, 1, 1, 0, 0, 0, tzinfo=utc_tz),
             end=datetime(1901, 10, 2, 0, 0, 0, tzinfo=utc_tz),
