@@ -11,10 +11,10 @@ class DecryptError(Exception):
     pass
 
 
-def decrypt(row, column_name, algorithm, mode):
+def decrypt(row, column_name, algorithm, access_mode):
     value = np.nan
     if pd.notnull(row[column_name]):
-        field_cryptor = FieldCryptor(algorithm, mode)
+        field_cryptor = FieldCryptor(algorithm, access_mode)
         value = field_cryptor.decrypt(row[column_name])
         if value.startswith("enc1::"):
             raise DecryptError(
