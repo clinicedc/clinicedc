@@ -8,6 +8,7 @@ from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.managers import AppointmentDeleteError
 from edc_appointment.models import Appointment
 from edc_appointment.utils import reset_appointment, skip_appointment
+from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -17,6 +18,7 @@ from edc_visit_tracking.model_mixins import PreviousVisitError
 from edc_visit_tracking.models import SubjectVisit
 from edc_visit_tracking.visit_sequence import VisitSequence, VisitSequenceError
 
+from ..consents import consent_v1
 from ..helper import Helper
 from ..visit_schedule import visit_schedule1, visit_schedule2
 
@@ -38,6 +40,8 @@ class TestPreviousVisit(TestCase):
         import_holidays()
 
     def setUp(self):
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
         SubjectVisit.visit_sequence_cls = VisitSequence
         self.subject_identifier = "12345"
         self.helper = self.helper_cls(subject_identifier=self.subject_identifier)
