@@ -8,6 +8,7 @@ from django.test import TestCase
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
+from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -15,6 +16,7 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 
+from ..consents import consent_v1
 from ..helper import Helper
 from ..models import BadCrfOneInline, CrfOne, CrfOneInline, OtherModel
 from ..visit_schedule import visit_schedule1, visit_schedule2
@@ -32,6 +34,8 @@ class TestVisit(TestCase):
 
     def setUp(self):
         self.subject_identifier = "12345"
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
         self.helper = self.helper_cls(subject_identifier=self.subject_identifier)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)

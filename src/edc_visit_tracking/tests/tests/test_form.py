@@ -10,6 +10,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings
 from edc_appointment.constants import MISSED_APPT
 from edc_appointment.models import Appointment
+from edc_consent import site_consents
 from edc_constants.constants import (
     ALIVE,
     COMPLETE,
@@ -25,6 +26,7 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.exceptions import RelatedVisitReasonError
 from edc_visit_tracking.form_validators import VisitFormValidator
 from edc_visit_tracking.modelform_mixins import (
     VisitTrackingCrfModelFormMixin,
@@ -32,7 +34,7 @@ from edc_visit_tracking.modelform_mixins import (
 )
 from edc_visit_tracking.models import SubjectVisit
 
-from ...exceptions import RelatedVisitReasonError
+from ..consents import consent_v1
 from ..helper import Helper
 from ..models import BadCrfNoRelatedVisit, CrfOne
 from ..visit_schedule import visit_schedule1, visit_schedule2
@@ -58,6 +60,8 @@ class TestForm(TestCase):
 
     def setUp(self):
         self.subject_identifier = "12345"
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
         self.helper = self.helper_cls(subject_identifier=self.subject_identifier)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)

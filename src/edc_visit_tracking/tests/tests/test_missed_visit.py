@@ -10,6 +10,7 @@ from django.test import TestCase, override_settings
 from edc_appointment.constants import MISSED_APPT, ONTIME_APPT, SCHEDULED_APPT
 from edc_appointment.exceptions import AppointmentBaselineError
 from edc_appointment.models import Appointment
+from edc_consent import site_consents
 from edc_constants.constants import (
     ALIVE,
     DEAD,
@@ -54,6 +55,8 @@ class TestVisit(TestCase):
             model_name="edc_visit_tracking.subjectvisitmissedreasons",
         )
         self.subject_identifier = "12345"
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
         self.helper = self.helper_cls(subject_identifier=self.subject_identifier)
         crfs = CrfCollection(
             Crf(show_order=1, model="edc_visit_tracking.crfone", required=True),

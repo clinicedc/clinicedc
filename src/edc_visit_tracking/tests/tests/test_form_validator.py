@@ -7,6 +7,7 @@ from dateutil.relativedelta import relativedelta
 from django import forms
 from django.test import TestCase
 from edc_appointment.models import Appointment
+from edc_consent import site_consents
 from edc_constants.constants import ALIVE, OTHER, YES
 from edc_facility.import_holidays import import_holidays
 from edc_form_validators import APPLICABLE_ERROR, REQUIRED_ERROR
@@ -17,6 +18,7 @@ from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.form_validators import VisitFormValidator
 from edc_visit_tracking.models import SubjectVisit
 
+from ..consents import consent_v1
 from ..helper import Helper
 from ..visit_schedule import visit_schedule1, visit_schedule2
 
@@ -33,6 +35,8 @@ class TestSubjectVisitFormValidator(TestCase):
 
     def setUp(self):
         self.subject_identifier = "12345"
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
         self.helper = self.helper_cls(subject_identifier=self.subject_identifier)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)

@@ -2,6 +2,7 @@ from datetime import date
 
 from django.db import models
 from django.db.models.deletion import PROTECT
+from edc_consent.managers import ConsentObjectsByCdefManager, CurrentSiteByCdefManager
 from edc_constants.constants import HOSPITALIZED, OTHER
 from edc_crf.model_mixins import CrfInlineModelMixin
 from edc_identifier.managers import SubjectIdentifierManager
@@ -60,6 +61,9 @@ class SubjectConsent(
 
 
 class SubjectConsentV1(SubjectConsent):
+    objects = ConsentObjectsByCdefManager()
+    on_site = CurrentSiteByCdefManager()
+
     class Meta:
         proxy = True
 
