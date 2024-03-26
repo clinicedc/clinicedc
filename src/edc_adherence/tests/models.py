@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import PROTECT
 from edc_appointment.models import Appointment
+from edc_consent.managers import ConsentObjectsByCdefManager, CurrentSiteByCdefManager
 from edc_consent.model_mixins.consent_version_model_mixin import (
     ConsentVersionModelMixin,
 )
@@ -56,6 +57,9 @@ class SubjectConsent(
 
 
 class SubjectConsentV1(SubjectConsent):
+    on_site = CurrentSiteByCdefManager()
+    objects = ConsentObjectsByCdefManager()
+
     class Meta:
         proxy = True
 
