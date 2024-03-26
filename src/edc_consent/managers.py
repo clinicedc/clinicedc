@@ -37,4 +37,4 @@ class CurrentSiteByCdefManager(CurrentSiteManager):
     def get_queryset(self):
         qs = super().get_queryset()
         cdef = site_consents.get_consent_definition(model=qs.model._meta.label_lower)
-        return qs.filter(version=cdef.version)
+        return qs.filter(site_id=cdef.site.site_id, version=cdef.version)

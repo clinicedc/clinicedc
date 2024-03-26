@@ -11,7 +11,7 @@ from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_screening.utils import get_subject_screening_model
 from edc_sites import site_sites
 from edc_utils import floor_secs, formatted_date, formatted_datetime
-from edc_utils.date import ceil_datetime, floor_datetime, to_local, to_utc
+from edc_utils.date import ceil_datetime, floor_datetime, to_local
 
 from .exceptions import (
     ConsentDefinitionError,
@@ -120,42 +120,23 @@ class ConsentDefinition:
     def get_consent_for(
         self,
         subject_identifier: str = None,
-        report_datetime: datetime | None = None,
+        site_id: int | None = None,
         raise_if_not_consented: bool | None = None,
     ) -> ConsentLikeModel | None:
-        """Returns a subject consent using this consent_definition's
-        model_cls and version.
-
-        If it does not exist and this consent_definition updates a
-        previous (update_cdef), will try again with the update_cdef's
-        model_cls and version.
-
-        Finally, if the subject cosent does not exist raises a
-        NotConsentedError.
-        """
-        consent_obj = None
         raise_if_not_consented = (
             True if raise_if_not_consented is None else raise_if_not_consented
         )
-        opts: dict[str, str | datetime] = dict(
-            subject_identifier=subject_identifier, version=self.version
-        )
-        if report_datetime:
-            opts.update(consent_datetime__lte=to_utc(report_datetime))
+        opts = dict(subject_identifier=subject_identifier, version=self.version)
+        if site_id:
+            opts.update(site_id=site_id)
         try:
             consent_obj = self.model_cls.objects.get(**opts)
         except ObjectDoesNotExist:
-            if self.updates:
-                opts.update(version=self.updates.version)
-                try:
-                    consent_obj = self.updates.model_cls.objects.get(**opts)
-                except ObjectDoesNotExist:
-                    pass
+            consent_obj = None
         if not consent_obj and raise_if_not_consented:
-            dte = formatted_date(report_datetime)
             raise NotConsentedError(
-                f"Consent not found. Has subject '{subject_identifier}' "
-                f"completed version '{self.version}' of consent on or after '{dte}'?"
+                f"Consent not found for this version. Has subject '{subject_identifier}' "
+                f"completed a version '{self.version}' consent?"
             )
         return consent_obj
 

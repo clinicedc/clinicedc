@@ -19,6 +19,7 @@ project_settings = DefaultTestSettings(
         "sites.E101",
         "edc_navbar.E002",
         "edc_navbar.E003",
+        "edc_sites.E001",
     ],
     ETC_DIR=str(base_dir / app_name / "tests" / "etc"),
     EDC_NAVBAR_DEFAULT="edc_consent",
