@@ -525,7 +525,7 @@ class TestConsentModel(TestCase):
             self.fail("NotConsentedError unexpectedly raised")
         traveller.stop()
 
-    @tag("1")
+    @tag("2")
     def test_save_crf_with_consent_end_shortened_to_before_existing_subject_visit_raises(
         self,
     ):
@@ -576,14 +576,13 @@ class TestConsentModel(TestCase):
             schedule_name=schedule.name,
         )
         subject_visit_1.save()
-        subject_visit_2 = SubjectVisit.objects.create(
-            report_datetime=get_utcnow() + relativedelta(days=20),
-            subject_identifier=subject_identifier,
-            visit_schedule_name=visit_schedule.name,
-            schedule_name=schedule.name,
-        )
-        subject_visit_2.save()
-        traveller.stop()
+        # subject_visit_2 = SubjectVisit.objects.create(
+        #     report_datetime=get_utcnow() + relativedelta(days=20),
+        #     subject_identifier=subject_identifier,
+        #     visit_schedule_name=visit_schedule.name,
+        #     schedule_name=schedule.name,
+        # )
+        # subject_visit_2.save()
 
         # cut short v3 validity period, and introduce new v4 consent definition,
         updated_v3_end_datetime = datetime_within_consent_v3 + relativedelta(days=1)
@@ -594,22 +593,25 @@ class TestConsentModel(TestCase):
         self.assertEqual(site_consents.registry[cdef_v3.name].updated_by, "4.0")
         self.assertEqual(site_consents.registry[cdef_v3.name].updated_by, cdef_v3.updated_by)
 
-        consent_factory(
-            model="consent_app.subjectconsentv3",
+        consent_v4 = consent_factory(
+            proxy_model="consent_app.subjectconsentv4",
             start=cdef_v3.end + relativedelta(days=1),
             end=self.study_open_datetime + timedelta(days=150),
             version="4.0",
-            updates=(self.consent_v3, "consent_app.subjectconsentupdatev3"),
+            updates=self.consent_v3,
         )
-        datetime_within_consent_v4 = cdef_v3.end + relativedelta(days=20)
-        cdef_v4 = site_consents.get_consent_definition(
-            report_datetime=datetime_within_consent_v4
-        )
+
+        site_consents.unregister(self.consent_v3)
+        site_consents.register(self.consent_v3, updated_by=consent_v4)
+        site_consents.register(consent_v4)
+
+        traveller.stop()
+        traveller = time_machine.travel(cdef_v3.end + relativedelta(days=20))
+        traveller.start()
+        cdef_v4 = site_consents.get_consent_definition(report_datetime=get_utcnow())
         self.assertEqual(cdef_v4.version, "4.0")
         schedule.consent_definitions = [cdef_v1, cdef_v2, cdef_v3, cdef_v4]
 
-        traveller = time_machine.travel(datetime_within_consent_v4)
-        traveller.start()
         # try saving CRF within already consented (v3) period
         try:
             crf_one = CrfOne.objects.create(
@@ -621,13 +623,13 @@ class TestConsentModel(TestCase):
         except NotConsentedError:
             self.fail("NotConsentedError unexpectedly raised")
 
-        # now try to save CRF at second visit (was within v3 period, now within v4)
+        # now try to save CRF at within v4 period
         self.assertRaises(
             NotConsentedError,
             CrfOne.objects.create,
-            subject_visit=subject_visit_2,
+            subject_visit=subject_visit_1,
             subject_identifier=subject_identifier,
-            report_datetime=datetime_within_consent_v4,
+            report_datetime=get_utcnow(),
         )
 
         # consent v4 and try again
@@ -636,7 +638,7 @@ class TestConsentModel(TestCase):
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
-            consent_datetime=datetime_within_consent_v4,
+            consent_datetime=get_utcnow(),
             dob=get_utcnow() - relativedelta(years=25),
         )
         self.assertEqual(subject_consent.consent_definition_name, cdef_v4.name)

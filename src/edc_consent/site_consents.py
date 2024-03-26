@@ -47,6 +47,9 @@ class SiteConsents:
         self.registry.update({cdef.name: cdef})
         self.loaded = True
 
+    def unregister(self, cdef: ConsentDefinition) -> None:
+        self.registry.pop(cdef.name, None)
+
     def get_registry_display(self):
         cdefs = sorted(list(self.registry.values()), key=lambda x: x.version)
         return "', '".join([cdef.display_name for cdef in cdefs])

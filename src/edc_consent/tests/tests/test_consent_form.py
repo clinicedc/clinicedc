@@ -55,23 +55,23 @@ class TestConsentForm(TestCase):
         self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
 
         self.consent_v1 = self.consent_factory(
+            proxy_model="consent_app.subjectconsentv1",
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
-            model="consent_app.subjectconsentv1",
             version="1.0",
         )
 
         self.consent_v2 = self.consent_factory(
+            proxy_model="consent_app.subjectconsentv2",
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
-            model="consent_app.subjectconsentv2",
             version="2.0",
         )
         self.consent_v3 = self.consent_factory(
+            proxy_model="consent_app.subjectconsentv3",
             start=self.study_open_datetime + timedelta(days=101),
             end=self.study_open_datetime + timedelta(days=150),
             version="3.0",
-            model="consent_app.subjectconsentv3",
             updates=self.consent_v2,
         )
         site_consents.register(self.consent_v1)
@@ -92,8 +92,8 @@ class TestConsentForm(TestCase):
             age_max=kwargs.get("age_max", 64),
             age_is_adult=kwargs.get("age_is_adult", 18),
         )
-        model = kwargs.get("model", "consent_app.subjectconsentv1")
-        consent_definition = ConsentDefinition(model, **options)
+        proxy_model = kwargs.get("proxy_model", "consent_app.subjectconsentv1")
+        consent_definition = ConsentDefinition(proxy_model, **options)
         return consent_definition
 
     def cleaned_data(self, **kwargs):
