@@ -99,6 +99,15 @@ class SiteConsents:
                         f"Got {cdef.name}."
                     )
 
+    def get_consent_for(
+        self, subject_identifier: str, report_datetime: datetime, site_id: int
+    ):
+        from edc_sites.site import sites as site_sites  # avoid circular import
+
+        single_site = site_sites.get(site_id)
+        cdef = self.get_consent_definition(report_datetime=report_datetime, site=single_site)
+        return cdef.get_consent_for(subject_identifier)
+
     def get_consent_definition(
         self,
         model: str = None,

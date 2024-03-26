@@ -124,14 +124,14 @@ class ConsentDefinition:
         raise_if_not_consented: bool | None = None,
     ) -> ConsentLikeModel | None:
         """Returns a subject consent using this consent_definition's
-        model_cls and version.
+        `model_cls` and `version`.
 
         If it does not exist and this consent_definition updates a
-        previous (update_cdef), will try again with the update_cdef's
+        previous (`update_cdef`), will try again with the `update_cdef's`
         model_cls and version.
 
-        Finally, if the subject cosent does not exist raises a
-        NotConsentedError.
+        Finally, if the subject consent does not exist raises a
+        `NotConsentedError`.
         """
         consent_obj = None
         raise_if_not_consented = (
