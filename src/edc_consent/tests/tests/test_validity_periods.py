@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_utils import get_utcnow
 from faker import Faker
@@ -108,41 +108,38 @@ class TestConsentModel(TestCase):
         # Note: subject now has three consents in the table.
         self.assertEqual(SubjectConsent.objects.filter(identity=self.identity).count(), 3)
 
-    @tag("4")
     def test_is_v2_within_v2_consent_period(self):
-        consent = site_consents.get_consent_for(
+        consent = site_consents.get_consent_or_raise(
             subject_identifier=self.subject_identifier,
             report_datetime=self.consent_v3_start_date - relativedelta(days=5),
             site_id=settings.SITE_ID,
         )
         self.assertEqual(consent.version, "2.0")
 
-    @tag("5")
     def test_is_v2_after_v2_end_date_but_before_v3_consent_date(self):
         """Assert returns v2 in the gap between the end of the
         v2 consent period and the subject's v3 consent date.
-
-        v
         """
-        consent = site_consents.get_consent_for(
+        cdef = site_consents.get_consent_definition(report_datetime=self.v3_consent_datetime)
+        SubjectConsent.objects.filter(consent_datetime__range=[cdef.start, cdef.end])
+
+        consent = site_consents.get_consent_or_raise(
             subject_identifier=self.subject_identifier,
             report_datetime=self.v3_consent_datetime - relativedelta(days=5),
             site_id=settings.SITE_ID,
         )
         self.assertEqual(consent.version, "2.0")
 
-    @tag("4")
     def test_is_v3_on_v3_consent_date(self):
-        consent = site_consents.get_consent_for(
+        consent = site_consents.get_consent_or_raise(
             subject_identifier=self.subject_identifier,
             report_datetime=self.v3_consent_datetime,
             site_id=settings.SITE_ID,
         )
         self.assertEqual(consent.version, "3.0")
 
-    @tag("4")
     def test_is_v3_on_after_v3_consent_date(self):
-        consent = site_consents.get_consent_for(
+        consent = site_consents.get_consent_or_raise(
             subject_identifier=self.subject_identifier,
             report_datetime=self.v3_consent_datetime + relativedelta(days=5),
             site_id=settings.SITE_ID,

@@ -8,7 +8,11 @@ from edc_sites.site import sites as site_sites
 
 from edc_consent import ConsentDefinitionDoesNotExist, site_consents
 from edc_consent.consent_definition import ConsentDefinition
-from edc_consent.exceptions import NotConsentedError, SiteConsentError
+from edc_consent.exceptions import (
+    ConsentDefinitionNotConfiguredForUpdate,
+    NotConsentedError,
+    SiteConsentError,
+)
 
 
 class ConsentDefinitionFormValidatorMixin:
@@ -38,18 +42,14 @@ class ConsentDefinitionFormValidatorMixin:
         Wraps func `consent_datetime_or_raise` to re-raise exceptions
         as ValidationError.
         """
+
         fldname = fldname or "report_datetime"
         error_code = error_code or INVALID_ERROR
-        consent_definition = self.get_consent_definition(
-            report_datetime=report_datetime, fldname=fldname, error_code=error_code
-        )
-        # use the consent_definition to get the subject consent model instance
         try:
-            consent_obj = consent_definition.get_consent_for(
-                subject_identifier=self.subject_identifier,
-                report_datetime=report_datetime,
+            consent_obj = site_consents.get_consent_or_raise(
+                subject_identifier=self.subject_consent, report_datetime=report_datetime
             )
-        except NotConsentedError as e:
+        except (NotConsentedError, ConsentDefinitionNotConfiguredForUpdate) as e:
             self.raise_validation_error({fldname: str(e)}, error_code)
         return consent_obj
 

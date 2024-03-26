@@ -29,9 +29,10 @@ def requires_consent_on_pre_save(instance, raw, using, update_fields, **kwargs):
             consent_definition = site_consents.get_consent_definition(
                 site=site_sites.get(site.id), report_datetime=instance.report_datetime
             )
-        consent_definition.get_consent_for(
+        site_consents.get_consent_or_raise(
             subject_identifier=subject_identifier,
             report_datetime=instance.report_datetime,
+            site_id=site.id,
         )
         instance.consent_version = consent_definition.version
         instance.consent_model = consent_definition.model

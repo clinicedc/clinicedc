@@ -2,12 +2,16 @@ from __future__ import annotations
 
 from django import forms
 from edc_sites import site_sites
-from edc_utils import floor_secs, formatted_date, formatted_datetime
-from edc_utils.date import to_local, to_utc
+from edc_utils import formatted_date
+from edc_utils.date import to_utc
 
-from .. import NotConsentedError
 from ..consent_definition import ConsentDefinition
-from ..exceptions import ConsentDefinitionDoesNotExist
+from ..exceptions import (
+    ConsentDefinitionDoesNotExist,
+    ConsentDefinitionNotConfiguredForUpdate,
+    NotConsentedError,
+)
+from ..site_consents import site_consents
 
 __all__ = ["RequiresConsentModelFormMixin"]
 
@@ -20,8 +24,14 @@ class RequiresConsentModelFormMixin:
 
     def clean(self):
         cleaned_data = super().clean()
-        self.validate_against_consent()
+        consent_obj = self.validate_against_consent()
+        self.validate_against_dob(consent_obj)
         return cleaned_data
+
+    def validate_against_dob(self, consent_obj):
+        if to_utc(self.report_datetime).date() < consent_obj.dob:
+            dte_str = formatted_date(consent_obj.dob)
+            raise forms.ValidationError(f"Report datetime cannot be before DOB. Got {dte_str}")
 
     def validate_against_consent(self) -> None:
         """Raise an exception if the report datetime doesn't make
@@ -29,24 +39,20 @@ class RequiresConsentModelFormMixin:
         """
         if self.report_datetime:
             try:
-                model_obj = self.consent_definition.get_consent_for(
+                consent_obj = site_consents.get_consent_or_raise(
                     subject_identifier=self.get_subject_identifier(),
                     report_datetime=self.report_datetime,
                 )
-            except NotConsentedError as e:
+            except (NotConsentedError, ConsentDefinitionNotConfiguredForUpdate) as e:
                 raise forms.ValidationError({"__all__": str(e)})
-            if floor_secs(to_utc(self.report_datetime)) < floor_secs(
-                model_obj.consent_datetime
-            ):
-                dte_str = formatted_datetime(to_local(model_obj.consent_datetime))
-                raise forms.ValidationError(
-                    f"Report datetime cannot be before consent datetime. Got {dte_str}."
-                )
-            if to_utc(self.report_datetime).date() < model_obj.dob:
-                dte_str = formatted_date(model_obj.dob)
-                raise forms.ValidationError(
-                    f"Report datetime cannot be before DOB. Got {dte_str}"
-                )
+            # if floor_secs(to_utc(self.report_datetime)) < floor_secs(
+            #     model_obj.consent_datetime
+            # ):
+            #     dte_str = formatted_datetime(to_local(model_obj.consent_datetime))
+            #     raise forms.ValidationError(
+            #         f"Report datetime cannot be before consent datetime. Got {dte_str}."
+            #     )
+        return consent_obj
 
     @property
     def consent_definition(self) -> ConsentDefinition:

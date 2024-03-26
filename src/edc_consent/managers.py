@@ -24,16 +24,7 @@ class ConsentObjectsByCdefManager(ConsentObjectsManager):
     def get_queryset(self):
         qs = super().get_queryset()
         cdef = site_consents.get_consent_definition(model=qs.model._meta.label_lower)
-        # return qs.filter(
-        #     version=cdef.version,
-        #     consent_datetime__gte=cdef.start,
-        #     consent_datetime__lte=cdef.end,
-        # )
-        return qs.filter(
-            version=cdef.version,
-            consent_datetime__gte=cdef.start,
-            consent_datetime__lte=cdef.end,
-        ).exclude(consent_datetime__lt=cdef.start, consent_datetime__gt=cdef.end)
+        return qs.filter(version=cdef.version)
 
 
 class CurrentSiteByCdefManager(CurrentSiteManager):
@@ -46,14 +37,4 @@ class CurrentSiteByCdefManager(CurrentSiteManager):
     def get_queryset(self):
         qs = super().get_queryset()
         cdef = site_consents.get_consent_definition(model=qs.model._meta.label_lower)
-        # return qs.filter(
-        #     version=cdef.version,
-        #     consent_datetime__gte=cdef.start,
-        #     consent_datetime__lte=cdef.end,
-        # )
-        return qs.filter(
-            site_id=cdef.site.site_id,
-            version=cdef.version,
-            consent_datetime__gte=cdef.start,
-            consent_datetime__lte=cdef.end,
-        ).exclude(consent_datetime__lt=cdef.start, consent_datetime__gt=cdef.end)
+        return qs.filter(site_id=cdef.site.site_id, version=cdef.version)

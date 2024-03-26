@@ -3,8 +3,9 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
+from django.conf import settings
 from django.contrib.sites.models import Site
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -64,7 +65,6 @@ class TestConsentModel(TestCase):
         site_consents.register(self.consent_v3)
         self.dob = self.study_open_datetime - relativedelta(years=25)
 
-    @tag("1")
     def test_encryption(self):
         subject_consent = baker.make_recipe(
             "consent_app.subjectconsentv1",
@@ -74,7 +74,6 @@ class TestConsentModel(TestCase):
         )
         self.assertEqual(subject_consent.first_name, "ERIK")
 
-    @tag("1")
     def test_gets_subject_identifier(self):
         """Asserts a blank subject identifier is set to the
         subject_identifier_as_pk.
@@ -92,7 +91,6 @@ class TestConsentModel(TestCase):
         self.assertIsNotNone(consent.subject_identifier)
         self.assertNotEqual(consent.subject_identifier, consent.subject_identifier_as_pk)
 
-    @tag("1")
     def test_subject_has_current_consent(self):
         subject_identifier = "123456789"
         identity = "987654321"
@@ -104,12 +102,10 @@ class TestConsentModel(TestCase):
             consent_datetime=self.study_open_datetime + timedelta(days=1),
             dob=get_utcnow() - relativedelta(years=25),
         )
-        cdef = site_consents.get_consent_definition(
-            model="consent_app.subjectconsentv1", version="1.0"
-        )
-        subject_consent = cdef.get_consent_for(
+        subject_consent = site_consents.get_consent_or_raise(
             subject_identifier="123456789",
             report_datetime=self.study_open_datetime + timedelta(days=1),
+            site_id=settings.SITE_ID,
         )
         self.assertEqual(subject_consent.version, "1.0")
         baker.make_recipe(
@@ -120,16 +116,13 @@ class TestConsentModel(TestCase):
             consent_datetime=self.study_open_datetime + timedelta(days=60),
             dob=get_utcnow() - relativedelta(years=25),
         )
-        cdef = site_consents.get_consent_definition(
-            model="consent_app.subjectconsentv2", version="2.0"
-        )
-        subject_consent = cdef.get_consent_for(
+        subject_consent = site_consents.get_consent_or_raise(
             subject_identifier="123456789",
             report_datetime=self.study_open_datetime + timedelta(days=60),
+            site_id=settings.SITE_ID,
         )
         self.assertEqual(subject_consent.version, "2.0")
 
-    @tag("1")
     def test_model_updates_version_according_to_cdef_used(self):
         """Asserts the consent model finds the cdef and updates
         column `version` using to the version number on the
@@ -165,7 +158,6 @@ class TestConsentModel(TestCase):
         )
         self.assertEqual(consent.version, "3.0")
 
-    @tag("1")
     def test_model_updates_version_according_to_cdef_used2(self):
         """Asserts the consent model finds the `cdef` and updates
         column `version` using to the version number on the
@@ -186,6 +178,20 @@ class TestConsentModel(TestCase):
         )
         self.assertEqual(consent.version, "1.0")
         cdef = site_consents.get_consent_definition(report_datetime=self.study_open_datetime)
+        self.assertRaises(
+            ConsentDefinitionModelError,
+            baker.make_recipe,
+            cdef.model,
+            subject_identifier=subject_identifier,
+            identity=identity,
+            confirm_identity=identity,
+            consent_datetime=self.study_open_datetime + timedelta(days=101),
+            dob=get_utcnow() - relativedelta(years=25),
+        )
+
+        cdef = site_consents.get_consent_definition(
+            report_datetime=self.study_open_datetime + timedelta(days=101)
+        )
         consent = baker.make_recipe(
             cdef.model,
             subject_identifier=subject_identifier,
@@ -238,7 +244,7 @@ class TestConsentModel(TestCase):
             consent_datetime=get_utcnow(),
             dob=get_utcnow() - relativedelta(years=25),
         )
-        self.assertEqual(subject_consent.version, "2.0")
+        self.assertEqual(subject_consent.version, "1.0")
         self.assertEqual(subject_consent.subject_identifier, subject_identifier)
         self.assertEqual(subject_consent.identity, identity)
         self.assertEqual(subject_consent.confirm_identity, identity)
@@ -266,7 +272,7 @@ class TestConsentModel(TestCase):
         self.assertEqual(subject_consent.confirm_identity, identity)
         self.assertEqual(subject_consent.consent_definition_name, cdef.name)
 
-        self.assertEqual(SubjectConsent.objects.filter(identity, identity).count(), 2)
+        self.assertEqual(SubjectConsent.objects.filter(identity=identity).count(), 2)
 
     def test_first_consent_is_v2(self):
         traveller = time_machine.travel(self.study_open_datetime + timedelta(days=51))
@@ -333,7 +339,6 @@ class TestConsentModel(TestCase):
             dob=get_utcnow() - relativedelta(years=25),
         )
 
-    @tag("1")
     def test_saving_with_date_past_any_consent_period_without_consent_raises(self):
         subject_identifier = "123456789"
         identity = "987654321"
@@ -491,7 +496,6 @@ class TestConsentModel(TestCase):
             self.fail("NotConsentedError unexpectedly raised")
         traveller.stop()
 
-    @tag("2")
     def test_save_crf_with_consent_end_shortened_to_before_existing_subject_visit_raises(
         self,
     ):
@@ -592,17 +596,9 @@ class TestConsentModel(TestCase):
         except NotConsentedError:
             self.fail("NotConsentedError unexpectedly raised")
 
-        crf_one.report_datetime = get_utcnow()
-        crf_one.save()
-
         # now try to save CRF at within v4 period
-        self.assertRaises(
-            NotConsentedError,
-            CrfOne.objects.create,
-            subject_visit=subject_visit_1,
-            subject_identifier=subject_identifier,
-            report_datetime=get_utcnow(),
-        )
+        crf_one.report_datetime = get_utcnow()
+        self.assertRaises(NotConsentedError, crf_one.save)
 
         # consent v4 and try again
         subject_consent = baker.make_recipe(
@@ -615,7 +611,7 @@ class TestConsentModel(TestCase):
         )
         self.assertEqual(subject_consent.consent_definition_name, cdef_v4.name)
         self.assertEqual(subject_consent.version, "4.0")
-        self.assertEqual(cdef_v4.model, "consent_app.subjectconsentv3")
+        self.assertEqual(cdef_v4.model, "consent_app.subjectconsentv4")
 
         try:
             crf_one = CrfOne.objects.create(

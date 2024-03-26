@@ -15,6 +15,7 @@ from .exceptions import (
     AlreadyRegistered,
     ConsentDefinitionDoesNotExist,
     ConsentDefinitionError,
+    ConsentDefinitionNotConfiguredForUpdate,
     SiteConsentError,
 )
 
@@ -99,14 +100,58 @@ class SiteConsents:
                         f"Got {cdef.name}."
                     )
 
-    def get_consent_for(
-        self, subject_identifier: str, report_datetime: datetime, site_id: int
+    def get_consents(self, subject_identifier: str, site_id: int | None) -> list:
+        consents = []
+        for cdef in self.all():
+            if consent_obj := cdef.get_consent_for(
+                subject_identifier=subject_identifier,
+                site_id=site_id,
+                raise_if_not_consented=False,
+            ):
+                consents.append(consent_obj)
+        return consents
+
+    def get_consent_or_raise(
+        self,
+        subject_identifier: str,
+        report_datetime: datetime,
+        site_id: int,
+        raise_if_not_consented: bool | None = None,
     ):
+        """Returns a subject consent using this consent_definition's
+        `model_cls` and `version`.
+
+        If it does not exist and this consent_definition updates a
+        previous (`update_cdef`), will try again with the `update_cdef's`
+        model_cls and version.
+
+        Finally, if the subject consent does not exist raises a
+        `NotConsentedError`.
+        """
         from edc_sites.site import sites as site_sites  # avoid circular import
 
+        raise_if_not_consented = (
+            True if raise_if_not_consented is None else raise_if_not_consented
+        )
         single_site = site_sites.get(site_id)
         cdef = self.get_consent_definition(report_datetime=report_datetime, site=single_site)
-        return cdef.get_consent_for(subject_identifier)
+        consent_obj = cdef.get_consent_for(
+            subject_identifier, raise_if_not_consented=raise_if_not_consented
+        )
+        if consent_obj and report_datetime < consent_obj.consent_datetime:
+            if not cdef.updates:
+                dte = formatted_date(report_datetime)
+                raise ConsentDefinitionNotConfiguredForUpdate(
+                    f"Consent not configured to update any previous versions. "
+                    f"Got '{cdef.version}'. "
+                    f"Has subject '{subject_identifier}' completed version '{cdef.version}' "
+                    f"of consent on or after report_datetime='{dte}'?"
+                )
+            else:
+                return cdef.updates.get_consent_for(
+                    subject_identifier, raise_if_not_consented=raise_if_not_consented
+                )
+        return consent_obj
 
     def get_consent_definition(
         self,
