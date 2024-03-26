@@ -1,10 +1,10 @@
 from django.test import TestCase
+from edc_consent import site_consents
 from edc_constants.constants import MALE
 from edc_facility.import_holidays import import_holidays
 
 from edc_metadata import NOT_REQUIRED, REQUIRED
-
-from ...metadata_rules import (
+from edc_metadata.metadata_rules import (
     CrfRule,
     CrfRuleGroup,
     P,
@@ -14,6 +14,8 @@ from ...metadata_rules import (
     register,
     site_metadata_rules,
 )
+
+from ..consents import consent_v1
 
 
 class RuleGroupWithoutRules(CrfRuleGroup):
@@ -55,6 +57,8 @@ class TestSiteMetadataRules(TestCase):
 
     def setUp(self):
         site_metadata_rules.registry = {}
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
 
     def test_register_rule_group_no_rules_raises_on_register(self):
         self.assertRaises(

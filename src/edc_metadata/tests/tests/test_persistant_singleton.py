@@ -20,11 +20,15 @@ from model_bakery import baker
 
 from edc_metadata import KEYED, NOT_REQUIRED, REQUIRED
 from edc_metadata.metadata import CrfMetadataGetter
-from edc_metadata.metadata_rules import site_metadata_rules
+from edc_metadata.metadata_handler import MetadataHandlerError
+from edc_metadata.metadata_rules import (
+    CrfRule,
+    CrfRuleGroup,
+    PersistantSingletonMixin,
+    site_metadata_rules,
+)
+from edc_metadata.models import CrfMetadata
 
-from ...metadata_handler import MetadataHandlerError
-from ...metadata_rules import CrfRule, CrfRuleGroup, PersistantSingletonMixin
-from ...models import CrfMetadata
 from ..models import CrfOne, SubjectConsent
 from ..visit_schedule2 import visit_schedule
 
@@ -39,7 +43,7 @@ class TestCaseMixin(AppointmentTestCaseMixin):
     @staticmethod
     def get_subject_consent():
         return baker.make_recipe(
-            "edc_metadata.subjectconsent",
+            "edc_metadata.subjectconsentv1",
             user_created="erikvw",
             user_modified="erikvw",
             screening_identifier="1234",

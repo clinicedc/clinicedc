@@ -2,11 +2,12 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from edc_visit_tracking.constants import SCHEDULED
 
-from ...constants import KEYED, NOT_REQUIRED, REQUIRED
-from ...metadata_handler import MetadataHandlerError
-from ...metadata_inspector import MetaDataInspector
-from ...metadata_updater import MetadataUpdater
-from ...models import CrfMetadata, RequisitionMetadata
+from edc_metadata.constants import KEYED, NOT_REQUIRED, REQUIRED
+from edc_metadata.metadata_handler import MetadataHandlerError
+from edc_metadata.metadata_inspector import MetaDataInspector
+from edc_metadata.metadata_updater import MetadataUpdater
+from edc_metadata.models import CrfMetadata, RequisitionMetadata
+
 from ..models import CrfOne, CrfThree, CrfTwo, SubjectRequisition, SubjectVisit
 from .metadata_test_mixin import TestMetadataMixin
 

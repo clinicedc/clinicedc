@@ -2,6 +2,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from edc_appointment.models import Appointment
+from edc_consent import site_consents
 from edc_constants.constants import MALE
 from edc_facility.import_holidays import import_holidays
 from edc_utils import get_utcnow
@@ -11,11 +12,12 @@ from edc_visit_tracking.models import SubjectVisit
 from faker import Faker
 
 from edc_metadata import KEYED, NOT_REQUIRED, REQUIRED
+from edc_metadata.metadata_handler import MetadataHandlerError
+from edc_metadata.metadata_rules import CrfRule, CrfRuleGroup, P, site_metadata_rules
 from edc_metadata.models import CrfMetadata
 
-from ...metadata_handler import MetadataHandlerError
-from ...metadata_rules import CrfRule, CrfRuleGroup, P, site_metadata_rules
-from ..models import CrfOne, CrfTwo, PrnOne, SubjectConsent
+from ..consents import consent_v1
+from ..models import CrfOne, CrfTwo, PrnOne, SubjectConsentV1
 from ..visit_schedule import visit_schedule
 
 fake = Faker()
@@ -81,6 +83,8 @@ class CrfRuleGroupTestCase(TestCase):
         import_holidays()
 
     def setUp(self):
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
@@ -96,7 +100,7 @@ class CrfRuleGroupTestCase(TestCase):
 
     def enroll(self, gender=None):
         subject_identifier = fake.credit_card_number()
-        subject_consent = SubjectConsent.objects.create(
+        subject_consent = SubjectConsentV1.objects.create(
             subject_identifier=subject_identifier,
             consent_datetime=get_utcnow(),
             gender=gender,

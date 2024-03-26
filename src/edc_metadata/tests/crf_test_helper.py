@@ -1,7 +1,7 @@
 from model_bakery import baker
 
-from ..constants import NOT_REQUIRED, REQUIRED
-from ..models import CrfMetadata, RequisitionMetadata
+from edc_metadata.constants import NOT_REQUIRED, REQUIRED
+from edc_metadata.models import CrfMetadata, RequisitionMetadata
 
 
 class CrfTestHelper:

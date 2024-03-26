@@ -6,9 +6,10 @@ from edc_lab.models import Panel
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 
-from ...constants import KEYED, REQUIRED
-from ...metadata import DeleteMetadataError
-from ...models import CrfMetadata, RequisitionMetadata
+from edc_metadata.constants import KEYED, REQUIRED
+from edc_metadata.metadata import DeleteMetadataError
+from edc_metadata.models import CrfMetadata, RequisitionMetadata
+
 from ..models import CrfOne, SubjectRequisition
 from .metadata_test_mixin import TestMetadataMixin
 
