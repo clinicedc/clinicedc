@@ -16,7 +16,7 @@ def get_holiday_model() -> str:
     return getattr(settings, "EDC_FACILITY_HOLIDAY_MODEL", "edc_facility.holiday")
 
 
-def get_holiday_model_cls() -> Holiday:
+def get_holiday_model_cls() -> Type[Holiday]:
     return django_apps.get_model(get_holiday_model())
 
 

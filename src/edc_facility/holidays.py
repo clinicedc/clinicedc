@@ -7,9 +7,10 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import QuerySet
-from edc_sites.site import sites
+from edc_sites.site import sites as site_sites
 from edc_sites.utils import get_site_model_cls
 from edc_utils.date import to_local
+from multisite.exceptions import MultisiteSiteDoesNotExist
 
 from .exceptions import FacilityCountryError, FacilitySiteError, HolidayError
 from .holidays_disabled import holidays_disabled
@@ -23,7 +24,7 @@ class Holidays:
     country of facility.
     """
 
-    model = "edc_facility.holiday"
+    model: str = "edc_facility.holiday"
 
     def __init__(self, site: Site = None) -> None:
         self._holidays = None
@@ -47,15 +48,17 @@ class Holidays:
     def site(self) -> Site | None:
         """Returns the Site model instance."""
         if not self._site:
-            extramsg = ""
-            if not sites.all():
-                extramsg = " No sites have been registered. See edc_sites.site.Sites."
             try:
                 self._site = get_site_model_cls().objects.get_current()
             except ObjectDoesNotExist as e:
                 raise FacilitySiteError(
-                    f"Unable to determine site.{extramsg} "
+                    f"Unable to determine site. Cannot lookup holidays. "
                     f"settings.SITE_ID={settings.SITE_ID}. Got {e}"
+                )
+            except MultisiteSiteDoesNotExist as e:
+                raise FacilitySiteError(
+                    f"Unable to determine site. Cannot lookup holidays. "
+                    f"settings.SITE_ID={settings.SITE_ID}. Got MultisiteSiteDoesNotExist({e})."
                 )
         return self._site
 
@@ -65,7 +68,7 @@ class Holidays:
 
         Requires SiteProfile from edc_sites to be updated.
         """
-        country = sites.get(self.site.id).country
+        country = site_sites.get(self.site.id).country
         if not country:
             raise FacilityCountryError("Unable to determine country.")
         return country
