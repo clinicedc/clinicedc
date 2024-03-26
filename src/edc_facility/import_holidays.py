@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import csv
-import os
 import sys
 from datetime import datetime
-from typing import TYPE_CHECKING
+from pathlib import Path
+from typing import TYPE_CHECKING, Type
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -31,13 +31,15 @@ def import_holidays(verbose: bool | None = None, test: bool | None = None) -> No
     else:
         path = settings.HOLIDAY_FILE
         try:
-            if not os.path.exists(path):
+            if not Path(path).exists():
                 raise HolidayFileNotFoundError(path)
         except TypeError:
-            raise HolidayImportError(f"Invalid path. Got {path}.")
+            raise HolidayImportError(
+                f"Invalid path importing holiday file. See settings.HOLIDAY_FILE. Got {path}."
+            )
         if verbose:
             sys.stdout.write(
-                f"\nImporting holidays from '{path}' " f"into {model_cls._meta.label_lower}\n"
+                f"\nImporting holidays from '{path}' into {model_cls._meta.label_lower}\n"
             )
         model_cls.objects.all().delete()
 
@@ -83,7 +85,7 @@ def import_file(path: str, recs: list, model_cls: Holiday):
                     obj.save()
 
 
-def import_for_tests(model_cls):
+def import_for_tests(model_cls: Type[Holiday]):
     year = get_utcnow().year
     country = sites.get_current_country()
     if not country:
