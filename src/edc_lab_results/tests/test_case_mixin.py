@@ -5,7 +5,7 @@ from edc_consent.site_consents import site_consents
 from edc_consent.tests.consent_test_utils import consent_definition_factory
 from edc_facility.import_holidays import import_holidays
 from edc_lab import site_labs
-from edc_metadata.tests.models import SubjectConsent
+from edc_metadata.tests.models import SubjectConsentV1
 from edc_registration.models import RegisteredSubject
 from edc_reportable import site_reportables
 from edc_reportable.grading_data.daids_july_2017 import grading_data
@@ -32,11 +32,12 @@ class TestCaseMixin(TestCase):
     @classmethod
     def setUpTestData(cls):
         site_visit_schedules.register(visit_schedule)
-        consent_definition_factory(
-            model=SubjectConsent._meta.label_lower,
+        consent_v1 = consent_definition_factory(
+            SubjectConsentV1._meta.label_lower,
             start=get_utcnow() - relativedelta(years=1),
             end=get_utcnow() + relativedelta(years=1),
         )
+        site_consents.register(consent_v1)
         import_holidays()
         site_reportables.register(
             name="my_reportables", normal_data=normal_data, grading_data=grading_data
@@ -47,7 +48,7 @@ class TestCaseMixin(TestCase):
     @staticmethod
     def enroll(subject_identifier=None):
         subject_identifier = subject_identifier or "1111111"
-        subject_consent = SubjectConsent.objects.create(
+        subject_consent = SubjectConsentV1.objects.create(
             subject_identifier=subject_identifier, consent_datetime=get_utcnow()
         )
         _, schedule = site_visit_schedules.get_by_onschedule_model("edc_metadata.onschedule")
