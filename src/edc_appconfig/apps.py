@@ -1,6 +1,7 @@
 import sys
 
 from django.apps import AppConfig as DjangoAppConfig
+from django.conf import settings
 from django.core.checks import register
 from django.core.management.color import color_style
 from django.db.models.signals import post_migrate
@@ -144,11 +145,15 @@ class AppConfig(DjangoAppConfig):
             dispatch_uid="edc_sites.post_migrate_update_sites",
         )
         sys.stdout.write("   - post_migrate.multisite.post_migrate_sync_alias\n")
-        post_migrate.connect(
-            post_migrate_sync_alias,
-            sender=self,
-            dispatch_uid="multisite.post_migrate_sync_alias",
-        )
+        if (
+            "multisite" in settings.INSTALLED_APPS
+            or "multisite.apps" in settings.INSTALLED_APPS
+        ):
+            post_migrate.connect(
+                post_migrate_sync_alias,
+                sender=self,
+                dispatch_uid="multisite.post_migrate_sync_alias",
+            )
         sys.stdout.write("   - post_migrate.update_panels_on_post_migrate\n")
         post_migrate.connect(
             update_panels_on_post_migrate,
