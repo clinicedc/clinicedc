@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 
 from django.urls import reverse
 from django.utils.html import format_html
-from edc_dashboard import url_names
+from edc_dashboard.url_names import url_names
 from edc_form_validators import INVALID_ERROR
 
 
