@@ -29,7 +29,7 @@ class RequiresConsentModelFormMixin:
         return cleaned_data
 
     def validate_against_dob(self, consent_obj):
-        if to_utc(self.report_datetime).date() < consent_obj.dob:
+        if consent_obj and to_utc(self.report_datetime).date() < consent_obj.dob:
             dte_str = formatted_date(consent_obj.dob)
             raise forms.ValidationError(f"Report datetime cannot be before DOB. Got {dte_str}")
 

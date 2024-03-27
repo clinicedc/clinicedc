@@ -6,13 +6,14 @@ from django.utils.translation import gettext as _
 from edc_form_validators import INVALID_ERROR
 from edc_sites.site import sites as site_sites
 
-from edc_consent import ConsentDefinitionDoesNotExist, site_consents
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.exceptions import (
+    ConsentDefinitionDoesNotExist,
     ConsentDefinitionNotConfiguredForUpdate,
     NotConsentedError,
     SiteConsentError,
 )
+from edc_consent.site_consents import site_consents
 
 
 class ConsentDefinitionFormValidatorMixin:
@@ -47,7 +48,7 @@ class ConsentDefinitionFormValidatorMixin:
         error_code = error_code or INVALID_ERROR
         try:
             consent_obj = site_consents.get_consent_or_raise(
-                subject_identifier=self.subject_consent, report_datetime=report_datetime
+                subject_identifier=self.subject_identifier, report_datetime=report_datetime
             )
         except (NotConsentedError, ConsentDefinitionNotConfiguredForUpdate) as e:
             self.raise_validation_error({fldname: str(e)}, error_code)

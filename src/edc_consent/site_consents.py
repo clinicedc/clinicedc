@@ -115,7 +115,7 @@ class SiteConsents:
         self,
         subject_identifier: str,
         report_datetime: datetime,
-        site_id: int,
+        site_id: int | None = None,
         raise_if_not_consented: bool | None = None,
     ):
         """Returns a subject consent using this consent_definition's
@@ -133,10 +133,12 @@ class SiteConsents:
         raise_if_not_consented = (
             True if raise_if_not_consented is None else raise_if_not_consented
         )
-        single_site = site_sites.get(site_id)
+
+        single_site = site_sites.get(site_id) if site_id else None
         cdef = self.get_consent_definition(report_datetime=report_datetime, site=single_site)
         consent_obj = cdef.get_consent_for(
-            subject_identifier, raise_if_not_consented=raise_if_not_consented
+            subject_identifier=subject_identifier,
+            raise_if_not_consented=raise_if_not_consented,
         )
         if consent_obj and report_datetime < consent_obj.consent_datetime:
             if not cdef.updates:

@@ -1,7 +1,7 @@
 from django.core.checks import CheckMessage, Error, Warning
 
-from . import ConsentDefinitionError
 from .consent_definition import ConsentDefinition
+from .exceptions import ConsentDefinitionError
 from .site_consents import site_consents
 
 
