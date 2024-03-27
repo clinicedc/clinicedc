@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_constants.constants import FEMALE, MALE
@@ -190,7 +190,6 @@ class TestRequisitionRuleGroup(TestCase):
         )
         return subject_visit
 
-    @tag("1")
     def test_rule_male(self):
         subject_visit = self.enroll(gender=MALE)
         rule_results, _ = MyRequisitionRuleGroup().evaluate_rules(related_visit=subject_visit)

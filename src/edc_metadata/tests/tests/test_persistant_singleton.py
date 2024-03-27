@@ -1,15 +1,20 @@
 from copy import deepcopy
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
+import time_machine
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT
 from edc_appointment.models import Appointment
 from edc_appointment.tests.test_case_mixins import AppointmentTestCaseMixin
-from edc_constants.constants import FEMALE
+from edc_consent import site_consents
+from edc_consent.consent_definition import ConsentDefinition
+from edc_constants.constants import FEMALE, MALE
 from edc_facility import import_holidays
 from edc_utils import get_utcnow
 from edc_visit_schedule.constants import DAY1, MONTH1, MONTH3, MONTH6, WEEK2
@@ -109,9 +114,12 @@ class TestCaseMixin(AppointmentTestCaseMixin):
         return subject_visit
 
 
+@time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("utc")))
 @override_settings(
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=3),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=3),
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("utc"))
+    - relativedelta(years=3),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("utc"))
+    + relativedelta(years=3),
 )
 class TestPersistantSingleton(TestCaseMixin, TestCase):
     @classmethod
@@ -119,6 +127,18 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
         import_holidays()
 
     def setUp(self):
+        consent_v1 = ConsentDefinition(
+            "edc_metadata.subjectconsentv1",
+            version="1",
+            start=get_utcnow() - relativedelta(years=3),
+            end=get_utcnow() + relativedelta(years=3),
+            age_min=18,
+            age_is_adult=18,
+            age_max=64,
+            gender=[MALE, FEMALE],
+        )
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
@@ -202,6 +222,7 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
             ).exists()
         )
 
+    @tag("1")
     def test_1005_required(self):
         site_metadata_rules.registry = {}
         site_metadata_rules.register(self.rule_group)
