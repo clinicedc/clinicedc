@@ -1,5 +1,5 @@
 from django.urls.conf import include, path
-from edc_dashboard import url_names
+from edc_dashboard.url_names import url_names
 
 from edc_action_item.admin_site import edc_action_item_admin
 
