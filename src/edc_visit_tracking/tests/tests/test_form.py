@@ -33,11 +33,11 @@ from edc_visit_tracking.modelform_mixins import (
     VisitTrackingModelFormMixin,
 )
 from edc_visit_tracking.models import SubjectVisit
+from visit_tracking_app.consents import consent_v1
+from visit_tracking_app.models import BadCrfNoRelatedVisit, CrfOne
+from visit_tracking_app.visit_schedule import visit_schedule1, visit_schedule2
 
-from ..consents import consent_v1
 from ..helper import Helper
-from ..models import BadCrfNoRelatedVisit, CrfOne
-from ..visit_schedule import visit_schedule1, visit_schedule2
 
 utc_tz = ZoneInfo("UTC")
 

@@ -32,11 +32,11 @@ from edc_visit_schedule.visit_schedule import VisitSchedule
 
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.models import SubjectVisit, SubjectVisitMissedReasons
+from visit_tracking_app.consents import consent_v1
+from visit_tracking_app.models import list_data
 
-from ..consents import consent_v1
 from ..forms import SubjectVisitMissedForm
 from ..helper import Helper
-from ..models import list_data
 
 utc_tz = ZoneInfo("UTC")
 
@@ -59,11 +59,11 @@ class TestVisit(TestCase):
         site_consents.register(consent_v1)
         self.helper = self.helper_cls(subject_identifier=self.subject_identifier)
         crfs = CrfCollection(
-            Crf(show_order=1, model="edc_visit_tracking.crfone", required=True),
-            Crf(show_order=2, model="edc_visit_tracking.crftwo", required=True),
-            Crf(show_order=3, model="edc_visit_tracking.crfthree", required=True),
-            Crf(show_order=4, model="edc_visit_tracking.crffour", required=True),
-            Crf(show_order=5, model="edc_visit_tracking.crffive", required=True),
+            Crf(show_order=1, model="visit_tracking_app.crfone", required=True),
+            Crf(show_order=2, model="visit_tracking_app.crftwo", required=True),
+            Crf(show_order=3, model="visit_tracking_app.crfthree", required=True),
+            Crf(show_order=4, model="visit_tracking_app.crffour", required=True),
+            Crf(show_order=5, model="visit_tracking_app.crffive", required=True),
         )
         crfs_missed = CrfCollection(
             Crf(
@@ -75,14 +75,14 @@ class TestVisit(TestCase):
 
         visit_schedule1 = VisitSchedule(
             name="visit_schedule1",
-            offstudy_model="edc_visit_tracking.subjectoffstudy",
-            death_report_model="edc_visit_tracking.deathreport",
+            offstudy_model="visit_tracking_app.subjectoffstudy",
+            death_report_model="visit_tracking_app.deathreport",
             locator_model="edc_locator.subjectlocator",
         )
         schedule1 = Schedule(
             name="schedule1",
-            onschedule_model="edc_visit_tracking.onscheduleone",
-            offschedule_model="edc_visit_tracking.offscheduleone",
+            onschedule_model="visit_tracking_app.onscheduleone",
+            offschedule_model="visit_tracking_app.offscheduleone",
             consent_definitions=[consent_v1],
         )
         visits = []

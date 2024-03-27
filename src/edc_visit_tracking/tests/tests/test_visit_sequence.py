@@ -17,10 +17,10 @@ from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.model_mixins import PreviousVisitError
 from edc_visit_tracking.models import SubjectVisit
 from edc_visit_tracking.visit_sequence import VisitSequence, VisitSequenceError
+from visit_tracking_app.consents import consent_v1
+from visit_tracking_app.visit_schedule import visit_schedule1, visit_schedule2
 
-from ..consents import consent_v1
 from ..helper import Helper
-from ..visit_schedule import visit_schedule1, visit_schedule2
 
 utc_tz = ZoneInfo("UTC")
 
@@ -31,7 +31,7 @@ class DisabledVisitSequence(VisitSequence):
 
 
 @time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
-@override_settings(SUBJECT_SCREENING_MODEL="edc_visit_tracking.subjectscreening")
+@override_settings(SUBJECT_SCREENING_MODEL="visit_tracking_app.subjectscreening")
 class TestPreviousVisit(TestCase):
     helper_cls = Helper
 
