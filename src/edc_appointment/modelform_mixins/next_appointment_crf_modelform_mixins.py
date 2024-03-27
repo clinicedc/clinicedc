@@ -11,7 +11,7 @@ from edc_utils import convert_php_dateformat
 from edc_utils.date import to_local
 from edc_visit_schedule.exceptions import ScheduledVisitWindowError
 
-from edc_appointment.utils import get_appointment_by_datetime
+from ..utils import get_appointment_by_datetime
 
 
 class NextAppointmentCrfModelFormMixin:
