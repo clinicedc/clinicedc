@@ -57,7 +57,7 @@ class ConsentViewMixin:
         """
         if not self._consent:
             try:
-                self._consent = site_consents.get_consent_for(
+                self._consent = site_consents.get_consent_or_raise(
                     subject_identifier=self.subject_identifier,
                     report_datetime=self.report_datetime,
                     site_id=self.request.site.id,
