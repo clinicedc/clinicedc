@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from edc_dashboard import url_names
+from edc_dashboard.url_names import url_names
 
 from ..filters import ListboardViewFilters
 
