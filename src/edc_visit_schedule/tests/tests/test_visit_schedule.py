@@ -3,8 +3,8 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
-from edc_consent import NotConsentedError
 from edc_consent.consent_definition import ConsentDefinition
+from edc_consent.exceptions import NotConsentedError
 from edc_consent.site_consents import site_consents
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
