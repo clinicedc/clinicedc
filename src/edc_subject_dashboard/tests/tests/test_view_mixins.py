@@ -1,6 +1,7 @@
 from django.test import TestCase, override_settings
 from django.views.generic.base import ContextMixin
 from edc_appointment.view_mixins import AppointmentViewMixin
+from edc_consent import site_consents
 from edc_locator.exceptions import SubjectLocatorViewMixinError
 from edc_locator.view_mixins import SubjectLocatorViewMixin
 from edc_sites.utils import get_site_model_cls
@@ -16,6 +17,7 @@ from edc_subject_dashboard.view_mixins import (
     SubjectVisitViewMixin,
     SubjectVisitViewMixinError,
 )
+from subject_dashboard_app.consents import consent_v1
 from subject_dashboard_app.models import (
     Appointment,
     BadSubjectVisit,
@@ -34,6 +36,8 @@ class DummyModelWrapper:
 @override_settings(SITE_ID=110)
 class TestViewMixins(TestCaseMixin, TestCase):
     def setUp(self):
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
         self.subject_identifier = "101-108987-0"
         self.current_site = get_site_model_cls().objects.get_current()
         self.subject_identifier = "101-1234567-0"
