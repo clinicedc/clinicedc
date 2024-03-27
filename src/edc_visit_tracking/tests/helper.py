@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from edc_appointment.tests.helper import Helper as BaseHelper
 
-from .models import SubjectScreening
+from visit_tracking_app.models import SubjectScreening
 
 if TYPE_CHECKING:
     from edc_appointment.models import Appointment

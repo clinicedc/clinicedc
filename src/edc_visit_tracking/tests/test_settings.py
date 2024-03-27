@@ -62,6 +62,7 @@ project_settings = DefaultTestSettings(
         "edc_timepoint.apps.AppConfig",
         "edc_visit_schedule.apps.AppConfig",
         "edc_visit_tracking.apps.AppConfig",
+        "visit_tracking_app.apps.AppConfig",
         "edc_appconfig.apps.AppConfig",
     ],
     add_dashboard_middleware=True,

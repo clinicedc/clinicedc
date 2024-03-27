@@ -17,10 +17,10 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.form_validators import VisitFormValidator
 from edc_visit_tracking.models import SubjectVisit
+from visit_tracking_app.consents import consent_v1
+from visit_tracking_app.visit_schedule import visit_schedule1, visit_schedule2
 
-from ..consents import consent_v1
 from ..helper import Helper
-from ..visit_schedule import visit_schedule1, visit_schedule2
 
 utc_tz = ZoneInfo("UTC")
 
