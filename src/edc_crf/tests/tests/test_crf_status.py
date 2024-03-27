@@ -18,7 +18,7 @@ from ..visit_schedule import visit_schedule
 
 
 @override_settings(
-    SUBJECT_SCREENING_MODEL="visit_schedule_app.subjectscreening",
+    SUBJECT_SCREENING_MODEL="edc_crf.subjectscreening",
     SITE_ID=10,
 )
 class CrfTestCase(TestCase):
