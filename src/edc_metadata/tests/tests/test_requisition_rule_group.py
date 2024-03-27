@@ -1,6 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from edc_appointment.models import Appointment
+from edc_consent import site_consents
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models import Panel
@@ -10,16 +11,18 @@ from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 from faker import Faker
 
-from ...constants import KEYED, NOT_REQUIRED, REQUIRED
-from ...metadata_rules import (
+from edc_metadata.constants import KEYED, NOT_REQUIRED, REQUIRED
+from edc_metadata.metadata_rules import (
     P,
     RequisitionRule,
     RequisitionRuleGroup,
     RequisitionRuleGroupMetaOptionsError,
     site_metadata_rules,
 )
-from ...models import RequisitionMetadata
-from ..models import CrfOne, SubjectConsent, SubjectRequisition
+from edc_metadata.models import RequisitionMetadata
+
+from ..consents import consent_v1
+from ..models import CrfOne, SubjectConsentV1, SubjectRequisition
 from ..visit_schedule import visit_schedule
 
 fake = Faker()
@@ -145,6 +148,9 @@ class TestRequisitionRuleGroup(TestCase):
         self.panel_seven = Panel.objects.create(name=panel_seven.name)
         self.panel_eight = Panel.objects.create(name=panel_eight.name)
 
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
+
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
@@ -159,7 +165,7 @@ class TestRequisitionRuleGroup(TestCase):
         subject of the given gender.
         """
         subject_identifier = fake.credit_card_number()
-        subject_consent = SubjectConsent.objects.create(
+        subject_consent = SubjectConsentV1.objects.create(
             subject_identifier=subject_identifier,
             consent_datetime=get_utcnow(),
             gender=gender,
