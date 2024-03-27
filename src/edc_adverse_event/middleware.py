@@ -1,5 +1,5 @@
 from django.conf import settings
-from edc_dashboard import insert_bootstrap_version
+from edc_dashboard.utils import insert_bootstrap_version
 
 from .dashboard_templates import dashboard_templates
 from .dashboard_urls import dashboard_urls
