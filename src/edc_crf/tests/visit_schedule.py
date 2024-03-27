@@ -49,8 +49,8 @@ visit3 = Visit(
 
 schedule = Schedule(
     name="schedule",
-    onschedule_model="visit_schedule_app.onschedule",
-    offschedule_model="visit_schedule_app.offschedule",
+    onschedule_model="edc_crf.onschedule",
+    offschedule_model="edc_crf.offschedule",
     appointment_model="edc_appointment.appointment",
     consent_definitions=[consent_v1],
 )
@@ -62,8 +62,8 @@ schedule.add_visit(visit3)
 
 visit_schedule = VisitSchedule(
     name="visit_schedule",
-    offstudy_model="visit_schedule_app.subjectoffstudy",
-    death_report_model="visit_schedule_app.deathreport",
+    offstudy_model="edc_offstudy.subjectoffstudy",
+    death_report_model="edc_crf.deathreport",
 )
 
 visit_schedule.add_schedule(schedule)
