@@ -3,7 +3,7 @@ from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, reverse
 from django.utils.translation import gettext as _
 from django_audit_fields import audit_fields, audit_fieldset_tuple
-from edc_dashboard import url_names
+from edc_dashboard.url_names import url_names
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_sites.admin import SiteModelAdminMixin
 
