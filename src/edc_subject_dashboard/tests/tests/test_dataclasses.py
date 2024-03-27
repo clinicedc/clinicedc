@@ -5,6 +5,7 @@ from django.contrib.auth.models import Permission, User
 from django.shortcuts import get_object_or_404
 from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
+from edc_consent import site_consents
 from edc_data_manager.models import DataQuery
 from edc_metadata.models import CrfMetadata
 from edc_registration.models import RegisteredSubject
@@ -16,6 +17,7 @@ from edc_visit_tracking.models import SubjectVisit
 
 from edc_subject_dashboard.view_utils import CrfButton, Perms, QueryButton
 from edc_subject_dashboard.view_utils.dashboard_model_button import DashboardModelButton
+from subject_dashboard_app.consents import consent_v1
 from subject_dashboard_app.models import SubjectConsent
 
 from .test_case_mixin import TestCaseMixin
@@ -24,6 +26,8 @@ from .test_case_mixin import TestCaseMixin
 @override_settings(SITE_ID=110, EDC_SITES_REGISTER_DEFAULT=False)
 class TestDataclasses(TestCaseMixin, TestCase):
     def setUp(self):
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
         self.current_site = get_site_model_cls().objects.get_current()
         self.subject_identifier = "101-1234567-0"
         subject_consent = SubjectConsent.objects.create(
