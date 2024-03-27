@@ -45,7 +45,7 @@ class ConsentViewMixin:
     def consents(self) -> QuerySet[ConsentLikeModel]:
         """Returns a Queryset of consents for this subject."""
         if not self._consents:
-            self._consents = site_consents.get_consent_or_raise(
+            self._consents = site_consents.get_consents(
                 self.subject_identifier, site_id=self.request.site.id
             )
         return self._consents
