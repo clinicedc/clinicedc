@@ -11,8 +11,7 @@ from django.db import transaction
 from django.urls import NoReverseMatch, reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from edc_dashboard import url_names
-from edc_dashboard.url_names import InvalidDashboardUrlName
+from edc_dashboard.url_names import InvalidDashboardUrlName, url_names
 
 from .constants import ELIGIBLE, NOT_ELIGIBLE
 from .exceptions import InvalidScreeningIdentifierFormat
