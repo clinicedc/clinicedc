@@ -19,7 +19,7 @@ from django.utils.translation import gettext as _
 from edc_constants.constants import CLINIC
 from edc_constants.constants import ERROR as ERROR_CODE
 from edc_constants.constants import NOT_APPLICABLE, OK
-from edc_dashboard import url_names
+from edc_dashboard.url_names import url_names
 from edc_metadata.constants import CRF, REQUIRED, REQUISITION
 from edc_metadata.utils import (
     get_crf_metadata_model_cls,
