@@ -18,7 +18,6 @@ class ActionViewError(Exception):
 
 
 class ActionView(TemplateView):
-
     """A view for lab "actions" such as receive, process,
     aliquot, etc.
     """
