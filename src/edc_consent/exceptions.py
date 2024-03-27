@@ -32,3 +32,7 @@ class AlreadyRegistered(Exception):
 
 class SiteConsentError(Exception):
     pass
+
+
+class ConsentDefinitionNotConfiguredForUpdate(Exception):
+    pass

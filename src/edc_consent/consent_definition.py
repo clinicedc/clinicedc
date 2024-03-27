@@ -11,13 +11,14 @@ from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_screening.utils import get_subject_screening_model
 from edc_sites import site_sites
 from edc_utils import floor_secs, formatted_date, formatted_datetime
-from edc_utils.date import ceil_datetime, floor_datetime, to_local, to_utc
+from edc_utils.date import ceil_datetime, floor_datetime, to_local
 
 from .exceptions import (
     ConsentDefinitionError,
     ConsentDefinitionValidityPeriodError,
     NotConsentedError,
 )
+from .managers import ConsentObjectsByCdefManager, CurrentSiteByCdefManager
 
 if TYPE_CHECKING:
     from edc_identifier.model_mixins import NonUniqueSubjectIdentifierModelMixin
@@ -37,13 +38,13 @@ class ConsentDefinition:
     of a consent.
     """
 
-    model: str = field(compare=False)
+    proxy_model: str = field(compare=False)
     _ = KW_ONLY
     start: datetime = field(default=ResearchProtocolConfig().study_open_datetime, compare=True)
     end: datetime = field(default=ResearchProtocolConfig().study_close_datetime, compare=False)
     version: str = field(default="1", compare=False)
-    updates: tuple[ConsentDefinition, str] = field(default=tuple, compare=False)
-    updated_by: str = field(default=None, compare=False)
+    updates: ConsentDefinition = field(default=None, compare=False)
+    end_extends_on_update: bool = field(default=False, compare=False)
     screening_model: str = field(default=None, compare=False)
     age_min: int = field(default=18, compare=False)
     age_max: int = field(default=110, compare=False)
@@ -53,22 +54,18 @@ class ConsentDefinition:
     country: str | None = field(default=None, compare=False)
     validate_duration_overlap_by_model: bool | None = field(default=True, compare=False)
     subject_type: str = field(default="subject", compare=False)
+
     name: str = field(init=False, compare=False)
-    update_cdef: ConsentDefinition = field(default=None, init=False, compare=False)
-    update_model: str = field(default=None, init=False, compare=False)
-    update_version: str = field(default=None, init=False, compare=False)
+    # set updated_by when the cdef is registered, see site_consents
+    updated_by: ConsentDefinition = field(default=None, compare=False, init=False)
+    _model: str = field(init=False, compare=False)
     sort_index: str = field(init=False)
 
     def __post_init__(self):
-        self.name = f"{self.model}-{self.version}"
+        self.model = self.proxy_model
+        self.name = f"{self.proxy_model}-{self.version}"
         self.sort_index = self.name
         self.gender = [MALE, FEMALE] if not self.gender else self.gender
-        try:
-            self.update_cdef, self.update_model = self.updates
-        except (ValueError, TypeError):
-            pass
-        else:
-            self.update_version = self.update_cdef.version
         if not self.screening_model:
             self.screening_model = get_subject_screening_model()
         if MALE not in self.gender and FEMALE not in self.gender:
@@ -78,6 +75,31 @@ class ConsentDefinition:
         if not self.end.tzinfo:
             raise ConsentDefinitionError(f"Naive datetime not allowed Got {self.end}.")
         self.check_date_within_study_period()
+
+    @property
+    def model(self):
+        model_cls = django_apps.get_model(self._model)
+        if not model_cls._meta.proxy:
+            raise ConsentDefinitionError(
+                f"Model class must be a proxy. See {self.name}. Got {model_cls}"
+            )
+        elif not isinstance(model_cls.objects, (ConsentObjectsByCdefManager,)):
+            raise ConsentDefinitionError(
+                "Incorrect 'objects' model manager for consent model. "
+                f"Expected {ConsentObjectsByCdefManager}. See {self.name}.  "
+                f"Got {model_cls.objects.__class__}"
+            )
+        elif not isinstance(model_cls.on_site, (CurrentSiteByCdefManager,)):
+            raise ConsentDefinitionError(
+                "Incorrect 'on_site' model manager for consent model. "
+                f"Expected {CurrentSiteByCdefManager}. See {self.name}.  "
+                f"Got {model_cls.objects.__class__}"
+            )
+        return self._model
+
+    @model.setter
+    def model(self, value):
+        self._model = value
 
     @property
     def sites(self):
@@ -98,42 +120,23 @@ class ConsentDefinition:
     def get_consent_for(
         self,
         subject_identifier: str = None,
-        report_datetime: datetime | None = None,
+        site_id: int | None = None,
         raise_if_not_consented: bool | None = None,
     ) -> ConsentLikeModel | None:
-        """Returns a subject consent using this consent_definition's
-        model_cls and version.
-
-        If it does not exist and this consent_definition updates a
-        previous (update_cdef), will try again with the update_cdef's
-        model_cls and version.
-
-        Finally, if the subject cosent does not exist raises a
-        NotConsentedError.
-        """
-        consent_obj = None
         raise_if_not_consented = (
             True if raise_if_not_consented is None else raise_if_not_consented
         )
-        opts: dict[str, str | datetime] = dict(
-            subject_identifier=subject_identifier, version=self.version
-        )
-        if report_datetime:
-            opts.update(consent_datetime__lte=to_utc(report_datetime))
+        opts = dict(subject_identifier=subject_identifier, version=self.version)
+        if site_id:
+            opts.update(site_id=site_id)
         try:
             consent_obj = self.model_cls.objects.get(**opts)
         except ObjectDoesNotExist:
-            if self.update_cdef:
-                opts.update(version=self.update_cdef.version)
-                try:
-                    consent_obj = self.update_cdef.model_cls.objects.get(**opts)
-                except ObjectDoesNotExist:
-                    pass
+            consent_obj = None
         if not consent_obj and raise_if_not_consented:
-            dte = formatted_date(report_datetime)
             raise NotConsentedError(
-                f"Consent not found. Has subject '{subject_identifier}' "
-                f"completed version '{self.version}' of consent on or after '{dte}'?"
+                f"Consent not found for this version. Has subject '{subject_identifier}' "
+                f"completed a version '{self.version}' consent?"
             )
         return consent_obj
 

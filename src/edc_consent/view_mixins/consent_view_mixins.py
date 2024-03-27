@@ -45,16 +45,9 @@ class ConsentViewMixin:
     def consents(self) -> QuerySet[ConsentLikeModel]:
         """Returns a Queryset of consents for this subject."""
         if not self._consents:
-            self._consents = []
-            site = site_sites.get(self.request.site.id)
-            for cdef in site_consents.get_consent_definitions(site=site):
-                try:
-                    obj = cdef.get_consent_for(subject_identifier=self.subject_identifier)
-                except NotConsentedError:
-                    pass
-                else:
-                    if obj not in self._consents:
-                        self._consents.append(obj)
+            self._consents = site_consents.get_consents(
+                self.subject_identifier, site_id=self.request.site.id
+            )
         return self._consents
 
     @property
@@ -64,9 +57,10 @@ class ConsentViewMixin:
         """
         if not self._consent:
             try:
-                self._consent = self.consent_definition.get_consent_for(
+                self._consent = site_consents.get_consent_for(
                     subject_identifier=self.subject_identifier,
                     report_datetime=self.report_datetime,
+                    site_id=self.request.site.id,
                 )
             except NotConsentedError as e:
                 messages.add_message(self.request, message=str(e), level=ERROR)

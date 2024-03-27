@@ -15,6 +15,7 @@ from .exceptions import (
     AlreadyRegistered,
     ConsentDefinitionDoesNotExist,
     ConsentDefinitionError,
+    ConsentDefinitionNotConfiguredForUpdate,
     SiteConsentError,
 )
 
@@ -36,40 +37,19 @@ class SiteConsents:
         self.registry = {}
         self.loaded = False
 
-    def register(self, cdef: ConsentDefinition) -> None:
+    def register(
+        self, cdef: ConsentDefinition, updated_by: ConsentDefinition | None = None
+    ) -> None:
+        cdef.updated_by = updated_by
         if cdef.name in self.registry:
             raise AlreadyRegistered(f"Consent definition already registered. Got {cdef.name}.")
-        for registered_cdef in self.registry.values():
-            if (
-                cdef
-                and cdef.validate_duration_overlap_by_model
-                and registered_cdef.model == cdef.model
-            ):
-                if (
-                    registered_cdef.start <= cdef.start <= registered_cdef.end
-                    or registered_cdef.start <= cdef.end <= registered_cdef.end
-                ):
-                    raise ConsentDefinitionError(
-                        f"Consent period overlaps with an already registered consent "
-                        f"definition. See already registered consent {registered_cdef.name}. "
-                        f"Got {cdef.name}."
-                    )
-        if cdef.update_cdef:
-            if cdef.update_cdef not in self.registry.values():
-                raise ConsentDefinitionError(
-                    f"Updates unregistered consent definition. See {cdef.name}. "
-                    f"Got {cdef.update_cdef.name}"
-                )
-            elif cdef.update_cdef.updated_by and cdef.update_cdef.updated_by != cdef.version:
-                raise ConsentDefinitionError(
-                    f"Version mismatch with consent definition configured to update another. "
-                    f"'{cdef.name}' is configured to update "
-                    f"'{cdef.update_cdef.name}' but '{cdef.update_cdef.name}' "
-                    f"updated_by='{cdef.update_cdef.version}' not '{cdef.version}'. "
-                )
-
+        self.validate_period_overlap_or_raise(cdef)
+        self.validate_updates_or_raise(cdef)
         self.registry.update({cdef.name: cdef})
         self.loaded = True
+
+    def unregister(self, cdef: ConsentDefinition) -> None:
+        self.registry.pop(cdef.name, None)
 
     def get_registry_display(self):
         cdefs = sorted(list(self.registry.values()), key=lambda x: x.version)
@@ -80,6 +60,100 @@ class SiteConsents:
 
     def all(self) -> list[ConsentDefinition]:
         return sorted(list(self.registry.values()), key=lambda x: x.version)
+
+    def validate_updates_or_raise(self, cdef: ConsentDefinition) -> None:
+        if cdef.updates:
+            if cdef.updates not in self.registry.values():
+                raise ConsentDefinitionError(
+                    f"Updates unregistered consent definition. See {cdef.name}. "
+                    f"Got {cdef.updates.name}"
+                )
+            elif cdef.updates and cdef.updates.updated_by is None:
+                raise ConsentDefinitionError(
+                    f"Cdef mismatch with consent definition configured to update another. "
+                    f"'{cdef.name}' is configured to update "
+                    f"'{cdef.updates.name}' but '{cdef.updates.name}' "
+                    f"updated_by is None. "
+                )
+            elif cdef.updates and cdef.updates.updated_by != cdef:
+                raise ConsentDefinitionError(
+                    f"Cdef mismatch with consent definition configured to update another. "
+                    f"'{cdef.name}' is configured to update "
+                    f"'{cdef.updates.name}' but '{cdef.updates.name}' "
+                    f"updated_by='{cdef.updates.updated_by.name}' not '{cdef.name}'. "
+                )
+
+    def validate_period_overlap_or_raise(self, cdef: ConsentDefinition):
+        for registered_cdef in self.registry.values():
+            if (
+                cdef
+                and cdef.validate_duration_overlap_by_model
+                and registered_cdef.proxy_model == cdef.proxy_model
+            ):
+                if (
+                    registered_cdef.start <= cdef.start <= registered_cdef.end
+                    or registered_cdef.start <= cdef.end <= registered_cdef.end
+                ):
+                    raise ConsentDefinitionError(
+                        f"Consent period overlaps with an already registered consent "
+                        f"definition. See already registered consent {registered_cdef.name}. "
+                        f"Got {cdef.name}."
+                    )
+
+    def get_consents(self, subject_identifier: str, site_id: int | None) -> list:
+        consents = []
+        for cdef in self.all():
+            if consent_obj := cdef.get_consent_for(
+                subject_identifier=subject_identifier,
+                site_id=site_id,
+                raise_if_not_consented=False,
+            ):
+                consents.append(consent_obj)
+        return consents
+
+    def get_consent_or_raise(
+        self,
+        subject_identifier: str,
+        report_datetime: datetime,
+        site_id: int | None = None,
+        raise_if_not_consented: bool | None = None,
+    ):
+        """Returns a subject consent using this consent_definition's
+        `model_cls` and `version`.
+
+        If it does not exist and this consent_definition updates a
+        previous (`update_cdef`), will try again with the `update_cdef's`
+        model_cls and version.
+
+        Finally, if the subject consent does not exist raises a
+        `NotConsentedError`.
+        """
+        from edc_sites.site import sites as site_sites  # avoid circular import
+
+        raise_if_not_consented = (
+            True if raise_if_not_consented is None else raise_if_not_consented
+        )
+
+        single_site = site_sites.get(site_id) if site_id else None
+        cdef = self.get_consent_definition(report_datetime=report_datetime, site=single_site)
+        consent_obj = cdef.get_consent_for(
+            subject_identifier=subject_identifier,
+            raise_if_not_consented=raise_if_not_consented,
+        )
+        if consent_obj and report_datetime < consent_obj.consent_datetime:
+            if not cdef.updates:
+                dte = formatted_date(report_datetime)
+                raise ConsentDefinitionNotConfiguredForUpdate(
+                    f"Consent not configured to update any previous versions. "
+                    f"Got '{cdef.version}'. "
+                    f"Has subject '{subject_identifier}' completed version '{cdef.version}' "
+                    f"of consent on or after report_datetime='{dte}'?"
+                )
+            else:
+                return cdef.updates.get_consent_for(
+                    subject_identifier, raise_if_not_consented=raise_if_not_consented
+                )
+        return consent_obj
 
     def get_consent_definition(
         self,
