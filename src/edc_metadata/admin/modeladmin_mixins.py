@@ -8,7 +8,7 @@ from django.utils.html import format_html
 from django_audit_fields import ModelAdminAuditFieldsMixin, audit_fieldset_tuple
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
 from edc_appointment.utils import get_appointment_model_cls
-from edc_dashboard import url_names
+from edc_dashboard.url_names import url_names
 from edc_model_admin.mixins import (
     ModelAdminInstitutionMixin,
     ModelAdminNextUrlRedirectMixin,
