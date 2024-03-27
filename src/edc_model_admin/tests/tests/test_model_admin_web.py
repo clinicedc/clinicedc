@@ -3,10 +3,12 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
+from django.test import tag
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_appointment.models import Appointment
 from edc_appointment.tests.helper import Helper
+from edc_consent import site_consents
 from edc_constants.constants import YES
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
@@ -16,6 +18,7 @@ from edc_utils.date import get_utcnow
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 
+from model_admin_app.consents import consent_v1
 from model_admin_app.models import (
     CrfFive,
     CrfFour,
@@ -37,6 +40,8 @@ class ModelAdminSiteTest(WebTest):
         import_holidays()
 
     def setUp(self):
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
         self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
 
         self.subject_identifier = "101-12345"
@@ -397,6 +402,7 @@ class ModelAdminSiteTest(WebTest):
         self.assertRaises(ObjectDoesNotExist, CrfSix.objects.get, id=crfsix.id)
         self.assertIn("changelist", response)
 
+    @tag("1")
     def test_add_directly_from_changelist_without_subject_visit_raises(self):
         self.login()
 
