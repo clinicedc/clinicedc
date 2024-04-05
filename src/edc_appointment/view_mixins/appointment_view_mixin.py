@@ -47,8 +47,9 @@ class AppointmentViewMixin:
                     'currently "in progress".'
                 )
                 self.message_user(message, level=messages.WARNING)
-            report_datetime = self.appointment.related_visit.report_datetime
-            kwargs.update(report_datetime=report_datetime)
+            if self.appointment.related_visit:
+                report_datetime = self.appointment.related_visit.report_datetime
+                kwargs.update(report_datetime=report_datetime)
         else:
             update_unscheduled_appointment_sequence(
                 subject_identifier=self.subject_identifier,
