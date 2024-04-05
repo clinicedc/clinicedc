@@ -47,7 +47,9 @@ def add_or_update_django_sites(
         if single_site.name == "edc_sites.sites":
             continue
         if verbose:
-            sys.stdout.write(f"  * {single_site.name}.\n")
+            sys.stdout.write(f"  * SingleSite: {single_site.site_id}: {single_site.domain}.\n")
         site_obj = get_or_create_site_obj(single_site, apps)
+        if verbose:
+            sys.stdout.write(f"    - Site model: {site_obj.id}: {site_obj.domain}.\n")
         get_or_create_site_profile_obj(single_site, site_obj, apps)
     return single_sites
