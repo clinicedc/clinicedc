@@ -19,7 +19,7 @@ def sites_check(app_configs, **kwargs):  # noqa
             errors.append(
                 Error(
                     e,
-                    hint="Sites model is out-of-sync with registry.",
+                    hint="Sites model is out-of-sync with edc_sites registry.",
                     obj=site_sites,
                     id="edc_sites.E001",
                 )
@@ -60,8 +60,9 @@ def match_name_and_domain_or_raise(single_site: SingleSite, site_obj):
         value2 = getattr(site_obj, attr)
         if value1 != value2:
             raise SitesCheckError(
-                f"Site table is out of sync. Checking {site_obj.site_id} {attr}. "
-                f"Try running migrate. Got {value1} != {value2}"
+                f"Site table is out of sync. Comparing {attr} of site `{site_obj.id}`. "
+                "between the SingleSite and Site model. "
+                f"Got `{value1}` != `{value2}`. Try running migrate."
             )
 
 
@@ -71,7 +72,7 @@ def match_country_and_country_code_or_raise(single_site: SingleSite, site_obj):
         value2 = getattr(site_obj.siteprofile, attr)
         if value1 != value2:
             raise SitesCheckError(
-                f"Site table is out of sync. Checking {site_obj.site_id} {attr}. "
+                f"Site table is out of sync. Checking {site_obj.id} {attr}. "
                 f"Try running migrate. Got {value1} != {value2}"
             )
 
@@ -81,7 +82,7 @@ def match_languages_or_raise(single_site: SingleSite, site_obj):
     value2 = json.loads(getattr(site_obj.siteprofile, "languages"))
     if value1 != value2:
         raise SitesCheckError(
-            f"Site table is out of sync. Checking {site_obj.site_id} "
+            f"Site table is out of sync. Checking {site_obj.id} "
             f"languages. Try running migrate. Got {value1} != {value2}"
         )
 
@@ -91,6 +92,6 @@ def match_title_with_description_or_raise(single_site: SingleSite, site_obj):
     value2 = single_site.description
     if value1 != value2:
         raise SitesCheckError(
-            f"Site table is out of sync. Checking {site_obj.site_id} title/description. "
+            f"Site table is out of sync. Checking {site_obj.id} title/description. "
             f"Try running migrate. Got {value1} != {value2}"
         )
