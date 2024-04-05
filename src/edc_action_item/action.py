@@ -30,6 +30,13 @@ REFERENCE_MODEL_ERROR_CODE = "reference_model"
 
 
 class Action:
+    """Main class to represent an Action.
+
+    Note: that some attrs are used to create the ActionType. A
+      change to one of these instance attr will only be reflected
+      after post-migrate is run.
+    """
+
     admin_site_name: str = None
     color_style: str = "danger"
     create_by_action: bool = None
@@ -147,21 +154,18 @@ class Action:
         action item exists and is CLOSED. If not, re-open.
         """
         if not self._reference_obj:
-            try:
-                self._reference_obj = (
-                    self.reference_model_cls()
-                    .objects.using(self.using)
-                    .get(action_identifier=self.action_identifier)
-                )
-            except ObjectDoesNotExist:
-                if (
-                    self.action_identifier
-                    and self.action_item
-                    and self.action_item.status == CLOSED
-                ):
-                    self.action_item.status = OPEN
-                    self.action_item.save(update_fields=["status"], using=self.using)
-                    self.action_item.refresh_from_db()
+            if self.action_identifier:
+                try:
+                    self._reference_obj = (
+                        self.reference_model_cls()
+                        .objects.using(self.using)
+                        .get(action_identifier=self.action_identifier)
+                    )
+                except ObjectDoesNotExist:
+                    if self.action_item and self.action_item.status == CLOSED:
+                        self.action_item.status = OPEN
+                        self.action_item.save(update_fields=["status"], using=self.using)
+                        self.action_item.refresh_from_db()
         return self._reference_obj
 
     @property
