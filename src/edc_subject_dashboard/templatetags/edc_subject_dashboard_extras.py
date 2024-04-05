@@ -530,6 +530,8 @@ def render_refresh_data_collection_schedule_button(
         url = None
     elif context["request"].user.userprofile.roles.filter(name=AUDITOR_ROLE):
         url = None
+    elif not related_visit_id:
+        url = None
     else:
         url = reverse(
             "edc_subject_dashboard:refresh_metadata_actions_url",
