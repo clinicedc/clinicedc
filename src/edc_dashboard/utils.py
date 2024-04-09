@@ -23,7 +23,7 @@ def get_index_page() -> int:
 
 
 def get_index_page_label() -> int:
-    return getattr(settings, "INDEX_PAGE_LABLE", settings.APP_NAME)
+    return getattr(settings, "INDEX_PAGE_LABEL", settings.APP_NAME)
 
 
 def insert_bootstrap_version(**template_data):
