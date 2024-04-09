@@ -106,25 +106,26 @@ class RequisitionRuleGroup(RuleGroup, metaclass=RequisitionMetaclass):
         metadata_objects = {}
         for rule in cls._meta.options.get("rules"):
             rule_results[str(rule)] = {}
-            for target_model, entry_status in rule.run(related_visit=related_visit).items():
-                rule_results[str(rule)].update({target_model: []})
-                for target_panel in rule.target_panels:
-                    # only do something if target_panel is in
-                    # visit.requisitions
-                    if target_panel.name in [
-                        r.panel.name for r in cls.requisitions_for_visit(related_visit)
-                    ]:
-                        metadata_updater = cls.metadata_updater_cls(
-                            related_visit=related_visit,
-                            source_model=target_model,
-                            source_panel=target_panel,
-                            allow_create=allow_create,
-                        )
-                        metadata_obj = metadata_updater.get_and_update(
-                            entry_status=entry_status
-                        )
-                        metadata_objects.update({target_panel: metadata_obj})
-                        rule_results[str(rule)][target_model].append(
-                            RuleResult(target_panel, entry_status)
-                        )
+            if result := rule.run(related_visit=related_visit):
+                for target_model, entry_status in result.items():
+                    rule_results[str(rule)].update({target_model: []})
+                    for target_panel in rule.target_panels:
+                        # only do something if target_panel is in
+                        # visit.requisitions
+                        if target_panel.name in [
+                            r.panel.name for r in cls.requisitions_for_visit(related_visit)
+                        ]:
+                            metadata_updater = cls.metadata_updater_cls(
+                                related_visit=related_visit,
+                                source_model=target_model,
+                                source_panel=target_panel,
+                                allow_create=allow_create,
+                            )
+                            metadata_obj = metadata_updater.get_and_update(
+                                entry_status=entry_status
+                            )
+                            metadata_objects.update({target_panel: metadata_obj})
+                            rule_results[str(rule)][target_model].append(
+                                RuleResult(target_panel, entry_status)
+                            )
         return rule_results, metadata_objects
