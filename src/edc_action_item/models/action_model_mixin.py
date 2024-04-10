@@ -53,7 +53,9 @@ class ActionNoManagersModelMixin(models.Model):
     action_item_reason = models.TextField(null=True, editable=False)
 
     def __str__(self) -> str:
-        return f"{self.action_identifier[-9:]}"
+        if self.action_identifier:
+            return f"{self.action_identifier[-9:]}"
+        return ""
 
     def save(self: Any, *args, **kwargs):
         # ensure action class is defined
