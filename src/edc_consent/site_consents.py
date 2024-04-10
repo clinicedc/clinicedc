@@ -168,17 +168,19 @@ class SiteConsents:
 
         Filters the registry by each param given.
         """
-        cdefs = self.get_consent_definitions(
+        opts = dict(
             model=model,
             report_datetime=report_datetime,
             version=version,
             site=site,
             screening_model=screening_model,
-            **kwargs,
         )
+        cdefs = self.get_consent_definitions(**opts, **kwargs)
         if len(cdefs) > 1:
             as_string = ", ".join(list(set([cdef.name for cdef in cdefs])))
-            raise SiteConsentError(f"Multiple consent definitions returned. Got {as_string}. ")
+            raise SiteConsentError(
+                f"Multiple consent definitions returned. Using {opts}. Got {as_string}. "
+            )
         return cdefs[0]
 
     def get_consent_definitions(

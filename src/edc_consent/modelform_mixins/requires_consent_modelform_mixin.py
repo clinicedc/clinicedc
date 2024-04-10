@@ -42,6 +42,7 @@ class RequiresConsentModelFormMixin:
                 consent_obj = site_consents.get_consent_or_raise(
                     subject_identifier=self.get_subject_identifier(),
                     report_datetime=self.report_datetime,
+                    site_id=self.site.id,
                 )
             except (NotConsentedError, ConsentDefinitionNotConfiguredForUpdate) as e:
                 raise forms.ValidationError({"__all__": str(e)})
