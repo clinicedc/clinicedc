@@ -13,6 +13,7 @@ from edc_facility.utils import get_facilities
 from edc_form_validators import INVALID_ERROR
 from edc_form_validators.form_validator import FormValidator
 from edc_metadata.metadata_helper import MetadataHelperMixin
+from edc_sites.form_validator_mixin import SiteFormValidatorMixin
 from edc_utils import formatted_datetime, get_utcnow, to_utc
 from edc_utils.date import to_local
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -62,6 +63,7 @@ if TYPE_CHECKING:
 class AppointmentFormValidator(
     MetadataHelperMixin,
     ConsentDefinitionFormValidatorMixin,
+    SiteFormValidatorMixin,
     WindowPeriodFormValidatorMixin,
     FormValidator,
 ):
@@ -221,6 +223,7 @@ class AppointmentFormValidator(
                 appt_datetime_utc = to_utc(appt_datetime)
                 consent_datetime = self.get_consent_datetime_or_raise(
                     report_datetime=appt_datetime_utc,
+                    site=self.site,
                     fldname="appt_datetime",
                     error_code=INVALID_APPT_DATE,
                 )
