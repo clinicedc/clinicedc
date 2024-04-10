@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from django.utils.translation import gettext as _
 from edc_form_validators import INVALID_ERROR
@@ -15,6 +16,9 @@ from edc_consent.exceptions import (
 )
 from edc_consent.site_consents import site_consents
 
+if TYPE_CHECKING:
+    from django.contrib.sites.models import Site
+
 
 class ConsentDefinitionFormValidatorMixin:
 
@@ -24,17 +28,22 @@ class ConsentDefinitionFormValidatorMixin:
         return cdef.model_cls.objects.get(subject_identifier=self.subject_identifier)
 
     def get_consent_datetime_or_raise(
-        self, report_datetime: datetime = None, fldname: str = None, error_code: str = None
+        self,
+        report_datetime: datetime = None,
+        site: Site = None,
+        fldname: str = None,
+        error_code: str = None,
     ) -> datetime:
         """Returns the consent_datetime of this subject"""
         consent_obj = self.get_consent_or_raise(
-            report_datetime=report_datetime, fldname=fldname, error_code=error_code
+            report_datetime=report_datetime, site=site, fldname=fldname, error_code=error_code
         )
         return consent_obj.consent_datetime
 
     def get_consent_or_raise(
         self,
         report_datetime: datetime = None,
+        site: Site = None,
         fldname: str | None = None,
         error_code: str | None = None,
     ) -> datetime:
@@ -48,7 +57,9 @@ class ConsentDefinitionFormValidatorMixin:
         error_code = error_code or INVALID_ERROR
         try:
             consent_obj = site_consents.get_consent_or_raise(
-                subject_identifier=self.subject_identifier, report_datetime=report_datetime
+                subject_identifier=self.subject_identifier,
+                report_datetime=report_datetime,
+                site_id=getattr(site, "id", None),
             )
         except (NotConsentedError, ConsentDefinitionNotConfiguredForUpdate) as e:
             self.raise_validation_error({fldname: str(e)}, error_code)
