@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from edc_appointment.form_validator_mixins import WindowPeriodFormValidatorMixin
 from edc_form_validators import INVALID_ERROR, FormValidator
 from edc_registration import get_registered_subject_model_cls
+from edc_sites.form_validator_mixin import SiteFormValidatorMixin
 from edc_utils import floor_secs, formatted_datetime, to_utc
 from edc_utils.date import to_local
 from edc_visit_tracking.modelform_mixins import get_related_visit
@@ -26,6 +27,7 @@ class CrfFormValidatorError(Exception):
 class CrfFormValidator(
     WindowPeriodFormValidatorMixin,
     CrfFormValidatorMixin,
+    SiteFormValidatorMixin,
     FormValidator,
 ):
     """Form validator for CRfs.
@@ -64,7 +66,7 @@ class CrfFormValidator(
             # not before consent date
             report_datetime = to_utc(self.report_datetime)
             consent_datetime = self.get_consent_datetime_or_raise(
-                report_datetime=report_datetime, fldname="report_datetime"
+                report_datetime=report_datetime, site=self.site, fldname="report_datetime"
             )
             if floor_secs(report_datetime) < floor_secs(consent_datetime):
                 msg = _("Invalid. Cannot be before date of consent. Participant consented on")
