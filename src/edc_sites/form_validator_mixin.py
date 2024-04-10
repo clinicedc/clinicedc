@@ -18,6 +18,6 @@ class SiteFormValidatorMixin:
     def site(self) -> Site:
         return (
             self.cleaned_data.get("site")
-            or self.instance.site
+            or getattr(self.instance, "site", None)
             or self.site_model_cls.objects.get_current()
         )
