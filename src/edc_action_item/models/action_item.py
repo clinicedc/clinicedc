@@ -152,7 +152,7 @@ class ActionItem(
         if not self.id:
             # a new persisted action item always has
             # a unique action identifier
-            self.action_identifier = ActionIdentifier().identifier
+            self.action_identifier = self.action_identifier or ActionIdentifier().identifier
             # subject_identifier
             subject_identifier_model_cls = django_apps.get_model(self.subject_identifier_model)
             try:
