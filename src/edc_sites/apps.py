@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 
 from django.apps import AppConfig as DjangoAppConfig
-from django.conf import settings
+from django.conf import ENVIRONMENT_VARIABLE, settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.management.color import color_style
 
@@ -18,10 +18,16 @@ class AppConfig(DjangoAppConfig):
     def ready(self) -> None:
         parser = ArgumentParser()
         _, args = parser.parse_known_args()
-        if "migrate" in args and not [a for a in args if a.startswith("--settings")]:
+        django_settings_module = getattr(settings, ENVIRONMENT_VARIABLE, None)
+        if (
+            "migrate" in args
+            and not django_settings_module
+            and not [a for a in args if a.startswith("--settings")]
+        ):
             raise ImproperlyConfigured(
                 style.ERROR(
-                    f"App `{self.verbose_name}` requires the `--settings` argument when "
+                    f"App `{self.verbose_name}` needs access to the correct settings module. "
+                    f"Either set `{ENVIRONMENT_VARIABLE}` or pass `--settings` argument when "
                     "running `migrate` from the command line. Expected something like "
                     "`manage.py migrate --settings=my_edc.settings.live."
                 )
