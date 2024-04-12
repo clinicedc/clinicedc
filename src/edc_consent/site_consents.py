@@ -8,8 +8,7 @@ from typing import TYPE_CHECKING
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.utils.module_loading import import_module, module_has_submodule
-from edc_utils import formatted_date
-from edc_utils.date import ceil_secs, floor_secs
+from edc_utils import ceil_secs, floor_secs, formatted_date
 
 from .exceptions import (
     AlreadyRegistered,

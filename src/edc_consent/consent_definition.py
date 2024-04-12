@@ -10,8 +10,8 @@ from edc_constants.constants import FEMALE, MALE
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_screening.utils import get_subject_screening_model
 from edc_sites import site_sites
-from edc_utils import formatted_date, formatted_datetime
-from edc_utils.date import ceil_secs, floor_secs, to_local
+from edc_utils import ceil_secs, floor_secs, formatted_date, formatted_datetime
+from edc_utils.date import to_local
 
 from .exceptions import (
     ConsentDefinitionError,
