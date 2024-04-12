@@ -10,8 +10,8 @@ from edc_constants.constants import FEMALE, MALE
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_screening.utils import get_subject_screening_model
 from edc_sites import site_sites
-from edc_utils import floor_secs, formatted_date, formatted_datetime
-from edc_utils.date import ceil_datetime, floor_datetime, to_local
+from edc_utils import ceil_secs, floor_secs, formatted_date, formatted_datetime
+from edc_utils.date import to_local
 
 from .exceptions import (
     ConsentDefinitionError,
@@ -158,9 +158,7 @@ class ConsentDefinition:
 
     def valid_for_datetime_or_raise(self, report_datetime: datetime) -> None:
         if report_datetime and not (
-            floor_secs(floor_datetime(self.start))
-            <= floor_secs(floor_datetime(report_datetime))
-            <= floor_secs(floor_datetime(self.end))
+            floor_secs(self.start) <= report_datetime <= ceil_secs(self.end)
         ):
             date_string = formatted_date(report_datetime)
             raise ConsentDefinitionValidityPeriodError(
@@ -177,9 +175,9 @@ class ConsentDefinition:
         study_close_datetime = protocol.study_close_datetime
         for index, attr in enumerate(["start", "end"]):
             if not (
-                floor_secs(floor_datetime(study_open_datetime))
-                <= floor_secs(floor_datetime(getattr(self, attr)))
-                <= floor_secs(ceil_datetime(study_close_datetime))
+                floor_secs(study_open_datetime)
+                <= getattr(self, attr)
+                <= ceil_secs(study_close_datetime)
             ):
                 date_string = formatted_datetime(getattr(self, attr))
                 raise ConsentDefinitionError(
