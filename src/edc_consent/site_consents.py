@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.utils.module_loading import import_module, module_has_submodule
-from edc_utils import floor_secs, formatted_date
-from edc_utils.date import floor_datetime
+from edc_utils import formatted_date
+from edc_utils.date import ceil_secs, floor_secs
 
 from .exceptions import (
     AlreadyRegistered,
@@ -20,13 +20,10 @@ from .exceptions import (
 )
 
 if TYPE_CHECKING:
-    from edc_model.models import BaseUuidModel
     from edc_sites.single_site import SingleSite
 
     from .consent_definition import ConsentDefinition
-    from .model_mixins import ConsentModelMixin
-
-    class ConsentModel(ConsentModelMixin, BaseUuidModel): ...
+    from .stubs import ConsentLikeModel
 
 
 __all__ = ["site_consents"]
@@ -117,7 +114,7 @@ class SiteConsents:
         report_datetime: datetime,
         site_id: int | None = None,
         raise_if_not_consented: bool | None = None,
-    ):
+    ) -> ConsentLikeModel:
         """Returns a subject consent using this consent_definition's
         `model_cls` and `version`.
 
@@ -256,9 +253,7 @@ class SiteConsents:
             cdefs = [
                 cdef
                 for cdef in cdefs
-                if floor_secs(floor_datetime(cdef.start))
-                <= floor_secs(floor_datetime(report_datetime))
-                <= floor_secs(floor_datetime(cdef.end))
+                if floor_secs(cdef.start) <= report_datetime <= ceil_secs(cdef.end)
             ]
             if not cdefs:
                 date_string = formatted_date(report_datetime)
