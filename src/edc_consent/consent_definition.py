@@ -21,13 +21,10 @@ from .exceptions import (
 from .managers import ConsentObjectsByCdefManager, CurrentSiteByCdefManager
 
 if TYPE_CHECKING:
-    from edc_identifier.model_mixins import NonUniqueSubjectIdentifierModelMixin
     from edc_model.models import BaseUuidModel
     from edc_screening.model_mixins import EligibilityModelMixin, ScreeningModelMixin
 
-    from .model_mixins import ConsentModelMixin
-
-    class ConsentLikeModel(NonUniqueSubjectIdentifierModelMixin, ConsentModelMixin): ...
+    from .stubs import ConsentLikeModel
 
     class SubjectScreening(ScreeningModelMixin, EligibilityModelMixin, BaseUuidModel): ...
 

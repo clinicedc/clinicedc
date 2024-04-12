@@ -19,13 +19,10 @@ from .exceptions import (
 )
 
 if TYPE_CHECKING:
-    from edc_model.models import BaseUuidModel
     from edc_sites.single_site import SingleSite
 
     from .consent_definition import ConsentDefinition
-    from .model_mixins import ConsentModelMixin
-
-    class ConsentModel(ConsentModelMixin, BaseUuidModel): ...
+    from .stubs import ConsentLikeModel
 
 
 __all__ = ["site_consents"]
@@ -116,7 +113,7 @@ class SiteConsents:
         report_datetime: datetime,
         site_id: int | None = None,
         raise_if_not_consented: bool | None = None,
-    ):
+    ) -> ConsentLikeModel:
         """Returns a subject consent using this consent_definition's
         `model_cls` and `version`.
 
