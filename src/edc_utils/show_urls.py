@@ -35,7 +35,7 @@ def show_url_names(urlpatterns, base="", namespace=None, search=None):
     return [url[2] for url in urls]
 
 
-def extract_views_from_urlpatterns(urlpatterns, base="", namespace=None):
+def extract_views_from_urlpatterns(urlpatterns, base="", namespace=None):  # noqa
     """
     Return a list of views from a list of urlpatterns.
     Each object in the returned list is a three-tuple: (view_func, regex, name)
@@ -47,7 +47,7 @@ def extract_views_from_urlpatterns(urlpatterns, base="", namespace=None):
                 if not p.name:
                     name = p.name
                 elif namespace:
-                    name = "{0}:{1}".format(namespace, p.name)
+                    name = f"{namespace}:{p.name}"
                 else:
                     name = p.name
                 pattern = describe_pattern(p)
@@ -60,7 +60,7 @@ def extract_views_from_urlpatterns(urlpatterns, base="", namespace=None):
             except ImportError:
                 continue
             if namespace and p.namespace:
-                _namespace = "{0}:{1}".format(namespace, p.namespace)
+                _namespace = f"{namespace}:{p.namespace}"
             else:
                 _namespace = p.namespace or namespace
             pattern = describe_pattern(p)
