@@ -5,7 +5,6 @@ from .url_model_mixin import UrlModelMixin
 
 
 class BaseModel(UrlModelMixin, AuditModelMixin, models.Model):
-
     """Base model class for all EDC models. Adds created and modified'
     values for user, date and hostname (computer).
     """

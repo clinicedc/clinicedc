@@ -13,8 +13,7 @@ class ModelMetaStub(Protocol):
     app_label: str
     model_name: str
 
-    def get_fields(self) -> list:
-        ...
+    def get_fields(self) -> list: ...
 
 
 class BaseUuidModelStub(AuditModelStub, Protocol):
@@ -22,8 +21,7 @@ class BaseUuidModelStub(AuditModelStub, Protocol):
     admin_url_name: str
     admin_site_name: str
 
-    def get_absolute_url(self) -> str:
-        ...
+    def get_absolute_url(self) -> str: ...
 
     objects: models.Manager
     _meta: ModelMetaStub
@@ -39,8 +37,7 @@ class BaseUuidHistoryModelStub(AuditModelStub, Protocol):
     admin_url_name: str
     admin_site_name: str
 
-    def get_absolute_url(self) -> str:
-        ...
+    def get_absolute_url(self) -> str: ...
 
     objects: models.Manager
     history: models.Manager
