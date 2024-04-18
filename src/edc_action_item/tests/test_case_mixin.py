@@ -1,5 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase
+from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_registration.models import RegisteredSubject
@@ -16,7 +17,7 @@ class TestCaseMixin(TestCase):
         import_holidays()
 
     @staticmethod
-    def enroll(subject_identifier=None):
+    def enroll(subject_identifier=None, cdef: ConsentDefinition | None = None):
         subject_identifier = subject_identifier or "1111111"
 
         site_visit_schedules._registry = {}
@@ -24,7 +25,7 @@ class TestCaseMixin(TestCase):
         site_visit_schedules.register(visit_schedule)
 
         site_consents.registry = {}
-        site_consents.register(consent_v1)
+        site_consents.register(cdef or consent_v1)
 
         consent_datetime = get_utcnow()
         cdef = site_consents.get_consent_definition(report_datetime=consent_datetime)
