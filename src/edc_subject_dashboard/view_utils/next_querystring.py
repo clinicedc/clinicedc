@@ -10,7 +10,7 @@ from edc_dashboard.url_names import url_names
 __all__ = ["NextQuerystring"]
 
 
-@dataclass
+@dataclass(kw_only=True)
 class NextQuerystring:
     """Make a querystring that complies with the next_url concept
     used by edc_submit_line and modeladminmixin on save/cancel to
