@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from edc_action_item.models import ActionItem
 
 
-@dataclass
+@dataclass(kw_only=True)
 class ActionItemButton(ModelButton):
     action_cls: Type[Action] = None
     model_obj: ActionItem | None = None
@@ -47,6 +47,11 @@ class ActionItemButton(ModelButton):
         return self.subject_identifier
 
     @property
+    def url(self) -> str:
+        url = super().url
+        return url
+
+    @property
     def reverse_kwargs(self) -> dict[str, str | UUID]:
         if self.appointment:
             return dict(
@@ -64,4 +69,6 @@ class ActionItemButton(ModelButton):
             priority=self.action_cls.priority,
             subject_identifier=self.get_subject_identifier(),
             appointment=getattr(self.appointment, "id", None),
+            related_action_item_id=getattr(self.model_obj, "related_action_item_id", ""),
+            parent_action_item_id=getattr(self.model_obj, "parent_action_item_id", ""),
         )

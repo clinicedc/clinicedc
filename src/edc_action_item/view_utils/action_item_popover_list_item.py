@@ -96,9 +96,8 @@ class ActionItemPopoverListItem(PrnButton):
         )
         if self.action == ADD:
             # Add field to prefill form
-            if obj := self.parent_reference_obj or self.related_reference_obj:
+            for obj in [self.parent_reference_obj, self.related_reference_obj]:
                 for fld in self.model_cls._meta.get_fields(include_hidden=True):
                     if fld.related_model == obj.__class__:
                         kwargs.update({fld.name: obj.id})
-                        break
         return kwargs
