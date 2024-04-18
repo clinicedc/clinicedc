@@ -34,7 +34,7 @@ class ModelButtonError(Exception):
     pass
 
 
-@dataclass
+@dataclass(kw_only=True)
 class ModelButton:
     user: User = None
     model_obj: Model = None
