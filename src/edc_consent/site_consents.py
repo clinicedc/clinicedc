@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.utils.module_loading import import_module, module_has_submodule
+from edc_sites.site import sites as site_sites
 from edc_utils import ceil_secs, floor_secs, formatted_date
 
 from .exceptions import (
@@ -98,7 +99,11 @@ class SiteConsents:
 
     def get_consents(self, subject_identifier: str, site_id: int | None) -> list:
         consents = []
-        for cdef in self.all():
+        opts = {}
+        if site_id:
+            single_site = site_sites.get(site_id)
+            opts.update(site=single_site)
+        for cdef in self.get_consent_definitions(**opts):
             if consent_obj := cdef.get_consent_for(
                 subject_identifier=subject_identifier,
                 site_id=site_id,
