@@ -1,7 +1,11 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+import time_machine
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
-from django.test import TestCase
+from django.test import TestCase, override_settings, tag
 from edc_consent.tests.consent_test_utils import consent_definition_factory
 from edc_constants.constants import CANCELLED, CLOSED, NEW, OPEN
 from edc_utils import get_utcnow
@@ -19,21 +23,27 @@ from ..models import FormOne, FormThree, FormTwo, TestModelWithAction
 from ..test_case_mixin import TestCaseMixin
 
 
+@override_settings(
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(2018, 6, 10, 0, 00, tzinfo=ZoneInfo("UTC")),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2027, 6, 10, 0, 00, tzinfo=ZoneInfo("UTC")),
+)
 class TestActionItem(TestCaseMixin, TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        consent_definition_factory(
-            model="edc_action_item.subjectconsent",
+
+    def setUp(self):
+        test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
+        traveller = time_machine.travel(test_datetime)
+        traveller.start()
+        consent_v1 = consent_definition_factory(
+            model="edc_action_item.subjectconsentv1",
             start=get_utcnow() - relativedelta(years=1),
             end=get_utcnow() + relativedelta(years=1),
         )
-
-    def setUp(self):
-        self.subject_identifier = self.enroll()
+        self.subject_identifier = self.enroll(cdef=consent_v1)
         site_action_items.registry = {}
         site_action_items.register(FormZeroAction)
         get_action_type(FormZeroAction)
         self.action_type = ActionType.objects.get(name=FormZeroAction.name)
+        traveller.stop()
 
     def test_creates(self):
         obj = ActionItem.objects.create(
@@ -239,6 +249,7 @@ class TestActionItem(TestCaseMixin, TestCase):
 
         self.assertRaises(ProtectedError, action_item.delete)
 
+    @tag("1")
     def test_new(self):
         site_action_items.register(FormOneAction)
         site_action_items.register(FormTwoAction)
