@@ -20,10 +20,10 @@ class MetadataViewMixin:
 
     def get_context_data(self, **kwargs) -> dict:
         if self.appointment:
+            # always refresh metadata / run rules
+            refresh_metadata_for_timepoint(self.appointment, allow_create=True)
             referer = self.request.headers.get("Referer")
             if referer and "subject_review_listboard" in referer:
-                # don't allow_create for performance reasons
-                refresh_metadata_for_timepoint(self.appointment, allow_create=True)
                 if self.appointment.related_visit:
                     update_appt_status_for_timepoint(self.appointment.related_visit)
             crf_qs = self.get_crf_metadata()
