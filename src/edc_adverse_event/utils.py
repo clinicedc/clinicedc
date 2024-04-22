@@ -27,7 +27,10 @@ if TYPE_CHECKING:
 def validate_ae_initial_outcome_date(form_obj):
     ae_initial = form_obj.cleaned_data.get("ae_initial")
     if not ae_initial and form_obj.instance:
-        ae_initial = form_obj.instance.ae_initial
+        try:
+            ae_initial = form_obj.instance.ae_initial
+        except ObjectDoesNotExist:
+            pass
     outcome_date = form_obj.cleaned_data.get("outcome_date")
     if ae_initial and outcome_date:
         if outcome_date < ae_initial.ae_start_date:
