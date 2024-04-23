@@ -13,7 +13,7 @@ from edc_facility.facility import Facility, FacilityError
 from edc_sites.utils import valid_site_for_subject_or_raise
 from edc_visit_schedule.utils import is_baseline
 
-from ..constants import SCHEDULED_APPT
+from ..constants import NEW_APPT, SCHEDULED_APPT
 from ..exceptions import AppointmentCreatorError
 from ..utils import (
     get_appointment_type_model_cls,
@@ -173,7 +173,9 @@ class AppointmentCreator:
 
     def _update(self, appointment=None) -> Appointment:
         """Returns an updated appointment model instance."""
-        if is_baseline(instance=appointment) and self.skip_baseline:
+        if (is_baseline(instance=appointment) and self.skip_baseline) or (
+            appointment.appt_status != NEW_APPT
+        ):
             pass
         else:
             appointment.appt_datetime = self.appt_datetime
