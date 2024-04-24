@@ -9,7 +9,7 @@ from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.utils.module_loading import import_module, module_has_submodule
 from edc_sites.site import sites as site_sites
-from edc_utils import ceil_secs, floor_secs, formatted_date
+from edc_utils import ceil_secs, floor_secs, formatted_date, to_utc
 
 from .exceptions import (
     AlreadyRegistered,
@@ -141,7 +141,7 @@ class SiteConsents:
             subject_identifier=subject_identifier,
             raise_if_not_consented=raise_if_not_consented,
         )
-        if consent_obj and report_datetime < consent_obj.consent_datetime:
+        if consent_obj and to_utc(report_datetime) < consent_obj.consent_datetime:
             if not cdef.updates:
                 dte = formatted_date(report_datetime)
                 raise ConsentDefinitionNotConfiguredForUpdate(
@@ -257,7 +257,7 @@ class SiteConsents:
             cdefs = [
                 cdef
                 for cdef in cdefs
-                if floor_secs(cdef.start) <= report_datetime <= ceil_secs(cdef.end)
+                if floor_secs(cdef.start) <= to_utc(report_datetime) <= ceil_secs(cdef.end)
             ]
             if not cdefs:
                 date_string = formatted_date(report_datetime)

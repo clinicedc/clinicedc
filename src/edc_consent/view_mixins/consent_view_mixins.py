@@ -28,17 +28,14 @@ class ConsentViewMixin:
         super().__init__(**kwargs)
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
-        """Add consent to the dashboard only if subject
-        is still on a schedule.
-        """
+        """Add consent_definition and consents to the dashboard."""
         # TODO: What if active on more than one schedule??
-        if self.current_schedule:
-            try:
-                kwargs.update(consent_definition=self.consent_definition)
-            except ConsentDefinitionDoesNotExist as e:
-                messages.add_message(self.request, message=str(e), level=ERROR)
-            else:
-                kwargs.update(consent=self.consent, consents=self.consents)
+        try:
+            kwargs.update(consent_definition=self.consent_definition)
+        except ConsentDefinitionDoesNotExist as e:
+            messages.add_message(self.request, message=str(e), level=ERROR)
+        else:
+            kwargs.update(consent=self.consent, consents=self.consents)
         return super().get_context_data(**kwargs)
 
     @property
