@@ -69,8 +69,12 @@ class ConsentDefinition:
             raise ConsentDefinitionError(f"Invalid gender. Got {self.gender}.")
         if not self.start.tzinfo:
             raise ConsentDefinitionError(f"Naive datetime not allowed. Got {self.start}.")
+        elif str(self.start.tzinfo) != "UTC":
+            raise ConsentDefinitionError(f"Start date must be UTC. Got {self.start}.")
         if not self.end.tzinfo:
             raise ConsentDefinitionError(f"Naive datetime not allowed Got {self.end}.")
+        elif str(self.end.tzinfo) != "UTC":
+            raise ConsentDefinitionError(f"End date must be UTC. Got {self.end}.")
         self.check_date_within_study_period()
 
     @property
