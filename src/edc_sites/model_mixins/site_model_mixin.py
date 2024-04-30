@@ -30,13 +30,16 @@ class SiteModelMixin(models.Model):
     on_site = CurrentSiteManager()
 
     def save(self, *args, **kwargs):
+        self.update_site_on_save(*args, **kwargs)
+        super().save(*args, **kwargs)
+
+    def update_site_on_save(self, *args, **kwargs):
         if not self.id and not self.site and not self.site_id:
             self.site = self.get_site_on_create()
         elif "update_fields" in kwargs and "site" not in kwargs.get("update_fields"):
             pass
         else:
             self.validate_site_against_current()
-        super().save(*args, **kwargs)
 
     def get_site_on_create(self) -> Site:
         """Returns a site model instance.
