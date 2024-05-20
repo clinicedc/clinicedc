@@ -11,7 +11,7 @@ from edc_dx_review.utils import (
     get_initial_review_model_cls,
 )
 
-from .utils import get_diagnosis_labels, get_diagnosis_labels_prefixes
+from .utils import get_diagnosis_labels
 
 
 class InitialReviewRequired(Exception):
@@ -79,13 +79,9 @@ class Diagnoses:
                 dx = self.get_dx(prefix)
                 break
         if not dx:
-            models_classes = [
-                get_initial_review_model_cls(prefix)
-                for prefix in get_diagnosis_labels_prefixes()
-            ]
             raise DiagnosesError(
-                f"Invalid. Expected an instance of one of {models_classes}. "
-                f"Got {instance.__class__}"
+                f"Invalid. No diagnoses detected. "
+                f"See responses on {self.clinical_review_baseline._meta.verbose_name}."
             )
         return dx
 
