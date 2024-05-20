@@ -5,7 +5,7 @@ from edc_constants.constants import NOT_APPLICABLE
 from edc_lab.choices import GLUCOSE_UNITS_NA, RESULT_QUANTIFIER_NA
 
 from ..constants import GLUCOSE_HIGH_READING
-from . import fasting_model_mixin_factory
+from .fasting_model_mixin import fasting_model_mixin_factory
 
 
 def glucose_model_mixin_factory(utest_id: str, verbose_names: dict | None = None, **kwargs):
