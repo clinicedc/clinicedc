@@ -1,5 +1,5 @@
 from django.core.validators import RegexValidator
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from ..utils import dh_pattern, ymd_pattern
 
