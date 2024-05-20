@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from datetime import date, datetime, timedelta
+from typing import TYPE_CHECKING
 
 from dateutil.relativedelta import relativedelta
 from django import forms
@@ -13,8 +14,19 @@ from django.urls import reverse
 
 from .constants import REPORT_DATETIME_FIELD_NAME
 
-dh_pattern = r"^(([0-9]{1,3}d)?((2[0-3]|[01]?[0-9])h)?)$"
+if TYPE_CHECKING:
 
+    from edc_visit_tracking.model_mixins import VisitTrackingCrfModelMixin
+
+    from .models import BaseUuidModel
+
+    class CrfLikeModel(VisitTrackingCrfModelMixin, BaseUuidModel):
+        pass
+
+
+dh_pattern = r"^(([0-9]{1,3}d)?((2[0-3]|[01]?[0-9])h)?)$"
+# hm_pattern = r"^(([0-9]{1,2}h)?([0-9]{1,2}m)?)$"
+hm_pattern = r"^(([0-9]{1,2}h)?([0-5]?[0-9]m)?)$"
 ymd_pattern = (
     r"^([0-9]{1,3}y([0-1]?[0-2]m)?([0-9]m)?)$|^([0-1]?"
     r"[0-2]m)$|^([0-9]m)$|^([1-3]?[1-9]d)$|^(0d)$"
@@ -131,17 +143,17 @@ def model_exists_or_raise(
     subject_visit,
     model_cls,
     singleton=None,
-) -> bool:
+) -> CrfLikeModel:
     singleton = False if singleton is None else singleton
     if singleton:
         opts = {"subject_visit__subject_identifier": subject_visit.subject_identifier}
     else:
         opts = {"subject_visit": subject_visit}
     try:
-        model_cls.objects.get(**opts)
+        obj = model_cls.objects.get(**opts)
     except ObjectDoesNotExist:
         raise ObjectDoesNotExist(f"{model_cls._meta.verbose_name} does not exist.")
-    return True
+    return obj
 
 
 def is_inline_model(instance):
@@ -158,6 +170,8 @@ def timedelta_from_duration_dh_field(
 ) -> timedelta | None:
     """Wrapper function for `duration_dh_to_timedelta` typically called in
     modelform.clean() and model.save().
+
+    Perhaps just use duration_dh_to_timedelta?
 
     Returns timedelta using `duration_dh_to_timedelta` or None.
 
@@ -207,6 +221,32 @@ def duration_dh_to_timedelta(duration_text: str | CharField) -> timedelta:
         hours_str = duration_text.split("h")[0]
         hours = int(hours_str)
     return timedelta(days=days, hours=hours)
+
+
+def duration_hm_to_timedelta(duration_text: str | CharField) -> timedelta:
+    """Returns timedelta from a well-formatted string
+    (specified in days and/or hours).
+
+    Will raise an exception if the string cannot be interpreted.
+    """
+    duration_text = duration_text.replace(" ", "")
+    if not re.match(hm_pattern, duration_text):
+        raise InvalidFormat(
+            "Expected format is `HHhMMm`, `HHh` or `MMm`. "
+            "For example 12h30m, 5h9m ... or 20h, or 5m ..."
+            f"Got {duration_text}"
+        )
+    hours = 0
+    minutes = 0
+    if "h" in duration_text:
+        hour_str, remaining = duration_text.split("h")
+        hours = int(hour_str)
+        if remaining and "m" in remaining:
+            minutes = int(remaining.split("m")[0])
+    else:
+        minutes_str = duration_text.split("m")[0]
+        minutes = int(minutes_str)
+    return timedelta(hours=hours, minutes=minutes)
 
 
 def get_history_url(obj, admin_site: str = None) -> str:
