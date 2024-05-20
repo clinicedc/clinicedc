@@ -11,6 +11,8 @@ from django.db import models
 from django_crypto_fields.fields import EncryptedCharField
 from edc_constants.choices import GENDER, YES_NO, YES_NO_NA
 from edc_constants.constants import NO, NOT_APPLICABLE
+from edc_model.validators import datetime_not_future
+from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.model_mixins import SiteModelMixin
 from edc_utils.date import get_utcnow
 
@@ -30,6 +32,7 @@ class ScreeningFieldsModeMixin(SiteModelMixin, models.Model):
 
     report_datetime = models.DateTimeField(
         verbose_name="Report Date and Time",
+        validators=[datetime_not_before_study_start, datetime_not_future],
         default=get_utcnow,
         help_text="Date and time of report.",
     )
