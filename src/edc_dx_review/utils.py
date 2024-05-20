@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime
+from typing import TYPE_CHECKING
 
 from django import forms
 from django.apps import apps as django_apps
@@ -10,6 +11,14 @@ from edc_constants.constants import HIV, YES
 from edc_model.utils import model_exists_or_raise
 from edc_visit_schedule.baseline import VisitScheduleBaselineError
 from edc_visit_schedule.utils import is_baseline
+
+if TYPE_CHECKING:
+    from edc_model.models import BaseUuidModel
+    from edc_visit_tracking.model_mixins import VisitTrackingCrfModelMixin
+
+    class CrfLikeModel(VisitTrackingCrfModelMixin, BaseUuidModel):
+        pass
+
 
 EDC_DX_REVIEW_APP_LABEL = getattr(settings, "EDC_DX_REVIEW_APP_LABEL", "edc_dx_review")
 
@@ -77,7 +86,7 @@ def get_extra_attrs():
     return extra_attrs
 
 
-def raise_if_clinical_review_does_not_exist(subject_visit) -> None:
+def raise_if_clinical_review_does_not_exist(subject_visit) -> CrfLikeModel:
     try:
         baseline = is_baseline(instance=subject_visit)
     except VisitScheduleBaselineError as e:
@@ -88,9 +97,10 @@ def raise_if_clinical_review_does_not_exist(subject_visit) -> None:
         else:
             model_cls = get_clinical_review_model_cls()
         try:
-            model_exists_or_raise(subject_visit=subject_visit, model_cls=model_cls)
+            obj = model_exists_or_raise(subject_visit=subject_visit, model_cls=model_cls)
         except ObjectDoesNotExist:
             raise forms.ValidationError(f"Complete {model_cls._meta.verbose_name} CRF first.")
+    return obj
 
 
 def raise_if_both_ago_and_actual_date(
