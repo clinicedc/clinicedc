@@ -38,4 +38,3 @@ class CrfStatusModelMixin(models.Model):
 
     class Meta:
         abstract = True
-        indexes = []
