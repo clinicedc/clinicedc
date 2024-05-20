@@ -3,6 +3,7 @@ from __future__ import annotations
 from django.db import models
 from edc_constants.choices import YES_NO_NA
 from edc_constants.constants import NOT_APPLICABLE
+from edc_model.utils import duration_hm_to_timedelta
 from edc_model.validators import hm_validator
 
 
@@ -13,6 +14,12 @@ def fasting_model_mixin_factory(
     verbose_names = verbose_names or {}
 
     class AbstractModel(models.Model):
+        def save(self, *args, **kwargs):
+            if duration_str := getattr(self, f"{prefix}fasting_duration_str", None):
+                tdelta = duration_hm_to_timedelta(duration_str)
+                setattr(self, f"{prefix}fasting_duration_delta", tdelta)
+            super().save(*args, **kwargs)
+
         class Meta:
             abstract = True
 
@@ -39,8 +46,10 @@ def fasting_model_mixin_factory(
                 "For example 1h23m, 12h7m, etc"
             ),
         ),
-        f"{prefix}fasting_duration_minutes": models.IntegerField(
-            null=True, blank=True, help_text="system calculated value"
+        f"{prefix}fasting_duration_delta": models.DurationField(
+            null=True,
+            blank=True,
+            help_text="system calculated to microseconds. (hours=microseconds/3.6e+9)",
         ),
     }
 
