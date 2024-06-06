@@ -16,6 +16,7 @@ from edc_document_status.modeladmin_mixins import DocumentStatusModelAdminMixin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_sites.admin import SiteModelAdminMixin
+from edc_utils import get_utcnow
 from edc_visit_schedule.exceptions import OnScheduleError
 from edc_visit_schedule.fieldsets import (
     visit_schedule_fields,
@@ -30,7 +31,7 @@ from ..forms import AppointmentForm
 from ..models import Appointment, AppointmentType
 from ..utils import get_allow_skipped_appt_using
 from .actions import appointment_mark_as_done, appointment_mark_as_new
-from .list_filters import AppointmentListFilter
+from .list_filters import AppointmentListFilter, AppointmentStatusListFilter
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -52,15 +53,16 @@ class AppointmentAdmin(
         "full_visit_code",
         "appt_actions",
         "appointment_date",
-        "days_from_timepoint_datetime",
-        "appointment_type",
         "appt_status",
+        "days_from_timepoint_datetime",
+        "days_from_now",
+        "appointment_type",
         "timing",
         "schedule_name",
     )
     list_filter = (
         AppointmentListFilter,
-        "appt_status",
+        AppointmentStatusListFilter,
         "visit_code",
         "visit_code_sequence",
         "appt_type",
@@ -191,6 +193,13 @@ class AppointmentAdmin(
             return None
         return f"{'+' if days > 0 else ''}{days}d"
 
+    @admin.display(description="Now", ordering="appt_datetime_delta")
+    def days_from_now(self, obj=None):
+        days = obj.appt_datetime_delta.days
+        if days == 0:
+            return None
+        return f"{'+' if days > 0 else ''}{days}d"
+
     @admin.display(description="Subject", ordering="subject_identifier")
     def appointment_subject(self, obj=None):
         return obj.subject_identifier
@@ -258,6 +267,7 @@ class AppointmentAdmin(
         return True if get_allow_skipped_appt_using() else False
 
     def get_queryset(self, request):
+        now = get_utcnow().replace(second=59, hour=23, minute=59)
         return (
             super()
             .get_queryset(request)
@@ -265,6 +275,9 @@ class AppointmentAdmin(
                 appt_timepoint_delta=ExpressionWrapper(
                     (F("appt_datetime") - F("timepoint_datetime")),
                     output_field=DurationField(),
-                )
+                ),
+                appt_datetime_delta=ExpressionWrapper(
+                    (F("appt_datetime") - now), output_field=DurationField()
+                ),
             )
         )
