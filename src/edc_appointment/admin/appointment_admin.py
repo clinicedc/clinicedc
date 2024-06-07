@@ -17,6 +17,7 @@ from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_sites.admin import SiteModelAdminMixin
 from edc_utils import get_utcnow
+from edc_visit_schedule.admin import ScheduleStatusListFilter
 from edc_visit_schedule.exceptions import OnScheduleError
 from edc_visit_schedule.fieldsets import (
     visit_schedule_fields,
@@ -67,6 +68,7 @@ class AppointmentAdmin(
         "visit_code_sequence",
         "appt_type",
         "appt_timing",
+        ScheduleStatusListFilter,
     )
 
     additional_instructions = format_html(
