@@ -110,7 +110,7 @@ class TestAdmin(WebTest):
         results = re.findall(r"On time", response.text, re.IGNORECASE)
         self.assertEqual(len(results), 1)  # one extra for listfilter
         results = re.findall(r"In Progress", response.text, re.IGNORECASE)
-        self.assertEqual(len(results), 1)  # one extra for listfilter
+        self.assertEqual(len(results), 2)  # two extra for listfilter
 
         get_related_visit_model_cls().objects.create(
             appointment=appointments[0],
@@ -123,7 +123,7 @@ class TestAdmin(WebTest):
         results = re.findall(r"On time", response.text, re.IGNORECASE)
         self.assertEqual(len(results), 2)  # one extra for listfilter
         results = re.findall(r"In Progress", response.text, re.IGNORECASE)
-        self.assertEqual(len(results), 2)  # one extra for listfilter
+        self.assertEqual(len(results), 3)  # two extra for listfilter
 
         url = f"{url}?q={subject_consent.subject_identifier}"
         response = self.app.get(url, user=self.user)
@@ -132,7 +132,7 @@ class TestAdmin(WebTest):
         results = re.findall(r"On time", response.text, re.IGNORECASE)
         self.assertEqual(len(results), 2)  # one extra for listfilter
         results = re.findall(r"In Progress", response.text, re.IGNORECASE)
-        self.assertEqual(len(results), 2)  # one extra for listfilter
+        self.assertEqual(len(results), 3)  # two extra for listfilter
 
     def test_auth(self):
         group_updater = GroupUpdater(groups={})

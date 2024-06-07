@@ -23,3 +23,8 @@ INVALID_SKIPPED_APPT_NOT_ALLOWED_AT_BASELINE = "invalid_skipped_appt_not_allowed
 INVALID_APPT_TIMING = "invalid_appt_timing"
 INVALID_APPT_TIMING_CRFS_EXIST = "invalid_appt_timing_crfs_exist"
 INVALID_APPT_TIMING_REQUISITIONS_EXIST = "invalid_appt_timing_requisitions_exist"
+
+LT_60_DAYS = "LT_60_DAYS"
+GTE_60_TO_90_DAYS = "GTE_60_TO_90_DAYS"
+GTE_90_TO_180_DAYS = "GTE_90_TO_180_DAYS"
+GTE_180 = "GTE_180"
