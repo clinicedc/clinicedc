@@ -11,12 +11,13 @@ from edc_appointment.choices import APPT_STATUS
 from edc_appointment.constants import (
     ATTENDED_APPT,
     COMPLETE_APPT,
+    GTE_30_TO_60_DAYS,
     GTE_60_TO_90_DAYS,
     GTE_90_TO_180_DAYS,
     GTE_180,
     IN_PROGRESS_APPT,
     INCOMPLETE_APPT,
-    LT_60_DAYS,
+    LT_30_DAYS,
 )
 
 
@@ -53,7 +54,8 @@ class AppointmentOverdueListFilter(SimpleListFilter):
 
     def lookups(self, request, model_admin) -> tuple:
         return (
-            (LT_60_DAYS, _("1-60 days")),
+            (LT_30_DAYS, _("2-30 days")),
+            (GTE_30_TO_60_DAYS, _("30-60 days")),
             (GTE_60_TO_90_DAYS, _("60-90 days")),
             (GTE_90_TO_180_DAYS, _("90-180 days")),
             (GTE_180, _("180+ days")),
@@ -62,10 +64,15 @@ class AppointmentOverdueListFilter(SimpleListFilter):
     def queryset(self, request, queryset) -> QuerySet | None:
         now = get_utcnow().replace(second=59, hour=23, minute=59)
         qs = None
-        if self.value() == LT_60_DAYS:
+        if self.value() == LT_30_DAYS:
+            qs = queryset.filter(
+                appt_datetime__gt=now - relativedelta(days=30),
+                appt_datetime__lte=now - relativedelta(days=2),
+            ).order_by("appt_datetime")
+        elif self.value() == GTE_30_TO_60_DAYS:
             qs = queryset.filter(
                 appt_datetime__gt=now - relativedelta(days=60),
-                appt_datetime__lte=now - relativedelta(days=1),
+                appt_datetime__lte=now - relativedelta(days=30),
             ).order_by("appt_datetime")
         elif self.value() == GTE_60_TO_90_DAYS:
             qs = queryset.filter(
