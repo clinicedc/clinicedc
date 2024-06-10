@@ -32,7 +32,11 @@ from ..forms import AppointmentForm
 from ..models import Appointment, AppointmentType
 from ..utils import get_allow_skipped_appt_using
 from .actions import appointment_mark_as_done, appointment_mark_as_new
-from .list_filters import AppointmentListFilter, AppointmentStatusListFilter
+from .list_filters import (
+    AppointmentListFilter,
+    AppointmentOverdueListFilter,
+    AppointmentStatusListFilter,
+)
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -69,6 +73,7 @@ class AppointmentAdmin(
         "appt_type",
         "appt_timing",
         ScheduleStatusListFilter,
+        AppointmentOverdueListFilter,
     )
 
     additional_instructions = format_html(
