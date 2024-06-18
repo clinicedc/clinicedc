@@ -225,7 +225,7 @@ def duration_dh_to_timedelta(duration_text: str | CharField) -> timedelta:
 
 def duration_hm_to_timedelta(duration_text: str | CharField) -> timedelta:
     """Returns timedelta from a well-formatted string
-    (specified in days and/or hours).
+    (specified in hours and/or mins).
 
     Will raise an exception if the string cannot be interpreted.
     """
