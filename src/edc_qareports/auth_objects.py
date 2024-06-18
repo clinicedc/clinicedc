@@ -13,7 +13,7 @@ qa_reports_codenames = [
 
 
 custom_codenames = [
-    "edc_qareports.qareports_section",
+    "edc_qareports.nav_qareports_section",
 ]
 
 qa_reports_codenames.extend(custom_codenames)
