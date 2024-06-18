@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.contrib.admin import AdminSite as DjangoAdminSite
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.response import TemplateResponse
+from django.urls import NoReverseMatch, reverse
 from edc_dashboard.utils import get_bootstrap_version
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
@@ -56,6 +57,14 @@ class EdcAdminSite(DjangoAdminSite):
         if not keep_delete_action:
             del self._actions["delete_selected"]
 
+    @property
+    def app_url(self):
+        try:
+            app_url = reverse(f"{self.name}:index")
+        except NoReverseMatch:
+            app_url = "#"
+        return app_url
+
     def each_context(self, request):
         context = super().each_context(request)
         context.update(
@@ -65,6 +74,8 @@ class EdcAdminSite(DjangoAdminSite):
             protocol_name=ResearchProtocolConfig().protocol_name,
             live_system=settings.LIVE_SYSTEM,
             DEBUG=settings.DEBUG,
+            app_url=self.app_url,
+            verbose_name=django_apps.get_app_config(self.app_label).verbose_name,
         )
         return context
 
