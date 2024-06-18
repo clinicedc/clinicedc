@@ -5,7 +5,7 @@ from django.utils.html import format_html
 from edc_constants.constants import NEW
 
 from ..models import QaReportNote
-from . import QaNoteStatusListFilter
+from .list_filters import QaNoteStatusListFilter
 
 
 class QaReportWithNoteModelAdminMixin:
@@ -62,7 +62,7 @@ class QaReportWithNoteModelAdminMixin:
         else:
             url = reverse(f"edc_qareports_admin:{url_name}_change", args=(qa_report_note.id,))
             label = qa_report_note.note[0:35] or "Edit"
-            title = f"Edit"
+            title = "Edit"
         url = (
             f"{url}?next={next_url_name},subject_identifier,q"
             f"&subject_identifier={obj.subject_identifier}"
