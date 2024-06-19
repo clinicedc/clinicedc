@@ -9,6 +9,8 @@ qa_reports_codenames = [
     "edc_qareports.change_qareportnote",
     "edc_qareports.delete_qareportnote",
     "edc_qareports.view_qareportnote",
+    "edc_qareports.view_qareportlog",
+    "edc_qareports.view_qareportlogsummary",
 ]
 
 

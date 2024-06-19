@@ -26,9 +26,9 @@ class QaReportNoteAdmin(
     ModelAdminAuditFieldsMixin,
     ModelAdminFormAutoNumberMixin,
     ModelAdminFormInstructionsMixin,
-    ModelAdminNextUrlRedirectMixin,
     ModelAdminRevisionMixin,  # add
     ModelAdminInstitutionMixin,  # add
+    ModelAdminNextUrlRedirectMixin,
     TemplatesModelAdminMixin,
     admin.ModelAdmin,
 ):

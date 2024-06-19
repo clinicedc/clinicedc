@@ -1,0 +1,1 @@
+from .qa_report_log_summary import QaReportLogSummary
