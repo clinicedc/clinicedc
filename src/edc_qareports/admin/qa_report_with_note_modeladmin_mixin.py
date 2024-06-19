@@ -1,11 +1,11 @@
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
+from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.html import format_html
 from edc_constants.constants import NEW
 
-from ..models import QaReportNote
-from . import QaNoteStatusListFilter
+from ..models import QaReportLog, QaReportNote
+from .list_filters import QaNoteStatusListFilter
 
 
 class QaReportWithNoteModelAdminMixin:
@@ -14,6 +14,20 @@ class QaReportWithNoteModelAdminMixin:
 
     See also, model ReportNote.
     """
+
+    qa_report_log_enabled = True
+
+    def update_qa_report_log(self, request) -> None:
+        QaReportLog.objects.create(
+            username=request.user.username,
+            site=request.site,
+            report_model=self.model._meta.label_lower,
+        )
+
+    def changelist_view(self, request, extra_context=None):
+        if self.qa_report_log_enabled:
+            self.update_qa_report_log(request)
+        return super().changelist_view(request, extra_context=extra_context)
 
     def get_list_display(self, request):
         list_display = super().get_list_display(request)
@@ -62,13 +76,11 @@ class QaReportWithNoteModelAdminMixin:
         else:
             url = reverse(f"edc_qareports_admin:{url_name}_change", args=(qa_report_note.id,))
             label = qa_report_note.note[0:35] or "Edit"
-            title = f"Edit"
+            title = "Edit"
         url = (
             f"{url}?next={next_url_name},subject_identifier,q"
             f"&subject_identifier={obj.subject_identifier}"
             f"&report_model={obj.report_model}&q={obj.subject_identifier}"
         )
-        return format_html(
-            '<a data-toggle="tooltip" title="{}" href="{}">{}</a>',
-            *(title, url, label),
-        )
+        context = dict(title=title, url=url, label=label)
+        return render_to_string("edc_qareports/columns/notes_column.html", context=context)

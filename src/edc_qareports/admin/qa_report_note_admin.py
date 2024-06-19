@@ -26,9 +26,9 @@ class QaReportNoteAdmin(
     ModelAdminAuditFieldsMixin,
     ModelAdminFormAutoNumberMixin,
     ModelAdminFormInstructionsMixin,
-    ModelAdminNextUrlRedirectMixin,
     ModelAdminRevisionMixin,  # add
     ModelAdminInstitutionMixin,  # add
+    ModelAdminNextUrlRedirectMixin,
     TemplatesModelAdminMixin,
     admin.ModelAdmin,
 ):
@@ -37,7 +37,7 @@ class QaReportNoteAdmin(
     form = QaReportNoteForm
     ordering = ["site", "subject_identifier"]
 
-    note_template_name = f"edc_qareports/qa_report_note.html"
+    note_template_name = "edc_qareports/qa_report_note.html"
 
     fieldsets = (
         (
