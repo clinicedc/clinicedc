@@ -27,6 +27,7 @@ class SiteModelAdminMixin:
 
     limit_related_to_current_country: list[str] = None
     limit_related_to_current_site: list[str] = None
+    user_may_view_other_sites = False
 
     @admin.display(description="Site", ordering="site__id")
     def site_code(self, obj=None):
@@ -48,7 +49,7 @@ class SiteModelAdminMixin:
         """
         list_filter = super().get_list_filter(request)
         list_filter = [x for x in list_filter if x != "site" and x != SiteListFilter]
-        if sites.user_may_view_other_sites(request):
+        if self.user_may_view_other_sites or sites.user_may_view_other_sites(request):
             try:
                 index = list_filter.index("created")
             except ValueError:
@@ -56,10 +57,12 @@ class SiteModelAdminMixin:
             list_filter.insert(index, SiteListFilter)
         return tuple(list_filter)
 
-    def get_list_display(self, request):
+    def get_list_display(self, request) -> tuple[str]:
         """Insert `site` after the first column"""
         list_display = super().get_list_display(request)
-        if sites.user_may_view_other_sites(request) and "site" not in list_display:
+        if (
+            self.user_may_view_other_sites or sites.user_may_view_other_sites(request)
+        ) and "site" not in list_display:
             list_display = (list_display[0],) + (self.site_code,) + list_display[1:]
         elif "site" in list_display:
             list_display = tuple(
