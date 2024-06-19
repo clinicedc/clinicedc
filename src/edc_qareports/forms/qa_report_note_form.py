@@ -21,6 +21,7 @@ class QaReportNoteForm(
         fields = "__all__"
         help_text = {"subject_identifier": "(read-only)", "name": "(read-only)"}
         widgets = {
+            "report_model": forms.TextInput(attrs={"readonly": "readonly"}),
             "subject_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
             "name": forms.TextInput(attrs={"readonly": "readonly"}),
         }
