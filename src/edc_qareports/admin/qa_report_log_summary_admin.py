@@ -1,10 +1,8 @@
 from django.apps import apps as django_apps
-from django.conf import settings
 from django.contrib import admin
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
 from edc_model_admin.mixins import ModelAdminInstitutionMixin, TemplatesModelAdminMixin
 from edc_sites.admin import SiteModelAdminMixin
-from edc_utils import convert_php_dateformat
 
 from ..admin_site import edc_qareports_admin
 from ..models import QaReportLogSummary
