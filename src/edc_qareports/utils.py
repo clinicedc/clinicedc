@@ -10,6 +10,8 @@ def read_unmanaged_model_sql(
 ) -> str:
     if not fullpath:
         fullpath = Path(settings.BASE_DIR) / app_name / "models" / "unmanaged" / filename
+    else:
+        fullpath = Path(fullpath)
 
     parsed_sql = []
     with fullpath.open("r") as f:
