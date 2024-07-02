@@ -63,7 +63,7 @@ class SiteModelAdminMixin:
         if (
             self.user_may_view_other_sites or sites.user_may_view_other_sites(request)
         ) and "site" not in list_display:
-            list_display = (list_display[0],) + (self.site_code,) + list_display[1:]
+            list_display = (list_display[0],) + (self.site_code,) + tuple(list_display[1:])
         elif "site" in list_display:
             list_display = tuple(
                 [x for x in list_display if x not in ["site", self.site_code]]
