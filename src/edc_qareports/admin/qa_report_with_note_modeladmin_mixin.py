@@ -16,6 +16,7 @@ class QaReportWithNoteModelAdminMixin:
     """
 
     qa_report_log_enabled = True
+    qa_report_list_display_insert_pos = 3
 
     def update_qa_report_log(self, request) -> None:
         QaReportLog.objects.create(
@@ -32,8 +33,8 @@ class QaReportWithNoteModelAdminMixin:
     def get_list_display(self, request):
         list_display = super().get_list_display(request)
         list_display = list(list_display)
-        list_display.insert(3, "notes")
-        list_display.insert(3, "status")
+        list_display.insert(self.qa_report_list_display_insert_pos, "notes")
+        list_display.insert(self.qa_report_list_display_insert_pos, "status")
         return tuple(list_display)
 
     def get_list_filter(self, request):

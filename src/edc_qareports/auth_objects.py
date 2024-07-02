@@ -1,8 +1,10 @@
 # group names
 QA_REPORTS = "QA_REPORTS"
+QA_REPORTS_AUDIT = "QA_REPORTS_AUDIT"
 
 # role names
 QA_REPORTS_ROLE = "qa_reports_role"
+QA_REPORTS_AUDIT_ROLE = "qa_reports_audit_role"
 
 qa_reports_codenames = [
     "edc_qareports.add_qareportnote",
