@@ -10,6 +10,17 @@ def read_unmanaged_model_sql(
 ) -> str:
     if not fullpath:
         fullpath = Path(settings.BASE_DIR) / app_name / "models" / "unmanaged" / filename
+    else:
+        fullpath = Path(fullpath)
+
+    parsed_sql = []
     with fullpath.open("r") as f:
-        sql = f.read()
-    return sql.replace("\n", " ")
+        for line in f:
+            line = line.split("#", maxsplit=1)[0]
+            line = line.split("-- ", maxsplit=1)[0]
+            line = line.replace("\n", "")
+            line = line.strip()
+            if line:
+                parsed_sql.append(line)
+
+    return " ".join(parsed_sql)
