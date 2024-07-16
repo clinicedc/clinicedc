@@ -1,14 +1,14 @@
-from .default_columns import default_columns
-from .row import FemaleRow, MaleRow, Row, SubjectRow
+# from .custom_tables import (
+#     AgeTable,
+#     ArtTable,
+#     BmiTable,
+#     BpTable,
+#     FbgOgttTable,
+#     FbgTable,
+#     GenderTable,
+#     OgttTable,
+#     WaistCircumferenceTable,
+# )
+from .custom_tables import BpTable
+from .row import RowDefinition, RowStatistics, RowStatisticsWithGender
 from .table import Table
-from .tables import (
-    AgeTable,
-    ArtTable,
-    BmiTable,
-    BpTable,
-    FbgOgttTable,
-    FbgTable,
-    GenderTable,
-    OgttTable,
-    WaistCircumferenceTable,
-)
