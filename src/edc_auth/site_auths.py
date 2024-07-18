@@ -44,6 +44,7 @@ def is_view_codename(codename):
     return (
         "view_" in codename
         or "view_historical" in codename
+        or "nav_" in codename
         or "navbar" in codename
         or "dashboard" in codename
     )
@@ -221,7 +222,8 @@ class SiteAuths:
 
         If codename is a callable, wraps for a later call.
 
-        Does not remove `edc_navbar` and `edc_dashboard` codenames.
+        Does not remove `edc_navbar`, 'nav_' or `edc_dashboard`
+        codenames.
         """
         callables = [lambda: view_only_wrapper(c) for c in codenames if callable(c)]
         view_only_codenames = [
