@@ -14,7 +14,7 @@ class QaReportNote(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUui
     """A model class to capture user / dm notes linked to a data query
     report, such as, unmanaged views.
 
-    Unique contraint is on subject_identifier and the report model.
+    Unique constraint is on subject_identifier and the report model.
 
     See also, QaReportWithNoteModelAdminMixin
     """
