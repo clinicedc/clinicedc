@@ -4,14 +4,24 @@ import json
 
 import mempass
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.handlers.wsgi import WSGIRequest
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.text import slugify
 from django.views.generic.base import TemplateView
-from edc_dashboard.view_mixins import EdcViewMixin
-from edc_protocol.view_mixins import EdcProtocolViewMixin
+
+if getattr(settings, "EDC_PDF_REPORTS_INTEGRATE_EDC", True):
+    from edc_dashboard.view_mixins import EdcViewMixin
+    from edc_protocol.view_mixins import EdcProtocolViewMixin
+else:
+
+    class EdcViewMixin:
+        pass
+
+    class EdcProtocolViewMixin:
+        pass
 
 
 @method_decorator(login_required, name="dispatch")

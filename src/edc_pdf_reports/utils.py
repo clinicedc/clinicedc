@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import models
 from django.db.models import QuerySet
-from edc_crf.model_mixins import CrfModelMixin
 from pypdf import PdfWriter
 
 from .numbered_canvas import NumberedCanvas
@@ -15,7 +14,7 @@ from .numbered_canvas import NumberedCanvas
 if TYPE_CHECKING:
     from .model_mixins import PdfReportModelMixin
 
-    class Model(PdfReportModelMixin, CrfModelMixin, models.Model): ...
+    class Model(PdfReportModelMixin, models.Model): ...  # noqa
 
 
 mkdtemp()
