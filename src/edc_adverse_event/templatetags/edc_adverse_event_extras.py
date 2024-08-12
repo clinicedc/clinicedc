@@ -47,10 +47,14 @@ if TYPE_CHECKING:
 register = template.Library()
 
 
-def wrapx(text, length):
+def wrapx(text: str, length: int) -> str:
     if length:
         return "<BR>".join(wrap(text, length))
     return text
+
+
+def escape_braces(text: str) -> str:
+    return text.replace("{", "{{").replace("}", "}}")
 
 
 def select_ae_template(relative_path):
@@ -78,10 +82,14 @@ def format_ae_description(context, ae_initial, wrap_length):
     context["YES"] = YES
     context["ae_initial"] = ae_initial
     try:
-        context["sae_reason"] = format_html(wrapx(ae_initial.sae_reason.name, wrap_length))
+        context["sae_reason"] = format_html(
+            wrapx(escape_braces(ae_initial.sae_reason.name), wrap_length)
+        )
     except AttributeError:
         context["sae_reason"] = ""
-    context["ae_description"] = format_html(wrapx(ae_initial.ae_description, wrap_length))
+    context["ae_description"] = format_html(
+        wrapx(escape_braces(ae_initial.ae_description), wrap_length)
+    )
     return context
 
 
@@ -96,13 +104,15 @@ def format_ae_followup_description(context, ae_followup, wrap_length):
     context["ae_initial"] = ae_followup.ae_initial
     try:
         context["sae_reason"] = format_html(
-            wrapx(ae_followup.ae_initial.sae_reason.name, wrap_length)
+            wrapx(escape_braces(ae_followup.ae_initial.sae_reason.name), wrap_length)
         )
     except AttributeError:
         context["sae_reason"] = ""
-    context["relevant_history"] = format_html(wrapx(ae_followup.relevant_history, wrap_length))
+    context["relevant_history"] = format_html(
+        wrapx(escape_braces(ae_followup.relevant_history), wrap_length)
+    )
     context["ae_description"] = format_html(
-        wrapx(ae_followup.ae_initial.ae_description, wrap_length)
+        wrapx(escape_braces(ae_followup.ae_initial.ae_description), wrap_length)
     )
     return context
 
@@ -116,10 +126,12 @@ def format_ae_susar_description(context, ae_susar, wrap_length):
     context["ae_susar"] = ae_susar
     context["ae_initial"] = ae_susar.ae_initial
     context["sae_reason"] = format_html(
-        "<BR>".join(wrap(ae_susar.ae_initial.sae_reason.name, wrap_length or 35))
+        "<BR>".join(
+            wrap(escape_braces(ae_susar.ae_initial.sae_reason.name), wrap_length or 35)
+        )
     )
     context["ae_description"] = format_html(
-        wrapx(ae_susar.ae_initial.ae_description, wrap_length)
+        wrapx(escape_braces(ae_susar.ae_initial.ae_description), wrap_length)
     )
     return context
 
