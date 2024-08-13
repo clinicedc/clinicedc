@@ -2,12 +2,20 @@ from pathlib import Path
 
 from django.conf import settings
 
+"""
+use DBView instead
+"""
+
 
 def read_unmanaged_model_sql(
     filename: str | None = None,
     app_name: str | None = None,
     fullpath: str | Path | None = None,
 ) -> str:
+    uuid_func = "uuid()"
+    if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.postgresql":
+        uuid_func = "gen_random_uuid()"
+
     if not fullpath:
         fullpath = Path(settings.BASE_DIR) / app_name / "models" / "unmanaged" / filename
     else:
@@ -23,4 +31,5 @@ def read_unmanaged_model_sql(
             if line:
                 parsed_sql.append(line)
 
-    return " ".join(parsed_sql)
+    sql = " ".join(parsed_sql)
+    return sql.replace("uuid()", uuid_func)

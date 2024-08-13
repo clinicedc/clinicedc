@@ -4,6 +4,7 @@ QA_REPORTS_AUDIT = "QA_REPORTS_AUDIT"
 
 # role names
 QA_REPORTS_ROLE = "qa_reports_role"
+QA_REPORTS_SUPER_ROLE = "qa_reports_super_role"
 QA_REPORTS_AUDIT_ROLE = "qa_reports_audit_role"
 
 qa_reports_codenames = [
@@ -16,12 +17,12 @@ qa_reports_codenames = [
 ]
 
 
-custom_codenames = [
-    "edc_qareports.nav_qareports_section",
-]
-
-qa_reports_codenames.extend(custom_codenames)
-
-custom_codename_tuples = []
-for codename in custom_codenames:
-    custom_codename_tuples.append((codename, f"Can access {codename.split('.')[1]}"))
+# custom_codenames = [
+#     "edc_qareports.nav_qareports_section",
+# ]
+#
+# qa_reports_codenames.extend(custom_codenames)
+#
+# custom_codename_tuples = []
+# for codename in custom_codenames:
+#     custom_codename_tuples.append((codename, f"Can access {codename.split('.')[1]}"))

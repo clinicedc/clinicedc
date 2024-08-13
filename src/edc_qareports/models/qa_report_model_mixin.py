@@ -2,6 +2,8 @@ from django.contrib.sites.models import Site
 from django.db import models
 from django.db.models import PROTECT
 
+qa_reports_permissions = ("view", "export", "viewallsites")
+
 
 class QaReportModelMixin(models.Model):
 
@@ -15,3 +17,4 @@ class QaReportModelMixin(models.Model):
 
     class Meta:
         abstract = True
+        default_permissions = qa_reports_permissions
