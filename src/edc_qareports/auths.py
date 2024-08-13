@@ -9,11 +9,6 @@ from .auth_objects import (
     qa_reports_codenames,
 )
 
-# site_auths.add_custom_permissions_tuples(
-#     model="edc_qareports.edcpermissions", codename_tuples=custom_codename_tuples
-# )
-
-
 # groups
 site_auths.add_group(*qa_reports_codenames, name=QA_REPORTS)
 site_auths.add_group(*qa_reports_codenames, name=QA_REPORTS_AUDIT, view_only=True)

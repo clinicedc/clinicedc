@@ -2,9 +2,8 @@ from django.contrib.admin import SimpleListFilter
 from django.db.models import Count, QuerySet
 from edc_constants.constants import FEEDBACK, NEW
 
-from edc_qareports.models import QaReportNote
-
 from ..choices import QA_NOTE_STATUS
+from ..models import QaReportNote
 
 
 class QaNoteStatusListFilter(SimpleListFilter):

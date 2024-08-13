@@ -15,14 +15,3 @@ qa_reports_codenames = [
     "edc_qareports.view_qareportlog",
     "edc_qareports.view_qareportlogsummary",
 ]
-
-
-# custom_codenames = [
-#     "edc_qareports.nav_qareports_section",
-# ]
-#
-# qa_reports_codenames.extend(custom_codenames)
-#
-# custom_codename_tuples = []
-# for codename in custom_codenames:
-#     custom_codename_tuples.append((codename, f"Can access {codename.split('.')[1]}"))
