@@ -4,6 +4,7 @@ import collections
 from typing import TYPE_CHECKING, Type
 
 from django.contrib import admin
+from django.contrib.auth import get_permission_codename
 from django.core.exceptions import FieldError, ObjectDoesNotExist
 from django.db.models import QuerySet
 
@@ -27,7 +28,32 @@ class SiteModelAdminMixin:
 
     limit_related_to_current_country: list[str] = None
     limit_related_to_current_site: list[str] = None
-    user_may_view_other_sites = False
+
+    def user_may_view_other_sites(self, request) -> bool:
+        return sites.user_may_view_other_sites(request)
+
+    def get_view_only_site_ids_for_user(self, request) -> list[int]:
+        """Returns a list of sites, not including the current, that
+        the user has permissions for.
+
+        If the user has the model specific codename "viewallsites",
+        returns all but the current (e.g. QA Reports model mixin).
+        """
+        if self.has_viewallsites_permission(request):
+            return [
+                s.id for s in request.user.userprofile.sites.all() if s.id != request.site.id
+            ]
+        return sites.get_view_only_site_ids_for_user(request=request)
+
+    def has_viewallsites_permission(self, request, obj=None) -> bool:
+        """Checks if the user has the EDC custom codename
+        "viewallsites" for this model.
+
+        See also: QA Reports model mixin.
+        """
+        opts = self.opts
+        codename_allsites = get_permission_codename("viewallsites", opts)
+        return request.user.has_perm("%s.%s" % (opts.app_label, codename_allsites))
 
     @admin.display(description="Site", ordering="site__id")
     def site_code(self, obj=None):
@@ -49,7 +75,7 @@ class SiteModelAdminMixin:
         """
         list_filter = super().get_list_filter(request)
         list_filter = [x for x in list_filter if x != "site" and x != SiteListFilter]
-        if self.user_may_view_other_sites or sites.user_may_view_other_sites(request):
+        if self.user_may_view_other_sites(request):
             try:
                 index = list_filter.index("created")
             except ValueError:
@@ -60,9 +86,7 @@ class SiteModelAdminMixin:
     def get_list_display(self, request) -> tuple[str]:
         """Insert `site` after the first column"""
         list_display = super().get_list_display(request)
-        if (
-            self.user_may_view_other_sites or sites.user_may_view_other_sites(request)
-        ) and "site" not in list_display:
+        if (self.user_may_view_other_sites(request)) and "site" not in list_display:
             list_display = (list_display[0],) + (self.site_code,) + tuple(list_display[1:])
         elif "site" in list_display:
             list_display = tuple(
@@ -74,7 +98,7 @@ class SiteModelAdminMixin:
     def get_queryset(self, request) -> QuerySet:
         """Limit modeladmin queryset for the current site only"""
         qs = super().get_queryset(request)
-        site_ids = [request.site.id] + sites.get_view_only_site_ids_for_user(request=request)
+        site_ids = [request.site.id] + self.get_view_only_site_ids_for_user(request=request)
         try:
             qs = qs.select_related("site").filter(site_id__in=site_ids)
         except FieldError:

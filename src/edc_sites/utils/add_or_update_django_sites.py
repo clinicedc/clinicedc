@@ -3,6 +3,7 @@ from __future__ import annotations
 import sys
 
 from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
 
 from ..single_site import SingleSite
 from .get_or_create_site_obj import get_or_create_site_obj
@@ -38,7 +39,15 @@ def add_or_update_django_sites(
         sys.stdout.write("  * updating sites.\n")
     apps = apps or django_apps
     site_model_cls = apps.get_model("sites", "Site")
-    site_model_cls.objects.filter(name="example.com").delete()
+    try:
+        obj = site_model_cls.objects.get(name="example.com")
+    except ObjectDoesNotExist:
+        pass
+    else:
+        # Delete will fail if you have an unmanaged model with an FK
+        # to Site. See the comment in edc_appconfig.apps about why we
+        # unregister `create_default_site` post_migrate signal.
+        obj.delete()
     if not single_sites:
         single_sites = get_sites().all().values()
     if not single_sites:
