@@ -158,12 +158,13 @@ class AppConfig(DjangoAppConfig):
 
         See also: edc_qareports.models.dbviews
         """
-        sys.stdout.write(
-            " * unregistering django post-migrate signal `create_default_site` ...\n"
-        )
-        post_migrate.disconnect(
-            create_default_site, sender=django_apps.get_app_config("sites")
-        )
+        if not getattr(settings, "EDC_SITES_CREATE_DEFAULT", True):
+            sys.stdout.write(
+                " * unregistering django post-migrate signal `create_default_site` ...\n"
+            )
+            post_migrate.disconnect(
+                create_default_site, sender=django_apps.get_app_config("sites")
+            )
 
     def register_post_migrate_signals(self):
         """Register post-migrate signals."""
