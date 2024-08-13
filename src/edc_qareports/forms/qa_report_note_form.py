@@ -1,9 +1,14 @@
 from django import forms
-from edc_form_validators import FormValidatorMixin
+from edc_form_validators import FormValidator, FormValidatorMixin
 from edc_model_form.mixins import BaseModelFormMixin
 from edc_sites.modelform_mixins import SiteModelFormMixin
 
 from ..models import QaReportNote
+
+
+class QaReportNoteFormValidator(FormValidator):
+    def clean(self):
+        self.required_if_true(True, field_required="note")
 
 
 class QaReportNoteForm(
@@ -14,7 +19,7 @@ class QaReportNoteForm(
 ):
 
     report_datetime_field_attr = "report_datetime"
-    form_validator_cls = None
+    form_validator_cls = QaReportNoteFormValidator
 
     class Meta:
         model = QaReportNote

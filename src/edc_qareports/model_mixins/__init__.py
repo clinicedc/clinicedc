@@ -1,0 +1,1 @@
+from .qa_report_linked_column_model_mixin import QaReportWithLinkedColumnModelMixin
