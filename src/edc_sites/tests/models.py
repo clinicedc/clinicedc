@@ -10,3 +10,6 @@ class TestModelWithSite(SiteModelMixin, models.Model):
     objects = models.Manager()
 
     on_site = CurrentSiteManager()
+
+    class Meta:
+        verbose_name = "Test Model"

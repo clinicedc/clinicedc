@@ -1,4 +1,5 @@
-from ..single_site import SingleSite
+from edc_sites.single_site import SingleSite
+
 from .sites import sites
 
 

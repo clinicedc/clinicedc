@@ -255,6 +255,14 @@ class Sites:
                     add_to_messages_once(
                         request, messages.WARNING, get_message_text(messages.WARNING)
                     )
+        # else:
+        #     if self.has_viewallsites_permission(request):
+        #         site_ids = [
+        #             s.id
+        #             for s in request.user.userprofile.sites.all()
+        #             if s.id != request.site.id
+        #         ]
+
         return site_ids
 
     def user_may_view_other_sites(
