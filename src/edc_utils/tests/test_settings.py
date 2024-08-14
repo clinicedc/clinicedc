@@ -12,14 +12,7 @@ project_settings = DefaultTestSettings(
     BASE_DIR=base_dir,
     APP_NAME=app_name,
     ETC_DIR=str(base_dir / app_name / "tests" / "etc"),
-    SILENCED_SYSTEM_CHECKS=[
-        "sites.E101",
-        "edc_navbar.E002",
-        "edc_navbar.E003",
-        "edc_consent.E001",
-        "edc_sites.E001",
-        "edc_sites.E002",
-    ],
+    SILENCED_SYSTEM_CHECKS=["sites.E101", "edc_sites.E001", "edc_sites.E002"],
     SUBJECT_VISIT_MODEL="edc_visit_tracking.subjectvisit",
     INSTALLED_APPS=[
         "django.contrib.admin",
