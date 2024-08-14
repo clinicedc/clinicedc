@@ -5,7 +5,7 @@ from edc_model.models import BaseUuidModel
 from ..model_mixins import NoteModelMixin
 
 
-class QaReportNote(NonUniqueSubjectIdentifierFieldMixin, NoteModelMixin):
+class Note(NonUniqueSubjectIdentifierFieldMixin, NoteModelMixin):
     """A model class to capture user / dm notes linked to a data query
     report, such as, unmanaged views.
 

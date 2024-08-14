@@ -1,109 +1,101 @@
-from django.apps import apps as django_apps
 from django.contrib import admin
-from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
-from django.urls import reverse
-from edc_constants.constants import NEW
+from django.urls import NoReverseMatch, reverse
+from django.utils.html import format_html
+from django_audit_fields import ModelAdminAuditFieldsMixin, audit_fieldset_tuple
+from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
+from edc_model_admin.dashboard import ModelAdminDashboardMixin
+from edc_model_admin.mixins import (
+    ModelAdminFormAutoNumberMixin,
+    ModelAdminFormInstructionsMixin,
+    ModelAdminInstitutionMixin,
+    ModelAdminNextUrlRedirectMixin,
+    TemplatesModelAdminMixin,
+)
+from edc_sites.admin import SiteModelAdminMixin
 
-from ..models import QaReportLog
-from ..utils import truncate_string
-from .list_filters import NoteStatusListFilter
+from ..admin_site import edc_qareports_admin
+from ..forms import QaReportNoteForm
+from ..models import Note
 
 
-class NoteModelAdminMixin:
-    """A mixin to link a data management report to a note (with status)
-     on each report item.
+@admin.register(Note, site=edc_qareports_admin)
+class NoteModelAdminMixin(
+    SiteModelAdminMixin,
+    ModelAdminDashboardMixin,
+    ModelAdminAuditFieldsMixin,
+    ModelAdminFormAutoNumberMixin,
+    ModelAdminFormInstructionsMixin,
+    ModelAdminRevisionMixin,  # add
+    ModelAdminInstitutionMixin,  # add
+    ModelAdminNextUrlRedirectMixin,
+    TemplatesModelAdminMixin,
+    admin.ModelAdmin,
+):
+    """A modeladmin class for the QaReportNote model."""
 
-    note_model_cls/template can be overridden in concrete classes.
-    """
+    form = QaReportNoteForm
+    ordering = ["site", "subject_identifier"]
 
-    qa_report_log_enabled = True
-    qa_report_list_display_insert_pos = 3
+    note_template_name = "edc_qareports/qa_report_note.html"
 
-    note_model_cls = django_apps.get_model("edc_qareports.qareportnote")
-    note_template = "edc_qareports/columns/notes_column.html"
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "note",
+                    "status",
+                    "subject_identifier",
+                    "report_model",
+                    "report_datetime",
+                )
+            },
+        ),
+        audit_fieldset_tuple,
+    )
 
-    def update_qa_report_log(self, request) -> None:
-        QaReportLog.objects.create(
-            username=request.user.username,
-            site=request.site,
-            report_model=self.model._meta.label_lower,
+    list_display = [
+        "dashboard",
+        "subject_identifier",
+        "report",
+        "status",
+        "report_note",
+        "report_datetime",
+    ]
+
+    radio_fields = {"status": admin.VERTICAL}
+
+    list_filter = [
+        "report_datetime",
+        "status",
+        "report_model",
+        "user_created",
+        "user_modified",
+    ]
+
+    search_fields = ["subject_identifier", "name"]
+
+    @admin.display(description="Report", ordering="report_name")
+    def report(self, obj=None):
+        app_label, model = obj.report_model_cls._meta.label_lower.split(".")
+        changelist_url = "_".join([app_label, model, "changelist"])
+        try:
+            # assume admin site naming convention
+            url = reverse(f"{app_label}_admin:{changelist_url}")
+        except NoReverseMatch:
+            # TODO: find the admin site where this model is registered
+            url = "#"
+        return format_html(
+            '<a data-toggle="tooltip" title="go to report" href="{}?q={}">{}</a>',
+            *(url, obj.subject_identifier, obj.report_model_cls._meta.verbose_name),
         )
 
-    def changelist_view(self, request, extra_context=None):
-        if self.qa_report_log_enabled:
-            self.update_qa_report_log(request)
-        return super().changelist_view(request, extra_context=extra_context)
+    @admin.display(description="QA Note", ordering="note")
+    def report_note(self, obj=None):
+        context = dict(note=obj.note)
+        return render_to_string(self.note_template_name, context)
 
-    def get_list_display(self, request):
-        list_display = super().get_list_display(request)
-        list_display = list(list_display)
-        list_display.insert(self.qa_report_list_display_insert_pos, "notes")
-        list_display.insert(self.qa_report_list_display_insert_pos, "status")
-        return tuple(list_display)
-
-    def get_list_filter(self, request):
-        list_filter = super().get_list_filter(request)
-        list_filter = list(list_filter)
-        list_filter.insert(0, NoteStatusListFilter)
-        return tuple(list_filter)
-
-    def get_note_model_obj_or_raise(self, obj=None):
-        try:
-            note_model_obj = self.note_model_cls.objects.get(
-                report_model=obj.report_model, subject_identifier=obj.subject_identifier
-            )
-        except ObjectDoesNotExist:
-            raise
-        return note_model_obj
-
-    @admin.display(description="Status")
-    def status(self, obj) -> str:
-        try:
-            note_model_obj = self.get_note_model_obj_or_raise(obj)
-        except ObjectDoesNotExist:
-            status = NEW
-        else:
-            status = note_model_obj.status
-        return status.title()
-
-    @admin.display(description="Notes")
-    def notes(self, obj=None) -> str:
-        """Returns url to add or edit qa_report note model."""
-        note_app_label, note_model_name = self.note_model_cls._meta.label_lower.split(".")
-        note_url_name = f"{note_app_label}_{note_model_name}"
-
-        report_app_label, report_model_name = self.model._meta.label_lower.split(".")
-        next_url_name = "_".join([report_app_label, report_model_name, "changelist"])
-        next_url_name = f"{report_app_label}_admin:{next_url_name}"
-
-        try:
-            note_model_obj = self.get_note_model_obj_or_raise(obj)
-        except ObjectDoesNotExist:
-            note_model_obj = None
-            url = reverse(f"{note_app_label}_admin:{note_url_name}_add")
-            title = "Add"
-        else:
-            url = reverse(
-                f"{note_app_label}_admin:{note_url_name}_change",
-                args=(note_model_obj.id,),
-            )
-            title = "Edit"
-
-        url = (
-            f"{url}?next={next_url_name},subject_identifier,q"
-            f"&subject_identifier={obj.subject_identifier}"
-            f"&report_model={obj.report_model}&q={obj.subject_identifier}"
-        )
-        label = self.get_notes_label(note_model_obj)
-        context = dict(title=title, url=url, label=label)
-        return render_to_string(self.note_template, context=context)
-
-    def get_notes_label(self, obj, field_name=None):
-        if not obj:
-            label = "Add"
-        elif not obj.note:
-            label = "Edit"
-        else:
-            label = truncate_string(obj.note, max_length=35)
-        return label
+    def redirect_url(self, request, obj, post_url_continue=None) -> str | None:
+        redirect_url = super().redirect_url(request, obj, post_url_continue=post_url_continue)
+        return f"{redirect_url}?q={obj.subject_identifier}"
