@@ -3,6 +3,8 @@ from django_audit_fields.models import AuditModelMixin
 
 from .url_model_mixin import UrlModelMixin
 
+edc_default_permissions = ("add", "change", "delete", "view", "export", "import")
+
 
 class BaseModel(UrlModelMixin, AuditModelMixin, models.Model):
     """Base model class for all EDC models. Adds created and modified'
@@ -17,6 +19,6 @@ class BaseModel(UrlModelMixin, AuditModelMixin, models.Model):
 
     class Meta(AuditModelMixin.Meta):
         abstract = True
-        default_permissions = ("add", "change", "delete", "view", "export", "import")
+        default_permissions = edc_default_permissions
         default_manager_name = "objects"
         indexes = AuditModelMixin.Meta.indexes
