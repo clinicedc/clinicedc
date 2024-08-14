@@ -1,1 +1,1 @@
-from .qa_report_note_form import QaReportNoteForm
+from .note_form import NoteForm
