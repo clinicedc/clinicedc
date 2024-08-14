@@ -3,6 +3,8 @@ from django_audit_fields.models import AuditUuidModelMixin
 
 from .url_model_mixin import UrlModelMixin
 
+default_permissions = ("add", "change", "delete", "view", "export", "import")
+
 
 class BaseUuidModel(UrlModelMixin, AuditUuidModelMixin, models.Model):
     """Default manager must be `objects` for modelform validation to
@@ -13,6 +15,6 @@ class BaseUuidModel(UrlModelMixin, AuditUuidModelMixin, models.Model):
 
     class Meta(AuditUuidModelMixin.Meta):
         abstract = True
-        default_permissions = ("add", "change", "delete", "view", "export", "import")
+        default_permissions = default_permissions
         default_manager_name = "objects"
         indexes = AuditUuidModelMixin.Meta.indexes
