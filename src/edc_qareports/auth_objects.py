@@ -8,10 +8,10 @@ QA_REPORTS_SUPER_ROLE = "qa_reports_super_role"
 QA_REPORTS_AUDIT_ROLE = "qa_reports_audit_role"
 
 qa_reports_codenames = [
-    "edc_qareports.add_qareportnote",
-    "edc_qareports.change_qareportnote",
-    "edc_qareports.delete_qareportnote",
-    "edc_qareports.view_qareportnote",
+    "edc_qareports.add_note",
+    "edc_qareports.change_note",
+    "edc_qareports.delete_note",
+    "edc_qareports.view_note",
     "edc_qareports.view_qareportlog",
     "edc_qareports.view_qareportlogsummary",
 ]

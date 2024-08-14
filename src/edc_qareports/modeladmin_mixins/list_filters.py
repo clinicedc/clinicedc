@@ -1,6 +1,6 @@
 from django.contrib.admin import SimpleListFilter
 from django.db.models import Count, QuerySet
-from edc_constants.constants import FEEDBACK, NEW
+from edc_constants.constants import CLOSED, NEW, PENDING
 
 from ..choices import NOTE_STATUSES
 
@@ -41,17 +41,24 @@ class NoteStatusListFilter(SimpleListFilter):
     def queryset(self, request, queryset):
         if self.value() and self.value() != "none":
             if report_model := self.report_model(queryset):
-                if self.value() == FEEDBACK:
+                if self.value() == NEW:
                     qs = self.note_model_cls.objects.values("subject_identifier").filter(
-                        report_model=report_model, status=FEEDBACK
+                        report_model=report_model
+                    )
+                    queryset = queryset.exclude(
+                        subject_identifier__in=[obj.get("subject_identifier") for obj in qs]
+                    )
+                elif self.value() == PENDING:
+                    qs = self.note_model_cls.objects.values("subject_identifier").filter(
+                        report_model=report_model, status=PENDING
                     )
                     queryset = queryset.filter(
                         subject_identifier__in=[obj.get("subject_identifier") for obj in qs]
                     )
-                elif self.value() == NEW:
+                elif self.value() == CLOSED:
                     qs = self.note_model_cls.objects.values("subject_identifier").filter(
                         report_model=report_model,
-                        status=FEEDBACK,
+                        status=CLOSED,
                     )
                     queryset = queryset.exclude(
                         subject_identifier__in=[obj.get("subject_identifier") for obj in qs]

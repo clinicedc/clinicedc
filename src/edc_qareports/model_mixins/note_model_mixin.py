@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 from django.db import models
-from edc_constants.constants import FEEDBACK, NEW
+from edc_constants.constants import NEW, PENDING
 from edc_model.models import BaseUuidModel
 from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
@@ -25,7 +25,7 @@ class NoteModelMixin(SiteModelMixin, BaseUuidModel):
 
     def save(self, *args, **kwargs):
         if self.status == NEW:
-            self.status = FEEDBACK
+            self.status = PENDING
         super().save(*args, **kwargs)
 
     @property

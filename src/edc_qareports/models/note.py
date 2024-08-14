@@ -18,8 +18,8 @@ class Note(NonUniqueSubjectIdentifierFieldMixin, NoteModelMixin):
         return f"{self._meta.verbose_name}: {self.subject_identifier}"
 
     class Meta(BaseUuidModel.Meta):
-        verbose_name = "QA Report Note"
-        verbose_name_plural = "QA Report Notes"
+        verbose_name = "Note"
+        verbose_name_plural = "Notes"
         constraints = [
             UniqueConstraint(
                 fields=["report_model", "subject_identifier"],
