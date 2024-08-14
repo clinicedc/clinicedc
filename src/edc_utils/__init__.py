@@ -11,6 +11,7 @@ from .show_urls import show_url_names, show_urls
 from .text import (
     convert_from_camel,
     convert_php_dateformat,
+    escape_braces,
     formatted_date,
     formatted_datetime,
     get_safe_random_string,
@@ -26,6 +27,7 @@ __all__ = [
     "convert_php_dateformat",
     "edc_context_processors_check",
     "edc_middleware_check",
+    "escape_braces",
     "floor_secs",
     "formatted_age",
     "formatted_date",
