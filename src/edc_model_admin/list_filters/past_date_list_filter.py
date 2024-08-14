@@ -34,6 +34,7 @@ class PastDateListFilter(SimpleListFilter):
             (THIS_MONTH, _("This month")),
             (LAST_MONTH, _("Last month")),
             (PAST_DATE, _("Any past date")),
+            (FUTURE_DATE, _("Any future date")),
             (IS_NULL, _("No date")),
             (NOT_NULL, _("Has date")),
         )
