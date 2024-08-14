@@ -17,6 +17,7 @@ style = color_style()
 class AppConfig(DjangoAppConfig):
     name = "edc_auth"
     verbose_name = "Edc Authentication"
+    default_auto_field = "django.db.models.BigAutoField"
 
     def ready(self):
         register(check_etc_dir, Tags.security, deploy=True)

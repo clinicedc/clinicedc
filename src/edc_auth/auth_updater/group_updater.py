@@ -66,6 +66,7 @@ class GroupUpdater:
             "nav",
             "display",
             "special",
+            "viewallsites",
         ]
 
     def update_groups(self):
