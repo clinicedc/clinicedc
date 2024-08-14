@@ -91,3 +91,15 @@ def formatted_date(dte, php_dateformat=None):
         php_dateformat = php_dateformat or settings.SHORT_DATE_FORMAT
         return dte.strftime(convert_php_dateformat(php_dateformat))
     return ""
+
+
+def escape_braces(text: str) -> str:
+    """Escapes text that may contain one or more braces
+    (e.g., user supplied text) that is eventually passed to
+    string.format() (where the inclusion of braces would and raise
+    a ValueError)
+
+    e.g.,
+    `format_html(escape_braces("string with {braces} to escape"))`
+    """
+    return text.replace("{", "{{").replace("}", "}}")
