@@ -1,6 +1,6 @@
 from .address_mixin import AddressMixin
 from .base_model import BaseModel
-from .base_uuid_model import BaseUuidModel
+from .base_uuid_model import BaseUuidModel, default_permissions
 from .fields import (
     DurationDHField,
     DurationYMDField,
