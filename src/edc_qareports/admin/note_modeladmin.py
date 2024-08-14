@@ -32,7 +32,7 @@ class NoteModelAdmin(
     TemplatesModelAdminMixin,
     admin.ModelAdmin,
 ):
-    """A modeladmin class for the QaReportNote model."""
+    """A modeladmin class for the Note model."""
 
     form = NoteForm
     ordering = ["site", "subject_identifier"]
