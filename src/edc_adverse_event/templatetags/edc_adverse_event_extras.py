@@ -15,7 +15,7 @@ from edc_action_item.utils import get_reference_obj
 from edc_constants.constants import CLOSED, OPEN, OTHER, YES
 from edc_dashboard.utils import get_bootstrap_version
 from edc_model_admin.utils import add_to_messages_once
-from edc_utils import get_utcnow
+from edc_utils import escape_braces, get_utcnow
 
 from ..constants import AE_WITHDRAWN, TMG_ROLE
 from ..utils import get_adverse_event_app_label, get_ae_model, has_valid_tmg_perms
@@ -51,10 +51,6 @@ def wrapx(text: str, length: int) -> str:
     if length:
         return "<BR>".join(wrap(text, length))
     return text
-
-
-def escape_braces(text: str) -> str:
-    return text.replace("{", "{{").replace("}", "}}")
 
 
 def select_ae_template(relative_path):
