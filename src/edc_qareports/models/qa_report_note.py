@@ -2,16 +2,16 @@ from django.db.models import UniqueConstraint
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel
 
-from ..model_mixins import QaReportWithLinkedColumnModelMixin
+from ..model_mixins import NoteModelMixin
 
 
-class QaReportNote(NonUniqueSubjectIdentifierFieldMixin, QaReportWithLinkedColumnModelMixin):
+class QaReportNote(NonUniqueSubjectIdentifierFieldMixin, NoteModelMixin):
     """A model class to capture user / dm notes linked to a data query
     report, such as, unmanaged views.
 
     Unique constraint is on subject_identifier and the report model.
 
-    See also, QaReportWithNoteModelAdminMixin
+    See also, NoteModelAdminMixin
     """
 
     def __str__(self) -> str:

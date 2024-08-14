@@ -1,1 +1,2 @@
-from .qa_report_linked_column_model_mixin import QaReportWithLinkedColumnModelMixin
+from .note_model_mixin import NoteModelMixin
+from .qa_report_model_mixin import QaReportModelMixin
