@@ -20,7 +20,7 @@ class QaReportModelAdminMixin:
     qa_report_log_enabled = True
     qa_report_list_display_insert_pos = 3
 
-    note_model_cls = django_apps.get_model("edc_qareports.qareportnote")
+    note_model_cls = django_apps.get_model("edc_qareports.note")
     note_template = "edc_qareports/columns/notes_column.html"
 
     def update_qa_report_log(self, request) -> None:
