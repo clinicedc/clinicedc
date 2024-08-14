@@ -4,7 +4,6 @@ from pathlib import Path
 
 from edc_test_settings.default_test_settings import DefaultTestSettings
 
-app_name = "edc_model_admin"
 base_dir = Path(__file__).parent.parent
 
 project_settings = DefaultTestSettings(
@@ -12,7 +11,7 @@ project_settings = DefaultTestSettings(
     template_dirs=[str(base_dir / "tests" / "templates")],
     DEBUG=True,
     BASE_DIR=base_dir,
-    APP_NAME=app_name,
+    APP_NAME="edc_model_admin",
     ETC_DIR=base_dir / "etc",
     DJANGO_CRYPTO_FIELDS_KEY_PATH=base_dir / "tests" / "etc",
     GIT_DIR=base_dir.parent,
