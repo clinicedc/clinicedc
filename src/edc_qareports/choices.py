@@ -1,6 +1,7 @@
-from edc_constants.constants import FEEDBACK, NEW
+from edc_constants.constants import CLOSED, NEW, PENDING
 
-QA_NOTE_STATUS = (
+NOTE_STATUSES = (
     (NEW, "New"),
-    (FEEDBACK, "Feedback"),
+    (PENDING, "Data is pending"),
+    (CLOSED, "Data not available"),
 )

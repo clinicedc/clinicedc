@@ -15,12 +15,12 @@ from edc_model_admin.mixins import (
 from edc_sites.admin import SiteModelAdminMixin
 
 from ..admin_site import edc_qareports_admin
-from ..forms import QaReportNoteForm
-from ..models import QaReportNote
+from ..forms import NoteForm
+from ..models import Note
 
 
-@admin.register(QaReportNote, site=edc_qareports_admin)
-class QaReportNoteAdmin(
+@admin.register(Note, site=edc_qareports_admin)
+class NoteModelAdmin(
     SiteModelAdminMixin,
     ModelAdminDashboardMixin,
     ModelAdminAuditFieldsMixin,
@@ -32,9 +32,9 @@ class QaReportNoteAdmin(
     TemplatesModelAdminMixin,
     admin.ModelAdmin,
 ):
-    """A modeladmin class for the QaReportNote model."""
+    """A modeladmin class for the Note model."""
 
-    form = QaReportNoteForm
+    form = NoteForm
     ordering = ["site", "subject_identifier"]
 
     note_template_name = "edc_qareports/qa_report_note.html"
@@ -44,11 +44,11 @@ class QaReportNoteAdmin(
             None,
             {
                 "fields": (
+                    "subject_identifier",
+                    "report_datetime",
                     "note",
                     "status",
-                    "subject_identifier",
                     "report_model",
-                    "report_datetime",
                 )
             },
         ),
