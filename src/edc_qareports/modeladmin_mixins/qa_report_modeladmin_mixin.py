@@ -99,7 +99,7 @@ class QaReportModelAdminMixin:
         context = dict(title=title, url=url, label=label)
         return render_to_string(self.note_template, context=context)
 
-    def get_notes_label(self, obj, field_name=None):
+    def get_notes_label(self, obj):
         if not obj:
             label = "Add"
         elif not obj.note:
