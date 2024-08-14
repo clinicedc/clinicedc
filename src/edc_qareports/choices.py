@@ -1,6 +1,6 @@
 from edc_constants.constants import FEEDBACK, NEW
 
-QA_NOTE_STATUS = (
+NOTE_STATUSES = (
     (NEW, "New"),
     (FEEDBACK, "Feedback"),
 )

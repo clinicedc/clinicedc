@@ -1,5 +1,5 @@
-from .list_filters import QaNoteStatusListFilter
+from .list_filters import NoteStatusListFilter
+from .note_modeladmin_mixin import NoteModelAdminMixin
 from .qa_report_log_admin import QaReportLogAdmin
 from .qa_report_log_summary_admin import QaReportLogSummaryAdmin
 from .qa_report_note_admin import QaReportNoteAdmin
-from .qa_report_with_note_modeladmin_mixin import QaReportWithNoteModelAdminMixin
