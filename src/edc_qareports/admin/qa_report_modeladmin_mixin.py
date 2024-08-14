@@ -20,7 +20,7 @@ from ..models import QaReportNote
 
 
 @admin.register(QaReportNote, site=edc_qareports_admin)
-class QaReportNoteAdmin(
+class QaReportModelAdminMixin(
     SiteModelAdminMixin,
     ModelAdminDashboardMixin,
     ModelAdminAuditFieldsMixin,
