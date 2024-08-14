@@ -15,13 +15,20 @@ class QaReportModelAdminMixin:
      on each report item.
 
     note_model_cls/template can be overridden in concrete classes.
+
+    To use a custom Note model class, set `note_model_cls` to your
+    custom model that uses the `NoteModelMixin`.
     """
 
     qa_report_log_enabled = True
     qa_report_list_display_insert_pos = 3
 
-    note_model_cls = django_apps.get_model("edc_qareports.note")
+    note_model = "edc_qareports.note"
     note_template = "edc_qareports/columns/notes_column.html"
+
+    @property
+    def note_model_cls(self):
+        return django_apps.get_model(self.note_model)
 
     def update_qa_report_log(self, request) -> None:
         QaReportLog.objects.create(

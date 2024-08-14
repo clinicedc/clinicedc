@@ -2,7 +2,7 @@ from django.contrib.sites.models import Site
 from django.db import models
 from django.db.models import PROTECT
 
-qa_reports_permissions = ("view", "export", "viewallsites")
+from .qa_reports_permissions import qa_reports_permissions
 
 
 class QaReportModelMixin(models.Model):

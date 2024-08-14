@@ -1,6 +1,11 @@
+import pdb
 from pathlib import Path
 
+from django.apps import apps as django_apps
 from django.conf import settings
+from edc_auth.get_app_codenames import get_app_codenames
+
+from .model_mixins import qa_reports_permissions
 
 """
 use DBView instead
@@ -43,3 +48,20 @@ def truncate_string(string: str, max_length: int) -> str:
     if len(string) > max_length:
         return string[: max_length - 1].strip() + "…"
     return string
+
+
+def get_qareports_codenames(app_name: str, *note_models: str) -> list[str]:
+    reports_codenames = []
+    effect_reports = django_apps.get_app_config(app_name)
+    report_models = [m._meta.label_lower for m in effect_reports.get_models()]
+    for codename in get_app_codenames(
+        app_name,
+        permissions=qa_reports_permissions,
+        exclude_models=note_models,
+    ):
+        reports_codenames.append(codename)
+    exclude_models = [m for m in report_models if m not in note_models]
+    reports_codenames.extend(
+        [c for c in get_app_codenames(app_name, exclude_models=exclude_models)]
+    )
+    return list(set(reports_codenames))

@@ -44,11 +44,11 @@ class NoteModelAdmin(
             None,
             {
                 "fields": (
+                    "subject_identifier",
+                    "report_datetime",
                     "note",
                     "status",
-                    "subject_identifier",
                     "report_model",
-                    "report_datetime",
                 )
             },
         ),
