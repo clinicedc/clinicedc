@@ -2,7 +2,7 @@ from django.contrib.sites.models import Site
 from django.db import models
 from django_db_views.db_view import DBView
 
-from ..qa_report_model_mixin import qa_reports_permissions
+from ...model_mixins import qa_reports_permissions
 from .view_definition import get_view_definition
 
 
