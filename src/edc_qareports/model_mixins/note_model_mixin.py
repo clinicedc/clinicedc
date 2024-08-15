@@ -21,12 +21,7 @@ class NoteModelMixin(SiteModelMixin, BaseUuidModel):
 
     note = models.TextField(null=True, blank=True)
 
-    status = models.CharField(max_length=25, default=NEW, choices=NOTE_STATUSES)
-
-    def save(self, *args, **kwargs):
-        if self.status == NEW:
-            self.status = PENDING
-        super().save(*args, **kwargs)
+    status = models.CharField(max_length=25, choices=NOTE_STATUSES, null=True, blank=False)
 
     @property
     def report_model_cls(self):
