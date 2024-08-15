@@ -18,6 +18,9 @@ def get_app_codenames(
     """Prepares and returns an ordered list of codenames for the
     common edc project apps to be used in `auth_objects`.
 
+    Reads default_permissions from model.Meta or permissions
+    to build a list of codenames for each model in the app_config.
+
     For example, in `auths.py`:
 
         clinic_codenames = get_app_codenames(
@@ -27,9 +30,6 @@ def get_app_codenames(
 
     clinic_codenames: list[str] = []
     autocomplete_models = autocomplete_models or []
-    prefixes = (
-        [f"{s}_" for s in permissions] if permissions else ["add_", "change_", "delete_"]
-    )
     exclude_models = exclude_models or []
     try:
         app_config = django_apps.get_app_config(list_app)
@@ -45,15 +45,36 @@ def get_app_codenames(
             pass
         else:
             for model_cls in get_models(app_config, exclude_models):
-                label_lower: str = model_cls._meta.label_lower
-                model_name: str = model_cls._meta.model_name
-                if "historical" in label_lower:
-                    clinic_codenames.append(f"{app_config.name}.view_{model_name}")
-                elif label_lower in autocomplete_models:
-                    clinic_codenames.append(f"{app_config.name}.view_{model_name}")
-                else:
-                    clinic_codenames.append(f"{app_config.name}.view_{model_name}")
-                    for prefix in prefixes:
-                        clinic_codenames.append(f"{app_config.name}.{prefix}{model_name}")
+                clinic_codenames.extend(
+                    get_codename(
+                        app_config.name,
+                        model_cls,
+                        autocomplete_models,
+                        override_permissions=permissions,
+                    )
+                )
     clinic_codenames.sort()
     return clinic_codenames
+
+
+def get_codename(
+    app_name,
+    model_cls,
+    autocomplete_models: list[str] | None = None,
+    override_permissions: list[str] | None = None,
+) -> list[str]:
+    codenames = []
+    autocomplete_models = autocomplete_models or []
+    label_lower: str = model_cls._meta.label_lower
+    model_name: str = model_cls._meta.model_name
+    if "historical" in label_lower:
+        codenames.append(f"{app_name}.view_{model_name}")
+    elif label_lower in autocomplete_models:
+        codenames.append(f"{app_name}.view_{model_name}")
+    else:
+        # codename = f"{app_name}.view_{model_name}"
+        permissions = override_permissions or model_cls._meta.default_permissions
+        prefixes = [f"{s}_" for s in permissions]
+        for prefix in prefixes:
+            codenames.append(f"{app_name}.{prefix}{model_name}")
+    return codenames
