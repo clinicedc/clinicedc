@@ -14,6 +14,7 @@ def get_app_codenames(
     autocomplete_models: list[str] | None = None,
     permissions: list[str] | None = None,
     exclude_models: list[str] | tuple[str, ...] | None = None,
+    include_import_export: bool | None = None,
 ) -> list[str]:
     """Prepares and returns an ordered list of codenames for the
     common edc project apps to be used in `auth_objects`.
@@ -28,7 +29,7 @@ def get_app_codenames(
         )
     """
 
-    clinic_codenames: list[str] = []
+    codenames: list[str] = []
     autocomplete_models = autocomplete_models or []
     exclude_models = exclude_models or []
     try:
@@ -37,7 +38,7 @@ def get_app_codenames(
         pass
     else:
         for model_cls in get_models(app_config, exclude_models):
-            clinic_codenames.append(f"{app_config.name}.view_{model_cls._meta.model_name}")
+            codenames.append(f"{app_config.name}.view_{model_cls._meta.model_name}")
     for name in crud_apps:
         try:
             app_config = django_apps.get_app_config(name)
@@ -45,16 +46,17 @@ def get_app_codenames(
             pass
         else:
             for model_cls in get_models(app_config, exclude_models):
-                clinic_codenames.extend(
+                codenames.extend(
                     get_codename(
                         app_config.name,
                         model_cls,
                         autocomplete_models,
                         override_permissions=permissions,
+                        include_import_export=include_import_export,
                     )
                 )
-    clinic_codenames.sort()
-    return clinic_codenames
+    codenames.sort()
+    return codenames
 
 
 def get_codename(
@@ -62,6 +64,7 @@ def get_codename(
     model_cls,
     autocomplete_models: list[str] | None = None,
     override_permissions: list[str] | None = None,
+    include_import_export: bool | None = None,
 ) -> list[str]:
     codenames = []
     autocomplete_models = autocomplete_models or []
@@ -72,8 +75,11 @@ def get_codename(
     elif label_lower in autocomplete_models:
         codenames.append(f"{app_name}.view_{model_name}")
     else:
-        # codename = f"{app_name}.view_{model_name}"
         permissions = override_permissions or model_cls._meta.default_permissions
+        if not include_import_export:
+            permissions = [
+                x for x in permissions if x not in ["export", "import", "viewallsites"]
+            ]
         prefixes = [f"{s}_" for s in permissions]
         for prefix in prefixes:
             codenames.append(f"{app_name}.{prefix}{model_name}")
