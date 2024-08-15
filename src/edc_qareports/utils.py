@@ -1,11 +1,8 @@
 from pathlib import Path
 from warnings import warn
 
-from django.apps import apps as django_apps
 from django.conf import settings
 from edc_auth.get_app_codenames import get_app_codenames
-
-from .model_mixins import qa_reports_permissions
 
 
 def read_unmanaged_model_sql(
