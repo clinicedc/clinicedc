@@ -24,6 +24,7 @@ class QaReportModelAdminMixin:
     qa_report_list_display_insert_pos = 3
 
     note_model = "edc_qareports.note"
+    note_status_list_filter = NoteStatusListFilter
     note_template = "edc_qareports/columns/notes_column.html"
 
     @property
@@ -52,7 +53,7 @@ class QaReportModelAdminMixin:
     def get_list_filter(self, request):
         list_filter = super().get_list_filter(request)
         list_filter = list(list_filter)
-        list_filter.insert(0, NoteStatusListFilter)
+        list_filter.insert(0, self.note_status_list_filter)
         return tuple(list_filter)
 
     def get_note_model_obj_or_raise(self, obj=None):
