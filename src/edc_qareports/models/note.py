@@ -1,6 +1,6 @@
 from django.db.models import UniqueConstraint
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
-from edc_model.models import BaseUuidModel
+from edc_model.models import BaseUuidModel, default_permissions
 
 from ..model_mixins import NoteModelMixin
 
@@ -27,3 +27,4 @@ class Note(NonUniqueSubjectIdentifierFieldMixin, NoteModelMixin):
             )
         ]
         indexes = BaseUuidModel.Meta.indexes
+        default_permissions = default_permissions + ("viewallsites",)
