@@ -8,7 +8,7 @@ from .view_definition import get_view_definition
 
 class QaReportLogSummary(DBView):
     username = models.CharField(max_length=100)
-    site = models.ForeignKey(Site, on_delete=models.CASCADE)
+    site = models.ForeignKey(Site, on_delete=models.DO_NOTHING)
     report_model = models.CharField(max_length=100)
     first_accessed = models.DateTimeField()
     last_accessed = models.DateTimeField()
