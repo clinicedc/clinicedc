@@ -1,7 +1,6 @@
-from edc_constants.constants import CLOSED, NEW, PENDING
+from edc_constants.constants import NOT_AVAILABLE, PENDING
 
 NOTE_STATUSES = (
-    (NEW, "New"),
     (PENDING, "Data is pending"),
-    (CLOSED, "Data not available"),
+    (NOT_AVAILABLE, "Data not available"),
 )

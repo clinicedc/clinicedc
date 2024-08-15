@@ -1,6 +1,6 @@
 from django.contrib.admin import SimpleListFilter
 from django.db.models import Count, QuerySet
-from edc_constants.constants import CLOSED, NEW, PENDING
+from edc_constants.constants import NEW
 
 from ..choices import NOTE_STATUSES
 
@@ -10,14 +10,15 @@ class NoteStatusListFilter(SimpleListFilter):
     parameter_name = "note_status"
 
     note_model_cls = None
+    note_model_status_choices = NOTE_STATUSES
 
     def __init__(self, request, params, model, model_admin):
         self.note_model_cls = model_admin.note_model_cls
         super().__init__(request, params, model, model_admin)
 
     def lookups(self, request, model_admin):
-        status_dict = {tpl[0]: tpl[1] for tpl in NOTE_STATUSES}
-        names = [(NEW, status_dict[NEW])]
+        status_dict = {tpl[0]: tpl[1] for tpl in self.note_model_status_choices}
+        names = [(NEW, status_dict.get(NEW, "New"))]
         qs = (
             self.note_model_cls.objects.values("status")
             .order_by("status")
@@ -48,19 +49,11 @@ class NoteStatusListFilter(SimpleListFilter):
                     queryset = queryset.exclude(
                         subject_identifier__in=[obj.get("subject_identifier") for obj in qs]
                     )
-                elif self.value() == PENDING:
+                elif self.value() in [tpl[0] for tpl in self.note_model_status_choices]:
                     qs = self.note_model_cls.objects.values("subject_identifier").filter(
-                        report_model=report_model, status=PENDING
+                        report_model=report_model, status=self.value()
                     )
                     queryset = queryset.filter(
-                        subject_identifier__in=[obj.get("subject_identifier") for obj in qs]
-                    )
-                elif self.value() == CLOSED:
-                    qs = self.note_model_cls.objects.values("subject_identifier").filter(
-                        report_model=report_model,
-                        status=CLOSED,
-                    )
-                    queryset = queryset.exclude(
                         subject_identifier__in=[obj.get("subject_identifier") for obj in qs]
                     )
         return queryset

@@ -1,6 +1,5 @@
 from django.apps import apps as django_apps
 from django.db import models
-from edc_constants.constants import NEW, PENDING
 from edc_model.models import BaseUuidModel
 from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
@@ -21,12 +20,7 @@ class NoteModelMixin(SiteModelMixin, BaseUuidModel):
 
     note = models.TextField(null=True, blank=True)
 
-    status = models.CharField(max_length=25, default=NEW, choices=NOTE_STATUSES)
-
-    def save(self, *args, **kwargs):
-        if self.status == NEW:
-            self.status = PENDING
-        super().save(*args, **kwargs)
+    status = models.CharField(max_length=25, choices=NOTE_STATUSES, null=True, blank=False)
 
     @property
     def report_model_cls(self):

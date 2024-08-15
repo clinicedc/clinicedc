@@ -1,6 +1,6 @@
 from django.contrib.sites.models import Site
 from django.db import models
-from django.db.models import PROTECT
+from django.db.models import DO_NOTHING
 
 from .qa_reports_permissions import qa_reports_permissions
 
@@ -11,7 +11,7 @@ class QaReportModelMixin(models.Model):
 
     subject_identifier = models.CharField(max_length=25)
 
-    site = models.ForeignKey(Site, on_delete=PROTECT)
+    site = models.ForeignKey(Site, on_delete=DO_NOTHING)
 
     created = models.DateTimeField()
 

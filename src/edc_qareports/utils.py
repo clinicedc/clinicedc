@@ -1,4 +1,3 @@
-import pdb
 from pathlib import Path
 
 from django.apps import apps as django_apps
@@ -7,16 +6,13 @@ from edc_auth.get_app_codenames import get_app_codenames
 
 from .model_mixins import qa_reports_permissions
 
-"""
-use DBView instead
-"""
-
 
 def read_unmanaged_model_sql(
     filename: str | None = None,
     app_name: str | None = None,
     fullpath: str | Path | None = None,
 ) -> str:
+    """Wait, use DBView instead!!"""
     uuid_func = "uuid()"
     if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.postgresql":
         uuid_func = "gen_random_uuid()"
