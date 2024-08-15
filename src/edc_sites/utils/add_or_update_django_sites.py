@@ -45,7 +45,8 @@ def add_or_update_django_sites(
         pass
     else:
         # Delete will fail if you have an unmanaged model with an FK
-        # to Site. See the comment in edc_appconfig.apps about why we
+        # to Site and `on_delete` is something other than DO_NOTHING.
+        # See the comment in edc_appconfig.apps about why we might
         # unregister `create_default_site` post_migrate signal.
         obj.delete()
     if not single_sites:
