@@ -8,7 +8,11 @@ from django_pandas.io import read_frame
 from edc_pdutils.constants import SYSTEM_COLUMNS
 
 from .get_subject_visit import get_subject_visit
-from .utils import convert_dates_from_model, convert_numerics_from_model
+from .utils import (
+    convert_dates_from_model,
+    convert_numerics_from_model,
+    convert_timedelta_from_model,
+)
 
 
 def get_crf(
@@ -40,4 +44,5 @@ def get_crf(
         df["site"] = df["site"].map(sites)
     df = convert_numerics_from_model(df, model_cls)
     df = convert_dates_from_model(df, model_cls)
+    df = convert_timedelta_from_model(df, model_cls)
     return df
