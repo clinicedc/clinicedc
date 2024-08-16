@@ -22,7 +22,7 @@ class QaReportModelAdminMixin:
 
     qa_report_log_enabled = True
     qa_report_list_display_insert_pos = 3
-
+    list_per_page = 25
     note_model = "edc_qareports.note"
     note_status_list_filter = NoteStatusListFilter
     note_template = "edc_qareports/columns/notes_column.html"
