@@ -17,7 +17,6 @@ class QaReportLogSummaryAdmin(
     admin.ModelAdmin,
 ):
     ordering = ["-last_accessed"]
-    user_may_view_other_sites = True
 
     list_display = (
         "username",
