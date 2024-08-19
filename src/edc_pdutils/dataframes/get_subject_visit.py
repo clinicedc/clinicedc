@@ -4,9 +4,18 @@ from django.contrib.sites.models import Site
 from django_pandas.io import read_frame
 
 
-def get_subject_visit(model: str, floor_datetimes: bool | None = None) -> pd.DataFrame:
+def get_subject_visit(
+    model: str,
+    floor_datetimes: bool | None = None,
+    subject_identifiers: list[str] | None = None,
+) -> pd.DataFrame:
     floor_datetimes = True if floor_datetimes is None else floor_datetimes
-    qs_subject_visit = django_apps.get_model(model).objects.all()
+    if subject_identifiers:
+        qs_subject_visit = django_apps.get_model(model).objects.filter(
+            subject_identifier__in=subject_identifiers
+        )
+    else:
+        qs_subject_visit = django_apps.get_model(model).objects.all()
     df_subject_visit = read_frame(qs_subject_visit)
     df_subject_visit.rename(
         columns={"id": "subject_visit_id", "report_datetime": "visit_datetime"}, inplace=True

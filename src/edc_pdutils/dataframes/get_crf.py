@@ -19,9 +19,15 @@ def get_crf(
     model: str | None = None,
     subject_visit_model: str | None = None,
     drop_columns: list[str] | None = None,
+    subject_identifiers: list[str] | None = None,
 ) -> pd.DataFrame:
     model_cls = django_apps.get_model(model)
-    qs = model_cls.objects.all()
+    if subject_identifiers:
+        qs = model_cls.objects.filter(
+            subject_visit__subject_identifier__in=subject_identifiers
+        )
+    else:
+        qs = model_cls.objects.all()
     df = read_frame(qs)
     df = df.rename(columns={"subject_visit": "subject_visit_id"})
     # move system columns to end
@@ -29,7 +35,9 @@ def get_crf(
     if drop_columns:
         df = df.drop(columns=drop_columns)
     if subject_visit_model:
-        df_subject_visit = get_subject_visit(subject_visit_model)
+        df_subject_visit = get_subject_visit(
+            subject_visit_model, subject_identifiers=subject_identifiers
+        )
         df = pd.merge(
             df_subject_visit,
             df,

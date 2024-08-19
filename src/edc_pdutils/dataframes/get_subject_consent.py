@@ -3,14 +3,23 @@ from django.apps import apps as django_apps
 from django_pandas.io import read_frame
 
 
-def get_subject_consent(model: str) -> pd.DataFrame:
-    qs_consent = (
-        django_apps.get_model(model)
-        .objects.values(
-            "subject_identifier", "gender", "dob", "screening_identifier", "consent_datetime"
+def get_subject_consent(
+    model: str, subject_identifiers: list[str] | None = None
+) -> pd.DataFrame:
+    model_cls = django_apps.get_model(model)
+    value_cols = [
+        "subject_identifier",
+        "gender",
+        "dob",
+        "screening_identifier",
+        "consent_datetime",
+    ]
+    if subject_identifiers:
+        qs_consent = model_cls.objects.values(*value_cols).filter(
+            subject_identifier__in=subject_identifiers
         )
-        .all()
-    )
+    else:
+        qs_consent = model_cls.objects.values(*value_cols).all()
     df = read_frame(qs_consent)
     df["dob"] = df["dob"].apply(pd.to_datetime)
     df["consent_datetime"] = df["consent_datetime"].apply(pd.to_datetime)
