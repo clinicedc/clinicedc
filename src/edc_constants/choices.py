@@ -45,6 +45,7 @@ from .constants import (
     POS,
     PRESENT,
     PURPOSIVELY_SELECTED,
+    QUESTION_RETIRED,
     RANDOM_SAMPLING,
     RARELY,
     REFUSED,
@@ -795,6 +796,12 @@ YES_NO_DOESNT_WORK = (
 )
 
 YES_NO_NOT_REQUIRED = ((YES, _(YES)), (NO, _(NO)), (NOT_REQUIRED, _("Not required")))
+
+YES_NO_RETIRED = (
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (QUESTION_RETIRED, "Question retired"),
+)
 
 WHYNOPARTICIPATE_CHOICE = (
     ("I don't have time", _("I don't have time")),
