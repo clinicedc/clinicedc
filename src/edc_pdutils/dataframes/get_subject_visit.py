@@ -59,7 +59,7 @@ def get_subject_visit(
         df_subject_visit, df_baseline_visit, on="subject_identifier", how="left"
     )
 
-    if floor_datetimes:
+    if floor_datetimes and not df_subject_visit["visit_datetime"].empty:
         df_subject_visit["visit_datetime"] = df_subject_visit["visit_datetime"].dt.floor("d")
         df_subject_visit["baseline_datetime"] = df_subject_visit["baseline_datetime"].dt.floor(
             "d"
