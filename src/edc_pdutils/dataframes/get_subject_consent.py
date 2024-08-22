@@ -23,8 +23,9 @@ def get_subject_consent(
     df = read_frame(qs_consent)
     df["dob"] = df["dob"].apply(pd.to_datetime)
     df["consent_datetime"] = df["consent_datetime"].apply(pd.to_datetime)
-    df["consent_datetime"] = df["consent_datetime"].dt.floor("d")
-    df["age_in_years"] = df["consent_datetime"].dt.year - df["dob"].dt.year
+    if not df["consent_datetime"].empty:
+        df["consent_datetime"] = df["consent_datetime"].dt.floor("d")
+        df["age_in_years"] = df["consent_datetime"].dt.year - df["dob"].dt.year
     df.sort_values(by=["subject_identifier"])
     df.reset_index(drop=True, inplace=True)
     return df
