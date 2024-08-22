@@ -1,5 +1,3 @@
-import pprint
-
 from django.test import TestCase
 from edc_auth.get_app_codenames import get_app_codenames
 
