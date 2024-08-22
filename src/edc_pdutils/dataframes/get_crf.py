@@ -29,11 +29,9 @@ def get_crf(
     else:
         qs = model_cls.objects.all()
     df = read_frame(qs)
+    sites = {obj.domain: obj.id for obj in Site.objects.all()}
+    df["site"] = df["site"].map(sites)
     df = df.rename(columns={"subject_visit": "subject_visit_id"})
-    # move system columns to end
-    df = df[[col for col in df.columns if col not in SYSTEM_COLUMNS] + SYSTEM_COLUMNS]
-    if drop_columns:
-        df = df.drop(columns=drop_columns)
     if subject_visit_model:
         df_subject_visit = get_subject_visit(
             subject_visit_model, subject_identifiers=subject_identifiers
@@ -45,11 +43,12 @@ def get_crf(
             how="right",
             suffixes=("", "_subject_visit"),
         )
-        df = df.reset_index(drop=True)
-    else:
-        # remap site
-        sites = {obj.domain: obj.id for obj in Site.objects.all()}
-        df["site"] = df["site"].map(sites)
+    # move system columns to end
+    df = df[[col for col in df.columns if col not in SYSTEM_COLUMNS] + SYSTEM_COLUMNS]
+    if drop_columns:
+        df = df.drop(columns=drop_columns)
+    df = df.reset_index(drop=True)
+    # convert values to ...
     df = convert_numerics_from_model(df, model_cls)
     df = convert_dates_from_model(df, model_cls)
     df = convert_timedelta_from_model(df, model_cls)
