@@ -75,7 +75,7 @@ class QaReportModelAdminMixin:
         except ObjectDoesNotExist:
             status = NEW
         else:
-            status = note_model_obj.status
+            status = note_model_obj.get_status_display()
         return status.title()
 
     @admin.display(description="Notes")
