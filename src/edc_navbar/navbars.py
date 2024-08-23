@@ -29,14 +29,15 @@ if app_config.register_default_navbar:
         )
     )
 
-    default_navbar.register(
-        NavbarItem(
-            name="logout",
-            title="Logout",
-            fa_icon="fa-sign-out-alt",
-            url_name="edc_auth_admin:logout",
-            codename="edc_navbar.nav_logout",
-        )
-    )
+    # remove to use a form. See edc_navbar.html
+    # default_navbar.register(
+    #     NavbarItem(
+    #         name="logout",
+    #         title="Logout",
+    #         fa_icon="fa-sign-out-alt",
+    #         url_name="edc_auth_admin:logout",
+    #         codename="edc_navbar.nav_logout",
+    #     )
+    # )
 
     site_navbars.register(default_navbar)
