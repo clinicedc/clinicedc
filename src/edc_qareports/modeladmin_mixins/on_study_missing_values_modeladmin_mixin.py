@@ -50,7 +50,10 @@ class OnStudyMissingValuesModelAdminMixin(
                 f"{self.project_subject_admin}:{obj.label_lower.replace('.', '_')}_change",
                 args=(obj.original_id,),
             )
-            url = f"{url}?next={self.project_reports_admin}:{self.model._meta.label_lower.replace('.', '_')}_changelist"
+            url = (
+                f"{url}?next={self.project_reports_admin}:"
+                f"{self.model._meta.label_lower.replace('.', '_')}_changelist"
+            )
         context = dict(title=_("Go to CRF"), url=url, label=label)
         return render_to_string("dashboard_button.html", context=context)
 
