@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 
 
 @dataclass(kw_only=True)
-class SelectFrom:
+class Subquery:
     label: str = None
     label_lower: str = None
     dbtable: str = None

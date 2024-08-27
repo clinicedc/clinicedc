@@ -6,11 +6,11 @@ import sqlglot
 @dataclass(kw_only=True)
 class SqlViewGenerator:
     """A class to generate SQL view statements given a select
-    statement.
+    statement or subquery.
 
-    Generated SQL is compatible with mysql, pgsql and sqlite3.
+    Generated SQL is compatible with mysql, postgres and sqlite3.
 
-    The given `select_statment` is not validated.
+    The given `subquery` is not validated.
 
     For use with view definitions.
     """
