@@ -75,7 +75,9 @@ class SiteModelAdminMixin:
         """
         list_filter = super().get_list_filter(request)
         list_filter = [x for x in list_filter if x != "site" and x != SiteListFilter]
-        if self.user_may_view_other_sites(request):
+        if self.user_may_view_other_sites(request) or self.has_viewallsites_permission(
+            request
+        ):
             try:
                 index = list_filter.index("created")
             except ValueError:
@@ -86,7 +88,10 @@ class SiteModelAdminMixin:
     def get_list_display(self, request) -> tuple[str]:
         """Insert `site` after the first column"""
         list_display = super().get_list_display(request)
-        if self.user_may_view_other_sites(request) and "site" not in list_display:
+        if (
+            self.user_may_view_other_sites(request)
+            or self.has_viewallsites_permission(request)
+        ) and "site" not in list_display:
             list_display = (list_display[0],) + (self.site_code,) + tuple(list_display[1:])
         elif "site" in list_display:
             list_display = tuple(
