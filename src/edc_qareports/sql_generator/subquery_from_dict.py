@@ -1,8 +1,15 @@
-from .select_from import SelectFrom
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from .subquery import Subquery
+
+if TYPE_CHECKING:
+    from .qa_case import QaCase
 
 
-def generate_subquery_for_missing_values(
-    cases: list[dict[str:str, str:str, str:str]],
+def subquery_from_dict(
+    cases: list[dict[str:str, str:str, str:str] | QaCase],
     as_list: bool | None = False,
 ) -> str | list:
     """Returns an SQL select statement as a union of the select
@@ -20,10 +27,13 @@ def generate_subquery_for_missing_values(
          Note: `list_field` is the CRF id field, for example:
             left join <list_dbtable> as <alias> on crf.<list_field>=<alias>.id
     """
-    select_from_list = []
+    subqueries = []
     for case in cases:
-        select_from = SelectFrom(**case)
-        select_from_list.append(select_from.sql)
+        try:
+            subquery = case.sql
+        except AttributeError:
+            subquery = Subquery(**case).sql
+        subqueries.append(subquery)
     if as_list:
-        return select_from_list
-    return " UNION ".join(select_from_list)
+        return subqueries
+    return " UNION ".join(subqueries)
