@@ -28,6 +28,7 @@ class SiteModelAdminMixin:
 
     limit_related_to_current_country: list[str] = None
     limit_related_to_current_site: list[str] = None
+    site_list_display_insert_pos: int = 1
 
     def user_may_view_other_sites(self, request) -> bool:
         return sites.user_may_view_other_sites(request)
@@ -87,17 +88,18 @@ class SiteModelAdminMixin:
 
     def get_list_display(self, request) -> tuple[str]:
         """Insert `site` after the first column"""
+        pos = self.site_list_display_insert_pos
         list_display = super().get_list_display(request)
         if (
             self.user_may_view_other_sites(request)
             or self.has_viewallsites_permission(request)
         ) and "site" not in list_display:
-            list_display = (list_display[0],) + (self.site_code,) + tuple(list_display[1:])
+            list_display = list_display[:pos] + (self.site_code,) + list_display[pos:]
         elif "site" in list_display:
             list_display = tuple(
                 [x for x in list_display if x not in ["site", self.site_code]]
             )
-            list_display = (list_display[0],) + (self.site_code,) + list_display[1:]
+            list_display = list_display[:pos] + (self.site_code,) + list_display[pos:]
         return list_display
 
     def get_queryset(self, request) -> QuerySet:
