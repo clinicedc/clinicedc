@@ -3,7 +3,11 @@ from django.apps import apps as django_apps
 from django_pandas.io import read_frame
 
 
-def get_eos(model: str, subject_identifiers: list[str] | None = None) -> pd.DataFrame:
+def get_eos(
+    model: str,
+    subject_identifiers: list[str] | None = None,
+    value_cols: list[str] | None = None,
+) -> pd.DataFrame:
     model_cls = django_apps.get_model(model)
     value_cols = ["subject_identifier", "offstudy_datetime", "offstudy_reason"]
     if subject_identifiers:
