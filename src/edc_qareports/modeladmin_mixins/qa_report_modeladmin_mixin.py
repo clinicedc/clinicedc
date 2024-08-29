@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.translation import gettext as _
 from edc_constants.constants import NEW
 
 from ..models import QaReportLog
@@ -93,13 +94,13 @@ class QaReportModelAdminMixin:
         except ObjectDoesNotExist:
             note_model_obj = None
             url = reverse(f"{note_app_label}_admin:{note_url_name}_add")
-            title = "Add"
+            title = _("Add if pending or cannot be resolved")
         else:
             url = reverse(
                 f"{note_app_label}_admin:{note_url_name}_change",
                 args=(note_model_obj.id,),
             )
-            title = "Edit"
+            title = _("Edit if pending or cannot be resolved")
 
         url = (
             f"{url}?next={next_url_name},subject_identifier,q"
@@ -112,9 +113,9 @@ class QaReportModelAdminMixin:
 
     def get_notes_label(self, obj) -> str:
         if not obj:
-            label = "Add"
+            label = _("Add")
         elif not obj.note:
-            label = "Edit"
+            label = _("Edit")
         else:
             label = truncate_string(obj.note, max_length=35)
         return label
