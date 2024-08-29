@@ -1,6 +1,17 @@
 from edc_lab import RequisitionPanel
 
-from .constants import BLOOD_GLUCOSE, BLOOD_GLUCOSE_POC, CD4, FBC, HBA1C, HBA1C_POC, VL
+from .constants import (
+    BLOOD_GLUCOSE,
+    BLOOD_GLUCOSE_POC,
+    CD4,
+    FBC,
+    HBA1C,
+    HBA1C_POC,
+    LFT,
+    LIPIDS,
+    RFT,
+    VL,
+)
 from .processing_profiles import (
     blood_glucose_processing,
     cd4_processing,
@@ -84,7 +95,7 @@ vl_panel = RequisitionPanel(
 rft_panel = RequisitionPanel(
     name="chemistry_rft",
     verbose_name="Chemistry: Renal Function Tests",
-    abbreviation="RFT",
+    abbreviation=RFT,
     processing_profile=rft_processing,
     utest_ids=["urea", "creatinine", "uric_acid", "egfr", "egfr_drop"],
 )
@@ -92,7 +103,7 @@ rft_panel = RequisitionPanel(
 lipids_panel = RequisitionPanel(
     name="chemistry_lipids",
     verbose_name="Chemistry: Lipids",
-    abbreviation="LIPIDS",
+    abbreviation=LIPIDS,
     processing_profile=lipids_processing,
     utest_ids=["ldl", "hdl", "trig", "chol"],
 )
@@ -100,7 +111,7 @@ lipids_panel = RequisitionPanel(
 lft_panel = RequisitionPanel(
     name="chemistry_lft",
     verbose_name="Chemistry: Liver Function Tests",
-    abbreviation="LFT",
+    abbreviation=LFT,
     processing_profile=lft_processing,
     utest_ids=["ast", "alt", "alp", "amylase", "ggt", "albumin"],
 )
