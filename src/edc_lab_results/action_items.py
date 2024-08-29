@@ -12,7 +12,7 @@ from .constants import (
     BLOOD_RESULTS_HBA1C_ACTION,
     BLOOD_RESULTS_INSULIN_ACTION,
     BLOOD_RESULTS_LFT_ACTION,
-    BLOOD_RESULTS_LIPID_ACTION,
+    BLOOD_RESULTS_LIPIDS_ACTION,
     BLOOD_RESULTS_RFT_ACTION,
 )
 
@@ -65,10 +65,10 @@ class BloodResultsFbcAction(BaseResultsAction):
     reference_model = f"{subject_app_label}.bloodresultsfbc"
 
 
-class BloodResultsLipidAction(BaseResultsAction):
-    name = BLOOD_RESULTS_LIPID_ACTION
+class BloodResultsLipidsAction(BaseResultsAction):
+    name = BLOOD_RESULTS_LIPIDS_ACTION
     display_name = "Reportable result: LIPIDS"
-    reference_model = f"{subject_app_label}.bloodresultslipid"
+    reference_model = f"{subject_app_label}.bloodresultslipids"
 
 
 class BloodResultsEgfrAction(BaseResultsAction):
@@ -113,7 +113,7 @@ def register_actions():
         BloodResultsHba1cAction,
         BloodResultsInsulinAction,
         BloodResultsLftAction,
-        BloodResultsLipidAction,
+        BloodResultsLipidsAction,
         BloodResultsRftAction,
     ]:
         try:
