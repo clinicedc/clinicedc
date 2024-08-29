@@ -88,12 +88,13 @@ class SiteModelAdminMixin:
 
     def get_list_display(self, request) -> tuple[str]:
         """Insert `site` after the first column"""
-        pos = self.site_list_display_insert_pos
         list_display = super().get_list_display(request)
+        pos = self.site_list_display_insert_pos
         if (
             self.user_may_view_other_sites(request)
             or self.has_viewallsites_permission(request)
         ) and "site" not in list_display:
+            list_display = tuple(list_display)
             list_display = list_display[:pos] + (self.site_code,) + list_display[pos:]
         elif "site" in list_display:
             list_display = tuple(
