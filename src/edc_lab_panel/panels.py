@@ -1,6 +1,26 @@
 from edc_lab import RequisitionPanel
 
-from .constants import BLOOD_GLUCOSE, BLOOD_GLUCOSE_POC, CD4, FBC, HBA1C, HBA1C_POC, VL
+from .constants import (
+    BLOOD_GLUCOSE,
+    BLOOD_GLUCOSE_POC,
+    CD4,
+    CHEMISTRY_LFT,
+    CHEMISTRY_LIPIDS,
+    CHEMISTRY_RFT,
+    CHOL,
+    FBC,
+    HBA1C,
+    HBA1C_POC,
+    HDL,
+    INSULIN,
+    LDL,
+    LFT,
+    LIPIDS,
+    RFT,
+    SPUTUM,
+    TRIG,
+    VL,
+)
 from .processing_profiles import (
     blood_glucose_processing,
     cd4_processing,
@@ -82,31 +102,31 @@ vl_panel = RequisitionPanel(
 
 
 rft_panel = RequisitionPanel(
-    name="chemistry_rft",
+    name=CHEMISTRY_RFT,
     verbose_name="Chemistry: Renal Function Tests",
-    abbreviation="RFT",
+    abbreviation=RFT,
     processing_profile=rft_processing,
     utest_ids=["urea", "creatinine", "uric_acid", "egfr", "egfr_drop"],
 )
 
 lipids_panel = RequisitionPanel(
-    name="chemistry_lipids",
+    name=CHEMISTRY_LIPIDS,
     verbose_name="Chemistry: Lipids",
-    abbreviation="LIPIDS",
+    abbreviation=LIPIDS,
     processing_profile=lipids_processing,
-    utest_ids=["ldl", "hdl", "trig", "chol"],
+    utest_ids=[LDL, HDL, TRIG, CHOL],
 )
 
 lft_panel = RequisitionPanel(
-    name="chemistry_lft",
+    name=CHEMISTRY_LFT,
     verbose_name="Chemistry: Liver Function Tests",
-    abbreviation="LFT",
+    abbreviation=LFT,
     processing_profile=lft_processing,
     utest_ids=["ast", "alt", "alp", "amylase", "ggt", "albumin"],
 )
 
 insulin_panel = RequisitionPanel(
-    name="insulin",
+    name=INSULIN,
     verbose_name="Insulin",
     abbreviation="INS",
     processing_profile=insulin_processing,
@@ -114,7 +134,7 @@ insulin_panel = RequisitionPanel(
 )
 
 sputum_panel = RequisitionPanel(
-    name="sputum",
+    name=SPUTUM,
     verbose_name="Sputum",
     abbreviation="SPM",
     processing_profile=sputum_processing,
