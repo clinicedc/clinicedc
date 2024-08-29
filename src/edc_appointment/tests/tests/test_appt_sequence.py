@@ -1,28 +1,23 @@
 from __future__ import annotations
 
 import datetime as dt
-from typing import Type
 from zoneinfo import ZoneInfo
 
 import time_machine
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
 from django.test import TestCase, override_settings
-from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_metadata.models import CrfMetadata
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_tracking.constants import SCHEDULED
 
 from edc_appointment.constants import INCOMPLETE_APPT, NEW_APPT
-from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.managers import AppointmentDeleteError
 from edc_appointment.models import Appointment
 from edc_appointment.utils import delete_appointment_in_sequence, get_next_appointment
-from edc_appointment_app.consents import consent_v1
 from edc_appointment_app.models import CrfOne, SubjectVisit
-from edc_appointment_app.visit_schedule import get_visit_schedule1, get_visit_schedule2
+from edc_appointment_app.tests.appointment_app_test_case_mixin import (
+    AppointmentAppTestCaseMixin,
+)
 
 from ..helper import Helper
 
@@ -31,78 +26,15 @@ utc_tz = ZoneInfo("UTC")
 
 @override_settings(SITE_ID=10)
 @time_machine.travel(dt.datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
-class TestMoveAppointment(TestCase):
+class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
     helper_cls = Helper
+
+    def setUp(self):
+        super().setUp()
 
     @classmethod
     def setUpTestData(cls):
         import_holidays()
-
-    def setUp(self):
-        self.subject_identifier = "12345"
-        site_visit_schedules._registry = {}
-        self.visit_schedule1 = get_visit_schedule1()
-        self.visit_schedule2 = get_visit_schedule2()
-        site_visit_schedules.register(self.visit_schedule1)
-        site_visit_schedules.register(self.visit_schedule2)
-        site_consents.registry = {}
-        site_consents.register(consent_v1)
-        self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier,
-            now=ResearchProtocolConfig().study_open_datetime,
-        )
-        self.helper.consent_and_put_on_schedule(
-            visit_schedule_name=self.visit_schedule1.name, schedule_name="schedule1"
-        )
-        appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
-        self.assertEqual(appointments.count(), 4)
-
-        appointment = Appointment.objects.get(timepoint=0.0)
-        self.create_related_visit(appointment)
-
-        for i in range(0, 3):
-            creator = UnscheduledAppointmentCreator(
-                subject_identifier=self.subject_identifier,
-                visit_schedule_name=self.visit_schedule1.name,
-                schedule_name="schedule1",
-                visit_code="1000",
-                suggested_visit_code_sequence=appointment.visit_code_sequence + 1,
-            )
-            appointment = creator.appointment
-            appointment.appt_status = INCOMPLETE_APPT
-            appointment.save_base(update_fields=["appt_status"])
-
-        self.appt_datetimes = [
-            o.appt_datetime for o in Appointment.objects.all().order_by("appt_datetime")
-        ]
-
-    def create_related_visit(
-        self, appointment: Appointment, reason: str | None = None
-    ) -> SubjectVisit:
-        if not appointment.related_visit:
-            related_visit = SubjectVisit.objects.create(
-                appointment=appointment,
-                subject_identifier=appointment.subject_identifier,
-                report_datetime=appointment.appt_datetime,
-                visit_schedule_name=self.visit_schedule1.name,
-                schedule_name="schedule1",
-                visit_code=appointment.visit_code,
-                visit_code_sequence=appointment.visit_code_sequence,
-                reason=reason or SCHEDULED,
-            )
-            appointment.appt_status = INCOMPLETE_APPT
-            appointment.save_base(update_fields=["appt_status"])
-            appointment.refresh_from_db()
-        else:
-            related_visit = appointment.related_visit
-        return related_visit
-
-    @staticmethod
-    def get_visit_codes(model_cls: Type[Appointment | SubjectVisit], order_by: str = None):
-        return [
-            f"{o.visit_code}.{o.visit_code_sequence}"
-            for o in model_cls.objects.all().order_by(order_by)
-        ]
 
     def test_appointments_resequence_after_delete(self):
         self.assertEqual(
