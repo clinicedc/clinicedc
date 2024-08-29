@@ -7,14 +7,13 @@ from edc_list_data.site_list_data import site_list_data
 from edc_sites.tests import SiteTestCaseMixin
 
 from adverse_event_app import list_data
-from edc_adverse_event.models import AeClassification, SaeReason
-
-from ...constants import AE_WITHDRAWN
-from ...form_validators import (
+from edc_adverse_event.constants import AE_WITHDRAWN
+from edc_adverse_event.form_validators import (
     AeFollowupFormValidator,
     AeInitialFormValidator,
     AeTmgFormValidator,
 )
+from edc_adverse_event.models import AeClassification, SaeReason
 
 
 @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
