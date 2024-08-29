@@ -1,5 +1,19 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from edc_lab_panel.constants import (
+    HAEMOGLOBIN,
+    HCT,
+    LYMPHOCYTE,
+    LYMPHOCYTE_DIFF,
+    MCH,
+    MCHC,
+    MCV,
+    NEUTROPHIL,
+    NEUTROPHIL_DIFF,
+    PLATELETS,
+    RBC,
+    WBC,
+)
 from edc_lab_panel.model_mixin_factory import reportable_result_model_mixin_factory
 from edc_reportable import GRAMS_PER_DECILITER, PERCENT
 from edc_reportable.units import (
@@ -13,7 +27,7 @@ from edc_reportable.units import (
 
 class HaemoglobinModelMixin(
     reportable_result_model_mixin_factory(
-        utest_id="haemoglobin",
+        utest_id=HAEMOGLOBIN,
         verbose_name="Haemoglobin",
         units_choices=((GRAMS_PER_DECILITER, GRAMS_PER_DECILITER),),
         decimal_places=1,
@@ -26,7 +40,7 @@ class HaemoglobinModelMixin(
 
 class HctModelMixin(
     reportable_result_model_mixin_factory(
-        utest_id="hct",
+        utest_id=HCT,
         verbose_name="Hematocrit",
         units_choices=((PERCENT, PERCENT),),
         validators=[MinValueValidator(1.0), MaxValueValidator(999.0)],
@@ -39,7 +53,7 @@ class HctModelMixin(
 
 class MchModelMixin(
     reportable_result_model_mixin_factory(
-        utest_id="mch",
+        utest_id=MCH,
         units_choices=((PICOGRAMS_PER_CELL, PICOGRAMS_PER_CELL),),
     ),
     models.Model,
@@ -50,7 +64,7 @@ class MchModelMixin(
 
 class MchcModelMixin(
     reportable_result_model_mixin_factory(
-        utest_id="mchc",
+        utest_id=MCHC,
         units_choices=((GRAMS_PER_DECILITER, GRAMS_PER_DECILITER),),
     ),
     models.Model,
@@ -61,7 +75,7 @@ class MchcModelMixin(
 
 class McvModelMixin(
     reportable_result_model_mixin_factory(
-        utest_id="mcv",
+        utest_id=MCV,
         units_choices=((FEMTOLITERS_PER_CELL, FEMTOLITERS_PER_CELL),),
     ),
     models.Model,
@@ -72,7 +86,7 @@ class McvModelMixin(
 
 class NeutrophilModelMixin(
     reportable_result_model_mixin_factory(
-        utest_id="neutrophil",
+        utest_id=NEUTROPHIL,
         verbose_name="Neutrophil (abs)",
         units_choices=((TEN_X_9_PER_LITER, TEN_X_9_PER_LITER),),
         decimal_places=2,
@@ -86,7 +100,7 @@ class NeutrophilModelMixin(
 
 class NeutrophilDiffModelMixin(
     reportable_result_model_mixin_factory(
-        utest_id="neutrophil_diff",
+        utest_id=NEUTROPHIL_DIFF,
         verbose_name="Neutrophil (diff)",
         units_choices=((PERCENT, PERCENT),),
         decimal_places=2,
@@ -100,7 +114,7 @@ class NeutrophilDiffModelMixin(
 
 class LymphocyteModelMixin(
     reportable_result_model_mixin_factory(
-        utest_id="lymphocyte",
+        utest_id=LYMPHOCYTE,
         verbose_name="Lymphocyte (abs)",
         units_choices=((TEN_X_9_PER_LITER, TEN_X_9_PER_LITER),),
         decimal_places=2,
@@ -114,7 +128,7 @@ class LymphocyteModelMixin(
 
 class LymphocyteDiffModelMixin(
     reportable_result_model_mixin_factory(
-        utest_id="lymphocyte_diff",
+        utest_id=LYMPHOCYTE_DIFF,
         verbose_name="Lymphocyte (diff)",
         units_choices=((PERCENT, PERCENT),),
         decimal_places=2,
@@ -128,7 +142,7 @@ class LymphocyteDiffModelMixin(
 
 class PlateletsModelMixin(
     reportable_result_model_mixin_factory(
-        utest_id="platelets",
+        utest_id=PLATELETS,
         verbose_name="Platelets",
         units_choices=(
             (TEN_X_9_PER_LITER, TEN_X_9_PER_LITER),
@@ -145,7 +159,7 @@ class PlateletsModelMixin(
 
 class RbcModelMixin(
     reportable_result_model_mixin_factory(
-        utest_id="rbc",
+        utest_id=RBC,
         verbose_name="Red blood cell count",
         units_choices=(
             (TEN_X_9_PER_LITER, TEN_X_9_PER_LITER),
@@ -161,7 +175,7 @@ class RbcModelMixin(
 
 class WbcModelMixin(
     reportable_result_model_mixin_factory(
-        utest_id="wbc",
+        utest_id=WBC,
         units_choices=(
             (TEN_X_9_PER_LITER, TEN_X_9_PER_LITER),
             (CELLS_PER_MILLIMETER_CUBED, CELLS_PER_MILLIMETER_CUBED_DISPLAY),
