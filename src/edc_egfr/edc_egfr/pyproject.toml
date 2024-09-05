@@ -6,12 +6,12 @@ version_file="_version.py"
 
 [tool.black]
 line-length = 95
-target-version = ["py311"]
+target-version = ["py312"]
 extend-exclude = '''^(.*\/)*\b(migrations)\b($|\/.*$)'''
 
 [tool.isort]
 profile = "black"
-py_version = "311"
+py_version = "312"
 skip = [".tox", ".eggs", "migrations"]
 
 [tool.coverage.run]
@@ -35,21 +35,19 @@ exclude_lines = [
 legacy_tox_ini = """
 [tox]
 envlist =
-    py{311}-dj{42,50},
-    py{312}-dj{50,dev},
+    py{312}-dj{42,51,dev},
     lint
 
 isolated_build = true
 
 [gh-actions]
 python =
-    3.11: py311
     3.12: py312, lint
 
 [gh-actions:env]
 DJANGO =
     4.2: dj42
-    5.0: dj50
+    5.1: dj51
     dev: djdev, lint
 
 [testenv]
@@ -59,7 +57,7 @@ deps =
     -r https://raw.githubusercontent.com/clinicedc/edc/develop/requirements.tests/edc.txt
     -r https://raw.githubusercontent.com/clinicedc/edc/develop/requirements.tests/third_party_dev.txt
     dj42: Django>=4.2,<5.0
-    dj50: Django>=5.0
+    dj51: Django>=5.1,<5.2
     djdev: https://github.com/django/django/tarball/main
 
 commands =
