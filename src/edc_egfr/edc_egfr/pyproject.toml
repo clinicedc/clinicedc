@@ -61,7 +61,7 @@ deps =
     djdev: https://github.com/django/django/tarball/main
 
 commands =
-    pip install -U pip coverage[toml]
+    pip install -U pip
     pip --version
     pip freeze
     coverage run -a runtests.py
