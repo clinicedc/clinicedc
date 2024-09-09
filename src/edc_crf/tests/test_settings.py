@@ -6,7 +6,6 @@ from edc_test_settings.default_test_settings import DefaultTestSettings
 
 app_name = "edc_crf"
 base_dir = Path(__file__).parent.parent.parent
-print(base_dir)
 
 project_settings = DefaultTestSettings(
     calling_file=__file__,
