@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import sys
 from pathlib import Path
 
@@ -51,6 +52,7 @@ project_settings = DefaultTestSettings(
         "edc_offstudy.apps.AppConfig",
         "edc_protocol.apps.AppConfig",
         "edc_registration.apps.AppConfig",
+        "edc_subject_dashboard.apps.AppConfig",
         "edc_timepoint.apps.AppConfig",
         "edc_visit_schedule.apps.AppConfig",
         "visit_schedule_app.apps.AppConfig",
