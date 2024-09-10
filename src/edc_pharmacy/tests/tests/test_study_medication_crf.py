@@ -11,6 +11,7 @@ from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
 from edc_appointment.tests.helper import Helper
 from edc_appointment.utils import get_next_appointment
+from edc_consent import site_consents
 from edc_constants.constants import YES
 from edc_facility import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
@@ -32,6 +33,7 @@ from edc_pharmacy.models import (
     Units,
 )
 
+from ..consents import consent_v1
 from ..forms import StudyMedicationForm
 from ..models import StudyMedication, SubjectVisit
 from ..visit_schedule import visit_schedule
@@ -47,6 +49,10 @@ class TestMedicationCrf(TestCase):
         pre_save.disconnect(dispatch_uid="requires_consent_on_pre_save")
 
     def setUp(self) -> None:
+        site_consents.registry = {}
+        site_consents.loaded = False
+        site_consents.register(consent_v1)
+
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)

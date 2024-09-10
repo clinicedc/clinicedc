@@ -1,5 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase
+from edc_consent import site_consents
 from edc_list_data import site_list_data
 from edc_utils import get_utcnow
 
@@ -22,11 +23,16 @@ from edc_pharmacy.models import (
     get_shelf,
 )
 
+from ..consents import consent_v1
+
 
 class TestPrescription(TestCase):
     def setUp(self):
         site_list_data.initialize()
         site_list_data.autodiscover()
+        site_consents.registry = {}
+        site_consents.loaded = False
+        site_consents.register(consent_v1)
 
         self.medication = Medication.objects.create(
             name="METFORMIN",

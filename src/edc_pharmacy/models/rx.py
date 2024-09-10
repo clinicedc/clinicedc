@@ -2,7 +2,7 @@ from uuid import uuid4
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.db.models import PROTECT
+from django.db.models import PROTECT, Index
 from edc_action_item.models import ActionModelMixin
 from edc_constants.constants import NEW
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
@@ -133,3 +133,4 @@ class Rx(
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Prescription"
         verbose_name_plural = "Prescriptions"
+        indexes = [Index(fields=["rando_sid"])]
