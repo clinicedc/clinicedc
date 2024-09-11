@@ -23,6 +23,7 @@ class RequisitionSubquery(CrfSubquery):
     panel: str = None
     subjectrequisition_dbtable: str | None = None
     panel_dbtable: str | None = None
+    requisition_id_field: str | None = None
     template: str = field(
         init=False,
         default=Template(
@@ -32,7 +33,7 @@ class RequisitionSubquery(CrfSubquery):
             "v.schedule_name, req.modified, '${label_lower}' as label_lower, "
             "'${label}' as label, count(*) as records "
             "from ${subjectrequisition_dbtable} as req "
-            "left join ${dbtable} as crf on req.id=crf.requisition_id "
+            "left join ${dbtable} as crf on req.id=crf.${requisition_id_field} "
             "left join ${subjectvisit_dbtable} as v on v.id=req.subject_visit_id "
             "${left_joins} "
             "left join ${panel_dbtable} as panel on req.panel_id=panel.id "
@@ -57,3 +58,5 @@ class RequisitionSubquery(CrfSubquery):
             )
         if not self.panel_dbtable:
             self.panel_dbtable = "edc_lab_panel"
+        if not self.requisition_id_field:
+            self.requisition_id_field = "requisition_id"
