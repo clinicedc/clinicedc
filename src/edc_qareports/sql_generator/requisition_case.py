@@ -9,6 +9,7 @@ class RequisitionCase(CrfCase):
     panel: str = None
     subjectrequisition_dbtable: str | None = None
     panel_dbtable: str | None = None
+    requisition_id_field: str | None = None
 
     @property
     def sql(self):
