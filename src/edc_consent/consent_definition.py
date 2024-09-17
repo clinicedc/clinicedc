@@ -180,10 +180,15 @@ class ConsentDefinition:
                 <= getattr(self, attr)
                 <= ceil_secs(study_close_datetime)
             ):
-                date_string = formatted_datetime(getattr(self, attr))
+                open_date_string = formatted_datetime(study_open_datetime)
+                close_date_string = formatted_datetime(study_close_datetime)
+                attr_date_string = formatted_datetime(getattr(self, attr))
                 raise ConsentDefinitionError(
-                    f"Invalid {attr} date. Cannot be before study start date. "
-                    f"See {self}. Got {date_string}."
+                    f"Invalid {attr} date. "
+                    f"Must be within the opening and closing dates of the protocol. "
+                    f"See {self}. "
+                    f"Got {open_date_string=}, {close_date_string=}, "
+                    f"{attr=}, {attr_date_string=}."
                 )
 
     def get_previous_consent(
