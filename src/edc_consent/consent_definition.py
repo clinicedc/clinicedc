@@ -174,7 +174,7 @@ class ConsentDefinition:
         protocol = ResearchProtocolConfig()
         study_open_datetime = protocol.study_open_datetime
         study_close_datetime = protocol.study_close_datetime
-        for index, attr in enumerate(["start", "end"]):
+        for attr in ["start", "end"]:
             if not (
                 floor_secs(study_open_datetime)
                 <= getattr(self, attr)
