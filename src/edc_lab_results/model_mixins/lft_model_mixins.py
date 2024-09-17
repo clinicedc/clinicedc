@@ -6,9 +6,8 @@ from edc_reportable.units import (
     GRAMS_PER_LITER,
     IU_LITER,
     IU_LITER_DISPLAY,
-    MICROMOLES_PER_LITER,
-    MICROMOLES_PER_LITER_DISPLAY,
     MILLIGRAMS_PER_DECILITER,
+    MILLIGRAMS_PER_LITER,
 )
 
 
@@ -100,7 +99,7 @@ class CrpModelMixin(
         verbose_name="C-reactive protein",
         units_choices=(
             (MILLIGRAMS_PER_DECILITER, MILLIGRAMS_PER_DECILITER),
-            (MICROMOLES_PER_LITER, MICROMOLES_PER_LITER_DISPLAY),
+            (MILLIGRAMS_PER_LITER, MILLIGRAMS_PER_LITER),
         ),
     ),
     models.Model,
