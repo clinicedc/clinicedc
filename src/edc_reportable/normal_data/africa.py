@@ -203,7 +203,7 @@ normal_data = {
     ],
     "sodium": [
         p(
-            "135<=x<=145",
+            "136<=x<=145",
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
