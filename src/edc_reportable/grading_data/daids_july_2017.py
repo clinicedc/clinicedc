@@ -23,6 +23,7 @@ from ..units import (
     IU_LITER,
     MICROMOLES_PER_LITER,
     MILLIGRAMS_PER_DECILITER,
+    MILLIGRAMS_PER_LITER,
     MILLIMOLES_PER_LITER,
     PERCENT,
     PLUS,
@@ -91,15 +92,21 @@ dummies = {
             **adult_age_options,
         )
     ],
-    # TODO fix for effect MILLIGRAMS_PER_DECILITER (0-1) / Kyla
     "crp": [
         p(
             "x<0",
             grade=GRADE0,
-            units=MILLIMOLES_PER_LITER,
+            units=MILLIGRAMS_PER_DECILITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
-        )
+        ),
+        p(
+            "x<0",
+            grade=GRADE0,
+            units=MILLIGRAMS_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
     ],
 }
 
