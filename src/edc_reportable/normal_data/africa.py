@@ -14,6 +14,7 @@ from edc_reportable.units import (
     CELLS_PER_MILLIMETER_CUBED,
     EGFR_UNITS,
     GRAMS_PER_LITER,
+    MILLIGRAMS_PER_LITER,
     PERCENT,
     PLUS,
 )
@@ -81,9 +82,19 @@ normal_data = {
             **adult_age_options,
         ),
     ],
-    # TODO fix for effect MILLIGRAMS_PER_DECILITER (0-1) / Kyla
     "crp": [
-        p("0.0<=x<1.0", units=PLUS, gender=[MALE, FEMALE], **adult_age_options),
+        p(
+            "0.0<=x<=0.5",
+            units=MILLIGRAMS_PER_DECILITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "0.0<=x<=5.0",
+            units=MILLIGRAMS_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
     ],
     "glucose": [
         p(
@@ -192,7 +203,7 @@ normal_data = {
     ],
     "sodium": [
         p(
-            "135<=x<=145",
+            "136<=x<=145",
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
