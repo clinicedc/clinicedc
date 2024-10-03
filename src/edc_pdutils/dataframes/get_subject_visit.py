@@ -17,11 +17,13 @@ def get_subject_visit(
     else:
         qs_subject_visit = django_apps.get_model(model).objects.all()
     df_subject_visit = read_frame(qs_subject_visit)
-    df_subject_visit.rename(
-        columns={"id": "subject_visit_id", "report_datetime": "visit_datetime"}, inplace=True
+    df_subject_visit = df_subject_visit.rename(
+        columns={"id": "subject_visit_id", "report_datetime": "visit_datetime"}
     )
     sites = {obj.domain: obj.id for obj in Site.objects.all()}
     df_subject_visit["site"] = df_subject_visit["site"].map(sites)
+    df_subject_visit["site_id"] = df_subject_visit["site"]
+
     df_subject_visit["visit_code_str"] = df_subject_visit["visit_code"]
     df_subject_visit = df_subject_visit[
         [
@@ -31,7 +33,9 @@ def get_subject_visit(
             "visit_code_sequence",
             "visit_datetime",
             "site",
+            "site_id",
             "visit_code_str",
+            "reason",
         ]
     ]
     # convert visit_code to float using visit_code_sequence
@@ -48,22 +52,38 @@ def get_subject_visit(
     df_subject_visit["visit_code"] = (
         df_subject_visit["visit_code"] + df_subject_visit["visit_code_sequence"]
     )
-    # df_subject_visit.drop(columns=["visit_code_sequence"])
 
     df_baseline_visit = df_subject_visit.copy()
     df_baseline_visit = df_baseline_visit[(df_baseline_visit["visit_code"] == 1000.0)]
-    df_baseline_visit.rename(columns={"visit_datetime": "baseline_datetime"}, inplace=True)
+    df_baseline_visit = df_baseline_visit.rename(
+        columns={"visit_datetime": "baseline_datetime"}
+    )
     df_baseline_visit = df_baseline_visit[["subject_identifier", "baseline_datetime"]]
 
     df_subject_visit = pd.merge(
         df_subject_visit, df_baseline_visit, on="subject_identifier", how="left"
     )
 
+    # get last visitcode and last visit datetime
+    df_last = (
+        df_subject_visit[df_subject_visit.reason != "Missed visit"]
+        .groupby("subject_identifier")
+        .agg({"visit_code": "max", "visit_datetime": "max"})
+    )
+    df_last = df_last.rename(
+        columns={"visit_code": "last_visit_code", "visit_datetime": "last_visit_datetime"}
+    )
+    df_last = df_last.reset_index()
+    df_subject_visit = df_subject_visit.merge(df_last, on="subject_identifier", how="left")
+
     if floor_datetimes and not df_subject_visit["visit_datetime"].empty:
         df_subject_visit["visit_datetime"] = df_subject_visit["visit_datetime"].dt.floor("d")
         df_subject_visit["baseline_datetime"] = df_subject_visit["baseline_datetime"].dt.floor(
             "d"
         )
+        df_subject_visit["last_visit_datetime"] = df_subject_visit[
+            "last_visit_datetime"
+        ].dt.floor("d")
 
     df_subject_visit = df_subject_visit.sort_values(by=["subject_identifier", "visit_code"])
     df_subject_visit.reset_index(drop=True, inplace=True)

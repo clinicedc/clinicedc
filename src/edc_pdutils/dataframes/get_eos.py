@@ -1,5 +1,6 @@
 import pandas as pd
 from django.apps import apps as django_apps
+from django.contrib.sites.models import Site
 from django_pandas.io import read_frame
 
 
@@ -9,7 +10,7 @@ def get_eos(
     value_cols: list[str] | None = None,
 ) -> pd.DataFrame:
     model_cls = django_apps.get_model(model)
-    value_cols = ["subject_identifier", "offstudy_datetime", "offstudy_reason"]
+    value_cols = ["subject_identifier", "offstudy_datetime", "offstudy_reason", "site"]
     if subject_identifiers:
         qs = model_cls.objects.values(*value_cols).filter(
             subject_identifier__in=subject_identifiers
@@ -18,6 +19,8 @@ def get_eos(
         qs = model_cls.objects.values(*value_cols).all()
     df = read_frame(qs)
     df["offstudy_datetime"] = df["offstudy_datetime"].apply(pd.to_datetime)
+    df["site_id"] = df["site"].map({obj.domain: obj.id for obj in Site.objects.all()})
+    df = df.drop(columns=["site"])
     if not df["offstudy_datetime"].empty:
         df["offstudy_datetime"] = df["offstudy_datetime"].dt.floor("d")
     df.sort_values(by=["subject_identifier"])
