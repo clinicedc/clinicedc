@@ -77,13 +77,8 @@ def get_subject_visit(
     df_subject_visit = df_subject_visit.merge(df_last, on="subject_identifier", how="left")
 
     if floor_datetimes and not df_subject_visit["visit_datetime"].empty:
-        df_subject_visit["visit_datetime"] = df_subject_visit["visit_datetime"].dt.floor("d")
-        df_subject_visit["baseline_datetime"] = df_subject_visit["baseline_datetime"].dt.floor(
-            "d"
-        )
-        df_subject_visit["last_visit_datetime"] = df_subject_visit[
-            "last_visit_datetime"
-        ].dt.floor("d")
+        for s in ["visit_datetime", "baseline_datetime", "last_visit_datetime"]:
+            df_subject_visit[s] = df_subject_visit[s].dt.floor("d")
 
     df_subject_visit = df_subject_visit.sort_values(by=["subject_identifier", "visit_code"])
     df_subject_visit.reset_index(drop=True, inplace=True)
