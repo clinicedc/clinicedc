@@ -1,3 +1,5 @@
+import sys
+
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.db import connection, models
@@ -18,17 +20,23 @@ class QaReportModelMixin(models.Model):
     created = models.DateTimeField(default=get_utcnow)
 
     @classmethod
-    def refresh_db_view(cls):
-        """Manually refresh the database view for models declared
+    def recreate_db_view(cls, drop: bool | None = None, verbose: bool | None = None):
+        """Manually recreate the database view for models declared
         with `django_db_views.DBView`.
 
         Mostly useful when Django raises an OperationalError with a
         restored DB complaining of 'The user specified as a definer
-        (user@server) does not exist'.
+        (user@host) does not exist'.
 
         This does not replace generating a migration with `viewmigration`
         and running the migration.
+
+        For example:
+            from intecomm_reports.models import Vl
+
+            Vl.recreate_db_view()
         """
+        drop = True if drop is None else drop
         try:
             sql = cls.view_definition.get(settings.DATABASES["default"]["ENGINE"])  # noqa
         except AttributeError as e:
@@ -37,9 +45,14 @@ class QaReportModelMixin(models.Model):
             )
         else:
             sql = sql.replace(";", "")
-            cursor = connection.cursor()
-            cursor.execute(
-                f"drop view {cls._meta.db_table};create view {cls._meta.db_table} as {sql};"
+            if verbose:
+                print(f"create view {cls._meta.db_table} as {sql};")
+            with connection.cursor() as c:
+                if drop:
+                    c.execute(f"drop view {cls._meta.db_table};")
+                c.execute(f"create view {cls._meta.db_table} as {sql};")
+            sys.stdout.write(
+                f"Done. Refreshed DB VIEW `{cls._meta.db_table}` for model {cls}."
             )
 
     class Meta:
