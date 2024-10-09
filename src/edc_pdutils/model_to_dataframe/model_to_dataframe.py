@@ -33,6 +33,8 @@ class ModelToDataframe:
     """
     m = ModelToDataframe(model='edc_pdutils.crf')
     my_df = m.dataframe
+
+    See also: get_crf()
     """
 
     value_getter_cls = ValueGetter
