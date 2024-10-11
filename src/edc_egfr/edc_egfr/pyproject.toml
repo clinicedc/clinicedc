@@ -35,18 +35,18 @@ exclude_lines = [
 legacy_tox_ini = """
 [tox]
 envlist =
-    py{312}-dj{42,51,dev},
+    py{312,313}-dj{51,dev},
     lint
 
 isolated_build = true
 
 [gh-actions]
 python =
-    3.12: py312, lint
+    3.12: py312
+    3.13: py313, lint
 
 [gh-actions:env]
 DJANGO =
-    4.2: dj42
     5.1: dj51
     dev: djdev, lint
 
@@ -56,12 +56,12 @@ deps =
     -r https://raw.githubusercontent.com/clinicedc/edc/develop/requirements.tests/test_utils.txt
     -r https://raw.githubusercontent.com/clinicedc/edc/develop/requirements.tests/edc.txt
     -r https://raw.githubusercontent.com/clinicedc/edc/develop/requirements.tests/third_party_dev.txt
-    dj42: Django>=4.2,<5.0
     dj51: Django>=5.1,<5.2
     djdev: https://github.com/django/django/tarball/main
 
 commands =
     pip install -U pip
+    python --version
     pip --version
     pip freeze
     coverage run -a runtests.py
