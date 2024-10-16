@@ -24,12 +24,20 @@ else:
         pass
 
 
+template_name = getattr(
+    settings,
+    "EDC_PDF_REPORTS_TEMPLATES",
+    {"pdf_intermediate": "edc_pdf_reports/pdf_intermediate_edc.html"},
+)
+
+
 @method_decorator(login_required, name="dispatch")
 class PdfIntermediateView(EdcViewMixin, EdcProtocolViewMixin, TemplateView):
     model_pks: list[str] | None = None
-    template_name: str = "edc_pdf_reports/pdf_intermediate.html"
+    template_name: str = template_name.get("pdf_intermediate")
     pdf_report_url_name = "edc_pdf_reports:pdf_report_url"
     session_key = "model_pks"
+    mempass_nwords = 2
 
     def get(self, request: WSGIRequest, *args, **kwargs):
         if not self.model_pks:
@@ -43,8 +51,8 @@ class PdfIntermediateView(EdcViewMixin, EdcProtocolViewMixin, TemplateView):
             object_count=len(self.model_pks),
             report_name=model_cls._meta.verbose_name,
             url=self.get_pdf_report_url(app_label, model_name),
-            return_to_changelist_url=reverse(model_cls.pdf_report_cls.changelist_url),
-            phrase=slugify(mempass.mkpassword(2)),
+            return_to_changelist_url=self.return_to_changelist_url(model_cls),
+            phrase=slugify(mempass.mkpassword(self.mempass_nwords)),
         )
         return super().get_context_data(**kwargs)
 
@@ -53,3 +61,6 @@ class PdfIntermediateView(EdcViewMixin, EdcProtocolViewMixin, TemplateView):
             self.pdf_report_url_name,
             kwargs=dict(app_label=app_label, model_name=model_name),
         )
+
+    def return_to_changelist_url(self, model_cls):
+        return reverse(model_cls.pdf_report_cls.changelist_url)
