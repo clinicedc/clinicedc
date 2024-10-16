@@ -87,6 +87,8 @@ def get_subject_visit(
     )
     df_last = df_last.reset_index()
     df = df.merge(df_last, on="subject_identifier", how="left")
+
+    # get next visitcode and next visit datetime, if there is one
     df = df.sort_values(by=["subject_identifier", "visit_code"])
     df = df.reset_index(drop=True)
     return df
