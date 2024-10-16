@@ -3,7 +3,6 @@ from django.template.loader import render_to_string
 
 
 class PdfButtonModelAdminMixin:
-
     """A model admin mixin to add a PDF download button for
     the model's custom `CrfPdfReport`.
 
