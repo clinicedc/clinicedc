@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from django.apps import apps as django_apps
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from edc_visit_tracking.constants import SCHEDULED
 
 from ..constants import KEYED, NOT_REQUIRED, REQUIRED
@@ -41,6 +41,12 @@ class PersistantSingletonMixin:
                 and visit.visit_code not in exclude_visit_codes
                 else False
             )
+        except MultipleObjectsReturned:
+            # necessary if the collection schedule changes and a singleton form
+            # is later allowed to be added as a PRN; that is, no longer a
+            # singleton.
+            obj = None
+            required = False
         else:
             required = False
         if visit and visit.visit_code not in exclude_visit_codes:
