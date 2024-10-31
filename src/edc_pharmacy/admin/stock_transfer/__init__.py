@@ -1,0 +1,2 @@
+from .stock_transfer_admin import StockTransferAdmin
+from .stock_transfer_items_admin import StockTransferItemsAdmin

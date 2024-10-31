@@ -64,3 +64,7 @@ class RefillEndDatetimeError(Exception):
 
 class StudyMedicationError(Exception):
     pass
+
+
+class InsufficientStockError(Exception):
+    pass

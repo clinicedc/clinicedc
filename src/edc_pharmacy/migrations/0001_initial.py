@@ -18,16 +18,9 @@ from django.conf import settings
 from django.db import migrations, models
 
 import edc_pharmacy.models.dispensing_history
-import edc_pharmacy.models.dosage_guideline
-import edc_pharmacy.models.formulation
 import edc_pharmacy.models.medication
-import edc_pharmacy.models.medication_lot
-import edc_pharmacy.models.product
+import edc_pharmacy.models.prescription
 import edc_pharmacy.models.return_history
-import edc_pharmacy.models.rx_refill
-import edc_pharmacy.models.stock
-import edc_pharmacy.models.stock_create_labels
-import edc_pharmacy.models.stock_receiving
 
 
 class Migration(migrations.Migration):
@@ -340,7 +333,7 @@ class Migration(migrations.Migration):
                 ),
             },
             managers=[
-                ("objects", edc_pharmacy.models.dosage_guideline.Manager()),
+                ("objects", edc_pharmacy.models.medication.dosage_guideline.Manager()),
             ],
         ),
         migrations.CreateModel(
@@ -437,7 +430,7 @@ class Migration(migrations.Migration):
                 ),
             },
             managers=[
-                ("objects", edc_pharmacy.models.formulation.Manager()),
+                ("objects", edc_pharmacy.models.medication.formulation.Manager()),
             ],
         ),
         migrations.CreateModel(
@@ -2249,7 +2242,7 @@ class Migration(migrations.Migration):
             managers=[
                 (
                     "objects",
-                    edc_pharmacy.models.stock_create_labels.Manager(),
+                    django.db.models.Manager(),
                 ),
             ],
         ),
@@ -2348,7 +2341,7 @@ class Migration(migrations.Migration):
                 ),
             },
             managers=[
-                ("objects", edc_pharmacy.models.medication.Manager()),
+                ("objects", django.db.models.Manager()),
             ],
         ),
         migrations.CreateModel(
@@ -2445,7 +2438,7 @@ class Migration(migrations.Migration):
                 ),
             },
             managers=[
-                ("objects", edc_pharmacy.models.medication_lot.Manager()),
+                ("objects", django.db.models.Manager()),
             ],
         ),
         migrations.CreateModel(
@@ -2553,7 +2546,7 @@ class Migration(migrations.Migration):
                 ),
             },
             managers=[
-                ("objects", edc_pharmacy.models.product.Manager()),
+                ("objects", django.db.models.Manager()),
             ],
         ),
         migrations.CreateModel(
@@ -2652,7 +2645,7 @@ class Migration(migrations.Migration):
                 ),
             },
             managers=[
-                ("objects", edc_pharmacy.models.stock.Manager()),
+                ("objects", django.db.models.Manager()),
             ],
         ),
         migrations.CreateModel(
@@ -2752,7 +2745,7 @@ class Migration(migrations.Migration):
             managers=[
                 (
                     "objects",
-                    edc_pharmacy.models.stock_create_labels.Manager(),
+                    django.db.models.Manager(),
                 ),
             ],
         ),
@@ -2852,7 +2845,7 @@ class Migration(migrations.Migration):
                 ),
             },
             managers=[
-                ("objects", edc_pharmacy.models.stock_receiving.Manager()),
+                ("objects", django.db.models.Manager()),
             ],
         ),
         migrations.CreateModel(
@@ -3392,7 +3385,7 @@ class Migration(migrations.Migration):
             },
             managers=[
                 ("on_site", edc_sites.models.CurrentSiteManager()),
-                ("objects", edc_pharmacy.models.rx_refill.Manager()),
+                ("objects", edc_pharmacy.models.prescription.rx_refill.Manager()),
             ],
         ),
         migrations.CreateModel(
@@ -4317,7 +4310,7 @@ class Migration(migrations.Migration):
             bases=("edc_pharmacy.rxrefill",),
             managers=[
                 ("on_site", edc_sites.models.CurrentSiteManager()),
-                ("objects", edc_pharmacy.models.rx_refill.Manager()),
+                ("objects", edc_pharmacy.models.prescription.rx_refill.Manager()),
             ],
         ),
         migrations.AlterUniqueTogether(

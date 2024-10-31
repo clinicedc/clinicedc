@@ -4,7 +4,7 @@ from django.db.models.deletion import PROTECT
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_utils import get_utcnow
 
-from .rx_refill import RxRefill
+from .prescription import RxRefill
 
 
 class ReturnError(Exception):

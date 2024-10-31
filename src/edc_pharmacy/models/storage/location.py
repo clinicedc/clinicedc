@@ -1,21 +1,30 @@
-from uuid import uuid4
-
 from django.db import models
-from edc_model.models import BaseUuidModel
-from edc_utils import get_utcnow
+from edc_model.models import BaseUuidModel, HistoricalRecords
+
+
+class Manager(models.Manager):
+    use_in_migrations = True
 
 
 class Location(BaseUuidModel):
-    location_identifier = models.CharField(max_length=36, default=uuid4, unique=True)
 
-    location_datetime = models.DateTimeField(default=get_utcnow)
+    name = models.CharField(max_length=50, unique=True)
 
-    name = models.CharField(max_length=25, unique=True)
+    display_name = models.CharField(max_length=50, unique=True, null=True, blank=True)
 
     description = models.TextField(null=True)
 
+    objects = Manager()
+
+    history = HistoricalRecords()
+
     def __str__(self):
-        return f"Location {self.name} "
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.display_name:
+            self.display_name = self.name.capitalize()
+        super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Location"

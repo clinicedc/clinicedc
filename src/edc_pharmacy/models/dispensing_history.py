@@ -7,7 +7,7 @@ from edc_utils import get_utcnow
 from ..choices import DISPENSE_STATUS
 from ..constants import DISPENSED
 from ..dispense import Dispensing
-from .rx_refill import RxRefill
+from .prescription import RxRefill
 
 
 class Manager(models.Manager):

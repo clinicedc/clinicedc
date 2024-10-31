@@ -13,9 +13,7 @@ import simple_history.models
 from django.conf import settings
 from django.db import migrations, models
 
-import edc_pharmacy.models.stock
-import edc_pharmacy.models.stock_create_labels
-import edc_pharmacy.models.stock_receiving
+import edc_pharmacy.models.medication
 
 
 class Migration(migrations.Migration):

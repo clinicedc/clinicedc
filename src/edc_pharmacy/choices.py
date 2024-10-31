@@ -1,4 +1,5 @@
-from edc_constants.constants import NEW, NOT_APPLICABLE, OTHER
+from django.utils.translation import gettext as _
+from edc_constants.constants import COMPLETE, NEW, NOT_APPLICABLE, OTHER
 
 from .constants import CANCELLED, DISPENSED, FILLED, PARTIAL
 
@@ -20,3 +21,5 @@ FREQUENCY = (
     (OTHER, "Other ..."),
     (NOT_APPLICABLE, "Not applicable"),
 )
+
+ORDER_CHOICES = ((NEW, _("New")), (PARTIAL, _("Partial")), (COMPLETE, _("Complete")))

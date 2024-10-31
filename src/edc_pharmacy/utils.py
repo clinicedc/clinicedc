@@ -1,7 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from edc_visit_tracking.utils import get_previous_related_visit
+
+if TYPE_CHECKING:
+    from edc_pharmacy.models import Container, Stock
 
 
 def get_rxrefill_model_cls():
@@ -27,3 +34,21 @@ def update_previous_refill_end_datetime(instance):
         else:
             obj.refill_end_datetime = instance.refill_start_datetime - relativedelta(seconds=1)
             obj.save_base(update_fields=["refill_end_datetime"])
+
+
+def repackage_stock(stock: Stock, container: Container) -> Stock:
+    """Take from stock and fill container.
+
+    Add new container to stock.
+    """
+    stock.container_qty_out = float(stock.container_qty_out) + float(container.container_qty)
+    stock.save()
+    new_stock = stock.__class__.objects.create(
+        receive_item=stock.receive_item,
+        from_stock=stock,
+        container=container,
+        container_qty_in=container.container_qty,
+        location=stock.location,
+    )
+    stock.refresh_from_db()
+    return new_stock

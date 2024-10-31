@@ -3,7 +3,7 @@
 import edc_sites.models
 from django.db import migrations
 
-import edc_pharmacy.models.rx_refill
+import edc_pharmacy.models.prescription.rx_refill
 
 
 class Migration(migrations.Migration):
@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
         migrations.AlterModelManagers(
             name="rxrefill",
             managers=[
-                ("objects", edc_pharmacy.models.rx_refill.Manager()),
+                ("objects", edc_pharmacy.models.prescription.rx_refill.Manager()),
                 ("on_site", edc_sites.models.CurrentSiteManager()),
             ],
         ),
