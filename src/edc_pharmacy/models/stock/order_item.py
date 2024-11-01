@@ -1,6 +1,7 @@
 from django.db import models
 from edc_constants.constants import NEW
 from edc_model.models import BaseUuidModel, HistoricalRecords
+from sequences import get_next_value
 
 from ...choices import ORDER_CHOICES
 from .container import Container
@@ -13,6 +14,8 @@ class Manager(models.Manager):
 
 
 class OrderItem(BaseUuidModel):
+
+    order_item_identifier = models.CharField(max_length=36, unique=True, null=True, blank=True)
 
     order = models.ForeignKey(Order, on_delete=models.PROTECT)
 
@@ -35,9 +38,11 @@ class OrderItem(BaseUuidModel):
     history = HistoricalRecords()
 
     def __str__(self):
-        return self.product.name
+        return f"{self.order_item_identifier}:{self.product.name} | {self.container.name}"
 
     def save(self, *args, **kwargs):
+        if not self.order_item_identifier:
+            self.order_item_identifier = f"{get_next_value(self._meta.label_lower):06d}"
         if self.container.container_qty > 1:
             self.container_qty = self.unit_qty * self.container.container_qty
         else:

@@ -9,4 +9,5 @@ class ContainerType(ListModelMixin):
         super().save(*args, **kwargs)
 
     class Meta(ListModelMixin.Meta):
-        pass
+        verbose_name = "Stock: Container type"
+        verbose_name_plural = "Stock: Container types"

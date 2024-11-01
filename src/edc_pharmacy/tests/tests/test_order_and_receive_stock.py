@@ -268,6 +268,23 @@ class TestOrderReceive(TestCase):
             )
 
     @tag("1")
+    def test_delete_receive_item(self):
+        # confirm deleting stock, resave received items recreates
+        self.order_and_receive()
+        Stock.objects.all().delete()
+        for obj in ReceiveItem.objects.all():
+            self.assertFalse(obj.added_to_stock)
+        for obj in ReceiveItem.objects.all():
+            obj.save()
+        self.assertEqual(Stock.objects.all().count(), 2)
+
+        # confirm deleting stock & received items resets container_qty_received on order items
+        Stock.objects.all().delete()
+        ReceiveItem.objects.all().delete()
+        for order_item in OrderItem.objects.all():
+            self.assertEqual(0, order_item.container_qty_received)
+
+    @tag("1")
     def test_repackage(self):
         """Test repackage two bottles of 50000 into
         bottles of 128.

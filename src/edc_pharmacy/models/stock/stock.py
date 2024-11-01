@@ -1,8 +1,8 @@
-import uuid
-
 from django.db import models
 from django.db.models import PROTECT
 from edc_model.models import BaseUuidModel, HistoricalRecords
+from edc_utils import get_utcnow
+from sequences import get_next_value
 
 from ...exceptions import InsufficientStockError
 from ..storage import Location
@@ -17,7 +17,9 @@ class Manager(models.Manager):
 
 class Stock(BaseUuidModel):
 
-    stock_identifier = models.CharField(max_length=25, unique=True)
+    stock_identifier = models.CharField(max_length=36, unique=True, null=True, blank=True)
+
+    stock_datetime = models.DateTimeField(default=get_utcnow)
 
     receive_item = models.ForeignKey(
         ReceiveItem, on_delete=models.PROTECT, null=True, blank=False
@@ -56,11 +58,11 @@ class Stock(BaseUuidModel):
     history = HistoricalRecords()
 
     def __str__(self):
-        return self.description
+        return f"{self.stock_identifier}:{self.description}"
 
     def save(self, *args, **kwargs):
-        if not self.id:
-            self.stock_identifier = str(uuid.uuid4())
+        if not self.stock_identifier:
+            self.stock_identifier = f"{get_next_value(self._meta.label_lower):06d}"
             self.product = self.receive_item.order_item.product
         if not self.description:
             self.description = (
@@ -74,5 +76,5 @@ class Stock(BaseUuidModel):
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):
-        verbose_name = "Medication: Stock"
-        verbose_name_plural = "Medication: Stock"
+        verbose_name = "Stock"
+        verbose_name_plural = "Stock"

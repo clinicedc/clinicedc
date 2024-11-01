@@ -36,6 +36,7 @@ project_settings = DefaultTestSettings(
         "django.contrib.sites",
         "django_crypto_fields.apps.AppConfig",
         "multisite",
+        "sequences.apps.SequencesConfig",
         "edc_action_item.apps.AppConfig",
         "edc_adverse_event.apps.AppConfig",
         "adverse_event_app.apps.AppConfig",

@@ -16,12 +16,23 @@ from .return_history import ReturnError, ReturnHistory
 from .signals import (
     create_or_update_refills_on_post_save,
     dispensing_history_on_post_save,
+    receive_item_on_post_delete,
+    stock_on_post_delete,
     update_order_item_on_post_save,
 )
-from .stock import Container, Order, OrderItem, Product, Receive, ReceiveItem, Stock
+from .stock import (
+    Container,
+    ContainerType,
+    ContainerUnits,
+    Order,
+    OrderItem,
+    Product,
+    Receive,
+    ReceiveItem,
+    Stock,
+)
 from .storage import (
     Box,
-    ContainerType,
     Location,
     Room,
     Shelf,

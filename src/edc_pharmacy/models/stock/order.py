@@ -1,8 +1,7 @@
-from uuid import uuid4
-
 from django.db import models
 from edc_constants.constants import NEW
 from edc_model.models import BaseUuidModel, HistoricalRecords
+from sequences import get_next_value
 
 from edc_pharmacy.choices import ORDER_CHOICES
 
@@ -13,7 +12,7 @@ class Manager(models.Manager):
 
 class Order(BaseUuidModel):
 
-    order_identifier = models.CharField(max_length=36, unique=True, null=True, blank=False)
+    order_identifier = models.CharField(max_length=36, unique=True, null=True, blank=True)
 
     order_datetime = models.DateTimeField(verbose_name="Order date/time")
 
@@ -35,14 +34,13 @@ class Order(BaseUuidModel):
 
     history = HistoricalRecords()
 
-    def save(self, *args, **kwargs):
-        if not self.id:
-            self.order_identifier = self.get_order_identifier()
-        super().save(*args, **kwargs)
+    def __str__(self):
+        return f"{self.order_identifier}"
 
-    @staticmethod
-    def get_order_identifier():
-        return str(uuid4())
+    def save(self, *args, **kwargs):
+        if not self.order_identifier:
+            self.order_identifier = f"{get_next_value(self._meta.label_lower):06d}"
+        super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Stock: Order"

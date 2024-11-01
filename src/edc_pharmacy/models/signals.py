@@ -10,13 +10,14 @@ from .dispensing_history import DispensingHistory
 from .stock import OrderItem, ReceiveItem, Stock
 
 
-@receiver(post_save, sender=OrderItem, dispatch_uid="update_stock_on_post_save")
+@receiver(post_save, sender=OrderItem, dispatch_uid="update_order_item_on_post_save")
 def update_order_item_on_post_save(sender, instance, raw, created, **kwargs):
     """Update qty counters on Order model each time OrderItem is
     saved.
     """
     if not raw:
         order_items = OrderItem.objects.filter(order=instance.order)
+        instance.order.item_count = order_items.count()
         instance.order.unit_qty = order_items.aggregate(unit_qty=Sum("unit_qty"))["unit_qty"]
         instance.order.container_qty = order_items.aggregate(
             container_qty=Sum("container_qty")
@@ -24,15 +25,19 @@ def update_order_item_on_post_save(sender, instance, raw, created, **kwargs):
         instance.order.save()
 
 
-@receiver(post_save, sender=ReceiveItem, dispatch_uid="update_stock_on_post_save")
-def update_order_item_qty_received_on_post_save(
-    sender, instance, raw, created, update_fields, **kwargs
-):
+@receiver(post_save, sender=ReceiveItem, dispatch_uid="update_receive_item_on_post_save")
+def update_receive_item_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
     """Update received counters on OrderItem, Order models and add to
     Stock each time ReceiveItem is saved.
     """
     if not raw and update_fields != ["added_to_stock"]:
-        instance.order_item.container_qty_received = instance.container_qty
+        receive_items = ReceiveItem.objects.filter(receive=instance.receive)
+        instance.receive.item_count = receive_items.count()
+        instance.order_item.container_qty_received = (
+            instance.order_item.receiveitem_set.all().aggregate(qty=Sum("container_qty"))[
+                "qty"
+            ]
+        )
         if instance.order_item.container_qty_received == instance.order_item.container_qty:
             instance.order_item.status = COMPLETE
         elif instance.order_item.container_qty > instance.order_item.container_qty_received:
@@ -59,25 +64,18 @@ def update_order_item_qty_received_on_post_save(
         instance.save_base(update_fields=["added_to_stock"])
 
 
-# @receiver(post_save, sender=Receive, dispatch_uid="update_stock_on_post_save")
-# def update_stock_on_post_save(sender, instance, raw, created, **kwargs):
-#     if not raw:
-#         for identifier in instance.stock_identifiers_as_list():
-#             try:
-#                 obj = Stock.objects.get(stock_identifier=identifier)
-#             except ObjectDoesNotExist:
-#                 obj = Stock(
-#                     stock_identifier=identifier,
-#                     receiving=instance,
-#                     product=instance.product,
-#                     warehouse=instance.warehouse,
-#                 )
-#                 obj.save()
-#             else:
-#                 obj.receiving = instance
-#                 obj.product = instance.product
-#                 obj.warehouse = instance.warehouse
-#                 obj.save()
+@receiver(post_delete, sender=ReceiveItem, dispatch_uid="receive_item_on_post_delete")
+def receive_item_on_post_delete(sender, instance, using, **kwargs) -> None:
+    instance.order_item.container_qty_received -= instance.container_qty
+    if instance.order_item.container_qty_received < 0:
+        instance.order_item.container_qty_received = 0
+    instance.order_item.save()
+
+
+@receiver(post_delete, sender=Stock, dispatch_uid="stock_on_post_delete")
+def stock_on_post_delete(sender, instance, using, **kwargs) -> None:
+    instance.receive_item.added_to_stock = False
+    instance.receive_item.save_base(update_fields=["added_to_stock"])
 
 
 @receiver(post_save, sender=DispensingHistory, dispatch_uid="dispensing_history_on_post_save")

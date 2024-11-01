@@ -1,5 +1,4 @@
 from .assignment_admin import AssignmentAdmin
-from .container_type_admin import ContainerTypeAdmin
 from .dosage_guideline_admin import DosageGuidelineAdmin
 from .formulation_admin import FormulationAdmin
 from .formulation_type_admin import FormulationTypeAdmin

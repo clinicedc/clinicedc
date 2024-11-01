@@ -37,10 +37,7 @@ def update_previous_refill_end_datetime(instance):
 
 
 def repackage_stock(stock: Stock, container: Container) -> Stock:
-    """Take from stock and fill container.
-
-    Add new container to stock.
-    """
+    """Take from stock and fill container as new stock item"""
     stock.container_qty_out = float(stock.container_qty_out) + float(container.container_qty)
     stock.save()
     new_stock = stock.__class__.objects.create(

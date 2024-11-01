@@ -2,7 +2,6 @@ from .autocomplete_admin import SubjectAdmin
 from .dispensing_history_admin import DispensingHistoryAdmin
 from .medication import (
     AssignmentAdmin,
-    ContainerTypeAdmin,
     DosageGuidelineAdmin,
     FormulationAdmin,
     FormulationTypeAdmin,
@@ -12,8 +11,15 @@ from .medication import (
     RouteAdmin,
     UnitsAdmin,
 )
-from .order_admin import OrderAdmin
 from .prescription import RxAdmin, RxRefillAdmin
 from .return_history_admin import ReturnHistoryAdmin
-
-# from .stock import ProductAdmin, ReceivingAdmin, StockAdmin
+from .stock import (
+    ContainerAdmin,
+    ContainerTypeAdmin,
+    OrderAdmin,
+    OrderItemAdmin,
+    ProductAdmin,
+    ReceiveAdmin,
+    ReceiveItemAdmin,
+    StockAdmin,
+)

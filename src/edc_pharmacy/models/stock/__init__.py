@@ -1,4 +1,5 @@
 from .container import Container
+from .container_type import ContainerType
 from .container_units import ContainerUnits
 from .order import Order
 from .order_item import OrderItem
