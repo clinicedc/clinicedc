@@ -30,15 +30,7 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
         ),
         (
             "Quantity",
-            {
-                "fields": (
-                    "unit_qty_in",
-                    "unit_qty_out",
-                    "container_qty",
-                    "container_qty_in",
-                    "container_qty_out",
-                )
-            },
+            {"fields": ("qty_in", "qty_out")},
         ),
         audit_fieldset_tuple,
     )
@@ -47,11 +39,8 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
         "identifier",
         "product",
         "container",
-        "unit_qty_in",
-        "unit_qty_out",
-        "container_qty",
-        "container_qty_in",
-        "container_qty_out",
+        "qty_in",
+        "qty_out",
         "created",
         "modified",
     )
@@ -66,11 +55,10 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
     readonly_fields = (
         "stock_identifier",
         "product",
-        "unit_qty_in",
-        "unit_qty_out",
-        "container_qty",
-        "container_qty_in",
-        "container_qty_out",
+        "receive_item",
+        "container",
+        "qty_in",
+        "qty_out",
     )
 
     @admin.display(description="Identifier", ordering="-stock_datetime")

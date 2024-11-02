@@ -18,12 +18,6 @@ class Order(BaseUuidModel):
 
     item_count = models.IntegerField(verbose_name="Item count", null=True)
 
-    unit_qty = models.DecimalField(null=True, blank=False, decimal_places=2, max_digits=10)
-
-    container_qty = models.DecimalField(
-        null=True, blank=False, decimal_places=2, max_digits=10
-    )
-
     sent = models.BooleanField(default=False)
 
     status = models.CharField(

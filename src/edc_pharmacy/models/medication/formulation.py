@@ -54,6 +54,13 @@ class Formulation(BaseUuidModel):
             f"{self.get_route_display()}"
         )
 
+    def description_with_assignment(self, assignment):
+        description = self.description
+        return (
+            f"{self.medication.display_name.title()} "
+            f"{assignment.display_label.upper()} {description.split(str(self.medication))[1]}"
+        )
+
     def get_formulation_type_display(self):
         return self.formulation_type.display_name
 

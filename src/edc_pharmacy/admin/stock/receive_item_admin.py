@@ -12,6 +12,7 @@ from ..model_admin_mixin import ModelAdminMixin
 @admin.register(ReceiveItem, site=edc_pharmacy_admin)
 class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     show_object_tools = True
+    show_cancel = True
 
     form = ReceiveItemForm
     include_audit_fields_in_list_display = False
@@ -32,8 +33,8 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
             "Quantity",
             {
                 "fields": (
+                    "qty",
                     "unit_qty",
-                    "container_qty",
                     "added_to_stock",
                 )
             },
@@ -43,8 +44,8 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     list_display = (
         "identifier",
+        "qty",
         "unit_qty",
-        "container_qty",
         "added_to_stock",
         "change_order_url",
         "change_order_items_url",
@@ -67,7 +68,7 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         "container__name",
     )
 
-    readonly_fields = ("container_qty",)
+    readonly_fields = ("unit_qty",)
 
     @admin.display(description="Receive", ordering="-receive__receive_datetime")
     def change_receive_url(self, obj):

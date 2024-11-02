@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_utils import get_utcnow
@@ -30,14 +32,17 @@ class ReceiveItem(BaseUuidModel):
 
     container = models.ForeignKey(Container, on_delete=models.PROTECT)
 
-    unit_qty = models.DecimalField(null=True, blank=False, decimal_places=2, max_digits=10)
+    qty = models.DecimalField(
+        verbose_name="Quantity", null=True, blank=False, decimal_places=2, max_digits=20
+    )
 
-    container_qty = models.DecimalField(
+    unit_qty = models.DecimalField(
+        verbose_name="Unit quantity",
         null=True,
         blank=True,
         decimal_places=2,
-        max_digits=10,
-        help_text="qty of items in the containers (sum)",
+        max_digits=20,
+        help_text="Quantity x Container.Quantity, e.g. 10 x Bottle of 128 = 1280",
     )
 
     added_to_stock = models.BooleanField(default=False)
@@ -56,10 +61,10 @@ class ReceiveItem(BaseUuidModel):
     def save(self, *args, **kwargs):
         if not self.receive_item_identifier:
             self.receive_item_identifier = f"{get_next_value(self._meta.label_lower):06d}"
-        if self.container.container_qty > 1:
-            self.container_qty = self.unit_qty * self.container.container_qty
+        if self.container.qty > Decimal(1.0):
+            self.unit_qty = self.qty * self.container.qty
         else:
-            self.container_qty = self.unit_qty
+            self.unit_qty = self.qty
         if not self.name:
             self.name = f"{self.order_item.product.name} | {self.container.name}"
         super().save(*args, **kwargs)

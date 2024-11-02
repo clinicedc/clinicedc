@@ -37,9 +37,10 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
     show_object_tools = True
 
     form = ReceiveForm
-    inlines = [ReceiveItemInlineAdmin]
-    insert_before_fieldset = "Audit"
+    # inlines = [ReceiveItemInlineAdmin]
+    # insert_before_fieldset = "Audit"
     ordering = ("-receive_identifier",)
+    autocomplete_fields = ["order"]
 
     fieldsets = (
         (

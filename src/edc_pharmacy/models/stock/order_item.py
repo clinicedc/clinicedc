@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 from edc_constants.constants import NEW
 from edc_model.models import BaseUuidModel, HistoricalRecords
@@ -23,11 +25,13 @@ class OrderItem(BaseUuidModel):
 
     container = models.ForeignKey(Container, on_delete=models.PROTECT)
 
-    unit_qty = models.DecimalField(null=True, blank=False, decimal_places=2, max_digits=10)
+    qty = models.DecimalField(null=True, blank=False, decimal_places=2, max_digits=20)
 
-    container_qty = models.DecimalField(decimal_places=2, max_digits=10, default=0)
+    unit_qty = models.DecimalField(decimal_places=2, max_digits=20, default=Decimal(0.0))
 
-    container_qty_received = models.DecimalField(decimal_places=2, max_digits=10, default=0)
+    unit_qty_received = models.DecimalField(
+        decimal_places=2, max_digits=20, default=Decimal(0.0)
+    )
 
     status = models.CharField(
         max_length=25, choices=ORDER_CHOICES, default=NEW, help_text="Updates in the signal"
@@ -43,10 +47,10 @@ class OrderItem(BaseUuidModel):
     def save(self, *args, **kwargs):
         if not self.order_item_identifier:
             self.order_item_identifier = f"{get_next_value(self._meta.label_lower):06d}"
-        if self.container.container_qty > 1:
-            self.container_qty = self.unit_qty * self.container.container_qty
+        if self.container.qty > Decimal(1):
+            self.unit_qty = self.qty * self.container.qty
         else:
-            self.container_qty = self.unit_qty
+            self.unit_qty = self.qty
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):

@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.db.models import Count, Sum
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_consent import site_consents
 from edc_constants.constants import COMPLETE
 from edc_list_data import site_list_data
@@ -78,32 +78,30 @@ class TestOrderReceive(TestCase):
         )
         return product_active, product_placebo
 
-    def make_order(self, container, unit_qty: int | None = None):
-        unit_qty = unit_qty or 100
+    def make_order(self, container, qty: int | None = None):
+        qty = qty or 100
         product_active, product_placebo = self.make_products()
         order = Order.objects.create(order_datetime=get_utcnow())
         for i in range(0, 10):
             OrderItem.objects.create(
                 order=order,
                 product=product_active,
-                unit_qty=unit_qty,
+                qty=qty,
                 container=container,
             )
         for i in range(10, 20):
             OrderItem.objects.create(
                 order=order,
                 product=product_placebo,
-                unit_qty=unit_qty,
+                qty=qty,
                 container=container,
             )
         order.refresh_from_db()
         return order
 
-    @tag("1")
     def test_make_product(self):
         self.make_products()
 
-    @tag("1")
     def test_make_order(self):
         """Test creating an order.
 
@@ -116,40 +114,37 @@ class TestOrderReceive(TestCase):
         )
         container_type, _ = ContainerType.objects.get_or_create(name="tablet")
         container = Container.objects.create(
-            container_type=container_type, container_qty=1, container_units=container_units
+            container_type=container_type, qty=1, units=container_units
         )
         order = self.make_order(container)
         self.assertEqual(OrderItem.objects.all().count(), 20)
-        order.refresh_from_db()
-        self.assertEqual(order.unit_qty, 2000)
-        self.assertEqual(order.container_qty, 2000)
+        self.assertEqual(order.item_count, 20)
 
-    @tag("1")
     def test_receive_ordered_items(self):
         container_units, _ = ContainerUnits.objects.get_or_create(
             name="tablet", plural_name="tablets"
         )
         container_type, _ = ContainerType.objects.get_or_create(name="tablet")
         container = Container.objects.create(
-            container_type=container_type, container_qty=1, container_units=container_units
+            container_type=container_type, qty=1, units=container_units
         )
         order = self.make_order(container)
         receive = Receive.objects.create(order=order, location=self.location)
         order_items = order.orderitem_set.all()
         for order_item in order_items:
             obj = ReceiveItem.objects.create(
-                receive=receive, order_item=order_item, unit_qty=100, container=container
+                receive=receive, order_item=order_item, qty=100, container=container
             )
             # assert container qty received
-            self.assertEqual(obj.container_qty, 100)
+            self.assertEqual(obj.unit_qty, 100)
 
         # assert updates order_item.qty_received
         sums = OrderItem.objects.filter(order=order).aggregate(
-            container_qty=Sum("container_qty"),
-            container_qty_received=Sum("container_qty_received"),
+            unit_qty=Sum("unit_qty"),
+            unit_qty_received=Sum("unit_qty_received"),
         )
-        self.assertEqual(sums["container_qty"], 2000)
-        self.assertEqual(sums["container_qty_received"], 2000)
+        self.assertEqual(sums["unit_qty"], 2000)
+        self.assertEqual(sums["unit_qty_received"], 2000)
 
         # assert updates order_item.status
         for order_item in order_items:
@@ -162,14 +157,13 @@ class TestOrderReceive(TestCase):
         # assert added to stock
         self.assertEqual(
             Stock.objects.filter(receive_item__receive=receive).aggregate(
-                unit_qty_in=Sum("unit_qty_in")
-            )["unit_qty_in"],
+                qty_in=Sum("qty_in")
+            )["qty_in"],
             2000,
         )
         for receive_item in ReceiveItem.objects.filter(receive=receive):
             self.assertTrue(receive_item.added_to_stock)
 
-    @tag("1")
     def test_receive_ordered_items2(self):
         """Test receive where order product unit (e.g. Tablet) is not
         the same as received product unit (Bottle of 100 tablets).
@@ -182,30 +176,30 @@ class TestOrderReceive(TestCase):
             name="tablet", plural_name="tablets"
         )
         container_type, _ = ContainerType.objects.get_or_create(name="tablet")
-        container = Container.objects.create(
-            container_type=container_type, container_qty=1, container_units=container_units
+        container_2000 = Container.objects.create(
+            container_type=container_type, qty=1, units=container_units
         )
-        order = self.make_order(container)
+        order = self.make_order(container_2000)
 
         # receive 20 bottles or 100
         container_type, _ = ContainerType.objects.get_or_create(name="bottle")
-        container = Container.objects.create(
-            container_type=container_type, container_qty=100, container_units=container_units
+        container_20 = Container.objects.create(
+            container_type=container_type, qty=100, units=container_units
         )
 
         receive = Receive.objects.create(order=order, location=self.location)
         order_items = order.orderitem_set.all()
         for order_item in order_items:
             ReceiveItem.objects.create(
-                receive=receive, order_item=order_item, unit_qty=1, container=container
+                receive=receive, order_item=order_item, qty=1, container=container_20
             )
 
         # assert updates order_item.qty_received
         sums = OrderItem.objects.filter(order=order).aggregate(
-            qty_ordered=Sum("container_qty"), qty_received=Sum("container_qty_received")
+            unit_qty=Sum("unit_qty"), unit_qty_received=Sum("unit_qty_received")
         )
-        self.assertEqual(sums["qty_ordered"], 2000)
-        self.assertEqual(sums["qty_received"], 2000)
+        self.assertEqual(sums["unit_qty"], 2000)
+        self.assertEqual(sums["unit_qty_received"], 2000)
 
         # assert updates order_item.status
         for order_item in order_items:
@@ -218,14 +212,14 @@ class TestOrderReceive(TestCase):
         # assert added to stock
         self.assertEqual(
             Stock.objects.filter(receive_item__receive=receive).aggregate(
-                unit_qty_in=Sum("unit_qty_in")
-            )["unit_qty_in"],
+                qty_in=Sum("qty_in")
+            )["qty_in"],
             20,
         )
         self.assertEqual(
             Stock.objects.filter(receive_item__receive=receive).aggregate(
-                container_qty_in=Sum("container_qty_in")
-            )["container_qty_in"],
+                unit_qty_in=Sum("unit_qty_in")
+            )["unit_qty_in"],
             2000,
         )
         for receive_item in ReceiveItem.objects.filter(receive=receive):
@@ -238,36 +232,35 @@ class TestOrderReceive(TestCase):
         )
         container_type, _ = ContainerType.objects.get_or_create(name="tablet")
         container = Container.objects.create(
-            container_type=container_type, container_qty=1, container_units=container_units
+            container_type=container_type, qty=1, units=container_units
         )
         order = Order.objects.create(order_datetime=get_utcnow())
         OrderItem.objects.create(
             order=order,
             product=product_active,
-            unit_qty=50000,
+            qty=50000,
             container=container,
         )
         OrderItem.objects.create(
             order=order,
             product=product_placebo,
-            unit_qty=50000,
+            qty=50000,
             container=container,
         )
         order.refresh_from_db()
 
         container_type, _ = ContainerType.objects.get_or_create(name="bottle")
         container = Container.objects.create(
-            container_type=container_type, container_qty=5000, container_units=container_units
+            container_type=container_type, qty=5000, units=container_units
         )
 
         receive = Receive.objects.create(order=order, location=self.location)
         order_items = order.orderitem_set.all()
         for order_item in order_items:
             ReceiveItem.objects.create(
-                receive=receive, order_item=order_item, unit_qty=10, container=container
+                receive=receive, order_item=order_item, qty=10, container=container
             )
 
-    @tag("1")
     def test_delete_receive_item(self):
         # confirm deleting stock, resave received items recreates
         self.order_and_receive()
@@ -278,13 +271,12 @@ class TestOrderReceive(TestCase):
             obj.save()
         self.assertEqual(Stock.objects.all().count(), 2)
 
-        # confirm deleting stock & received items resets container_qty_received on order items
+        # confirm deleting stock & received items resets unit_qty_received on order items
         Stock.objects.all().delete()
         ReceiveItem.objects.all().delete()
         for order_item in OrderItem.objects.all():
-            self.assertEqual(0, order_item.container_qty_received)
+            self.assertEqual(0, order_item.unit_qty_received)
 
-    @tag("1")
     def test_repackage(self):
         """Test repackage two bottles of 50000 into
         bottles of 128.
@@ -296,8 +288,19 @@ class TestOrderReceive(TestCase):
         )
         container_type, _ = ContainerType.objects.get_or_create(name="bottle")
         container = Container.objects.create(
-            container_type=container_type, container_qty=128, container_units=container_units
+            container_type=container_type, qty=128, units=container_units
         )
+
+        # we have two bottles of 5000 tablets
+        unit_qty_in = Stock.objects.filter(container__qty=5000).aggregate(
+            unit_qty_in=Sum("unit_qty_in")
+        )["unit_qty_in"]
+        unit_qty_out = Stock.objects.filter(container__qty=5000).aggregate(
+            unit_qty_out=Sum("unit_qty_out")
+        )["unit_qty_out"]
+        unit_qty = unit_qty_in - unit_qty_out
+        self.assertEqual(unit_qty, 100000)
+
         for stock in Stock.objects.all():
             x = 0
             while x < 401:
@@ -305,29 +308,39 @@ class TestOrderReceive(TestCase):
                     repackage_stock(stock, container)
                 except InsufficientStockError:
                     break
-                # else:
-                #     print(x, stock.container_qty_in, stock.container_qty_out)
                 x += 1
-        self.assertEqual(
-            Stock.objects.all().aggregate(container_qty=Sum("container_qty"))["container_qty"],
-            100000,
-        )
-        # repackaged 99840 tablets
-        self.assertEqual(
-            Stock.objects.filter(container__container_qty=128).aggregate(
-                container_qty=Sum("container_qty")
-            )["container_qty"],
-            99840,
-        )
-        # 160 tablets leftover
-        self.assertEqual(
-            Stock.objects.filter(container__container_qty=5000).aggregate(
-                container_qty=Sum("container_qty")
-            )["container_qty"],
-            160,
-        )
 
-    @tag("1")
+        # we create bottles of 128 from the two bottles of 5000 tablets
+        # the total number of tablets remains the same
+        unit_qty_in = Stock.objects.all().aggregate(unit_qty_in=Sum("unit_qty_in"))[
+            "unit_qty_in"
+        ]
+        unit_qty_out = Stock.objects.all().aggregate(unit_qty_out=Sum("unit_qty_out"))[
+            "unit_qty_out"
+        ]
+        unit_qty = unit_qty_in - unit_qty_out
+        self.assertEqual(unit_qty, 100000)
+
+        # repackaged 99840 tablets into bottles of 128
+        unit_qty_in = Stock.objects.filter(container__qty=128).aggregate(
+            unit_qty_in=Sum("unit_qty_in")
+        )["unit_qty_in"]
+        unit_qty_out = Stock.objects.filter(container__qty=128).aggregate(
+            unit_qty_out=Sum("unit_qty_out")
+        )["unit_qty_out"]
+        unit_qty = unit_qty_in - unit_qty_out
+        self.assertEqual(unit_qty, 99840)
+
+        # 160 tablets leftover in the two bottles with capacity of 5000
+        unit_qty_in = Stock.objects.filter(container__qty=5000).aggregate(
+            unit_qty_in=Sum("unit_qty_in")
+        )["unit_qty_in"]
+        unit_qty_out = Stock.objects.filter(container__qty=5000).aggregate(
+            unit_qty_out=Sum("unit_qty_out")
+        )["unit_qty_out"]
+        unit_qty = unit_qty_in - unit_qty_out
+        self.assertEqual(unit_qty, 160)
+
     def test_transfer_stock(self):
         self.order_and_receive()
         container_units, _ = ContainerUnits.objects.get_or_create(
@@ -335,7 +348,7 @@ class TestOrderReceive(TestCase):
         )
         container_type, _ = ContainerType.objects.get_or_create(name="bottle")
         container = Container.objects.create(
-            container_type=container_type, container_qty=128, container_units=container_units
+            container_type=container_type, qty=128, units=container_units
         )
 
         # pack 5 bottles or 128
@@ -352,7 +365,7 @@ class TestOrderReceive(TestCase):
         self.assertEqual(locations.get(location__name="central_pharmacy")["location_count"], 7)
 
         # set location to Amana
-        Stock.objects.filter(container__container_qty=128).update(location=self.location_amana)
+        Stock.objects.filter(container__qty=128).update(location=self.location_amana)
 
         locations = (
             Stock.objects.values("location__name")
@@ -369,7 +382,7 @@ class TestOrderReceive(TestCase):
         )
         container_type, _ = ContainerType.objects.get_or_create(name="bottle")
         container = Container.objects.create(
-            container_type=container_type, container_qty=128, container_units=container_units
+            container_type=container_type, qty=128, units=container_units
         )
 
         # pack 5 bottles or 128

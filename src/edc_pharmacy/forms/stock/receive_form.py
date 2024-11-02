@@ -7,7 +7,8 @@ class ReceiveForm(forms.ModelForm):
     class Meta:
         model = Receive
         fields = "__all__"
-        help_text = {"receive_identifier": "(read-only)"}
+        help_text = {"receive_identifier": "(read-only)", "order": "(read-only)"}
         widgets = {
             "receive_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
+            "order": forms.TextInput(attrs={"readonly": "readonly"}),
         }

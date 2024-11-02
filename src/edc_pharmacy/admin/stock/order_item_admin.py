@@ -33,12 +33,9 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         ),
         (
             "Quantity",
-            {"fields": (["unit_qty", "container_qty", "container_qty_received"])},
+            {"fields": (["qty", "unit_qty", "unit_qty_received"])},
         ),
-        (
-            "Status",
-            {"fields": (["status"])},
-        ),
+        ("Status", {"fields": (["status"])}),
         audit_fieldset_tuple,
     )
 
@@ -47,7 +44,7 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         "change_order_url",
         "product_name",
         "container_name",
-        "unit_qty",
+        "qty",
         "received_items_url",
         "status",
         "receive_url",
@@ -62,13 +59,13 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         "order__order_identifier",
     )
     readonly_fields = (
-        "container_qty",
-        "container_qty_received",
+        "unit_qty",
+        "unit_qty_received",
     )
 
     @admin.display(description="Product", ordering="product__name")
     def product_name(self, obj):
-        return obj.product.name
+        return obj.product.formulation.description_with_assignment(obj.product.assignment)
 
     @admin.display(description="Container", ordering="container__name")
     def container_name(self, obj):
@@ -95,7 +92,7 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         if obj.container_qty_received > 0:
             url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_changelist")
             url = f"{url}?q={str(obj.id)}"
-            context = dict(url=url, label=obj.container_qty_received)
+            context = dict(url=url, label=obj.unit_qty_received)
             return render_to_string("edc_pharmacy/stock/items.html", context=context)
         return None
 
@@ -107,10 +104,10 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
             rcv_obj = None
         if not rcv_obj:
             url = reverse("edc_pharmacy_admin:edc_pharmacy_receive_add")
-            next_url = "edc_pharmacy_admin:edc_pharmacy_orderitem_add"
+            next_url = "edc_pharmacy_admin:edc_pharmacy_orderitem_changelist"
             url = f"{url}?next={next_url}&q={str(obj.order.id)}&order={str(obj.order.id)}"
             context = dict(
-                url=url, label="Receive item", title="Receive against this order item"
+                url=url, label="Start Receiving", title="Receive against this order item"
             )
         elif obj.status != COMPLETE:
             url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_add")
@@ -125,7 +122,7 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         else:
             url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_changelist")
             url = f"{url}?q={str(obj.id)}"
-            context = dict(url=url, label="Receiving", title="Receiving")
+            context = dict(url=url, label="Received", title="Received")
         return render_to_string("edc_pharmacy/stock/items.html", context=context)
 
     @admin.display(description="ID", ordering="-order_item_identifier")

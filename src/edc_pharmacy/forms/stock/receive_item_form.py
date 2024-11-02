@@ -8,13 +8,24 @@ class ReceiveItemForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        container_qty = self._meta.model.objects.filter(
-            order_item=cleaned_data.get("order_item")
-        ).aggregate(qty=Sum("container_qty"))["qty"]
-        if (
-            cleaned_data.get("unit_qty") * cleaned_data.get("container").container_qty
-        ) + container_qty > cleaned_data.get("order_item").container_qty:
-            raise forms.ValidationError({"unit_qty": "Exceeds ordered amount"})
+        unit_qty = (
+            self._meta.model.objects.filter(
+                order_item=cleaned_data.get("order_item")
+            ).aggregate(unit_qty=Sum("unit_qty"))["unit_qty"]
+            or 0.0
+        )
+        if (float(cleaned_data.get("qty")) * float(cleaned_data.get("container").qty)) + float(
+            unit_qty
+        ) > float(cleaned_data.get("order_item").unit_qty):
+            raise forms.ValidationError(
+                {
+                    "qty": (
+                        f"Exceeds `unit qty` ordered of "
+                        f'{cleaned_data.get("order_item").unit_qty}. '
+                        "Note: `Unit qty` is the `QTY` * `CONTAINER.QTY`"
+                    )
+                }
+            )
 
         return cleaned_data
 

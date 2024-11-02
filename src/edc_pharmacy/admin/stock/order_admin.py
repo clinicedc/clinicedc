@@ -23,7 +23,7 @@ class OrderItemInlineAdmin(TabularInlineMixin, admin.TabularInline):
                     [
                         "product",
                         "container",
-                        "unit_qty",
+                        "qty",
                     ]
                 )
             },
@@ -53,14 +53,8 @@ class OrderAdmin(ModelAdminMixin, admin.ModelAdmin):
                 )
             },
         ),
-        (
-            "Quantity",
-            {"fields": (["item_count", "unit_qty", "container_qty"])},
-        ),
-        (
-            "Status",
-            {"fields": (["sent", "status"])},
-        ),
+        ("Quantity", {"fields": (["item_count"])}),
+        ("Status", {"fields": (["sent", "status"])}),
         audit_fieldset_tuple,
     )
 
@@ -72,15 +66,13 @@ class OrderAdmin(ModelAdminMixin, admin.ModelAdmin):
         "add_order_item",
         "items",
         "status",
-        "unit_qty",
-        "container_qty",
         "created",
         "modified",
     )
     list_filter = ("sent", "status", "order_datetime")
     radio_fields = {"status": admin.VERTICAL}
     search_fields = ("id", "order_identifier")
-    readonly_fields = ("order_identifier", "unit_qty", "container_qty", "sent")
+    readonly_fields = ("order_identifier", "sent")
 
     @admin.display(description="Order #", ordering="-order_identifier")
     def identifier(self, obj):

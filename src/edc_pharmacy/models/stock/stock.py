@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 from django.db.models import PROTECT
 from edc_model.models import BaseUuidModel, HistoricalRecords
@@ -29,21 +31,15 @@ class Stock(BaseUuidModel):
 
     container = models.ForeignKey(Container, on_delete=models.PROTECT, null=True, blank=False)
 
-    unit_qty_in = models.DecimalField(
-        null=True, blank=False, decimal_places=2, max_digits=10, default=1
+    qty_in = models.DecimalField(
+        null=True, blank=False, decimal_places=2, max_digits=20, default=Decimal(0.0)
     )
 
-    unit_qty_out = models.DecimalField(decimal_places=2, max_digits=10, default=0.0)
+    qty_out = models.DecimalField(decimal_places=2, max_digits=20, default=Decimal(0.0))
 
-    container_qty = models.DecimalField(
-        null=True, blank=False, decimal_places=2, max_digits=10
-    )
+    unit_qty_in = models.DecimalField(decimal_places=2, max_digits=20, default=Decimal(0.0))
 
-    container_qty_in = models.DecimalField(
-        null=True, blank=False, decimal_places=2, max_digits=10
-    )
-
-    container_qty_out = models.DecimalField(decimal_places=2, max_digits=10, default=0.0)
+    unit_qty_out = models.DecimalField(decimal_places=2, max_digits=20, default=Decimal(0.0))
 
     location = models.ForeignKey(Location, on_delete=PROTECT, null=True, blank=False)
 
@@ -63,16 +59,16 @@ class Stock(BaseUuidModel):
     def save(self, *args, **kwargs):
         if not self.stock_identifier:
             self.stock_identifier = f"{get_next_value(self._meta.label_lower):06d}"
-            self.product = self.receive_item.order_item.product
+            if self.receive_item:
+                self.product = self.receive_item.order_item.product
+            else:
+                self.product = self.from_stock.receive_item.order_item.product  # noqa
         if not self.description:
-            self.description = (
-                f"{self.receive_item.order_item.product.name} - {self.container.name}"
-            )
-        if float(self.container_qty_out) > float(self.container_qty_in):
-            raise InsufficientStockError("Container QTY cannot be less than zero.")
-        self.container_qty = float(self.container_qty_in) - float(self.container_qty_out)
-        if self.container_qty_in == self.container_qty_out:
-            self.qty_out = 1
+            self.description = f"{self.product.name} - {self.container.name}"
+        if self.qty_out > self.qty_in:
+            raise InsufficientStockError("QTY OUT cannot exceed QTY IN.")
+        if self.unit_qty_out > self.unit_qty_in:
+            raise InsufficientStockError("Unit QTY OUT cannot exceed Unit QTY IN.")
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):

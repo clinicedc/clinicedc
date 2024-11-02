@@ -41,4 +41,14 @@ list_data = {
         (OTHER, "Other ..."),
         (NOT_APPLICABLE, "Not applicable"),
     ],
+    "edc_pharmacy.containertype": [
+        ("tablet", "Tablet"),
+        ("bottle", "Bottle"),
+    ],
+    "edc_pharmacy.containerunits": [
+        ("tablet", "Tablet"),
+    ],
+    "edc_pharmacy.location": [
+        ("central", "Central"),
+    ],
 }

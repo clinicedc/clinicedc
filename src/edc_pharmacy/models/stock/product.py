@@ -21,7 +21,10 @@ class Product(BaseUuidModel):
     history = HistoricalRecords()
 
     def __str__(self):
-        return f"{self.product_identifier}:{self.name}"
+        return (
+            f"{self.formulation.description_with_assignment(self.assignment)}"
+            f" [{self.product_identifier}]"
+        )
 
     def save(self, *args, **kwargs):
         if not self.product_identifier:

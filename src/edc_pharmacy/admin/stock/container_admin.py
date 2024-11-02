@@ -16,7 +16,7 @@ class ContainerAdmin(ModelAdminMixin, admin.ModelAdmin):
     fieldsets = (
         (
             None,
-            {"fields": (["name", "container_type", "container_units", "container_qty"])},
+            {"fields": (["name", "container_type", "units", "qty", "may_receive_as"])},
         ),
         audit_fieldset_tuple,
     )
@@ -24,12 +24,13 @@ class ContainerAdmin(ModelAdminMixin, admin.ModelAdmin):
     list_display = (
         "name",
         "container_type",
-        "container_units",
-        "container_qty",
+        "units",
+        "qty",
+        "may_receive_as",
         "created",
         "modified",
     )
-    list_filter = ("container_type", "container_units", "created")
-    radio_fields = {"container_type": admin.VERTICAL, "container_units": admin.VERTICAL}
+    list_filter = ("container_type", "units", "may_receive_as", "created")
+    radio_fields = {"container_type": admin.VERTICAL, "units": admin.VERTICAL}
     search_fields = ("name",)
     ordering = ("name",)

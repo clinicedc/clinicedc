@@ -47,7 +47,7 @@ class ProductAdmin(ModelAdminMixin, admin.ModelAdmin):
         "lot__lot_no",
     )
     ordering = ("product_identifier",)
-    readonly_fields = ("product_identifier",)
+    readonly_fields = ("product_identifier", "name")
 
     @admin.display(description="Product identifier", ordering="product_identifier")
     def identifier(self, obj):
