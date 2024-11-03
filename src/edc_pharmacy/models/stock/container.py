@@ -15,8 +15,16 @@ class Container(BaseUuidModel):
 
     qty = models.DecimalField(max_digits=10, decimal_places=2, null=True)
 
+    may_order_as = models.BooleanField(
+        verbose_name="Container may be used for ordering", default=False
+    )
+
     may_receive_as = models.BooleanField(
-        verbose_name="Container may be used for receiving", default=True
+        verbose_name="Container may be used for receiving", default=False
+    )
+
+    may_request_as = models.BooleanField(
+        verbose_name="Container may be used for stock request", default=False
     )
 
     def __str__(self):
@@ -27,6 +35,10 @@ class Container(BaseUuidModel):
             self.name = self.container_type.name
             if self.qty > 1.0:
                 self.name = f"{self.name} of {self.qty}"
+            if self.may_request_as:
+                self.name = f"{self.name} *"
+                self.may_order_as = False
+                self.may_receive_as = False
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):

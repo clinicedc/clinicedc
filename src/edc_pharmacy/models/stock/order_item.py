@@ -6,6 +6,7 @@ from edc_model.models import BaseUuidModel, HistoricalRecords
 from sequences import get_next_value
 
 from ...choices import ORDER_CHOICES
+from ...exceptions import InvalidContainer
 from .container import Container
 from .order import Order
 from .product import Product
@@ -23,15 +24,15 @@ class OrderItem(BaseUuidModel):
 
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
 
-    container = models.ForeignKey(Container, on_delete=models.PROTECT)
+    container = models.ForeignKey(
+        Container, on_delete=models.PROTECT, limit_choices_to={"may_order_as": True}
+    )
 
     qty = models.DecimalField(null=True, blank=False, decimal_places=2, max_digits=20)
 
-    unit_qty = models.DecimalField(decimal_places=2, max_digits=20, default=Decimal(0.0))
+    unit_qty = models.DecimalField(decimal_places=2, max_digits=20, null=True)
 
-    unit_qty_received = models.DecimalField(
-        decimal_places=2, max_digits=20, default=Decimal(0.0)
-    )
+    unit_qty_received = models.DecimalField(decimal_places=2, max_digits=20, null=True)
 
     status = models.CharField(
         max_length=25, choices=ORDER_CHOICES, default=NEW, help_text="Updates in the signal"
@@ -51,6 +52,11 @@ class OrderItem(BaseUuidModel):
             self.unit_qty = self.qty * self.container.qty
         else:
             self.unit_qty = self.qty
+        if not self.container.may_order_as:
+            raise InvalidContainer(
+                "Invalid container. Container is not configured for ordering. "
+                f"Got {self.container}"
+            )
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):

@@ -5,6 +5,7 @@ from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_utils import get_utcnow
 from sequences import get_next_value
 
+from ...exceptions import InvalidContainer
 from .container import Container
 from .order_item import OrderItem
 from .receive import Receive
@@ -20,7 +21,11 @@ class ReceiveItem(BaseUuidModel):
         max_length=36, unique=True, null=True, blank=True
     )
 
-    receive = models.ForeignKey(Receive, on_delete=models.PROTECT)
+    receive = models.ForeignKey(
+        Receive,
+        on_delete=models.PROTECT,
+        blank=False,
+    )
 
     receive_item_datetime = models.DateTimeField(default=get_utcnow)
 
@@ -28,9 +33,18 @@ class ReceiveItem(BaseUuidModel):
         max_length=200, null=True, blank=True, help_text="Leave blank to use default"
     )
 
-    order_item = models.ForeignKey(OrderItem, on_delete=models.PROTECT)
+    order_item = models.ForeignKey(
+        OrderItem,
+        on_delete=models.PROTECT,
+        blank=False,
+    )
 
-    container = models.ForeignKey(Container, on_delete=models.PROTECT)
+    container = models.ForeignKey(
+        Container,
+        on_delete=models.PROTECT,
+        limit_choices_to={"may_receive_as": True},
+        blank=False,
+    )
 
     qty = models.DecimalField(
         verbose_name="Quantity", null=True, blank=False, decimal_places=2, max_digits=20
@@ -67,6 +81,11 @@ class ReceiveItem(BaseUuidModel):
             self.unit_qty = self.qty
         if not self.name:
             self.name = f"{self.order_item.product.name} | {self.container.name}"
+        if not self.container.may_receive_as:
+            raise InvalidContainer(
+                "Invalid container. Container is not configured for receiving. "
+                f"Got {self.container}"
+            )
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):

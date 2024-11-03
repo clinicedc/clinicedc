@@ -29,6 +29,8 @@ from .stock import (
     Product,
     Receive,
     ReceiveItem,
+    Request,
+    RequestItem,
     Stock,
 )
 from .storage import (

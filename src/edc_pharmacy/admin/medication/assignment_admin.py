@@ -24,16 +24,16 @@ class AssignmentAdmin(ModelAdminMixin, admin.ModelAdmin):
     fieldsets = (
         (
             None,
-            {"fields": ["assignment", "display_label"]},
+            {"fields": ["name", "display_label"]},
         ),
         audit_fieldset_tuple,
     )
 
     list_display: Tuple[str, ...] = (
-        "assignment",
+        "name",
         "display_label",
         "created",
         "modified",
     )
 
-    search_fields: Tuple[str, ...] = ("assignment", "display_label")
+    search_fields: Tuple[str, ...] = ("name", "display_label")

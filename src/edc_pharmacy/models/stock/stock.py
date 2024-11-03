@@ -1,20 +1,59 @@
+from __future__ import annotations
+
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from django.db import models
-from django.db.models import PROTECT
+from django.db.models import PROTECT, DecimalField, ExpressionWrapper, F, QuerySet
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_utils import get_utcnow
 from sequences import get_next_value
 
+from ...choices import STOCK_STATUS
+from ...constants import AVAILABLE, RESERVED
 from ...exceptions import InsufficientStockError
 from ..storage import Location
 from .container import Container
 from .product import Product
 from .receive_item import ReceiveItem
+from .request_item import RequestItem
+
+if TYPE_CHECKING:
+    from ..medication import Assignment
 
 
 class Manager(models.Manager):
     use_in_migrations = True
+
+    def in_stock(
+        self,
+        unit_qty: Decimal,
+        container: Container,
+        location: Location,
+        assignment: Assignment,
+    ) -> QuerySet[Stock] | None:
+        expression_wrapper = ExpressionWrapper(
+            F("unit_qty_in") - F("unit_qty_out"),
+            output_field=DecimalField(),
+        )
+        qs = (
+            self.get_queryset()
+            .filter(
+                container=container,
+                location=location,
+                product__assignment=assignment,
+                status=AVAILABLE,
+            )
+            .annotate(difference=expression_wrapper)
+            .filter(difference__gte=unit_qty)
+            .order_by("difference")
+        )
+        if qs.count() == 0:
+            raise InsufficientStockError(
+                f"Insufficient stock. Got container={container}, "
+                f"location={location}, assignment={assignment}"
+            )
+        return qs[0]
 
 
 class Stock(BaseUuidModel):
@@ -25,6 +64,10 @@ class Stock(BaseUuidModel):
 
     receive_item = models.ForeignKey(
         ReceiveItem, on_delete=models.PROTECT, null=True, blank=False
+    )
+
+    request_item = models.ForeignKey(
+        RequestItem, on_delete=models.PROTECT, null=True, blank=False
     )
 
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
@@ -47,6 +90,8 @@ class Stock(BaseUuidModel):
         "edc_pharmacy.stock", related_name="source_stock", on_delete=models.PROTECT, null=True
     )
 
+    status = models.CharField(max_length=25, choices=STOCK_STATUS, default=AVAILABLE)
+
     description = models.CharField(max_length=100, null=True, blank=True)
 
     objects = Manager()
@@ -58,18 +103,25 @@ class Stock(BaseUuidModel):
 
     def save(self, *args, **kwargs):
         if not self.stock_identifier:
-            self.stock_identifier = f"{get_next_value(self._meta.label_lower):06d}"
-            if self.receive_item:
-                self.product = self.receive_item.order_item.product
-            else:
-                self.product = self.from_stock.receive_item.order_item.product  # noqa
+            next_id = get_next_value(self._meta.label_lower)
+            self.stock_identifier = f"{next_id:06d}"
+            self.product = self.get_receive_item.order_item.product
         if not self.description:
             self.description = f"{self.product.name} - {self.container.name}"
         if self.qty_out > self.qty_in:
             raise InsufficientStockError("QTY OUT cannot exceed QTY IN.")
-        if self.unit_qty_out > self.unit_qty_in:
-            raise InsufficientStockError("Unit QTY OUT cannot exceed Unit QTY IN.")
+        if self.request_item and self.request_item.request.location != self.location:
+            self.status = RESERVED
         super().save(*args, **kwargs)
+
+    @property
+    def get_receive_item(self) -> ReceiveItem:
+        obj = self
+        receive_item = self.receive_item
+        while not receive_item:
+            obj = obj.from_stock
+            receive_item = obj.receive_item  # noqa
+        return receive_item
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Stock"

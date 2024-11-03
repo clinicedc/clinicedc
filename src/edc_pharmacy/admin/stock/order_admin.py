@@ -6,7 +6,7 @@ from edc_model_admin.mixins import TabularInlineMixin
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import OrderForm, OrderItemForm
-from ...models import Order, OrderItem
+from ...models import Order, OrderItem, ReceiveItem
 from ..model_admin_mixin import ModelAdminMixin
 
 
@@ -33,6 +33,7 @@ class OrderItemInlineAdmin(TabularInlineMixin, admin.TabularInline):
 
 @admin.register(Order, site=edc_pharmacy_admin)
 class OrderAdmin(ModelAdminMixin, admin.ModelAdmin):
+    change_list_title = "Pharmacy: Orders"
     show_object_tools = True
     show_cancel = True
 
@@ -64,8 +65,9 @@ class OrderAdmin(ModelAdminMixin, admin.ModelAdmin):
         "sent",
         "item_count",
         "add_order_item",
-        "items",
         "status",
+        "items",
+        "receive_changelist",
         "created",
         "modified",
     )
@@ -78,19 +80,28 @@ class OrderAdmin(ModelAdminMixin, admin.ModelAdmin):
     def identifier(self, obj):
         return obj.order_identifier
 
-    @admin.display(description="Order items", ordering="-order_identifier")
+    @admin.display(description="Orders", ordering="-order_identifier")
     def items(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_orderitem_changelist")
         url = f"{url}?q={obj.order_identifier}"
-        context = dict(url=url, label="Order items", title="Go to items on this order")
-        return render_to_string("edc_pharmacy/stock/items.html", context=context)
+        context = dict(url=url, label="Ordered items", title="Go to items on this order")
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
-    @admin.display(description="Add order item")
+    @admin.display(description="Add item")
     def add_order_item(self, obj):
         if obj.item_count > OrderItem.objects.filter(order=obj).count():
             url = reverse("edc_pharmacy_admin:edc_pharmacy_orderitem_add")
             next_url = "edc_pharmacy_admin:edc_pharmacy_order_changelist"
             url = f"{url}?next={next_url}&order={str(obj.id)}&q={str(obj.order_identifier)}"
             context = dict(url=url, label="Add order item")
-            return render_to_string("edc_pharmacy/stock/items.html", context=context)
+            return render_to_string("edc_pharmacy/stock/items_as_button.html", context=context)
+        return None
+
+    @admin.display(description="Receiving")
+    def receive_changelist(self, obj):
+        if ReceiveItem.objects.filter(receive__order=obj).exists():
+            url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_changelist")
+            url = f"{url}?q={str(obj.order_identifier)}"
+            context = dict(url=url, label="Received items", title="Received items")
+            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None

@@ -10,7 +10,7 @@ from ..exceptions import InsufficientStockError
 from ..model_mixins import StudyMedicationCrfModelMixin
 from ..utils import update_previous_refill_end_datetime
 from .dispensing_history import DispensingHistory
-from .stock import OrderItem, ReceiveItem, Stock
+from .stock import OrderItem, ReceiveItem, RequestItem, Stock
 
 
 @receiver(post_save, sender=Stock, dispatch_uid="update_stock_on_post_save")
@@ -18,6 +18,11 @@ def update_stock_on_post_save(sender, instance, raw, created, update_fields, **k
     """Update unit qty"""
     if not raw and not update_fields:
         instance.unit_qty_in = Decimal(instance.qty_in) * instance.container.qty
+        if instance.from_stock:
+            instance.from_stock.unit_qty_out += instance.unit_qty_in
+            if instance.from_stock.unit_qty_out > instance.from_stock.unit_qty_in:
+                raise InsufficientStockError("Unit QTY OUT cannot exceed Unit QTY IN.")
+            instance.from_stock.save(update_fields=["unit_qty_out"])
         instance.unit_qty_out = Decimal(instance.qty_out) * instance.container.qty
         if instance.unit_qty_out > instance.unit_qty_in:
             raise InsufficientStockError("Unit QTY OUT cannot exceed Unit QTY IN.")
@@ -74,6 +79,15 @@ def update_receive_item_on_post_save(sender, instance, raw, created, update_fiel
         )
         instance.added_to_stock = True
         instance.save_base(update_fields=["added_to_stock"])
+
+
+@receiver(post_save, sender=RequestItem, dispatch_uid="request_item_on_post_save")
+def request_item_on_post_save(sender, instance, raw, created, update_fields, **kwargs) -> None:
+    if not raw and not update_fields:
+        instance.request.item_count = RequestItem.objects.filter(
+            request=instance.request
+        ).count()
+        instance.request.save(update_fields=["item_count"])
 
 
 @receiver(post_delete, sender=ReceiveItem, dispatch_uid="receive_item_on_post_delete")

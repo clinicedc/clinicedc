@@ -34,7 +34,9 @@ class ReceiveItemInlineAdmin(TabularInlineMixin, admin.TabularInline):
 
 @admin.register(Receive, site=edc_pharmacy_admin)
 class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
-    show_object_tools = True
+    change_list_title = "Pharmacy: Receiving"
+    show_object_tools = False
+    show_cancel = True
 
     form = ReceiveForm
     # inlines = [ReceiveItemInlineAdmin]
@@ -60,9 +62,10 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
     list_display = (
         "identifier",
         "receive_datetime",
-        "items",
         "location",
-        "order",
+        "item_count",
+        "order_changelist",
+        "items",
         "created",
         "modified",
     )
@@ -73,7 +76,7 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
         "modified",
     )
     search_fields = (
-        "receive_identifier",
+        "id",
         "order__order_identifier",
         "location__name",
     )
@@ -82,9 +85,16 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
     def identifier(self, obj):
         return obj.receive_identifier
 
-    @admin.display(description="Receive items", ordering="receive_identifier")
+    @admin.display(description="Received items", ordering="receive_identifier")
     def items(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_changelist")
-        url = f"{url}?q={obj.receive_identifier}"
-        context = dict(url=url, label="Receive items", title="Go to received items")
-        return render_to_string("edc_pharmacy/stock/items.html", context=context)
+        url = f"{url}?q={obj.id}"
+        context = dict(url=url, label="Received items", title="Go to received items")
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+
+    @admin.display(description="Order #")
+    def order_changelist(self, obj):
+        url = reverse("edc_pharmacy_admin:edc_pharmacy_order_changelist")
+        url = f"{url}?q={str(obj.order.order_identifier)}"
+        context = dict(url=url, label=obj.order.order_identifier, title="Back to order")
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)

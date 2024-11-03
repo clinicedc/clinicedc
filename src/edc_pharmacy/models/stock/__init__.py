@@ -6,6 +6,8 @@ from .order_item import OrderItem
 from .product import Product
 from .receive import Receive
 from .receive_item import ReceiveItem
+from .request import Request
+from .request_item import RequestItem
 from .stock import Stock
 from .stock_transfer import StockTransfer
 from .stock_transfer_items import StockTransferItems

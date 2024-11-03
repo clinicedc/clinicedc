@@ -66,5 +66,25 @@ class StudyMedicationError(Exception):
     pass
 
 
+class StockError(Exception):
+    pass
+
+
 class InsufficientStockError(Exception):
+    pass
+
+
+class InvalidContainer(Exception):
+    pass
+
+
+class RepackageError(Exception):
+    pass
+
+
+class ProcessStockRequestError(Exception):
+    pass
+
+
+class ChecksumError(Exception):
     pass

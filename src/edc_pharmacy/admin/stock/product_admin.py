@@ -9,7 +9,9 @@ from ..model_admin_mixin import ModelAdminMixin
 
 @admin.register(Product, site=edc_pharmacy_admin)
 class ProductAdmin(ModelAdminMixin, admin.ModelAdmin):
+    change_list_title = "Pharmacy: Products"
     show_object_tools = True
+    show_cancel = True
 
     form = ProductForm
 
@@ -31,10 +33,10 @@ class ProductAdmin(ModelAdminMixin, admin.ModelAdmin):
     )
 
     list_display = (
+        "identifier",
         "name",
         "formulation",
         "assignment",
-        "identifier",
         "created",
         "modified",
     )
@@ -48,7 +50,8 @@ class ProductAdmin(ModelAdminMixin, admin.ModelAdmin):
     )
     ordering = ("product_identifier",)
     readonly_fields = ("product_identifier", "name")
+    radio_fields = {"assignment": admin.VERTICAL}
 
-    @admin.display(description="Product identifier", ordering="product_identifier")
+    @admin.display(description="ID", ordering="product_identifier")
     def identifier(self, obj):
         return obj.product_identifier.split("-")[0]

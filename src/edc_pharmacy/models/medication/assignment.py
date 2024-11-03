@@ -9,7 +9,7 @@ class Manager(models.Manager):
 
 class Assignment(BaseUuidModel):
 
-    assignment = EncryptedCharField(help_text="word as in randomization list")
+    name = EncryptedCharField(help_text="word as in randomization list")
 
     display_label = EncryptedCharField(
         verbose_name="Formal label",
@@ -26,7 +26,7 @@ class Assignment(BaseUuidModel):
         return self.display_label
 
     def save(self, *args, **kwargs):
-        self.assignment = self.assignment.lower()
+        self.assignment = self.name.lower()
         if not self.display_label:
             self.display_label = self.assignment.title()
         super().save(*args, **kwargs)

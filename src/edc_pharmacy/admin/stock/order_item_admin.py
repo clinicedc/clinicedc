@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -12,7 +14,8 @@ from ..model_admin_mixin import ModelAdminMixin
 
 @admin.register(OrderItem, site=edc_pharmacy_admin)
 class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
-    show_object_tools = True
+    change_list_title = "Pharmacy: Ordered items"
+    show_object_tools = False
     show_cancel = True
     form = OrderItemForm
     ordering = ("-order_item_identifier",)
@@ -41,13 +44,14 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     list_display = (
         "identifier",
-        "change_order_url",
         "product_name",
         "container_name",
         "qty",
-        "received_items_url",
+        "received_items_changelist",
         "status",
+        "order_changelist",
         "receive_url",
+        "stock_changelist",
         "created",
         "modified",
     )
@@ -72,29 +76,40 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         return obj.container.name
 
     @admin.display(description="Order #", ordering="-order__order_datetime")
-    def change_order_url(self, obj):
+    def order_changelist(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_order_changelist")
         url = f"{url}?q={obj.order.order_identifier}"
         context = dict(url=url, label=obj.order.order_identifier, title="Back to order")
-        return render_to_string("edc_pharmacy/stock/items.html", context=context)
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(description="Receive item")
     def changelist_receive_item_url(self, obj):
-        if obj.container_qty == obj.container_qty_received:
+        if obj.container.qty == obj.unit_qty_received:
             url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_changelist")
             url = f"{url}?q={obj.order.order_identifier}"
             context = dict(url=url, label="Receive more", title="Receive more")
-            return render_to_string("edc_pharmacy/stock/items.html", context=context)
+            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None
 
-    @admin.display(description="qty received", ordering="container_qty_received")
-    def received_items_url(self, obj):
-        if obj.container_qty_received > 0:
+    @admin.display(description="not received", ordering="unit_qty_received")
+    def received_items_changelist(self, obj):
+        if (obj.unit_qty_received or Decimal(0)) > Decimal(0):
             url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_changelist")
             url = f"{url}?q={str(obj.id)}"
-            context = dict(url=url, label=obj.unit_qty_received)
-            return render_to_string("edc_pharmacy/stock/items.html", context=context)
+            context = dict(
+                url=url,
+                label=obj.unit_qty - obj.unit_qty_received,
+                title="Go to received item(s) for this ordered item",
+            )
+            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None
+
+    @admin.display(description="Stock")
+    def stock_changelist(self, obj):
+        url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
+        url = f"{url}?q={obj.order.order_identifier}"
+        context = dict(url=url, label="Stock", title="Go to stock")
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(description="Receiving")
     def receive_url(self, obj):
@@ -121,9 +136,10 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
             )
         else:
             url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_changelist")
-            url = f"{url}?q={str(obj.id)}"
-            context = dict(url=url, label="Received", title="Received")
-        return render_to_string("edc_pharmacy/stock/items.html", context=context)
+            url = f"{url}?q={str(obj.order.order_identifier)}"
+            context = dict(url=url, label="Received items", title="Received items")
+            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return render_to_string("edc_pharmacy/stock/items_as_button.html", context=context)
 
     @admin.display(description="ID", ordering="-order_item_identifier")
     def identifier(self, obj):
