@@ -51,7 +51,7 @@ class QaReportModelMixin(models.Model):
                 if drop:
                     try:
                         c.execute(f"drop view {cls._meta.db_table};")
-                    except OperationalError as e:
+                    except OperationalError:
                         pass
                 c.execute(f"create view {cls._meta.db_table} as {sql};")
             sys.stdout.write(
