@@ -1,0 +1,2 @@
+from .label_configuration import LabelConfiguration
+from .label_specification_proxy import LabelSpecification

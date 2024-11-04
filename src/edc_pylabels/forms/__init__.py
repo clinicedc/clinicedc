@@ -1,0 +1,1 @@
+from .label_configuration_form import LabelConfigurationForm
