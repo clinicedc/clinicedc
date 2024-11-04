@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from django.db import models
 from django.db.models import PROTECT, DecimalField, ExpressionWrapper, F, QuerySet
 from edc_model.models import BaseUuidModel, HistoricalRecords
+from edc_sites.site import sites as site_sites
 from edc_utils import get_utcnow
 from sequences import get_next_value
 
@@ -110,7 +111,8 @@ class Stock(BaseUuidModel):
             self.description = f"{self.product.name} - {self.container.name}"
         if self.qty_out > self.qty_in:
             raise InsufficientStockError("QTY OUT cannot exceed QTY IN.")
-        if self.request_item and self.request_item.request.location != self.location:
+        single_site = site_sites.get(self.request_item.request.site.id)
+        if self.request_item and single_site.name != self.location.name:
             self.status = RESERVED
         super().save(*args, **kwargs)
 

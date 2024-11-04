@@ -14,5 +14,7 @@ from .stock import (
     ProductForm,
     ReceiveForm,
     ReceiveItemForm,
+    RequestForm,
+    RequestItemForm,
     StockForm,
 )

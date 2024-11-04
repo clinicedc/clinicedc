@@ -6,4 +6,6 @@ from .order_item_form import OrderItemForm
 from .product_form import ProductForm
 from .receive_form import ReceiveForm
 from .receive_item_form import ReceiveItemForm
+from .request_form import RequestForm
+from .request_item_form import RequestItemForm
 from .stock_form import StockForm

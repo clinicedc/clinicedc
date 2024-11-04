@@ -11,7 +11,7 @@ from .medication import (
     Units,
 )
 from .prescription import Rx, RxRefill
-from .proxy_models import VisitSchedule
+from .proxy_models import SiteProxy, VisitSchedule
 from .return_history import ReturnError, ReturnHistory
 from .signals import (
     create_or_update_refills_on_post_save,

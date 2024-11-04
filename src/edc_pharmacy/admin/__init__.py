@@ -21,5 +21,7 @@ from .stock import (
     ProductAdmin,
     ReceiveAdmin,
     ReceiveItemAdmin,
+    RequestAdmin,
+    RequestItemAdmin,
     StockAdmin,
 )

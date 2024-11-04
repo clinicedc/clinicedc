@@ -1,10 +1,12 @@
 from django.contrib.sites.models import Site
 from django.db import models
 from edc_model.models import BaseUuidModel, HistoricalRecords
+from edc_randomization.site_randomizers import site_randomizers
 from edc_utils import get_utcnow
 from sequences import get_next_value
 
 from ...utils import generate_code_with_checksum_from_id
+from ..prescription import Rx
 from .request import Request
 
 
@@ -28,16 +30,13 @@ class RequestItem(BaseUuidModel):
     code = models.CharField(max_length=15, unique=True, help_text="Human readable code")
 
     request_item_datetime = models.DateTimeField(default=get_utcnow)
-    request = models.ForeignKey(
-        Request, verbose_name="Stock request", on_delete=models.PROTECT
-    )
+    request = models.ForeignKey(Request, verbose_name="Request", on_delete=models.PROTECT)
+
+    rx = models.ForeignKey(Rx, on_delete=models.PROTECT, null=True, blank=False)
 
     subject_identifier = models.CharField(max_length=15, null=True)
 
-    sid = models.IntegerField(
-        null=True,
-        help_text="Pharmacy reference for rando assignment. Validated against the Stock FK",
-    )
+    sid = models.IntegerField(null=True)
     site = models.ForeignKey(Site, null=True, on_delete=models.PROTECT)
 
     gender = models.CharField(max_length=5, null=True, help_text="Add for convenience")
@@ -64,10 +63,16 @@ class RequestItem(BaseUuidModel):
     def save(self, *args, **kwargs):
         if not self.request_item_identifier:
             next_id = get_next_value(self._meta.label_lower)
-            self.request_item_identifier = next_id
+            self.request_item_identifier = f"{next_id:06d}"
             self.code = generate_code_with_checksum_from_id(next_id)
+        self.subject_identifier = self.rx.subject_identifier
+        randomizer = site_randomizers.get(self.rx.randomizer_name)
+        rando_obj = randomizer.model_cls.objects.get(
+            subject_identifier=self.subject_identifier
+        )
+        self.sid = rando_obj.sid
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):
-        verbose_name = "Stock: Request item"
-        verbose_name_plural = "Stock: Request items"
+        verbose_name = "Request item"
+        verbose_name_plural = "Request items"
