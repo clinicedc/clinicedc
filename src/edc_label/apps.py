@@ -15,8 +15,8 @@ class EdcLabelAppConfigError(Exception):
 class AppConfig(DjangoAppConfig):
     name = "edc_label"
 
-    verbose_name = "Edc Label"
-    include_in_administration_section = True
+    verbose_name = "Edc Labels (Lab)"
+    include_in_administration_section = False
     # default extension
     template_ext = "lbl"
 
