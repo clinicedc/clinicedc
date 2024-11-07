@@ -2,10 +2,10 @@ from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 from edc_registration.models import RegisteredSubject
 
-from ...models import RequestItem
+from ...models import StockRequestItem
 
 
-class RequestItemForm(forms.ModelForm):
+class StockRequestItemForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
@@ -20,7 +20,7 @@ class RequestItemForm(forms.ModelForm):
         return cleaned_data
 
     class Meta:
-        model = RequestItem
+        model = StockRequestItem
         fields = "__all__"
         help_text = {"request_item_identifier": "(read-only)"}
         widgets = {

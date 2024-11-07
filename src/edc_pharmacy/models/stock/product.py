@@ -34,5 +34,5 @@ class Product(BaseUuidModel):
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):
-        verbose_name = "Stock: Product"
-        verbose_name_plural = "Stock: Product"
+        verbose_name = "Product"
+        verbose_name_plural = "Product"

@@ -15,11 +15,11 @@ from edc_utils import get_utcnow
 from edc_visit_tracking.utils import get_related_visit_model
 from sequences import get_next_value
 
-from ...models import RequestItem, Rx
+from ...models import Rx, StockRequestItem
 from ...utils import generate_code_with_checksum_from_id
 
 if TYPE_CHECKING:
-    from ...models import Request
+    from ...models import StockRequest
 
 
 def create_request_items_action(modeladmin, request, queryset):
@@ -30,7 +30,7 @@ def create_request_items_action(modeladmin, request, queryset):
             _("Select one and only one existing label specification"),
         )
     else:
-        request_obj: Request = queryset.first()
+        stock_request_obj: StockRequest = queryset.first()
         now = get_utcnow()
         df = get_subject_visit(model=get_related_visit_model())
         df["last_visit_datetime"] = df["last_visit_datetime"].dt.normalize()
@@ -38,13 +38,13 @@ def create_request_items_action(modeladmin, request, queryset):
             (df.visit_code == df.last_visit_code)
             & (df.visit_code_sequence == 0)
             & (df.last_visit_datetime <= pd.to_datetime("today"))
-            & (df.site_id == request_obj.site_id)
+            & (df.site_id == stock_request_obj.site_id)
         ]
         df = df.reset_index(drop=True)
         df_consent = read_frame(
             get_consent_model_cls()
             .objects.values("subject_identifier", "gender")
-            .filter(site=request_obj.site),
+            .filter(site=stock_request_obj.site),
             verbose=False,
         )
         df = df.merge(
@@ -81,9 +81,9 @@ def create_request_items_action(modeladmin, request, queryset):
             rando_obj = randomizer.model_cls().objects.get(
                 subject_identifier=row["subject_identifier"]
             )
-            next_id = get_next_value(RequestItem._meta.label_lower)
-            obj = RequestItem(
-                request=request_obj,
+            next_id = get_next_value(StockRequestItem._meta.label_lower)
+            obj = StockRequestItem(
+                stock_request=stock_request_obj,
                 request_item_identifier=f"{next_id:06d}",
                 code=generate_code_with_checksum_from_id(next_id),
                 subject_identifier=row["subject_identifier"],
@@ -94,14 +94,14 @@ def create_request_items_action(modeladmin, request, queryset):
                 created=now,
             )
             data.append(obj)
-        created = len(RequestItem.objects.bulk_create(data))
-        url = reverse("edc_pharmacy_admin:edc_pharmacy_request_changelist")
-        url = f"{url}?q={request_obj.request_identifier}"
+        created = len(StockRequestItem.objects.bulk_create(data))
+        url = reverse("edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist")
+        url = f"{url}?q={stock_request_obj.request_identifier}"
         msg = format_html(
             _("Created request %(request_identifier)s with %(created)s records")
             % {
                 "created": created,
-                "request_identifier": request_obj.request_identifier,
+                "request_identifier": stock_request_obj.request_identifier,
                 "url": url,
             }
         )

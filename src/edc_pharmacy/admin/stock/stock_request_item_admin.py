@@ -5,17 +5,17 @@ from django_audit_fields import audit_fieldset_tuple
 from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
-from ...forms import RequestItemForm
-from ...models import RequestItem
+from ...forms import StockRequestItemForm
+from ...models import StockRequestItem
 from ..model_admin_mixin import ModelAdminMixin
 
 
-@admin.register(RequestItem, site=edc_pharmacy_admin)
-class RequestItemAdmin(ModelAdminMixin, admin.ModelAdmin):
+@admin.register(StockRequestItem, site=edc_pharmacy_admin)
+class StockRequestItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     change_list_title = "Pharmacy: Request item for stock request"
     show_object_tools = False
     show_cancel = True
-    form = RequestItemForm
+    form = StockRequestItemForm
     autocomplete_fields = ["rx"]
 
     fieldsets = (
@@ -23,7 +23,7 @@ class RequestItemAdmin(ModelAdminMixin, admin.ModelAdmin):
             "Section A",
             {
                 "fields": (
-                    "request",
+                    "stock_request",
                     "request_item_datetime",
                     "rx",
                 )
@@ -71,7 +71,12 @@ class RequestItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         "code",
     )
 
-    search_fields = ("code", "id", "rx__subject_identifier", "request__request_identifier")
+    search_fields = (
+        "code",
+        "id",
+        "rx__subject_identifier",
+        "stock_request__request_identifier",
+    )
 
     @admin.display(description="Date", ordering="request_item_datetime")
     def item_date(self, obj):
@@ -91,9 +96,11 @@ class RequestItemAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     @admin.display(description="Request#")
     def request_changelist(self, obj):
-        url = reverse("edc_pharmacy_admin:edc_pharmacy_request_changelist")
-        url = f"{url}?q={obj.request.request_identifier}"
+        url = reverse("edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist")
+        url = f"{url}?q={obj.stock_request.request_identifier}"
         context = dict(
-            url=url, label=f"{obj.request.request_identifier}", title="Back to request"
+            url=url,
+            label=f"{obj.stock_request.request_identifier}",
+            title="Back to stock request",
         )
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)

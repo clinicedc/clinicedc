@@ -13,11 +13,12 @@ from sequences import get_next_value
 from ...choices import STOCK_STATUS
 from ...constants import AVAILABLE, RESERVED
 from ...exceptions import InsufficientStockError
-from ..storage import Location
+from ..stock_request import StockRequestItem
 from .container import Container
+from .location import Location
 from .product import Product
 from .receive_item import ReceiveItem
-from .request_item import RequestItem
+from .repack_request import RepackRequest
 
 if TYPE_CHECKING:
     from ..medication import Assignment
@@ -67,8 +68,12 @@ class Stock(BaseUuidModel):
         ReceiveItem, on_delete=models.PROTECT, null=True, blank=False
     )
 
-    request_item = models.ForeignKey(
-        RequestItem, on_delete=models.PROTECT, null=True, blank=False
+    repack_request = models.ForeignKey(
+        RepackRequest, on_delete=models.PROTECT, null=True, blank=False
+    )
+
+    stock_request_item = models.ForeignKey(
+        StockRequestItem, on_delete=models.PROTECT, null=True, blank=False
     )
 
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
@@ -95,6 +100,16 @@ class Stock(BaseUuidModel):
 
     description = models.CharField(max_length=100, null=True, blank=True)
 
+    confirmed = models.BooleanField(default=False)
+    confirmed_datetime = models.DateTimeField(null=True, blank=True)
+    confirmed_by = models.CharField(
+        max_length=150, null=True, blank=True, help_text="label_lower"
+    )
+    confirmed_by_identifier = models.CharField(max_length=36, null=True, blank=True)
+
+    allocated_datetime = models.DateTimeField(null=True, blank=True)
+    subject_identifier = models.CharField(max_length=50, null=True, blank=True)
+
     objects = Manager()
 
     history = HistoricalRecords()
@@ -106,17 +121,17 @@ class Stock(BaseUuidModel):
         if not self.stock_identifier:
             next_id = get_next_value(self._meta.label_lower)
             self.stock_identifier = f"{next_id:06d}"
-            self.product = self.get_receive_item.order_item.product
+            self.product = self.get_receive_item().order_item.product
         if not self.description:
             self.description = f"{self.product.name} - {self.container.name}"
         if self.qty_out > self.qty_in:
             raise InsufficientStockError("QTY OUT cannot exceed QTY IN.")
-        single_site = site_sites.get(self.request_item.request.site.id)
-        if self.request_item and single_site.name != self.location.name:
-            self.status = RESERVED
+        if self.stock_request_item:
+            single_site = site_sites.get(self.stock_request_item.stock_request.site.id)
+            if single_site.name != self.location.name:
+                self.status = RESERVED
         super().save(*args, **kwargs)
 
-    @property
     def get_receive_item(self) -> ReceiveItem:
         obj = self
         receive_item = self.receive_item

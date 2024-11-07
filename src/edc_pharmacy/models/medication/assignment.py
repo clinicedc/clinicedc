@@ -32,5 +32,5 @@ class Assignment(BaseUuidModel):
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):
-        verbose_name = "Medication: Assignment"
-        verbose_name_plural = "Medication: Assignments"
+        verbose_name = "Assignment"
+        verbose_name_plural = "Assignments"

@@ -23,6 +23,10 @@ class Container(BaseUuidModel):
         verbose_name="Container may be used for receiving", default=False
     )
 
+    may_repack_as = models.BooleanField(
+        verbose_name="Container may be used for repack request", default=False
+    )
+
     may_request_as = models.BooleanField(
         verbose_name="Container may be used for stock request", default=False
     )
@@ -35,12 +39,11 @@ class Container(BaseUuidModel):
             self.name = self.container_type.name
             if self.qty > 1.0:
                 self.name = f"{self.name} of {self.qty}"
-            if self.may_request_as:
-                self.name = f"{self.name} *"
-                self.may_order_as = False
-                self.may_receive_as = False
+        if self.may_request_as or self.may_repack_as:
+            self.may_order_as = False
+            self.may_receive_as = False
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):
-        verbose_name = "Stock: Container"
-        verbose_name_plural = "Stock: Containers"
+        verbose_name = "Container"
+        verbose_name_plural = "Containers"

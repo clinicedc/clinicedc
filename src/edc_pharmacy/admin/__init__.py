@@ -1,4 +1,9 @@
-from .autocomplete_admin import SubjectAdmin
+from .autocomplete_admin import (
+    LabelSpecificationProxyAdmin,
+    SiteProxyAdmin,
+    SubjectAdmin,
+    VisitScheduleAdmin,
+)
 from .dispensing_history_admin import DispensingHistoryAdmin
 from .medication import (
     AssignmentAdmin,
@@ -21,7 +26,9 @@ from .stock import (
     ProductAdmin,
     ReceiveAdmin,
     ReceiveItemAdmin,
-    RequestAdmin,
-    RequestItemAdmin,
+    RequestRepackAdmin,
     StockAdmin,
+    StockRequestAdmin,
+    StockRequestItemAdmin,
+    StockUpdateAdmin,
 )

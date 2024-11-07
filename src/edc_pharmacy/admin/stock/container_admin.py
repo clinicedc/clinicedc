@@ -26,6 +26,7 @@ class ContainerAdmin(ModelAdminMixin, admin.ModelAdmin):
                         "qty",
                         "may_order_as",
                         "may_receive_as",
+                        "may_repack_as",
                         "may_request_as",
                     ]
                 )
@@ -41,6 +42,7 @@ class ContainerAdmin(ModelAdminMixin, admin.ModelAdmin):
         "qty",
         "may_order",
         "may_receive",
+        "may_repack",
         "may_request",
         "created",
         "modified",
@@ -64,6 +66,10 @@ class ContainerAdmin(ModelAdminMixin, admin.ModelAdmin):
     @admin.display(description="receive", ordering="may_receive_as")
     def may_receive(self, obj):
         return obj.may_receive_as
+
+    @admin.display(description="Repack", ordering="may_repack_as")
+    def may_repack(self, obj):
+        return obj.may_repack_as
 
     @admin.display(description="request", ordering="may_request_as")
     def may_request(self, obj):

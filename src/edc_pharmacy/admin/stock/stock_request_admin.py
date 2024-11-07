@@ -5,19 +5,19 @@ from django_audit_fields import audit_fieldset_tuple
 from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
-from ...forms import RequestForm
-from ...models import Request, RequestItem
+from ...forms import StockRequestForm
+from ...models import StockRequest, StockRequestItem
 from ..actions import create_request_items_action
 from ..model_admin_mixin import ModelAdminMixin
 
 
-@admin.register(Request, site=edc_pharmacy_admin)
-class RequestAdmin(ModelAdminMixin, admin.ModelAdmin):
+@admin.register(StockRequest, site=edc_pharmacy_admin)
+class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
     change_list_title = "Pharmacy: Request for stock"
     show_object_tools = True
     show_cancel = True
     autocomplete_fields = ["container", "formulation", "site_proxy"]
-    form = RequestForm
+    form = StockRequestForm
 
     actions = [create_request_items_action]
 
@@ -48,15 +48,15 @@ class RequestAdmin(ModelAdminMixin, admin.ModelAdmin):
     )
 
     list_display = (
-        "request_id",
+        "stock_request_id",
         "request_date",
         "site_proxy",
         "formulation",
         "container",
         "per_subject",
         "request_item_count",
-        "add_request_item",
-        "items",
+        "add_stock_request_item",
+        "stock_request_items",
         "status",
     )
 
@@ -74,7 +74,7 @@ class RequestAdmin(ModelAdminMixin, admin.ModelAdmin):
     search_fields = ["id", "request_identifier"]
 
     @admin.display(description="Request #", ordering="request_identifier")
-    def request_id(self, obj):
+    def stock_request_id(self, obj):
         return obj.request_identifier
 
     @admin.display(description="Per", ordering="containers_per_subject")
@@ -86,19 +86,20 @@ class RequestAdmin(ModelAdminMixin, admin.ModelAdmin):
         return obj.item_count
 
     @admin.display(description="Request")
-    def items(self, obj):
-        url = reverse("edc_pharmacy_admin:edc_pharmacy_requestitem_changelist")
+    def stock_request_items(self, obj):
+        url = reverse("edc_pharmacy_admin:edc_pharmacy_stockrequestitem_changelist")
         url = f"{url}?q={obj.request_identifier}"
-        context = dict(url=url, label="Request items", title="Go to request items")
+        context = dict(url=url, label="Request items", title="Go to stock request items")
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(description="Add")
-    def add_request_item(self, obj):
-        if obj.item_count > RequestItem.objects.filter(request=obj).count():
-            url = reverse("edc_pharmacy_admin:edc_pharmacy_requestitem_add")
-            next_url = "edc_pharmacy_admin:edc_pharmacy_request_changelist"
+    def add_stock_request_item(self, obj):
+        if obj.item_count > StockRequestItem.objects.filter(request=obj).count():
+            url = reverse("edc_pharmacy_admin:edc_pharmacy_stockrequestitem_add")
+            next_url = "edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist"
             url = (
-                f"{url}?next={next_url}&request={str(obj.id)}&q={str(obj.request_identifier)}"
+                f"{url}?next={next_url}&stock_request={str(obj.id)}"
+                f"&q={str(obj.request_identifier)}"
             )
             context = dict(url=url, label="Add item")
             return render_to_string("edc_pharmacy/stock/items_as_button.html", context=context)
@@ -109,7 +110,7 @@ class RequestAdmin(ModelAdminMixin, admin.ModelAdmin):
         return to_local(obj.request_datetime).date()
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "request" and request.GET.get("request"):
+        if db_field.name == "stock_request" and request.GET.get("stock_request"):
             kwargs["queryset"] = db_field.related_model.objects.filter(
                 pk=request.GET.get("rx", 0)
             )

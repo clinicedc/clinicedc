@@ -18,5 +18,5 @@ class ContainerUnits(ListModelMixin):
     )
 
     class Meta(ListModelMixin.Meta):
-        verbose_name = "Stock: Container units"
-        verbose_name_plural = "Stock: Container units"
+        verbose_name = "Container units"
+        verbose_name_plural = "Container units"

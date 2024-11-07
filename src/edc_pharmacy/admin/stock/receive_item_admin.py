@@ -45,6 +45,8 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     list_display = (
         "identifier",
+        "order_item_product",
+        "container",
         "qty",
         "unit_qty",
         "added_to_stock",
@@ -71,6 +73,10 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     )
 
     readonly_fields = ("unit_qty", "added_to_stock")
+
+    @admin.display(description="Product", ordering="-order_item__product__name")
+    def order_item_product(self, obj):
+        return obj.order_item.product
 
     @admin.display(description="Receiving", ordering="-receive__receive_datetime")
     def receive_changelist(self, obj):

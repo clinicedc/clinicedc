@@ -89,5 +89,5 @@ class ReceiveItem(BaseUuidModel):
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):
-        verbose_name = "Stock: Receive item"
-        verbose_name_plural = "Stock: Receive items"
+        verbose_name = "Receive item"
+        verbose_name_plural = "Receive items"

@@ -39,21 +39,35 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
     show_cancel = True
 
     form = ReceiveForm
-    # inlines = [ReceiveItemInlineAdmin]
-    # insert_before_fieldset = "Audit"
     ordering = ("-receive_identifier",)
-    autocomplete_fields = ["order"]
 
     fieldsets = (
         (
             None,
+            {"fields": ("receive_identifier",)},
+        ),
+        (
+            "Section A",
             {
                 "fields": (
-                    "receive_identifier",
                     "receive_datetime",
                     "location",
                     "order",
                 )
+            },
+        ),
+        (
+            "Section B: Confirm stock after labelling",
+            {
+                "description": (
+                    "Complete this section AFTER printing labels and "
+                    "affixing to stock items. Scan labels back into the EDC here"
+                ),
+                "fields": (
+                    "stock_identifiers",
+                    "confirmed_stock_identifiers",
+                    "unconfirmed_stock_identifiers",
+                ),
             },
         ),
         audit_fieldset_tuple,
@@ -75,10 +89,15 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
         "created",
         "modified",
     )
+    readonly_fields = (
+        "confirmed_stock_identifiers",
+        "unconfirmed_stock_identifiers",
+    )
     search_fields = (
         "id",
         "order__order_identifier",
         "location__name",
+        "stock_identifiers",
     )
 
     @admin.display(description="ID", ordering="receive_identifier")
@@ -98,3 +117,10 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
         url = f"{url}?q={str(obj.order.order_identifier)}"
         context = dict(url=url, label=obj.order.order_identifier, title="Back to order")
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "order" and request.GET.get("order"):
+            kwargs["queryset"] = db_field.related_model.objects.filter(
+                pk=request.GET.get("order", 0)
+            )
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)

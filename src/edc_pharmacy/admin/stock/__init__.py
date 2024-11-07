@@ -5,7 +5,8 @@ from .order_item_admin import OrderItemAdmin
 from .product_admin import ProductAdmin
 from .receive_admin import ReceiveAdmin
 from .receive_item_admin import ReceiveItemAdmin
-from .request_admin import RequestAdmin
-from .request_item_admin import RequestItemAdmin
-from .site_proxy_admin import SiteProxyAdmin
+from .repack_request_admin import RequestRepackAdmin
 from .stock_admin import StockAdmin
+from .stock_request_admin import StockRequestAdmin
+from .stock_request_item_admin import StockRequestItemAdmin
+from .stock_update_admin import StockUpdateAdmin

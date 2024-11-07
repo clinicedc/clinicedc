@@ -78,7 +78,11 @@ class InvalidContainer(Exception):
     pass
 
 
-class RepackageError(Exception):
+class RepackError(Exception):
+    pass
+
+
+class RepackRequestError(Exception):
     pass
 
 

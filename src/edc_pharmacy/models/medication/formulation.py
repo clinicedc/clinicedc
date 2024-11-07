@@ -71,8 +71,8 @@ class Formulation(BaseUuidModel):
         return self.route.display_name
 
     class Meta(BaseUuidModel.Meta):
-        verbose_name = "Medication: Formulation"
-        verbose_name_plural = "Medication: Formulations"
+        verbose_name = "Formulation"
+        verbose_name_plural = "Formulations"
         constraints = [
             UniqueConstraint(
                 fields=["medication", "strength", "units", "formulation_type"],

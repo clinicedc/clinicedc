@@ -1,11 +1,11 @@
 from django import forms
 
-from ...models import Request
+from ...models import StockRequest
 
 
-class RequestForm(forms.ModelForm):
+class StockRequestForm(forms.ModelForm):
     class Meta:
-        model = Request
+        model = StockRequest
         fields = "__all__"
         help_text = {"request_identifier": "(read-only)"}
         widgets = {

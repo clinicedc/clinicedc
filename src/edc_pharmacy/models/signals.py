@@ -8,13 +8,14 @@ from edc_constants.constants import COMPLETE, PARTIAL
 from ..dispense import Dispensing
 from ..exceptions import InsufficientStockError
 from ..model_mixins import StudyMedicationCrfModelMixin
-from ..utils import update_previous_refill_end_datetime
+from ..utils import process_repack_request, update_previous_refill_end_datetime
 from .dispensing_history import DispensingHistory
-from .stock import OrderItem, ReceiveItem, RequestItem, Stock
+from .stock import OrderItem, Receive, ReceiveItem, RepackRequest, Stock
+from .stock_request import StockRequestItem
 
 
 @receiver(post_save, sender=Stock, dispatch_uid="update_stock_on_post_save")
-def update_stock_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
+def stock_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
     """Update unit qty"""
     if not raw and not update_fields:
         instance.unit_qty_in = Decimal(instance.qty_in) * instance.container.qty
@@ -26,22 +27,50 @@ def update_stock_on_post_save(sender, instance, raw, created, update_fields, **k
         instance.unit_qty_out = Decimal(instance.qty_out) * instance.container.qty
         if instance.unit_qty_out > instance.unit_qty_in:
             raise InsufficientStockError("Unit QTY OUT cannot exceed Unit QTY IN.")
-        instance.save(update_fields=["unit_qty_in", "unit_qty_out"])
+        instance.save(update_fields=["unit_qty_in", "unit_qty_out", "product", "description"])
 
 
 @receiver(post_save, sender=OrderItem, dispatch_uid="update_order_item_on_post_save")
-def update_order_item_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
+def order_item_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
     """Update item_count on Order model each time OrderItem is
     saved.
     """
+    pass
+    # if not raw and not update_fields:
+    #     order_items = OrderItem.objects.filter(order=instance.order)
+    #     instance.order.item_count = order_items.count()
+    #     instance.order.save(update_fields=["item_count"])
+
+
+@receiver(post_save, sender=Receive, dispatch_uid="receive_on_post_save")
+def receive_on_post_save(sender, instance, raw, created, update_fields, **kwargs) -> None:
     if not raw and not update_fields:
-        order_items = OrderItem.objects.filter(order=instance.order)
-        instance.order.item_count = order_items.count()
-        instance.order.save(update_fields=["item_count"])
+        if instance.stock_identifiers:
+            stock_identifiers = instance.stock_identifiers.split("\n")
+            stock_identifiers = [s.strip() for s in stock_identifiers]
+            instance.stock_identifiers = "\n".join(stock_identifiers)
+            confirmed_stock_identifiers = []
+            for stock in Stock.objects.filter(receive_item__receive=instance).order_by(
+                "stock_identifier"
+            ):
+                if stock.stock_identifier in stock_identifiers:
+                    stock.confirmed = True
+                    stock.save(update_fields=["confirmed"])
+                    confirmed_stock_identifiers.append(stock.stock_identifier)
+                    stock_identifiers.remove(stock.stock_identifier)
+            instance.confirmed_stock_identifiers = "\n".join(confirmed_stock_identifiers)
+            instance.unconfirmed_stock_identifiers = "\n".join(stock_identifiers)
+            instance.save(
+                update_fields=[
+                    "confirmed_stock_identifiers",
+                    "unconfirmed_stock_identifiers",
+                    "stock_identifiers",
+                ]
+            )
 
 
 @receiver(post_save, sender=ReceiveItem, dispatch_uid="update_receive_item_on_post_save")
-def update_receive_item_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
+def receive_item_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
     """Update received counters on OrderItem, Order models and add to
     Stock each time ReceiveItem is saved.
     """
@@ -69,25 +98,57 @@ def update_receive_item_on_post_save(sender, instance, raw, created, update_fiel
         if unit_qty_received == unit_qty:
             order.status = COMPLETE
             order.save()
-
         # add to stock
         Stock.objects.create(
             receive_item=instance,
             qty_in=instance.qty,
             container=instance.container,
             location=instance.receive.location,
+            confirmed=False,
         )
-        instance.added_to_stock = True
-        instance.save_base(update_fields=["added_to_stock"])
+        # instance.save_base(update_fields=["added_to_stock"])
 
 
-@receiver(post_save, sender=RequestItem, dispatch_uid="request_item_on_post_save")
-def request_item_on_post_save(sender, instance, raw, created, update_fields, **kwargs) -> None:
+@receiver(post_save, sender=StockRequestItem, dispatch_uid="stock_request_item_on_post_save")
+def stock_request_item_on_post_save(
+    sender, instance, raw, created, update_fields, **kwargs
+) -> None:
     if not raw and not update_fields:
-        instance.request.item_count = RequestItem.objects.filter(
-            request=instance.request
+        instance.stock_request.item_count = StockRequestItem.objects.filter(
+            stock_request=instance.stock_request
         ).count()
-        instance.request.save(update_fields=["item_count"])
+        instance.stock_request.save(update_fields=["item_count"])
+
+
+@receiver(post_save, sender=RepackRequest, dispatch_uid="repack_request_on_post_save")
+def repack_request_on_post_save(
+    sender, instance, raw, created, update_fields, **kwargs
+) -> None:
+    if not raw and not update_fields:
+        if not instance.stock_identifiers and not instance.processed:
+            process_repack_request(instance)
+        else:
+            stock_identifiers = instance.stock_identifiers.split("\n")
+            stock_identifiers = [s.strip() for s in stock_identifiers]
+            instance.stock_identifiers = "\n".join(stock_identifiers)
+            confirmed_stock_identifiers = []
+            for stock in Stock.objects.filter(repack_request=instance).order_by(
+                "stock_identifier"
+            ):
+                if stock.stock_identifier in stock_identifiers:
+                    stock.confirmed = True
+                    stock.save(update_fields=["confirmed"])
+                    confirmed_stock_identifiers.append(stock.stock_identifier)
+                    stock_identifiers.remove(stock.stock_identifier)
+            instance.confirmed_stock_identifiers = "\n".join(confirmed_stock_identifiers)
+            instance.unconfirmed_stock_identifiers = "\n".join(stock_identifiers)
+            instance.save(
+                update_fields=[
+                    "confirmed_stock_identifiers",
+                    "unconfirmed_stock_identifiers",
+                    "stock_identifiers",
+                ]
+            )
 
 
 @receiver(post_delete, sender=ReceiveItem, dispatch_uid="receive_item_on_post_delete")
@@ -100,8 +161,7 @@ def receive_item_on_post_delete(sender, instance, using, **kwargs) -> None:
 
 @receiver(post_delete, sender=Stock, dispatch_uid="stock_on_post_delete")
 def stock_on_post_delete(sender, instance, using, **kwargs) -> None:
-    instance.receive_item.added_to_stock = False
-    instance.receive_item.save_base(update_fields=["added_to_stock"])
+    pass
 
 
 @receiver(post_save, sender=DispensingHistory, dispatch_uid="dispensing_history_on_post_save")

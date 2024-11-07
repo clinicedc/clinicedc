@@ -1,5 +1,4 @@
 from .box import Box
-from .location import Location
 from .room import Room
 from .shelf import Shelf
 from .unit_type import UnitType

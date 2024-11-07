@@ -28,5 +28,5 @@ class Lot(BaseUuidModel):
         return f"{self.formulation} Lot {self.lot_no}"
 
     class Meta(BaseUuidModel.Meta):
-        verbose_name = "Medication: Lot"
-        verbose_name_plural = "Medication: Lots"
+        verbose_name = "Lot"
+        verbose_name_plural = "Lots"

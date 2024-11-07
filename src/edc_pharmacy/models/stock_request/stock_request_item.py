@@ -7,14 +7,14 @@ from sequences import get_next_value
 
 from ...utils import generate_code_with_checksum_from_id
 from ..prescription import Rx
-from .request import Request
+from .stock_request import StockRequest
 
 
 class Manager(models.Manager):
     use_in_migrations = True
 
 
-class RequestItem(BaseUuidModel):
+class StockRequestItem(BaseUuidModel):
     """A model that represents a stock request item.
 
     At this time the Stock container must be a subject
@@ -30,7 +30,9 @@ class RequestItem(BaseUuidModel):
     code = models.CharField(max_length=15, unique=True, help_text="Human readable code")
 
     request_item_datetime = models.DateTimeField(default=get_utcnow)
-    request = models.ForeignKey(Request, verbose_name="Request", on_delete=models.PROTECT)
+    stock_request = models.ForeignKey(
+        StockRequest, verbose_name="Stock request", on_delete=models.PROTECT
+    )
 
     rx = models.ForeignKey(Rx, on_delete=models.PROTECT, null=True, blank=False)
 
@@ -67,12 +69,12 @@ class RequestItem(BaseUuidModel):
             self.code = generate_code_with_checksum_from_id(next_id)
         self.subject_identifier = self.rx.subject_identifier
         randomizer = site_randomizers.get(self.rx.randomizer_name)
-        rando_obj = randomizer.model_cls.objects.get(
+        rando_obj = randomizer.model_cls().objects.get(
             subject_identifier=self.subject_identifier
         )
         self.sid = rando_obj.sid
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):
-        verbose_name = "Request item"
-        verbose_name_plural = "Request items"
+        verbose_name = "Stock request item"
+        verbose_name_plural = "Stock request items"

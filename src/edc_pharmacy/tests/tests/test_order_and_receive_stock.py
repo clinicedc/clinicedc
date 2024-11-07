@@ -13,13 +13,14 @@ from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from sequences import get_next_value
 
-from ...exceptions import InsufficientStockError
 from ...models import (
     Assignment,
     Container,
     ContainerType,
+    ContainerUnits,
     Formulation,
     FormulationType,
+    LabelSpecificationProxy,
     Location,
     Lot,
     Medication,
@@ -28,12 +29,15 @@ from ...models import (
     Product,
     Receive,
     ReceiveItem,
+    RepackRequest,
     Route,
+    Rx,
+    SiteProxy,
     Stock,
+    StockRequestItem,
     Units,
 )
-from ...models.stock import ContainerUnits, Request, RequestItem
-from ...utils import process_request, repackage_stock
+from ...utils import process_repack_request
 from ..consents import consent_v1
 
 
@@ -286,6 +290,13 @@ class TestOrderReceive(TestCase):
             ReceiveItem.objects.create(
                 receive=receive, order_item=order_item, qty=10, container=container_bulk
             )
+        receive.stock_identifiers = "\n".join(
+            [
+                obj.stock_identifier
+                for obj in Stock.objects.filter(receive_item__receive=receive)
+            ]
+        )
+        receive.save()
 
     def test_delete_receive_item(self):
         # confirm deleting stock, resave received items recreates
@@ -303,13 +314,7 @@ class TestOrderReceive(TestCase):
         for order_item in OrderItem.objects.all():
             self.assertEqual(0, order_item.unit_qty_received)
 
-    @tag("1")
-    def test_repackage(self):
-        """Test repackage two bottles of 50000 into
-        bottles of 128.
-        """
-        # create order of 50000 for each arm
-        self.order_and_receive()
+    def get_container_5000(self) -> Container:
         container_units, _ = ContainerUnits.objects.get_or_create(
             name="tablet", plural_name="tablets"
         )
@@ -317,26 +322,96 @@ class TestOrderReceive(TestCase):
         container_5000, _ = Container.objects.get_or_create(
             qty=5000, container_type=container_type
         )
-        container_128 = Container.objects.create(
-            container_type=container_type, qty=128, units=container_units
+        return container_5000
+
+    def get_container_128(self) -> Container:
+        container_units, _ = ContainerUnits.objects.get_or_create(
+            name="tablet", plural_name="tablets"
+        )
+        container_type, _ = ContainerType.objects.get_or_create(name="bottle")
+        container_128, _ = Container.objects.get_or_create(
+            qty=128, container_type=container_type
+        )
+        return container_128
+
+    @tag("2")
+    def test_repack(self):
+        """Test repackage two bottles of 50000 into
+        bottles of 128.
+        """
+        # create order of 50000 for each arm
+        self.order_and_receive()
+
+        # assert created stock
+        container_5000 = self.get_container_5000()
+        container_128 = self.get_container_128()
+
+        # assert
+        self.assertEqual(Stock.objects.filter(container=container_5000).count(), 2)
+        self.assertEqual(
+            Stock.objects.values("container__name")
+            .annotate(count=Sum("qty_in"))[0]
+            .get("count"),
+            20,
         )
 
-        # we have two bottles of 5000 tablets
-        unit_qty_in = Stock.objects.filter(container=container_5000).aggregate(
-            unit_qty_in=Sum("unit_qty_in")
-        )["unit_qty_in"]
-        unit_qty_out = Stock.objects.filter(container=container_5000).aggregate(
-            unit_qty_out=Sum("unit_qty_out")
-        )["unit_qty_out"]
-        unit_qty = unit_qty_in - unit_qty_out
-        self.assertEqual(unit_qty, 100000)
-
+        # REPACK REQUEST **********************************************
+        label_specification = LabelSpecificationProxy.objects.get_or_create(name="default")[0]
         for stock in Stock.objects.filter(container=container_5000):
-            for i in range(0, 401):
-                try:
-                    repackage_stock(stock, container_128)
-                except InsufficientStockError:
-                    break
+            repack_request = RepackRequest.objects.create(
+                from_stock=stock,
+                container=container_128,
+                qty=39,
+                label_specification=label_specification,
+            )
+            # process / create unconfirmed stock instances
+            process_repack_request(repack_request)
+
+        for repack_request in RepackRequest.objects.all():
+            # assert unconfirmed stock instances (central)
+            self.assertEqual(repack_request.stock_items.filter(confirmed=False).count(), 39)
+
+        # scan in some or all labels to confirm stock (central)
+        for repack_request in RepackRequest.objects.all():
+            # scan in some or all labels to confirm stock (central)
+            repack_request.stock_identifiers = "\n".join(
+                [
+                    obj.stock_identifier
+                    for obj in repack_request.stock_items.filter(confirmed=False)
+                ]
+            )
+            repack_request.save()
+
+        for repack_request in RepackRequest.objects.all():
+            # assert unconfirmed stock instances (central)
+            self.assertEqual(repack_request.stock_items.filter(confirmed=False).count(), 0)
+            # assert confirmed stock instances (central)
+            self.assertEqual(repack_request.stock_items.filter(confirmed=True).count(), 39)
+
+        # refer back to repack_request from stock
+        self.assertEqual(Stock.objects.filter(repackrequest__isnull=True).count(), 2)
+        self.assertEqual(Stock.objects.filter(repackrequest__isnull=False).count(), 39 * 2)
+
+        # STOCK REQUEST **********************************************
+        # site generates a stock request (amana)
+        # - dataframe ...
+
+        # central processes stock request (central)
+        # - physically select bottles from shelf and scan in labels
+        # - allocate stock items to subjects (central)
+        #   - signal - update subject_identifier, allocated_datetime, ?allocated=True?
+
+        # - transfer to site (amana)
+
+        # physically pack bottles of 128 and transfer to site with manifest
+
+        # confirm paper manifest matches physical items, tick and sign (amana)
+        # confirm transfered items (open manifest and scan all physical items) (amana)
+        # - open manifest on EDC
+        # - entry # of bottles in box
+        # - scan all bottles in the box
+        # - transcribe any items on manifest not in box
+        # - EDC reconciles
 
         # we create bottles of 128 from the two bottles of 5000 tablets
         # the total number of tablets remains the same
@@ -389,15 +464,56 @@ class TestOrderReceive(TestCase):
             )
         return subjects
 
-    def test_request_stock(self):
+    @tag("1")
+    def test_stock_request(self):
+        """
+        1. Order tablets
+        2. receive tablets into bottles of 50000
+            generate unconfirmed stock items
+            print labels from unconfirmed stock items for this receive,
+            physically label bottles,
+            scan labels back into EDC which confirm stock items
+        3. repack into generic bottles of 128
+            central completes repack request to repack bottles of 50000 into bottles of 128.
+            generate unconfirmed stock items
+            print labels from unconfirmed stock items for this receive,
+            physically label bottles,
+            scan labels back into EDC which confirm stock items
+        4. central gets a request from the site for IMP
+            site requests (StockRequest based on subjects, container (bottle of 128)
+            based on dataframe of subject prescription and if subject has next appointment
+        5. central processed stock request
+            calculate bottles needed by subtracting from site stock
+            allocate bottle of 128 to subject
+            move from central to site
+
+            receive (50000) = 1
+            repack (40 x 128) = 40 + 1
+
+            allocate () = 40 +1
+        """
+
         self.order_and_receive()
+
+        label_specification = LabelSpecificationProxy.objects.get_or_create(name="default")
+        # make a site
         site_obj = Site.objects.create(id=10, name="Amana")
 
+        # make 5 subjects across both arms
         subjects = self.make_randomized_subject(site_obj, 5)
         active_subjects = {k: v for k, v in subjects.items() if v == self.product_active}
         placebo_subjects = {k: v for k, v in subjects.items() if v == self.product_placebo}
 
+        # make prescriptions
+        for registered_subject in RegisteredSubject.objects.all():
+            rx = Rx.objects.create(
+                subject_identifier=registered_subject.subject_identifier,
+                randomizer_name="default",
+            )
+            rx.medications.add(Medication.objects.get(name="metformin"))
+
         # repackage from bulk to generic bottle
+        # make the bulk container (bottle or 5000
         container_type, _ = ContainerType.objects.get_or_create(name="bottle")
         container_units, _ = ContainerUnits.objects.get_or_create(
             name="tablet", plural_name="tablets"
@@ -405,11 +521,14 @@ class TestOrderReceive(TestCase):
         container_bulk = Container.objects.get(
             container_type=container_type, qty=5000, units=container_units
         )
+        # get the location (central pharmacy)
         central_location = Location.objects.get(name="central_pharmacy")
+        # make the bottle of 128
         container_128 = Container.objects.create(
             container_type=container_type, qty=128, units=container_units
         )
-
+        # confirm all stock is in the central pharmacy and we have just
+        # two bottles of 5000
         groupby = (
             Stock.objects.values("container__name")
             .filter(location=central_location, container=container_bulk)
@@ -418,13 +537,15 @@ class TestOrderReceive(TestCase):
         self.assertEqual(len(groupby), 1)
         self.assertEqual(groupby.get(container__name=container_bulk.name)["items"], 2)
 
+        # repack to bottles of 128
+
         for _, product in subjects.items():
             stock = Stock.objects.get(
                 location=central_location,
                 container=container_bulk,
                 product=product,
             )
-            repackage_stock(stock, container_128)
+            # repackage_stock(stock, container_128)
 
         groupby = (
             Stock.objects.values("container__name")
@@ -453,34 +574,37 @@ class TestOrderReceive(TestCase):
             units=container_units,
             may_request_as=True,
         )
-        location = Location.objects.get(name="amana_pharmacy")
-        request = Request.objects.create(
-            location=location,
-            container=container_128s,
-            formulation=self.product_active.formulation,
-            default_qty=1,
-        )
-        for subject_identifier, _ in subjects.items():
-            RequestItem.objects.create(request=request, subject_identifier=subject_identifier)
-        self.assertEqual(request.item_count, 5)
+        # location = Location.objects.get(name="amana_pharmacy")
+        SiteProxy.objects.get(id=site_obj.id)
+        for stock in Stock.objects.filter(container=container_128):
+            RepackRequest.objects.create(
+                stock_identifier=stock.stock_identifier,
+                container=container_128s,
+                qty=1,
+                product=self.product_active,
+                label_specification=label_specification,
+            )
+        # for rx in Rx.objects.all():
+        #     StockRequestItem.objects.create(stock_request=stock_request, rx=rx)
+        # self.assertEqual(stock_request.item_count, 5)
 
         # A. process request
         # 1. repackage from bulk to generic bottle
         # 2. repackage
 
-        process_request(
-            request, source_location=central_location, source_container=container_128
-        )
+        # process_stock_request(
+        #     stock_request, source_location=central_location, source_container=container_128
+        # )
 
         # **********************
 
         self.assertEqual(
-            RequestItem.objects.filter(subject_identifier__in=active_subjects).count(),
+            StockRequestItem.objects.filter(subject_identifier__in=active_subjects).count(),
             len(active_subjects),
         )
         self.assertEqual(
             Stock.objects.filter(
-                request_item__in=RequestItem.objects.filter(
+                request_item__in=StockRequestItem.objects.filter(
                     subject_identifier__in=active_subjects
                 )
             ).count(),
@@ -497,20 +621,3 @@ class TestOrderReceive(TestCase):
 
     def test_allocate_to_subject(self):
         self.order_and_receive()
-        container_units, _ = ContainerUnits.objects.get_or_create(
-            name="tablet", plural_name="tablets"
-        )
-        container_type, _ = ContainerType.objects.get_or_create(name="bottle")
-        container = Container.objects.create(
-            container_type=container_type, qty=128, units=container_units
-        )
-
-        # pack 5 bottles or 128
-        for index, stock in enumerate(Stock.objects.all()):
-            for i in range(0, 5):
-                repackage_stock(stock, container)
-            break
-
-        for subject_identifier in [f"SUBJECT{x}" for x in range(0, 5)]:
-            # allocated_to_subject(subject_identifier, container, 3)
-            pass

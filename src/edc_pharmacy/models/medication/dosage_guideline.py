@@ -80,8 +80,8 @@ class DosageGuideline(BaseUuidModel):
         return self.frequency_units.display_name
 
     class Meta(BaseUuidModel.Meta):
-        verbose_name = "Medication: Dosage Guideline"
-        verbose_name_plural = "Medication: Dosage Guidelines"
+        verbose_name = "Dosage Guideline"
+        verbose_name_plural = "Dosage Guidelines"
         constraints = [
             UniqueConstraint(
                 fields=["medication", "dose", "dose_units", "dose_per_kg"],

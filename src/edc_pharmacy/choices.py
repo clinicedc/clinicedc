@@ -28,3 +28,9 @@ STOCK_STATUS = (
     (AVAILABLE, "Available"),
     (RESERVED, "Reserved"),
 )
+
+
+STOCK_UPDATE = (
+    ("edc_pharmacy.receiveitem", "Receiving"),
+    ("edc_pharmacy.repackrequest", "Repacking"),
+)

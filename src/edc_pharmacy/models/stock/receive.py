@@ -4,7 +4,7 @@ from edc_utils import get_utcnow
 from edc_utils.date import to_local
 from sequences import get_next_value
 
-from ..storage import Location
+from .location import Location
 from .order import Order
 
 
@@ -24,6 +24,10 @@ class Receive(BaseUuidModel):
 
     order = models.ForeignKey(Order, on_delete=models.PROTECT)
 
+    stock_identifiers = models.TextField(null=True, blank=True)
+    confirmed_stock_identifiers = models.TextField(null=True, blank=True)
+    unconfirmed_stock_identifiers = models.TextField(null=True, blank=True)
+
     objects = Manager()
 
     history = HistoricalRecords()
@@ -40,5 +44,5 @@ class Receive(BaseUuidModel):
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):
-        verbose_name = "Stock: Receive"
-        verbose_name_plural = "Stock: Receive"
+        verbose_name = "Receive"
+        verbose_name_plural = "Receive"

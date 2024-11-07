@@ -60,5 +60,5 @@ class OrderItem(BaseUuidModel):
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):
-        verbose_name = "Stock: Order item"
-        verbose_name_plural = "Stock: Order items"
+        verbose_name = "Order item"
+        verbose_name_plural = "Order items"

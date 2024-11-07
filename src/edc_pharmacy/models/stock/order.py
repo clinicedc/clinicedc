@@ -3,7 +3,7 @@ from edc_constants.constants import NEW
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from sequences import get_next_value
 
-from edc_pharmacy.choices import ORDER_CHOICES
+from ...choices import ORDER_CHOICES
 
 
 class Manager(models.Manager):
@@ -37,5 +37,5 @@ class Order(BaseUuidModel):
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):
-        verbose_name = "Stock: Order"
-        verbose_name_plural = "Stock: Orders"
+        verbose_name = "Order"
+        verbose_name_plural = "Orders"

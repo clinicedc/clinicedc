@@ -7,16 +7,16 @@ from edc_utils import get_utcnow
 from sequences import get_next_value
 
 from ...exceptions import InvalidContainer
-from .. import SiteProxy
 from ..medication import Formulation
-from .container import Container
+from ..proxy_models import SiteProxy
+from ..stock import Container
 
 
 class Manager(models.Manager):
     use_in_migrations = True
 
 
-class Request(SiteModelMixin, BaseUuidModel):
+class StockRequest(SiteModelMixin, BaseUuidModel):
     """A model to represent a stock request for subject stock.
 
     A request originates from, or is linked to, the research site.
@@ -93,5 +93,5 @@ class Request(SiteModelMixin, BaseUuidModel):
         super().save(*args, **kwargs)
 
     class Meta(SiteModelMixin.Meta, BaseUuidModel.Meta):
-        verbose_name = "Request"
-        verbose_name_plural = "Request"
+        verbose_name = "Stock request"
+        verbose_name_plural = "Stock requests"

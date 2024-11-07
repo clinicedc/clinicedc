@@ -17,12 +17,12 @@ from .exceptions import (
     ChecksumError,
     InsufficientStockError,
     ProcessStockRequestError,
-    RepackageError,
+    RepackError,
     StockError,
 )
 
 if TYPE_CHECKING:
-    from .models import Container, Location, Request, RequestItem, Stock
+    from .models import Container, Location, RepackRequest, Stock, StockRequest
 
 
 def get_rxrefill_model_cls():
@@ -50,46 +50,65 @@ def update_previous_refill_end_datetime(instance):
             obj.save_base(update_fields=["refill_end_datetime"])
 
 
-def repackage_stock(
-    stock: Stock,
-    container: Container,
-    from_location: Location | None = None,
-    to_location: Location | None = None,
-    request_item: RequestItem | None = None,
-) -> Stock:
-    """Take from stock and fill container as new stock item"""
-    # location may only change for requests
-    if to_location and stock.location != from_location:
-        raise RepackageError(
-            f"Stock location error. Expected stock to be from {from_location}"
-        )
-    if (
-        to_location
-        and from_location
-        and to_location != from_location
-        and not container.may_request_as
-    ):
-        raise RepackageError(
-            "Invalid container. Container may not be used if location changes. "
-            "Is this for a stock request?"
-        )
+# def repackage_stock_from_packaging_request(
+#     stock: Stock, container: Container, repackaging_request
+# ):
+#     repackage_stock(
+#         stock,
+#         container,
+#         stock.location,
+#         stock.location,
+#         repackaging_request=repackaging_request,
+#     )
+#
+#
+# def repackage_stock_from_request_item():
+#     repackage_stock()
+#
+def get_and_check_stock(stock_identifier):
+    stock = Stock.objects.get(stock_identifier=stock_identifier)
+    if not stock.confirmed:
+        raise StockError(f"Stock item is not confirmed. Unable to process. Got {stock}.")
     if stock.unit_qty_in - stock.unit_qty_out == Decimal(0):
-        raise InsufficientStockError()
+        raise InsufficientStockError(
+            f"Not in stock. Cannot repack. Got stock {stock.stock_identifier}."
+        )
     if stock.unit_qty_in - stock.unit_qty_out < 0:
-        raise StockError("Unit qty in cannot be less than unit qty out")
-    new_stock = stock.__class__.objects.create(
-        receive_item=None,
-        qty_in=1,
-        from_stock=stock,
-        container=container,
-        location=to_location or stock.location,
-        request_item=request_item,
-    )
-    stock.refresh_from_db()
-    return new_stock
+        raise StockError(
+            "Stock `unit qty` is wrong. Unit qty IN cannot be less than unit qty OUT. "
+            f"Got stock {stock.stock_identifier}."
+        )
+    return stock
 
 
-def process_request(request: Request, source_location: Location, source_container: Container):
+def process_repack_request(
+    repack_request: RepackRequest | None = None,
+) -> RepackRequest:
+    """Take from stock and fill container as new stock item.
+
+    Do not change location here.
+    """
+    if repack_request.from_stock and not repack_request.processed:
+        if not repack_request.from_stock.confirmed:
+            raise RepackError("Stock not confirmed")
+        for index in range(0, int(repack_request.qty)):
+            repack_request.from_stock.__class__.objects.create(
+                receive_item=None,
+                qty_in=1,
+                from_stock=repack_request.from_stock,
+                container=repack_request.container,
+                location=repack_request.from_stock.location,
+                repack_request=repack_request,
+                confirmed=False,
+            )
+        repack_request.processed = True
+        repack_request.save()
+    return repack_request
+
+
+def process_stock_request(
+    stock_request: StockRequest, source_location: Location, source_container: Container
+):
 
     # TODO: look at available local stock first before checking central stock
 
@@ -101,35 +120,33 @@ def process_request(request: Request, source_location: Location, source_containe
     if qs.count() > 1:
         raise ProcessStockRequestError("More than one randomization_list_model found.")
     model_cls = django_apps.get_model(qs.filter()[0]["randomization_list_model"])
-    for request_item in django_apps.get_model("edc_pharmacy.requestitem").objects.filter(
-        request=request
-    ):
+    for stock_request_item in django_apps.get_model(
+        "edc_pharmacy.stockrequestitem"
+    ).objects.filter(stock_request=stock_request):
 
-        rando = model_cls.objects.get(subject_identifier=request_item.subject_identifier)
-        request_item.sid = rando.sid
-        request_item.site = rando.allocated_site
-        request_item.gender = RegisteredSubject.objects.get(
-            subject_identifier=request_item.subject_identifier
+        rando = model_cls.objects.get(subject_identifier=stock_request_item.subject_identifier)
+        stock_request_item.sid = rando.sid
+        stock_request_item.site = rando.allocated_site
+        stock_request_item.gender = RegisteredSubject.objects.get(
+            subject_identifier=stock_request_item.subject_identifier
         ).gender
-        request_item.save()
+        stock_request_item.save()
 
         assignment = django_apps.get_model("edc_pharmacy.assignment").objects.get(
             name=rando.assignment
         )
 
         stock = django_apps.get_model("edc_pharmacy.stock").objects.in_stock(
-            unit_qty=request_item.request.container.qty,
+            unit_qty=stock_request_item.stock_request.container.qty,
             container=source_container,
             assignment=assignment,
             location=source_location,
         )
         if stock:
-            repackage_stock(
+            process_repack_request(
                 stock,
-                request_item.request.container,
-                from_location=source_location,
-                to_location=request_item.request.location,
-                request_item=request_item,
+                stock_request_item.stock_request.container,
+                stock_request_item=stock_request_item,
             )
 
 
