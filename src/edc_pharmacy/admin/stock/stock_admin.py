@@ -1,11 +1,16 @@
 from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.html import format_html
 from django_audit_fields.admin import audit_fieldset_tuple
+from edc_pylabels.actions import print_label_sheet
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import StockForm
 from ...models import Stock
+from ...utils import format_qty
+from ..actions import update_label_configuration_action
+from ..list_filters import HasOrderNumFilter, HasReceiveNumFilter, HasRepackNumFilter
 from ..model_admin_mixin import ModelAdminMixin
 
 
@@ -20,6 +25,8 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
     show_history_label = True
     autocomplete_fields = ["container"]
 
+    actions = [print_label_sheet, update_label_configuration_action]
+
     form = StockForm
 
     fieldsets = (
@@ -28,13 +35,24 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
             {
                 "fields": (
                     "stock_identifier",
+                    "code",
                     "confirmed",
+                    "location",
+                    "label_configuration",
                 )
             },
         ),
         (
             "Product",
-            {"fields": ("product", "container", "location")},
+            {"fields": ("product", "container")},
+        ),
+        (
+            "Lot",
+            {"fields": ("lot",)},
+        ),
+        (
+            "Quantity",
+            {"fields": ("qty_in", "qty_out")},
         ),
         (
             "Receive",
@@ -44,87 +62,132 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
             "Repackage",
             {"fields": ("repack_request", "from_stock")},
         ),
-        (
-            "Quantity",
-            {"fields": ("qty_in", "qty_out")},
-        ),
         audit_fieldset_tuple,
     )
 
     list_display = (
         "identifier",
-        "confirmed",
-        "from_stock__product",
-        "container",
-        "qty_in",
-        "qty_out",
+        "code",
+        "from_stock_with_product",
+        "confirmed_str",
+        "formulation",
+        "assignment",
+        "qty",
+        "container_str",
         "unit_qty",
         "order_changelist",
         "receive_item_changelist",
         "repack_request_changelist",
+        "lot",
+        "label_configuration",
         "created",
         "modified",
     )
     list_filter = (
         "confirmed",
+        "product__formulation__description",
+        "product__assignment__name",
         "location__display_name",
-        "product__name",
-        "product__formulation",
-        "container__name",
+        "container",
+        HasOrderNumFilter,
+        HasReceiveNumFilter,
+        HasRepackNumFilter,
         "created",
         "modified",
     )
     search_fields = (
         "stock_identifier",
+        "code",
         "product__name",
         "receive_item__receive__id",
         "receive_item__order_item__order__id",
         "receive_item__order_item__order__order_identifier",
         "repack_request__id",
+        "lot__lot_no",
     )
     ordering = ("stock_identifier",)
     readonly_fields = (
+        "code",
         "confirmed",
-        "stock_identifier",
-        "product",
-        "location",
-        "receive_item",
-        "repack_request",
-        "from_stock",
         "container",
+        "from_stock",
+        "location",
+        "product",
         "qty_in",
         "qty_out",
+        "receive_item",
+        "repack_request",
+        "stock_identifier",
     )
 
-    @admin.display(description="Identifier", ordering="-stock_datetime")
+    @admin.display(description="QTY", ordering="qty")
+    def qty(self, obj):
+        return format_qty(obj.qty_in - obj.qty_out, obj.container)
+
+    @admin.display(description="Units", ordering="qty")
+    def unit_qty(self, obj):
+        return format_qty(obj.unit_qty_in - obj.unit_qty_out, obj.container)
+
+    @admin.display(description="STOCK #", ordering="-stock_identifier")
     def identifier(self, obj):
         return obj.stock_identifier.split("-")[0]
 
-    @admin.display(description="unit qty")
-    def unit_qty(self, obj):
-        return obj.unit_qty_in - obj.unit_qty_out
+    @admin.display(description="\u2713", ordering="-stock_identifier", boolean=True)
+    def confirmed_str(self, obj):
+        return obj.confirmed
+
+    @admin.display(description="Container", ordering="container_name")
+    def container_str(self, obj):
+        return format_html("<BR>".join(str(obj.container).split(" ")))
+
+    @admin.display(description="formulation", ordering="product__formulation__name")
+    def formulation(self, obj):
+        return obj.product.formulation
+
+    @admin.display(description="assignment", ordering="product__assignment__name")
+    def assignment(self, obj):
+        if obj.product.assignment:
+            return obj.product.assignment
+        return None
+
+    @admin.display(description="From stock #")
+    def from_stock_with_product(self, obj):
+        if obj.from_stock:
+            url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
+            url = f"{url}?q={obj.from_stock.stock_identifier}"
+            context = dict(
+                url=url,
+                label=obj.from_stock.stock_identifier,
+                title="Go to stock",
+            )
+            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return None
 
     @admin.display(description="Order #", ordering="-order__order_datetime")
     def order_changelist(self, obj):
-        url = reverse("edc_pharmacy_admin:edc_pharmacy_order_changelist")
-        url = f"{url}?q={obj.get_receive_item().order_item.order.order_identifier}"
-        context = dict(
-            url=url,
-            label=obj.get_receive_item().order_item.order.order_identifier,
-            title="Go to order",
-        )
-        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        if obj.receive_item and obj.receive_item.order_item.order:
+            url = reverse("edc_pharmacy_admin:edc_pharmacy_order_changelist")
+            url = f"{url}?q={obj.receive_item.order_item.order.order_identifier}"
+            context = dict(
+                url=url,
+                label=obj.receive_item.order_item.order.order_identifier,
+                title="Go to order",
+            )
+            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return None
 
     @admin.display(description="Receive #", ordering="-receive_item__receive_item_datetime")
     def receive_item_changelist(self, obj):
-        url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_changelist")
-        url = f"{url}?q={obj.get_receive_item().id}"
-        context = dict(
-            url=url,
-            label=obj.get_receive_item().receive_item_identifier,
-            title="Go to received item",
-        )
-        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        if obj.receive_item:
+            url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_changelist")
+            url = f"{url}?q={obj.receive_item.id}"
+            context = dict(
+                url=url,
+                label=obj.receive_item.receive_item_identifier,
+                title="Go to received item",
+            )
+            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return None
 
     @admin.display(description="Repack #", ordering="-repack_request__repack_datetime")
     def repack_request_changelist(self, obj):

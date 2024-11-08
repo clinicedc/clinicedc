@@ -52,6 +52,6 @@ class ProductAdmin(ModelAdminMixin, admin.ModelAdmin):
     readonly_fields = ("product_identifier", "name")
     radio_fields = {"assignment": admin.VERTICAL}
 
-    @admin.display(description="ID", ordering="product_identifier")
+    @admin.display(description="PRODUCT #", ordering="product_identifier")
     def identifier(self, obj):
         return obj.product_identifier.split("-")[0]

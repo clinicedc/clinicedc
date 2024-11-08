@@ -71,9 +71,6 @@ def receive_on_post_save(sender, instance, raw, created, update_fields, **kwargs
 
 @receiver(post_save, sender=ReceiveItem, dispatch_uid="update_receive_item_on_post_save")
 def receive_item_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
-    """Update received counters on OrderItem, Order models and add to
-    Stock each time ReceiveItem is saved.
-    """
     if not raw and update_fields != ["added_to_stock"]:
         receive_items = ReceiveItem.objects.filter(receive=instance.receive)
         instance.receive.item_count = receive_items.count()
@@ -99,13 +96,16 @@ def receive_item_on_post_save(sender, instance, raw, created, update_fields, **k
             order.status = COMPLETE
             order.save()
         # add to stock
-        Stock.objects.create(
-            receive_item=instance,
-            qty_in=instance.qty,
-            container=instance.container,
-            location=instance.receive.location,
-            confirmed=False,
-        )
+        for i in range(0, int(instance.qty)):
+            Stock.objects.create(
+                receive_item=instance,
+                qty_in=1,
+                container=instance.container,
+                location=instance.receive.location,
+                confirmed=False,
+                label_configuration=instance.label_configuration,
+                lot=instance.lot,
+            )
         # instance.save_base(update_fields=["added_to_stock"])
 
 

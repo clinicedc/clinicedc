@@ -1,5 +1,6 @@
 from django.db import models
 from edc_model.models import BaseUuidModel, HistoricalRecords
+from edc_pylabels.models import LabelConfiguration
 from edc_utils import get_utcnow
 from edc_utils.date import to_local
 from sequences import get_next_value
@@ -27,6 +28,10 @@ class Receive(BaseUuidModel):
     stock_identifiers = models.TextField(null=True, blank=True)
     confirmed_stock_identifiers = models.TextField(null=True, blank=True)
     unconfirmed_stock_identifiers = models.TextField(null=True, blank=True)
+
+    label_configuration = models.ForeignKey(
+        LabelConfiguration, on_delete=models.PROTECT, null=True, blank=False
+    )
 
     objects = Manager()
 

@@ -2,10 +2,12 @@ from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django_audit_fields.admin import audit_fieldset_tuple
+from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import ReceiveItemForm
 from ...models import ReceiveItem
+from ...utils import format_qty
 from ..model_admin_mixin import ModelAdminMixin
 
 
@@ -22,36 +24,24 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     fieldsets = (
         (
             None,
-            {
-                "fields": (
-                    "receive",
-                    "order_item",
-                    "container",
-                )
-            },
+            {"fields": ("receive", "order_item", "container")},
         ),
         (
             "Quantity",
-            {
-                "fields": (
-                    "qty",
-                    "unit_qty",
-                    "added_to_stock",
-                )
-            },
+            {"fields": ("qty", "unit_qty")},
         ),
         audit_fieldset_tuple,
     )
 
     list_display = (
         "identifier",
+        "item_date",
         "order_item_product",
         "container",
-        "qty",
-        "unit_qty",
-        "added_to_stock",
+        "formatted_qty",
+        "formatted_unit_qty",
         "order_changelist",
-        "change_order_items_url",
+        "order_items_changelist",
         "receive_changelist",
         "stock_changelist",
         "modified",
@@ -72,17 +62,31 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         "container__name",
     )
 
-    readonly_fields = ("unit_qty", "added_to_stock")
+    readonly_fields = ("unit_qty",)
+
+    @admin.display(description="Item date", ordering="receive_item_datetime")
+    def item_date(self, obj):
+        return to_local(obj.receive_item_datetime).date()
+
+    @admin.display(description="QTY", ordering="qty")
+    def formatted_qty(self, obj):
+        return format_qty(obj.qty, obj.container)
+
+    @admin.display(description="Units", ordering="qty")
+    def formatted_unit_qty(self, obj):
+        return format_qty(obj.unit_qty, obj.container)
 
     @admin.display(description="Product", ordering="-order_item__product__name")
     def order_item_product(self, obj):
         return obj.order_item.product
 
-    @admin.display(description="Receiving", ordering="-receive__receive_datetime")
+    @admin.display(description="Receive #", ordering="-receive__receive_datetime")
     def receive_changelist(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_receive_changelist")
         url = f"{url}?q={obj.receive.id}"
-        context = dict(url=url, label="Receiving", title="Back to receiving")
+        context = dict(
+            url=url, label=obj.receive.receive_identifier, title="Back to receiving"
+        )
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(description="Stock")
@@ -101,13 +105,15 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         )
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
-    @admin.display(description="Order items")
-    def change_order_items_url(self, obj):
+    @admin.display(description="Order item #")
+    def order_items_changelist(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_orderitem_changelist")
         url = f"{url}?q={str(obj.order_item.id)}"
-        context = dict(url=url, label="Order items", title="Back to order items")
+        context = dict(
+            url=url, label=obj.order_item.order_item_identifier, title="Back to order item"
+        )
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
-    @admin.display(description="ID", ordering="-receive_item_identifier")
+    @admin.display(description="RECEIVE ITEM #", ordering="-receive_item_identifier")
     def identifier(self, obj):
         return obj.receive_item_identifier

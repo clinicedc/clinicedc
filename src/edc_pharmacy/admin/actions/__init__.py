@@ -1,3 +1,4 @@
 from .create_request_items import create_request_items_action
 from .print_stock_labels import print_stock_labels
 from .process_repack_request import process_repack_request_action
+from .update_label_configuration import update_label_configuration_action

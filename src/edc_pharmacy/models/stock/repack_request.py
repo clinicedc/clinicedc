@@ -1,10 +1,10 @@
 from django.db import models
 from edc_model.models import BaseUuidModel, HistoricalRecords
+from edc_pylabels.models import LabelConfiguration
 from edc_utils import get_utcnow
 from sequences import get_next_value
 
 from ...exceptions import RepackRequestError
-from ..proxy_models import LabelSpecificationProxy
 from .container import Container
 
 
@@ -75,8 +75,8 @@ class RepackRequest(BaseUuidModel):
         verbose_name="Quantity", null=True, blank=False, decimal_places=2, max_digits=20
     )
 
-    label_specification = models.ForeignKey(
-        LabelSpecificationProxy, on_delete=models.PROTECT, null=True, blank=False
+    label_configuration = models.ForeignKey(
+        LabelConfiguration, on_delete=models.PROTECT, null=True, blank=False
     )
 
     processed = models.BooleanField(default=False)

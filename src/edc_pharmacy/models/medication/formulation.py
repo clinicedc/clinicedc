@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.db import models
 from django.db.models import PROTECT, UniqueConstraint
 from edc_model.models import BaseUuidModel, HistoricalRecords
@@ -7,6 +11,9 @@ from .formulation_type import FormulationType
 from .medication import Medication
 from .route import Route
 from .units import Units
+
+if TYPE_CHECKING:
+    from ..medication import Assignment
 
 
 class Manager(models.Manager):
@@ -30,12 +37,14 @@ class Formulation(BaseUuidModel):
 
     notes = models.TextField(max_length=250, null=True, blank=True)
 
+    description = models.CharField(max_length=250, null=True, blank=True)
+
     objects = Manager()
 
     history = HistoricalRecords()
 
     def __str__(self):
-        return self.description.title()
+        return self.description
 
     def natural_key(self):
         return (
@@ -45,8 +54,11 @@ class Formulation(BaseUuidModel):
             self.formulation_type,
         )
 
-    @property
-    def description(self):
+    def save(self, *args, **kwargs):
+        self.description = self.get_description()
+        super().save(*args, **kwargs)
+
+    def get_description(self):
         return (
             f"{self.medication} {round_half_away_from_zero(self.strength, 0)}"
             f"{self.get_units_display()} "
@@ -54,11 +66,12 @@ class Formulation(BaseUuidModel):
             f"{self.get_route_display()}"
         )
 
-    def description_with_assignment(self, assignment):
+    def get_description_with_assignment(self, assignment: Assignment) -> str:
         description = self.description
         return (
             f"{self.medication.display_name.title()} "
-            f"{assignment.display_label.upper()} {description.split(str(self.medication))[1]}"
+            f"{assignment.display_label.upper()} "
+            f"{description.split(str(self.medication))[1]}"
         )
 
     def get_formulation_type_display(self):

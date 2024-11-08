@@ -6,13 +6,16 @@ from typing import TYPE_CHECKING
 from django.db import models
 from django.db.models import PROTECT, DecimalField, ExpressionWrapper, F, QuerySet
 from edc_model.models import BaseUuidModel, HistoricalRecords
+from edc_pylabels.models import LabelConfiguration
 from edc_sites.site import sites as site_sites
 from edc_utils import get_utcnow
 from sequences import get_next_value
 
 from ...choices import STOCK_STATUS
 from ...constants import AVAILABLE, RESERVED
-from ...exceptions import InsufficientStockError
+from ...exceptions import InsufficientStockError, StockError
+from ...utils import generate_code_with_checksum_from_id
+from ..medication import Lot
 from ..stock_request import StockRequestItem
 from .container import Container
 from .location import Location
@@ -62,6 +65,8 @@ class Stock(BaseUuidModel):
 
     stock_identifier = models.CharField(max_length=36, unique=True, null=True, blank=True)
 
+    code = models.CharField(max_length=15, unique=True, null=True, blank=True)
+
     stock_datetime = models.DateTimeField(default=get_utcnow)
 
     receive_item = models.ForeignKey(
@@ -92,6 +97,8 @@ class Stock(BaseUuidModel):
 
     location = models.ForeignKey(Location, on_delete=PROTECT, null=True, blank=False)
 
+    lot = models.ForeignKey(Lot, on_delete=models.PROTECT, null=True, blank=False)
+
     from_stock = models.ForeignKey(
         "edc_pharmacy.stock", related_name="source_stock", on_delete=models.PROTECT, null=True
     )
@@ -109,6 +116,10 @@ class Stock(BaseUuidModel):
 
     allocated_datetime = models.DateTimeField(null=True, blank=True)
     subject_identifier = models.CharField(max_length=50, null=True, blank=True)
+
+    label_configuration = models.ForeignKey(
+        LabelConfiguration, on_delete=models.PROTECT, null=True, blank=False
+    )
 
     objects = Manager()
 
@@ -130,6 +141,13 @@ class Stock(BaseUuidModel):
             single_site = site_sites.get(self.stock_request_item.stock_request.site.id)
             if single_site.name != self.location.name:
                 self.status = RESERVED
+        if self.from_stock:
+            if self.from_stock.lot != self.lot:
+                raise StockError("Lot number mismatch!")
+        if self.product.assignment != self.lot.assignment:
+            raise StockError("Lot number assignment does not match product assignment!")
+        if not self.code:
+            self.code = generate_code_with_checksum_from_id(int(self.stock_identifier))
         super().save(*args, **kwargs)
 
     def get_receive_item(self) -> ReceiveItem:

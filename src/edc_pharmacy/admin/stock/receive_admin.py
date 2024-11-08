@@ -3,6 +3,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_model_admin.mixins import TabularInlineMixin
+from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import ReceiveForm, ReceiveItemForm
@@ -53,6 +54,7 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
                     "receive_datetime",
                     "location",
                     "order",
+                    "label_configuration",
                 )
             },
         ),
@@ -75,11 +77,11 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     list_display = (
         "identifier",
-        "receive_datetime",
+        "receive_date",
         "location",
-        "item_count",
         "order_changelist",
         "items",
+        "label_configuration",
         "created",
         "modified",
     )
@@ -100,15 +102,20 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
         "stock_identifiers",
     )
 
-    @admin.display(description="ID", ordering="receive_identifier")
+    @admin.display(description="RECEIVE #", ordering="receive_identifier")
     def identifier(self, obj):
         return obj.receive_identifier
 
+    @admin.display(description="Receive date", ordering="receive_datetime")
+    def receive_date(self, obj):
+        return to_local(obj.receive_datetime).date()
+
     @admin.display(description="Received items", ordering="receive_identifier")
     def items(self, obj):
+        count = obj.receiveitem_set.all().count()
         url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_changelist")
         url = f"{url}?q={obj.id}"
-        context = dict(url=url, label="Received items", title="Go to received items")
+        context = dict(url=url, label=f"Received ({count})", title="Go to received items")
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(description="Order #")

@@ -1,12 +1,15 @@
 from django.contrib import admin
+from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.html import format_html
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_model_admin.mixins import TabularInlineMixin
+from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import OrderForm, OrderItemForm
-from ...models import Order, OrderItem, ReceiveItem
+from ...models import Order, OrderItem, Receive
 from ..model_admin_mixin import ModelAdminMixin
 
 
@@ -61,11 +64,9 @@ class OrderAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     list_display = (
         "identifier",
-        "order_datetime",
-        "sent",
-        "item_count",
-        "add_order_item",
+        "order_date",
         "status",
+        "qty",
         "items",
         "receive_changelist",
         "created",
@@ -76,32 +77,50 @@ class OrderAdmin(ModelAdminMixin, admin.ModelAdmin):
     search_fields = ("id", "order_identifier")
     readonly_fields = ("order_identifier", "sent")
 
-    @admin.display(description="Order #", ordering="-order_identifier")
+    @admin.display(description="ORDER #", ordering="-order_identifier")
     def identifier(self, obj):
         return obj.order_identifier
 
-    @admin.display(description="Orders", ordering="-order_identifier")
-    def items(self, obj):
-        url = reverse("edc_pharmacy_admin:edc_pharmacy_orderitem_changelist")
-        url = f"{url}?q={obj.order_identifier}"
-        context = dict(url=url, label="Ordered items", title="Go to items on this order")
-        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+    @admin.display(description="QTY", ordering="-item_count")
+    def qty(self, obj):
+        return obj.item_count
 
-    @admin.display(description="Add item")
-    def add_order_item(self, obj):
+    @admin.display(description="Order items", ordering="-order_identifier")
+    def items(self, obj):
+        add_order_items_button = ""
         if obj.item_count > OrderItem.objects.filter(order=obj).count():
             url = reverse("edc_pharmacy_admin:edc_pharmacy_orderitem_add")
             next_url = "edc_pharmacy_admin:edc_pharmacy_order_changelist"
             url = f"{url}?next={next_url}&order={str(obj.id)}&q={str(obj.order_identifier)}"
             context = dict(url=url, label="Add order item")
-            return render_to_string("edc_pharmacy/stock/items_as_button.html", context=context)
-        return None
+            add_order_items_button = render_to_string(
+                "edc_pharmacy/stock/items_as_button.html", context=context
+            )
+        count = OrderItem.objects.filter(order=obj).count()
+        url = reverse("edc_pharmacy_admin:edc_pharmacy_orderitem_changelist")
+        url = f"{url}?q={obj.order_identifier}"
+        context = dict(
+            url=url, label=f"Ordered items ({count})", title="Go to items on this order"
+        )
+        order_items_link = render_to_string(
+            "edc_pharmacy/stock/items_as_link.html", context=context
+        )
+        rendered = [add_order_items_button, order_items_link]
+        return format_html("<BR>".join([r for r in rendered if r]))
 
-    @admin.display(description="Receiving")
+    @admin.display(description="Order date", ordering="order_datetime")
+    def order_date(self, obj):
+        return to_local(obj.order_datetime).date()
+
+    @admin.display(description="Receive #")
     def receive_changelist(self, obj):
-        if ReceiveItem.objects.filter(receive__order=obj).exists():
-            url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_changelist")
+        try:
+            rcv_obj = Receive.objects.get(order=obj)
+        except ObjectDoesNotExist:
+            pass
+        else:
+            url = reverse("edc_pharmacy_admin:edc_pharmacy_receive_changelist")
             url = f"{url}?q={str(obj.order_identifier)}"
-            context = dict(url=url, label="Received items", title="Received items")
+            context = dict(url=url, label=rcv_obj.receive_identifier, title="Receive #")
             return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None

@@ -25,6 +25,14 @@ if TYPE_CHECKING:
     from .models import Container, Location, RepackRequest, Stock, StockRequest
 
 
+def format_qty(qty: Decimal, container: Container):
+    if container.qty_decimal_places == 0:
+        return str(int(qty))
+    elif container.qty_decimal_places == 1:
+        return "{:0.1f}".format(qty)
+    return "{:0.2f}".format(qty)
+
+
 def get_rxrefill_model_cls():
     return django_apps.get_model("edc_pharmacy.rxrefill")
 
@@ -100,6 +108,7 @@ def process_repack_request(
                 location=repack_request.from_stock.location,
                 repack_request=repack_request,
                 confirmed=False,
+                lot=repack_request.from_stock.lot,
             )
         repack_request.processed = True
         repack_request.save()

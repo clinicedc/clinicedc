@@ -15,6 +15,8 @@ class Container(BaseUuidModel):
 
     qty = models.DecimalField(max_digits=10, decimal_places=2, null=True)
 
+    qty_decimal_places = models.IntegerField(default=0)
+
     may_order_as = models.BooleanField(
         verbose_name="Container may be used for ordering", default=False
     )
@@ -29,6 +31,10 @@ class Container(BaseUuidModel):
 
     may_request_as = models.BooleanField(
         verbose_name="Container may be used for stock request", default=False
+    )
+
+    may_dispense_as = models.BooleanField(
+        verbose_name="Container may be used for dispensing to subject", default=False
     )
 
     def __str__(self):

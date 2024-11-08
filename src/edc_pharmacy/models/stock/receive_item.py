@@ -6,6 +6,7 @@ from edc_utils import get_utcnow
 from sequences import get_next_value
 
 from ...exceptions import InvalidContainer
+from .. import Lot
 from .container import Container
 from .order_item import OrderItem
 from .receive import Receive
@@ -46,6 +47,8 @@ class ReceiveItem(BaseUuidModel):
         blank=False,
     )
 
+    lot = models.ForeignKey(Lot, on_delete=models.PROTECT, null=True, blank=False)
+
     qty = models.DecimalField(
         verbose_name="Quantity", null=True, blank=False, decimal_places=2, max_digits=20
     )
@@ -58,8 +61,6 @@ class ReceiveItem(BaseUuidModel):
         max_digits=20,
         help_text="Quantity x Container.Quantity, e.g. 10 x Bottle of 128 = 1280",
     )
-
-    added_to_stock = models.BooleanField(default=False)
 
     objects = Manager()
 

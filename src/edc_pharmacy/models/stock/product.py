@@ -22,7 +22,7 @@ class Product(BaseUuidModel):
 
     def __str__(self):
         return (
-            f"{self.formulation.description_with_assignment(self.assignment)}"
+            f"{self.formulation.get_description_with_assignment(self.assignment)}"
             f" [{self.product_identifier}]"
         )
 

@@ -1,7 +1,9 @@
 from django.contrib.admin import SimpleListFilter
 from django.contrib.sites.shortcuts import get_current_site
+from edc_constants.choices import YES_NO
+from edc_constants.constants import NO
 
-from ..models import Medication, Rx
+from ..models import Medication, Rx, Stock
 
 
 class MedicationsListFilter(SimpleListFilter):
@@ -27,4 +29,49 @@ class MedicationsListFilter(SimpleListFilter):
                 qs = Rx.objects.filter(
                     medications__name__in=[self.value()], site=get_current_site(request)
                 )
+        return qs
+
+
+class HasOrderNumFilter(SimpleListFilter):
+    title = "Has Order #"
+    parameter_name = "has_order_num"
+
+    def lookups(self, request, model_admin):
+        return YES_NO
+
+    def queryset(self, request, queryset):
+        qs = None
+        if self.value():
+            isnull = True if self.value() == NO else False
+            qs = Stock.objects.filter(receive_item__order_item__order__isnull=isnull)
+        return qs
+
+
+class HasReceiveNumFilter(SimpleListFilter):
+    title = "Has Receive #"
+    parameter_name = "has_receive_num"
+
+    def lookups(self, request, model_admin):
+        return YES_NO
+
+    def queryset(self, request, queryset):
+        qs = None
+        if self.value():
+            isnull = True if self.value() == NO else False
+            qs = Stock.objects.filter(receive_item__receive__isnull=isnull)
+        return qs
+
+
+class HasRepackNumFilter(SimpleListFilter):
+    title = "Has Repack #"
+    parameter_name = "has_repack_num"
+
+    def lookups(self, request, model_admin):
+        return YES_NO
+
+    def queryset(self, request, queryset):
+        qs = None
+        if self.value():
+            isnull = True if self.value() == NO else False
+            qs = Stock.objects.filter(repack_request__isnull=isnull)
         return qs
