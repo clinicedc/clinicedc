@@ -9,7 +9,6 @@ from ...admin_site import edc_pharmacy_admin
 from ...forms import StockForm
 from ...models import Stock
 from ...utils import format_qty
-from ..actions import update_label_configuration_action
 from ..list_filters import HasOrderNumFilter, HasReceiveNumFilter, HasRepackNumFilter
 from ..model_admin_mixin import ModelAdminMixin
 
@@ -25,7 +24,7 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
     show_history_label = True
     autocomplete_fields = ["container"]
 
-    actions = [print_label_sheet, update_label_configuration_action]
+    actions = [print_label_sheet]
 
     form = StockForm
 
