@@ -176,13 +176,17 @@ def process_stock_request(
             )
 
 
-def confirm_stock(obj: RepackRequest | Receive, stock_codes: list[str]) -> tuple[int, int]:
+def confirm_stock(
+    obj: RepackRequest | Receive, stock_codes: list[str], fk_attr: str
+) -> tuple[int, int]:
     stock_model_cls = django_apps.get_model("edc_pharmacy.stock")
     confirmed, not_confirmed = 0, 0
     stock_codes = [s.strip() for s in stock_codes]
     for stock_code in stock_codes:
         try:
-            stock = stock_model_cls.objects.get(code=stock_code, confirmed=False)
+            stock = stock_model_cls.objects.get(
+                code=stock_code, confirmed=False, **{fk_attr: obj.id}
+            )
         except ObjectDoesNotExist:
             not_confirmed += 1
         else:

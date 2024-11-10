@@ -93,7 +93,7 @@ class ConfirmStockView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Temp
     def post(self, request, *args, **kwargs):
         dct = self.get_values_dict(**kwargs)
         codes = request.POST.getlist("codes")
-        confirmed, not_confirmed = confirm_stock(dct.get("obj"), codes)
+        confirmed, not_confirmed = confirm_stock(dct.get("obj"), codes, dct.get("fk_attr"))
         messages.add_message(
             request,
             messages.SUCCESS,
