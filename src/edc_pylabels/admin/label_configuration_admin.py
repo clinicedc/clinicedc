@@ -13,6 +13,7 @@ from ..actions import print_test_label_sheet_action
 from ..admin_site import edc_pylabels_admin
 from ..forms import LabelConfigurationForm
 from ..models import LabelConfiguration
+from ..site_label_configs import site_label_configs
 
 
 @admin.register(LabelConfiguration, site=edc_pylabels_admin)
@@ -43,3 +44,8 @@ class LabelConfigurationAdmin(
     list_filter = ("label_specification",)
 
     search_fields = ("name", "label_specification__name")
+
+    def formfield_for_choice_field(self, db_field, request, **kwargs):
+        if db_field.name == "name":
+            kwargs["choices"] = [(k, k) for k in site_label_configs.all()]
+        return super().formfield_for_choice_field(db_field, request, **kwargs)

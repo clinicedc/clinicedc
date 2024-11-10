@@ -6,6 +6,12 @@ from edc_pylabels.site_label_configs import site_label_configs
 
 class LabelConfigurationForm(forms.ModelForm):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["name"].choices = [(k, k) for k in site_label_configs.all()]
+
+    name = forms.ChoiceField(choices=[])
+
     def clean(self):
         cleaned_data = super().clean()
         if (

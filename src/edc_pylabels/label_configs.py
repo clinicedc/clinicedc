@@ -6,7 +6,7 @@ class Container:
     qty = 128
 
 
-class Request:
+class StockRequest:
     container = Container()
 
 
@@ -19,7 +19,7 @@ class RequestItem:
     subject_identifier = "999-99-99999-9"
     gender = "FEMALE"
     site = Site
-    request = Request()
+    stock_request = StockRequest()
     code = "A9B8C7"
     sid = 99999
 

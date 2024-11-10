@@ -22,12 +22,12 @@ class LabelConfig:
     def __init__(
         self,
         name: str,
-        drawing_func: Callable,
+        drawing_callable: Callable,
         label_cls: Any,
         test_data_func: Callable | None = None,
     ):
         self.name = name
-        self.drawing_func = drawing_func
+        self.drawing_callable = drawing_callable
         self.label_cls = label_cls
         self.test_data_func = test_data_func or self._test_data_func
 
@@ -43,7 +43,7 @@ class LabelConfig:
 
 class SiteLabelConfigs:
     def __init__(self):
-        self.registry: dict[str, Callable] = {}
+        self.registry: dict[str, LabelConfig] = {}
 
     def __repr__(self):
         return f"{self.__class__.__name__}()"
@@ -61,7 +61,7 @@ class SiteLabelConfigs:
     def register(
         self,
         name: str,
-        drawing_func: Callable,
+        drawing_callable: Callable,
         label_cls: Any,
         test_data_func: Callable | None = None,
     ) -> None:
@@ -69,13 +69,13 @@ class SiteLabelConfigs:
             raise AlreadyRegistered(f"Already registered. Got name='{name}' ")
         else:
             self.registry.update(
-                {name: LabelConfig(name, drawing_func, label_cls, test_data_func)}
+                {name: LabelConfig(name, drawing_callable, label_cls, test_data_func)}
             )
 
-    def all(self) -> dict[str, Callable]:
+    def all(self) -> dict[str, LabelConfig]:
         return self.registry
 
-    def get(self, name) -> Callable:
+    def get(self, name) -> LabelConfig:
         if name not in self.registry:
             raise SitePharmacyError(
                 f"Name does not exist. Is it registered? "

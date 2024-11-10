@@ -4,9 +4,10 @@ from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.contrib import admin, messages
-from django.db.models import QuerySet
+from django.db.models import Count, QuerySet
 from django.http import FileResponse
 from django.utils.translation import gettext as _
+from edc_utils import get_utcnow
 from pylabels import Sheet, Specification
 
 from .site_label_configs import LabelConfig, site_label_configs
@@ -28,7 +29,9 @@ def print_test_label_sheet_action(modeladmin, request, queryset: QuerySet[LabelC
         obj = queryset.first()
         label_config: LabelConfig = site_label_configs.get(obj.name)
         specs = Specification(**obj.label_specification.as_dict)
-        sheet = Sheet(specs, label_config.drawing_func, border=obj.label_specification.border)
+        sheet = Sheet(
+            specs, label_config.drawing_callable, border=obj.label_specification.border
+        )
 
         try:
             label_cls = django_apps.get_model(label_config.label_cls)
@@ -45,4 +48,34 @@ def print_test_label_sheet_action(modeladmin, request, queryset: QuerySet[LabelC
         )
         buffer = sheet.save_to_buffer()
         return FileResponse(buffer, as_attachment=True, filename=f"test_print_{obj.name}.pdf")
+    return None
+
+
+def print_label_sheet(modeladmin, request, queryset):
+    if (
+        queryset.model.objects.values("label_configuration__name")
+        .filter(id__in=[obj.id for obj in queryset])
+        .annotate(name=Count("label_configuration__name"))
+        .count()
+        > 1
+    ):
+        messages.add_message(
+            request,
+            messages.ERROR,
+            _("Select items that have the same label configuration"),
+        )
+    else:
+        label_data = [obj for obj in queryset]
+        config: LabelConfiguration = queryset.first().label_configuration
+        drawing_callable = site_label_configs.get(config.name).drawing_callable
+        specs = Specification(**config.label_specification.as_dict)
+        sheet = Sheet(specs, drawing_callable, border=config.label_specification.border)
+        sheet.add_labels(label_data)
+        buffer = sheet.save_to_buffer()
+        now = get_utcnow()
+        return FileResponse(
+            buffer,
+            as_attachment=True,
+            filename=f"{config.name}_{now.strftime("%Y-%m-%d %H:%M")}.pdf",
+        )
     return None
