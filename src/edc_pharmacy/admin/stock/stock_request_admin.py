@@ -7,7 +7,10 @@ from edc_utils.date import to_local
 from ...admin_site import edc_pharmacy_admin
 from ...forms import StockRequestForm
 from ...models import StockRequest, StockRequestItem
-from ..actions import create_request_items_action
+from ..actions import (
+    create_stock_request_items_action,
+    delete_items_for_stock_request_action,
+)
 from ..model_admin_mixin import ModelAdminMixin
 
 
@@ -16,10 +19,10 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
     change_list_title = "Pharmacy: Request for stock"
     show_object_tools = True
     show_cancel = True
-    autocomplete_fields = ["container", "formulation", "site_proxy"]
+    autocomplete_fields = ["container", "formulation", "location"]
     form = StockRequestForm
 
-    actions = [create_request_items_action]
+    actions = [create_stock_request_items_action, delete_items_for_stock_request_action]
 
     fieldsets = (
         (
@@ -28,7 +31,7 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
                 "fields": (
                     "request_identifier",
                     "request_datetime",
-                    "site_proxy",
+                    "location",
                 )
             },
         ),
@@ -50,12 +53,10 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
     list_display = (
         "stock_request_id",
         "request_date",
-        "site_proxy",
+        "location",
         "formulation",
-        "container",
         "per_subject",
-        "request_item_count",
-        "add_stock_request_item",
+        "container",
         "stock_request_items",
         "status",
     )
@@ -65,6 +66,7 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
         "status",
         "formulation",
         "container",
+        "location",
     )
 
     radio_fields = {
@@ -77,7 +79,7 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
     def stock_request_id(self, obj):
         return obj.request_identifier
 
-    @admin.display(description="Per", ordering="containers_per_subject")
+    @admin.display(description="QTY", ordering="containers_per_subject")
     def per_subject(self, obj):
         return obj.containers_per_subject
 
@@ -85,25 +87,29 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
     def request_item_count(self, obj):
         return obj.item_count
 
-    @admin.display(description="Request")
+    @admin.display(description="Request items")
     def stock_request_items(self, obj):
+        count = StockRequestItem.objects.filter(stock_request=obj).count()
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stockrequestitem_changelist")
         url = f"{url}?q={obj.request_identifier}"
-        context = dict(url=url, label="Request items", title="Go to stock request items")
+        context = dict(
+            url=url, label=f"Request items ({count})", title="Go to stock request items"
+        )
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
-    @admin.display(description="Add")
-    def add_stock_request_item(self, obj):
-        if obj.item_count > StockRequestItem.objects.filter(request=obj).count():
-            url = reverse("edc_pharmacy_admin:edc_pharmacy_stockrequestitem_add")
-            next_url = "edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist"
-            url = (
-                f"{url}?next={next_url}&stock_request={str(obj.id)}"
-                f"&q={str(obj.request_identifier)}"
-            )
-            context = dict(url=url, label="Add item")
-            return render_to_string("edc_pharmacy/stock/items_as_button.html", context=context)
-        return None
+    # @admin.display(description="Add")
+    # def add_stock_request_item(self, obj):
+    #     if obj.item_count > StockRequestItem.objects.filter(stock_request=obj).count():
+    #         url = reverse("edc_pharmacy_admin:edc_pharmacy_stockrequestitem_add")
+    #         next_url = "edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist"
+    #         url = (
+    #             f"{url}?next={next_url}&stock_request={str(obj.id)}"
+    #             f"&q={str(obj.request_identifier)}"
+    #         )
+    #         context = dict(url=url, label="Add item")
+    #         return render_to_string(
+    #             "edc_pharmacy/stock/items_as_button.html", context=context)
+    #     return None
 
     @admin.display(description="Request date")
     def request_date(self, obj):

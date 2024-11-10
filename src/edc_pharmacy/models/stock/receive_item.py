@@ -5,9 +5,9 @@ from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_utils import get_utcnow
 from sequences import get_next_value
 
-from ...exceptions import InvalidContainer
-from .. import Lot
+from ...exceptions import InvalidContainer, ReceiveError, ReceiveItemError
 from .container import Container
+from .lot import Lot
 from .order_item import OrderItem
 from .receive import Receive
 
@@ -22,32 +22,25 @@ class ReceiveItem(BaseUuidModel):
         max_length=36, unique=True, null=True, blank=True
     )
 
-    receive = models.ForeignKey(
-        Receive,
-        on_delete=models.PROTECT,
-        blank=False,
-    )
-
     receive_item_datetime = models.DateTimeField(default=get_utcnow)
 
-    name = models.CharField(
-        max_length=200, null=True, blank=True, help_text="Leave blank to use default"
-    )
-
-    order_item = models.ForeignKey(
-        OrderItem,
-        on_delete=models.PROTECT,
-        blank=False,
-    )
+    receive = models.ForeignKey(Receive, on_delete=models.PROTECT, null=True, blank=False)
 
     container = models.ForeignKey(
         Container,
         on_delete=models.PROTECT,
-        limit_choices_to={"may_receive_as": True},
+        null=True,
         blank=False,
+        limit_choices_to={"may_receive_as": True},
     )
 
+    order_item = models.ForeignKey(OrderItem, on_delete=models.PROTECT, null=True, blank=False)
+
     lot = models.ForeignKey(Lot, on_delete=models.PROTECT, null=True, blank=False)
+
+    name = models.CharField(
+        max_length=200, null=True, blank=True, help_text="Leave blank to use default"
+    )
 
     qty = models.DecimalField(
         verbose_name="Quantity", null=True, blank=False, decimal_places=2, max_digits=20
@@ -76,6 +69,14 @@ class ReceiveItem(BaseUuidModel):
     def save(self, *args, **kwargs):
         if not self.receive_item_identifier:
             self.receive_item_identifier = f"{get_next_value(self._meta.label_lower):06d}"
+        if not self.receive:
+            raise ReceiveItemError("Receive may not be null.")
+        if not self.container:
+            raise ReceiveItemError("Container may not be null.")
+        if not self.order_item:
+            raise ReceiveItemError("OrderItem may not be null.")
+        if not self.lot:
+            raise ReceiveItemError("Lot may not be null.")
         if self.container.qty > Decimal(1.0):
             self.unit_qty = self.qty * self.container.qty
         else:
@@ -87,6 +88,8 @@ class ReceiveItem(BaseUuidModel):
                 "Invalid container. Container is not configured for receiving. "
                 f"Got {self.container}"
             )
+        if self.order_item.product.assignment != self.lot.assignment:
+            raise ReceiveError("Lot number assignment does not match product assignment!")
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):

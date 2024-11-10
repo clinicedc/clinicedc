@@ -78,6 +78,10 @@ class InvalidContainer(Exception):
     pass
 
 
+class ReceiveError(Exception):
+    pass
+
+
 class RepackError(Exception):
     pass
 
@@ -90,5 +94,29 @@ class ProcessStockRequestError(Exception):
     pass
 
 
+class StockRequestError(Exception):
+    pass
+
+
 class ChecksumError(Exception):
+    pass
+
+
+class AllocationError(Exception):
+    pass
+
+
+class OrderItemError(Exception):
+    pass
+
+
+class ReceiveItemError(Exception):
+    pass
+
+
+class StockRequestItemError(Exception):
+    pass
+
+
+class LotError(Exception):
     pass

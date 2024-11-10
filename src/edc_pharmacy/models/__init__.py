@@ -1,17 +1,22 @@
 from .dispensing_history import DispensingHistory
+from .edc_permissions import EdcPermissions
 from .medication import (
     Assignment,
     DosageGuideline,
     Formulation,
     FormulationType,
     FrequencyUnits,
-    Lot,
     Medication,
     Route,
     Units,
 )
 from .prescription import Rx, RxRefill
-from .proxy_models import LabelSpecificationProxy, SiteProxy, VisitSchedule
+from .proxy_models import (
+    LabelSpecificationProxy,
+    RegisteredSubjectProxy,
+    SiteProxy,
+    VisitSchedule,
+)
 from .return_history import ReturnError, ReturnHistory
 from .signals import (
     create_or_update_refills_on_post_save,
@@ -26,10 +31,12 @@ from .signals import (
     stock_request_item_on_post_save,
 )
 from .stock import (
+    Allocation,
     Container,
     ContainerType,
     ContainerUnits,
     Location,
+    Lot,
     Order,
     OrderItem,
     Product,
@@ -37,9 +44,9 @@ from .stock import (
     ReceiveItem,
     RepackRequest,
     Stock,
-    StockUpdate,
+    StockRequest,
+    StockRequestItem,
 )
-from .stock_request import StockRequest, StockRequestItem
 from .storage import (
     Box,
     Room,
@@ -51,4 +58,3 @@ from .storage import (
     repackage,
     repackage_for_subject,
 )
-from .subject import Subject

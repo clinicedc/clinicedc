@@ -15,34 +15,11 @@ class Manager(models.Manager):
 class RepackRequest(BaseUuidModel):
     """A model to repack stock from one container into another.
 
-    Move stock from one container into another, for example
+    Move stock from one phycical container into another, for example
     move stock from a bottle of 50000 into x number of containers
     of 128.
 
-    On save, populate stock with `QTY` new records. Stock is flagged
-    as confirmed=False until label scanned into edc
-
-    stock_identifier:
-        You can specify the source container by stock identifier or
-        leave stock_identifier to let the EDC decide which stock item
-        or items to draw from. EDC will choose by ascending order of
-        the stock identifier for the product/container.
-
-    qty:
-        total number of new stock items to generate
-
-    label_specification:
-        label specification to use for the labels to be used for the
-        new stock items
-
-    dispense_to_new_container:
-        if the old and new container are the same physical container,
-        the old stock identifier matters and should be matched to the
-        new label -- find the bottle with the old stock identifier
-        and affix the new label
-
     Location is not changed here.
-
     """
 
     repack_identifier = models.CharField(

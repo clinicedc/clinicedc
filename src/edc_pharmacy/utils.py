@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import random
 import string
 from binascii import Error
 from decimal import Decimal
@@ -8,7 +9,9 @@ from typing import TYPE_CHECKING
 
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
+from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import Count
 from edc_registration.models import RegisteredSubject
 from edc_visit_tracking.utils import get_previous_related_visit
@@ -22,7 +25,9 @@ from .exceptions import (
 )
 
 if TYPE_CHECKING:
-    from .models import Container, Location, RepackRequest, Stock, StockRequest
+    from .models import Container, Location, Receive, RepackRequest, StockRequest
+
+random.seed(3897538743783)
 
 
 def format_qty(qty: Decimal, container: Container):
@@ -74,7 +79,8 @@ def update_previous_refill_end_datetime(instance):
 #     repackage_stock()
 #
 def get_and_check_stock(stock_identifier):
-    stock = Stock.objects.get(stock_identifier=stock_identifier)
+    stock_model_cls = django_apps.get_model("edc_pharmacy.stock")
+    stock = stock_model_cls.objects.get(stock_identifier=stock_identifier)
     if not stock.confirmed:
         raise StockError(f"Stock item is not confirmed. Unable to process. Got {stock}.")
     if stock.unit_qty_in - stock.unit_qty_out == Decimal(0):
@@ -90,7 +96,7 @@ def get_and_check_stock(stock_identifier):
 
 
 def process_repack_request(
-    repack_request: RepackRequest | None = None,
+    repack_request: RepackRequest | None = None, request: WSGIRequest | None = None
 ) -> RepackRequest:
     """Take from stock and fill container as new stock item.
 
@@ -109,9 +115,20 @@ def process_repack_request(
                 repack_request=repack_request,
                 confirmed=False,
                 lot=repack_request.from_stock.lot,
+                label_configuration=repack_request.label_configuration,
             )
         repack_request.processed = True
         repack_request.save()
+        if request:
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                (
+                    "Repack request submitted. Next, print labels and label the stock. "
+                    "Once all stock is labelled, go back to Repack and scan in the "
+                    "labels to confirm the stock"
+                ),
+            )
     return repack_request
 
 
@@ -159,6 +176,22 @@ def process_stock_request(
             )
 
 
+def confirm_stock(obj: RepackRequest | Receive, stock_codes: list[str]) -> tuple[int, int]:
+    stock_model_cls = django_apps.get_model("edc_pharmacy.stock")
+    confirmed, not_confirmed = 0, 0
+    stock_codes = [s.strip() for s in stock_codes]
+    for stock_code in stock_codes:
+        try:
+            stock = stock_model_cls.objects.get(code=stock_code, confirmed=False)
+        except ObjectDoesNotExist:
+            not_confirmed += 1
+        else:
+            stock.confirmed = True
+            stock.save(update_fields=["confirmed"])
+            confirmed += 1
+    return confirmed, not_confirmed
+
+
 def generate_code_with_checksum_from_id(id_number: int) -> str:
     bytes_id = id_number.to_bytes((id_number.bit_length() + 7) // 8, "big")
     code = base64.b32encode(bytes_id).decode("utf-8")
@@ -188,3 +221,24 @@ def add_checksum(code):
         string.digits[checksum] if checksum < 10 else string.ascii_uppercase[checksum - 10]
     )
     return code + checksum_char
+
+
+def get_random_code(model_cls, length: int, tries: int | None = None) -> str:
+    random_code = 0
+    x = 0
+    tries = tries or 1000
+    while x < tries:
+        random_code = str(
+            "".join(
+                [
+                    random.choice("ABCDEFGHJKMNPQRTUVWXYZ2346789")  # nosec B311
+                    for _ in range(0, length)
+                ]
+            )
+        )
+        if not model_cls.objects.filter(code=random_code).exists():
+            break
+        x += 1
+        if x == tries:
+            raise StopIteration()
+    return random_code

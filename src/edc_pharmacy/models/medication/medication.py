@@ -23,10 +23,12 @@ class Medication(BaseUuidModel):
     history = HistoricalRecords()
 
     def __str__(self):
-        return self.name
+        return self.display_name
 
     def save(self, *args, **kwargs):
         self.name = self.name.strip().lower().replace(" ", "_")
+        if not self.display_name:
+            self.display_name = self.name.capitalize()
         super().save(*args, **kwargs)
 
     def natural_key(self):

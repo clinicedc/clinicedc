@@ -6,7 +6,7 @@ from edc_model.models import BaseUuidModel, HistoricalRecords
 from sequences import get_next_value
 
 from ...choices import ORDER_CHOICES
-from ...exceptions import InvalidContainer
+from ...exceptions import InvalidContainer, OrderItemError
 from .container import Container
 from .order import Order
 from .product import Product
@@ -20,12 +20,16 @@ class OrderItem(BaseUuidModel):
 
     order_item_identifier = models.CharField(max_length=36, unique=True, null=True, blank=True)
 
-    order = models.ForeignKey(Order, on_delete=models.PROTECT)
+    order = models.ForeignKey(Order, on_delete=models.PROTECT, null=True, blank=False)
 
-    product = models.ForeignKey(Product, on_delete=models.PROTECT)
+    product = models.ForeignKey(Product, on_delete=models.PROTECT, null=True, blank=False)
 
     container = models.ForeignKey(
-        Container, on_delete=models.PROTECT, limit_choices_to={"may_order_as": True}
+        Container,
+        on_delete=models.PROTECT,
+        limit_choices_to={"may_order_as": True},
+        null=True,
+        blank=False,
     )
 
     qty = models.DecimalField(null=True, blank=False, decimal_places=2, max_digits=20)
@@ -48,6 +52,12 @@ class OrderItem(BaseUuidModel):
     def save(self, *args, **kwargs):
         if not self.order_item_identifier:
             self.order_item_identifier = f"{get_next_value(self._meta.label_lower):06d}"
+        if not self.order:
+            raise OrderItemError("Order may not be null.")
+        if not self.product:
+            raise OrderItemError("Product may not be null.")
+        if not self.container:
+            raise OrderItemError("Container may not be null.")
         if self.container.qty > Decimal(1):
             self.unit_qty = self.qty * self.container.qty
         else:

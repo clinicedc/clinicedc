@@ -1,64 +1,27 @@
 from __future__ import annotations
 
 from decimal import Decimal
-from typing import TYPE_CHECKING
 
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import PROTECT, DecimalField, ExpressionWrapper, F, QuerySet
+from django.db.models import PROTECT
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_pylabels.models import LabelConfiguration
-from edc_sites.site import sites as site_sites
 from edc_utils import get_utcnow
 from sequences import get_next_value
 
 from ...choices import STOCK_STATUS
-from ...constants import AVAILABLE, RESERVED
-from ...exceptions import InsufficientStockError, StockError
-from ...utils import generate_code_with_checksum_from_id
-from ..medication import Lot
-from ..stock_request import StockRequestItem
+from ...constants import ALLOCATED, AVAILABLE, ZERO_ITEM
+from ...exceptions import StockError
+from ...utils import get_random_code
+from .allocation import Allocation
 from .container import Container
 from .location import Location
+from .lot import Lot
+from .managers import StockManager
 from .product import Product
 from .receive_item import ReceiveItem
 from .repack_request import RepackRequest
-
-if TYPE_CHECKING:
-    from ..medication import Assignment
-
-
-class Manager(models.Manager):
-    use_in_migrations = True
-
-    def in_stock(
-        self,
-        unit_qty: Decimal,
-        container: Container,
-        location: Location,
-        assignment: Assignment,
-    ) -> QuerySet[Stock] | None:
-        expression_wrapper = ExpressionWrapper(
-            F("unit_qty_in") - F("unit_qty_out"),
-            output_field=DecimalField(),
-        )
-        qs = (
-            self.get_queryset()
-            .filter(
-                container=container,
-                location=location,
-                product__assignment=assignment,
-                status=AVAILABLE,
-            )
-            .annotate(difference=expression_wrapper)
-            .filter(difference__gte=unit_qty)
-            .order_by("difference")
-        )
-        if qs.count() == 0:
-            raise InsufficientStockError(
-                f"Insufficient stock. Got container={container}, "
-                f"location={location}, assignment={assignment}"
-            )
-        return qs[0]
 
 
 class Stock(BaseUuidModel):
@@ -74,34 +37,52 @@ class Stock(BaseUuidModel):
     )
 
     repack_request = models.ForeignKey(
-        RepackRequest, on_delete=models.PROTECT, null=True, blank=False
+        RepackRequest, on_delete=models.PROTECT, null=True, blank=True
     )
 
-    stock_request_item = models.ForeignKey(
-        StockRequestItem, on_delete=models.PROTECT, null=True, blank=False
+    from_stock = models.ForeignKey(
+        "edc_pharmacy.stock", related_name="source_stock", on_delete=models.PROTECT, null=True
     )
+
+    allocation = models.ForeignKey(Allocation, on_delete=models.PROTECT, null=True, blank=True)
 
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
 
     container = models.ForeignKey(Container, on_delete=models.PROTECT, null=True, blank=False)
 
     qty_in = models.DecimalField(
-        null=True, blank=False, decimal_places=2, max_digits=20, default=Decimal(0.0)
+        null=True,
+        blank=False,
+        decimal_places=2,
+        max_digits=20,
+        default=Decimal(0.0),
+        validators=[MinValueValidator(0), MaxValueValidator(1)],
     )
 
-    qty_out = models.DecimalField(decimal_places=2, max_digits=20, default=Decimal(0.0))
+    qty_out = models.DecimalField(
+        decimal_places=2,
+        max_digits=20,
+        default=Decimal(0.0),
+        validators=[MinValueValidator(0), MaxValueValidator(1)],
+    )
 
-    unit_qty_in = models.DecimalField(decimal_places=2, max_digits=20, default=Decimal(0.0))
+    unit_qty_in = models.DecimalField(
+        decimal_places=2,
+        max_digits=20,
+        default=Decimal(0.0),
+        validators=[MinValueValidator(0)],
+    )
 
-    unit_qty_out = models.DecimalField(decimal_places=2, max_digits=20, default=Decimal(0.0))
+    unit_qty_out = models.DecimalField(
+        decimal_places=2,
+        max_digits=20,
+        default=Decimal(0.0),
+        validators=[MinValueValidator(0)],
+    )
 
     location = models.ForeignKey(Location, on_delete=PROTECT, null=True, blank=False)
 
     lot = models.ForeignKey(Lot, on_delete=models.PROTECT, null=True, blank=False)
-
-    from_stock = models.ForeignKey(
-        "edc_pharmacy.stock", related_name="source_stock", on_delete=models.PROTECT, null=True
-    )
 
     status = models.CharField(max_length=25, choices=STOCK_STATUS, default=AVAILABLE)
 
@@ -121,7 +102,7 @@ class Stock(BaseUuidModel):
         LabelConfiguration, on_delete=models.PROTECT, null=True, blank=False
     )
 
-    objects = Manager()
+    objects = StockManager()
 
     history = HistoricalRecords()
 
@@ -131,24 +112,45 @@ class Stock(BaseUuidModel):
     def save(self, *args, **kwargs):
         if not self.stock_identifier:
             next_id = get_next_value(self._meta.label_lower)
-            self.stock_identifier = f"{next_id:06d}"
+            self.stock_identifier = f"{next_id:010d}"
+            self.code = get_random_code(self.__class__, 6, 10000)
             self.product = self.get_receive_item().order_item.product
         if not self.description:
             self.description = f"{self.product.name} - {self.container.name}"
-        if self.qty_out > self.qty_in:
-            raise InsufficientStockError("QTY OUT cannot exceed QTY IN.")
-        if self.stock_request_item:
-            single_site = site_sites.get(self.stock_request_item.stock_request.site.id)
-            if single_site.name != self.location.name:
-                self.status = RESERVED
-        if self.from_stock:
-            if self.from_stock.lot != self.lot:
-                raise StockError("Lot number mismatch!")
-        if self.product.assignment != self.lot.assignment:
-            raise StockError("Lot number assignment does not match product assignment!")
-        if not self.code:
-            self.code = generate_code_with_checksum_from_id(int(self.stock_identifier))
+        # if not self.code:
+        #     self.code = generate_code_with_checksum_from_id(int(self.stock_identifier))
+        # if self.stock_request_item:
+        #     single_site = site_sites.get(self.stock_request_item.stock_request.site.id)
+        #     if single_site.name != self.location.name:
+        #         self.status = RESERVED
+        self.verify_assignment()
+        self.verify_assignment(self.from_stock)
+        self.verify_qty()
+        self.update_status()
         super().save(*args, **kwargs)
+
+    def verify_qty(self):
+        if self.unit_qty_in > 0:
+            if self.unit_qty_in == self.unit_qty_out:
+                self.qty_out = 1
+            else:
+                self.qty_out = 0
+            if self.qty_out > 1 or self.qty_in > 1:
+                raise StockError("QTY OUT, QTY IN can only be 0 or 1.")
+
+    def verify_assignment(self, stock: models.ForeignKey[Stock] | None = None):
+        if not stock:
+            stock = self
+        if stock.product.assignment != stock.lot.assignment:
+            raise StockError("Lot number assignment does not match product assignment!")
+
+    def update_status(self):
+        if self.allocation:
+            self.status = ALLOCATED
+        elif self.qty_out == self.qty_in:
+            self.status = ZERO_ITEM
+        else:
+            self.status = AVAILABLE
 
     def get_receive_item(self) -> ReceiveItem:
         obj = self

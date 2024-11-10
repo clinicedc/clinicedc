@@ -8,7 +8,7 @@ from ...admin_site import edc_pharmacy_admin
 from ...forms import RepackRequestForm
 from ...models import RepackRequest
 from ...utils import format_qty
-from ..actions import process_repack_request_action
+from ..actions import confirm_stock_action, process_repack_request_action
 from ..model_admin_mixin import ModelAdminMixin
 
 
@@ -17,13 +17,13 @@ class RequestRepackAdmin(ModelAdminMixin, admin.ModelAdmin):
     change_list_title = "Pharmacy: Repackage request"
     show_object_tools = True
     show_cancel = True
-    autocomplete_fields = ["container", "from_stock"]
+    autocomplete_fields = ["container"]
     form = RepackRequestForm
-    actions = [process_repack_request_action]
+    actions = [process_repack_request_action, confirm_stock_action]
 
     fieldsets = (
         (
-            "Section A",
+            "Section A: Repack",
             {
                 "fields": (
                     "repack_identifier",
@@ -38,12 +38,16 @@ class RequestRepackAdmin(ModelAdminMixin, admin.ModelAdmin):
         (
             "Section B: Confirm stock after labelling",
             {
+                "description": (
+                    "Fill in AFTER repack is complete. Save the form, print labels, "
+                    "label stock, then return here to confirm stock"
+                ),
                 "fields": (
                     "stock_count",
                     "stock_identifiers",
                     "confirmed_stock_identifiers",
                     "unconfirmed_stock_identifiers",
-                )
+                ),
             },
         ),
         audit_fieldset_tuple,
@@ -58,7 +62,6 @@ class RequestRepackAdmin(ModelAdminMixin, admin.ModelAdmin):
         "from_stock__product__name",
         "processed",
         "stock_changelist",
-        "label_configuration",
     )
 
     search_fields = ("id", "container__name")
@@ -89,3 +92,10 @@ class RequestRepackAdmin(ModelAdminMixin, admin.ModelAdmin):
     @admin.display(description="QTY", ordering="qty")
     def formatted_qty(self, obj):
         return format_qty(obj.qty, obj.container)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "from_stock" and request.GET.get("from_stock"):
+            kwargs["queryset"] = db_field.related_model.objects.filter(
+                pk=request.GET.get("from_stock", 0)
+            )
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)

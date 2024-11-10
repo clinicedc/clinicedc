@@ -1,7 +1,15 @@
 from django.utils.translation import gettext as _
 from edc_constants.constants import COMPLETE, NEW, NOT_APPLICABLE, OTHER
 
-from .constants import AVAILABLE, CANCELLED, DISPENSED, FILLED, PARTIAL, RESERVED
+from .constants import (
+    ALLOCATED,
+    AVAILABLE,
+    CANCELLED,
+    DISPENSED,
+    FILLED,
+    PARTIAL,
+    ZERO_ITEM,
+)
 
 PRESCRIPTION_STATUS = (
     (NEW, "New"),
@@ -26,7 +34,8 @@ ORDER_CHOICES = ((NEW, _("New")), (PARTIAL, _("Partial")), (COMPLETE, _("Complet
 
 STOCK_STATUS = (
     (AVAILABLE, "Available"),
-    (RESERVED, "Reserved"),
+    (ALLOCATED, "Allocated"),
+    (ZERO_ITEM, "Zero"),
 )
 
 

@@ -9,11 +9,16 @@ from edc_model_admin.mixins import (
 from edc_registration.admin import RegisteredSubjectAdmin as BaseRegisteredSubjectAdmin
 
 from ..admin_site import edc_pharmacy_admin
-from ..models import LabelSpecificationProxy, SiteProxy, Subject, VisitSchedule
+from ..models import (
+    LabelSpecificationProxy,
+    RegisteredSubjectProxy,
+    SiteProxy,
+    VisitSchedule,
+)
 
 
-@register(Subject, site=edc_pharmacy_admin)
-class SubjectAdmin(BaseRegisteredSubjectAdmin):
+@register(RegisteredSubjectProxy, site=edc_pharmacy_admin)
+class RegisteredSubjectProxyAdmin(BaseRegisteredSubjectAdmin):
     ordering = ("subject_identifier",)
     search_fields = ("subject_identifier",)
 
@@ -32,6 +37,7 @@ class LabelSpecificationProxyAdmin(
     ModelAdminInstitutionMixin,
     ModelAdmin,
 ):
+    show_object_tools = True
     ordering = ("name",)
     list_display = ["name", "page_description", "layout_description", "label_description"]
     search_fields = ["id", "name"]

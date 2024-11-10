@@ -24,7 +24,7 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     fieldsets = (
         (
             None,
-            {"fields": ("receive", "order_item", "container")},
+            {"fields": ("receive", "order_item", "container", "lot")},
         ),
         (
             "Quantity",
@@ -37,6 +37,7 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         "identifier",
         "item_date",
         "order_item_product",
+        "lot",
         "container",
         "formatted_qty",
         "formatted_unit_qty",
@@ -50,6 +51,7 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     )
     list_filter = (
         "receive_item_datetime",
+        "lot",
         "created",
         "modified",
     )
@@ -60,6 +62,7 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         "order_item__order__order_identifier",
         "receive__id",
         "container__name",
+        "lot__lot_no",
     )
 
     readonly_fields = ("unit_qty",)

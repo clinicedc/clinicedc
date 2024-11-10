@@ -120,7 +120,7 @@ class OrderAdmin(ModelAdminMixin, admin.ModelAdmin):
             pass
         else:
             url = reverse("edc_pharmacy_admin:edc_pharmacy_receive_changelist")
-            url = f"{url}?q={str(obj.order_identifier)}"
+            url = f"{url}?q={str(rcv_obj.id)}"
             context = dict(url=url, label=rcv_obj.receive_identifier, title="Receive #")
             return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None

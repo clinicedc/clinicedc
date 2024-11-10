@@ -9,6 +9,7 @@ from ...admin_site import edc_pharmacy_admin
 from ...forms import StockForm
 from ...models import Stock
 from ...utils import format_qty
+from ..actions import repack_stock_action
 from ..list_filters import HasOrderNumFilter, HasReceiveNumFilter, HasRepackNumFilter
 from ..model_admin_mixin import ModelAdminMixin
 
@@ -24,7 +25,7 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
     show_history_label = True
     autocomplete_fields = ["container"]
 
-    actions = [print_label_sheet]
+    actions = [repack_stock_action, print_label_sheet]
 
     form = StockForm
 
@@ -51,15 +52,20 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
         ),
         (
             "Quantity",
-            {"fields": ("qty_in", "qty_out")},
+            {"fields": ("qty_in", "qty_out", "unit_qty_in", "unit_qty_out")},
         ),
         (
             "Receive",
             {"fields": ("receive_item",)},
         ),
         (
-            "Repackage",
-            {"fields": ("repack_request", "from_stock")},
+            "Repack",
+            {
+                "fields": (
+                    "repack_request",
+                    "from_stock",
+                )
+            },
         ),
         audit_fieldset_tuple,
     )
@@ -100,9 +106,8 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
         "product__name",
         "receive_item__receive__id",
         "receive_item__order_item__order__id",
-        "receive_item__order_item__order__order_identifier",
-        "repack_request__id",
         "lot__lot_no",
+        "repack_request__id",
     )
     ordering = ("stock_identifier",)
     readonly_fields = (
@@ -115,7 +120,6 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
         "qty_in",
         "qty_out",
         "receive_item",
-        "repack_request",
         "stock_identifier",
     )
 
