@@ -55,15 +55,14 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
             {"fields": ("qty_in", "qty_out", "unit_qty_in", "unit_qty_out")},
         ),
         (
-            "Receive",
-            {"fields": ("receive_item",)},
-        ),
-        (
-            "Repack",
+            "Receive / Repack",
             {
                 "fields": (
+                    "receive_item",
                     "repack_request",
                     "from_stock",
+                    "confirmed_by",
+                    "confirmed_datetime",
                 )
             },
         ),
@@ -94,6 +93,8 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
         "product__assignment__name",
         "location__display_name",
         "container",
+        "confirmed_by",
+        "confirmed_datetime",
         HasOrderNumFilter,
         HasReceiveNumFilter,
         HasRepackNumFilter,
@@ -113,6 +114,8 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
     readonly_fields = (
         "code",
         "confirmed",
+        "confirmed_by",
+        "confirmed_datetime",
         "container",
         "from_stock",
         "location",

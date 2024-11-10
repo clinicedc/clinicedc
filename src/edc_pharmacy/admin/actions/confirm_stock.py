@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 
 @admin.display(description="Confirm repacked and labelled stock")
 def confirm_stock_action(modeladmin, request, queryset: QuerySet[RepackRequest | Receive]):
+    """See also : utils.confirm_stock"""
     if queryset.count() > 1 or queryset.count() == 0:
         messages.add_message(
             request,

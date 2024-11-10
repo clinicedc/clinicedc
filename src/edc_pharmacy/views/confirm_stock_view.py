@@ -23,12 +23,6 @@ if TYPE_CHECKING:
     from ..models import Receive, RepackRequest
 
 
-# class HomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
-#     template_name = f"meta_edc/bootstrap{get_bootstrap_version()}/home.html"
-#     navbar_name = settings.APP_NAME
-#     navbar_selected_item = "home"
-
-
 @method_decorator(login_required, name="dispatch")
 class ConfirmStockView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView):
     stock_pks: list[str] | None = None
@@ -93,7 +87,9 @@ class ConfirmStockView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Temp
     def post(self, request, *args, **kwargs):
         dct = self.get_values_dict(**kwargs)
         codes = request.POST.getlist("codes")
-        confirmed, not_confirmed = confirm_stock(dct.get("obj"), codes, dct.get("fk_attr"))
+        confirmed, not_confirmed = confirm_stock(
+            dct.get("obj"), codes, dct.get("fk_attr"), confirmed_by=request.user.username
+        )
         messages.add_message(
             request,
             messages.SUCCESS,
