@@ -21,10 +21,10 @@ class Product(BaseUuidModel):
     history = HistoricalRecords()
 
     def __str__(self):
-        return (
-            f"{self.formulation.get_description_with_assignment(self.assignment)}"
-            f" [{self.product_identifier}]"
-        )
+        """Note: For unblinded users, add assignment in ModelAdmin where a request
+        object is available.
+        """
+        return self.formulation.description
 
     def save(self, *args, **kwargs):
         if not self.product_identifier:

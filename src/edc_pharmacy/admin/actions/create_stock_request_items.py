@@ -30,10 +30,26 @@ def create_stock_request_items_action(modeladmin, request, queryset):
             gettext("Select one and only one item"),
         )
     else:
-        stock_request_obj: StockRequest = queryset.first()
         now = get_utcnow()
+        stock_request_obj: StockRequest = queryset.first()
+
+        # allowe delete if not yet allocated
+        StockRequestItem.objects.filter(
+            stock_request=stock_request_obj, allocation__isnull=True
+        ).delete()
 
         df = stock_request_for_subjects_df(stock_request_obj)
+
+        if stock_request_obj.subject_identifiers:
+            subject_identifiers = stock_request_obj.subject_identifiers.split("\n")
+            df = df[df.subject_identifier.isin(subject_identifiers)]
+            df = df.reset_index(drop=True)
+        elif stock_request_obj.excluded_subject_identifiers:
+            excluded_subject_identifiers = (
+                stock_request_obj.excluded_subject_identifiers.split("\n")
+            )
+            df = df[~df.subject_identifier.isin(excluded_subject_identifiers)]
+            df = df.reset_index(drop=True)
 
         # df_in_stock = in_stock_for_subjects_df(stock_request_obj)
         # breakpoint()
@@ -48,14 +64,11 @@ def create_stock_request_items_action(modeladmin, request, queryset):
                 obj = StockRequestItem(
                     stock_request=stock_request_obj,
                     request_item_identifier=f"{next_id:06d}",
-                    subject_identifier=row["subject_identifier"],
+                    rx_id=row["rx_id"],
+                    registered_subject_id=row["registered_subject_id"],
                     visit_code=str(int(row["next_visit_code"])),
                     visit_code_sequence=int(10 * row["next_visit_code"] % 1),
                     appt_datetime=row["next_appt_datetime"].replace(tzinfo=timezone.utc),
-                    gender=row["gender"],
-                    site_id=row["site_id"],
-                    rx_id=row["rx_id"],
-                    rando_sid=row["rando_sid"],
                     # in_stock=row["in_stock"],
                     created=now,
                 )
@@ -67,11 +80,15 @@ def create_stock_request_items_action(modeladmin, request, queryset):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist")
         url = f"{url}?q={stock_request_obj.request_identifier}"
         msg = format_html(
-            gettext("Created request %(request_identifier)s with %(created)s records")
+            gettext(
+                "Created %(qty)s items per subject for request %(request_identifier)s "
+                "with a total of %(created)s items."
+            )
             % {
                 "created": created,
                 "request_identifier": stock_request_obj.request_identifier,
                 "url": url,
+                "qty": stock_request_obj.containers_per_subject,
             }
         )
         messages.add_message(request, messages.SUCCESS, message=msg)

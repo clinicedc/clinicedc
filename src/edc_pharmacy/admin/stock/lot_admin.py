@@ -11,6 +11,8 @@ from ..model_admin_mixin import ModelAdminMixin
 
 @admin.register(Lot, site=edc_pharmacy_admin)
 class LotAdmin(ModelAdminMixin, admin.ModelAdmin):
+    change_list_title = "Pharmacy: Lots"
+    change_form_title = "Pharmacy: Lot"
     show_object_tools = True
 
     form = LotForm

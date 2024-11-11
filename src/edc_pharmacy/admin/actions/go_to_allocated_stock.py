@@ -4,14 +4,8 @@ from django.urls import reverse
 from django.utils.translation import gettext
 
 
-@admin.display(description="Allocate stock to subject")
-def allocate_stock_to_subject(modeladmin, request, queryset):
-    """
-    1. is there an open unprocess stock request?
-    2. what stock is available at the site?
-    3. what stock is available at central?
-
-    """
+@admin.display(description="Go to allocate stock")
+def go_to_allocated_stock(modeladmin, request, queryset):
     if queryset.count() > 1 or queryset.count() == 0:
         messages.add_message(
             request,
@@ -19,9 +13,7 @@ def allocate_stock_to_subject(modeladmin, request, queryset):
             gettext("Select one and only one item"),
         )
     else:
-        url = reverse(
-            "edc_pharmacy:allocate_url",
-            args=(queryset.first().id,),
-        )
+        url = reverse("edc_pharmacy_admin:edc_pharmacy_allocation_changelist")
+        url = f"{url}?q={queryset.first().id}"
         return HttpResponseRedirect(url)
     return None

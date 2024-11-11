@@ -16,6 +16,7 @@ from ...exceptions import StockError
 from ...utils import get_random_code
 from .allocation import Allocation
 from .container import Container
+from .dispense import Dispense
 from .location import Location
 from .lot import Lot
 from .managers import StockManager
@@ -46,7 +47,7 @@ class Stock(BaseUuidModel):
         default=get_utcnow, help_text="date stock record created"
     )
 
-    receive_item = models.ForeignKey(
+    receive_item = models.OneToOneField(
         ReceiveItem, on_delete=models.PROTECT, null=True, blank=False
     )
 
@@ -61,12 +62,21 @@ class Stock(BaseUuidModel):
         null=True,
     )
 
-    allocation = models.ForeignKey(
+    allocation = models.OneToOneField(
         Allocation,
         on_delete=models.PROTECT,
         null=True,
         blank=True,
         help_text="Subject allocation",
+    )
+
+    dispense = models.OneToOneField(
+        Dispense,
+        verbose_name="Dispense",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        help_text="Stock was dispensed",
     )
 
     product = models.ForeignKey(Product, on_delete=models.PROTECT)

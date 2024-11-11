@@ -2,7 +2,7 @@ import pandas as pd
 from django.db.models import Q
 from django_pandas.io import read_frame
 from edc_appointment.analytics import get_appointment_df
-from edc_consent.utils import get_consent_model_cls
+from edc_registration import get_registered_subject_model_cls
 from edc_sites.site import sites as site_sites
 
 from ...models import Rx, StockRequest
@@ -18,7 +18,7 @@ def stock_request_for_subjects_df(stock_request_obj: StockRequest) -> pd.DataFra
                 df_appt.next_appt_datetime
                 > pd.Timestamp(stock_request_obj.request_datetime).to_datetime64()
             )
-            & (df_appt.site_id == stock_request_obj.site_id)
+            & (df_appt.site_id == stock_request_obj.location.site_id)
         ]
         .groupby(by=["subject_identifier", "site_id"])
         .agg({"next_visit_code": "min", "next_appt_datetime": "min"})
@@ -27,13 +27,16 @@ def stock_request_for_subjects_df(stock_request_obj: StockRequest) -> pd.DataFra
     df = df.sort_values(by=["next_appt_datetime"])
     df = df.reset_index(drop=True)
 
-    # merge with consent for gender
-    df_consent = read_frame(
-        get_consent_model_cls().objects.values("subject_identifier", "gender"),
+    # merge with registered_subject
+    df_registered_subject = read_frame(
+        get_registered_subject_model_cls().objects.values("id", "subject_identifier"),
         verbose=False,
     )
+    df_registered_subject = df_registered_subject.rename(
+        columns={"id": "registered_subject_id"}
+    )
     df = df.merge(
-        df_consent[["subject_identifier", "gender"]],
+        df_registered_subject,
         on="subject_identifier",
         how="left",
         suffixes=("", "_y"),

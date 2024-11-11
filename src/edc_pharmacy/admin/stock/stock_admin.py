@@ -1,22 +1,32 @@
+from collections.abc import Iterable
+
 from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_pylabels.actions import print_label_sheet
+from edc_randomization.auth_objects import RANDO_UNBLINDED
+from edc_randomization.blinding import user_is_blinded, user_is_blinded_from_request
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import StockForm
 from ...models import Stock
 from ...utils import format_qty
 from ..actions import repack_stock_action
-from ..list_filters import HasOrderNumFilter, HasReceiveNumFilter, HasRepackNumFilter
+from ..list_filters import (
+    AllocationListFilter,
+    HasOrderNumFilter,
+    HasReceiveNumFilter,
+    HasRepackNumFilter,
+)
 from ..model_admin_mixin import ModelAdminMixin
 
 
 @admin.register(Stock, site=edc_pharmacy_admin)
 class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
     change_list_title = "Pharmacy: Stock"
+    change_form_title = "Pharmacy: Stock"
     show_object_tools = False
     show_cancel = True
     list_per_page = 20
@@ -74,6 +84,7 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
         "code",
         "from_stock_with_product",
         "confirmed_str",
+        "allocated",
         "formulation",
         "assignment",
         "qty",
@@ -82,7 +93,7 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
         "order_changelist",
         "receive_item_changelist",
         "repack_request_changelist",
-        "lot",
+        "stock_request_changelist",
         "label_configuration",
         "created",
         "modified",
@@ -91,10 +102,12 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
         "confirmed",
         "product__formulation__description",
         "product__assignment__name",
+        "lot__lot_no",
         "location__display_name",
         "container",
         "confirmed_by",
         "confirmed_datetime",
+        AllocationListFilter,
         HasOrderNumFilter,
         HasReceiveNumFilter,
         HasRepackNumFilter,
@@ -103,12 +116,16 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
     )
     search_fields = (
         "stock_identifier",
+        "from_stock__stock_identifier",
         "code",
-        "product__name",
+        "receive_item__id",
         "receive_item__receive__id",
         "receive_item__order_item__order__id",
-        "lot__lot_no",
         "repack_request__id",
+        "allocation__registered_subject__subject_identifier",
+        "allocation__stock_request_item__id",
+        "allocation__stock_request_item__stock_request__id",
+        "allocation__id",
     )
     ordering = ("stock_identifier",)
     readonly_fields = (
@@ -126,6 +143,45 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
         "stock_identifier",
     )
 
+    def get_list_display(self, request):
+        fields = super().get_list_display(request)
+        if user_is_blinded(request.user.username) or (
+            not user_is_blinded(request.user.username)
+            and RANDO_UNBLINDED not in [g.name for g in request.user.groups.all()]
+        ):
+            fields = tuple(
+                [
+                    f
+                    for f in fields
+                    if isinstance(f, Iterable) and "assignment" not in f and "lot_no" not in f
+                ]
+            )
+        return fields
+
+    def get_list_filter(self, request):
+        fields = super().get_list_filter(request)
+        if user_is_blinded_from_request(request):
+            fields = tuple(
+                [
+                    f
+                    for f in fields
+                    if isinstance(f, Iterable) and "assignment" not in f and "lot_no" not in f
+                ]
+            )
+        return fields
+
+    def get_search_fields(self, request):
+        fields = super().get_search_fields(request)
+        if user_is_blinded_from_request(request):
+            fields = tuple(
+                [f for f in fields if isinstance(f, Iterable) and "assignment" not in f]
+            )
+        return fields
+
+    @admin.display(description="Lot #", ordering="lot__lot_no")
+    def formatted_lot(self, obj):
+        return obj.lot.lot_no
+
     @admin.display(description="QTY", ordering="qty")
     def qty(self, obj):
         return format_qty(obj.qty_in - obj.qty_out, obj.container)
@@ -138,9 +194,21 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
     def identifier(self, obj):
         return obj.stock_identifier.split("-")[0]
 
-    @admin.display(description="\u2713", ordering="-stock_identifier", boolean=True)
+    @admin.display(
+        description=format_html('<span title="confirmed">\u2713</span>'),
+        ordering="-stock_identifier",
+        boolean=True,
+    )
     def confirmed_str(self, obj):
         return obj.confirmed
+
+    @admin.display(
+        description=format_html('<span title="allocated">\u2713</span>'),
+        ordering="allocation",
+        boolean=True,
+    )
+    def allocated(self, obj):
+        return True if obj.allocation else False
 
     @admin.display(description="Container", ordering="container_name")
     def container_str(self, obj):
@@ -182,15 +250,17 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
             return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None
 
-    @admin.display(description="Receive #", ordering="-receive_item__receive_item_datetime")
+    @admin.display(
+        description="Receive #", ordering="-receive_item__receive__receive_datetime"
+    )
     def receive_item_changelist(self, obj):
         if obj.receive_item:
-            url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_changelist")
-            url = f"{url}?q={obj.receive_item.id}"
+            url = reverse("edc_pharmacy_admin:edc_pharmacy_receive_changelist")
+            url = f"{url}?q={obj.receive_item.receive.id}"
             context = dict(
                 url=url,
-                label=obj.receive_item.receive_item_identifier,
-                title="Go to received item",
+                label=obj.receive_item.receive.receive_identifier,
+                title="Go to receiving",
             )
             return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None
@@ -204,6 +274,22 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
                 url=url,
                 label=obj.repack_request.repack_identifier,
                 title="Go to repackage request",
+            )
+            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return None
+
+    @admin.display(
+        description="Allocation #",
+        ordering="-allocation__allocation_identifier",
+    )
+    def stock_request_changelist(self, obj):
+        if obj.allocation:
+            url = reverse("edc_pharmacy_admin:edc_pharmacy_allocation_changelist")
+            url = f"{url}?q={obj.allocation.id}"
+            context = dict(
+                url=url,
+                label=obj.allocation.allocation_identifier,
+                title="Go to stock request",
             )
             return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None

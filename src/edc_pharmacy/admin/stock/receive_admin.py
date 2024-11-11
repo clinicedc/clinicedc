@@ -37,6 +37,8 @@ class ReceiveItemInlineAdmin(TabularInlineMixin, admin.TabularInline):
 @admin.register(Receive, site=edc_pharmacy_admin)
 class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
     change_list_title = "Pharmacy: Receiving"
+    change_form_title = "Pharmacy: Receive"
+
     show_object_tools = False
     show_cancel = True
 
@@ -74,6 +76,7 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
                 ),
             },
         ),
+        ("Section C: Comment / Notes", {"fields": ("comment",)}),
         audit_fieldset_tuple,
     )
 
@@ -83,6 +86,7 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
         "location",
         "order_changelist",
         "items",
+        "stock_changelist",
         "label_configuration",
         "created",
         "modified",
@@ -125,6 +129,13 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_order_changelist")
         url = f"{url}?q={str(obj.order.order_identifier)}"
         context = dict(url=url, label=obj.order.order_identifier, title="Back to order")
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+
+    @admin.display(description="Stock")
+    def stock_changelist(self, obj):
+        url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
+        url = f"{url}?q={obj.id}"
+        context = dict(url=url, label="Stock", title="Go to stock")
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):

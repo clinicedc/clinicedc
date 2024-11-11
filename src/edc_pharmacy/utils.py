@@ -214,6 +214,40 @@ def confirm_stock(
     return confirmed, not_confirmed
 
 
+def allocate_stock(
+    stock_request: StockRequest, codes: dict[str, str], allocated_by: str
+) -> tuple[int, int]:
+    stock_model_cls = django_apps.get_model("edc_pharmacy.stock")
+    allocation_model_cls = django_apps.get_model("edc_pharmacy.allocation")
+    registered_subject_model_cls = django_apps.get_model("edc_registration.registeredsubject")
+    allocated, unallocated = 0, 0
+    for code, subject_identifier in codes.items():
+        rs_obj = registered_subject_model_cls.objects.get(
+            subject_identifier=subject_identifier
+        )
+        stock_request_item = stock_request.stockrequestitem_set.filter(
+            registered_subject=rs_obj,
+            allocation__isnull=True,
+        ).first()
+        if not stock_request_item:
+            unallocated += 1
+            continue
+        try:
+            stock_obj = stock_model_cls.objects.get(code=code, allocation__isnull=True)
+        except ObjectDoesNotExist:
+            unallocated += 1
+        else:
+            allocation = allocation_model_cls.objects.create(
+                stock_request_item=stock_request_item,
+                registered_subject=rs_obj,
+                allocation_datetime=get_utcnow(),
+                allocated_by=allocated_by,
+            )
+            stock_obj.allocation = allocation
+            stock_obj.save(update_fields=["allocation"])
+    return allocated, unallocated
+
+
 def generate_code_with_checksum_from_id(id_number: int) -> str:
     bytes_id = id_number.to_bytes((id_number.bit_length() + 7) // 8, "big")
     code = base64.b32encode(bytes_id).decode("utf-8")

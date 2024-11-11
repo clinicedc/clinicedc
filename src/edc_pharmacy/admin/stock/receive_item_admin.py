@@ -14,6 +14,7 @@ from ..model_admin_mixin import ModelAdminMixin
 @admin.register(ReceiveItem, site=edc_pharmacy_admin)
 class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     change_list_title = "Pharmacy: Received items"
+    change_form_title = "Pharmacy: Receive item"
     show_object_tools = False
     show_cancel = True
 
@@ -37,7 +38,7 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         "identifier",
         "item_date",
         "order_item_product",
-        "lot",
+        "formatted_lot",
         "container",
         "formatted_qty",
         "formatted_unit_qty",
@@ -51,6 +52,7 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     )
     list_filter = (
         "receive_item_datetime",
+        "stock__confirmed",
         "lot",
         "created",
         "modified",
@@ -70,6 +72,10 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     @admin.display(description="Item date", ordering="receive_item_datetime")
     def item_date(self, obj):
         return to_local(obj.receive_item_datetime).date()
+
+    @admin.display(description="Lot #", ordering="lot__lot_no")
+    def formatted_lot(self, obj):
+        return obj.lot.lot_no
 
     @admin.display(description="QTY", ordering="qty")
     def formatted_qty(self, obj):
@@ -95,8 +101,9 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     @admin.display(description="Stock")
     def stock_changelist(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
-        url = f"{url}?q={obj.order_item.order.order_identifier}"
-        context = dict(url=url, label="Stock", title="Go to stock")
+        url = f"{url}?q={obj.id}"
+        label = "Stock\u2713" if obj.stock.confirmed else "Stock"
+        context = dict(url=url, label=label, title="Go to stock")
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(description="Order #")

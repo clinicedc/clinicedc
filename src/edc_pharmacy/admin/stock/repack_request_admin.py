@@ -8,18 +8,19 @@ from ...admin_site import edc_pharmacy_admin
 from ...forms import RepackRequestForm
 from ...models import RepackRequest
 from ...utils import format_qty
-from ..actions import confirm_stock_action, process_repack_request_action
+from ..actions import confirm_repacked_stock_action, process_repack_request_action
 from ..model_admin_mixin import ModelAdminMixin
 
 
 @admin.register(RepackRequest, site=edc_pharmacy_admin)
 class RequestRepackAdmin(ModelAdminMixin, admin.ModelAdmin):
     change_list_title = "Pharmacy: Repackage request"
+    change_form_title = "Pharmacy: Repack"
     show_object_tools = True
     show_cancel = True
     autocomplete_fields = ["container"]
     form = RepackRequestForm
-    actions = [process_repack_request_action, confirm_stock_action]
+    actions = [process_repack_request_action, confirm_repacked_stock_action]
 
     fieldsets = (
         (

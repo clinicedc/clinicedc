@@ -37,33 +37,29 @@ class OrderItemInlineAdmin(TabularInlineMixin, admin.TabularInline):
 @admin.register(Order, site=edc_pharmacy_admin)
 class OrderAdmin(ModelAdminMixin, admin.ModelAdmin):
     change_list_title = "Pharmacy: Orders"
+    change_form_title = "Pharmacy: Order"
     show_object_tools = True
     show_cancel = True
 
     form = OrderForm
-    # inlines = [OrderItemInlineAdmin]
     insert_before_fieldset = "Audit"
     ordering = ("-order_identifier",)
 
     fieldsets = (
         (
             None,
-            {
-                "fields": (
-                    [
-                        "order_identifier",
-                        "order_datetime",
-                    ]
-                )
-            },
+            {"fields": (["order_identifier", "order_datetime", "supplier", "title"])},
         ),
         ("Quantity", {"fields": (["item_count"])}),
         ("Status", {"fields": (["sent", "status"])}),
+        ("Section C: Comment / Notes", {"fields": ("comment",)}),
         audit_fieldset_tuple,
     )
 
     list_display = (
         "identifier",
+        "supplier",
+        "short_title",
         "order_date",
         "status",
         "qty",
@@ -74,12 +70,16 @@ class OrderAdmin(ModelAdminMixin, admin.ModelAdmin):
     )
     list_filter = ("sent", "status", "order_datetime")
     radio_fields = {"status": admin.VERTICAL}
-    search_fields = ("id", "order_identifier")
+    search_fields = ("id", "order_identifier", "title")
     readonly_fields = ("order_identifier", "sent")
 
     @admin.display(description="ORDER #", ordering="-order_identifier")
     def identifier(self, obj):
         return obj.order_identifier
+
+    @admin.display(description="Title", ordering="title")
+    def short_title(self, obj):
+        return format_html(f'<span title="{obj.title}">{obj.title[:20]}</span>')
 
     @admin.display(description="QTY", ordering="-item_count")
     def qty(self, obj):

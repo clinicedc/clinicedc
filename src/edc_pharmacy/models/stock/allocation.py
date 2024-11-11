@@ -1,16 +1,17 @@
 from django.db import models
 from edc_model.models import BaseUuidModel
-from edc_pylabels.models import LabelConfiguration
 from edc_utils import get_utcnow
 from sequences import get_next_value
 
 from ...exceptions import AllocationError
-from ..prescription import Rx
 from ..proxy_models import RegisteredSubjectProxy
 from .stock_request_item import StockRequestItem
 
 
 class Allocation(BaseUuidModel):
+    """A model to track stock allocation to a subject referring to a
+    stock request.
+    """
 
     allocation_identifier = models.CharField(max_length=36, unique=True, null=True, blank=True)
 
@@ -24,8 +25,6 @@ class Allocation(BaseUuidModel):
         blank=False,
     )
 
-    rando_sid = models.IntegerField(verbose_name="SID", null=True)
-
     stock_request_item = models.OneToOneField(
         StockRequestItem,
         verbose_name="Stock request item",
@@ -34,11 +33,7 @@ class Allocation(BaseUuidModel):
         blank=False,
     )
 
-    rx = models.ForeignKey(Rx, on_delete=models.PROTECT, null=True, blank=False)
-
-    label_configuration = models.ForeignKey(
-        LabelConfiguration, on_delete=models.PROTECT, null=True, blank=False
-    )
+    allocated_by = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
         return self.allocation_identifier

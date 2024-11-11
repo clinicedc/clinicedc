@@ -35,6 +35,7 @@ from .stock import (
     Container,
     ContainerType,
     ContainerUnits,
+    Dispense,
     Location,
     Lot,
     Order,
@@ -46,6 +47,7 @@ from .stock import (
     Stock,
     StockRequest,
     StockRequestItem,
+    Supplier,
 )
 from .storage import (
     Box,

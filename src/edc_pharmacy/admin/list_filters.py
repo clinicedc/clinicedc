@@ -32,6 +32,21 @@ class MedicationsListFilter(SimpleListFilter):
         return qs
 
 
+class AllocationListFilter(SimpleListFilter):
+    title = "Allocated"
+    parameter_name = "allocated"
+
+    def lookups(self, request, model_admin):
+        return YES_NO
+
+    def queryset(self, request, queryset):
+        qs = None
+        if self.value():
+            isnull = True if self.value() == NO else False
+            qs = Stock.objects.filter(allocation__isnull=isnull)
+        return qs
+
+
 class HasOrderNumFilter(SimpleListFilter):
     title = "Has Order #"
     parameter_name = "has_order_num"

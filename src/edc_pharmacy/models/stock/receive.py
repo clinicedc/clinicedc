@@ -32,6 +32,8 @@ class Receive(BaseUuidModel):
 
     order = models.ForeignKey(Order, on_delete=models.PROTECT, null=True, blank=False)
 
+    comment = models.TextField(null=True, blank=True)
+
     stock_identifiers = models.TextField(null=True, blank=True)
     confirmed_stock_identifiers = models.TextField(null=True, blank=True)
     unconfirmed_stock_identifiers = models.TextField(null=True, blank=True)

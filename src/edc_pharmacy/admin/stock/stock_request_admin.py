@@ -1,4 +1,4 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django_audit_fields import audit_fieldset_tuple
@@ -8,8 +8,10 @@ from ...admin_site import edc_pharmacy_admin
 from ...forms import StockRequestForm
 from ...models import StockRequest, StockRequestItem
 from ..actions import (
+    allocate_stock_to_subject,
     create_stock_request_items_action,
-    delete_items_for_stock_request_action,
+    go_to_allocated_stock,
+    go_to_stock,
 )
 from ..model_admin_mixin import ModelAdminMixin
 
@@ -22,7 +24,12 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
     autocomplete_fields = ["container", "formulation", "location"]
     form = StockRequestForm
 
-    actions = [create_stock_request_items_action, delete_items_for_stock_request_action]
+    actions = [
+        create_stock_request_items_action,
+        allocate_stock_to_subject,
+        go_to_allocated_stock,
+        go_to_stock,
+    ]
 
     fieldsets = (
         (
@@ -44,8 +51,8 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
             {"fields": ("item_count", "status")},
         ),
         (
-            "Section D",
-            {"fields": ("labels",)},
+            "Section D: Customize this request",
+            {"fields": ("subject_identifiers", "excluded_subject_identifiers")},
         ),
         audit_fieldset_tuple,
     )
@@ -74,6 +81,8 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
     }
 
     search_fields = ["id", "request_identifier"]
+
+    readonly_fields = ["item_count"]
 
     @admin.display(description="Request #", ordering="request_identifier")
     def stock_request_id(self, obj):
@@ -121,3 +130,14 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
                 pk=request.GET.get("rx", 0)
             )
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def save_model(self, request, obj, form, change):
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            (
+                "Your next step is to prepare the items for "
+                "this stock request. Select from actions below."
+            ),
+        )
+        obj.save()

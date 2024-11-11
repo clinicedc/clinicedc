@@ -54,9 +54,8 @@ class StockRequestItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         "location",
         "subject",
         "formulation",
-        "visit_code_and_seq",
-        "appt_date",
         "in_stock",
+        "allocation",
         "received",
         "received_datetime",
     )
@@ -76,19 +75,9 @@ class StockRequestItemAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     search_fields = (
         "id",
-        "rx__subject_identifier",
+        "registered_subject__subject_identifier",
         "stock_request__request_identifier",
     )
-
-    @admin.display(description="Visit", ordering="visit_code")
-    def visit_code_and_seq(self, obj):
-        return f"{obj.visit_code}.{obj.visit_code_sequence}"
-
-    @admin.display(description="Appt", ordering="request_item_datetime")
-    def appt_date(self, obj):
-        if obj.appt_datetime:
-            return f"{to_local(obj.appt_datetime).date()}"
-        return None
 
     @admin.display(description="Stock item")
     def formulation(self, obj):
@@ -100,9 +89,25 @@ class StockRequestItemAdmin(ModelAdminMixin, admin.ModelAdmin):
             return to_local(obj.request_item_datetime).date()
         return None
 
-    @admin.display(description="Subject", ordering="subject_identifier")
+    @admin.display(description="Allocated", boolean=True)
+    def allocation(self, obj):
+        return obj.allocation is None
+
+    @admin.display(description="Subject", ordering="registered_subject__subject_identifier")
     def subject(self, obj):
-        return obj.subject_identifier
+        appt_date = to_local(obj.appt_datetime).date() if obj.appt_datetime else None
+        context = dict(
+            appt_date=appt_date,
+            subject_identifier=obj.registered_subject.subject_identifier,
+            visit_code_and_seq=f"{obj.visit_code}.{obj.visit_code_sequence}",
+            changelist_url=reverse(
+                "edc_pharmacy_admin:edc_pharmacy_stockrequestitem_changelist"
+            ),
+        )
+
+        return render_to_string(
+            "edc_pharmacy/stock/subject_list_display.html", context=context
+        )
 
     @admin.display(description="Location", ordering="stock_request__location__name")
     def location(self, obj):

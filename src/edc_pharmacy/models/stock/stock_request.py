@@ -1,6 +1,7 @@
 from django.db import models
 from edc_constants.constants import CLOSED, OPEN
 from edc_model.models import BaseUuidModel, HistoricalRecords
+from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from sequences import get_next_value
 
@@ -65,6 +66,22 @@ class StockRequest(BaseUuidModel):
         help_text="Matches the number of Request items.",
     )
 
+    subject_identifiers = models.TextField(
+        verbose_name="Include ONLY these subjects in this request. (Usually left blank)",
+        null=True,
+        blank=True,
+        help_text=(
+            "By adding subject identifiers in this box, only these subjects "
+            "will be included in the request. All others will be ignored."
+        ),
+    )
+
+    excluded_subject_identifiers = models.TextField(
+        verbose_name="Exclude these subjects from this request. (Usually left blank)",
+        null=True,
+        blank=True,
+    )
+
     labels = models.TextField(
         verbose_name="Labels",
         null=True,
@@ -99,6 +116,18 @@ class StockRequest(BaseUuidModel):
             )
         if not self.formulation:
             raise StockRequestError("Formulation may not be null")
+
+        if self.subject_identifiers:
+            subject_identifiers = self.subject_identifiers.split("\n")
+            subject_identifiers = [s.strip() for s in subject_identifiers]
+            self.subject_identifiers = "\n".join(subject_identifiers)
+            if RegisteredSubject.objects.values("subject_identifier").filter(
+                subject_identifier__in=subject_identifiers
+            ).count() != len(subject_identifiers):
+                raise StockRequestError(
+                    "Invalid subject_identifier listed. Perhaps catch this in the form"
+                )
+
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):

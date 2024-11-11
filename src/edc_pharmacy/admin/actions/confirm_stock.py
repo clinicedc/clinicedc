@@ -12,7 +12,12 @@ if TYPE_CHECKING:
     from ...models import Receive, RepackRequest
 
 
-@admin.display(description="Confirm repacked and labelled stock")
+@admin.display(description="Confirm repacked and labeled stock")
+def confirm_repacked_stock_action(modeladmin, request, queryset: QuerySet[RepackRequest]):
+    return confirm_stock_action(modeladmin, request, queryset)
+
+
+@admin.display(description="Confirm labeled stock")
 def confirm_stock_action(modeladmin, request, queryset: QuerySet[RepackRequest | Receive]):
     """See also : utils.confirm_stock"""
     if queryset.count() > 1 or queryset.count() == 0:

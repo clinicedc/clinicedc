@@ -12,3 +12,4 @@ from .repack_request_form import RepackRequestForm
 from .stock_form import StockForm
 from .stock_request_form import StockRequestForm
 from .stock_request_item_form import StockRequestItemForm
+from .supplier_form import SupplierForm

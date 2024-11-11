@@ -1,0 +1,32 @@
+{% extends edc_base_template %}
+
+{% load static %}
+
+{% block main %}
+  {{ block.super }}
+  <div class="container">
+    <div class="col-sm-2"></div>
+    <div class="col-sm-6">
+      <div style="padding:10px"><a href="{% url "edc_pharmacy_admin:index" %}">Edc Pharmacy</a> > <a href="{% url "edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist" %}?q={{ stock_request.request_identifier }}">Stock Request</a> > Allocate to subject</div>
+      <div class="panel panel-default">
+        <div class="panel-heading">Allocate stock to subjects from stock request <a href="{{ stock_request_changelist_url }}">{{ stock_request.request_identifier }}</a></div>
+        <div class="panel-body">
+          <form class="form-horizontal" action="{{ url }}" method="post" onSubmit="document.getElementById('submit').disabled=true;">
+            {% csrf_token %}
+            <div class="form-group">
+              {% for subject_identifier in subject_identifiers %}
+              <label class="control-label col-sm-5" for="codes">{{ forloop.counter }}. {{ subject_identifier }} </label>
+              <div class="col-sm-5">
+                <input type="text" class="form-control" id="codes" name="codes" placeholder="stock # {{ i }} " value=""  pattern="[A-Z0-9]{6}" required autofocus>
+              </div>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="subject_identifiers" id="subject_identifiers" value="{{ subject_identifiers }}">
+            <button type="submit" class="btn btn-default" name="submit" id="submit">Submit</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-2"></div>
+  </div>
+{% endblock main %}

@@ -32,4 +32,5 @@ from .stock import (
     StockAdmin,
     StockRequestAdmin,
     StockRequestItemAdmin,
+    SupplierAdmin,
 )

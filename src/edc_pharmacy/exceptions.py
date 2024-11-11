@@ -120,3 +120,7 @@ class StockRequestItemError(Exception):
 
 class LotError(Exception):
     pass
+
+
+class StockTransferError(Exception):
+    pass
