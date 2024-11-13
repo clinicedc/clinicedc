@@ -3,7 +3,7 @@ from django.apps import apps as django_apps
 from django_pandas.io import read_frame
 from edc_appointment.constants import NEW_APPT
 
-from .utils import convert_dates_from_model
+from ..utils import convert_dates_from_model
 
 
 def get_appointments(

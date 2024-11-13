@@ -7,7 +7,7 @@ from django.db.models import Model
 from django_pandas.io import read_frame
 from edc_constants.constants import FEMALE, MALE
 
-from .utils import convert_dates_from_model
+from ..utils import convert_dates_from_model
 
 
 def get_subject_consent(

@@ -3,7 +3,7 @@ from django.apps import apps as django_apps
 from django.contrib.sites.models import Site
 from django_pandas.io import read_frame
 
-from .utils import convert_dates_from_model
+from ..utils import convert_dates_from_model
 
 
 def get_eos(
