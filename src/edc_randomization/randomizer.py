@@ -130,6 +130,16 @@ class Randomizer:
     def __str__(self):
         return f"<{self.name} for file {self.randomizationlist_folder}>"
 
+    @classmethod
+    def get_assignment(cls, subject_identifier: str) -> str | None:
+        try:
+            obj = cls.model_cls().objects.get(subject_identifier=subject_identifier)
+        except ObjectDoesNotExist:
+            pass
+        else:
+            return obj.assignment
+        return None
+
     def randomize(self):
         """Randomize a subject.
 
