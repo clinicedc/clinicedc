@@ -4,8 +4,8 @@ from django.urls import reverse
 from django.utils.translation import gettext
 
 
-@admin.display(description="Repack stock item into ...")
-def repack_stock_action(modeladmin, request, queryset):
+@admin.display(description="Repack stock")
+def go_to_add_repack_request_action(modeladmin, request, queryset):
     if queryset.count() > 1 or queryset.count() == 0:
         messages.add_message(
             request,
@@ -23,7 +23,7 @@ def repack_stock_action(modeladmin, request, queryset):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_repackrequest_add")
         url = (
             f"{url}?next=edc_pharmacy_admin:edc_pharmacy_stock_changelist,q"
-            f"&q=={obj.id}&from_stock={obj.id}"
+            f"&q={obj.id}&from_stock={obj.id}"
         )
         return HttpResponseRedirect(url)
     return None

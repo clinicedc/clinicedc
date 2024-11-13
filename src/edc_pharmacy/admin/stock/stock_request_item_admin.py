@@ -9,7 +9,9 @@ from edc_utils.date import to_local
 from ...admin_site import edc_pharmacy_admin
 from ...forms import StockRequestItemForm
 from ...models import StockRequestItem
+from ..list_filters import AllocationListFilter, AssignmentListFilter
 from ..model_admin_mixin import ModelAdminMixin
+from ..remove_fields_for_blinded_users import remove_fields_for_blinded_users
 
 
 class ApptDatetimeListFilter(FutureDateListFilter):
@@ -24,6 +26,7 @@ class StockRequestItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     change_list_title = "Pharmacy: Requested stock items"
     show_object_tools = False
     show_cancel = True
+    list_per_page = 20
     form = StockRequestItemForm
     autocomplete_fields = ["rx"]
 
@@ -54,30 +57,39 @@ class StockRequestItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         "location",
         "subject",
         "formulation",
-        "in_stock",
-        "allocation",
-        "received",
-        "received_datetime",
+        "allocation_subject",
+        "assignment",
     )
 
     list_filter = (
+        AllocationListFilter,
+        AssignmentListFilter,
         "visit_code",
         ApptDatetimeListFilter,
-        "in_stock",
-        "received",
-        "received_datetime",
     )
-    readonly_fields = (
-        "received_datetime",
-        "received",
-        "rx",
-    )
+    readonly_fields = ("rx", "allocation")
 
     search_fields = (
         "id",
         "registered_subject__subject_identifier",
         "stock_request__request_identifier",
+        "allocation__id",
     )
+
+    def get_list_display(self, request):
+        fields = super().get_list_display(request)
+        fields = remove_fields_for_blinded_users(request, fields)
+        return fields
+
+    def get_list_filter(self, request):
+        fields = super().get_list_filter(request)
+        fields = remove_fields_for_blinded_users(request, fields)
+        return fields
+
+    def get_search_fields(self, request):
+        fields = super().get_search_fields(request)
+        fields = remove_fields_for_blinded_users(request, fields)
+        return fields
 
     @admin.display(description="Stock item")
     def formulation(self, obj):
@@ -89,9 +101,23 @@ class StockRequestItemAdmin(ModelAdminMixin, admin.ModelAdmin):
             return to_local(obj.request_item_datetime).date()
         return None
 
-    @admin.display(description="Allocated", boolean=True)
-    def allocation(self, obj):
-        return obj.allocation is None
+    @admin.display(
+        description="Allocation",
+        ordering="allocation__registered_subject__subject_identifier",
+    )
+    def allocation_subject(self, obj):
+        url = reverse("edc_pharmacy_admin:edc_pharmacy_allocation_changelist")
+        url = f"{url}?q={obj.allocation.id}"
+        context = dict(
+            url=url,
+            label=obj.allocation.registered_subject.subject_identifier,
+            title="Go to allocation",
+        )
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+
+    @admin.display(description="Assignment", ordering="allocation__assignment")
+    def assignment(self, obj):
+        return obj.allocation.assignment
 
     @admin.display(description="Subject", ordering="registered_subject__subject_identifier")
     def subject(self, obj):
@@ -127,3 +153,15 @@ class StockRequestItemAdmin(ModelAdminMixin, admin.ModelAdmin):
             title="Back to stock request",
         )
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return self.readonly_fields + ("stock_request",)
+        return self.readonly_fields
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "stock_request" and request.GET.get("stock_request"):
+            kwargs["queryset"] = db_field.related_model.objects.filter(
+                pk=request.GET.get("rx", 0)
+            )
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)

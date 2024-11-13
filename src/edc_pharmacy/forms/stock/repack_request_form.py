@@ -16,6 +16,19 @@ class RepackRequestForm(forms.ModelForm):
                     )
                 }
             )
+        if (
+            cleaned_data.get("container")
+            and cleaned_data.get("container") == cleaned_data.get("from_stock").container
+        ):
+            raise forms.ValidationError(
+                {"container": "Stock is already packed in this container."}
+            )
+        if (
+            cleaned_data.get("container")
+            and cleaned_data.get("container").qty
+            > cleaned_data.get("from_stock").container.qty
+        ):
+            raise forms.ValidationError({"container": "Cannot pack into larger container."})
         return cleaned_data
 
     class Meta:

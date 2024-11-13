@@ -9,7 +9,13 @@ from .location import Location
 
 class Dispense(BaseUuidModel):
 
-    dispense_identifier = models.CharField(max_length=36, unique=True, null=True, blank=True)
+    dispense_identifier = models.CharField(
+        max_length=36,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text="A sequential unique identifier set by the EDC",
+    )
 
     dispense_datetime = models.DateTimeField(default=get_utcnow)
 

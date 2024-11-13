@@ -40,6 +40,7 @@ class OrderAdmin(ModelAdminMixin, admin.ModelAdmin):
     change_form_title = "Pharmacy: Order"
     show_object_tools = True
     show_cancel = True
+    list_per_page = 20
 
     form = OrderForm
     insert_before_fieldset = "Audit"
@@ -120,7 +121,7 @@ class OrderAdmin(ModelAdminMixin, admin.ModelAdmin):
             pass
         else:
             url = reverse("edc_pharmacy_admin:edc_pharmacy_receive_changelist")
-            url = f"{url}?q={str(rcv_obj.id)}"
+            url = f"{url}?q={str(rcv_obj.receive_identifier)}"
             context = dict(url=url, label=rcv_obj.receive_identifier, title="Receive #")
             return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None

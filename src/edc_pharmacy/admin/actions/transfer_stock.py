@@ -1,11 +1,13 @@
+from __future__ import annotations
+
 from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.translation import gettext
 
 
-@admin.display(description="Go to allocate stock")
-def go_to_allocated_stock(modeladmin, request, queryset):
+@admin.action(description="Transfer stock to site")
+def transfer_stock_action(modeladmin, request, queryset):
     if queryset.count() > 1 or queryset.count() == 0:
         messages.add_message(
             request,
@@ -13,7 +15,8 @@ def go_to_allocated_stock(modeladmin, request, queryset):
             gettext("Select one and only one item"),
         )
     else:
-        url = reverse("edc_pharmacy_admin:edc_pharmacy_allocation_changelist")
-        url = f"{url}?q={queryset.first().id}"
+        url = reverse(
+            "edc_pharmacy:transfer_stock_url", kwargs={"stock_transfer": queryset.first().pk}
+        )
         return HttpResponseRedirect(url)
     return None

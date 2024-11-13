@@ -19,7 +19,11 @@ class Manager(models.Manager):
 class ReceiveItem(BaseUuidModel):
 
     receive_item_identifier = models.CharField(
-        max_length=36, unique=True, null=True, blank=True
+        max_length=36,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text="A sequential unique identifier set by the EDC",
     )
 
     receive_item_datetime = models.DateTimeField(default=get_utcnow)

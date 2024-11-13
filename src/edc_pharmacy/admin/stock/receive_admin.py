@@ -41,6 +41,7 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     show_object_tools = False
     show_cancel = True
+    list_per_page = 20
 
     form = ReceiveForm
     ordering = ("-receive_identifier",)
@@ -58,22 +59,7 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
                     "receive_datetime",
                     "location",
                     "order",
-                    "label_configuration",
                 )
-            },
-        ),
-        (
-            "Section B: Confirm stock after labelling",
-            {
-                "description": (
-                    "Complete this section AFTER printing labels and "
-                    "affixing to stock items. Scan labels back into the EDC here"
-                ),
-                "fields": (
-                    "stock_identifiers",
-                    "confirmed_stock_identifiers",
-                    "unconfirmed_stock_identifiers",
-                ),
             },
         ),
         ("Section C: Comment / Notes", {"fields": ("comment",)}),
@@ -87,7 +73,6 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
         "order_changelist",
         "items",
         "stock_changelist",
-        "label_configuration",
         "created",
         "modified",
     )
@@ -97,15 +82,11 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
         "created",
         "modified",
     )
-    readonly_fields = (
-        "confirmed_stock_identifiers",
-        "unconfirmed_stock_identifiers",
-    )
     search_fields = (
         "id",
-        "order__order_identifier",
+        "receive_identifier",
+        "order__id",
         "location__name",
-        "stock_identifiers",
     )
 
     @admin.display(description="RECEIVE #", ordering="receive_identifier")

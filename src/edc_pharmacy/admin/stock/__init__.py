@@ -12,4 +12,6 @@ from .repack_request_admin import RequestRepackAdmin
 from .stock_admin import StockAdmin
 from .stock_request_admin import StockRequestAdmin
 from .stock_request_item_admin import StockRequestItemAdmin
+from .stock_transfer_admin import StockTransferAdmin
+from .stock_transfer_item_admin import StockTransferItemAdmin
 from .supplier_admin import SupplierAdmin

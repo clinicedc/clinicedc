@@ -2,22 +2,42 @@ from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, reverse
 from django.utils.translation import gettext
+from django_audit_fields import audit_fieldset_tuple
 from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
 from ...models import Allocation
+from ..list_filters import AssignmentListFilter
 from ..model_admin_mixin import ModelAdminMixin
 
 
 @admin.register(Allocation, site=edc_pharmacy_admin)
 class AllocationAdmin(ModelAdminMixin, admin.ModelAdmin):
-    change_list_title = "Pharmacy: Stock Allocations"
-    change_form_title = "Pharmacy: Stock Allocation"
+    change_list_title = "Pharmacy: Allocations"
+    change_form_title = "Pharmacy: Allocation"
     show_object_tools = True
     show_cancel = True
+    list_per_page = 20
+
     ordering = (
         "registered_subject__subject_identifier",
         "allocation_datetime",
+    )
+
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "allocation_identifier",
+                    "allocation_datetime",
+                    "stock_request_item",
+                    "registered_subject",
+                    "allocated_by",
+                )
+            },
+        ),
+        audit_fieldset_tuple,
     )
 
     list_display = (
@@ -31,11 +51,12 @@ class AllocationAdmin(ModelAdminMixin, admin.ModelAdmin):
         "allocated_by",
     )
 
-    list_filter = ("allocation_datetime", "allocated_by")
+    list_filter = (AssignmentListFilter, "allocation_datetime", "allocated_by")
 
     search_fields = ("id", "stock_request_item__id", "stock_request_item__stock_request__id")
 
     readonly_fields = (
+        "assignment",
         "allocation_identifier",
         "allocation_datetime",
         "registered_subject",

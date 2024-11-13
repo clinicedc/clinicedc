@@ -18,6 +18,7 @@ class AssignmentForm(forms.ModelForm):
 @admin.register(Assignment, site=edc_pharmacy_admin)
 class AssignmentAdmin(ModelAdminMixin, admin.ModelAdmin):
     show_object_tools = True
+    show_cancel = True
 
     form = AssignmentForm
 
@@ -37,3 +38,8 @@ class AssignmentAdmin(ModelAdminMixin, admin.ModelAdmin):
     )
 
     search_fields: Tuple[str, ...] = ("name", "display_label")
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return self.readonly_fields + ("name",)
+        return self.readonly_fields

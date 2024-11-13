@@ -6,7 +6,7 @@ from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import ReceiveItemForm
-from ...models import ReceiveItem
+from ...models import Receive, ReceiveItem
 from ...utils import format_qty
 from ..model_admin_mixin import ModelAdminMixin
 
@@ -17,6 +17,7 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     change_form_title = "Pharmacy: Receive item"
     show_object_tools = False
     show_cancel = True
+    list_per_page = 20
 
     form = ReceiveItemForm
     include_audit_fields_in_list_display = False
@@ -92,7 +93,7 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     @admin.display(description="Receive #", ordering="-receive__receive_datetime")
     def receive_changelist(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_receive_changelist")
-        url = f"{url}?q={obj.receive.id}"
+        url = f"{url}?q={obj.receive.receive_identifier}"
         context = dict(
             url=url, label=obj.receive.receive_identifier, title="Back to receiving"
         )
@@ -127,3 +128,18 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     @admin.display(description="RECEIVE ITEM #", ordering="-receive_item_identifier")
     def identifier(self, obj):
         return obj.receive_item_identifier
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return self.readonly_fields + ("receive",)
+        return self.readonly_fields
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "receive":
+            if request.GET.get("receive"):
+                kwargs["queryset"] = Receive.objects.filter(
+                    id__exact=request.GET.get("receive", 0)
+                )
+            else:
+                kwargs["queryset"] = Receive.objects.none()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)

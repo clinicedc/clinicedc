@@ -1,8 +1,6 @@
 from django.db import models
 from edc_model.models import BaseUuidModel, HistoricalRecords
-from edc_pylabels.models import LabelConfiguration
 from edc_utils import get_utcnow
-from edc_utils.date import to_local
 from sequences import get_next_value
 
 from ...exceptions import ReceiveError
@@ -16,7 +14,13 @@ class Manager(models.Manager):
 
 class Receive(BaseUuidModel):
 
-    receive_identifier = models.CharField(max_length=36, unique=True, null=True, blank=True)
+    receive_identifier = models.CharField(
+        max_length=36,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text="A sequential unique identifier set by the EDC",
+    )
 
     receive_datetime = models.DateTimeField(default=get_utcnow)
 
@@ -34,23 +38,12 @@ class Receive(BaseUuidModel):
 
     comment = models.TextField(null=True, blank=True)
 
-    stock_identifiers = models.TextField(null=True, blank=True)
-    confirmed_stock_identifiers = models.TextField(null=True, blank=True)
-    unconfirmed_stock_identifiers = models.TextField(null=True, blank=True)
-
-    label_configuration = models.ForeignKey(
-        LabelConfiguration, on_delete=models.PROTECT, null=True, blank=False
-    )
-
     objects = Manager()
 
     history = HistoricalRecords()
 
     def __str__(self):
-        return (
-            f"{self.receive_identifier}:{self.order}: "
-            f"recv'd on {to_local(self.receive_datetime).date()}"
-        )
+        return self.receive_identifier
 
     def save(self, *args, **kwargs):
         if not self.receive_identifier:

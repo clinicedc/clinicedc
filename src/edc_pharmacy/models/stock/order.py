@@ -13,7 +13,13 @@ class Manager(models.Manager):
 
 class Order(BaseUuidModel):
 
-    order_identifier = models.CharField(max_length=36, unique=True, null=True, blank=True)
+    order_identifier = models.CharField(
+        max_length=36,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text="A sequential unique identifier set by the EDC",
+    )
 
     order_datetime = models.DateTimeField(verbose_name="Order date/time")
 

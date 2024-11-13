@@ -1,9 +1,11 @@
 from django.contrib.admin import SimpleListFilter
 from django.contrib.sites.shortcuts import get_current_site
-from edc_constants.choices import YES_NO
-from edc_constants.constants import NO
+from django.db.models import Count
+from edc_constants.choices import YES_NO, YES_NO_NA
+from edc_constants.constants import NO, NOT_APPLICABLE, YES
 
-from ..models import Medication, Rx, Stock
+from ..models import Medication, Rx
+from ..utils import blinded_user
 
 
 class MedicationsListFilter(SimpleListFilter):
@@ -37,14 +39,53 @@ class AllocationListFilter(SimpleListFilter):
     parameter_name = "allocated"
 
     def lookups(self, request, model_admin):
-        return YES_NO
+        return YES_NO_NA
 
     def queryset(self, request, queryset):
         qs = None
         if self.value():
-            isnull = True if self.value() == NO else False
-            qs = Stock.objects.filter(allocation__isnull=isnull)
+            from_stock = False
+            if "from_stock" in [f.name for f in queryset.model._meta.get_fields()]:
+                from_stock = True
+            if self.value() == YES:
+                opts = dict(from_stock__isnull=False) if from_stock else {}
+                qs = queryset.filter(allocation__isnull=False, **opts)
+            elif self.value() == NO:
+                opts = dict(from_stock__isnull=False) if from_stock else {}
+                qs = queryset.filter(allocation__isnull=True, **opts)
+            elif self.value() == NOT_APPLICABLE:
+                opts = dict(from_stock__isnull=True) if from_stock else {}
+                qs = queryset.filter(allocation__isnull=True, **opts)
         return qs
+
+
+class AssignmentListFilter(SimpleListFilter):
+    title = "Assignment"
+    parameter_name = "assignment"
+    lookup_str = "assignment__name"
+
+    def lookups(self, request, model_admin):
+        groupby = model_admin.model.objects.values(self.lookup_str).annotate(
+            count=Count(self.lookup_str)
+        )
+        if not blinded_user(request):
+            choices = []
+            for name in [ann.get(self.lookup_str) for ann in groupby]:
+                choices.append((name, name or "None"))
+            return tuple(choices)
+        return ("****", "****"), ("****", "****")
+
+    def queryset(self, request, queryset):
+        qs = None
+        if self.value():
+            qs = queryset.filter(**{self.lookup_str: self.value()})
+        return qs
+
+
+class ProductAssignmentListFilter(AssignmentListFilter):
+    title = "Assignment"
+    parameter_name = "product_assignment"
+    lookup_str = "product__assignment__name"
 
 
 class HasOrderNumFilter(SimpleListFilter):
@@ -58,7 +99,7 @@ class HasOrderNumFilter(SimpleListFilter):
         qs = None
         if self.value():
             isnull = True if self.value() == NO else False
-            qs = Stock.objects.filter(receive_item__order_item__order__isnull=isnull)
+            qs = queryset.filter(receive_item__order_item__order__isnull=isnull)
         return qs
 
 
@@ -73,7 +114,7 @@ class HasReceiveNumFilter(SimpleListFilter):
         qs = None
         if self.value():
             isnull = True if self.value() == NO else False
-            qs = Stock.objects.filter(receive_item__receive__isnull=isnull)
+            qs = queryset.filter(receive_item__receive__isnull=isnull)
         return qs
 
 
@@ -88,5 +129,5 @@ class HasRepackNumFilter(SimpleListFilter):
         qs = None
         if self.value():
             isnull = True if self.value() == NO else False
-            qs = Stock.objects.filter(repack_request__isnull=isnull)
+            qs = queryset.filter(repack_request__isnull=isnull)
         return qs

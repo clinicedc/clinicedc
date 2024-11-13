@@ -124,3 +124,7 @@ class LotError(Exception):
 
 class StockTransferError(Exception):
     pass
+
+
+class AssignmentError(Exception):
+    pass

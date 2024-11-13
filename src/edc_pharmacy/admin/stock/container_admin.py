@@ -12,6 +12,7 @@ from ..model_admin_mixin import ModelAdminMixin
 class ContainerAdmin(ModelAdminMixin, admin.ModelAdmin):
     change_list_title = "Pharmacy: Containers"
     show_object_tools = True
+    list_per_page = 20
 
     form = ContainerForm
 
@@ -94,3 +95,8 @@ class ContainerAdmin(ModelAdminMixin, admin.ModelAdmin):
     @admin.display(description="dispense", ordering="may_dispense_as", boolean=True)
     def may_dispense(self, obj):
         return obj.may_dispense_as
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return self.readonly_fields + ("name",)
+        return self.readonly_fields

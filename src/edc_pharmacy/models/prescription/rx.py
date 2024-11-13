@@ -16,7 +16,7 @@ from edc_utils import formatted_age, get_utcnow
 from ...choices import PRESCRIPTION_STATUS
 from ...constants import PRESCRIPTION_ACTION
 from ...exceptions import PrescriptionError
-from ..medication import Medication
+from ..medication import Assignment, Medication
 from ..proxy_models import RegisteredSubjectProxy
 from ..search_slug_model_mixin import SearchSlugModelMixin
 
@@ -129,6 +129,19 @@ class Rx(
             f"{self.registered_subject.gender} "
             f"Written: {self.rx_date}"
         )
+
+    def get_assignment(self):
+        randomizer = site_randomizers.get(self.randomizer_name)
+        try:
+            obj = randomizer.model_cls().objects.get(
+                subject_identifier=self.subject_identifier
+            )
+        except ObjectDoesNotExist:
+            raise PrescriptionError(
+                "Unable to create prescription. Subject has not been "
+                f"randomized (randomizer={self.randomizer_name}"
+            )
+        return Assignment.objects.get(name=obj.assignment)
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Prescription"

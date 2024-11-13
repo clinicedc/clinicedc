@@ -47,6 +47,8 @@ from .stock import (
     Stock,
     StockRequest,
     StockRequestItem,
+    StockTransfer,
+    StockTransferItem,
     Supplier,
 )
 from .storage import (

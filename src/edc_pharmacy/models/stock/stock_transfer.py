@@ -5,7 +5,6 @@ from sequences import get_next_value
 
 from ...exceptions import StockTransferError
 from .location import Location
-from .stock import Stock
 
 
 class StockTransfer(BaseUuidModel):
@@ -13,22 +12,34 @@ class StockTransfer(BaseUuidModel):
     to location B.
     """
 
-    transfer_identifier = models.CharField(max_length=36, unique=True, null=True, blank=True)
+    transfer_identifier = models.CharField(
+        max_length=36,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text="A sequential unique identifier set by the EDC",
+    )
 
     transfer_datetime = models.DateTimeField(default=get_utcnow)
 
-    stock = models.OneToOneField(
-        Stock,
+    from_location = models.ForeignKey(
+        Location,
         on_delete=models.PROTECT,
         null=True,
         blank=False,
-        limit_choices_to={"allocation__isnull": False},
+        related_name="from_location",
+        limit_choices_to={"site__isnull": True},
+    )
+    to_location = models.ForeignKey(
+        Location,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=False,
+        related_name="to_location",
+        limit_choices_to={"site__isnull": False},
     )
 
-    from_location = models.ForeignKey(
-        Location, on_delete=models.PROTECT, null=True, blank=False
-    )
-    to_location = models.ForeignKey(Location, on_delete=models.PROTECT, null=True, blank=False)
+    item_count = models.PositiveIntegerField(null=True, blank=False)
 
     def __str__(self):
         return self.transfer_identifier
@@ -36,13 +47,10 @@ class StockTransfer(BaseUuidModel):
     def save(self, *args, **kwargs):
         if not self.transfer_identifier:
             self.transfer_identifier = f"{get_next_value(self._meta.label_lower):06d}"
-            if self.stock.location != self.from_location:
-                raise StockTransferError(
-                    "Location mismatch. Current stock location must match "
-                    "`from_location. Perhaps catch this in the form"
-                )
+            if self.from_location == self.to_location:
+                raise StockTransferError("Locations cannot be the same")
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):
-        verbose_name = "Allocation"
-        verbose_name_plural = "Allocations"
+        verbose_name = "Stock transfer"
+        verbose_name_plural = "Stock transfers"

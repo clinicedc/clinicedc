@@ -12,6 +12,7 @@ class ProductAdmin(ModelAdminMixin, admin.ModelAdmin):
     change_list_title = "Pharmacy: Products"
     show_object_tools = True
     show_cancel = True
+    list_per_page = 20
 
     form = ProductForm
 
@@ -55,3 +56,18 @@ class ProductAdmin(ModelAdminMixin, admin.ModelAdmin):
     @admin.display(description="PRODUCT #", ordering="product_identifier")
     def identifier(self, obj):
         return obj.product_identifier.split("-")[0]
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return self.readonly_fields + ("formulation", "assignment")
+        return self.readonly_fields
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "formulation":
+            if request.GET.get("receive"):
+                kwargs["queryset"] = db_field.related_model.objects.filter(
+                    id__exact=request.GET.get("formulation", 0)
+                )
+            else:
+                kwargs["queryset"] = db_field.related_model.objects.none()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)

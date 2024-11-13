@@ -8,7 +8,9 @@ from ..model_admin_mixin import ModelAdminMixin
 
 @admin.register(Location, site=edc_pharmacy_admin)
 class LocationAdmin(ModelAdminMixin, admin.ModelAdmin):
+    show_cancel = True
     ordering = ("name",)
+    list_per_page = 20
 
     form = LocationForm
 
@@ -26,3 +28,11 @@ class LocationAdmin(ModelAdminMixin, admin.ModelAdmin):
     )
 
     search_fields = ["id", "name"]
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return self.readonly_fields + (
+                "name",
+                "display_name",
+            )
+        return self.readonly_fields

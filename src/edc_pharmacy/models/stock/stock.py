@@ -6,13 +6,12 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import PROTECT
 from edc_model.models import BaseUuidModel, HistoricalRecords
-from edc_pylabels.models import LabelConfiguration
 from edc_utils import get_utcnow
 from sequences import get_next_value
 
 from ...choices import STOCK_STATUS
 from ...constants import ALLOCATED, AVAILABLE, ZERO_ITEM
-from ...exceptions import StockError
+from ...exceptions import AllocationError, AssignmentError, StockError
 from ...utils import get_random_code
 from .allocation import Allocation
 from .container import Container
@@ -28,14 +27,16 @@ from .repack_request import RepackRequest
 class Stock(BaseUuidModel):
 
     stock_identifier = models.CharField(
+        verbose_name="Internal stock identifier",
         max_length=36,
         unique=True,
         null=True,
         blank=True,
-        help_text="A sequential unique identifier for the stock",
+        help_text="A sequential unique identifier set by the EDC",
     )
 
     code = models.CharField(
+        verbose_name="Stock code",
         max_length=15,
         unique=True,
         null=True,
@@ -69,6 +70,8 @@ class Stock(BaseUuidModel):
         blank=True,
         help_text="Subject allocation",
     )
+
+    at_location = models.BooleanField(default=False)
 
     dispense = models.OneToOneField(
         Dispense,
@@ -136,16 +139,12 @@ class Stock(BaseUuidModel):
     allocated_datetime = models.DateTimeField(null=True, blank=True)
     subject_identifier = models.CharField(max_length=50, null=True, blank=True)
 
-    label_configuration = models.ForeignKey(
-        LabelConfiguration, on_delete=models.PROTECT, null=True, blank=False
-    )
-
     objects = StockManager()
 
     history = HistoricalRecords()
 
     def __str__(self):
-        return f"{self.stock_identifier}:{self.description}"
+        return f"{self.code}: {self.description}"
 
     def save(self, *args, **kwargs):
         if not self.stock_identifier:
@@ -155,15 +154,23 @@ class Stock(BaseUuidModel):
             self.product = self.get_receive_item().order_item.product
         if not self.description:
             self.description = f"{self.product.name} - {self.container.name}"
-        # if self.stock_request_item:
-        #     single_site = site_sites.get(self.stock_request_item.stock_request.site.id)
-        #     if single_site.name != self.location.name:
-        #         self.status = RESERVED
         self.verify_assignment_or_raise()
         self.verify_assignment_or_raise(self.from_stock)
         self.update_and_verify_qty_or_raise()
         self.update_status()
+        self.update_at_location()
         super().save(*args, **kwargs)
+
+    def update_at_location(self):
+        """An item is at location if it has not been allocated or
+        if the stock request location == the stock location.
+        """
+        if not self.allocation:
+            self.at_location = True
+        elif self.allocation.stock_request_item.stock_request.location != self.location:
+            self.at_location = False
+        elif self.allocation.stock_request_item.stock_request.location == self.location:
+            self.at_location = True
 
     def update_and_verify_qty_or_raise(self):
         if self.unit_qty_in > 0:
@@ -181,7 +188,11 @@ class Stock(BaseUuidModel):
         if not stock:
             stock = self
         if stock.product.assignment != stock.lot.assignment:
-            raise StockError("Lot number assignment does not match product assignment!")
+            raise AssignmentError("Lot number assignment does not match product assignment!")
+        if self.allocation and self.allocation.assignment != stock.lot.assignment:
+            raise AllocationError(
+                f"Allocation assignment does not match lot assignment! Got {self.code}."
+            )
 
     def update_status(self):
         if self.allocation:

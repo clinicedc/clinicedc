@@ -51,33 +51,7 @@ def order_item_on_post_save(sender, instance, raw, created, update_fields, **kwa
 @receiver(post_save, sender=Receive, dispatch_uid="receive_on_post_save")
 def receive_on_post_save(sender, instance, raw, created, update_fields, **kwargs) -> None:
     if not raw and not update_fields:
-        if instance.stock_identifiers:
-            stock_identifiers = instance.stock_identifiers.split("\n")
-            stock_identifiers = [s.strip() for s in stock_identifiers]
-            instance.stock_identifiers = "\n".join(stock_identifiers)
-            confirmed_stock_identifiers = []
-            for stock in Stock.objects.filter(receive_item__receive=instance).order_by(
-                "stock_identifier"
-            ):
-                if stock.code in stock_identifiers:
-                    stock.confirmed = True
-                    stock.save(update_fields=["confirmed"])
-                    confirmed_stock_identifiers.append(stock.code)
-                    stock_identifiers.remove(stock.code)
-                elif stock.stock_identifier in stock_identifiers:
-                    stock.confirmed = True
-                    stock.save(update_fields=["confirmed"])
-                    confirmed_stock_identifiers.append(stock.stock_identifier)
-                    stock_identifiers.remove(stock.stock_identifier)
-            instance.confirmed_stock_identifiers = "\n".join(confirmed_stock_identifiers)
-            instance.unconfirmed_stock_identifiers = "\n".join(stock_identifiers)
-            instance.save(
-                update_fields=[
-                    "confirmed_stock_identifiers",
-                    "unconfirmed_stock_identifiers",
-                    "stock_identifiers",
-                ]
-            )
+        pass
 
 
 @receiver(post_save, sender=ReceiveItem, dispatch_uid="update_receive_item_on_post_save")
@@ -137,7 +111,7 @@ def repack_request_on_post_save(
     sender, instance, raw, created, update_fields, **kwargs
 ) -> None:
     if not raw and not update_fields:
-        if not instance.stock_identifiers and not instance.processed:
+        if not instance.processed:
             process_repack_request(instance)
 
 

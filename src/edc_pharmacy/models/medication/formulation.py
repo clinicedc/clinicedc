@@ -66,6 +66,13 @@ class Formulation(BaseUuidModel):
             f"{self.get_route_display()}"
         )
 
+    def get_product_description(self):
+        return (
+            f"{self.medication} {round_half_away_from_zero(self.strength, 0)}"
+            f"{self.get_units_display()} "
+            f"{self.get_formulation_type_display()} "
+        )
+
     def get_description_with_assignment(self, assignment: Assignment) -> str:
         description = self.description
         return (

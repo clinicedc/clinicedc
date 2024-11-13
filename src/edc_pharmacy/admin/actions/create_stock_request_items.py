@@ -52,7 +52,6 @@ def create_stock_request_items_action(modeladmin, request, queryset):
             df = df.reset_index(drop=True)
 
         # df_in_stock = in_stock_for_subjects_df(stock_request_obj)
-        # breakpoint()
         # df = df.merge(
         #     df_in_stock[["in_stock", "stock_identifier"]], on="stock_identifier", how="left"
         # )

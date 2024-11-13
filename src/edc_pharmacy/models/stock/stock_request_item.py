@@ -6,6 +6,7 @@ from edc_visit_schedule.model_mixins import VisitCodeFieldsModelMixin
 from sequences import get_next_value
 
 from ...exceptions import StockRequestItemError
+from .. import Assignment
 from ..prescription import Rx
 from ..proxy_models import RegisteredSubjectProxy
 from .stock_request import StockRequest
@@ -19,7 +20,11 @@ class StockRequestItem(VisitCodeFieldsModelMixin, BaseUuidModel):
     """A model that represents a stock request item."""
 
     request_item_identifier = models.CharField(
-        max_length=36, unique=True, null=True, blank=True
+        max_length=36,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text="A sequential unique identifier set by the EDC",
     )
 
     request_item_datetime = models.DateTimeField(default=get_utcnow)
@@ -33,6 +38,8 @@ class StockRequestItem(VisitCodeFieldsModelMixin, BaseUuidModel):
     )
 
     rx = models.ForeignKey(Rx, on_delete=models.PROTECT, null=True, blank=False)
+
+    assignment = models.ForeignKey(Assignment, on_delete=models.PROTECT, null=True, blank=True)
 
     registered_subject = models.ForeignKey(
         RegisteredSubjectProxy,
@@ -73,6 +80,7 @@ class StockRequestItem(VisitCodeFieldsModelMixin, BaseUuidModel):
             subject_identifier=self.registered_subject.subject_identifier
         )
         self.rando_sid = rando_obj.sid
+        self.assignment = self.rx.get_assignment()
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):

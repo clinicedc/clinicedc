@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.admin.widgets import AutocompleteSelect
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django_audit_fields import audit_fieldset_tuple
@@ -18,9 +19,17 @@ class RequestRepackAdmin(ModelAdminMixin, admin.ModelAdmin):
     change_form_title = "Pharmacy: Repack"
     show_object_tools = True
     show_cancel = True
-    autocomplete_fields = ["container"]
+    list_per_page = 20
+
+    autocomplete_fields = ["from_stock", "container"]
     form = RepackRequestForm
     actions = [process_repack_request_action, confirm_repacked_stock_action]
+
+    # change_list_note = "Repack product from one container into another."
+
+    change_list_note = render_to_string(
+        "edc_pharmacy/stock/instructions/repack_instructions.html"
+    )
 
     fieldsets = (
         (
@@ -32,23 +41,8 @@ class RequestRepackAdmin(ModelAdminMixin, admin.ModelAdmin):
                     "from_stock",
                     "container",
                     "qty",
-                    "label_configuration",
+                    "processed",
                 )
-            },
-        ),
-        (
-            "Section B: Confirm stock after labelling",
-            {
-                "description": (
-                    "Fill in AFTER repack is complete. Save the form, print labels, "
-                    "label stock, then return here to confirm stock"
-                ),
-                "fields": (
-                    "stock_count",
-                    "stock_identifiers",
-                    "confirmed_stock_identifiers",
-                    "unconfirmed_stock_identifiers",
-                ),
             },
         ),
         audit_fieldset_tuple,
@@ -65,8 +59,11 @@ class RequestRepackAdmin(ModelAdminMixin, admin.ModelAdmin):
         "stock_changelist",
     )
 
-    search_fields = ("id", "container__name")
-    readonly_fields = ("confirmed_stock_identifiers", "unconfirmed_stock_identifiers")
+    search_fields = (
+        "id",
+        "container__name",
+        "from_stock__code",
+    )
 
     @admin.display(description="Repack date", ordering="repack_datetime")
     def repack_date(self, obj):
@@ -82,8 +79,8 @@ class RequestRepackAdmin(ModelAdminMixin, admin.ModelAdmin):
     @admin.display(description="From stock")
     def from_stock_changelist(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
-        url = f"{url}?q={obj.from_stock.id}"
-        context = dict(url=url, label=obj.from_stock.stock_identifier, title="Go to stock")
+        url = f"{url}?q={obj.from_stock.code}"
+        context = dict(url=url, label=obj.from_stock.code, title="Go to stock")
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(description="REPACK #", ordering="-repack_identifier")
@@ -94,9 +91,26 @@ class RequestRepackAdmin(ModelAdminMixin, admin.ModelAdmin):
     def formatted_qty(self, obj):
         return format_qty(obj.qty, obj.container)
 
+    def get_readonly_fields(self, request, obj=None):
+        if obj and obj.processed:
+            f = [
+                "repack_identifier",
+                "repack_datetime",
+                "container",
+                "from_stock",
+                "processed",
+                "qty",
+            ]
+            return self.readonly_fields + tuple(f)
+        return self.readonly_fields
+
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "from_stock" and request.GET.get("from_stock"):
             kwargs["queryset"] = db_field.related_model.objects.filter(
                 pk=request.GET.get("from_stock", 0)
             )
+            kwargs["widget"] = AutocompleteSelect(
+                db_field.remote_field, self.admin_site, using=kwargs.get("using")
+            )
+
         return super().formfield_for_foreignkey(db_field, request, **kwargs)

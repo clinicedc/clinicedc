@@ -20,5 +20,6 @@ from .stock import (
     StockForm,
     StockRequestForm,
     StockRequestItemForm,
+    StockTransferForm,
     SupplierForm,
 )

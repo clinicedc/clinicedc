@@ -12,7 +12,9 @@ from ..list_filters import MedicationsListFilter
 
 @admin.register(Rx, site=edc_pharmacy_admin)
 class RxAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
+    show_cancel = True
     show_object_tools = True
+    list_per_page = 20
 
     form = RxForm
 

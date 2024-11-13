@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-import json
 from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -27,15 +25,15 @@ if TYPE_CHECKING:
 class ConfirmStockView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView):
     stock_pks: list[str] | None = None
     template_name: str = "edc_pharmacy/stock/confirm_stock.html"
-    session_key = "model_pks"
+    # session_key = "model_pks"
     navbar_name = settings.APP_NAME
     navbar_selected_item = "pharmacy"
 
-    def get(self, request: WSGIRequest, *args, **kwargs):
-        if not self.stock_pks:
-            self.stock_pks = [kwargs.get("pk")]
-        request.session[self.session_key] = json.dumps([str(pk) for pk in self.stock_pks])
-        return super().get(request, *args, **kwargs)
+    # def get(self, request: WSGIRequest, *args, **kwargs):
+    #     if not self.stock_pks:
+    #         self.stock_pks = [kwargs.get("pk")]
+    #     request.session[self.session_key] = json.dumps([str(pk) for pk in self.stock_pks])
+    #     return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         dct = self.get_values_dict(**kwargs)
@@ -46,7 +44,6 @@ class ConfirmStockView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Temp
         )
 
         kwargs.update(
-            object_count=len(self.stock_pks),
             source_identifier=dct.get("source_identifier"),
             source_model_name=self.model_cls._meta.verbose_name,
             source_changelist_url=self.source_changelist_url,

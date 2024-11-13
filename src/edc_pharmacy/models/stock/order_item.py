@@ -18,7 +18,13 @@ class Manager(models.Manager):
 
 class OrderItem(BaseUuidModel):
 
-    order_item_identifier = models.CharField(max_length=36, unique=True, null=True, blank=True)
+    order_item_identifier = models.CharField(
+        max_length=36,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text="A sequential unique identifier set by the EDC",
+    )
 
     order = models.ForeignKey(Order, on_delete=models.PROTECT, null=True, blank=False)
 

@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import PROTECT
 from edc_model.models import BaseUuidModel, HistoricalRecords
+from sequences import get_next_value
 
 from ...exceptions import LotError
 from ..medication import Assignment
@@ -12,6 +13,14 @@ class Manager(models.Manager):
 
 
 class Lot(BaseUuidModel):
+
+    lot_identifier = models.CharField(
+        max_length=25,
+        unique=True,
+        null=True,
+        blank=False,
+        help_text="A sequential unique identifier set by the EDC",
+    )
 
     lot_no = models.CharField(max_length=50, unique=True)
 
@@ -26,9 +35,11 @@ class Lot(BaseUuidModel):
     history = HistoricalRecords()
 
     def __str__(self):
-        return f"{self.product} Lot {self.lot_no}"
+        return f"{self.lot_no}: {self.product.name} "
 
     def save(self, *args, **kwargs):
+        if not self.lot_identifier:
+            self.lot_identifier = f"{get_next_value(self._meta.label_lower):06d}"
         if self.assignment != self.product.assignment:
             raise LotError("Assignment mismatch.")
         super().save(*args, **kwargs)

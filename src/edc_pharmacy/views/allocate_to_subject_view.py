@@ -1,13 +1,11 @@
 from __future__ import annotations
 
 import ast
-import json
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -16,7 +14,8 @@ from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
-from ..models import StockRequest, StockRequestItem
+from ..exceptions import AllocationError
+from ..models import Assignment, Stock, StockRequest, StockRequestItem
 from ..utils import allocate_stock
 
 
@@ -24,70 +23,135 @@ from ..utils import allocate_stock
 class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView):
     model_pks: list[str] | None = None
     template_name: str = "edc_pharmacy/stock/allocate_to_subject.html"
-    session_key = "model_pks"
+    # session_key = "model_pks"
     navbar_name = settings.APP_NAME
     navbar_selected_item = "pharmacy"
 
-    def get(self, request: WSGIRequest, *args, **kwargs):
-        if not self.model_pks:
-            self.model_pks = [kwargs.get("pk")]
-        request.session[self.session_key] = json.dumps([str(pk) for pk in self.model_pks])
-        return super().get(request, *args, **kwargs)
+    # def get(self, request: WSGIRequest, *args, **kwargs):
+    #     if not self.model_pks:
+    #         self.model_pks = [kwargs.get("pk")]
+    #     request.session[self.session_key] = json.dumps([str(pk) for pk in self.model_pks])
+    #     return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        stock_request_id = kwargs.get("stock_request_id")
+        kwargs.update(
+            stock_request=self.stock_request,
+            assignment=self.selected_assignment,
+            stock_request_changelist_url=self.stock_request_changelist_url,
+            subject_identifiers=self.get_next_subject_identifiers(12),
+            subject_identifiers_count=self.subject_identifiers.count(),
+            assignments=Assignment.objects.all().order_by("name"),
+        )
+        return super().get_context_data(**kwargs)
+
+    @property
+    def subject_identifiers(self):
+        """Returns a queryset of unallocated stock request
+        items for the given assignment.
+        """
+        return (
+            StockRequestItem.objects.values_list(
+                "registered_subject__subject_identifier", flat=True
+            )
+            .filter(
+                stock_request=self.stock_request,
+                allocation__isnull=True,
+                assignment=self.selected_assignment,
+            )
+            .order_by("registered_subject__subject_identifier")
+        )
+
+    @property
+    def stock_request(self):
+        stock_request_id = self.kwargs.get("stock_request_id")
         try:
             stock_request = StockRequest.objects.get(id=stock_request_id)
         except ObjectDoesNotExist:
             stock_request = None
             messages.add_message(self.request, messages.ERROR, "Invalid stock request.")
-        kwargs.update(
-            stock_request=stock_request,
-            stock_request_changelist_url=self.stock_request_changelist_url(stock_request),
-            object_count=len(self.model_pks),
-            subject_identifiers=self.get_next_subject_identifiers(stock_request, 12),
-        )
-        return super().get_context_data(**kwargs)
+        return stock_request
 
-    def get_next_subject_identifiers(
-        self, stock_request: StockRequest, count: int | None = None
-    ) -> list[str]:
-        subject_identifiers = (
-            StockRequestItem.objects.values_list(
-                "registered_subject__subject_identifier", flat=True
-            )
-            .filter(stock_request=stock_request, allocation__stock_request_item__isnull=True)
-            .order_by("registered_subject__subject_identifier")
-        )
-        if count:
-            return [s for s in subject_identifiers[:count]]
-        return [s for s in subject_identifiers]
+    @property
+    def selected_assignment(self):
+        assignment_id = self.kwargs.get("assignment_id")
+        try:
+            assignment = Assignment.objects.get(id=assignment_id)
+        except ObjectDoesNotExist:
+            assignment = None
+        return assignment
 
-    def stock_request_changelist_url(self, stock_request: StockRequest) -> str:
-        if stock_request:
+    def get_next_subject_identifiers(self, count: int | None = None) -> list[str]:
+        if self.selected_assignment:
+            subject_identifiers = self.subject_identifiers
+            if count:
+                return [s for s in subject_identifiers[:count]]
+            return [s for s in subject_identifiers]
+        return []
+
+    @property
+    def stock_request_changelist_url(self) -> str:
+        if self.stock_request:
             url = reverse("edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist")
-            url = f"{url}?q={stock_request.request_identifier}"
+            url = f"{url}?q={self.stock_request.request_identifier}"
             return url
         return ""
 
     def post(self, request, *args, **kwargs):
-        codes = request.POST.getlist("codes")
+        stock_codes = request.POST.getlist("codes") if request.POST.get("codes") else None
         subject_identifiers = request.POST.get("subject_identifiers")
+        assignment_id = request.POST.get("assignment_id")
         subject_identifiers = ast.literal_eval(subject_identifiers)
-        codes = dict(zip(codes, subject_identifiers))
-        stock_request = StockRequest.objects.get(id=kwargs.get("stock_request_id"))
-        allocated, not_allocated = allocate_stock(
-            stock_request, codes, allocated_by=request.user.username
-        )
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            f"Allocated {allocated} stock records. Skipped {not_allocated}.",
-        )
-        if self.get_next_subject_identifiers(stock_request):
-            url = reverse(
-                "edc_pharmacy:allocate_url",
-                kwargs={"stock_request_id": kwargs.get("stock_request_id")},
+
+        try:
+            assignment = Assignment.objects.get(id=assignment_id)
+        except ObjectDoesNotExist:
+            assignment = None
+
+        if (
+            stock_codes
+            and Stock.objects.filter(code__in=stock_codes, allocation__isnull=False).exists()
+        ):
+            assigned_codes = []
+            for stock in Stock.objects.filter(code__in=stock_codes):
+                if stock.allocation:
+                    assigned_codes.append(stock.code)
+            messages.add_message(
+                request,
+                messages.ERROR,
+                f"Stock already allocated. Got {','.join(assigned_codes)}.",
             )
-            return HttpResponseRedirect(url)
-        return HttpResponseRedirect(self.stock_request_changelist_url(stock_request))
+            subject_identifiers = []
+
+        if subject_identifiers and assignment:
+            allocation_data = dict(zip(stock_codes, subject_identifiers))
+            stock_request = StockRequest.objects.get(id=kwargs.get("stock_request_id"))
+            try:
+                allocated, not_allocated = allocate_stock(
+                    stock_request, allocation_data, allocated_by=request.user.username
+                )
+            except AllocationError as e:
+                messages.add_message(request, messages.ERROR, str(e))
+            else:
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    f"Allocated {allocated} stock records. Skipped {not_allocated}.",
+                )
+            if self.get_next_subject_identifiers():
+                url = reverse(
+                    "edc_pharmacy:allocate_url",
+                    kwargs={
+                        "stock_request_id": kwargs.get("stock_request_id"),
+                        "assignment_id": assignment.id,
+                    },
+                )
+                return HttpResponseRedirect(url)
+            return HttpResponseRedirect(self.stock_request_changelist_url)
+        url = reverse(
+            "edc_pharmacy:allocate_url",
+            kwargs={
+                "stock_request_id": kwargs.get("stock_request_id"),
+                "assignment_id": getattr(assignment, "id", None),
+            },
+        )
+        return HttpResponseRedirect(url)

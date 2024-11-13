@@ -14,4 +14,6 @@ from .repack_request import RepackRequest
 from .stock import Stock
 from .stock_request import StockRequest
 from .stock_request_item import StockRequestItem
+from .stock_transfer import StockTransfer
+from .stock_transfer_item import StockTransferItem
 from .supplier import Supplier

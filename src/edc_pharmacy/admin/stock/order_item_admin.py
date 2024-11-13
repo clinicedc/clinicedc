@@ -9,9 +9,11 @@ from edc_constants.constants import COMPLETE
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import OrderItemForm
-from ...models import OrderItem, Receive, Stock
+from ...models import Order, OrderItem, Receive, Stock
 from ...utils import format_qty
+from ..list_filters import ProductAssignmentListFilter
 from ..model_admin_mixin import ModelAdminMixin
+from ..remove_fields_for_blinded_users import remove_fields_for_blinded_users
 
 
 @admin.register(OrderItem, site=edc_pharmacy_admin)
@@ -19,22 +21,16 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     change_list_title = "Pharmacy: Ordered items"
     show_object_tools = False
     show_cancel = True
+    list_per_page = 20
+
     form = OrderItemForm
     ordering = ("-order_item_identifier",)
-    autocomplete_fields = ["order", "product", "container"]
+    autocomplete_fields = ["product", "container"]
 
     fieldsets = (
         (
             None,
-            {
-                "fields": (
-                    [
-                        "order",
-                        "product",
-                        "container",
-                    ]
-                )
-            },
+            {"fields": (["order", "product", "container"])},
         ),
         (
             "Quantity",
@@ -46,7 +42,8 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     list_display = (
         "identifier",
-        "product_name",
+        "product__name",
+        "assignment",
         "container",
         "formatted_qty",
         "formatted_unit_qty",
@@ -58,7 +55,10 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         "created",
         "modified",
     )
-    list_filter = ("status",)
+    list_filter = (
+        "status",
+        ProductAssignmentListFilter,
+    )
     radio_fields = {"status": admin.VERTICAL}
     search_fields = (
         "id",
@@ -70,9 +70,28 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         "unit_qty_received",
     )
 
+    def get_list_display(self, request):
+        fields = super().get_list_display(request)
+        fields = remove_fields_for_blinded_users(request, fields)
+        return fields
+
+    def get_list_filter(self, request):
+        fields = super().get_list_filter(request)
+        fields = remove_fields_for_blinded_users(request, fields)
+        return fields
+
+    def get_search_fields(self, request):
+        fields = super().get_search_fields(request)
+        fields = remove_fields_for_blinded_users(request, fields)
+        return fields
+
     @admin.display(description="ORDER ITEM #", ordering="-order_item_identifier")
     def identifier(self, obj):
         return obj.order_item_identifier
+
+    @admin.display(description="Assignment", ordering="product__assignment__name")
+    def assignment(self, obj):
+        return obj.product.assignment
 
     @admin.display(description="QTY", ordering="qty")
     def formatted_qty(self, obj):
@@ -96,15 +115,6 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         url = f"{url}?q={obj.order.order_identifier}"
         context = dict(url=url, label=obj.order.order_identifier, title="Back to order")
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
-
-    # @admin.display(description="Receive item")
-    # def changelist_receive_item_url(self, obj):
-    #     if obj.container.qty == obj.unit_qty_received:
-    #         url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_changelist")
-    #         url = f"{url}?q={obj.order.order_identifier}"
-    #         context = dict(url=url, label="Receive more", title="Receive more")
-    #         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
-    #     return None
 
     @admin.display(description="to receive", ordering="unit_qty_received")
     def received_items_changelist(self, obj):
@@ -158,7 +168,7 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
             )
         else:
             url = reverse("edc_pharmacy_admin:edc_pharmacy_receive_changelist")
-            url = f"{url}?q={str(rcv_obj.id)}"
+            url = f"{url}?q={str(rcv_obj.receive_identifier)}"
             context = dict(url=url, label=rcv_obj.receive_identifier, title="Receive")
             str_receive_changelist_link = render_to_string(
                 "edc_pharmacy/stock/items_as_link.html", context=context
@@ -192,3 +202,18 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         ]
         renders = [r for r in renders if r]
         return format_html("<BR>".join(renders))
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return self.readonly_fields + ("order",)
+        return self.readonly_fields
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "order":
+            if request.GET.get("order"):
+                kwargs["queryset"] = Order.objects.filter(
+                    id__exact=request.GET.get("order", 0)
+                )
+            else:
+                kwargs["queryset"] = Order.objects.none()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
