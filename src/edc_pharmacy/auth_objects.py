@@ -49,5 +49,7 @@ for model_name in ["dosageguideline", "formulation", "medication", "rxrefill"]:
 for model_name in ["rx", "rxitem"]:
     prescriber_codenames.extend([c for c in pharmacy_codenames if model_name in c])
 
+prescriber_codenames.extend(pharmacy_navbar_codenames)
+pharmacy_codenames.extend(pharmacy_navbar_codenames)
 prescriber_codenames.sort()
 pharmacy_codenames.sort()

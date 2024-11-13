@@ -1,10 +1,14 @@
 from django.db import models
-from edc_model.models import BaseUuidModel
+from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_utils import get_utcnow
 from sequences import get_next_value
 
 from ..proxy_models import RegisteredSubjectProxy
 from .location import Location
+
+
+class Manager(models.Manager):
+    use_in_migrations = True
 
 
 class Dispense(BaseUuidModel):
@@ -37,6 +41,10 @@ class Dispense(BaseUuidModel):
     crf_label_lower = models.CharField(max_length=100, null=True, blank=True)
     crf_field_name = models.CharField(max_length=100, null=True, blank=True)
     crf_id = models.UUIDField(null=True, blank=True)
+
+    objects = Manager()
+
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.dispense_identifier

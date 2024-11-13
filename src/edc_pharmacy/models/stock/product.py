@@ -6,6 +6,10 @@ from sequences import get_next_value
 from ..medication import Assignment, Formulation
 
 
+class Manager(models.Manager):
+    use_in_migrations = True
+
+
 class Product(BaseUuidModel):
 
     product_identifier = models.CharField(
@@ -21,6 +25,8 @@ class Product(BaseUuidModel):
     formulation = models.ForeignKey(Formulation, on_delete=PROTECT)
 
     assignment = models.ForeignKey(Assignment, on_delete=PROTECT, null=True, blank=False)
+
+    objects = Manager()
 
     history = HistoricalRecords()
 

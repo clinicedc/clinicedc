@@ -1,11 +1,15 @@
 from django.db import models
-from edc_model.models import BaseUuidModel
+from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_utils import get_utcnow
 from sequences import get_next_value
 
 from ...exceptions import StockTransferError
 from .stock import Stock
 from .stock_transfer import StockTransfer
+
+
+class Manager(models.Manager):
+    use_in_migrations = True
 
 
 class StockTransferItem(BaseUuidModel):
@@ -32,6 +36,10 @@ class StockTransferItem(BaseUuidModel):
         blank=False,
         limit_choices_to={"allocation__isnull": False},
     )
+
+    objects = Manager()
+
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.transfer_item_identifier

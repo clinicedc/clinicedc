@@ -1,8 +1,12 @@
 from django.db import models
-from edc_model.models import BaseUuidModel
+from edc_model.models import BaseUuidModel, HistoricalRecords
 
 from .container_type import ContainerType
 from .container_units import ContainerUnits
+
+
+class Manager(models.Manager):
+    use_in_migrations = True
 
 
 class Container(BaseUuidModel):
@@ -36,6 +40,10 @@ class Container(BaseUuidModel):
     may_dispense_as = models.BooleanField(
         verbose_name="Container may be used for dispensing to subject", default=False
     )
+
+    objects = Manager()
+
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.name

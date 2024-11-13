@@ -1,5 +1,5 @@
 from django.db import models
-from edc_model.models import BaseUuidModel
+from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_randomization.site_randomizers import site_randomizers
 from edc_utils import get_utcnow
 from sequences import get_next_value
@@ -8,6 +8,10 @@ from ...exceptions import AllocationError
 from .. import Assignment, Rx
 from ..proxy_models import RegisteredSubjectProxy
 from .stock_request_item import StockRequestItem
+
+
+class Manager(models.Manager):
+    use_in_migrations = True
 
 
 class Allocation(BaseUuidModel):
@@ -44,6 +48,10 @@ class Allocation(BaseUuidModel):
     )
 
     allocated_by = models.CharField(max_length=50, null=True, blank=True)
+
+    objects = Manager()
+
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.allocation_identifier
