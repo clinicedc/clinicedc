@@ -5,6 +5,19 @@
 
 
 <form id="logout_form" method="post" action="{% url 'edc_auth_admin:logout' %}">{% csrf_token %}</form>
+
+{% if perms.edc_navbar.nav_pharmacy_section %}
+  <a class="btn btn-toolbar" href="{% url 'edc_pharmacy:home_url' %}" aria-label="{% translate 'Pharmacy' %}" title="{% translate 'Pharmacy' %}"><i class="fa-solid fa-prescription fa-fw"></i></a>   |
+{% endif %}
+
+{% if perms.edc_data_manager.nav_data_manager_section %}
+  <strong><a class="btn btn-toolbar" href="{% url 'edc_data_manager:home_url' %}" aria-label="{% translate 'Data management' %}" title="{% translate 'Data management' %}">DM</a></strong>   |
+{% endif %}
+
+{% if perms.edc_adverse_event.nav_ae_section %}
+  <strong><a class="btn btn-toolbar" href="{% url 'edc_adverse_event:ae_home_url' %}" aria-label="{% translate 'Adverse events' %}" title="{% translate 'Adverse events' %}">AE</a></strong>   |
+{% endif %}
+
 <a class="btn btn-toolbar" href="/" aria-label="{% translate 'Home' %}" title="{% translate 'Home' %}"><i class="fa-solid fa-home fa-fw"></i></a>   |
 {% if site_url %}
   <a class="btn btn-toolbar" href="{{ site_url }}" title="{% translate 'Administration' %}" aria-label="{% translate 'Administration' %}"><i class="fa-solid fa-gear fa-fw"></i></a>  |
