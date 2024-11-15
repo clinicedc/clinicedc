@@ -9,7 +9,7 @@ from ...admin_site import edc_pharmacy_admin
 from ...forms import RepackRequestForm
 from ...models import RepackRequest
 from ...utils import format_qty
-from ..actions import confirm_repacked_stock_action, process_repack_request_action
+from ..actions import confirm_repacked_stock_action, print_labels_from_repack_request
 from ..model_admin_mixin import ModelAdminMixin
 
 
@@ -23,9 +23,7 @@ class RequestRepackAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     autocomplete_fields = ["from_stock", "container"]
     form = RepackRequestForm
-    actions = [process_repack_request_action, confirm_repacked_stock_action]
-
-    # change_list_note = "Repack product from one container into another."
+    actions = [print_labels_from_repack_request, confirm_repacked_stock_action]
 
     change_list_note = render_to_string(
         "edc_pharmacy/stock/instructions/repack_instructions.html"

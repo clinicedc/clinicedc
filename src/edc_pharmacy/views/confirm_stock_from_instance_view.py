@@ -22,18 +22,12 @@ if TYPE_CHECKING:
 
 
 @method_decorator(login_required, name="dispatch")
-class ConfirmStockView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView):
-    stock_pks: list[str] | None = None
-    template_name: str = "edc_pharmacy/stock/confirm_stock.html"
-    # session_key = "model_pks"
+class ConfirmStockFromInstanceView(
+    EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView
+):
+    template_name: str = "edc_pharmacy/stock/confirm_stock_by_instance.html"
     navbar_name = settings.APP_NAME
     navbar_selected_item = "pharmacy"
-
-    # def get(self, request: WSGIRequest, *args, **kwargs):
-    #     if not self.stock_pks:
-    #         self.stock_pks = [kwargs.get("pk")]
-    #     request.session[self.session_key] = json.dumps([str(pk) for pk in self.stock_pks])
-    #     return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         dct = self.get_values_dict(**kwargs)
@@ -42,7 +36,6 @@ class ConfirmStockView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Temp
             .filter(**{dct.get("fk_attr"): dct.get("obj").id, "confirmed": True})
             .count()
         )
-
         kwargs.update(
             source_identifier=dct.get("source_identifier"),
             source_model_name=self.model_cls._meta.verbose_name,
@@ -67,8 +60,10 @@ class ConfirmStockView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Temp
         return values_dict
 
     def get_confirmed_codes(self, obj: RepackRequest | Receive, fk_attr: str) -> list[str]:
-        return Stock.objects.values_list("code", flat=True).filter(
-            **{fk_attr: obj.id, "confirmed": True}
+        return (
+            Stock.objects.values_list("code", flat=True)
+            .filter(**{fk_attr: obj.id, "confirmed": True})
+            .order_by("confirmed_datetime")
         )
 
     @property
@@ -97,7 +92,7 @@ class ConfirmStockView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Temp
             .filter(**{dct.get("fk_attr"): dct.get("obj").id, "confirmed": False})
             .exists()
         ):
-            url = reverse("edc_pharmacy:confirm_stock_url", kwargs=kwargs)
+            url = reverse("edc_pharmacy:confirm_stock_from_instance_url", kwargs=kwargs)
         else:
             url = f"{self.source_changelist_url}?q={dct.get("obj").pk}"
         return HttpResponseRedirect(url)

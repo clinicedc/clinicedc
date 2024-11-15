@@ -1,12 +1,12 @@
 from django.db import models
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_randomization.site_randomizers import site_randomizers
+from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from sequences import get_next_value
 
 from ...exceptions import AllocationError
 from .. import Assignment, Rx
-from ..proxy_models import RegisteredSubjectProxy
 from .stock_request_item import StockRequestItem
 
 
@@ -30,7 +30,7 @@ class Allocation(BaseUuidModel):
     allocation_datetime = models.DateTimeField(default=get_utcnow)
 
     registered_subject = models.ForeignKey(
-        RegisteredSubjectProxy,
+        RegisteredSubject,
         verbose_name="Allocated to",
         on_delete=models.PROTECT,
         null=True,
@@ -65,7 +65,9 @@ class Allocation(BaseUuidModel):
         super().save(*args, **kwargs)
 
     def get_assignment(self) -> Assignment:
-        rx = Rx.objects.get(registered_subject=self.registered_subject)
+        rx = Rx.objects.get(
+            registered_subject=RegisteredSubject.objects.get(id=self.registered_subject.id)
+        )
         randomizer = site_randomizers.get(rx.randomizer_name)
         assignment = randomizer.get_assignment(self.registered_subject.subject_identifier)
         return Assignment.objects.get(name=assignment)

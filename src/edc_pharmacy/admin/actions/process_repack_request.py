@@ -25,6 +25,6 @@ def process_repack_request_action(modeladmin, request, queryset):
         else:
             process_repack_request(repack_obj)
             url = reverse("edc_pharmacy_admin:edc_pharmacy_repackrequest_changelist")
-            url = f"{url}?q={repack_obj.id}"
+            url = f"{url}?q={repack_obj.from_stock.code}"
             return HttpResponseRedirect(url)
     return None

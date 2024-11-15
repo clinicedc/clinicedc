@@ -17,7 +17,6 @@ from ...choices import PRESCRIPTION_STATUS
 from ...constants import PRESCRIPTION_ACTION
 from ...exceptions import PrescriptionError
 from ..medication import Assignment, Medication
-from ..proxy_models import RegisteredSubjectProxy
 from ..search_slug_model_mixin import SearchSlugModelMixin
 
 
@@ -49,7 +48,7 @@ class Rx(
     rx_name = models.CharField(max_length=36, default="study prescription")
 
     registered_subject = models.ForeignKey(
-        RegisteredSubjectProxy,
+        RegisteredSubject,
         verbose_name="Subject Identifier",
         on_delete=PROTECT,
         null=True,

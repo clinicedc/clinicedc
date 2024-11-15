@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from django.db.models import Sum
+from django.db.models import F, Sum
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from edc_constants.constants import COMPLETE, PARTIAL
@@ -25,27 +25,30 @@ def stock_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
     """Update unit qty"""
     if not raw and not update_fields:
         instance.unit_qty_in = Decimal(instance.qty_in) * instance.container.qty
+
         if instance.from_stock:
             instance.from_stock.unit_qty_out += instance.unit_qty_in
             if instance.from_stock.unit_qty_out > instance.from_stock.unit_qty_in:
                 raise InsufficientStockError("Unit QTY OUT cannot exceed Unit QTY IN.")
             instance.from_stock.save(update_fields=["unit_qty_out"])
+
         instance.unit_qty_out = Decimal(instance.qty_out) * instance.container.qty
         if instance.unit_qty_out > instance.unit_qty_in:
             raise InsufficientStockError("Unit QTY OUT cannot exceed Unit QTY IN.")
-        instance.save(update_fields=["unit_qty_in", "unit_qty_out", "product", "description"])
+
+        instance.qty = F("qty_in") - F("qty_out")
+
+        instance.save(update_fields=["unit_qty_in", "unit_qty_out", "qty"])
 
 
 @receiver(post_save, sender=OrderItem, dispatch_uid="update_order_item_on_post_save")
 def order_item_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
-    """Update item_count on Order model each time OrderItem is
-    saved.
-    """
-    pass
-    # if not raw and not update_fields:
-    #     order_items = OrderItem.objects.filter(order=instance.order)
-    #     instance.order.item_count = order_items.count()
-    #     instance.order.save(update_fields=["item_count"])
+    if not raw and not update_fields:
+        # recalculate unit_qty
+        instance.unit_qty = (instance.qty * instance.container.qty) - (
+            instance.unit_qty_received or Decimal(0)
+        )
+        instance.save(update_fields=["unit_qty"])
 
 
 @receiver(post_save, sender=Receive, dispatch_uid="receive_on_post_save")
@@ -83,15 +86,15 @@ def receive_item_on_post_save(sender, instance, raw, created, update_fields, **k
         # add to stock
         for i in range(0, int(instance.qty)):
             Stock.objects.create(
-                receive_item=instance,
+                receive_item_id=instance.id,
                 qty_in=1,
                 qty_out=0,
-                product=instance.order_item.product,
-                container=instance.container,
-                location=instance.receive.location,
+                qty=1,
+                product_id=instance.order_item.product.id,
+                container_id=instance.container.id,
+                location_id=instance.receive.location.id,
                 confirmed=False,
-                label_configuration=instance.receive.label_configuration,
-                lot=instance.lot,
+                lot_id=instance.lot.id,
             )
 
 

@@ -10,9 +10,9 @@ from ...forms import StockForm
 from ...models import RepackRequest, Stock
 from ...utils import format_qty
 from ..actions import (
+    confirm_stock_from_queryset,
     go_to_add_repack_request_action,
     print_labels,
-    transfer_stock_action,
 )
 from ..list_filters import (
     AllocationListFilter,
@@ -37,7 +37,11 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
     show_history_label = True
     autocomplete_fields = ["container"]
 
-    actions = [go_to_add_repack_request_action, print_labels, transfer_stock_action]
+    actions = [
+        print_labels,
+        confirm_stock_from_queryset,
+        go_to_add_repack_request_action,
+    ]
 
     form = StockForm
 

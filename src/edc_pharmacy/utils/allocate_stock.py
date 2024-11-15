@@ -21,6 +21,7 @@ def allocate_stock(
     allocation_model_cls = django_apps.get_model("edc_pharmacy.allocation")
     registered_subject_model_cls = django_apps.get_model("edc_registration.registeredsubject")
     allocated, unallocated = 0, 0
+    stock_objs = []
     for code, subject_identifier in allocation_data.items():
         rs_obj = registered_subject_model_cls.objects.get(
             subject_identifier=subject_identifier
@@ -49,10 +50,14 @@ def allocate_stock(
             ):
                 allocation.delete()
                 raise AllocationError(
-                    f"Assignment mismatch. Got {code} and {rs_obj.subject_identifier}."
+                    "Assignment mismatch. Stock must match subject assignment. "
+                    "Allocation abandoned."
                 )
 
             stock_obj.allocation = allocation
-            stock_obj.save()
+            stock_objs.append(stock_obj)
+    if stock_objs:
+        for obj in stock_objs:
+            obj.save()
             allocated += 1
     return allocated, unallocated

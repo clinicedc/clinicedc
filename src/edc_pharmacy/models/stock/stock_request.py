@@ -32,6 +32,10 @@ class StockRequest(BaseUuidModel):
 
     request_datetime = models.DateTimeField(default=get_utcnow)
 
+    cutoff_datetime = models.DateTimeField(
+        default=None, null=True, blank=True, help_text="May be left blank"
+    )
+
     location = models.ForeignKey(
         Location,
         verbose_name="Requested from",

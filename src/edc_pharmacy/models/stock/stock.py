@@ -11,7 +11,7 @@ from sequences import get_next_value
 
 from ...choices import STOCK_STATUS
 from ...constants import ALLOCATED, AVAILABLE, ZERO_ITEM
-from ...exceptions import AllocationError, AssignmentError, StockError
+from ...exceptions import AllocationError, AssignmentError
 from ...utils import get_random_code
 from .allocation import Allocation
 from .container import Container
@@ -48,7 +48,7 @@ class Stock(BaseUuidModel):
         default=get_utcnow, help_text="date stock record created"
     )
 
-    receive_item = models.OneToOneField(
+    receive_item = models.ForeignKey(
         ReceiveItem, on_delete=models.PROTECT, null=True, blank=False
     )
 
@@ -89,6 +89,14 @@ class Stock(BaseUuidModel):
     container = models.ForeignKey(Container, on_delete=models.PROTECT, null=True, blank=False)
 
     location = models.ForeignKey(Location, on_delete=PROTECT, null=True, blank=False)
+
+    qty = models.DecimalField(
+        null=True,
+        blank=False,
+        decimal_places=2,
+        max_digits=20,
+        default=Decimal(0.0),
+    )
 
     qty_in = models.DecimalField(
         null=True,
@@ -154,9 +162,10 @@ class Stock(BaseUuidModel):
             self.product = self.get_receive_item().order_item.product
         if not self.description:
             self.description = f"{self.product.name} - {self.container.name}"
+        # update qty in signal instead
+        # self.qty = F("qty_in") - F("qty_out")
         self.verify_assignment_or_raise()
         self.verify_assignment_or_raise(self.from_stock)
-        self.update_and_verify_qty_or_raise()
         self.update_status()
         self.update_at_location()
         super().save(*args, **kwargs)
@@ -171,15 +180,6 @@ class Stock(BaseUuidModel):
             self.at_location = False
         elif self.allocation.stock_request_item.stock_request.location == self.location:
             self.at_location = True
-
-    def update_and_verify_qty_or_raise(self):
-        if self.unit_qty_in > 0:
-            if self.unit_qty_in == self.unit_qty_out:
-                self.qty_out = 1
-            else:
-                self.qty_out = 0
-            if self.qty_out > 1 or self.qty_in > 1:
-                raise StockError("QTY OUT, QTY IN can only be 0 or 1.")
 
     def verify_assignment_or_raise(
         self, stock: models.ForeignKey[Stock] | None = None

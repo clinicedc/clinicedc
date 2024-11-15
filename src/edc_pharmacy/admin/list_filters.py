@@ -1,6 +1,6 @@
 from django.contrib.admin import SimpleListFilter
 from django.contrib.sites.shortcuts import get_current_site
-from django.db.models import Count
+from django.db.models import Count, F, Q
 from edc_constants.choices import YES_NO, YES_NO_NA
 from edc_constants.constants import NO, NOT_APPLICABLE, YES
 
@@ -130,4 +130,54 @@ class HasRepackNumFilter(SimpleListFilter):
         if self.value():
             isnull = True if self.value() == NO else False
             qs = queryset.filter(repack_request__isnull=isnull)
+        return qs
+
+
+class TransferredFilter(SimpleListFilter):
+    title = "Transferred"
+    parameter_name = "transferred"
+
+    def lookups(self, request, model_admin):
+        return (YES, YES), (NO, NO)
+
+    def queryset(self, request, queryset):
+        qs = None
+        if self.value():
+            if self.value() == YES:
+                qs = queryset.filter(
+                    stock__location=F("stock_request_item__stock_request__location")
+                )
+            elif self.value() == NO:
+                qs = queryset.exclude(
+                    stock__location=F("stock_request_item__stock_request__location")
+                )
+        return qs
+
+
+class StockRequestItemPendingListFilter(SimpleListFilter):
+    title = "Request Status"
+    parameter_name = "item_status"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("not_allocated", "Not allocated"),
+            ("allocated_only", "Allocated only"),
+            ("transferred", "Transferred"),
+        )
+
+    def queryset(self, request, queryset):
+        qs = None
+        if self.value():
+            if self.value() == "not_allocated":
+                qs = queryset.filter(allocation__isnull=True)
+            elif self.value() == "allocated_only":
+                qs = queryset.filter(
+                    Q(allocation__isnull=False)
+                    & ~Q(allocation__stock__location=F("stock_request__location"))
+                )
+            elif self.value() == "transferred":
+                qs = queryset.filter(
+                    Q(allocation__isnull=False)
+                    & Q(allocation__stock__location=F("stock_request__location"))
+                )
         return qs

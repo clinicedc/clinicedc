@@ -47,7 +47,6 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         "container",
         "formatted_qty",
         "formatted_unit_qty",
-        "received_items_changelist",
         "status",
         "order_changelist",
         "receive_url",
@@ -178,7 +177,7 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
                 url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_add")
                 next_url = "edc_pharmacy_admin:edc_pharmacy_orderitem_changelist"
                 url = (
-                    f"{url}?next={next_url}&q={str(obj.order.id)}&order_item={str(obj.id)}"
+                    f"{url}?next={next_url}&order_item={str(obj.id)}&q={str(obj.order.id)}"
                     f"&receive={str(rcv_obj.id)}&container={str(obj.container.id)}"
                 )
                 context = dict(

@@ -11,9 +11,9 @@ if TYPE_CHECKING:
 
 
 def confirm_stock(
-    obj: RepackRequest | Receive,
+    obj: RepackRequest | Receive | None,
     stock_codes: list[str],
-    fk_attr: str,
+    fk_attr: str | None,
     confirmed_by: str | None = None,
 ) -> tuple[int, int]:
     """Confirm stock instances given a list of stock codes
@@ -26,12 +26,15 @@ def confirm_stock(
     stock_model_cls = django_apps.get_model("edc_pharmacy.stock")
     confirmed, not_confirmed = 0, 0
     stock_codes = [s.strip() for s in stock_codes]
+    opts = {}
+    if obj:
+        opts = {fk_attr: obj.id}
     for stock_code in stock_codes:
         try:
             stock = stock_model_cls.objects.get(
                 code=stock_code,
                 confirmed=False,
-                **{fk_attr: obj.id},
+                **opts,
             )
         except ObjectDoesNotExist:
             not_confirmed += 1

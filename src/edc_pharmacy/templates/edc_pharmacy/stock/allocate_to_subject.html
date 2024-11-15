@@ -24,13 +24,13 @@
                   <input type="text" class="form-control" id="codes" name="codes" placeholder="stock # {{ i }} " value=""  pattern="[A-Z0-9]{6}" required autofocus>
                 </div>
                 {% endfor %}
-                <input type="hidden" class="form-control" id="assignment_id" name="assignment_id"  value="{{ assignment.id }}">
+                <input type="hidden" class="form-control" id="assignment" name="assignment"  value="{{ assignment.id }}">
 
               {% else %}
 
                 <div class="col-sm-5">
-                  <label class="control-label" for="assignment_id">Select assignment</label>
-                  <select class="form-control" id="assignment_id" name="assignment_id" required autofocus >
+                  <label class="control-label" for="assignment">Select assignment</label>
+                  <select class="form-control" id="assignment" name="assignment" required autofocus >
                       <option value="" selected> ----- </option>
                       {% for assignment in assignments %}
                         <option value="{{ assignment.id }}">{{ assignment.name }}</option>

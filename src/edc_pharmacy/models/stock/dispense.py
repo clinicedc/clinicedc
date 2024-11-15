@@ -1,9 +1,9 @@
 from django.db import models
 from edc_model.models import BaseUuidModel, HistoricalRecords
+from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from sequences import get_next_value
 
-from ..proxy_models import RegisteredSubjectProxy
 from .location import Location
 
 
@@ -24,7 +24,7 @@ class Dispense(BaseUuidModel):
     dispense_datetime = models.DateTimeField(default=get_utcnow)
 
     registered_subject = models.ForeignKey(
-        RegisteredSubjectProxy,
+        RegisteredSubject,
         verbose_name="Subject",
         on_delete=models.PROTECT,
         null=True,

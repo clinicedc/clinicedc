@@ -8,8 +8,9 @@ from edc_utils.date import to_local
 from ...admin_site import edc_pharmacy_admin
 from ...forms import StockRequestForm
 from ...models import StockRequest, StockRequestItem
-from ..actions import allocate_stock_to_subject, create_stock_request_items_action
+from ..actions import allocate_stock_to_subject, prepare_stock_request_items_action
 from ..model_admin_mixin import ModelAdminMixin
+from ..utils import stock_request_status_counts
 
 
 @admin.register(StockRequest, site=edc_pharmacy_admin)
@@ -23,7 +24,7 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
     form = StockRequestForm
 
     actions = [
-        create_stock_request_items_action,
+        prepare_stock_request_items_action,
         allocate_stock_to_subject,
     ]
 
@@ -34,6 +35,7 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
                 "fields": (
                     "request_identifier",
                     "request_datetime",
+                    "cutoff_datetime",
                     "location",
                 )
             },
@@ -60,6 +62,7 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
         "formulation",
         "per_subject",
         "container_str",
+        "request_status",
         "stock_request_items",
         "allocation_changelist",
         "stock_changelist",
@@ -68,7 +71,6 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     list_filter = (
         "request_datetime",
-        "status",
         "formulation",
         "container",
         "location",
@@ -102,7 +104,7 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
     def container_str(self, obj):
         return format_html("<BR>".join(str(obj.container).split(" ")))
 
-    @admin.display(description="Request items")
+    @admin.display(description="Requested items")
     def stock_request_items(self, obj):
         count = StockRequestItem.objects.filter(stock_request=obj).count()
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stockrequestitem_changelist")
@@ -132,6 +134,14 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
         url = f"{url}?q={obj.id}"
         context = dict(url=url, label="Stock", title="Go to stock")
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+
+    @admin.display(description="Status")
+    def request_status(self, obj):
+        context = stock_request_status_counts(obj)
+        return render_to_string(
+            "edc_pharmacy/stock/stock_request_status_column.html",
+            context=context,
+        )
 
     @admin.display(description="Request date")
     def request_date(self, obj):

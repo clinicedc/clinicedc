@@ -1,9 +1,4 @@
-from .autocomplete_admin import (
-    LabelSpecificationProxyAdmin,
-    RegisteredSubjectProxyAdmin,
-    SiteProxyAdmin,
-    VisitScheduleAdmin,
-)
+from .autocomplete_admin import SiteProxyAdmin, VisitScheduleAdmin
 from .dispensing_history_admin import DispensingHistoryAdmin
 from .medication import (
     AssignmentAdmin,

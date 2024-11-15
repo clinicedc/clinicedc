@@ -10,12 +10,13 @@ class ReceiveItemForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if not cleaned_data.get("receive"):
-            raise forms.ValidationError({"receive": "This field is required"})
-        if not cleaned_data.get("order_item"):
-            raise forms.ValidationError({"order_item": "This field is required"})
-        if not cleaned_data.get("container"):
-            raise forms.ValidationError({"container": "This field is required"})
+        if not self.instance.id:
+            if not cleaned_data.get("receive"):
+                raise forms.ValidationError({"receive": "This field is required"})
+            if not cleaned_data.get("order_item"):
+                raise forms.ValidationError({"order_item": "This field is required"})
+            if not cleaned_data.get("container"):
+                raise forms.ValidationError({"container": "This field is required"})
 
         if cleaned_data.get("order_item") and cleaned_data.get("lot"):
             if (

@@ -15,6 +15,12 @@ class StockRequestForm(forms.ModelForm):
             raise forms.ValidationError(
                 "Cannot include and exclude subject identifiers in the same request."
             )
+        if (
+            cleaned_data.get("request_datetime")
+            and cleaned_data.get("cutoff_datetime")
+            and cleaned_data.get("cutoff_datetime") < cleaned_data.get("request_datetime")
+        ):
+            raise forms.ValidationError({"cutoff_datetime": "Invalid cutoff date"})
         if cleaned_data.get("subject_identifiers") and cleaned_data.get("location"):
             subject_identifiers = cleaned_data.get("subject_identifiers").split("\n")
             subject_identifiers = [s.strip() for s in subject_identifiers]

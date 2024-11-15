@@ -2,7 +2,8 @@ from .allocation import Allocation
 from .container import Container
 from .container_type import ContainerType
 from .container_units import ContainerUnits
-from .dispense import Dispense
+
+# from .dispense import Dispense
 from .location import Location
 from .lot import Lot
 from .order import Order

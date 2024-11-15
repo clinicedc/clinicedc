@@ -9,7 +9,11 @@ from edc_utils.date import to_local
 from ...admin_site import edc_pharmacy_admin
 from ...forms import StockRequestItemForm
 from ...models import StockRequestItem
-from ..list_filters import AllocationListFilter, AssignmentListFilter
+from ..list_filters import (
+    AllocationListFilter,
+    AssignmentListFilter,
+    StockRequestItemPendingListFilter,
+)
 from ..model_admin_mixin import ModelAdminMixin
 from ..remove_fields_for_blinded_users import remove_fields_for_blinded_users
 
@@ -57,13 +61,15 @@ class StockRequestItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         "location",
         "subject",
         "formulation",
-        "allocation_subject",
+        "transferred",
+        "allocation_changelist",
         "assignment",
     )
 
     list_filter = (
         AllocationListFilter,
         AssignmentListFilter,
+        StockRequestItemPendingListFilter,
         "visit_code",
         ApptDatetimeListFilter,
     )
@@ -91,7 +97,7 @@ class StockRequestItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         fields = remove_fields_for_blinded_users(request, fields)
         return fields
 
-    @admin.display(description="Stock item")
+    @admin.display(description="Product")
     def formulation(self, obj):
         return format_html(f"{obj.stock_request.formulation}<BR>{obj.stock_request.container}")
 
@@ -118,6 +124,10 @@ class StockRequestItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     @admin.display(description="Assignment", ordering="allocation__assignment")
     def assignment(self, obj):
         return obj.allocation.assignment
+
+    @admin.display(description="T", boolean=True)
+    def transferred(self, obj):
+        return obj.allocation.stock.location == obj.stock_request.location
 
     @admin.display(description="Subject", ordering="registered_subject__subject_identifier")
     def subject(self, obj):
@@ -151,6 +161,17 @@ class StockRequestItemAdmin(ModelAdminMixin, admin.ModelAdmin):
             url=url,
             label=f"{obj.stock_request.request_identifier}",
             title="Back to stock request",
+        )
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+
+    @admin.display(description="Allocation #")
+    def allocation_changelist(self, obj):
+        url = reverse("edc_pharmacy_admin:edc_pharmacy_allocation_changelist")
+        url = f"{url}?q={obj.allocation.id}"
+        context = dict(
+            url=url,
+            label=f"{obj.allocation.allocation_identifier}",
+            title="Allocation",
         )
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 

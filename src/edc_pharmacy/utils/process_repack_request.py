@@ -27,6 +27,8 @@ def process_repack_request(
             stock_model_cls.objects.create(
                 receive_item=None,
                 qty_in=1,
+                qty_out=0,
+                qty=1,
                 from_stock=repack_request.from_stock,
                 container=repack_request.container,
                 location=repack_request.from_stock.location,

@@ -8,7 +8,7 @@ from edc_utils.date import to_local
 from ...admin_site import edc_pharmacy_admin
 from ...forms import ReceiveForm, ReceiveItemForm
 from ...models import Receive, ReceiveItem
-from ..actions import confirm_stock_action
+from ..actions import confirm_received_stock_action
 from ..model_admin_mixin import ModelAdminMixin
 
 
@@ -45,7 +45,7 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     form = ReceiveForm
     ordering = ("-receive_identifier",)
-    actions = [confirm_stock_action]
+    actions = [confirm_received_stock_action]
 
     fieldsets = (
         (

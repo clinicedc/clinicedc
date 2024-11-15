@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 from django.db import models
 from edc_constants.constants import NEW
 from edc_model.models import BaseUuidModel, HistoricalRecords
@@ -56,22 +54,19 @@ class OrderItem(BaseUuidModel):
         return f"{self.order_item_identifier}:{self.product.name} | {self.container.name}"
 
     def save(self, *args, **kwargs):
-        if not self.order_item_identifier:
+        if not self.id:
             self.order_item_identifier = f"{get_next_value(self._meta.label_lower):06d}"
+            self.unit_qty = self.qty * self.container.qty
         if not self.order:
             raise OrderItemError("Order may not be null.")
         if not self.product:
             raise OrderItemError("Product may not be null.")
         if not self.container:
             raise OrderItemError("Container may not be null.")
-        if self.container.qty > Decimal(1):
-            self.unit_qty = self.qty * self.container.qty
-        else:
-            self.unit_qty = self.qty
         if not self.container.may_order_as:
             raise InvalidContainer(
                 "Invalid container. Container is not configured for ordering. "
-                f"Got {self.container}"
+                f"Got {self.container}.Perhaps catch this in the form."
             )
         super().save(*args, **kwargs)
 

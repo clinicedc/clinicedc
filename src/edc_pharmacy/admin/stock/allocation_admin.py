@@ -7,7 +7,7 @@ from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
 from ...models import Allocation
-from ..list_filters import AssignmentListFilter
+from ..list_filters import AssignmentListFilter, TransferredFilter
 from ..model_admin_mixin import ModelAdminMixin
 
 
@@ -43,6 +43,7 @@ class AllocationAdmin(ModelAdminMixin, admin.ModelAdmin):
     list_display = (
         "identifier",
         "allocation_date",
+        "transferred",
         "dashboard",
         "stock_changelist",
         "stock_request_changelist",
@@ -51,7 +52,12 @@ class AllocationAdmin(ModelAdminMixin, admin.ModelAdmin):
         "allocated_by",
     )
 
-    list_filter = (AssignmentListFilter, "allocation_datetime", "allocated_by")
+    list_filter = (
+        AssignmentListFilter,
+        "allocation_datetime",
+        TransferredFilter,
+        "allocated_by",
+    )
 
     search_fields = ("id", "stock_request_item__id", "stock_request_item__stock_request__id")
 
@@ -71,6 +77,10 @@ class AllocationAdmin(ModelAdminMixin, admin.ModelAdmin):
     @admin.display(description="Allocation date", ordering="allocation_datetime")
     def allocation_date(self, obj):
         return to_local(obj.allocation_datetime).date()
+
+    @admin.display(description="T", boolean=True)
+    def transferred(self, obj):
+        return obj.stock.location == obj.stock_request_item.stock_request.location
 
     @admin.display(description="Product", ordering="stock__product")
     def stock_product(self, obj):

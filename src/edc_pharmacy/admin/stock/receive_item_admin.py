@@ -53,7 +53,7 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     )
     list_filter = (
         "receive_item_datetime",
-        "stock__confirmed",
+        # "stock__confirmed",
         "lot",
         "created",
         "modified",
@@ -103,7 +103,7 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     def stock_changelist(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
         url = f"{url}?q={obj.id}"
-        label = "Stock\u2713" if obj.stock.confirmed else "Stock"
+        label = "Stock"
         context = dict(url=url, label=label, title="Go to stock")
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 

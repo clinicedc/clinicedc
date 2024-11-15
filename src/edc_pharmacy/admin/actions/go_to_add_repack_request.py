@@ -22,8 +22,8 @@ def go_to_add_repack_request_action(modeladmin, request, queryset):
         obj = queryset.first()
         url = reverse("edc_pharmacy_admin:edc_pharmacy_repackrequest_add")
         url = (
-            f"{url}?next=edc_pharmacy_admin:edc_pharmacy_stock_changelist,q"
-            f"&q={obj.id}&from_stock={obj.id}"
+            f"{url}?next=edc_pharmacy_admin:edc_pharmacy_repackrequest_changelist,q"
+            f"&q={obj.code}&from_stock={obj.id}"
         )
         return HttpResponseRedirect(url)
     return None
