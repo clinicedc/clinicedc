@@ -11,21 +11,24 @@ def get_appointment_df(
     normalize: bool | None = None,
     localize: bool | None = None,
     values: list[str] | None = None,
+    site_id: int | None = None,
 ) -> pd.DataFrame:
     normalize = True if normalize is None else normalize
     localize = True if localize is None else localize
     appointment_model_cls = get_appointment_model_cls()
     appointment_type_model_cls = django_apps.get_model("edc_appointment.appointmenttype")
+    opts = {}
+    if site_id:
+        opts = {"site_id": site_id}
     if values:
         df_appt = read_frame(
-            appointment_model_cls.objects.values(*values).all(), verbose=False
+            appointment_model_cls.objects.values(*values).filter(**opts), verbose=False
         )
     else:
-        df_appt = read_frame(appointment_model_cls.objects.all(), verbose=False)
+        df_appt = read_frame(appointment_model_cls.objects.filter(**opts), verbose=False)
     df_appt = convert_dates_from_model(
         df_appt, appointment_model_cls, normalize=normalize, localize=localize
     )
-
     df_appt = df_appt.rename(
         columns={
             "id": "appointment_id",
