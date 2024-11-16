@@ -29,6 +29,11 @@ class RepackRequestForm(forms.ModelForm):
             > cleaned_data.get("from_stock").container.qty
         ):
             raise forms.ValidationError({"container": "Cannot pack into larger container."})
+        if cleaned_data.get("requested_qty") and self.instance.processed_qty:
+            if cleaned_data.get("requested_qty") < self.instance.processed_qty:
+                raise forms.ValidationError(
+                    {"requested_qty": "Cannot be less than the number of containers processed"}
+                )
         return cleaned_data
 
     class Meta:

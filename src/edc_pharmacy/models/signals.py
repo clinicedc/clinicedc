@@ -1,14 +1,15 @@
 from decimal import Decimal
 
-from django.db.models import F, Sum
+from django.db.models import Sum
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from edc_constants.constants import COMPLETE, PARTIAL
+from edc_utils.celery import run_task_sync_or_async
 
 from ..dispense import Dispensing
-from ..exceptions import InsufficientStockError
 from ..model_mixins import StudyMedicationCrfModelMixin
-from ..utils import process_repack_request, update_previous_refill_end_datetime
+from ..tasks import process_repack_request
+from ..utils import update_previous_refill_end_datetime
 from .dispensing_history import DispensingHistory
 from .stock import (
     OrderItem,
@@ -24,21 +25,17 @@ from .stock import (
 def stock_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
     """Update unit qty"""
     if not raw and not update_fields:
-        instance.unit_qty_in = Decimal(instance.qty_in) * instance.container.qty
-
-        if instance.from_stock:
-            instance.from_stock.unit_qty_out += instance.unit_qty_in
-            if instance.from_stock.unit_qty_out > instance.from_stock.unit_qty_in:
-                raise InsufficientStockError("Unit QTY OUT cannot exceed Unit QTY IN.")
-            instance.from_stock.save(update_fields=["unit_qty_out"])
-
-        instance.unit_qty_out = Decimal(instance.qty_out) * instance.container.qty
-        if instance.unit_qty_out > instance.unit_qty_in:
-            raise InsufficientStockError("Unit QTY OUT cannot exceed Unit QTY IN.")
-
-        instance.qty = F("qty_in") - F("qty_out")
-
-        instance.save(update_fields=["unit_qty_in", "unit_qty_out", "qty"])
+        pass
+        # instance.unit_qty_in = Decimal(instance.qty_in) * instance.container.qty
+        # if instance.from_stock:
+        #     instance.from_stock.unit_qty_out += instance.unit_qty_in
+        #     instance.from_stock.qty = F("qty_in") - F("qty_out")
+        #     if instance.from_stock.unit_qty_out > instance.from_stock.unit_qty_in:
+        #         raise InsufficientStockError("Unit QTY OUT cannot exceed Unit QTY IN.")
+        #     instance.from_stock.save(update_fields=["unit_qty_out"])
+        # instance.qty = F("qty_in") - F("qty_out")
+        #
+        # instance.save(update_fields=["unit_qty_in", "unit_qty_out", "qty"])
 
 
 @receiver(post_save, sender=OrderItem, dispatch_uid="update_order_item_on_post_save")
@@ -114,8 +111,7 @@ def repack_request_on_post_save(
     sender, instance, raw, created, update_fields, **kwargs
 ) -> None:
     if not raw and not update_fields:
-        if not instance.processed:
-            process_repack_request(instance)
+        run_task_sync_or_async(process_repack_request, repack_request_id=str(instance.id))
 
 
 @receiver(post_delete, sender=ReceiveItem, dispatch_uid="receive_item_on_post_delete")

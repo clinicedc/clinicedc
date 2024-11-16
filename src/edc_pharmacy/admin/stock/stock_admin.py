@@ -3,6 +3,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
 from django_audit_fields.admin import audit_fieldset_tuple
+from edc_constants.constants import YES
 
 from ...admin_site import edc_pharmacy_admin
 from ...exceptions import AllocationError, AssignmentError
@@ -20,6 +21,7 @@ from ..list_filters import (
     HasReceiveNumFilter,
     HasRepackNumFilter,
     ProductAssignmentListFilter,
+    TransferredListFilter,
 )
 from ..model_admin_mixin import ModelAdminMixin
 from ..remove_fields_for_blinded_users import remove_fields_for_blinded_users
@@ -91,7 +93,7 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
         "from_stock_changelist",
         "formatted_confirmed",
         "allocated",
-        "formatted_at_location",
+        "transferred",
         "formulation",
         "verified_assignment",
         "qty",
@@ -109,7 +111,7 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
     list_filter = (
         "confirmed",
         AllocationListFilter,
-        "at_location",
+        TransferredListFilter,
         ProductAssignmentListFilter,
         "product__formulation__description",
         "product__assignment__name",
@@ -195,7 +197,11 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
     def qty(self, obj):
         return format_qty(obj.qty_in - obj.qty_out, obj.container)
 
-    @admin.display(description="Units", ordering="qty")
+    @admin.display(description="T", boolean=True)
+    def transferred(self, obj):
+        return True if obj.transferred == YES else False
+
+    @admin.display(description="Units", ordering="unit_qty_out")
     def unit_qty(self, obj):
         return format_qty(obj.unit_qty_in - obj.unit_qty_out, obj.container)
 
@@ -206,10 +212,6 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
     @admin.display(description="C", ordering="confirmed", boolean=True)
     def formatted_confirmed(self, obj):
         return obj.confirmed
-
-    @admin.display(description="T", ordering="at_location", boolean=True)
-    def formatted_at_location(self, obj):
-        return obj.at_location
 
     @admin.display(description="A", ordering="allocation", boolean=True)
     def allocated(self, obj):

@@ -8,6 +8,7 @@ if TYPE_CHECKING:
 
 
 def format_qty(qty: Decimal, container: Container):
+    qty = 0 if qty is None else qty
     if container.qty_decimal_places == 0:
         return str(int(qty))
     elif container.qty_decimal_places == 1:

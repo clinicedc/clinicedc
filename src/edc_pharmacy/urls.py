@@ -3,6 +3,7 @@ from django.urls import path
 from .admin_site import edc_pharmacy_admin
 from .views import (
     AllocateToSubjectView,
+    CeleryTaskStatusView,
     ConfirmStockFromInstanceView,
     ConfirmStockFromQuerySetView,
     HomeView,
@@ -54,6 +55,11 @@ urlpatterns = [
         "print_labels/<str:model>/<uuid:session_uuid>/",
         PrintLabelsView.as_view(),
         name="print_labels_url",
+    ),
+    path(
+        "task_status/<uuid:task_id>/",
+        CeleryTaskStatusView.as_view(),
+        name="celery_task_status_url",
     ),
     path("admin/", edc_pharmacy_admin.urls),
     path("", HomeView.as_view(), name="home_url"),

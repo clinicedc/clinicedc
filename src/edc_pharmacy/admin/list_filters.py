@@ -49,13 +49,50 @@ class AllocationListFilter(SimpleListFilter):
                 from_stock = True
             if self.value() == YES:
                 opts = dict(from_stock__isnull=False) if from_stock else {}
-                qs = queryset.filter(allocation__isnull=False, **opts)
+                qs = queryset.filter(
+                    allocation__isnull=False,
+                    container__may_request_as=True,
+                    **opts,
+                )
             elif self.value() == NO:
                 opts = dict(from_stock__isnull=False) if from_stock else {}
-                qs = queryset.filter(allocation__isnull=True, **opts)
+                qs = queryset.filter(
+                    allocation__isnull=True,
+                    container__may_request_as=True,
+                    **opts,
+                )
             elif self.value() == NOT_APPLICABLE:
                 opts = dict(from_stock__isnull=True) if from_stock else {}
-                qs = queryset.filter(allocation__isnull=True, **opts)
+                qs = queryset.filter(
+                    allocation__isnull=True,
+                    container__may_request_as=False,
+                    **opts,
+                )
+        return qs
+
+
+class TransferredListFilter(SimpleListFilter):
+    title = "Transferred"
+    parameter_name = "transferred"
+
+    def lookups(self, request, model_admin):
+        return YES_NO_NA
+
+    def queryset(self, request, queryset):
+        qs = None
+        if self.value():
+            if self.value() == YES:
+                qs = queryset.filter(
+                    container__may_request_as=True,
+                    allocation__stock_request_item__stock_request__location=F("location"),
+                )
+            elif self.value() == NO:
+                qs = queryset.filter(
+                    ~Q(allocation__stock_request_item__stock_request__location=F("location")),
+                    container__may_request_as=True,
+                )
+            elif self.value() == NOT_APPLICABLE:
+                qs = queryset.filter(allocation__isnull=True, container__may_request_as=False)
         return qs
 
 

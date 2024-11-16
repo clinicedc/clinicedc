@@ -1,51 +1,69 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from uuid import UUID
 
-from django.contrib import messages
-from django.core.handlers.wsgi import WSGIRequest
+from celery.result import AsyncResult
+from django.apps import apps as django_apps
+from django.db import transaction
 
-from edc_pharmacy.exceptions import RepackError
-
-if TYPE_CHECKING:
-    from ..models import RepackRequest
+from ..exceptions import InsufficientStockError, RepackError
 
 
-def process_repack_request(
-    repack_request: RepackRequest | None = None, request: WSGIRequest | None = None
-) -> RepackRequest:
+def process_repack_request(repack_request_id: UUID | None = None) -> None:
     """Take from stock and fill container as new stock item.
 
     Do not change location here.
     """
-
-    if repack_request.from_stock and not repack_request.processed:
+    repack_request_model_cls = django_apps.get_model("edc_pharmacy.repackrequest")
+    stock_model_cls = django_apps.get_model("edc_pharmacy.stock")
+    repack_request = repack_request_model_cls.objects.get(id=repack_request_id)
+    repack_request.task_id = None
+    try:
+        celery_status = AsyncResult(task_id=repack_request.task_id).state
+    except TypeError:
+        celery_status = None
+    if not celery_status:
+        pass
+    else:
+        repack_request.processed_qty = repack_request.processed_qty = (
+            stock_model_cls.objects.filter(repack_request=repack_request).count()
+        )
+        repack_request.requested_qty = (
+            repack_request.processed_qty
+            if not repack_request.requested_qty
+            else repack_request.requested_qty
+        )
+        count = 0
+        number_to_process = repack_request.requested_qty - repack_request.processed_qty
         if not repack_request.from_stock.confirmed:
-            raise RepackError("Stock not confirmed")
-        stock_model_cls = repack_request.from_stock.__class__
-        for index in range(0, int(repack_request.qty)):
-            stock_model_cls.objects.create(
-                receive_item=None,
-                qty_in=1,
-                qty_out=0,
-                qty=1,
-                from_stock=repack_request.from_stock,
-                container=repack_request.container,
-                location=repack_request.from_stock.location,
-                repack_request=repack_request,
-                confirmed=False,
-                lot=repack_request.from_stock.lot,
-            )
-        repack_request.processed = True
-        repack_request.save()
-        if request:
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                (
-                    "Repack request submitted. Next, print labels and label the stock. "
-                    "Once all stock is labelled, go back to Repack and scan in the "
-                    "labels to confirm the stock"
-                ),
-            )
-    return repack_request
+            raise RepackError("Source stock item not confirmed")
+        else:
+            stock_model_cls = repack_request.from_stock.__class__
+            for index in range(0, int(number_to_process)):
+                try:
+                    with transaction.atomic():
+                        stock_model_cls.objects.create(
+                            receive_item=None,
+                            qty_in=1,
+                            qty_out=0,
+                            qty=1,
+                            from_stock=repack_request.from_stock,
+                            container=repack_request.container,
+                            location=repack_request.from_stock.location,
+                            repack_request=repack_request,
+                            confirmed=False,
+                            lot=repack_request.from_stock.lot,
+                        )
+                except InsufficientStockError:
+                    break
+                else:
+                    count += repack_request.container.qty
+                    if (
+                        repack_request.container.qty
+                        > repack_request.from_stock.container.qty - count
+                    ):
+                        break
+
+        if number_to_process > 0:
+            repack_request.processed_qty += count
+        repack_request.save(update_fields=["requested_qty", "processed_qty", "task_id"])

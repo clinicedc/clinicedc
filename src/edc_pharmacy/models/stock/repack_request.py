@@ -1,3 +1,6 @@
+from decimal import Decimal
+
+from django.core.validators import MinValueValidator
 from django.db import models
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_utils import get_utcnow
@@ -48,13 +51,26 @@ class RepackRequest(BaseUuidModel):
         limit_choices_to={"may_repack_as": True},
     )
 
-    qty = models.DecimalField(
-        verbose_name="Quantity", null=True, blank=False, decimal_places=2, max_digits=20
+    requested_qty = models.DecimalField(
+        verbose_name="Containers requested",
+        null=True,
+        blank=False,
+        decimal_places=2,
+        max_digits=20,
+        validators=[MinValueValidator(Decimal("0.0"))],
     )
 
-    processed = models.BooleanField(default=False)
+    processed_qty = models.DecimalField(
+        verbose_name="Containers processed",
+        null=True,
+        blank=False,
+        decimal_places=2,
+        max_digits=20,
+    )
 
     stock_count = models.IntegerField(null=True, blank=True)
+
+    task_id = models.UUIDField(null=True)
 
     objects = Manager()
 
@@ -73,6 +89,7 @@ class RepackRequest(BaseUuidModel):
                 "Unconfirmed stock item. Only confirmed stock items may "
                 "be used to repack. Perhaps catch this in the form"
             )
+        self.processed_qty = Decimal(0) if self.processed_qty is None else self.processed_qty
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):

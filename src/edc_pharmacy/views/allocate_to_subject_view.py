@@ -126,8 +126,8 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                 messages.ERROR,
                 f"Stock already allocated. Got {','.join(assigned_codes)}.",
             )
-            return False
-        return True
+            return True
+        return False
 
     def post(self, request, *args, **kwargs):
         stock_codes = request.POST.getlist("codes") if request.POST.get("codes") else None
@@ -137,7 +137,9 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
         stock_request = StockRequest.objects.get(id=kwargs.get("stock_request"))
         if self.validate_containers(stock_codes, stock_request):
             assignment = self.get_assignment(assignment_id)
-            subject_identifiers = [] if self.stock_already_allocated() else subject_identifiers
+            subject_identifiers = (
+                [] if self.stock_already_allocated(stock_codes) else subject_identifiers
+            )
             if subject_identifiers and assignment:
                 allocation_data = dict(zip(stock_codes, subject_identifiers))
                 try:
