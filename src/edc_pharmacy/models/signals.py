@@ -1,23 +1,27 @@
 from decimal import Decimal
 
+from celery.states import PENDING
 from django.db.models import Sum
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from edc_constants.constants import COMPLETE, PARTIAL
-from edc_utils.celery import run_task_sync_or_async
+from edc_utils.celery import get_task_result, run_task_sync_or_async
 
 from ..dispense import Dispensing
+from ..exceptions import InsufficientStockError
 from ..model_mixins import StudyMedicationCrfModelMixin
 from ..tasks import process_repack_request
 from ..utils import update_previous_refill_end_datetime
 from .dispensing_history import DispensingHistory
 from .stock import (
+    DispenseItem,
     OrderItem,
     Receive,
     ReceiveItem,
     RepackRequest,
     Stock,
     StockRequestItem,
+    StockTransferConfirmation,
 )
 
 
@@ -25,17 +29,16 @@ from .stock import (
 def stock_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
     """Update unit qty"""
     if not raw and not update_fields:
-        pass
-        # instance.unit_qty_in = Decimal(instance.qty_in) * instance.container.qty
-        # if instance.from_stock:
-        #     instance.from_stock.unit_qty_out += instance.unit_qty_in
-        #     instance.from_stock.qty = F("qty_in") - F("qty_out")
-        #     if instance.from_stock.unit_qty_out > instance.from_stock.unit_qty_in:
-        #         raise InsufficientStockError("Unit QTY OUT cannot exceed Unit QTY IN.")
-        #     instance.from_stock.save(update_fields=["unit_qty_out"])
-        # instance.qty = F("qty_in") - F("qty_out")
-        #
-        # instance.save(update_fields=["unit_qty_in", "unit_qty_out", "qty"])
+        instance.unit_qty_in = Decimal(instance.qty_in) * Decimal(instance.container.qty)
+        instance.unit_qty_out = Decimal(
+            sender.objects.filter(from_stock=instance).count()
+        ) * Decimal(instance.container.qty)
+        if instance.from_stock.unit_qty_out > instance.from_stock.unit_qty_in:
+            raise InsufficientStockError("Unit QTY OUT cannot exceed Unit QTY IN.")
+        elif instance.from_stock.unit_qty_out == instance.from_stock.unit_qty_in:
+            instance.qty_out = 1
+            instance.qty = 0
+        instance.save(update_fields=["unit_qty_in", "unit_qty_out", "qty"])
 
 
 @receiver(post_save, sender=OrderItem, dispatch_uid="update_order_item_on_post_save")
@@ -111,7 +114,43 @@ def repack_request_on_post_save(
     sender, instance, raw, created, update_fields, **kwargs
 ) -> None:
     if not raw and not update_fields:
-        run_task_sync_or_async(process_repack_request, repack_request_id=str(instance.id))
+        result = get_task_result(instance)
+        if getattr(result, "state", "") == PENDING:
+            pass
+        else:
+            task = run_task_sync_or_async(
+                process_repack_request, repack_request_id=str(instance.id)
+            )
+            instance.task_id = getattr(task, "id", None)
+            instance.save(update_fields=["task_id"])
+
+
+@receiver(
+    post_save,
+    sender=StockTransferConfirmation,
+    dispatch_uid="stock_transfer_confirmation_on_post_save",
+)
+def stock_transfer_confirmation_on_post_save(
+    sender, instance, raw, created, update_fields, **kwargs
+) -> None:
+    if not raw and not update_fields:
+        instance.stock.confirmed_at_site = True
+        instance.stock.save(update_fields=["confirmed_at_site"])
+
+
+@receiver(
+    post_save,
+    sender=DispenseItem,
+    dispatch_uid="dispense_item_on_post_save",
+)
+def dispense_item_on_post_save(
+    sender, instance, raw, created, update_fields, **kwargs
+) -> None:
+    if not raw and not update_fields:
+        instance.stock.dispensed = True
+        instance.stock.qty_out = 1
+        instance.stock.unit_qty_out = instance.stock.container.qty * 1
+        instance.stock.save(update_fields=["qty_out", "unit_qty_out", "dispensed"])
 
 
 @receiver(post_delete, sender=ReceiveItem, dispatch_uid="receive_item_on_post_delete")
@@ -125,6 +164,28 @@ def receive_item_on_post_delete(sender, instance, using, **kwargs) -> None:
 @receiver(post_delete, sender=Stock, dispatch_uid="stock_on_post_delete")
 def stock_on_post_delete(sender, instance, using, **kwargs) -> None:
     pass
+
+
+@receiver(
+    post_delete,
+    sender=StockTransferConfirmation,
+    dispatch_uid="stock_transfer_confirmation_post_delete",
+)
+def stock_transfer_confirmation_post_delete(sender, instance, using, **kwargs) -> None:
+    instance.stock.confirmed_at_site = False
+    instance.stock.save(update_fields=["confirmed_at_site"])
+
+
+@receiver(
+    post_delete,
+    sender=DispenseItem,
+    dispatch_uid="dispense_item_on_post_delete",
+)
+def dispense_item_on_post_delete(sender, instance, using, **kwargs) -> None:
+    instance.stock.dispensed = False
+    instance.stock.qty_out = 0
+    instance.stock.unit_qty_out = 0
+    instance.stock.save(update_fields=["qty_out", "unit_qty_out", "dispensed"])
 
 
 @receiver(post_save, sender=DispensingHistory, dispatch_uid="dispensing_history_on_post_save")

@@ -1,9 +1,11 @@
 from typing import TYPE_CHECKING
 
+from celery.states import PENDING
 from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.translation import gettext
+from edc_utils.celery import get_task_result
 
 if TYPE_CHECKING:
 
@@ -26,8 +28,19 @@ def prepare_stock_request_items_action(modeladmin, request, queryset):
         )
     else:
         stock_request: StockRequest = queryset.first()
-        url = reverse(
-            "edc_pharmacy:review_stock_request_url",
-            kwargs={"stock_request": stock_request.pk},
-        )
-        return HttpResponseRedirect(url)
+        if getattr(get_task_result(stock_request), "status", "") == PENDING:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                (
+                    f"Stock request {stock_request.request_identifier} is still processing. "
+                    "Please click cancel and check the status column."
+                ),
+            )
+        else:
+            url = reverse(
+                "edc_pharmacy:review_stock_request_url",
+                kwargs={"stock_request": stock_request.pk},
+            )
+            return HttpResponseRedirect(url)
+    return None

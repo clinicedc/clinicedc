@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from celery import current_app
 from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.html import format_html
-from edc_utils.celery import run_task_sync_or_async
+from edc_utils.celery import celery_is_active, run_task_sync_or_async
 
 from ...tasks.process_repack_request import process_repack_request_queryset
 
@@ -23,8 +22,7 @@ def process_repack_request_action(modeladmin, request, queryset):
     repack_request_pks = [obj.pk for obj in queryset]
 
     # if celery is not running, just keep the first pk
-    i = current_app.control.inspect()
-    if not i.active():
+    if not celery_is_active():
         repack_request_pks = repack_request_pks[:1]
 
     # run task / func and update or clear the task_id

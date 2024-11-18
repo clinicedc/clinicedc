@@ -1,3 +1,5 @@
+from celery.result import AsyncResult
+from celery.states import SUCCESS
 from django.contrib import admin, messages
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -7,7 +9,7 @@ from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import StockRequestForm
-from ...models import StockRequest, StockRequestItem
+from ...models import StockRequest
 from ..actions import allocate_stock_to_subject, prepare_stock_request_items_action
 from ..model_admin_mixin import ModelAdminMixin
 from ..utils import stock_request_status_counts
@@ -59,14 +61,13 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
         "stock_request_id",
         "request_date",
         "requested_from",
-        "formulation",
-        "per_subject",
-        "container_str",
+        "product_column",
         "request_status",
         "stock_request_items",
         "allocation_changelist",
         "stock_changelist",
         "status",
+        "task_status",
     )
 
     list_filter = (
@@ -104,14 +105,29 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
     def container_str(self, obj):
         return format_html("<BR>".join(str(obj.container).split(" ")))
 
+    @admin.display(description="Task")
+    def task_status(self, obj):
+        if obj.task_id:
+            result = AsyncResult(str(obj.task_id))
+            return getattr(result, "status", None)
+        return None
+
+    @admin.display(description="Product")
+    def product_column(self, obj):
+        context = dict(
+            formulation=obj.formulation,
+            containers_per_subject=obj.containers_per_subject,
+            container=obj.container,
+        )
+        return render_to_string(
+            "edc_pharmacy/stock/stock_request_product_column.html", context=context
+        )
+
     @admin.display(description="Requested items")
     def stock_request_items(self, obj):
-        count = StockRequestItem.objects.filter(stock_request=obj).count()
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stockrequestitem_changelist")
         url = f"{url}?q={obj.request_identifier}"
-        context = dict(
-            url=url, label=f"Request items ({count})", title="Go to stock request items"
-        )
+        context = dict(url=url, label="Request items", title="Go to stock request items")
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(
@@ -138,6 +154,7 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
     @admin.display(description="Status")
     def request_status(self, obj):
         context = stock_request_status_counts(obj)
+        context.update(task_status=self.task_status(obj), success=SUCCESS)
         return render_to_string(
             "edc_pharmacy/stock/stock_request_status_column.html",
             context=context,

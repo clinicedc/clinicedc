@@ -13,6 +13,8 @@ class Container(BaseUuidModel):
 
     name = models.CharField(max_length=50, unique=True, blank=True)
 
+    display_name = models.CharField(max_length=100, unique=True, null=True, blank=True)
+
     container_type = models.ForeignKey(ContainerType, on_delete=models.PROTECT, null=True)
 
     units = models.ForeignKey(ContainerUnits, on_delete=models.PROTECT, null=True)
@@ -20,6 +22,10 @@ class Container(BaseUuidModel):
     qty = models.DecimalField(max_digits=10, decimal_places=2, null=True)
 
     qty_decimal_places = models.IntegerField(default=0)
+
+    max_per_subject = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True
+    )
 
     may_order_as = models.BooleanField(
         verbose_name="Container may be used for ordering", default=False
@@ -46,11 +52,12 @@ class Container(BaseUuidModel):
     history = HistoricalRecords()
 
     def __str__(self):
-        return self.name
+        return self.display_name or self.name
 
     def save(self, *args, **kwargs):
         if not self.name:
             self.name = self.container_type.name
+            self.display_name = self.display_name or self.name
             if self.qty > 1.0:
                 self.name = f"{self.name} of {self.qty}"
         if self.may_request_as or self.may_repack_as:

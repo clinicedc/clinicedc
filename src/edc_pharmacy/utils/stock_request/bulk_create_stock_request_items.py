@@ -3,20 +3,26 @@ from __future__ import annotations
 from datetime import timezone
 from typing import TYPE_CHECKING
 
+import pandas as pd
+from celery import shared_task
 from django.apps import apps as django_apps
 from edc_utils import get_utcnow
 from sequences import get_next_value
 
 if TYPE_CHECKING:
-    import pandas as pd
-
-    from ...models import StockRequest
+    from uuid import UUID
 
 
-def bulk_create_stock_request_items(stock_request: StockRequest, df: pd.DataFrame) -> int:
+@shared_task
+def bulk_create_stock_request_items(stock_request_pk: UUID, df_as_dict: dict) -> None:
+    stock_request_model_cls = django_apps.get_model("edc_pharmacy.StockRequest")
     stock_request_item_model_cls = django_apps.get_model("edc_pharmacy.StockRequestItem")
     registered_subject_model_cls = django_apps.get_model("edc_registration.registeredsubject")
     rx_model_cls = django_apps.get_model("edc_pharmacy.rx")
+
+    stock_request = stock_request_model_cls.objects.get(pk=stock_request_pk)
+    df = pd.DataFrame(df_as_dict)
+
     now = get_utcnow()
     data = []
     for i, row in df[df.stock_qty == 0].iterrows():
@@ -42,4 +48,6 @@ def bulk_create_stock_request_items(stock_request: StockRequest, df: pd.DataFram
             created=now,
         )
         data.append(obj)
-    return len(stock_request_item_model_cls.objects.bulk_create(data))
+    if data:
+        stock_request_item_model_cls.objects.bulk_create(data)
+    return None

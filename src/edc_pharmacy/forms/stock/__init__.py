@@ -1,6 +1,7 @@
 from .container_form import ContainerForm
 from .container_type_form import ContainerTypeForm
 from .container_units_form import ContainerUnitsForm
+from .dispense_form import DispenseForm
 from .location_form import LocationForm
 from .lot_form import LotForm
 from .order_form import OrderForm

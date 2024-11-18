@@ -4,7 +4,7 @@ from decimal import Decimal
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import PROTECT, F
+from django.db.models import PROTECT
 from edc_constants.constants import NO, NOT_APPLICABLE, YES
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_utils import get_utcnow
@@ -12,7 +12,7 @@ from sequences import get_next_value
 
 from ...choices import STOCK_STATUS
 from ...constants import ALLOCATED, AVAILABLE, ZERO_ITEM
-from ...exceptions import AllocationError, AssignmentError, InsufficientStockError
+from ...exceptions import AllocationError, AssignmentError
 from ...utils import get_random_code
 from .allocation import Allocation
 from .container import Container
@@ -141,9 +141,11 @@ class Stock(BaseUuidModel):
         ),
     )
     confirmed_datetime = models.DateTimeField(null=True, blank=True)
-    confirmed_by = models.CharField(
-        max_length=150, null=True, blank=True, help_text="label_lower"
-    )
+    confirmed_by = models.CharField(max_length=150, null=True, blank=True)
+
+    confirmed_at_site = models.BooleanField(default=False)
+
+    dispensed = models.BooleanField(default=False)
 
     allocated_datetime = models.DateTimeField(null=True, blank=True)
     subject_identifier = models.CharField(max_length=50, null=True, blank=True)
@@ -163,24 +165,11 @@ class Stock(BaseUuidModel):
             self.product = self.get_receive_item().order_item.product
         if not self.description:
             self.description = f"{self.product.name} - {self.container.name}"
-        # update qty in signal instead
-        # self.qty = F("qty_in") - F("qty_out")
         self.verify_assignment_or_raise()
         self.verify_assignment_or_raise(self.from_stock)
         self.update_status()
-        # self.update_transferred_status()
-        self.update_qty()
+        self.unit_qty_in = Decimal(self.qty_in) * Decimal(self.container.qty)
         super().save(*args, **kwargs)
-
-    def update_qty(self):
-        self.unit_qty_in = Decimal(self.qty_in) * self.container.qty
-        if self.from_stock:
-            self.from_stock.unit_qty_out += self.unit_qty_in
-            self.from_stock.qty = F("qty_in") - F("qty_out")
-            if self.from_stock.unit_qty_out > self.from_stock.unit_qty_in:
-                raise InsufficientStockError("Unit QTY OUT cannot exceed Unit QTY IN.")
-            self.from_stock.save(update_fields=["unit_qty_out"])
-        self.qty = self.qty_in - self.qty_out
 
     @property
     def transferred(self) -> str:
@@ -198,17 +187,6 @@ class Stock(BaseUuidModel):
         ):
             transferred = NO
         return transferred
-
-    # def update_transferred_status(self):
-    #     """An item is at location if it has not been allocated or
-    #     if the stock request location == the stock location.
-    #     """
-    #     if not self.allocation:
-    #         self.transferred = False
-    #     elif self.allocation.stock_request_item.stock_request.location != self.location:
-    #         self.transferred = False
-    #     elif self.allocation.stock_request_item.stock_request.location == self.location:
-    #         self.transferred = True
 
     def verify_assignment_or_raise(
         self, stock: models.ForeignKey[Stock] | None = None

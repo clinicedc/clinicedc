@@ -1,9 +1,9 @@
 from django.db import models
 from edc_model.models import BaseUuidModel, HistoricalRecords
-from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from sequences import get_next_value
 
+from ..prescription import Rx
 from .location import Location
 
 
@@ -23,13 +23,9 @@ class Dispense(BaseUuidModel):
 
     dispense_datetime = models.DateTimeField(default=get_utcnow)
 
-    registered_subject = models.ForeignKey(
-        RegisteredSubject,
-        verbose_name="Subject",
-        on_delete=models.PROTECT,
-        null=True,
-        blank=False,
-    )
+    dispensed_by = models.CharField(max_length=100, null=True, blank=True)
+
+    rx = models.ForeignKey(Rx, on_delete=models.PROTECT, null=True, blank=False)
 
     location = models.ForeignKey(Location, on_delete=models.PROTECT, null=True, blank=False)
 

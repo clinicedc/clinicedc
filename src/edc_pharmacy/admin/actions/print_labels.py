@@ -1,7 +1,6 @@
 from uuid import uuid4
 
 from django.contrib import admin, messages
-from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.translation import gettext
@@ -11,7 +10,7 @@ from edc_pharmacy.models import Stock
 
 @admin.action(description="Print labels")
 def print_labels(modeladmin, request, queryset):
-    selected = request.POST.getlist(ACTION_CHECKBOX_NAME)
+    selected = [str(obj.pk) for obj in queryset]
     if len(selected) > 0:
         session_uuid = str(uuid4())
         request.session[session_uuid] = selected

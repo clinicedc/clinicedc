@@ -29,6 +29,8 @@ class PrintLabelsView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Templ
     navbar_selected_item = "pharmacy"
 
     def get_context_data(self, **kwargs):
+        session_uuid = str(kwargs.get("session_uuid"))
+        stock_pks = self.request.session.get(session_uuid, [])
         try:
             _, querystring = self.request.META.get("HTTP_REFERER").split("?")
         except ValueError:
@@ -38,6 +40,7 @@ class PrintLabelsView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Templ
             source_model_name=Stock._meta.verbose_name,
             label_configurations=LabelConfiguration.objects.all().order_by("name"),
             q=querystring,
+            max_to_print=len(stock_pks),
         )
         return super().get_context_data(**kwargs)
 
@@ -56,7 +59,12 @@ class PrintLabelsView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Templ
         stock_pks = request.session.get(session_uuid, [])
         url = self.source_changelist_url
         if stock_pks:
-            queryset: QuerySet[Stock] = self.model_cls.objects.filter(pk__in=stock_pks)
+            queryset: QuerySet[Stock] = self.model_cls.objects.filter(
+                pk__in=stock_pks
+            ).order_by("code")
+            max_to_print = int(self.request.POST.get("max_to_print"), 0)
+            if 0 < max_to_print < len(stock_pks):
+                queryset = queryset[0:max_to_print]
             del request.session[session_uuid]
             label_configuration: LabelConfiguration = LabelConfiguration.objects.get(
                 pk=request.POST.get("label_configuration")

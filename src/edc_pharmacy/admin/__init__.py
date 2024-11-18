@@ -16,6 +16,8 @@ from .stock import (
     AllocationAdmin,
     ContainerAdmin,
     ContainerTypeAdmin,
+    DispenseAdmin,
+    DispenseItemAdmin,
     LocationAdmin,
     LotAdmin,
     OrderAdmin,

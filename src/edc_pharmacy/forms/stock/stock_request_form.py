@@ -43,6 +43,21 @@ class StockRequestForm(forms.ModelForm):
                 raise forms.ValidationError(
                     {"excluded_subject_identifiers": "Not all subject identifiers are valid."}
                 )
+
+        if (
+            cleaned_data.get("container")
+            and cleaned_data.get("containers_per_subject")
+            and cleaned_data.get("containers_per_subject")
+            > cleaned_data.get("container").max_per_subject
+        ):
+            raise forms.ValidationError(
+                {
+                    "containers_per_subject": (
+                        f"May not exceed {cleaned_data.get('container').max_per_subject}"
+                    )
+                }
+            )
+
         return cleaned_data
 
     class Meta:

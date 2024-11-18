@@ -9,6 +9,7 @@ from .stock import (
     ContainerForm,
     ContainerTypeForm,
     ContainerUnitsForm,
+    DispenseForm,
     LocationForm,
     LotForm,
     OrderForm,

@@ -15,6 +15,8 @@ from .proxy_models import SiteProxy, VisitSchedule
 from .return_history import ReturnError, ReturnHistory
 from .signals import (
     create_or_update_refills_on_post_save,
+    dispense_item_on_post_delete,
+    dispense_item_on_post_save,
     dispensing_history_on_post_save,
     order_item_on_post_save,
     receive_item_on_post_delete,
@@ -24,12 +26,16 @@ from .signals import (
     stock_on_post_delete,
     stock_on_post_save,
     stock_request_item_on_post_save,
+    stock_transfer_confirmation_on_post_save,
+    stock_transfer_confirmation_post_delete,
 )
 from .stock import (
     Allocation,
     Container,
     ContainerType,
     ContainerUnits,
+    Dispense,
+    DispenseItem,
     Location,
     Lot,
     Order,
@@ -42,6 +48,7 @@ from .stock import (
     StockRequest,
     StockRequestItem,
     StockTransfer,
+    StockTransferConfirmation,
     StockTransferItem,
     Supplier,
 )

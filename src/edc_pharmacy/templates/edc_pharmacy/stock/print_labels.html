@@ -23,6 +23,8 @@
                       <option value="{{ label_configuration.id }}">{{ label_configuration.name }}</option>
                     {% endfor %}
                 </select>
+                <label class="control-label" for="max_to_print">Maximum number of labels to print</label>
+                <input type="text" class="form-control" id="max_to_print" name="max_to_print" placeholder="maximum number to print" value="{{ max_to_print }}"  pattern="[0-9]{1,4}">
               </div>
             </div>
             <button type="submit" class="btn btn-default" name="submit" id="submit">Print</button>

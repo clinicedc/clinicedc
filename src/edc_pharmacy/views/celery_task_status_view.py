@@ -7,9 +7,12 @@ class CeleryTaskStatusView(View):
 
     def get(self, request, *args, **kwargs):
         task_id = request.GET.get("task_id")
-        if task_id:
-            result = AsyncResult(task_id)
+        try:
+            result = AsyncResult(str(task_id or ""))
+        except (TypeError, ValueError):
+            result = None
+        if getattr(result, "id", None):
             return JsonResponse(
-                {"task_id": task_id, "status": result.status, "result": result.result}
+                {"task_id": result.id, "status": result.status, "result": result.result}
             )
         return JsonResponse({"error": "No task_id provided"}, status=400)

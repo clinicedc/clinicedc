@@ -47,7 +47,7 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     form = StockForm
 
-    ordering = ("stock_identifier",)
+    ordering = ("code",)
 
     fieldsets = (
         (
@@ -56,7 +56,6 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
                 "fields": (
                     "stock_identifier",
                     "code",
-                    "confirmed",
                     "location",
                 )
             },
@@ -80,8 +79,17 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
                     "receive_item",
                     "repack_request",
                     "from_stock",
-                    "confirmed_by",
+                )
+            },
+        ),
+        (
+            "Confirmed",
+            {
+                "fields": (
+                    "confirmed",
                     "confirmed_datetime",
+                    "confirmed_by",
+                    "confirmed_at_site",
                 )
             },
         ),
@@ -94,6 +102,8 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
         "formatted_confirmed",
         "allocated",
         "transferred",
+        "formatted_confirmed_at_site",
+        "formatted_dispensed",
         "formulation",
         "verified_assignment",
         "qty",
@@ -112,6 +122,7 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
         "confirmed",
         AllocationListFilter,
         TransferredListFilter,
+        "confirmed_at_site",
         ProductAssignmentListFilter,
         "product__formulation__description",
         "product__assignment__name",
@@ -221,14 +232,13 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
             return False
         return None
 
-    @admin.display(description="T", boolean=True)
-    def in_transit(self, obj):
-        if not obj.allocation:
-            return None
-        elif obj.allocation.stock_request_item.stock_request.location != obj.location:
-            return False
-        elif obj.allocation.stock_request_item.stock_request.location == obj.location:
-            return True
+    @admin.display(description="S", ordering="confirmed_at_site", boolean=True)
+    def formatted_confirmed_at_site(self, obj):
+        return obj.confirmed_at_site
+
+    @admin.display(description="D", ordering="confirmed_at_site", boolean=True)
+    def formatted_dispensed(self, obj):
+        return obj.dispensed
 
     @admin.display(description="Container", ordering="container_name")
     def container_str(self, obj):
@@ -244,7 +254,7 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
             return obj.product.assignment
         return None
 
-    @admin.display(description="From stock #")
+    @admin.display(description="From stock #", ordering="from_stock__code")
     def from_stock_changelist(self, obj):
         if obj.from_stock:
             url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")

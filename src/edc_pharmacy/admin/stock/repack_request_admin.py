@@ -1,12 +1,12 @@
 from decimal import Decimal
 
-from celery.result import AsyncResult
-from celery.states import SUCCESS
+from celery.states import PENDING
 from django.contrib import admin
 from django.contrib.admin.widgets import AutocompleteSelect
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django_audit_fields import audit_fieldset_tuple
+from edc_utils.celery import get_task_result
 from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
@@ -54,6 +54,10 @@ class RequestRepackAdmin(ModelAdminMixin, admin.ModelAdmin):
                     "processed_qty",
                 )
             },
+        ),
+        (
+            "Task",
+            {"classes": ("collapse",), "fields": ("task_id",)},
         ),
         audit_fieldset_tuple,
     )
@@ -106,17 +110,15 @@ class RequestRepackAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     @admin.display(description="Processed", ordering="processed_qty")
     def formatted_processed_qty(self, obj):
-        result = AsyncResult(str(obj.task_id)) if obj.task_id else None
-        if result and result.status != SUCCESS:
-            return None
+        result = get_task_result(obj)
+        if getattr(result, "status", "") == PENDING:
+            return PENDING
         return format_qty(obj.processed_qty, obj.container)
 
     @admin.display(description="Task")
     def task_status(self, obj):
-        if obj.task_id:
-            result = AsyncResult(str(obj.task_id))
-            return getattr(result, "status", None)
-        return None
+        result = get_task_result(obj)
+        return getattr(result, "status", None)
 
     def get_readonly_fields(self, request, obj=None):
         if obj and (obj.processed_qty or Decimal(0)) > Decimal(0):

@@ -102,6 +102,8 @@ class StockRequest(BaseUuidModel):
         default=OPEN,
     )
 
+    task_id = models.UUIDField(null=True)
+
     objects = Manager()
 
     history = HistoricalRecords()

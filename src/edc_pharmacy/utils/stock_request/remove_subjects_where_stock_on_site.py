@@ -28,6 +28,10 @@ def remove_subjects_where_stock_on_site(stock_request: StockRequest, df: pd.Data
             "count": "stock_qty",
         }
     )
-    df = df.merge(df_stock, on="subject_identifier", how="left")
-    df["stock_qty"] = df["stock_qty"].fillna(0)
+    if not df.empty and not df_stock.empty:
+        df = df.merge(df_stock, on="subject_identifier", how="left")
+    else:
+        df["code"] = None
+    df["stock_qty"] = 0.0
+    df = df.reset_index(drop=True)
     return df

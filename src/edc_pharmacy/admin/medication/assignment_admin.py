@@ -25,19 +25,19 @@ class AssignmentAdmin(ModelAdminMixin, admin.ModelAdmin):
     fieldsets = (
         (
             None,
-            {"fields": ["name", "display_label"]},
+            {"fields": ["name", "display_name"]},
         ),
         audit_fieldset_tuple,
     )
 
     list_display: Tuple[str, ...] = (
         "name",
-        "display_label",
+        "display_name",
         "created",
         "modified",
     )
 
-    search_fields: Tuple[str, ...] = ("name", "display_label")
+    search_fields: Tuple[str, ...] = ("name", "display_name")
 
     def get_readonly_fields(self, request, obj=None):
         if obj:

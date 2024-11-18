@@ -24,6 +24,7 @@
             </div>
             <input type="hidden" id="session_uuid" name="session_uuid"  value="{{ session_uuid }}">
             <button type="submit" class="btn btn-default" name="submit" id="submit">Submit</button>
+            <button class="btn btn-default" onclick="window.location.href='{{ source_changelist_url }}?q={{ source_pk }}'">Done</button>
           </form>
         </div>
       </div>

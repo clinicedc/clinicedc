@@ -23,6 +23,7 @@ class ContainerAdmin(ModelAdminMixin, admin.ModelAdmin):
                 "fields": (
                     [
                         "name",
+                        "display_name",
                         "container_type",
                         "units",
                         "qty",
@@ -31,6 +32,7 @@ class ContainerAdmin(ModelAdminMixin, admin.ModelAdmin):
                         "may_receive_as",
                         "may_repack_as",
                         "may_request_as",
+                        "max_per_subject",
                         "may_dispense_as",
                     ]
                 )
@@ -40,7 +42,7 @@ class ContainerAdmin(ModelAdminMixin, admin.ModelAdmin):
     )
 
     list_display = (
-        "name",
+        "display_name",
         "container_type",
         "formatted_units",
         "decimal_places",
@@ -48,6 +50,7 @@ class ContainerAdmin(ModelAdminMixin, admin.ModelAdmin):
         "may_receive",
         "may_repack",
         "may_request",
+        "max_per_subject",
         "may_dispense",
         "created",
         "modified",
@@ -63,8 +66,11 @@ class ContainerAdmin(ModelAdminMixin, admin.ModelAdmin):
         "created",
     )
     radio_fields = {"container_type": admin.VERTICAL, "units": admin.VERTICAL}
-    search_fields = ("name",)
-    ordering = ("name",)
+    search_fields = (
+        "name",
+        "display_name",
+    )
+    ordering = ("display_name",)
 
     @admin.display(description="Units", ordering="units")
     def formatted_units(self, obj):

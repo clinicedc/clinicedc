@@ -1,6 +1,8 @@
 from .allocation_admin import AllocationAdmin
 from .container_admin import ContainerAdmin
 from .container_type_admin import ContainerTypeAdmin
+from .dispense_admin import DispenseAdmin
+from .dispense_item_admin import DispenseItemAdmin
 from .location_admin import LocationAdmin
 from .lot_admin import LotAdmin
 from .order_admin import OrderAdmin
@@ -13,5 +15,6 @@ from .stock_admin import StockAdmin
 from .stock_request_admin import StockRequestAdmin
 from .stock_request_item_admin import StockRequestItemAdmin
 from .stock_transfer_admin import StockTransferAdmin
+from .stock_transfer_confirmation_admin import StockTransferConfirmationAdmin
 from .stock_transfer_item_admin import StockTransferItemAdmin
 from .supplier_admin import SupplierAdmin

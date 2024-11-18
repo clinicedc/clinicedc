@@ -2,8 +2,8 @@ from .allocation import Allocation
 from .container import Container
 from .container_type import ContainerType
 from .container_units import ContainerUnits
-
-# from .dispense import Dispense
+from .dispense import Dispense
+from .dispense_item import DispenseItem
 from .location import Location
 from .lot import Lot
 from .order import Order
@@ -16,5 +16,6 @@ from .stock import Stock
 from .stock_request import StockRequest
 from .stock_request_item import StockRequestItem
 from .stock_transfer import StockTransfer
+from .stock_transfer_confirmation import StockTransferConfirmation
 from .stock_transfer_item import StockTransferItem
 from .supplier import Supplier

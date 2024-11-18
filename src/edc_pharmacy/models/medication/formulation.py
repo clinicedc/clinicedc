@@ -77,7 +77,7 @@ class Formulation(BaseUuidModel):
         description = self.description
         return (
             f"{self.medication.display_name.title()} "
-            f"{assignment.display_label.upper()} "
+            f"{assignment.display_name.upper()} "
             f"{description.split(str(self.medication))[1]}"
         )
 

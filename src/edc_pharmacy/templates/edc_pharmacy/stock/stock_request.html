@@ -26,7 +26,7 @@
           {% csrf_token %}
             <input type="hidden" id="stock_request" name="stock_request"  value="{{ stock_request.id }}">
             <input type="hidden" id="session_uuid" name="session_uuid"  value="{{ session_uuid }}">
-          <button type="submit" class="btn btn-primary" name="submit" id="submit" {% if stock_request_items_exist %} disabled {% endif %}>Create items</button>
+            <button type="submit" class="btn btn-primary" name="submit" id="submit" {% if stock_request_items_exist %} disabled {% endif %}>Create items</button>
             <button type="submit" class="btn btn-default" id="cancel" name="cancel" value="cancel">Cancel</button>
         </form>
       </div>

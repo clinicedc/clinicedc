@@ -6,9 +6,11 @@ from .views import (
     CeleryTaskStatusView,
     ConfirmStockFromInstanceView,
     ConfirmStockFromQuerySetView,
+    DispenseView,
     HomeView,
     PrepareAndReviewStockRequestView,
     PrintLabelsView,
+    StockTransferConfirmationView,
     TransferStockView,
 )
 
@@ -60,6 +62,27 @@ urlpatterns = [
         "task_status/<uuid:task_id>/",
         CeleryTaskStatusView.as_view(),
         name="celery_task_status_url",
+    ),
+    path(
+        "stock_transfer_confirmation/<int:location_id>/",
+        StockTransferConfirmationView.as_view(),
+        name="stock_transfer_confirmation_url",
+    ),
+    path(
+        "stock_transfer_confirmation/",
+        StockTransferConfirmationView.as_view(),
+        name="stock_transfer_confirmation_url",
+    ),
+    path(
+        "dispense/<int:location_id>/<uuid:formulation_id>/"
+        "<str:subject_identifier>/<int:container_count>/",
+        DispenseView.as_view(),
+        name="dispense_url",
+    ),
+    path(
+        "dispense/",
+        DispenseView.as_view(),
+        name="dispense_url",
     ),
     path("admin/", edc_pharmacy_admin.urls),
     path("", HomeView.as_view(), name="home_url"),

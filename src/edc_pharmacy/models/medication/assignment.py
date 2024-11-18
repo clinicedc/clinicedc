@@ -11,7 +11,7 @@ class Assignment(BaseUuidModel):
 
     name = EncryptedCharField(help_text="word as in randomization list")
 
-    display_label = EncryptedCharField(
+    display_name = EncryptedCharField(
         verbose_name="Formal label",
         null=True,
         blank=True,
@@ -23,12 +23,12 @@ class Assignment(BaseUuidModel):
     history = HistoricalRecords()
 
     def __str__(self):
-        return self.display_label
+        return self.display_name
 
     def save(self, *args, **kwargs):
         self.assignment = self.name.lower()
-        if not self.display_label:
-            self.display_label = self.assignment.title()
+        if not self.display_name:
+            self.display_name = self.assignment.title()
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):

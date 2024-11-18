@@ -1,20 +1,15 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
 from uuid import UUID
 
 from celery import current_app, shared_task
 
 from ..utils import process_repack_request as process_repack_request_util
 
-if TYPE_CHECKING:
-
-    from ..models import RepackRequest
-
 
 @shared_task
-def process_repack_request(repack_request: RepackRequest):
-    process_repack_request_util(repack_request_id=repack_request.id)
+def process_repack_request(repack_request_id: UUID):
+    process_repack_request_util(repack_request_id=repack_request_id)
     return None
 
 
