@@ -27,13 +27,16 @@ class ReceiveItemForm(forms.ModelForm):
 
         # in unit_qty's
         if cleaned_data.get("qty"):
-            qty_ordered = cleaned_data.get("order_item").unit_qty
+            # TODO: clean this up
+            qty_ordered = (
+                cleaned_data.get("order_item").unit_qty
+                + cleaned_data.get("order_item").unit_qty_received
+            )
             qty_already_received = self._meta.model.objects.filter(
                 order_item=cleaned_data.get("order_item")
             ).aggregate(unit_qty=Sum("unit_qty"))["unit_qty"] or Decimal(0)
             qty_available = qty_ordered - qty_already_received
             qty_to_receive = cleaned_data.get("qty") * cleaned_data.get("container").qty
-
             if qty_to_receive > qty_available:
                 raise forms.ValidationError(
                     {

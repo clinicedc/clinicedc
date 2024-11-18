@@ -7,12 +7,10 @@ from django.dispatch import receiver
 from edc_constants.constants import COMPLETE, PARTIAL
 from edc_utils.celery import get_task_result, run_task_sync_or_async
 
-from ..dispense import Dispensing
 from ..exceptions import InsufficientStockError
 from ..model_mixins import StudyMedicationCrfModelMixin
 from ..tasks import process_repack_request
 from ..utils import update_previous_refill_end_datetime
-from .dispensing_history import DispensingHistory
 from .stock import (
     DispenseItem,
     OrderItem,
@@ -33,9 +31,15 @@ def stock_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
         instance.unit_qty_out = Decimal(
             sender.objects.filter(from_stock=instance).count()
         ) * Decimal(instance.container.qty)
-        if instance.from_stock.unit_qty_out > instance.from_stock.unit_qty_in:
+        if (
+            instance.from_stock
+            and instance.from_stock.unit_qty_out > instance.from_stock.unit_qty_in
+        ):
             raise InsufficientStockError("Unit QTY OUT cannot exceed Unit QTY IN.")
-        elif instance.from_stock.unit_qty_out == instance.from_stock.unit_qty_in:
+        elif (
+            instance.from_stock
+            and instance.from_stock.unit_qty_out == instance.from_stock.unit_qty_in
+        ):
             instance.qty_out = 1
             instance.qty = 0
         instance.save(update_fields=["unit_qty_in", "unit_qty_out", "qty"])
@@ -186,25 +190,6 @@ def dispense_item_on_post_delete(sender, instance, using, **kwargs) -> None:
     instance.stock.qty_out = 0
     instance.stock.unit_qty_out = 0
     instance.stock.save(update_fields=["qty_out", "unit_qty_out", "dispensed"])
-
-
-@receiver(post_save, sender=DispensingHistory, dispatch_uid="dispensing_history_on_post_save")
-def dispensing_history_on_post_save(sender, instance, raw, created, **kwargs):
-    if not raw:
-        dispensing = Dispensing(rx_refill=instance.rx_refill, dispensed=instance.dispensed)
-        instance.rx_refill.remaining = dispensing.remaining
-        instance.rx_refill.save(update_fields=["remaining"])
-
-
-@receiver(
-    post_delete,
-    sender=DispensingHistory,
-    dispatch_uid="dispensing_history_on_post_delete",
-)
-def dispensing_history_on_post_delete(sender, instance, using=None, **kwargs):
-    dispensing = Dispensing(rx_refill=instance.rx_refill, dispensed=instance.dispensed)
-    instance.rx_refill.remaining = dispensing.remaining
-    instance.rx_refill.save(update_fields=["remaining"])
 
 
 @receiver(

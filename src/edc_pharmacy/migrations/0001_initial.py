@@ -17,10 +17,8 @@ import simple_history.models
 from django.conf import settings
 from django.db import migrations, models
 
-import edc_pharmacy.models.dispensing_history
 import edc_pharmacy.models.medication
 import edc_pharmacy.models.prescription
-import edc_pharmacy.models.return_history
 
 
 class Migration(migrations.Migration):
@@ -207,7 +205,7 @@ class Migration(migrations.Migration):
                 ),
             },
             managers=[
-                ("objects", edc_pharmacy.models.dispensing_history.Manager()),
+                ("objects", django.db.models.Manager()),
             ],
         ),
         migrations.CreateModel(
@@ -2945,7 +2943,7 @@ class Migration(migrations.Migration):
                 ),
             },
             managers=[
-                ("objects", edc_pharmacy.models.return_history.Manager()),
+                ("objects", django.db.models.Manager()),
             ],
         ),
         migrations.CreateModel(

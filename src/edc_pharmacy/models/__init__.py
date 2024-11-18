@@ -1,4 +1,3 @@
-from .dispensing_history import DispensingHistory
 from .edc_permissions import EdcPermissions
 from .medication import (
     Assignment,
@@ -12,12 +11,10 @@ from .medication import (
 )
 from .prescription import Rx, RxRefill
 from .proxy_models import SiteProxy, VisitSchedule
-from .return_history import ReturnError, ReturnHistory
 from .signals import (
     create_or_update_refills_on_post_save,
     dispense_item_on_post_delete,
     dispense_item_on_post_save,
-    dispensing_history_on_post_save,
     order_item_on_post_save,
     receive_item_on_post_delete,
     receive_item_on_post_save,

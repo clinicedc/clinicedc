@@ -13,7 +13,6 @@ from edc_utils import convert_php_dateformat, formatted_age, get_utcnow
 from ...admin_site import edc_pharmacy_admin
 from ...forms import RxRefillForm
 from ...models import RxRefill
-from ..dispensing_history_admin import DispensingHistoryInlineAdmin
 from ..model_admin_mixin import ModelAdminMixin
 
 
@@ -28,8 +27,6 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
     form = RxRefillForm
 
     model = RxRefill
-
-    inlines = [DispensingHistoryInlineAdmin]
 
     fieldsets = (
         (
@@ -72,8 +69,6 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
         "dashboard",
         "duration",
         "description",
-        "dispense",
-        "returns",
         "prescription",
         "active",
         "packed",
@@ -134,41 +129,6 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
         url = f"{url}?q={obj.rx.id}"
         context = dict(title="Back to RX", url=url, label="Rx")
         return render_to_string("dashboard_button.html", context=context)
-
-    @admin.display
-    def dispense(self, obj=None):
-        add = True if not obj or obj.remaining is None else obj.remaining > 0
-        if add:
-            url = reverse("edc_pharmacy_admin:edc_pharmacy_dispensinghistory_add")
-            url = f"{url}?rx_refill={obj.id}"
-            disabled = ""
-        else:
-            url = "#"
-            disabled = "disabled"
-        context = dict(
-            title="Dispense for this RX item",
-            url=url,
-            label="Dispense",
-            disabled=disabled,
-        )
-        dispense_html = render_to_string("dashboard_button.html", context=context)
-        url = reverse("edc_pharmacy_admin:edc_pharmacy_dispensinghistory_changelist")
-        url = f"{url}?rx_refill={obj.id}"
-        context = dict(title="Dispense history for this RX item", url=url, label="History")
-        dispense_history_html = render_to_string("dashboard_button.html", context=context)
-        return format_html(f"{dispense_html}<BR>{dispense_history_html}")
-
-    @admin.display
-    def returns(self, obj=None):
-        url = reverse("edc_pharmacy_admin:edc_pharmacy_returnhistory_add")
-        url = f"{url}?rx_refill={obj.id}"
-        context = dict(title="Returns for this RX item", url=url, label="Returns")
-        returns_html = render_to_string("dashboard_button.html", context=context)
-        url = reverse("edc_pharmacy_admin:edc_pharmacy_returnhistory_changelist")
-        url = f"{url}?rx_refill={obj.id}"
-        context = dict(title="Returns history for this RX item", url=url, label="History")
-        returns_history_html = render_to_string("dashboard_button.html", context=context)
-        return format_html(f"{returns_html}<BR>{returns_history_html}")
 
     @admin.display(description="Description of Refill")
     def description(self, obj=None):
