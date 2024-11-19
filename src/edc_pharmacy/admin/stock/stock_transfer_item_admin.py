@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django_audit_fields import audit_fieldset_tuple
@@ -39,6 +40,7 @@ class StockTransferItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         "stock_transfer_changelist",
         "stock_changelist",
         "stock__location",
+        "stock_transfer_confirmation_changelist",
     )
 
     list_filter = ("transfer_item_datetime",)
@@ -79,3 +81,23 @@ class StockTransferItemAdmin(ModelAdminMixin, admin.ModelAdmin):
             url=url, label=obj.stock_transfer.transfer_identifier, title="Go to stock transfer"
         )
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+
+    @admin.display(
+        description="Confirmation #",
+        ordering="stocktransferconfirmation__transfer_confirmation_identifier",
+    )
+    def stock_transfer_confirmation_changelist(self, obj):
+        url = reverse("edc_pharmacy_admin:edc_pharmacy_stocktransferconfirmation_changelist")
+        url = f"{url}?q={obj.id}"
+        try:
+            transfer_confirmation = obj.stock.stocktransferconfirmation
+        except ObjectDoesNotExist:
+            pass
+        else:
+            context = dict(
+                url=url,
+                label=transfer_confirmation.transfer_confirmation_identifier,
+                title="Go to stock transfer confirmation",
+            )
+            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return None

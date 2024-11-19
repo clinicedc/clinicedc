@@ -9,10 +9,12 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
+from django.utils.html import format_html
 from django.views.generic.base import TemplateView
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
+from edc_utils import get_utcnow
 
 from ..models import Stock
 from ..utils import confirm_stock
@@ -79,14 +81,21 @@ class ConfirmStockFromInstanceView(
     def post(self, request, *args, **kwargs):
         dct = self.get_values_dict(**kwargs)
         codes = request.POST.getlist("codes")
-        confirmed, not_confirmed = confirm_stock(
-            dct.get("obj"), codes, dct.get("fk_attr"), confirmed_by=request.user.username
+        confirmed, already_confirmed, invalid = confirm_stock(
+            dct.get("obj"),
+            codes,
+            dct.get("fk_attr"),
+            confirmed_by=request.user.username,
+            user_created=request.user.username,
+            created=get_utcnow(),
         )
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            f"Confirmed {confirmed} stock records. Skipped {not_confirmed}.",
-        )
+        msg = [
+            f"Confirmed {len(confirmed)} stock records. ",
+            f"Skipped {len(already_confirmed)} items already confirmed.",
+        ]
+        if len(invalid) > 0:
+            msg.append(f"Skipped {len(invalid)} invalid codes.")
+        messages.add_message(request, messages.SUCCESS, format_html("<BR>".join(msg)))
         if (
             Stock.objects.values("code")
             .filter(**{dct.get("fk_attr"): dct.get("obj").id, "confirmed": False})

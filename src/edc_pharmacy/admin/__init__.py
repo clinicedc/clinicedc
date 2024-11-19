@@ -25,6 +25,7 @@ from .stock import (
     ReceiveItemAdmin,
     RequestRepackAdmin,
     StockAdmin,
+    StockProxyAdmin,
     StockRequestAdmin,
     StockRequestItemAdmin,
     StockTransferAdmin,

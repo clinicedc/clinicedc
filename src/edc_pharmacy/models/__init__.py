@@ -42,6 +42,7 @@ from .stock import (
     ReceiveItem,
     RepackRequest,
     Stock,
+    StockProxy,
     StockRequest,
     StockRequestItem,
     StockTransfer,

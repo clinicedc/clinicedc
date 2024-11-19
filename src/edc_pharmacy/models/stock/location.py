@@ -1,4 +1,5 @@
 from django.contrib.sites.models import Site
+from django.core.validators import RegexValidator
 from django.db import models
 from edc_list_data.model_mixins import ListModelMixin
 from edc_model.models import BaseUuidModel
@@ -20,6 +21,12 @@ class Location(ListModelMixin, BaseUuidModel):
     )
 
     site = models.ForeignKey(Site, on_delete=models.PROTECT, null=True, blank=True)
+
+    contact_name = models.CharField(max_length=150, null=True, blank=True)
+    contact_tel = models.CharField(
+        max_length=150, validators=[RegexValidator("[0-9]{1,15}")], null=True, blank=True
+    )
+    contact_email = models.EmailField(max_length=150, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.display_name:

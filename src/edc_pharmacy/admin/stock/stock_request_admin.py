@@ -9,7 +9,7 @@ from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import StockRequestForm
-from ...models import StockRequest
+from ...models import Allocation, StockRequest
 from ..actions import allocate_stock_to_subject, prepare_stock_request_items_action
 from ..model_admin_mixin import ModelAdminMixin
 from ..utils import stock_request_status_counts
@@ -84,6 +84,24 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
     search_fields = ("id", "request_identifier")
 
     readonly_fields = ("item_count",)
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = super().get_readonly_fields(request, obj)
+        if obj:
+            if Allocation.objects.filter(stock_request_item__stock_request=obj).exists():
+                fields = (
+                    "request_identifier",
+                    "request_datetime",
+                    "cutoff_datetime",
+                    "location",
+                    "formulation",
+                    "container",
+                    "containers_per_subject",
+                    "item_count",
+                    "subject_identifiers",
+                    "excluded_subject_identifiers",
+                )
+        return fields
 
     @admin.display(description="Request #", ordering="request_identifier")
     def stock_request_id(self, obj):

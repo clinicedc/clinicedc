@@ -13,6 +13,7 @@ from django.views.generic.base import TemplateView
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
+from edc_utils import get_utcnow
 
 from ..exceptions import AllocationError
 from ..models import Assignment, Stock, StockRequest, StockRequestItem
@@ -144,7 +145,11 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                 allocation_data = dict(zip(stock_codes, subject_identifiers))
                 try:
                     allocated, not_allocated = allocate_stock(
-                        stock_request, allocation_data, allocated_by=request.user.username
+                        stock_request,
+                        allocation_data,
+                        allocated_by=request.user.username,
+                        user_created=request.user.username,
+                        created=get_utcnow(),
                     )
                 except AllocationError as e:
                     messages.add_message(request, messages.ERROR, str(e))

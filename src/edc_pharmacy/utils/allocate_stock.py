@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
@@ -16,6 +17,8 @@ def allocate_stock(
     stock_request: StockRequest,
     allocation_data: dict[str, str],
     allocated_by: str,
+    user_created: str = None,
+    created: datetime = None,
 ) -> tuple[int, int]:
     stock_model_cls = django_apps.get_model("edc_pharmacy.stock")
     allocation_model_cls = django_apps.get_model("edc_pharmacy.allocation")
@@ -43,6 +46,8 @@ def allocate_stock(
                 registered_subject=rs_obj,
                 allocation_datetime=get_utcnow(),
                 allocated_by=allocated_by,
+                user_created=user_created,
+                created=created,
             )
             if (
                 stock_model_cls.objects.get(code=code).product.assignment
@@ -55,6 +60,8 @@ def allocate_stock(
                 )
 
             stock_obj.allocation = allocation
+            stock_obj.user_modified = user_created
+            stock_obj.modified = created
             stock_objs.append(stock_obj)
     if stock_objs:
         for obj in stock_objs:

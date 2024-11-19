@@ -69,7 +69,7 @@ def confirm_stock_from_queryset(
     if queryset.count() > 0:
         session_uuid = str(uuid4())
         stock_pks = queryset.values_list("pk", flat=True)
-        request.session[session_uuid] = [str(o) for o in stock_pks]
+        request.session[session_uuid] = {"queryset": [str(o) for o in stock_pks]}
         url = reverse(
             "edc_pharmacy:confirm_stock_from_queryset_url",
             kwargs={"session_uuid": session_uuid},

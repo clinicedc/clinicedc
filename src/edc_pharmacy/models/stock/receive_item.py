@@ -40,7 +40,13 @@ class ReceiveItem(BaseUuidModel):
 
     order_item = models.ForeignKey(OrderItem, on_delete=models.PROTECT, null=True, blank=False)
 
-    lot = models.ForeignKey(Lot, on_delete=models.PROTECT, null=True, blank=False)
+    lot = models.ForeignKey(
+        Lot,
+        verbose_name="Batch",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=False,
+    )
 
     name = models.CharField(
         max_length=200, null=True, blank=True, help_text="Leave blank to use default"

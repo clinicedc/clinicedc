@@ -32,13 +32,28 @@
     <div class="col-sm-4">
       <div style="padding:10px">&nbsp;</div>
       <div class="panel panel-default">
-        <div class="panel-heading">Confirmed {{ confirmed_count }}</div>
+        <div class="panel-heading">Last scanned {{ confirmed_count }}</div>
         <div class="panel-body">
-            {% for code in confirmed_codes %}
-              <div class="col-sm-10">
-                {{ code }}
-              </div>
-            {% endfor %}
+          <div class="col-sm-10">
+            <table class="table table-condensed">
+              {% for code, comment in last_codes %}
+                <tr>
+                  <td class="text text-{% if comment == "confirmed"%}success{% elif comment == "already confirmed" %}warning{% elif comment == "invalid" %}danger{% else %}default{% endif %}">
+                    {% if comment == "confirmed"%}<i class="fa-solid fa-check fa-fw"></i>
+                    {% elif comment == "already confirmed" %}<i class="fa-solid fa-minus fa-fw"></i>
+                    {% elif comment == "invalid" %}<i class="fa-solid fa-xmark fa-fw"></i>
+                    {% endif %}
+                  </td>
+                  <td class="text text-{% if comment == "confirmed"%}success{% elif comment == "already confirmed" %}warning{% elif comment == "invalid" %}danger{% else %}default{% endif %}">
+                    {{ code }}
+                  </td>
+                  <td class="text text-{% if comment == "confirmed"%}success{% elif comment == "already confirmed" %}warning{% elif comment == "invalid" %}danger{% else %}default{% endif %}">
+                    {{ comment }}
+                  </td>
+                </tr>
+              {% endfor %}
+             </table>
+          </div>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
@@ -15,7 +16,9 @@ def confirm_stock(
     stock_codes: list[str],
     fk_attr: str | None,
     confirmed_by: str | None = None,
-) -> tuple[int, int]:
+    user_created: str = None,
+    created: datetime = None,
+) -> tuple[list[str], list[str], list[str]]:
     """Confirm stock instances given a list of stock codes
     and a request/receive pk.
 
@@ -24,8 +27,10 @@ def confirm_stock(
     See also: confirm_stock_action
     """
     stock_model_cls = django_apps.get_model("edc_pharmacy.stock")
-    confirmed, not_confirmed = 0, 0
     stock_codes = [s.strip() for s in stock_codes]
+    invalid = []
+    confirmed = []
+    already_confirmed = []
     opts = {}
     if obj:
         opts = {fk_attr: obj.id}
@@ -33,18 +38,37 @@ def confirm_stock(
         try:
             stock = stock_model_cls.objects.get(
                 code=stock_code,
-                confirmed=False,
                 **opts,
             )
         except ObjectDoesNotExist:
-            not_confirmed += 1
+            invalid.append(stock_code)
         else:
-            stock.confirmed = True
-            stock.confirmed_datetime = get_utcnow()
-            if confirmed_by:
-                stock.confirmed_by = confirmed_by
-                stock.save(update_fields=["confirmed", "confirmed_by"])
+            if not stock.confirmed:
+                stock.confirmed = True
+                stock.user_modified = user_created
+                stock.modified = created
+                stock.confirmed_datetime = get_utcnow()
+                if confirmed_by:
+                    stock.confirmed_by = confirmed_by
+                    stock.save(
+                        update_fields=[
+                            "confirmed",
+                            "confirmed_datetime",
+                            "confirmed_by",
+                            "user_modified",
+                            "modified",
+                        ]
+                    )
+                else:
+                    stock.save(
+                        update_fields=[
+                            "confirmed",
+                            "confirmed_datetime",
+                            "user_modified",
+                            "modified",
+                        ]
+                    )
+                confirmed.append(stock.code)
             else:
-                stock.save(update_fields=["confirmed"])
-            confirmed += 1
-    return confirmed, not_confirmed
+                already_confirmed.append(stock.code)
+    return confirmed, already_confirmed, invalid

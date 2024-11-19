@@ -45,7 +45,11 @@ def confirm_stock_at_site(
             not_confirmed += 1
         else:
             obj = stock_transfer_confirmation_model_cls.objects.create(
-                stock=stock, confirmed_datetime=get_utcnow(), confirmed_by=confirmed_by
+                stock=stock,
+                confirmed_datetime=get_utcnow(),
+                confirmed_by=confirmed_by,
+                user_created=confirmed_by,
+                created=get_utcnow(),
             )
             obj.save()
             confirmed += 1

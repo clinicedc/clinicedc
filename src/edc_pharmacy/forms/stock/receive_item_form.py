@@ -28,9 +28,8 @@ class ReceiveItemForm(forms.ModelForm):
         # in unit_qty's
         if cleaned_data.get("qty"):
             # TODO: clean this up
-            qty_ordered = (
-                cleaned_data.get("order_item").unit_qty
-                + cleaned_data.get("order_item").unit_qty_received
+            qty_ordered = cleaned_data.get("order_item").unit_qty + (
+                cleaned_data.get("order_item").unit_qty_received or 0
             )
             qty_already_received = self._meta.model.objects.filter(
                 order_item=cleaned_data.get("order_item")

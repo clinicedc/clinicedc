@@ -142,9 +142,13 @@ class PrepareAndReviewStockRequestView(
             task_id = None
             i = current_app.control.inspect()
             if not i.active():
-                bulk_create_stock_request_items(stock_request.pk, nostock_dict)
+                bulk_create_stock_request_items(
+                    stock_request.pk, nostock_dict, user_created=request.user.username
+                )
             else:
-                task = bulk_create_stock_request_items.delay(stock_request.pk, nostock_dict)
+                task = bulk_create_stock_request_items.delay(
+                    stock_request.pk, nostock_dict, user_created=request.user.username
+                )
                 task_id = getattr(task, "id", None)
             obj = StockRequest.objects.get(pk=request.POST.get("stock_request"))
             obj.task_id = task_id

@@ -59,6 +59,44 @@ class StockTransfer(BaseUuidModel):
                 raise StockTransferError("Locations cannot be the same")
         super().save(*args, **kwargs)
 
+    @property
+    def export_references(self):
+        return "Export ref"
+
+    @property
+    def shipped(self):
+        return False
+
+    @property
+    def export_datetime(self):
+        return get_utcnow()
+
+    @property
+    def site(self):
+        class Dummy:
+            name = "sitename"
+
+        return Dummy()
+
+    @property
+    def consignee(self):
+        class Dummy:
+            country = "Tanzania"
+
+        return Dummy()
+
+    @property
+    def shipper(self):
+        return {
+            "contact_name": "Deus Buma",
+            "name": "META III Central Pharmacy",
+            "address": "",
+            "city": "",
+            "state": "",
+            "postal_code": "0000",
+            "country": "Tanzania",
+        }
+
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Stock transfer"
         verbose_name_plural = "Stock transfers"

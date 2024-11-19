@@ -3,11 +3,14 @@ from __future__ import annotations
 from uuid import UUID
 
 from django.apps import apps as django_apps
+from edc_utils import get_utcnow
 
 from ..exceptions import InsufficientStockError, RepackError
 
 
-def process_repack_request(repack_request_id: UUID | None = None) -> None:
+def process_repack_request(
+    repack_request_id: UUID | None = None, username: str | None = None
+) -> None:
     """Take from stock and fill container as new stock item.
 
     Do not change location here.
@@ -42,10 +45,22 @@ def process_repack_request(repack_request_id: UUID | None = None) -> None:
                     repack_request=repack_request,
                     confirmed=False,
                     lot=repack_request.from_stock.lot,
+                    user_created=username,
+                    created=get_utcnow(),
                 )
             except InsufficientStockError:
                 break
     repack_request.processed_qty = stock_model_cls.objects.filter(
         repack_request=repack_request
     ).count()
-    repack_request.save(update_fields=["requested_qty", "processed_qty", "task_id"])
+    repack_request.user_modified = username
+    repack_request.modified = get_utcnow()
+    repack_request.save(
+        update_fields=[
+            "requested_qty",
+            "processed_qty",
+            "task_id",
+            "user_modified",
+            "modified",
+        ]
+    )

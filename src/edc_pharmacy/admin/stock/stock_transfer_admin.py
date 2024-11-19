@@ -7,7 +7,7 @@ from edc_utils.date import to_local
 from ...admin_site import edc_pharmacy_admin
 from ...forms import StockTransferForm
 from ...models import StockTransfer, StockTransferItem
-from ..actions import transfer_stock_action
+from ..actions import print_transfer_stock_manifest_action, transfer_stock_action
 from ..model_admin_mixin import ModelAdminMixin
 
 
@@ -20,7 +20,7 @@ class StockTransferAdmin(ModelAdminMixin, admin.ModelAdmin):
     list_per_page = 20
 
     autocomplete_fields = ["from_location", "to_location"]
-    actions = [transfer_stock_action]
+    actions = [transfer_stock_action, print_transfer_stock_manifest_action]
 
     form = StockTransferForm
 

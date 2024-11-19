@@ -49,7 +49,7 @@ class TransferStockView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
         stock_transfer = StockTransfer.objects.get(pk=self.kwargs.get("stock_transfer"))
         stock_codes = request.POST.getlist("codes")
         if stock_codes:
-            transfer_stock(stock_transfer, stock_codes)
+            transfer_stock(stock_transfer, stock_codes, username=request.user.username)
         transferred_count = StockTransferItem.objects.filter(
             stock_transfer=stock_transfer
         ).count()

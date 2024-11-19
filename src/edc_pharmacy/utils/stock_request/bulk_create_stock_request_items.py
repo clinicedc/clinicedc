@@ -14,7 +14,11 @@ if TYPE_CHECKING:
 
 
 @shared_task
-def bulk_create_stock_request_items(stock_request_pk: UUID, df_as_dict: dict) -> None:
+def bulk_create_stock_request_items(
+    stock_request_pk: UUID,
+    df_as_dict: dict,
+    user_created: str | None = None,
+) -> None:
     stock_request_model_cls = django_apps.get_model("edc_pharmacy.StockRequest")
     stock_request_item_model_cls = django_apps.get_model("edc_pharmacy.StockRequestItem")
     registered_subject_model_cls = django_apps.get_model("edc_registration.registeredsubject")
@@ -45,6 +49,7 @@ def bulk_create_stock_request_items(stock_request_pk: UUID, df_as_dict: dict) ->
             rx=rx,
             appt_datetime=appt_datetime,
             assignment=assignment,
+            user_created=user_created,
             created=now,
         )
         data.append(obj)

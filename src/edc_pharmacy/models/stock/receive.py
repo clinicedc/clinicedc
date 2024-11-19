@@ -6,6 +6,7 @@ from sequences import get_next_value
 from ...exceptions import ReceiveError
 from .location import Location
 from .order import Order
+from .supplier import Supplier
 
 
 class Manager(models.Manager):
@@ -35,6 +36,14 @@ class Receive(BaseUuidModel):
     )
 
     order = models.ForeignKey(Order, on_delete=models.PROTECT, null=True, blank=False)
+
+    supplier = models.ForeignKey(
+        Supplier, on_delete=models.PROTECT, verbose_name="Supplier", null=True, blank=False
+    )
+
+    invoice_number = models.CharField(max_length=50, null=True, blank=True)
+
+    invoice_date = models.DateField(null=True, blank=True)
 
     comment = models.TextField(null=True, blank=True)
 

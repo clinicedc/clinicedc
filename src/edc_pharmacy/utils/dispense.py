@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import QuerySet
+from edc_utils import get_utcnow
 
 if TYPE_CHECKING:
     from ..models import Dispense, DispenseItem, Location, Stock
@@ -47,7 +48,12 @@ def dispense(
             try:
                 dispense_item_model_cls.objects.get(stock=stock)
             except ObjectDoesNotExist:
-                dispense_item_model_cls.objects.create(dispense=dispense_obj, stock=stock)
+                dispense_item_model_cls.objects.create(
+                    dispense=dispense_obj,
+                    stock=stock,
+                    user_created=request.user.username,
+                    created=get_utcnow(),
+                )
             else:
                 messages.add_message(
                     request,

@@ -46,6 +46,7 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
     form = ReceiveForm
     ordering = ("-receive_identifier",)
     actions = [confirm_received_stock_action]
+    autocomplete_fields = ["supplier"]
 
     fieldsets = (
         (
@@ -57,8 +58,18 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
             {
                 "fields": (
                     "receive_datetime",
-                    "location",
                     "order",
+                    "location",
+                )
+            },
+        ),
+        (
+            "Section B",
+            {
+                "fields": (
+                    "supplier",
+                    "invoice_number",
+                    "invoice_date",
                 )
             },
         ),
@@ -73,6 +84,7 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
         "order_changelist",
         "items",
         "stock_changelist",
+        "invoice_date",
         "created",
         "modified",
     )
@@ -87,6 +99,8 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
         "receive_identifier",
         "order__id",
         "location__name",
+        "invoice_number",
+        "supplier__name",
     )
 
     @admin.display(description="RECEIVE #", ordering="receive_identifier")

@@ -25,9 +25,19 @@ class LocationAdmin(ModelAdminMixin, admin.ModelAdmin):
                 )
             },
         ),
+        (
+            "Contact",
+            {
+                "fields": (
+                    "contact_name",
+                    "contact_tel",
+                    "contact_email",
+                )
+            },
+        ),
     )
 
-    search_fields = ["id", "name"]
+    search_fields = ["id", "name", "contact_name"]
 
     def get_readonly_fields(self, request, obj=None):
         if obj:

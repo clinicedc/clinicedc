@@ -49,6 +49,7 @@ class DispenseAdmin(ModelAdminMixin, admin.ModelAdmin):
     search_fields = (
         "id",
         "rx__subject_identifier",
+        "dispenseitem__stock__code",
     )
 
     list_filter = (

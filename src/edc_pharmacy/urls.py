@@ -12,12 +12,29 @@ from .views import (
     PrintLabelsView,
     StockTransferConfirmationView,
     TransferStockView,
+    print_stock_transfer_manifest_view,
 )
 
 app_name = "edc_pharmacy"
 
 
 urlpatterns = [
+    path(
+        "dispense/<int:location_id>/<uuid:formulation_id>/"
+        "<str:subject_identifier>/<int:container_count>/",
+        DispenseView.as_view(),
+        name="dispense_url",
+    ),
+    path(
+        "stock_transfer_confirmation/<int:location_id>/<int:items_to_scan>/",
+        StockTransferConfirmationView.as_view(),
+        name="stock_transfer_confirmation_url",
+    ),
+    path(
+        "review_stock_request/<uuid:stock_request>/<uuid:session_uuid>/",
+        PrepareAndReviewStockRequestView.as_view(),
+        name="review_stock_request_url",
+    ),
     path(
         "allocate/<uuid:stock_request>/<uuid:assignment>",
         AllocateToSubjectView.as_view(),
@@ -44,11 +61,6 @@ urlpatterns = [
         name="transfer_stock_url",
     ),
     path(
-        "review_stock_request/<uuid:stock_request>/<uuid:session_uuid>/",
-        PrepareAndReviewStockRequestView.as_view(),
-        name="review_stock_request_url",
-    ),
-    path(
         "review_stock_request/<uuid:stock_request>/",
         PrepareAndReviewStockRequestView.as_view(),
         name="review_stock_request_url",
@@ -59,25 +71,19 @@ urlpatterns = [
         name="print_labels_url",
     ),
     path(
+        "manifest/<uuid:stock_transfer>/",
+        print_stock_transfer_manifest_view,
+        name="generate_manifest",
+    ),
+    path(
         "task_status/<uuid:task_id>/",
         CeleryTaskStatusView.as_view(),
         name="celery_task_status_url",
     ),
     path(
-        "stock_transfer_confirmation/<int:location_id>/",
-        StockTransferConfirmationView.as_view(),
-        name="stock_transfer_confirmation_url",
-    ),
-    path(
         "stock_transfer_confirmation/",
         StockTransferConfirmationView.as_view(),
         name="stock_transfer_confirmation_url",
-    ),
-    path(
-        "dispense/<int:location_id>/<uuid:formulation_id>/"
-        "<str:subject_identifier>/<int:container_count>/",
-        DispenseView.as_view(),
-        name="dispense_url",
     ),
     path(
         "dispense/",

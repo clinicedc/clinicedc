@@ -6,8 +6,8 @@ from django.urls import reverse
 from django.utils.translation import gettext
 
 
-@admin.action(description="Scan items to transfer to site")
-def transfer_stock_action(modeladmin, request, queryset):
+@admin.action(description="Print transfer manifest")
+def print_transfer_stock_manifest_action(modeladmin, request, queryset):
     if queryset.count() > 1 or queryset.count() == 0:
         messages.add_message(
             request,
@@ -16,7 +16,7 @@ def transfer_stock_action(modeladmin, request, queryset):
         )
     else:
         url = reverse(
-            "edc_pharmacy:transfer_stock_url", kwargs={"stock_transfer": queryset.first().pk}
+            "edc_pharmacy:generate_manifest", kwargs={"stock_transfer": queryset.first().pk}
         )
         return HttpResponseRedirect(url)
     return None

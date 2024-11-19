@@ -12,5 +12,6 @@ from .go_to_stock import go_to_stock
 from .prepare_stock_request_items import prepare_stock_request_items_action
 from .print_labels import print_labels, print_labels_from_repack_request
 from .print_stock_labels import print_stock_labels
+from .print_transfer_stock_manifest import print_transfer_stock_manifest_action
 from .process_repack_request import process_repack_request_action
 from .transfer_stock import transfer_stock_action

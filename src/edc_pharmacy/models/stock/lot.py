@@ -22,13 +22,15 @@ class Lot(BaseUuidModel):
         help_text="A sequential unique identifier set by the EDC",
     )
 
-    lot_no = models.CharField(max_length=50, unique=True)
+    lot_no = models.CharField(verbose_name="Batch", max_length=50, unique=True)
 
     product = models.ForeignKey(Product, on_delete=PROTECT, null=True, blank=False)
 
     assignment = models.ForeignKey(Assignment, on_delete=models.PROTECT, null=True, blank=True)
 
     expiration_date = models.DateField()
+
+    manufacture_date = models.DateField(null=True, blank=True)
 
     objects = Manager()
 

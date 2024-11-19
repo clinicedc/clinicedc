@@ -365,7 +365,7 @@ class TestOrderReceive(TestCase):
                 label_specification=label_specification,
             )
             # process / create unconfirmed stock instances
-            process_repack_request(repack_request)
+            process_repack_request(repack_request, username=None)
 
         for repack_request in RepackRequest.objects.all():
             # assert unconfirmed stock instances (central)

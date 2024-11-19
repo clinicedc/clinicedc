@@ -26,11 +26,13 @@ class StockTransferConfirmationView(
     navbar_selected_item = "pharmacy"
 
     def get_context_data(self, **kwargs):
+        items_to_scan = self.kwargs.get("items_to_scan") or 0
+        item_count = 12 if items_to_scan >= 12 else items_to_scan
         kwargs.update(
-            # stock_transfer_confirmation=self.stock_transfer_confirmation,
-            item_count=list(range(1, 13)),
+            item_count=list(range(1, item_count + 1)),
             locations=Location.objects.filter(site__isnull=False),
             location=self.location,
+            items_to_scan=items_to_scan,
         )
         return super().get_context_data(**kwargs)
 
@@ -69,12 +71,16 @@ class StockTransferConfirmationView(
         return "/"
 
     def post(self, request, *args, **kwargs):
-        stock_codes = request.POST.getlist("codes") if request.POST.get("codes") else None
+        stock_codes = request.POST.getlist("codes") if request.POST.get("codes") else []
         location_id = request.POST.get("location_id")
-        if not stock_codes and location_id:
+        items_to_scan = int(request.POST.get("items_to_scan") or 0) - len(stock_codes)
+        if not stock_codes and location_id and items_to_scan > 0:
             url = reverse(
                 "edc_pharmacy:stock_transfer_confirmation_url",
-                kwargs={"location_id": location_id},
+                kwargs={
+                    "location_id": location_id,
+                    "items_to_scan": items_to_scan,
+                },
             )
             return HttpResponseRedirect(url)
 
@@ -93,10 +99,9 @@ class StockTransferConfirmationView(
                     messages.WARNING,
                     f"{not_confirmed} items were skipped.",
                 )
-
             url = reverse(
                 "edc_pharmacy:stock_transfer_confirmation_url",
-                kwargs={"location_id": location_id},
+                kwargs={"location_id": location_id, "items_to_scan": items_to_scan},
             )
             return HttpResponseRedirect(url)
         return HttpResponseRedirect(self.stock_transfer_confirmation_changelist_url)

@@ -27,7 +27,9 @@ def process_repack_request_action(modeladmin, request, queryset):
 
     # run task / func and update or clear the task_id
     task = run_task_sync_or_async(
-        process_repack_request_queryset, repack_request_pks=repack_request_pks
+        process_repack_request_queryset,
+        repack_request_pks=repack_request_pks,
+        username=request.user.username,
     )
     task_id = getattr(task, "id", None)
     queryset.update(task_id=task_id)

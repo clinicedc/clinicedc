@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
@@ -115,10 +116,12 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
         "stock_request_changelist",
         "allocation_changelist",
         "stock_transfer_item_changelist",
+        "dispense_changelist",
         "created",
         "modified",
     )
     list_filter = (
+        "container",
         "confirmed",
         AllocationListFilter,
         TransferredListFilter,
@@ -128,7 +131,6 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
         "product__assignment__name",
         "lot",
         "location__display_name",
-        "container",
         "confirmed_by",
         "confirmed_datetime",
         HasOrderNumFilter,
@@ -151,6 +153,7 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
         "allocation__stock_request_item__stock_request__id",
         "allocation__id",
         "stocktransferitem__stock_transfer__id",
+        "dispenseitem__dispense__id",
     )
     readonly_fields = (
         "code",
@@ -361,6 +364,23 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
                 url=url,
                 label=obj.allocation.stock_request_item.stock_request.request_identifier,
                 title="Go to stock request",
+            )
+            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return None
+
+    @admin.display(description="DISPENSE #")
+    def dispense_changelist(self, obj):
+        try:
+            obj.dispenseitem
+        except ObjectDoesNotExist:
+            pass
+        else:
+            url = reverse("edc_pharmacy_admin:edc_pharmacy_dispense_changelist")
+            url = f"{url}?q={obj.code}"
+            context = dict(
+                url=url,
+                label=obj.dispenseitem.dispense.dispense_identifier,
+                title="Go to dispense",
             )
             return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None
