@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 from dataclasses import InitVar, dataclass, field
-from typing import Type
+from typing import TYPE_CHECKING, Type
 
 from django.contrib.auth import get_permission_codename
-from django.contrib.auth.models import User
-from django.contrib.sites.models import Site
-from django.db import models
 from edc_sites.site import sites as site_sites
+
+if TYPE_CHECKING:
+    from django.contrib.auth.models import User
+    from django.contrib.sites.models import Site
+    from django.db import models
 
 __all__ = ["Perms"]
 
