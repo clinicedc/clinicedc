@@ -50,9 +50,15 @@ class FormsReference:
                         {visit_code: {"crfs": crfs, "requisitions": requisitions}}
                     )
 
-    def to_file(self, path: Optional[str] = None, overwrite: Optional[bool] = None):
+    def to_file(
+        self,
+        path: Optional[str] = None,
+        overwrite: Optional[bool] = None,
+        pad: int | None = None,
+    ):
+        pad = pad if pad is not None else 2
         markdown_writer = self.markdown_writer_cls(path=path, overwrite=overwrite)
-        markdown_writer.to_file(markdown=self.markdown, pad=2)
+        markdown_writer.to_file(markdown=self.markdown, pad=pad)
 
     def insert_toc(self, toc=None, markdown=None):
         toc.reverse()
