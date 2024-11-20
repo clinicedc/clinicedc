@@ -67,7 +67,7 @@ def get_template_path_with_bootstrap(original_path, bootstrap_version=None):
             get_template(path)
         except TemplateDoesNotExist as e:
             raise EdcTemplateDoesNotExist(
-                f"Template file does not exist. " f"Tried {original_path} and {path}. Got {e}"
+                f"Template file does not exist. Tried {original_path} and {path}. Got {e}"
             )
     return path
 
