@@ -37,7 +37,7 @@ class LabelConfigurationAdmin(
 
     date_hierarchy = "created"
 
-    fieldsets = ((None, {"fields": ("name", "label_specification")}),)
+    fieldsets = ((None, {"fields": ("name", "label_specification", "requires_allocation")}),)
 
     list_display = ("name", "label_specification")
 

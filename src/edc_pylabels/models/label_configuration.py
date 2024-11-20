@@ -12,12 +12,17 @@ class LabelConfigurationError(Exception):
 class LabelConfiguration(BaseUuidModel):
 
     name = models.CharField(
+        verbose_name="System config name",
         max_length=50,
         unique=True,
         help_text="Name of configuration registered with site_label_config.",
     )
 
     label_specification = models.ForeignKey(LabelSpecification, on_delete=models.PROTECT)
+
+    requires_allocation = models.BooleanField(
+        verbose_name="Configuration is for a subject label", default=False
+    )
 
     def __str__(self):
         return self.name
