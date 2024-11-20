@@ -8,8 +8,7 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from model_bakery import baker
 
 from adverse_event_app.visit_schedules import visit_schedule
-
-from ...models import CauseOfDeath
+from edc_adverse_event.models import CauseOfDeath
 
 
 class DeathReportTestMixin:

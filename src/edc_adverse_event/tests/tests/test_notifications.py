@@ -7,6 +7,10 @@ from edc_reportable.constants import GRADE3, GRADE4, GRADE5
 from model_bakery import baker
 
 from adverse_event_app import list_data
+from edc_adverse_event.notifications import (
+    AeInitialG3EventNotification,
+    AeInitialG4EventNotification,
+)
 
 from ...action_items import (
     AeFollowupAction,
@@ -16,7 +20,6 @@ from ...action_items import (
     DeathReportAction,
     DeathReportTmgAction,
 )
-from ...notifications import AeInitialG3EventNotification, AeInitialG4EventNotification
 from .mixins import DeathReportTestMixin
 
 

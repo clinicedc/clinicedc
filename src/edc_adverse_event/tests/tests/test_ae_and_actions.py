@@ -22,9 +22,8 @@ from adverse_event_app.action_items import (
     StudyTerminationConclusionAction,
 )
 from adverse_event_app.models import AeFollowup, AeInitial, AeSusar, AeTmg
+from edc_adverse_event.constants import CONTINUING_UPDATE, RECOVERED, RECOVERING
 from edc_adverse_event.models import AeClassification
-
-from ...constants import CONTINUING_UPDATE, RECOVERED, RECOVERING
 
 
 @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
