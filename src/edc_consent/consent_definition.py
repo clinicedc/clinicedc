@@ -18,7 +18,6 @@ from .exceptions import (
     ConsentDefinitionValidityPeriodError,
     NotConsentedError,
 )
-from .managers import ConsentObjectsByCdefManager, CurrentSiteByCdefManager
 
 if TYPE_CHECKING:
     from edc_model.models import BaseUuidModel
@@ -79,6 +78,8 @@ class ConsentDefinition:
 
     @property
     def model(self):
+        from .managers import ConsentObjectsByCdefManager, CurrentSiteByCdefManager
+
         model_cls = django_apps.get_model(self._model)
         if not model_cls._meta.proxy:
             raise ConsentDefinitionError(
