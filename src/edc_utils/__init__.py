@@ -6,6 +6,7 @@ from .disable_signals import DisableSignals
 from .get_datetime_from_env import get_datetime_from_env
 from .get_static_file import get_static_file
 from .get_uuid import get_uuid
+from .message_in_queue import message_in_queue
 from .round_up import round_half_away_from_zero, round_half_up, round_up
 from .show_urls import show_url_names, show_urls
 from .text import (
@@ -23,6 +24,7 @@ __all__ = [
     "DisableSignals",
     "age",
     "ceil_secs",
+    "message_in_queue",
     "convert_from_camel",
     "convert_php_dateformat",
     "edc_context_processors_check",
