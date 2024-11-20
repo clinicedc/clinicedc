@@ -5,11 +5,10 @@ from django.contrib import messages
 from django.contrib.auth.views import LoginView as BaseLoginView
 from django.contrib.auth.views import LogoutView as BaseLogoutView
 from django_revision.revision import site_revision
-from edc_dashboard.utils import get_bootstrap_version, get_template_path_with_bootstrap
 
 
 class LoginView(BaseLoginView):
-    template_name = f"edc_auth/bootstrap{get_bootstrap_version()}/login.html"
+    template_name = "edc_auth/bootstrap3/login.html"
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Tests cookies."""
@@ -31,7 +30,7 @@ class LoginView(BaseLoginView):
         except AttributeError:
             allow_password_reset = None
         return {
-            "edc_base_template": get_template_path_with_bootstrap("edc_dashboard/base.html"),
+            "edc_base_template": "edc_dashboard/bootstrap3/base.html",
             "DEBUG": settings.DEBUG,
             "ALLOW_PASSWORD_RESET": allow_password_reset,
             "revision": site_revision.tag,
@@ -42,7 +41,7 @@ class LoginView(BaseLoginView):
 
 
 class LogoutView(BaseLogoutView):
-    template_name = f"edc_auth/bootstrap{get_bootstrap_version()}/login.html"
+    template_name = "edc_auth/bootstrap3/login.html"
     next_page = settings.LOGOUT_REDIRECT_URL or "accounts/login"
 
     @property
@@ -53,7 +52,7 @@ class LogoutView(BaseLogoutView):
             live_system = None
         return {
             "DEBUG": settings.DEBUG,
-            "edc_base_template": get_template_path_with_bootstrap("edc_dashboard/base.html"),
+            "edc_base_template": "edc_dashboard/bootstrap3/base.html",
             "revision": site_revision.tag,
             "live_system": live_system,
             "INDEX_PAGE": getattr(settings, "INDEX_PAGE", None),
