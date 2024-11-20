@@ -6,7 +6,6 @@ from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_action_item.delete_action_item import ActionItemDeleteError, delete_action_item
 from edc_action_item.models import ActionItem
 from edc_action_item.site_action_items import site_action_items
-from edc_action_item.tests.models import FormTwo
 
 from ..action_items import (
     FormOneAction,
@@ -15,7 +14,7 @@ from ..action_items import (
     SingletonAction,
     register_actions,
 )
-from ..models import FormOne
+from ..models import FormOne, FormTwo
 from ..test_case_mixin import TestCaseMixin
 
 

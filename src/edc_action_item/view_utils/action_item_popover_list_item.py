@@ -6,7 +6,7 @@ from uuid import UUID
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
-from edc_subject_dashboard.view_utils import ADD, PrnButton
+from edc_view_utils import ADD, PrnButton
 
 if TYPE_CHECKING:
     from edc_appointment.models import Appointment

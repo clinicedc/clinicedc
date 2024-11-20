@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Type
 from django import template
 from edc_auth.utils import get_user
 from edc_constants.constants import CANCELLED, CLOSED, HIGH_PRIORITY, NEW, OPEN
-from edc_dashboard.utils import get_bootstrap_version
 from edc_utils import formatted_date
 from edc_utils.date import to_local
 
@@ -29,7 +28,7 @@ register = template.Library()
 
 
 @register.inclusion_tag(
-    f"edc_action_item/bootstrap{get_bootstrap_version()}/action_item_button.html",
+    "edc_action_item/bootstrap3/action_item_button.html",
     takes_context=True,
 )
 def render_action_item_button(
@@ -60,7 +59,7 @@ def render_action_item_button(
 
 
 @register.inclusion_tag(
-    f"edc_action_item/bootstrap{get_bootstrap_version()}/add_action_item_popover.html",
+    "edc_action_item/bootstrap3/add_action_item_popover.html",
     takes_context=True,
 )
 def add_action_item_popover(
@@ -91,7 +90,7 @@ def add_action_item_popover(
 
 
 @register.inclusion_tag(
-    f"edc_action_item/bootstrap{get_bootstrap_version()}/action_item_with_popover.html",
+    "edc_action_item/bootstrap3/action_item_with_popover.html",
     takes_context=True,
 )
 def action_item_with_popover(context, action_item: ActionItem, tabindex):
@@ -129,7 +128,7 @@ def action_item_with_popover(context, action_item: ActionItem, tabindex):
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/buttons/popover_list_item.html",
+    "edc_subject_dashboard/bootstrap3/buttons/popover_list_item.html",
     takes_context=True,
 )
 def render_popover_list_item(
@@ -154,7 +153,7 @@ def render_popover_list_item(
 
 
 @register.inclusion_tag(
-    f"edc_action_item/bootstrap{get_bootstrap_version()}/action_item_reason.html",
+    "edc_action_item/bootstrap3/action_item_reason.html",
 )
 def render_action_item_reason(action_item):
     action_item_reasons = []

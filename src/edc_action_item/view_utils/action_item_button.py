@@ -5,9 +5,9 @@ from typing import TYPE_CHECKING, Type
 from uuid import UUID
 
 from django.contrib.sites.models import Site
-from edc_subject_dashboard.view_utils import ModelButton
+from edc_view_utils import ModelButton
 
-from edc_action_item.models import ActionType
+from ..models import ActionType
 
 if TYPE_CHECKING:
     from edc_appointment.models import Appointment
