@@ -2,7 +2,7 @@ import pandas as pd
 from django.apps import apps as django_apps
 from django_pandas.io import read_frame
 
-from .utils import convert_dates_from_model
+from ..utils import convert_dates_from_model
 
 
 def get_subject_visit(
@@ -89,6 +89,13 @@ def get_subject_visit(
     df = df.merge(df_last, on="subject_identifier", how="left")
 
     # get next visitcode and next visit datetime, if there is one
+    # df_next = get_appointment_df()
+    # df_next = (
+    #     df_next[df.appt_status == NEW_APPT]
+    #     .groupby("subject_identifier")
+    #     .agg({"visit_code": "min", "visit_datetime": "min"})
+    # )
+
     df = df.sort_values(by=["subject_identifier", "visit_code"])
     df = df.reset_index(drop=True)
     return df
