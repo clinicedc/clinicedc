@@ -1,0 +1,102 @@
+{% extends edc_base_template %}
+
+{% load static %}
+
+{% block main %}
+  {{ block.super }}
+  <div class="container">
+    <div class="col-sm-4"></div>
+      {% if not location_id %}
+        <div class="col-sm-4">
+          <div style="padding:10px"><a href="{% url "edc_pharmacy:home_url" %}">Pharmacy home</a> > {{ location|default:"Location" }}</div>
+          <div class="panel panel-default">
+            <div class="panel-heading">Confirm transferred stock at {{ location|default:"Location" }}</div>
+            <div class="panel-body">
+              <form class="form-horizontal" action="{{ url }}" method="post" onSubmit="document.getElementById('submit').disabled=true;" >
+                {% csrf_token %}
+                <div class="form-group">
+                  <div class="col-sm-10">
+                    <label class="control-label" for="location_id">Location</label>
+                    <select class="form-control" id="location_id" name="location_id" required autofocus>
+                      <option value="" selected> ----- </option>
+                      {% for location in locations %}
+                        <option value="{{ location.id }}">{{ location.site.id }}: {{ location.display_name }}</option>
+                      {% endfor %}
+                    </select>
+                    <label class="control-label" for="items_to_scan">Number of items to scan</label>
+                    <input type="text" class="form-control" id="items_to_scan" name="items_to_scan" placeholder="number of items" value="{% if items_to_scan %}{{ items_to_scan }}{% endif %}"  pattern="[0-9]{1,4}">
+                  </div>
+                </div>
+
+                <button type="submit" class="btn btn-default" name="submit" id="submit">Submit</button>
+                <button class="btn btn-default" onclick="window.location.href='{% url "edc_pharmacy:home_url" %}'">Cancel</button>
+              </form>
+            </div>
+        </div>
+
+        <div class="col-sm-4"></div>
+
+      {% else %}
+
+        <div class="col-sm-4">
+          <div style="padding:10px"><a href="{% url "edc_pharmacy:home_url" %}">Pharmacy home</a> > <a href="{% url "edc_pharmacy:stock_transfer_confirmation_url" %}">{{ location|default:"Location" }}</a></div>
+          <div class="panel panel-default">
+            <div class="panel-heading">Confirm transferred stock</div>
+            <div class="panel-body">
+              {% if not item_count %}All done!{% endif  %}
+              <form class="form-horizontal" action="{{ url }}" method="post" onSubmit="document.getElementById('submit').disabled=true;" >
+                {% csrf_token %}
+                <div class="form-group">
+                  {% for i in item_count %}
+                    <label class="control-label col-sm-2" for="code{{ i  }}">{{ i }}.</label>
+                    <div class="col-sm-10">
+                      <input type="text" class="form-control" id="codes" name="codes" placeholder="code # {{ i }} " value="" pattern="[A-Z0-9]{6}" required autofocus>
+                    </div>
+                  {% endfor %}
+                </div>
+                <input type="hidden" id="location_id" name="location_id"  value="{{ location_id }}">
+                <input type="hidden" id="items_to_scan" name="items_to_scan"  value="{{ items_to_scan }}">
+                <button type="submit" class="btn btn-default" name="submit" id="submit" {% if not item_count %}disabled{% endif %}>Submit</button>
+                <button type="button" class="btn btn-default" onclick="window.location.href='{% url "edc_pharmacy:home_url" %}'">Done</button>
+            </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-4">
+          <div style="padding:10px">&nbsp;</div>
+            <div class="panel panel-default">
+              <div class="panel-heading">Last scanned {{ confirmed_count }}</div>
+                <div class="panel-body">
+                  <div class="col-sm-10">
+                    <table class="table table-condensed">
+                      {% for code, comment in last_codes %}
+                        <tr>
+                          <td class="text text-{% if comment == "confirmed"%}success{% elif comment == "already confirmed" %}warning{% elif comment == "invalid" %}danger{% else %}default{% endif %}">
+                            {% if comment == "confirmed"%}<i class="fa-solid fa-check fa-fw"></i>
+                            {% elif comment == "already confirmed" %}<i class="fa-solid fa-minus fa-fw"></i>
+                            {% elif comment == "invalid" %}<i class="fa-solid fa-xmark fa-fw"></i>
+                            {% endif %}
+                          </td>
+                          <td class="text text-{% if comment == "confirmed"%}success{% elif comment == "already confirmed" %}warning{% elif comment == "invalid" %}danger{% else %}default{% endif %}">
+                            {{ code }}
+                          </td>
+                          <td class="text text-{% if comment == "confirmed"%}success{% elif comment == "already confirmed" %}warning{% elif comment == "invalid" %}danger{% else %}default{% endif %}">
+                            {{ comment }}
+                          </td>
+                        </tr>
+                      {% endfor %}
+                     </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+
+      {% endif %}
+
+    </div>
+
+  </div>
+{% endblock main %}
+

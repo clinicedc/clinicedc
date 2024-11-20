@@ -1,0 +1,162 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-11-19 22:40+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: edc_pharmacy/admin/actions/allocate_stock_to_subject.py:19
+#: edc_pharmacy/admin/actions/confirm_stock.py:20
+#: edc_pharmacy/admin/actions/confirm_stock.py:33
+#: edc_pharmacy/admin/actions/delete_items_for_stock_request.py:12
+#: edc_pharmacy/admin/actions/go_to_add_repack_request.py:13
+#: edc_pharmacy/admin/actions/go_to_allocations.py:13
+#: edc_pharmacy/admin/actions/go_to_stock.py:13
+#: edc_pharmacy/admin/actions/prepare_stock_request_items.py:27
+#: edc_pharmacy/admin/actions/print_labels.py:31
+#: edc_pharmacy/admin/actions/print_labels.py:54
+#: edc_pharmacy/admin/actions/print_transfer_stock_manifest.py:15
+#: edc_pharmacy/admin/actions/transfer_stock.py:15
+msgid "Select one and only one item"
+msgstr ""
+
+#: edc_pharmacy/admin/actions/delete_items_for_stock_request.py:20
+#, python-brace-format
+msgid "Delete {deleted} items for {stock_request}"
+msgstr ""
+
+#: edc_pharmacy/admin/actions/go_to_add_repack_request.py:19
+msgid "Unable to repack. Stock item has not been confirmed."
+msgstr ""
+
+#: edc_pharmacy/admin/stock/allocation_admin.py:123
+msgid "Go to subject dashboard"
+msgstr ""
+
+#: edc_pharmacy/choices.py:33
+msgid "New"
+msgstr ""
+
+#: edc_pharmacy/choices.py:33
+msgid "Partial"
+msgstr ""
+
+#: edc_pharmacy/choices.py:33
+msgid "Complete"
+msgstr ""
+
+#: edc_pharmacy/pdf_reports/manifest_pdf_report.py:37
+#, python-format
+msgid "Stock Transfer Manifest: %(transfer_identifier)s"
+msgstr ""
+
+#: edc_pharmacy/pdf_reports/manifest_pdf_report.py:50
+msgid "Stock Transfer Manifest"
+msgstr ""
+
+#: edc_pharmacy/pdf_reports/manifest_pdf_report.py:84
+msgid "Reference:"
+msgstr ""
+
+#: edc_pharmacy/pdf_reports/manifest_pdf_report.py:86
+msgid "Contact:"
+msgstr ""
+
+#: edc_pharmacy/pdf_reports/manifest_pdf_report.py:89
+msgid "From:"
+msgstr ""
+
+#: edc_pharmacy/pdf_reports/manifest_pdf_report.py:94
+msgid "To:"
+msgstr ""
+
+#: edc_pharmacy/pdf_reports/manifest_pdf_report.py:104
+msgid "Reference"
+msgstr ""
+
+#: edc_pharmacy/pdf_reports/manifest_pdf_report.py:122
+#, python-format
+msgid "%(count)s items"
+msgstr ""
+
+#: edc_pharmacy/pdf_reports/manifest_pdf_report.py:123
+msgid "Received count"
+msgstr ""
+
+#: edc_pharmacy/pdf_reports/manifest_pdf_report.py:124
+msgid "Received by: signature and date"
+msgstr "Imepokelewa na: saini na tarehe"
+
+#: edc_pharmacy/pdf_reports/manifest_pdf_report.py:125
+msgid "Received by: printed name"
+msgstr "Imepokelewa na: jina lililochapishwa"
+
+#: edc_pharmacy/pdf_reports/manifest_pdf_report.py:136
+msgid ""
+"Place a check mark next to each received item in the left column. If there "
+"are discrepencies, indicate with a note in the right column."
+msgstr ""
+"Weka alama ya tiki karibu na kila kipengee kilichopokelewa kwenye safu ya kushoto. "
+"Ikiwa kuna tofauti, eleza kwa ujumbe kwenye safu ya kulia."
+
+#: edc_pharmacy/pdf_reports/manifest_pdf_report.py:158
+msgid "Code"
+msgstr "Msimbo"
+
+#: edc_pharmacy/pdf_reports/manifest_pdf_report.py:159
+msgid "Subject"
+msgstr "Mhusika"
+
+#: edc_pharmacy/pdf_reports/manifest_pdf_report.py:160
+msgid "Formulation"
+msgstr "Uundaji"
+
+#: edc_pharmacy/pdf_reports/manifest_pdf_report.py:161
+msgid "Container"
+msgstr "Chombo"
+
+#: edc_pharmacy/pdf_reports/manifest_pdf_report.py:162
+msgid "Note"
+msgstr "Ujumbe"
+
+#: edc_pharmacy/templates/edc_pharmacy/stock/confirm_stock_by_instance.html:17
+#: edc_pharmacy/templates/edc_pharmacy/stock/confirm_stock_by_queryset.html:17
+msgid "All items are confirmed."
+msgstr "Vitu vyote vimethibitishwa"
+
+#: edc_pharmacy/templates/edc_pharmacy/stock/instructions/repack_instructions.html:2
+msgid ""
+"The repack process is done in four steps. First, fill in a request and save. "
+"Then, select the row and choose <i>process repack request</i> from the "
+"Actions menu. Print labels. Affix labels to new stock items. Lastly, choose "
+"<i>Confirm repacked and labeled stock</i> from the Action menu."
+msgstr ""
+"Mchakato wa kupakia upya unafanywa kwa hatua nne. Kwanza, jaza ombi na ulihifadhi. "
+"Kisha, chagua safu na chagua <i>shughulikia ombi la kumimina</i> kutoka kwenye menyu "
+"ya Vitendo. Chapisha lebo. Ambatanisha lebo kwenye bidhaa mpya. Mwishowe, chagua "
+"<i>Thibitisha bidhaa zilizobadilishwa na zilizolabeli</i> kutoka kwenye menyu ya Vitendo."
+
+#: edc_pharmacy/views/confirm_stock_from_queryset_view.py:53
+msgid "confirmed"
+msgstr "imethibitishwa"
+
+#: edc_pharmacy/views/confirm_stock_from_queryset_view.py:64
+#, python-format
+msgid "already %(transaction_word)s"
+msgstr "tayari %(transaction_word)s"
+
+#: edc_pharmacy/views/confirm_stock_from_queryset_view.py:72
+msgid "invalid"
+msgstr "batili"

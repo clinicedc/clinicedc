@@ -4,7 +4,7 @@ from django.db import models
 from edc_model.models import BaseUuidModel
 from edc_utils import get_utcnow
 
-from .location import Location
+from ..stock import Location
 
 
 class Room(BaseUuidModel):

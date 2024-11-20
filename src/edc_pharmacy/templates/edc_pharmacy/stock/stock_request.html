@@ -1,0 +1,57 @@
+{% extends edc_base_template %}
+
+{% load static %}
+
+{% block extrastyle %}
+{{ block.super }}
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+{% endblock %}
+{% block extrahead %}
+  {{ block.super }}
+  <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+{% endblock %}
+
+{% block main %}
+  {{ block.super }}
+  <div class="container">
+
+    <div class="col-sm-12">
+
+      {% if nostock_table %}
+      <h5>Stock Request {{ stock_request.request_identifier }}: {{ rows }} Items for {{ subjects }} subjects.</h5>
+      <p>Review the proposed items. When you are ready click "Create Items" below or cancel.</p>
+      {% else %}
+      <h5>Stock Request {{ stock_request.request_identifier }}: 0 Items for 0 subjects.</h5>
+      <p>No items found. Check the cutoff date in the stock request <A href="{% url 'edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist' %}?q={{ stock_request.id }}">{{ stock_request.request_identifier }}</A>.</p>
+      {% endif %}
+      <hr>
+      {{ nostock_table|safe }}
+      <hr>
+      <div class="well well-sm">
+        <form class="form-horizontal" action="{{ url }}" method="post" onSubmit="document.getElementById('submit').disabled=true;">
+          {% csrf_token %}
+            <input type="hidden" id="stock_request" name="stock_request"  value="{{ stock_request.id }}">
+            <input type="hidden" id="session_uuid" name="session_uuid"  value="{{ session_uuid }}">
+            <button type="submit" class="btn btn-primary" name="submit" id="submit" {% if stock_request_items_exist or not nostock_table %} disabled {% endif %}>Create items</button>
+            <button type="submit" class="btn btn-default" id="cancel" name="cancel" value="cancel">Cancel</button>
+        </form>
+      </div>
+    </div>
+    <div class="col-sm-12">
+      <h5>In-stock items.</h5>
+      <p>These items are in stock at the site.</p>
+      <hr>
+      {{ instock_table|safe }}
+    </div>
+
+  </div>
+{% endblock main %}
+
+
+{% block document_ready %}
+    <script>
+        $(document).ready(function() {
+            $('#my_table').DataTable();
+        });
+    </script>
+{% endblock %}

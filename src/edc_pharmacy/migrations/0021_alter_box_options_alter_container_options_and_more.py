@@ -5,7 +5,7 @@ import uuid
 import edc_sites.models
 from django.db import migrations, models
 
-import edc_pharmacy.models.rx
+import edc_pharmacy.models.prescription
 
 
 class Migration(migrations.Migration):
@@ -457,7 +457,7 @@ class Migration(migrations.Migration):
         migrations.AlterModelManagers(
             name="rx",
             managers=[
-                ("objects", edc_pharmacy.models.rx.Manager()),
+                ("objects", edc_pharmacy.models.prescription.rx.Manager()),
                 ("on_site", edc_sites.models.CurrentSiteManager()),
             ],
         ),

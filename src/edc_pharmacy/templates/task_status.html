@@ -1,0 +1,31 @@
+<script>
+    function pollTaskStatus(taskId, elementId) {
+        fetch(`/task-status/${taskId}/`)
+            .then(response => response.json())
+            .then(data => {
+                const statusElement = document.getElementById(elementId);
+                if (data.status === 'SUCCESS') {
+                    statusElement.innerText = 'SUCCESS';
+                } else if (data.status === 'FAILURE') {
+                    statusElement.innerText = 'FAILURE';
+                } else {
+                    statusElement.innerText = data.status;
+                    setTimeout(() => pollTaskStatus(taskId, elementId), 2000);  // Poll every 2 seconds
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching task status:', error);
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const taskElements = document.querySelectorAll('[data-task-id]');
+        taskElements.forEach(element => {
+            const taskId = element.getAttribute('data-task-id');
+            const elementId = element.getAttribute('id');
+            if (taskId) {
+                pollTaskStatus(taskId, elementId);
+            }
+        });
+    });
+</script>

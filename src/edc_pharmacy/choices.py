@@ -1,6 +1,15 @@
-from edc_constants.constants import NEW, NOT_APPLICABLE, OTHER
+from django.utils.translation import gettext as _
+from edc_constants.constants import COMPLETE, NEW, NOT_APPLICABLE, OTHER
 
-from .constants import CANCELLED, DISPENSED, FILLED, PARTIAL
+from .constants import (
+    ALLOCATED,
+    AVAILABLE,
+    CANCELLED,
+    DISPENSED,
+    FILLED,
+    PARTIAL,
+    ZERO_ITEM,
+)
 
 PRESCRIPTION_STATUS = (
     (NEW, "New"),
@@ -19,4 +28,18 @@ FREQUENCY = (
     ("single", "single dose"),
     (OTHER, "Other ..."),
     (NOT_APPLICABLE, "Not applicable"),
+)
+
+ORDER_CHOICES = ((NEW, _("New")), (PARTIAL, _("Partial")), (COMPLETE, _("Complete")))
+
+STOCK_STATUS = (
+    (AVAILABLE, "Available"),
+    (ALLOCATED, "Allocated"),
+    (ZERO_ITEM, "Zero"),
+)
+
+
+STOCK_UPDATE = (
+    ("edc_pharmacy.receiveitem", "Receiving"),
+    ("edc_pharmacy.repackrequest", "Repacking"),
 )
