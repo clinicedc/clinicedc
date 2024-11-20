@@ -86,19 +86,24 @@ class ManifestReport(Report):
                 Paragraph(_("Contact:"), right_style),
             ],
             [
+                Paragraph(_("Date:"), left_style),
+                Paragraph(timestamp),
+                Paragraph(contact_name, right_style),
+            ],
+            [
                 Paragraph(_("From:"), left_style),
                 Paragraph(from_location, left_style),
-                Paragraph(contact_name, right_style),
+                Paragraph(email, right_style),
             ],
             [
                 Paragraph(_("To:"), left_style),
                 Paragraph(self.stock_transfer.to_location.display_name, left_style),
-                Paragraph(email, right_style),
+                Paragraph(tel, right_style),
             ],
             [
                 Paragraph("", left_style),
                 Paragraph("", left_style),
-                Paragraph(tel, right_style),
+                Paragraph("", right_style),
             ],
         ]
         text_width1 = stringWidth(_("Reference"), "Helvetica", 10)
@@ -113,19 +118,21 @@ class ManifestReport(Report):
         )
         data = [
             [
-                Paragraph(timestamp, style),
-                Paragraph("_______________", right_style),
-                Paragraph("______________________________", right_style),
-                Paragraph("______________________________", right_style),
+                Paragraph(_("%(count)s items") % {"count": queryset.count()}, style),
+                Paragraph("_________________________", right_style),
+                Paragraph("_________________________", right_style),
+                Paragraph("_________________________", right_style),
+                Paragraph("__________", right_style),
             ],
             [
-                Paragraph(_("%(count)s items") % {"count": queryset.count()}, style),
-                Paragraph(_("Received count"), right_style),
-                Paragraph(_("Received by: signature and date"), right_style),
+                Paragraph("", style),
+                Paragraph(_("Issued by: signature /date"), style),
+                Paragraph(_("Received by: signature / date"), right_style),
                 Paragraph(_("Received by: printed name"), right_style),
+                Paragraph(_("Received count"), right_style),
             ],
         ]
-        table = Table(data, colWidths=(None, None, None, None))
+        table = Table(data, colWidths=(None, None, None, None, None))
         story.append(table)
 
         style = ParagraphStyle(name="line_data_medium", alignment=TA_LEFT, fontSize=8)
@@ -154,7 +161,7 @@ class ManifestReport(Report):
             [
                 Paragraph("", style),
                 Paragraph("#", style),
-                Paragraph("", style),
+                Paragraph(_("Barcode"), style),
                 Paragraph(_("Code"), style),
                 Paragraph(_("Subject"), style),
                 Paragraph(_("Formulation"), style),

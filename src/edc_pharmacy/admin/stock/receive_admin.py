@@ -84,6 +84,8 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
         "order_changelist",
         "items",
         "stock_changelist",
+        "supplier",
+        "invoice_number",
         "invoice_date",
         "created",
         "modified",
@@ -91,6 +93,7 @@ class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
     list_filter = (
         "receive_datetime",
         "location",
+        "invoice_date",
         "created",
         "modified",
     )

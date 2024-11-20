@@ -63,7 +63,6 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     )
     search_fields = (
         "id",
-        # "receive_item_identifier",
         "order_item__id",
         "order_item__order__order_identifier",
         "receive__id",
@@ -77,7 +76,7 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     def item_date(self, obj):
         return to_local(obj.receive_item_datetime).date()
 
-    @admin.display(description="Lot #", ordering="lot__lot_no")
+    @admin.display(description="BATCH #", ordering="lot__lot_no")
     def formatted_lot(self, obj):
         return obj.lot.lot_no
 

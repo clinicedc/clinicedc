@@ -1,5 +1,6 @@
 from edc_auth.site_auths import site_auths
 from edc_auth.utils import remove_default_model_permissions_from_edc_permissions
+from edc_pylabels.auth_objects import PYLABELS
 
 from .auth_objects import (
     PHARMACIST_ROLE,
@@ -32,7 +33,7 @@ site_auths.add_group(
     *prescriber_codenames, *pharmacy_navbar_codenames, name=PHARMACY_PRESCRIBER, no_delete=True
 )
 
-site_auths.add_role(PHARMACY, name=PHARMACIST_ROLE)
-site_auths.add_role(PHARMACY, name=SITE_PHARMACIST_ROLE)
+site_auths.add_role(PHARMACY, PYLABELS, name=PHARMACIST_ROLE)
+site_auths.add_role(PHARMACY, PYLABELS, name=SITE_PHARMACIST_ROLE)
 site_auths.add_role(PHARMACY_PRESCRIBER, name=PHARMACY_PRESCRIBER_ROLE)
 site_auths.add_role(PHARMACY_VIEW, name=PHARMACY_AUDITOR_ROLE)
