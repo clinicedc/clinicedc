@@ -9,8 +9,7 @@ from edc_consent import site_consents
 from edc_pdutils.site import Site
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_utils import get_utcnow
-
-from .model_button import ModelButton
+from edc_view_utils import ModelButton
 
 if TYPE_CHECKING:
     from edc_consent.model_mixins import ConsentModelMixin

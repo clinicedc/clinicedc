@@ -21,23 +21,22 @@ from edc_appointment.utils import (
     get_appointment_model_cls,
     get_unscheduled_appointment_url,
 )
+from edc_appointment.view_utils import AppointmentButton
 from edc_auth.constants import AUDITOR_ROLE
 from edc_dashboard.utils import get_bootstrap_version
 from edc_metadata import KEYED, REQUIRED
 from edc_metadata.metadata_helper import MetadataHelper
 from edc_utils import get_utcnow
+from edc_view_utils import PrnButton, render_history_and_query_buttons
+from edc_visit_tracking.view_utils import RelatedVisitButton
 
 from ..view_utils import (
-    AppointmentButton,
     CrfButton,
     GotToFormsButton,
-    PrnButton,
-    RelatedVisitButton,
     RequisitionButton,
     SubjectConsentDashboardButton,
     SubjectConsentListboardButton,
     TimepointStatusButton,
-    render_history_and_query_buttons,
 )
 from ..view_utils.subject_screening_button import SubjectScreeningButton
 

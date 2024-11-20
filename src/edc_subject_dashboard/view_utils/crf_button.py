@@ -3,9 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from uuid import UUID
 
-from .dashboard_model_button import DashboardModelButton
-
 __all__ = ["CrfButton"]
+
+from edc_view_utils import DashboardModelButton
 
 
 @dataclass

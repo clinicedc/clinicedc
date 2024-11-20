@@ -6,10 +6,8 @@ from typing import TYPE_CHECKING, TypeVar
 from django.utils.translation import gettext as _
 from edc_appointment.constants import IN_PROGRESS_APPT
 from edc_constants.constants import COMPLETE
-
-from .model_button import CHANGE, VIEW
-from .next_querystring import NextQuerystring
-from .related_visit_button import RelatedVisitButton
+from edc_view_utils import CHANGE, VIEW, NextQuerystring
+from edc_visit_tracking.view_utils import RelatedVisitButton
 
 if TYPE_CHECKING:
     from edc_visit_tracking.model_mixins import VisitModelMixin
