@@ -6,7 +6,6 @@ from .label_template import LabelTemplate
 
 
 class Label:
-
     """A class that prepares data for x copies of labels."""
 
     label_name = "label"
