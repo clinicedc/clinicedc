@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from django.utils.translation import gettext as _
-from edc_subject_dashboard.view_utils import ModelButton
+from edc_view_utils import ModelButton
 
 if TYPE_CHECKING:
     from edc_action_item.models import ActionItem
