@@ -34,14 +34,9 @@ class NavbarItem:
         default=f"edc_navbar/bootstrap{get_bootstrap_version()}/navbar_item.html",
         repr=False,
     )
-    # codename_tuple: tuple[str, str] = field(default_factory=tuple, init=False, repr=False)
 
     def __post_init__(self):
         self.title = self.title or self.label or self.name.title()  # the anchor title
-        # self.codename_tuple = (
-        #     self.codename,
-        #     f'Can access {" ".join(self.codename.split("_"))}',
-        # )
 
     def get_url(self, raise_exception: bool | None = None) -> str | None:
         try:
