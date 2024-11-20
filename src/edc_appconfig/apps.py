@@ -33,6 +33,7 @@ from edc_notification.post_migrate_signals import post_migrate_update_notificati
 from edc_notification.site_notifications import site_notifications
 from edc_pdutils.site_values_mappings import site_values_mappings
 from edc_prn.site_prn_forms import site_prn_forms
+from edc_pylabels.site_label_configs import site_label_configs
 from edc_randomization.site_randomizers import site_randomizers
 from edc_reportable.site_reportables import site_reportables
 from edc_sites.post_migrate_signals import post_migrate_update_sites
@@ -101,6 +102,7 @@ class AppConfig(DjangoAppConfig):
             edc_pdutils=site_values_mappings.autodiscover,
             edc_prn=site_prn_forms.autodiscover,
             edc_randomization=site_randomizers.autodiscover,
+            edc_pylabels=site_label_configs.autodiscover,
         )
         # site_offline_models.autodiscover()
         opts = {k: v for k, v in opts.items() if k in installed_apps}
