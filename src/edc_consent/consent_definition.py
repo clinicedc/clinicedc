@@ -18,7 +18,6 @@ from .exceptions import (
     ConsentDefinitionValidityPeriodError,
     NotConsentedError,
 )
-from .managers import ConsentObjectsByCdefManager, CurrentSiteByCdefManager
 
 if TYPE_CHECKING:
     from edc_model.models import BaseUuidModel
@@ -42,7 +41,7 @@ class ConsentDefinition:
     version: str = field(default="1", compare=False)
     updates: ConsentDefinition = field(default=None, compare=False)
     end_extends_on_update: bool = field(default=False, compare=False)
-    screening_model: str = field(default=None, compare=False)
+    screening_model: list[str] = field(default_factory=list, compare=False)
     age_min: int = field(default=18, compare=False)
     age_max: int = field(default=110, compare=False)
     age_is_adult: int = field(default=18, compare=False)
@@ -64,7 +63,7 @@ class ConsentDefinition:
         self.sort_index = self.name
         self.gender = [MALE, FEMALE] if not self.gender else self.gender
         if not self.screening_model:
-            self.screening_model = get_subject_screening_model()
+            self.screening_model = [get_subject_screening_model()]
         if MALE not in self.gender and FEMALE not in self.gender:
             raise ConsentDefinitionError(f"Invalid gender. Got {self.gender}.")
         if not self.start.tzinfo:
@@ -79,6 +78,8 @@ class ConsentDefinition:
 
     @property
     def model(self):
+        from .managers import ConsentObjectsByCdefManager, CurrentSiteByCdefManager
+
         model_cls = django_apps.get_model(self._model)
         if not model_cls._meta.proxy:
             raise ConsentDefinitionError(
