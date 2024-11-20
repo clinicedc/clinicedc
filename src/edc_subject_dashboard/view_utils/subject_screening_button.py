@@ -11,8 +11,7 @@ __all__ = ["SubjectScreeningButton"]
 from typing import TYPE_CHECKING, TypeVar
 
 from django.contrib.sites.models import Site
-
-from .dashboard_model_button import DashboardModelButton
+from edc_view_utils import DashboardModelButton
 
 if TYPE_CHECKING:
     from edc_screening.model_mixins import ScreeningModelMixin

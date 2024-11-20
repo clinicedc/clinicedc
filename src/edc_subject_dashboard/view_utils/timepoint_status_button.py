@@ -11,9 +11,8 @@ from edc_appointment.constants import (
     NEW_APPT,
     SKIPPED_APPT,
 )
+from edc_appointment.view_utils import AppointmentButton
 from edc_utils import get_utcnow
-
-from .appointment_button import AppointmentButton
 
 if TYPE_CHECKING:
     from edc_visit_tracking.model_mixins import VisitModelMixin

@@ -7,7 +7,7 @@ __all__ = ["SubjectConsentDashboardButton"]
 
 from typing import TYPE_CHECKING, Type, TypeVar
 
-from .model_button import ModelButton
+from edc_view_utils import ModelButton
 
 if TYPE_CHECKING:
     from edc_appointment.models import Appointment
