@@ -4,7 +4,6 @@ from .site_notifications import site_notifications
 
 
 class NotificationModelAdminMixin:
-
     """Show some information about which notifications are
     linked to the form and of those which are the current
     user subscribed to.

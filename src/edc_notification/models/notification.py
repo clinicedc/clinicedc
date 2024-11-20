@@ -4,7 +4,6 @@ from edc_model.models import BaseUuidModel
 
 
 class Notification(BaseUuidModel):
-
     """A model that stores the notification types.
 
     Currently, show these for the user to select/subscribe to

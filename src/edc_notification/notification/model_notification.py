@@ -8,7 +8,6 @@ from .notification import Notification
 
 
 class ModelNotification(Notification):
-
     """Generate a notification based on a model condition.
 
     Model must use the historical_model manager.

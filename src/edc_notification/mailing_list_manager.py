@@ -23,7 +23,6 @@ class UserEmailError(ValidationError):
 
 
 class MailingListManager:
-
     """A class to create (and update) mailing lists, subscribe,
     unsubscribe members, etc via the MAILGUN API.
 
