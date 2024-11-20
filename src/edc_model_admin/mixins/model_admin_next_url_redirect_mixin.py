@@ -111,6 +111,9 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
                 except NoReverseMatch:
                     # raise with first exception msg
                     raise ModelAdminNextUrlRedirectError(msg)
+                else:
+                    if "q" in options and "changelist" in url_name:
+                        redirect_url = f"{redirect_url}?q={options['q']}"
         return redirect_url
 
     def get_savenext_redirect_url(self, request=None, obj=None) -> Optional[str]:

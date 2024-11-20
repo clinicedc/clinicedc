@@ -126,6 +126,7 @@ def edc_submit_row(
 @register.inclusion_tag("logout_row.html", takes_context=True)
 def logout_row(context):
     return dict(
+        perms=context.get("perms"),
         user=context.get("request").user,
         request=context.get("request"),
         site_url=context.get("site_url"),
