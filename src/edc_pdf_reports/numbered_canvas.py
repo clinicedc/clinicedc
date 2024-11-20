@@ -6,6 +6,7 @@ from reportlab.pdfgen import canvas
 
 class NumberedCanvas(canvas.Canvas):
     static_footer_text = None
+    footer_row_height = 25
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -30,5 +31,7 @@ class NumberedCanvas(canvas.Canvas):
         width, _ = A4
         self.setFont("Helvetica", 6)
         self.drawCentredString(
-            width / 2, 25, "Page %d of %d" % (self.getPageNumber(), page_count)
+            width / 2,
+            self.footer_row_height,
+            "Page %d of %d" % (self.getPageNumber(), page_count),
         )

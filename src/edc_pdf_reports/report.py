@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from abc import ABC
+from typing import Type
 from uuid import uuid4
 
 from django.core.handlers.wsgi import WSGIRequest
 from django.utils import timezone
 from django_revision.revision import Revision
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_utils.date import to_local
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import (
@@ -17,6 +19,8 @@ from reportlab.lib.styles import (
 )
 from reportlab.lib.units import cm
 from reportlab.platypus import SimpleDocTemplate
+
+from edc_pdf_reports.numbered_canvas import NumberedCanvas
 
 
 class ReportError(Exception):
@@ -42,16 +46,29 @@ class Report(ABC):
         header_line: str | None = None,
         filename: str | None = None,
         request: WSGIRequest | None = None,
+        numbered_canvas: Type[NumberedCanvas] | None = None,
+        footer_row_height: int | None = None,
     ):
         self._styles = None
         self.request = request
         self.page = page or self.default_page
-
         self.filename = filename or f"{uuid4()}.pdf"
+        self.footer_row_height = footer_row_height or 25
+        self.numbered_canvas = numbered_canvas
 
         if not header_line:
             header_line = ResearchProtocolConfig().institution
         self.header_line = header_line
+
+    def build(self, response):
+        doctemplate = self.document_template(response, **self.page)
+        story = self.get_report_story()
+        doctemplate.build(
+            story,
+            onFirstPage=self.on_first_page,
+            onLaterPages=self.on_later_pages,
+            canvasmaker=self.numbered_canvas,
+        )
 
     @property
     def report_filename(self) -> str:
@@ -81,16 +98,22 @@ class Report(ABC):
 
     def on_later_pages(self, canvas, doc):
         """Callback for onLaterPages"""
+        self.draw_header(canvas, doc)
         self.draw_footer(canvas, doc)
+
+    def draw_header(self, canvas, doc):
+        pass
 
     def draw_footer(self, canvas, doc):
         styles = getSampleStyleSheet()
         styles.add(ParagraphStyle(name="header", fontSize=6, alignment=TA_CENTER))
         width, _ = A4
         canvas.setFontSize(6)
-        timestamp = timezone.now().strftime("%Y-%m-%d %H:%M")
-        canvas.drawRightString(width - len(timestamp) - 20, 25, f"printed on {timestamp}")
-        canvas.drawString(35, 25, f"clinicedc {Revision().tag}")
+        timestamp = to_local(timezone.now()).strftime("%Y-%m-%d %H:%M")
+        canvas.drawRightString(
+            width - len(timestamp) - 20, self.footer_row_height, f"printed on {timestamp}"
+        )
+        canvas.drawString(35, self.footer_row_height, f"clinicedc {Revision().tag}")
 
     @property
     def styles(self):
