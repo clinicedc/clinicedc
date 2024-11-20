@@ -1,7 +1,12 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Type
+
 from django import forms
-from django.contrib.sites.models import Site
+from django.apps import apps as django_apps
+
+if TYPE_CHECKING:
+    from django.contrib.sites.models import Site
 
 __all__ = ["SiteModelFormMixin"]
 
@@ -27,11 +32,17 @@ class SiteModelFormMixin:
         return cleaned_data
 
     @property
+    def site_model_cls(self) -> Type[Site]:
+        return django_apps.get_model("sites.site")
+
+    @property
     def site(self) -> Site:
         if related_visit := getattr(self, "related_visit", None):
             return related_visit.site
         return (
-            self.cleaned_data.get("site") or self.instance.site or Site.objects.get_current()
+            self.cleaned_data.get("site")
+            or self.instance.site
+            or self.site_model_cls.objects.get_current()
         )
 
     def validate_with_current_site(self) -> None:
