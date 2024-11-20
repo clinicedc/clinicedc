@@ -2,7 +2,7 @@ import sys
 
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.db import connection, models
+from django.db import OperationalError, connection, models
 from django.db.models import DO_NOTHING, Index
 from edc_utils import get_utcnow
 
@@ -49,7 +49,10 @@ class QaReportModelMixin(models.Model):
                 print(f"create view {cls._meta.db_table} as {sql};")
             with connection.cursor() as c:
                 if drop:
-                    c.execute(f"drop view {cls._meta.db_table};")
+                    try:
+                        c.execute(f"drop view {cls._meta.db_table};")
+                    except OperationalError:
+                        pass
                 c.execute(f"create view {cls._meta.db_table} as {sql};")
             sys.stdout.write(
                 f"Done. Refreshed DB VIEW `{cls._meta.db_table}` for model {cls}."
