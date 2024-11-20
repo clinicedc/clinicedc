@@ -38,7 +38,14 @@ class OrderItem(BaseUuidModel):
 
     qty = models.DecimalField(null=True, blank=False, decimal_places=2, max_digits=20)
 
-    unit_qty = models.DecimalField(decimal_places=2, max_digits=20, null=True)
+    unit_qty_ordered = models.DecimalField(decimal_places=2, max_digits=20, null=True)
+
+    unit_qty = models.DecimalField(
+        decimal_places=2,
+        max_digits=20,
+        null=True,
+        help_text="unit qty ordered less unit qty received",
+    )
 
     unit_qty_received = models.DecimalField(decimal_places=2, max_digits=20, null=True)
 
@@ -56,6 +63,7 @@ class OrderItem(BaseUuidModel):
     def save(self, *args, **kwargs):
         if not self.id:
             self.order_item_identifier = f"{get_next_value(self._meta.label_lower):06d}"
+            self.unit_qty_ordered = self.qty * self.container.qty
             self.unit_qty = self.qty * self.container.qty
         if not self.order:
             raise OrderItemError("Order may not be null.")

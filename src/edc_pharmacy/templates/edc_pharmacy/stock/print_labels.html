@@ -16,6 +16,12 @@
             {% csrf_token %}
             <div class="form-group">
               <div class="col-sm-10">
+                <label class="control-label" for="filter_by">Which stock from this request</label>
+                <select class="form-control" id="filter_by" name="filter_by" required>
+                    <option value="all" selected>All</option>
+                    <option value="unconfirmed_only">Unconfirmed stock only</option>
+                    <option value="confirmed_only">Confirmed stock only</option>
+                </select>
                 <label class="control-label" for="label_configuration">Select a label format</label>
                 <select class="form-control" id="label_configuration" name="label_configuration" required autofocus>
                     <option value="" selected> ----- </option>

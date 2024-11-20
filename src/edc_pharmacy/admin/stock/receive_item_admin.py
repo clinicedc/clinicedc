@@ -6,8 +6,9 @@ from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import ReceiveItemForm
-from ...models import Receive, ReceiveItem
+from ...models import OrderItem, Receive, ReceiveItem
 from ...utils import format_qty
+from ..actions import delete_receive_items_action, print_labels_from_receive_item
 from ..model_admin_mixin import ModelAdminMixin
 
 
@@ -22,6 +23,8 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     form = ReceiveItemForm
     include_audit_fields_in_list_display = False
     ordering = ("-receive_item_identifier",)
+
+    actions = [delete_receive_items_action, print_labels_from_receive_item]
 
     fieldsets = (
         (
@@ -142,4 +145,11 @@ class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
                 )
             else:
                 kwargs["queryset"] = Receive.objects.none()
+        if db_field.name == "order_item":
+            if request.GET.get("order_item"):
+                kwargs["queryset"] = OrderItem.objects.filter(
+                    id__exact=request.GET.get("order_item", 0)
+                )
+            else:
+                kwargs["queryset"] = OrderItem.objects.none()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)

@@ -38,12 +38,21 @@ class ConfirmStockFromInstanceView(
             .filter(**{dct.get("fk_attr"): dct.get("obj").id, "confirmed": True})
             .count()
         )
+
+        unconfirmed_count = (
+            Stock.objects.values("pk")
+            .filter(**{dct.get("fk_attr"): dct.get("obj").id}, confirmed=False)
+            .count()
+        )
+        unconfirmed_count = 12 if unconfirmed_count > 12 else unconfirmed_count
+
         kwargs.update(
             source_identifier=dct.get("source_identifier"),
             source_model_name=self.model_cls._meta.verbose_name,
             source_changelist_url=self.source_changelist_url,
             source_pk=self.kwargs.get("source_pk"),
-            item_count=list(range(1, 13)),
+            item_count=list(range(1, unconfirmed_count + 1)),
+            unconfirmed_count=unconfirmed_count,
             confirmed_count=confirmed_count,
             confirmed_codes=self.get_confirmed_codes(dct.get("obj"), dct.get("fk_attr")),
         )

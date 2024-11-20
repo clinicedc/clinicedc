@@ -1,5 +1,5 @@
 from django.db import models
-from edc_constants.constants import CLOSED, OPEN
+from edc_constants.constants import CANCELLED, CLOSED, OPEN
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
@@ -96,9 +96,20 @@ class StockRequest(BaseUuidModel):
         ),
     )
 
+    cancel = models.CharField(
+        verbose_name="To cancel this request, type the word 'CANCEL' here and save the form:",
+        max_length=6,
+        default=None,
+        null=True,
+        blank=True,
+    )
     status = models.CharField(
         max_length=25,
-        choices=((OPEN, OPEN.title()), (CLOSED, CLOSED.title())),
+        choices=(
+            (OPEN, OPEN.title()),
+            (CLOSED, CLOSED.title()),
+            (CANCELLED, CANCELLED.title()),
+        ),
         default=OPEN,
     )
 

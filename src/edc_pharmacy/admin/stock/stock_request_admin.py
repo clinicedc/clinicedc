@@ -1,6 +1,8 @@
+from typing import Optional
+
 from celery.result import AsyncResult
 from celery.states import SUCCESS
-from django.contrib import admin, messages
+from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
@@ -9,7 +11,7 @@ from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import StockRequestForm
-from ...models import Allocation, StockRequest
+from ...models import StockRequest
 from ..actions import allocate_stock_to_subject, prepare_stock_request_items_action
 from ..model_admin_mixin import ModelAdminMixin
 from ..utils import stock_request_status_counts
@@ -48,25 +50,34 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
         ),
         (
             "Section C",
-            {"fields": ("item_count", "status")},
+            {"fields": ("item_count",)},
         ),
         (
             "Section D: Customize this request",
             {"fields": ("subject_identifiers", "excluded_subject_identifiers")},
+        ),
+        (
+            "Section E: Cancel this request",
+            {
+                "description": (
+                    "A request may only be cancelled before stock is allocated by "
+                    "the central pharmacy. The EDC will check if the request may be cancelled."
+                ),
+                "fields": ("cancel",),
+            },
         ),
         audit_fieldset_tuple,
     )
 
     list_display = (
         "stock_request_id",
-        "request_date",
+        "stock_request_date",
         "requested_from",
         "product_column",
-        "request_status",
+        "stock_request_status",
         "stock_request_items",
         "allocation_changelist",
         "stock_changelist",
-        "status",
         "task_status",
     )
 
@@ -77,30 +88,35 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
         "location",
     )
 
-    radio_fields = {
-        "status": admin.VERTICAL,
-    }
-
     search_fields = ("id", "request_identifier")
 
     readonly_fields = ("item_count",)
 
+    def redirect_url(self, request, obj, post_url_continue=None) -> Optional[str]:
+        redirect_url = super().redirect_url(request, obj, post_url_continue)
+        if obj.cancel == "CANCEL":
+            pass
+        elif not obj.stockrequestitem_set.all().exists():
+            redirect_url = reverse(
+                "edc_pharmacy:review_stock_request_url", kwargs={"stock_request": obj.pk}
+            )
+        return redirect_url
+
     def get_readonly_fields(self, request, obj=None):
         fields = super().get_readonly_fields(request, obj)
-        if obj:
-            if Allocation.objects.filter(stock_request_item__stock_request=obj).exists():
-                fields = (
-                    "request_identifier",
-                    "request_datetime",
-                    "cutoff_datetime",
-                    "location",
-                    "formulation",
-                    "container",
-                    "containers_per_subject",
-                    "item_count",
-                    "subject_identifiers",
-                    "excluded_subject_identifiers",
-                )
+        if obj and obj.stockrequestitem_set.all().exists():
+            fields = (
+                "request_identifier",
+                "request_datetime",
+                "cutoff_datetime",
+                "location",
+                "formulation",
+                "container",
+                "containers_per_subject",
+                "item_count",
+                "subject_identifiers",
+                "excluded_subject_identifiers",
+            )
         return fields
 
     @admin.display(description="Request #", ordering="request_identifier")
@@ -170,7 +186,9 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(description="Status")
-    def request_status(self, obj):
+    def stock_request_status(self, obj):
+        if obj.cancel == "CANCEL":
+            return "CANCELLED"
         context = stock_request_status_counts(obj)
         context.update(task_status=self.task_status(obj), success=SUCCESS)
         return render_to_string(
@@ -179,16 +197,5 @@ class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
         )
 
     @admin.display(description="Request date")
-    def request_date(self, obj):
+    def stock_request_date(self, obj):
         return to_local(obj.request_datetime).date()
-
-    def save_model(self, request, obj, form, change):
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            (
-                "Your next step is to prepare the items for "
-                "this stock request. Select from actions below."
-            ),
-        )
-        obj.save()

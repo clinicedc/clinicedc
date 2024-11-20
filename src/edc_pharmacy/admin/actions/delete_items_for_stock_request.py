@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.utils.translation import gettext
 
-from edc_pharmacy.models import StockRequestItem
+from ...models import StockRequestItem
 
 
 def delete_items_for_stock_request_action(modeladmin, request, queryset):

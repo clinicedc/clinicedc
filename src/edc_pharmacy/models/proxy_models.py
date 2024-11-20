@@ -18,11 +18,3 @@ class SiteProxy(Site):
         proxy = True
         verbose_name = "Site"
         verbose_name_plural = "Sites"
-
-
-# class RegisteredSubjectProxy(RegisteredSubject):
-#     class Meta:
-#         proxy = True
-#         default_permissions = ("view", "export")
-#         verbose_name = "Subject"
-#         verbose_name_plural = "Subjects"

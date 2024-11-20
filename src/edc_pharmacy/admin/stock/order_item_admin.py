@@ -1,17 +1,19 @@
 from decimal import Decimal
 
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.translation import gettext as _
 from django_audit_fields.admin import audit_fieldset_tuple
-from edc_constants.constants import COMPLETE
+from edc_utils import message_in_queue
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import OrderItemForm
 from ...models import Order, OrderItem, Receive, Stock
 from ...utils import format_qty
-from ..list_filters import ProductAssignmentListFilter
+from ..actions import delete_order_items_action
+from ..list_filters import OrderItemStatusListFilter, ProductAssignmentListFilter
 from ..model_admin_mixin import ModelAdminMixin
 from ..remove_fields_for_blinded_users import remove_fields_for_blinded_users
 
@@ -26,6 +28,7 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     form = OrderItemForm
     ordering = ("-order_item_identifier",)
     autocomplete_fields = ["product", "container"]
+    actions = [delete_order_items_action]
 
     fieldsets = (
         (
@@ -47,7 +50,7 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         "container",
         "formatted_qty",
         "formatted_unit_qty",
-        "status",
+        "order_status",
         "order_changelist",
         "receive_url",
         "stock_changelist",
@@ -55,7 +58,7 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         "modified",
     )
     list_filter = (
-        "status",
+        OrderItemStatusListFilter,
         ProductAssignmentListFilter,
     )
     radio_fields = {"status": admin.VERTICAL}
@@ -84,6 +87,22 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         fields = remove_fields_for_blinded_users(request, fields)
         return fields
 
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return self.readonly_fields + ("order",)
+        return self.readonly_fields
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        msg = _("All order items have been received")
+        if not message_in_queue(request, msg):
+            if (
+                queryset.values("unit_qty").filter(unit_qty=0).count()
+                == queryset.model.objects.values("unit_qty").all().count()
+            ):
+                messages.add_message(request, messages.INFO, msg)
+        return queryset
+
     @admin.display(description="ORDER ITEM #", ordering="-order_item_identifier")
     def identifier(self, obj):
         return obj.order_item_identifier
@@ -91,6 +110,14 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     @admin.display(description="Assignment", ordering="product__assignment__name")
     def assignment(self, obj):
         return obj.product.assignment
+
+    @admin.display(description="Status")
+    def order_status(self, obj):
+        if obj.unit_qty == 0:
+            return _("Received")
+        elif obj.unit_qty == obj.unit_qty_ordered:
+            return _("New")
+        return _("Partial")
 
     @admin.display(description="QTY", ordering="qty")
     def formatted_qty(self, obj):
@@ -115,20 +142,6 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         context = dict(url=url, label=obj.order.order_identifier, title="Back to order")
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
-    @admin.display(description="to receive", ordering="unit_qty_received")
-    def received_items_changelist(self, obj):
-        if (obj.unit_qty_received or Decimal(0)) > Decimal(0):
-            url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_changelist")
-            url = f"{url}?q={str(obj.id)}"
-            label = format_qty(obj.unit_qty - obj.unit_qty_received, obj.container)
-            context = dict(
-                url=url,
-                label=label,
-                title="Go to received item(s) for this ordered item",
-            )
-            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
-        return None
-
     @admin.display(description="Stock")
     def stock_changelist(self, obj):
         if Stock.objects.filter(receive_item__receive__order=obj.order).exists():
@@ -137,75 +150,6 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
             context = dict(url=url, label="Stock", title="Go to stock")
             return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None
-
-    @admin.display(description="Receive #")
-    def receive_url(self, obj):
-        (
-            str_start_receiving_button,
-            str_receive_this_item_button,
-            str_received_items_link,
-            str_receive_changelist_link,
-        ) = (
-            "",
-            "",
-            "",
-            "",
-        )
-        try:
-            rcv_obj = Receive.objects.get(order=obj.order)
-        except Receive.DoesNotExist:
-            rcv_obj = None
-        if not rcv_obj:
-            url = reverse("edc_pharmacy_admin:edc_pharmacy_receive_add")
-            next_url = "edc_pharmacy_admin:edc_pharmacy_orderitem_changelist"
-            url = f"{url}?next={next_url}&q={str(obj.order.id)}&order={str(obj.order.id)}"
-            context = dict(
-                url=url, label="Start Receiving", title="Receive against this order item"
-            )
-            str_start_receiving_button = render_to_string(
-                "edc_pharmacy/stock/items_as_button.html", context=context
-            )
-        else:
-            url = reverse("edc_pharmacy_admin:edc_pharmacy_receive_changelist")
-            url = f"{url}?q={str(rcv_obj.receive_identifier)}"
-            context = dict(url=url, label=rcv_obj.receive_identifier, title="Receive")
-            str_receive_changelist_link = render_to_string(
-                "edc_pharmacy/stock/items_as_link.html", context=context
-            )
-        if rcv_obj:
-            if obj.status != COMPLETE:
-                url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_add")
-                next_url = "edc_pharmacy_admin:edc_pharmacy_orderitem_changelist"
-                url = (
-                    f"{url}?next={next_url}&order_item={str(obj.id)}&q={str(obj.order.id)}"
-                    f"&receive={str(rcv_obj.id)}&container={str(obj.container.id)}"
-                )
-                context = dict(
-                    url=url, label="Receive this item", title="Receive against this order item"
-                )
-                str_receive_this_item_button = render_to_string(
-                    "edc_pharmacy/stock/items_as_button.html", context=context
-                )
-            else:
-                url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_changelist")
-                url = f"{url}?q={str(obj.order.order_identifier)}"
-                context = dict(url=url, label="Received items", title="Received items")
-                str_received_items_link = render_to_string(
-                    "edc_pharmacy/stock/items_as_link.html", context=context
-                )
-        renders = [
-            str_start_receiving_button,
-            str_receive_changelist_link,
-            str_receive_this_item_button,
-            str_received_items_link,
-        ]
-        renders = [r for r in renders if r]
-        return format_html("<BR>".join(renders))
-
-    def get_readonly_fields(self, request, obj=None):
-        if obj:
-            return self.readonly_fields + ("order",)
-        return self.readonly_fields
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "order":
@@ -216,3 +160,83 @@ class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
             else:
                 kwargs["queryset"] = Order.objects.none()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    @admin.display(description="Receive #")
+    def receive_url(self, obj):
+        start_receiving_button = ""
+        receive_this_item_button = ""
+        received_items_link = ""
+        receive_changelist_link = ""
+        receive = self.get_receive_obj(obj)
+        if not receive:
+            start_receiving_button = self.render_start_receiving_button(obj)
+        else:
+            receive_changelist_link = self.render_receive_changelist_link(receive)
+        if receive:
+
+            if (obj.unit_qty_received or Decimal(0)) < obj.unit_qty_ordered:
+                receive_this_item_button = self.render_receive_this_item_button(obj, receive)
+            else:
+                received_items_link = self.render_received_items_link(obj)
+        renders = [
+            start_receiving_button,
+            receive_changelist_link,
+            receive_this_item_button,
+            received_items_link,
+        ]
+        renders = [r for r in renders if r]
+        return format_html("<BR>".join(renders))
+
+    @staticmethod
+    def get_receive_obj(obj: OrderItem) -> Receive | None:
+        try:
+            obj = Receive.objects.get(order=obj.order)
+        except Receive.DoesNotExist:
+            obj = None
+        return obj
+
+    @staticmethod
+    def render_start_receiving_button(obj: OrderItem) -> str:
+        url = reverse("edc_pharmacy_admin:edc_pharmacy_receive_add")
+        next_url = "edc_pharmacy_admin:edc_pharmacy_orderitem_changelist"
+        url = f"{url}?next={next_url}&q={str(obj.order.id)}&order={str(obj.order.id)}"
+        context = dict(
+            url=url, label="Start Receiving", title="Receive against this order item"
+        )
+        return render_to_string(
+            "edc_pharmacy/stock/items_as_button.html",
+            context=context,
+        )
+
+    @staticmethod
+    def render_receive_changelist_link(receive: Receive) -> str:
+        url = reverse("edc_pharmacy_admin:edc_pharmacy_receive_changelist")
+        url = f"{url}?q={str(receive.receive_identifier)}"
+        context = dict(url=url, label=receive.receive_identifier, title="Receive")
+        return render_to_string(
+            "edc_pharmacy/stock/items_as_link.html",
+            context=context,
+        )
+
+    @staticmethod
+    def render_receive_this_item_button(obj: OrderItem, receive: Receive) -> str:
+        url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_add")
+        next_url = "edc_pharmacy_admin:edc_pharmacy_orderitem_changelist"
+        url = (
+            f"{url}?next={next_url}&order_item={str(obj.id)}&q={str(obj.order.id)}"
+            f"&receive={str(receive.id)}&container={str(obj.container.id)}"
+        )
+        context = dict(
+            url=url, label="Receive this item", title="Receive against this order item"
+        )
+        return render_to_string(
+            "edc_pharmacy/stock/items_as_button.html",
+            context=context,
+        )
+
+    @staticmethod
+    def render_received_items_link(obj: OrderItem) -> str:
+        url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_changelist")
+        url = f"{url}?q={str(obj.order.order_identifier)}"
+        context = dict(url=url, label="Received items", title="Received items")
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)

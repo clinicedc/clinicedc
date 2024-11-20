@@ -28,11 +28,9 @@ class ReceiveItemForm(forms.ModelForm):
         # in unit_qty's
         if cleaned_data.get("qty"):
             # TODO: clean this up
-            qty_ordered = cleaned_data.get("order_item").unit_qty + (
-                cleaned_data.get("order_item").unit_qty_received or 0
-            )
+            qty_ordered = self.order_item.unit_qty + (self.order_item.unit_qty_received or 0)
             qty_already_received = self._meta.model.objects.filter(
-                order_item=cleaned_data.get("order_item")
+                order_item=self.order_item
             ).aggregate(unit_qty=Sum("unit_qty"))["unit_qty"] or Decimal(0)
             qty_available = qty_ordered - qty_already_received
             qty_to_receive = cleaned_data.get("qty") * cleaned_data.get("container").qty
@@ -41,7 +39,7 @@ class ReceiveItemForm(forms.ModelForm):
                     {
                         "qty": (
                             f"Exceeds `unit qty` ordered of "
-                            f'{cleaned_data.get("order_item").unit_qty}. '
+                            f"{self.order_item.unit_qty}. "
                             f"Got {qty_to_receive} but only "
                             f"{qty_available} are still on order."
                         )
@@ -49,6 +47,10 @@ class ReceiveItemForm(forms.ModelForm):
                 )
 
         return cleaned_data
+
+    @property
+    def order_item(self):
+        return self.cleaned_data.get("order_item") or self.instance.order_item
 
     class Meta:
         model = ReceiveItem

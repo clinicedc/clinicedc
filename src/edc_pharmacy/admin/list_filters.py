@@ -1,8 +1,9 @@
 from django.contrib.admin import SimpleListFilter
 from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import Count, F, Q
+from django.utils.translation import gettext as _
 from edc_constants.choices import YES_NO, YES_NO_NA
-from edc_constants.constants import NO, NOT_APPLICABLE, YES
+from edc_constants.constants import NEW, NO, NOT_APPLICABLE, PARTIAL, RECEIVED, YES
 
 from ..models import Medication, Rx
 from ..utils import blinded_user
@@ -62,12 +63,29 @@ class AllocationListFilter(SimpleListFilter):
                     **opts,
                 )
             elif self.value() == NOT_APPLICABLE:
-                opts = dict(from_stock__isnull=True) if from_stock else {}
+                opts = dict(from_stock__isnull=False) if from_stock else {}
                 qs = queryset.filter(
                     allocation__isnull=True,
                     container__may_request_as=False,
                     **opts,
                 )
+        return qs
+
+
+class StockItemAllocationListFilter(SimpleListFilter):
+    title = "Allocated"
+    parameter_name = "allocated"
+
+    def lookups(self, request, model_admin):
+        return YES_NO
+
+    def queryset(self, request, queryset):
+        qs = None
+        if self.value():
+            if self.value() == YES:
+                qs = queryset.filter(allocation__isnull=False)
+            elif self.value() == NO:
+                qs = queryset.filter(allocation__isnull=True)
         return qs
 
 
@@ -217,4 +235,27 @@ class StockRequestItemPendingListFilter(SimpleListFilter):
                     Q(allocation__isnull=False)
                     & Q(allocation__stock__location=F("stock_request__location"))
                 )
+        return qs
+
+
+class OrderItemStatusListFilter(SimpleListFilter):
+    title = "Status"
+    parameter_name = "order_item_status"
+
+    def lookups(self, request, model_admin):
+        return (
+            (NEW, _("New")),
+            (PARTIAL, _("Partial")),
+            (RECEIVED, _("Received")),
+        )
+
+    def queryset(self, request, queryset):
+        qs = None
+        if self.value():
+            if self.value() == RECEIVED:
+                qs = queryset.filter(unit_qty=0)
+            elif self.value() == PARTIAL:
+                qs = queryset.filter(Q(unit_qty_ordered__gt=F("unit_qty")) & ~Q(unit_qty=0))
+            elif self.value() == NEW:
+                qs = queryset.filter(unit_qty=F("unit_qty_ordered"))
         return qs

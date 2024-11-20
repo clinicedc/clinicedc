@@ -17,7 +17,6 @@ from ...choices import PRESCRIPTION_STATUS
 from ...constants import PRESCRIPTION_ACTION
 from ...exceptions import PrescriptionError
 from ..medication import Assignment, Medication
-from ..search_slug_model_mixin import SearchSlugModelMixin
 
 
 class Manager(models.Manager):
@@ -28,11 +27,7 @@ class Manager(models.Manager):
 
 
 class Rx(
-    NonUniqueSubjectIdentifierFieldMixin,
-    SiteModelMixin,
-    ActionModelMixin,
-    SearchSlugModelMixin,
-    BaseUuidModel,
+    NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, ActionModelMixin, BaseUuidModel
 ):
     """A model for the prescription.
 

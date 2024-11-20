@@ -127,10 +127,8 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
         TransferredListFilter,
         "confirmed_at_site",
         ProductAssignmentListFilter,
-        "product__formulation__description",
-        "product__assignment__name",
-        "lot",
-        "location__display_name",
+        "product",
+        "location",
         "confirmed_by",
         "confirmed_datetime",
         HasOrderNumFilter,
@@ -143,6 +141,7 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
         "stock_identifier",
         "from_stock__stock_identifier",
         "code",
+        "lot__lot_no",
         "from_stock__code",
         "receive_item__id",
         "receive_item__receive__id",
@@ -239,7 +238,7 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
     def formatted_confirmed_at_site(self, obj):
         return obj.confirmed_at_site
 
-    @admin.display(description="D", ordering="confirmed_at_site", boolean=True)
+    @admin.display(description="D", ordering="dispensed", boolean=True)
     def formatted_dispensed(self, obj):
         return obj.dispensed
 

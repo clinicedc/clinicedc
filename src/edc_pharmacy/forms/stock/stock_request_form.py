@@ -1,7 +1,7 @@
 from django import forms
 from edc_registration.models import RegisteredSubject
 
-from ...models import StockRequest
+from ...models import Allocation, StockRequest
 
 
 class StockRequestForm(forms.ModelForm):
@@ -20,7 +20,18 @@ class StockRequestForm(forms.ModelForm):
             and cleaned_data.get("cutoff_datetime")
             and cleaned_data.get("cutoff_datetime") < cleaned_data.get("request_datetime")
         ):
-            raise forms.ValidationError({"cutoff_datetime": "Invalid cutoff date"})
+            raise forms.ValidationError(
+                {"cutoff_datetime": "Invalid. Must after the request date"}
+            )
+        if (
+            cleaned_data.get("request_datetime")
+            and cleaned_data.get("cutoff_datetime")
+            and cleaned_data.get("cutoff_datetime").date()
+            == cleaned_data.get("request_datetime").date()
+        ):
+            raise forms.ValidationError(
+                {"cutoff_datetime": "Invalid. Must be at least 1 day after the request date"}
+            )
         if cleaned_data.get("subject_identifiers") and cleaned_data.get("location"):
             subject_identifiers = cleaned_data.get("subject_identifiers").split("\n")
             subject_identifiers = [s.strip() for s in subject_identifiers]
@@ -58,6 +69,15 @@ class StockRequestForm(forms.ModelForm):
                 }
             )
 
+        if not self.instance.id and cleaned_data.get("cancel") == "CANCEL":
+            raise forms.ValidationError("Leave this blank")
+        elif cleaned_data.get("cancel") == "CANCEL":
+            if Allocation.objects.filter(
+                stock_request_item__stock_request=self.instance
+            ).exists():
+                raise forms.ValidationError(
+                    "May not be cancelled. Stock has been allocated for this request"
+                )
         return cleaned_data
 
     class Meta:

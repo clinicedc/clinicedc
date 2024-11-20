@@ -10,8 +10,8 @@ from ...admin_site import edc_pharmacy_admin
 from ...forms import StockRequestItemForm
 from ...models import StockRequestItem
 from ..list_filters import (
-    AllocationListFilter,
     AssignmentListFilter,
+    StockItemAllocationListFilter,
     StockRequestItemPendingListFilter,
 )
 from ..model_admin_mixin import ModelAdminMixin
@@ -46,9 +46,15 @@ class StockRequestItemAdmin(ModelAdminMixin, admin.ModelAdmin):
             },
         ),
         (
-            "Section C",
+            "Section B",
             {
                 "fields": ("received", "received_datetime"),
+            },
+        ),
+        (
+            "Section C",
+            {
+                "fields": ("allocation",),
             },
         ),
         audit_fieldset_tuple,
@@ -67,7 +73,7 @@ class StockRequestItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     )
 
     list_filter = (
-        AllocationListFilter,
+        StockItemAllocationListFilter,
         AssignmentListFilter,
         StockRequestItemPendingListFilter,
         "visit_code",

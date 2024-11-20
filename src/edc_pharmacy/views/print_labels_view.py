@@ -38,11 +38,20 @@ class PrintLabelsView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Templ
         kwargs.update(
             source_changelist_url=self.source_changelist_url,
             source_model_name=Stock._meta.verbose_name,
-            label_configurations=LabelConfiguration.objects.all().order_by("name"),
+            label_configurations=LabelConfiguration.objects.all(),
             q=querystring,
             max_to_print=len(stock_pks),
         )
         return super().get_context_data(**kwargs)
+
+    # def get_label_configurations(self, stock_pks: list[str]):
+    #     if stock_pks:
+    #         stock = self.model_cls.objects.get(pk=stock_pks[0])
+    #         qs = LabelConfiguration.objects.filter(
+    #             requires_allocation=stock.container.may_request_as
+    #         ).order_by("name")
+    #         return qs
+    #     return LabelConfiguration.objects.all()
 
     @property
     def source_changelist_url(self):
@@ -59,13 +68,21 @@ class PrintLabelsView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Templ
         stock_pks = request.session.get(session_uuid, [])
         url = self.source_changelist_url
         if stock_pks:
+            opts = {}
+            filter_by = self.request.POST.get("filter_by")
+            if filter_by == "confirmed_only":
+                opts = dict(confirmed=True)
+            elif filter_by == "unconfirmed_only":
+                opts = dict(confirmed=False)
             queryset: QuerySet[Stock] = self.model_cls.objects.filter(
-                pk__in=stock_pks
+                pk__in=stock_pks, **opts
             ).order_by("code")
             max_to_print = int(self.request.POST.get("max_to_print"), 0)
             if 0 < max_to_print < len(stock_pks):
                 queryset = queryset[0:max_to_print]
+
             del request.session[session_uuid]
+
             label_configuration: LabelConfiguration = LabelConfiguration.objects.get(
                 pk=request.POST.get("label_configuration")
             )
@@ -93,14 +110,26 @@ class PrintLabelsView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Templ
                     drawing_callable,
                     border=label_configuration.label_specification.border,
                 )
-                sheet.add_labels(label_data)
-                buffer = sheet.save_to_buffer()
-                now = get_utcnow()
-                return FileResponse(
-                    buffer,
-                    as_attachment=True,
-                    filename=(
-                        f"{label_configuration.name}_{now.strftime("%Y-%m-%d %H:%M")}.pdf"
-                    ),
-                )
+                try:
+                    sheet.add_labels(label_data)
+                except AttributeError:
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        (
+                            "Unable to print these items using the "
+                            f"label format '{label_configuration.name}'. Perhaps try another."
+                        ),
+                    )
+                    return HttpResponseRedirect(request.META.get("HTTP_REFERER", ""))
+                else:
+                    buffer = sheet.save_to_buffer()
+                    now = get_utcnow()
+                    return FileResponse(
+                        buffer,
+                        as_attachment=True,
+                        filename=(
+                            f"{label_configuration.name}_{now.strftime("%Y-%m-%d %H:%M")}.pdf"
+                        ),
+                    )
         return HttpResponseRedirect(url)

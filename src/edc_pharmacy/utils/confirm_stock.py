@@ -48,26 +48,16 @@ def confirm_stock(
                 stock.user_modified = user_created
                 stock.modified = created
                 stock.confirmed_datetime = get_utcnow()
-                if confirmed_by:
-                    stock.confirmed_by = confirmed_by
-                    stock.save(
-                        update_fields=[
-                            "confirmed",
-                            "confirmed_datetime",
-                            "confirmed_by",
-                            "user_modified",
-                            "modified",
-                        ]
-                    )
-                else:
-                    stock.save(
-                        update_fields=[
-                            "confirmed",
-                            "confirmed_datetime",
-                            "user_modified",
-                            "modified",
-                        ]
-                    )
+                stock.confirmed_by = confirmed_by or user_created
+                stock.save(
+                    update_fields=[
+                        "confirmed",
+                        "confirmed_datetime",
+                        "confirmed_by",
+                        "user_modified",
+                        "modified",
+                    ]
+                )
                 confirmed.append(stock.code)
             else:
                 already_confirmed.append(stock.code)

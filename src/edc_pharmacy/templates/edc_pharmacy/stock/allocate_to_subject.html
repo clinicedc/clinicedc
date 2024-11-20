@@ -5,18 +5,25 @@
 {% block main %}
   {{ block.super }}
   <div class="container">
-    <div class="col-sm-2"></div>
+    <div class="col-sm-3"></div>
     <div class="col-sm-6">
-      <div style="padding:10px"><a href="{% url "edc_pharmacy_admin:index" %}">Edc Pharmacy</a> > <a href="{% url "edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist" %}?q={{ stock_request.request_identifier }}">Stock Request</a> > Allocate to subject</div>
+
+      <div style="padding:10px">
+        <a href="{% url "edc_pharmacy:home_url" %}">Pharmacy</a> >
+        <a href="{% url "edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist" %}?q={{ stock_request.request_identifier }}">Stock Request</a> >
+        {% if assignment %}<a href="{% url "edc_pharmacy:allocate_url" stock_request.pk %}">{{ assignment }}</a>{% else %}Assignment{% endif %} >
+        Allocate to subject
+      </div>
+
       <div class="panel panel-default">
-        <div class="panel-heading">Allocate stock to subjects from stock request <a href="{{ stock_request_changelist_url }}">{{ stock_request.request_identifier }}</a></div>
+        <div class="panel-heading">Allocate stock to subjects from stock request <a href="{{ stock_request_changelist_url }}">{{ stock_request.request_identifier }}</a>
+          {% if  subject_identifiers and assignment %}<span class="pull-right">{{ remaining_count }}/{{ total_count }}</span>{% endif %}</div>
         <div class="panel-body">
           <form class="form-horizontal" action="{{ url }}" method="post" onSubmit="document.getElementById('submit').disabled=true;">
             {% csrf_token %}
             <div class="form-group">
 
               {% if  subject_identifiers and assignment %}
-
                 <div style="text-align: center"><p class="bg-primary">{{ assignment.name|upper }}</p></div>
                 {% for subject_identifier in subject_identifiers %}
                 <label class="control-label col-sm-5" for="codes">{{ forloop.counter }}. {{ subject_identifier }} </label>
@@ -52,6 +59,6 @@
         </div>
       </div>
     </div>
-    <div class="col-sm-2"></div>
+    <div class="col-sm-3"></div>
   </div>
 {% endblock main %}

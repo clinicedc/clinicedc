@@ -6,9 +6,11 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
+from django.utils.translation import gettext as _
 from django.views.generic.base import TemplateView
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
@@ -28,6 +30,8 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
     navbar_selected_item = "pharmacy"
 
     def get_context_data(self, **kwargs):
+
+        total_count, remaining_count = self.get_counts(self.stock_request)
         kwargs.update(
             stock_request=self.stock_request,
             assignment=self.selected_assignment,
@@ -35,6 +39,8 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
             subject_identifiers=self.get_next_subject_identifiers(12),
             subject_identifiers_count=self.subject_identifiers.count(),
             assignments=Assignment.objects.all().order_by("name"),
+            remaining_count=remaining_count,
+            total_count=total_count,
         )
         return super().get_context_data(**kwargs)
 
@@ -90,7 +96,36 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
             return url
         return "/"
 
-    def validate_containers(self, stock_codes: list[str], stock_request: StockRequest) -> bool:
+    @staticmethod
+    def get_assignment(assignment_id) -> Assignment | None:
+        try:
+            assignment = Assignment.objects.get(id=assignment_id)
+        except ObjectDoesNotExist:
+            assignment = None
+        return assignment
+
+    def redirect_on_has_duplicates(
+        self, stock_codes: list[str], stock_request: StockRequest, assignment: Assignment
+    ) -> HttpResponseRedirect | None:
+        if len(stock_codes or []) != len(list(set(stock_codes or []))):
+            messages.add_message(
+                self.request,
+                messages.ERROR,
+                "Nothing saved. Duplicate codes detected in list. Please try again.",
+            )
+            url = reverse(
+                "edc_pharmacy:allocate_url",
+                kwargs={
+                    "stock_request": stock_request.id,
+                    "assignment": assignment.id,
+                },
+            )
+            return HttpResponseRedirect(url)
+        return None
+
+    def redirect_on_has_multiple_container_types(
+        self, stock_codes: list[str], stock_request: StockRequest, assignment: Assignment
+    ) -> HttpResponseRedirect | None:
         if stock_codes and Stock.objects.filter(
             code__in=stock_codes, container=stock_request.container
         ).count() != len(stock_codes):
@@ -102,73 +137,32 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                     f"only. See Stock request {stock_request.request_identifier} "
                 ),
             )
-            return False
-        return True
+            url = reverse(
+                "edc_pharmacy:allocate_url",
+                kwargs={
+                    "stock_request": stock_request.id,
+                    "assignment": assignment.id,
+                },
+            )
+            return HttpResponseRedirect(url)
+        return None
 
-    @staticmethod
-    def get_assignment(assignment_id) -> Assignment | None:
-        try:
-            assignment = Assignment.objects.get(id=assignment_id)
-        except ObjectDoesNotExist:
-            assignment = None
-        return assignment
-
-    def stock_already_allocated(self, stock_codes: list[str]) -> bool:
+    def redirect_on_stock_already_allocated(
+        self, stock_codes: list[str], stock_request: StockRequest, assignment: Assignment
+    ) -> HttpResponseRedirect | None:
         if (
             stock_codes
             and Stock.objects.filter(code__in=stock_codes, allocation__isnull=False).exists()
         ):
-            assigned_codes = []
+            allocated_stock_codes = []
             for stock in Stock.objects.filter(code__in=stock_codes):
                 if stock.allocation:
-                    assigned_codes.append(stock.code)
+                    allocated_stock_codes.append(stock.code)
             messages.add_message(
                 self.request,
                 messages.ERROR,
-                f"Stock already allocated. Got {','.join(assigned_codes)}.",
+                f"Stock already allocated. Got {','.join(allocated_stock_codes)}.",
             )
-            return True
-        return False
-
-    def post(self, request, *args, **kwargs):
-        stock_codes = request.POST.getlist("codes") if request.POST.get("codes") else None
-        subject_identifiers = request.POST.get("subject_identifiers")
-        assignment_id = request.POST.get("assignment")
-        subject_identifiers = ast.literal_eval(subject_identifiers)
-        stock_request = StockRequest.objects.get(id=kwargs.get("stock_request"))
-        if self.validate_containers(stock_codes, stock_request):
-            assignment = self.get_assignment(assignment_id)
-            subject_identifiers = (
-                [] if self.stock_already_allocated(stock_codes) else subject_identifiers
-            )
-            if subject_identifiers and assignment:
-                allocation_data = dict(zip(stock_codes, subject_identifiers))
-                try:
-                    allocated, not_allocated = allocate_stock(
-                        stock_request,
-                        allocation_data,
-                        allocated_by=request.user.username,
-                        user_created=request.user.username,
-                        created=get_utcnow(),
-                    )
-                except AllocationError as e:
-                    messages.add_message(request, messages.ERROR, str(e))
-                else:
-                    messages.add_message(
-                        request,
-                        messages.SUCCESS,
-                        f"Allocated {allocated} stock records. Skipped {not_allocated}.",
-                    )
-                if self.get_next_subject_identifiers():
-                    url = reverse(
-                        "edc_pharmacy:allocate_url",
-                        kwargs={
-                            "stock_request": stock_request.id,
-                            "assignment": assignment.id,
-                        },
-                    )
-                    return HttpResponseRedirect(url)
-                return HttpResponseRedirect(self.stock_request_changelist_url)
             url = reverse(
                 "edc_pharmacy:allocate_url",
                 kwargs={
@@ -177,4 +171,96 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                 },
             )
             return HttpResponseRedirect(url)
-        return HttpResponseRedirect(self.stock_request_changelist_url)
+        return None
+
+    def redirect_on_all_allocated_for_assignment(
+        self, stock_request: StockRequest, assignment: Assignment
+    ) -> HttpResponseRedirect | None:
+
+        if not stock_request.stockrequestitem_set.filter(
+            allocation__isnull=True, assignment=assignment
+        ).exists():
+            messages.add_message(
+                self.request,
+                messages.INFO,
+                _(
+                    "All subjects in this stock request assigned '%(assignment)s' "
+                    "medication have been allocated stock"
+                )
+                % {"assignment": assignment.display_name.upper()},
+            )
+            url = reverse(
+                "edc_pharmacy:allocate_url",
+                kwargs={
+                    "stock_request": stock_request.id,
+                    "assignment": getattr(assignment, "id", None),
+                },
+            )
+            return HttpResponseRedirect(url)
+        return None
+
+    def get_counts(self, stock_request: StockRequest) -> tuple[int, int]:
+        if self.selected_assignment:
+            total_count = stock_request.stockrequestitem_set.all().count()
+            groupby = (
+                stock_request.stockrequestitem_set.values("assignment__name")
+                .filter(allocation__isnull=True)
+                .annotate(count=Count("assignment__name"))
+            )
+            groupby = {dct["assignment__name"]: dct["count"] for dct in groupby}
+            remaining_count = groupby.get(self.selected_assignment.name)
+            return remaining_count, total_count
+        return 0, 0
+
+    def post(self, request, *args, **kwargs):
+        stock_codes = request.POST.getlist("codes") if request.POST.get("codes") else None
+        subject_identifiers = request.POST.get("subject_identifiers")
+        assignment_id = request.POST.get("assignment")
+        subject_identifiers = ast.literal_eval(subject_identifiers)
+        stock_request = StockRequest.objects.get(id=kwargs.get("stock_request"))
+        assignment = self.get_assignment(assignment_id)
+
+        self.redirect_on_all_allocated_for_assignment(stock_request, assignment)
+
+        self.redirect_on_has_duplicates(stock_codes, stock_request, assignment)
+
+        self.redirect_on_has_multiple_container_types(stock_codes, stock_request, assignment)
+
+        self.redirect_on_stock_already_allocated(stock_codes, stock_request, assignment)
+
+        if subject_identifiers and assignment:
+            allocation_data = dict(zip(stock_codes, subject_identifiers))
+            try:
+                allocated, not_allocated = allocate_stock(
+                    stock_request,
+                    allocation_data,
+                    allocated_by=request.user.username,
+                    user_created=request.user.username,
+                    created=get_utcnow(),
+                )
+            except AllocationError as e:
+                messages.add_message(request, messages.ERROR, str(e))
+            else:
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    f"Allocated {allocated} stock records. Skipped {not_allocated}.",
+                )
+            if self.get_next_subject_identifiers():
+                url = reverse(
+                    "edc_pharmacy:allocate_url",
+                    kwargs={
+                        "stock_request": stock_request.id,
+                        "assignment": assignment.id,
+                    },
+                )
+                return HttpResponseRedirect(url)
+            return HttpResponseRedirect(self.stock_request_changelist_url)
+        url = reverse(
+            "edc_pharmacy:allocate_url",
+            kwargs={
+                "stock_request": stock_request.id,
+                "assignment": getattr(assignment, "id", None),
+            },
+        )
+        return HttpResponseRedirect(url)

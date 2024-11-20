@@ -12,12 +12,14 @@ from ..model_mixins import StudyMedicationCrfModelMixin
 from ..tasks import process_repack_request
 from ..utils import update_previous_refill_end_datetime
 from .stock import (
+    Allocation,
     DispenseItem,
     OrderItem,
     Receive,
     ReceiveItem,
     RepackRequest,
     Stock,
+    StockRequest,
     StockRequestItem,
     StockTransferConfirmation,
 )
@@ -49,9 +51,8 @@ def stock_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
 def order_item_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
     if not raw and not update_fields:
         # recalculate unit_qty
-        instance.unit_qty = (instance.qty * instance.container.qty) - (
-            instance.unit_qty_received or Decimal(0)
-        )
+        unit_qty_ordered = instance.qty * instance.container.qty
+        instance.unit_qty = unit_qty_ordered - (instance.unit_qty_received or Decimal(0))
         instance.save(update_fields=["unit_qty"])
 
 
@@ -102,6 +103,21 @@ def receive_item_on_post_save(sender, instance, raw, created, update_fields, **k
             )
 
 
+@receiver(post_save, sender=StockRequest, dispatch_uid="stock_request_on_post_save")
+def stock_request_on_post_save(
+    sender, instance, raw, created, update_fields, **kwargs
+) -> None:
+    if not raw and not update_fields:
+        if instance.cancel == "CANCEL":
+            if not Allocation.objects.filter(
+                stock_request_item__stock_request=instance
+            ).exists():
+                instance.stockrequestitem_set.all().delete()
+            else:
+                instance.cancel = ""
+                instance.save(update_fields=["cancel"])
+
+
 @receiver(post_save, sender=StockRequestItem, dispatch_uid="stock_request_item_on_post_save")
 def stock_request_item_on_post_save(
     sender, instance, raw, created, update_fields, **kwargs
@@ -123,7 +139,9 @@ def repack_request_on_post_save(
             pass
         else:
             task = run_task_sync_or_async(
-                process_repack_request, repack_request_id=str(instance.id)
+                process_repack_request,
+                repack_request_id=str(instance.id),
+                username=instance.user_modified or instance.user_created,
             )
             instance.task_id = getattr(task, "id", None)
             instance.save(update_fields=["task_id"])

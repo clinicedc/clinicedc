@@ -23,8 +23,9 @@ from ..model_admin_mixin import ModelAdminMixin
 
 @admin.register(RepackRequest, site=edc_pharmacy_admin)
 class RequestRepackAdmin(ModelAdminMixin, admin.ModelAdmin):
-    change_list_title = "Pharmacy: Repackage request"
-    change_form_title = "Pharmacy: Repack"
+    change_list_title = "Pharmacy: Repack/Decant request"
+    change_form_title = "Pharmacy: Repack/Decant"
+
     show_object_tools = True
     show_cancel = True
     list_per_page = 20
@@ -66,9 +67,11 @@ class RequestRepackAdmin(ModelAdminMixin, admin.ModelAdmin):
         "identifier",
         "repack_date",
         "from_stock_changelist",
+        "assignment",
         "stock_changelist",
         "formatted_requested_qty",
         "formatted_processed_qty",
+        "confirmed_qty",
         "container",
         "from_stock__product__name",
         "task_status",
@@ -85,6 +88,12 @@ class RequestRepackAdmin(ModelAdminMixin, admin.ModelAdmin):
     @admin.display(description="Repack date", ordering="repack_datetime")
     def repack_date(self, obj):
         return to_local(obj.repack_datetime).date()
+
+    @admin.display(
+        description="Assignment", ordering="from_stock__product__assignment__display_name"
+    )
+    def assignment(self, obj):
+        return obj.from_stock.product.assignment.display_name
 
     @admin.display(description="Stock")
     def stock_changelist(self, obj):
@@ -108,12 +117,16 @@ class RequestRepackAdmin(ModelAdminMixin, admin.ModelAdmin):
     def formatted_requested_qty(self, obj):
         return format_qty(obj.requested_qty, obj.container)
 
-    @admin.display(description="Processed", ordering="processed_qty")
+    @admin.display(description="Created", ordering="processed_qty")
     def formatted_processed_qty(self, obj):
         result = get_task_result(obj)
         if getattr(result, "status", "") == PENDING:
             return PENDING
         return format_qty(obj.processed_qty, obj.container)
+
+    @admin.display(description="Confirmed")
+    def confirmed_qty(self, obj):
+        return obj.stock_set.filter(confirmed=True).count()
 
     @admin.display(description="Task")
     def task_status(self, obj):

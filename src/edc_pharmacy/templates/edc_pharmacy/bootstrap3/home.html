@@ -4,22 +4,20 @@
 {% block main %}
 
 {{ block.super }}
-
-  <div class="col-sm-3">&nbsp;
-  </div>
-
-  <div class="col-sm-6">
+  <div class="col-sm-1">&nbsp;</div>
+  <div class="col-sm-10">
       <div class="col-sm-6">
-        <div class="panel panel-default">
+        <div class="panel panel-warning">
           <div class="panel-heading"><i class="fas fa-prescription fa-lg fa-fw"></i> Central Pharmacy</div>
           <div class="list-group">
             {% if perms.edc_pharmacy %}
               <a id="home_list_group_home" href="{% url 'home_url' %}" class="list-group-item"><i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i> Home</a>
-              <a id="home_list_group_order" href="{% url 'edc_pharmacy_admin:edc_pharmacy_order_changelist' %}" class="list-group-item">Orders</a>
-              <a id="home_list_group_receive" href="{% url 'edc_pharmacy_admin:edc_pharmacy_receive_changelist' %}" class="list-group-item">Receiving (Central)</a>
-              <a id="home_list_group_repack" href="{% url 'edc_pharmacy_admin:edc_pharmacy_repackrequest_changelist' %}" class="list-group-item">Repack / Decant</a>
-              <a id="home_list_group_stockrequest" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist' %}" class="list-group-item">Manage Requests</a>
-              <a id="home_list_group_stocktransfer" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stocktransfer_changelist' %}" class="list-group-item">Transfer to site</a>
+              <a id="home_list_group_order" href="{% url 'edc_pharmacy_admin:edc_pharmacy_order_changelist' %}" class="list-group-item"><b>Orders</b></a>
+              <a id="home_list_group_receive_ordered" href="{% url 'edc_pharmacy_admin:edc_pharmacy_orderitem_changelist' %}" class="list-group-item"><B>Receive ordered items</B></a>
+              <a id="home_list_group_receive" href="{% url 'edc_pharmacy_admin:edc_pharmacy_receive_changelist' %}" class="list-group-item"><B>Receiving:</B> Label and confirm received stock</a>
+              <a id="home_list_group_repack" href="{% url 'edc_pharmacy_admin:edc_pharmacy_repackrequest_changelist' %}" class="list-group-item"><b>Repack:</b> Decant, label and confirm</a>
+              <a id="home_list_group_stockrequest" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist' %}" class="list-group-item"><B>Manage Requests:</B> Allocate stock to subjects</a>
+              <a id="home_list_group_stocktransfer" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stocktransfer_changelist' %}" class="list-group-item"><b>Transfer stock to site</b></a>
             {% endif %}
           </div>
           <div class="panel-heading"></div>
@@ -32,14 +30,14 @@
         </div>
       </div>
       <div class="col-sm-6">
-        <div class="panel panel-default">
+        <div class="panel panel-info">
           <div class="panel-heading"><i class="fas fa-prescription fa-lg fa-fw"></i> Site Pharmacy</div>
           <div class="list-group">
             {% if perms.edc_pharmacy %}
               <a id="home_list_group_home" href="{% url 'home_url' %}" class="list-group-item"><i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i> Home</a>
-              <a id="home_list_group_stockrequest" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist' %}" class="list-group-item">Request stock</a>
-              <a id="home_list_group_stocktransfer" href="{% url 'edc_pharmacy:stock_transfer_confirmation_url' %}" class="list-group-item">Receive requested stock</a>
-              <a id="home_list_group_dispense" href="{% url 'edc_pharmacy:dispense_url' %}" class="list-group-item">Dispense</a>
+              <a id="home_list_group_stockrequest" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist' %}" class="list-group-item"><b>Request stock</b></a>
+              <a id="home_list_group_stocktransfer" href="{% url 'edc_pharmacy:stock_transfer_confirmation_url' %}" class="list-group-item"><B>Confirm transferred stock</B></a>
+              <a id="home_list_group_dispense" href="{% url 'edc_pharmacy:dispense_url' %}" class="list-group-item"><b>Dispense</b></a>
             {% endif %}
           </div>
           <div class="panel-heading"></div>
@@ -52,6 +50,5 @@
       </div>
   </div>
 
-  <div class="col-sm-3">&nbsp;
-  </div>
+  <div class="col-sm-1">&nbsp;</div>
 {% endblock main %}
