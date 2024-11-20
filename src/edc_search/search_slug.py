@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.utils.text import slugify
-from django_crypto_fields.fields import BaseField
 
 from .constants import SEARCH_SLUG_SEP
 
@@ -45,6 +44,8 @@ class SearchSlug:
             self.slug = slug[:250]
 
     def get_safe_fields(self, fields):
+        from django_crypto_fields.fields import BaseField
+
         encrypted_fields = [
             fld.name for fld in self.model_cls._meta.fields if isinstance(fld, BaseField)
         ]
