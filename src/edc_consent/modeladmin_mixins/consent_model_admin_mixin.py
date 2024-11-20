@@ -84,6 +84,7 @@ class ConsentModelAdminMixin:
         list_display: tuple[str] = super().get_list_display(request)
         custom_fields = (
             "subject_identifier",
+            "screening_identifier",
             "is_verified",
             "is_verified_datetime",
             self.name_display_field,
