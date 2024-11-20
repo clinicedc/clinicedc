@@ -217,8 +217,8 @@ class SiteConsents:
         )
         cdefs = self.filter_cdefs_by_site_or_raise(site, cdefs, error_messages)
 
-        cdefs, error_msg = self._filter_cdefs_by_model_or_raise(
-            screening_model, cdefs, error_messages, attrname="screening_model"
+        cdefs, error_msg = self._filter_cdefs_by_screening_model_or_raise(
+            screening_model, cdefs, error_messages
         )
 
         # apply additional criteria
@@ -241,6 +241,33 @@ class SiteConsents:
             if not cdefs:
                 raise ConsentDefinitionDoesNotExist(
                     f"There are no consent definitions using this model. Got {model}."
+                )
+            else:
+                errror_messages.append(f"model={model}")
+        return cdefs, errror_messages
+
+    @staticmethod
+    def _filter_cdefs_by_screening_model_or_raise(
+        model: str | None,
+        consent_definitions: list[ConsentDefinition],
+        errror_messages: list[str] = None,
+    ) -> tuple[list[ConsentDefinition], list[str]]:
+        cdefs = consent_definitions
+        if model:
+            cdefs = []
+            for cdef in consent_definitions:
+                if isinstance(cdef.screening_model, list):
+                    for screening_model in cdef.screening_model:
+                        if model == screening_model:
+                            if cdef not in cdefs:
+                                cdefs.append(cdef)
+                else:
+                    if model == cdef.screening_model:
+                        cdefs.append(cdef)
+            if not cdefs:
+                raise ConsentDefinitionDoesNotExist(
+                    "There are no consent definitions using this screening model."
+                    f"Got {model}."
                 )
             else:
                 errror_messages.append(f"model={model}")
