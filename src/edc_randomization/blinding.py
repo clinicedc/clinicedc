@@ -42,6 +42,15 @@ def user_is_blinded(username) -> bool:
     return blinded
 
 
+def user_is_blinded_from_request(request):
+    if user_is_blinded(request.user.username) or (
+        not user_is_blinded(request.user.username)
+        and RANDO_UNBLINDED not in [g.name for g in request.user.groups.all()]
+    ):
+        return True
+    return False
+
+
 def raise_if_prohibited_from_unblinded_rando_group(username: str, groups: Iterable) -> None:
     """A user form validation to prevent adding an unlisted
     user to the RANDO_UNBLINDED group.
