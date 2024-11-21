@@ -23,8 +23,8 @@ from .signals import (
     stock_on_post_delete,
     stock_on_post_save,
     stock_request_item_on_post_save,
-    stock_transfer_confirmation_on_post_save,
-    stock_transfer_confirmation_post_delete,
+    stock_transfer_confirmation_item_on_post_save,
+    stock_transfer_confirmation_item_post_delete,
 )
 from .stock import (
     Allocation,
@@ -47,6 +47,7 @@ from .stock import (
     StockRequestItem,
     StockTransfer,
     StockTransferConfirmation,
+    StockTransferConfirmationItem,
     StockTransferItem,
     Supplier,
 )

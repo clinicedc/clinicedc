@@ -21,7 +21,7 @@ from .stock import (
     Stock,
     StockRequest,
     StockRequestItem,
-    StockTransferConfirmation,
+    StockTransferConfirmationItem,
 )
 
 
@@ -149,10 +149,10 @@ def repack_request_on_post_save(
 
 @receiver(
     post_save,
-    sender=StockTransferConfirmation,
-    dispatch_uid="stock_transfer_confirmation_on_post_save",
+    sender=StockTransferConfirmationItem,
+    dispatch_uid="stock_transfer_confirmation_item_on_post_save",
 )
-def stock_transfer_confirmation_on_post_save(
+def stock_transfer_confirmation_item_on_post_save(
     sender, instance, raw, created, update_fields, **kwargs
 ) -> None:
     if not raw and not update_fields:
@@ -190,10 +190,10 @@ def stock_on_post_delete(sender, instance, using, **kwargs) -> None:
 
 @receiver(
     post_delete,
-    sender=StockTransferConfirmation,
-    dispatch_uid="stock_transfer_confirmation_post_delete",
+    sender=StockTransferConfirmationItem,
+    dispatch_uid="stock_transfer_confirmation_item_post_delete",
 )
-def stock_transfer_confirmation_post_delete(sender, instance, using, **kwargs) -> None:
+def stock_transfer_confirmation_item_post_delete(sender, instance, using, **kwargs) -> None:
     instance.stock.confirmed_at_site = False
     instance.stock.save(update_fields=["confirmed_at_site"])
 

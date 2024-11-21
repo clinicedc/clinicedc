@@ -9,17 +9,15 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 from django.views.generic.base import TemplateView
+from edc_constants.constants import CONFIRMED
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 from edc_utils import get_utcnow
 
+from ..constants import ALREADY_CONFIRMED, INVALID
 from ..models import Stock
 from ..utils import confirm_stock
-
-CONFIRMED = "confirmed"
-ALREADY_CONFIRMED = "already_confirmed"
-INVALID = "invalid"
 
 
 @method_decorator(login_required, name="dispatch")
@@ -78,7 +76,7 @@ class ConfirmStockFromQuerySetView(
                 source_label_lower=session_obj.get("source_label_lower"),
                 source_model_name=session_obj.get("source_model_name"),
                 last_stock_codes=last_stock_codes,
-                stock_codes=session_obj.get("stock_codes"),
+                stock_codes=session_obj.get("stock_codes") or [],
                 total_stock_code_count=len(session_obj.get("stock_codes")),
             )
         return session_data

@@ -25,6 +25,18 @@ urlpatterns = [
         name="dispense_url",
     ),
     path(
+        "stock-transfer-confirmation/<uuid:session_uuid>/<str:stock_transfer_identifier>/"
+        "<int:location_id>/<int:items_to_scan>/",
+        StockTransferConfirmationView.as_view(),
+        name="stock_transfer_confirmation_url",
+    ),
+    path(
+        "stock-transfer-confirmation/<str:stock_transfer_identifier>/"
+        "<int:location_id>/<int:items_to_scan>/",
+        StockTransferConfirmationView.as_view(),
+        name="stock_transfer_confirmation_url",
+    ),
+    path(
         "stock-transfer-confirmation/<int:location_id>/<int:items_to_scan>/",
         StockTransferConfirmationView.as_view(),
         name="stock_transfer_confirmation_url",
