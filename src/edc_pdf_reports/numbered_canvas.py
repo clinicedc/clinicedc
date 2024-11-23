@@ -1,3 +1,4 @@
+from django.conf import settings
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
@@ -7,6 +8,10 @@ from reportlab.pdfgen import canvas
 class NumberedCanvas(canvas.Canvas):
     static_footer_text = None
     footer_row_height = 25
+    watermark_word: str | None = getattr(settings, "EDC_PHARMACY_WATERMARK_WORD", None)
+    watermark_font: tuple[str, int] = getattr(
+        settings, "EDC_PHARMACY_WATERMARK_FONT", ("Helvetica", 100)
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -22,6 +27,8 @@ class NumberedCanvas(canvas.Canvas):
         for state in self._saved_page_states:
             self.__dict__.update(state)
             self.draw_page_number(num_pages)
+            if self.watermark_word:
+                self.draw_watermark()
             super().showPage()
         super().save()
 
@@ -35,3 +42,13 @@ class NumberedCanvas(canvas.Canvas):
             self.footer_row_height,
             "Page %d of %d" % (self.getPageNumber(), page_count),
         )
+
+    def draw_watermark(self):
+        self.saveState()
+        width, height = A4
+        self.setFont(*self.watermark_font)
+        self.setFillGray(0.5, 0.5)  # Light gray color
+        self.translate(width / 2, height / 2)
+        self.rotate(45)
+        self.drawCentredString(0, 0, self.watermark_word)
+        self.restoreState()
