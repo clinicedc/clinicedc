@@ -4,6 +4,7 @@ from abc import ABC
 from typing import Type
 from uuid import uuid4
 
+from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest
 from django.utils import timezone
 from django_revision.revision import Revision
@@ -31,6 +32,10 @@ class ReportError(Exception):
 
 class Report(ABC):
     document_template = SimpleDocTemplate
+    watermark_word: str | None = getattr(settings, "EDC_PDF_REPORTS_WATERMARK_WORD", None)
+    watermark_font: tuple[str, int] | None = getattr(
+        settings, "EDC_PDF_REPORTS_WATERMARK_FONT", ("Helvetica", 100)
+    )
 
     default_page = dict(
         rightMargin=0.5 * cm,
@@ -61,14 +66,26 @@ class Report(ABC):
         self.header_line = header_line
 
     def build(self, response):
-        doctemplate = self.document_template(response, **self.page)
-        story = self.get_report_story()
-        doctemplate.build(
+        document_template = self.document_template(response, **self.page)
+        story = self.get_report_story(document_template=document_template)  # flowables
+        document_template.build(
             story,
             onFirstPage=self.on_first_page,
             onLaterPages=self.on_later_pages,
             canvasmaker=self.numbered_canvas,
         )
+
+    @property
+    def numbered_canvas(self):
+        return self._numbered_canvas
+
+    @numbered_canvas.setter
+    def numbered_canvas(self, value: Type[NumberedCanvas]):
+        self._numbered_canvas = value
+        if self.watermark_word:
+            setattr(self._numbered_canvas, "watermark_word", self.watermark_word)
+            if self.watermark_font:
+                setattr(self._numbered_canvas, "watermark_font", self.watermark_font)
 
     @property
     def report_filename(self) -> str:
