@@ -6,5 +6,6 @@ from .home_view import HomeView
 from .prepare_and_review_stock_request_view import PrepareAndReviewStockRequestView
 from .print_labels_view import PrintLabelsView
 from .print_stock_transfer_manifest_view import print_stock_transfer_manifest_view
+from .return_view import ReturnView
 from .stock_transfer_confirmation_view import StockTransferConfirmationView
 from .transfer_stock_view import TransferStockView

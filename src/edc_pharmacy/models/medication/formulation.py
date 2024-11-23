@@ -39,6 +39,10 @@ class Formulation(BaseUuidModel):
 
     description = models.CharField(max_length=250, null=True, blank=True)
 
+    imp = models.BooleanField(default=False)
+
+    imp_description = models.CharField(max_length=250, null=True, blank=True)
+
     objects = Manager()
 
     history = HistoricalRecords()
@@ -56,13 +60,19 @@ class Formulation(BaseUuidModel):
 
     def save(self, *args, **kwargs):
         self.description = self.get_description()
+        if not self.imp:
+            self.imp_description = None
+        else:
+            self.imp_description = (
+                self.imp_description if self.imp_description else self.description
+            )
         super().save(*args, **kwargs)
 
     def get_description(self):
         return (
             f"{self.medication} {round_half_away_from_zero(self.strength, 0)}"
             f"{self.get_units_display()} "
-            f"{self.get_formulation_type_display()} "
+            # f"{self.get_formulation_type_display()} "
             f"{self.get_route_display()}"
         )
 
@@ -70,7 +80,7 @@ class Formulation(BaseUuidModel):
         return (
             f"{self.medication} {round_half_away_from_zero(self.strength, 0)}"
             f"{self.get_units_display()} "
-            f"{self.get_formulation_type_display()} "
+            # f"{self.get_formulation_type_display()} "
         )
 
     def get_description_with_assignment(self, assignment: Assignment) -> str:

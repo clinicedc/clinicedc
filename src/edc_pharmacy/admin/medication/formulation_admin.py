@@ -27,9 +27,22 @@ class FormulationAdmin(ModelAdminMixin, admin.ModelAdmin):
                     "units",
                     "formulation_type",
                     "route",
-                    "notes",
+                    "description",
                 )
             },
+        ),
+        (
+            "Investigational medicinal product",
+            {
+                "fields": (
+                    "imp",
+                    "imp_description",
+                )
+            },
+        ),
+        (
+            "Notes",
+            {"fields": ("notes",)},
         ),
         audit_fieldset_tuple,
     )
@@ -41,6 +54,16 @@ class FormulationAdmin(ModelAdminMixin, admin.ModelAdmin):
     }
 
     list_filter: Tuple[str, ...] = (
+        "imp",
+        "strength",
+        "units",
+        "formulation_type",
+        "route",
+    )
+
+    list_display = (
+        "description",
+        "medication",
         "strength",
         "units",
         "formulation_type",

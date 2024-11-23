@@ -27,5 +27,6 @@ def print_stock_transfer_manifest_view(request, stock_transfer: StockTransfer | 
         page=page,
         numbered_canvas=NumberedCanvas,
     )
+
     report.build(response)
     return response
