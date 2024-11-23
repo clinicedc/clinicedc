@@ -1,22 +1,20 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, TypeVar
 from uuid import UUID
 
+from django.contrib.sites.models import Site
 from django.db import models
 from django.utils.translation import gettext as _
-
-__all__ = ["SubjectScreeningButton"]
-
-from typing import TYPE_CHECKING, TypeVar
-
-from django.contrib.sites.models import Site
 from edc_view_utils import DashboardModelButton
 
 if TYPE_CHECKING:
     from edc_screening.model_mixins import ScreeningModelMixin
 
     ScreeningModel = TypeVar("ScreeningModel", bound=ScreeningModelMixin)
+
+__all__ = ["SubjectScreeningButton"]
 
 
 @dataclass

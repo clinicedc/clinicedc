@@ -36,9 +36,9 @@ from ..view_utils import (
     RequisitionButton,
     SubjectConsentDashboardButton,
     SubjectConsentListboardButton,
+    SubjectScreeningButton,
     TimepointStatusButton,
 )
-from ..view_utils.subject_screening_button import SubjectScreeningButton
 
 if TYPE_CHECKING:
     from edc_consent.model_mixins import ConsentModelMixin
