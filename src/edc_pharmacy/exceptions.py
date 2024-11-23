@@ -128,3 +128,7 @@ class StockTransferError(Exception):
 
 class AssignmentError(Exception):
     pass
+
+
+class StockTransferConfirmationError(Exception):
+    pass

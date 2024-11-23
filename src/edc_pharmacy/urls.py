@@ -9,6 +9,7 @@ from .views import (
     HomeView,
     PrepareAndReviewStockRequestView,
     PrintLabelsView,
+    ReturnView,
     StockTransferConfirmationView,
     TransferStockView,
     print_stock_transfer_manifest_view,
@@ -23,6 +24,18 @@ urlpatterns = [
         "<str:subject_identifier>/<int:container_count>/",
         DispenseView.as_view(),
         name="dispense_url",
+    ),
+    path(
+        "stock-transfer-confirmation/<uuid:session_uuid>/<str:stock_transfer_identifier>/"
+        "<int:location_id>/<int:items_to_scan>/",
+        StockTransferConfirmationView.as_view(),
+        name="stock_transfer_confirmation_url",
+    ),
+    path(
+        "stock-transfer-confirmation/<str:stock_transfer_identifier>/"
+        "<int:location_id>/<int:items_to_scan>/",
+        StockTransferConfirmationView.as_view(),
+        name="stock_transfer_confirmation_url",
     ),
     path(
         "stock-transfer-confirmation/<int:location_id>/<int:items_to_scan>/",
@@ -93,6 +106,11 @@ urlpatterns = [
         "dispense/",
         DispenseView.as_view(),
         name="dispense_url",
+    ),
+    path(
+        "return/",
+        ReturnView.as_view(),
+        name="return_url",
     ),
     path("admin/", edc_pharmacy_admin.urls),
     path("", HomeView.as_view(), name="home_url"),

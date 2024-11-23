@@ -40,7 +40,7 @@ class StockTransferItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         "stock_transfer_changelist",
         "stock_changelist",
         "stock__location",
-        "stock_transfer_confirmation_changelist",
+        "stock_transfer_confirmation_item_changelist",
     )
 
     list_filter = ("transfer_item_datetime",)
@@ -83,21 +83,23 @@ class StockTransferItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(
-        description="Confirmation #",
-        ordering="stocktransferconfirmation__transfer_confirmation_identifier",
+        description="Site Confirmation #",
+        ordering="stock__stocktransferconfirmationitem__transfer_confirmation_item_identifier",
     )
-    def stock_transfer_confirmation_changelist(self, obj):
-        url = reverse("edc_pharmacy_admin:edc_pharmacy_stocktransferconfirmation_changelist")
-        url = f"{url}?q={obj.id}"
+    def stock_transfer_confirmation_item_changelist(self, obj):
         try:
-            transfer_confirmation = obj.stock.stocktransferconfirmation
+            transfer_confirmation_item = obj.stock.stocktransferconfirmationitem
         except ObjectDoesNotExist:
             pass
         else:
+            url = reverse(
+                "edc_pharmacy_admin:edc_pharmacy_stocktransferconfirmationitem_changelist"
+            )
+            url = f"{url}?q={transfer_confirmation_item.pk}"
             context = dict(
                 url=url,
-                label=transfer_confirmation.transfer_confirmation_identifier,
-                title="Go to stock transfer confirmation",
+                label=transfer_confirmation_item.transfer_confirmation_item_identifier,
+                title="Go to stock transfer confirmation item",
             )
             return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None

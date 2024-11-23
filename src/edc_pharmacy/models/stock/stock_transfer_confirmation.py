@@ -1,8 +1,11 @@
 from django.db import models
 from edc_model.models import BaseUuidModel, HistoricalRecords
+from edc_utils import get_utcnow
 from sequences import get_next_value
 
-from ..stock import Stock
+from ...exceptions import StockTransferConfirmationError
+from .location import Location
+from .stock_transfer import StockTransfer
 
 
 class Manager(models.Manager):
@@ -19,18 +22,28 @@ class StockTransferConfirmation(BaseUuidModel):
         help_text="A sequential unique identifier set by the EDC",
     )
 
-    stock = models.OneToOneField(Stock, on_delete=models.PROTECT)
+    transfer_confirmation_datetime = models.DateTimeField(default=get_utcnow)
 
-    confirmed_datetime = models.DateTimeField(null=True, blank=True)
-    confirmed_by = models.CharField(max_length=150, null=True, blank=True)
+    stock_transfer = models.OneToOneField(StockTransfer, on_delete=models.PROTECT)
+
+    location = models.ForeignKey(
+        Location, on_delete=models.PROTECT, limit_choices_to={"site__isnull": False}
+    )
+
+    comments = models.TextField(null=True, blank=True)
+
     objects = Manager()
 
     history = HistoricalRecords()
 
     def save(self, *args, **kwargs):
+        if self.location != self.stock_transfer.to_location:
+            raise StockTransferConfirmationError(
+                "Location mismatch. Perhaps catch this in the form."
+            )
         if not self.transfer_confirmation_identifier:
             next_id = get_next_value(self._meta.label_lower)
-            self.transfer_confirmation_identifier = f"{next_id:010d}"
+            self.transfer_confirmation_identifier = f"{next_id:06d}"
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):

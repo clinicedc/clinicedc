@@ -27,6 +27,7 @@ class PrintLabelsView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Templ
     session_key = "model_pks"
     navbar_name = settings.APP_NAME
     navbar_selected_item = "pharmacy"
+    show_watermark = True
 
     def get_context_data(self, **kwargs):
         session_uuid = str(kwargs.get("session_uuid"))
@@ -43,15 +44,6 @@ class PrintLabelsView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Templ
             max_to_print=len(stock_pks),
         )
         return super().get_context_data(**kwargs)
-
-    # def get_label_configurations(self, stock_pks: list[str]):
-    #     if stock_pks:
-    #         stock = self.model_cls.objects.get(pk=stock_pks[0])
-    #         qs = LabelConfiguration.objects.filter(
-    #             requires_allocation=stock.container.may_request_as
-    #         ).order_by("name")
-    #         return qs
-    #     return LabelConfiguration.objects.all()
 
     @property
     def source_changelist_url(self):

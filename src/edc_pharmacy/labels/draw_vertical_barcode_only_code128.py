@@ -8,6 +8,7 @@ from reportlab.graphics.shapes import Drawing, Group, String
 from reportlab.pdfbase.pdfmetrics import stringWidth
 
 from ..utils import format_qty
+from .draw_label_watermark import draw_label_watermark
 
 if TYPE_CHECKING:
     from ..models import Stock
@@ -19,6 +20,8 @@ def draw_vertical_barcode_only_code128(
     height: int | float,
     obj: Stock,
 ) -> Drawing:
+
+    draw_label_watermark(label, width, height)
 
     br = BarcodeCode128(humanReadable=True, barHeight=30, barWidth=0.7, gap=1.7)
     br.value = obj.code
