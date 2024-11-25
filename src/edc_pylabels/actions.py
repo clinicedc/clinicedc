@@ -1,14 +1,11 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from uuid import uuid4
 
 from django.apps import apps as django_apps
 from django.contrib import admin, messages
-from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
 from django.db.models import Count, QuerySet
-from django.http import FileResponse, HttpResponseRedirect
-from django.urls import reverse
+from django.http import FileResponse
 from django.utils.translation import gettext as _
 from edc_utils import get_utcnow
 from pylabels import Sheet, Specification
