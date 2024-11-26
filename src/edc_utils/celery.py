@@ -1,5 +1,6 @@
 from celery import current_app
 from celery.result import AsyncResult
+from kombu.exceptions import OperationalError
 
 
 def run_task_sync_or_async(task, *args, **kwargs):
@@ -15,7 +16,10 @@ def celery_is_active() -> dict:
     service started.
     """
     i = current_app.control.inspect()
-    return i.active()
+    try:
+        return i.active()
+    except OperationalError:
+        return {}
 
 
 def get_task_result(obj) -> AsyncResult | None:
