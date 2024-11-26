@@ -6,7 +6,7 @@
 
 <form id="logout_form" method="post" action="{% url 'edc_auth_admin:logout' %}">{% csrf_token %}</form>
 
-{% if perms.edc_navbar.nav_pharmacy_section %}
+{% if perms.edc_pharmacy.nav_pharmacy_section %}
   <a class="btn btn-toolbar" href="{% url 'edc_pharmacy:home_url' %}" aria-label="{% translate 'Pharmacy' %}" title="{% translate 'Pharmacy' %}"><i class="fa-solid fa-prescription fa-fw"></i></a>   |
 {% endif %}
 
