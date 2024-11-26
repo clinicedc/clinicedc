@@ -1,4 +1,3 @@
-from django.conf import settings
 from edc_dashboard.utils import insert_bootstrap_version
 
 from .dashboard_templates import dashboard_templates
@@ -15,18 +14,7 @@ class DashboardMiddleware:
 
     def process_view(self, request, *args):
         request.url_name_data.update(**dashboard_urls)
-        try:
-            url_name_data = settings.LAB_DASHBOARD_URL_NAMES
-        except AttributeError:
-            pass
-        else:
-            request.url_name_data.update(**url_name_data)
-
         template_data = dashboard_templates
-        try:
-            template_data.update(settings.LAB_DASHBOARD_BASE_TEMPLATES)
-        except AttributeError:
-            pass
         template_data = insert_bootstrap_version(**template_data)
         request.template_data.update(**template_data)
 
