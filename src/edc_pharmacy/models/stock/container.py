@@ -57,9 +57,9 @@ class Container(BaseUuidModel):
     def save(self, *args, **kwargs):
         if not self.name:
             self.name = self.container_type.name
-            self.display_name = self.display_name or self.name
             if self.qty > 1.0:
                 self.name = f"{self.name} of {self.qty}"
+            self.display_name = self.display_name or self.name
         if self.may_request_as or self.may_repack_as:
             self.may_order_as = False
             self.may_receive_as = False

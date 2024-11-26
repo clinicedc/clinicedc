@@ -85,7 +85,9 @@ class Stock(BaseUuidModel):
 
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
 
-    lot = models.ForeignKey(Lot, on_delete=models.PROTECT, null=True, blank=False)
+    lot = models.ForeignKey(
+        Lot, verbose_name="Batch", on_delete=models.PROTECT, null=True, blank=False
+    )
 
     container = models.ForeignKey(Container, on_delete=models.PROTECT, null=True, blank=False)
 

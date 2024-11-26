@@ -3,6 +3,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
 from django_audit_fields import audit_fieldset_tuple
+from edc_model_admin.history import SimpleHistoryAdmin
 from edc_model_admin.list_filters import FutureDateListFilter
 from edc_utils.date import to_local
 
@@ -26,8 +27,9 @@ class ApptDatetimeListFilter(FutureDateListFilter):
 
 
 @admin.register(StockRequestItem, site=edc_pharmacy_admin)
-class StockRequestItemAdmin(ModelAdminMixin, admin.ModelAdmin):
+class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     change_list_title = "Pharmacy: Requested stock items"
+    history_list_display = ()
     show_object_tools = False
     show_cancel = True
     list_per_page = 20

@@ -7,6 +7,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext as _
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_constants.constants import NEW, PARTIAL, RECEIVED
+from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils import message_in_queue
 
 from ...admin_site import edc_pharmacy_admin
@@ -20,8 +21,9 @@ from ..remove_fields_for_blinded_users import remove_fields_for_blinded_users
 
 
 @admin.register(OrderItem, site=edc_pharmacy_admin)
-class OrderItemAdmin(ModelAdminMixin, admin.ModelAdmin):
+class OrderItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     change_list_title = "Pharmacy: Ordered items"
+    history_list_display = ()
     show_object_tools = False
     show_cancel = True
     list_per_page = 20

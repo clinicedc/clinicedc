@@ -33,6 +33,16 @@ def stock_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
         instance.unit_qty_out = Decimal(
             sender.objects.filter(from_stock=instance).count()
         ) * Decimal(instance.container.qty)
+
+        if instance.from_stock:
+            instance.from_stock.unit_qty_out = (
+                sender.objects.filter(from_stock=instance.from_stock)
+                .aggregate(unit_qty_in=Sum("unit_qty_in"))
+                .get("unit_qty_in")
+            )
+            instance.from_stock.save(update_fields=["unit_qty_out"])
+            instance.from_stock.refresh_from_db()
+
         if (
             instance.from_stock
             and instance.from_stock.unit_qty_out > instance.from_stock.unit_qty_in

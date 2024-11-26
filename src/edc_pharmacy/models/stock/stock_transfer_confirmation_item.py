@@ -37,6 +37,9 @@ class StockTransferConfirmationItem(BaseUuidModel):
 
     history = HistoricalRecords()
 
+    def __str__(self):
+        return self.transfer_confirmation_item_identifier
+
     def save(self, *args, **kwargs):
         if not self.transfer_confirmation_item_identifier:
             next_id = get_next_value(self._meta.label_lower)

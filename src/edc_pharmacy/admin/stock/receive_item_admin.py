@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django_audit_fields.admin import audit_fieldset_tuple
+from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
@@ -13,9 +14,10 @@ from ..model_admin_mixin import ModelAdminMixin
 
 
 @admin.register(ReceiveItem, site=edc_pharmacy_admin)
-class ReceiveItemAdmin(ModelAdminMixin, admin.ModelAdmin):
+class ReceiveItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     change_list_title = "Pharmacy: Received items"
     change_form_title = "Pharmacy: Receive item"
+    history_list_display = ()
     show_object_tools = False
     show_cancel = True
     list_per_page = 20

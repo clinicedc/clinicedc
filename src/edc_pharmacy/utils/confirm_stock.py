@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 def confirm_stock(
     obj: RepackRequest | Receive | None,
     stock_codes: list[str],
-    fk_attr: str | None,
+    fk_attr: str | None = None,
     confirmed_by: str | None = None,
     user_created: str = None,
     created: datetime = None,

@@ -2,6 +2,7 @@ from typing import Tuple
 
 from django.contrib import admin
 from django_audit_fields.admin import audit_fieldset_tuple
+from edc_model_admin.history import SimpleHistoryAdmin
 from edc_randomization.blinding import user_is_blinded_from_request
 
 from ...admin_site import edc_pharmacy_admin
@@ -12,9 +13,10 @@ from ..remove_fields_for_blinded_users import remove_fields_for_blinded_users
 
 
 @admin.register(Lot, site=edc_pharmacy_admin)
-class LotAdmin(ModelAdminMixin, admin.ModelAdmin):
-    change_list_title = "Pharmacy: Lots"
-    change_form_title = "Pharmacy: Lot"
+class LotAdmin(ModelAdminMixin, SimpleHistoryAdmin):
+    change_list_title = "Pharmacy: Batches"
+    change_form_title = "Pharmacy: Batch"
+    history_list_display = ()
     show_object_tools = True
     show_cancel = True
     list_per_page = 20
