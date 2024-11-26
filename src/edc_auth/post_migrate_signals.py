@@ -33,5 +33,6 @@ def post_migrate_user_groups_and_roles(sender=None, **kwargs):  # noqa
                 "the post_migrate signal that creates the new model's permissions\n"
                 "might be queued to run AFTER edc_auth's post_migrate signal. Let this\n"
                 "migration complete and then run `migrate` again.\n\n"
+                "If the problem persists, check your code.\n\n"
             )
         )
