@@ -2,7 +2,7 @@ from django.contrib.sites.models import Site
 from django.core.validators import RegexValidator
 from django.db import models
 from edc_list_data.model_mixins import ListModelMixin
-from edc_model.models import BaseUuidModel
+from edc_model.models import BaseUuidModel, HistoricalRecords
 
 
 class Manager(models.Manager):
@@ -27,6 +27,10 @@ class Location(ListModelMixin, BaseUuidModel):
         max_length=150, validators=[RegexValidator("[0-9]{1,15}")], null=True, blank=True
     )
     contact_email = models.EmailField(max_length=150, null=True, blank=True)
+
+    objects = Manager()
+
+    history = HistoricalRecords()
 
     def save(self, *args, **kwargs):
         if not self.display_name:

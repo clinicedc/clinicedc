@@ -2,42 +2,21 @@ from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django_audit_fields.admin import audit_fieldset_tuple
-from edc_model_admin.mixins import TabularInlineMixin
+from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
-from ...forms import ReceiveForm, ReceiveItemForm
-from ...models import Receive, ReceiveItem
+from ...forms import ReceiveForm
+from ...models import Receive
 from ..actions import confirm_received_stock_action, print_labels_from_receive
 from ..model_admin_mixin import ModelAdminMixin
 
 
-class ReceiveItemInlineAdmin(TabularInlineMixin, admin.TabularInline):
-    model = ReceiveItem
-    form = ReceiveItemForm
-    extra = 1
-
-    fieldsets = (
-        (
-            None,
-            {
-                "fields": (
-                    [
-                        "receive_item_datetime",
-                        "order_item",
-                        "container",
-                        "unit_qty",
-                    ]
-                )
-            },
-        ),
-    )
-
-
 @admin.register(Receive, site=edc_pharmacy_admin)
-class ReceiveAdmin(ModelAdminMixin, admin.ModelAdmin):
+class ReceiveAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     change_list_title = "Pharmacy: Receiving"
     change_form_title = "Pharmacy: Receive"
+    history_list_display = ()
 
     show_object_tools = False
     show_cancel = True

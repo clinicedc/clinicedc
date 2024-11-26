@@ -6,6 +6,7 @@ from django.contrib.admin.widgets import AutocompleteSelect
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django_audit_fields import audit_fieldset_tuple
+from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.celery import get_task_result
 from edc_utils.date import to_local
 
@@ -19,12 +20,14 @@ from ..actions import (
     process_repack_request_action,
 )
 from ..model_admin_mixin import ModelAdminMixin
+from ..remove_fields_for_blinded_users import remove_fields_for_blinded_users
 
 
 @admin.register(RepackRequest, site=edc_pharmacy_admin)
-class RequestRepackAdmin(ModelAdminMixin, admin.ModelAdmin):
+class RequestRepackAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     change_list_title = "Pharmacy: Repack/Decant request"
     change_form_title = "Pharmacy: Repack/Decant"
+    history_list_display = ()
 
     show_object_tools = True
     show_cancel = True
@@ -84,6 +87,21 @@ class RequestRepackAdmin(ModelAdminMixin, admin.ModelAdmin):
     )
 
     readonly_fields = ("processed_qty", "task_id")
+
+    def get_list_display(self, request):
+        fields = super().get_list_display(request)
+        fields = remove_fields_for_blinded_users(request, fields)
+        return fields
+
+    def get_list_filter(self, request):
+        fields = super().get_list_filter(request)
+        fields = remove_fields_for_blinded_users(request, fields)
+        return fields
+
+    def get_search_fields(self, request):
+        fields = super().get_search_fields(request)
+        fields = remove_fields_for_blinded_users(request, fields)
+        return fields
 
     @admin.display(description="Repack date", ordering="repack_datetime")
     def repack_date(self, obj):

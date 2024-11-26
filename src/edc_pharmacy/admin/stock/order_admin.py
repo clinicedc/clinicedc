@@ -4,40 +4,20 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
 from django_audit_fields.admin import audit_fieldset_tuple
-from edc_model_admin.mixins import TabularInlineMixin
+from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
-from ...forms import OrderForm, OrderItemForm
+from ...forms import OrderForm
 from ...models import Order, OrderItem, Receive
 from ..model_admin_mixin import ModelAdminMixin
 
 
-class OrderItemInlineAdmin(TabularInlineMixin, admin.TabularInline):
-    model = OrderItem
-    form = OrderItemForm
-    extra = 1
-
-    fieldsets = (
-        (
-            None,
-            {
-                "fields": (
-                    [
-                        "product",
-                        "container",
-                        "qty",
-                    ]
-                )
-            },
-        ),
-    )
-
-
 @admin.register(Order, site=edc_pharmacy_admin)
-class OrderAdmin(ModelAdminMixin, admin.ModelAdmin):
+class OrderAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     change_list_title = "Pharmacy: Orders"
     change_form_title = "Pharmacy: Order"
+    history_list_display = ()
     show_object_tools = True
     show_cancel = True
     list_per_page = 20

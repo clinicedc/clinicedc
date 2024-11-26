@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django_audit_fields.admin import audit_fieldset_tuple
+from edc_model_admin.history import SimpleHistoryAdmin
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import ContainerForm
@@ -9,9 +10,10 @@ from ..model_admin_mixin import ModelAdminMixin
 
 
 @admin.register(Container, site=edc_pharmacy_admin)
-class ContainerAdmin(ModelAdminMixin, admin.ModelAdmin):
+class ContainerAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     change_list_title = "Pharmacy: Containers"
     show_object_tools = True
+    history_list_display = ()
     list_per_page = 20
 
     form = ContainerForm

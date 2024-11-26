@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_constants.constants import YES
+from edc_model_admin.history import SimpleHistoryAdmin
 
 from ...admin_site import edc_pharmacy_admin
 from ...exceptions import AllocationError, AssignmentError
@@ -29,9 +30,10 @@ from ..remove_fields_for_blinded_users import remove_fields_for_blinded_users
 
 
 @admin.register(Stock, site=edc_pharmacy_admin)
-class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
+class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     change_list_title = "Pharmacy: Stock"
     change_form_title = "Pharmacy: Stock"
+    history_list_display = ()
     show_object_tools = False
     show_cancel = True
     list_per_page = 20
@@ -66,7 +68,7 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
             {"fields": ("product", "container")},
         ),
         (
-            "Lot",
+            "Batch",
             {"fields": ("lot",)},
         ),
         (
@@ -187,6 +189,16 @@ class StockAdmin(ModelAdminMixin, admin.ModelAdmin):
         fields = super().get_search_fields(request)
         fields = remove_fields_for_blinded_users(request, fields)
         return fields
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request, obj)
+        if not request.user.has_perm("edc_pharmacy.view_lot"):
+            return [
+                fieldset
+                for fieldset in fieldsets
+                if fieldset[0] and fieldset[0].lower() not in ["lot", "batch"]
+            ]
+        return fieldsets
 
     @admin.display(description="Assignment", ordering="lot__assignment__name")
     def verified_assignment(self, obj):

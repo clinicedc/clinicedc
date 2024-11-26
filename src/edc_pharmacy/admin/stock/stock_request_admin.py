@@ -7,6 +7,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
 from django_audit_fields import audit_fieldset_tuple
+from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
@@ -18,8 +19,9 @@ from ..utils import stock_request_status_counts
 
 
 @admin.register(StockRequest, site=edc_pharmacy_admin)
-class StockRequestAdmin(ModelAdminMixin, admin.ModelAdmin):
+class StockRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     change_list_title = "Pharmacy: Request for stock"
+    history_list_display = ()
     show_object_tools = True
     show_cancel = True
     list_per_page = 20

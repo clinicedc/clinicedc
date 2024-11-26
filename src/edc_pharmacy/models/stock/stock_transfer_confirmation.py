@@ -36,6 +36,9 @@ class StockTransferConfirmation(BaseUuidModel):
 
     history = HistoricalRecords()
 
+    def __str__(self):
+        return self.transfer_confirmation_identifier
+
     def save(self, *args, **kwargs):
         if self.location != self.stock_transfer.to_location:
             raise StockTransferConfirmationError(

@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django_audit_fields import audit_fieldset_tuple
+from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
@@ -12,9 +13,10 @@ from ..model_admin_mixin import ModelAdminMixin
 
 
 @admin.register(StockTransfer, site=edc_pharmacy_admin)
-class StockTransferAdmin(ModelAdminMixin, admin.ModelAdmin):
+class StockTransferAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     change_list_title = "Pharmacy: Stock Transfer"
     change_form_title = "Pharmacy: Stock Transfers"
+    history_list_display = ()
     show_object_tools = True
     show_cancel = True
     list_per_page = 20
