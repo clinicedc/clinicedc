@@ -3,16 +3,13 @@ from __future__ import annotations
 from django import template
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
-from edc_dashboard.utils import get_bootstrap_version
 
 from ..navbar_item import NavbarItem
 
 register = template.Library()
 
 
-@register.inclusion_tag(
-    f"edc_navbar/bootstrap{get_bootstrap_version()}/edc_navbar.html", takes_context=True
-)
+@register.inclusion_tag("edc_navbar/bootstrap3/edc_navbar.html", takes_context=True)
 def render_navbar(context) -> dict:
     auth_user_change_url = None
     user = context["request"].user
@@ -29,9 +26,7 @@ def render_navbar(context) -> dict:
     )
 
 
-@register.inclusion_tag(
-    f"edc_navbar/bootstrap{get_bootstrap_version()}/navbar_item.html", takes_context=True
-)
+@register.inclusion_tag("edc_navbar/bootstrap3/navbar_item.html", takes_context=True)
 def render_navbar_item(context, navbar_item: NavbarItem) -> dict:
     data = {}
     url = navbar_item.get_url()
