@@ -12,9 +12,10 @@ register = template.Library()
 @register.inclusion_tag("edc_navbar/bootstrap3/edc_navbar.html", takes_context=True)
 def render_navbar(context) -> dict:
     auth_user_change_url = None
-    user = context["request"].user
+    user = getattr(context["request"], "user", None)
+    user_id = getattr(user, "id", None)
     try:
-        auth_user_change_url = reverse("edc_auth_admin:auth_user_change", args=(user.id,))
+        auth_user_change_url = reverse("edc_auth_admin:auth_user_change", args=(user_id,))
     except NoReverseMatch:
         pass
     return dict(
