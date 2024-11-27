@@ -3,8 +3,9 @@ from django.views.generic.base import RedirectView
 from edc_listboard.views import ListboardView
 from edc_utils.paths_for_urlpatterns import paths_for_urlpatterns
 
-from ..url_config import UrlConfig
-from ..views import AdministrationView
+from edc_dashboard.url_config import UrlConfig
+from edc_dashboard.views import AdministrationView
+
 from .admin import edc_dashboard_admin
 
 app_name = "edc_dashboard"
