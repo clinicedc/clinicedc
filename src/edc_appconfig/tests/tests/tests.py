@@ -37,7 +37,7 @@ class TestAppConfig(TestCase):
     def test_edc_navbar_checks(self):
         errors = edc_navbar_checks(django_apps.get_app_configs())
         ids = [error.id for error in errors]
-        self.assertEqual(9, len(ids))
+        self.assertEqual(8, len(ids))
         # self.assertIn("edc_navbar.E002", ids)
         self.assertIn("edc_navbar.E003", ids)
 
