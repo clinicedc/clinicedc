@@ -25,7 +25,7 @@ from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 
 from edc_dashboard.url_names import url_names
 
-from ..models import SubjectVisit
+from .models import SubjectVisit
 
 
 @override_settings(
