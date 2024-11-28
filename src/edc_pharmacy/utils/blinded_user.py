@@ -11,3 +11,6 @@ def blinded_user(request) -> bool:
         return True
     # user is not blinded
     return False
+
+
+__all__ = ["blinded_user"]

@@ -35,3 +35,6 @@ def remove_subjects_where_stock_on_site(stock_request: StockRequest, df: pd.Data
     df["stock_qty"] = 0.0
     df = df.reset_index(drop=True)
     return df
+
+
+__all__ = ["remove_subjects_where_stock_on_site"]

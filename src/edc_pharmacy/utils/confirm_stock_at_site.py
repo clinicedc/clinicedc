@@ -74,3 +74,6 @@ def confirm_stock_at_site(
                 obj.save()
                 confirmed.append(stock_code)
     return confirmed, already_confirmed, invalid
+
+
+__all__ = ["confirm_stock_at_site"]

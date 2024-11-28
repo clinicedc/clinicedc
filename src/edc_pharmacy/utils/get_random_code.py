@@ -22,3 +22,6 @@ def get_random_code(model_cls, length: int, tries: int | None = None) -> str:
         if x == tries:
             raise StopIteration()
     return random_code
+
+
+__all__ = ["get_random_code"]

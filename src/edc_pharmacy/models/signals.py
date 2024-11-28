@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from decimal import Decimal
 
 from celery.states import PENDING
@@ -9,8 +11,11 @@ from edc_utils.celery import get_task_result, run_task_sync_or_async
 
 from ..exceptions import InsufficientStockError
 from ..model_mixins import StudyMedicationCrfModelMixin
-from ..tasks import process_repack_request
-from ..utils import update_previous_refill_end_datetime
+from ..utils import (
+    create_new_stock_on_receive,
+    process_repack_request,
+    update_previous_refill_end_datetime,
+)
 from .stock import (
     Allocation,
     DispenseItem,
@@ -98,19 +103,9 @@ def receive_item_on_post_save(sender, instance, raw, created, update_fields, **k
         if unit_qty_received == unit_qty:
             order.status = COMPLETE
             order.save()
+
         # add to stock
-        for i in range(0, int(instance.qty)):
-            Stock.objects.create(
-                receive_item_id=instance.id,
-                qty_in=1,
-                qty_out=0,
-                qty=1,
-                product_id=instance.order_item.product.id,
-                container_id=instance.container.id,
-                location_id=instance.receive.location.id,
-                confirmed=False,
-                lot_id=instance.lot.id,
-            )
+        create_new_stock_on_receive(receive_item_pk=instance.id)
 
 
 @receiver(post_save, sender=StockRequest, dispatch_uid="stock_request_on_post_save")

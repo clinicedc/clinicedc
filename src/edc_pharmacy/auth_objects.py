@@ -1,6 +1,5 @@
-from django.apps import apps as django_apps
+from edc_pharmacy.utils import get_codenames
 
-app_name = "edc_pharmacy"
 # groups
 DISPENSING = "DISPENSING"
 DISPENSING_VIEW = "DISPENSING_VIEW"
@@ -16,30 +15,64 @@ PHARMACY_AUDITOR_ROLE = "PHARMACY_AUDITOR_ROLE"
 PHARMACY_PRESCRIBER_ROLE = "PHARMACY_PRESCRIBER_ROLE"
 SITE_PHARMACIST_ROLE = "SITE_PHARMACIST_ROLE"
 
-pharmacy_codenames = ["edc_pharmacy.view_subject"]
-prescriber_codenames = ["edc_pharmacy.view_subject"]
 
-
-navbar_codenames = [
-    "edc_pharmacy.nav_pharmacy_section",
-]
-
+navbar_codenames = ["edc_pharmacy.nav_pharmacy_section"]
 navbar_tuples = []
 for codename in navbar_codenames:
     navbar_tuples.append((codename, f"Can access {codename.split('.')[1]}"))
 
 
-for app_config in django_apps.get_app_configs():
-    if app_config.name in [
-        "edc_pharmacy",
-    ]:
-        for model_cls in app_config.get_models():
-            app_name, model_name = model_cls._meta.label_lower.split(".")
-            if model_name == "registeredsubjectproxy":
-                continue
-            for prefix in ["view_", "add_", "change_", "delete_"]:
-                pharmacy_codenames.append(f"{app_name}.{prefix}{model_name}")
+# central pharmacist
+view_only_models = [
+    "edc_pharmacy.allocation",
+    "edc_pharmacy.formulation",
+    "edc_pharmacy.formulationtype",
+    "edc_pharmacy.frequencyunits",
+    "edc_pharmacy.location",
+    "edc_pharmacy.medication",
+    "edc_pharmacy.stockrequest",
+    "edc_pharmacy.stockrequestitem",
+    "edc_pharmacy.stock",
+    "edc_pharmacy.assignment",
+    "edc_pharmacy.subject",
+    "edc_pharmacy.visitschedule",
+]
+pharmacy_codenames = get_codenames([], view_only_models=view_only_models)
+pharmacy_codenames.extend(navbar_codenames)
+pharmacy_codenames.sort()
 
+
+# site pharmacist
+exclude_models = ["edc_pharmacy.lot", "edc_pharmacy.assignment"]
+view_only_models = [
+    "edc_pharmacy.order",
+    "edc_pharmacy.orderitem",
+    "edc_pharmacy.receive",
+    "edc_pharmacy.receiveitem",
+    "edc_pharmacy.repackrequest",
+    "edc_pharmacy.stocktransfer",
+    "edc_pharmacy.stocktransferitem",
+    "edc_pharmacy.allocation",
+    "edc_pharmacy.container",
+    "edc_pharmacy.containertype",
+    "edc_pharmacy.formulation",
+    "edc_pharmacy.formulationtype",
+    "edc_pharmacy.frequencyunits",
+    "edc_pharmacy.location",
+    "edc_pharmacy.medication",
+    "edc_pharmacy.product",
+    "edc_pharmacy.stock",
+    "edc_pharmacy.subject",
+    "edc_pharmacy.visitschedule",
+]
+pharmacy_site_codenames = get_codenames(
+    [], view_only_models=view_only_models, exclude_models=exclude_models
+)
+pharmacy_site_codenames.extend(navbar_codenames)
+pharmacy_site_codenames.sort()
+
+# prescriber
+prescriber_codenames = []
 for model_name in ["dosageguideline", "formulation", "medication", "rxrefill"]:
     prescriber_codenames.extend(
         [
@@ -50,8 +83,5 @@ for model_name in ["dosageguideline", "formulation", "medication", "rxrefill"]:
     )
 for model_name in ["rx", "rxitem"]:
     prescriber_codenames.extend([c for c in pharmacy_codenames if model_name in c])
-
-pharmacy_codenames.extend(navbar_codenames)
+prescriber_codenames.append("edc_pharmacy.view_subject")
 prescriber_codenames.sort()
-pharmacy_codenames.sort()
-pharmacy_site_codenames = [c for c in pharmacy_codenames if not c.endswith("lot")]

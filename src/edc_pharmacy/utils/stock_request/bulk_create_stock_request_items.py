@@ -56,3 +56,6 @@ def bulk_create_stock_request_items(
     if data:
         stock_request_item_model_cls.objects.bulk_create(data)
     return None
+
+
+__all__ = ["bulk_create_stock_request_items"]
