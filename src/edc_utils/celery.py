@@ -3,7 +3,7 @@ from celery.result import AsyncResult
 from kombu.exceptions import OperationalError
 
 
-def run_task_sync_or_async(task, *args, **kwargs):
+def run_task_sync_or_async(task, *args, **kwargs) -> AsyncResult:
     """Run a task with celery if running"""
     if current_app.conf.task_always_eager or not celery_is_active():
         return task(*args, **kwargs)
