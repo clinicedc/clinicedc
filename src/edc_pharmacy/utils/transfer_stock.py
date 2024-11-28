@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 def transfer_stock(
     stock_transfer: StockTransfer, stock_codes: list[str], username: str | None = None
-):
+) -> tuple[list[str], list[str]]:
     stock_model_cls = django_apps.get_model("edc_pharmacy.stock")
     stock_transfer_item_model_cls = django_apps.get_model("edc_pharmacy.stocktransferitem")
     transferred, skipped_codes = [], []
@@ -36,3 +36,7 @@ def transfer_stock(
             stock.location = stock_transfer.to_location
             stock.save()
             transferred.append(stock_code)
+    return transferred, skipped_codes
+
+
+__all__ = ["transfer_stock"]

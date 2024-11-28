@@ -65,6 +65,8 @@ class ReceiveItem(BaseUuidModel):
         help_text="Quantity x Container.Quantity, e.g. 10 x Bottle of 128 = 1280",
     )
 
+    task_id = models.UUIDField(null=True)
+
     objects = Manager()
 
     history = HistoricalRecords()

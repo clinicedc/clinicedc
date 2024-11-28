@@ -68,3 +68,6 @@ def allocate_stock(
             obj.save()
             allocated += 1
     return allocated, unallocated
+
+
+__all__ = ["allocate_stock"]

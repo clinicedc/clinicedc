@@ -62,3 +62,6 @@ def confirm_stock(
             else:
                 already_confirmed.append(stock.code)
     return confirmed, already_confirmed, invalid
+
+
+__all__ = ["confirm_stock"]

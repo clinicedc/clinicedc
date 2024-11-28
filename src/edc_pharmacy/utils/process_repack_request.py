@@ -1,20 +1,23 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from uuid import UUID
 
+from celery import shared_task
 from django.apps import apps as django_apps
 from edc_utils import get_utcnow
 
 from ..exceptions import InsufficientStockError, RepackError
 
+if TYPE_CHECKING:
+    from ..models import RepackRequest
 
+
+@shared_task
 def process_repack_request(
     repack_request_id: UUID | None = None, username: str | None = None
-) -> None:
-    """Take from stock and fill container as new stock item.
-
-    Do not change location here.
-    """
+) -> RepackRequest:
+    """Take from stock and fill container as new stock item."""
     repack_request_model_cls = django_apps.get_model("edc_pharmacy.repackrequest")
     stock_model_cls = django_apps.get_model("edc_pharmacy.stock")
     repack_request = repack_request_model_cls.objects.get(id=repack_request_id)
@@ -64,3 +67,8 @@ def process_repack_request(
             "modified",
         ]
     )
+    repack_request.refresh_from_db()
+    return repack_request
+
+
+__all__ = ["process_repack_request"]
