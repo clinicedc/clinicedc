@@ -8,6 +8,10 @@ from .site import SiteNotRegistered, sites
 
 class SiteViewMixin:
     def get_context_data(self, **kwargs) -> dict:
+        kwargs = self.get_context_data_for_sites(**kwargs)
+        return super().get_context_data(**kwargs)
+
+    def get_context_data_for_sites(self, **kwargs):
         try:
             site_profile = SiteProfile.objects.get(site__id=self.request.site.id)
         except ObjectDoesNotExist:
@@ -21,4 +25,4 @@ class SiteViewMixin:
                     "Unable to determine site profile 'title'. No sites have been registered! "
                 )
             raise
-        return super().get_context_data(**kwargs)
+        return kwargs
