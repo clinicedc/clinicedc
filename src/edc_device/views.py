@@ -2,7 +2,6 @@ from typing import Any
 
 from django.apps import apps as django_apps
 from django.views.generic.base import TemplateView
-from edc_dashboard.utils import get_bootstrap_version
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 
@@ -10,7 +9,7 @@ from .view_mixins import EdcDeviceViewMixin
 
 
 class HomeView(EdcViewMixin, NavbarViewMixin, EdcDeviceViewMixin, TemplateView):
-    template_name = f"edc_device/bootstrap{get_bootstrap_version()}/home.html"
+    template_name = "edc_device/bootstrap3/home.html"
     navbar_name = "edc_device"
     navbar_selected_item = "device"
 
@@ -24,3 +23,6 @@ class HomeView(EdcViewMixin, NavbarViewMixin, EdcDeviceViewMixin, TemplateView):
             }
         )
         return super().get_context_data(**kwargs)
+
+    def get_context_data_for_sites(self, **kwargs):
+        return kwargs
