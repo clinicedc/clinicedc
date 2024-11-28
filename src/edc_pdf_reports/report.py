@@ -21,7 +21,7 @@ from reportlab.lib.styles import (
 from reportlab.lib.units import cm
 from reportlab.platypus import SimpleDocTemplate
 
-from edc_pdf_reports.numbered_canvas import NumberedCanvas
+from .numbered_canvas import NumberedCanvas
 
 
 class ReportError(Exception):
@@ -36,6 +36,7 @@ class Report(ABC):
     watermark_font: tuple[str, int] | None = getattr(
         settings, "EDC_PDF_REPORTS_WATERMARK_FONT", ("Helvetica", 100)
     )
+    default_numbered_canvas = NumberedCanvas
 
     default_page = dict(
         rightMargin=0.5 * cm,
@@ -59,7 +60,7 @@ class Report(ABC):
         self.page = page or self.default_page
         self.filename = filename or f"{uuid4()}.pdf"
         self.footer_row_height = footer_row_height or 25
-        self.numbered_canvas = numbered_canvas
+        self.numbered_canvas = numbered_canvas or self.default_numbered_canvas
 
         if not header_line:
             header_line = ResearchProtocolConfig().institution
