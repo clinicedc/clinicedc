@@ -34,16 +34,6 @@ def read_unmanaged_model_sql(
     return sql.replace("uuid()", uuid_func)
 
 
-def truncate_string(string: str, max_length: int) -> str:
-    """Strips string of leading/trailing whitespace and truncates
-    if > `max_length`.
-    """
-    string = string.strip()
-    if len(string) > max_length:
-        return string[: max_length - 1].strip() + "…"
-    return string
-
-
 def get_qareports_codenames(app_name: str, *note_models: str) -> list[str]:
     warn("This function has been deprecated. Use get_app_codenames.", DeprecationWarning, 2)
     return get_app_codenames(app_name)
