@@ -17,6 +17,7 @@ from .text import (
     formatted_datetime,
     get_safe_random_string,
     safe_allowed_chars,
+    truncate_string,
 )
 
 __all__ = [
@@ -49,5 +50,6 @@ __all__ = [
     "safe_allowed_chars",
     "show_url_names",
     "show_urls",
+    "truncate_string",
     "to_utc",
 ]
