@@ -14,6 +14,7 @@ from edc_utils import (
     get_datetime_from_env,
     get_dob,
     get_safe_random_string,
+    truncate_string,
 )
 from edc_utils.round_up import round_half_away_from_zero
 
@@ -160,3 +161,101 @@ class TestUtils(TestCase):
         self.assertEqual(round_half_away_from_zero(Decimal("1.54"), 1), Decimal("1.5"))
         self.assertEqual(round_half_away_from_zero(Decimal("1.555"), 2), Decimal("1.56"))
         self.assertEqual(round_half_away_from_zero(Decimal("1.5554"), 3), Decimal("1.555"))
+
+    def test_truncate_string_with_len_eq_max_length_returns_orig_string(self):
+        orig_string = "String of len 16"
+        self.assertEqual(
+            truncate_string(string=orig_string, max_length=len(orig_string)),
+            orig_string,
+        )
+
+        self.assertEqual(
+            truncate_string(string="a", max_length=1),
+            "a",
+        )
+        self.assertEqual(
+            truncate_string(string="ab", max_length=2),
+            "ab",
+        )
+        self.assertEqual(
+            truncate_string(string="abc", max_length=3),
+            "abc",
+        )
+        self.assertEqual(
+            truncate_string(string="ab c", max_length=4),
+            "ab c",
+        )
+
+    def test_truncate_string_with_len_lt_max_length_returns_orig_string(self):
+        orig_string = "String of len 16"
+        for max_length in [17, 20, 100]:
+            with self.subTest(max_length=max_length):
+                self.assertEqual(
+                    truncate_string(string=orig_string, max_length=max_length),
+                    orig_string,
+                )
+
+    def test_truncate_empty_string_returns_empty_string(self):
+        empty_string = ""
+        for max_length in [1, 10, 100]:
+            with self.subTest(max_length=max_length):
+                self.assertEqual(
+                    truncate_string(string=empty_string, max_length=max_length),
+                    empty_string,
+                )
+
+    def test_truncate_string_len_1_max_len_1_returns_orig_string(self):
+        self.assertEqual(
+            truncate_string(string="a", max_length=1),
+            "a",
+        )
+
+    def test_truncate_string_max_len_lt_1_raises_value_error(self):
+        for string in ["", "a", "a long string"]:
+            for max_length in [0, -1, -10]:
+                with self.subTest(string=string, max_length=max_length):
+                    with self.assertRaises(ValueError):
+                        truncate_string(string=string, max_length=max_length),
+
+    def test_truncate_string_gt_max_len_as_expected(self):
+        orig_string = "String of len 16"
+        self.assertEqual(
+            truncate_string(string=orig_string, max_length=15),
+            "String of len…",
+        )
+        self.assertEqual(
+            truncate_string(string=orig_string, max_length=14),
+            "String of len…",
+        )
+        self.assertEqual(
+            truncate_string(string=orig_string, max_length=13),
+            "String of le…",
+        )
+        self.assertEqual(
+            truncate_string(string=orig_string, max_length=12),
+            "String of l…",
+        )
+        self.assertEqual(
+            truncate_string(string=orig_string, max_length=11),
+            "String of…",
+        )
+        self.assertEqual(
+            truncate_string(string=orig_string, max_length=10),
+            "String of…",
+        )
+        self.assertEqual(
+            truncate_string(string=orig_string, max_length=7),
+            "String…",
+        )
+        self.assertEqual(
+            truncate_string(string=orig_string, max_length=6),
+            "Strin…",
+        )
+        self.assertEqual(
+            truncate_string(string=orig_string, max_length=2),
+            "S…",
+        )
+        self.assertEqual(
+            truncate_string(string=orig_string, max_length=1),
+            "…",
+        )

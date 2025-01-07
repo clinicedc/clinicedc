@@ -103,3 +103,16 @@ def escape_braces(text: str) -> str:
     `format_html(escape_braces("string with {braces} to escape"))`
     """
     return text.replace("{", "{{").replace("}", "}}")
+
+
+def truncate_string(string: str, max_length: int) -> str:
+    """Strips string of leading/trailing whitespace and truncates
+    if > `max_length`.
+    """
+    if max_length < 1:
+        raise ValueError("Max length must be >= 1")
+
+    string = string.strip()
+    if len(string) > max_length:
+        return string[: max_length - 1].strip() + "…"
+    return string
