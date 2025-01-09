@@ -5,7 +5,7 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_consent.tests.consent_test_utils import consent_definition_factory
 from edc_constants.constants import CANCELLED, CLOSED, NEW, OPEN
 from edc_utils import get_utcnow
@@ -249,7 +249,6 @@ class TestActionItem(TestCaseMixin, TestCase):
 
         self.assertRaises(ProtectedError, action_item.delete)
 
-    @tag("1")
     def test_new(self):
         site_action_items.register(FormOneAction)
         site_action_items.register(FormTwoAction)

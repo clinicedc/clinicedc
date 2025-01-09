@@ -73,6 +73,7 @@ class Action:
         related_action_item: Optional[ActionItemStub] = None,
         using: Optional[str] = None,
         readonly: Optional[bool] = None,
+        skip_get_current_site: bool | None = None,
     ) -> None:
         self._action_item = action_item
         self._reference_obj = reference_obj
@@ -87,6 +88,7 @@ class Action:
         self.readonly = readonly
         self.subject_identifier = subject_identifier
         self.using = using
+        self.skip_get_current_site = skip_get_current_site
 
         if self.action_item.action_cls != self.__class__:
             raise ActionError(
@@ -225,7 +227,9 @@ class Action:
 
         Called only after checking.
         """
-        valid_site_for_subject_or_raise(subject_identifier)
+        valid_site_for_subject_or_raise(
+            subject_identifier, skip_get_current_site=self.skip_get_current_site
+        )
         try:
             self._action_item = create_action_item(
                 self.__class__,
