@@ -1,4 +1,6 @@
 import unittest
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
@@ -16,9 +18,10 @@ from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 from faker import Faker
 
-from ..constants import test_datetime
 from ..models import SubjectConsentV1
 from ..visit_schedule import get_visit_schedule
+
+test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
 
 skip_condition = "django_collect_offline.apps.AppConfig" not in settings.INSTALLED_APPS
 skip_reason = "django_collect_offline not installed"

@@ -1,3 +1,6 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
 from edc_consent import site_consents
@@ -17,7 +20,7 @@ from edc_metadata.metadata_rules import (
     site_metadata_rules,
 )
 
-from ..constants import test_datetime
+test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
 
 
 class RuleGroupWithoutRules(CrfRuleGroup):

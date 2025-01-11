@@ -1,8 +1,11 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 from dateutil.relativedelta import relativedelta
 from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, MALE
 
-from .constants import test_datetime
+test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
 
 consent_v1 = ConsentDefinition(
     "edc_metadata.subjectconsentv1",

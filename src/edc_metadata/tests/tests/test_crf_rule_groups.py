@@ -1,3 +1,6 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
@@ -19,12 +22,12 @@ from edc_metadata.metadata_handler import MetadataHandlerError
 from edc_metadata.metadata_rules import CrfRule, CrfRuleGroup, P, site_metadata_rules
 from edc_metadata.models import CrfMetadata
 
-from ..constants import test_datetime
 from ..models import CrfOne, CrfTwo, PrnOne, SubjectConsentV1
 from ..visit_schedule import get_visit_schedule
 
 fake = Faker()
 edc_registration_app_config = django_apps.get_app_config("edc_registration")
+test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
 
 
 class CrfRuleGroupOne(CrfRuleGroup):

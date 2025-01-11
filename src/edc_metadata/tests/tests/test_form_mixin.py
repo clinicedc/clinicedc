@@ -1,3 +1,6 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
@@ -18,10 +21,11 @@ from edc_metadata.metadata_helper import MetadataHelperMixin
 from edc_metadata.metadata_rules import site_metadata_rules
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 
-from ..constants import test_datetime
 from ..models import SubjectConsentV1, SubjectVisit
 from ..visit_schedule import get_visit_schedule
 from .test_view_mixin import MyView
+
+test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
 
 
 class MyForm(MetadataHelperMixin, FormValidator):

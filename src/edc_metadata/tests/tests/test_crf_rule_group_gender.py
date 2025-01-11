@@ -1,3 +1,6 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
@@ -28,11 +31,13 @@ from edc_metadata.metadata_rules import (
 )
 from edc_metadata.models import CrfMetadata
 
-from ..constants import test_datetime
 from ..models import CrfOne, SubjectConsentV1
 from ..visit_schedule import get_visit_schedule
 
 fake = Faker()
+
+
+test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
 
 
 class CrfRuleGroupWithSourceModel(CrfRuleGroup):
