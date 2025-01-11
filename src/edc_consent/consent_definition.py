@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from edc_model.models import BaseUuidModel
     from edc_screening.model_mixins import EligibilityModelMixin, ScreeningModelMixin
 
+    from .consent_definition_extension import ConsentDefinitionExtension
     from .stubs import ConsentLikeModel
 
     class SubjectScreening(ScreeningModelMixin, EligibilityModelMixin, BaseUuidModel): ...
@@ -40,7 +41,7 @@ class ConsentDefinition:
     end: datetime = field(default=ResearchProtocolConfig().study_close_datetime, compare=False)
     version: str = field(default="1", compare=False)
     updates: ConsentDefinition = field(default=None, compare=False)
-    end_extends_on_update: bool = field(default=False, compare=False)
+    extends: ConsentDefinition = field(default=None, compare=False)
     screening_model: list[str] = field(default_factory=list, compare=False)
     age_min: int = field(default=18, compare=False)
     age_max: int = field(default=110, compare=False)
@@ -50,10 +51,12 @@ class ConsentDefinition:
     country: str | None = field(default=None, compare=False)
     validate_duration_overlap_by_model: bool | None = field(default=True, compare=False)
     subject_type: str = field(default="subject", compare=False)
+    timepoints: list[int] | None = field(default_factory=list, compare=False)
 
     name: str = field(init=False, compare=False)
     # set updated_by when the cdef is registered, see site_consents
     updated_by: ConsentDefinition = field(default=None, compare=False, init=False)
+    extended_by: ConsentDefinitionExtension = field(default=None, compare=False, init=False)
     _model: str = field(init=False, compare=False)
     sort_index: str = field(init=False)
 
@@ -68,12 +71,16 @@ class ConsentDefinition:
             raise ConsentDefinitionError(f"Invalid gender. Got {self.gender}.")
         if not self.start.tzinfo:
             raise ConsentDefinitionError(f"Naive datetime not allowed. Got {self.start}.")
-        elif str(self.start.tzinfo) != "UTC":
-            raise ConsentDefinitionError(f"Start date must be UTC. Got {self.start}.")
+        elif str(self.start.tzinfo).upper() != "UTC":
+            raise ConsentDefinitionError(
+                f"Start date must be UTC. Got {self.start} / {self.start.tzinfo}."
+            )
         if not self.end.tzinfo:
             raise ConsentDefinitionError(f"Naive datetime not allowed Got {self.end}.")
-        elif str(self.end.tzinfo) != "UTC":
-            raise ConsentDefinitionError(f"End date must be UTC. Got {self.end}.")
+        elif str(self.end.tzinfo).upper() != "UTC":
+            raise ConsentDefinitionError(
+                f"End date must be UTC. Got {self.end} / {self.start.tzinfo}."
+            )
         self.check_date_within_study_period()
 
     @property
@@ -128,7 +135,9 @@ class ConsentDefinition:
         raise_if_not_consented = (
             True if raise_if_not_consented is None else raise_if_not_consented
         )
-        opts = dict(subject_identifier=subject_identifier, version=self.version)
+        opts: dict[str, str | int] = dict(
+            subject_identifier=subject_identifier, version=self.version
+        )
         if site_id:
             opts.update(site_id=site_id)
         try:
