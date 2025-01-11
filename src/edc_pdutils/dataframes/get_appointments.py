@@ -14,7 +14,10 @@ def get_appointments(
     normalize = True if normalize is None else normalize
     localize = True if localize is None else localize
     model_cls = django_apps.get_model("edc_appointment.appointment")
-    df = read_frame(model_cls.objects.all(), verbose=False)
+    opts = {}
+    if subject_identifiers:
+        opts = dict(subject_identifier__in=subject_identifiers)
+    df = read_frame(model_cls.objects.filter(**opts), verbose=False)
     df = convert_dates_from_model(df, model_cls, normalize=normalize, localize=localize)
     df = df.rename(columns={"id": "appointment_id", "site": "site_id"})
     df["visit_code_str"] = df["visit_code"]
