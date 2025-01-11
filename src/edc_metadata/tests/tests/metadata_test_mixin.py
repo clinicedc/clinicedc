@@ -1,3 +1,6 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase
@@ -11,9 +14,10 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ...models import CrfMetadata, RequisitionMetadata
-from ..constants import test_datetime
 from ..models import SubjectConsentV1
 from ..visit_schedule import get_visit_schedule
+
+test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
 
 
 class TestMetadataMixin(TestCase):

@@ -1,4 +1,6 @@
+from datetime import datetime
 from unittest.mock import MagicMock
+from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
@@ -22,9 +24,10 @@ from edc_visit_tracking.models import SubjectVisit
 
 from ...models import CrfMetadata, RequisitionMetadata
 from ...view_mixins import MetadataViewMixin
-from ..constants import test_datetime
 from ..models import CrfOne, CrfThree, SubjectConsent
 from ..visit_schedule import get_visit_schedule
+
+test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
 
 
 class DummyCrfModelWrapper:
