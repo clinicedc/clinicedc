@@ -74,6 +74,7 @@ class Action:
         using: Optional[str] = None,
         readonly: Optional[bool] = None,
         skip_get_current_site: bool | None = None,
+        site_id: int | None = None,
     ) -> None:
         self._action_item = action_item
         self._reference_obj = reference_obj
@@ -89,6 +90,7 @@ class Action:
         self.subject_identifier = subject_identifier
         self.using = using
         self.skip_get_current_site = skip_get_current_site
+        self.site_id = site_id
 
         if self.action_item.action_cls != self.__class__:
             raise ActionError(
@@ -230,6 +232,7 @@ class Action:
         valid_site_for_subject_or_raise(
             subject_identifier, skip_get_current_site=self.skip_get_current_site
         )
+
         try:
             self._action_item = create_action_item(
                 self.__class__,
@@ -237,6 +240,7 @@ class Action:
                 parent_action_item=self.parent_action_item,
                 priority=self.get_priority(),
                 using=self.using,
+                site_id=self.site_id,
                 **opts,
             )
         except SingletonActionItemError:
