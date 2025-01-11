@@ -1,3 +1,6 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
@@ -6,7 +9,6 @@ from edc_appointment.models import Appointment
 from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, MALE
 from edc_facility import import_holidays
-from edc_metadata.tests.constants import test_datetime
 from edc_visit_tracking.constants import SCHEDULED
 
 from edc_action_item import site_action_items
@@ -15,6 +17,8 @@ from edc_action_item.models import ActionItem
 from ..action_items import CrfLongitudinalOneAction, CrfLongitudinalTwoAction
 from ..models import CrfLongitudinalOne
 from ..test_case_mixin import TestCaseMixin
+
+test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
 
 
 @override_settings(
