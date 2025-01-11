@@ -1,11 +1,19 @@
 from celery import current_app
 from celery.result import AsyncResult
+from django.conf import settings
 from kombu.exceptions import OperationalError
+
+celery_enabled = getattr(settings, "CELERY_ENABLED", False)
 
 
 def run_task_sync_or_async(task, *args, **kwargs) -> AsyncResult:
     """Run a task with celery if running"""
-    if current_app.conf.task_always_eager or not celery_is_active():
+
+    if not celery_enabled:
+        return task(*args, **kwargs)
+    elif not celery_is_active():
+        return task(*args, **kwargs)
+    elif current_app.conf.task_always_eager:
         return task(*args, **kwargs)
     else:
         return task.delay(*args, **kwargs)
