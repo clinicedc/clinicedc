@@ -1,13 +1,19 @@
-from django.test import TestCase
+from dateutil.relativedelta import relativedelta
+from django.test import TestCase, override_settings
 from edc_visit_tracking.constants import SCHEDULED
 
 from ...constants import REQUIRED
 from ...metadata import CrfMetadataGetter
 from ...next_form_getter import NextFormGetter
+from ..constants import test_datetime
 from ..models import CrfOne, CrfThree, CrfTwo, SubjectVisit
 from .metadata_test_mixin import TestMetadataMixin
 
 
+@override_settings(
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=test_datetime - relativedelta(years=3),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=test_datetime + relativedelta(years=3),
+)
 class TestMetadataGetter(TestMetadataMixin, TestCase):
     def setUp(self):
         super().setUp()

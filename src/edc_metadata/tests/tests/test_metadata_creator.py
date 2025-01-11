@@ -1,4 +1,5 @@
-from django.test import TestCase
+from dateutil.relativedelta import relativedelta
+from django.test import TestCase, override_settings
 from edc_appointment.constants import IN_PROGRESS_APPT, MISSED_APPT
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 
@@ -6,10 +7,15 @@ from edc_metadata.metadata import CreatesMetadataError
 from edc_metadata.metadata_updater import MetadataUpdater
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 
+from ..constants import test_datetime
 from ..models import SubjectVisit
 from .metadata_test_mixin import TestMetadataMixin
 
 
+@override_settings(
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=test_datetime - relativedelta(years=3),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=test_datetime + relativedelta(years=3),
+)
 class TestCreatesMetadata(TestMetadataMixin, TestCase):
     def test_metadata_updater_repr(self):
         obj = MetadataUpdater()

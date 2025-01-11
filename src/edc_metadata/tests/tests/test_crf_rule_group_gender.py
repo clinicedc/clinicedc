@@ -1,6 +1,9 @@
+import time_machine
+from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
+from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_registration.models import RegisteredSubject
@@ -25,9 +28,9 @@ from edc_metadata.metadata_rules import (
 )
 from edc_metadata.models import CrfMetadata
 
-from ..consents import consent_v1
+from ..constants import test_datetime
 from ..models import CrfOne, SubjectConsentV1
-from ..visit_schedule import visit_schedule
+from ..visit_schedule import get_visit_schedule
 
 fake = Faker()
 
@@ -116,17 +119,31 @@ class CrfRuleGroupGender(CrfRuleGroup):
         related_visit_model = "edc_visit_tracking.subjectvisit"
 
 
+@override_settings(
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=test_datetime - relativedelta(years=3),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=test_datetime + relativedelta(years=3),
+)
 class TestMetadataRulesWithGender(TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
 
     def setUp(self):
+        consent_v1 = ConsentDefinition(
+            "edc_metadata.subjectconsentv1",
+            version="1",
+            start=test_datetime,
+            end=test_datetime + relativedelta(years=3),
+            age_min=18,
+            age_is_adult=18,
+            age_max=64,
+            gender=[MALE, FEMALE],
+        )
         site_consents.registry = {}
         site_consents.register(consent_v1)
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
-        site_visit_schedules.register(visit_schedule)
+        site_visit_schedules.register(get_visit_schedule(consent_v1))
         # note crfs in visit schedule are all set to REQUIRED by default.
         _, self.schedule = site_visit_schedules.get_by_onschedule_model(
             "edc_metadata.onschedule"
@@ -136,6 +153,8 @@ class TestMetadataRulesWithGender(TestCase):
         site_metadata_rules.register(rule_group_cls=CrfRuleGroupGender)
 
     def enroll(self, gender=None):
+        traveller = time_machine.travel(test_datetime)
+        traveller.start()
         subject_identifier = fake.credit_card_number()
         subject_consent = SubjectConsentV1.objects.create(
             subject_identifier=subject_identifier,
@@ -160,6 +179,7 @@ class TestMetadataRulesWithGender(TestCase):
             schedule_name=self.appointment.schedule_name,
             reason=SCHEDULED,
         )
+        traveller.stop()
         return subject_visit
 
     def test_rules_with_source_model(self):

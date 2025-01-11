@@ -1,13 +1,18 @@
 from unittest.mock import MagicMock
 
+import time_machine
+from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.http.request import HttpRequest
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
+from edc_consent import site_consents
+from edc_consent.consent_definition import ConsentDefinition
+from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
 from edc_utils import get_utcnow
@@ -17,8 +22,9 @@ from edc_visit_tracking.models import SubjectVisit
 
 from ...models import CrfMetadata, RequisitionMetadata
 from ...view_mixins import MetadataViewMixin
+from ..constants import test_datetime
 from ..models import CrfOne, CrfThree, SubjectConsent
-from ..visit_schedule import visit_schedule
+from ..visit_schedule import get_visit_schedule
 
 
 class DummyCrfModelWrapper:
@@ -46,6 +52,10 @@ class MyView(MetadataViewMixin, ContextMixin, View):
         return self._appointment
 
 
+@override_settings(
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=test_datetime - relativedelta(years=3),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=test_datetime + relativedelta(years=3),
+)
 class TestViewMixin(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -58,9 +68,24 @@ class TestViewMixin(TestCase):
         for name in ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]:
             Panel.objects.create(name=name)
 
+        traveller = time_machine.travel(test_datetime)
+        traveller.start()
+
+        consent_v1 = ConsentDefinition(
+            "edc_metadata.subjectconsentv1",
+            version="1",
+            start=get_utcnow(),
+            end=get_utcnow() + relativedelta(years=3),
+            age_min=18,
+            age_is_adult=18,
+            age_max=64,
+            gender=[MALE, FEMALE],
+        )
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
-        site_visit_schedules.register(visit_schedule)
+        site_visit_schedules.register(get_visit_schedule(consent_v1))
         self.subject_identifier = "1111111"
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
         self.assertEqual(RequisitionMetadata.objects.all().count(), 0)

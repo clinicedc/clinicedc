@@ -1,5 +1,6 @@
+from dateutil.relativedelta import relativedelta
 from django.db.models import ProtectedError
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from edc_appointment.constants import INCOMPLETE_APPT, MISSED_APPT
 from edc_appointment.models import Appointment
 from edc_lab.models import Panel
@@ -10,10 +11,15 @@ from edc_metadata.constants import KEYED, REQUIRED
 from edc_metadata.metadata import DeleteMetadataError
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 
+from ..constants import test_datetime
 from ..models import CrfOne, SubjectRequisition
 from .metadata_test_mixin import TestMetadataMixin
 
 
+@override_settings(
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=test_datetime - relativedelta(years=3),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=test_datetime + relativedelta(years=3),
+)
 class TestDeletesMetadata(TestMetadataMixin, TestCase):
     def test_metadata_ok(self):
         appointment = Appointment.objects.get(

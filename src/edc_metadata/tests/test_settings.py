@@ -18,6 +18,7 @@ project_settings = DefaultTestSettings(
         "edc_navbar.E002",
         "edc_navbar.E003",
         "edc_consent.E001",
+        "edc_sites.E001",
     ],
     SUBJECT_VISIT_MODEL="edc_visit_tracking.subjectvisit",
     EDC_SITES_REGISTER_DEFAULT=True,
@@ -53,7 +54,7 @@ project_settings = DefaultTestSettings(
         "edc_visit_tracking.apps.AppConfig",
         "edc_appconfig.apps.AppConfig",
     ],
-    add_dashboard_middleware=True,
+    add_dashboard_middleware=False,
 ).settings
 
 for k, v in project_settings.items():
