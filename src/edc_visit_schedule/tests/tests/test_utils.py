@@ -1,10 +1,15 @@
-from datetime import date
+from datetime import date, datetime
+from zoneinfo import ZoneInfo
 
+import time_machine
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
+from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
+from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
 from edc_visit_tracking.constants import SCHEDULED
@@ -15,10 +20,10 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.utils import get_duplicates, is_baseline
 from edc_visit_schedule.visit import Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
-from visit_schedule_app.consents import consent_v1
 from visit_schedule_app.models import SubjectVisit
 
 
+@time_machine.travel(datetime(2019, 4, 1, 8, 00, tzinfo=ZoneInfo("UTC")))
 @override_settings(
     EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
@@ -30,6 +35,20 @@ class TestVisitSchedule4(SiteTestCaseMixin, TestCase):
         import_holidays()
 
     def setUp(self):
+        self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
+        self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
+        self.consent_v1 = ConsentDefinition(
+            "visit_schedule_app.subjectconsentv1",
+            version="1",
+            start=self.study_open_datetime,
+            end=self.study_close_datetime,
+            age_min=18,
+            age_is_adult=18,
+            age_max=64,
+            gender=[MALE, FEMALE],
+        )
+        # site_consents.registry = {}
+        # site_consents.register(self.consent_v1)
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
@@ -42,7 +61,7 @@ class TestVisitSchedule4(SiteTestCaseMixin, TestCase):
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
-            consent_definitions=[consent_v1],
+            consent_definitions=[self.consent_v1],
             base_timepoint=1,
         )
 
@@ -76,23 +95,25 @@ class TestVisitSchedule4(SiteTestCaseMixin, TestCase):
             "visit_schedule_app.onschedule"
         )
         cdef = schedule.consent_definitions[0]
+        traveller = time_machine.travel(self.study_open_datetime)
+        traveller.start()
         self.subject_consent = cdef.model_cls.objects.create(
             subject_identifier="12345",
-            consent_datetime=get_utcnow() - relativedelta(seconds=1),
+            consent_datetime=get_utcnow(),
             dob=date(1995, 1, 1),
             identity="11111",
             confirm_identity="11111",
             version=cdef.version,
         )
         self.subject_identifier = self.subject_consent.subject_identifier
-        onschedule_datetime = self.subject_consent.consent_datetime + relativedelta(days=1)
         schedule.put_on_schedule(
             subject_identifier=self.subject_identifier,
-            onschedule_datetime=onschedule_datetime,
+            onschedule_datetime=get_utcnow(),
         )
         self.appointments = Appointment.objects.all().order_by(
             "timepoint", "visit_code_sequence"
         )
+        traveller.stop()
 
     def test_is_baseline_with_instance(self):
         subject_visit_0 = SubjectVisit.objects.create(

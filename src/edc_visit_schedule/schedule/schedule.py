@@ -1,17 +1,18 @@
 from __future__ import annotations
 
 import re
+from copy import deepcopy
 from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Type
 
 from django.apps import apps as django_apps
-from django.core.management.color import color_style
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.exceptions import (
     ConsentDefinitionDoesNotExist,
     ConsentDefinitionValidityPeriodError,
 )
+from edc_sites import site_sites
 from edc_sites.single_site import SingleSite
 from edc_utils import formatted_date
 
@@ -32,9 +33,6 @@ if TYPE_CHECKING:
 
     class RelatedVisitModel(SiteModelMixin, Base, BaseUuidModel):
         pass
-
-
-style = color_style()
 
 
 class ScheduleNameError(Exception):
@@ -93,8 +91,8 @@ class Schedule:
             base_timepoint = Decimal(str(base_timepoint))
         elif isinstance(base_timepoint, (int,)):
             base_timepoint = Decimal(str(base_timepoint) + ".0")
+        self._visits = self.visit_collection_cls()
         self.base_timepoint = base_timepoint or Decimal("0.0")
-        self.visits = self.visit_collection_cls()
         self.verbose_name = verbose_name or name
         self.sequence = sequence or name
         self.appointment_model: str = appointment_model or "edc_appointment.appointment"
@@ -114,8 +112,49 @@ class Schedule:
     def __str__(self):
         return self.name
 
-    def add_visit(self, visit=None, **kwargs):
-        """Adds a unique visit to the schedule."""
+    @property
+    def visits(self) -> VisitCollection:
+        """Returns an unfiltered dictionary of visits in this
+        schedule.
+        """
+        return self._visits
+
+    def visits_for_subject(
+        self,
+        subject_identifier: str = None,
+        report_datetime: datetime = None,
+        site_id: int = None,
+    ) -> VisitCollection:
+        """Returns a deep copy of visits collection filtered for a
+        given consented subject.
+
+        If not consented, returns an empty visit collection.
+
+        Check if the consent definition `extended_by` attribute is
+        set. If set, visits/timepoints listed with the extended
+        consent definition's `timepoints` are EXCLUDED if the subject
+        has NOT completed the consent definition extension model.
+        """
+        visits = self.visit_collection_cls()
+        cdef = self.get_consent_definition(
+            report_datetime=report_datetime, site=site_sites.get(site_id)
+        )
+        if cdef.get_consent_for(subject_identifier=subject_identifier, site_id=site_id):
+            visits = deepcopy(self.visits)
+            if cdef.extended_by:
+                visits = cdef.extended_by.update_visit_collection(
+                    visits,
+                    subject_identifier,
+                    site_id,
+                    original_visit_collection=self.visits,
+                )
+        return visits
+
+    def add_visit(self, visit=None, **kwargs) -> Visit:
+        """Adds a unique visit to the schedule.
+
+        Called when first declaring the schedule at bootup.
+        """
         visit = visit or self.visit_cls(**kwargs)
         if visit.timepoint < self.base_timepoint:
             raise VisitTimepointError(
@@ -141,10 +180,10 @@ class Schedule:
         return visit
 
     @property
-    def field_value(self):
+    def field_value(self) -> str:
         return self.name
 
-    def crf_required_at(self, label_lower: str) -> list:
+    def crf_required_at(self, label_lower: str) -> list[str]:
         """Returns a list of visit codes where the CRF is required
         by default.
         """
@@ -154,7 +193,7 @@ class Schedule:
                 visit_codes.append(visit_code)
         return visit_codes
 
-    def requisition_required_at(self, requisition_panel) -> list:
+    def requisition_required_at(self, requisition_panel) -> list[str]:
         """Returns a list of visit codes where the requisition is
         required by default.
 
@@ -193,10 +232,12 @@ class Schedule:
         onschedule_datetime: datetime | None,
         skip_baseline: bool | None = None,
         skip_get_current_site: bool | None = None,
-    ):
+    ) -> None:
         """Puts a subject onto this schedule.
 
         Wrapper of method SubjectSchedule.put_on_schedule.
+
+        Appointment are created through this pathway.
         """
         self.subject(subject_identifier).put_on_schedule(
             onschedule_datetime,
@@ -204,7 +245,7 @@ class Schedule:
             skip_get_current_site=skip_get_current_site,
         )
 
-    def refresh_schedule(self, subject_identifier: str):
+    def refresh_schedule(self, subject_identifier: str) -> None:
         """Resaves the onschedule model to, for example, refresh
         appointments.
 
@@ -212,11 +253,13 @@ class Schedule:
         """
         self.subject(subject_identifier).resave()
 
-    def take_off_schedule(self, subject_identifier: str, offschedule_datetime: datetime):
+    def take_off_schedule(
+        self, subject_identifier: str, offschedule_datetime: datetime
+    ) -> None:
         """Wrapper of method SubjectSchedule.take_off_schedule."""
         self.subject(subject_identifier).take_off_schedule(offschedule_datetime)
 
-    def is_onschedule(self, subject_identifier: str, report_datetime: datetime):
+    def is_onschedule(self, subject_identifier: str, report_datetime: datetime) -> bool:
         try:
             self.subject(subject_identifier).onschedule_or_raise(
                 report_datetime=report_datetime, compare_as_datetimes=True
@@ -273,6 +316,7 @@ class Schedule:
                 f"Consent definitions are: {cdefs_as_string}. Got {site.name}."
             )
 
+        cdefs = sorted(cdefs, key=lambda x: x.version, reverse=True)
         for cdef in cdefs:
             try:
                 cdef.valid_for_datetime_or_raise(report_datetime)

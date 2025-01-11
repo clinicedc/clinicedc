@@ -1,5 +1,7 @@
-from datetime import date
+from datetime import date, datetime
+from zoneinfo import ZoneInfo
 
+import time_machine
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
@@ -33,7 +35,6 @@ from edc_visit_schedule.visit_schedule import (
     VisitSchedule,
     VisitScheduleNameError,
 )
-from visit_schedule_app.consents import consent_v1
 from visit_schedule_app.models import (
     OffSchedule,
     OnSchedule,
@@ -43,6 +44,7 @@ from visit_schedule_app.models import (
 )
 
 
+@time_machine.travel(datetime(2019, 4, 1, 8, 00, tzinfo=ZoneInfo("UTC")))
 @override_settings(
     EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
@@ -55,18 +57,20 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
 
     def setUp(self):
         super().setUp()
-        consent_v1 = ConsentDefinition(
+        self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
+        self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
+        self.consent_v1 = ConsentDefinition(
             "visit_schedule_app.subjectconsentv1",
             version="1",
-            start=ResearchProtocolConfig().study_open_datetime,
-            end=ResearchProtocolConfig().study_close_datetime,
+            start=self.study_open_datetime,
+            end=self.study_close_datetime,
             age_min=18,
             age_is_adult=18,
             age_max=64,
             gender=[MALE, FEMALE],
         )
         site_consents.registry = {}
-        site_consents.register(consent_v1)
+        site_consents.register(self.consent_v1)
 
     def test_visit_schedule_name(self):
         """Asserts raises on invalid name."""
@@ -104,6 +108,7 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
             self.fail("visit_schedule.check() unexpectedly failed")
 
 
+@time_machine.travel(datetime(2019, 4, 1, 8, 00, tzinfo=ZoneInfo("UTC")))
 @override_settings(
     EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
@@ -115,8 +120,20 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
         import_holidays()
 
     def setUp(self):
+        self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
+        self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
+        self.consent_v1 = ConsentDefinition(
+            "visit_schedule_app.subjectconsentv1",
+            version="1",
+            start=self.study_open_datetime,
+            end=self.study_close_datetime,
+            age_min=18,
+            age_is_adult=18,
+            age_max=64,
+            gender=[MALE, FEMALE],
+        )
         site_consents.registry = {}
-        site_consents.register(consent_v1)
+        site_consents.register(self.consent_v1)
 
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
@@ -131,7 +148,7 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
-            consent_definitions=consent_v1,
+            consent_definitions=[self.consent_v1],
         )
 
         self.schedule2 = Schedule(
@@ -139,7 +156,7 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
             onschedule_model="visit_schedule_app.onscheduletwo",
             offschedule_model="visit_schedule_app.offscheduletwo",
             appointment_model="edc_appointment.appointment",
-            consent_definitions=consent_v1,
+            consent_definitions=[self.consent_v1],
         )
 
         self.schedule3 = Schedule(
@@ -147,7 +164,7 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
             onschedule_model="visit_schedule_app.onschedulethree",
             offschedule_model="visit_schedule_app.offschedulethree",
             appointment_model="edc_appointment.appointment",
-            consent_definitions=consent_v1,
+            consent_definitions=[self.consent_v1],
         )
 
     def test_visit_schedule_add_schedule(self):
@@ -183,6 +200,7 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
         )
 
 
+@time_machine.travel(datetime(2019, 4, 1, 8, 00, tzinfo=ZoneInfo("UTC")))
 @override_settings(
     EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
@@ -194,6 +212,20 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         import_holidays()
 
     def setUp(self):
+        self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
+        self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
+        self.consent_v1 = ConsentDefinition(
+            "visit_schedule_app.subjectconsentv1",
+            version="1",
+            start=self.study_open_datetime,
+            end=self.study_close_datetime,
+            age_min=18,
+            age_is_adult=18,
+            age_max=64,
+            gender=[MALE, FEMALE],
+        )
+        site_consents.registry = {}
+        site_consents.register(self.consent_v1)
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
@@ -206,7 +238,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
             onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
-            consent_definitions=consent_v1,
+            consent_definitions=[self.consent_v1],
             base_timepoint=1,
         )
 
@@ -228,7 +260,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         cdef = self.schedule.consent_definitions[0]
         self.subject_consent = cdef.model_cls.objects.create(
             subject_identifier="12345",
-            consent_datetime=get_utcnow() - relativedelta(years=1),
+            consent_datetime=self.study_open_datetime,
             dob=date(1995, 1, 1),
             identity="11111",
             confirm_identity="11111",
@@ -237,6 +269,8 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         self.subject_identifier = self.subject_consent.subject_identifier
 
     def test_put_on_schedule_creates_history(self):
+        traveller = time_machine.travel(self.study_open_datetime)
+        traveller.start()
         self.schedule.put_on_schedule(
             subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
         )
@@ -246,8 +280,11 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
             ).count(),
             1,
         )
+        traveller.stop()
 
     def test_onschedule_creates_history(self):
+        traveller = time_machine.travel(self.study_open_datetime)
+        traveller.start()
         onschedule_model_obj = OnSchedule.objects.create(
             subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
         )
@@ -266,9 +303,12 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
             onschedule_model_obj.onschedule_datetime,
         )
         self.assertEqual(history_obj.__dict__.get("schedule_status"), ON_SCHEDULE)
+        traveller.stop()
 
     def test_can_create_offschedule_with_onschedule(self):
         # signal puts on schedule
+        traveller = time_machine.travel(self.study_open_datetime)
+        traveller.start()
         OnSchedule.objects.create(
             subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
         )
@@ -279,18 +319,24 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
             )
         except Exception as e:
             self.fail(f"Exception unexpectedly raised. Got {e}.")
+        traveller.stop()
 
     def test_creates_appointments(self):
         # signal puts on schedule
-        onschedule_datetime = get_utcnow() - relativedelta(months=6)
+        traveller = time_machine.travel(self.study_open_datetime)
+        traveller.start()
+        onschedule_datetime = get_utcnow()
         OnSchedule.objects.create(
             subject_identifier=self.subject_identifier,
             onschedule_datetime=onschedule_datetime,
         )
         self.assertGreater(Appointment.objects.all().count(), 0)
+        traveller.stop()
 
     def test_creates_appointments_starting_with_onschedule_datetime(self):
         """Will pass as long as this is not a holiday"""
+        traveller = time_machine.travel(self.study_open_datetime)
+        traveller.start()
         onschedule_datetime = self.subject_consent.consent_datetime + relativedelta(days=28)
         _, schedule = site_visit_schedules.get_by_onschedule_model(
             "visit_schedule_app.onschedule"
@@ -301,8 +347,11 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         )
         appointment = Appointment.objects.all().order_by("appt_datetime").first()
         self.assertEqual(appointment.appt_datetime, onschedule_datetime)
+        traveller.stop()
 
     def test_cannot_create_offschedule_without_onschedule(self):
+        traveller = time_machine.travel(self.study_open_datetime)
+        traveller.start()
         self.assertEqual(
             OnSchedule.objects.filter(subject_identifier=self.subject_identifier).count(),
             0,
@@ -312,30 +361,39 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
             OffSchedule.objects.create,
             subject_identifier=self.subject_identifier,
         )
+        traveller.stop()
 
     def test_cannot_create_offschedule_before_onschedule(self):
-        onschedule_datetime = self.subject_consent.consent_datetime + relativedelta(days=28)
+        traveller = time_machine.travel(self.study_open_datetime + relativedelta(days=28))
+        traveller.start()
+        # onschedule_datetime = self.subject_consent.consent_datetime + relativedelta(days=28)
         OnSchedule.objects.create(
             subject_identifier=self.subject_identifier,
-            onschedule_datetime=onschedule_datetime,
+            onschedule_datetime=get_utcnow(),
         )
         self.assertRaises(
             InvalidOffscheduleDate,
             OffSchedule.objects.create,
             subject_identifier=self.subject_identifier,
-            offschedule_datetime=onschedule_datetime - relativedelta(days=1),
+            offschedule_datetime=get_utcnow() - relativedelta(days=1),
         )
+        traveller.stop()
 
     def test_cannot_create_offschedule_before_last_visit(self):
-        onschedule_datetime = self.subject_consent.consent_datetime + relativedelta(days=10)
+        traveller = time_machine.travel(self.study_open_datetime + relativedelta(days=10))
+        traveller.start()
         _, schedule = site_visit_schedules.get_by_onschedule_model(
             "visit_schedule_app.onschedule"
         )
         schedule.put_on_schedule(
             subject_identifier=self.subject_identifier,
-            onschedule_datetime=onschedule_datetime,
+            onschedule_datetime=get_utcnow(),
         )
         appointments = Appointment.objects.all()
+        traveller.stop()
+
+        traveller = time_machine.travel(appointments[0].appt_datetime)
+        traveller.start()
         SubjectVisit.objects.create(
             appointment=appointments[0],
             subject_identifier=self.subject_identifier,
@@ -348,8 +406,11 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
             subject_identifier=self.subject_identifier,
             offschedule_datetime=appointments[0].appt_datetime - relativedelta(days=1),
         )
+        traveller.stop()
 
     def test_cannot_put_on_schedule_if_visit_schedule_not_registered_subject(self):
+        traveller = time_machine.travel(self.study_open_datetime)
+        traveller.start()
         onschedule_datetime = self.subject_consent.consent_datetime + relativedelta(days=10)
         _, schedule = site_visit_schedules.get_by_onschedule_model(
             "visit_schedule_app.onschedule"
@@ -361,8 +422,11 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
             subject_identifier=self.subject_identifier,
             onschedule_datetime=onschedule_datetime,
         )
+        traveller.stop()
 
     def test_cannot_put_on_schedule_if_visit_schedule_not_consented(self):
+        traveller = time_machine.travel(self.study_open_datetime)
+        traveller.start()
         onschedule_datetime = self.subject_consent.consent_datetime + relativedelta(days=10)
         _, schedule = site_visit_schedules.get_by_onschedule_model(
             "visit_schedule_app.onschedule"
@@ -374,6 +438,10 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
             subject_identifier=self.subject_identifier,
             onschedule_datetime=onschedule_datetime,
         )
+        traveller.stop()
 
     def test_cannot_put_on_schedule_if_schedule_not_added(self):
+        traveller = time_machine.travel(self.study_open_datetime)
+        traveller.start()
         self.assertRaises(SiteVisitScheduleError, OnScheduleThree.objects.create)
+        traveller.stop()

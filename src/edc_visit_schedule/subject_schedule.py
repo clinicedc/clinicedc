@@ -101,8 +101,12 @@ class SubjectSchedule:
         A person is put on schedule by creating an instance
         of the onschedule_model, if it does not already exist,
         and updating the history_obj.
+
+        Appointment are created here by calling the
+        appointments_creator_cls.
         """
         onschedule_datetime = onschedule_datetime or get_utcnow()
+
         site = valid_site_for_subject_or_raise(
             self.subject_identifier, skip_get_current_site=skip_get_current_site
         )
@@ -110,9 +114,12 @@ class SubjectSchedule:
             subject_identifier=self.subject_identifier
         ).exists():
             single_site = site_sites.get(site.id)
+
+            # schedule may have more than one consent definition
             consent_definitions = site_consents.filter_cdefs_by_site_or_raise(
                 site=single_site, consent_definitions=self.schedule.consent_definitions
             )
+            # which consent def used to get this consent?
             consent_model_obj = site_consents.get_consent_or_raise(
                 subject_identifier=self.subject_identifier,
                 report_datetime=onschedule_datetime,
@@ -156,6 +163,7 @@ class SubjectSchedule:
                 schedule=self.schedule,
                 visit_schedule=self.visit_schedule,
                 appointment_model=self.appointment_model,
+                site_id=site.id,
                 skip_baseline=skip_baseline,
             )
             if first_appt_datetime and first_appt_datetime < onschedule_datetime:
