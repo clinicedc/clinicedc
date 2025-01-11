@@ -184,7 +184,7 @@ class UnscheduledAppointmentCreator:
 
     @property
     def calling_appointment(self) -> Appointment:
-        """Returns the appointment which preceeds the to-be-created
+        """Returns the appointment which precedes the to-be-created
         unscheduled appt.
 
         It must exist.

@@ -75,9 +75,12 @@ class AppointmentCreator:
         self.visit = visit
         self.visit_code_sequence = visit_code_sequence or 0
         self.timepoint = timepoint or self.visit.timepoint
+
+        # might be easier to default skip_get_current_site=True
         self.site = valid_site_for_subject_or_raise(
             self.subject_identifier, skip_get_current_site=skip_get_current_site
         )
+
         self.ignore_window_period = ignore_window_period
         if not isinstance(self.timepoint, Decimal):
             self.timepoint = Decimal(str(self.timepoint))
