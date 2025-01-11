@@ -21,7 +21,7 @@ class MetadataRefresher:
     """A class to be `run` when metadata gets out-of-date
 
     This may happen when there are changes to the visit schedule,
-    metada rules or manual changes to data.
+    metadata rules or manual changes to data.
     """
 
     def __init__(self, verbose: bool | None = None):
