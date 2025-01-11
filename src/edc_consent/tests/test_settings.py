@@ -16,6 +16,7 @@ project_settings = DefaultTestSettings(
     SILENCED_SYSTEM_CHECKS=[
         "edc_consent.E001",
         "sites.E101",
+        "sites.E001",
         "edc_navbar.E002",
         "edc_navbar.E003",
         "edc_sites.E001",

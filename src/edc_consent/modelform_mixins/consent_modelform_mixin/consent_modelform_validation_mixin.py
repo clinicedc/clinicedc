@@ -70,6 +70,13 @@ class ConsentModelFormValidationMixin:
                 raise forms.ValidationError(str(e))
         return None
 
+    # def validate_last_allowed_visitcode(self, visit_code: str) -> str:
+    #     name = "last_allowed_visitcode"
+    #     value = self.cleaned_data.get(name, getattr(self.instance, name, None))
+    #     if value and int(visit_code) > int(value):
+    #         raise forms.ValidationError({"__all__": msg})
+    #     return value
+
     def validate_min_age(self) -> None:
         """Raises if age is below the age of consent"""
         if self.age_delta:

@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from edc_sites.single_site import SingleSite
 
     from .consent_definition import ConsentDefinition
+    from .consent_definition_extension import ConsentDefinitionExtension
     from .stubs import ConsentLikeModel
 
 
@@ -35,9 +36,13 @@ class SiteConsents:
         self.loaded = False
 
     def register(
-        self, cdef: ConsentDefinition, updated_by: ConsentDefinition | None = None
+        self,
+        cdef: ConsentDefinition,
+        updated_by: ConsentDefinition | None = None,
+        extended_by: ConsentDefinitionExtension | None = None,
     ) -> None:
         cdef.updated_by = updated_by
+        cdef.extended_by = extended_by
         if cdef.name in self.registry:
             raise AlreadyRegistered(f"Consent definition already registered. Got {cdef.name}.")
         self.validate_period_overlap_or_raise(cdef)
@@ -136,11 +141,14 @@ class SiteConsents:
         )
 
         single_site = site_sites.get(site_id) if site_id else None
+
         cdef = self.get_consent_definition(report_datetime=report_datetime, site=single_site)
+
         consent_obj = cdef.get_consent_for(
             subject_identifier=subject_identifier,
             raise_if_not_consented=raise_if_not_consented,
         )
+
         if consent_obj and to_utc(report_datetime) < consent_obj.consent_datetime:
             if not cdef.updates:
                 dte = formatted_date(report_datetime)
@@ -150,10 +158,16 @@ class SiteConsents:
                     f"Has subject '{subject_identifier}' completed version '{cdef.version}' "
                     f"of consent on or after report_datetime='{dte}'?"
                 )
-            else:
-                return cdef.updates.get_consent_for(
+            elif cdef.start <= to_utc(report_datetime) <= cdef.end:
+                # ensures the higher version is returned if there is overlap
+                pass
+            elif cdef.updates.start <= to_utc(report_datetime) <= cdef.updates.end:
+                # return the previous version consent (updated_by)
+                consent_obj = cdef.updates.get_consent_for(
                     subject_identifier, raise_if_not_consented=raise_if_not_consented
                 )
+            else:
+                pass
         return consent_obj
 
     def get_consent_definition(
@@ -178,11 +192,23 @@ class SiteConsents:
         )
         cdefs = self.get_consent_definitions(**opts, **kwargs)
         if len(cdefs) > 1:
-            as_string = ", ".join(list(set([cdef.name for cdef in cdefs])))
-            raise SiteConsentError(
-                f"Multiple consent definitions returned. Using {opts}. Got {as_string}. "
-            )
-        return cdefs[0]
+            cdef = None
+            for index, _cdef in enumerate(cdefs):
+                try:
+                    next_cdef = cdefs[index + 1]
+                except IndexError:
+                    pass
+                else:
+                    if next_cdef.updates == _cdef:
+                        cdef = next_cdef
+            if not cdef:
+                as_string = ", ".join(list(set([cdef.name for cdef in cdefs])))
+                raise SiteConsentError(
+                    f"Multiple consent definitions returned. Using {opts}. Got {as_string}. "
+                )
+        else:
+            cdef = cdefs[0]
+        return cdef
 
     def get_consent_definitions(
         self,
@@ -208,6 +234,7 @@ class SiteConsents:
         cdefs: list[ConsentDefinition] = [cdef for cdef in self.registry.values()]
         # filter cdefs to try to get just one.
         # by model, report_datetime, version, site
+
         cdefs, error_msg = self._filter_cdefs_by_model_or_raise(model, cdefs, error_messages)
         cdefs, error_msg = self._filter_cdefs_by_report_datetime_or_raise(
             report_datetime, cdefs, error_messages
@@ -237,7 +264,12 @@ class SiteConsents:
         attrname = attrname or "model"
         cdefs = consent_definitions
         if model:
-            cdefs = [cdef for cdef in cdefs if model == getattr(cdef, attrname)]
+            cdefs = [
+                cdef
+                for cdef in cdefs
+                if model == getattr(cdef, attrname)
+                or model == getattr(getattr(cdef, "extended_by", None), attrname, None)
+            ]
             if not cdefs:
                 raise ConsentDefinitionDoesNotExist(
                     f"There are no consent definitions using this model. Got {model}."

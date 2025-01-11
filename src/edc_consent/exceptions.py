@@ -36,3 +36,11 @@ class SiteConsentError(Exception):
 
 class ConsentDefinitionNotConfiguredForUpdate(Exception):
     pass
+
+
+class ConsentExtensionDefinitionError(Exception):
+    pass
+
+
+class ConsentExtensionDefinitionModelError(Exception):
+    pass
