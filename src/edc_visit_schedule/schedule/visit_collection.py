@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from collections import OrderedDict
 from datetime import datetime
 from typing import TYPE_CHECKING
 
 from ..ordered_collection import OrderedCollection
 
 if TYPE_CHECKING:
-    from .. import Visit
+    from ..visit import Visit
 
 
 class VisitCollectionError(Exception):
@@ -31,7 +30,7 @@ class VisitCollection(OrderedCollection):
         """Returns an ordered dictionary of visit dates calculated
         relative to the first visit.
         """
-        timepoint_dates = OrderedDict()
+        timepoint_dates = {}
         for visit in self.values():
             try:
                 timepoint_datetime = dt + visit.rbase
