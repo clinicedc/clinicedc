@@ -737,7 +737,7 @@ def refresh_appointments(
         ):
             if appointment.related_visit:
                 update_appt_status_for_timepoint(appointment.related_visit)
-    if status == OK:
+    if status == OK and request:
         messages.add_message(
             request,
             SUCCESS,

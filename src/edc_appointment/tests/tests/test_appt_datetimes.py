@@ -44,7 +44,7 @@ class TestApptDatetimes(TestCase):
             for k, v in schedule.visits.items():
                 v.facility_name = facility_name
                 visit_collection.update({k: v})
-            schedule.visits = visit_collection
+            schedule._visits = visit_collection
             visit_schedule.schedules[schedule_name] = schedule
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule)
