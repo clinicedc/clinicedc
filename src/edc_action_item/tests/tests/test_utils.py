@@ -22,7 +22,7 @@ from ..action_items import CrfOneAction, register_actions
 from ..models import CrfOne, CrfTwo, FormOne, FormTwo
 from ..test_case_mixin import TestCaseMixin
 
-test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("utc"))
+test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
 
 
 @override_settings(
