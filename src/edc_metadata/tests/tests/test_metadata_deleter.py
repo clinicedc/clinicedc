@@ -1,3 +1,6 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 from dateutil.relativedelta import relativedelta
 from django.db.models import ProtectedError
 from django.test import TestCase, override_settings
@@ -11,9 +14,10 @@ from edc_metadata.constants import KEYED, REQUIRED
 from edc_metadata.metadata import DeleteMetadataError
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 
-from ..constants import test_datetime
 from ..models import CrfOne, SubjectRequisition
 from .metadata_test_mixin import TestMetadataMixin
+
+test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
 
 
 @override_settings(
