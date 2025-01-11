@@ -19,6 +19,7 @@ project_settings = DefaultTestSettings(
         "sites.E101",
         "edc_navbar.E002",
         "edc_navbar.E003",
+        "edc_sites.E001",
     ],
     SUBJECT_VISIT_MODEL="edc_visit_tracking.subjectvisit",
     SUBJECT_VISIT_MISSED_MODEL="edc_metadata.subjectvisitmissed",
