@@ -1,7 +1,10 @@
+import time_machine
+from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
+from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models import Panel
@@ -21,9 +24,9 @@ from edc_metadata.metadata_rules import (
 )
 from edc_metadata.models import RequisitionMetadata
 
-from ..consents import consent_v1
+from ..constants import test_datetime
 from ..models import CrfOne, SubjectConsentV1, SubjectRequisition
-from ..visit_schedule import visit_schedule
+from ..visit_schedule import get_visit_schedule
 
 fake = Faker()
 
@@ -132,6 +135,10 @@ class MyRequisitionRuleGroup(BaseRequisitionRuleGroup):
         requisition_model = "subjectrequisition"
 
 
+@override_settings(
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=test_datetime - relativedelta(years=3),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=test_datetime + relativedelta(years=3),
+)
 class TestRequisitionRuleGroup(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -148,12 +155,23 @@ class TestRequisitionRuleGroup(TestCase):
         self.panel_seven = Panel.objects.create(name=panel_seven.name)
         self.panel_eight = Panel.objects.create(name=panel_eight.name)
 
+        consent_v1 = ConsentDefinition(
+            "edc_metadata.subjectconsentv1",
+            version="1",
+            start=test_datetime,
+            end=test_datetime + relativedelta(years=3),
+            age_min=18,
+            age_is_adult=18,
+            age_max=64,
+            gender=[MALE, FEMALE],
+        )
+
         site_consents.registry = {}
         site_consents.register(consent_v1)
 
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
-        site_visit_schedules.register(visit_schedule)
+        site_visit_schedules.register(get_visit_schedule(consent_v1))
 
         _, self.schedule = site_visit_schedules.get_by_onschedule_model(
             "edc_metadata.onschedule"
@@ -190,6 +208,7 @@ class TestRequisitionRuleGroup(TestCase):
         )
         return subject_visit
 
+    @time_machine.travel(test_datetime)
     def test_rule_male(self):
         subject_visit = self.enroll(gender=MALE)
         rule_results, _ = MyRequisitionRuleGroup().evaluate_rules(related_visit=subject_visit)
@@ -201,6 +220,7 @@ class TestRequisitionRuleGroup(TestCase):
                 for rule_result in rule_results["MyRequisitionRuleGroup.female"][key]:
                     self.assertEqual(rule_result.entry_status, NOT_REQUIRED)
 
+    @time_machine.travel(test_datetime)
     def test_rule_female(self):
         subject_visit = self.enroll(gender=FEMALE)
         rule_results, _ = MyRequisitionRuleGroup().evaluate_rules(related_visit=subject_visit)
@@ -212,6 +232,7 @@ class TestRequisitionRuleGroup(TestCase):
                 for rule_result in rule_results["MyRequisitionRuleGroup.male"].get(key):
                     self.assertEqual(rule_result.entry_status, NOT_REQUIRED)
 
+    @time_machine.travel(test_datetime)
     def test_source_panel_required_raises(self):
         try:
 
@@ -229,6 +250,7 @@ class TestRequisitionRuleGroup(TestCase):
                 f"not raised for {BadRequisitionRuleGroup}"
             )
 
+    @time_machine.travel(test_datetime)
     def test_source_panel_not_required_raises(self):
         try:
 
@@ -262,6 +284,7 @@ class TestRequisitionRuleGroup(TestCase):
                 f"raised for {BadRequisitionRuleGroup}"
             )
 
+    @time_machine.travel(test_datetime)
     def test_rule_male_with_source_model_as_requisition(self):
         subject_visit = self.enroll(gender=MALE)
         rule_results, _ = RequisitionRuleGroup2().evaluate_rules(related_visit=subject_visit)
@@ -273,6 +296,7 @@ class TestRequisitionRuleGroup(TestCase):
                 for rule_result in rule_results["RequisitionRuleGroup2.female"][key]:
                     self.assertEqual(rule_result.entry_status, NOT_REQUIRED)
 
+    @time_machine.travel(test_datetime)
     def test_metadata_for_rule_male_with_source_model_as_requisition1(self):
         """RequisitionRuleGroup2"""
         site_metadata_rules.registry = {}
@@ -289,6 +313,7 @@ class TestRequisitionRuleGroup(TestCase):
                 )
                 self.assertEqual(obj.entry_status, REQUIRED)
 
+    @time_machine.travel(test_datetime)
     def test_metadata_for_rule_male_with_source_model_as_requisition2(self):
         subject_visit = self.enroll(gender=MALE)
         site_metadata_rules.registry = {}
@@ -304,6 +329,7 @@ class TestRequisitionRuleGroup(TestCase):
                 )
                 self.assertEqual(obj.entry_status, NOT_REQUIRED)
 
+    @time_machine.travel(test_datetime)
     def test_metadata_for_rule_female_with_source_model_as_requisition1(self):
         subject_visit = self.enroll(gender=FEMALE)
         site_metadata_rules.registry = {}
@@ -319,6 +345,7 @@ class TestRequisitionRuleGroup(TestCase):
                 )
                 self.assertEqual(obj.entry_status, REQUIRED)
 
+    @time_machine.travel(test_datetime)
     def test_metadata_for_rule_female_with_source_model_as_requisition2(self):
         subject_visit = self.enroll(gender=FEMALE)
         site_metadata_rules.registry = {}
@@ -334,6 +361,7 @@ class TestRequisitionRuleGroup(TestCase):
                 )
                 self.assertEqual(obj.entry_status, NOT_REQUIRED)
 
+    @time_machine.travel(test_datetime)
     def test_metadata_requisition(self):
         site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup3)
@@ -381,6 +409,7 @@ class TestRequisitionRuleGroup(TestCase):
                 self.assertEqual(obj.entry_status, entry_status)
 
     # TODO: fix
+    @time_machine.travel(test_datetime)
     def test_keyed_instance_ignores_rules(self):
         """Asserts if instance exists, rule is ignored"""
         site_metadata_rules.registry = {}
@@ -452,6 +481,7 @@ class TestRequisitionRuleGroup(TestCase):
         )
         self.assertEqual(metadata_obj.entry_status, KEYED)
 
+    @time_machine.travel(test_datetime)
     def test_recovers_from_sequence_problem(self):
         """Asserts if instance exists, rule is ignored."""
         subject_visit = self.enroll(gender=FEMALE)
@@ -493,6 +523,7 @@ class TestRequisitionRuleGroup(TestCase):
         )
         self.assertEqual(metadata_obj.entry_status, KEYED)
 
+    @time_machine.travel(test_datetime)
     def test_recovers_from_missing_metadata(self):
         site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup3)

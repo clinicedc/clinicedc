@@ -1,6 +1,4 @@
 from copy import deepcopy
-from datetime import datetime
-from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
@@ -8,7 +6,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT
 from edc_appointment.models import Appointment
 from edc_appointment.tests.test_case_mixins import AppointmentTestCaseMixin
@@ -34,8 +32,9 @@ from edc_metadata.metadata_rules import (
 )
 from edc_metadata.models import CrfMetadata
 
+from ..constants import test_datetime
 from ..models import CrfOne, SubjectConsent
-from ..visit_schedule2 import visit_schedule
+from ..visit_schedule2 import get_visit_schedule
 
 
 class CrfOneForm(forms.ModelForm):
@@ -54,9 +53,9 @@ class TestCaseMixin(AppointmentTestCaseMixin):
             screening_identifier="1234",
             initials="XX",
             gender=FEMALE,
-            dob=get_utcnow().date() - relativedelta(years=25),
+            dob=test_datetime.date() - relativedelta(years=25),
             site=Site.objects.get(id=settings.SITE_ID),
-            consent_datetime=get_utcnow() - relativedelta(months=24),
+            consent_datetime=test_datetime,
         )
 
     def get_subject_visit(
@@ -114,12 +113,9 @@ class TestCaseMixin(AppointmentTestCaseMixin):
         return subject_visit
 
 
-@time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("utc")))
 @override_settings(
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("utc"))
-    - relativedelta(years=3),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("utc"))
-    + relativedelta(years=3),
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=test_datetime - relativedelta(years=3),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=test_datetime + relativedelta(years=3),
 )
 class TestPersistantSingleton(TestCaseMixin, TestCase):
     @classmethod
@@ -127,10 +123,13 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
         import_holidays()
 
     def setUp(self):
+        traveller = time_machine.travel(test_datetime)
+        traveller.start()
+
         consent_v1 = ConsentDefinition(
             "edc_metadata.subjectconsentv1",
             version="1",
-            start=get_utcnow() - relativedelta(years=3),
+            start=get_utcnow(),
             end=get_utcnow() + relativedelta(years=3),
             age_min=18,
             age_is_adult=18,
@@ -141,7 +140,7 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
         site_consents.register(consent_v1)
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
-        site_visit_schedules.register(visit_schedule)
+        site_visit_schedules.register(get_visit_schedule(consent_v1))
 
         site_metadata_rules.registry = {}
         site_metadata_rules.register(self.rule_group)
@@ -152,7 +151,7 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
 
         subject_consent = SubjectConsent.objects.create(
             subject_identifier=self.subject_identifier,
-            consent_datetime=get_utcnow() - relativedelta(months=24),
+            consent_datetime=get_utcnow(),
         )
         _, self.schedule = site_visit_schedules.get_by_onschedule_model(
             "edc_metadata.onschedule"
@@ -167,6 +166,7 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
         )
         self.subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment,
+            report_datetime=self.appointment.appt_datetime,
             subject_identifier=self.subject_identifier,
             reason=SCHEDULED,
         )
@@ -179,6 +179,7 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
             f3="blah",
             site=Site.objects.get(id=settings.SITE_ID),
         )
+        traveller.stop()
 
     @property
     def rule_group(self):
@@ -207,6 +208,7 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
 
         return RuleGroup
 
+    @time_machine.travel(test_datetime)
     def test_baseline_not_required(self):
         site_metadata_rules.registry = {}
         site_metadata_rules.register(self.rule_group)
@@ -222,11 +224,13 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
             ).exists()
         )
 
-    @tag("1")
+    @time_machine.travel(test_datetime)
     def test_1005_required(self):
         site_metadata_rules.registry = {}
         site_metadata_rules.register(self.rule_group)
         subject_visit = self.get_next_subject_visit(self.subject_visit)
+        traveller = time_machine.travel(subject_visit.report_datetime)
+        traveller.start()
         self.assertEqual(subject_visit.visit_code, WEEK2)
         crf_metadata_getter = CrfMetadataGetter(appointment=subject_visit.appointment)
         self.assertTrue(
@@ -252,11 +256,15 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
                 model="edc_metadata.crfone", entry_status=KEYED
             ).exists()
         )
+        traveller.stop()
 
+    @time_machine.travel(test_datetime)
     def test_visit_required_if_not_submitted(self):
         site_metadata_rules.registry = {}
         site_metadata_rules.register(self.rule_group)
         subject_visit = self.get_next_subject_visit(self.subject_visit)
+        traveller = time_machine.travel(subject_visit.report_datetime)
+        traveller.start()
         self.assertEqual(subject_visit.visit_code, WEEK2)
         self.assertEqual(CrfMetadata.objects.filter(model="edc_metadata.crfone").count(), 1)
         self.assertEqual(
@@ -268,8 +276,10 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
                 )
             ],
         )
-
         subject_visit = self.get_next_subject_visit(subject_visit)
+        traveller.stop()
+        traveller = time_machine.travel(subject_visit.report_datetime)
+        traveller.start()
         self.assertEqual(subject_visit.visit_code, MONTH1)
         self.assertEqual(CrfMetadata.objects.filter(model="edc_metadata.crfone").count(), 2)
         self.assertEqual(
@@ -283,6 +293,9 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
         )
 
         subject_visit = self.get_next_subject_visit(subject_visit)
+        traveller.stop()
+        traveller = time_machine.travel(subject_visit.report_datetime)
+        traveller.start()
         self.assertEqual(subject_visit.visit_code, MONTH3)
         self.assertEqual(CrfMetadata.objects.filter(model="edc_metadata.crfone").count(), 3)
         self.assertEqual(
@@ -296,6 +309,9 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
         )
 
         subject_visit = self.get_next_subject_visit(subject_visit)
+        traveller.stop()
+        traveller = time_machine.travel(subject_visit.report_datetime)
+        traveller.start()
         self.assertEqual(subject_visit.visit_code, MONTH6)
         self.assertEqual(CrfMetadata.objects.filter(model="edc_metadata.crfone").count(), 4)
         self.assertEqual(
@@ -313,11 +329,14 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
             ],
         )
 
+    @time_machine.travel(test_datetime)
     def test_1010_required_if_not_submitted(self):
         site_metadata_rules.registry = {}
         site_metadata_rules.register(self.rule_group)
         subject_visit = self.get_next_subject_visit(self.subject_visit)
         subject_visit = self.get_next_subject_visit(subject_visit)
+        traveller = time_machine.travel(subject_visit.report_datetime)
+        traveller.start()
         self.assertEqual(subject_visit.visit_code, MONTH1)
         crf_metadata_getter = CrfMetadataGetter(appointment=subject_visit.appointment)
         self.assertTrue(
@@ -340,13 +359,17 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
                 model="edc_metadata.crfone", entry_status=KEYED
             ).exists()
         )
+        traveller.stop()
 
+    @time_machine.travel(test_datetime)
     def test_1030_required_if_not_submitted(self):
         site_metadata_rules.registry = {}
         site_metadata_rules.register(self.rule_group)
         subject_visit = self.get_next_subject_visit(self.subject_visit)
         subject_visit = self.get_next_subject_visit(subject_visit)
         subject_visit = self.get_next_subject_visit(subject_visit)
+        traveller = time_machine.travel(subject_visit.report_datetime)
+        traveller.start()
         self.assertEqual(subject_visit.visit_code, MONTH3)
         crf_metadata_getter = CrfMetadataGetter(appointment=subject_visit.appointment)
         self.assertTrue(
@@ -369,7 +392,9 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
                 model="edc_metadata.crfone", entry_status=KEYED
             ).exists()
         )
+        traveller.stop()
 
+    @time_machine.travel(test_datetime)
     def test_1030_not_required_if_submitted(self):
         site_metadata_rules.registry = {}
         site_metadata_rules.register(self.rule_group)
@@ -388,6 +413,8 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
             subject_visit=subject_visit_1010,
             report_datetime=subject_visit_1010.report_datetime,
         )
+        traveller = time_machine.travel(subject_visit_1010.report_datetime)
+        traveller.start()
         form = CrfOneForm(data=data)
         form.is_valid()
         self.assertEqual({}, form._errors)

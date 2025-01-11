@@ -10,7 +10,7 @@ from edc_utils import get_utcnow
 from edc_utils.round_up import round_half_away_from_zero
 from edc_visit_tracking.utils import get_related_visit_model_cls
 
-from edc_metadata.utils import refresh_metadata_for_timepoint
+from ..utils import refresh_metadata_for_timepoint
 
 
 class RefreshMetadataActionsView(LoginRequiredMixin, View):

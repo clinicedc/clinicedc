@@ -1,6 +1,9 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase
+from django.test import TestCase, override_settings
+from edc_consent import site_consents
+from edc_consent.consent_definition import ConsentDefinition
+from edc_constants.constants import FEMALE, MALE
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.visit import Crf, CrfCollection, Visit
@@ -11,11 +14,15 @@ from edc_metadata.constants import KEYED, REQUIRED
 from edc_metadata.metadata_refresher import MetadataRefresher
 from edc_metadata.models import CrfMetadata
 
-from ..consents import consent_v1
+from ..constants import test_datetime
 from ..models import CrfFive, CrfOne, SubjectVisit
 from .metadata_test_mixin import TestMetadataMixin
 
 
+@override_settings(
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=test_datetime - relativedelta(years=3),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=test_datetime + relativedelta(years=3),
+)
 class TestMetadataRefresher(TestMetadataMixin, TestCase):
     def check(self, expected, subject_visit=None):
         for model, entry_status in expected.items():
@@ -107,6 +114,18 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
 
     @staticmethod
     def register_new_visit_schedule(crfs, crfs_prn=None):
+        consent_v1 = ConsentDefinition(
+            "edc_metadata.subjectconsentv1",
+            version="1",
+            start=test_datetime,
+            end=test_datetime + relativedelta(years=3),
+            age_min=18,
+            age_is_adult=18,
+            age_max=64,
+            gender=[MALE, FEMALE],
+        )
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
 

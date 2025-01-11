@@ -1,6 +1,8 @@
-from django.test import TestCase
+from dateutil.relativedelta import relativedelta
+from django.test import TestCase, override_settings
 from edc_consent import site_consents
-from edc_constants.constants import MALE
+from edc_consent.consent_definition import ConsentDefinition
+from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 
 from edc_metadata import NOT_REQUIRED, REQUIRED
@@ -15,7 +17,7 @@ from edc_metadata.metadata_rules import (
     site_metadata_rules,
 )
 
-from ..consents import consent_v1
+from ..constants import test_datetime
 
 
 class RuleGroupWithoutRules(CrfRuleGroup):
@@ -50,6 +52,10 @@ class RuleGroupWithRules2(CrfRuleGroup):
         source_model = "edc_visit_tracking.subjectvisit"
 
 
+@override_settings(
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=test_datetime - relativedelta(years=3),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=test_datetime + relativedelta(years=3),
+)
 class TestSiteMetadataRules(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -57,6 +63,16 @@ class TestSiteMetadataRules(TestCase):
 
     def setUp(self):
         site_metadata_rules.registry = {}
+        consent_v1 = ConsentDefinition(
+            "edc_metadata.subjectconsentv1",
+            version="1",
+            start=test_datetime,
+            end=test_datetime + relativedelta(years=3),
+            age_min=18,
+            age_is_adult=18,
+            age_max=64,
+            gender=[MALE, FEMALE],
+        )
         site_consents.registry = {}
         site_consents.register(consent_v1)
 

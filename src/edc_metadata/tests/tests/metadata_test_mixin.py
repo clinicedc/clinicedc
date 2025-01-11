@@ -1,15 +1,19 @@
+import time_machine
+from dateutil.relativedelta import relativedelta
 from django.test import TestCase
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
+from edc_consent.consent_definition import ConsentDefinition
+from edc_constants.constants import FEMALE, MALE
 from edc_facility import import_holidays
 from edc_lab.models import Panel
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ...models import CrfMetadata, RequisitionMetadata
-from ..consents import consent_v1
+from ..constants import test_datetime
 from ..models import SubjectConsentV1
-from ..visit_schedule import visit_schedule
+from ..visit_schedule import get_visit_schedule
 
 
 class TestMetadataMixin(TestCase):
@@ -18,18 +22,31 @@ class TestMetadataMixin(TestCase):
         import_holidays()
 
     def setUp(self):
+        traveller = time_machine.travel(test_datetime)
+        traveller.start()
         self.panel_one = Panel.objects.create(name="one")
         self.panel_two = Panel.objects.create(name="two")
 
         for name in ["three", "four", "five", "six"]:
             Panel.objects.create(name=name)
 
+        consent_v1 = ConsentDefinition(
+            "edc_metadata.subjectconsentv1",
+            version="1",
+            start=get_utcnow(),
+            end=get_utcnow() + relativedelta(years=3),
+            age_min=18,
+            age_is_adult=18,
+            age_max=64,
+            gender=[MALE, FEMALE],
+        )
+
         site_consents.registry = {}
         site_consents.register(consent_v1)
 
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
-        site_visit_schedules.register(visit_schedule)
+        site_visit_schedules.register(get_visit_schedule(consent_v1))
         self.subject_identifier = "1111111"
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
         self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
@@ -52,3 +69,4 @@ class TestMetadataMixin(TestCase):
             subject_identifier=self.subject_identifier,
             visit_code="2000",
         )
+        traveller.stop()
