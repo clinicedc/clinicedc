@@ -52,7 +52,10 @@ class AppointmentsCreator:
         return django_apps.get_model(self.appointment_model)
 
     def create_appointments(
-        self, base_appt_datetime=None, taken_datetimes=None
+        self,
+        base_appt_datetime=None,
+        taken_datetimes=None,
+        skip_get_current_site: bool | None = None,
     ) -> QuerySet[Appointment]:
         """Creates appointments when called by post_save signal.
 
@@ -82,6 +85,7 @@ class AppointmentsCreator:
                 taken_datetimes=taken_datetimes,
                 timepoint_datetime=timepoint_datetime,
                 facility=facility,
+                skip_get_current_site=skip_get_current_site,
             )
             taken_datetimes.append(appointment.appt_datetime)
 
