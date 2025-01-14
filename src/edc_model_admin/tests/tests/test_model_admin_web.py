@@ -3,7 +3,6 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import tag
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_appointment.models import Appointment
@@ -34,6 +33,7 @@ User = get_user_model()
 
 class ModelAdminSiteTest(WebTest):
     lab_helper = SiteLabsTestHelper()
+    csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
@@ -126,6 +126,7 @@ class ModelAdminSiteTest(WebTest):
 
         # oops, cancel
         response = self.app.get(url, user=self.user)
+        self.assertIn("Add crf two", response)
         form = get_webtest_form(response)
         response = form.submit(name="_cancel").follow()
         self.assertIn("You are at the subject dashboard", response)
@@ -402,7 +403,6 @@ class ModelAdminSiteTest(WebTest):
         self.assertRaises(ObjectDoesNotExist, CrfSix.objects.get, id=crfsix.id)
         self.assertIn("changelist", response)
 
-    @tag("1")
     def test_add_directly_from_changelist_without_subject_visit_raises(self):
         self.login()
 
