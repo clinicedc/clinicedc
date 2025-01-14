@@ -32,9 +32,10 @@ class TestModels(SiteTestCaseMixin, TestCase):
 
     def test_offschedule_ok(self):
         SubjectConsent.objects.create(subject_identifier=self.subject_identifier)
-        onschedule = OnSchedule.objects.create(
-            subject_identifier=self.subject_identifier,
+        OnSchedule.objects.put_on_schedule(
+            subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
         )
+        onschedule = OnSchedule.objects.get(subject_identifier=self.subject_identifier)
         data = dict(
             subject_identifier=self.subject_identifier,
             offschedule_datetime=onschedule.onschedule_datetime + relativedelta(months=1),

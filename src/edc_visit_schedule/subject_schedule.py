@@ -30,12 +30,15 @@ if TYPE_CHECKING:
     from edc_sites.model_mixins import SiteModelMixin
     from edc_visit_tracking.model_mixins import VisitModelMixin as Base
 
+    from .model_mixins import OnScheduleModelMixin
     from .models import OffSchedule, OnSchedule, SubjectScheduleHistory
     from .schedule import Schedule
     from .visit_schedule import VisitSchedule
 
     class RelatedVisitModel(SiteModelMixin, Base, BaseUuidModel):
         pass
+
+    class OnScheduleLikeModel(OnScheduleModelMixin): ...
 
 
 class SubjectSchedule:
@@ -133,6 +136,7 @@ class SubjectSchedule:
                     f"completed a consent before {dte}? Possible consent definitions are "
                     f"{consent_definitions}."
                 )
+            # this is how you get on a schedule. Only!
             self.onschedule_model_cls.objects.create(
                 subject_identifier=self.subject_identifier,
                 onschedule_datetime=onschedule_datetime,
@@ -172,6 +176,18 @@ class SubjectSchedule:
                     f"Got {first_appt_datetime} < {onschedule_datetime}"
                 )
             creator.create_appointments(first_appt_datetime or onschedule_datetime)
+
+    def refresh_appointments(self):
+        creator = self.appointments_creator_cls(
+            report_datetime=self.onschedule_obj.onschedule_datetime,
+            subject_identifier=self.subject_identifier,
+            schedule=self.schedule,
+            visit_schedule=self.visit_schedule,
+            appointment_model=self.appointment_model,
+            site_id=self.registered_or_raise().site.id,
+            skip_baseline=True,
+        )
+        creator.create_appointments(self.onschedule_obj.onschedule_datetime)
 
     def take_off_schedule(self, offschedule_datetime: datetime):
         """Takes a subject off-schedule.
@@ -292,13 +308,6 @@ class SubjectSchedule:
             obj.appt_status = COMPLETE_APPT
             obj.save()
 
-    def resave(self):
-        """Resaves the onschedule model instance to trigger, for example,
-        appointment creation (if using edc_appointment mixin).
-        """
-        obj = self.onschedule_model_cls.objects.get(subject_identifier=self.subject_identifier)
-        obj.save()
-
     def registered_or_raise(self) -> RegisteredSubject:
         """Return an instance RegisteredSubject or raise an exception
         if instance does not exist.
@@ -314,11 +323,8 @@ class SubjectSchedule:
             )
         return obj
 
-    def onschedule_or_raise(self, report_datetime=None, compare_as_datetimes=None):
-        """Raise an exception if subject is not on the schedule during
-        the given date.
-        """
-        compare_as_datetimes = True if compare_as_datetimes is None else compare_as_datetimes
+    @property
+    def onschedule_obj(self) -> OnScheduleLikeModel:
         try:
             onschedule_obj = self.onschedule_model_cls.objects.get(
                 subject_identifier=self.subject_identifier
@@ -328,6 +334,15 @@ class SubjectSchedule:
                 f"Subject has not been put on a schedule `{self.schedule_name}`. "
                 f"Got subject_identifier=`{self.subject_identifier}`."
             )
+        return onschedule_obj
+
+    def onschedule_or_raise(self, report_datetime=None, compare_as_datetimes=None):
+        """Raise an exception if subject is not on the schedule during
+        the given date.
+        """
+        compare_as_datetimes = True if compare_as_datetimes is None else compare_as_datetimes
+
+        onschedule_obj = self.onschedule_obj
 
         try:
             offschedule_datetime = self.offschedule_model_cls.objects.values_list(

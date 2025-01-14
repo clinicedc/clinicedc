@@ -15,8 +15,27 @@ from edc_utils import convert_php_dateformat, get_utcnow
 from ..site_visit_schedules import site_visit_schedules
 
 if TYPE_CHECKING:
+    from datetime import datetime
+
     from ..schedule import Schedule
     from ..visit_schedule import VisitSchedule
+
+
+class OnScheduleManager(SubjectIdentifierManager):
+    def put_on_schedule(
+        self, subject_identifier: str = None, onschedule_datetime: datetime = None
+    ) -> None:
+        """Puts a subject on the schedule associated with this
+        OnSchedule model.
+
+        Note: So far this is mostly used in tests. It is just as easy
+        to fetch the schedule by name and call
+        `schedule.put_on_schedule`
+        """
+        _, schedule = site_visit_schedules.get_by_onschedule_model(
+            self.model._meta.label_lower
+        )
+        schedule.put_on_schedule(subject_identifier, onschedule_datetime)
 
 
 class OnScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
@@ -29,7 +48,7 @@ class OnScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
 
     report_datetime = models.DateTimeField(editable=False)
 
-    objects = SubjectIdentifierManager()
+    objects = OnScheduleManager()
 
     history = HistoricalRecords(inherit=True)
 
@@ -45,10 +64,6 @@ class OnScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
     def save(self, *args, **kwargs):
         self.report_datetime = self.onschedule_datetime
         super().save(*args, **kwargs)
-
-    def put_on_schedule(self) -> None:
-        _, schedule = site_visit_schedules.get_by_onschedule_model(self._meta.label_lower)
-        schedule.put_on_schedule(self.subject_identifier, self.onschedule_datetime)
 
     @property
     def visit_schedule(self) -> VisitSchedule:
