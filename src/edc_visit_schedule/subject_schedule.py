@@ -175,7 +175,10 @@ class SubjectSchedule:
                     "First appt datetime cannot be before onschedule datetime. "
                     f"Got {first_appt_datetime} < {onschedule_datetime}"
                 )
-            creator.create_appointments(first_appt_datetime or onschedule_datetime)
+            creator.create_appointments(
+                first_appt_datetime or onschedule_datetime,
+                skip_get_current_site=skip_get_current_site,
+            )
 
     def refresh_appointments(self):
         creator = self.appointments_creator_cls(
