@@ -35,6 +35,10 @@ if TYPE_CHECKING:
         pass
 
 
+class ScheduleError(Exception):
+    pass
+
+
 class ScheduleNameError(Exception):
     pass
 
@@ -75,6 +79,7 @@ class Schedule:
         sequence: str | None = None,
         base_timepoint: float | Decimal | None = None,
     ):
+        self._consent_definitions = None
         if not name or not re.match(r"[a-z0-9_\-]+$", name):
             raise ScheduleNameError(
                 f"Invalid name. Got '{name}'. May only contains numbers, "
@@ -82,11 +87,9 @@ class Schedule:
             )
         else:
             self.name = name
-        if isinstance(consent_definitions, (ConsentDefinition,)):
-            self.consent_definitions: list[ConsentDefinition] = [consent_definitions]
-        else:
-            self.consent_definitions: list[ConsentDefinition] = consent_definitions
-        self.consent_definitions = sorted(self.consent_definitions, key=lambda x: x.version)
+
+        self.consent_definitions = consent_definitions
+
         if isinstance(base_timepoint, (float,)):
             base_timepoint = Decimal(str(base_timepoint))
         elif isinstance(base_timepoint, (int,)):
@@ -111,6 +114,27 @@ class Schedule:
 
     def __str__(self):
         return self.name
+
+    @property
+    def consent_definitions(self) -> list[ConsentDefinition]:
+        return self._consent_definitions
+
+    @consent_definitions.setter
+    def consent_definitions(
+        self, consent_definitions: list[ConsentDefinition] | ConsentDefinition
+    ):
+        if isinstance(consent_definitions, (ConsentDefinition,)):
+            self._consent_definitions: list[ConsentDefinition] = [consent_definitions]
+        else:
+            self._consent_definitions: list[ConsentDefinition] = [
+                x for x in consent_definitions if x
+            ]
+        if not self._consent_definitions:
+            raise ScheduleError(
+                f"ConsentDefinition(s) may not be None. See Schedule `{self}`. "
+                f"Got `{consent_definitions}`."
+            )
+        self._consent_definitions = sorted(self._consent_definitions, key=lambda x: x.version)
 
     @property
     def visits(self) -> VisitCollection:
@@ -246,12 +270,7 @@ class Schedule:
         )
 
     def refresh_schedule(self, subject_identifier: str) -> None:
-        """Resaves the onschedule model to, for example, refresh
-        appointments.
-
-        Wrapper of method SubjectSchedule.resave.
-        """
-        self.subject(subject_identifier).resave()
+        self.subject(subject_identifier).refresh_appointments()
 
     def take_off_schedule(
         self, subject_identifier: str, offschedule_datetime: datetime

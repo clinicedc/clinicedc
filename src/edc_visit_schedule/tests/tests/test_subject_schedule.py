@@ -157,7 +157,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         )
         onschedule_datetime: datetime = get_utcnow()
         subject_schedule.put_on_schedule(onschedule_datetime)
-        subject_schedule.resave()
+        subject_schedule.put_on_schedule(onschedule_datetime)
         traveller.stop()
 
     def test_put_on_schedule(self):

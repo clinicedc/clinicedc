@@ -18,16 +18,6 @@ def offschedule_model_on_post_save(sender, instance, raw, update_fields, **kwarg
             )
 
 
-@receiver(post_save, weak=False, dispatch_uid="onschedule_model_on_post_save")
-def onschedule_model_on_post_save(instance, raw, update_fields, **kwargs):
-    if not raw and not update_fields:
-        if isinstance(instance, (OnScheduleModelMixin,)):
-            try:
-                instance.put_on_schedule()
-            except AttributeError:
-                pass
-
-
 @receiver(post_delete, weak=False, dispatch_uid="offschedule_model_on_post_delete")
 def offschedule_model_on_post_delete(instance, **kwargs):
     if isinstance(instance, (OffScheduleModelMixin,)):

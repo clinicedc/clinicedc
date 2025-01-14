@@ -80,7 +80,10 @@ class TestModels(SiteTestCaseMixin, TestCase):
 
     def test_str(self):
         SubjectConsent.objects.create(subject_identifier=self.subject_identifier)
-        obj = OnSchedule.objects.create(subject_identifier=self.subject_identifier)
+        OnSchedule.objects.put_on_schedule(
+            subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
+        )
+        obj = OnSchedule.objects.get(subject_identifier=self.subject_identifier)
         self.assertIn(self.subject_identifier, str(obj))
         self.assertEqual(obj.natural_key(), (self.subject_identifier,))
         self.assertEqual(
@@ -92,7 +95,9 @@ class TestModels(SiteTestCaseMixin, TestCase):
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
         SubjectConsent.objects.create(subject_identifier=self.subject_identifier)
-        OnSchedule.objects.create(subject_identifier=self.subject_identifier)
+        OnSchedule.objects.put_on_schedule(
+            subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
+        )
         traveller.stop()
 
         traveller = time_machine.travel(self.study_open_datetime + relativedelta(years=1))
@@ -118,9 +123,8 @@ class TestModels(SiteTestCaseMixin, TestCase):
             subject_identifier=self.subject_identifier,
             consent_datetime=get_utcnow(),
         )
-        OnScheduleFive.objects.create(
-            subject_identifier=self.subject_identifier,
-            onschedule_datetime=get_utcnow(),
+        OnScheduleFive.objects.put_on_schedule(
+            subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
         )
         traveller.stop()
 
@@ -147,9 +151,8 @@ class TestModels(SiteTestCaseMixin, TestCase):
             subject_identifier=self.subject_identifier,
             consent_datetime=get_utcnow(),
         )
-        OnScheduleSix.objects.create(
-            subject_identifier=self.subject_identifier,
-            onschedule_datetime=get_utcnow(),
+        OnScheduleSix.objects.put_on_schedule(
+            subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
         )
         traveller.stop()
 
@@ -179,9 +182,8 @@ class TestModels(SiteTestCaseMixin, TestCase):
         SubjectConsent.objects.create(
             subject_identifier=self.subject_identifier, consent_datetime=get_utcnow()
         )
-        OnScheduleSix.objects.create(
-            subject_identifier=self.subject_identifier,
-            onschedule_datetime=get_utcnow(),
+        OnScheduleSix.objects.put_on_schedule(
+            subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
         )
         traveller.stop()
 
@@ -209,9 +211,8 @@ class TestModels(SiteTestCaseMixin, TestCase):
             subject_identifier=self.subject_identifier,
             consent_datetime=get_utcnow(),
         )
-        OnScheduleSeven.objects.create(
-            subject_identifier=self.subject_identifier,
-            onschedule_datetime=get_utcnow(),
+        OnScheduleSeven.objects.put_on_schedule(
+            subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
         )
         traveller.stop()
 
@@ -233,7 +234,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
         site_visit_schedules.loaded = False
         self.assertRaises(
             RegistryNotLoaded,
-            OnSchedule.objects.create,
+            OnSchedule.objects.put_on_schedule,
             subject_identifier=self.subject_identifier,
         )
         traveller.stop()
@@ -258,9 +259,8 @@ class TestModels(SiteTestCaseMixin, TestCase):
             subject_identifier=self.subject_identifier,
             consent_datetime=consent_datetime,
         )
-        OnSchedule.objects.create(
-            subject_identifier=self.subject_identifier,
-            onschedule_datetime=consent_datetime,
+        OnSchedule.objects.put_on_schedule(
+            subject_identifier=self.subject_identifier, onschedule_datetime=consent_datetime
         )
         history_obj = SubjectScheduleHistory.objects.get(
             subject_identifier=self.subject_identifier
@@ -287,7 +287,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
             subject_identifier=self.subject_identifier,
             consent_datetime=get_utcnow(),
         )
-        OnSchedule.objects.create(
+        OnSchedule.objects.put_on_schedule(
             subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
         )
         traveller.stop()
@@ -318,7 +318,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
         SubjectConsent.objects.create(
             subject_identifier=self.subject_identifier, consent_datetime=get_utcnow()
         )
-        OnSchedule.objects.create(
+        OnSchedule.objects.put_on_schedule(
             subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
         )
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
@@ -352,10 +352,10 @@ class TestModels(SiteTestCaseMixin, TestCase):
             consent_datetime=get_utcnow(),
         )
         onschedule_datetime = get_utcnow()
-        onschedule = OnSchedule.objects.create(
-            subject_identifier=self.subject_identifier,
-            onschedule_datetime=onschedule_datetime,
+        OnSchedule.objects.put_on_schedule(
+            subject_identifier=self.subject_identifier, onschedule_datetime=onschedule_datetime
         )
+        onschedule = OnSchedule.objects.get(subject_identifier=self.subject_identifier)
         history = SubjectScheduleHistory.objects.onschedules(
             subject_identifier=self.subject_identifier
         )
@@ -413,7 +413,10 @@ class TestModels(SiteTestCaseMixin, TestCase):
             subject_identifier=self.subject_identifier,
             consent_datetime=get_utcnow() - relativedelta(months=3),
         )
-        obj = OnSchedule.objects.create(subject_identifier=self.subject_identifier)
+        OnSchedule.objects.put_on_schedule(
+            subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
+        )
+        obj = OnSchedule.objects.get(subject_identifier=self.subject_identifier)
         self.assertEqual(obj.natural_key(), (self.subject_identifier,))
         traveller.stop()
         traveller = time_machine.travel(self.study_open_datetime + relativedelta(years=1))

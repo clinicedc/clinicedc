@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from edc_appointment.models import Appointment
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.exceptions import NotConsentedError
@@ -282,10 +282,12 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         )
         traveller.stop()
 
+    @tag("1")
     def test_onschedule_creates_history(self):
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
-        onschedule_model_obj = OnSchedule.objects.create(
+
+        OnSchedule.objects.put_on_schedule(
             subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
         )
         self.assertEqual(
@@ -298,6 +300,10 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
             subject_identifier=self.subject_identifier
         )
         self.assertIsNone(history_obj.__dict__.get("offschedule_datetime"))
+
+        onschedule_model_obj = OnSchedule.objects.get(
+            subject_identifier=self.subject_identifier
+        )
         self.assertEqual(
             history_obj.__dict__.get("onschedule_datetime"),
             onschedule_model_obj.onschedule_datetime,
@@ -309,7 +315,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         # signal puts on schedule
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
-        OnSchedule.objects.create(
+        OnSchedule.objects.put_on_schedule(
             subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
         )
         try:
@@ -326,9 +332,8 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
         onschedule_datetime = get_utcnow()
-        OnSchedule.objects.create(
-            subject_identifier=self.subject_identifier,
-            onschedule_datetime=onschedule_datetime,
+        OnSchedule.objects.put_on_schedule(
+            subject_identifier=self.subject_identifier, onschedule_datetime=onschedule_datetime
         )
         self.assertGreater(Appointment.objects.all().count(), 0)
         traveller.stop()
@@ -366,10 +371,8 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
     def test_cannot_create_offschedule_before_onschedule(self):
         traveller = time_machine.travel(self.study_open_datetime + relativedelta(days=28))
         traveller.start()
-        # onschedule_datetime = self.subject_consent.consent_datetime + relativedelta(days=28)
-        OnSchedule.objects.create(
-            subject_identifier=self.subject_identifier,
-            onschedule_datetime=get_utcnow(),
+        OnSchedule.objects.put_on_schedule(
+            subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
         )
         self.assertRaises(
             InvalidOffscheduleDate,
@@ -443,5 +446,9 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
     def test_cannot_put_on_schedule_if_schedule_not_added(self):
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
-        self.assertRaises(SiteVisitScheduleError, OnScheduleThree.objects.create)
+        self.assertRaises(
+            SiteVisitScheduleError,
+            OnScheduleThree.objects.put_on_schedule,
+            self.subject_identifier,
+        )
         traveller.stop()
