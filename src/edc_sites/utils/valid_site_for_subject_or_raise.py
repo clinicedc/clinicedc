@@ -30,18 +30,25 @@ def valid_site_for_subject_or_raise(
     )
     if skip_get_current_site:
         warn("Skipping validation of current site against registered subject site.")
-        current_site = registered_subject.site
+        site_obj = registered_subject.site
     else:
-        current_site: Site = get_site_model_cls().objects.get_current()
+        site_obj: Site = get_site_model_cls().objects.get_current()
         try:
-            registered_subject = get_registered_subject(
+            get_registered_subject(
                 subject_identifier,
-                site=current_site,
+                site=site_obj,
                 raise_exception=True,
             )
         except RegisteredSubjectDoesNotExist:
-            raise InvalidSiteForSubjectError(
-                f"Invalid site for subject. {subject_identifier}. "
-                f"Expected `{registered_subject.site.name}`. Got `{current_site.name}`"
-            )
-    return current_site
+            if not registered_subject.site_id:
+                raise InvalidSiteForSubjectError(
+                    "Site not defined for registered subject! "
+                    f"Subject identifier=`{subject_identifier}`. "
+                )
+            else:
+                raise InvalidSiteForSubjectError(
+                    f"Invalid site for subject. Subject identifier=`{subject_identifier}`. "
+                    f"Expected `{registered_subject.site.name}`. "
+                    f"Got site_id=`{site_obj.id}`"
+                )
+    return site_obj
