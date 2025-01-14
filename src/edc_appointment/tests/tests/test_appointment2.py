@@ -18,7 +18,6 @@ from edc_appointment.constants import INCOMPLETE_APPT, SCHEDULED_APPT, UNSCHEDUL
 from edc_appointment.exceptions import AppointmentDatetimeError
 from edc_appointment.utils import get_appointment_model_cls, get_appt_reason_choices
 from edc_appointment_app.consents import consent_v1
-from edc_appointment_app.models import OnScheduleOne, OnScheduleTwo, SubjectConsent
 from edc_appointment_app.visit_schedule import get_visit_schedule1, get_visit_schedule2
 
 from ..helper import Helper
@@ -148,17 +147,13 @@ class TestAppointment(TestCase):
         """Asserts first appointment correctly selected if just
         visit_schedule_name provided.
         """
-        subject_consent = SubjectConsent.objects.create(
-            subject_identifier=self.subject_identifier, consent_datetime=get_utcnow()
+        schedule_name = self.visit_schedule2.schedules.get("schedule2").name
+        subject_consent = self.helper.consent_and_put_on_schedule(
+            visit_schedule_name=self.visit_schedule2.name, schedule_name=schedule_name
         )
-        OnScheduleTwo.objects.create(
-            subject_identifier=self.subject_identifier,
-            onschedule_datetime=subject_consent.consent_datetime,
-        )
-        OnScheduleOne.objects.create(
-            subject_identifier=self.subject_identifier,
-            onschedule_datetime=(subject_consent.report_datetime + relativedelta(months=1)),
-        )
+
+        schedule = self.visit_schedule1.schedules.get("schedule1")
+        schedule.put_on_schedule(subject_consent.subject_identifier, get_utcnow())
 
         first_appointment = get_appointment_model_cls().objects.first_appointment(
             subject_identifier=self.subject_identifier,

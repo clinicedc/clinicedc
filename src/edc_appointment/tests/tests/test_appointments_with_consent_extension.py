@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.consent_definition_extension import ConsentDefinitionExtension
 from edc_consent.site_consents import site_consents
@@ -81,6 +81,7 @@ class TestNextAppointmentCrf(TestCase):
             onschedule_datetime=self.subject_consent.consent_datetime,
         )
 
+    @tag("1")
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
             "edc_appointment_app.nextappointmentcrf": ("appt_date", "visitschedule")

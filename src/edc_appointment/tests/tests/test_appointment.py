@@ -8,7 +8,7 @@ import time_machine
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models.deletion import ProtectedError
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from edc_consent.site_consents import site_consents
 from edc_constants.constants import INCOMPLETE
 from edc_facility.import_holidays import import_holidays
@@ -75,13 +75,14 @@ class TestAppointment(TestCase):
         )
         self.assertEqual(appointments.count(), 4)
 
+    @tag("2")
     def test_appointments_creation2(self):
         """Asserts first appointment correctly selected if
         both visit_schedule_name and schedule_name provided.
         """
-        OnScheduleTwo.objects.create(
-            subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
-        )
+        schedule = self.visit_schedule2.schedules.get("schedule2")
+        schedule.put_on_schedule(self.subject_identifier, get_utcnow())
+
         self.assertEqual(get_appointment_model_cls().objects.all().count(), 8)
 
     def test_deletes_appointments(self):
