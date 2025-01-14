@@ -1,6 +1,10 @@
+from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase
+from django.test import TestCase, override_settings, tag
 from edc_constants.constants import CLOSED, NEW, NO, YES
+from edc_sites.exceptions import InvalidSiteForSubjectError
+from edc_sites.single_site import SingleSite
+from edc_sites.site import sites as site_sites
 
 from edc_action_item.get_action_type import get_action_type
 from edc_action_item.models import ActionItem, ActionType
@@ -404,3 +408,82 @@ class TestAction(TestCaseMixin, TestCase):
             ActionItem.objects.get(action_identifier=form_one.action_identifier, status=CLOSED)
         except ObjectDoesNotExist:
             self.fail("action item unexpectedly does not exist")
+
+    @override_settings(SITE_ID=1)
+    def test_create_action_force_site_id(self):
+        Site.objects.create(name="another_site", domain="another_site.com")
+        site_id = 2  # use a site other than the current
+        subject_identifier = self.fake_enroll(subject_identifier="333333", site_id=site_id)
+
+        # do not specify site: will raise because current site and subject site
+        # do not match
+        try:
+            SingletonAction(subject_identifier=subject_identifier)
+        except InvalidSiteForSubjectError:
+            pass
+        else:
+            self.fail("InvalidSiteForSubjectError unexpectedly NOT raised.")
+
+        # specify site_id other than current. will still raise because its
+        # wants checks that you to creating for subjects in the current
+        # site only
+        try:
+            SingletonAction(subject_identifier=subject_identifier, site_id=site_id)
+        except InvalidSiteForSubjectError:
+            pass
+        else:
+            self.fail("InvalidSiteForSubjectError unexpectedly NOT raised.")
+
+        # specify site_id other than current but skip_get_current_site check
+        SingletonAction(
+            subject_identifier=subject_identifier,
+            site_id=site_id,
+            skip_get_current_site=True,
+        )
+
+        try:
+            ActionItem.objects.get(subject_identifier=subject_identifier, site_id=site_id)
+        except ObjectDoesNotExist:
+            self.fail("ObjectDoesNotExist unexpectedly raised.")
+
+    @tag("1")
+    @override_settings(SITE_ID=1)
+    def test_create_action_force_site_id2(self):
+        new_site = Site.objects.create(name="another_site", domain="another_site.com")
+
+        site_sites.register(
+            SingleSite(site_id=new_site.id, name="another_site", domain="another_site.com")
+        )
+        site_id = 2  # use a site other than the current
+        subject_identifier = self.enroll(subject_identifier="333333", site_id=site_id)
+
+        # do not specify site: will raise because current site and subject site
+        # do not match
+        try:
+            SingletonAction(subject_identifier=subject_identifier)
+        except InvalidSiteForSubjectError:
+            pass
+        else:
+            self.fail("InvalidSiteForSubjectError unexpectedly NOT raised.")
+
+        # specify site_id other than current. will still raise because its
+        # wants checks that you to creating for subjects in the current
+        # site only
+        try:
+            SingletonAction(subject_identifier=subject_identifier, site_id=site_id)
+        except InvalidSiteForSubjectError:
+            pass
+        else:
+            self.fail("InvalidSiteForSubjectError unexpectedly NOT raised.")
+
+        # specify site_id other than current but skip_get_current_site check
+        SingletonAction(
+            subject_identifier=subject_identifier,
+            site_id=site_id,
+            skip_get_current_site=True,
+        )
+
+        try:
+            ActionItem.objects.get(subject_identifier=subject_identifier, site_id=site_id)
+        except ObjectDoesNotExist:
+            self.fail("ObjectDoesNotExist unexpectedly raised.")
