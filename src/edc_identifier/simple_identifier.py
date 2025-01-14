@@ -125,7 +125,7 @@ class SimpleUniqueIdentifier:
         site_id: Optional[str] = None,
     ):
         self._identifier: Optional[str] = None
-        self.site_id = None
+        self.site_id = site_id
         self.model = model or self.model
         self.identifier_attr = identifier_attr or self.identifier_attr
         self.identifier_type = identifier_type or self.identifier_type

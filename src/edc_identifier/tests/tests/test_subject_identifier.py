@@ -7,7 +7,7 @@ from edc_identifier.exceptions import IdentifierError, SubjectIdentifierError
 from edc_identifier.models import IdentifierModel
 from edc_identifier.subject_identifier import SubjectIdentifier
 
-from .models import Enrollment, EnrollmentThree
+from ..models import Enrollment, EnrollmentThree
 
 fake = Faker()
 
