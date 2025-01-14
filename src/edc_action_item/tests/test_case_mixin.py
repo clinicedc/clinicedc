@@ -40,6 +40,7 @@ class TestCaseMixin(TestCase):
             subject_identifier=subject_identifier,
             consent_datetime=consent_datetime,
             dob=consent_datetime - relativedelta(years=25),
+            site_id=site_id or settings.SITE_ID,
         )
         RegisteredSubject.objects.create(
             subject_identifier=subject_identifier,

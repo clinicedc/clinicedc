@@ -1,6 +1,6 @@
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_constants.constants import CLOSED, NEW, NO, YES
 from edc_sites.exceptions import InvalidSiteForSubjectError
 from edc_sites.single_site import SingleSite
@@ -446,7 +446,6 @@ class TestAction(TestCaseMixin, TestCase):
         except ObjectDoesNotExist:
             self.fail("ObjectDoesNotExist unexpectedly raised.")
 
-    @tag("1")
     @override_settings(SITE_ID=1)
     def test_create_action_force_site_id2(self):
         new_site = Site.objects.create(name="another_site", domain="another_site.com")
