@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
+from django.conf import settings
 from django.test import TestCase
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
@@ -21,6 +22,7 @@ class TestCaseMixin(TestCase):
     @staticmethod
     def enroll(
         subject_identifier=None,
+        site_id: int | None = None,
         consent_datetime: datetime | None = None,
         cdef: ConsentDefinition | None = None,
     ):
@@ -28,7 +30,7 @@ class TestCaseMixin(TestCase):
 
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
-        site_visit_schedules.register(get_visit_schedule(cdef))
+        site_visit_schedules.register(get_visit_schedule(cdef or consent_v1))
 
         site_consents.registry = {}
         site_consents.register(cdef or consent_v1)
@@ -42,6 +44,7 @@ class TestCaseMixin(TestCase):
         RegisteredSubject.objects.create(
             subject_identifier=subject_identifier,
             consent_datetime=consent_datetime,
+            site_id=site_id or settings.SITE_ID,
         )
         _, schedule = site_visit_schedules.get_by_onschedule_model(
             "edc_visit_schedule.onschedule"
@@ -49,11 +52,14 @@ class TestCaseMixin(TestCase):
         schedule.put_on_schedule(
             subject_consent.subject_identifier,
             subject_consent.consent_datetime,
+            skip_get_current_site=True,
         )
         return subject_identifier
 
     @staticmethod
-    def fake_enroll():
-        subject_identifier = "2222222"
-        RegisteredSubject.objects.create(subject_identifier=subject_identifier)
+    def fake_enroll(subject_identifier: str | None = None, site_id: int | None = None):
+        subject_identifier = subject_identifier or "2222222"
+        RegisteredSubject.objects.create(
+            subject_identifier=subject_identifier, site_id=site_id
+        )
         return subject_identifier

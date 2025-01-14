@@ -20,6 +20,7 @@ def create_action_item(
     parent_action_item: ActionItem | None = None,
     priority: bool | None = None,
     using: str | None = None,
+    site_id: int | None = None,
     **kwargs,  # noqa
 ) -> ActionItem:
     action_item = None
@@ -52,6 +53,8 @@ def create_action_item(
             opts.update(parent_action_item=parent_action_item)
         if related_action_item:
             opts.update(related_action_item=related_action_item)
+        if site_id:
+            opts.update(site_id=site_id)
         action_item = action_cls.action_item_model_cls()(**opts)
         action_item.save(using=using)
         action_item.refresh_from_db()
