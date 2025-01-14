@@ -13,7 +13,7 @@ from model_bakery import baker
 from edc_consent.utils import get_consent_model_name
 
 if TYPE_CHECKING:
-    from edc_screening.tests.models import SubjectScreening
+    from screening_app.models import SubjectScreening
 
 
 class ConsentTestCaseMixin:
