@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext as _
 from django_crypto_fields.fields import EncryptedTextField
-from edc_constants.choices import YES_NO
+from edc_constants.choices import YES_NO_NA
 from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
 from edc_utils import get_utcnow
 
@@ -21,10 +21,11 @@ class ConsentExtensionModelMixin(UniqueSubjectIdentifierModelMixin, models.Model
 
     agrees_to_extension = models.CharField(
         verbose_name=_(
-            "Does the participant agree to extend followup as per the protocol amendment?"
+            "Does the participant give consent to extend clinic "
+            "followup as per the protocol amendment?"
         ),
         max_length=15,
-        choices=YES_NO,
+        choices=YES_NO_NA,
         help_text=_("See above for the definition of extended followup."),
     )
 

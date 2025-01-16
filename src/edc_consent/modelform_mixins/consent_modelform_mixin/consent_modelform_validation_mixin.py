@@ -9,12 +9,14 @@ from edc_constants.constants import NO, YES
 from edc_model_form.utils import get_field_or_raise
 from edc_utils import AgeValueError, age, formatted_age
 
-from ... import site_consents
 from ...exceptions import ConsentDefinitionValidityPeriodError
+from ...site_consents import site_consents
 from ...utils import InvalidInitials, verify_initials_against_full_name
 
 if TYPE_CHECKING:
     from ...consent_definition import ConsentDefinition
+
+___all__ = ["ConsentModelFormValidationMixin"]
 
 
 class ConsentModelFormValidationMixin:

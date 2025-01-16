@@ -50,7 +50,7 @@ class ReviewFieldsMixin(models.Model):
 
     consent_copy = models.CharField(
         verbose_name=(
-            "I have provided the participant with a copy of their " "signed informed consent"
+            "I have provided the participant with a copy of their signed informed consent"
         ),
         max_length=20,
         choices=YES_NO_DECLINED,
