@@ -352,6 +352,8 @@ class Action:
                 parent_action_item=self.action_item,
                 related_action_item=related_action_item,
                 using=self.using,
+                skip_get_current_site=self.skip_get_current_site,
+                site_id=self.site_id,
             )
 
     def reopen_action_item_on_change(self):
