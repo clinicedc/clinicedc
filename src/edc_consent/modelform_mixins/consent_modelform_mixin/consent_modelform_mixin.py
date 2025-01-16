@@ -3,6 +3,8 @@ from edc_screening.utils import is_eligible_or_raise
 from .clean_fields_modelform_validation_mixin import CleanFieldsModelFormValidationMixin
 from .consent_modelform_validation_mixin import ConsentModelFormValidationMixin
 
+__all__ = ["ConsentModelFormMixin"]
+
 
 class ConsentModelFormMixin(
     CleanFieldsModelFormValidationMixin, ConsentModelFormValidationMixin
