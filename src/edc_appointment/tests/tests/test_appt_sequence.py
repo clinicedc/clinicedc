@@ -4,7 +4,6 @@ import datetime as dt
 from zoneinfo import ZoneInfo
 
 import time_machine
-from dateutil.relativedelta import relativedelta
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
 from django.test import TestCase, override_settings, tag
@@ -20,7 +19,6 @@ from edc_appointment_app.tests.appointment_app_test_case_mixin import (
     AppointmentAppTestCaseMixin,
 )
 
-from ...creators import UnscheduledAppointmentCreator
 from ..helper import Helper
 
 utc_tz = ZoneInfo("UTC")
@@ -65,39 +63,6 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
         appointment.delete()
         self.assertEqual(
             ["1000.0", "1000.1", "1000.2", "2000.0", "3000.0", "4000.0"],
-            get_visit_codes(),
-        )
-
-    @tag("1")
-    def test_resequence_appointment_on_insert_between_two_unscheduled(self):
-        def get_visit_codes():
-            return [
-                f"{o.visit_code}.{o.visit_code_sequence}"
-                for o in Appointment.objects.all().order_by("appt_datetime")
-            ]
-
-        self.assertEqual(
-            ["1000.0", "1000.1", "1000.2", "1000.3", "2000.0", "3000.0", "4000.0"],
-            get_visit_codes(),
-        )
-        appointment = Appointment.objects.get(visit_code="1000", visit_code_sequence=3)
-        appointment.appt_datetime + relativedelta(days=3)
-        appointment.save_base(update_fields=["appt_datetime"])
-
-        appointment = Appointment.objects.get(visit_code="1000", visit_code_sequence=2)
-
-        UnscheduledAppointmentCreator(
-            subject_identifier=appointment.subject_identifier,
-            visit_schedule_name=appointment.visit_schedule_name,
-            schedule_name=appointment.schedule_name,
-            visit_code="1000",
-            facility=appointment.facility,
-            # suggested_appt_datetime=appointment.appt_datetime + relativedelta(days=1),
-            suggested_visit_code_sequence=3,
-        )
-
-        self.assertEqual(
-            ["1000.0", "1000.1", "1000.2", "1000.3", "1000.4", "2000.0", "3000.0", "4000.0"],
             get_visit_codes(),
         )
 
@@ -159,7 +124,6 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
         )
         appointment = Appointment.objects.get(visit_code="1000", visit_code_sequence=1)
         delete_appointment_in_sequence(appointment)
-        # update_unscheduled_appointment_sequence
         self.assertEqual(
             [0, 1, 2],
             [
@@ -214,6 +178,7 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
             ],
         )
 
+    @tag("4")
     def test_appointments_and_related_visits_resequence_after_appointment_is_deleted(self):
         for appointment in Appointment.objects.all().order_by("timepoint_datetime"):
             self.create_related_visit(appointment)

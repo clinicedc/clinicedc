@@ -18,7 +18,7 @@ from ..utils import (
     get_allow_skipped_appt_using,
     get_appointment_model_name,
     missed_appointment,
-    update_unscheduled_appointment_sequence,
+    reset_visit_code_sequence_or_pass,
 )
 from .appointment import Appointment
 
@@ -152,7 +152,12 @@ def appointments_on_post_delete(sender, instance, using, **kwargs):
         not kwargs.get("update_fields")
         and sender._meta.label_lower == get_appointment_model_name()
     ):
-        update_unscheduled_appointment_sequence(subject_identifier=instance.subject_identifier)
+        reset_visit_code_sequence_or_pass(
+            subject_identifier=instance.subject_identifier,
+            visit_schedule_name=instance.visit_schedule_name,
+            schedule_name=instance.schedule_name,
+            visit_code=instance.visit_code,
+        )
 
 
 @receiver(

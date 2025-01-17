@@ -16,7 +16,6 @@ from ..constants import (
     NEW_APPT,
     SKIPPED_APPT,
 )
-from ..utils import update_unscheduled_appointment_sequence
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -50,10 +49,6 @@ class AppointmentViewMixin:
             if self.appointment.related_visit:
                 report_datetime = self.appointment.related_visit.report_datetime
                 kwargs.update(report_datetime=report_datetime)
-        else:
-            update_unscheduled_appointment_sequence(
-                subject_identifier=self.subject_identifier,
-            )
         has_call_manager = True if django_apps.app_configs.get("edc_call_manager") else False
         kwargs.update(
             appointment=self.appointment,

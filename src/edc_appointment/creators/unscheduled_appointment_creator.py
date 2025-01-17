@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Any
 
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.db import IntegrityError
 from edc_utils import formatted_datetime, to_utc
 from edc_utils.date import to_local
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -145,8 +144,6 @@ class UnscheduledAppointmentCreator:
                 )
             except CreateAppointmentError:
                 raise
-            # except IntegrityError as e:
-            #     raise CreateAppointmentError(e)
             except AppointmentWindowError as e:
                 msg = str(e).replace("Perhaps catch this in the form", "")
                 raise UnscheduledAppointmentError(

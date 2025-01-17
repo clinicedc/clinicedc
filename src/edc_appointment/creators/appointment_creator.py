@@ -19,6 +19,7 @@ from ..utils import (
     get_appointment_type_model_cls,
     get_appt_reason_default,
     get_appt_type_default,
+    reset_visit_code_sequence_or_pass,
 )
 
 if TYPE_CHECKING:
@@ -170,41 +171,16 @@ class AppointmentCreator:
                     **self.options, **extra_opts
                 )
         except IntegrityError as e:
-            # TODO: if adding unschedule with duplicate sequence ...
-            if self.visit_code_sequence > 0:
-                # confirm makes sense relative to appt_datetime or raise
-                # if not raise!
-
-                # else: increment visit code seq for appts after the proposed appt
-                options = dict(
+            raise IntegrityError(f"{errmsg} Got {e}.")
+        else:
+            if appointment.visit_code_sequence > 0:
+                appointment = reset_visit_code_sequence_or_pass(
                     subject_identifier=self.subject_identifier,
                     visit_schedule_name=self.visit_schedule_name,
                     schedule_name=self.schedule_name,
                     visit_code=self.visit.code,
+                    appointment=appointment,
                 )
-                if self.site:
-                    options.update(site_id=self.site.id)
-                for appt in self.appointment_model_cls.objects.filter(
-                    visit_code_sequence__gte=self.visit_code_sequence, **options
-                ).order_by("visit_code_sequence"):
-                    appt.visit_code_sequence = appt.visit_code_sequence + 1
-                    appt.save_base(update_fields=["visit_code_sequence"])
-
-                # try again
-                with transaction.atomic():
-                    try:
-                        appointment = self.appointment_model_cls.objects.create(
-                            **self.options, **extra_opts
-                        )
-                    except IntegrityError as e:
-                        raise IntegrityError(f"{errmsg} Got {e}.")
-
-                # do something
-                # get appt with same sequence
-                # inspect date
-                # use save_base to chenge
-            else:
-                raise IntegrityError(f"{errmsg} Got {e}.")
         return appointment
 
     def _update(self, appointment=None) -> Appointment:
